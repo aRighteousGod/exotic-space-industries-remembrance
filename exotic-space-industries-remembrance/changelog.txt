@@ -1,0 +1,265 @@
+---------------------------------------------------------------------------------------------------
+Version: Remembrance 1.0.0.0 (Formerly 1.5.8)
+Date: 5-3-25
+    Additions:
+    -Six main menu background replacements, select a choice from startup options, defaults to Throne of Fleshed Glass.
+    -Soundtrack replacement for main menu.
+    -Full soundtrack replacement for Nauvis.
+    -Full soundtrack for Gaia.
+    -Pulsing idle glow for Arc Furnace.
+    -Pulsing idle glow for Plasma Heater.
+    -Import zh-CN locale from ai_cn by lyx_kljk.
+    Changes:
+    -Glass is now made from 1:4 from Industrial Glass.
+    -Sand:Industrial Glass ratio is now 64:1.
+    -Arc Furnace now maintains 12MW idle power draw unaffected by modules to preserve electrode readiness.
+    -Plasma Heater now has 24MW idle power draw unaffected by modules ensuring unbroken plasma confinement even while dormant.
+    -Fission research facility power draw 5MW -> 8.8MW.
+    -Wafer factory power draw 1MW -> 2.4MW.
+    -Deep drill power draw 1MW -> 4.2MW.
+    -Caster power draw 300kW -> 1.2MW.
+    -Crystal grower power draw 450kW -> 1.6MW.
+    -Purifier power draw 450kW -> 2MW.
+    -Distillation tower power draw 200kW -> 3.2MW.
+    -Crusher power draw 150kW -> 900kW.
+    -Nuclear waste dump working power draw 0 -> 5MW.
+    -Nuclear waste dump working pollution 0 -> 5.
+    -Gate energy buffer 5GJ -> 50GJ.
+    -Gate energy buffer maximum inflow rate 100MW -> 1GW.
+    -Gate energy usage 20MW -> 200MW.
+    -Gate activation threshold moved from 20% -> 90%.
+    -Gate per item energy requirement now assesses raw material costs instead of a flat cost.
+    -reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
+    Fixes:
+    -Avoiding gate energy draw no longer possible.
+    -Internal name for Gaia planet reverted to gaia, external name Gaia, preserving existing save files which did not have malformed Gaia generation settings. A dummy prototype remains as to not invalidate 1.5.7 saves before the on-load migration. If upgrading from 1.5.6 or before, you will no longer need to update your ship schedule. If from 1.5.7, you will need to update your ship schedule, and Gaia may display in category Other until clicked on to refresh it.
+
+---------------------------------------------------------------------------------------------------
+Version: 1.5.7
+Date: 4-30-25
+    Additions:
+    -EM Train Carriages now glow alongside EM Locomotives
+    Changes:
+    -lang_ru updated by ashot15
+    -ei_rng switched from UPS expensive factorio rng to deterministic linear congruential generator
+    Fixes:
+    -reforge_gaia behavior corrected, recursion stabilized. You will need to correct your ship schedule.
+    -alien_spawner.lua transitioned from math.rand to ei_rng
+
+---------------------------------------------------------------------------------------------------
+Version: 1.5.6
+Date: 4-19-25
+    Changes:
+    -All (newly coded) math.rand switched to mp friendly synced variants reported by @debuasgaming
+---------------------------------------------------------------------------------------------------
+Version: 1.5.5
+Date: 4-17-25
+  Additions:
+    -Crystal_echo ei_lib command to support colorful printed messages
+    -Custom HID headlights for EM trains. Also projects behind at reduced power.
+    -Custom underglow for EM trains while loading/unloading.
+    -6 Custom whooshing noises for EM trains moving down tracks.
+    -6 Custom crash noises for EM trains.
+    -Custom brake sound for EM trains.
+    -Warp in effect on login ;)
+    -Train diagnostic readout on researching any buff or startup configuration change.
+    -EM Charger Glow, EM Train Glow added to startup settings as startup toggles.
+    -EM Charger glow fade duration and EM train glow fade duration added as startup numeric values.
+    -EM Updater Ring que width added as startup numeric value.
+    -EM Updater Ring que transparency added as startup numeric value.
+    -EM Updater Ring que fade duration added as startup numeric value.
+  Changes:
+    -EM Updater Ring que customization added, indicated color will now reflect working/offline/error/etc status.
+    -AAI burner lab disabled due to overlap with EI burner lab. Reported by @L??M??3674
+  Fixes:
+    -Gaia correctly receives autoplacement instructions IE the 5 Exotic Industries specific resources will now consistently spawn.. WHEN YOU CONNECT ON CONFIGURATION CHANGE GAIA WILL BE SCANNED AND IF NONE OF THE CUSTOM RESOURCES ARE FOUND, DESTROYED AND REGENERATED ... PLAYERS WILL BE TELEPORTED TO NAUVIS.
+    -EI tanks requirements for previous tier fixed, previously Spherical tank required Silo tank. Reported by @crysiszocker1
+    -Loader prototype complexity setting toggle works again.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.4
+Date: 4-16-25
+  Changes:
+   -K2 import related errors will log errors instead of preventing game from loading at all
+  Fixes:
+   -Duplicate map gen preset name removed from RU locale
+
+---------------------------------------------------------------------------------------------------
+Version: 1.5.3
+Date: 4-15-25
+  Additions:
+   -Custom sound effects for EM trains & cargo wagons
+
+---------------------------------------------------------------------------------------------------
+Version: 1.5.2
+Date: 4-15-25
+  Fixes:
+   -Commented out a naughty line related to inhibitor lamp
+   -Removed errant deregister call from update charger.
+   -Removed register charger debug output.
+
+---------------------------------------------------------------------------------------------------
+Version: 1.5.1
+Date: 4-15-25
+  Additions:
+    - Imported ru, zh locales from previous repository, applied pull from @astorin, now committed.. likely requires updates which will require native speaker
+    - Visual indicators added for EM train charger -> train energy transfer process. Style can be set in startup settings to either Beam, Ring, or off.
+    - Colorful glow effects have been added to the EM charger & trains.
+    - ei_lib.recipe_output_add() added to support Ash & Slag implementation.
+    - Lithium chloride recipe consisting of x50 Lithium brine & x10 Hydrogen Chloride
+  Changes:
+    - EM trains will now reinitialize on configuration change, this mitigates certain somewhat intangible issues.
+    - EM trains updater no longer loops buffs each tick. Now they are checked on configuration change and finishing research.
+    - Diurnal Dynamics, Distant Misfires, Fire Lights, Visible Pollution, Light Overhaul, Pro Flashlight, and Overloaded Trains added to optional dependencies. Diurnal Dynamics provides for darker, 50% longer nights and space platforms which darken with distance from the sun. Distant Misfires transforms projectiles into physically simulated entities capable of missing. Fire lights adds lights and/or glow effects to all projectiles, fires, etc. Visible Pollution adds a visible smog cloud which affects gameplay by obscuring solar panels and reducing their output, incentivizing solar builds away from your main pollution clouds. Light Overhaul provides an improved flashlight, increases nighttime contrast, and reduces the desaturation of nightvision. Pro Flashlight causes you to aim your flashlight at highlighted entities when standing still. Overloaded Trains will cause the weight of cargo to affect train acceleration, top speed and deceleration. These can impact UPS and are removable at any time.
+  Fixes:
+    - Lithium chloride recipe restored and added to Lithium technology
+    - EM train charger properly counts nearby tiles-Overlaps will double charge.
+    - EM train charger no longer provides infinite energy if you power it up and then remove the electric network connection.
+    - EM trains/chargers no longer draw power assuming a 60 tick update cycle, now adjusts to the updaters tick settings.
+    - ei_lib.add_unlock_recipe reworked with sanity checks and improved debug output.
+    - Lignumis no longer adds unbuildable steam-science-pack to Gaia & some others
+
+---------------------------------------------------------------------------------------------------
+Version: 1.5.0
+Date: 4-13-25
+  Changes:
+    - EI Storage tanks adjusted to provide iron:storage capacity ratios superior to the stock tank. Health was also increased and resistances to physical, impact, and fire added. The ratios are: stock tank-555:1, tank1-600:1, tank2:666:1, tank3:750:1.
+  Fixes:
+    - Tooltips added for metalworks recipes, arc furnace, purifier, crusher, biolab.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.9
+Date: 4-11-25
+  Changes:
+    - Loader electricity usage adjusted and now increases per tier
+  Fixes:
+    - Sanity check when creating insulated/data pipe from default pipe, this mitigates crashes caused by multi layered sprites. (Revealed by Muluna 1.34.2) While it will not crash, other mods changing entities to use multiple layer sprites will cause insulated/data pipe graphics to display incorrectly. Proper resolution pending.
+    - Electronic components now tied to EI electronic parts technology. Reported by @Vasishtha
+    - Spidertron limiter updated to use 2.0s new lua logistics commands, setting a logistic request on the spidertron will no longer cause a crash. Reported by @debuasgaming
+---------------------------------------------------------------------------------------------------
+Version: 1.4.8
+Date: 4-10-25
+  Additions:
+    - Colorful animated glow effects for Arc Furnace, Plasma Heater, Gate, & Caster working states. (Current sprites imported from Glow Trees; credit to asher_sky)
+    - Loader Complexity Patch: Startup setting which significantly increases material input complexity for loaders and REWARDS YOU by enabling filtering for the Express loader and stacking for the Neodymium loader
+    - Rocket lift capacity multiplier added to startup settings
+    - Entity update cycle length adjustment added to startup settings. This setting determines over how many ticks the 8 entity update stages run. Default 60 ie all entities are looped once per 60 ticks ie 1 second
+  Changes:
+    - Loaders now require electricity and can be wired
+    - Arc Furnace energy requirement 5MW -> 30MW, pollution value 0 -> 6
+    - Plasma Heater energy requirement 20Mw -> 70MW, craft speed 1 -> 1.25, now accepts Quality module, pollution value 0 -> 3
+    - Caster module slots 1 -> 2, now accepts Quality module, pollution value 0 -> 1
+    - Skip converting Fulgora oceans into crude oil if Fulgora Extended is enabled & chemical-mire-gives-muck is enabled
+  Fixes:
+    - Additional checks to prevent null references in on tick updater & gate updater
+    - Startup settings tooltips were configured inconsistently, tooltips should all work now
+  Notes:
+    - Several quick fixes have been implemented to allow the use of K2 imports, final implementations pending
+---------------------------------------------------------------------------------------------------
+Version: 1.4.3
+Date: 04-04-25
+  Changes:
+    - UPS optimisation, thanks to 1righteousgod @ Discord
+    - Bugfixes
+---------------------------------------------------------------------------------------------------
+Version: 1.4.0
+Date: 03-04-25
+  Changes:
+    - Platform requests scanner - constant combinator outputting orbiting platform requests sorted by platforms. Can be connected to logistic container in set requests mode.
+    - Ported Fueler Tower, can insert burnable fuel to vehicles and take burnt results
+    - Also made fueler supply ammo-turret, artillery-turret, artillery-wagon in range from it own inventory 
+    - Fueler inventory larger and support filters
+    - Ported supersonic EM-trains, with working to full extent EM trains upgrade technologies
+    - Ported several Krastorio entities: steel pipe, steel pump, planetary teleporter, wind turbine, gas power station, energy storage, deitherium fusion reactor, advanced steam turbine, antimatter reactor, immersite quarry drill, small roboport, big roboport, greenhouse, electrolysis plant, filtration plant, atmospheric condenser, fluid flare stack, advanced chemical plant, quantum computer, matter plant, matter associator, stablizer charging station, air purifier, fluids, intermediates, immersite and antimatter ammo and rockets, and intergalactic transceiver
+    - Rockets can lift up to 20 tons, starter pack weight 20T and create platform with 2000 foundation
+    - Larger rocket silo inventory, use custom minimum payload from hub gui to deliver underfull rockets
+    - Biolabs feed on nutrients instead of electricity
+    - Stone brick can be crushed back to stone  
+    - Large foundry fluid buffer
+    - Can dump items to water tiles on Nauvis, Gleba, Aquilo as well as on Fulgora
+    - Oil ocean yields crude oil
+    - Artificial soil can be placed anywhere
+  Notes:
+    - Plans to rework rockets later with expensive but reusable carrier rockets and expendable cargo pods
+    - Port more entities to place in Simulation Computer Age stage thats looks quite empty now comparing to others
+    - Will balance / simplify / merge recipes and items during gameplay
+    - K2 intergalactic transceiver - working, but without victory trigger, for use in scenario, that, maybe will be later
+---------------------------------------------------------------------------------------------------
+Version: 1.3.6
+Date: 18-03-25
+  Changes:
+    - AAI: burner-assembling-machine replaced in recipes with ei-steam-assembler
+    - Laser tech prerequisites fix
+---------------------------------------------------------------------------------------------------
+Version: 1.3.5
+Date: 18-03-25
+  Changes:
+    - Yellow splitter and loader use iron-mechanical-parts
+    - Some tech order and unlocks glitches fixed 
+---------------------------------------------------------------------------------------------------
+Version: 1.3.3
+Date: 16-03-25
+  Changes:
+    - Buffed pure ore - molten - cast recipes
+    - Option to disable EI dynamic tech scaling
+    - New recipe: ammonia gas => ammonia in hypercooler
+    - Fixed ei-fusion ( Thermonuclear fusion reactor )
+    - Concrete and refined-concrete need iron-stick instead of mechanical parts again
+    - Lignumis Compatibility fixes, locale fixes
+---------------------------------------------------------------------------------------------------
+Version: 1.3.0
+Date: 12-03-25
+  Changes:
+    - Dedicated filter inserter gone, as all inserters can now filter
+    - Filter EI containers now 20 / 40 / 120 slots, non-filter 50 / 250 / 1000
+    - Fixed some locale strings
+    - Removed duplicating recipes - iron and copper smelting 
+    - aai-industry: added stone-tablet recipe unlock to electronics
+---------------------------------------------------------------------------------------------------
+Version: 1.2.1
+Date: 09-03-25
+  Changes:
+    - Option to setup all trigger tech with Computer Age science packs.
+    - Morphium pools on Gaia can be landfilled
+    - Reduced build restricted area behind thrusters.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.0
+Date: 04-03-25
+  Changes:
+    - Basic Lignumis Compatibility
+    - Wood science pack => Dark Age science pack 
+    - Steam science pack => Steam Age science pack  
+    - This two recipes changed to Lignumis ones
+    - Some starting recipes shifted to steam age
+---------------------------------------------------------------------------------------------------
+Version: 1.1.3
+Date: 03-03-25
+  Changes:
+    - Compatibility 
+    - Localization 
+    - Check and remove hidden tech in prerequisites rendering tech unresearchable
+    - Option to flatten tech tree (default off)
+---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 01-03-25
+  Changes:
+    - Compatibility fixes
+  Marked as conflicting:
+    - tenebris
+    - tenebris-prime
+    - WideChests
+    - factorioplus
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 01-03-25
+  Changes:
+    - Many fixes for compatibility between different mods
+    - Some fixes for future compatibility between different planets 
+    - May dump items into water tiles on main planets
+    - Poor chunks removed
+    - Some vanilla changes reverted, sticks, gears craftable
+    - EI containers / loaders / advanced bots back on menu, fueler and trains not yet, later
+    - Muluna (planet-muluna) compatibility
+    - Fixed recipes
+    - Foxed localization
+[v1.5.5] - 2025-04-17
+
+[v1.5.5] - 2025-04-17

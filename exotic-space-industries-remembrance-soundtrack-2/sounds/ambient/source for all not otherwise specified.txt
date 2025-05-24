@@ -1,0 +1,4 @@
+https://opengameart.org
+CC-BY 3.0
+https://creativecommons.org/licenses/by/3.0/
+Only track title changes are removal of spaces, lowercasing, and adding gaia in front of gaia tracks.
