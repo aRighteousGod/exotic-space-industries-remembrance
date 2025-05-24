@@ -49,8 +49,25 @@ em_trains_informatron = require("scripts/control/em-trains/informatron")
 orbital_combinator = require("scripts/control/orbital_combinator")
 
 --====================================================================================================
+--K2_CONTROL
+--====================================================================================================
+
+local handler = require("__core__.lualib.event_handler")
+
+handler.add_libraries({
+  require("__flib__.gui"),
+
+  require("K2_CONTROL.migrations"),
+  require("K2_CONTROL.intergalactic-transceiver"),
+  require("K2_CONTROL.planetary-teleporter-gui"), -- Must be before planetary-teleporter
+  require("K2_CONTROL.planetary-teleporter"),
+})
+
+--====================================================================================================
 --EVENTS
 --====================================================================================================
+
+
 
 --INIT
 ------------------------------------------------------------------------------------------------------

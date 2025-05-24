@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
-Version: Remembrance 1.0.0.0 (Formerly 1.5.8)
+Version: Remembrance 1.0.0 (ESI 1.5.8)
 Date: 5-3-25
     Additions:
     -Six main menu background replacements, select a choice from startup options, defaults to Throne of Fleshed Glass.
@@ -8,10 +8,13 @@ Date: 5-3-25
     -Full soundtrack for Gaia.
     -Pulsing idle glow for Arc Furnace.
     -Pulsing idle glow for Plasma Heater.
-    -Import zh-CN locale from ai_cn by lyx_kljk.
+    -Import zh-CN locale from ai_cn by @lyx_kljk.
     Changes:
+    -RU locale updated by @Hoochie63
     -Glass is now made from 1:4 from Industrial Glass.
-    -Sand:Industrial Glass ratio is now 64:1.
+    -Sand:Industrial Glass ratio is now 64:1 in furnaces.
+    -Sand:Molten Glass ratio is now 480:50 in the Arc Furnace & Plasma Heater.
+    -Molten Glass:Industrial Glass ratio remains 5:1, meaning by default
     -Arc Furnace now maintains 12MW idle power draw unaffected by modules to preserve electrode readiness.
     -Plasma Heater now has 24MW idle power draw unaffected by modules ensuring unbroken plasma confinement even while dormant.
     -Fission research facility power draw 5MW -> 8.8MW.

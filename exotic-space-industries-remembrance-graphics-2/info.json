@@ -1,0 +1,12 @@
+{
+    "name": "exotic-space-industries-remembrance-graphics-2",
+    "version": "1.0.0",
+    "title": "Exotic Space Industries: Remembrance Graphics 2",
+    "author": "PreLeyZero, Eliont, aRighteousGod",
+    "factorio_version": "2.0",
+    "license": "GPL-3.0-or-later",
+    "description": "ESI:R Graphics Dependency Volume 2.",
+    "dependencies": [
+        "base >= 2.0.0"
+    ]
+}
