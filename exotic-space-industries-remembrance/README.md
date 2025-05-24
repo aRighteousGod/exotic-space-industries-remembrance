@@ -49,7 +49,7 @@ Open an Issue or Discussion on the GitHub page, or ping **1righteousgod** on Dis
 Pull requests that respect the GPL and the mod’s design ethos are welcomed.
 
 ## ESI:Remembrance Github Branch Link
-REPLACEME
+https://github.com/aRighteousGod/exotic-space-industries-remembrance
 
 ## ESI:Remembrance Mod Portal Branch Link
 REPLACEME

@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 # --- CONFIGURATION ---
 $modName = "exotic-space-industries-remembrance-graphics-3"
-$modSource = Join-Path ".\" $modName
+$modSource = (Resolve-Path (Join-Path "." $modName)).Path
 $info = Get-Content (Join-Path $modSource "info.json") | ConvertFrom-Json
 $version = $info.version
 $folderName = "${modName}_${version}"
@@ -26,7 +26,7 @@ $zip = [System.IO.Compression.ZipFile]::Open($zipPath, 'Create')
 
 # Add files manually, preserving correct structure, SKIPPING forbidden paths
 Get-ChildItem -Recurse -File $modSource | ForEach-Object {
-    $relativePath = $_.FullName.Substring($modSource.Length).TrimStart('\')
+    $relativePath = $_.FullName.Substring($modSource.Length).TrimStart('\','/')
     $relativePathParts = $relativePath -split '\\'
 
     # Check if any part of the path matches forbidden folders

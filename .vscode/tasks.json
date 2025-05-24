@@ -1,0 +1,96 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run scripts process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "../process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run graphics1 process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "../graphics1_process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run graphics2 process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "../graphics2_process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run graphics3 process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "../graphics3_process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run soundtrack1 process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "../soundtrack1_process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run soundtrack2 process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "../soundtrack2_process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+  
