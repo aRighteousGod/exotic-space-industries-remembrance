@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-air-purifier",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/air-purifier.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/air-purifier.png",
     subgroup = "production-machine",
     order = "z[air-purifier]",
     place_result = "kr-air-purifier",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "furnace",
     name = "kr-air-purifier",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/air-purifier.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/air-purifier.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 0.5, result = "kr-air-purifier" },
     result_inventory_size = 1,
@@ -51,14 +51,14 @@ data:extend({
     close_sound = sounds.machine_close,
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
-      sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/air-purifier.ogg" },
+      sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/air-purifier.ogg" },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
     },
     graphics_set = {
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/air-purifier/air-purifier.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/air-purifier/air-purifier.png",
             priority = "high",
             width = 150,
             height = 150,
@@ -69,7 +69,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/air-purifier/air-purifier-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/air-purifier/air-purifier-sh.png",
             priority = "high",
             width = 164,
             height = 102,
@@ -83,7 +83,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/air-purifier/air-purifier-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/air-purifier/air-purifier-reflection.png",
           priority = "extra-high",
           width = 20,
           height = 25,

@@ -7,7 +7,7 @@ data:extend({
     hidden = true,
     subgroup = "explosions",
     animations = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/laser-explosion.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/explosions/laser-explosion.png",
       width = 300,
       height = 300,
       frame_count = 47,

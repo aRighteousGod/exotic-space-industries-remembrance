@@ -3,7 +3,7 @@ data:extend({
     type = "technology",
     name = "kr-advanced-pickaxe",
     icon_size = 256,
-    icons = util.technology_icon_constant_mining("__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/imersium-pickaxe.png"),
+    icons = util.technology_icon_constant_mining(ei_graphics_3_path.."K2_ASSETS/technologies/imersium-pickaxe.png"),
     unit = {
       time = 60,
       count = 200,
@@ -22,7 +22,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-advanced-tech-card",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/advanced-tech-card.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/advanced-tech-card.png",
     icon_size = 256,
     unit = {
       time = 45,
@@ -41,7 +41,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-energy-control-unit",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/energy-control-unit.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/energy-control-unit.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -60,7 +60,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-energy-storage",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/energy-storage.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/energy-storage.png",
     icon_size = 256,
     unit = {
       time = 45,
@@ -79,7 +79,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-imersium-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/imersium-processing.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/imersium-processing.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -100,7 +100,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-improved-pollution-filter",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/improved-pollution-filter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/improved-pollution-filter.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -121,7 +121,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-coal-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-coal.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-coal.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -139,7 +139,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-copper-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-copper.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-copper.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -157,7 +157,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-iron-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-iron.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-iron.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -175,7 +175,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-minerals-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-minerals.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-minerals.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -193,7 +193,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-oil-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-oil.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-oil.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -211,7 +211,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-processing.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-processing.png",
     icon_size = 256,
     order = "g-e-d",
     unit = {
@@ -235,7 +235,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-rare-metals-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-rare-metals.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-rare-metals.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -253,7 +253,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-rare-metals-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-rare-metals.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-rare-metals.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -271,7 +271,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-stone-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-stone.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-stone.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -289,7 +289,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-stone-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-stone.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-stone.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -307,7 +307,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-uranium-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-uranium.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-uranium.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -325,7 +325,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-water-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-water.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-water.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -343,7 +343,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-water-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-water.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-water.png",
     icon_size = 256,
     order = "g-e-e",
     unit = {
@@ -361,7 +361,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-robot-battery-plus",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/robot-battery-plus.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/robot-battery-plus.png",
     icon_size = 256,
     unit = {
       time = 45,

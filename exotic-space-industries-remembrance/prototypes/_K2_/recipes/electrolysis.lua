@@ -26,7 +26,7 @@ data:extend({
   {
     type = "recipe",
     name = "kr-water-electrolysis",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/water-electrolysis.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/water-electrolysis.png",
     icon_size = 128,
     subgroup = "fluid-recipes",
     order = "y01[water-electrolysis]",
@@ -52,7 +52,7 @@ data:extend({
     name = "kr-water-separation",
     subgroup = "fluid-recipes",
     order = "y02[water-separation]",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/water-separation.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/water-separation.png",
     icon_size = 128,
     enabled = false,
     category = "electrolysis",
@@ -73,7 +73,7 @@ data:extend({
   {
     type = "recipe",
     name = "lithium",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/lithium.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/lithium.png",
     subgroup = "raw-material",
     order = "h2[lithium]",
     enabled = false,

@@ -17,7 +17,7 @@ data:extend({
   {
     type = "item",
     name = "kr-fusion-reactor",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/fusion-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/fusion-reactor.png",
     subgroup = "energy",
     order = "f[nuclear-energy]-b2[fusion-reactor]",
     place_result = "kr-fusion-reactor",
@@ -26,7 +26,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-fusion-reactor",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/fusion-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/fusion-reactor.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { hardness = 1, mining_time = 3, result = "kr-fusion-reactor" },
     max_health = 7500,
@@ -67,12 +67,12 @@ data:extend({
       emissions_per_minute = { pollution = 5 },
     },
     energy_usage = "483.4MW",
-    open_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
-    close_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/close.ogg", volume = 0.85 },
+    open_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
+    close_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/close.ogg", volume = 0.85 },
     vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/fusion-reactor.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/fusion-reactor.ogg",
         volume = 1.25,
         audible_distance_modifier = 10,
       },
@@ -82,14 +82,14 @@ data:extend({
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor.png",
             width = 1100,
             height = 1100,
             scale = 0.5,
             shift = { 1.01, 0 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-shadow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-shadow.png",
             priority = "medium",
             width = 1100,
             height = 1100,
@@ -102,7 +102,7 @@ data:extend({
       working_visualisations = {
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-steam.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-steam.png",
             priority = "extra-high",
             line_length = 10,
             width = 40,
@@ -118,7 +118,7 @@ data:extend({
         },
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-steam.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-steam.png",
             priority = "extra-high",
             line_length = 10,
             width = 40,
@@ -134,7 +134,7 @@ data:extend({
         },
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-animation-glow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-animation-glow.png",
             priority = "high",
             line_length = 6,
             width = 626,
@@ -150,7 +150,7 @@ data:extend({
         {
           draw_as_light = true,
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-animation-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-animation-light.png",
             line_length = 6,
             width = 626,
             height = 688,
@@ -162,7 +162,7 @@ data:extend({
         },
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-light.png",
             priority = "high",
             width = 1100,
             height = 1100,
@@ -177,7 +177,7 @@ data:extend({
         },
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-animation.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-animation.png",
             line_length = 6,
             width = 626,
             height = 688,
@@ -198,7 +198,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/fusion-reactor/fusion-reactor-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/fusion-reactor/fusion-reactor-reflection.png",
           priority = "extra-high",
           width = 110,
           height = 110,

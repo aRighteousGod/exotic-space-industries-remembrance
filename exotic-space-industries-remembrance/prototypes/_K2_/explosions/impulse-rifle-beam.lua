@@ -9,7 +9,7 @@ data:extend({
     beam = true,
     animations = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/impulse-rifle-beam.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/impulse-rifle-beam.png",
         priority = "extra-high",
         draw_as_glow = true,
         width = 62,

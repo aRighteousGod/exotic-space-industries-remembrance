@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "automation-science-pack",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/automation-tech-card.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/automation-tech-card.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -19,7 +19,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-automation-core",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/automation-core.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/automation-core.png",
     icon_size = 256,
     unit = {
       time = 10,
@@ -38,7 +38,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-greenhouse",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/greenhouse.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/greenhouse.png",
     icon_size = 256,
     unit = {
       time = 45,
@@ -58,7 +58,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-iron-pickaxe",
-    icons = util.technology_icon_constant_mining("__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/iron-pickaxe.png"),
+    icons = util.technology_icon_constant_mining(ei_graphics_3_path.."K2_ASSETS/technologies/iron-pickaxe.png"),
     order = "b-c-a",
     unit = {
       time = 30,

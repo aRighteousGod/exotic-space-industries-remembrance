@@ -7,7 +7,7 @@
         "command": "powershell",
         "args": [
           "-ExecutionPolicy", "Bypass",
-          "-File", "../process.ps1"
+          "-File", "${workspaceFolder}/process.ps1"
         ],
         "presentation": {
           "echo": true,
@@ -22,7 +22,7 @@
         "command": "powershell",
         "args": [
           "-ExecutionPolicy", "Bypass",
-          "-File", "../graphics1_process.ps1"
+          "-File", "${workspaceFolder}/graphics1_process.ps1"
         ],
         "presentation": {
           "echo": true,
@@ -37,7 +37,7 @@
         "command": "powershell",
         "args": [
           "-ExecutionPolicy", "Bypass",
-          "-File", "../graphics2_process.ps1"
+          "-File", "${workspaceFolder}/graphics2_process.ps1"
         ],
         "presentation": {
           "echo": true,
@@ -52,7 +52,7 @@
         "command": "powershell",
         "args": [
           "-ExecutionPolicy", "Bypass",
-          "-File", "../graphics3_process.ps1"
+          "-File", "${workspaceFolder}/graphics3_process.ps1"
         ],
         "presentation": {
           "echo": true,
@@ -67,7 +67,7 @@
         "command": "powershell",
         "args": [
           "-ExecutionPolicy", "Bypass",
-          "-File", "../soundtrack1_process.ps1"
+          "-File", "${workspaceFolder}/soundtrack1_process.ps1"
         ],
         "presentation": {
           "echo": true,
@@ -82,7 +82,7 @@
         "command": "powershell",
         "args": [
           "-ExecutionPolicy", "Bypass",
-          "-File", "../soundtrack2_process.ps1"
+          "-File", "${workspaceFolder}/soundtrack2_process.ps1"
         ],
         "presentation": {
           "echo": true,

@@ -20,7 +20,7 @@ data:extend({
   {
     type = "item",
     name = "kr-big-roboport",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/big-roboport.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/big-roboport.png",
     subgroup = "logistic-network",
     order = "c[signal]-c[big-roboport]",
     place_result = "kr-big-roboport",
@@ -29,7 +29,7 @@ data:extend({
   {
     type = "roboport",
     name = "kr-big-roboport",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/big-roboport.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/big-roboport.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation", "not-rotatable" },
     minable = { mining_time = 1, result = "kr-big-roboport" },
     collision_box = { { -3.75, -3.38 }, { 3.99, 3.75 } },
@@ -119,14 +119,14 @@ data:extend({
     base = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport.png",
           width = 560,
           height = 560,
           shift = { 0, 0.08 },
           scale = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-sh.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-sh.png",
           width = 626,
           height = 426,
           shift = { 1.1, 1.19 },
@@ -136,7 +136,7 @@ data:extend({
       },
     },
     base_patch = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-patch.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-patch.png",
       width = 138,
       height = 112,
       shift = { 0, 0.28 },
@@ -145,7 +145,7 @@ data:extend({
     base_animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-animation.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-animation.png",
           priority = "medium",
           width = 350,
           height = 286,
@@ -157,7 +157,7 @@ data:extend({
           animation_speed = 0.1,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-animation-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-animation-light.png",
           priority = "high",
           width = 350,
           height = 286,
@@ -171,7 +171,7 @@ data:extend({
       },
     },
     door_animation_up = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-door-up.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-door-up.png",
       priority = "medium",
       width = 98,
       height = 38,
@@ -180,7 +180,7 @@ data:extend({
       shift = { 0, -0.86 },
     },
     door_animation_down = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-door-down.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-door-down.png",
       priority = "medium",
       width = 98,
       height = 36,
@@ -191,7 +191,7 @@ data:extend({
     recharging_animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-recharging.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-recharging.png",
           priority = "high",
           width = 37,
           height = 35,
@@ -201,7 +201,7 @@ data:extend({
           animation_speed = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-recharging-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-recharging-light.png",
           priority = "high",
           width = 37,
           height = 35,
@@ -221,7 +221,7 @@ data:extend({
     draw_construction_radius_visualization = true,
     water_reflection = {
       pictures = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/big-roboport/big-roboport-reflection.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/big-roboport/big-roboport-reflection.png",
         priority = "extra-high",
         width = 60,
         height = 60,

@@ -6,7 +6,7 @@ data:extend({
     hidden = true,
     animations = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/beacon-explosion.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/beacon-explosion.png",
         animation_speed = 0.25,
         scale = 0.75,
         width = 932,
@@ -21,7 +21,7 @@ data:extend({
       aggregation = { max_count = 1, remove = true },
       variations = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/others/intergalactic-transceiver-win-wave.ogg",
+          filename = ei_graphics_3_path.."K2_ASSETS/sounds/others/intergalactic-transceiver-win-wave.ogg",
           volume = 0.8,
         },
       },

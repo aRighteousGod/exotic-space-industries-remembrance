@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-planetary-teleporter",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/planetary-teleporter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/planetary-teleporter.png",
     subgroup = "energy-pipe-distribution",
     order = "z-z-b[kr-planetary-teleporter]",
     place_result = "kr-planetary-teleporter",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "accumulator",
     name = "kr-planetary-teleporter",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/planetary-teleporter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/planetary-teleporter.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation", "not-rotatable" },
     map_color = { r = 0.337, g = 0.011, b = 0.184 },
     minable = { mining_time = 10, result = "kr-planetary-teleporter" },
@@ -52,15 +52,15 @@ data:extend({
       usage_priority = "tertiary",
       output_flow_limit = "0W",
     },
-    open_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/planetary-teleporter-open-sound.ogg", volume = 1 },
+    open_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/planetary-teleporter-open-sound.ogg", volume = 1 },
     close_sound = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/planetary-teleporter-close-sound.ogg",
+      filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/planetary-teleporter-close-sound.ogg",
       volume = 0.8,
     },
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/planetary-teleporter-working-sound.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/planetary-teleporter-working-sound.ogg",
         volume = 0.50,
       },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
@@ -70,7 +70,7 @@ data:extend({
       picture = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/planetary-teleporter-shadow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/planetary-teleporter-shadow.png",
             priority = "low",
             width = 531,
             height = 292,
@@ -82,7 +82,7 @@ data:extend({
             shift = { 1.9, 1.2 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined.png",
             priority = "medium",
             width = 400,
             height = 475,
@@ -92,7 +92,7 @@ data:extend({
             animation_speed = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-under-forward-towers.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-under-forward-towers.png",
             priority = "medium",
             width = 400,
             height = 475,
@@ -101,7 +101,7 @@ data:extend({
             animation_speed = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow.png",
             priority = "high",
             width = 400,
             height = 475,
@@ -114,7 +114,7 @@ data:extend({
             blend_mode = "additive-soft",
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow.png",
             priority = "extra-high",
             width = 400,
             height = 475,
@@ -126,7 +126,7 @@ data:extend({
             blend_mode = "additive-soft",
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-forward-towers-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-forward-towers-light.png",
             priority = "extra-high",
             width = 400,
             height = 475,
@@ -140,7 +140,7 @@ data:extend({
       charge_animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/planetary-teleporter-shadow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/planetary-teleporter-shadow.png",
             priority = "low",
             width = 531,
             height = 292,
@@ -152,7 +152,7 @@ data:extend({
             shift = { 1.9, 1.2 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined.png",
             priority = "medium",
             width = 400,
             height = 475,
@@ -162,7 +162,7 @@ data:extend({
             animation_speed = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-under-forward-towers.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-under-forward-towers.png",
             priority = "medium",
             width = 400,
             height = 475,
@@ -171,7 +171,7 @@ data:extend({
             animation_speed = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow-red.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow-red.png",
             flags = { "mask" },
             priority = "extra-high",
             width = 400,
@@ -184,7 +184,7 @@ data:extend({
             tint = { r = 1, g = 0, b = 0, a = 1 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow-red.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow-red.png",
             priority = "high",
             width = 400,
             height = 475,
@@ -197,7 +197,7 @@ data:extend({
             blend_mode = "additive-soft",
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow-red.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-base-combined-glow-red.png",
             priority = "extra-high",
             width = 400,
             height = 475,
@@ -209,7 +209,7 @@ data:extend({
             blend_mode = "additive-soft",
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-forward-towers-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-forward-towers-light.png",
             priority = "extra-high",
             width = 400,
             height = 475,
@@ -232,7 +232,7 @@ data:extend({
     collision_mask = { layers = {} },
     render_layer = "higher-object-above",
     picture = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/planetary-teleporter/teleporter-forward-towers.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/planetary-teleporter/teleporter-forward-towers.png",
       width = 400,
       height = 475,
       scale = 0.5,
@@ -265,7 +265,7 @@ data:extend({
   {
     type = "turret",
     name = "kr-planetary-teleporter-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/planetary-teleporter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/planetary-teleporter.png",
     flags = { "not-on-map", "not-selectable-in-game", "placeable-off-grid" },
     hidden = true,
     collision_mask = { layers = {} },

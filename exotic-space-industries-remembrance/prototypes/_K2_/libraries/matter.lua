@@ -31,9 +31,9 @@ function matter_lib.make_conversion_recipe(def)
       name = recipe_name,
       localised_name = { "recipe-name.to-matter", flib_locale.of(item_prototype) },
       icons = {
-        { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/arrows/arrow-m.png" },
+        { icon = ei_graphics_3_path.."K2_ASSETS/icons/arrows/arrow-m.png" },
         table.unpack(data_util.transform_icons(data_util.get_icons(item_prototype), { scale = 0.28, shift = { -8, -6 } })),
-        { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/matter.png", scale = 0.28, shift = { 4, 8 } },
+        { icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/matter.png", scale = 0.28, shift = { 4, 8 } },
       },
       category = "matter-conversion",
       subgroup = "matter-conversion",
@@ -76,8 +76,8 @@ function matter_lib.make_deconversion_recipe(def)
       localised_name = { "recipe-name.matter-to", flib_locale.of(item_prototype) },
       icons = flib_table.array_merge({
         {
-          { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/arrows/arrow-i.png" },
-          { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/matter.png", scale = 0.28, shift = { 8, -6 } },
+          { icon = ei_graphics_3_path.."K2_ASSETS/icons/arrows/arrow-i.png" },
+          { icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/matter.png", scale = 0.28, shift = { 8, -6 } },
         },
         data_util.transform_icons(data_util.get_icons(item_prototype), { scale = 0.28, shift = { -4, 8 } }),
       }),

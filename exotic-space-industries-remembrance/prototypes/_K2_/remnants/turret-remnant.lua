@@ -3,7 +3,7 @@ data:extend({
     type = "corpse",
     name = "turret-remnant",
     localised_name = { "entity-name.turret-remnant" },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/railgun-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/railgun-turret.png",
     flags = { "placeable-neutral", "building-direction-8-way", "not-on-map" },
     hidden_in_factoriopedia = true,
     subgroup = "remnants",
@@ -16,7 +16,7 @@ data:extend({
     final_render_layer = "remnants",
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet(1, {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/remnants/turret-remnant/turret-remnant.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/remnants/turret-remnant/turret-remnant.png",
       line_length = 1,
       width = 373,
       height = 253,

@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-matter-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/matter-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/matter-plant.png",
     subgroup = "production-machine",
     order = "i[matter]-a[matter-plant]",
     place_result = "kr-matter-plant",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-matter-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/matter-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/matter-plant.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-matter-plant" },
     collision_box = { { -3.25, -3.25 }, { 3.25, 3.25 } },
@@ -83,18 +83,18 @@ data:extend({
       { type = "fire", percent = 70 },
       { type = "impact", percent = 70 },
     },
-    open_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
-    close_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/close.ogg", volume = 1 },
+    open_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
+    close_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/close.ogg", volume = 1 },
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
-      sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/matter-plant.ogg" },
+      sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/matter-plant.ogg" },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
     },
     graphics_set = {
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-plant/matter-plant.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-plant/matter-plant.png",
             priority = "high",
             width = 462,
             height = 500,
@@ -103,7 +103,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-plant/matter-plant-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-plant/matter-plant-sh.png",
             priority = "high",
             width = 504,
             height = 444,
@@ -119,7 +119,7 @@ data:extend({
           draw_as_light = true,
           blend_mode = "additive-soft",
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-plant/matter-plant-working-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-plant/matter-plant-working-light.png",
             priority = "high",
             width = 462,
             height = 500,
@@ -135,7 +135,7 @@ data:extend({
           blend_mode = "additive-soft",
           synced_fadeout = true,
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-plant/matter-plant-working-glow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-plant/matter-plant-working-glow.png",
             priority = "high",
             width = 462,
             height = 500,
@@ -148,7 +148,7 @@ data:extend({
         },
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-plant/matter-plant-working.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-plant/matter-plant-working.png",
             width = 462,
             height = 500,
             frame_count = 30,

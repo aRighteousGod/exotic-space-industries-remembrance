@@ -134,9 +134,9 @@ function flare_stack_lib.make_recipe(fluid_name, fluid_emissions_multiplier, byp
       localised_name = { "recipe-name.kr-burn", fluid.localised_name or { "fluid-name." .. fluid_name } },
       icons = flib_table.array_merge({
         {
-          { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/burn-recipes-background/burn-recipe-corner.png" },
+          { icon = ei_graphics_3_path.."K2_ASSETS/icons/burn-recipes-background/burn-recipe-corner.png" },
           {
-            icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/burn-recipes-background/burn-recipe-corner-mask.png",
+            icon = ei_graphics_3_path.."K2_ASSETS/icons/burn-recipes-background/burn-recipe-corner-mask.png",
             tint = with_alpha(fluid.base_color, 0.9),
           },
         },

@@ -225,8 +225,8 @@ data:extend({
       name = "ei-menu-background",
       type = "string-setting",
       setting_type = "startup",
-      default_value = "Throne of Fleshed Glass",
-      allowed_values = {"Gaian Guardian", "Industry1","Industry2", "Angel1","Angel2","Throne of Fleshed Glass"},
+      default_value = "The Crystal That Screams",
+      allowed_values = {"Gaian Guardian", "Industry1","Industry2", "Angel1","Angel2","Throne of Fleshed Glass","The Crystal That Screams"},
       order  = "c1g",
   }
 })

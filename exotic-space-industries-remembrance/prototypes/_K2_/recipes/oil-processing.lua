@@ -2,7 +2,7 @@ data:extend({
   {
     type = "recipe",
     name = "coke-liquefaction",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/coke-liquefaction.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/coke-liquefaction.png",
     subgroup = "fluid-recipes",
     order = "a[oil-processing]-d[coke-liquefaction]",
     enabled = false,

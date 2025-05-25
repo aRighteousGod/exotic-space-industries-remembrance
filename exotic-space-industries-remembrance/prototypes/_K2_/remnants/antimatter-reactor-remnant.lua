@@ -3,7 +3,7 @@ data:extend({
     type = "corpse",
     name = "kr-antimatter-reactor-remnant",
     localised_name = { "remnant-name", { "entity-name.kr-antimatter-reactor" } },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/antimatter-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/antimatter-reactor.png",
     flags = { "placeable-neutral", "building-direction-8-way", "not-on-map" },
     hidden_in_factoriopedia = true,
     subgroup = "remnants",
@@ -16,7 +16,7 @@ data:extend({
     final_render_layer = "remnants",
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet(1, {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/remnants/antimatter-reactor-remnant/antimatter-reactor-remnant.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/remnants/antimatter-reactor-remnant/antimatter-reactor-remnant.png",
       line_length = 1,
       width = 600,
       height = 600,

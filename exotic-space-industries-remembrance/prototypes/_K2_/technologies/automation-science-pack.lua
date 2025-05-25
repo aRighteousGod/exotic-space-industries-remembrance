@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-fluids-chemistry",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/fluids-chemistry.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/fluids-chemistry.png",
     icon_size = 256,
     unit = {
       time = 45,
@@ -22,7 +22,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-sentinel",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/sentinel.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/sentinel.png",
     icon_size = 256,
     unit = {
       time = 30,

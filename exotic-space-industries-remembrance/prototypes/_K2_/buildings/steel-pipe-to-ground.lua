@@ -14,7 +14,7 @@ data:extend({
   {
     type = "item",
     name = "kr-steel-pipe-to-ground",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/steel-pipe-to-ground.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/steel-pipe-to-ground.png",
     subgroup = "energy-pipe-distribution",
     order = "a[pipe]-ba[steel-pipe-to-ground]",
     place_result = "kr-steel-pipe-to-ground",
@@ -23,7 +23,7 @@ data:extend({
   {
     type = "pipe-to-ground",
     name = "kr-steel-pipe-to-ground",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/steel-pipe-to-ground.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/steel-pipe-to-ground.png",
     flags = { "placeable-neutral", "player-creation" },
     minable = { mining_time = 0.1, result = "kr-steel-pipe-to-ground" },
     fast_replaceable_group = "pipe",
@@ -60,28 +60,28 @@ data:extend({
     working_sound = sounds.pipe,
     pictures = {
       north = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-up.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-up.png",
         priority = "extra-high",
         width = 128,
         height = 128,
         scale = 0.5,
       },
       south = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-down.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-down.png",
         priority = "extra-high",
         width = 128,
         height = 128,
         scale = 0.5,
       },
       west = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-left.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-left.png",
         priority = "extra-high",
         width = 128,
         height = 128,
         scale = 0.5,
       },
       east = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-right.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-to-ground/steel-pipe-to-ground-right.png",
         priority = "extra-high",
         width = 128,
         height = 128,

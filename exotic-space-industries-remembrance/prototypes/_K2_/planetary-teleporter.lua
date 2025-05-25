@@ -200,10 +200,12 @@ local function on_script_trigger_effect(e)
 end
 
 -- on_tick is executed before on_script_trigger_effect
-local function on_tick()
+--local function on_tick()
+--end
+--remediate me
+script.on_nth_tick(settings.startup["ei_ticks_per_full_update"].value, function(event)
   storage.planetary_teleporter_players = {}
-end
-
+end)
 local planetary_teleporter = {}
 
 function planetary_teleporter.on_init()
@@ -222,7 +224,7 @@ planetary_teleporter.events = {
   [defines.events.on_robot_built_entity] = on_entity_built,
   [defines.events.on_robot_mined_entity] = on_entity_destroyed,
   [defines.events.on_script_trigger_effect] = on_script_trigger_effect,
-  [defines.events.on_tick] = on_tick,
+--  [defines.events.on_tick] = on_tick,
   [defines.events.script_raised_built] = on_entity_built,
   [defines.events.script_raised_destroy] = on_entity_destroyed,
   [defines.events.script_raised_revive] = on_entity_built,

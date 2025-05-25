@@ -19,7 +19,7 @@ data:extend({
   {
     type = "item",
     name = "kr-quarry-drill",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/quarry-drill.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/quarry-drill.png",
     subgroup = "extraction-machine",
     order = "a[items]-e[quarry-drill]",
     place_result = "kr-quarry-drill",
@@ -28,7 +28,7 @@ data:extend({
   {
     type = "mining-drill",
     name = "kr-quarry-drill",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/quarry-drill.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/quarry-drill.png",
     flags = { "placeable-neutral", "player-creation" },
     minable = { mining_time = 1, result = "kr-quarry-drill" },
     fast_replaceable_group = "kr-quarry-drills",
@@ -58,7 +58,7 @@ data:extend({
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/quarry-drill.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/quarry-drill.ogg",
         volume = 0.5,
       },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
@@ -69,7 +69,7 @@ data:extend({
         layers = {
           {
             priority = "extra-high",
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quarry-drill/quarry-drill-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quarry-drill/quarry-drill-light.png",
             width = 440,
             height = 464,
             frame_count = 90,
@@ -83,7 +83,7 @@ data:extend({
           },
           {
             priority = "high",
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quarry-drill/quarry-drill.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quarry-drill/quarry-drill.png",
             width = 440,
             height = 464,
             frame_count = 90,
@@ -94,7 +94,7 @@ data:extend({
           },
           {
             priority = "medium",
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quarry-drill/quarry-drill-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quarry-drill/quarry-drill-sh.png",
             width = 500,
             height = 422,
             frame_count = 1,

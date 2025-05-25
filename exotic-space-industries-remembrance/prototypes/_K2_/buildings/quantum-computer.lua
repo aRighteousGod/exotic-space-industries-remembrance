@@ -3,7 +3,7 @@ local sounds = require("__base__.prototypes.entity.sounds")
 
 local pipe_pictures = {
   north = {
-    filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-N.png",
+    filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-N.png",
     priority = "extra-high",
     width = 78,
     height = 71,
@@ -11,7 +11,7 @@ local pipe_pictures = {
     scale = 0.5,
   },
   east = {
-    filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-E.png",
+    filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-E.png",
     priority = "extra-high",
     width = 42,
     height = 76,
@@ -19,7 +19,7 @@ local pipe_pictures = {
     scale = 0.5,
   },
   south = {
-    filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-S.png",
+    filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-S.png",
     priority = "extra-high",
     width = 88,
     height = 61,
@@ -27,7 +27,7 @@ local pipe_pictures = {
     scale = 0.5,
   },
   west = {
-    filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-W.png",
+    filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-k-pipe-W.png",
     priority = "extra-high",
     width = 39,
     height = 73,
@@ -55,7 +55,7 @@ data:extend({
   {
     type = "item",
     name = "kr-quantum-computer",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/quantum-computer.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/quantum-computer.png",
     subgroup = "production-machine",
     order = "f3[research-servers]-b1[quantum-computer]",
     place_result = "kr-quantum-computer",
@@ -64,7 +64,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-quantum-computer",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/quantum-computer.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/quantum-computer.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-quantum-computer" },
     fast_replaceable_group = "assembling-machine",
@@ -112,12 +112,12 @@ data:extend({
       { type = "fire", percent = 70 },
       { type = "impact", percent = 70 },
     },
-    open_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
-    close_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/close.ogg", volume = 1 },
+    open_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
+    close_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/close.ogg", volume = 1 },
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/quantum-computer.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/quantum-computer.ogg",
         volume = 0.75,
       },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
@@ -126,7 +126,7 @@ data:extend({
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer.png",
             priority = "high",
             width = 400,
             height = 420,
@@ -137,7 +137,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-sh.png",
             priority = "medium",
             width = 402,
             height = 362,
@@ -154,7 +154,7 @@ data:extend({
         {
           draw_as_light = true,
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-light.png",
             priority = "extra-high",
             width = 400,
             height = 420,
@@ -169,7 +169,7 @@ data:extend({
           draw_as_glow = true,
           blend_mode = "additive-soft",
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/quantum-computer/quantum-computer-glow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/quantum-computer/quantum-computer-glow.png",
             priority = "extra-high",
             width = 400,
             height = 420,

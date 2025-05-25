@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-electrolysis-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/electrolysis-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/electrolysis-plant.png",
     subgroup = "production-machine",
     order = "e-a1[electrolysis-plant]",
     place_result = "kr-electrolysis-plant",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-electrolysis-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/electrolysis-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/electrolysis-plant.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-electrolysis-plant" },
     max_health = 500,
@@ -88,14 +88,14 @@ data:extend({
     close_sound = sounds.machine_close,
     vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
     working_sound = {
-      sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/electrolysis-plant.ogg", volume = 0.85 },
+      sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/electrolysis-plant.ogg", volume = 0.85 },
       idle_sound = { filename = "__base__/sound/idle1.ogg", volume = 0.5 },
     },
     graphics_set = {
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -103,7 +103,7 @@ data:extend({
             shift = { 0, 0 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-sh.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -117,7 +117,7 @@ data:extend({
         {
           apply_recipe_tint = "primary",
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-work.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-work.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -132,7 +132,7 @@ data:extend({
         {
           apply_recipe_tint = "primary",
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-work-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-work-light.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -146,7 +146,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/electrolysis-plant/electrolysis-plant-reflection.png",
           priority = "extra-high",
           width = 42,
           height = 38,

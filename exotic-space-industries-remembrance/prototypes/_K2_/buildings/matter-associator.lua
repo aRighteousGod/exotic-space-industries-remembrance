@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-matter-associator",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/matter-associator.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/matter-associator.png",
     subgroup = "production-machine",
     order = "i[matter]-b[matter-associator]",
     place_result = "kr-matter-associator",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-matter-associator",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/matter-associator.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/matter-associator.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-matter-associator" },
     collision_box = { { -3.25, -3.25 }, { 3.25, 3.25 } },
@@ -88,7 +88,7 @@ data:extend({
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/matter-associator.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/matter-associator.ogg",
         volume = 0.60,
       },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
@@ -97,7 +97,7 @@ data:extend({
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator.png",
             priority = "high",
             width = 473,
             height = 489,
@@ -106,7 +106,7 @@ data:extend({
             shift = { 0, -0.15 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator-sh.png",
             priority = "medium",
             width = 508,
             height = 446,
@@ -119,7 +119,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator-reflection.png",
           priority = "extra-high",
           width = 46,
           height = 46,
@@ -134,7 +134,7 @@ data:extend({
         {
           draw_as_light = true,
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator-working-glow-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator-working-glow-light.png",
             priority = "high",
             width = 144,
             height = 110,
@@ -150,7 +150,7 @@ data:extend({
           blend_mode = "additive",
           synced_fadeout = true,
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator-working-glow.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator-working-glow.png",
             priority = "high",
             width = 144,
             height = 110,
@@ -165,7 +165,7 @@ data:extend({
           animation = {
             layers = {
               {
-                filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator-working-light.png",
+                filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator-working-light.png",
                 priority = "high",
                 width = 473,
                 height = 489,
@@ -177,7 +177,7 @@ data:extend({
                 draw_as_light = true,
               },
               {
-                filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/matter-associator/matter-associator-working.png",
+                filename = ei_graphics_3_path.."K2_ASSETS/buildings/matter-associator/matter-associator-working.png",
                 priority = "high",
                 width = 473,
                 height = 489,

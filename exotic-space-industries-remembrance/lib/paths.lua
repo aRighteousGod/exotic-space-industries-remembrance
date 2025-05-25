@@ -13,9 +13,9 @@ ei_graphics_base_path = "__base__/graphics/icons/"
 ei_path = "__exotic-space-industries-remembrance__/"
 ei_soundtrack_path_1 = "__exotic-space-industries-remembrance-soundtrack-1__/sounds/ambient/"
 ei_soundtrack_path_2 = "__exotic-space-industries-remembrance-soundtrack-2__/sounds/ambient/"
-ei_graphics_path = "__exotic-space-industries-graphics-1__/"
-ei_graphics_2_path = "__exotic-space-industries-graphics-2__/"
-ei_graphics_3_path = "__exotic-space-industries-graphics-3__/"
+ei_graphics_path = "__exotic-space-industries-remembrance-graphics-1__/"
+ei_graphics_2_path = "__exotic-space-industries-remembrance-graphics-2__/"
+ei_graphics_3_path = "__exotic-space-industries-remembrance-graphics-3__/"
 
 ei_graphics_entity_path = ei_graphics_path.."graphics/entities/"
 ei_graphics_item_path = ei_graphics_path.."graphics/items/"
@@ -63,7 +63,7 @@ ei_robots_entity_path = ei_graphics_entity_2_path
 ei_fueler_graphics_path = ei_graphics_3_path.."graphics/fueler/"
 
 ei_trains_path = ei_graphics_3_path
-ei_trains_sounds_path = ei_path.."sounds/em_trains/"
+ei_trains_sounds_path = ei_graphics_3_path.."sounds/em_trains/"
 ei_trains_entity_path = ei_trains_path.."graphics/em-trains/entities/"
 ei_trains_item_path = ei_trains_path.."graphics/em-trains/items/"
 ei_trains_tech_path = ei_trains_path.."graphics/em-trains/techs/"

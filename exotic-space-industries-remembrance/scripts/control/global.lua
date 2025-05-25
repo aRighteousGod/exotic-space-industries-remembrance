@@ -150,7 +150,7 @@ function ei_global.init()
     storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
-    echo_codex.handle_global_settings()
+    ei_echo_codex.handle_global_settings()
 end
 
 function ei_global.check_init()

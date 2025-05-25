@@ -19,7 +19,7 @@ data:extend({
   {
     type = "item",
     name = "kr-tesla-coil",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/tesla-coil.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/tesla-coil.png",
     subgroup = "energy-pipe-distribution",
     order = "z-a[energy]-f2[tesla-coil]",
     place_result = "kr-tesla-coil",
@@ -28,7 +28,7 @@ data:extend({
   {
     type = "electric-energy-interface",
     name = "kr-tesla-coil",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/tesla-coil.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/tesla-coil.png",
     collision_box = { { -1.25, -1.25 }, { 1.25, 1.25 } },
     selection_box = { { -1.45, -1.45 }, { 1.45, 1.45 } },
     collision_mask = {
@@ -59,7 +59,7 @@ data:extend({
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/tesla-coil.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/tesla-coil.ogg",
         volume = 0.5,
         aggregation = {
           max_count = 2,
@@ -72,7 +72,7 @@ data:extend({
     animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/tesla-coil/tesla-coil-animation-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/tesla-coil/tesla-coil-animation-light.png",
           priority = "high",
           width = 194,
           height = 232,
@@ -86,7 +86,7 @@ data:extend({
           blend_mode = "additive-soft",
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/tesla-coil/tesla-coil-base.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/tesla-coil/tesla-coil-base.png",
           priority = "high",
           width = 194,
           height = 232,
@@ -97,7 +97,7 @@ data:extend({
           shift = { 0, -0.75 },
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/tesla-coil/tesla-coil-animation.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/tesla-coil/tesla-coil-animation.png",
           priority = "high",
           width = 194,
           height = 232,
@@ -109,7 +109,7 @@ data:extend({
           shift = { 0, -0.75 },
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/tesla-coil/tesla-coil-shadow.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/tesla-coil/tesla-coil-shadow.png",
           priority = "medium",
           width = 250,
           height = 150,
@@ -134,9 +134,9 @@ data:extend({
     action_triggered_automatically = false,
     working_sound = {
       variations = {
-        { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/others/zap-1.ogg", volume = 0.25 },
-        { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/others/zap-2.ogg", volume = 0.25 },
-        { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/others/zap-3.ogg", volume = 0.25 },
+        { filename = ei_graphics_3_path.."K2_ASSETS/sounds/others/zap-1.ogg", volume = 0.25 },
+        { filename = ei_graphics_3_path.."K2_ASSETS/sounds/others/zap-2.ogg", volume = 0.25 },
+        { filename = ei_graphics_3_path.."K2_ASSETS/sounds/others/zap-3.ogg", volume = 0.25 },
       },
       audible_distance_modifier = 2.0,
       aggregation = {
@@ -261,7 +261,7 @@ data:extend({
   {
     type = "turret",
     name = "kr-tesla-coil-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/tesla-coil.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/tesla-coil.png",
     hidden = true,
     collision_mask = { layers = {} },
     call_for_help_radius = 0,
@@ -320,7 +320,7 @@ data:extend({
     type = "simple-entity",
     name = "kr-tesla-coil-collision",
     localised_name = { "entity-name.kr-tesla-coil" },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/tesla-coil.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/tesla-coil.png",
     hidden = true,
     collision_mask = { layers = { kr_tesla_coil = true } },
     collision_box = { { -18, -18 }, { 18, 18 } },

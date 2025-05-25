@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-ai-core",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/ai-core.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/ai-core.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -23,7 +23,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-advanced-radar",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/advanced-radar.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/advanced-radar.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -43,7 +43,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-fusion-energy",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/fusion-energy.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/fusion-energy.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -76,7 +76,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-tech-card",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-tech-card.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-tech-card.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -96,7 +96,7 @@ data:extend({
     type = "technology",
     name = "kr-military-5",
     localised_description = { "technology-description.military" },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/military-5.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/military-5.png",
     icon_size = 256,
     order = "g-d-d",
     unit = {
@@ -126,7 +126,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-quantum-computer",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/quantum-computer.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/quantum-computer.png",
     icon_size = 256,
     unit = {
       time = 60,

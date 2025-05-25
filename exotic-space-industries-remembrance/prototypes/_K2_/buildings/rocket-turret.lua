@@ -5,7 +5,7 @@ local function rocket_turret_sheet(inputs)
   return {
     layers = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/rocket-turret/rocket-turret.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/rocket-turret/rocket-turret.png",
         width = 440,
         height = 380,
         line_length = inputs.frame_count or 8,
@@ -18,7 +18,7 @@ local function rocket_turret_sheet(inputs)
 
       {
         flags = { "mask" },
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/rocket-turret/rocket-turret-mask.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/rocket-turret/rocket-turret-mask.png",
         width = 440,
         height = 380,
         line_length = inputs.frame_count or 8,
@@ -31,7 +31,7 @@ local function rocket_turret_sheet(inputs)
       },
 
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/rocket-turret/rocket-turret-shadow.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/rocket-turret/rocket-turret-shadow.png",
         width = 440,
         height = 380,
         line_length = inputs.frame_count or 8,
@@ -64,7 +64,7 @@ data:extend({
   {
     type = "item",
     name = "kr-rocket-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/rocket-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/rocket-turret.png",
     subgroup = "rocket-turret",
     order = "a02[rocket-turret]",
     place_result = "kr-rocket-turret",
@@ -73,7 +73,7 @@ data:extend({
   {
     type = "ammo-turret",
     name = "kr-rocket-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/rocket-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/rocket-turret.png",
     flags = { "placeable-player", "player-creation", "building-direction-8-way" },
     minable = { mining_time = 1, result = "kr-rocket-turret" },
     collision_box = { { -1.75, -1.75 }, { 1.75, 1.75 } },
@@ -97,7 +97,7 @@ data:extend({
       health_penalty = -100,
       sound = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/weapons/rocket-launch.ogg",
+          filename = ei_graphics_3_path.."K2_ASSETS/sounds/weapons/rocket-launch.ogg",
           volume = 0.8,
         },
       },
@@ -120,7 +120,7 @@ data:extend({
         animation = {
           layers = {
             {
-              filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-base.png",
+              filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-base.png",
               priority = "high",
               width = 440,
               height = 380,
@@ -131,7 +131,7 @@ data:extend({
               scale = 0.5,
             },
             {
-              filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-base-mask.png",
+              filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-base-mask.png",
               flags = { "mask", "low-object" },
               line_length = 1,
               width = 440,
@@ -144,7 +144,7 @@ data:extend({
               scale = 0.5,
             },
             {
-              filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-base-shadow.png",
+              filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-base-shadow.png",
               line_length = 1,
               width = 440,
               height = 380,
@@ -160,7 +160,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-reflection.png",
           priority = "extra-high",
           width = 50,
           height = 50,

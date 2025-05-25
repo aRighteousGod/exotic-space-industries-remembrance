@@ -4,7 +4,7 @@ data:extend({
   {
     type = "item",
     name = "raw-imersite",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite.png",
     subgroup = "raw-resource",
     order = "ga[raw-imersite]",
     stack_size = 200,
@@ -13,7 +13,7 @@ data:extend({
         layers = {
           {
             size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite.png",
             scale = 0.5,
             mipmap_count = 4,
           },
@@ -23,26 +23,7 @@ data:extend({
             blend_mode = "additive",
             tint = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 },
             size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-light.png",
-            scale = 0.5,
-            mipmap_count = 4,
-          },
-        },
-      },
-      {
-        layers = {
-          {
-            size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-1.png",
-            scale = 0.5,
-          },
-          {
-            draw_as_light = true,
-            flags = { "light" },
-            blend_mode = "additive",
-            tint = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 },
-            size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-1-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-light.png",
             scale = 0.5,
             mipmap_count = 4,
           },
@@ -52,7 +33,7 @@ data:extend({
         layers = {
           {
             size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-2.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-1.png",
             scale = 0.5,
           },
           {
@@ -61,7 +42,7 @@ data:extend({
             blend_mode = "additive",
             tint = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 },
             size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-2-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-1-light.png",
             scale = 0.5,
             mipmap_count = 4,
           },
@@ -71,7 +52,7 @@ data:extend({
         layers = {
           {
             size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-3.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-2.png",
             scale = 0.5,
           },
           {
@@ -80,7 +61,26 @@ data:extend({
             blend_mode = "additive",
             tint = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 },
             size = 64,
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite-3-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-2-light.png",
+            scale = 0.5,
+            mipmap_count = 4,
+          },
+        },
+      },
+      {
+        layers = {
+          {
+            size = 64,
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-3.png",
+            scale = 0.5,
+          },
+          {
+            draw_as_light = true,
+            flags = { "light" },
+            blend_mode = "additive",
+            tint = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 },
+            size = 64,
+            filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite-3-light.png",
             scale = 0.5,
             mipmap_count = 4,
           },
@@ -92,7 +92,7 @@ data:extend({
     type = "resource",
     name = "imersite",
     category = "kr-quarry",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-imersite.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-imersite.png",
     flags = { "placeable-neutral" },
     order = "a-b-a",
     subgroup = "mineable-fluids",
@@ -130,7 +130,7 @@ data:extend({
     stage_counts = { 0 },
     stages = {
       sheet = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/resources/imersite/imersite-rift.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/resources/imersite/imersite-rift.png",
         priority = "extra-high",
         width = 500,
         height = 500,
@@ -142,7 +142,7 @@ data:extend({
     stages_effect = {
       sheets = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/resources/imersite/imersite-rift-glow.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/resources/imersite/imersite-rift-glow.png",
           priority = "extra-high",
           width = 500,
           height = 500,

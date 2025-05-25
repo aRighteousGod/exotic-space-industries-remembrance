@@ -2,7 +2,7 @@ data:extend({
   {
     type = "recipe",
     name = "coal-filtration",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/coal-filtration.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/coal-filtration.png",
     subgroup = "raw-material",
     enabled = false,
     category = "fluid-filtration",
@@ -25,7 +25,7 @@ data:extend({
     type = "recipe",
     name = "dirty-water-filtration-1",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/dirty-water.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/dirty-water.png" },
       {
         icon = data.raw.item["iron-ore"].icon,
         icon_size = data.raw.item["iron-ore"].icon_size or 64,
@@ -58,7 +58,7 @@ data:extend({
     type = "recipe",
     name = "dirty-water-filtration-2",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/dirty-water.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/dirty-water.png" },
       {
         icon = data.raw.item["copper-ore"].icon,
         icon_size = data.raw.item["copper-ore"].icon_size or 64,
@@ -92,9 +92,9 @@ data:extend({
     name = "dirty-water-filtration-3",
     category = "fluid-filtration",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/dirty-water.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/dirty-water.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals.png",
         scale = 0.20,
         shift = { 0, 4 },
       },
@@ -122,7 +122,7 @@ data:extend({
   {
     type = "recipe",
     name = "quartz",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/quartz.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/quartz.png",
     subgroup = "raw-material",
     enabled = false,
     category = "fluid-filtration",

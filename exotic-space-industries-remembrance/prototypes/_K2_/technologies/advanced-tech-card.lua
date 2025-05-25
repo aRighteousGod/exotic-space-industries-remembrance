@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-advanced-chemical-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/advanced-chemical-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/advanced-chemical-plant.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -23,7 +23,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-laser-artillery-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/laser-artillery-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/laser-artillery-turret.png",
     icon_size = 256,
     order = "g-f-z",
     unit = {
@@ -44,7 +44,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-rocket-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/rocket-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/rocket-turret.png",
     icon_size = 256,
     order = "g-f-z",
     unit = {
@@ -67,7 +67,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-singularity-tech-card",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/singularity-tech-card.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/singularity-tech-card.png",
     icon_size = 256,
     unit = {
       time = 45,

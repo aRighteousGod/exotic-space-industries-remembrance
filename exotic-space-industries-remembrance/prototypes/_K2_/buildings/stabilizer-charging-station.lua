@@ -17,7 +17,7 @@ data:extend({
   {
     type = "item",
     name = "kr-stabilizer-charging-station",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/stabilizer-charging-station.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/stabilizer-charging-station.png",
     subgroup = "production-machine",
     order = "i[matter]-c[stabilizer-charging-station]",
     place_result = "kr-stabilizer-charging-station",
@@ -26,7 +26,7 @@ data:extend({
   {
     type = "furnace",
     name = "kr-stabilizer-charging-station",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/stabilizer-charging-station.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/stabilizer-charging-station.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 0.5, result = "kr-stabilizer-charging-station" },
     collision_box = { { -0.7, -0.7 }, { 0.7, 0.7 } },
@@ -56,7 +56,7 @@ data:extend({
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/stabilizer-charging-station.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/stabilizer-charging-station.ogg",
         volume = 0.5,
       },
       idle_sound = {
@@ -67,7 +67,7 @@ data:extend({
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station.png",
             priority = "high",
             width = 170,
             height = 170,
@@ -77,7 +77,7 @@ data:extend({
             scale = 0.4,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station-sh.png",
             priority = "high",
             width = 170,
             height = 144,
@@ -92,7 +92,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station-reflection.png",
           priority = "extra-high",
           width = 20,
           height = 25,
@@ -106,7 +106,7 @@ data:extend({
       working_visualisations = {
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/stabilizer-charging-station/stabilizer-charging-station-light.png",
             priority = "high",
             width = 170,
             height = 170,

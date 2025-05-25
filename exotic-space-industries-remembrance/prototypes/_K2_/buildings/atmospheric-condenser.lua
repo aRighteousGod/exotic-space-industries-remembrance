@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-atmospheric-condenser",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/atmospheric-condenser.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/atmospheric-condenser.png",
     subgroup = "production-machine",
     order = "e-c1[atmospheric-condenser]",
     place_result = "kr-atmospheric-condenser",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-atmospheric-condenser",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/atmospheric-condenser.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/atmospheric-condenser.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-atmospheric-condenser" },
     max_health = 500,
@@ -74,7 +74,7 @@ data:extend({
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/atmospheric-condenser.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/atmospheric-condenser.ogg",
         volume = 0.8,
       },
       idle_sound = {
@@ -88,7 +88,7 @@ data:extend({
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -96,7 +96,7 @@ data:extend({
             shift = { 0, 0 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser-anim.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser-anim.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -105,7 +105,7 @@ data:extend({
             shift = { 0, 0 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser-sh.png",
             width = 380,
             height = 380,
             scale = 0.5,
@@ -117,7 +117,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/atmospheric-condenser/atmospheric-condenser-reflection.png",
           priority = "extra-high",
           width = 42,
           height = 38,

@@ -4,7 +4,7 @@ local sounds = require("__base__.prototypes.entity.sounds")
 local picture = {
   layers = {
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-light.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-light.png",
       width = 800,
       height = 800,
       scale = 0.5,
@@ -13,7 +13,7 @@ local picture = {
       draw_as_light = true,
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver.png",
       width = 800,
       height = 800,
       scale = 0.5,
@@ -21,7 +21,7 @@ local picture = {
       shift = { 0, -0.8 },
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-sh.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-sh.png",
       width = 867,
       height = 626,
       scale = 0.5,
@@ -35,7 +35,7 @@ local picture = {
 local animation = {
   layers = {
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver.png",
       width = 800,
       height = 800,
       scale = 0.5,
@@ -45,7 +45,7 @@ local animation = {
       shift = { 0, -0.8 },
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-sh.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-sh.png",
       priority = "low",
       width = 867,
       height = 626,
@@ -57,7 +57,7 @@ local animation = {
       shift = { 0.52, 0.5 },
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charging.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charging.png",
       priority = "high",
       width = 800,
       height = 800,
@@ -69,7 +69,7 @@ local animation = {
       draw_as_glow = true,
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-light.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-light.png",
       priority = "high",
       width = 800,
       height = 800,
@@ -81,7 +81,7 @@ local animation = {
       draw_as_light = true,
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charging-light.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charging-light.png",
       priority = "high",
       width = 800,
       height = 800,
@@ -99,21 +99,21 @@ local working_sound = {
   sound = {
     variations = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/intergalactic-transceiver-charge.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/intergalactic-transceiver-charge.ogg",
         volume = 1,
       },
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/intergalactic-transceiver-charge.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/intergalactic-transceiver-charge.ogg",
         volume = 1,
       },
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/intergalactic-transceiver-charge-morse.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/intergalactic-transceiver-charge-morse.ogg",
         volume = 1,
       },
     },
   },
   idle_sound = {
-    filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/intergalactic-transceiver.ogg",
+    filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/intergalactic-transceiver.ogg",
     volume = 1,
   },
   max_sounds_per_prototype = 3,
@@ -140,7 +140,7 @@ data:extend({
   {
     type = "item",
     name = "kr-intergalactic-transceiver",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/intergalactic-transceiver.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/intergalactic-transceiver.png",
     subgroup = "radars",
     order = "zzzz[intergalactic-transceiver]",
     place_result = "kr-intergalactic-transceiver",
@@ -149,7 +149,7 @@ data:extend({
   {
     type = "accumulator",
     name = "kr-intergalactic-transceiver",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/intergalactic-transceiver.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/intergalactic-transceiver.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation", "not-rotatable" },
     map_color = { r = 0.37, g = 0.18, b = 0.47 },
     minable = { mining_time = 10, result = "kr-intergalactic-transceiver" },
@@ -195,7 +195,7 @@ data:extend({
   {
     type = "electric-energy-interface",
     name = "kr-activated-intergalactic-transceiver",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/intergalactic-transceiver.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/intergalactic-transceiver.png",
     flags = { "player-creation", "not-rotatable" },
     map_color = { r = 0.37, g = 0.18, b = 0.47 },
     minable = { mining_time = 10, result = "kr-intergalactic-transceiver" },
@@ -233,7 +233,7 @@ data:extend({
     animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver.png",
           width = 800,
           height = 800,
           scale = 0.5,
@@ -243,7 +243,7 @@ data:extend({
           shift = { 0, -0.8 },
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-sh.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-sh.png",
           priority = "low",
           width = 867,
           height = 626,
@@ -255,7 +255,7 @@ data:extend({
           shift = { 0.52, 0.5 },
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charge.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charge.png",
           priority = "high",
           width = 800,
           height = 800,
@@ -267,7 +267,7 @@ data:extend({
           draw_as_glow = true,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-light.png",
           priority = "high",
           width = 800,
           height = 800,
@@ -279,7 +279,7 @@ data:extend({
           draw_as_light = true,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charge-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/intergalactic-transceiver/intergalactic-transceiver-charge-light.png",
           priority = "high",
           width = 800,
           height = 800,
@@ -298,7 +298,7 @@ data:extend({
     name = "kr-inactive-intergalactic-transceiver",
     localised_name = { "entity-name.kr-intergalactic-transceiver" },
     localised_description = { "entity-description.kr-intergalactic-transceiver" },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/intergalactic-transceiver.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/intergalactic-transceiver.png",
     flags = { "not-on-map" },
     hidden = true,
     minable = { mining_time = 10, result = "kr-intergalactic-transceiver" },

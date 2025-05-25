@@ -20,7 +20,7 @@ data:extend({
   {
     type = "item",
     name = "kr-antimatter-reactor",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/antimatter-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/antimatter-reactor.png",
     subgroup = "energy",
     order = "z-h[antimatter-reactor]-c[antimatter-reactor]",
     place_result = "kr-antimatter-reactor",
@@ -29,7 +29,7 @@ data:extend({
   {
     type = "burner-generator",
     name = "kr-antimatter-reactor",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/antimatter-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/antimatter-reactor.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation", "not-rotatable" },
     minable = { mining_time = 2, result = "kr-antimatter-reactor" },
     max_health = 5000,
@@ -72,16 +72,16 @@ data:extend({
     max_power_output = "3000MW",
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
-      sound = { { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/antimatter-reactor.ogg", volume = 1.25 } },
+      sound = { { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/antimatter-reactor.ogg", volume = 1.25 } },
     },
-    open_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
-    close_sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/close.ogg", volume = 1 },
+    open_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/open.ogg", volume = 1 },
+    close_sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/close.ogg", volume = 1 },
     min_perceived_performance = 0.25,
     performance_to_sound_speedup = 0.5,
     animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-light.png",
           priority = "high",
           width = 660,
           height = 706,
@@ -94,7 +94,7 @@ data:extend({
           blend_mode = "additive",
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-glow.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-glow.png",
           priority = "high",
           width = 660,
           height = 706,
@@ -108,7 +108,7 @@ data:extend({
           fadeout = true,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor.png",
           priority = "high",
           width = 660,
           height = 706,
@@ -118,7 +118,7 @@ data:extend({
           scale = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-anim.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-anim.png",
           priority = "high",
           width = 660,
           height = 706,
@@ -129,7 +129,7 @@ data:extend({
           scale = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-sh.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/antimatter-reactor/antimatter-reactor-sh.png",
           width = 724,
           height = 630,
           shift = { 0.57, 0.27 },

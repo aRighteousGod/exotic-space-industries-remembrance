@@ -2,7 +2,7 @@ return {
   north = {
     layers = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-north.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-north.png",
         priority = "extra-high",
         width = 128,
         height = 128,
@@ -21,7 +21,7 @@ return {
   east = {
     layers = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-east.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-east.png",
         priority = "extra-high",
         width = 128,
         height = 128,
@@ -40,7 +40,7 @@ return {
   south = {
     layers = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-south.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-south.png",
         priority = "extra-high",
         width = 128,
         height = 128,
@@ -59,7 +59,7 @@ return {
   west = {
     layers = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-west.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/steel-pipe-covers/steel-pipe-cover-west.png",
         priority = "extra-high",
         width = 128,
         height = 128,

@@ -15,7 +15,7 @@ data:extend({
   {
     type = "item",
     name = "kr-advanced-radar",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/advanced-radar.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/advanced-radar.png",
     subgroup = "radars",
     order = "03[advanced-radar]",
     place_result = "kr-advanced-radar",
@@ -24,7 +24,7 @@ data:extend({
   {
     type = "radar",
     name = "kr-advanced-radar",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/advanced-radar.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/advanced-radar.png",
     flags = { "placeable-player", "player-creation" },
     minable = { mining_time = 0.1, result = "kr-advanced-radar" },
     fast_replaceable_group = "radar",
@@ -50,7 +50,7 @@ data:extend({
     },
     vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
     integration_patch = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-radar/radar-integration.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-radar/radar-integration.png",
       priority = "low",
       width = 238,
       height = 216,
@@ -61,7 +61,7 @@ data:extend({
     pictures = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-radar/radar.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-radar/radar.png",
           priority = "low",
           width = 196,
           height = 254,
@@ -72,7 +72,7 @@ data:extend({
           scale = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-radar/radar-shadow.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-radar/radar-shadow.png",
           priority = "low",
           width = 343,
           height = 186,

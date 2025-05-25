@@ -2,7 +2,7 @@ data:extend({
   {
     type = "recipe",
     name = "ammonia",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/ammonia.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/ammonia.png",
     subgroup = "fluid-recipes",
     order = "y03[ammonia]",
     enabled = false,
@@ -49,7 +49,7 @@ data:extend({
   {
     type = "recipe",
     name = "enriched-copper",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/enriched-copper.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/enriched-copper.png",
     enabled = false,
     category = "chemistry",
     energy_required = 3,
@@ -77,7 +77,7 @@ data:extend({
   {
     type = "recipe",
     name = "enriched-iron",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/enriched-iron.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/enriched-iron.png",
     subgroup = "raw-material",
     order = "e01[enriched-iron]",
     enabled = false,
@@ -105,7 +105,7 @@ data:extend({
   {
     type = "recipe",
     name = "enriched-rare-metals",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/enriched-rare-metals.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/enriched-rare-metals.png",
     subgroup = "raw-material",
     order = "e03[enriched-rare-metals]",
     enabled = false,
@@ -154,7 +154,7 @@ data:extend({
   {
     type = "recipe",
     name = "hydrogen-chloride",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/hydrogen-chloride.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/hydrogen-chloride.png",
     subgroup = "fluid-recipes",
     order = "y05[hydrogen-chloride]",
     enabled = false,
@@ -183,7 +183,7 @@ data:extend({
     category = "chemistry",
     subgroup = "intermediate-product",
     order = "o6[imersite-crystal]",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/imersite-crystal.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/imersite-crystal.png",
     enabled = false,
     energy_required = 30,
     ingredients = {
@@ -206,7 +206,7 @@ data:extend({
     type = "recipe",
     name = "kr-water",
     localised_name = { "fluid-name.water" },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/water.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/water.png",
     icon_size = 128,
     subgroup = "fluid-recipes",
     order = "y03[water]",
@@ -281,7 +281,7 @@ data:extend({
   {
     type = "recipe",
     name = "nitric-acid",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/nitric-acid.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/nitric-acid.png",
     subgroup = "fluid-recipes",
     order = "y04[nitric-acid]",
     enabled = false,

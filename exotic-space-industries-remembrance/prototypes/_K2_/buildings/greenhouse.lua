@@ -17,7 +17,7 @@ data:extend({
   {
     type = "item",
     name = "kr-greenhouse",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/greenhouse.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/greenhouse.png",
     subgroup = "production-machine",
     order = "d-g1[greenhouse]",
     place_result = "kr-greenhouse",
@@ -26,7 +26,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-greenhouse",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/greenhouse.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/greenhouse.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { hardness = 1, mining_time = 1, result = "kr-greenhouse" },
     collision_box = { { -3.25, -3.25 }, { 3.25, 3.25 } },
@@ -64,7 +64,7 @@ data:extend({
     energy_usage = "144.8kW",
     vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
     working_sound = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/greenhouse.ogg",
+      filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/greenhouse.ogg",
       volume = 0.75,
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
       aggregation = {
@@ -77,7 +77,7 @@ data:extend({
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/greenhouse/greenhouse.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/greenhouse/greenhouse.png",
             priority = "high",
             width = 512,
             height = 512,
@@ -85,7 +85,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/greenhouse/greenhouse-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/greenhouse/greenhouse-sh.png",
             priority = "high",
             width = 512,
             height = 512,
@@ -100,7 +100,7 @@ data:extend({
         {
           draw_as_light = true,
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/greenhouse/greenhouse-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/greenhouse/greenhouse-light.png",
             width = 512,
             height = 512,
             frame_count = 1,
@@ -111,7 +111,7 @@ data:extend({
         },
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/greenhouse/greenhouse-working.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/greenhouse/greenhouse-working.png",
             width = 512,
             height = 512,
             frame_count = 10,

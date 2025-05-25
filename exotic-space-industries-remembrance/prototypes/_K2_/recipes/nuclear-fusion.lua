@@ -2,7 +2,7 @@ data:extend({
   {
     type = "recipe",
     name = "kr-fusion",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/fusion-energy.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/fusion-energy.png",
     subgroup = "intermediate-product",
     order = "z[fusion]",
     hidden = true,

@@ -18,9 +18,9 @@ data:extend({
     type = "recipe",
     name = "enriched-copper-plate",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/copper-plate.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/items/copper-plate.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/enriched-copper.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/items/enriched-copper.png",
         scale = 0.22,
         shift = { -8, -8 },
       },
@@ -43,9 +43,9 @@ data:extend({
     type = "recipe",
     name = "enriched-iron-plate",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/iron-plate.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/items/iron-plate.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/enriched-iron.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/items/enriched-iron.png",
         scale = 0.22,
         shift = { -8, -8 },
       },
@@ -101,9 +101,9 @@ data:extend({
     type = "recipe",
     name = "rare-metals",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/rare-metals.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/items/rare-metals.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals.png",
         scale = 0.22,
         shift = { -8, -8 },
       },
@@ -126,9 +126,9 @@ data:extend({
     type = "recipe",
     name = "rare-metals-2",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/rare-metals.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/items/rare-metals.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/enriched-rare-metals.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/items/enriched-rare-metals.png",
         scale = 0.22,
         shift = { -8, -8 },
       },

@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-advanced-chemistry",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/advanced-chemistry.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/advanced-chemistry.png",
     icon_size = 256,
     order = "d-a",
     unit = {
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-air-purification",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/air-purifier.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/air-purifier.png",
     icon_size = 256,
     order = "a-e-d",
     unit = {
@@ -50,7 +50,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-atmosphere-condensation",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/atmospheric-condenser.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/atmospheric-condenser.png",
     icon_size = 256,
     unit = {
       time = 45,
@@ -73,7 +73,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-enriched-ores",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/enriched-ores.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/enriched-ores.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -100,7 +100,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-lithium-sulfur-battery",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/lithium-sulfur-battery.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/lithium-sulfur-battery.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -119,7 +119,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-radar",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/radar.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/radar.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -138,7 +138,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-robot-battery",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/robot-battery.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/robot-battery.png",
     icon_size = 256,
     unit = {
       time = 30,

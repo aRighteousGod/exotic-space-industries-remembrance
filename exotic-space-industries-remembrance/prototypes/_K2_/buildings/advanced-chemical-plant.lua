@@ -20,7 +20,7 @@ data:extend({
   {
     type = "item",
     name = "kr-advanced-chemical-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/advanced-chemical-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/advanced-chemical-plant.png",
     subgroup = "production-machine",
     order = "e[chemical-plant]-b[advanced-chemical-plant]",
     place_result = "kr-advanced-chemical-plant",
@@ -29,7 +29,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-advanced-chemical-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/advanced-chemical-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/advanced-chemical-plant.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-advanced-chemical-plant" },
     max_health = 1500,
@@ -103,14 +103,14 @@ data:extend({
     close_sound = sounds.machine_close,
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
-      sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/advanced-chemical-plant.ogg", volume = 0.5 },
+      sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/advanced-chemical-plant.ogg", volume = 0.5 },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
     },
     graphics_set = {
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant.png",
             priority = "high",
             width = 451,
             height = 535,
@@ -120,7 +120,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant-anim.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant-anim.png",
             priority = "high",
             width = 451,
             height = 535,
@@ -131,7 +131,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant-sh.png",
             priority = "high",
             width = 516,
             height = 458,
@@ -146,7 +146,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-chemical-plant/advanced-chemical-plant-reflection.png",
           priority = "extra-high",
           width = 80,
           height = 60,

@@ -3,7 +3,7 @@ return {
   north = util.empty_sprite(),
   east = util.empty_sprite(),
   south = {
-    filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/pipe-patch/pipe-patch.png",
+    filename = ei_graphics_3_path.."K2_ASSETS/buildings/pipe-patch/pipe-patch.png",
     priority = "high",
     width = 55,
     height = 50,

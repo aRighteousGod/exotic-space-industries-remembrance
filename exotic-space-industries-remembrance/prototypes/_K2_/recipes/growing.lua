@@ -15,7 +15,7 @@ data:extend({
   {
     type = "recipe",
     name = "wood-with-fertilizer",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/wood-with-fertilizer.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/wood-with-fertilizer.png",
     enabled = false,
     category = "growing",
     energy_required = 60,

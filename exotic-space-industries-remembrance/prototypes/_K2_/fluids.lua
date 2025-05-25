@@ -2,7 +2,7 @@ data:extend({
   {
     type = "fluid",
     name = "ammonia",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/ammonia.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/ammonia.png",
     order = "ya05[ammonia]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -15,7 +15,7 @@ data:extend({
   {
     type = "fluid",
     name = "biomethanol",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/biomethanol.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/biomethanol.png",
     order = "ya08[biomethanol]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -30,7 +30,7 @@ data:extend({
   {
     type = "fluid",
     name = "chlorine",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/chlorine.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/chlorine.png",
     order = "ya02[chlorine]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -43,7 +43,7 @@ data:extend({
   {
     type = "fluid",
     name = "dirty-water",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/dirty-water.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/dirty-water.png",
     order = "ya03[dirty-water]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -55,7 +55,7 @@ data:extend({
   {
     type = "fluid",
     name = "heavy-water",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/heavy-water.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/heavy-water.png",
     order = "ya09[heavy-water]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -67,7 +67,7 @@ data:extend({
   {
     type = "fluid",
     name = "hydrogen",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/hydrogen.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/hydrogen.png",
     order = "ya01[hydrogen]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -80,7 +80,7 @@ data:extend({
   {
     type = "fluid",
     name = "hydrogen-chloride",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/hydrogen-chloride.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/hydrogen-chloride.png",
     order = "ya07[hydrogen-chloride]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -93,7 +93,7 @@ data:extend({
   {
     type = "fluid",
     name = "matter",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/matter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/matter.png",
     order = "ym00[k-matter]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -105,7 +105,7 @@ data:extend({
   {
     type = "fluid",
     name = "nitric-acid",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/nitric-acid.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/nitric-acid.png",
     order = "ya06[nitric-acid]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -118,7 +118,7 @@ data:extend({
   {
     type = "fluid",
     name = "nitrogen",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/nitrogen.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/nitrogen.png",
     order = "ya04[nitrogen]",
     subgroup = "fluid",
     default_temperature = 25,
@@ -131,7 +131,7 @@ data:extend({
   {
     type = "fluid",
     name = "oxygen",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/oxygen.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/oxygen.png",
     order = "ya03[oxygen]",
     subgroup = "fluid",
     default_temperature = 25,

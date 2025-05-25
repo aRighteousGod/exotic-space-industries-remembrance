@@ -3,7 +3,7 @@ data:extend({
     type = "item-group",
     name = "smelting-crafting",
     order = "m4",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/item-groups/smelting-crafting.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/item-groups/smelting-crafting.png",
     icon_size = 64,
   },
   {

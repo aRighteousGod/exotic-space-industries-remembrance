@@ -3,7 +3,7 @@ data:extend({
     type = "corpse",
     name = "kr-advanced-radar-remnants",
     localised_name = { "remnant-name", { "entity-name.kr-advanced-radar" } },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/remnants-icon.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/remnants-icon.png",
     icon_size = 32,
     flags = { "placeable-neutral", "building-direction-8-way", "not-on-map" },
     hidden_in_factoriopedia = true,
@@ -17,7 +17,7 @@ data:extend({
     final_render_layer = "remnants",
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet(1, {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/remnants/advanced-radar-remnant/radar-remnants.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/remnants/advanced-radar-remnant/radar-remnants.png",
       line_length = 1,
       width = 282,
       height = 212,

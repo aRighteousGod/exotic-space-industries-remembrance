@@ -22,7 +22,7 @@ data:extend({
         priority = "high",
         animation_speed = 0.50,
         tint = { r = 0.15, g = 0.09, b = 0.12, a = 0.5 },
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/smoke.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/smoke.png",
         flags = { "smoke" },
       },
     },

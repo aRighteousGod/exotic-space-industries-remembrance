@@ -5,7 +5,7 @@ local function laser_artillery_turret_sheet(inputs)
   return {
     layers = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/laser-artillery-turret/laser-artillery-turret.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/laser-artillery-turret/laser-artillery-turret.png",
         width = 440,
         height = 380,
         line_length = inputs.frame_count or 8,
@@ -17,7 +17,7 @@ local function laser_artillery_turret_sheet(inputs)
       },
       {
         flags = { "mask" },
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/laser-artillery-turret/laser-artillery-turret-mask.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/laser-artillery-turret/laser-artillery-turret-mask.png",
         width = 440,
         height = 380,
         line_length = inputs.frame_count or 8,
@@ -29,7 +29,7 @@ local function laser_artillery_turret_sheet(inputs)
         scale = 0.5,
       },
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/laser-artillery-turret/laser-artillery-turret-shadow.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/laser-artillery-turret/laser-artillery-turret-shadow.png",
         width = 460,
         height = 380,
         line_length = inputs.frame_count or 8,
@@ -62,7 +62,7 @@ data:extend({
   {
     type = "item",
     name = "kr-laser-artillery-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/laser-artillery-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/laser-artillery-turret.png",
     subgroup = "vanilla-turrets",
     order = "b[turret]-e[artillery-turret]-a[laser-artillery-turret]",
     place_result = "kr-laser-artillery-turret",
@@ -71,7 +71,7 @@ data:extend({
   {
     type = "electric-turret",
     name = "kr-laser-artillery-turret",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/laser-artillery-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/laser-artillery-turret.png",
     flags = { "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-laser-artillery-turret" },
     collision_box = { { -1.75, -1.75 }, { 1.75, 1.75 } },
@@ -114,7 +114,7 @@ data:extend({
       --warmup = 27, -- its strongly reduce rate of fire, was used to sync the sounds of turret when shot
       sound = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/weapons/laser-artillery-turret-shot.ogg",
+          filename = ei_graphics_3_path.."K2_ASSETS/sounds/weapons/laser-artillery-turret-shot.ogg",
           volume = 1,
         },
       },
@@ -139,7 +139,7 @@ data:extend({
     close_sound = sounds.machine_close,
     starting_attack_sound = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/weapons/laser-artillery-turret-starting_attack_sound.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/weapons/laser-artillery-turret-starting_attack_sound.ogg",
         volume = 0.40,
       },
     },
@@ -149,7 +149,7 @@ data:extend({
         animation = {
           layers = {
             {
-              filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-base.png",
+              filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-base.png",
               priority = "high",
               width = 440,
               height = 380,
@@ -160,7 +160,7 @@ data:extend({
               scale = 0.5,
             },
             {
-              filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-base-mask.png",
+              filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-base-mask.png",
               flags = { "mask", "low-object" },
               line_length = 1,
               width = 440,
@@ -173,7 +173,7 @@ data:extend({
               scale = 0.5,
             },
             {
-              filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-base-shadow.png",
+              filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-base-shadow.png",
               line_length = 1,
               width = 440,
               height = 380,
@@ -189,7 +189,7 @@ data:extend({
       },
       water_reflection = {
         pictures = {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/turret-common/turret-reflection.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/turret-common/turret-reflection.png",
           priority = "extra-high",
           width = 50,
           height = 50,

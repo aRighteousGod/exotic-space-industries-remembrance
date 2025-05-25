@@ -1,3 +1,4 @@
+--linear congruential generator rng generator for use outside of events, or for high performance
 ei_rng = {}
 
 -- Toggle for in-game print debug

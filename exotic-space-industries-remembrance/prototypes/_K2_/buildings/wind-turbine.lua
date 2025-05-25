@@ -3,11 +3,11 @@ local hit_effects = require("__base__.prototypes.entity.hit-effects")
 local persistent_sound = {
   variations = {
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/wind-turbine-rotating.ogg",
+      filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/wind-turbine-rotating.ogg",
       volume = 0.55,
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/wind-turbine-rotating-2.ogg",
+      filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/wind-turbine-rotating-2.ogg",
       volume = 0.38,
     },
   },
@@ -35,7 +35,7 @@ data:extend({
   {
     type = "item",
     name = "kr-wind-turbine",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/wind-turbine.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/wind-turbine.png",
     subgroup = "energy",
     order = "00[solar-panel]-a[wind-turbine]",
     place_result = "kr-wind-turbine",
@@ -44,7 +44,7 @@ data:extend({
   {
     type = "electric-energy-interface",
     name = "kr-wind-turbine",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/wind-turbine.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/wind-turbine.png",
     flags = { "placeable-neutral", "player-creation", "not-rotatable" },
     minable = { mining_time = 0.25, result = "kr-wind-turbine" },
     fast_replaceable_group = "wind-turbine",
@@ -84,7 +84,7 @@ data:extend({
     animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/wind-turbine/wind-turbine.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/wind-turbine/wind-turbine.png",
           priority = "medium",
           width = 196,
           height = 286,
@@ -95,7 +95,7 @@ data:extend({
           shift = { 0, -1.2 },
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/wind-turbine/wind-turbine-shadow.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/wind-turbine/wind-turbine-shadow.png",
           priority = "medium",
           width = 242,
           height = 100,
@@ -111,7 +111,7 @@ data:extend({
     continuous_animation = true,
     water_reflection = {
       pictures = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/wind-turbine/wind-turbine-reflection.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/wind-turbine/wind-turbine-reflection.png",
         priority = "extra-high",
         width = 20,
         height = 25,

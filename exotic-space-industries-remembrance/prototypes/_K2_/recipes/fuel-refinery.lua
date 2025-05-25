@@ -2,7 +2,7 @@ data:extend({
   {
     type = "recipe",
     name = "advanced-fuel",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/advanced-fuel.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/advanced-fuel.png",
     subgroup = "intermediate-product",
     order = "o4[bio-fuel]",
     enabled = false,
@@ -28,7 +28,7 @@ data:extend({
   {
     type = "recipe",
     name = "bio-fuel",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/bio-fuel.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/bio-fuel.png",
     subgroup = "intermediate-product",
     order = "o3[bio-fuel]",
     enabled = false,
@@ -54,7 +54,7 @@ data:extend({
   {
     type = "recipe",
     name = "biomethanol",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/biomethanol.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/biomethanol.png",
     subgroup = "fluid-recipes",
     order = "y08[biomethanol]",
     enabled = false,
@@ -83,7 +83,7 @@ data:extend({
     subgroup = "intermediate-product",
     order = "o1[fuel1]",
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/fuel.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/items/fuel.png" },
       {
         icon = "__base__/graphics/icons/fluid/light-oil.png",
         scale = 0.26,
@@ -114,7 +114,7 @@ data:extend({
     name = "fuel-2",
     localised_name = { "other.recipe-variation", { "item-name.fuel" } },
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/fuel.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/items/fuel.png" },
       {
         icon = data.raw.item["solid-fuel"].icon,
         icon_size = data.raw.item["solid-fuel"].icon_size or 64,
@@ -149,8 +149,8 @@ data:extend({
     name = "rocket-fuel-with-ammonia",
     localised_name = { "item-name.rocket-fuel" },
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/rocket-fuel.png" },
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/ammonia.png", scale = 0.26, shift = { 8, -8 } },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/rocket-fuel.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/ammonia.png", scale = 0.26, shift = { 8, -8 } },
     },
     enabled = false,
     energy_required = 16,
@@ -177,9 +177,9 @@ data:extend({
     name = "rocket-fuel-with-hydrogen-chloride",
     localised_name = { "item-name.rocket-fuel" },
     icons = {
-      { icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/rocket-fuel.png" },
+      { icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/rocket-fuel.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/fluids/hydrogen-chloride.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/fluids/hydrogen-chloride.png",
         scale = 0.26,
         shift = { 8, -8 },
       },

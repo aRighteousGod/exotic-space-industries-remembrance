@@ -2,7 +2,7 @@ data:extend({
   {
     type = "recipe",
     name = "electronic-components-with-lithium",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/electronic-components-with-lithium.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/electronic-components-with-lithium.png",
     category = "advanced-chemistry",
     energy_required = 10,
     enabled = false,

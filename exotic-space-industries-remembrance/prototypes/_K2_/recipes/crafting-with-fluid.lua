@@ -37,7 +37,7 @@ data:extend({
     icons = {
       { icon = "__base__/graphics/icons/landfill.png" },
       {
-        icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/sand.png",
+        icon = ei_graphics_3_path.."K2_ASSETS/icons/items/sand.png",
         scale = 0.26,
         shift = { 8, -8 },
       },
@@ -56,7 +56,7 @@ data:extend({
     type = "recipe",
     name = "restore-used-improved-pollution-filter",
     category = "crafting-with-fluid",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/restore-used-improved-pollution-filter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/restore-used-improved-pollution-filter.png",
     icon_size = 128,
     subgroup = "intermediate-product",
     order = "w3-b[restore-used-pollution-filter]",
@@ -74,7 +74,7 @@ data:extend({
   {
     type = "recipe",
     name = "restore-used-pollution-filter",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/recipes/restore-used-pollution-filter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/recipes/restore-used-pollution-filter.png",
     icon_size = 128,
     subgroup = "intermediate-product",
     order = "w3-a[restore-used-pollution-filter]",

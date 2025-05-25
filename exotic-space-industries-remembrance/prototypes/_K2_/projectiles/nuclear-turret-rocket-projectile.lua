@@ -220,7 +220,7 @@ data:extend({
       light = { intensity = 0.5, size = 10, color = { r = 0.5, g = 1.0, b = 0.75 } },
     },
     animation = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/projectiles/rocket-n.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/projectiles/rocket-n.png",
       frame_count = 5,
       line_length = 5,
       width = 13,

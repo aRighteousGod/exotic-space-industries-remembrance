@@ -6,7 +6,7 @@ data:extend({
     hidden = true,
     animations = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/matter-shockwave-1.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/matter-shockwave-1.png",
         priority = "high",
         flags = { "smoke" },
         line_length = 8,
@@ -18,7 +18,7 @@ data:extend({
         scale = 1.5,
       },
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/matter-shockwave-2.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/matter-shockwave-2.png",
         priority = "high",
         flags = { "smoke" },
         line_length = 8,

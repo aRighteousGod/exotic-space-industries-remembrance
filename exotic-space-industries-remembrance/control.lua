@@ -57,10 +57,10 @@ local handler = require("__core__.lualib.event_handler")
 handler.add_libraries({
   require("__flib__.gui"),
 
-  require("K2_CONTROL.migrations"),
-  require("K2_CONTROL.intergalactic-transceiver"),
-  require("K2_CONTROL.planetary-teleporter-gui"), -- Must be before planetary-teleporter
-  require("K2_CONTROL.planetary-teleporter"),
+  require("prototypes/_K2_/migrations"),
+  require("prototypes/_K2_/intergalactic-transceiver"),
+  require("prototypes/_K2_/planetary-teleporter-gui"), -- Must be before planetary-teleporter
+  require("prototypes/_K2_/planetary-teleporter"),
 })
 
 --====================================================================================================
@@ -89,6 +89,7 @@ script.on_init(function()
     em_trains_gui.mark_dirty()
     ei_compat.check_init()
     orbital_combinator.check_init()
+    ei_echo_codex.handle_global_settings()
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
     game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) --works
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
@@ -482,7 +483,7 @@ script.on_configuration_changed(function(e)
         }
         ei_lib.crystal_echo("『EM CHARGER QUE MODE HAS SHIFTED』 → "..modes[storage.ei.em_train_que].." ("..storage.ei.em_train_que..")","default-bold")
     ]]
-        echo_codex.handle_global_settings()
+        ei_echo_codex.handle_global_settings()
         em_trains.check_global() --no nil tables
         em_trains.check_buffs() --updates global buff vals
         em_trains.printBuffStatus()
@@ -754,8 +755,7 @@ function updater()
 end
 
 --Check global once per entity updater cycle
-local globalCheckTicks = ei_ticksPerFullUpdate
-script.on_nth_tick(globalCheckTicks, function(event)
+script.on_nth_tick(ei_ticksPerFullUpdate, function(event)
     ei_global.check_init()
 end)
 

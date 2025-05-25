@@ -3,7 +3,7 @@ local hit_effects = require("__base__.prototypes.entity.hit-effects")
 local animation = {
   layers = {
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/gas-power-station/gas-power-station.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/gas-power-station/gas-power-station.png",
       width = 380,
       height = 380,
       scale = 0.5,
@@ -13,7 +13,7 @@ local animation = {
       shift = { 0, 0 },
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/pipe-patch/pipe-patch.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/pipe-patch/pipe-patch.png",
       width = 55,
       height = 50,
       frame_count = 1,
@@ -22,7 +22,7 @@ local animation = {
       shift = { 0, 2.5 },
     },
     {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/gas-power-station/gas-power-station-sh.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/buildings/gas-power-station/gas-power-station-sh.png",
       width = 380,
       height = 380,
       scale = 0.5,
@@ -52,7 +52,7 @@ data:extend({
   {
     type = "item",
     name = "kr-gas-power-station",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/gas-power-station.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/gas-power-station.png",
     stack_size = 10,
     subgroup = "energy",
     order = "c[solar-panel]-b[gas-power-station]",
@@ -61,7 +61,7 @@ data:extend({
   {
     type = "generator",
     name = "kr-gas-power-station",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/gas-power-station.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/gas-power-station.png",
     flags = { "placeable-neutral", "player-creation" },
     minable = { mining_time = 1, result = "kr-gas-power-station" },
     max_health = 750,
@@ -108,11 +108,11 @@ data:extend({
       sound = {
         variations = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/gas-power-station-1.ogg",
+            filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/gas-power-station-1.ogg",
             volume = 0.8,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/gas-power-station-2.ogg",
+            filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/gas-power-station-2.ogg",
             volume = 0.75,
           },
         },
@@ -146,7 +146,7 @@ data:extend({
     },
     water_reflection = {
       pictures = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/gas-power-station/gas-power-station-reflection.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/gas-power-station/gas-power-station-reflection.png",
         priority = "extra-high",
         width = 42,
         height = 38,
@@ -178,7 +178,7 @@ data:extend({
       shift = { -0.53125, -0.4375 },
       priority = "high",
       animation_speed = 0.25,
-      filename = "__base__/graphics/entity/smoke/smoke.png", --"__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/gas-power-station/gas-power-station-smoke.png",
+      filename = "__base__/graphics/entity/smoke/smoke.png", --ei_graphics_3_path.."K2_ASSETS/buildings/gas-power-station/gas-power-station-smoke.png",
       flags = { "smoke" },
     },
   },

@@ -3,7 +3,7 @@ data:extend({
     type = "corpse",
     name = "kr-fusion-reactor-remnant",
     localised_name = { "remnant-name", { "entity-name.kr-fusion-reactor" } },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/fusion-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/fusion-reactor.png",
     flags = { "placeable-neutral", "building-direction-8-way", "not-on-map" },
     hidden_in_factoriopedia = true,
     subgroup = "remnants",
@@ -16,7 +16,7 @@ data:extend({
     final_render_layer = "remnants",
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet(1, {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/remnants/fusion-reactor-remnant/fusion-reactor-remnant.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/remnants/fusion-reactor-remnant/fusion-reactor-remnant.png",
       line_length = 1,
       width = 1100,
       height = 1100,

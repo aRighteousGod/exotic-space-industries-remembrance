@@ -2,7 +2,7 @@ data:extend({
   {
     type = "ammo",
     name = "imersite-rounds-magazine",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/imersite-rounds-magazine.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/imersite-rounds-magazine.png",
     subgroup = "ammo",
     order = "a[basic-clips]-d[imersite-rounds-magazine]",
     stack_size = 200,
@@ -33,13 +33,13 @@ data:extend({
     pictures = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/imersite-rounds-magazine.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/imersite-rounds-magazine.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/imersite-rounds-magazine-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/imersite-rounds-magazine-light.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
@@ -52,7 +52,7 @@ data:extend({
   {
     type = "ammo",
     name = "antimatter-artillery-shell",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-artillery-shell.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-artillery-shell.png",
     subgroup = "ammo",
     order = "d[explosive-cannon-shell]-e[antimatter-artillery-shell]",
     stack_size = 25,
@@ -77,13 +77,13 @@ data:extend({
     pictures = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-artillery-shell.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-artillery-shell.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-artillery-shell-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-artillery-shell-light.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
@@ -96,7 +96,7 @@ data:extend({
   {
     type = "ammo",
     name = "impulse-rifle-ammo",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/impulse-rifle-ammo.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/impulse-rifle-ammo.png",
     subgroup = "ammo",
     order = "c[impulse-rifle-ammo]",
     stack_size = 200,
@@ -125,13 +125,13 @@ data:extend({
     pictures = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/impulse-rifle-ammo.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/impulse-rifle-ammo.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/impulse-rifle-ammo-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/impulse-rifle-ammo-light.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
@@ -144,7 +144,7 @@ data:extend({
   {
     type = "ammo",
     name = "heavy-rocket",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/heavy-rocket.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/heavy-rocket.png",
     subgroup = "ammo",
     order = "d[rocket-launcher]-b[explosive]",
     stack_size = 50,
@@ -172,7 +172,7 @@ data:extend({
   {
     type = "ammo",
     name = "antimatter-rocket",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-rocket.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-rocket.png",
     subgroup = "ammo",
     order = "d[rocket-launcher]-d[antimatter-rocket]",
     stack_size = 10,
@@ -200,13 +200,13 @@ data:extend({
     pictures = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-rocket.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-rocket.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-rocket-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-rocket-light.png",
           size = 64,
           scale = 0.5,
           mipmap_count = 4,
@@ -219,7 +219,7 @@ data:extend({
   {
     type = "ammo",
     name = "explosive-turret-rocket",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/explosion-rocket-for-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/explosion-rocket-for-turret.png",
     subgroup = "rocket-turret",
     order = "b01[explosion-rocket-for-turret]",
     stack_size = 25,
@@ -247,7 +247,7 @@ data:extend({
   {
     type = "ammo",
     name = "nuclear-turret-rocket",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/nuclear-rocket-for-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/nuclear-rocket-for-turret.png",
     subgroup = "rocket-turret",
     order = "b02[nuclear-rocket-for-turret]",
     stack_size = 25,
@@ -275,7 +275,7 @@ data:extend({
       layers = {
         {
           size = 64,
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/nuclear-rocket-for-turret.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/nuclear-rocket-for-turret.png",
           scale = 0.5,
           mipmap_count = 4,
         },
@@ -283,7 +283,7 @@ data:extend({
           draw_as_light = true,
           flags = { "light" },
           size = 64,
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/nuclear-rocket-for-turret-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/nuclear-rocket-for-turret-light.png",
           scale = 0.5,
           mipmap_count = 4,
         },
@@ -293,7 +293,7 @@ data:extend({
   {
     type = "ammo",
     name = "antimatter-turret-rocket",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-rocket-for-turret.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-rocket-for-turret.png",
     subgroup = "rocket-turret",
     order = "b03[antimatter-rocket-for-turret]",
     stack_size = 25,
@@ -321,7 +321,7 @@ data:extend({
       layers = {
         {
           size = 64,
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-rocket-for-turret.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-rocket-for-turret.png",
           scale = 0.5,
           mipmap_count = 4,
         },
@@ -329,7 +329,7 @@ data:extend({
           draw_as_light = true,
           flags = { "light" },
           size = 64,
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/antimatter-rocket-for-turret-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/antimatter-rocket-for-turret-light.png",
           scale = 0.5,
           mipmap_count = 4,
         },
@@ -339,7 +339,7 @@ data:extend({
   {
     type = "ammo",
     name = "nuclear-artillery-shell",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/nuclear-artillery-shell.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/ammo/nuclear-artillery-shell.png",
     subgroup = "ammo",
     order = "d[explosive-cannon-shell]-d[artillery]-a2[nuclear-artillery]",
     stack_size = 25,
@@ -365,7 +365,7 @@ data:extend({
       layers = {
         {
           size = 64,
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/nuclear-artillery-shell.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/nuclear-artillery-shell.png",
           scale = 0.5,
           mipmap_count = 4,
         },
@@ -373,7 +373,7 @@ data:extend({
           draw_as_light = true,
           flags = { "light" },
           size = 64,
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/ammo/nuclear-artillery-shell-light.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/icons/ammo/nuclear-artillery-shell-light.png",
           scale = 0.5,
           mipmap_count = 4,
         },

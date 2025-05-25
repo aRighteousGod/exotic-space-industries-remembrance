@@ -33,7 +33,7 @@ gaia.map_gen_settings.terrain_segmentation = 0.75
 
 gaia_water = table.deepcopy(data.raw.tile["water"]);
 gaia_water.name = "ei-gaia-water"
-gaia_water.fluid = "ei-morphium";
+gaia_water.fluid = "ei-morphium"; --change this to an extremely diluted version requiring refinement otherwise the patches are useless
 data:extend({gaia_water})
 
 local landfill = data.raw.item.landfill

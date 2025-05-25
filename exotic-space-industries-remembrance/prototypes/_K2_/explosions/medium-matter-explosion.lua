@@ -6,7 +6,7 @@ data:extend({
     hidden = true,
     animations = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/medium-matter-explosion.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/medium-matter-explosion.png",
         width = 800,
         height = 800,
         frame_count = 47,

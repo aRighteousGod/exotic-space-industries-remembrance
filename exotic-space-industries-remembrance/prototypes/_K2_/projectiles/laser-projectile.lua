@@ -71,7 +71,7 @@ data:extend({
       },
     },
     animation = {
-      filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/projectiles/laser.png",
+      filename = ei_graphics_3_path.."K2_ASSETS/projectiles/laser.png",
       frame_count = 1,
       width = 6,
       height = 90,

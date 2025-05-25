@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-advanced-fuel",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/advanced-fuel.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/advanced-fuel.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -22,7 +22,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-quarry-minerals-extraction",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/quarry-drill.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/quarry-drill.png",
     icon_size = 256,
     order = "g-e-d",
     unit = {

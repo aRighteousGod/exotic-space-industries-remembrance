@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-fluid-excess-handling",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/flare-stack.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/flare-stack.png",
     icon_size = 256,
     unit = {
       time = 45,
@@ -21,7 +21,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-gas-power-station",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/gas-power-station.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/gas-power-station.png",
     icon_size = 256,
     unit = {
       time = 30,
@@ -40,7 +40,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-silicon-processing",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/silicon-processing.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/silicon-processing.png",
     icon_size = 256,
     order = "c-a",
     unit = {
@@ -62,7 +62,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-steel-fluid-handling",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/steel-fluid-handling.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/steel-fluid-handling.png",
     icon_size = 256,
     unit = {
       time = 30,

@@ -260,11 +260,14 @@ local function update_gui(self)
   end
 end
 
-local function on_tick()
-  for _, gui in pairs(storage.planetary_teleporter_gui) do
-    update_gui(gui)
+--remediate me
+script.on_nth_tick(settings.startup["ei_ticks_per_full_update"].value, function(event)
+  if storage.planetary_teleporter then
+    for _, gui in pairs(storage.planetary_teleporter_gui) do
+      update_gui(gui)
+    end
   end
-end
+end)
 
 --- @param e EventData.on_gui_opened
 local function on_gui_opened(e)
@@ -505,7 +508,7 @@ end
 
 planetary_teleporter_gui.events = {
   [defines.events.on_gui_opened] = on_gui_opened,
-  [defines.events.on_tick] = on_tick,
+--  [defines.events.on_tick] = on_tick,
   ["kr-linked-focus-search"] = on_focus_search,
 }
 

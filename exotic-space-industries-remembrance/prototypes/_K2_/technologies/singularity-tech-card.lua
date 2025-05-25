@@ -2,7 +2,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-antimatter-ammo",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/antimatter-ammo.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/antimatter-ammo.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -25,7 +25,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-antimatter-reactor",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/antimatter-reactor.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/antimatter-reactor.png",
     icon_size = 256,
     prerequisites = { "kr-fusion-energy", "kr-singularity-tech-card" },
     unit = {
@@ -49,7 +49,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-intergalactic-transceiver",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/intergalactic-transceiver.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/intergalactic-transceiver.png",
     icon_size = 256,
     unit = {
       time = 60,
@@ -70,7 +70,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-matter-cube",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/matter-cube.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/matter-cube.png",
     icon_size = 256,
     order = "g-f-z",
     unit = {
@@ -90,7 +90,7 @@ data:extend({
   {
     type = "technology",
     name = "kr-planetary-teleporter",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/technologies/planetary-teleporter.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/technologies/planetary-teleporter.png",
     icon_size = 256,
     unit = {
       time = 60,

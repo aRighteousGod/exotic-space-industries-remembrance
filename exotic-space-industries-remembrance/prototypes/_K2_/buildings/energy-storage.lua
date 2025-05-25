@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-energy-storage",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/energy-storage.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/energy-storage.png",
     subgroup = "energy",
     order = "e[accumulator]-b[energy-storage]",
     place_result = "kr-energy-storage",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "accumulator",
     name = "kr-energy-storage",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/energy-storage.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/energy-storage.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation", "not-rotatable" },
     minable = { mining_time = 1, result = "kr-energy-storage" },
     max_health = 750,
@@ -55,7 +55,7 @@ data:extend({
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/energy-storage-working.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/energy-storage-working.ogg",
         volume = 0.9,
       },
       idle_sound = {
@@ -70,7 +70,7 @@ data:extend({
       picture = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -78,7 +78,7 @@ data:extend({
             shift = { 0, -0.4 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-sh.png",
             width = 414,
             height = 270,
             scale = 0.55,
@@ -91,7 +91,7 @@ data:extend({
       charge_animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -101,7 +101,7 @@ data:extend({
             shift = { 0, -0.4 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-sh.png",
             width = 414,
             height = 270,
             scale = 0.55,
@@ -112,7 +112,7 @@ data:extend({
             shift = { 0.72, 0.56 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-charge.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-charge.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -123,7 +123,7 @@ data:extend({
             draw_as_glow = true,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-light.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -138,7 +138,7 @@ data:extend({
       discharge_animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -148,7 +148,7 @@ data:extend({
             shift = { 0, -0.4 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-sh.png",
             width = 414,
             height = 270,
             scale = 0.55,
@@ -159,7 +159,7 @@ data:extend({
             shift = { 0.72, 0.56 },
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-discharge.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-discharge.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -170,7 +170,7 @@ data:extend({
             draw_as_glow = true,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-light.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-light.png",
             width = 380,
             height = 380,
             scale = 0.55,
@@ -185,7 +185,7 @@ data:extend({
     },
     water_reflection = {
       pictures = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/energy-storage/energy-storage-reflection.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/buildings/energy-storage/energy-storage-reflection.png",
         priority = "extra-high",
         width = 44,
         height = 44,

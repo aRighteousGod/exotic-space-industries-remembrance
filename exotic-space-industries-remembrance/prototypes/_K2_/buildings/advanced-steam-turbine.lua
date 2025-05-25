@@ -16,7 +16,7 @@ data:extend({
   {
     type = "item",
     name = "kr-advanced-steam-turbine",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/advanced-steam-turbine.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/advanced-steam-turbine.png",
     subgroup = "energy",
     order = "f[nuclear-energy]-e2[advanced-steam-turbine]",
     place_result = "kr-advanced-steam-turbine",
@@ -25,7 +25,7 @@ data:extend({
   {
     type = "generator",
     name = "kr-advanced-steam-turbine",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/advanced-steam-turbine.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/advanced-steam-turbine.png",
     flags = { "placeable-neutral", "player-creation" },
     minable = { mining_time = 1, result = "kr-advanced-steam-turbine" },
     max_health = 900,
@@ -61,7 +61,7 @@ data:extend({
     max_power_output = "100MW",
     working_sound = {
       sound = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/advanced-steam-turbine.ogg",
+        filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/advanced-steam-turbine.ogg",
         volume = 1.2,
       },
       match_speed_to_activity = true,
@@ -73,7 +73,7 @@ data:extend({
     horizontal_animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-H.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-H.png",
           width = 469,
           height = 270,
           frame_count = 6,
@@ -82,7 +82,7 @@ data:extend({
           scale = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-sh-H.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-sh-H.png",
           width = 514,
           height = 225,
           frame_count = 6,
@@ -96,7 +96,7 @@ data:extend({
     vertical_animation = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-V.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-V.png",
           width = 330,
           height = 500,
           frame_count = 6,
@@ -105,7 +105,7 @@ data:extend({
           scale = 0.5,
         },
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-sh-V.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/advanced-steam-turbine/advanced-steam-turbine-sh-V.png",
           width = 350,
           height = 425,
           frame_count = 6,

@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-sentinel",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/sentinel.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/sentinel.png",
     subgroup = "radars",
     order = "01[sentinel]",
     place_result = "kr-sentinel",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "radar",
     name = "kr-sentinel",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/sentinel.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/sentinel.png",
     flags = { "placeable-player", "player-creation" },
     minable = { mining_time = 0.1, result = "kr-sentinel" },
     collision_box = { { -0.25, -0.25 }, { 0.25, 0.25 } },
@@ -56,12 +56,12 @@ data:extend({
     },
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
-      sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/sentinel.ogg" },
+      sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/sentinel.ogg" },
     },
     pictures = {
       layers = {
         {
-          filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/sentinel/sentinel.png",
+          filename = ei_graphics_3_path.."K2_ASSETS/buildings/sentinel/sentinel.png",
           priority = "low",
           width = 128,
           height = 128,

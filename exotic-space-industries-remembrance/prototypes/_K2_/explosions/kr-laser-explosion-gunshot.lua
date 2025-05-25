@@ -7,7 +7,7 @@ data:extend({
     subgroup = "explosions",
     animations = {
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/laser_gunshot.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/laser_gunshot.png",
         priority = "extra-high",
         draw_as_glow = true,
         width = 51,
@@ -17,7 +17,7 @@ data:extend({
         shift = { 0, 0 },
       },
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/laser_gunshot.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/laser_gunshot.png",
         priority = "high",
         draw_as_glow = true,
         blend_mode = "additive",
@@ -28,7 +28,7 @@ data:extend({
         shift = { 0, 0 },
       },
       {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/explosions/laser_gunshot.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/explosions/laser_gunshot.png",
         priority = "medium",
         width = 51,
         height = 57,

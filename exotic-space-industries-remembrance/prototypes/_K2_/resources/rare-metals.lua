@@ -5,30 +5,30 @@ data:extend({
   {
     type = "item",
     name = "raw-rare-metals",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals.png",
     subgroup = "raw-resource",
     order = "ga[raw-rare-metals]",
     stack_size = 200,
     pictures = {
       {
         size = 64,
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals.png",
         scale = 0.5,
         mipmap_count = 4,
       },
       {
         size = 64,
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals-1.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals-1.png",
         scale = 0.5,
       },
       {
         size = 64,
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals-2.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals-2.png",
         scale = 0.5,
       },
       {
         size = 64,
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/raw-rare-metals-3.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/icons/items/raw-rare-metals-3.png",
         scale = 0.5,
       },
     },
@@ -36,7 +36,7 @@ data:extend({
   {
     type = "resource",
     name = "rare-metals",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/resources/rare-metals.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/resources/rare-metals.png",
     flags = { "placeable-neutral" },
     order = "a-b-a",
     subgroup = "mineable-fluids",
@@ -67,7 +67,7 @@ data:extend({
     stage_counts = { 15000, 9500, 5500, 2900, 1300, 400, 150, 80 },
     stages = {
       sheet = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/resources/rare-metals/rare-metals.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/resources/rare-metals/rare-metals.png",
         priority = "extra-high",
         width = 128,
         height = 128,
@@ -78,7 +78,7 @@ data:extend({
     },
     stages_effect = {
       sheet = {
-        filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/resources/rare-metals/rare-metals-glow.png",
+        filename = ei_graphics_3_path.."K2_ASSETS/resources/rare-metals/rare-metals-glow.png",
         priority = "extra-high",
         width = 128,
         height = 128,

@@ -3,7 +3,7 @@ data:extend({
     type = "recipe",
     name = "imersite-crystal-to-dust",
     localised_name = { "recipe-name.imersite-crystal-to-dust" },
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/imersite-powder.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/imersite-powder.png",
     subgroup = "intermediate-product",
     order = "e[ei-electronic-components]",
     hide_from_player_crafting = true,
@@ -24,7 +24,7 @@ data:extend({
   {
     type = "recipe",
     name = "imersite-powder",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/items/imersite-powder.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/items/imersite-powder.png",
     enabled = false,
     category = "crushing",
     energy_required = 3,

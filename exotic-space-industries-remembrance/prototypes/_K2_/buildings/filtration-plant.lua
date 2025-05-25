@@ -18,7 +18,7 @@ data:extend({
   {
     type = "item",
     name = "kr-filtration-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/filtration-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/filtration-plant.png",
     subgroup = "production-machine",
     order = "e-b1[filtration-plant]",
     place_result = "kr-filtration-plant",
@@ -27,7 +27,7 @@ data:extend({
   {
     type = "assembling-machine",
     name = "kr-filtration-plant",
-    icon = "__exotic-space-industries-graphics-3__/K2_ASSETS/icons/entities/filtration-plant.png",
+    icon = ei_graphics_3_path.."K2_ASSETS/icons/entities/filtration-plant.png",
     flags = { "placeable-neutral", "placeable-player", "player-creation" },
     minable = { mining_time = 1, result = "kr-filtration-plant" },
     max_health = 1000,
@@ -74,14 +74,14 @@ data:extend({
     close_sound = sounds.machine_close,
     vehicle_impact_sound = sounds.generic_impact,
     working_sound = {
-      sound = { filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/sounds/buildings/filtration-plant.ogg", volume = 0.5 },
+      sound = { filename = ei_graphics_3_path.."K2_ASSETS/sounds/buildings/filtration-plant.ogg", volume = 0.5 },
       idle_sound = { filename = "__base__/sound/idle1.ogg" },
     },
     graphics_set = {
       animation = {
         layers = {
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/filtration-plant/filtration-plant.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/filtration-plant/filtration-plant.png",
             priority = "high",
             width = 460,
             height = 520,
@@ -90,7 +90,7 @@ data:extend({
             scale = 0.5,
           },
           {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/filtration-plant/filtration-plant-sh.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/filtration-plant/filtration-plant-sh.png",
             priority = "high",
             width = 498,
             height = 438,
@@ -104,7 +104,7 @@ data:extend({
       working_visualisations = {
         {
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/filtration-plant/filtration-plant-working.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/filtration-plant/filtration-plant-working.png",
             priority = "high",
             width = 340,
             height = 370,
@@ -118,7 +118,7 @@ data:extend({
         {
           apply_recipe_tint = "primary",
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/filtration-plant/filtration-plant-dirty-mask.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/filtration-plant/filtration-plant-dirty-mask.png",
             width = 156,
             height = 120,
             scale = 0.5,
@@ -131,7 +131,7 @@ data:extend({
         {
           apply_recipe_tint = "secondary",
           animation = {
-            filename = "__exotic-space-industries-graphics-3__/K2_ASSETS/buildings/filtration-plant/filtration-plant-clear-mask.png",
+            filename = ei_graphics_3_path.."K2_ASSETS/buildings/filtration-plant/filtration-plant-clear-mask.png",
             width = 156,
             height = 120,
             scale = 0.5,
