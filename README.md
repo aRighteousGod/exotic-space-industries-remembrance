@@ -18,9 +18,9 @@ Exotic Space Industries: Remembrance carries forward the original vision of Exot
 
 | Role | Name / Handle | Years | Notes |
 |------|---------------|-------|-------|
-| Original author | **PreLeyZero** | 2021 – 2025 | Core design & code of Exotic Industries |
-| Main fork of EI & Associated Mods and Integration of K2 into ESI | **Eliont** | 2025 – present | Lead developer |
-| Remembrance Fork maintainer | **aRighteousGod** | March/2025 – present | Minder of Chronotaxis |
+| Original author | **PreLeyZero** | 2021 – 2024? | Core design & code of Exotic Industries |
+| ESI Fork | **Eliont** | 2025 – present? Remembrance branched @ 1.5.7 | Lead developer |
+| Remembrance Fork | **aRighteousGod** | March/2025 – present | Minder of Chronotaxis |
 | Contributors | See `CONTRIBUTORS.md` | ongoing | Pull-requests welcome |
 
 Sprites, sounds, and code marked in‐file with `©` notices retain their original attribution.  
