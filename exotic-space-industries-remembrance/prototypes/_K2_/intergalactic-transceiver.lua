@@ -454,7 +454,7 @@ end
 
 --- @param e EventData.on_gui_opened
 local function on_gui_opened(e)
-  if storage.intergalactic_transceiver.guis[e.player_index] then
+  if storage.intergalactic_transceiver and storage.intergalactic_transceiver.guis and storage.intergalactic_transceiver.guis[e.player_index] then
     return
   end
   if e.gui_type ~= defines.gui_type.entity then

@@ -40,8 +40,8 @@ local tint_palette = {
     ["rift"]        = { name = "rift",        adj = "iridescent", hex = "#a57880", intent = "mystery" },
     ["sigil"]       = { name = "sigil",       adj = "unstable",   hex = "#8189d0", intent = "wrath" },
     ["shard"]       = { name = "shard",       adj = "quantum",    hex = "#b982bd", intent = "signal" },
-    ["beam"]        = { name = "beam",        adj = "solar",      hex = "#44caee", intent = "wrath" },
-    ["pulse"]       = { name = "pulse",       adj = "radiant",    hex = "#624385", intent = "divine" }
+    ["beam"]        = { name = "beam",        adj = "solar",      hex = "#44caee", intent = "wrath" }
+--    ["pulse"]       = { name = "pulse",       adj = "radiant",    hex = "#624385", intent = "divine" }
   }  
 
 local intent_tint_map = {
@@ -107,44 +107,10 @@ function ei_global.init()
     storage.ei.alien = {}
     storage.ei.tint_palette_checksum         = 646507522
     storage.ei.tint_palette = tint_palette
-    storage.ei.tint_adjectives_checksum      = 1681271366
-    storage.ei.tint_adjectives = tint_adjectives
     storage.ei.crystal_colors_checksum       = 134327789
     storage.ei.crystal_colors = crystal_colors
     storage.ei.intent_tint_map_checksum      = 1936040709
     storage.ei.intent_tint_map = intent_tint_map
---[[
-    local que = ei_lib.config("em_updater_que") or "Beam"
-    if que == "Beam" then
-        storage.ei.em_train_que = 1
-    elseif que == "Ring" then
-        storage.ei.em_train_que = 2 --faster to compare a number
-    else
-        storage.ei.em_train_que = 0
-    end
-	local val
-
-	val = ei_lib.config("em_updater_que_width")
-	storage.ei.que_width = (val ~= nil) and val or 6
-
-	val = ei_lib.config("em_updater_que_transparency")
-	storage.ei.que_transparency = ((val ~= nil) and val or 80) / 100
-
-	val = ei_lib.config("em_updater_que_timetolive")
-	storage.ei.que_timetolive = (val ~= nil) and val or 60
-
-	val = ei_lib.config("em_train_glow_toggle")
-	storage.ei.em_train_glow_toggle = (val ~= nil) and val or true
-
-	val = ei_lib.config("em_train_glow_timetolive")
-	storage.ei.em_train_glow_timeToLive = (val ~= nil) and val or 60
-
-	val = ei_lib.config("em_charger_glow_toggle")
-	storage.ei.em_charger_glow = (val ~= nil) and val or true
-
-	val = ei_lib.config("em_charger_glow_timetolive")
-	storage.ei.em_charger_glow_timeToLive = (val ~= nil) and val or 60
-    ]]
 
     storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
@@ -161,12 +127,6 @@ function ei_global.check_init()
     end
     if not storage.ei.tint_palette_checksum then
         storage.ei.tint_palette_checksum         = 646507522
-    end
-    if not storage.ei.tint_adjectives then
-        storage.ei.tint_adjectives      = tint_adjectives
-    end
-    if not storage.ei.tint_adjectives_checksum then
-        storage.ei.tint_adjectives_checksum      = 1681271366
     end
     if not storage.ei.crystal_colors then
         storage.ei.crystal_colors       = crystal_colors

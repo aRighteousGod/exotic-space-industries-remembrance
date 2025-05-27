@@ -94,7 +94,7 @@ script.on_init(function()
     game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) --works
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…") 
-    storage.ei.gaia_reforged = 1 --0=pre reforge, 1 = post reforge/valid surface, additional #s for future planetary evolution
+    reforge_gaia_surface()  --fixes the occassionally invalid surface by regenerating
 end)
 
 --ENTITY RELATED
@@ -329,15 +329,29 @@ function surface_contains_any_resources(surface)
   return false
 end
 
---Uncomment me to teleport to Gaia to test reforge_gaia_surface produced valid result :)
 
+
+-- Debugs proclaim
+commands.add_command("codex_test", "Triggers a test echo message from echo_codex", function(cmd)
+    ei_echo_codex.proclaim("que_width", {
+        val = 6,
+        tint = "solar flare",           -- must match a key in your tint_palette
+        tint_adj = "radiant",           -- optional
+        player = cmd.player_index,      -- critical: sets who receives the message
+        intent = "signal",              -- optional: activates fallback tint if tint=nil
+        font = "default",               -- optional
+        force_full_tint = false,        -- optional
+        as_floating_text = false        -- set to true for draw_text
+    })
+end)
+--Uncomment me to teleport to Gaia to test reforge_gaia_surface produced valid result :)
 commands.add_command("goto-gaia", "Teleport to Gaia's surface", function(cmd)
     local player = game.get_player(cmd.player_index)
     if not player then return end
     local planet = game.planets["gaia"]
     local surface = planet and planet.surface
     if not surface then
-        player.print("[Exotic Space Industries] Gaia surface not found.")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Gaia surface not found.")
         return
     end
     local position = {0, 0}  -- center of the world
@@ -566,12 +580,13 @@ local function youHaveArrived(player)
             time_to_live = 180,
             players = player_indices
         }
-
     end
 ei_lib.crystal_echo("Fragments of GAIA's lament ripple across space-time...")
 ei_lib.crystal_echo("⟬ THE SYSTEM STIRS ⟭","default-bold")
-ei_lib.crystal_echo("⚠️ YOU HAVE BEEN SEEN ⚠️","default-bold")
+--ei_lib.crystal_echo("⚠️ YOU HAVE BEEN SEEN ⚠️","default-bold")
+ei_lib.crystal_echo_floating("⚠️ YOU HAVE BEEN SEEN ⚠️", player, 720)
 end
+
 script.on_event(
   {
     defines.events.on_player_joined_game,
@@ -860,6 +875,7 @@ function on_destroyed_entity(e)
         ei_register.unregister_slave_entity("copper_beacon", slave_entity ,e["entity"], true)
         ei_register.unregister_master_entity("copper_beacon", master_unit)
         ei_register.subtract_spaced_update()
+        ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
         ::continue::
     end
 
@@ -872,10 +888,11 @@ function on_destroyed_entity(e)
         ei_register.unregister_slave_entity("copper_beacon", slave_entity ,e["entity"], true)
         ei_register.unregister_master_entity("copper_beacon", master_unit)
         ei_register.subtract_spaced_update()
+        ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
         ::continue::
     end
 
-    ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
+    --ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_alien_spawner.on_destroyed_entity(e["entity"])
     ei_matter_stabilizer.on_destroyed_entity(e["entity"])

@@ -2,7 +2,7 @@
 
 **Fork of _Exotic Space Industries_ by Eliont, a fork of _Exotic Industries_ by PreLeyZero — now continued and expanded under the GNU General Public License v3 or later (GPL-3.0-or-later).**
 
-Exotic Space Industries: Remembrance carries forward the original vision of Exotic Industries, updates it for Factorio 2.0 Space Age, and layers on new mechanics (K2 integration, aesthetic spectacle, etc.). Every file that originated in the upstream mod remains under the GPL; all new work inherits the same licence.
+Exotic Space Industries: Remembrance carries forward the original vision of Exotic Industries, updates it for Factorio 2.0 Space Age, and layers on new mechanics (K2 assimilation & differentiation, daemonic influence, emotional soundtrack, heat-temperature based scaling of heated building crafting speed, and more.). Every file that originated in the upstream mod remains under the GPL; all new work inherits the same licence.
 
 ---
 
@@ -18,9 +18,9 @@ Exotic Space Industries: Remembrance carries forward the original vision of Exot
 
 | Role | Name / Handle | Years | Notes |
 |------|---------------|-------|-------|
-| Original author | **PreLeyZero** | 2021 – 2025 | Core design & code of Exotic Industries |
-| Main fork of EI & Associated Mods and Integration of K2 into ESI | **Eliont** | 2025 – present | Lead developer |
-| Remembrance Fork maintainer | **aRighteousGod** | March/2025 – present | Minder of Chronotaxis |
+| Original author | **PreLeyZero** | 2021 – 2024? | Core design & code of Exotic Industries |
+| ESI Fork | **Eliont** | 2025 – present? Remembrance branched @ 1.5.7 | Lead developer |
+| Remembrance Fork | **aRighteousGod** | March/2025 – present | Minder of Chronotaxis |
 | Contributors | See `CONTRIBUTORS.md` | ongoing | Pull-requests welcome |
 
 Sprites, sounds, and code marked in‐file with `©` notices retain their original attribution.  

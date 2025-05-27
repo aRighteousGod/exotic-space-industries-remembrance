@@ -110,7 +110,6 @@ local function format_echo(message, replacements)
     end))
 end
 
-
 -- Function to emit a random echo from a category with optional data injection
 function echo_codex.proclaim(category, data)
     local pool = echo_templates[category]

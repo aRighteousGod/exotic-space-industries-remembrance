@@ -10,7 +10,11 @@ Date: 5-3-25
     -Pulsing idle glow for Plasma Heater.
     -Import zh-CN locale from ai_cn by @lyx_kljk.
     Changes:
-    -RU locale updated by @Hoochie63
+    -English Informatron Wiki Pages brought to heel—in line with Remembrance ethos.
+    -Advanced bots have been renamed: Obelisk heavy cargo bot, Spearling fast construction bot, Wraithline advanced logistic bot, & Architectum advanced construction bot. Descriptions have been modified with appropriate mythos.
+    -Arc furnace, Plasma Heater, Gate, Crystal Grower descriptions updated.
+    -All references to Neodym now -> Neodymium.
+    -RU locale updated by @Hoochie63.
     -Glass is now made from 1:4 from Industrial Glass.
     -Sand:Industrial Glass ratio is now 64:1 in furnaces.
     -Sand:Molten Glass ratio is now 480:50 in the Arc Furnace & Plasma Heater.
