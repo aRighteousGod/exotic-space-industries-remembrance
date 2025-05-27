@@ -97,24 +97,13 @@ local echo_templates = {
 }
 
 --[[]
--- Tint to adjective mapping
-local tint_adjectives = {
-    ["turquoise-orange"] = {adj = "iridescent", hex = "#40e0d0"},
-    ["royal purple"] = {adj = "regal", hex = "#7030a0"},
-    ["cerulean"] = {adj = "oceanic", hex = "#007ba7"},
-    ["orchid flare"] = {adj = "florid", hex = "#ba55d3"},
-    ["crystal teal"] = {adj = "glacial", hex = "#48d1cc"},
-    ["etheric pink"] = {adj = "phantasmal", hex = "#ff69b4"},
-    ["dream gold"] = {adj = "radiant", hex = "#f0e68c"},
-    ["verdant flux"] = {adj = "verdant", hex = "#32cd32"},
-    ["solar flare"] = {adj = "blazing", hex = "#ff4500"}
-}
+
 ]]
 -- Utility to substitute placeholders in the message
 local function format_echo(message, replacements)
     return (string.gsub(message, "{(.-)}", function(key)
         if key == "tint_adj" and replacements["tint"] then
-            local tint = storage.ei.tint_adjectives[replacements["tint"]]
+            local tint = storage.ei.tint_palette[replacements["tint"]]
             return (tint and tint.adj) or "mysterious"
         end
         return tostring(replacements[key] or "{"..key.."}")
@@ -165,9 +154,9 @@ function echo_codex.handle_global_settings()
 
     -- Helper to get new tint and adj
     local function next_tint()
-        local tint = ei_lib.get_random_different_value(storage.ei.tint_adjectives, previous_tint)
+        local tint = ei_lib.get_random_different_value(storage.ei.tint_palette, previous_tint)
         previous_tint = tint
-        return tint, storage.ei.tint_adjectives[tint]
+        return tint, storage.ei.tint_palette[tint]
     end
 
     --=== [Width Announcement] ===--

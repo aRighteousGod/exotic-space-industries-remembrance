@@ -5,14 +5,14 @@ local impact_sounds = function()
     return
     {
         type = "play-sound",
-        sound = sound_variations(ei_path.."sounds/em_trains/em_train_collide", 6, 0.3, { volume_multiplier("main-menu", 3.25), volume_multiplier("driving", 1.9) } )
+        sound = sound_variations(ei_trains_sounds_path.."em_train_collide", 6, 0.3, { volume_multiplier("main-menu", 3.25), volume_multiplier("driving", 1.9) } )
     }
 end
 local drive_over_tie = function()
 	return
 	{
 	  type = "play-sound",
-	  sound = sound_variations(ei_path.."sounds/em_trains/em_train_tie", 6, 0.3, { volume_multiplier("main-menu", 3.25), volume_multiplier("driving", 1.9) } )
+	  sound = sound_variations(ei_trains_sounds_path.."em_train_tie", 6, 0.3, { volume_multiplier("main-menu", 3.25), volume_multiplier("driving", 1.9) } )
 	}
   end
 function train_front_light()

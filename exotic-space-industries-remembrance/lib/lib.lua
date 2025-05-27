@@ -32,6 +32,47 @@ function ei_lib.table_contains_value(table_in, value)
     return false
 end
 
+--Pick a value from table other than the previous
+function ei_lib.get_random_different_value(tbl, previous)
+    if not tbl then return end
+
+    -- Convert table values into an array
+    local values = {}
+    for _, v in pairs(tbl) do
+        table.insert(values, v)
+    end
+
+    if #values == 1 then return values[1] end -- no choice
+
+    local choice
+    repeat
+        choice = values[ei_rng.int("randtblvalu", 1, #values)]
+    until choice ~= previous
+
+    return choice
+end
+
+--turn a table into one contiguous string with optional indent spacing
+function ei_lib.table_to_string(tbl, indent)
+    if not tbl then
+        log("table_to_string got null table")
+        return
+    end
+    indent = indent or 0
+    local lines = {}
+    local prefix = string.rep("  ", indent)
+    for k, v in pairs(tbl) do
+        if type(v) == "table" then
+            table.insert(lines, prefix .. tostring(k) .. " = {")
+            table.insert(lines, table_to_string(v, indent + 1))
+            table.insert(lines, prefix .. "}")
+        else
+            table.insert(lines, prefix .. tostring(k) .. " = " .. tostring(v))
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
 -- emulate switch-case in Lua for checking given string with a list of strings
 -- retruns the matched element of the switch_table or nil if no match was found
 -- switch_table = { ["string_condition"] = return vale, ... }

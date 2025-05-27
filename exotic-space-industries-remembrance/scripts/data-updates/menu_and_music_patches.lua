@@ -59,6 +59,41 @@ data:extend{
   },
   {
     type = "ambient-sound",
+    name = "leave-the-world-behind",
+    track_type = "main-track",
+    planet = "nauvis",
+    sound = ei_soundtrack_path_1.."kimlightyear_leave_the_world_tonight.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "inevitability",
+    track_type = "main-track",
+    planet = "nauvis",
+    sound = ei_soundtrack_path_1.."inevitability.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "villified",
+    track_type = "main-track",
+    planet = "nauvis",
+    sound = ei_soundtrack_path_1.."villified.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "a-new-page",
+    track_type = "main-track",
+    planet = "nauvis",
+    sound = ei_soundtrack_path_1.."a_new_page.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "death-is-just-another-path",
+    track_type = "main-track",
+    planet = "nauvis",
+    sound = ei_soundtrack_path_1.."death_is_just_another_path.ogg"
+  },
+  {
+    type = "ambient-sound",
     name = "my-very-own-dead-ship",
     track_type = "interlude",
     planet = "nauvis",

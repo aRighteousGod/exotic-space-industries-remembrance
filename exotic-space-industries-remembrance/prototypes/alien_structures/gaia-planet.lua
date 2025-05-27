@@ -137,6 +137,48 @@ data:extend{
   },
   {
     type = "ambient-sound",
+    name = "anti-entity",
+    track_type = "main-track",
+    planet = "gaia",
+    sound = ei_soundtrack_path_2.."gaia_anti_entity.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "cathedral",
+    track_type = "main-track",
+    planet = "gaia",
+    sound = ei_soundtrack_path_2.."gaiacathedral.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "last-angel",
+    track_type = "main-track",
+    planet = "gaia",
+    sound = ei_soundtrack_path_2.."gaia_fato_shadow_-_last_angel.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "desert-of-dreams",
+    track_type = "main-track",
+    planet = "gaia",
+    sound = ei_soundtrack_path_2.."gaia_caryil_the_desert_of_dreams_chill_jungle_ambient_mix.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "space",
+    track_type = "main-track",
+    planet = "gaia",
+    sound = ei_soundtrack_path_2.."gaia_space.ogg"
+  },
+  {
+    type = "ambient-sound",
+    name = "underwater-theme",
+    track_type = "main-track",
+    planet = "gaia",
+    sound = ei_soundtrack_path_2.."gaia_underwater_theme_ii.ogg"
+  },
+  {
+    type = "ambient-sound",
     name = "a-bad-feeling",
     track_type = "interlude",
     planet = "gaia",

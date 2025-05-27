@@ -83,7 +83,6 @@ local intent_tint_map = {
     }
   }
 
-
 --====================================================================================================
 --GLOBAL VARIABLES
 --====================================================================================================
@@ -150,7 +149,6 @@ function ei_global.init()
     storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
-    ei_echo_codex.handle_global_settings()
 end
 
 function ei_global.check_init()
@@ -191,7 +189,7 @@ function ei_global.check_init()
     if not storage.ei.gaia_reforged_version then
         storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     end
-
+--[[
     local val = ei_lib.config("em_updater_que") or "Beam"
     if val == "Beam" then
         storage.ei.em_train_que = 1
@@ -221,7 +219,7 @@ function ei_global.check_init()
 
     val = ei_lib.config("em_charger_glow_timetolive")
     storage.ei.em_charger_glow_timeToLive = (val ~= nil) and val or 60
-
+]]
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}
     end
