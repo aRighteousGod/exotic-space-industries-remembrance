@@ -68,14 +68,14 @@ List-ZipContentsRecursively $zip
 $shell = $null
 
 # --- AUTO-CLOSE CONTROL ---
-Write-Host "`nPress Enter to close, or wait 60 seconds..." -ForegroundColor Yellow
+#Write-Host "`nPress Enter to close, or wait 60 seconds..." -ForegroundColor Yellow
 
-$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+#$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-while ($stopwatch.Elapsed.TotalSeconds -lt 60) {
-    if ([System.Console]::KeyAvailable) {
-        [System.Console]::ReadKey($true) | Out-Null
-        break
-    }
-    Start-Sleep -Milliseconds 200
-}
+#while ($stopwatch.Elapsed.TotalSeconds -lt 60) {
+#    if ([System.Console]::KeyAvailable) {
+#        [System.Console]::ReadKey($true) | Out-Null
+#        break
+#    }
+#    Start-Sleep -Milliseconds 200
+#}

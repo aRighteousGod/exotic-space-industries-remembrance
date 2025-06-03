@@ -199,18 +199,18 @@ if mods and mods["aai-signal-transmission"] then
 end
 ei_lib.add_unlock_recipe("electronics","stone-tablet")
 ei_lib.add_unlock_recipe("ei-steam-power","boiler")
-ei_lib.add_unlock_recipe("ei-glass","glass")
+--ei_lib.add_unlock_recipe("ei-glass","glass")
 ei_lib.add_unlock_recipe("steel-processing","steel-gear-wheel")
 
 ei_lib.recipe_swap("splitter", "electronic-circuit", "ei-iron-mechanical-parts")
 --ei_lib.recipe_swap("ei-loader", "electronic-circuit", "ei-iron-mechanical-parts") --This overrides loader patch
 
-ei_lib.add_unlock_recipe("ei-advanced-port","kr-small-roboport")
-ei_lib.add_unlock_recipe("ei-advanced-port","kr-big-roboport")
-ei_lib.add_unlock_recipe("ei-electricity-power","kr-wind-turbine")
+--ei_lib.add_unlock_recipe("ei-advanced-port","kr-small-roboport")
+--ei_lib.add_unlock_recipe("ei-advanced-port","kr-big-roboport")
+--ei_lib.add_unlock_recipe("ei-electricity-power","kr-wind-turbine")
 ei_lib.add_unlock_recipe("atomic-bomb","nuclear-artillery-shell")
 ei_lib.add_unlock_recipe("rocket-silo","ei-orbital-combinator")
-ei_lib.add_unlock_recipe("ei-electronic-parts","electronic-components") --add k2 electronic components to EI equivalent
+--ei_lib.add_unlock_recipe("ei-electronic-parts","electronic-components") --add k2 electronic components to EI equivalent
 ei_lib.add_unlock_recipe("lithium-processing","lithium-chloride")
 
 --====================================================================================================

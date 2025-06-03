@@ -12,10 +12,15 @@ function contains(s, word) return tostring(s):find(word, 1, true) ~= nil end
 --FINAL FIXES
 --===========
 
-require("prototypes/_K2_/libraries/flare-stack").auto_generate()
 
-require("prototypes/_K2_/generate-matter-recipes")
-require("prototypes/_K2_/set-new-resource-autoplace")
+-- =======================================================================================
+-- Override main menu
+require("scripts/data-final-updates/set_menu_background")
+
+--require("prototypes/_K2_/libraries/flare-stack").auto_generate()
+
+--require("prototypes/_K2_/generate-matter-recipes")
+--require("prototypes/_K2_/set-new-resource-autoplace")
 
 -- =======================================================================================
 

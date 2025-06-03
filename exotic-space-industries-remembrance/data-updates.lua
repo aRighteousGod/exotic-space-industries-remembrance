@@ -39,7 +39,7 @@ if ei_lib.config("ash") then
 end
 ]]
 --main menu backgrounds, nauvis soundtrack override
-require("scripts/data-updates/menu_and_music_patches")
+require("scripts/data-updates/music_patches")
 
 if ei_lib.config("loader-prototype-complexity") then
   require("scripts/data-updates/loader_patches")

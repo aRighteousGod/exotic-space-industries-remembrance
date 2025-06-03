@@ -9,13 +9,14 @@ Date: 5-3-25
     -Pulsing idle glow for Arc Furnace.
     -Pulsing idle glow for Plasma Heater.
     -Import zh-CN locale from ai_cn by @lyx_kljk.
+    -EI Loaders added to Milestones preset.
     Changes:
+    -Krastorio2 no longer integrated, compatibility with Krastorio2-Spaced-Out is ongoing.
     -English Informatron Wiki Pages brought to heel—in line with Remembrance ethos.
     -Advanced bots have been renamed: Obelisk heavy cargo bot, Spearling fast construction bot, Wraithline advanced logistic bot, & Architectum advanced construction bot. Descriptions have been modified with appropriate mythos.
     -Arc furnace, Plasma Heater, Gate, Crystal Grower descriptions updated.
     -All references to Neodym now -> Neodymium.
     -RU locale updated by @Hoochie63.
-    -Glass is now made from 1:4 from Industrial Glass.
     -Sand:Industrial Glass ratio is now 64:1 in furnaces.
     -Sand:Molten Glass ratio is now 480:50 in the Arc Furnace & Plasma Heater.
     -Molten Glass:Industrial Glass ratio remains 5:1, meaning by default
@@ -39,6 +40,8 @@ Date: 5-3-25
     -reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
     -KR Planetary Teleporter+Gui ontick updaters integrated.
     Fixes:
+    -Inserter crane entries corrected in Milestones preset.
+    -Crystal Accumulator technology name restored to lang_en
     -Avoiding gate energy draw no longer possible.
     -Internal name for Gaia planet reverted to gaia, external name Gaia, preserving existing save files which did not have malformed Gaia generation settings. A dummy prototype remains as to not invalidate 1.5.7 saves before the on-load migration. If upgrading from 1.5.6 or before, you will no longer need to update your ship schedule. If from 1.5.7, you will need to update your ship schedule, and Gaia may display in category Other until clicked on to refresh it.
 

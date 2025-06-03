@@ -51,7 +51,7 @@ orbital_combinator = require("scripts/control/orbital_combinator")
 --====================================================================================================
 --K2_CONTROL
 --====================================================================================================
-
+--[[
 local handler = require("__core__.lualib.event_handler")
 
 handler.add_libraries({
@@ -62,7 +62,7 @@ handler.add_libraries({
   require("prototypes/_K2_/planetary-teleporter-gui"), -- Must be before planetary-teleporter
   require("prototypes/_K2_/planetary-teleporter"),
 })
-
+]]
 --====================================================================================================
 --EVENTS
 --====================================================================================================

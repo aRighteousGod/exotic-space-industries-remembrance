@@ -660,10 +660,12 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-glass"
             },
+            --[[
             {
                 type = "unlock-recipe",
                 recipe = "glass"
             },
+            ]]
             {
                 type = "unlock-recipe",
                 recipe = "ei-landfill-sand"
