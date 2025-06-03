@@ -321,17 +321,22 @@ end
 
 
 -- set a completly new set of ingredients for recipe
-function ei_lib.recipe_new(recipe, table_in)
+function ei_lib.recipe_new(recipe, table_in, category)
     -- test if recipe exists in data.raw.recipe
     if not data.raw.recipe[recipe] then
         log("recipe "..recipe.." does not exist in data.raw.recipe")
         return
     end
-
+    if category then
+      if data.raw.recipe[recipe].category then
+        data.raw.recipe[recipe].category = category
+      else
+        log("recipe "..recipe.." does not have a category field, cannot set category to "..category)
+      end
+    end
     -- set ingredients
     data.raw.recipe[recipe].ingredients = table_in
 end
-
 
 function ei_lib.recipe_hard_overwrite(recipe, ingredients)
 

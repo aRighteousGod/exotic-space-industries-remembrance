@@ -10,8 +10,11 @@ Date: 5-3-25
     -Pulsing idle glow for Plasma Heater.
     -Import zh-CN locale from ai_cn by @lyx_kljk.
     -EI Loaders added to Milestones preset.
+    -EI Turbo loader added and inserted into upgrade progression. If Loader Patch is enabled it can filter 1 lane and stack upto 4. Sprite recolor credit to @Samario
     Changes:
-    -Krastorio2 no longer integrated, compatibility with Krastorio2-Spaced-Out is ongoing.
+    -(Loader Patch only) Neodymium loader now stacks to 8. Express loader now has single lane filtering and stacks to 2. Additional requirements for recipes from Express Loader onwards.
+    -All loader electricity requirements and energy buffers increased—overall there is a shorter duration of full speed items:second to buffer ratio.
+    -Krastorio2 no longer integrated. K2 Spaced Out will load alongside—nuanced compatibility pending.
     -English Informatron Wiki Pages brought to heel—in line with Remembrance ethos.
     -Advanced bots have been renamed: Obelisk heavy cargo bot, Spearling fast construction bot, Wraithline advanced logistic bot, & Architectum advanced construction bot. Descriptions have been modified with appropriate mythos.
     -Arc furnace, Plasma Heater, Gate, Crystal Grower descriptions updated.
@@ -19,7 +22,7 @@ Date: 5-3-25
     -RU locale updated by @Hoochie63.
     -Sand:Industrial Glass ratio is now 64:1 in furnaces.
     -Sand:Molten Glass ratio is now 480:50 in the Arc Furnace & Plasma Heater.
-    -Molten Glass:Industrial Glass ratio remains 5:1, meaning by default
+    -Molten Glass:Industrial Glass ratio remains 5:1
     -Arc Furnace now maintains 12MW idle power draw unaffected by modules to preserve electrode readiness.
     -Plasma Heater now has 24MW idle power draw unaffected by modules ensuring unbroken plasma confinement even while dormant.
     -Fission research facility power draw 5MW -> 8.8MW.
@@ -38,8 +41,8 @@ Date: 5-3-25
     -Gate activation threshold moved from 20% -> 90%.
     -Gate per item energy requirement now assesses raw material costs instead of a flat cost.
     -reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
-    -KR Planetary Teleporter+Gui ontick updaters integrated.
     Fixes:
+    -Neodymium transport belt, underground, splitter moved after Turbo in crafting menu.
     -Inserter crane entries corrected in Milestones preset.
     -Crystal Accumulator technology name restored to lang_en
     -Avoiding gate energy draw no longer possible.

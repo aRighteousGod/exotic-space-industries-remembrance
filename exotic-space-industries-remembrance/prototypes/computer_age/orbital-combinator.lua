@@ -9,7 +9,7 @@ local remnants =
     type = "corpse",
     se_allow_in_space = true,
     name = "ei-orbital-combinator-remnants",
-    icon = ei_graphics_3_path.."graphics/orbital-combinator/icon.png",
+    icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = {"placeable-neutral", "not-on-map"},
     subgroup = "circuit-network-remnants",
@@ -23,7 +23,7 @@ local remnants =
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet (1,
     {
-      filename = ei_graphics_3_path.."graphics/orbital-combinator/remnants.png",
+      filename = ei_graphics_2_path.."graphics/orbital-combinator/remnants.png",
       line_length = 1,
       width = 60,
       height = 56,
@@ -54,7 +54,7 @@ function OrbitalCombinator(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = ei_graphics_3_path.."graphics/orbital-combinator/entity.png",
+          filename = ei_graphics_2_path.."graphics/orbital-combinator/entity.png",
           width = 58,
           height = 52,
           frame_count = 1,
@@ -167,7 +167,7 @@ data:extend
     type = "constant-combinator",
     se_allow_in_space = true,
     name = "ei-orbital-combinator",
-    icon = ei_graphics_3_path.."graphics/orbital-combinator/icon.png",
+    icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 0.1, result = "ei-orbital-combinator"},
@@ -211,7 +211,7 @@ data:extend
     type = "item",
     se_allow_in_space = true,
     name = "ei-orbital-combinator",
-    icon = ei_graphics_3_path.."graphics/orbital-combinator/icon.png",
+    icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
     icon_size = 64, icon_mipmaps = 4,
     subgroup = "circuit-network",
     place_result="ei-orbital-combinator",

@@ -60,13 +60,13 @@ ei_robots_item_path = ei_graphics_item_2_path
 ei_robots_tech_path = ei_graphics_tech_2_path
 ei_robots_entity_path = ei_graphics_entity_2_path
 
-ei_fueler_graphics_path = ei_graphics_3_path.."graphics/fueler/"
+ei_fueler_graphics_path = ei_graphics_2_path.."graphics/fueler/"
 
-ei_trains_path = ei_graphics_3_path
-ei_trains_sounds_path = ei_graphics_3_path.."sounds/em_trains/"
-ei_trains_entity_path = ei_trains_path.."graphics/em-trains/entities/"
-ei_trains_item_path = ei_trains_path.."graphics/em-trains/items/"
-ei_trains_tech_path = ei_trains_path.."graphics/em-trains/techs/"
+ei_trains_path = ei_graphics_2_path
+ei_trains_sounds_path = ei_trains_path.."sounds/em_trains/"
+ei_trains_entity_path = ei_trains_path.."graphics/entities/"
+ei_trains_item_path = ei_trains_path.."graphics/items/"
+ei_trains_tech_path = ei_trains_path.."graphics/techs/"
 --[[
 if ei_lib.config("slag") then
     ei_slag_path = ei_path.."graphics/slag/"

@@ -10,6 +10,7 @@ local loaders = {
     ["ei-loader"] = true,
     ["ei-fast-loader"] = true,
     ["ei-express-loader"] = true,
+    ["ei-turbo-loader"] = true,
     ["ei-neo-loader"] = true,
 }
 
@@ -50,6 +51,7 @@ local loader_like = {
     "ei-loader",
     "ei-fast-loader",
     "ei-express-loader",
+    "ei-turbo-loader",
     "ei-neo-loader",
 }
 

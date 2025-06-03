@@ -92,7 +92,7 @@ data:extend({
         icon = ei_graphics_item_path.."neo-belt.png",
         icon_size = 64,
         subgroup = "belt",
-        order = "a[transport-belt]-d[neo-transport-belt]",
+        order = "a[transport-belt]-e[neo-transport-belt]",
         place_result = "ei-neo-belt",
         stack_size = 100
     },
@@ -102,7 +102,7 @@ data:extend({
         icon = ei_graphics_item_path.."neo-underground-belt.png",
         icon_size = 64,
         subgroup = "belt",
-        order = "b[underground-belt]-d[neo-underground-belt]",
+        order = "b[underground-belt]-e[neo-underground-belt]",
         place_result = "ei-neo-underground-belt",
         stack_size = 50
     },
@@ -112,7 +112,7 @@ data:extend({
         icon = ei_graphics_item_path.."neo-splitter.png",
         icon_size = 64,
         subgroup = "belt",
-        order = "c[splitter]-d[neo-splitter]",
+        order = "c[splitter]-e[neo-splitter]",
         place_result = "ei-neo-splitter",
         stack_size = 50
     },

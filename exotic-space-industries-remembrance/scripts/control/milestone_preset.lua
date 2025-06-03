@@ -63,6 +63,7 @@ remote.add_interface("exotic-industries-milestones", {
                 {type="item",       name="ei-loader", quantity=1},
                 {type="item",       name="ei-fast-loader", quantity=1},
                 {type="item",       name="ei-express-loader", quantity=1},
+                {type="item",       name="ei-turbo-loader", quantity=1},
                 {type="item",       name="ei-neo-loader", quantity=1},
                 {type="item",       name="ei-steam-inserter", quantity=1},
                 {type="item",       name="inserter", quantity=1},

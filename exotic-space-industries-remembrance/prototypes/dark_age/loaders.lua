@@ -134,6 +134,28 @@ data:extend({
         stack_size = 50
     },
     {
+        name = "ei-turbo-loader",
+        type = "item",
+        icon = ei_loaders_item_path.."turbo-loader.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+        subgroup = "loader",
+        order = "h[ei-loader]-4",
+        place_result = "ei-turbo-loader",
+        stack_size = 50
+    },
+    {
+        name = "ei-neo-loader",
+        type = "item",
+        icon = ei_loaders_item_path.."neo-loader.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+        subgroup = "loader",
+        order = "h[ei-loader]-5",
+        place_result = "ei-neo-loader",
+        stack_size = 50
+    },
+    {
         name = "ei-loader",
         type = "recipe",
         category = "crafting",
@@ -181,41 +203,32 @@ data:extend({
         always_show_made_in = true,
         main_product = "ei-express-loader",
     },
-})
-
--- add entities
-
-local belt = data.raw["transport-belt"]["transport-belt"]
-local fast_belt = data.raw["transport-belt"]["fast-transport-belt"]
-local express_belt = data.raw["transport-belt"]["express-transport-belt"]
-
-ei_loaders_lib.make_loader(nil, "ei-fast-loader", belt.belt_animation_set, belt.speed)
-ei_loaders_lib.make_loader("fast", "ei-express-loader", fast_belt.belt_animation_set, fast_belt.speed)
-ei_loaders_lib.make_loader("express", nil, express_belt.belt_animation_set, express_belt.speed)
-
-
-data:extend({
     {
-        name = "ei-neo-loader",
-        type = "item",
-        icon = ei_loaders_item_path.."neo-loader.png",
-        icon_size = 64,
-        icon_mipmaps = 4,
-        subgroup = "loader",
-        order = "h[ei-loader]-4",
-        place_result = "ei-neo-loader",
-        stack_size = 50
+        name = "ei-turbo-loader",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 5,
+        ingredients =
+        {
+            {type="item", name="ei-express-loader", amount=1},
+            {type="item", name="processing-unit", amount=20},
+            {type="item", name="tungsten-carbide", amount=20},
+        },
+        results = {{type="item", name="ei-turbo-loader", amount=1}},
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei-turbo-loader",
     },
     {
         name = "ei-neo-loader",
         type = "recipe",
         category = "crafting",
-        energy_required = 2,
+        energy_required = 6,
         ingredients =
         {
-            {type="item", name="ei-express-loader", amount=2},
-            {type="item", name="processing-unit", amount=12},
-            {type="item", name="ei-high-energy-crystal", amount=4},
+            {type="item", name="ei-turbo-loader", amount=1},
+            {type="item", name="quantum-processor", amount=20},
+            {type="item", name="ei-high-energy-crystal", amount=12},
         },
         results = {{type="item", name="ei-neo-loader", amount=1}},
         enabled = false,
@@ -226,17 +239,28 @@ data:extend({
 
 -- add entities
 
+local belt = data.raw["transport-belt"]["transport-belt"]
+local fast_belt = data.raw["transport-belt"]["fast-transport-belt"]
+local express_belt = data.raw["transport-belt"]["express-transport-belt"]
+local turbo_belt = data.raw["transport-belt"]["turbo-transport-belt"]
 local neo_belt = data.raw["transport-belt"]["ei-neo-belt"]
+
+-- add entities
+ei_loaders_lib.make_loader(nil, "ei-fast-loader", belt.belt_animation_set, belt.speed)
+ei_loaders_lib.make_loader("fast", "ei-express-loader", fast_belt.belt_animation_set, fast_belt.speed)
+ei_loaders_lib.make_loader("express", "ei-turbo-loader", express_belt.belt_animation_set, express_belt.speed)
+ei_loaders_lib.make_loader("turbo", "ei-neo-loader", turbo_belt.belt_animation_set, turbo_belt.speed)
 ei_loaders_lib.make_loader("neo", nil, neo_belt.belt_animation_set, neo_belt.speed)
 
--- set next replacable for express loader
-data.raw["loader-1x1"]["ei-express-loader"].next_upgrade = "ei-neo-loader"
-
+-- set next replacable
+--data.raw["loader-1x1"]["ei-express-loader"].next_upgrade = "ei-turbo-loader"
+--data.raw["loader-1x1"]["ei-turbo-loader"].next_upgrade = "ei-neo-loader"
 --Add electricity use scaled by items/s
-ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-loader"],"1000","60000")
-ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-fast-loader"],"2000","120000")
-ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-express-loader"],"3000","180000")
-ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-neo-loader"],"4000","240000")
+ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-loader"],"6000","90000")
+ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-fast-loader"],"12000","180000")
+ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-express-loader"],"18000","270000")
+ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-turbo-loader"],"27000","405000")
+ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-neo-loader"],"40500","607500")
 
 table.insert(data.raw["technology"]["logistics"].effects, {
     type = "unlock-recipe",
@@ -251,6 +275,11 @@ table.insert(data.raw["technology"]["logistics-2"].effects, {
 table.insert(data.raw["technology"]["logistics-3"].effects, {
     type = "unlock-recipe",
     recipe = "ei-express-loader"
+})
+
+table.insert(data.raw["technology"]["turbo-transport-belt"].effects, {
+    type = "unlock-recipe",
+    recipe = "ei-turbo-loader"
 })
 
 table.insert(data.raw["technology"]["ei-neo-logistics"].effects, {
