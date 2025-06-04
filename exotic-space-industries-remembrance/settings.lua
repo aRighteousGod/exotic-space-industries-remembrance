@@ -72,22 +72,6 @@ data:extend({
       order  = "a8",
   },
   {
-      name = "ei-loader-prototype-complexity",
-      type = "bool-setting",
-      setting_type = "startup",
-      default_value = true,
-      order  = "a9",
-  },
-  {
-      name = "ei-rocket-lift-capacity-buff",
-      type = "int-setting",
-      setting_type = "startup",
-      default_value = 0,
-      minimum_value = 0,
-      maximum_value = 20,
-      order  = "a10",
-  },
-  {
       name = "ei-beacon-overload",
       type = "bool-setting",
       setting_type = "startup",
@@ -226,7 +210,14 @@ data:extend({
       type = "string-setting",
       setting_type = "startup",
       default_value = "The Crystal That Screams",
-      allowed_values = {"Gaian Guardian", "Industry1","Industry2", "Angel1","Angel2","Throne of Fleshed Glass","The Crystal That Screams"},
+      allowed_values = {
+      "The Crystal That Screams",
+      "Vector Bifurcation: Portal Ignition",
+      "Saluting the Solar Core",
+      "Daemonic Invitation",
+      "Yin and Yang: Cloudflesh",
+      "Industrial Dominance: Crystalline Vigil",
+      "Choking Smog: Ascension Protocol"},
       order  = "c1g",
   }
 })

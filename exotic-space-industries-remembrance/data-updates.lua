@@ -41,10 +41,6 @@ end
 --main menu backgrounds, nauvis soundtrack override
 require("scripts/data-updates/music_patches")
 
-if ei_lib.config("loader-prototype-complexity") then
-  require("scripts/data-updates/loader_patches")
-end
-
 -- apply mod patches
 require("scripts/data-updates/nanobot_patches")
 require("scripts/data-updates/fmf_patches")
@@ -54,19 +50,3 @@ require("scripts/data-updates/teleporters_patches")
 require("scripts/data-updates/solar_patches")
 require("scripts/data-updates/text_plates_patches")
 require("scripts/data-updates/extra_storage_tanks_patches")
-
--- =======================================================================================
-
-if settings.startup["ei-rocket-lift-capacity-buff"].value == 0 then
-  return
-end
-
-local size_multiplier = settings.startup["ei-rocket-lift-capacity-buff"].value
-data.raw["utility-constants"]["default"].rocket_lift_weight = data.raw["utility-constants"]["default"].rocket_lift_weight * size_multiplier
-data.raw["space-platform-starter-pack"]["space-platform-starter-pack"].weight = data.raw["utility-constants"]["default"].rocket_lift_weight
-data.raw["rocket-silo"]["rocket-silo"].weight = data.raw["utility-constants"]["default"].rocket_lift_weight * size_multiplier * 10
-data.raw["cargo-landing-pad"]["cargo-landing-pad"].weight = data.raw["utility-constants"]["default"].rocket_lift_weight * size_multiplier * 10
-
-data.raw["rocket-silo"]["rocket-silo"].cargo_station_parameters.prefer_packed_cargo_units = false
-
-data.raw["rocket-silo"]["rocket-silo"].to_be_inserted_to_rocket_inventory_size = 90

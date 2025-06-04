@@ -162,9 +162,10 @@ data:extend({
         energy_required = 2,
         ingredients =
         {
-            {type="item", name="transport-belt", amount=4},
-            {type="item", name="ei-iron-mechanical-parts", amount=6}, --circuit
-            {type="item", name="iron-plate", amount=6},
+        {type="item", name="transport-belt", amount=4},
+        {type="item", name="electric-engine-unit", amount=4},
+        {type="item", name="inserter", amount=2},
+        {type="item", name="electronic-circuit", amount=20},
         },
         results = {{type="item", name="ei-loader", amount=1}},
         enabled = false,
@@ -178,9 +179,10 @@ data:extend({
         energy_required = 3,
         ingredients =
         {
-            {type="item", name="ei-loader", amount=1},
-            {type="item", name="electronic-circuit", amount=20},
-            {type="item", name="iron-gear-wheel", amount=20},
+        {type="item", name="fast-transport-belt", amount=6},
+        {type="item", name="ei-loader", amount=1},
+        {type="item", name="advanced-circuit", amount=20},
+        {type="item", name="fast-inserter", amount=2},
         },
         results = {{type="item", name="ei-fast-loader", amount=1}},
         enabled = false,
@@ -190,13 +192,15 @@ data:extend({
     {
         name = "ei-express-loader",
         type = "recipe",
-        category = "crafting",
+        category = "crafting-with-fluid",
         energy_required = 4,
         ingredients =
         {
-            {type="item", name="ei-fast-loader", amount=1},
-            {type="item", name="advanced-circuit", amount=20},
-            {type="item", name="iron-gear-wheel", amount=40},
+        {type="item", name="express-transport-belt", amount=8},
+        {type="item", name="ei-fast-loader", amount=1},
+        {type="item", name="bulk-inserter", amount=2},
+        {type="item", name="processing-unit", amount=10},
+        {type="fluid", name="lubricant", amount=50},
         },
         results = {{type="item", name="ei-express-loader", amount=1}},
         enabled = false,
@@ -206,13 +210,16 @@ data:extend({
     {
         name = "ei-turbo-loader",
         type = "recipe",
-        category = "crafting",
+        category = "crafting-with-fluid",
         energy_required = 5,
         ingredients =
         {
-            {type="item", name="ei-express-loader", amount=1},
-            {type="item", name="processing-unit", amount=20},
-            {type="item", name="tungsten-carbide", amount=20},
+        {type="item", name="turbo-transport-belt", amount=8},
+        {type="item", name="ei-express-loader", amount=1},
+        {type="item", name="stack-inserter", amount=2},
+        {type="item", name="processing-unit", amount=20},
+        {type="item", name="tungsten-carbide", amount=40},
+        {type="fluid", name="lubricant", amount=100},
         },
         results = {{type="item", name="ei-turbo-loader", amount=1}},
         enabled = false,
@@ -222,13 +229,17 @@ data:extend({
     {
         name = "ei-neo-loader",
         type = "recipe",
-        category = "crafting",
+        category = "crafting-with-fluid",
         energy_required = 6,
         ingredients =
         {
-            {type="item", name="ei-turbo-loader", amount=1},
-            {type="item", name="quantum-processor", amount=20},
-            {type="item", name="ei-high-energy-crystal", amount=12},
+        {type="item", name="ei-neo-belt", amount=12},
+        {type="item", name="ei-turbo-loader", amount=1},
+        {type="item", name="ei-magnet", amount=15},
+        {type="item", name="quantum-processor", amount=20},
+        {type="item", name="ei-high-energy-crystal", amount=20},
+        {type="item", name="ei-neodym-ingot", amount=10},
+        {type="fluid", name="ei-liquid-nitrogen", amount=150},
         },
         results = {{type="item", name="ei-neo-loader", amount=1}},
         enabled = false,
@@ -261,6 +272,20 @@ ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-fast-loader"],"12000","1
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-express-loader"],"18000","270000")
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-turbo-loader"],"27000","405000")
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-neo-loader"],"40500","607500")
+
+--Lane filtering / stacking
+local loader = data.raw["loader-1x1"]["ei-express-loader"]
+loader.max_belt_stack_size = 2
+loader.filter_count = 1
+loader.per_lane_filters = false
+loader = data.raw["loader-1x1"]["ei-turbo-loader"]
+loader.max_belt_stack_size = 4
+loader.filter_count = 2
+loader.per_lane_filters = true
+loader = data.raw["loader-1x1"]["ei-neo-loader"]
+loader.max_belt_stack_size = 8-- Default for loaders is 1; increase to inserter value
+loader.filter_count = 2 -- Default is 5; set to 2 for lane filters to work
+loader.per_lane_filters = true -- Enable lane-specific filtering
 
 table.insert(data.raw["technology"]["logistics"].effects, {
     type = "unlock-recipe",
