@@ -163,9 +163,9 @@ data:extend({
         ingredients =
         {
         {type="item", name="transport-belt", amount=4},
-        {type="item", name="electric-engine-unit", amount=4},
-        {type="item", name="inserter", amount=2},
-        {type="item", name="electronic-circuit", amount=20},
+        {type="item", name="engine-unit", amount=8},
+        {type="item", name="burner-inserter", amount=4},
+        {type="item", name="ei-iron-mechanical-parts", amount=20},
         },
         results = {{type="item", name="ei-loader", amount=1}},
         enabled = false,
@@ -181,8 +181,9 @@ data:extend({
         {
         {type="item", name="fast-transport-belt", amount=6},
         {type="item", name="ei-loader", amount=1},
-        {type="item", name="advanced-circuit", amount=20},
-        {type="item", name="fast-inserter", amount=2},
+        {type="item", name="ei-semiconductor", amount=20},
+        {type="item", name="fast-inserter", amount=4},
+        {type="item", name="electric-engine-unit", amount=10},
         },
         results = {{type="item", name="ei-fast-loader", amount=1}},
         enabled = false,
@@ -198,8 +199,8 @@ data:extend({
         {
         {type="item", name="express-transport-belt", amount=8},
         {type="item", name="ei-fast-loader", amount=1},
-        {type="item", name="bulk-inserter", amount=2},
-        {type="item", name="processing-unit", amount=10},
+        {type="item", name="bulk-inserter", amount=4},
+        {type="item", name="ei-advanced-semiconductor", amount=20},
         {type="fluid", name="lubricant", amount=50},
         },
         results = {{type="item", name="ei-express-loader", amount=1}},
@@ -216,8 +217,8 @@ data:extend({
         {
         {type="item", name="turbo-transport-belt", amount=8},
         {type="item", name="ei-express-loader", amount=1},
-        {type="item", name="stack-inserter", amount=2},
-        {type="item", name="processing-unit", amount=20},
+        {type="item", name="stack-inserter", amount=4},
+        {type="item", name="ei-advanced-semiconductor", amount=20},
         {type="item", name="tungsten-carbide", amount=40},
         {type="fluid", name="lubricant", amount=100},
         },
@@ -263,10 +264,7 @@ ei_loaders_lib.make_loader("express", "ei-turbo-loader", express_belt.belt_anima
 ei_loaders_lib.make_loader("turbo", "ei-neo-loader", turbo_belt.belt_animation_set, turbo_belt.speed)
 ei_loaders_lib.make_loader("neo", nil, neo_belt.belt_animation_set, neo_belt.speed)
 
--- set next replacable
---data.raw["loader-1x1"]["ei-express-loader"].next_upgrade = "ei-turbo-loader"
---data.raw["loader-1x1"]["ei-turbo-loader"].next_upgrade = "ei-neo-loader"
---Add electricity use scaled by items/s
+--Add energy use scaled by items/s
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-loader"],"6000","90000")
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-fast-loader"],"12000","180000")
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-express-loader"],"18000","270000")

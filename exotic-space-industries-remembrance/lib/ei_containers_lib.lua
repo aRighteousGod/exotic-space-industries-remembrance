@@ -275,7 +275,8 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
     -- inventory
     container.minable.result = fullname
     container.inventory_size = slots
-
+    -- next_upgrade
+    container.next_upgrade = nil 
     -- animation
     if animation then
         container.animation = {

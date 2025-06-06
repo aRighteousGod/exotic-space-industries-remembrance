@@ -102,7 +102,7 @@ data:extend({
         icon = ei_tanks_item_path.."tank-2.png",
         icon_size = 64,
         subgroup = "storage",
-        order = "b[fluid]-c",
+        order = "b[fluid]-d",
         place_result = "ei-tank-2",
         stack_size = 50
     },
@@ -112,7 +112,7 @@ data:extend({
         icon = ei_tanks_item_path.."tank-3.png",
         icon_size = 64,
         subgroup = "storage",
-        order = "b[fluid]-d",
+        order = "b[fluid]-c",
         place_result = "ei-tank-3",
         stack_size = 50
     },
@@ -136,7 +136,7 @@ data:extend({
         name = "ei-tank-2",
         type = "recipe",
         category = "crafting",
-        energy_required = 2,
+        energy_required = 8,
         ingredients =
         {
             {type="item", name="concrete", amount=100},
@@ -152,7 +152,7 @@ data:extend({
         name = "ei-tank-3",
         type = "recipe",
         category = "crafting",
-        energy_required = 2,
+        energy_required = 4,
         ingredients =
         {
             {type="item", name="concrete", amount=50},
@@ -169,7 +169,7 @@ data:extend({
         type = "technology",
         icon = ei_tanks_tech_path.."tank-1.png",
         icon_size = 256,
-        prerequisites = {"fluid-handling", "concrete"},
+        prerequisites = {"ei-tank","concrete"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -181,14 +181,14 @@ data:extend({
             ingredients = ei_data.science["steam-age"],
             time = 30
         },
-        age = "electricity-age",
+        age = "steam-age",
     },
     {
         name = "ei-tank-silo",
         type = "technology",
         icon = ei_tanks_tech_path.."tank-2.png",
         icon_size = 256,
-        prerequisites = {"fluid-handling", "concrete"},
+        prerequisites = {"ei-tank-sphere"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -200,14 +200,14 @@ data:extend({
             ingredients = ei_data.science["steam-age"],
             time = 30
         },
-        age = "electricity-age",
+        age = "steam-age",
     },
     {
         name = "ei-tank-sphere",
         type = "technology",
         icon = ei_tanks_tech_path.."tank-3.png",
         icon_size = 256,
-        prerequisites = {"fluid-handling"},
+        prerequisites = {"ei-tank-column"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -219,7 +219,7 @@ data:extend({
             ingredients = ei_data.science["steam-age"],
             time = 30
         },
-        age = "electricity-age",
+        age = "steam-age",
     },
     {
         name = "ei-tank-1",

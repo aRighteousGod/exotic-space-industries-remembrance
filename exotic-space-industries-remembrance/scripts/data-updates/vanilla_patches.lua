@@ -78,7 +78,10 @@ data.raw["recipe"]["electric-engine-unit"].energy_required = 6
 
 --TECHS
 ------------------------------------------------------------------------------------------------------
-
+data.raw["technology"]["flamethrower"].age = "steam-age" --need investigate why the pre-req table doesn't always stick
+data.raw["technology"]["concrete"].age = "steam-age"
+ei_lib.set_prerequisites("concrete", {"advanced-material-processing"})
+ei_lib.remove_unlock_recipe("concrete","iron-stick")
 local new_prerequisites_table = {}
 
 -- first index is tech second is prerequisite
@@ -90,6 +93,8 @@ new_prerequisites_table["steam-age"] = {
     {"steel-processing", "ei-steam-crusher"},
     {"engine", "ei-steam-oil-processing"},
     {"electronics", "ei-glass"},
+    {"flamethrower","flammables"},
+    {"concrete","advanced-material-processing"}
 }
 
 new_prerequisites_table["electricity-age"] = {
@@ -208,6 +213,7 @@ end
 data.raw["technology"]["steel-processing"].icon = ei_graphics_tech_path.."steel-processing.png"
 data.raw["technology"]["fluid-handling"].icon = ei_graphics_tech_path.."barreling.png"
 data.raw["technology"]["fluid-handling"].icon_size = 256
+
 
 table.insert(data.raw["technology"]["engine"].effects, {
     type = "unlock-recipe",

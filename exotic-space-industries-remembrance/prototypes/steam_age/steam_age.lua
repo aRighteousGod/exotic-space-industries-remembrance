@@ -19,7 +19,7 @@ require("heat-chemical-plant")
 require("fluid-boiler")
 require("steam-miner")
 require("containers")
-
+require("tanks")
 --============================================
 
 local heat_furnace_entity = table.deepcopy(data.raw["furnace"]["steel-furnace"])

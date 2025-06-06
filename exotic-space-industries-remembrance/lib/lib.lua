@@ -318,7 +318,70 @@ function ei_lib.recipe_remove(recipe, ingredient)
         end
     end
 end
+---@param target_name string         -- The name of the entity prototype to rename
+---@param target_type string         -- The type of the entity prototype (e.g., "electric-turret")
+---@param new_name string            -- New name to assign (leave blank to look in name_alt in the .cfg)
+---@param new_description string     -- New description to assign (leave blank to look in name_alt in the .cfg)
 
+function ei_lib.overwrite_entity_and_description(target_name,target_type,new_name,new_description)
+  ei_lib.overwrite_entity_name(target_name, target_type, new_name)
+  ei_lib.overwrite_description(target_name, target_type, new_description)
+end
+function ei_lib.overwrite_entity_name(entity_name, entity_type, new_name)
+    -- test if item exists in data.raw.item
+    if not entity_name then
+        log("ei_lib.overwrite_item_name: entity_name is not defined")
+        return
+    end
+    if not entity_type then
+        log("ei_lib.overwrite_item_name: entity_type is not defined for item "..entity_name)
+        return
+    end
+    --default to looking for localized item-name_alt in cfg
+    if not data.raw[entity_type] or not data.raw[entity_type][entity_name] then
+        log("ei_lib.overwrite_item_name: entity "..entity_name.." does not exist in data.raw."..entity_type)
+        return
+    end
+    if not new_name and entity_type ~= "technology" and entity_type ~= "item" and entity_type ~= "ammo" then    --default to looking for localized item-name_alt in cfg
+      data.raw[entity_type][entity_name].localised_name =  {"entity-name." .. entity_name .. "_alt"}
+    elseif not new_name and entity_type == "item" or entity_type == "ammo" then
+      data.raw[entity_type][entity_name].localised_name = {"item-name." .. entity_name .. "_alt"}
+    elseif not new_name and entity_type == "technology" then
+      data.raw[entity_type][entity_name].localised_name = {"technology-name." .. entity_name .. "_alt"}
+    elseif new_name then --otherwise you can force it and skip localization
+      data.raw[entity_type][entity_name].localised_name = new_name
+    else
+        log("ei_lib.overwrite_entity_name: undefined exception occurred for "..entity_name)
+    end
+end
+
+function ei_lib.overwrite_description(target, target_type, new_description)
+    -- test if item exists in data.raw.item
+    if not target then
+        log("ei_lib.overwrite_description: target is not defined")
+        return
+    end
+    if not target_type then
+        log("ei_lib.overwrite_description: target_type is not defined for item "..target)
+        return
+    end
+    --default to looking for localized item-description_alt in cfg
+    if not data.raw[target_type] or not data.raw[target_type][target] then
+        log("ei_lib.overwrite_description: target "..target.." does not exist in data.raw."..target_type)
+        return
+    end
+    if not new_description and target_type ~= "technology" and target_type ~= "item" and target_type ~= "ammo" then    --default to looking for localized item-name_alt in cfg
+      data.raw[target_type][target].localised_description =  {"entity-description." .. target .. "_alt"}
+    elseif not new_description and target_type == "item" or target_type == "ammo" then
+      data.raw[target_type][target].localised_description = {"item-description." .. target .. "_alt"}
+    elseif not new_description and target_type == "technology" then
+      data.raw[target_type][target].localised_description = {"technology-description." .. target .. "_alt"}
+    elseif new_description then --otherwise you can force it and skip localization
+      data.raw[target_type][target].localised_description = new_description
+    else
+        log("ei_lib.overwrite_target: undefined exception occurred for "..target)
+    end
+end
 
 -- set a completly new set of ingredients for recipe
 function ei_lib.recipe_new(recipe, table_in, category)

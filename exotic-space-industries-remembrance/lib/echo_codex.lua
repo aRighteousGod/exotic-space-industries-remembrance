@@ -1,6 +1,6 @@
 -- Echo Codex Generator: A ritual system of dynamic proclamation
 ei_lib = require("lib/lib")
-local echo_codex = {}
+echo_codex = {}
 
 --====================================================================================================
 --Cue Updater Centralization
@@ -138,6 +138,12 @@ function echo_codex.proclaim(category, data)
     )
 end
 
+-- Helper to get new tint and adj
+local function next_tint()
+    local tint = ei_lib.get_random_different_value(storage.ei.tint_palette, previous_tint)
+    previous_tint = tint
+    return tint, storage.ei.tint_palette[tint]
+end
 function echo_codex.handle_global_settings()
     --=== [Read core config values] ===--
     local width               = ei_lib.config("em_updater_que_width") or 6
@@ -150,13 +156,6 @@ function echo_codex.handle_global_settings()
     local que_type            = ei_lib.config("em_train_que") or "none"
 
     local previous_tint = nil
-
-    -- Helper to get new tint and adj
-    local function next_tint()
-        local tint = ei_lib.get_random_different_value(storage.ei.tint_palette, previous_tint)
-        previous_tint = tint
-        return tint, storage.ei.tint_palette[tint]
-    end
 
     --=== [Width Announcement] ===--
     local tint, tint_adj = next_tint()

@@ -50,7 +50,7 @@ local recipes = {
     "ei-dinitrogen-tetroxide",
     "ei-dinitrogen-tetroxide-water-solution",
     "ei-oxygen-difluoride",
-    --"ei-lube-destilation",
+--    "ei-lube-destilation",
     "ei-plastic-benzol",
     "ei-battery-lithium",
     "ei-carbon",
@@ -143,22 +143,21 @@ for name,recipe in pairs(data.raw.recipe) do
     ei_lib.recipe_swap(name, "iron-stick", "ei-copper-mechanical-parts")
     ei_lib.recipe_swap(name, "nuclear-fuel", "ei-uranium-235-fuel")
     ei_lib.recipe_swap(name, "ei-space-data", "space-science-pack")
-    ei_lib.recipe_swap(name, "ei-space-data", "space-science-pack")
     ei_lib.recipe_swap(name, "burner-assembling-machine", "ei-steam-assembler")
     ei_lib.recipe_swap(name, "iron-beam", "iron-plate")
     ei_lib.recipe_swap(name, "steel-beam", "steel-plate")
 end
 
-ei_lib.recipe_swap("concrete", "ei-copper-mechanical-parts", "iron-stick")
-ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "iron-stick")
+ei_lib.recipe_swap("concrete", "iron-ore", "ei-iron-mechanical-parts")
+ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "ei-steel-mechanical-parts")
 
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-light-oil")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-kerosene")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-heavy-oil")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-lubricant")
 
-ei_lib.enable_from_start("iron-stick")
-ei_lib.enable_from_start("iron-gear-wheel")
+--ei_lib.enable_from_start("iron-stick")
+--ei_lib.enable_from_start("iron-gear-wheel")
 
 --ei_lib.add_unlock_recipe("inhibitor-lamp","inhibitor-lamp") --?
 ei_lib.add_unlock_recipe("uranium-mining","centrifuge")
@@ -200,9 +199,9 @@ end
 ei_lib.add_unlock_recipe("electronics","stone-tablet")
 ei_lib.add_unlock_recipe("ei-steam-power","boiler")
 --ei_lib.add_unlock_recipe("ei-glass","glass")
-ei_lib.add_unlock_recipe("steel-processing","steel-gear-wheel")
+--ei_lib.add_unlock_recipe("steel-processing","steel-gear-wheel")
 
-ei_lib.recipe_swap("splitter", "electronic-circuit", "ei-iron-mechanical-parts")
+--ei_lib.recipe_swap("splitter", "electronic-circuit", "ei-iron-mechanical-parts")
 --ei_lib.recipe_swap("ei-loader", "electronic-circuit", "ei-iron-mechanical-parts") --This overrides loader patch
 
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-small-roboport")
@@ -250,8 +249,8 @@ for _, recipe in pairs(data.raw.recipe) do
   recipe.result_is_always_fresh = true
   recipe.unlock_results = true
 
-  if ei_lib.contains(recipe.name,"recycler") then recipe.surface_conditions = nil end
-  if ei_lib.contains(recipe.name,"crusher") then recipe.surface_conditions = nil end
+--  if ei_lib.contains(recipe.name,"recycler") then recipe.surface_conditions = nil end
+--  if ei_lib.contains(recipe.name,"crusher") then recipe.surface_conditions = nil end
 
 --This was failing silently, added sanity checks, but seems unnecessary at this time? 4-14-25
   if ei_lib.endswith(recipe.name,"-asteroid-crushing") and data.raw.technology and data.raw.technology[recipe.name] then

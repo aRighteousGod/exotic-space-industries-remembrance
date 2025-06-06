@@ -69,7 +69,47 @@ electric_quarry.minable = {mining_time = 1, result = modprefix.."electric-quarry
 electric_quarry.resource_searching_radius = 20
 electric_quarry.energy_usage = "1MW"
 electric_quarry.energy_source.emissions_per_minute.pollution = electric_quarry.energy_source.emissions_per_minute.pollution * 10
+electric_quarry.icon = ei_graphics_kirazy_path.."icon/electric-mining-drill.png"
 data:extend({electric_quarry})
 
 ei_lib.add_unlock_recipe(modprefix.."burner-assembler",modprefix.."burner-quarry")
 
+--[[
+--OTHER
+
+
+ --make electric powered surface miner using steam age ei_stone-quarry
+
+ quarry = table.deepcopy(data.raw["assembling-machine"]["ei-stone-quarry"])
+ quarry.name = "ei-electric-stone-quarry"
+ quarry.minable.result = "ei-electric-stone-quarry"
+ quarry.energy_source = {
+     type = "electric",
+     usage_priority = "secondary-input",
+ }
+ quarry.allowed_effects = {"speed", "productivity", "consumption", "pollution"}
+ quarry.module_slots = 2
+
+ data:extend({
+     {
+         name = "ei-electric-stone-quarry",
+         type = "item",
+         icons = {
+             {
+                 icon = ei_graphics_kirazy_path.."icon/electric-mining-drill.png",
+                 icon_size = 64,
+                 icon_mipmaps = 4,
+             },
+             {
+                 icon = ei_graphics_other_path.."power_overlay.png",
+                 icon_size = 64,
+             }
+         },
+         place_result = "ei-electric-stone-quarry",
+         stack_size = 20,
+         subgroup = "extraction-machine",
+         order = "a[items]-a[stone-quarry]-a",
+     },
+     quarry,
+ })
+ ]]

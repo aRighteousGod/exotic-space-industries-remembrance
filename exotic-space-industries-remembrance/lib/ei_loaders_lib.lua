@@ -284,14 +284,41 @@ function ei_loaders_lib.snap_belt(belt)
     ei_loaders_lib.call_snap_input(belt, output_pos)
 end
 
-function ei_loaders_lib.addEnergyDraw(loader, energy_per_item, energy_buffer)
-    loader.energy_source = {
-        type = "electric",
-        buffer_capacity = tostring(energy_buffer) .. "J",
-        usage_priority = "secondary-input",
-        drain = "2kW",
-    }
-    loader.energy_per_item = tostring(energy_per_item) .. "J"
+function ei_loaders_lib.addEnergyDraw(loader, energy_per_item, energy_buffer, burner)
+    if not burner then
+        loader.energy_source = {
+            type = "electric",
+            buffer_capacity = tostring(energy_buffer) .. "J",
+            usage_priority = "secondary-input",
+            drain = "2kW",
+        }
+        loader.energy_per_item = tostring(energy_per_item) .. "J"
+    elseif burner then --unsupported
+        loader.energy_source = {
+        type = "burner",
+        fuel_categories = {"chemical"},  -- or "biomass", "nuclear", etc. if supported
+        effectivity = 1,
+        fuel_inventory_size = 1,
+        }
+
+        loader.energy_source.emissions_per_minute = {pollution = 5}
+
+        local smoking = {
+            name = "smoke",
+            deviation = {0.1, 0.1},
+            frequency = 5,
+            position = {0.0, -0.8},
+            starting_vertical_speed = 0.08,
+            starting_frame_deviation = 60
+            }
+        loader.working_visualisations = smoking
+
+        loader.energy_usage = (energy_per_item * 60) .. "kW"
+    else
+        log("ei_loaders_lib.addEnergyDraw: Invalid loader type. Must be electric or burner.")
+    end
+
 end
+
 
 return ei_loaders_lib

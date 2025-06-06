@@ -476,7 +476,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."steam-advanced-train.png",
         icon_size = 500,
-        prerequisites = {"ei-steam-basic-train", "ei-tank", "engine"},
+        prerequisites = {"ei-steam-basic-train", "ei-tank", "engine", "automated-rail-transportation"},
         effects = {
             {
                 type = "unlock-recipe",

@@ -55,10 +55,10 @@ set_bool("lignumis","lignumis-belt-progression",false)
 set_bool("lignumis","lignumis-inserter-progression",false)
 set_bool("lignumis","lignumis-ammo-progression",false)
 
-
-
-
-
+set_string("Explosive_Biters","eb-spawn-planet","both")
+set_bool("Cold_Biters","cb-enable-dying-explosion",true)
+set_string("Cold_Biters","cb-spawn-planet","both")
+set_bool("Toxic_Biters","tb-allow-infection",true)
 
 
 

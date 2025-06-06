@@ -419,7 +419,7 @@ data:extend({
             {type = "item", name = "storage-tank", amount = 1},
         },
         always_show_made_in = true,
-        enabled = false,
+        enabled = true,
         main_product = "storage-tank",
     },
     {
@@ -608,11 +608,11 @@ data:extend({
         icon = ei_graphics_tech_path.."fluid-handling.png",
         icon_size = 256,
         icon_mipmaps = 4,
-        prerequisites = {"steel-processing"},
+        prerequisites = {"ei-steam-age"},
         effects = {
             {
                 type = "unlock-recipe",
-                recipe = "storage-tank"
+                recipe = "ei-tank"
             },
         },
         unit = {
@@ -690,4 +690,11 @@ table.insert(data.raw["technology"]["steel-processing"].effects, {
 table.insert(data.raw["technology"]["steel-processing"].effects, {
     type = "unlock-recipe",
     recipe = "ei-steel-plate"
+})
+
+ei_lib.set_prerequisites("ei-steam-age",{
+    "ei-burner-assembler",
+    "military",
+    "stone-wall",
+    "gun-turret"
 })

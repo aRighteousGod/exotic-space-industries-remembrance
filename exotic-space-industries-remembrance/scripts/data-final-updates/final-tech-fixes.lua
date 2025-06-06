@@ -178,7 +178,7 @@ end
 
 -- loop over all techs and get the one that dont start with "ei-"
 -- these are from base game and other mods
--- if they have the age property their fine, if not recursively get their prerequisits
+-- if they have the age property they're fine, if not recursively get their prerequisits
 -- set their age to the highest age findable
 
 for i,tech in pairs(data.raw.technology) do

@@ -23,10 +23,10 @@ data:extend({
         ingredients =
         {
             {type="item", name="laser-turret", amount=4},
-            {type="item", name="ei-high-energy-crystal", amount=30},
+            {type="item", name="ei-high-energy-crystal", amount=50},
             {type="item", name="ei-magnet", amount=25},
-            {type="item", name="ei-superior-data", amount=40},
-            {type="item", name="ei-plasma-data", amount=40},
+            {type="item", name="ei-superior-data", amount=60},
+            {type="item", name="ei-plasma-data", amount=60},
         },
         results = {{type="item", name="ei-plasma-turret", amount=1}},
         enabled = false,
@@ -74,9 +74,9 @@ data:extend({
 		},
         energy_source = {
 			type = "electric",
-			buffer_capacity = "200MJ",
-			input_flow_limit = "150MW",
-			drain = "40MW",
+			buffer_capacity = "1GJ",
+			input_flow_limit = "400MW",
+			drain = "70MW",
 			usage_priority = "primary-input"
 		},
         rotation_speed = 0.005,
@@ -127,7 +127,7 @@ data:extend({
             cooldown = 300,
             projectile_center = {0, 0.14},
             projectile_creation_distance = 2.3,
-            range = 300,
+            range = 150,
             min_range = 40,
             health_penalty = -1000,
             rotate_penalty = 100,
@@ -149,18 +149,18 @@ data:extend({
             ammo_type = {
                 type = "projectile",
                 category = "electric",
-                energy_consumption = "100MJ",
+                energy_consumption = "900MJ",
                 projectile = "ei-plasma-bullet",
-                -- speed = 10,
+                speed = 10,
                 action = {
                     type = "direct",
                     action_delivery = {
                         type = "projectile",
                         projectile = "ei-plasma-bullet",
-                        starting_speed = 10,
+                        starting_speed = 6,
                         direction_deviation = 0.1,
                         range_deviation = 0.5,
-                        max_range = 300,
+                        max_range = 180,
                     }
                 }
             }
@@ -273,7 +273,7 @@ data:extend({
         smoke = "smoke-fast",
         smoke_count = 2,
         smoke_slow_down_factor = 1,
-        --[[
+
         created_effect = {
             type = "direct",
             action_delivery = {
@@ -287,7 +287,7 @@ data:extend({
                 }
             }
         },
-        ]]
+        
         subgroup = "explosions",
         order = "c-a-a"
     }

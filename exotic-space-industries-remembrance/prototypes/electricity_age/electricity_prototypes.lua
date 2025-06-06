@@ -1203,12 +1203,18 @@ data:extend({
 })
 
 -- insert prereqs for steam age tech
-table.insert(data.raw.technology["ei-electricity-age"].prerequisites, "engine")
-table.insert(data.raw.technology["ei-electricity-age"].prerequisites, "electronics")
-table.insert(data.raw.technology["ei-electricity-age"].prerequisites, "ei-steam-inserter")
--- table.insert(data.raw.technology["ei-electricity-age"].prerequisites, "logistics")
-table.insert(data.raw.technology["ei-electricity-age"].prerequisites, "ei-steam-assembler")
-table.insert(data.raw.technology["ei-electricity-age"].prerequisites, "ei-tank")
+ei_lib.set_prerequisites("ei-electricity-age",{
+    "engine",
+    "electronics",
+    "ei-steam-inserter",
+    "logistics",
+    "ei-steam-assembler",
+    "ei-tank-silo",
+    "ei-steam-advanced-train",
+    "ei-fluid-boiler",
+    "electronics"
+})
+
 table.insert(data.raw.technology["lubricant"].prerequisites, "automation-2")
 table.insert(data.raw.technology["power-armor"].prerequisites, "ei-grower")
 table.insert(data.raw.technology["solar-energy"].prerequisites, "ei-waver-factory")

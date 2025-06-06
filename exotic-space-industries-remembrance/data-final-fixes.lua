@@ -45,7 +45,7 @@ data.raw.item.coal.fuel_category = "chemical"
 -- =======================================================================================
 
 for _,thruster in pairs(data.raw.thruster) do
-  thruster.tile_buildability_rules[2].area[2][2] = 15.0
+  thruster.tile_buildability_rules[2].area[2][2] = 25.0
 end
 
 -- =======================================================================================
@@ -61,18 +61,18 @@ end
 -- =======================================================================================
 
 data.raw["space-platform-starter-pack"]["space-platform-starter-pack"].initial_items = {
-  {type = "item", name = "space-platform-foundation", amount = 2000}
+  {type = "item", name = "space-platform-foundation", amount = 50}
 }
 
 -- =======================================================================================
 
 data.raw.lab.biolab.energy_source = table.deepcopy(data.raw["assembling-machine"].biochamber.energy_source)
-data.raw.lab.biolab.energy_source.light_flicker = nil 
+--data.raw.lab.biolab.energy_source.light_flicker = nil --needs colorful glow or some such
 
 -- =======================================================================================
 
-data.raw["assembling-machine"]["foundry"].fluid_boxes[3].volume = 5000
-data.raw["assembling-machine"]["foundry"].fluid_boxes[4].volume = 5000
+--data.raw["assembling-machine"]["foundry"].fluid_boxes[3].volume = 5000
+--data.raw["assembling-machine"]["foundry"].fluid_boxes[4].volume = 5000
 
 -- =======================================================================================
 
@@ -84,34 +84,7 @@ for _, crafting_category in pairs({"ei-steam-assembler", "crafting", "crafting-w
   end
 end
 
--- =======================================================================================
 
-if mods["fulgora-extended"] then
-    if settings.startup["fext-chemical-mire-gives-muck"] then
-        goto skip
-    end
-end
-data.raw.tile["oil-ocean-shallow"].fluid="crude-oil"
-data.raw.tile["oil-ocean-deep"].fluid="crude-oil"
-::skip::
-
--- =======================================================================================
-
-data.raw.item["artificial-jellynut-soil"].place_as_tile.condition_size = 1
-data.raw.item["artificial-jellynut-soil"].place_as_tile.tile_condition = nil
-data.raw.item["artificial-jellynut-soil"].place_as_tile.condition.layers = {}
-
-data.raw.item["overgrowth-jellynut-soil"].place_as_tile.condition_size = 1
-data.raw.item["overgrowth-jellynut-soil"].place_as_tile.tile_condition = nil
-data.raw.item["overgrowth-jellynut-soil"].place_as_tile.condition.layers = {}
-
-data.raw.item["artificial-yumako-soil"].place_as_tile.condition_size = 1
-data.raw.item["artificial-yumako-soil"].place_as_tile.tile_condition = nil
-data.raw.item["artificial-yumako-soil"].place_as_tile.condition.layers = {}
-
-data.raw.item["overgrowth-yumako-soil"].place_as_tile.condition_size = 1
-data.raw.item["overgrowth-yumako-soil"].place_as_tile.tile_condition = nil
-data.raw.item["overgrowth-yumako-soil"].place_as_tile.condition.layers = {}
 
 -- =======================================================================================
 
@@ -130,6 +103,7 @@ local base_machine_types = {
   "mining-drill"
 }
 
+--[[
 -- Loop through each base machine type and set match_animation_speed_to_activity to false
 for _, machine_type in pairs(base_machine_types) do
   if data.raw[machine_type] then
@@ -142,7 +116,7 @@ for _, machine_type in pairs(base_machine_types) do
     end
   end
 end
-
+]]
 -- error(serpent.block(data.raw["furnace"]["recycler"]))
 
 -- =======================================================================================
@@ -150,7 +124,7 @@ end
 for _,tech in pairs(data.raw.technology) do
   if tech.prerequisites then
     for i,t in ipairs(tech.prerequisites) do 
-      if data.raw.technology[t].hidden then
+      if data.raw.technology[t] and data.raw.technology[t].hidden then
         table.remove(data.raw.technology[tech.name].prerequisites, i)
       end
     end

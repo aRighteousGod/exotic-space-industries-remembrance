@@ -43,6 +43,7 @@ ei_graphics_item_2_path = ei_graphics_2_path.."graphics/items/"
 ei_graphics_icon_2_path = ei_graphics_2_path.."graphics/icons/"
 ei_graphics_tech_2_path = ei_graphics_2_path.."graphics/techs/"
 
+ei_menu_backgrounds_path = ei_graphics_2_path.."graphics/background/"
 ei_graphics_glow_path = ei_path.."graphics/glow/"
 
 ei_loaders_item_path = ei_graphics_item_2_path
@@ -64,7 +65,7 @@ ei_fueler_graphics_path = ei_graphics_2_path.."graphics/fueler/"
 
 ei_trains_path = ei_graphics_2_path
 ei_trains_sounds_path = ei_trains_path.."sounds/em_trains/"
-ei_trains_entity_path = ei_trains_path.."graphics/entities/"
+ei_trains_entity_path = ei_trains_path.."graphics/entities/em_trains/"
 ei_trains_item_path = ei_trains_path.."graphics/items/"
 ei_trains_tech_path = ei_trains_path.."graphics/techs/"
 --[[

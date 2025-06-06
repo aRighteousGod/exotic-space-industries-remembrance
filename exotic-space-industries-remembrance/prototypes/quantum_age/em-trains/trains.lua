@@ -23,7 +23,7 @@ function train_front_light()
             minimum_darkness = 0.3,
             picture =
             {
-                filename = ei_path.."graphics/em_trains/em_train_light_cone_280x700.png",
+                filename = ei_trains_entity_path.."em_train_light_cone_280x700.png",
                 priority = "medium",
                 scale = 1,
                 width = 280,
@@ -40,7 +40,7 @@ function train_front_light()
             minimum_darkness = 0.3,
             picture =
             {
-                filename = ei_path.."graphics/em_trains/em_train_light_cone_280x700.png",
+                filename = ei_trains_entity_path.."em_train_light_cone_280x700.png",
                 priority = "medium",
                 scale = 1,
                 width = 280,
@@ -62,7 +62,7 @@ function rolling_stock_standby_light()
             type = "oriented",
             picture =
             {
-                filename = ei_path.."graphics/em_trains/em_train_under_glow_512x512.png",
+                filename = ei_trains_entity_path.."em_train_under_glow_512x512.png",
                 priority = "medium",
                 scale = 1,
                 width = 171,
@@ -110,7 +110,7 @@ local back_light =
 				minimum_darkness = 0.3,
 				picture =
 				{
-					filename = ei_path.."graphics/em_trains/em_train_light_cone_280x700.png",
+					filename = ei_trains_entity_path.."em_train_light_cone_280x700.png",
 					priority = "medium",
 					scale = 1,
 					width = 280,
@@ -127,7 +127,7 @@ local back_light =
 				minimum_darkness = 0.3,
 				picture =
 				{
-					filename = ei_path.."graphics/em_trains/em_train_light_cone_280x700.png",
+					filename = ei_trains_entity_path.."em_train_light_cone_280x700.png",
 					priority = "medium",
 					scale = 1,
 					width = 280,

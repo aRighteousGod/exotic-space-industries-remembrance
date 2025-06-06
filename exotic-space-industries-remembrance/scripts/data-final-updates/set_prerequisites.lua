@@ -135,21 +135,18 @@ ei_lib.set_prerequisites("uranium-ammo",{"uranium-mining"})
 
 ei_lib.set_prerequisites("uranium-ammo",{"uranium-mining"})
 
-ei_lib.set_prerequisites("ei-tank-column",{"fluid-handling"})
-ei_lib.set_prerequisites("ei-tank-sphere",{"ei-tank-column"})
-ei_lib.set_prerequisites("ei-tank-silo",{"ei-tank-sphere"})
-
 ei_lib.set_prerequisites("asteroid-collector",{"space-platform"})
 ei_lib.set_prerequisites("space-hub-chest",{"space-platform"})
 ei_lib.set_prerequisites("space-chest",{"space-platform"})
 ei_lib.set_prerequisites("planet-discovery-muluna",{"space-platform"})
 ei_lib.set_prerequisites("space-platform-thruster",{"space-platform"})
 
-ei_lib.set_prerequisites("ei-steam-age",{"ei-burner-assembler","logistics"})
+--ei_lib.set_prerequisites("ei-steam-age",{"ei-burner-assembler","logistics"})
 ei_lib.set_prerequisites("interstellar-science-pack",{"space-science-pack"})
 ei_lib.set_prerequisites("interstellar-science-pack",{"space-science-pack"})
 ei_lib.set_prerequisites("electric-mining-drill",{"ei-electricity-power"})
 ei_lib.set_prerequisites("military-2",{"military"})
+ei_lib.set_prerequisites("flamethrower",{"flammables"})
 
 ei_lib.set_prerequisites("wdm_home_planet",{})
 

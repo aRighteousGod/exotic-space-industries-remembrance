@@ -83,32 +83,46 @@ ei_data.science["computer-age-space"] = {
 }
 
 ei_data.science["advanced-computer-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
     {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
 }
 
 ei_data.science["alien-computer-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
     {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
 }
 
 ei_data.science["both-computer-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
     {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
+    {"space-science-pack",1},
 }
 
 ei_data.science["quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
+    {"space-science-pack",1},
 }
 
 ei_data.science["fusion-quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
@@ -117,68 +131,107 @@ ei_data.science["fusion-quantum-age"] = {
 }
 
 ei_data.science["space-quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
+    {"space-science-pack",1},
 }
 
 ei_data.science["imersite-quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
-    {"ei-imersite-quantum-age-tech",1},
+--    {"ei-imersite-quantum-age-tech",1},
 }
 
 ei_data.science["matter-quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
     {"ei-fusion-quantum-age-tech",1},
-    {"ei-imersite-quantum-age-tech",1},
-    {"ei-matter-quantum-age-tech",1},
+--    {"ei-matter-quantum-age-tech",1},
 }
 
 ei_data.science["both-quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
     {"ei-fusion-quantum-age-tech",1},
+--    {"ei-matter-quantum-age-tech",1},
+--    {"ei-imersite-quantum-age-tech",1},
 }
 
 ei_data.science["four-quantum-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
     {"ei-fusion-quantum-age-tech",1},
-    {"ei-imersite-quantum-age-tech",1},
-    {"ei-matter-quantum-age-tech",1},
+--    {"ei-imersite-quantum-age-tech",1},
+--    {"ei-matter-quantum-age-tech",1},
 }
 
 ei_data.science["exotic-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
     {"ei-fusion-quantum-age-tech",1},
+--    {"ei-imersite-quantum-age-tech",1},
+--    {"ei-matter-quantum-age-tech",1},
     {"ei-exotic-age-tech",1},
 }
 
 ei_data.science["black-hole-exotic-age"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
     {"ei-computer-age-tech",1},
     {"ei-advanced-computer-age-tech",1},
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
     {"ei-fusion-quantum-age-tech",1},
     {"ei-exotic-age-tech",1},
+--    {"ei-imersite-quantum-age-tech",1},
+--    {"ei-matter-quantum-age-tech",1},
     {"ei-black-hole-exotic-age-tech",1},
 }
 
 ei_data.science["interstellar"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
+    {"ei-computer-age-tech",1},
+    {"ei-advanced-computer-age-tech",1},
+    {"ei-alien-computer-age-tech",1},
+    {"ei-quantum-age-tech",1},
+    {"ei-fusion-quantum-age-tech",1},
+    {"ei-exotic-age-tech",1},
+--    {"ei-imersite-quantum-age-tech",1},
+--    {"ei-matter-quantum-age-tech",1},
+    {"ei-black-hole-exotic-age-tech",1},
     {"electromagnetic-science-pack",1},
     {"metallurgic-science-pack",1},
     {"agricultural-science-pack",1},
@@ -213,10 +266,10 @@ ei_data.science_dict = {
 
     -- ["space-science-pack"] = "ei-quantum-age-tech",
     -- K2 stuff
-    -- ["basic-tech-card"] = "ei-dark-age-tech",
-    -- ["matter-tech-card"] = "ei-matter-quantum-age-tech",
-    -- ["advanced-tech-card"] = "ei-imersite-quantum-age-tech",
-    -- ["singularity-tech-card"] = "ei-exotic-age-tech",
+     ["basic-tech-card"] = "ei-dark-age-tech",
+     ["matter-tech-card"] = "ei-matter-quantum-age-tech",
+     ["advanced-tech-card"] = "ei-imersite-quantum-age-tech",
+     ["singularity-tech-card"] = "ei-exotic-age-tech",
 }
 
 ei_data.science_dict_obsolete = {
@@ -395,7 +448,6 @@ ei_data.tech_structure["dark-age"] = {
     "physical-projectile-damage-1",
     "toolbelt",
     "stone-wall",
-    "logistics",
 }
 -- KEY = TECH, VALUE = PREREQUISITE
 ei_data.prerequisites_to_set["dark-age"] = {
@@ -410,23 +462,24 @@ ei_data.prerequisites_to_set["dark-age"] = {
 
 ei_data.tech_structure["steam-age"] = {
     "electronics",
+    "logistics",
+    "repair-pack",
     -- steel furnace
     "advanced-material-processing",
     -- train
     "automated-rail-transportation",
-    "braking-force-1",
-    "braking-force-2",
-    "weapon-shooting-speed-2",
-    "physical-projectile-damage-2",
+--    "braking-force-1",
+--    "braking-force-2",
+--    "weapon-shooting-speed-2",
+--    "physical-projectile-damage-2",
     "automobilism",
     "engine",
-    "flamethrower",
     "flammables",
-    "refined-flammables-1",
-    "refined-flammables-2",
-    "stronger-explosives-1",
+--    "refined-flammables-1",
+--    "refined-flammables-2",
+--    "stronger-explosives-1",
     "gate",
-    "inserter-capacity-bonus-1",
+--    "inserter-capacity-bonus-1",
     "research-speed-1",
     "landfill",
     "steel-axe",
@@ -456,37 +509,37 @@ ei_data.tech_structure["electricity-age"] = {
     "modular-armor",
     "power-armor",
     "tank",
-    "braking-force-3",
-    "braking-force-4",
-    "braking-force-5",
+--    "braking-force-3",
+--    "braking-force-4",
+--    "braking-force-5",
     "circuit-network",
     "explosives",
-    "stronger-explosives-2",
-    "refined-flammables-3",
-    "refined-flammables-4",
-    "physical-projectile-damage-3",
-    "physical-projectile-damage-4",
+--    "stronger-explosives-2",
+--    "refined-flammables-3",
+--    "refined-flammables-4",
+--    "physical-projectile-damage-3",
+--    "physical-projectile-damage-4",
     "land-mine",
     "cliff-explosives",
     "concrete",
     "logistic-system",
-    "worker-robots-speed-1",
-    "worker-robots-speed-2",
+--    "worker-robots-speed-1",
+--    "worker-robots-speed-2",
     "electric-energy-accumulators",
     "electric-energy-distribution-1",
-    "electric-energy-distribution-2",
+--    "electric-energy-distribution-2",
     "electric-engine",
     "lubricant",
     "fast-inserter",
-    "inserter-capacity-bonus-2",
-    "research-speed-2",
+--    "inserter-capacity-bonus-2",
+--    "research-speed-2",
     "lamp",
     "laser",
     "laser-turret",
     "personal-laser-defense-equipment",
     "laser-shooting-speed-1",
-    "laser-shooting-speed-2",
-    "laser-shooting-speed-3",
+--    "laser-shooting-speed-2",
+--    "laser-shooting-speed-3",
     "logistics-2",
     "mining-productivity-1",
     "nuclear-power",
@@ -505,9 +558,9 @@ ei_data.tech_structure["electricity-age"] = {
     "discharge-defense-equipment",
     "distractor",
     "laser-weapons-damage-1",
-    "laser-weapons-damage-2",
+--    "laser-weapons-damage-2",
     "follower-robot-count-1",
-    "follower-robot-count-2",
+--    "follower-robot-count-2",
     "robotics",
     "logistic-robotics",
     "construction-robotics",
@@ -517,7 +570,7 @@ ei_data.tech_structure["electricity-age"] = {
 ei_data.tech_structure["computer-age"] = {
     -- green circ
     "weapon-shooting-speed-3",
-    "weapon-shooting-speed-4",
+--    "weapon-shooting-speed-4",
     "stronger-explosives-3",
     "explosive-rocketry",
     "processing-unit",
@@ -527,24 +580,24 @@ ei_data.tech_structure["computer-age"] = {
     "power-armor-mk2",
     "personal-roboport-mk2-equipment",
     "braking-force-6",
-    "braking-force-7",
+--    "braking-force-7",
     "modules",
     -- "effect-transmission",
     "efficiency-module",
-    "efficiency-module-2",
-    "efficiency-module-3",
+--    "efficiency-module-2",
+--   "efficiency-module-3",
     "productivity-module",
-    "productivity-module-2",
-    "productivity-module-3",
+--    "productivity-module-2",
+--    "productivity-module-3",
     "speed-module",
-    "speed-module-2",
+--[[    "speed-module-2",
     "speed-module-3",
     "inserter-capacity-bonus-3",
     "inserter-capacity-bonus-4",
     "stronger-explosives-4",
     "stronger-explosives-5",
-    --"research-speed-3",
-    --"research-speed-4",
+"research-speed-3",
+"research-speed-4",
     "refined-flammables-5",
     "refined-flammables-6",
     "weapon-shooting-speed-5",
@@ -556,14 +609,14 @@ ei_data.tech_structure["computer-age"] = {
     "laser-shooting-speed-6",
     "laser-shooting-speed-7",
     "worker-robots-speed-3",
-    "worker-robots-speed-4",
+    "worker-robots-speed-4",]]
     "worker-robots-storage-1",
-    "worker-robots-storage-2",
+--[[    "worker-robots-storage-2",
     "laser-weapons-damage-3",
-    "laser-weapons-damage-4",
+    "laser-weapons-damage-4",]]
     "logistics-3",
     "low-density-structure",
-    "mining-productivity-2",
+--    "mining-productivity-2",
     "rocket-fuel",
     "rocket-silo",
     "rocketry",
@@ -571,15 +624,15 @@ ei_data.tech_structure["computer-age"] = {
     "bulk-inserter",
     "military-4",
     "artillery",
-    "follower-robot-count-3",
-    "follower-robot-count-4",
+--    "follower-robot-count-3",
+--   "follower-robot-count-4",
     "fission-reactor-equipment"
 
 }
 
 ei_data.tech_structure["quantum-age"] = {
     "atomic-bomb",
-    "inserter-capacity-bonus-5",
+--[[    "inserter-capacity-bonus-5",
     "inserter-capacity-bonus-6",
     "inserter-capacity-bonus-7",
     "worker-robots-speed-5",
@@ -596,7 +649,7 @@ ei_data.tech_structure["quantum-age"] = {
     "laser-weapons-damage-5",
     "laser-weapons-damage-6",
     "laser-weapons-damage-7",
-    "follower-robot-count-5",
+    "follower-robot-count-5",]]
     "artillery-shell-range-1",
     "artillery-shell-speed-1",
 }
