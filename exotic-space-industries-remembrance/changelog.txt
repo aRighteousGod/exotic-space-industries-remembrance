@@ -6,6 +6,8 @@ Date: 5-3-25
     -Soundtrack replacement for main menu.
     -Full soundtrack replacement for Nauvis.
     -Full soundtrack for Gaia.
+    -Custom firing sound with 6 variants for Plasma turret.
+    -Custom explosion sound with 6 variants for Plasma turret bullet explosion.
     -Pulsing idle glow for Arc Furnace.
     -Pulsing idle glow for Plasma Heater.
     -Import zh-CN locale from ai_cn by @lyx_kljk.
@@ -16,11 +18,19 @@ Date: 5-3-25
     -Explosive, Toxic, Cold, and Arachnid biters added to required dependencies—Explosive will spawn on Nauvis and Vulcanus, Cold will spawn on Nauvis and Aquillo, Toxic & Arachnid will spawn on Nauvis. These settings will be enforced.
     -Fulgoran Enemies added to required dependencies.
     Changes:
-    -Plasma turret recipe High energy crystal requirement 30 -> 50. Superior data 40 -> 60. Plasma data 40 -> 60.
-    -Plasma turret range reduced 300 -> 150. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200MJ -> 1GJ. Maximum energy inflow 200 -> 400MW.
-    -Zeus turret renamed Poseidon Installation— range increased from 45 to 350, minimum range 8.75 -> 70, cooldown 0.5s -> 12s. Minimum drain 0 -> 75MW. Energy per shot 500MJ -> 1GJ. Maximum energy inflow 200MW -> 400MW. Appropriate description also bestowed.
-    -Zeus blaster renamed Aegaeon Lance and bestowed appropriate description.
-    -Zeus wrath Lightning in a bottle renamed Voltaic Reliquary and bestowed appropriate description.
+    -Laser turret range 20 -> 30, damage 20 -> 12.
+    -Flamethrower moved to Steam Age and fluid consumption modified 3/s -> 15/s.
+    -Electric mining drill power usage 90 -> 150kw.
+    -Wooden chest now has 8 slots.
+    -Iron chest now has 12 slots.
+    -Steel chest now has 16 slots.
+    -EI Containers: 1x1 now 20 slots, filter variant 18 slots. 2x2 now 32 slots, filter variant 22 slots.. 6x6 now 64 slots, filter variant 26 slots.
+    -Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
+    -Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 1750. Explosive damage 300 -> 750. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, final speed unchanged.
+    -Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.
+    -Zeus turret renamed Poseidon Installation— range increased from 45 to 350, minimum range 8.75 -> 70, cooldown 0.5s -> 12s. Minimum drain 0 -> 75MW. Energy per shot 500MJ -> 1GJ. Maximum energy inflow 200MW -> 400MW. Energy buffer 20 -> 1.1GJ. Health 1000 -> 3000. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.  Appropriate description also bestowed.
+    -Zeus blaster renamed Aegaeon Lance and bestowed appropriate description. 
+    -Zeus wrath Lightning in a bottle renamed Voltaic Reliquary and bestowed appropriate description. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.
     -Space platform starter pack reduced from 2000 -> 50.
     -Assembling machines animation speed reverted to dynamic-from-speed instead of static.
     -Recycler and crusher surface restrictions restored.
@@ -31,7 +41,7 @@ Date: 5-3-25
     -Epoch Tech requirements extended—now all the various epochs science are required all the way through the tech tree.
     -Logistics restored to Steam Age as in original Exotic Industries.
     -EI fluid tanks restored to Steam Age, tooltips correctly attributed, technologies unlock sequentially after the regular storage tank.
-    -Flamethrower moved to Steam Age.
+
     -Concrete moved to Steam Age—now requires Advanced materials handling.
     -Concrete iron ore requirement -> iron mechanical parts.
     -Refined concrete copper mechanical parts -> steel mechanical parts.
@@ -39,7 +49,7 @@ Date: 5-3-25
     -Advanced steam train prerequisites now include Automated rail transportation.
     -Steam age prerequisites restored and amended: Military, Stone wall, Gun turret and Burner assembler.
     -Rocket lift capacity buff setting removed.
-    -Loader complexity patch setting removed. It is now the default.
+    -Loader complexity patch setting removed. The mountain is now external—climb it if you dare.
     -Neodymium loader now stacks to 8. Express loader now has single lane filtering and stacks to 2. -Additional inputs for Loader recipes from Express onwards. 
     -All loader electricity requirements and energy buffers increased—overall there is a shorter duration of full speed items:second to buffer ratio.
     -Krastorio2 no longer integrated. K2 Spaced Out can load alongside—immense though the overlap may be.

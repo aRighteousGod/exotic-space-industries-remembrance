@@ -431,8 +431,8 @@ data.raw["mining-drill"]["burner-mining-drill"].resource_searching_radius = 2
 
 data.raw["mining-drill"]["electric-mining-drill"].resource_searching_radius = 4
 data.raw["mining-drill"]["electric-mining-drill"].fast_replaceable_group = "electric-mining-drill"
-data.raw["mining-drill"]["electric-mining-drill"].next_upgrade = nil
-
+data.raw["mining-drill"]["electric-mining-drill"].next_upgrade = "ei-advanced-electric-mining-drill"
+data.raw["mining-drill"]["electric-mining-drill"].energy_usage = "150kW"
 -- increase power output of fusion reactor equipment
 
 data.raw["generator-equipment"]["fission-reactor-equipment"].power = "1MW"
@@ -503,7 +503,7 @@ data.raw.module["speed-module-3"].effect = {
 
 
 -- add 2 more module slots to rocket silo
-data.raw["rocket-silo"]["rocket-silo"].module_slots = 10
+data.raw["rocket-silo"]["rocket-silo"].module_slots = 4
 
 data.raw["recipe"]["heavy-oil-cracking"].localised_name = {"recipe-name.ei-heavy-oil-cracking"}
 
@@ -520,11 +520,40 @@ for _, animation in ipairs(data.raw["character"]["character"]["animations"]) do
     end
 end
 
+--bring in line with ei-containers
+data.raw["container"]["wooden-chest"].inventory_size = 8
+data.raw["container"]["iron-chest"].inventory_size = 12
+data.raw["container"]["steel-chest"].inventory_size = 16
 
--- set next upgrade of express belt, splitter and underground to ei_neo-belt
-data.raw["transport-belt"]["express-transport-belt"].next_upgrade = "ei-neo-belt"
-data.raw["splitter"]["express-splitter"].next_upgrade = "ei-neo-splitter"
-data.raw["underground-belt"]["express-underground-belt"].next_upgrade = "ei-neo-underground-belt"
+--Modify laser turrets for extended range and lowered damage
+ei_lib.patch_nested_value(
+  data.raw["electric-turret"]["laser-turret"],
+  "attack_parameters.range",
+  30
+)
+ei_lib.patch_nested_value(
+  data.raw["electric-turret"]["laser-turret"],
+  "attack_parameters.ammo_type.action.action_delivery[1].max_length",
+  30
+)
+ei_lib.patch_nested_value(
+  data.raw["electric-turret"]["laser-turret"],
+  "attack_parameters.damage_modifier",
+  -1.2
+)
+
+--Give flamethrower turret a higher fluid consumption default is 0.2
+
+ei_lib.patch_nested_value(
+  data.raw["fluid-turret"]["flamethrower-turret"],
+  "attack_parameters.fluid_consumption",
+  1
+)
+
+-- set next upgrade of turbo belt, splitter and underground to ei_neo-belt
+data.raw["transport-belt"]["turbo-transport-belt"].next_upgrade = "ei-neo-belt"
+data.raw["splitter"]["turbo-splitter"].next_upgrade = "ei-neo-splitter"
+data.raw["underground-belt"]["turbo-underground-belt"].next_upgrade = "ei-neo-underground-belt"
 
 -- set localised descriptions
 data.raw["item"]["burner-inserter"].localised_description = {"item-description.ei_burner-inserter"}
@@ -550,7 +579,3 @@ end
 for i,v in ipairs(prereqs_to_remove) do
     ei_lib.remove_prerequisite(v[1], v[2])
 end
-
-ei_lib.add_unlock_recipe("lamp", "radar")
-ei_lib.add_unlock_recipe("oil-processing", "pumpjack")
-ei_lib.add_unlock_recipe("steel-processing", "steel-plate")

@@ -1119,6 +1119,30 @@ function ei_lib.debug_crafting_categories()
     log(serpent.block(output))
 end
 
+--Look through a nested table and set a value at a given path
+function ei_lib.patch_nested_value(root, path_str, new_value)
+  -- Split the path string into keys (supports dot and bracket notation)
+  local keys = {}
+  for part in string.gmatch(path_str, "[^%.%[%]]+") do
+    local num = tonumber(part)
+    table.insert(keys, num or part)
+  end
+
+  -- Traverse the table
+  local ref = root
+  for i = 1, #keys - 1 do
+    ref = ref[keys[i]]
+    if not ref then
+      log("🛑 ei_lib.patch_nested_value failed at key: " .. tostring(keys[i]))
+      return false
+    end
+  end
+
+  -- Set the final value
+  local final_key = keys[#keys]
+  ref[final_key] = new_value
+  return true
+end
 
 -- Simulate lightning strike at position
 function ei_lib.strike_lightning(surface, pos)

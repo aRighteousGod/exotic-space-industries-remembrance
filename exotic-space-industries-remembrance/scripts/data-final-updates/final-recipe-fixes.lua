@@ -159,10 +159,6 @@ ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-lubricant
 --ei_lib.enable_from_start("iron-stick")
 --ei_lib.enable_from_start("iron-gear-wheel")
 
---ei_lib.add_unlock_recipe("inhibitor-lamp","inhibitor-lamp") --?
-ei_lib.add_unlock_recipe("uranium-mining","centrifuge")
-ei_lib.add_unlock_recipe("uranium-mining","uranium-processing")
-ei_lib.add_unlock_recipe("ei-crusher","recycler")
 
 ei_lib.add_unlock_recipe("steel-processing","ei-1x1-container-filter")
 ei_lib.add_unlock_recipe("steel-processing","ei-2x2-container-filter")
@@ -201,9 +197,6 @@ ei_lib.add_unlock_recipe("ei-steam-power","boiler")
 --ei_lib.add_unlock_recipe("ei-glass","glass")
 --ei_lib.add_unlock_recipe("steel-processing","steel-gear-wheel")
 
---ei_lib.recipe_swap("splitter", "electronic-circuit", "ei-iron-mechanical-parts")
---ei_lib.recipe_swap("ei-loader", "electronic-circuit", "ei-iron-mechanical-parts") --This overrides loader patch
-
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-small-roboport")
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-big-roboport")
 --ei_lib.add_unlock_recipe("ei-electricity-power","kr-wind-turbine")
@@ -216,12 +209,6 @@ ei_lib.add_unlock_recipe("lithium-processing","lithium-chloride")
 -- SPECIAL CASES
 --====================================================================================================
 
-if data.raw.technology["uranium-mining"] and data.raw.recipe["centrifuge"] then
-  table.insert(data.raw.technology["uranium-mining"].effects, {type = "unlock-recipe", recipe = "centrifuge"})
-  data.raw.recipe.centrifuge.enabled = false
-
-  data.raw.lab.lab.surface_conditions = nil
-end
 
 data.raw.recipe["transport-belt"].category = "crafting"
 data.raw.recipe["underground-belt"].category = "crafting"

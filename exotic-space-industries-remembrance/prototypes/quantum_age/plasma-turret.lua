@@ -18,15 +18,23 @@ data:extend({
     {
         name = "ei-plasma-turret",
         type = "recipe",
-        category = "crafting",
+        category = "crafting-with-fluid",
         energy_required = 4,
         ingredients =
         {
+            {type = "fluid", name = "electrolyte", amount = 800},
+            {type = "item", name = "superconductor", amount = 140},
+            {type = "item", name = "holmium-plate", amount = 140},
+            {type = "item", name = "ei-induction-matrix-core", amount = 1},
+            {type = "item", name = "ei-induction-matrix-advanced-solenoid", amount = 8},
+            {type = "item", name = "ei-induction-matrix-superior-coil", amount = 8},
+            {type = "item", name = "ei-induction-matrix-superior-converter", amount = 8},
             {type="item", name="laser-turret", amount=4},
-            {type="item", name="ei-high-energy-crystal", amount=50},
-            {type="item", name="ei-magnet", amount=25},
-            {type="item", name="ei-superior-data", amount=60},
-            {type="item", name="ei-plasma-data", amount=60},
+            {type="item", name="ei-high-energy-crystal", amount=80},
+            {type="item", name="ei-high-tech-parts", amount=100},
+            {type="item", name="ei-magnet", amount=100},
+            {type="item", name="ei-superior-data", amount=100},
+            {type="item", name="ei-plasma-data", amount=100},
         },
         results = {{type="item", name="ei-plasma-turret", amount=1}},
         enabled = false,
@@ -62,11 +70,13 @@ data:extend({
             mining_time = 0.5,
             result = "ei-plasma-turret"
         },
-        max_health = 1000,
-        corpse = "medium-remnants",
-        dying_explosion = "medium-explosion",
-        collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
-        selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+        max_health = 2000,
+        corpse = "big-remnants",
+        dying_explosion = "big-explosion",
+--        collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
+--        selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+        collision_box = {{-2.8, -2.8}, {2.8, 2.8}},
+        selection_box = {{-3, -3}, {3, 3}},
         resistances = {
 			{type = "physical", percent = 50},
 			{type = "fire", percent = 75},
@@ -74,34 +84,52 @@ data:extend({
 		},
         energy_source = {
 			type = "electric",
-			buffer_capacity = "1GJ",
+			buffer_capacity = "950MJ",
 			input_flow_limit = "400MW",
 			drain = "70MW",
 			usage_priority = "primary-input"
 		},
-        rotation_speed = 0.005,
-        --preparing_speed = 0.1,
-        --folding_speed = 0.1,
-        attacking_speed = 0.5,
+        rotation_speed = 0.0025,
+        preparing_speed = 0.06,
+        folding_speed = 0.06,
+        attacking_speed = 0.2,
+        prepare_range = 210,
         folded_animation = {
             filename = ei_graphics_entity_path.."plasma-turret_animation.png",
             size = {512,512},
             shift = {0, 0},
-	        scale = 0.35,
+	        scale = 0.7,
             line_length = 8,
             lines_per_file = 8,
             direction_count = 64,
             animation_speed = 0.35,
         },
+        energy_glow_animation = {
+                filename = "__base__/graphics/entity/laser-turret/laser-turret-shooting-light.png",
+                line_length = 8,
+                width = 122,
+                height = 116,
+                direction_count = 64,
+                shift = util.by_pixel(-0.5, -35),
+                blend_mode = "additive",
+                color = {r = 0.45, g = 0.1, b = 0.6},
+                scale = 2.5,
+                apply_runtime_tint = true,
+            },
+        glow_light_intensity = 0.6,
         attacking_animation = {
-            filename = ei_graphics_entity_path.."plasma-turret_animation.png",
-            size = {512,512},
-            shift = {0, 0},
-            scale = 0.35,
-            line_length = 8,
-            lines_per_file = 8,
-            direction_count = 64,
-            animation_speed = 0.35,
+            layers = {
+                {
+                    filename = ei_graphics_entity_path.."plasma-turret_animation.png",
+                    size = {512,512},
+                    shift = {0, 0},
+                    scale = 0.7,
+                    line_length = 8,
+                    lines_per_file = 8,
+                    direction_count = 64,
+                    animation_speed = 0.35,
+                }
+            }
         },
         graphics_set = {
             base_visualisation = {
@@ -127,23 +155,43 @@ data:extend({
             cooldown = 300,
             projectile_center = {0, 0.14},
             projectile_creation_distance = 2.3,
-            range = 150,
+            range = 200,
             min_range = 40,
             health_penalty = -1000,
             rotate_penalty = 100,
             sound = {
-                {
-                    filename = "__base__/sound/fight/laser-1.ogg",
-                    volume = 0.7
+                
+                aggregation = {
+                    max_count = 40,
+                    remove = true
                 },
-                {
-                    filename = "__base__/sound/fight/laser-2.ogg",
-                    volume = 0.7
-                },
-                {
-                    filename = "__base__/sound/fight/laser-3.ogg",
-                    volume = 0.7
-                },
+                variations = {
+                        {
+                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_1.ogg",
+                            volume = 0.9
+                        },
+                        {
+                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_2.ogg",
+                            volume = 0.95
+                        },
+                        {
+                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_3.ogg",
+                            volume = 0.95
+                        },
+                        {
+                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_4.ogg",
+                            volume = 0.9
+                        },
+                        {
+                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_5.ogg",
+                            volume = 0.95
+                        },
+                        {
+                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_6.ogg",
+                            volume = 0.9
+                        }
+                    }
+                
             },
             damage_modifier = 1,
             ammo_type = {
@@ -157,10 +205,10 @@ data:extend({
                     action_delivery = {
                         type = "projectile",
                         projectile = "ei-plasma-bullet",
-                        starting_speed = 6,
-                        direction_deviation = 0.1,
+                        starting_speed = 0.1,
+                        direction_deviation = 0.5,
                         range_deviation = 0.5,
-                        max_range = 180,
+                        max_range = 300,
                     }
                 }
             }
@@ -170,13 +218,13 @@ data:extend({
         name = "ei-plasma-bullet",
         type = "projectile",
         flags = {"not-on-map"},
-        acceleration = 0.005,
+        acceleration = 0.07,
         action = {
             action_delivery = {
                 target_effects = {
                     {
                         type = "damage",
-                        damage = {amount = 1000, type = "electric"},
+                        damage = {amount = 1750, type = "electric"},
                         force = "not-same",
                     },
                     {
@@ -184,14 +232,14 @@ data:extend({
                             action_delivery = {
                                 target_effects = {
                                     {
-                                        damage = {amount = 300,type = "explosion"},
+                                        damage = {amount = 750,type = "explosion"},
                                         force = "not-same",
                                         type = "damage"
                                     },
                                 },
                                 type = "instant"
                             },
-                            radius = 9,
+                            radius = 13.5,
                             type = "area"
                         },
                         type = "nested-result"
@@ -215,7 +263,7 @@ data:extend({
                         include_decals = false,
                         include_soft_decoratives = true,
                         invoke_decorative_trigger = true,
-                        radius = 9,
+                        radius = 13.5,
                         to_render_layer = "object",
                         type = "destroy-decoratives"
                     }
@@ -229,7 +277,7 @@ data:extend({
             width = 3,
             height = 50,
             shift = {0, 0},
-            scale = 2,
+            scale = 10,
             frame_count = 1,
             draw_as_glow = true,
             priority = "high",
@@ -244,7 +292,7 @@ data:extend({
                 filename = ei_graphics_other_path.."plasma-explosion.png",
                 size = {1944/6, 1248/3},
                 shift = {0, -6},
-                scale = 2,
+                scale = 3,
                 line_length = 6,
                 lines_per_file = 6,
                 frame_count = 36,
@@ -253,21 +301,49 @@ data:extend({
                 priority = "high",
             },
         },
-        light = {intensity = 1, size = 100},
+        light_intensity_peak_end_progress = 0.6,
+        light_size_peak_start_progress = 0.0675,
+        light_size_peak_end_progress = 0.9,
+        scale_out_duration = 45,
+        scale_end = 0.85,
+        scale_animation_speed = true,
+        light = {
+            intensity = 0.85,
+            blend_mode = "multiplicative",
+            draw_as_glow = true,
+            color = {r = 0.45, g = 0.1, b = 0.6},
+            size = 125
+        },
         sound = {
             aggregation = {
-                max_count = 1,
+                max_count = 40,
                 remove = true
             },
             variations = {
                 {
-                    filename = "__base__/sound/fight/large-explosion-1.ogg",
-                    volume = 0.7
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_1.ogg",
+                    volume = 0.95
                 },
                 {
-                    filename = "__base__/sound/fight/large-explosion-2.ogg",
-                    volume = 0.7
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_2.ogg",
+                    volume = 0.95
                 },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_3.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_4.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_5.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_6.ogg",
+                    volume = 0.95
+                }
             }
         },
         smoke = "smoke-fast",

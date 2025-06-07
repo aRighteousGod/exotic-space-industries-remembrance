@@ -38,7 +38,7 @@ require("scripts/data-final-updates/compatibility")
 
 -- =======================================================================================
 
-data.raw.reactor["ei-burner-heater"].energy_source.fuel_categories = {"chemical"}
+--data.raw.reactor["ei-burner-heater"].energy_source.fuel_categories = {"chemical"}
 data.raw.item.wood.fuel_category = "chemical"
 data.raw.item.coal.fuel_category = "chemical"
 
@@ -61,7 +61,7 @@ end
 -- =======================================================================================
 
 data.raw["space-platform-starter-pack"]["space-platform-starter-pack"].initial_items = {
-  {type = "item", name = "space-platform-foundation", amount = 50}
+  {type = "item", name = "space-platform-foundation", amount = 60}
 }
 
 -- =======================================================================================

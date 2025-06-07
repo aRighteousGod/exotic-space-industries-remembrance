@@ -35,7 +35,7 @@ local mod_entity_base = {
         mining_time = 1,
         result = "ei-1x1-container"
     },
-    inventory_size = 48,
+    inventory_size = 18,
     circuit_connector_sprites = data.raw["container"]["steel-chest"].circuit_connector_sprites,
     circuit_wire_connection_point = data.raw["container"]["steel-chest"].circuit_wire_connection_point,
     circuit_wire_max_distance = data.raw["container"]["steel-chest"].circuit_wire_max_distance,

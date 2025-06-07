@@ -1,5 +1,9 @@
 local function set_bool(mod,name,value)
   if mods[mod] then
+    if not data.raw["bool-setting"][name] then
+      log("EI set_bool: Setting "..name.." not found in data.raw.bool-setting")
+      return
+    end
     data.raw["bool-setting"][name].hidden = true
     data.raw["bool-setting"][name]["default_value"] = value
     data.raw["bool-setting"][name]["forced_value"] = value
@@ -10,6 +14,10 @@ end
 
 local function set_string(mod,name,value)
   if mods[mod] then
+    if not data.raw["string-setting"][name] then
+      log("EI set_string: Setting "..name.." not found in data.raw.string-setting")
+      return
+    end
     data.raw["string-setting"][name].hidden = true
     data.raw["string-setting"][name]["default_value"] = value
     data.raw["string-setting"][name]["forced_value"] = value
@@ -20,6 +28,10 @@ end
 
 local function set_int(mod,name,value)
   if mods[mod] then
+    if not data.raw["int-setting"][name] then
+      log("EI set_int: Setting "..name.." not found in data.raw.int-setting")
+      return
+    end
     data.raw["int-setting"][name].hidden = true
     data.raw["int-setting"][name]["default_value"] = value
     data.raw["int-setting"][name]["forced_value"] = value
@@ -32,6 +44,10 @@ end
 
 local function set_float(mod,name,value)
   if mods[mod] then
+    if not data.raw["double-setting"][name] then
+      log("EI set_float: Setting "..name.." not found in data.raw.double-setting")
+      return
+    end
     data.raw["double-setting"][name].hidden = true
     data.raw["double-setting"][name]["default_value"] = value
     data.raw["double-setting"][name]["forced_value"] = value
@@ -55,12 +71,12 @@ set_bool("lignumis","lignumis-belt-progression",false)
 set_bool("lignumis","lignumis-inserter-progression",false)
 set_bool("lignumis","lignumis-ammo-progression",false)
 
-set_string("Explosive_Biters","eb-spawn-planet","both")
-set_bool("Cold_Biters","cb-enable-dying-explosion",true)
-set_string("Cold_Biters","cb-spawn-planet","both")
-set_bool("Toxic_Biters","tb-allow-infection",true)
-
-
+set_string("Explosive_biters","eb-spawn-planet","both")
+set_bool("Cold_biters","fb-enable-dying-explosion",true)
+set_string("Cold_biters","fb-spawn-planet","both")
+set_bool("Toxic_biters","tb-allow-infection",true)
+set_bool("zeus-wrath","zeus-wrath-friendly-fire",true)
+set_bool("zeus-wrath","zeus-wrath-friendly-fire-gun",true)
 
 
 

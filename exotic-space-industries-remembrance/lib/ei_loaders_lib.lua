@@ -293,10 +293,10 @@ function ei_loaders_lib.addEnergyDraw(loader, energy_per_item, energy_buffer, bu
             drain = "2kW",
         }
         loader.energy_per_item = tostring(energy_per_item) .. "J"
-    elseif burner then --unsupported
+    elseif burner then --unsupported. stands now as a compelling monument
         loader.energy_source = {
         type = "burner",
-        fuel_categories = {"chemical"},  -- or "biomass", "nuclear", etc. if supported
+        fuel_categories = {"chemical"},
         effectivity = 1,
         fuel_inventory_size = 1,
         }
