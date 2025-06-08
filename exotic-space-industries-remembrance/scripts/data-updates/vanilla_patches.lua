@@ -214,22 +214,11 @@ data.raw["technology"]["steel-processing"].icon = ei_graphics_tech_path.."steel-
 data.raw["technology"]["fluid-handling"].icon = ei_graphics_tech_path.."barreling.png"
 data.raw["technology"]["fluid-handling"].icon_size = 256
 
+ei_lib.add_unlock_recipe("fluid-wagon","pump")
 
-table.insert(data.raw["technology"]["engine"].effects, {
-    type = "unlock-recipe",
-    recipe = "pump"
-})
+ei_lib.add_unlock_recipe("automation-2", "ei-ceramic")
 
-table.insert(data.raw["technology"]["lamp"].effects, {
-    type = "unlock-recipe",
-    recipe = "radar"
-})
-
-table.insert(data.raw["technology"]["automation-2"].effects, {
-    type = "unlock-recipe",
-    recipe = "ei-ceramic"
-})
-
+ei_lib.add_unlock_recipe("landfill", "ei-landfill-sand")
 
 data.raw["technology"]["electronics"].effects = {
     {
@@ -247,7 +236,7 @@ data.raw["technology"]["electronics"].effects = {
 }
 
 -- edit electric enigne tech to use only steam age science for progression
-ei_lib.set_age_packs("electric-engine","steam-age")
+--ei_lib.set_age_packs("electric-engine","steam-age")
 
 -- make inserter-capaity-bonus-1 buff normal inserters
 data.raw["technology"]["inserter-capacity-bonus-1"].effects = {
@@ -333,11 +322,6 @@ data.raw["assembling-machine"]["oil-refinery"].energy_source = {
         {position = {2.3, -1}, direction = defines.direction.east},
         -- {position = {-1.5,0}, direction = defines.direction.west}
     }
-}
-
--- make pump not use energy
-data.raw["pump"]["pump"].energy_source = {
-    type = 'void'
 }
 
 -- make burner inserter be able to fuel leech

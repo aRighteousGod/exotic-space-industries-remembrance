@@ -39,8 +39,8 @@ data:extend({gaia_water})
 local landfill = data.raw.item.landfill
 
 if landfill then
-  table.insert(landfill.place_as_tile.tile_condition, "water-shallow")
-  table.insert(landfill.place_as_tile.tile_condition, "water-mud") 
+--  table.insert(landfill.place_as_tile.tile_condition, "water-shallow")
+--  table.insert(landfill.place_as_tile.tile_condition, "water-mud") 
   table.insert(landfill.place_as_tile.tile_condition, "ei-gaia-water") 
 end
 

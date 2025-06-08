@@ -1211,8 +1211,8 @@ ei_lib.set_prerequisites("ei-electricity-age",{
     "ei-steam-assembler",
     "ei-tank-silo",
     "ei-steam-advanced-train",
-    "ei-fluid-boiler",
-    "electronics"
+    "rp-steam-logistics-chests",
+    "ei-fluid-boiler"
 })
 
 table.insert(data.raw.technology["lubricant"].prerequisites, "automation-2")

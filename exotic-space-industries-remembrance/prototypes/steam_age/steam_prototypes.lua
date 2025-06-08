@@ -666,10 +666,6 @@ data:extend({
                 recipe = "glass"
             },
             ]]
-            {
-                type = "unlock-recipe",
-                recipe = "ei-landfill-sand"
-            },
         },
         unit = {
             count = 100,

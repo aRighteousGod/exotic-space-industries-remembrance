@@ -1,4 +1,7 @@
 -- changes to FMF mod
+if not mods["FluidMustFlow"] then
+    return
+end
 
 local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
@@ -7,9 +10,7 @@ local ei_data = require("lib/data")
 --CHECK FOR MOD
 --====================================================================================================
 
-if not mods["FluidMustFlow"] then
-    return
-end
+
 
 --====================================================================================================
 --CHANGES

@@ -224,7 +224,7 @@ data:extend({
                 target_effects = {
                     {
                         type = "damage",
-                        damage = {amount = 1750, type = "electric"},
+                        damage = {amount = 2500, type = "electric"},
                         force = "not-same",
                     },
                     {
@@ -232,7 +232,7 @@ data:extend({
                             action_delivery = {
                                 target_effects = {
                                     {
-                                        damage = {amount = 750,type = "explosion"},
+                                        damage = {amount = 1250,type = "explosion"},
                                         force = "not-same",
                                         type = "damage"
                                     },

@@ -151,9 +151,10 @@ data:extend({
         name = "ei-steam-engine",
         type = "recipe",
         category = "crafting",
-        energy_required = 1.5,
+        energy_required = 2,
         ingredients = {
-            {type="item", name="ei-copper-mechanical-parts", amount=1},
+            {type="item", name="ei-iron-mechanical-parts", amount=2}
+            {type="item", name="ei-copper-mechanical-parts", amount=2},
             {type="item", name="pipe", amount=1},
         },
         results = {
@@ -171,6 +172,7 @@ data:extend({
         ingredients = {
             {type="item", name="ei-copper-mechanical-parts", amount=4},
             {type="item", name="ei-steam-engine", amount=1},
+            {type="item", name="pipe", amount=2},
         },
         results = {
             {type = "item", name = "ei-steam-age-tech", amount = 2},

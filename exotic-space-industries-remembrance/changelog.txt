@@ -17,7 +17,13 @@ Date: 5-3-25
     -Zeus Wrath lightning turret, gun, and ammo added to required dependencies and slotted into Quantum Age. Recipe requirements mostly replaced and supplemented with EI specific exotic intermediates.
     -Explosive, Toxic, Cold, and Arachnid biters added to required dependencies—Explosive will spawn on Nauvis and Vulcanus, Cold will spawn on Nauvis and Aquillo, Toxic & Arachnid will spawn on Nauvis. These settings will be enforced.
     -Fulgoran Enemies added to required dependencies.
+    -RP Steam Roboports added to required dependencies and slotted into the Steam Age—behold the majesty of balanced early-game mechanical bots. Beware: a bot running out of steam results in an impromptu meting with the ground! Also includes a STEAM POWERED PUMP, unlocked with Steam pistons.
+    
     Changes:
+    -Alien computer age recipe is now: 10 Blooming alien seeds, 20 High energy crystals, and 250 Cryoflux per 10 cards.
+    -Steam engine recipe inputs: Copper mechanical parts 1 -> 2, additionally requires 2 Iron mechanical parts.
+    -Steam age tech additionally requires 2 Pipes.
+    -Pump requires electricity again and moved to Fluid wagon unlock.
     -Laser turret range 20 -> 30, damage 20 -> 12.
     -Flamethrower moved to Steam Age and fluid consumption modified 3/s -> 15/s.
     -Electric mining drill power usage 90 -> 150kw.
@@ -26,7 +32,7 @@ Date: 5-3-25
     -Steel chest now has 16 slots.
     -EI Containers: 1x1 now 20 slots, filter variant 18 slots. 2x2 now 32 slots, filter variant 22 slots.. 6x6 now 64 slots, filter variant 26 slots.
     -Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
-    -Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 1750. Explosive damage 300 -> 750. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, final speed unchanged.
+    -Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 2500. Explosive damage 300 -> 1250. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, acceleration enhanced, final speed unchanged.
     -Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.
     -Zeus turret renamed Poseidon Installation— range increased from 45 to 350, minimum range 8.75 -> 70, cooldown 0.5s -> 12s. Minimum drain 0 -> 75MW. Energy per shot 500MJ -> 1GJ. Maximum energy inflow 200MW -> 400MW. Energy buffer 20 -> 1.1GJ. Health 1000 -> 3000. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.  Appropriate description also bestowed.
     -Zeus blaster renamed Aegaeon Lance and bestowed appropriate description. 
@@ -40,12 +46,12 @@ Date: 5-3-25
     -Gleba planting restrictions restored—no more planting anywhere.
     -Epoch Tech requirements extended—now all the various epochs science are required all the way through the tech tree.
     -Logistics restored to Steam Age as in original Exotic Industries.
+    -Yellow splitter circuit requirement restored.
     -EI fluid tanks restored to Steam Age, tooltips correctly attributed, technologies unlock sequentially after the regular storage tank.
-
     -Concrete moved to Steam Age—now requires Advanced materials handling.
     -Concrete iron ore requirement -> iron mechanical parts.
     -Refined concrete copper mechanical parts -> steel mechanical parts.
-    -Electricity age prerequisites now include advanced steam train, Silo fluid storage tank, and burner heater.
+    -Electricity age prerequisites now include Advanced steam train, Silo fluid storage tank, Burner heater, and Steam logistics chests.
     -Advanced steam train prerequisites now include Automated rail transportation.
     -Steam age prerequisites restored and amended: Military, Stone wall, Gun turret and Burner assembler.
     -Rocket lift capacity buff setting removed.
@@ -79,6 +85,7 @@ Date: 5-3-25
     -Gate activation threshold moved from 20% -> 90%.
     -Gate per item energy requirement now assesses raw material costs instead of a flat cost.
     -reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
+   
     Fixes:
     -EM Train impact sounds re-exported as 48khz .ogg with consistently named files to ensure proper loading and playback.
     -Bobs Logistic crash related to incorrect next_upgrade on EI containers fixed.

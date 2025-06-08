@@ -1515,9 +1515,9 @@ data:extend({
         category = "advanced-crafting",
         energy_required = 10,
         ingredients = {
-            {type = "item", name = "ei-alien-resin", amount = 10},
-            {type = "item", name = "ei-energy-crystal", amount = 1},
-            {type = "fluid", name = "ei-cryoflux", amount = 100},
+            {type = "item", name = "ei-blooming-alien-seed", amount = 10},
+            {type = "item", name = "ei-high-energy-crystal", amount = 20},
+            {type = "fluid", name = "ei-cryoflux", amount = 250},
         },
         results = {
             {type = "item", name = "ei-alien-computer-age-tech", amount = 10},

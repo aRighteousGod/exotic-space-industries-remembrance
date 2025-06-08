@@ -1,7 +1,3 @@
-
-local ei_lib = require("lib/lib")
-local ei_data = require("lib/data")
-
 --====================================================================================================
 --CHECK FOR MOD
 --====================================================================================================
@@ -9,6 +5,11 @@ local ei_data = require("lib/data")
 if not mods["Nanobots"] then
     return
 end
+
+
+local ei_lib = require("lib/lib")
+local ei_data = require("lib/data")
+
 
 --====================================================================================================
 --CHANGES

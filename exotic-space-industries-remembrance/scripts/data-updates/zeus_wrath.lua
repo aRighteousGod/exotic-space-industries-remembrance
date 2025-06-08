@@ -1,4 +1,5 @@
 if not mods["zeus-wrath"] then return end
+--====================================================================================================
 local ei_lib = require("lib/lib")
 --tech zeus-wrath-zeus-wrath
 --gun zeus-wrath-zeus-gun
@@ -13,8 +14,9 @@ ei_lib.overwrite_entity_and_description("zeus-wrath-zeus-gun","gun")
 ei_lib.overwrite_entity_and_description("zeus-wrath-lightning-ammo","ammo")
 ei_lib.overwrite_entity_and_description("zeus-wrath-zeus-wrath","technology")
 
-ei_lib.add_prerequisite("zeus-wrath-zeus-wrath","ei-high-tech-parts")
-ei_lib.add_prerequisite("zeus-wrath-zeus-wrath","ei-quantum-computer")
+ei_lib.set_prerequisites("zeus-wrath-zeus-wrath",
+{"ei-high-tech-parts","ei-quantum-computer","ei-copper-beacon","tesla-weapons","lightning-collector"})
+
 data.raw.technology["zeus-wrath-zeus-wrath"].age = "quantum-age"
 
 data.raw["electric-turret"]["zeus-wrath-zeus-turret"].max_health = 3000
