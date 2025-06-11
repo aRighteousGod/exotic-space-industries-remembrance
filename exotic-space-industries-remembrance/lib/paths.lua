@@ -63,6 +63,8 @@ ei_robots_entity_path = ei_graphics_entity_2_path
 
 ei_fueler_graphics_path = ei_graphics_2_path.."graphics/fueler/"
 
+ei_steam_trains_sounds_path = ei_graphics_2_path.."sounds/steam_trains/"
+
 ei_trains_path = ei_graphics_2_path
 ei_trains_sounds_path = ei_trains_path.."sounds/em_trains/"
 ei_trains_entity_path = ei_trains_path.."graphics/entities/em_trains/"

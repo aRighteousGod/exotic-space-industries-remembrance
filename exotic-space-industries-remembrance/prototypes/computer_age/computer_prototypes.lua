@@ -848,24 +848,46 @@ data:extend({
         subgroup = "ei-alien-bio",
         order = "a-b",
     },
-
+    {
+        name = "ei-undilute-morphium",
+        type = "recipe",
+        category = "chemistry",
+        energy_required = 32,
+        ingredients = {
+            {type = "fluid", name = "ei-diluted-morphium", amount = 1000},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 10},
+        },
+        results = {
+            {type = "fluid", name = "ei-morphium", amount = 10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "steam", amount = 500},
+        },
+        always_show_made_in = true,
+        icon = ei_graphics_fluid_path.."diluted-morphium.png",
+        icon_size = 256,
+        enabled = false,
+        main_product = "ei-morphium",
+    },
     {
         name = "ei-concentrated-morphium",
         type = "recipe",
         category = "chemistry",
-        energy_required = 1,
+        energy_required = 4,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 25},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 10},
         },
         results = {
             {type = "fluid", name = "ei-concentrated-morphium", amount = 15},
-            {type = "fluid", name = "water", amount = 10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-acidic-water", amount = 1, probability = 0.10},
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-concentrated-morphium",
     },
-    
     {
         name = "ei-concentrated-morphium-light-oil",
         type = "recipe",
@@ -2393,6 +2415,10 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-alien-computer-age-tech"
+            },
+            {
+            type = "unlock-recipe",
+                recipe = "ei-gaia-pump"
             },
         },
         unit = {

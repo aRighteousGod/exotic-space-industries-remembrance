@@ -90,14 +90,15 @@ data:extend({
             mining_time = 1,
             result = "ei-iron-beacon",
         },
-        distribution_effectivity = 0.25,
+        distribution_effectivity = 0.75,
+         distribution_effectivity_bonus_per_quality_level = 0.5,
         energy_source = {
             type = "electric",
             usage_priority = "secondary-input",
             --input_flow_limit = "400MW",
         },
         energy_usage = "5MW",
-        module_slots = 12+2,
+        module_slots = 6,
         supply_area_distance = ei_data.beacon_range,
         radius_visualisation_picture =
         {

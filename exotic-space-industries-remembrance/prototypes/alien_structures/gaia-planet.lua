@@ -30,10 +30,10 @@ gaia.map_gen_settings.cliff_settings.cliff_elevation_interval = 0
 gaia.map_gen_settings.cliff_settings.richness = 0
 
 gaia.map_gen_settings.terrain_segmentation = 0.75
-
+gaia.default_enable_all_autoplace_controls = false
 gaia_water = table.deepcopy(data.raw.tile["water"]);
 gaia_water.name = "ei-gaia-water"
-gaia_water.fluid = "ei-morphium"; --change this to an extremely diluted version requiring refinement otherwise the patches are useless
+gaia_water.fluid = "ei-diluted-morphium";
 data:extend({gaia_water})
 
 local landfill = data.raw.item.landfill

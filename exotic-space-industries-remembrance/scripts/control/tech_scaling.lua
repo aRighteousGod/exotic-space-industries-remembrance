@@ -55,9 +55,9 @@ function ei_tech_scaling.on_research_finished()
 
     local total_multiplier = multiplier * additional_multiplier
 
-    if total_multiplier > 1000 then
-        total_multiplier = 1000
-    end
+--    if total_multiplier > 1000 then
+--        total_multiplier = 1000
+--    end
 
     -- set multiplier
     game.difficulty_settings.technology_price_multiplier = total_multiplier

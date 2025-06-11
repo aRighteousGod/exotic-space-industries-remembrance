@@ -26,7 +26,7 @@ data:extend({
         ingredients =
         {
             {type="item", name="fast-inserter", amount=4},
-            {type="item", name="steel-plate", amount=10},
+            {type="item", name="ei-steel-mechanical-parts", amount=20},
             {type="item", name="electric-engine-unit", amount=8},
         },
         results = {{type="item", name="ei-small-inserter-normal", amount=1}},

@@ -85,7 +85,7 @@ set_float("rp_steam_roboports","rp_steam_roboports_roboport_steam_buffer_kj",120
 set_int("rp_steam_roboports","rp_steam_roboports_roboport_charge_slots",4)
 set_float("rp_steam_roboports","rp_steam_roboports_vanilla_bot_speed",0.06)
 set_float("rp_steam_roboports","rp_steam_roboports_bot_speed",0.055)
-set_float("rp_steam_roboports","rp_steam_roboports_bot_max_energy_kj",1700)
+set_float("rp_steam_roboports","rp_steam_roboports_bot_max_energy_kj",1500)
 set_float("rp_steam_roboports","rp_steam_roboports_bot_energy_per_tick_kj",0.055)
 set_float("rp_steam_roboports","rp_steam_roboports_bot_energy_per_move_kj",6)
 set_bool("rp_steam_roboports","rp_steam_roboports_bot_die_when_out_of_energy",true)

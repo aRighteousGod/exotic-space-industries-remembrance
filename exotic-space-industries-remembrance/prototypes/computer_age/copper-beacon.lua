@@ -89,7 +89,8 @@ data:extend({
             mining_time = 1,
             result = "ei-copper-beacon",
         },
-        distribution_effectivity = 0.25,
+        distribution_effectivity = 0.5,
+        distribution_effectivity_bonus_per_quality_level = 0.25,
         energy_source = {
             type = "electric",
             usage_priority = "secondary-input",

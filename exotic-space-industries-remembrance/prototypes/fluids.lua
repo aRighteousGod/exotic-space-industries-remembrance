@@ -240,6 +240,22 @@ data:extend({
         fuel_value = "1MJ",
     },
     {
+        name = "ei-diluted-morphium",
+        type = "fluid",
+        icon = ei_graphics_fluid_path.."diluted-morphium.png",
+        icon_size = 256,
+        default_temperature = 15,
+        max_temperature = 1000,
+        gas_temperature = 100,
+        base_color = { r = 0.15, g = 0.39, b = 0.42 },  -- muddier teal-gray
+        flow_color = { r = 0.45, g = 0.36, b = 0.42 },   -- dusty mauve-gray
+        pressure_to_speed_ratio = 0.400, 
+        flow_to_energy_ratio = 0,
+        subgroup = "ei-alien-intermediates",
+        order = "a-a2",
+        fuel_value = "1J",
+    },
+    {
         name = "ei-concentrated-morphium",
         type = "fluid",
         icon = ei_graphics_fluid_path.."concentrated-morphium.png",

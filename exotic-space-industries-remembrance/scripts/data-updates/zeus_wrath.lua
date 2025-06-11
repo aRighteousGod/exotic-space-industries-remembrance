@@ -16,20 +16,27 @@ ei_lib.overwrite_entity_and_description("zeus-wrath-zeus-wrath","technology")
 
 ei_lib.set_prerequisites("zeus-wrath-zeus-wrath",
 {"ei-high-tech-parts","ei-quantum-computer","ei-copper-beacon","tesla-weapons","lightning-collector"})
+ei_lib.raw["technology"]["zeus-wrath-zeus-wrath"].age = "quantum-age"
 
-data.raw.technology["zeus-wrath-zeus-wrath"].age = "quantum-age"
-
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].max_health = 3000
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].prepare_range = 355
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].rotation_speed = 0.01
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].attack_parameters.cooldown = 720
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].attack_parameters.range = 350
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].attack_parameters.min_range = 70
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].call_for_help_radius = 70
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].energy_source.drain = "75MW"
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].energy_source.input_flow_limit = "400MW"
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].energy_source.buffer_capacity = "1.1GJ"
-data.raw["electric-turret"]["zeus-wrath-zeus-turret"].attack_parameters.ammo_type.energy_consumption = "1GJ"
+ei_lib.raw["electric-turret"]["zeus-wrath-zeus-turret"] = {
+max_health = 3000,
+prepare_range = 355,
+rotation_speed = 0.01,
+call_for_help_radius = 70,
+energy_source = {
+        drain = "75MW",
+        input_flow_limit = "400MW",
+        buffer_capacity = "1.1GJ",
+        },
+attack_parameters = {
+        cooldown = 720,
+        range = 350,
+        min_range = 70,
+        ammo_type = {
+                energy_consumption = "1GJ"
+                }
+        }
+}
 
 --Inner radius damage
 ei_lib.patch_nested_value(

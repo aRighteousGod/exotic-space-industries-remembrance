@@ -58,7 +58,8 @@ function model.count_flowers(entity)
     end
 
     if model.flower_counter_warnings[storage.ei.flower_counter] then
-        local rand = ei_rng.int("flower", 1, 10)
+        --local rand = ei_rng.int("flower", 1, 10)
+        local rand = math.random(1,10)
         if rand > 4 then
             -- spawn floating text
             rendering.draw_text{
@@ -353,8 +354,10 @@ function model.get_spawn_position(area)
 
     -- add some randomness to the spawn position
     local random_point = {
-        ["x"] = middle_point.x + ei_rng.int("alienrandx1", -32, 32),
-        ["y"] = middle_point.y + ei_rng.int("alienrandy1", -32, 32)
+        --["x"] = middle_point.x + ei_rng.int("alienrandx1", -32, 32),
+        --["y"] = middle_point.y + ei_rng.int("alienrandy1", -32, 32)
+        ["x"] = middle_point.x + math.random(-32,32),
+        ["y"] = middle_point.y + math.random(-32,32)
     }
 
     return random_point
@@ -399,8 +402,8 @@ function model.que_preset(pos, surface, tick)
     local legendary_range = 200
     local min_artifact_distance = 200
     local treshold = 90
-    local rand = ei_rng.int("alienquepreset1", 1, 100)
-
+--    local rand = ei_rng.int("alienquepreset1", 1, 100)
+    local rand = math.random(1,100)
     if rand < treshold then
         return
     end
@@ -416,19 +419,20 @@ function model.que_preset(pos, surface, tick)
     -- 70 = common, 80 = rare, 90 = very rare, 100 = legendary
     -- create random number between 1 and 100 and
 
-    local rarity = ei_rng.int("alienquepreset2", 1, 100)
+--    local rarity = ei_rng.int("alienquepreset2", 1, 100)
+    local rarity = math.random(1,100)
     local preset = nil
 
-    if rarity < 25 then
+    if rarity < 30 then
         -- common
         preset = model.select_preset("common")
-    elseif rarity < 50 then
+    elseif rarity < 20 then
         -- rare
         preset = model.select_preset("rare")
-    elseif rarity < 75 then
+    elseif rarity < 10 then
         -- very rare
         preset = model.select_preset("very rare")
-    else
+    elseif rarity == 0 then
         -- legendary
 
         -- game.print("legendary spawned")
@@ -665,9 +669,9 @@ function model.on_chunk_generated(event)
 end
 
 
-function model.update()
+function model.update(event)
 
-    local tick = game.tick
+    local tick = event.tick
 
     if not storage.ei.spawner_queue then
         return

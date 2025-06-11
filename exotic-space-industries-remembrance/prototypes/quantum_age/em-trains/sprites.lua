@@ -23,8 +23,8 @@ local emt_train_glow = {
 local charger_beam = table.deepcopy(data.raw["beam"]["electric-beam"])
 charger_beam.name = "ei_charger-beam"
 charger_beam.action = nil
-charger_beam.working_sound.min_volume=0.05
-charger_beam.working_sound.max_volume=0.1
+charger_beam.working_sound.min_volume=0.01
+charger_beam.working_sound.max_volume=0.02
 -- Define your imperial tint: rich royal purple
 local purple_tint = {r = 0.6, g = 0.1, b = 0.8, a = 1}
 

@@ -773,17 +773,17 @@ data:extend({
         energy_source = {
             type = "electric",
             buffer_capacity = "200MJ",
-            input_flow_limit = "10MW",
+            input_flow_limit = "20MW",
             usage_priority = "primary-input"
         },
         attack_parameters = {
             type = "projectile",
             ammo_category = "electric",
-            damage_modifier = 1000,
+            damage_modifier = 200,
             cooldown = 600,
             projectile_center = {0, 0},
-            projectile_creation_distance = 0.6,
-            range = 500,
+            projectile_creation_distance = 1.2,
+            range = 64,
             sound = {
                 filename = "__base__/sound/fight/pulse.ogg",
                 volume = 0.7
@@ -794,7 +794,7 @@ data:extend({
                 action = {
                     {
                         type = "area",
-                        radius = 500,
+                        radius = 64,
                         force = "enemy",
                         action_delivery = {
                             {
@@ -806,14 +806,14 @@ data:extend({
                                     },
                                     {
                                         type = "push-back",
-                                        distance = 4
+                                        distance = 8
                                     }
                                 }
                             },
                             {
                                 type = "beam",
                                 beam = "electric-beam-no-sound",
-                                max_length = 500,
+                                max_length = 96,
                                 duration = 120,
                                 source_offset = {0, -0.5},
                                 add_to_shooter = false

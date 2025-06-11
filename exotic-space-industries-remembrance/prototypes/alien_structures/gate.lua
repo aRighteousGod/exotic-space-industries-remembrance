@@ -57,10 +57,6 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-gate"
             },
-            -- {
-            --     type = "unlock-recipe",
-            --     recipe = "ei-gaia-pump"
-            -- },
         },
         unit = {
             count = 100,

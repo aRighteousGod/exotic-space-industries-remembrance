@@ -40,10 +40,12 @@ data:extend({
             result = "ei-alien-beacon",
         },
         distribution_effectivity = 1,
+        distribution_effectivity_bonus_per_quality_level = 0.25,
         energy_source = {
-            type = "void",
+          type = "electric",
+          usage_priority = "secondary-input",
         },
-        energy_usage = "1W",
+        energy_usage = "125MW",
         module_slots = 8,
         supply_area_distance = 20,
         radius_visualisation_picture =
@@ -82,11 +84,12 @@ data:extend({
             result = "ei-warp-beacon",
         },
         distribution_effectivity = 2,
+        distribution_effectivity_bonus_per_quality_level = 0.25,
         energy_source = {
           type = "electric",
           usage_priority = "secondary-input",
         },
-        energy_usage = "100MW",
+        energy_usage = "250MW",
         module_slots = 10,
         supply_area_distance = 64,
         animation = {

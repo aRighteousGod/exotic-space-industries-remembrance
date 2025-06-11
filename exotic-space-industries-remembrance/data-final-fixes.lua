@@ -65,9 +65,12 @@ data.raw["space-platform-starter-pack"]["space-platform-starter-pack"].initial_i
 }
 
 -- =======================================================================================
+if ei_lib.raw["assembling-machine"]["biochamber"] and ei_lib.raw["assembling-machine"]["assembling-machine-1"] then
+  -- Fix biochamber energy source
+  ei_lib.raw["assembling-machine"]["biochamber"].energy_source = table.deepcopy(ei_lib.raw["assembling-machine"]["assembling-machine-1"].energy_source)
+  --ei_lib.raw.assembling-machine["biochamber"].energy_source.light_flicker = nil --needs colorful glow or some such
+end
 
-data.raw.lab.biolab.energy_source = table.deepcopy(data.raw["assembling-machine"].biochamber.energy_source)
---data.raw.lab.biolab.energy_source.light_flicker = nil --needs colorful glow or some such
 
 -- =======================================================================================
 

@@ -44,7 +44,7 @@ data:extend({
       setting_type = "startup",
       default_value = 20,
       minimum_value = 10,
-      maximum_value = 40,
+      maximum_value = 20,
       order  = "a5",
   },
   {
@@ -52,7 +52,7 @@ data:extend({
       type = "string-setting",
       setting_type = "startup",
       default_value = "200MW",
-      allowed_values = {"75MW", "150MW", "200MW", "225MW", "300MW"},
+      allowed_values = {"150MW", "175MW", "200MW", "225MW", "250MW"},
       order  = "a6",
   },
   {
@@ -61,6 +61,7 @@ data:extend({
       setting_type = "startup",
       default_value = true,
       order  = "a7",
+      hidden = true, --Disabling it concurrently with the EI nuclear reactor buffs is dishonorable.
   },
   {
       name = "ei-barrel-capacity",
@@ -68,7 +69,7 @@ data:extend({
       setting_type = "startup",
       default_value = 1000,
       minimum_value = 50,
-      maximum_value = 5000,
+      maximum_value = 2000,
       order  = "a8",
   },
   {
@@ -77,6 +78,7 @@ data:extend({
       setting_type = "startup",
       default_value = true,
       order  = "b1",
+      hidden = true, --Disabling it concurrently with the EI beacon buffs is dishonorable.
   },
   {
       name = "ei-em_train_glow",
@@ -176,6 +178,7 @@ data:extend({
       setting_type = "startup",
       default_value = true,
       order  = "c1b",
+      hidden = true, --Slag is a core part of the mod, don't disable it.
   },
   {
       name = "ei-ash",
@@ -183,6 +186,7 @@ data:extend({
       setting_type = "startup",
       default_value = true,
       order  = "c1c",
+      hidden = true, --Ash is a core part of the mod, don't disable it.
   },
   {
       name = "ei-tech-tree-flatten",
@@ -204,6 +208,7 @@ data:extend({
       setting_type = "startup",
       default_value = false,
       order  = "c1f",
+      hidden = true, --Commit to the vision of the mod, don't disable this.
   },
   {
       name = "ei-menu-background",
@@ -219,41 +224,25 @@ data:extend({
       "Industrial Dominance: Crystalline Vigil",
       "Choking Smog: Ascension Protocol"},
       order  = "c1g",
-  }
-})
-
-data:extend({
-{
-    name = "ei_fueler_max_updates_per_tick",
-    type = "int-setting",
-    setting_type = "startup",
-    setting_type = "startup",
-    default_value = 1,
-    minimum_value = 1,
-    maximum_value = 100,
-    order  = "d1",
-    hidden = true
-},
-{
-    name = "ei_fueler_range",
-    type = "int-setting",
-    setting_type = "startup",
-    default_value = 20,
-    minimum_value = 1,
-    maximum_value = 100,
-    order  = "d2",
-},
-})
-
-data:extend({
-{
-    name = "ei_trains_max_updates_per_tick",
-    type = "int-setting",
-    setting_type = "startup",
-    default_value = 1,
-    minimum_value = 1,
-    maximum_value = 100,
-    order  = "e1",
-    hidden = true
-},
+  },
+    {
+        name = "ei_fueler_range",
+        type = "int-setting",
+        setting_type = "startup",
+        default_value = 16,
+        minimum_value = 1,
+        maximum_value = 32,
+        order  = "d2",
+    },
+    {
+        name = "ei_fueler_max_updates_per_tick",
+        type = "int-setting",
+        setting_type = "startup",
+        setting_type = "startup",
+        default_value = 1,
+        minimum_value = 1,
+        maximum_value = 100,
+        order  = "d1",
+        hidden = true
+    },
 })

@@ -32,21 +32,50 @@ function ei_lib.table_contains_value(table_in, value)
     return false
 end
 
+--Look through a nested table and set a value at a given path
+function ei_lib.patch_nested_value(root, path_str, new_value)
+  -- Split the path string into keys (supports dot and bracket notation)
+  local keys = {}
+  for part in string.gmatch(path_str, "[^%.%[%]]+") do
+    local num = tonumber(part)
+    table.insert(keys, num or part)
+  end
+
+  -- Traverse the table
+  local ref = root
+  for i = 1, #keys - 1 do
+    ref = ref[keys[i]]
+    if not ref then
+      log("🛑 ei_lib.patch_nested_value failed at key: " .. tostring(keys[i]))
+      return false
+    end
+  end
+
+  -- Set the final value
+  local final_key = keys[#keys]
+  ref[final_key] = new_value
+  return true
+end
+
 --Pick a value from table other than the previous
-function ei_lib.get_random_different_value(tbl, previous)
+function ei_lib.get_random_different_value(tbl, previous, entropy1, entropy2, entropy3, entropy4)
     if not tbl then return end
 
-    -- Convert table values into an array
+    -- Convert table values into an array, excluding previous
     local values = {}
     for _, v in pairs(tbl) do
-        table.insert(values, v)
+        if v ~= previous then
+            table.insert(values, v)
+        end
     end
 
     if #values == 1 then return values[1] end -- no choice
 
     local choice
+    local entropy = 0
     repeat
-        choice = values[ei_rng.int("randtblvalu", 1, #values)]
+        choice = values[ei_rng.int("randtblvalu", 1, #values,entropy1, entropy2, entropy3, entropy4) + entropy]
+        entropy = entropy + 1
     until choice ~= previous
 
     return choice
@@ -99,7 +128,10 @@ end
 -- quick access to startup settings
 function ei_lib.config(name)
     local setting = settings.startup["ei-" .. name]
-    if not setting then return false end
+    if not setting then
+      log("ei_lib.config: Setting 'ei-" .. name .. "' not found.")
+      return false
+    end
 
     local val = setting.value
 
@@ -126,7 +158,201 @@ end
 function ei_lib.starts_with(inputstr, start) 
     return inputstr:sub(1, #start) == start 
 end
+-- Use ei_lib.raw to access this
+--- Modifies a prototype in `data.raw` using one of three modes:
+--- 1. Recursively merges fields from `properties` (default behavior)
+--- 2. Replaces the prototype entirely if `properties.force_replace` is true
+--- 3. Executes a custom `func(prototype, properties)` if provided
+---
+--- Fields in `properties` beginning with "_" will be ignored during merge.
+--- Logs an error if the category or name do not exist in `data.raw`.
+---
+--- @param category string               The prototype category, e.g., "item", "recipe", etc.
+--- @param name string                   The name of the prototype to modify.
+--- @param properties table              The table of fields to apply. Can include `force_replace` to override the prototype.
+--- @param func fun(prototype: table, properties: table) | nil
+---     Optional callback that receives the prototype and properties table directly for custom mutation.
+---
+--- @return nil
+function ei_lib.modify_data_raw(category, name, properties, func)
+    -- Check if the category exists
+    if not data.raw[category] then
+        log("ei_lib.modify_data_raw: Category '" .. category .. "' does not exist.")
+        return
+    end
+    -- Check if the name exists in the category
+    if not data.raw[category][name] then
+        log("ei_lib.modify_data_raw: Name '" .. name .. "' does not exist in category '" .. category .. "'.")
+        return
+    end
+    -- func? is it weally?
+    if func and type(func) ~= "function" then
+        log("ei_lib.modify_data_raw: Provided func is not a function.")
+        return
+    end
 
+    if not func and not properties.force_replace and not properties.force_insert then
+      -- Update the properties of the prototype
+      ei_lib.recursive_copy(data.raw[category][name], properties)
+    elseif not func and properties.force_insert then --for ie crafting_categories
+      properties.force_insert = nil
+      ei_lib.recursive_insert(data.raw[category][name], properties)
+    elseif not func and properties.force_replace then
+      properties.force_replace = nil
+      for key,value in pairs(properties) do
+      -- Force replace the prototype with the new properties
+        data.raw[category][name][key] = value
+      end
+    elseif func then
+      -- Call the provided function with the prototype
+      func(data.raw[category][name], properties)
+    end
+end
+
+--- @alias PrototypeCategory
+--- | "item"
+--- | "recipe"
+--- | "technology"
+--- | "entity"
+--- | "electric-turret"
+--- | "assembling-machine"
+--- | "fluid"
+--- | "ammo"
+--- | "module"
+--- | "tool"
+--- | "tile"
+--- | string  # Any other valid `data.raw` category
+
+--- @alias PrototypeName string
+--- @alias Prototype table<string, any>
+
+--- @class RawProxyCategory
+--- @field [PrototypeName] Prototype | nil
+---        Access to a specific prototype in a category. Returns nil if not found, with logging.
+
+--- @class RawProxy
+--- @field [PrototypeCategory] RawProxyCategory
+---        Proxy table for a given prototype category, supports read and write with logging.
+---        - `ei_lib.raw["item"]["ei-core"]`: read
+---        - `ei_lib.raw["recipe"]["ei-fusion"] = {enabled = false}`: write (uses `modify_data_raw`)
+
+--- A proxy interface for safely interacting with `data.raw` via `ei_lib.raw`.
+--- Read:
+---   - Returns prototype if it exists.
+---   - Logs if category or name is missing.
+---
+--- Write:
+---   - Routes to `ei_lib.modify_data_raw`.
+---   - Logs if target category/prototype does not exist.
+---   - Skips invalid assignments.
+---
+--- Example:
+--- ```lua
+--- ei_lib.raw["item"]["ei-core"].stack_size = 200
+--- ei_lib.raw["recipe"]["ei-infusion"] = { energy_required = 20 }
+--- ```
+--- @type RawProxy
+
+ei_lib.raw = setmetatable({}, {
+  __index = function(_, category)
+    return setmetatable({}, {
+      __index = function(_, name)
+        local cat = data.raw[category]
+        if not cat then
+          log("ei_lib.raw: ❌ Category '" .. category .. "' does not exist.")
+          return nil
+        end
+        local proto = cat[name]
+        if not proto then
+          log("ei_lib.raw: ❌ Prototype '" .. name .. "' missing in category '" .. category .. "'.")
+        end
+        return proto
+      end,
+
+      __newindex = function(_, name, properties)
+        local cat = data.raw[category]
+        if not cat then
+          log("ei_lib.raw: ❌ Cannot modify. Category '" .. category .. "' does not exist.")
+          return
+        end
+        if not cat[name] then
+          log("ei_lib.raw: ❌ Cannot modify. Prototype '" .. name .. "' missing in category '" .. category .. "'.")
+          return
+        end
+        ei_lib.modify_data_raw(category, name, properties)
+      end
+    })
+  end
+})
+
+
+--====================================================================================================
+--DESCRIPTION AND NAME RELATED
+--====================================================================================================
+---@param target_name string         -- The name of the entity prototype to rename
+---@param target_type string         -- The type of the entity prototype (e.g., "electric-turret")
+---@param new_name string            -- New name to assign (leave blank to look in name_alt in the .cfg)
+---@param new_description string     -- New description to assign (leave blank to look in name_alt in the .cfg)
+
+function ei_lib.overwrite_entity_and_description(target_name,target_type,new_name,new_description)
+  ei_lib.overwrite_entity_name(target_name, target_type, new_name)
+  ei_lib.overwrite_description(target_name, target_type, new_description)
+end
+function ei_lib.overwrite_entity_name(entity_name, entity_type, new_name)
+    -- test if item exists in data.raw.item
+    if not entity_name then
+        log("ei_lib.overwrite_item_name: entity_name is not defined")
+        return
+    end
+    if not entity_type then
+        log("ei_lib.overwrite_item_name: entity_type is not defined for item "..entity_name)
+        return
+    end
+    --default to looking for localized item-name_alt in cfg
+    if not data.raw[entity_type] or not data.raw[entity_type][entity_name] then
+        log("ei_lib.overwrite_item_name: entity "..entity_name.." does not exist in data.raw."..entity_type)
+        return
+    end
+    if not new_name and entity_type ~= "technology" and entity_type ~= "item" and entity_type ~= "ammo" then    --default to looking for localized item-name_alt in cfg
+      data.raw[entity_type][entity_name].localised_name =  {"entity-name." .. entity_name .. "_alt"}
+    elseif not new_name and entity_type == "item" or entity_type == "ammo" then
+      data.raw[entity_type][entity_name].localised_name = {"item-name." .. entity_name .. "_alt"}
+    elseif not new_name and entity_type == "technology" then
+      data.raw[entity_type][entity_name].localised_name = {"technology-name." .. entity_name .. "_alt"}
+    elseif new_name then --otherwise you can force it and skip localization
+      data.raw[entity_type][entity_name].localised_name = new_name
+    else
+        log("ei_lib.overwrite_entity_name: undefined exception occurred for "..entity_name)
+    end
+end
+
+function ei_lib.overwrite_description(target, target_type, new_description)
+    -- test if item exists in data.raw.item
+    if not target then
+        log("ei_lib.overwrite_description: target is not defined")
+        return
+    end
+    if not target_type then
+        log("ei_lib.overwrite_description: target_type is not defined for item "..target)
+        return
+    end
+    --default to looking for localized item-description_alt in cfg
+    if not data.raw[target_type] or not data.raw[target_type][target] then
+        log("ei_lib.overwrite_description: target "..target.." does not exist in data.raw."..target_type)
+        return
+    end
+    if not new_description and target_type ~= "technology" and target_type ~= "item" and target_type ~= "ammo" then    --default to looking for localized item-name_alt in cfg
+      data.raw[target_type][target].localised_description =  {"entity-description." .. target .. "_alt"}
+    elseif not new_description and target_type == "item" or target_type == "ammo" then
+      data.raw[target_type][target].localised_description = {"item-description." .. target .. "_alt"}
+    elseif not new_description and target_type == "technology" then
+      data.raw[target_type][target].localised_description = {"technology-description." .. target .. "_alt"}
+    elseif new_description then --otherwise you can force it and skip localization
+      data.raw[target_type][target].localised_description = new_description
+    else
+        log("ei_lib.overwrite_target: undefined exception occurred for "..target)
+    end
+end
 
 --RECIPE RELATED
 ------------------------------------------------------------------------------------------------------
@@ -316,70 +542,6 @@ function ei_lib.recipe_remove(recipe, ingredient)
         if v[1] == ingredient then
             table.remove(data.raw.recipe[recipe].ingredients, i)
         end
-    end
-end
----@param target_name string         -- The name of the entity prototype to rename
----@param target_type string         -- The type of the entity prototype (e.g., "electric-turret")
----@param new_name string            -- New name to assign (leave blank to look in name_alt in the .cfg)
----@param new_description string     -- New description to assign (leave blank to look in name_alt in the .cfg)
-
-function ei_lib.overwrite_entity_and_description(target_name,target_type,new_name,new_description)
-  ei_lib.overwrite_entity_name(target_name, target_type, new_name)
-  ei_lib.overwrite_description(target_name, target_type, new_description)
-end
-function ei_lib.overwrite_entity_name(entity_name, entity_type, new_name)
-    -- test if item exists in data.raw.item
-    if not entity_name then
-        log("ei_lib.overwrite_item_name: entity_name is not defined")
-        return
-    end
-    if not entity_type then
-        log("ei_lib.overwrite_item_name: entity_type is not defined for item "..entity_name)
-        return
-    end
-    --default to looking for localized item-name_alt in cfg
-    if not data.raw[entity_type] or not data.raw[entity_type][entity_name] then
-        log("ei_lib.overwrite_item_name: entity "..entity_name.." does not exist in data.raw."..entity_type)
-        return
-    end
-    if not new_name and entity_type ~= "technology" and entity_type ~= "item" and entity_type ~= "ammo" then    --default to looking for localized item-name_alt in cfg
-      data.raw[entity_type][entity_name].localised_name =  {"entity-name." .. entity_name .. "_alt"}
-    elseif not new_name and entity_type == "item" or entity_type == "ammo" then
-      data.raw[entity_type][entity_name].localised_name = {"item-name." .. entity_name .. "_alt"}
-    elseif not new_name and entity_type == "technology" then
-      data.raw[entity_type][entity_name].localised_name = {"technology-name." .. entity_name .. "_alt"}
-    elseif new_name then --otherwise you can force it and skip localization
-      data.raw[entity_type][entity_name].localised_name = new_name
-    else
-        log("ei_lib.overwrite_entity_name: undefined exception occurred for "..entity_name)
-    end
-end
-
-function ei_lib.overwrite_description(target, target_type, new_description)
-    -- test if item exists in data.raw.item
-    if not target then
-        log("ei_lib.overwrite_description: target is not defined")
-        return
-    end
-    if not target_type then
-        log("ei_lib.overwrite_description: target_type is not defined for item "..target)
-        return
-    end
-    --default to looking for localized item-description_alt in cfg
-    if not data.raw[target_type] or not data.raw[target_type][target] then
-        log("ei_lib.overwrite_description: target "..target.." does not exist in data.raw."..target_type)
-        return
-    end
-    if not new_description and target_type ~= "technology" and target_type ~= "item" and target_type ~= "ammo" then    --default to looking for localized item-name_alt in cfg
-      data.raw[target_type][target].localised_description =  {"entity-description." .. target .. "_alt"}
-    elseif not new_description and target_type == "item" or target_type == "ammo" then
-      data.raw[target_type][target].localised_description = {"item-description." .. target .. "_alt"}
-    elseif not new_description and target_type == "technology" then
-      data.raw[target_type][target].localised_description = {"technology-description." .. target .. "_alt"}
-    elseif new_description then --otherwise you can force it and skip localization
-      data.raw[target_type][target].localised_description = new_description
-    else
-        log("ei_lib.overwrite_target: undefined exception occurred for "..target)
     end
 end
 
@@ -680,13 +842,15 @@ end
 --GENERAL PROTOTYPES RELATED
 ------------------------------------------------------------------------------------------------------
 
+
+
 --- Set each attribute of source into target
-local function recursive_copy(target, source)
+function ei_lib.recursive_copy(target, source)
     for key, value in pairs(source) do
         if tostring(key):find('^_') ~= 1 then
             if type(value) == 'table' then
                 target[key] = target[key] or {}
-                recursive_copy(target[key], source[key])
+                ei_lib.recursive_copy(target[key], source[key])
             else
                 target[key] = source[key]
             end
@@ -694,8 +858,33 @@ local function recursive_copy(target, source)
     end
 end
 
+function ei_lib.recursive_insert(target, source)
+    for key, value in pairs(source) do
+        if tostring(key):find('^_') ~= 1 then
+            if type(value) == 'table' then
+                target[key] = target[key] or {}
+                if #value > 0 then
+                    -- it's an array-like table, insert elements
+                    for _, v in ipairs(value) do
+                        -- check if the value is already in the target array
+                        if not ei_lib.table_contains_value(target[key], v) then
+                          table.insert(target[key], v)
+                        end
+                    end
+                else
+                    -- it's a dictionary, recurse
+                    ei_lib.recursive_insert(target[key], value)
+                end
+            else
+                target[key] = value
+            end
+        end
+    end
+end
+
 --- Updates (overwriting) a given prototype's attributes with the given data
 --- properties starting with underscore "_property" will be ignored
+--- compared to modify_data_raw or ei_lib.raw, this is better to call from, ie, looping over a table
 ---@param obj Prototype
 ---@field name String mandatory
 ---@field type String mandatory
@@ -709,7 +898,7 @@ function ei_lib.set_properties(obj)
         log("Could not find prototype"..obj.type.."/"..obj.name)
         return
     end
-    recursive_copy(prototype, obj)
+    ei_lib.recursive_copy(prototype, obj)
 end
 
 --====================================================================================================
@@ -1119,37 +1308,14 @@ function ei_lib.debug_crafting_categories()
     log(serpent.block(output))
 end
 
---Look through a nested table and set a value at a given path
-function ei_lib.patch_nested_value(root, path_str, new_value)
-  -- Split the path string into keys (supports dot and bracket notation)
-  local keys = {}
-  for part in string.gmatch(path_str, "[^%.%[%]]+") do
-    local num = tonumber(part)
-    table.insert(keys, num or part)
-  end
 
-  -- Traverse the table
-  local ref = root
-  for i = 1, #keys - 1 do
-    ref = ref[keys[i]]
-    if not ref then
-      log("🛑 ei_lib.patch_nested_value failed at key: " .. tostring(keys[i]))
-      return false
-    end
-  end
-
-  -- Set the final value
-  local final_key = keys[#keys]
-  ref[final_key] = new_value
-  return true
-end
 
 -- Simulate lightning strike at position
 function ei_lib.strike_lightning(surface, pos)
   if not surface or not pos then return end
-  local palette = storage.ei and storage.ei.tint_palette
+  local palette = ei_lib.tint_palette
   if not palette then
-    log("strike_lightning: no tint_palette available")
+    log("ei_lib.strike_lightning: no tint_palette available")
     return
   end
 
@@ -1211,6 +1377,75 @@ end
 --=====================================================================================================
 -------------------------------Crystal Messages
 --=====================================================================================================
+--Crystal Echo color library
+
+ei_lib.tint_palette = {
+    ["mirage"]      = { name = "mirage",     adj = "eldritch",    hex = "#2af9aa", intent = "mystery" },
+    ["specter"]     = { name = "specter",    adj = "entropic",    hex = "#d19e79", intent = "signal" },
+    ["singularity"] = { name = "singularity",adj = "mirrored",    hex = "#c58681", intent = "mystery" },
+    ["void"]        = { name = "void",       adj = "entropic",    hex = "#cccba7", intent = "signal" },
+    ["mycelium"]    = { name = "mycelium",   adj = "mystic",      hex = "#ef7ef4", intent = "mystery" },
+    ["halo"]        = { name = "halo",       adj = "mystic",      hex = "#708a43", intent = "mystery" },
+    ["aurora"]      = { name = "aurora",     adj = "silent",      hex = "#404f7d", intent = "serenity" },
+    ["frost"]       = { name = "frost",      adj = "celestial",   hex = "#222a9f", intent = "divine" },
+    ["pulse"]       = { name = "pulse",      adj = "encrypted",   hex = "#88dba5", intent = "signal" },
+    ["venom"]       = { name = "venom",      adj = "toxic",       hex = "#2b6624", intent = "wrath" },
+    ["dusk"]        = { name = "dusk",       adj = "luminous",    hex = "#49bad9", intent = "serenity" },
+    ["starlight"]   = { name = "starlight",  adj = "radiant",     hex = "#bd3097", intent = "divine" },
+    ["flux"]        = { name = "flux",       adj = "toxic",       hex = "#a5c3f0", intent = "wrath" },
+    ["node"]        = { name = "node",        adj = "dormant",    hex = "#4c7759", intent = "serenity" },
+    ["resonance"]   = { name = "resonance",   adj = "glacial",    hex = "#2dbd66", intent = "serenity" },
+    ["core"]        = { name = "core",        adj = "lunar",      hex = "#d77ec1", intent = "divine" },
+    ["glyph"]       = { name = "glyph",       adj = "dissonant",  hex = "#e56af6", intent = "signal" },
+    ["chime"]       = { name = "chime",       adj = "auric",      hex = "#b7cc29", intent = "divine" },
+    ["matrix"]      = { name = "matrix",      adj = "volatile",   hex = "#ae8fff", intent = "wrath" },
+    ["spire"]       = { name = "spire",       adj = "dissonant",  hex = "#e8a893", intent = "signal" },
+    ["veil"]        = { name = "veil",        adj = "eternal",    hex = "#32e4aa", intent = "mystery" },
+    ["rift"]        = { name = "rift",        adj = "iridescent", hex = "#a57880", intent = "mystery" },
+    ["sigil"]       = { name = "sigil",       adj = "unstable",   hex = "#8189d0", intent = "wrath" },
+    ["shard"]       = { name = "shard",       adj = "quantum",    hex = "#b982bd", intent = "signal" },
+    ["beam"]        = { name = "beam",        adj = "solar",      hex = "#44caee", intent = "wrath" }
+--    ["pulse"]       = { name = "pulse",       adj = "radiant",    hex = "#624385", intent = "divine" }
+  }  
+
+local intent_tint_map = {
+    mystery = {
+      "mirage",
+      "singularity",
+      "mycelium",
+      "halo",
+      "veil",
+      "rift"
+    },
+    signal = {
+      "specter",
+      "void",
+      "pulse",
+      "glyph",
+      "spire",
+      "shard"
+    },
+    serenity = {
+      "aurora",
+      "dusk",
+      "node",
+      "resonance"
+    },
+    divine = {
+      "frost",
+      "pulse",
+      "starlight",
+      "core",
+      "chime"
+    },
+    wrath = {
+      "venom",
+      "flux",
+      "matrix",
+      "sigil",
+      "beam"
+    }
+  }
 function ei_lib.lerp_color(c1, c2, t)
     return {
       math.floor(c1[1] + (c2[1] - c1[1]) * t + 0.5),
@@ -1223,28 +1458,37 @@ function ei_lib.rgb_to_hex(rgb)
     return string.format("%02x%02x%02x", rgb[1], rgb[2], rgb[3])
   end
 
-  local colors = {
-    {112, 48, 160},  -- Royal purple
-    {0, 123, 167},   -- Cerulean
-    {186, 85, 211},  -- Orchid flare
-    {72, 209, 204},  -- Crystal teal
-    {255, 105, 180}, -- Etheric pink
-    {240, 230, 140}, -- Dream gold
-    {50, 205, 50},   -- Verdant flux
-    {255, 69, 0}     -- Solar flare
+local crystal_colors = {
+    {112, 48, 160},   -- Royal purple
+    {0, 123, 167},    -- Cerulean
+    {186, 85, 211},   -- Orchid flare
+    {72, 209, 204},   -- Crystal teal
+    {255, 105, 180},  -- Etheric pink
+    {240, 230, 140},  -- Dream gold
+    {50, 205, 50},    -- Verdant flux
+    {255, 69, 0},      -- Solar flare
+    {128, 64, 192},   -- Amethyst Surge (darker variant of royal purple)
+    {0, 139, 180},    -- Deep Cerulean (slightly more saturated, oceanic)
+    {199, 112, 221},  -- Radiant Orchid (brighter, richer orchid tone)
+    {64, 224, 208},   -- Iced Teal (closer to turquoise, retains clarity)
+    {255, 99, 187},   -- Magenta Pulse (pinker hue, saturated etherwave)
+    {255, 239, 100},  -- Starlight Gold (brighter, ethereal yellow)
+    {60, 220, 80},    -- Vivid Verdance (more neon, energetic green)
+    {255, 80, 20}     -- Inferno Ember (darker orange-red, volatile)
   }
 
-function ei_lib.pick_gradient_stops()
-    local stops = {}
-    local num_stops = math.random(2, 4)
-    for i = 1, num_stops do
-      table.insert(stops, colors[math.random(8)]) --#colors
-    end
-    return stops
-  end
-
-
 -------------------------------Crystal Messages
+---
+----- Utility to substitute placeholders in the message
+function ei_lib.format_echo(message, replacements)
+    return (string.gsub(message, "{(.-)}", function(key)
+        if key == "tint_adj" and replacements["tint"] then
+            local tint = ei_lib.tint_palette[replacements["tint"]]
+            return (tint and tint.adj) or "mysterious"
+        end
+        return tostring(replacements[key] or "{"..key.."}")
+    end))
+end
 function ei_lib.lerp_color(c1, c2, t)
     return {
       math.floor(c1[1] + (c2[1] - c1[1]) * t + 0.5),
@@ -1280,157 +1524,13 @@ function ei_lib.hex_to_rgb_raw(hex)
 end
 
 
-function ei_lib.compute_palette_checksum(palette)
-  local keys = {}
-  for name in pairs(palette) do table.insert(keys, name) end
-  table.sort(keys)
-
-  local checksum = 0
-  for _, name in ipairs(keys) do
-    local data = palette[name]
-    local str = name .. ":" .. (data.adj or "") .. ":" .. (data.hex or "") .. ":" .. (data.intent or "")
-    for i = 1, #str do
-      checksum = (checksum + str:byte(i)) % 2147483647
-    end
-  end
-  return checksum
-end
-    local palette = {
-    mirage      = { adj = "eldritch",    hex = "#2af9aa", intent = "mystery" },
-    specter     = { adj = "entropic",    hex = "#d19e79", intent = "signal" },
-    singularity = { adj = "mirrored",    hex = "#c58681", intent = "mystery" },
-    void        = { adj = "entropic",    hex = "#cccba7", intent = "signal" },
-    mycelium    = { adj = "mystic",      hex = "#ef7ef4", intent = "mystery" },
-    halo        = { adj = "mystic",      hex = "#708a43", intent = "mystery" },
-    aurora      = { adj = "silent",      hex = "#404f7d", intent = "serenity" },
-    frost       = { adj = "celestial",   hex = "#222a9f", intent = "divine" },
-    pulse       = { adj = "radiant",     hex = "#624385", intent = "divine" },
-    venom       = { adj = "toxic",       hex = "#2b6624", intent = "wrath" },
-    dusk        = { adj = "luminous",    hex = "#49bad9", intent = "serenity" },
-    starlight   = { adj = "radiant",     hex = "#bd3097", intent = "divine" },
-    flux        = { adj = "toxic",       hex = "#a5c3f0", intent = "wrath" },
-    node        = { adj = "dormant",     hex = "#4c7759", intent = "serenity" },
-    resonance   = { adj = "glacial",     hex = "#2dbd66", intent = "serenity" },
-    core        = { adj = "lunar",       hex = "#d77ec1", intent = "divine" },
-    glyph       = { adj = "dissonant",   hex = "#e56af6", intent = "signal" },
-    chime       = { adj = "auric",       hex = "#b7cc29", intent = "divine" },
-    matrix      = { adj = "volatile",    hex = "#ae8fff", intent = "wrath" },
-    spire       = { adj = "dissonant",   hex = "#e8a893", intent = "signal" },
-    veil        = { adj = "eternal",     hex = "#32e4aa", intent = "mystery" },
-    rift        = { adj = "iridescent",  hex = "#a57880", intent = "mystery" },
-    sigil       = { adj = "unstable",    hex = "#8189d0", intent = "wrath" },
-    shard       = { adj = "quantum",     hex = "#b982bd", intent = "signal" },
-    beam        = { adj = "solar",       hex = "#44caee", intent = "wrath" }
-    }
-function ei_lib.initialize_crystal_data(override, altpal)
-  override = override or false
-
-  -- === PRIMARY TINT PALETTE ===
-  local palette = {
-    mirage      = { adj = "eldritch",    hex = "#2af9aa", intent = "mystery" },
-    specter     = { adj = "entropic",    hex = "#d19e79", intent = "signal" },
-    singularity = { adj = "mirrored",    hex = "#c58681", intent = "mystery" },
-    void        = { adj = "entropic",    hex = "#cccba7", intent = "signal" },
-    mycelium    = { adj = "mystic",      hex = "#ef7ef4", intent = "mystery" },
-    halo        = { adj = "mystic",      hex = "#708a43", intent = "mystery" },
-    aurora      = { adj = "silent",      hex = "#404f7d", intent = "serenity" },
-    frost       = { adj = "celestial",   hex = "#222a9f", intent = "divine" },
-    pulse       = { adj = "radiant",     hex = "#624385", intent = "divine" },
-    venom       = { adj = "toxic",       hex = "#2b6624", intent = "wrath" },
-    dusk        = { adj = "luminous",    hex = "#49bad9", intent = "serenity" },
-    starlight   = { adj = "radiant",     hex = "#bd3097", intent = "divine" },
-    flux        = { adj = "toxic",       hex = "#a5c3f0", intent = "wrath" },
-    node        = { adj = "dormant",     hex = "#4c7759", intent = "serenity" },
-    resonance   = { adj = "glacial",     hex = "#2dbd66", intent = "serenity" },
-    core        = { adj = "lunar",       hex = "#d77ec1", intent = "divine" },
-    glyph       = { adj = "dissonant",   hex = "#e56af6", intent = "signal" },
-    chime       = { adj = "auric",       hex = "#b7cc29", intent = "divine" },
-    matrix      = { adj = "volatile",    hex = "#ae8fff", intent = "wrath" },
-    spire       = { adj = "dissonant",   hex = "#e8a893", intent = "signal" },
-    veil        = { adj = "eternal",     hex = "#32e4aa", intent = "mystery" },
-    rift        = { adj = "iridescent",  hex = "#a57880", intent = "mystery" },
-    sigil       = { adj = "unstable",    hex = "#8189d0", intent = "wrath" },
-    shard       = { adj = "quantum",     hex = "#b982bd", intent = "signal" },
-    beam        = { adj = "solar",       hex = "#44caee", intent = "wrath" },
-  }
-
-  -- === PREPROCESS: ADD NAME + RGB ===
-  for name, data in pairs(palette) do
-    data.name = name
-    data.rgb = ei_lib.hex_to_rgb_raw(data.hex)
-  end
-
-  -- === CHECKSUM GUARD ===
-  local checksum = ei_lib.compute_palette_checksum(palette)
-  if storage.ei.tint_palette_checksum == checksum then
-    if not override then
-      log("ei_lib.initialize_crystal_data: checksum match, skipping")
-      return
-    elseif override and not altpal then
-      log("ei_lib.initialize_crystal_data: override without altpal, skipping")
-      return
-    else
-      log("ei_lib.initialize_crystal_data: override with altpal, proceeding")
-    end
-  end
-
-  -- === DERIVED TABLES ===
-  local tint_adjectives = {}              -- [tint_name] = { adj, hex }
-  local crystal_colors = {}              -- { {r,g,b}, ... }
-  local intent_tint_map = {}             -- [intent] = { tint_name, ... }
-
-  for name, data in pairs(palette) do
-    tint_adjectives[name] = { adj = data.adj, hex = data.hex }
-    table.insert(crystal_colors, data.rgb)
-
-    local intents = type(data.intent) == "table" and data.intent or {data.intent}
-    for _, intent in ipairs(intents) do
-      intent_tint_map[intent] = intent_tint_map[intent] or {}
-      table.insert(intent_tint_map[intent], name)
-    end
-  end
-
-  -- === PERSIST TO GLOBAL STORAGE ===
-  storage.ei.tint_palette = palette
-  storage.ei.tint_palette_checksum = checksum
-
-  storage.ei.tint_adjectives = tint_adjectives
-  storage.ei.tint_adjectives_checksum = ei_lib.compute_palette_checksum(tint_adjectives)
-
-  storage.ei.crystal_colors = crystal_colors
-  storage.ei.crystal_colors_checksum = ei_lib.compute_palette_checksum(crystal_colors)
-
-  storage.ei.intent_tint_map = intent_tint_map
-  storage.ei.intent_tint_map_checksum = ei_lib.compute_palette_checksum(intent_tint_map)
-
-  log("ei_lib.initialize_crystal_data: Reinstantiation complete")
-end
-
-
-
-function ei_lib.rebuild_tint_intent_table()
-    if ei_lib.compute_palette_checksum(tint_palette) == storage.ei.intent_tint_checksum then
-        log("ei_lib.rebuild_tint_intent_table returned due to same checksum")
-        return
-    end
-    local intent_tint_map = {}
-    for tint_name, data in pairs(tint_palette) do
-      local intents = type(data.intent) == "table" and data.intent or {data.intent}
-      for _, intent in ipairs(intents) do
-        intent_tint_map[intent] = intent_tint_map[intent] or {}
-        table.insert(intent_tint_map[intent], tint_name)
-      end
-    end
-    storage.ei.intent_tint_map = intent_tint_map
-end
-
 function ei_lib.get_adjective_and_tint(tint)
 tint.display = tint.adj:gsub("^%l", string.upper) .. " " .. tint.name
     return tint.display
     end
 function ei_lib.pick_tint_from_intent(intent)
   local pool = intent_tint_map[intent or ""] or {}
-  return #pool > 0 and pool[ei_rng.int("picktint",1,#pool)] or nil
+  return #pool > 0 and pool[ei_rng.int("picktint",1,#pool,intent)] or nil
 end
 
 -- Controlled variation (+/- 15)
@@ -1439,13 +1539,13 @@ local function vary(c)
   return math.max(0, math.min(255, v))
 end
 
-function ei_lib.generate_crystal_gradient_stops(min_stops, max_stops)
+function ei_lib.generate_crystal_gradient_stops(min_stops, max_stops,msg)
   local stops = {}
-  local count = ei_rng.int("trainglowscale",min_stops or 2, max_stops or 4)
+  local count = ei_rng.int("trainglowscale",min_stops or 2, max_stops or 4, min_stops*2, max_stops*3)
 
-  for _ = 1, count do
+  for var = 1, count do
     -- Pick a base color
-    local base = storage.ei.crystal_colors[ei_rng.int("crystalgradient",1,#storage.ei.crystal_colors)]
+    local base = crystal_colors[var]
     table.insert(stops, {
       vary(base[1]),
       vary(base[2]),
@@ -1456,9 +1556,8 @@ function ei_lib.generate_crystal_gradient_stops(min_stops, max_stops)
   return stops
 end
 
-
-function ei_lib.pick_gradient_stops()
-  return ei_lib.generate_crystal_gradient_stops(2, 4)
+function ei_lib.pick_gradient_stops(msg)
+  return ei_lib.generate_crystal_gradient_stops(2, ei_rng.int("pickgradientstops",2,#crystal_colors),msg)
 end
 --[[]
 ei_lib.crystal_echo(
@@ -1481,12 +1580,12 @@ ei_lib.crystal_echo(
     - Can display messages as floating text above the player.
 --]]
 
-function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, as_floating_text, floating_timetolive)
+function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, as_floating_text, floating_timetolive, entropy1, entropy2, entropy3, entropy4)
   -- === INTENT→TINT FALLBACK SYSTEM ===
   -- If no tint is specified, try to select one based on declared emotional "intent".
   -- These two tables should be defined externally and kept updated at runtime:
-  local intent_tint_map = storage.ei.intent_tint_map  -- {intent = {"tint_name", ...}}
-  local tint_palette = storage.ei.tint_palette        -- {tint_name = {hex, adj, intent, ...}}
+  local intent_tint_map = intent_tint_map  -- {intent = {"tint_name", ...}}
+  local tint_palette = ei_lib.tint_palette        -- {tint_name = {hex, adj, intent, ...}}
 
   if not tint and intent and intent_tint_map[intent] then
     local pool = intent_tint_map[intent]
@@ -1519,7 +1618,7 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
 
   -- === PREPARE COLOR GRADIENT ===
   -- If not using force_full_tint, generate a multi-color gradient for text
-  local gradient = not force_full_tint and ei_lib.pick_gradient_stops() or nil
+  local gradient = not force_full_tint and ei_lib.pick_gradient_stops(msg, entropy1, entropy2, entropy3, entropy4) or nil
   local segments = gradient and (ei_lib.getn(gradient) - 1) or nil
 
   -- === BUILD COLORED MESSAGE, CHARACTER BY CHARACTER ===
@@ -1573,7 +1672,7 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
   if target and target.valid then
     if as_floating_text then
       rendering.draw_text{
-        text = final_msg,
+        text = msg,
         surface = target.surface,
         target = target,
         color = tint_rgb or {r = 1, g = 1, b = 1},          -- fallback white
@@ -1590,8 +1689,8 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
   end
 end
 
-function ei_lib.crystal_echo_floating(msg, target, floating_timetolive)
-    ei_lib.crystal_echo(msg, nil, target, nil, nil, nil, true, floating_timetolive)
+function ei_lib.crystal_echo_floating(msg, target, floating_timetolive, tint, entropy1, entropy2, entropy3, entropy4)
+    ei_lib.crystal_echo(msg, nil, target, tint or nil, nil, nil, true, floating_timetolive, entropy1, entropy2, entropy3, entropy4)
 end
 
 

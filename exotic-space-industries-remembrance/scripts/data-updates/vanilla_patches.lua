@@ -23,44 +23,44 @@ end
 -- set furnace result inv to 2, when they have the smelting crafting category
 for i,v in pairs(data.raw["furnace"]) do
     if v.crafting_categories[1] == "smelting" then
-        data.raw["furnace"][i].result_inventory_size = 2
+        ei_lib.raw["furnace"][i].result_inventory_size = 2
     end
 end
 
 --RECIPES
 ------------------------------------------------------------------------------------------------------
 
-data.raw["recipe"]["burner-mining-drill"].ingredients = {
+ei_lib.raw["recipe"]["burner-mining-drill"].ingredients = {
     {type="item", name="iron-plate", amount=3},
     {type="item", name="ei-iron-mechanical-parts", amount=3},
     {type="item", name="stone-furnace", amount=1}
 }
 
-data.raw["recipe"]["pipe"].ingredients = {
+ei_lib.raw["recipe"]["pipe"].ingredients = {
     {type="item", name="iron-plate", amount=1},
 }
 
-data.raw["recipe"]["basic-oil-processing"].ingredients =
+ei_lib.raw["recipe"]["basic-oil-processing"].ingredients =
 {
     {type="fluid", name="crude-oil", amount=50},
     {type="fluid", name="water", amount=20},
 }
 
-data.raw["recipe"]["basic-oil-processing"].results = 
+ei_lib.raw["recipe"]["basic-oil-processing"].results = 
 {
     {type="fluid", name="ei-residual-oil", amount=50},
     {type="fluid", name="petroleum-gas", amount=50},
 }
 
-data.raw["recipe"]["sulfuric-acid"].ingredients = {
+ei_lib.raw["recipe"]["sulfuric-acid"].ingredients = {
     {type="fluid", name="water", amount=30},
     {type="item", name="sulfur", amount=3}
 }
 
 -- treat cracking
-data.raw["recipe"]["heavy-oil-cracking"].icon = ei_graphics_other_path.."heavy-cracking.png"
-data.raw["recipe"]["heavy-oil-cracking"].icon_size = 64
-data.raw["recipe"]["heavy-oil-cracking"].results = {
+ei_lib.raw["recipe"]["heavy-oil-cracking"].icon = ei_graphics_other_path.."heavy-cracking.png"
+ei_lib.raw["recipe"]["heavy-oil-cracking"].icon_size = 64
+ei_lib.raw["recipe"]["heavy-oil-cracking"].results = {
     {type="fluid", name="ei-kerosene", amount=40},
 }
 ei_lib.recipe_new("heavy-oil-cracking",
@@ -70,16 +70,16 @@ ei_lib.recipe_new("heavy-oil-cracking",
 })
 
 -- make engine recipe in recipe-category crafting
-data.raw["recipe"]["engine-unit"].category = "crafting"
+ei_lib.raw["recipe"]["engine-unit"].category = "crafting"
 
 -- reduce craft time of engines and electric engines
-data.raw["recipe"]["engine-unit"].energy_required = 4
-data.raw["recipe"]["electric-engine-unit"].energy_required = 6
+ei_lib.raw["recipe"]["engine-unit"].energy_required = 4
+ei_lib.raw["recipe"]["electric-engine-unit"].energy_required = 6
 
 --TECHS
 ------------------------------------------------------------------------------------------------------
-data.raw["technology"]["flamethrower"].age = "steam-age" --need investigate why the pre-req table doesn't always stick
-data.raw["technology"]["concrete"].age = "steam-age"
+ei_lib.raw["technology"]["flamethrower"].age = "steam-age" --need investigate why the pre-req table doesn't always stick
+ei_lib.raw["technology"]["concrete"].age = "steam-age"
 ei_lib.set_prerequisites("concrete", {"advanced-material-processing"})
 ei_lib.remove_unlock_recipe("concrete","iron-stick")
 local new_prerequisites_table = {}
@@ -209,10 +209,19 @@ function make_numbered_buff_prerequisite(tech)
     make_numbered_buff_prerequisite(previous_tech)
 
 end
-
-data.raw["technology"]["steel-processing"].icon = ei_graphics_tech_path.."steel-processing.png"
-data.raw["technology"]["fluid-handling"].icon = ei_graphics_tech_path.."barreling.png"
-data.raw["technology"]["fluid-handling"].icon_size = 256
+--Nerf the beacon to promote the EI specific varieties
+ei_lib.raw.beacon["beacon"] = {
+    distribution_effectivity = 0.125,
+    distribution_effectivity_bonus_per_quality_level = 0.125,
+    module_slots = 1,
+    energy_usage = "900kW",
+    supply_area_distance = 2
+}
+ei_lib.raw.technology["steel-processing"].icon = ei_graphics_tech_path.."steel-processing.png"
+ei_lib.raw.technology["fluid-handling"] = {
+    icon = ei_graphics_tech_path.."barreling.png",
+    icon_size = 256,
+}
 
 ei_lib.add_unlock_recipe("fluid-wagon","pump")
 
@@ -220,7 +229,8 @@ ei_lib.add_unlock_recipe("automation-2", "ei-ceramic")
 
 ei_lib.add_unlock_recipe("landfill", "ei-landfill-sand")
 
-data.raw["technology"]["electronics"].effects = {
+
+ei_lib.raw.technology.electronics.effects = {
     {
         type = "unlock-recipe",
         recipe = "electronic-circuit"
@@ -235,11 +245,12 @@ data.raw["technology"]["electronics"].effects = {
     },
 }
 
+
 -- edit electric enigne tech to use only steam age science for progression
 --ei_lib.set_age_packs("electric-engine","steam-age")
 
 -- make inserter-capaity-bonus-1 buff normal inserters
-data.raw["technology"]["inserter-capacity-bonus-1"].effects = {
+ei_lib.raw.technology["inserter-capacity-bonus-1"].effects = {
     {
         type = "inserter-stack-size-bonus",
         modifier = 1
@@ -249,61 +260,61 @@ data.raw["technology"]["inserter-capacity-bonus-1"].effects = {
 --FUEL CATEGORIES
 ------------------------------------------------------------------------------------------------------
 
-if data.raw["item"]["rocket-fuel"] then 
-  if not data.raw["item"]["rocket-fuel"].fuel_categories then data.raw["item"]["rocket-fuel"].fuel_categories = {} end
-  table.insert(data.raw["item"]["rocket-fuel"].fuel_categories,"ei-rocket-fuel")
-end 
-
-if data.raw["item"]["nuclear-fuel"] then 
-  if not data.raw["item"]["nuclear-fuel"].fuel_categories then data.raw["item"]["nuclear-fuel"].fuel_categories = {} end
-  table.insert(data.raw["item"]["nuclear-fuel"].fuel_categories,"ei-rocket-fuel")
-end 
+ei_lib.raw.item["rocket-fuel"] = {
+    fuel_categories = {"ei-rocket-fuel"},
+    force_insert = true
+}
+ei_lib.raw.item["nuclear-fuel"] = {
+    fuel_categories = {"ei-rocket-fuel"},
+    force_insert = true
+}
 
 --ITEM SUBGROUPS
 ------------------------------------------------------------------------------------------------------
 
 -- move iron and copper plates to plates subgroup
-data.raw["item"]["iron-plate"].subgroup = "ei-refining-plate"
-data.raw["item"]["iron-plate"].order = "a1"
-data.raw["item"]["copper-plate"].subgroup = "ei-refining-plate"
-data.raw["item"]["copper-plate"].order = "a2"
+ei_lib.raw["item"]["iron-plate"].subgroup = "ei-refining-plate"
+ei_lib.raw["item"]["iron-plate"].order = "a1"
+ei_lib.raw["item"]["copper-plate"].subgroup = "ei-refining-plate"
+ei_lib.raw["item"]["copper-plate"].order = "a2"
 
 -- set train, cargo wagon, fluid wagon and artillery wagon to new ei_trains subgroup
-data.raw["item-with-entity-data"]["locomotive"].subgroup = "ei-trains"
-data.raw["item-with-entity-data"]["locomotive"].order = "c1"
-data.raw["item-with-entity-data"]["cargo-wagon"].subgroup = "ei-trains"
-data.raw["item-with-entity-data"]["cargo-wagon"].order = "c2"
-data.raw["item-with-entity-data"]["fluid-wagon"].subgroup = "ei-trains"
-data.raw["item-with-entity-data"]["fluid-wagon"].order = "c3"
-data.raw["item-with-entity-data"]["artillery-wagon"].subgroup = "ei-trains"
-data.raw["item-with-entity-data"]["artillery-wagon"].order = "c4"
+ei_lib.raw["item-with-entity-data"]["locomotive"].subgroup = "ei-trains"
+ei_lib.raw["item-with-entity-data"]["locomotive"].order = "c1"
+ei_lib.raw["item-with-entity-data"]["cargo-wagon"].subgroup = "ei-trains"
+ei_lib.raw["item-with-entity-data"]["cargo-wagon"].order = "c2"
+ei_lib.raw["item-with-entity-data"]["fluid-wagon"].subgroup = "ei-trains"
+ei_lib.raw["item-with-entity-data"]["fluid-wagon"].order = "c3"
+ei_lib.raw["item-with-entity-data"]["artillery-wagon"].subgroup = "ei-trains"
+ei_lib.raw["item-with-entity-data"]["artillery-wagon"].order = "c4"
 
-data.raw["item"]["steel-plate"].subgroup = "ei-refining-plate"
-data.raw["item"]["steel-plate"].order = "a3"
+ei_lib.raw["item"]["steel-plate"].subgroup = "ei-refining-plate"
+ei_lib.raw["item"]["steel-plate"].order = "a3"
 
-data.raw["item"]["lab"].subgroup = "ei-labs"
-data.raw["item"]["lab"].order = "a2"
+ei_lib.raw["item"]["lab"].subgroup = "ei-labs"
+ei_lib.raw["item"]["lab"].order = "a2"
 
-data.raw["fluid"]["lubricant"].order = "a[fluid]-d[lubricant]"
+ei_lib.raw["fluid"]["lubricant"].order = "a[fluid]-d[lubricant]"
 
 --OTHER
 ------------------------------------------------------------------------------------------------------
 
 -- set fluid burn values for crude, light, heavy - oil and petrol
-data.raw["fluid"]["crude-oil"].fuel_value = "150kJ"
-data.raw["fluid"]["heavy-oil"].fuel_value = "100kJ"
-data.raw["fluid"]["light-oil"].fuel_value = "100kJ"
-data.raw["fluid"]["petroleum-gas"].fuel_value = "400kJ"
+ei_lib.raw["fluid"]["crude-oil"].fuel_value = "50kJ"
+ei_lib.raw["fluid"]["heavy-oil"].fuel_value = "250kJ"
+ei_lib.raw["fluid"]["petroleum-gas"].fuel_value = "400kJ"
+ei_lib.raw["fluid"]["light-oil"].fuel_value = "500kJ"
 
 -- make locomotive use diesel and rocket fuel
 -- add burnt fuel slot
-data.raw["locomotive"]["locomotive"].energy_source.fuel_categories = {
-    "ei-diesel-fuel",
-    "ei-rocket-fuel"
+ei_lib.raw.locomotive.locomotive = {
+    localised_name = {"entity-name.ei-locomotive"},
+    energy_source = {
+        emissions_per_minute = { pollution = 1.75 },
+        fuel_categories = {"ei-diesel-fuel", "ei-rocket-fuel"},
+        burnt_inventory_size = 1,
+    }
 }
-
-data.raw["locomotive"]["locomotive"].localised_name = {"entity-name.ei-locomotive"}
--- data.raw["locomotive"]["locomotive"].burner.burnt_inventory_size = 1
 
 -- make oil-refinery heat based
 data.raw["assembling-machine"]["oil-refinery"].energy_source = {
@@ -325,13 +336,13 @@ data.raw["assembling-machine"]["oil-refinery"].energy_source = {
 }
 
 -- make burner inserter be able to fuel leech
-data.raw["inserter"]["burner-inserter"].allow_burner_leech = true
+ei_lib.raw["inserter"]["burner-inserter"].allow_burner_leech = true
 
 -- make electric engine unit craft category be crafting
 -- data.raw["recipe"]["electric-engine-unit"].category = "crafting"
 
 -- make underground pipes longer, read from setting
-data.raw["pipe-to-ground"]["pipe-to-ground"].fluid_box.pipe_connections = {
+ei_lib.raw["pipe-to-ground"]["pipe-to-ground"].fluid_box.pipe_connections = {
     {
         direction=defines.direction.north,
         position = {
@@ -351,16 +362,19 @@ data.raw["pipe-to-ground"]["pipe-to-ground"].fluid_box.pipe_connections = {
 }
 
 -- add handcrafting crafting category to player
-table.insert(data.raw["character"]["character"].crafting_categories, "ei-handcrafting")
-
+--table.insert(data.raw["character"]["character"].crafting_categories, "ei-handcrafting")
+ei_lib.raw["character"]["character"] = {
+    force_insert = true,
+    crafting_categories = {"ei-handcrafting"}
+}
 -- swap vanilla hr and normal reactor sprites with ei ones
 -- also swap reactor lights
-data.raw["reactor"]["nuclear-reactor"].picture.layers[1].filename = ei_graphics_entity_path.."hr-reactor.png"
-data.raw["reactor"]["nuclear-reactor"].working_light_picture.filename = ei_graphics_entity_path.."hr-reactor-lights-color.png"
+ei_lib.raw["reactor"]["nuclear-reactor"].picture.layers[1].filename = ei_graphics_entity_path.."hr-reactor.png"
+ei_lib.raw["reactor"]["nuclear-reactor"].working_light_picture.filename = ei_graphics_entity_path.."hr-reactor-lights-color.png"
 
 -- add fluidbox to centrifuge
-data.raw["assembling-machine"]["centrifuge"].fluid_boxes_off_when_no_fluid_recipe = true
-data.raw["assembling-machine"]["centrifuge"].fluid_boxes = {
+ei_lib.raw["assembling-machine"]["centrifuge"].fluid_boxes_off_when_no_fluid_recipe = true
+ei_lib.raw["assembling-machine"]["centrifuge"].fluid_boxes = {
     {
         production_type = "input",
         pipe_picture = ei_pipe_centrifuge,
@@ -382,114 +396,124 @@ data.raw["assembling-machine"]["centrifuge"].fluid_boxes = {
         secondary_draw_orders = {north = -1}
     }
 }
-data.raw["assembling-machine"]["centrifuge"].fluid_boxes_off_when_no_fluid_recipe = true
+ei_lib.raw["assembling-machine"]["centrifuge"].fluid_boxes_off_when_no_fluid_recipe = true
 
 -- remove neighbour bonus from nuclear reactor and set fuel category to ei_nuclear_fuel
 -- also set energy output to 100MW (setting)
 
-data.raw["reactor"]["nuclear-reactor"].energy_source.fuel_categories = {"ei-nuclear-fuel"}
-data.raw["reactor"]["nuclear-reactor"].energy_source.effectivity = 2
+ei_lib.raw["reactor"]["nuclear-reactor"].energy_source.fuel_categories = {"ei-nuclear-fuel"}
+ei_lib.raw["reactor"]["nuclear-reactor"].energy_source.effectivity = 2
 if ei_lib.config("nuclear-reactor-remove-bonus") then
-    data.raw["reactor"]["nuclear-reactor"].neighbour_bonus = 0
+    ei_lib.raw["reactor"]["nuclear-reactor"].neighbour_bonus = 0
 end
-data.raw["reactor"]["nuclear-reactor"].consumption = ei_lib.config("nuclear-reactor-energy-output")
+ei_lib.raw["reactor"]["nuclear-reactor"].consumption = ei_lib.config("nuclear-reactor-energy-output")
 
 -- buff solar panel power output and set fast_replaceable_group/next_upgrade
-data.raw["solar-panel"]["solar-panel"].production = "100kW"
-data.raw["solar-panel"]["solar-panel"].fast_replaceable_group = "solar-panel"
-data.raw["solar-panel"]["solar-panel"].next_upgrade = "ei-solar-panel-2"
+ei_lib.raw["solar-panel"]["solar-panel"].production = "100kW"
+ei_lib.raw["solar-panel"]["solar-panel"].fast_replaceable_group = "solar-panel"
+ei_lib.raw["solar-panel"]["solar-panel"].next_upgrade = "ei-solar-panel-2"
 
 -- buff accumulator capacity, max in and output
-data.raw["accumulator"]["accumulator"].energy_source.buffer_capacity = "10MJ"
+ei_lib.raw.accumulator.accumulator = {
+    energy_source = {
+        buffer_capacity = "6MJ",
+        input_flow_limit = "425kW",
+        output_flow_limit = "425kW",
+    }
+}
 
 -- sort fission reactor into nuclear tab
-data.raw["item"]["nuclear-reactor"].subgroup = "ei-nuclear-buildings"
-data.raw["item"]["nuclear-reactor"].order = "b-a"
+ei_lib.raw["item"]["nuclear-reactor"].subgroup = "ei-nuclear-buildings"
+ei_lib.raw["item"]["nuclear-reactor"].order = "b-a"
 
 -- set fast replaceable group for chem plant
 data.raw["assembling-machine"]["chemical-plant"].fast_replaceable_group = "chemical-plant"
 
 -- make mining radius of burner mining drill 
-data.raw["mining-drill"]["burner-mining-drill"].radius_visualisation_picture = data.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture
-data.raw["mining-drill"]["burner-mining-drill"].resource_searching_radius = 2
+ei_lib.raw["mining-drill"]["burner-mining-drill"].radius_visualisation_picture = ei_lib.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture
+ei_lib.raw["mining-drill"]["burner-mining-drill"].resource_searching_radius = 2
+ei_lib.raw["mining-drill"]["electric-mining-drill"] = {
+    resource_searching_radius = 4,
+    fast_replaceable_group = "electric-mining-drill",
+    next_upgrade = "ei-advanced-electric-mining-drill",
+    energy_usage = "150kW"
+}
 
-data.raw["mining-drill"]["electric-mining-drill"].resource_searching_radius = 4
-data.raw["mining-drill"]["electric-mining-drill"].fast_replaceable_group = "electric-mining-drill"
-data.raw["mining-drill"]["electric-mining-drill"].next_upgrade = "ei-advanced-electric-mining-drill"
-data.raw["mining-drill"]["electric-mining-drill"].energy_usage = "150kW"
 -- increase power output of fusion reactor equipment
 
-data.raw["generator-equipment"]["fission-reactor-equipment"].power = "1MW"
-data.raw["generator-equipment"]["fission-reactor-equipment"].burner = {
-    type = "burner",
-    fuel_categories = {"ei-nuclear-fuel"},
-    effectivity = 1.0,
-    fuel_inventory_size = 9,
-    burnt_inventory_size = 9,
+ei_lib.raw["generator-equipment"]["fission-reactor-equipment"] = {
+    power = "1MW",
+    burner = {
+        type = "burner",
+        fuel_categories = {"ei-nuclear-fuel"},
+        effectivity = 1.0,
+        fuel_inventory_size = 9,
+        burnt_inventory_size = 9,
+    }
 }
-data.raw["generator-equipment"]["fission-reactor-equipment"].energy_source.usage_priority = "secondary-output"
-data.raw["item"]["fission-reactor-equipment"].order = "a[energy-source]-g[fission-reactor-equipment]"
+ei_lib.raw["generator-equipment"]["fission-reactor-equipment"].energy_source.usage_priority = "secondary-output"
+ei_lib.raw["item"]["fission-reactor-equipment"].order = "a[energy-source]-g[fission-reactor-equipment]"
 
 -- sort uranium 235/238 in the nuclear tab
-data.raw["item"]["uranium-235"].subgroup = "ei-nuclear-processing"
-data.raw["item"]["uranium-235"].order = "a-a-a"
+ei_lib.raw["item"]["uranium-235"].subgroup = "ei-nuclear-processing"
+ei_lib.raw["item"]["uranium-235"].order = "a-a-a"
 
-data.raw["item"]["uranium-238"].subgroup = "ei-nuclear-processing"
-data.raw["item"]["uranium-238"].order = "a-a-b"
+ei_lib.raw["item"]["uranium-238"].subgroup = "ei-nuclear-processing"
+ei_lib.raw["item"]["uranium-238"].order = "a-a-b"
 
 -- let vanilla modules use new textures (prod, speed and effectivity modules)
-data.raw.module["productivity-module"].icon = ei_graphics_item_path .. "productivity-module.png"
-data.raw.module["productivity-module-2"].icon = ei_graphics_item_path .. "productivity-module-2.png"
-data.raw.module["productivity-module-3"].icon = ei_graphics_item_path .. "productivity-module-3.png"
+ei_lib.raw.module["productivity-module"].icon = ei_graphics_item_path .. "productivity-module.png"
+ei_lib.raw.module["productivity-module-2"].icon = ei_graphics_item_path .. "productivity-module-2.png"
+ei_lib.raw.module["productivity-module-3"].icon = ei_graphics_item_path .. "productivity-module-3.png"
 
-data.raw.module["speed-module"].icon = ei_graphics_item_path .. "speed-module.png"
-data.raw.module["speed-module-2"].icon = ei_graphics_item_path .. "speed-module-2.png"
-data.raw.module["speed-module-3"].icon = ei_graphics_item_path .. "speed-module-3.png"
+ei_lib.raw.module["speed-module"].icon = ei_graphics_item_path .. "speed-module.png"
+ei_lib.raw.module["speed-module-2"].icon = ei_graphics_item_path .. "speed-module-2.png"
+ei_lib.raw.module["speed-module-3"].icon = ei_graphics_item_path .. "speed-module-3.png"
 
-data.raw.module["efficiency-module"].icon = ei_graphics_item_path .. "effectivity-module.png"
-data.raw.module["efficiency-module-2"].icon = ei_graphics_item_path .. "effectivity-module-2.png"
-data.raw.module["efficiency-module-3"].icon = ei_graphics_item_path .. "effectivity-module-3.png"
+ei_lib.raw.module["efficiency-module"].icon = ei_graphics_item_path .. "effectivity-module.png"
+ei_lib.raw.module["efficiency-module-2"].icon = ei_graphics_item_path .. "effectivity-module-2.png"
+ei_lib.raw.module["efficiency-module-3"].icon = ei_graphics_item_path .. "effectivity-module-3.png"
 
 -- nerf vanilla modules a bit
-data.raw.module["productivity-module"].effect = {
+ei_lib.raw.module["productivity-module"].effect = {
     productivity = 0.03,
     --consumption = 0.3,
     pollution = 0.05,
     speed = -0.05
 }
-data.raw.module["productivity-module-2"].effect = {
+ei_lib.raw.module["productivity-module-2"].effect = {
     productivity = 0.05,
     consumption = 0.2,
     pollution = 0.07,
     speed = -0.1
 }
-data.raw.module["productivity-module-3"].effect = {
+ei_lib.raw.module["productivity-module-3"].effect = {
     productivity = 0.07,
     consumption = 0.4,
     pollution = 0.15,
     speed = -0.2
 }
 
-data.raw.module["speed-module"].effect = {
+ei_lib.raw.module["speed-module"].effect = {
     consumption = 0.1,
     speed = 0.3
 }
 
-data.raw.module["speed-module-2"].effect = {
+ei_lib.raw.module["speed-module-2"].effect = {
     consumption = 0.2,
     speed = 0.4
 }
 
-data.raw.module["speed-module-3"].effect = {
+ei_lib.raw.module["speed-module-3"].effect = {
     consumption = 0.3,
     speed = 0.5
 }
 
 
 -- add 2 more module slots to rocket silo
-data.raw["rocket-silo"]["rocket-silo"].module_slots = 4
+ei_lib.raw["rocket-silo"]["rocket-silo"].module_slots = 4
 
-data.raw["recipe"]["heavy-oil-cracking"].localised_name = {"recipe-name.ei-heavy-oil-cracking"}
+ei_lib.raw["recipe"]["heavy-oil-cracking"].localised_name = {"recipe-name.ei-heavy-oil-cracking"}
 
 
 -- use mk2 armor sprite for bio armor
@@ -505,43 +529,61 @@ for _, animation in ipairs(data.raw["character"]["character"]["animations"]) do
 end
 
 --bring in line with ei-containers
-data.raw["container"]["wooden-chest"].inventory_size = 8
-data.raw["container"]["iron-chest"].inventory_size = 12
-data.raw["container"]["steel-chest"].inventory_size = 16
+ei_lib.raw["container"]["wooden-chest"].inventory_size = 8
+ei_lib.raw["container"]["iron-chest"].inventory_size = 12
+ei_lib.raw["container"]["steel-chest"].inventory_size = 16
 
 --Modify laser turrets for extended range and lowered damage
-ei_lib.patch_nested_value(
-  data.raw["electric-turret"]["laser-turret"],
-  "attack_parameters.range",
-  30
-)
+ei_lib.raw["electric-turret"]["laser-turret"] = {
+    attack_parameters = {
+        range = 30,
+        damage_modifier = -1.2,
+    }
+}
+
 ei_lib.patch_nested_value(
   data.raw["electric-turret"]["laser-turret"],
   "attack_parameters.ammo_type.action.action_delivery[1].max_length",
   30
 )
-ei_lib.patch_nested_value(
-  data.raw["electric-turret"]["laser-turret"],
-  "attack_parameters.damage_modifier",
-  -1.2
-)
 
---Give flamethrower turret a higher fluid consumption default is 0.2
 
-ei_lib.patch_nested_value(
-  data.raw["fluid-turret"]["flamethrower-turret"],
-  "attack_parameters.fluid_consumption",
-  1
-)
+--Note: Add individual stream types to provide visual differentiation for different fluids
+ei_lib.raw["fluid-turret"]["flamethrower-turret"] = {
+    attack_parameters = {
+        fluid_consumption = 1, --default 0.2
+        lead_target_for_projectile_speed = 0.45,
+        range = 36, --default 0.225
+        min_range = 9, --default 6
+        turn_range = ei_lib.raw["fluid-turret"]["flamethrower-turret"].attack_parameters.turn_range * 0.8,
+        fluids = {
+            {type = "ei-heavy-destilate", damage_modifier = 0.4, damage_override_animation_modifier = 0.4},
+            {type = "ei-medium-destilate", damage_modifier = 0.5, damage_override_animation_modifier = 0.5},
+            {type = "ei-residual-oil", damage_modifier = 0.65, damage_override_animation_modifier = 0.65},
+            {type = "crude-oil"},
+            {type = "heavy-oil", damage_modifier = 1.15, damage_override_animation_modifier = 1.15},
+            {type = "light-oil", damage_modifier = 1.25, damage_override_animation_modifier = 1.25},
+            {type = "petroleum-gas", damage_modifier = 1.35, damage_override_animation_modifier = 1.35},
+            {type = "ei-kerosene", damage_modifier = 1.45, damage_override_animation_modifier = 1.45}
+        },
+    }
+    
+}
+ei_lib.raw.stream["flamethrower-fire-stream"] = {
+    particle_verticle_acceleration = ei_lib.raw.stream["flamethrower-fire-stream"].particle_vertical_acceleration * 1.5,
+    particle_horizontal_speed = ei_lib.raw.stream["flamethrower-fire-stream"].particle_horizontal_speed * 1.5,
+    particle_horizontal_speed_deviation = ei_lib.raw.stream["flamethrower-fire-stream"].particle_horizontal_speed_deviation * 1.5
+}
+local flame_stream = ei_lib.raw["stream"]["flamethrower-fire-stream"]
 
 -- set next upgrade of turbo belt, splitter and underground to ei_neo-belt
-data.raw["transport-belt"]["turbo-transport-belt"].next_upgrade = "ei-neo-belt"
-data.raw["splitter"]["turbo-splitter"].next_upgrade = "ei-neo-splitter"
-data.raw["underground-belt"]["turbo-underground-belt"].next_upgrade = "ei-neo-underground-belt"
+ei_lib.raw["transport-belt"]["turbo-transport-belt"].next_upgrade = "ei-neo-belt"
+ei_lib.raw["splitter"]["turbo-splitter"].next_upgrade = "ei-neo-splitter"
+ei_lib.raw["underground-belt"]["turbo-underground-belt"].next_upgrade = "ei-neo-underground-belt"
 
 -- set localised descriptions
-data.raw["item"]["burner-inserter"].localised_description = {"item-description.ei_burner-inserter"}
-data.raw["item"]["oil-refinery"].localised_description = {"item-description.ei_oil-refinery"}
+ei_lib.raw["item"]["burner-inserter"].localised_description = {"item-description.ei_burner-inserter"}
+ei_lib.raw["item"]["oil-refinery"].localised_description = {"item-description.ei_oil-refinery"}
 
 --====================================================================================================
 --FUNCTION STUFF

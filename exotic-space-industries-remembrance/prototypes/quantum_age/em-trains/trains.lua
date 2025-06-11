@@ -397,7 +397,7 @@ local braking_force = 35
 local braking_force_wagon = 10
 local friction_force = 0.01
 local air_resistance = 0.0001
-
+local drive_over_tie_speed = 1.5
 data:extend({
     {
 		type = "locomotive",
@@ -555,46 +555,73 @@ data:extend({
 				}
 			},
 		},
-		drive_over_tie_trigger = drive_over_tie(), --we floating over them ties
-		tie_distance = 90,
-		vehicle_impact_sound =  impact_sounds(),
-		working_sound =
-		{
-        sound =
+	drive_over_tie_trigger = drive_over_tie(), --we floating over them ties
+	drive_over_tie_trigger_minimal_speed = drive_over_tie_speed,
+	tie_distance = 90,
+	vehicle_impact_sound =  impact_sounds(),
+	impact_category = "metal-large",
+    working_sound =
+    {
+      main_sounds =
+      {
         {
-            filename = ei_trains_sounds_path.."em_train_engine_idle.ogg",
-            volume = 0.9
-        },
-        match_speed_to_activity = true,
-        min_speed = max_speed_sound_levelon,
-        max_speed = max_speed_sound_leveloff
-		},
-        start_sound =
-        {
+          sound =
+          {
+            filename = ei_trains_sounds_path.."em_train_engine.ogg",
+            volume = 1.0,
+            modifiers =
             {
-                filename = ei_trains_sounds_path.."em_train_engine_start.ogg",
-                volume = 0.95
-            }
-        },
-
-        stop_sound =
-        {
-            {
-                filename = ei_trains_sounds_path.."em_train_engine_stop.ogg",
-                volume = 0.95
-            }
-        },
-        drive_sound =
-        {
-            sound =
-            {
-                filename = ei_trains_sounds_path.."em_train_engine.ogg",
-                volume = 0.95
+              volume_multiplier("main-menu", 1.8),
+              volume_multiplier("driving", 0.9),
+              volume_multiplier("tips-and-tricks", 0.8),
+              volume_multiplier("elevation", 0.7)
             },
-            match_speed_to_activity = true,
-            min_speed = max_speed_sound_levelon,
-            max_speed = max_speed_sound_leveloff
+          },
+		  min_speed_sound_levelon = em_sound_minimum_speed,
+		  max_speed_sound_leveloff = em_sound_maximum_speed,
+          match_volume_to_activity = true,
+          activity_to_volume_modifiers =
+          {
+            multiplier = 3.5,
+            offset = 0.0,
+          },
+          match_speed_to_activity = true,
+          min_speed = max_speed_sound_levelon,
+          max_speed = max_speed_sound_leveloff,
+          activity_to_speed_modifiers =
+          {
+            multiplier = 1,
+            minimum = 0.5,
+            maximum = 4,
+            offset = 0.2,
+          }
         },
+        {
+          sound =
+          {
+            filename = ei_trains_sounds_path.."em_train_engine_idle.ogg",
+            volume = 0.9,
+            modifiers =
+            {
+              volume_multiplier("main-menu", 1.8),
+              volume_multiplier("driving", 0.9),
+              volume_multiplier("tips-and-tricks", 0.8)
+            },
+          },
+          match_volume_to_activity = true,
+          activity_to_volume_modifiers =
+          {
+            multiplier = 2.25,
+            offset = 2.25,
+            inverted = true
+          },
+        },
+      },
+	max_sounds_per_prototype = 2,
+	activate_sound = { filename = ei_trains_sounds_path.."em_train_engine_start.ogg", volume = 0.7 },
+	deactivate_sound = { filename = ei_trains_sounds_path.."em_train_engine_stop.ogg", volume = 0.7 },
+	allow_remote_driving = true
+    },
 		open_sound = { filename = "__base__/sound/car-door-open.ogg", volume=0.7 },
 		close_sound = { filename = "__base__/sound/car-door-close.ogg", volume = 0.7 },
 		sound_minimum_speed = em_sound_minimum_speed,
@@ -756,6 +783,7 @@ data:extend({
 		wheels = standard_train_wheels,
 		rail_category = "regular",
 		drive_over_tie_trigger = drive_over_tie(), --drive_over_tie()
+		drive_over_tie_trigger_minimal_speed = drive_over_tie_speed,
 		tie_distance = 90,
 		working_sound =
 		{
@@ -880,6 +908,7 @@ data:extend({
 		wheels = standard_train_wheels,
 		rail_category = "regular",
 		drive_over_tie_trigger = drive_over_tie(), --drive_over_tie()
+		drive_over_tie_trigger_minimal_speed = drive_over_tie_speed,
 		tie_distance = 90,
 		working_sound =
 		{

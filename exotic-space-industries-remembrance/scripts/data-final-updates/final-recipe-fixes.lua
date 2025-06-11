@@ -150,7 +150,7 @@ end
 
 ei_lib.recipe_swap("concrete", "iron-ore", "ei-iron-mechanical-parts")
 ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "ei-steel-mechanical-parts")
-
+ei_lib.add_unlock_recipe("ei-morphium-usage","ei-undilute-morphium")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-light-oil")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-kerosene")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-heavy-oil")
@@ -398,6 +398,15 @@ data.raw.recipe["ei-bio-nitric-acid"].crafting_machine_tint =
 	tertiary = {r=0.83, g=0.11, b=0.05, a = 1.000},
 	quaternary = {r=0.53, g=0.58, b=0.75, a = 1.000}
 }
+
+data.raw.recipe["ei-undilute-morphium"].crafting_machine_tint =
+{
+	primary   = {r = 0.38, g = 0.52, b = 0.56, a = 1.000},  -- Muted teal-grey
+	secondary = {r = 0.48, g = 0.46, b = 0.32, a = 1.000},  -- Dusty olive
+	tertiary  = {r = 0.22, g = 0.60, b = 0.66, a = 1.000},  -- Cool cyan
+	quaternary= {r = 0.64, g = 0.54, b = 0.58, a = 1.000}   -- Dull mauve
+}
+
 
 data.raw.recipe["ei-concentrated-morphium"].crafting_machine_tint =
 {

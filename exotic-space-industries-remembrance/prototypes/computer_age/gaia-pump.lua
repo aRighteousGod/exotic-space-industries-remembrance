@@ -24,7 +24,7 @@ data:extend({
             {type="item", name="ei-alien-resin", amount=2},
         },
         results = {{type="item", name="ei-gaia-pump", amount=1}},
-        enabled = false,
+        enabled = true,
         always_show_made_in = true,
         main_product = "ei-gaia-pump",
     },

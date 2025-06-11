@@ -9,6 +9,7 @@ ei_data = require("lib/data")
 ei_rng = require("lib/ei_rng")
 ei_echo_codex = require("lib/echo_codex")
 
+
 -- Used if gaia spawned in malformed, called in reforge_gaia
 local ei_full_gaia_map_gen_settings = require("prototypes/alien_structures/reforge-gaia-table")
 
@@ -46,23 +47,10 @@ em_trains = require("scripts/control/em-trains/charger")
 em_trains_gui = require("scripts/control/em-trains/gui")
 em_trains_informatron = require("scripts/control/em-trains/informatron")
 
+ei_steam_train = require("scripts/control/steam_train")
+
 orbital_combinator = require("scripts/control/orbital_combinator")
 
---====================================================================================================
---K2_CONTROL
---====================================================================================================
---[[
-local handler = require("__core__.lualib.event_handler")
-
-handler.add_libraries({
-  require("__flib__.gui"),
-
-  require("prototypes/_K2_/migrations"),
-  require("prototypes/_K2_/intergalactic-transceiver"),
-  require("prototypes/_K2_/planetary-teleporter-gui"), -- Must be before planetary-teleporter
-  require("prototypes/_K2_/planetary-teleporter"),
-})
-]]
 --====================================================================================================
 --EVENTS
 --====================================================================================================
@@ -91,7 +79,7 @@ script.on_init(function()
     orbital_combinator.check_init()
     ei_echo_codex.handle_global_settings()
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
-    game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) --works
+    game.planets["gaia"]:create_surface("gaia") --ei_full_gaia_map_gen_settings
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…") 
     reforge_gaia_surface()  --fixes the occassionally invalid surface by regenerating
@@ -133,8 +121,8 @@ script.on_event({
     on_destroyed_tile(e)
 end)
 
-script.on_event(defines.events.on_tick, function() 
-    updater()
+script.on_event(defines.events.on_tick, function(e) 
+    updater(e)
 end)
 --[[
 script.on_nth_tick(settings.startup["ei-ticks_per_spaced_update"].value, function(e)
@@ -351,15 +339,85 @@ commands.add_command("goto-gaia", "Teleport to Gaia's surface", function(cmd)
     local planet = game.planets["gaia"]
     local surface = planet and planet.surface
     if not surface then
-        ei_lib.crystal_echo("✈ [Astral Transit] - Gaia surface not found.")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Gaia begins to remember why she came...")
+        reforge_gaia_surface()
         return
     end
     local position = {0, 0}  -- center of the world
     player.teleport(position, surface)
     ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Gaia’s crust.")
 end)
-
-function reforge_gaia_surface()
+commands.add_command("goto-fulgora", "Teleport to Fulgoras's surface", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player then return end
+    local planet = game.planets["fulgora"]
+    local surface = planet and planet.surface
+    if not surface then
+        game.planets["fulgora"]:create_surface("fulgora")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Fulgora shakes off the dust of ages.")
+        return
+    end
+    local position = {0, 0}  -- center of the world
+    player.teleport(position, surface)
+    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Fulgora's crust.")
+end)
+commands.add_command("goto-vulcanus", "Teleport to Vulcanus's surface", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player then return end
+    local planet = game.planets["vulcanus"]
+    local surface = planet and planet.surface
+    if not surface then
+        game.planets["vulcanus"]:create_surface("vulcanus")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Vulcanus erupts into existence.")
+        return
+    end
+    local position = {0, 0}  -- center of the world
+    player.teleport(position, surface)
+    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Vulcanus' crust.")
+end)
+commands.add_command("goto-gleba", "Teleport to Gleba's surface", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player then return end
+    local planet = game.planets["gleba"]
+    local surface = planet and planet.surface
+    if not surface then
+        game.planets["gleba"]:create_surface("gleba")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Gleba awakens from its slumber.")
+        return
+    end
+    local position = {0, 0}  -- center of the world
+    player.teleport(position, surface)
+    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Gleba's crust.")
+end)
+commands.add_command("goto-aquilo", "Teleport to Aquillo's surface", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player then return end
+    local planet = game.planets["aquilo"]
+    local surface = planet and planet.surface
+    if not surface then
+        game.planets["aquilo"]:create_surface("aquilo")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Aquilo shivers into being.")
+        return
+    end
+    local position = {0, 0}  -- center of the world
+    player.teleport(position, surface)
+    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Aquilo's crust.")
+end)
+commands.add_command("goto-nauvis", "Teleport to Nauvis' surface", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player then return end
+    local planet = game.planets["nauvis"]
+    local surface = planet and planet.surface
+    if not surface then
+        game.planets["nauvis"]:create_surface("nauvis")
+        ei_lib.crystal_echo("✈ [Astral Transit] - Nauvis radiates with life once more.")
+        return
+    end
+    local position = {0, 0}  -- center of the world
+    player.teleport(position, surface)
+    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Nauvis' crust.")
+end)
+function reforge_gaia_surface(event)
     --1.5.7 -> 1.5.8 migration
     local legacy = game.surfaces["Gaia"]
     local canonical = game.planets["gaia"]
@@ -409,7 +467,7 @@ function reforge_gaia_surface()
                 if not x then x = 0 end
                 if not y then y = 0 end
                 player.teleport({x, y}, "nauvis")
-                ei_echo_codex.youHaveArrived(player)
+                ei_echo_codex.youHaveArrived(player,event)
             end
         end
         -- 3b) Preemptively cleanse all entities on Gaia before destroying it
@@ -458,134 +516,64 @@ end
 
 script.on_configuration_changed(function(e)
     ei_global.check_init() --Crystal_echo will fail without global color table
-    -- Only trigger when *this* mod changes version
-    if e.mod_changes and e.mod_changes["exotic-space-industries-remembrance"] then
+-- Only trigger when *this* mod changes version
 --[[
-        local val = ei_lib.config("em_updater_que") or "Beam"
-        if val == "Beam" then
-            storage.ei.em_train_que = 1
-        elseif val == "Ring" then
-            storage.ei.em_train_que = 2 --faster to compare a number
-        else
-            storage.ei.em_train_que = 0
-        end
-    
-        val = ei_lib.config("em_updater_que_width")
-        storage.ei.que_width = (val ~= nil) and val or 6
-    
-        val = ei_lib.config("em_updater_que_transparency")
-        storage.ei.que_transparency = ((val ~= nil) and val or 80) / 100
-    
-        val = ei_lib.config("em_updater_que_timetolive")
-        storage.ei.que_timetolive = (val ~= nil) and val or 60
-    
-        val = ei_lib.config("em_train_glow_toggle")
-        storage.ei.em_train_glow_toggle = (val ~= nil) and val or true
-    
-        val = ei_lib.config("em_train_glow_timetolive")
-        storage.ei.em_train_glow_timeToLive = (val ~= nil) and val or 60
-    
-        val = ei_lib.config("em_charger_glow_toggle")
-        storage.ei.em_charger_glow = (val ~= nil) and val or true
-    
-        val = ei_lib.config("em_charger_glow_timetolive")
-        storage.ei.em_charger_glow_timeToLive = (val ~= nil) and val or 60
-        local modes = {
-            [0] = "✦ NULL-STATE :: INERTIA LOCKED",
-            [1] = "✴ AXIS-FIRE :: DIRECTED CONVERGENCE BEAM",
-            [2] = "⟁ OMNI-RESONANCE :: PHASE RING ARRAY"
-        }
-        ei_lib.crystal_echo("『EM CHARGER QUE MODE HAS SHIFTED』 → "..modes[storage.ei.em_train_que].." ("..storage.ei.em_train_que..")","default-bold")
-    ]]
-        ei_echo_codex.handle_global_settings()
-        em_trains.check_global() --no nil tables
-        em_trains.check_buffs() --updates global buff vals
-        em_trains.printBuffStatus()
-        em_trains.reinitialize_chargers() --applies updated buffs
-        em_trains.reinitialize_trains()
-        em_trains.update_rail_counts()
-        em_trains_gui.mark_dirty()
-    
-        ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
-        ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
-        ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
-        ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
-
-        reforge_gaia_surface() --Must be called AFTER check_global
-
+    local val = ei_lib.config("em_updater_que") or "Beam"
+    if val == "Beam" then
+        storage.ei.em_train_que = 1
+    elseif val == "Ring" then
+        storage.ei.em_train_que = 2 --faster to compare a number
+    else
+        storage.ei.em_train_que = 0
     end
+
+    val = ei_lib.config("em_updater_que_width")
+    storage.ei.que_width = (val ~= nil) and val or 6
+
+    val = ei_lib.config("em_updater_que_transparency")
+    storage.ei.que_transparency = ((val ~= nil) and val or 80) / 100
+
+    val = ei_lib.config("em_updater_que_timetolive")
+    storage.ei.que_timetolive = (val ~= nil) and val or 60
+
+    val = ei_lib.config("em_train_glow_toggle")
+    storage.ei.em_train_glow_toggle = (val ~= nil) and val or true
+
+    val = ei_lib.config("em_train_glow_timetolive")
+    storage.ei.em_train_glow_timeToLive = (val ~= nil) and val or 60
+
+    val = ei_lib.config("em_charger_glow_toggle")
+    storage.ei.em_charger_glow = (val ~= nil) and val or true
+
+    val = ei_lib.config("em_charger_glow_timetolive")
+    storage.ei.em_charger_glow_timeToLive = (val ~= nil) and val or 60
+    local modes = {
+        [0] = "✦ NULL-STATE :: INERTIA LOCKED",
+        [1] = "✴ AXIS-FIRE :: DIRECTED CONVERGENCE BEAM",
+        [2] = "⟁ OMNI-RESONANCE :: PHASE RING ARRAY"
+    }
+    ei_lib.crystal_echo("『EM CHARGER QUE MODE HAS SHIFTED』 → "..modes[storage.ei.em_train_que].." ("..storage.ei.em_train_que..")","default-bold")
+]]
+    ei_echo_codex.handle_global_settings()
+    em_trains.check_global() --no nil tables
+    em_trains.check_buffs() --updates global buff vals
+    em_trains.printBuffStatus()
+    em_trains.reinitialize_chargers() --applies updated buffs
+    em_trains.reinitialize_trains()
+    em_trains.update_rail_counts()
+    em_trains_gui.mark_dirty()
+
+    ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
+    ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
+    ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
+    ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
+
+    reforge_gaia_surface(e) --Must be called AFTER check_global
+
     ei_tech_scaling.init()
     ei_victory.init()  -- Required for Better Victory Screen
     orbital_combinator.check_init()
 end)
-
-local function youHaveArrived(player)
-    if not player then
-        log("youHaveArrived received null player")
-        return
-    end
-    local surface = player.surface
-    local pos = player.position
-    local force = player.force or 1
-    if not surface or not pos or not force then
-        log("youHaveArrived received null surface or pos or force for player ")
-        return
-    else
-        -- Draw multiple electric beams in a ring around the player
-        for i = 1, 12 do
-            local angle = (math.pi * 2 / 12) * i
-            local offset = {
-                x = pos.x + math.cos(angle) * 5,
-                y = pos.y + math.sin(angle) * 5
-            }
-            surface.create_entity{
-                name = "electric-beam",
-                source = offset,
-                position = pos,
-                target = player,
-                duration = 120,
-                force = force
-            }
-        end
-
-        -- Summon a "portal"—use smoke or other suitable entity
-        for i = 1, 5 do
-            surface.create_entity{
-                name = "big-artillery-explosion", -- visually dramatic
-                position = {
-                    x = pos.x + ei_rng.float("portalboom") * 2 - 1,
-                    y = pos.y + ei_rng.float("portalboom") * 2 - 1
-                },
-                position = pos,
-                force = force
-            }
-        end
-
-        surface.create_trivial_smoke{
-            name = "electric-smoke",
-            position = pos
-        }
-        local player_indices = {}
-        for _, player in pairs(game.connected_players) do
-          table.insert(player_indices, player.index)
-        end
-        if not ei_lib.getn(player_indices) then return end
-        rendering.draw_light{
-            sprite = "utility/light_medium",
-            target = pos,
-            surface = surface,
-            color = {r = 0.6, g = 0.1, b = 1.0},
-            intensity = 1.5,
-            scale = 4.0,
-            time_to_live = 180,
-            players = player_indices
-        }
-    end
-ei_lib.crystal_echo("Fragments of GAIA's lament ripple across space-time...")
-ei_lib.crystal_echo("⟬ THE SYSTEM STIRS ⟭","default-bold")
---ei_lib.crystal_echo("⚠️ YOU HAVE BEEN SEEN ⚠️","default-bold")
-ei_lib.crystal_echo_floating("⚠️ YOU HAVE BEEN SEEN ⚠️", player, 720)
-end
 
 script.on_event(
   {
@@ -596,7 +584,7 @@ script.on_event(
   function(event)
     local player = game.get_player(event.player_index)
     if player and player.valid and player.character then
-        ei_echo_codex.youHaveArrived(player.character)
+        ei_echo_codex.youHaveArrived(player.character, event)
         if player.name then
             log(">> Arrival event triggered for player: " .. player.name)
         end
@@ -609,15 +597,15 @@ script.on_event(
 --====================================================================================================
 ei_update_step = 0  -- Tracks which entity type is updated next, skips first tick
 ei_update_functions = {
-    function() ei_powered_beacon.update() end, --1
-    function() ei_powered_beacon.update_fluid_storages() end, --2
-    function() ei_neutron_collector.update() end, --3
-    function() ei_matter_stabilizer.update() end, --4
-    function() orbital_combinator.update() end, --5
-    function() ei_fueler.updater() end, --6
-    function() ei_gate.update() end, --7
-    function() em_trains.train_updater() end,--8
-    function() em_trains.charger_updater() end,--9
+    function() ei_powered_beacon.update() end,
+    function() ei_powered_beacon.update_fluid_storages() end,
+    function() ei_neutron_collector.update() end,
+    function() ei_matter_stabilizer.update() end,
+    function() orbital_combinator.update() end,
+    function() ei_fueler.updater() end,
+    function() ei_gate.update() end,
+    function() em_trains.train_updater() end,
+    function() em_trains.charger_updater() end,
 }
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per 60ticks (default, customizable update length 9-6000 ticks)
 ei_ticksPerFullUpdate = settings.startup["ei_ticks_per_full_update"].value -- How many ticks to spread updates over
@@ -625,7 +613,7 @@ local divisor = ei_ticksPerFullUpdate /  ei_lib.getn(ei_update_functions) -- How
 ei_maxEntityUpdates = settings.startup["ei-max_updates_per_tick"].value -- Ceiling on entity updates per tick
 ei_update_functions_length = ei_lib.getn(ei_update_functions)
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
-function updater()
+function updater(event)
   local updates_needed = 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
@@ -763,10 +751,13 @@ function updater()
    end
 
    -- Essential updates that run every tick (e.g., timers, global effects)
-   ei_alien_spawner.update()
+   ei_alien_spawner.update(event)
    ei_gaia.update()
    ei_induction_matrix.update()
    ei_black_hole.update()
+   ei_steam_train.updater(event)
+   --======================================================================
+
 end
 
 --Check global once per entity updater cycle
@@ -774,25 +765,6 @@ script.on_nth_tick(ei_ticksPerFullUpdate, function(event)
     ei_global.check_init()
 end)
 
---[[
-function spaced_updater()
-    ei_global.check_init()
-    ei_gate.update()
-end
-
--- Run fueler updates every 10 ticks
-script.on_nth_tick(10, function()
-  ei_fueler.updater()
-end)
-
--- Run trains updates every 60 ticks
-script.on_nth_tick(60, function()
-  em_trains_charger.updater()
-  em_trains_gui.updater()
-  ei_gaia.update()
-  ei_alien_spawner.update()
-end)
-]]
 function on_built_entity(e)
     if not e["entity"] then
       return
@@ -837,13 +809,12 @@ function on_built_entity(e)
     ei_fueler.on_built_entity(e["entity"])
     em_trains.on_built_entity(e["entity"])
     orbital_combinator.add(e["entity"])
+    ei_steam_train.on_built_entity(e)
 end
-
 
 function on_built_tile(e)
     ei_induction_matrix.on_built_tile(e)
 end
-
 
 function on_destroyed_entity(e)
     if not e["entity"] then
@@ -902,8 +873,8 @@ function on_destroyed_entity(e)
     ei_fueler.on_destroyed_entity(e["entity"], transfer)
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])
+    --ei_steam_train.on_destroyed_entity(e["entity"])
 end
-
 
 function on_destroyed_tile(e)
     ei_induction_matrix.on_destroyed_tile(e)
