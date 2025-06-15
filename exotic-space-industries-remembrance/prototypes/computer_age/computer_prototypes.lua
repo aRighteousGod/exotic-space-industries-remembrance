@@ -861,13 +861,15 @@ data:extend({
         results = {
             {type = "fluid", name = "ei-morphium", amount = 10},
             {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "steam", amount = 500},
+            {type = "fluid", name = "ei-bio-sludge", amount = 15},
         },
         always_show_made_in = true,
         icon = ei_graphics_fluid_path.."diluted-morphium.png",
         icon_size = 256,
         enabled = false,
         main_product = "ei-morphium",
+        subgroup = "ei-alien-intermediates",
+        order = "a-a1",
     },
     {
         name = "ei-concentrated-morphium",
@@ -882,78 +884,100 @@ data:extend({
         results = {
             {type = "fluid", name = "ei-concentrated-morphium", amount = 15},
             {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-acidic-water", amount = 1, probability = 0.10},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-concentrated-morphium",
+        subgroup = "ei-alien-intermediates",
+        order = "a-a2",
     },
     {
         name = "ei-concentrated-morphium-light-oil",
         type = "recipe",
         category = "chemistry",
-        energy_required = 1,
+        energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 1},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 8},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
             {type = "fluid", name = "steam", amount = 8},
         },
         results = {
-            {type = "fluid", name = "light-oil", amount = 1},
+            {type = "fluid", name = "light-oil", amount = 24},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "light-oil",
+        subgroup = "ei-alien-intermediates",
+        order = "a-a3",
     },
     
     {
         name = "ei-concentrated-morphium-kerosene",
         type = "recipe",
         category = "chemistry",
-        energy_required = 1,
+        energy_required = 16,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 1},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 16},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
             {type = "fluid", name = "steam", amount = 16},
         },
         results = {
-            {type = "fluid", name = "ei-kerosene", amount = 1},
+            {type = "fluid", name = "ei-kerosene", amount = 48},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-kerosene",
+        subgroup = "ei-alien-intermediates",
+        order = "a-a4",
     },
     
     {
         name = "ei-concentrated-morphium-heavy-oil",
         type = "recipe",
         category = "chemistry",
-        energy_required = 1,
+        energy_required = 32,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 1},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 32},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
             {type = "fluid", name = "steam", amount = 32},
         },
         results = {
-            {type = "fluid", name = "heavy-oil", amount = 1},
+            {type = "fluid", name = "heavy-oil", amount = 96},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "heavy-oil",
+        subgroup = "ei-alien-intermediates",
+        order = "a-a5",
     },
     
     {
         name = "ei-concentrated-morphium-lubricant",
         type = "recipe",
         category = "chemistry",
-        energy_required = 1,
+        energy_required = 64,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 1},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 64},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
             {type = "fluid", name = "steam", amount = 64},
         },
         results = {
-            {type = "fluid", name = "lubricant", amount = 1},
+            {type = "fluid", name = "lubricant", amount = 192},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "lubricant",
+        subgroup = "ei-alien-intermediates",
+        order = "a-a6",
     },
 
 
@@ -964,12 +988,14 @@ data:extend({
         energy_required = 6,
         ingredients = {
             {type = "fluid", name = "ei-concentrated-morphium", amount = 100},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
         },
         results = {
             {type = "item", name = modprefix.."sand", amount = 1},
             {type = "item", name = "ei-crushed-coal", amount = 1},
             {type = "item", name = "ei-crushed-sulfur", amount = 1},
-            {type = "fluid", name = "water", amount = 50},
+            {type = "fluid", name = "water", amount = 100},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1518,10 +1544,10 @@ data:extend({
         name = "ei-advanced-computer-age-tech",
         type = "recipe",
         category = "advanced-crafting",
-        energy_required = 28,
+        energy_required = 56,
         ingredients = {
-            {type = "item", name = "ei-simulation-data", amount = 12},
-            {type = "item", name = "electric-engine-unit", amount = 3},
+            {type = "item", name = "ei-simulation-data", amount = 48},
+            {type = "item", name = "ei-data-pipe", amount = 4},
             {type = "fluid", name = "ei-ammonia-gas", amount = 100},
         },
         results = {
@@ -1535,11 +1561,12 @@ data:extend({
         name = "ei-alien-computer-age-tech",
         type = "recipe",
         category = "advanced-crafting",
-        energy_required = 10,
+        energy_required = 70,
         ingredients = {
-            {type = "item", name = "ei-blooming-alien-seed", amount = 10},
-            {type = "item", name = "ei-high-energy-crystal", amount = 20},
-            {type = "fluid", name = "ei-cryoflux", amount = 250},
+            {type = "item", name = "ei-blooming-alien-seed", amount = 5},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1},
+            {type = "item", name = "ei-bio-matter", amount = 50},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 100},
         },
         results = {
             {type = "item", name = "ei-alien-computer-age-tech", amount = 10},
@@ -2534,5 +2561,5 @@ table.insert(data.raw["technology"]["military-4"].effects, {
     recipe = "ei-compound-ammo"
 })
 
-table.insert(data.raw["technology"]["ei-quantum-age"].prerequisites, "rocket-silo")
-table.insert(data.raw["technology"]["ei-quantum-age"].prerequisites, "ei-sus-plating")
+ei_lib.add_prerequisite("ei-quantum-age", "rocket-silo")
+ei_lib.add_prerequisite("ei-quantum-age", "ei-sus-plating")

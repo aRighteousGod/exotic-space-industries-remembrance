@@ -25,10 +25,3 @@ for _, item in pairs(data.raw.item) do
   if item.type == "gun" then item.stack_size = 1 end
   if item.subgroup == "gun" then item.stack_size = 1 end
 end
-
-table.insert(data.raw['simple-entity']['fulgurite'].minable.results, {
-  amount_max = 1,
-  amount_min = 0,
-  name = "ei-alien-seed",
-  type = "item"
-})

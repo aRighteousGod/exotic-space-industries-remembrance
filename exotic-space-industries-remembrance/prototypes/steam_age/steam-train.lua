@@ -406,7 +406,7 @@ data:extend({
 				-- smoke goes to the left
 				speed = {-0.03, 0},
 				speed_multiplier = 0.75,
-				speed_multiplier_deviation = 1.1,
+				speed_multiplier_deviation = 1.33,
 				offset_deviation = {{-0.75, -2.7}, {-0.3, 2.7}}
 			},
 			-- right side
@@ -418,17 +418,44 @@ data:extend({
 				-- smoke goes to the right
 				speed = {0.03, 0},
 				speed_multiplier = 0.75,
-				speed_multiplier_deviation = 1.1,
+				speed_multiplier_deviation = 1.33,
 				offset_deviation = {{0.3, -2.7}, {0.75, 2.7}}
 			},
 			{
 				type = "play-sound",
 				sound =
 				{
+					aggregation = {
+                    max_count = 20,
+                    remove = true
+                },
+                variations = {
 					{
-						filename = "__base__/sound/train-breaks.ogg",
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_1.ogg",
 						volume = 0.6
 					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_2.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_3.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_4.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_5.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_6.ogg",
+						volume = 0.6
+					},
+
+				}
 				}
 			},
 		},
@@ -475,7 +502,7 @@ data:extend({
 			sound =
 			{
 				filename = ei_steam_trains_sounds_path.."steam_train_engine_idle.ogg",
-				volume = 0.45,
+				volume = 0.65,
 				modifiers =
 				{
 				volume_multiplier("main-menu", 1.8),
@@ -1065,7 +1092,7 @@ data:extend({
 				-- smoke goes to the left
 				speed = {-0.03, 0},
 				speed_multiplier = 0.75,
-				speed_multiplier_deviation = 1.1,
+				speed_multiplier_deviation = 1.33,
 				offset_deviation = {{-0.75, -2.7}, {-0.3, 2.7}}
 			},
 			-- right side
@@ -1077,16 +1104,43 @@ data:extend({
 				-- smoke goes to the right
 				speed = {0.03, 0},
 				speed_multiplier = 0.75,
-				speed_multiplier_deviation = 1.1,
+				speed_multiplier_deviation = 1.33,
 				offset_deviation = {{0.3, -2.7}, {0.75, 2.7}}
 			},
 			{
 				type = "play-sound",
 				sound = {
+					aggregation = {
+                    max_count = 20,
+                    remove = true
+                },
+                variations = {
 					{
-						filename = "__base__/sound/train-breaks.ogg",
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_1.ogg",
 						volume = 0.6
-					}
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_2.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_3.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_4.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_5.ogg",
+						volume = 0.6
+					},
+					{
+						filename = ei_steam_trains_sounds_path.."steam_train_whistle_6.ogg",
+						volume = 0.6
+					},
+
+				}
 				}
 			}
 		},
@@ -1133,7 +1187,7 @@ data:extend({
 			sound =
 			{
 				filename = ei_steam_trains_sounds_path.."steam_train_engine_idle.ogg",
-				volume = 0.35,
+				volume = 0.5,
 				modifiers =
 				{
 				volume_multiplier("main-menu", 1.8),

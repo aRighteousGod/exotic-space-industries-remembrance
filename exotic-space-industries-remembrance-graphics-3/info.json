@@ -2,12 +2,11 @@
     "name": "exotic-space-industries-remembrance-graphics-3",
     "version": "1.0.0",
     "title": "Exotic Space Industries: Remembrance Graphics 3",
-    "author": "Krastorio2 Team, PreLeyZero, Eliont, aRighteousGod",
+    "author": "aRighteousGod",
     "factorio_version": "2.0",
     "license": "GPL-3.0-or-later",
     "description": "ESI:R Graphics Dependency Volume 3. Includes Krastorio2, em-trains, fueler, and orbital-combinator graphics.",
     "dependencies": [
-        "base >= 2.0.0",
-        "flib"
+        "base >= 2.0.0"
     ]
 }

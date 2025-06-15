@@ -116,9 +116,9 @@ boiler.energy_source = {
         }
     },
     light_flicker = {
-        color = {0,0,0},
-        minimum_intensity = 0.6,
-        maximum_intensity = 0.95
+        color = {r = 0.8, g = 0.2, b = 0.2}, -- red-orange radiance
+        minimum_intensity = 0.75, --lil more min
+        maximum_intensity = 0.9 --slightly less max
     },
 }
 

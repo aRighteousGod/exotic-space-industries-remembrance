@@ -159,7 +159,7 @@ data:extend({
         name = "ei-loader",
         type = "recipe",
         category = "crafting",
-        energy_required = 2,
+        energy_required = 30,
         ingredients =
         {
         {type="item", name="transport-belt", amount=4},
@@ -176,12 +176,12 @@ data:extend({
         name = "ei-fast-loader",
         type = "recipe",
         category = "crafting",
-        energy_required = 3,
+        energy_required = 60,
         ingredients =
         {
         {type="item", name="fast-transport-belt", amount=6},
         {type="item", name="ei-loader", amount=1},
-        {type="item", name="ei-semiconductor", amount=20},
+        {type="item", name="ei-cpu", amount=20},
         {type="item", name="fast-inserter", amount=4},
         {type="item", name="electric-engine-unit", amount=10},
         },
@@ -194,13 +194,13 @@ data:extend({
         name = "ei-express-loader",
         type = "recipe",
         category = "crafting-with-fluid",
-        energy_required = 4,
+        energy_required = 90,
         ingredients =
         {
         {type="item", name="express-transport-belt", amount=8},
         {type="item", name="ei-fast-loader", amount=1},
         {type="item", name="bulk-inserter", amount=4},
-        {type="item", name="ei-advanced-semiconductor", amount=20},
+        {type="item", name="ei-electronic-parts", amount=20},
         {type="fluid", name="lubricant", amount=50},
         },
         results = {{type="item", name="ei-express-loader", amount=1}},
@@ -212,13 +212,13 @@ data:extend({
         name = "ei-turbo-loader",
         type = "recipe",
         category = "crafting-with-fluid",
-        energy_required = 5,
+        energy_required = 120,
         ingredients =
         {
         {type="item", name="turbo-transport-belt", amount=8},
         {type="item", name="ei-express-loader", amount=1},
         {type="item", name="stack-inserter", amount=4},
-        {type="item", name="ei-advanced-semiconductor", amount=20},
+        {type="item", name="ei-advanced-motor", amount=20},
         {type="item", name="tungsten-carbide", amount=40},
         {type="fluid", name="ei-lube-destilate", amount=100},
         },
@@ -231,7 +231,7 @@ data:extend({
         name = "ei-neo-loader",
         type = "recipe",
         category = "crafting-with-fluid",
-        energy_required = 6,
+        energy_required = 150,
         ingredients =
         {
         {type="item", name="ei-neo-belt", amount=12},

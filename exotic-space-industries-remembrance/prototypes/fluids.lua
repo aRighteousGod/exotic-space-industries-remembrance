@@ -237,7 +237,7 @@ data:extend({
         flow_to_energy_ratio = 0,
         subgroup = "fluid-recipes",
         order = "b[fluid-chemistry]-c[drill-fluid]-3",
-        fuel_value = "1MJ",
+        fuel_value = "1kJ",
     },
     {
         name = "ei-diluted-morphium",
@@ -253,7 +253,6 @@ data:extend({
         flow_to_energy_ratio = 0,
         subgroup = "ei-alien-intermediates",
         order = "a-a2",
-        fuel_value = "1J",
     },
     {
         name = "ei-concentrated-morphium",
@@ -269,6 +268,7 @@ data:extend({
         flow_to_energy_ratio = 0,
         subgroup = "ei-alien-intermediates",
         order = "a-a",
+        fuel_value = "10kJ",
     },
     {
         name = "ei-bio-sludge",
@@ -284,6 +284,7 @@ data:extend({
 		flow_to_energy_ratio = 0,
         subgroup = "ei-alien-intermediates",
         order = "c-a",
+        fuel_value = "25kJ",
     },
     -- molten metal
     {

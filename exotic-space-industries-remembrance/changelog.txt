@@ -7,7 +7,7 @@ Date: 5-3-25
     -Full soundtrack replacement for Nauvis.
     -Full soundtrack for Gaia.
     -Custom headlights for each Steam train.
-    -Custom start, stop, engine running and engine idle sounds for Steam trains.
+    -Custom engine start, engine stop, engine running, engine idle and 6 whistle-on-stop sounds for Steam trains.
     -Custom firing sound with 6 variants for Plasma turret.
     -Custom explosion sound with 6 variants for Plasma turret bullet explosion.
     -Pulsing idle glow for Arc Furnace.
@@ -20,10 +20,20 @@ Date: 5-3-25
     -Explosive, Toxic, Cold, and Arachnid biters added to required dependencies—Explosive will spawn on Nauvis and Vulcanus, Cold will spawn on Nauvis and Aquillo, Toxic & Arachnid will spawn on Nauvis; these settings are enforced.
     -Fulgoran Enemies added to required dependencies.
     -RP Steam Roboports added to required dependencies and slotted into the Steam Age—behold the majesty of well thought out early-game mechanical bots. Beware: a bot running out of steam results in an impromptu meting with the ground! Also includes a STEAM POWERED PUMP, unlocked with Steam pistons.
+    -Atan Air Scrubber added to required dependencies and slotted into Computer Age—Recipes modified with EI specific materials, intermediates, waste products.
+    -Pollution Combinator (Jamie's Fork) added to required dependencies and slotted in Computer Age—recipe requirement for 1 Circuit -> 2 Electronic Parts.
+    -Atan ash added to required dependencies.
+    -Cheese's Concentrated Solar added to required dependencies and slotted into Steam Age—recipes modified with EI specific materials and intermediates.
+    -Fluid boiler glow added.
 
-    -************Gaia specific pump restored, unlocked with Alien computer age, FINISHTHIS***************
-    
     Changes:
+    -Morphium fluid related recipes moved to Alien intermediates.
+    -Simulation computer age tech recipe inputs: Simulation data 12 -> 48, 3 Electric engine unit -> 4 Data cables.
+    -Restored Gaia pump—on Gaia regular offshore pumps will face corporeal rejection, Gaia pumps must be used, and they too will choose non-existence if used outside of Gaia.
+    -Computer age tech recipe inputs: 1 Advanced circuit -> Electronic Parts, 10 Lubricant -> 25 lube distillate, output 1 -> 2 science, time 18s -> 27.
+    -Bio Sludge fuel value 0 -> 25kJ.
+    -Alien seeds no longer found in Fulgorite.
+    -Fulgoran ruins and scrap now yield iron mechanical parts instead of iron gear wheels and iron sticks.
     -Rocket silo 10 -> 4 modules.
     -Accumulator buffer capacity 10 -> 6MJ. Input flow limit 325 -> 425kW. Output flow limit 325 -> 425kW.
     -Fluid burn values modifed for: Crude oil 150 -> 50kJ. Heavy oil 100 -> 250kJ. Light oil 100 -> 500kJ.
@@ -32,11 +42,12 @@ Date: 5-3-25
     -Steam train smoke ending size increased.
     -Steam train max power 800 -> 900kW. Friction force 0.003 -> 0.4 Air resistance 0.003 -> 0.01. Weight 4000 -> 4500. Emissions per minute 0 -> 10. Fuel effectivity 100 -> 70%. Front light colored to represent ye old soot coated incandescent.
     -Steam basic cargo wagon friction force 0.0015 -> 0.1. Air resistance 0.002 -> 0.006
-    -Advanced steam train max power 1150 -> 1400kW. Smoke frequency 100 -> 175. Air resistance 0.002 -> 0.1. Friction force 0.002 -> 0.8. Emissions per minute 0 -> 5. Fuel effectivity 110 -> 85%. Front light colored to preresent ye slightly less old soot coated incandescent.
+    -Advanced steam train max power 1150 -> 1400kW. Smoke frequency 100 -> 175. Air resistance 0.002 -> 0.1. Friction force 0.002 -> 0.8. Emissions per minute 0 -> 5. Fuel effectivity 110 -> 85%. Front light colored to represent ye slightly less old soot coated incandescent.
     -Steam advanced fluid wagon friction force 0.4 -> 0.05.
     -Steam advanced cargo wagon friction force 0.4 -> 0.8.
-    -Gaia oceans now made of Diluted morphium instead of Morphium. Yields Morphium and Steam when combined with 1 High energy crystal and 10 Oxygen difluoride.
-    -Morphium -> Concentrated morphium now additionally requires 1 High energy crystal and 10 Oxygen difluoride and yields 1 energy crystal with 5% probability, and 1 acidic water with 10% probability.
+    -Gaia oceans now made of Diluted morphium instead of Morphium. Yields Morphium, Bio sludge, and 5% probability of energy crystal when combined with 1 High energy crystal and 10 Oxygen difluoride.
+    -Morphium -> Concentrated morphium now additionally requires 1 High energy crystal and 10 Oxygen difluoride and yields 1 energy crystal with 5% probability, and 1 bio sludge with 10% probability.
+    -Concentrated Morphium -> Light oil/Kerosene/Heavy Oil/Lubricant: Recipes for each now adjusted to require equal proportions Concentrated morphium and steam, and additionally a high energy crystal. Yields adjusted to be Morphium input x3 = Output (So 64 Concentrated Morphium+Steam+1High energy crystal -> 192 Lubricant), and in addition all will yield energy crystal with 5% probability and bio sludge with 10% propability.
     -Fueler maximum range startup setting 100 -> 32. Default setting 20 -> 16.
     -EI tech scaling toggle disabled—bound in blood, commit to the dream or awaken forever.
     -Ceiling on EI tech scaling multiplier removed.
@@ -44,16 +55,18 @@ Date: 5-3-25
     -Pipe to ground length startup configuration maximum 40 -> 20.
     -Nuclear reactor bonus removed by default & startup toggle disabled.
     -Nuclear reactor output startup configuration options brought closer together, 150 - 175 - 200 - 225 - 250MW versus 75 <-> 300MW.
-    -Beacon overload mechanic startup toggle disabled. Should you breach the realms to re-enable it, your family will be dishonored evermore.
+    -Beacon overload mechanic startup toggle disabled and default set to on—breaching the realms to disable it will incur irrevocable dishonor.
     -Ultimate bug zapper range 500 -> 64. Pushback 4 -> 8 tiles. Damage 10k -> 2k. Energy input flow limit 10 -> 20MW.
-    -Vanilla beacon module slots 2 -> 1. Module distribution effectivity 1.5 -> 0.125. Distribution effectivity bonus per quality level 0.2 -> 0.125 Energy usage 125 -> 900kW. Distribution range 3 -> 2 tiles. Cling to the old gods at your peril—for the rest, destiny awaits.
+    -Vanilla beacon module slots 2 -> 1. Module distribution effectivity 1.5 -> 0.375. Distribution effectivity bonus per quality level 0.2 -> 0.125 Energy usage 125 -> 900kW. Cling to the old gods at your peril—for the rest, destiny awaits.
     -Copper cooled beacon module distribution effectivity 0.25 -> 0.5. Distribution effectivity bonus per quality level 0 -> 0.25.
     -Iron cooled beacon module slots 12 -> 6. Module distrubution effectivity 0.25 -> 0.75. Distribution effectivity bonus per quality level 0 -> 0.5.
     -Warp beacon power usage 100 -> 250MW. Distribution effectivity bonus per quality level 0 -> 0.25.
     -Alien beacon power usage 1W -> 125MW. Distribution effectivity bonus per quality level 0 -> 0.25.
     -High capacity crane recipe requirement for 10 Steel ingots -> 20 Steel mechanical parts.
     -Landfill from sand moved from Glass to Landfill technology.
-    -Alien computer age recipe is now: 10 Blooming alien seeds, 20 High energy crystals, and 250 Cryoflux per 10 cards.
+    -Alien computer age recipe now: 5 Blooming alien seeds, 1 High energy crystal, 50 Bio matter, and 100 Concentrated morphium per 10 cards over 70 seconds.
+    -Flying robot frame prerequisite changed to Electronic parts.
+    -Computer Age prerequisite changed from Electronic Parts -> Construction robotics, Logistic robotics, Semiconductor based circuit production, Oil Gathering, Crystal Grower, Logistics 2, Fluid wagon, Nuclear waste storage, Basic benzol production, High capacity crane, Arc Furnace, and Combustion Turbine.
     -Steam engine recipe requirements for Copper mechanical parts 1 -> 2, additionally requires 2 Iron mechanical parts.
     -Steam age tech recipe additionally requires 2 Pipes.
     -Pump requires electricity again and moved to Fluid wagon unlock.
@@ -63,7 +76,8 @@ Date: 5-3-25
     -Wooden chest now has 8 slots.
     -Iron chest now has 12 slots.
     -Steel chest now has 16 slots.
-    -EI Containers: 1x1 now 20 slots, filter variant 18 slots. 2x2 now 32 slots, filter variant 22 slots.. 6x6 now 64 slots, filter variant 26 slots.
+    -EI Containers: 1x1 50 -> 20 slots, filter variant 18 slots. 2x2 250 -> 32 slots, filter variant 22 slots.. 6x6 1000 -> 64 slots, filter variant 26 slots. 
+    -EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Plate -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts.
     -Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
     -Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 2500. Explosive damage 300 -> 1250. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, acceleration enhanced, final speed unchanged.
     -Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.
@@ -120,6 +134,7 @@ Date: 5-3-25
     -reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
    
     Fixes:
+    -Non logistic EI Containers will no longer alert for being out of a logistics zone.
     -EM Charger will no longer ignore EM Trains chained together with Multiple Unit mod.
     -Alien spawner balanced & deterministic rarity system restored.
     -Steam & EM Train prototypes updated to use 2.0 start, stop, drive, idle definitions, correcting certain inconsistencies.

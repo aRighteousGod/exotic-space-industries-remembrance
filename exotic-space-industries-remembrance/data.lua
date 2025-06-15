@@ -33,6 +33,7 @@ require("prototypes/fluids")
 require("prototypes/styles")
 require("prototypes/informatron_sprites")
 require("prototypes/age_techs")
+require("prototypes/containers")
 require("prototypes/dark_age/dark_age")
 require("prototypes/steam_age/steam_age")
 require("prototypes/electricity_age/electricity_age")
@@ -40,8 +41,8 @@ require("prototypes/computer_age/computer_age")
 require("prototypes/quantum_age/quantum_age")
 require("prototypes/alien_structures/alien_structures")
 require("prototypes/exotic_age/exotic_age")
-require("prototypes/dark_age/loaders")
 require("prototypes/electricity_age/robots")
+require("prototypes/loaders")
 --These use overrides, keep them after
 --[[
 if ei_lib.config("slag") then

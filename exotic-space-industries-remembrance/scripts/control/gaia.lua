@@ -20,12 +20,12 @@ local decorative_settings = {
 
 -- buildings that will get destroyed on gaia
 model.destroy_gaia = {
-    -- ["offshore-pump"] = true,
+     ["offshore-pump"] = true,
 }
 
 -- buildings that will get destroyed on non gaia
 model.destroy_non_gaia = {
-    -- ["ei-gaia-pump"] = true,
+    ["ei-gaia-pump"] = true,
 }
 
 -- buildings that will get swapped to gaia version

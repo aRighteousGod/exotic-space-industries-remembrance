@@ -17,6 +17,46 @@ end
 --CHANGES
 --====================================================================================================
 
+--Fulgora ruins, scrap recycling
+-----------------------------------------------------------------------------------------------------
+local replaced = {
+    ["iron-gear-wheel"] = "ei-iron-mechanical-parts",
+    ["iron-stick"] = "ei-iron-mechanical-parts"
+}
+
+for ruin_name, ruin in pairs(data.raw["simple-entity"]) do
+  if ruin.minable and ruin.minable.results then
+    for i, result in ipairs(ruin.minable.results) do
+      if result.type == "item" then
+        local replacement = replaced[result.name]
+        if replacement then
+          log("ei: Replacing '"..result.name.."' with '"..replacement.."' in ruin: " .. ruin_name)
+          result.name = replacement
+        end
+      end
+    end
+  end
+end
+
+for i, result in ipairs(ei_lib.raw.recipe["scrap-recycling"].results) do
+    if result.type == "item" then
+        local replacement = replaced[result.name]
+        if replacement then
+            log("ei: Replacing '"..result.name.."' with '"..replacement.."' in scrap: ")
+            result.name = replacement
+        end
+    end
+end
+
+--[[
+table.insert(data.raw['simple-entity']['fulgurite'].minable.results, {
+  amount_max = 1,
+  amount_min = 0,
+  name = "ei-alien-seed",
+  type = "item"
+})
+]]
+
 --MINING
 ------------------------------------------------------------------------------------------------------
 
@@ -29,6 +69,8 @@ end
 
 --RECIPES
 ------------------------------------------------------------------------------------------------------
+
+
 
 ei_lib.raw["recipe"]["burner-mining-drill"].ingredients = {
     {type="item", name="iron-plate", amount=3},
@@ -102,7 +144,7 @@ new_prerequisites_table["electricity-age"] = {
     {"fast-inserter", "ei-electricity-power"},
     {"circuit-network", "ei-electricity-power"},
     {"lamp", "ei-electricity-power"},
-    {"robotics", "ei-grower"},
+    {"robotics", "ei-electronic-parts"},
     {"lubricant", "ei-destill-tower"},
     {"sulfur-processing", "ei-destill-tower"},
     {"coal-liquefaction", "ei-benzol"},
@@ -211,11 +253,10 @@ function make_numbered_buff_prerequisite(tech)
 end
 --Nerf the beacon to promote the EI specific varieties
 ei_lib.raw.beacon["beacon"] = {
-    distribution_effectivity = 0.125,
+    distribution_effectivity = 0.375,
     distribution_effectivity_bonus_per_quality_level = 0.125,
     module_slots = 1,
     energy_usage = "900kW",
-    supply_area_distance = 2
 }
 ei_lib.raw.technology["steel-processing"].icon = ei_graphics_tech_path.."steel-processing.png"
 ei_lib.raw.technology["fluid-handling"] = {

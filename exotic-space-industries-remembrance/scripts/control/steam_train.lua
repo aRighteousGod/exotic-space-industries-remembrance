@@ -5,8 +5,8 @@ local WheelControl = require("lib/handle_wheels.lua")
 --====================================================================================================
 --Steam locomotive by cupcakescankill / IonShield
 --====================================================================================================
-WHEEL_UPDATE_TICK = 2
-CLEANUP_UPDATE_TICK = 600
+WHEEL_UPDATE_TICK = math.max(1,math.min(5,ei_ticksPerFullUpdate/30)) --Looks ridiculous if they don't happen often enough
+CLEANUP_UPDATE_TICK = ei_ticksPerFullUpdate*10 --600
 function steam_train.updater(event)
    	if event.tick % WHEEL_UPDATE_TICK > 0 then
 		return
@@ -34,33 +34,34 @@ function steam_train.updater(event)
 end
 
 function steam_train.on_built_entity(e)
-    if (e.entity.name == 'ei-steam-basic-locomotive-placement-entity') then
-        local force = game.forces.neutral
-        if (e.player_index) then
-            local player = game.get_player(e.player_index)
----@diagnostic disable-next-line: cast-local-type
-            force = player and player.force or force
-        end
-        if (e.robot) then
-            force = e.robot.force
-        end
-        local position = e.entity.position
-        local orientation = e.entity.orientation
-        local surface = e.entity.surface
-        local quality = e.entity.quality
-        e.entity.destroy()
-        local locomotive = surface.create_entity({
-            name = "ei-steam-basic-locomotive",
-            position = position,
-            orientation = orientation,
-            force = force,
-            quality = quality,
-            raise_script_built = false
-        })
-        steam_train.addToGlobal(locomotive)
-    elseif (e.entity.name == 'ei-steam-basic-locomotive') then
-        steam_train.addToGlobal(e.entity)
-    end
+	if e and e.entity and e.entity.valid then
+		if (e.entity.name == 'ei-steam-basic-locomotive-placement-entity') then
+			local force = game.forces.neutral
+			if (e.player_index) then
+				local player = game.get_player(e.player_index)
+	---@diagnostic disable-next-line: cast-local-type
+				force = player and player.force or force
+			elseif (e.robot) then
+				force = e.robot.force
+			end
+			local position = e.entity.position
+			local orientation = e.entity.orientation
+			local surface = e.entity.surface
+			local quality = e.entity.quality
+			e.entity.destroy()
+			local locomotive = surface.create_entity({
+				name = "ei-steam-basic-locomotive",
+				position = position,
+				orientation = orientation,
+				force = force,
+				quality = quality,
+				raise_script_built = false
+			})
+			steam_train.addToGlobal(locomotive)
+		elseif (e.entity.name == 'ei-steam-basic-locomotive') then
+			steam_train.addToGlobal(e.entity)
+		end
+	end
 end
 
 

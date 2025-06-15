@@ -323,43 +323,43 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
     if typus then
         if typus == "filter" then
             container.inventory_type = "with_filters_and_bar"
-            -- also only 18 slots
-            -- container.inventory_size = 18
-        end
-        -- TODO add animations
-
+            container.type = "container"
+            container.logistic_mode = nil
+            container.max_logistic_slots = 0
         -- different logistic versions
-        if typus == "blue" then
+        elseif typus == "blue" then
             container.type = "logistic-container"
             container.logistic_mode = "requester"
-            container.max_logistic_slots = 1000
-        end
-
-        if typus == "yellow" then
+            container.max_logistic_slots = 64
+        elseif typus == "yellow" then
             container.type = "logistic-container"
             container.logistic_mode = "storage"
             container.max_logistic_slots = 1
-        end
-
-        if typus == "red" then
+        elseif typus == "red" then
             container.type = "logistic-container"
             container.logistic_mode = "passive-provider"
             container.max_logistic_slots = 0
-        end
-
-        if typus == "green" then
+        elseif typus == "green" then
             container.type = "logistic-container"
             container.logistic_mode = "buffer"
-            container.max_logistic_slots = 1000
-        end
-
-        if typus == "pink" then
+            container.max_logistic_slots = 64
+        elseif typus == "pink" then
             container.type = "logistic-container"
             container.logistic_mode = "active-provider"
             container.max_logistic_slots = 0
+        else
+            log("ei_containers_lib: received invalid type "..typus)
+            return
+        end
+    else
+        container.type = "container"
+        container.logistic_mode = nil
+        container.max_logistic_slots = 0
+        local fixType = ei_lib.raw.container["steel-chest"].inventory_type
+        if fixType then
+            container.inventory_type = fixType
         end
     end
-
     data:extend({container})
 end
 

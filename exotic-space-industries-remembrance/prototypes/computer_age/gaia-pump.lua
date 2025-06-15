@@ -24,7 +24,7 @@ data:extend({
             {type="item", name="ei-alien-resin", amount=2},
         },
         results = {{type="item", name="ei-gaia-pump", amount=1}},
-        enabled = true,
+        enabled = false,
         always_show_made_in = true,
         main_product = "ei-gaia-pump",
     },
@@ -33,7 +33,6 @@ data:extend({
 local pump = util.table.deepcopy(data.raw["offshore-pump"]["offshore-pump"])
 
 pump.name = "ei-gaia-pump"
-pump.fluid = "ei-morphium"
 pump.minable.result = "ei-gaia-pump"
 
 data:extend({pump})

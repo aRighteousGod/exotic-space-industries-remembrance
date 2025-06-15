@@ -69,8 +69,8 @@ local echo_templates = {
       "🎭 [Exit Unlit] — No final shimmer. Just motion. Just silence. Just... nothing."
   },
   que_width = {
-      "📐 [Metric Invocation] — Queue vector set to {val}. Tangent of destiny recalculated.",
-      "🌌 [Path Divergence] — Field expanded to {val}. Prepare for multi-rail entanglement.",
+      "📐 [Metric Invocation] — Queue vector set to {val} units. Tangent of destiny recalculated.",
+      "🌌 [Path Divergence] — Field expanded to {val} units. Prepare for multi-rail entanglement.",
       "🧭 [Directional Bloom] — Breadth: {val} threads. Harmony between chaos and constraint.",
       "📏 [Axis Defined] — {val} filaments strung across the coil.",
       "🪞 [Splintered Focus] — Update stream fractured into {val} rays. Each reflects a slightly different truth.",
@@ -94,15 +94,15 @@ local echo_templates = {
   },
   train_glow_timetolive = {
       "🚂 [Afterburn Trail] — Engine echo persists for {val} ticks. Smoke remembers.",
-      "💡 [Residual Glow] — Aura decay set to {val}. Shadows cling to motion.",
+      "💡 [Residual Glow] — Aura decay set to {val} ticks. Shadows cling to motion.",
       "🕯 [Phantom Wick] — Light expires in {val} flickers. Haunting complete.",
-      "📉 [Luminal Decline] — Radiant echo down to {val}. Fade with grace.",
+      "📉 [Luminal Decline] — Radiant echo down to {val} ticks. Fade with grace.",
       "🔦 [Signal Residue] — Visibility held for {val} moments. Then, oblivion.",
-      "⚙️ [Kinetic Memory] — Trail remains for {val}. Wheels whisper what was.",
-      "🔋 [Phase Discharge] — Stored brilliance dissipating. {val} left to burn.",
+      "⚙️ [Kinetic Memory] — Trail remains for {val} moments. Wheels whisper what was.",
+      "🔋 [Phase Discharge] — Stored brilliance dissipating. {val} ticks left to burn.",
       "🌠 [Startrack Flicker] — Ion trail visible for {val} cycles. Wishes not included.",
       "🔥 [Residual Heat] — Thermal trace endures for {val} ticks. Sootmarks of velocity.",
-      "🎚 [Glow Half-Life] — Emission drops after {val}. Watch the silence spread."
+      "🎚 [Glow Half-Life] — Emission drops after {val} half-lives. Watch the silence spread."
   },
   charger_glow_off = {
       "🔻 [Conduit Severed] — Charger glow dismissed. Field integrity dissolving.",
@@ -129,16 +129,16 @@ local echo_templates = {
       "🧨 [Ignition Vector] — Charge glow ignited. Containment veil stabilizing."
   },
   charger_glow_timetolive = {
-      "🕰 [Flicker Threshold] — Remaining glow integrity: {val}. Embers brace for collapse.",
-      "🌒 [Dimming Arc] — Charger aura dwindles. {val} moments until stillness.",
-      "🫥 [Residual Pulse] — Field bleed persists. {val} ticks before disconnection.",
-      "💤 [Afterglow Sync] — {val} units until quiescence. Final surge in motion.",
-      "📉 [Luminal Decay] — Countdown at {val}. Photonic presence destabilizing.",
-      "🎚 [Phase Tapering] — Glow energy depleting. {val} remains of the surge.",
-      "⏳ [Aura Expiry] — Dissolution locked in. Charger life: {val}.",
-      "📴 [End Signal] — Terminal glow timer at {val}. System prepares for withdrawal.",
-      "🧂 [Glow Residue] — {val} of shine left clinging to the conduit.",
-      "📎 [Binding Unravel] — Glow timer: {val}. Tether loosens from the core."
+      "🕰 [Flicker Threshold] — Remaining glow integrity: {val} ticks. Embers brace for collapse.",
+      "🌒 [Dimming Arc] — Charger aura dwindles. {val} ticks moments until stillness.",
+      "🫥 [Residual Pulse] — Field bleed persists. {val} ticks ticks before disconnection.",
+      "💤 [Afterglow Sync] — {val} ticks units until quiescence. Final surge in motion.",
+      "📉 [Luminal Decay] — Countdown at {val} ticks. Photonic presence destabilizing.",
+      "🎚 [Phase Tapering] — Glow energy depleting. {val} ticks remains of the surge.",
+      "⏳ [Aura Expiry] — Dissolution locked in. Charger life: {val} ticks.",
+      "📴 [End Signal] — Terminal glow timer at {val} ticks. System prepares for withdrawal.",
+      "🧂 [Glow Residue] — {val} ticks of shine left clinging to the conduit.",
+      "📎 [Binding Unravel] — Glow timer: {val} ticks. Tether loosens from the core."
   },
   que_timetolive = {
       "⏳ [Delay Vector] — Queued train persists for {val}s. Temporal inertia holding.",
@@ -152,18 +152,6 @@ local echo_templates = {
       "🔁 [Awaiting Pulse] — {val} ticks left in queue register. Continue monitoring.",
       "🧮 [Latency Script] — Timer shows {val} ticks. Queue presence maintained."
   },
-  train_que_none = {
-      "🎭 [No Show] — The cue was given. No actor took the stage.",
-      "🕯 [Dark Spotlight] — No train stands in the wings. Silence holds.",
-      "📯 [Trumpet Unanswered] — Cue sent. Nothing stirred.",
-      "📜 [Empty Script] — No line assigned. No movement marked.",
-      "🎬 [Scene Idle] — The cue remains, but the cast is missing.",
-      "🔇 [Muted Arrival] — No sound follows the cue. Stillness.",
-      "📡 [Dead Air] — Transmission clear. Response absent.",
-      "🎼 [Rest Mark] — A pause. Nothing enters on this beat.",
-      "⏸ [Awaiting Entrance] — Cue given. Performer not present.",
-      "🚦 [Signal Unclaimed] — No engine responded to call."
-  }
 }
 
 
@@ -191,7 +179,8 @@ function echo_codex.proclaim(category, data)
         data.force_full_tint or false,
         data.intent or nil,
         data.as_floating_text or false,
-        data.floating_timetolive or nil
+        data.floating_timetolive or nil,
+        math.random(1,6553600)
     )
 end
 
@@ -212,7 +201,7 @@ function echo_codex.handle_global_settings()
   -- Helper to get new tint and adj
   local function next_tint() --math.random cause this is called from an event
       local tint = ei_lib.get_random_different_value(ei_lib.tint_palette, previous_tint,
-    math.random(1,65536),math.random(1,65536),math.random(1,65536),math.random(1,65536))
+    math.random(1,6553600))
       previous_tint = tint
       return tint, ei_lib.tint_palette[tint]
   end
@@ -307,21 +296,21 @@ function echo_codex.handle_global_settings()
     --=== [Queue Type Handling] ===--
     tint, tint_adj = next_tint()
     if que_type == "Beam" then
-        echo_codex.proclaim("train_que_beam", {
+        echo_codex.proclaim("beam_lines", {
             tint = tint,
             tint_adj = tint_adj,
             font="default-bold"
         })
         storage.ei.em_train_que = 1
     elseif que_type == "Ring" then
-        echo_codex.proclaim("train_que_ring", {
+        echo_codex.proclaim("ring_lines", {
             tint = tint,
             tint_adj = tint_adj,
             font="default-bold"
         })
         storage.ei.em_train_que = 2
     else
-        echo_codex.proclaim("train_que_none", {
+        echo_codex.proclaim("null_lines", {
             tint = tint,
             tint_adj = tint_adj,
             font="default-bold"
@@ -335,7 +324,10 @@ function echo_codex.youHaveArrived(player, event)
     log("youHaveArrived: invalid player")
     return
   end
-
+  if not event or not event.tick then --SP load? Maybe call this from updater, save warped-in players to a global list, reset it on load so updater calls it again? get access to event.tick that way
+    return
+  end
+  local setTick = event.tick
   local surface = player.surface
   local pos = player.position
   local force = player.force or "player"
@@ -362,7 +354,7 @@ function echo_codex.youHaveArrived(player, event)
         duration = math.max(10,wave_duration - tick_offset),
         force = force,
         surface = surface,
-        tick = event.tick + tick_offset
+        tick = setTick + tick_offset
       })
     end
   end
@@ -381,16 +373,15 @@ function echo_codex.youHaveArrived(player, event)
     end
     bang = pos.x + math.random() * 2 - 1
     boom = pos.y + math.random() * 2 - 1
-    surface.create_entity{
-    name = "big-artillery-explosion",
-    position = {
-        x = bang+math.random(-2,2),
-        y = boom+math.random(-2,2)
-    },
-    force = force
-    }
   end
-
+  surface.create_entity{
+  name = "big-artillery-explosion",
+  position = {
+      x = pos.x,
+      y = pos.y
+  },
+  force = force
+  }
   surface.create_trivial_smoke{name = "electric-smoke", position = pos}
 
   rendering.draw_light{
@@ -405,14 +396,13 @@ function echo_codex.youHaveArrived(player, event)
 
   -- Echoed warnings
   ei_lib.crystal_echo("Fragments of GAIA's lament ripple across space-time...", "default-semibold",
-    player, ei_lib.tint_palette[math.random(1,ei_lib.getn(ei_lib.tint_palette))], false, nil,  false, 0, math.random(0,65536), math.random(0,65536), math.random(0,65536), math.random(0,65536))
+    player, ei_lib.tint_palette[math.random(1,ei_lib.getn(ei_lib.tint_palette))], false, nil,  false, 0, math.random(0,6553600))
   ei_lib.crystal_echo("⟬ THE SYSTEM STIRS ⟭","default-bold") --swap with individual flying text
-  ei_lib.crystal_echo_floating("⚠️ YOU HAVE BEEN SEEN ⚠️",player,600,ei_lib.tint_palette[math.random(1,ei_lib.getn(ei_lib.tint_palette))], math.random(0,65536),  math.random(0,65536),  math.random(0,65536),
- math.random(0,65536))
+  ei_lib.crystal_echo_floating("⚠️ YOU HAVE BEEN SEEN ⚠️",player,600,ei_lib.tint_palette[math.random(1,ei_lib.getn(ei_lib.tint_palette))], math.random(0,6553600))
 end
 
-script.on_nth_tick(15, function(e)
-  if not storage.ei.arrival_waves then return end
+function echo_codex.arrival_waves(e)
+  if not storage.ei.arrival_waves or not e or not e.tick then return end
   for id, wave in pairs(storage.ei.arrival_waves) do
     for i = #wave, 1, -1 do
       local beam = wave[i]
@@ -434,7 +424,7 @@ script.on_nth_tick(15, function(e)
       storage.ei.arrival_waves[id] = nil
     end
   end
-end)
+end
 
 --====================================================================================================
 --GAIA REFORGER

@@ -13,6 +13,8 @@ ei_echo_codex = require("lib/echo_codex")
 -- Used if gaia spawned in malformed, called in reforge_gaia
 local ei_full_gaia_map_gen_settings = require("prototypes/alien_structures/reforge-gaia-table")
 
+ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
+ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
 
 
 local ei_tech_scaling = require("scripts/control/tech_scaling")
@@ -79,7 +81,7 @@ script.on_init(function()
     orbital_combinator.check_init()
     ei_echo_codex.handle_global_settings()
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
-    game.planets["gaia"]:create_surface("gaia") --ei_full_gaia_map_gen_settings
+    game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) 
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…") 
     reforge_gaia_surface()  --fixes the occassionally invalid surface by regenerating
@@ -124,11 +126,6 @@ end)
 script.on_event(defines.events.on_tick, function(e) 
     updater(e)
 end)
---[[
-script.on_nth_tick(settings.startup["ei-ticks_per_spaced_update"].value, function(e)
-    spaced_updater()
-end)
-]]
 
 script.on_nth_tick(6000, function(e)
     ei_compat.nth_tick(e)
@@ -516,44 +513,6 @@ end
 
 script.on_configuration_changed(function(e)
     ei_global.check_init() --Crystal_echo will fail without global color table
--- Only trigger when *this* mod changes version
---[[
-    local val = ei_lib.config("em_updater_que") or "Beam"
-    if val == "Beam" then
-        storage.ei.em_train_que = 1
-    elseif val == "Ring" then
-        storage.ei.em_train_que = 2 --faster to compare a number
-    else
-        storage.ei.em_train_que = 0
-    end
-
-    val = ei_lib.config("em_updater_que_width")
-    storage.ei.que_width = (val ~= nil) and val or 6
-
-    val = ei_lib.config("em_updater_que_transparency")
-    storage.ei.que_transparency = ((val ~= nil) and val or 80) / 100
-
-    val = ei_lib.config("em_updater_que_timetolive")
-    storage.ei.que_timetolive = (val ~= nil) and val or 60
-
-    val = ei_lib.config("em_train_glow_toggle")
-    storage.ei.em_train_glow_toggle = (val ~= nil) and val or true
-
-    val = ei_lib.config("em_train_glow_timetolive")
-    storage.ei.em_train_glow_timeToLive = (val ~= nil) and val or 60
-
-    val = ei_lib.config("em_charger_glow_toggle")
-    storage.ei.em_charger_glow = (val ~= nil) and val or true
-
-    val = ei_lib.config("em_charger_glow_timetolive")
-    storage.ei.em_charger_glow_timeToLive = (val ~= nil) and val or 60
-    local modes = {
-        [0] = "✦ NULL-STATE :: INERTIA LOCKED",
-        [1] = "✴ AXIS-FIRE :: DIRECTED CONVERGENCE BEAM",
-        [2] = "⟁ OMNI-RESONANCE :: PHASE RING ARRAY"
-    }
-    ei_lib.crystal_echo("『EM CHARGER QUE MODE HAS SHIFTED』 → "..modes[storage.ei.em_train_que].." ("..storage.ei.em_train_que..")","default-bold")
-]]
     ei_echo_codex.handle_global_settings()
     em_trains.check_global() --no nil tables
     em_trains.check_buffs() --updates global buff vals
@@ -577,6 +536,7 @@ end)
 
 script.on_event(
   {
+    defines.events.on_load,
     defines.events.on_player_joined_game,
     defines.events.on_cutscene_cancelled,
     defines.events.on_cutscene_finished
@@ -595,6 +555,9 @@ script.on_event(
 --====================================================================================================
 --HANDLERS
 --====================================================================================================
+--60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per 60ticks (default, customizable update length 9-6000 ticks)
+ei_update_functions_length = ei_lib.getn(ei_update_functions)
+local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 ei_update_step = 0  -- Tracks which entity type is updated next, skips first tick
 ei_update_functions = {
     function() ei_powered_beacon.update() end,
@@ -607,12 +570,7 @@ ei_update_functions = {
     function() em_trains.train_updater() end,
     function() em_trains.charger_updater() end,
 }
---60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per 60ticks (default, customizable update length 9-6000 ticks)
-ei_ticksPerFullUpdate = settings.startup["ei_ticks_per_full_update"].value -- How many ticks to spread updates over
-local divisor = ei_ticksPerFullUpdate /  ei_lib.getn(ei_update_functions) -- How many times each entity updater is called per cycle
-ei_maxEntityUpdates = settings.startup["ei-max_updates_per_tick"].value -- Ceiling on entity updates per tick
-ei_update_functions_length = ei_lib.getn(ei_update_functions)
-local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
+
 function updater(event)
   local updates_needed = 1
    -- Hardcoded checks against ei_update_step are quick
@@ -756,6 +714,7 @@ function updater(event)
    ei_induction_matrix.update()
    ei_black_hole.update()
    ei_steam_train.updater(event)
+   ei_echo_codex.arrival_waves(event)
    --======================================================================
 
 end

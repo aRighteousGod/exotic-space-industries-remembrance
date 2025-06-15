@@ -157,7 +157,7 @@ data:extend({
       order  = "b5",
   },
   {
-      name = "ei_ticks_per_full_update",
+      name = "ei-ticks_per_full_update",
       type = "int-setting",
       setting_type = "startup",
       default_value = 60,

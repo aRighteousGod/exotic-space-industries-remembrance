@@ -667,14 +667,14 @@ data:extend({
         name = "ei-computer-age-tech",
         type = "recipe",
         category = "crafting-with-fluid",
-        energy_required = 18,
+        energy_required = 27,
         ingredients = {
-            {type = "item", name = "advanced-circuit", amount = 1},
+            {type = "item", name = "ei-electronic-parts", amount = 1},
             {type = "item", name = "ei-energy-crystal", amount = 1},
-            {type = "fluid", name = "lubricant", amount = 10},
+            {type = "fluid", name = "ei-lube-destilate", amount = 25},
         },
         results = {
-            {type = "item", name = "ei-computer-age-tech", amount = 1},
+            {type = "item", name = "ei-computer-age-tech", amount = 2},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1202,7 +1202,7 @@ data:extend({
     },
 })
 
--- insert prereqs for steam age tech
+-- insert prereqs
 ei_lib.set_prerequisites("ei-electricity-age",{
     "engine",
     "electronics",
@@ -1337,3 +1337,5 @@ table.insert(data.raw["technology"]["railway"].effects, {
 --     },
 --     quarry,
 -- })
+
+ei_lib.set_prerequisites("ei-computer-age",{"construction-robotics","logistic-robotics","ei-circuit-waver","oil-gathering","ei-grower","logistics-2","fluid-wagon","ei-castor","ei-benzol","ei-small-inserter","ei-combustion-turbine","ei-arc-furnace"})

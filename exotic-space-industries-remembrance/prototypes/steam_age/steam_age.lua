@@ -18,7 +18,6 @@ require("basic-heat-pipe")
 require("heat-chemical-plant")
 require("fluid-boiler")
 require("steam-miner")
-require("containers")
 require("tanks")
 --============================================
 
