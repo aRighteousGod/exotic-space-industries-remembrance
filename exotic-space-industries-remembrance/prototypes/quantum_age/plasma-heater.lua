@@ -41,7 +41,8 @@ data:extend({
             {type="item", name="ei-insulated-tank", amount=2},
             {type="item", name="ei-arc-furnace", amount=1},
             {type="item", name="ei-magnet", amount=20},
-            {type="item", name="ei-steel-mechanical-parts", amount=18}
+            {type="item", name="ei-steel-mechanical-parts", amount=18},
+            {type="item",name="ei-electronic-parts",amount=10}
         },
         results = {{type="item", name="ei-plasma-heater", amount=1}},
         enabled = false,

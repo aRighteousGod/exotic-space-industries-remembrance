@@ -233,11 +233,23 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-dirty-water-fluorite"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-water-vent"
             },
             {
                 type = "unlock-recipe",
                 recipe = "ei-dirty-water-landfill"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-slag"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-sand"
             },
         },
         unit = {
@@ -479,18 +491,37 @@ data:extend({
         main_product = "ei-gold-ingot",
     },
     {
-        name = "ei-morphium-fluorite",
+        name = "ei-dirty-water-fluorite",
         type = "recipe",
         category = "crafting-with-fluid",
-        energy_required = 2,
+        energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 50},
+            {type = "fluid", name = "ei-dirty-water", amount = 100},
         },
         results = {
-            {type = "item", name = "ei-fluorite", amount = 1},
+            {type = "item", name = "ei-fluorite", amount_min = 1, amount_max=3, probability=0.35},
         },
         always_show_made_in = true,
         enabled = false,
+        main_product = "ei-fluorite",
+    },
+    {
+        name = "ei-morphium-fluorite",
+        type = "recipe",
+        category = "crafting-with-fluid",
+        energy_required = 4,
+        ingredients = {
+            {type = "fluid", name = "ei-morphium", amount = 50},
+            {type = "item", name ="ei-high-energy-crystal", amount = 1}
+        },
+        results = {
+            {type = "item", name = "ei-fluorite", amount = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.05}
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-alien-intermediates",
+        order = "a-a2b",
         main_product = "ei-fluorite",
     },
     {
@@ -543,5 +574,37 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "landfill",
+    },
+    {
+        name = "ei-dirty-water-slag",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 2,
+        ingredients = {
+            {type = "fluid", name = "water", amount = 5},
+            {type = "item", name = "ei-slag", amount = 5},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount = 5},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-dirty-water",
+    },
+    {
+        name = "ei-dirty-water-sand",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 2,
+        ingredients = {
+            {type = "fluid", name = "water", amount = 5},
+            {type = "item", name = "ei-sand", amount = 5},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount = 5},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-dirty-water",
     },
 })

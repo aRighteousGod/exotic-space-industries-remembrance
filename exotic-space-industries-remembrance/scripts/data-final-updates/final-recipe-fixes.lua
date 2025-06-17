@@ -6,7 +6,6 @@ local ei_lib = require("lib/lib")
 --====================================================================================================
 --FINAL RECIPE FIXES
 --====================================================================================================
-
 -- loop over all recipes and apply fix_recipe
 for i,v in pairs(data.raw.recipe) do
     -- get mode of recipe
@@ -57,6 +56,7 @@ local recipes = {
     "ei-lithium-crystal",
     "ei-molten-steel-mix",
     "ei-steam-engine",
+    "ei_electron-tube",
     "ei-cpu",
     "ei-electronic-parts",
     "ei-module-part",
@@ -116,13 +116,18 @@ local crafting_categories = {
 -- add them to limitation of productivity modules
 
 for i,v in pairs(recipes) do
-	data.raw["recipe"][v].allow_productivity = true
+    local modify = ei_lib.raw["recipe"][v]
+    if modify then
+	    modify.allow_productivity = true
+    else
+        log("final-recipe-fixes: productivity module limitation got bad recipe "..v)
+    end
 end
 
 -- remove productivity from given recipes
 
 for i,v in pairs(remove_prod) do
-    data.raw["recipe"][v].allow_productivity = false
+    ei_lib.raw["recipe"][v].allow_productivity = false
 end
 
 -- get all recipes that have given crafting category and add them to limitation of productivity modules
@@ -140,16 +145,15 @@ end
 -- loop over all recipes
 for name,recipe in pairs(data.raw.recipe) do
     ei_lib.recipe_swap(name, "iron-gear-wheel", "ei-iron-mechanical-parts")
-    ei_lib.recipe_swap(name, "iron-stick", "ei-copper-mechanical-parts")
+        ei_lib.recipe_swap(name, "steel-gear-wheel", "ei-steel-mechanical-parts")
+    ei_lib.recipe_swap(name, "iron-stick", "ei-iron-beam")
     ei_lib.recipe_swap(name, "nuclear-fuel", "ei-uranium-235-fuel")
     ei_lib.recipe_swap(name, "ei-space-data", "space-science-pack")
     ei_lib.recipe_swap(name, "burner-assembling-machine", "ei-steam-assembler")
-    ei_lib.recipe_swap(name, "iron-beam", "iron-plate")
-    ei_lib.recipe_swap(name, "steel-beam", "steel-plate")
 end
 
-ei_lib.recipe_swap("concrete", "iron-ore", "ei-iron-mechanical-parts")
-ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "ei-steel-mechanical-parts")
+ei_lib.recipe_swap("concrete", "iron-ore", "ei-iron-beam")
+ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "ei-steel-beam")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-undilute-morphium")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-light-oil")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-kerosene")
@@ -223,6 +227,7 @@ data.raw.recipe["splitter"].category = "crafting"
 
 local function overwrite_barrel_capacity(recipeItem, capacity)
   if recipeItem and recipeItem.type == "fluid" then
+      recipeItem.stack_size = 1
       recipeItem.amount = capacity
       recipeItem.ignored_by_stats = capacity
   end
@@ -639,7 +644,7 @@ data.raw.recipe["ei-carbon"].crafting_machine_tint =
 	tertiary = {r = 1.000, g = 0.978, b = 0.513, a = 1.000},
 	quaternary = {r = 0.210, g = 0.170, b = 0.013, a = 1.000}
 }
-
+--[[
 data:extend({
   {
     name = "ei-gear-to-plates",
@@ -696,8 +701,8 @@ data:extend({
     },
     enabled = true,
     main_product = "ei-copper-mechanical-parts",
-},
-
+},]]
+data:extend({
 {
   name = "ei-space-data",
   type = "recipe",

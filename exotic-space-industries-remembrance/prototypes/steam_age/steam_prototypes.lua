@@ -135,6 +135,15 @@ data:extend({
         order = "a3",
     },
     {
+        name = "ei-steel-beam",
+        type = "item",
+        icon = ei_graphics_item_path.."steel-beam.png",
+        icon_size = 256,
+        stack_size = 100,
+        subgroup = "ei-refining-beam",
+        order = "a3",
+    },
+    {
         name = "ei-ceramic",
         type = "item",
         icon = ei_graphics_item_path.."ceramic.png",
@@ -142,6 +151,15 @@ data:extend({
         stack_size = 100,
         subgroup = "ei-refining-secondary",
         order = "a8",
+    },
+    {
+        name = "ei-electron-tube",
+        type = "item",
+        icon = ei_graphics_item_path.."electron-tube.png",
+        icon_size = 64,
+        stack_size = 100,
+        subgroup = "intermediate-product",
+        order = "b2",
     },
     {
         name = "ei-glass",
@@ -402,9 +420,21 @@ data:extend({
         enabled = false,
         main_product = "ei-steel-mechanical-parts",
     },
-
-
-
+    {
+        name = "ei-steel-beam",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 2,
+        ingredients = {
+            {type="item",name="steel-plate", amount=2}
+        },
+        results = {
+            {type = "item", name = "ei-steel-beam", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-steel-beam",
+    },
     {
         name = "ei-tank",
         type = "recipe",
@@ -501,6 +531,23 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-ceramic",
+    },
+    {
+        name = "ei-electron-tube",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 1,
+        ingredients = {
+            {type = "item", name = "copper-cable", amount = 1},
+            {type = "item", name = "ei-glass", amount = 1},
+            {type = "item", name = "ei-ceramic", amount = 1}
+        },
+        results = {
+            {type = "item", name = "ei-electron-tube", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-electron-tube",
     },
     {
         name = "ei-electricity-age-tech",
@@ -660,12 +707,6 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-glass"
             },
-            --[[
-            {
-                type = "unlock-recipe",
-                recipe = "glass"
-            },
-            ]]
         },
         unit = {
             count = 100,
@@ -688,9 +729,14 @@ table.insert(data.raw["technology"]["steel-processing"].effects, {
     recipe = "ei-steel-plate"
 })
 
+table.insert(data.raw["technology"]["steel-processing"].effects, {
+    type = "unlock-recipe",
+    recipe = "ei-steel-beam"
+})
 ei_lib.set_prerequisites("ei-steam-age",{
     "ei-burner-assembler",
     "military",
     "stone-wall",
-    "gun-turret"
+    "gun-turret",
+    "ei-mechanical-inserter"
 })

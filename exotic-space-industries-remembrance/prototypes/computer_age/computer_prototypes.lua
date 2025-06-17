@@ -1278,6 +1278,7 @@ data:extend({
             {type="item", name="low-density-structure", amount=2},
             {type="item", name="ei-steel-mechanical-parts", amount=5},
             {type="item", name="ei-insulated-wire", amount=2},
+            {type="item",name="ei-copper-beam",amount=1}
         },
         results = {{type="item", name="ei-rocket-parts", amount=1}},
         enabled = false,
@@ -1852,7 +1853,7 @@ data:extend({
         {
             {type="item", name="advanced-circuit", amount=10},
             {type="item", name="low-density-structure", amount=2},
-            {type="item", name="ei-insulated-wire", amount=2},
+            {type="item", name="ei-insulated-wire", amount=6},
         },
         results={{type = "item", name= "ei-rocket-control-unit", amount=1}}
       },

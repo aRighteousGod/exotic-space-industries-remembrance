@@ -347,6 +347,23 @@ data:extend({
 
 data:extend({
     {
+        name = "ei-concrete-slag",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 10,
+        ingredients = {
+            {type = "item", name = "stone-brick", amount = 10},
+            {type = "item", name = "ei-sand", amount = 6},
+            {type = "item", name = "ei-slag", amount = 20},
+        },
+        results = {
+            {type = "item", name = "concrete", amount = 10},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "concrete",
+    },
+    {
         name = "ei-minigun",
         type = "recipe",
         category = "crafting",
@@ -690,6 +707,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -736,6 +754,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -751,6 +770,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-neodym-ingot", amount = 1},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -766,6 +786,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -781,6 +802,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1300,6 +1322,10 @@ table.insert(data.raw["technology"]["railway"].effects, {
     recipe = "ei-diesel-fuel-unit"
 })
 
+table.insert(data.raw["technology"]["concrete"].effects, {
+    type = "unlock-recipe",
+    recipe = "ei-concrete-slag"
+})
 --OTHER
 ------------------------------------------------------------------------------------------------------
 

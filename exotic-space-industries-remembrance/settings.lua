@@ -173,22 +173,6 @@ data:extend({
       order  = "c1a",
   },
   {
-      name = "ei-slag",
-      type = "bool-setting",
-      setting_type = "startup",
-      default_value = true,
-      order  = "c1b",
-      hidden = true, --Slag is a core part of the mod, don't disable it.
-  },
-  {
-      name = "ei-ash",
-      type = "bool-setting",
-      setting_type = "startup",
-      default_value = true,
-      order  = "c1c",
-      hidden = true, --Ash is a core part of the mod, don't disable it.
-  },
-  {
       name = "ei-tech-tree-flatten",
       type = "bool-setting",
       setting_type = "startup",

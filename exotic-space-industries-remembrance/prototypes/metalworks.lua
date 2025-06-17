@@ -294,6 +294,9 @@ local recipes_to_add = {
     ["ei-gold-ingot"] = "ei-deep-mining",
     ["ei-lead-ingot"] = "ei-deep-mining",
     ["ei-neodym-ingot"] = "ei-neodym-refining",
+    ["ei-iron-beam"] = "none",
+    ["ei-copper-beam"] = "none",
+    ["ei-steel-beam"] = "steel-processing",
     ["ei-iron-mechanical-parts"] = "none",
     ["ei-copper-mechanical-parts"] = "none",
     ["ei-steel-mechanical-parts"] = "steel-processing",
@@ -301,8 +304,8 @@ local recipes_to_add = {
 }
 
 for recipe_name, tech in pairs(recipes_to_add) do
-  local recipe = data.raw["recipe"][recipe_name]
-  if recipe then 
+  local recipe = ei_lib.raw["recipe"][recipe_name]
+  if recipe and recipe.name then 
     -- make a copy of the recipe and change the category
     local new_recipe = util.table.deepcopy(recipe)
 

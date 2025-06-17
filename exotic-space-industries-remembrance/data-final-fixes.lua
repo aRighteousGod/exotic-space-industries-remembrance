@@ -39,8 +39,8 @@ require("scripts/data-final-updates/compatibility")
 -- =======================================================================================
 
 --data.raw.reactor["ei-burner-heater"].energy_source.fuel_categories = {"chemical"}
-data.raw.item.wood.fuel_category = "chemical"
-data.raw.item.coal.fuel_category = "chemical"
+ei_lib.raw.item.wood.fuel_category = "chemical"
+ei_lib.raw.item.coal.fuel_category = "chemical"
 
 -- =======================================================================================
 
@@ -63,14 +63,13 @@ end
 data.raw["space-platform-starter-pack"]["space-platform-starter-pack"].initial_items = {
   {type = "item", name = "space-platform-foundation", amount = 60}
 }
-
 -- =======================================================================================
-if ei_lib.raw["assembling-machine"]["biochamber"] and ei_lib.raw["assembling-machine"]["assembling-machine-1"] then
-  -- Fix biochamber energy source
-  ei_lib.raw["assembling-machine"]["biochamber"].energy_source = table.deepcopy(ei_lib.raw["assembling-machine"]["assembling-machine-1"].energy_source)
-  --ei_lib.raw.assembling-machine["biochamber"].energy_source.light_flicker = nil --needs colorful glow or some such
-end
-
+-- Biolab uses nutrients, @StephenB
+local originalEnergySource = ei_lib.raw.lab.biolab.energy_source
+ei_lib.raw.lab.biolab.energy_source = table.deepcopy(data.raw["assembling-machine"].biochamber.energy_source)
+-- Leaving power at 300kW. Biochambers use 500kW.
+-- Biochambers have -1/m pollution emission (ie they reduce pollution). Biolabs had 8/m pollution emission, but this changes it to -1/m. Captive biter spawners are also -1/m. Looking at a simple Nauvis base importing most sciences, biolabs are actually the majority of the pollution, so I'm changing it back to 8/m.
+ei_lib.raw.lab.biolab.energy_source.emissions_per_minute = originalEnergySource.emissions_per_minute
 
 -- =======================================================================================
 
@@ -79,7 +78,7 @@ end
 
 -- =======================================================================================
 
-data.raw["assembling-machine"]["ei-steam-assembler"].crafting_categories = table.deepcopy(data.raw["assembling-machine"]["assembling-machine-1"].crafting_categories)
+ei_lib.raw["assembling-machine"]["ei-steam-assembler"].crafting_categories = table.deepcopy(data.raw["assembling-machine"]["assembling-machine-1"].crafting_categories)
 
 for _, crafting_category in pairs({"ei-steam-assembler", "crafting", "crafting-with-fluid", "electronics"}) do 
   if not ei_lib.table_contains_value(data.raw["assembling-machine"]["ei-steam-assembler"].crafting_categories,crafting_category) then 

@@ -26,7 +26,8 @@ data:extend({
             {type="item", name="ei-simulation-data", amount=100},
             {type="item", name="ei-electronic-parts", amount=100},
             {type="item", name="ei-steel-mechanical-parts", amount=40},
-            {type="item", name="ei-energy-crystal", amount=40}
+            {type="item", name="ei-steel-beam", amount=100},
+            {type="item", name="ei-high-energy-crystal", amount=100}
         },
         results = {{type="item", name="ei-big-lab", amount=1}},
         enabled = false,

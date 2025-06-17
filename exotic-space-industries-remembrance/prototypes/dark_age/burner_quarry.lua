@@ -17,7 +17,8 @@ data:extend({
         enabled = false,
         ingredients = {
           {type = "item", name = "iron-plate", amount = 20},
-          {type = "item", name = "iron-gear-wheel", amount = 20},
+          {type = "item", name = "ei-iron-mechanical-parts", amount = 20},
+          {type="item",name="ei-copper-beam",amount=10},
           {type = "item", name = "burner-mining-drill", amount = 10},
           {type = "item", name = "transport-belt", amount = 10},
         },
@@ -44,8 +45,9 @@ data:extend({
         type = "recipe",
         enabled = false,
         ingredients = {
-          {type = "item", name = "iron-plate", amount = 20},
-          {type = "item", name = "iron-gear-wheel", amount = 20},
+          {type = "item", name = "steel-plate", amount = 20},
+          {type = "item", name = "ei-steel-mechanical-parts", amount = 20},
+          {type="item",name="ei-copper-beam",amount=10},
           {type = "item", name = "electric-mining-drill", amount = 10},
           {type = "item", name = "transport-belt", amount = 20},
         },

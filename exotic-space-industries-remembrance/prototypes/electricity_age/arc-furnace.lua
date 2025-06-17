@@ -41,7 +41,8 @@ data:extend({
             {type="item", name="electric-furnace", amount=1},
             {type="item", name="electric-engine-unit", amount=4},
             {type="item", name="storage-tank", amount=2},
-            {type="item", name="ei-steel-mechanical-parts", amount=8}
+            {type="item", name="ei-steel-mechanical-parts", amount=8},
+            {type="item",name="ei-steel-beam",amount=10}
         },
         results = {{type="item", name="ei-arc-furnace", amount=1}},
         enabled = false,
@@ -69,6 +70,10 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-molten-iron-beam"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-molten-iron-mechanical-parts"
             },
             {
@@ -81,11 +86,19 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-molten-copper-beam"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-molten-copper-mechanical-parts"
             },
             {
                 type = "unlock-recipe",
                 recipe = "ei-molten-steel-ingot"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-molten-steel-beam"
             },
             {
                 type = "unlock-recipe",
@@ -355,6 +368,22 @@ data:extend({
         hide_from_player_crafting = true,
     },
     {
+        name = "ei-molten-iron-beam",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 0.25,
+        ingredients = {
+            {type = "item", name = "ei-iron-beam", amount = 1},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-iron", amount = 20},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-iron",
+        hide_from_player_crafting = true,
+    },
+    {
         name = "ei-molten-iron-mechanical-parts",
         type = "recipe",
         category = "ei-arc-furnace",
@@ -404,6 +433,22 @@ data:extend({
         hide_from_player_crafting = true,
     },
     {
+        name = "ei-molten-copper-beam",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 0.25,
+        ingredients = {
+            {type = "item", name = "ei-copper-beam", amount = 1},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-copper", amount = 20},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-copper",
+        hide_from_player_crafting = true,
+    },
+    {
         name = "ei-molten-copper-mechanical-parts",
         type = "recipe",
         category = "ei-arc-furnace",
@@ -435,6 +480,22 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-molten-steel",
+    },
+    {
+        name = "ei-molten-steel-beam",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 0.25,
+        ingredients = {
+            {type = "item", name = "steel-plate", amount = 1},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-steel", amount = 20},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-steel",
+        hide_from_player_crafting = true,
     },
     {
         name = "ei-molten-steel-mechanical-parts",

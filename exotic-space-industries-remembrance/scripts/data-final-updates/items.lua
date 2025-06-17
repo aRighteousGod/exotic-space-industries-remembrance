@@ -6,6 +6,7 @@ data.raw['item']["iron-plate"].icon = ei_graphics_item_path.."iron-ingot.png"
 data.raw['item']["copper-plate"].icon = ei_graphics_item_path.."copper-ingot.png"
 data.raw['item']["steel-plate"].icon = ei_graphics_item_path.."steel-ingot.png"
 
+
 data.raw['item']["iron-plate"].subgroup = "ei-refining-ingot"
 data.raw['item']["copper-plate"].subgroup = "ei-refining-ingot"
 data.raw['item']["steel-plate"].subgroup = "ei-refining-ingot"
@@ -21,7 +22,7 @@ ei_lib.disable("production-science-pack")
 ei_lib.disable("utility-science-pack")
 
 for _, item in pairs(data.raw.item) do
-  if endswith(item.name,"-barrel") then item.stack_size = 100 end
+--  if endswith(item.name,"-barrel") then item.stack_size = 100 end
   if item.type == "gun" then item.stack_size = 1 end
   if item.subgroup == "gun" then item.stack_size = 1 end
 end

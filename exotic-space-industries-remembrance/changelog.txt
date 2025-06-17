@@ -13,7 +13,6 @@ Date: 5-3-25
     -Pulsing idle glow for Arc Furnace.
     -Pulsing idle glow for Plasma Heater.
     -Import zh-CN locale from ai_cn by @lyx_kljk.
-    -EI Loaders added to Milestones preset.
     -EI Turbo loader added and inserted into upgrade progression. It filters 1 lane and stacks upto 4. Sprite recolor credit to @Samario
     -Elevated pipes added to required dependencies and slotted into Steam Age. The recipe's requirement for iron stick -> copper mechanical parts.
     -Zeus Wrath lightning turret, gun, and ammo added to required dependencies and slotted into Quantum Age. Recipe requirements mostly replaced and supplemented with EI specific exotics.
@@ -25,15 +24,50 @@ Date: 5-3-25
     -Atan ash added to required dependencies.
     -Cheese's Concentrated Solar added to required dependencies and slotted into Steam Age—recipes modified with EI specific materials and intermediates.
     -Fluid boiler glow added.
+    -Mechanical inserter and long inserter added to Dark Age—through ancient dark rites these springs can filter 1 item while slowly coiling and uncoiling in perpetuem, powered only by the void.
+
+***NOTE: Restored indicates something was brought back from Exotic Industires 0.69 from Factorio 1.1.***
 
     Changes:
+    -Restored Stone path (1.6), Hazard (1.8), Refined(2.2), and Regular concrete (1.8) speed bonus buffs.
+    -Restored nuclear fuel 1.5x speed and acceleration bonuses.
+    -Restored Burner assembler recipe inputs: Additionally requires 2 Copper beams.
+    -Restored Rocket parts recipe inputs: Additionally requires 1 Copper beam.
+    -Plasma heater recipe inputs: Additionally requires 10 Electronic parts.
+    -Arc furnace recipe inputs: Additionally requires 10 Steel beams.
+    -Restored Fluid boiler recipe inputs: Additionally requires 2 Copper beams.
+    -Restored Burner/Electric quarry recipe inputs: Additionally requires 10 Copper beams.
+    -Electric quarry recipe inputs: Iron plate/Iron mechanical parts -> Steel Plate/Steel mechanical parts.
+    -Excavator recipe inputs: 24 Steel plate -> 12. Additionally requires 12 Steel beams. Restored requirement for 4 electric quarries.
+    -Restored Steam assembler recipe inputs: Additionally requires 2 Copper beams.
+    -Restored Steam crusher recipe inputs: Additionally requires 2 Copper beams.
+    -Restored Steam miner recipe inputs: 4 Iron mechanical parts -> 4 Copper beams.
+    -Big lab recipe inputs: 40 Energy crystal -> 100 High energy crystal. Additionally requires 100 Steel beams.
+    -Lab inputs: Electric lab goes upto Alien/Advanced Computer Age, Electromagnetic, Metllurgic, Agricultural. Biolab is same plus Quantum age. Big lab is same plus Exotic Age.
+    -Restored Electron tube intermediate.
+    -Solar panel buff reverted 100 -> 80kW.
+    -Restored barrels stacking to 1 concurrent with their drastically increased capacity.
+    -Restored ammo damage buff to regular and piercing round magazines.
+    -Restored Spidertron burner engine mechanic—additionally emits smoke and pollution.
+    -Restored production module limitations to EI modules.
+    -Restored copper, iron, steel beam intermediates.
+    -Restored electron tube intermediate.
+    -Restored dirty water -> fluorite, water+slag -> dirty water, water+sand -> ddirty water recipes.
+    -Restored EI specific vanilla recipe modifiers.
+    -Restored slag mechanic—smelting in furnaces produces accompanying slag which must be dealt with.
+    -Milestone preset: Added variety of items, entities, and doodads.
+    -Advanced roboport doubled in size. Charging slots 6 -> 12. Slots 10 -> 20. Radius 70 -> 115. Idle energy usage 4 -> 8MW. Charging energy 4 -> 12 MW. Buffer capacity 400 -> 1GJ. Input flow limit 160 -> 300MW. Health 1000 -> 2000.
+    -Advanced roboport recipe: additionally requires 50 Electronic parts and 40 Steel beams, Roboports 4 -> 8, Processing units 20 -> 40, Advanced motors 20 -> 40. No longer allows Productivity.
+    -Biochamber power source restored to nutrients.
+    -Steam long inserter recipe inputs: Burner inserter -> Steam inserter, Steam engine -> Steel mechanical parts.
+    -Long inserter recipe inputs: Iron mechanical parts -> Steel mechanical parts.
     -Morphium fluid related recipes moved to Alien intermediates.
     -Simulation computer age tech recipe inputs: Simulation data 12 -> 48, 3 Electric engine unit -> 4 Data cables.
     -Restored Gaia pump—on Gaia regular offshore pumps will face corporeal rejection, Gaia pumps must be used, and they too will choose non-existence if used outside of Gaia.
     -Computer age tech recipe inputs: 1 Advanced circuit -> Electronic Parts, 10 Lubricant -> 25 lube distillate, output 1 -> 2 science, time 18s -> 27.
     -Bio Sludge fuel value 0 -> 25kJ.
     -Alien seeds no longer found in Fulgorite.
-    -Fulgoran ruins and scrap now yield iron mechanical parts instead of iron gear wheels and iron sticks.
+    -Fulgoran ruins and scrap now yield iron mechanical parts and iron beams instead of iron gear wheels and iron sticks.
     -Rocket silo 10 -> 4 modules.
     -Accumulator buffer capacity 10 -> 6MJ. Input flow limit 325 -> 425kW. Output flow limit 325 -> 425kW.
     -Fluid burn values modifed for: Crude oil 150 -> 50kJ. Heavy oil 100 -> 250kJ. Light oil 100 -> 500kJ.
@@ -47,10 +81,11 @@ Date: 5-3-25
     -Steam advanced cargo wagon friction force 0.4 -> 0.8.
     -Gaia oceans now made of Diluted morphium instead of Morphium. Yields Morphium, Bio sludge, and 5% probability of energy crystal when combined with 1 High energy crystal and 10 Oxygen difluoride.
     -Morphium -> Concentrated morphium now additionally requires 1 High energy crystal and 10 Oxygen difluoride and yields 1 energy crystal with 5% probability, and 1 bio sludge with 10% probability.
+    -Morphium -> Fluorite recipe additionally requires 1 High energy crystal and outputs 1 energy crystal with 5% probability.
     -Concentrated Morphium -> Light oil/Kerosene/Heavy Oil/Lubricant: Recipes for each now adjusted to require equal proportions Concentrated morphium and steam, and additionally a high energy crystal. Yields adjusted to be Morphium input x3 = Output (So 64 Concentrated Morphium+Steam+1High energy crystal -> 192 Lubricant), and in addition all will yield energy crystal with 5% probability and bio sludge with 10% propability.
     -Fueler maximum range startup setting 100 -> 32. Default setting 20 -> 16.
     -EI tech scaling toggle disabled—bound in blood, commit to the dream or awaken forever.
-    -Ceiling on EI tech scaling multiplier removed.
+    -Ceiling on EI tech scaling multiplier now depends on scaling setting. (Very cheap: 500, More Cheap: 1000, Cheap: 1500, Default: 2000, Less Expensive: 3500, Expensive: 5000, Very Expensive: 100000).
     -Barrel capacity startup option maximum 5000 -> 2000.
     -Pipe to ground length startup configuration maximum 40 -> 20.
     -Nuclear reactor bonus removed by default & startup toggle disabled.
@@ -77,7 +112,7 @@ Date: 5-3-25
     -Iron chest now has 12 slots.
     -Steel chest now has 16 slots.
     -EI Containers: 1x1 50 -> 20 slots, filter variant 18 slots. 2x2 250 -> 32 slots, filter variant 22 slots.. 6x6 1000 -> 64 slots, filter variant 26 slots. 
-    -EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Plate -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts.
+    -EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Plate -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts. All logistic variants additionally require Simulation data: 1x1-10, 2x2-20, 6x6-40.
     -Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
     -Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 2500. Explosive damage 300 -> 1250. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, acceleration enhanced, final speed unchanged.
     -Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.
@@ -96,11 +131,11 @@ Date: 5-3-25
     -Yellow splitter circuit requirement restored.
     -EI fluid tanks restored to Steam Age, tooltips correctly attributed, technologies unlock sequentially after the regular storage tank.
     -Concrete moved to Steam Age—now requires Advanced materials handling.
-    -Concrete recipe's requirement for Iron ore  -> Iron mechanical parts.
-    -Refined concrete recipe's requirement for Copper mechanical parts -> Steel mechanical parts.
+    -Concrete recipe's requirement for Iron ore  -> Iron beam.
+    -Refined concrete recipe's requirement for Copper mechanical parts -> Steel beam.
     -Electricity age prerequisites now include Advanced steam train, Silo fluid storage tank, Burner heater, and Steam logistics chests.
     -Advanced steam train prerequisites now include Automated rail transportation.
-    -Steam age prerequisites restored and amended: Military, Stone wall, Gun turret and Burner assembler.
+    -Steam age prerequisites restored and amended: Military, Stone wall, Gun turret, Mechanical inserter and Burner assembler.
     -Rocket lift capacity buff setting removed.
     -Loader complexity patch setting removed. The mountain is now external—climb it if you dare.
     -Neodymium loader now stacks to 8. Express loader now has single lane filtering and stacks to 2. -Additional inputs for Loader recipes from Express onwards. 

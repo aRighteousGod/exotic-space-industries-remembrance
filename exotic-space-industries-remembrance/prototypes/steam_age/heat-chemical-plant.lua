@@ -24,7 +24,8 @@ data:extend({
         ingredients =
         {
             {type="item", name="pipe", amount=4},
-            {type="item", name="steel-plate", amount=6},
+            {type="item", name="steel-plate", amount=3},
+            {type="item",name="ei-steel-beam",amount=3},
             {type="item", name="ei-copper-mechanical-parts", amount=4},
             {type="item", name="stone-furnace", amount=1},
         },

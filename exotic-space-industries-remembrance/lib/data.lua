@@ -250,8 +250,40 @@ ei_data.lab_inputs["lab"] = {
   "ei-steam-age-tech",
   "ei-electricity-age-tech",
   "ei-computer-age-tech",
+  "ei-advanced-computer-age-tech",
+  "ei-alien-computer-age-tech",
+  "electromagnetic-science-pack",
+  "metallurgic-science-pack",
+  "agricultural-science-pack"
 }
-
+ei_data.lab_inputs["biolab"] = {
+  "ei-dark-age-tech",
+  "ei-steam-age-tech",
+  "ei-electricity-age-tech",
+  "ei-computer-age-tech",
+  "ei-advanced-computer-age-tech",
+  "ei-alien-computer-age-tech",
+  "electromagnetic-science-pack",
+  "metallurgic-science-pack",
+  "agricultural-science-pack",
+  "ei-quantum-age-tech",
+  "ei-fusion-quantum-age-tech"
+}
+ei_data.lab_inputs["biglab"] = {
+  "ei-dark-age-tech",
+  "ei-steam-age-tech",
+  "ei-electricity-age-tech",
+  "ei-computer-age-tech",
+  "ei-advanced-computer-age-tech",
+  "ei-alien-computer-age-tech",
+  "electromagnetic-science-pack",
+  "metallurgic-science-pack",
+  "agricultural-science-pack",
+  "ei-quantum-age-tech",
+  "ei-fusion-quantum-age-tech",
+  "ei-exotic-age-tech",
+  "ei-black-hole-exotic-age-tech"
+}
 -- EI equivalent of vanilla science packs
 ei_data.science_dict = {
     ["automation-science-pack"] = "ei-dark-age-tech",
@@ -448,6 +480,7 @@ ei_data.tech_structure["dark-age"] = {
     "physical-projectile-damage-1",
     "toolbelt",
     "stone-wall",
+    "ei-mechanical-inserter"
 }
 -- KEY = TECH, VALUE = PREREQUISITE
 ei_data.prerequisites_to_set["dark-age"] = {

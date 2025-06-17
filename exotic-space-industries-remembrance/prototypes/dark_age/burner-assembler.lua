@@ -24,6 +24,7 @@ data:extend({
         {
             {type="item", name="stone-furnace", amount=1},
             {type="item", name="ei-copper-mechanical-parts", amount=4},
+            {type="item",name="ei-copper-beam",amount=2}
         },
         results = {{type="item", name="ei-burner-assembler", amount=1}},
         enabled = false,

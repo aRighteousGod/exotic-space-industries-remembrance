@@ -743,7 +743,6 @@ function on_built_entity(e)
         ei_register.link_slave("copper_beacon", master_unit, slave_entity, "slave_assembler")
         ei_register.init_beacon("copper_beacon", master_unit)
         ei_register.add_spaced_update()
-        ei_beacon_overload.on_built_entity(e["entity"])
     end
 
     if e["entity"].name == "ei-iron-beacon" then
@@ -752,10 +751,9 @@ function on_built_entity(e)
         ei_register.link_slave("copper_beacon", master_unit, slave_entity, "slave_assembler")
         ei_register.init_beacon("copper_beacon", master_unit)
         ei_register.add_spaced_update()
-        ei_beacon_overload.on_built_entity(e["entity"])
     end
 
---    ei_beacon_overload.on_built_entity(e["entity"])
+    ei_beacon_overload.on_built_entity(e["entity"])
     ei_neutron_collector.on_built_entity(e["entity"])
     ei_fusion_reactor.on_built_entity(e["entity"])
     ei_matter_stabilizer.on_built_entity(e["entity"])

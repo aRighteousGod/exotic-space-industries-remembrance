@@ -67,6 +67,12 @@ data:extend({
         order = "e",
     },
     {
+        name = "ei-refining-beam",
+        type = "item-subgroup",
+        group = "ei-refining",
+        order = "f",
+    },
+    {
         name = "ei-refining-parts",
         type = "item-subgroup",
         group = "ei-refining",

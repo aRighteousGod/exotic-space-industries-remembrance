@@ -26,9 +26,10 @@ data:extend({
         energy_required = 2,
         ingredients =
         {
-            -- {type="item", name="ei-electric-stone-quarry", amount=4},
+            {type="item", name="ei-electric-quarry", amount=4},
             {type="item", name="ei-advanced-motor", amount=8},
-            {type="item", name="steel-plate", amount=24},
+            {type="item", name="steel-plate", amount=12},
+            {type="item", name="ei-steel-beam", amount=12},
             {type="item", name="ei-steel-mechanical-parts", amount=40}
         },
         results = {{type="item", name="ei-excavator", amount=1}},

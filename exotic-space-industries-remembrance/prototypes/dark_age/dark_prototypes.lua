@@ -14,6 +14,24 @@ data:extend({
         type = "recipe-category",
     },
     {
+        name = "ei-iron-beam",
+        type = "item",
+        icon = ei_graphics_item_path.."iron-beam.png",
+        icon_size = 64,
+        stack_size = 100,
+        subgroup = "ei-refining-beam",
+        order = "a1",
+    },
+    {
+        name = "ei-copper-beam",
+        type = "item",
+        icon = ei_graphics_item_path.."copper-beam.png",
+        icon_size = 64,
+        stack_size = 100,
+        subgroup = "ei-refining-beam",
+        order = "a2",
+    },
+    {
         name = "ei-iron-mechanical-parts",
         type = "item",
         icon = ei_graphics_item_path.."iron-mechanical-parts.png",
@@ -30,6 +48,15 @@ data:extend({
         stack_size = 100,
         subgroup = "ei-refining-parts",
         order = "a2",
+    },
+{
+        name = "ei-slag",
+        type = "item",
+        icon = ei_graphics_item_path.."slag.png",
+        icon_size = 64,
+        stack_size = 100,
+        subgroup = "ei-refining-byproduct",
+        order = "a1",
     },
     {
         name = "ei-steam-engine",
@@ -102,6 +129,36 @@ data:extend({
 ------------------------------------------------------------------------------------------------------
 data:extend({
     {
+        name = "ei-iron-beam",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 2,
+        ingredients = {
+            {type ="item", name="iron-plate", amount=2},
+        },
+        results = {
+            {type = "item", name = "ei-iron-beam", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = true,
+        main_product = "ei-iron-beam",
+    },
+    {
+        name = "ei-copper-beam",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 2,
+        ingredients = {
+            {type="item",name="copper-plate", amount=2},
+        },
+        results = {
+            {type = "item", name = "ei-copper-beam", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = true,
+        main_product = "ei-copper-beam",
+    },
+    {
         name = "ei-iron-mechanical-parts",
         type = "recipe",
         category = "crafting",
@@ -130,6 +187,21 @@ data:extend({
         always_show_made_in = true,
         enabled = true,
         main_product = "ei-copper-mechanical-parts",
+    },
+    {
+        name = "ei-stone-slag-processing",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 0.5,
+        ingredients = {
+            {type="item",name="ei-slag", amount=2},
+        },
+        results = {
+            {type = "item", name = "stone", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = true,
+        main_product = "stone",
     },
     {
         name = "ei-dark-age-tech",

@@ -49,8 +49,8 @@ data:extend({
         energy_required = 1,
         ingredients =
         {
-            {type="item", name="burner-inserter", amount=1},
-            {type="item", name="ei-steam-engine", amount=1},
+            {type="item", name="ei-steam-inserter", amount=1},
+            {type="item", name="ei-steel-mechanical-parts", amount=1},
         },
         results = {{type="item", name="ei-steam-long-inserter", amount=1}},
         enabled = false,

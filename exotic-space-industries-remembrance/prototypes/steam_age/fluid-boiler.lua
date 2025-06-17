@@ -35,6 +35,7 @@ data:extend({
             {type="item", name="ei-steel-mechanical-parts", amount=6},
             {type="item", name="pipe", amount=4},
             {type="item", name="ei-copper-mechanical-parts", amount=4},
+            {type="item", name="ei-copper-beam", amount=2}
         },
         results = {{type="item", name="ei-fluid-boiler", amount=1}},
         enabled = false,

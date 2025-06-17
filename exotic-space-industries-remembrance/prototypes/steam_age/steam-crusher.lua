@@ -29,7 +29,8 @@ data:extend({
             {type="item", name="pipe", amount=6},
             {type="item", name="ei-iron-mechanical-parts", amount=4},
             {type="item", name="ei-steam-engine", amount=4},
-            {type="item", name="ei-copper-mechanical-parts", amount=2}
+            {type="item", name="ei-copper-mechanical-parts", amount=2},
+            {type="item",name="ei-copper-beam",amount=2}
         },
         results = {{type="item", name="ei-steam-crusher", amount=1}},
         enabled = false,
