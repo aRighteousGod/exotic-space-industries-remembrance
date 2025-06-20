@@ -89,7 +89,7 @@ data:extend({
             type = 'electric',
             usage_priority = 'secondary-input',
         },
-        energy_usage = "500kW",
+        energy_usage = "750kW",
         graphics_set = {
             animation = {
                 filename = ei_graphics_entity_path.."bio-chamber.png",
@@ -141,7 +141,7 @@ data:extend({
                 },
                 production_type = "input",
             },
-            --[[
+
             {   
                 volume = 200,
                 pipe_covers = pipecoverspictures(),
@@ -151,29 +151,37 @@ data:extend({
                 },
                 production_type = "input",
             },
-            ]]
             {   
                 volume = 200,
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_bio_chamber,
                 pipe_connections = {
-                    {flow_direction = "input", direction = defines.direction.west, position = {-1, 0}},
+                    {flow_direction = "output", direction = defines.direction.west, position = {-1, 0}},
                 },
-                production_type = "input",
+                production_type = "output",
             },
-            --[[
+
             {   
                 volume = 200,
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_bio_chamber,
                 pipe_connections = {
-                    {flow_direction = "input", direction = defines.direction.south, position = {0, 1}},
+                    {flow_direction = "output", direction = defines.direction.south, position = {0, 1}},
                 },
-                production_type = "input",
+                production_type = "output",
             },
-            ]]
             -- off_when_no_fluid_recipe = true
         },
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel( 0.75,  25.625), shadow_offset = util.by_pixel( 0.75,  25.625), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 0.75,  25.625), shadow_offset = util.by_pixel( 0.75,  25.625), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 0.75,  25.625), shadow_offset = util.by_pixel( 0.75,  25.625), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 0.75,  25.625), shadow_offset = util.by_pixel( 0.75,  25.625), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
         name = "ei-alien-seed-growing",

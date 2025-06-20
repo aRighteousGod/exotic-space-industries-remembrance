@@ -349,11 +349,11 @@ data:extend({
     {
         name = "ei-concrete-slag",
         type = "recipe",
-        category = "crafting",
+        category = "crafting-with-fluid",
         energy_required = 10,
         ingredients = {
             {type = "item", name = "stone-brick", amount = 10},
-            {type = "item", name = "ei-sand", amount = 6},
+            {type = "fluid", name = "water", amount = 100},
             {type = "item", name = "ei-slag", amount = 20},
         },
         results = {
@@ -707,7 +707,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -754,7 +754,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -770,7 +770,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-neodym-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -786,7 +786,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -802,7 +802,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -944,10 +944,10 @@ data:extend({
         category = "ei-arc-furnace",
         energy_required = 0.5,
         ingredients = {
-            {type = "item", name = modprefix.."sand", amount = 480},
+            {type = "item", name = modprefix.."sand", amount = 240},
         },
         results = {
-            {type = "fluid", name = "ei-molten-glass", amount = 50},
+            {type = "fluid", name = "ei-molten-glass", amount = 25},
         },
         always_show_made_in = true,
         enabled = false,

@@ -59,6 +59,29 @@ local loader_like = {
 --UTIL FUNCTIONS
 --====================================================================================================
 
+function ei_loaders_lib.make_loader(tier, next_upgrade, belt_animation_set, speed)
+    local loader = table.deepcopy(data.raw["loader-1x1"]["ei-loader-base"])
+
+    if tier then
+        tier = tier .. "-"
+    else
+        tier = ""
+    end
+
+    if next_upgrade then
+        loader.next_upgrade = next_upgrade
+    end
+    
+    loader.name = "ei-"..tier.."loader"
+    loader.icon = ei_loaders_item_path..tier.."loader.png"
+    loader.minable.result = "ei-"..tier.."loader"
+    loader.speed = speed
+    loader.belt_animation_set = belt_animation_set
+    loader.structure.direction_in.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
+    loader.structure.direction_out.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
+    data:extend({loader})
+end
+
 function ei_loaders_lib.flip_direction(direction)
     if direction == defines.direction.north then
         return defines.direction.south

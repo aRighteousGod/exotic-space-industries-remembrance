@@ -4,8 +4,9 @@ ei_loaders_lib = require("lib/ei_loaders_lib")
 --BASE PROTOTYPES
 --====================================================================================================
 
-local loader = {
-    name = "ei-loader",
+data:extend({
+    {
+    name = "ei-loader-base",
     type = "loader-1x1",
     icon = ei_loaders_item_path.."loader.png",
     icon_size = 64,
@@ -50,50 +51,22 @@ local loader = {
             }
         }
     },
-}
-
---====================================================================================================
---UTIL FUNCTIONS
---====================================================================================================
-
-function ei_loaders_lib.make_loader(tier, next_upgrade, belt_animation_set, speed)
-    local loader = table.deepcopy(loader)
-
-    if tier then
-        tier = tier .. "-"
-    else
-        tier = ""
-    end
-
-    if next_upgrade then
-        loader.next_upgrade = next_upgrade
-    end
-    
-    loader.name = "ei-"..tier.."loader"
-    loader.icon = ei_loaders_item_path..tier.."loader.png"
-    loader.minable.result = "ei-"..tier.."loader"
-    loader.speed = speed
-    loader.belt_animation_set = belt_animation_set
-    loader.circuit_connector =  circuit_connector_definitions.create_vector(
-      universal_connector_template,
-      {
-        { variation = 4, main_offset = util.by_pixel(3, 2), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-        { variation = 2, main_offset = util.by_pixel(-11, -5), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-        { variation = 0, main_offset = util.by_pixel(-3, -23), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-        { variation = 6, main_offset = util.by_pixel(10, -17), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-
-        { variation = 0, main_offset = util.by_pixel(-3, -23), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-        { variation = 6, main_offset = util.by_pixel(10, -17), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-        { variation = 4, main_offset = util.by_pixel(3, 2), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-        { variation = 2, main_offset = util.by_pixel(-11, -5), shadow_offset = util.by_pixel(7.5, 7.5), show_shadow = false },
-      }
-    )
-    loader.circuit_wire_max_distance = transport_belt_circuit_wire_max_distance
-    loader.structure.direction_in.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
-    loader.structure.direction_out.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
-
-    data:extend({loader})
-end
+    circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 12, main_offset = util.by_pixel( 8.375, -2.5), shadow_offset = util.by_pixel( 8.375, -2.5), show_shadow = true },
+            { variation = 26, main_offset = util.by_pixel(-3.625,  5.5), shadow_offset = util.by_pixel(-3.625,  5.5), show_shadow = true },
+            { variation =  8, main_offset = util.by_pixel(-8.75, -9.625), shadow_offset = util.by_pixel(-8.75, -9.625), show_shadow = true }, 
+            { variation = 22, main_offset = util.by_pixel( 4.5,  4.375), shadow_offset = util.by_pixel( 4.5,  4.375), show_shadow = true },
+            { variation =  8, main_offset = util.by_pixel(-8.75, -9.625), shadow_offset = util.by_pixel(-8.75, -9.625), show_shadow = true }, 
+            { variation = 22, main_offset = util.by_pixel( 4.5,  4.375), shadow_offset = util.by_pixel( 4.5,  4.375), show_shadow = true },
+            { variation = 12, main_offset = util.by_pixel( 8.375, -2.5), shadow_offset = util.by_pixel( 8.375, -2.5), show_shadow = true },
+            { variation = 26, main_offset = util.by_pixel(-3.625,  5.5), shadow_offset = util.by_pixel(-3.625,  5.5), show_shadow = true }
+        }
+        ),
+    circuit_wire_max_distance = transport_belt_circuit_wire_max_distance
+    }
+})
 
 --====================================================================================================
 --1x1 LOADERS

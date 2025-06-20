@@ -50,37 +50,6 @@ function ei_global.check_init()
     if not storage.ei.locomotives then
         storage.ei.locomotives = {}
     end
---[[
-    local val = ei_lib.config("em_updater_que") or "Beam"
-    if val == "Beam" then
-        storage.ei.em_train_que = 1
-    elseif val == "Ring" then
-        storage.ei.em_train_que = 2 --faster to compare a number
-    else
-        storage.ei.em_train_que = 0
-    end
-
-    val = ei_lib.config("em_updater_que_width")
-    storage.ei.que_width = (val ~= nil) and val or 6
-
-    val = ei_lib.config("em_updater_que_transparency")
-    storage.ei.que_transparency = ((val ~= nil) and val or 80) / 100
-
-    val = ei_lib.config("em_updater_que_timetolive")
-    storage.ei.que_timetolive = (val ~= nil) and val or 60
-
-    val = ei_lib.config("em_train_glow_toggle")
-    storage.ei.em_train_glow_toggle = (val ~= nil) and val or true
-
-    val = ei_lib.config("em_train_glow_timetolive")
-    storage.ei.em_train_glow_timeToLive = (val ~= nil) and val or 60
-
-    val = ei_lib.config("em_charger_glow_toggle")
-    storage.ei.em_charger_glow = (val ~= nil) and val or true
-
-    val = ei_lib.config("em_charger_glow_timetolive")
-    storage.ei.em_charger_glow_timeToLive = (val ~= nil) and val or 60
-]]
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}
     end
@@ -125,6 +94,7 @@ function ei_global.check_init()
         storage.ei.alien = {}
         storage.ei.alien.state = {}
     end
+
 end
 
 return ei_global

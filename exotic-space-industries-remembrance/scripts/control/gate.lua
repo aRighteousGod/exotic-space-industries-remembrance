@@ -15,69 +15,6 @@ model.inverse_surface = {
     ["nauvis"] = "gaia"
 }
 
-model.mass_weights = {
-    ["ei-advanced-faulty-semiconductor"] = 2,
-    ["ei-alien-beacon"] = 500,
-    ["ei-alien-beacon_off-1"] = 500,
-    ["ei-alien-beacon_off-2"] = 500,
-    ["ei-alien-beacon_off-3"] = 500,
-    ["ei-alien-flowers-1"] = 4,
-    ["ei-alien-flowers-10"] = 4,
-    ["ei-alien-flowers-11"] = 4,
-    ["ei-alien-flowers-2"] = 4,
-    ["ei-alien-flowers-3"] = 4,
-    ["ei-alien-flowers-4"] = 4,
-    ["ei-alien-flowers-5"] = 4,
-    ["ei-alien-flowers-6"] = 4,
-    ["ei-alien-flowers-7"] = 4,
-    ["ei-alien-flowers-8"] = 4,
-    ["ei-alien-flowers-9"] = 4,
-    ["ei-alien-resin"] = 4,
-    ["ei-alien-seed"] = 500,
-    ["ei-alien-stabilizer"] = 50,
-    ["ei-black-hole-data"] = 1,
-    ["ei-blooming-alien-seed"] = 500,
-    ["ei-charged-energy-crystal"] = 1.25,
-    ["ei-coal-chunk"] = 1,
-    ["ei-copper-chunk"] = 1,
-    ["ei-crushed-sulfur"] = 1,
-    ["ei-cryo-container-nitrogen"] = 2,
-    ["ei-cryo-container-oxygen"] = 2,
-    ["ei-crystal-accumulator_off-1"] = 125.0,
-    ["ei-crystal-accumulator_off-2"] = 125.0,
-    ["ei-crystal-accumulator_off-3"] = 125.0,
-    ["ei-crystal-accumulator_off-4"] = 125.0,
-    ["ei-empty-cryo-container"] = 2,
-    ["ei-energy-crystal"] = 1.25,
-    ["ei-exotic-matter-down"] = 1,
-    ["ei-exotic-matter-up"] = 1,
-    ["ei-exotic-ore"] = 6.25,
-    ["ei-farstation_off-1"] = 100,
-    ["ei-farstation_off-2"] = 100,
-    ["ei-farstation_off-3"] = 100,
-    ["ei-faulty-semiconductor"] = 2,
-    ["ei-fluorite"] = 1,
-    ["ei-gold-chunk"] = 1,
-    ["ei-iron-chunk"] = 1,
-    ["ei-lead-chunk"] = 1,
-    ["ei-neodym-chunk"] = 1,
-    ["ei-nuclear-waste"] = 100,
-    ["ei-plasma-data"] = 1,
-    ["ei-plutonium-239"] = 1,
-    ["ei-pure-copper"] = 1,
-    ["ei-pure-gold"] = 1,
-    ["ei-pure-iron"] = 1,
-    ["ei-pure-lead"] = 1,
-    ["ei-rift-stabilizer"] = 50,
-    ["ei-sulfur-chunk"] = 1,
-    ["ei-thorium-232"] = 1,
-    ["ei-uranium-233"] = 1,
-    ["ei-uranium-chunk"] = 1,
-    ["ei-used-plutonium-239-fuel"] = 10,
-    ["ei-used-thorium-232-fuel"] = 10,
-    ["ei-used-uranium-233-fuel"] = 10,
-    ["ei-used-uranium-235-fuel"] = 10,
-  }
 
 --DOC
 ------------------------------------------------------------------------------------------------------
@@ -187,8 +124,8 @@ function model.register_gate(gate, container)
     model.check_global_init()
     
     local gate_unit = gate.unit_number
-
-    if storage.ei.gate.gate[gate_unit] then
+    if storage.ei.gate.gate[gate_unit] or not gate or not gate.valid or not container or not container.valid then
+        log("ei register_gate returned early due to pre-existing gate_unit or non-existent gate or non-existent container")
         return
     end
 
@@ -197,7 +134,22 @@ function model.register_gate(gate, container)
     storage.ei.gate.gate[gate_unit].container = container
 
     -- set endpoint to (0, 0)
-    storage.ei.gate.gate[gate_unit].exit = {surface = model.inverse_surface[gate.surface.name], x = 0, y = 0}
+    --storage.ei.gate.gate[gate_unit].exit = {surface = model.inverse_surface[gate.surface.name], x = 0, y = 0}
+    if not gate.surface or not gate.loc.x or not gate.loc.y then
+        for _,surface in pairs(game.surfaces) do
+            if surface and surface.valid and not surface.hidden then
+                local firstsurf = surface
+                goto continue
+            end
+        end
+        ::continue::
+        storage.ei.gate.gate[gate_unit].exit = {surface = firstsurf, x=0,y=0}
+    else
+        storage.ei.gate.gate[gate_unit].exit = {surface = gate.surface, x=gate.position.x or 0,y=gate.position.y or 0}
+    end
+    if storage.ei.gate.gate[gate_unit].exit == nil then
+        log("ei register_gate wound up with nil initial gate exit for "..gate_unit)
+    end
     storage.ei.gate.gate[gate_unit].state = false
 
 
@@ -206,7 +158,7 @@ end
 
 function model.find_gate(container)
 
-    if not container then
+    if not container or not container.valid then
         return nil
     end
 
@@ -512,12 +464,12 @@ function model.pay_energy(gate, tablein)
     total_energy = total_energy * 1e6  -- MJ to J
 
     if gate.energy < total_energy then
-        --ei_lib.crystal_echo_floating("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.",gate, 50)
+        ei_lib.crystal_echo_floating("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.",gate, 50)
         return false
     end
 
     gate.energy = gate.energy - total_energy
-    --ei_lib.crystal_echo_floating("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.",gate, 50)
+    ei_lib.crystal_echo_floating("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.",gate, 50)
     return true
 end
 
@@ -647,7 +599,7 @@ end
 function model.render_animation(gate)
 
     local gate_unit = gate.unit_number
-    local pick = ei_rng.int("gateglow",1,4)
+    local pick = math.random(1,4)
     if pick == 1 then
         local light = rendering.draw_light {
             sprite = "gate_glow",
@@ -1265,11 +1217,11 @@ end
 function model.update()
 
     if not storage.ei.gate then
-        return
+        return false
     end
 
     if not storage.ei.gate.gate then
-        return
+        return false
     end
     model.update_player_guis()
     --model.update_player_guis()
@@ -1286,7 +1238,7 @@ function model.update()
 
     -- if no current break point then return
     if not storage.ei.gate.gate_break_point then
-        return
+        return false
     end
 
     -- get current break point
@@ -1303,24 +1255,13 @@ function model.update()
     -- get next break point
     if next(storage.ei.gate.gate, break_id) then
         storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate, break_id)
+        return true
     else
        storage.ei.gate.gate_break_point = nil
+       return false
     end
 
 end
---[[
-    for unit,v in pairs(storage.ei.gate.gate) do
-
-        local gate = storage.ei.gate.gate[unit].gate
-
-        model.check_for_teleport(unit, gate)
-        model.update_renders(unit, gate)
-        model.update_energy(unit, gate)
-
-    end
-
-end
-]]
 
 function model.used_remote(event)
 

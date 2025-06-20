@@ -105,7 +105,7 @@ data:extend({
             animation_speed = 0.3,
             run_mode = "backward",
         },
-        gui_mode = "none",
+        --gui_mode = "none",
         continuous_animation = true,
         radius_visualisation_specification = {
             sprite = {
@@ -115,6 +115,16 @@ data:extend({
             },
             distance = 96
         },
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation =  2, main_offset = util.by_pixel( 68.875,  35), shadow_offset = util.by_pixel( 68.875,  35), show_shadow = true },
+            { variation =  2, main_offset = util.by_pixel( 68.875,  35), shadow_offset = util.by_pixel( 68.875,  35), show_shadow = true },
+            { variation =  2, main_offset = util.by_pixel( 68.875,  35), shadow_offset = util.by_pixel( 68.875,  35), show_shadow = true },
+            { variation =  2, main_offset = util.by_pixel( 68.875,  35), shadow_offset = util.by_pixel( 68.875,  35), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     --[[
     {

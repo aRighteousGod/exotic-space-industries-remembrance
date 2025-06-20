@@ -96,6 +96,13 @@ data:extend({
             },
             distance = 20
         },
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel(-93.125,  128), shadow_offset = util.by_pixel(-93.125,  128), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
         name = "ei-energy-injector-pylon",
@@ -157,6 +164,16 @@ data:extend({
                 }
             },
         },
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true },
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true },
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true },
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
         name = "ei-energy-injector-pylon-running",
@@ -279,8 +296,18 @@ data:extend({
         ]]
         energy_production = "0GW",
         energy_usage = "0GW",
-        gui_mode = "none",
+        --gui_mode = "none",
         continuous_animation = true,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true },
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true },
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true },
+            { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
         type = "animation",

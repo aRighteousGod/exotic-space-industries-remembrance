@@ -81,8 +81,18 @@ data:extend({
         },
         energy_production = "7.5MW",
         energy_usage = "0GW",
-        gui_mode = "none",
+        --gui_mode = "none",
         continuous_animation = true,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true },
+            { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true },
+            { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true },
+            { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
         name = "ei-crystal-accumulator-gaia",
@@ -120,8 +130,15 @@ data:extend({
         },
         energy_production = "15MW",
         energy_usage = "0GW",
-        gui_mode = "none",
+        --gui_mode = "none",
         continuous_animation = true,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     -- add destroyed accumulator as containers
     {

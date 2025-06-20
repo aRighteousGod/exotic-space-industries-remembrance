@@ -251,6 +251,14 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-dirty-water-sand"
             },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-slag-extraction-sulfuric"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-slag-extraction-hydro"
+            },
         },
         unit = {
             count = 100,
@@ -264,6 +272,16 @@ data:extend({
         type = "assembling-machine",
         icon = ei_graphics_item_path.."purifier.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel( 0.625,  58.875), shadow_offset = util.by_pixel( 0.625,  58.875), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 0.625,  58.875), shadow_offset = util.by_pixel( 0.625,  58.875), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 0.625,  58.875), shadow_offset = util.by_pixel( 0.625,  58.875), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 0.625,  58.875), shadow_offset = util.by_pixel( 0.625,  58.875), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 0.5,
@@ -436,6 +454,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -452,6 +471,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -468,6 +488,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -484,6 +505,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -606,5 +628,79 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-dirty-water",
+    },
+    {
+        name = "ei-slag-extraction-morphium",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 6,
+        ingredients = {
+            {type = "fluid", name = "ei-morphium", amount = 100},
+            {type="item",name="ei-high-energy-crystal",amount=1},
+            {type = "item", name = "ei-slag", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max=5},
+            {type="item",name="ei-energy-crystal",amount=1,probability=0.05},
+            {type= "item",name="ei-coal-chunk", amount_min=1, amount_max=3,probability=0.015},
+            {type= "item",name="ei-iron-chunk", amount_min=1, amount_max=3,probability=0.01},
+            {type= "item",name="ei-copper-chunk", amount_min=1, amount_max=3,probability=0.008},
+            {type= "item",name="ei-gold-chunk", amount_min=1, amount_max=3,probability=0.004},
+            {type= "item",name="ei-lead-chunk", amount_min=1, amount_max=3,probability=0.006},
+            {type= "item",name="ei-sulfur-chunk", amount_min=1, amount_max=3,probability=0.007},
+            {type= "item",name="ei-uranium-chunk", amount_min=1, amount_max=3,probability=0.0009},
+            {type= "item",name="ei-neodym-chunk", amount_min=1, amount_max=3,probability=0.0004},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-acidic-water",
+    },
+    {
+        name = "ei-slag-extraction-hydro",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 8,
+        ingredients = {
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 33},
+            {type = "item", name = "ei-slag", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15},
+            {type= "item",name="ei-coal-chunk", amount_min=0, amount_max=2,probability=0.015},
+            {type= "item",name="ei-iron-chunk", amount_min=0, amount_max=2,probability=0.01},
+            {type= "item",name="ei-copper-chunk", amount_min=0, amount_max=2,probability=0.008},
+            {type= "item",name="ei-gold-chunk", amount_min=0, amount_max=2,probability=0.004},
+            {type= "item",name="ei-lead-chunk", amount_min=0, amount_max=2,probability=0.006},
+            {type= "item",name="ei-sulfur-chunk", amount_min=0, amount_max=2,probability=0.007},
+            {type= "item",name="ei-uranium-chunk", amount_min=0, amount_max=2,probability=0.0009},
+            {type= "item",name="ei-neodym-chunk", amount_min=0, amount_max=2,probability=0.0004},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-acidic-water",
+    },
+    {
+        name = "ei-slag-extraction-sulfuric",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 10,
+        ingredients = {
+            {type = "fluid", name = "sulfuric-acid", amount = 100},
+            {type = "item", name = "ei-slag", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45},
+            {type= "item",name="ei-coal-chunk", amount_min=0, amount_max=1,probability=0.015},
+            {type= "item",name="ei-iron-chunk", amount_min=0, amount_max=1,probability=0.01},
+            {type= "item",name="ei-copper-chunk", amount_min=0, amount_max=1,probability=0.008},
+            {type= "item",name="ei-gold-chunk", amount_min=0, amount_max=1,probability=0.004},
+            {type= "item",name="ei-lead-chunk", amount_min=0, amount_max=1,probability=0.006},
+            {type= "item",name="ei-sulfur-chunk", amount_min=0, amount_max=1,probability=0.007},
+            {type= "item",name="ei-uranium-chunk", amount_min=0, amount_max=1,probability=0.0009},
+            {type= "item",name="ei-neodym-chunk", amount_min=0, amount_max=1,probability=0.0004},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-acidic-water",
     },
 })

@@ -90,6 +90,10 @@ local new_ingredients_table = {
         {type="item",name="iron-plate", amount=6},
         {type="item",name="ei-iron-beam", amount=2} 
     },
+    ["steel-chest"] = {
+        {type="item",name="steel-plate", amount=8},
+        {type="item",name="ei-steel-beam", amount=2} 
+    },
     ["gun-turret"] = {
         {type="item",name="iron-plate", amount=5},
         {type="item",name="ei-iron-mechanical-parts", amount=5},
@@ -450,16 +454,7 @@ local new_ingredients_table = {
         {type="item",name="explosives", amount=2},
     },
 }
---move to alt recipe
---[[
-    ["artillery-shell"] = {
-        {"explosive-cannon-shell", 4},
-        -- {"ei-high-energy-crystal", 1},
-        {"ei-electronic-parts", 2},
-        {"explosives", 8},
-        {"radar", 1},
-    },
-    ]]
+
 --[[
 local copperSlag = {
     recipe = "copper-plate",

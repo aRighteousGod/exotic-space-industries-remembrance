@@ -658,12 +658,13 @@ function model.updater()
     local next_break_point = model.get_break_point()
 
     if not next_break_point then
-        return
+        return false
     end
 
     -- update this fueler
     model.update_fueler(next_break_point)
     model.update_cooldowns()
+    return true
 end
 
 

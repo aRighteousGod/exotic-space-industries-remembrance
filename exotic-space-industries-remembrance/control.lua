@@ -555,9 +555,7 @@ script.on_event(
 --====================================================================================================
 --HANDLERS
 --====================================================================================================
---60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per 60ticks (default, customizable update length 9-6000 ticks)
-ei_update_functions_length = ei_lib.getn(ei_update_functions)
-local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
+--60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
 ei_update_step = 0  -- Tracks which entity type is updated next, skips first tick
 ei_update_functions = {
     function() ei_powered_beacon.update() end,
@@ -570,17 +568,17 @@ ei_update_functions = {
     function() em_trains.train_updater() end,
     function() em_trains.charger_updater() end,
 }
+ei_update_functions_length = ei_lib.getn(ei_update_functions)
+local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
 function updater(event)
   local updates_needed = 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
    if ei_update_step < 5 then -- Reduces the average number of `if` checks
---        if ei_update_step == 0 then
---            ei_global.check_init()
---            ei_update_step = 1
---            end
        if ei_update_step == 1 then
+           --Check global once per entity updater cycle
+           ei_global.check_init()
            if storage.ei and storage.ei.spaced_updates and storage.ei.spaced_updates > 0 then
                updates_needed = math.max(1,math.min(math.ceil(storage.ei.spaced_updates / divisor), ei_maxEntityUpdates))
                end
@@ -590,7 +588,9 @@ function updater(event)
                math.max(1,math.min(math.ceil(storage.ei.spaced_updates / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               ei_powered_beacon.update()
+               if not ei_powered_beacon.update() then
+                goto skip
+               end
            end
 
        elseif ei_update_step == 2 then
@@ -603,7 +603,9 @@ function updater(event)
                math.max(1,math.min(math.ceil(storage.ei.spaced_updates / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               ei_powered_beacon.update_fluid_storages()
+               if not ei_powered_beacon.update_fluid_storages() then
+                goto skip
+               end
            end
 
        elseif ei_update_step == 3 then
@@ -615,7 +617,9 @@ function updater(event)
                math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei["neutron_sources"]) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               ei_neutron_collector.update()
+               if not ei_neutron_collector.update() then
+                goto skip
+               end
            end
 
        elseif ei_update_step == 4 then
@@ -627,7 +631,9 @@ function updater(event)
                math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.matter_machines) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               ei_matter_stabilizer.update()
+               if not ei_matter_stabilizer.update() then
+                goto skip
+               end
            end
        end
 
@@ -642,7 +648,9 @@ function updater(event)
                math.max(1,math.min(math.ceil(ei_lib.getn(storage.ei.orbital_combinators) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               orbital_combinator.update()
+               if not orbital_combinator.update() then
+                goto skip
+               end
            end
 
        elseif ei_update_step == 6 then
@@ -654,7 +662,9 @@ function updater(event)
                math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.fueler_queue) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               ei_fueler.updater()
+               if not ei_fueler.updater() then
+                goto skip
+               end
            end
 
        elseif ei_update_step == 7 then
@@ -666,7 +676,9 @@ function updater(event)
                math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               ei_gate.update()
+               if not ei_gate.update() then -- only try once if nil ie reach end of breakpoints or no entities to update
+                   goto skip
+               end
            end
 
        elseif ei_update_step == 8 then
@@ -701,28 +713,23 @@ function updater(event)
        end
    end
     ::skip::
-    em_trains_gui.updater()
+
    -- Increment ei_update_step and loop back to 1 if needed
    ei_update_step = ei_update_step + 1
-   if ei_update_step > ei_update_functions_length then --lol faster
+   if ei_update_step > ei_update_functions_length then --yeeeoooorrmmmm
        ei_update_step = 1
    end
 
    -- Essential updates that run every tick (e.g., timers, global effects)
-   ei_alien_spawner.update(event)
-   ei_gaia.update()
-   ei_induction_matrix.update()
-   ei_black_hole.update()
-   ei_steam_train.updater(event)
-   ei_echo_codex.arrival_waves(event)
+    em_trains_gui.updater()
+    ei_alien_spawner.update(event)
+    ei_gaia.update()
+    ei_induction_matrix.update()
+    ei_black_hole.update()
+    ei_steam_train.updater(event)
+    ei_echo_codex.arrival_waves(event)
    --======================================================================
-
 end
-
---Check global once per entity updater cycle
-script.on_nth_tick(ei_ticksPerFullUpdate, function(event)
-    ei_global.check_init()
-end)
 
 function on_built_entity(e)
     if not e["entity"] then

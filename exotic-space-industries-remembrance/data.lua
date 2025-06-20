@@ -43,7 +43,7 @@ require("prototypes/alien_structures/alien_structures")
 require("prototypes/exotic_age/exotic_age")
 require("prototypes/electricity_age/robots")
 require("prototypes/loaders")
-
+require("prototypes/more_asteroids")
 --====================================================================================================
 --COMPATIBILITY CODE
 --====================================================================================================

@@ -384,6 +384,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "steel-plate", amount = 10},
+            {type="item",name="ei-slag",amount_min=1,amount_max=2,probability=0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -491,10 +492,11 @@ data:extend({
         category = "smelting",
         energy_required = 3.2,
         ingredients = {
-            {type="item", name = modprefix.."sand", amount=64},
+            {type="item", name = modprefix.."sand", amount=16},
         },
         results = {
             {type = "item", name = "ei-glass", amount = 1},
+            {type ="item", name="ei-slag", amount_min=1,amount_max=2,probability=0.1}
         },
         always_show_made_in = true,
         enabled = false,

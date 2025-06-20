@@ -490,7 +490,7 @@ function model.update()
     -- gets called up to max update time per tick
     
     if not storage.ei["neutron_sources"] then
-        return
+        return false
     end
 
     -- if no current break point set new one if possible return if not
@@ -499,7 +499,7 @@ function model.update()
     end
 
     if not storage.ei["neutron_script_break_point"] then
-        return
+        return false
     end
 
     -- get current break point
@@ -519,14 +519,14 @@ function model.update()
             if  new_i == i then
                 -- no possible next or first source
                 storage.ei["neutron_script_break_point"] = nil
-                return
+                return false
             end
 
             storage.ei["neutron_script_break_point"] = new_i
         else
             -- no possible next or first source
             storage.ei["neutron_script_break_point"] = nil
-            return
+            return false
         end
 
         i = storage.ei["neutron_script_break_point"]
@@ -547,6 +547,7 @@ function model.update()
     else
         storage.ei["neutron_script_break_point"],_ = next(storage.ei["neutron_sources"])
     end
+    return true
 end
 
 --SPRITE RELATED

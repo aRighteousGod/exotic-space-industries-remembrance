@@ -85,6 +85,16 @@ data:extend({
         type = "assembling-machine",
         icon = ei_graphics_item_path.."high-temperature-reactor.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel( 1.75,  58.5), shadow_offset = util.by_pixel( 1.75,  58.5), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 1.75,  58.5), shadow_offset = util.by_pixel( 1.75,  58.5), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 1.75,  58.5), shadow_offset = util.by_pixel( 1.75,  58.5), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 1.75,  58.5), shadow_offset = util.by_pixel( 1.75,  58.5), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 1,
@@ -120,7 +130,7 @@ data:extend({
         source_inventory_size = 1,
         fluid_boxes = {
             {   
-                volume = 1200000,
+                volume = 120000,
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_reactor,
                 pipe_connections = {
@@ -206,7 +216,7 @@ data:extend({
         energy_required = 120,
         ingredients = {
             {type = "item", name = "ei-uranium-235-fuel", amount = 1},
-            {type = "fluid", name = "water", amount = 2*300000},
+            {type = "fluid", name = "water", amount = 2*30000},
         },
         results = {
             {type = "item", name = "ei-used-uranium-235-fuel", amount = 1},
@@ -226,7 +236,7 @@ data:extend({
         energy_required = 120,
         ingredients = {
             {type = "item", name = "ei-uranium-233-fuel", amount = 1},
-            {type = "fluid", name = "water", amount = 2*200000},
+            {type = "fluid", name = "water", amount = 2*20000},
         },
         results = {
             {type = "item", name = "ei-used-uranium-233-fuel", amount = 1},
@@ -246,7 +256,7 @@ data:extend({
         energy_required = 120,
         ingredients = {
             {type = "item", name = "ei-plutonium-239-fuel", amount = 1},
-            {type = "fluid", name = "water", amount = 2*350000},
+            {type = "fluid", name = "water", amount = 2*35000},
         },
         results = {
             {type = "item", name = "ei-used-plutonium-239-fuel", amount = 1},
@@ -266,7 +276,7 @@ data:extend({
         energy_required = 120,
         ingredients = {
             {type = "item", name = "ei-thorium-232-fuel", amount = 1},
-            {type = "fluid", name = "water", amount = 2*150000},
+            {type = "fluid", name = "water", amount = 2*15000},
         },
         results = {
             {type = "item", name = "ei-used-thorium-232-fuel", amount = 1},

@@ -423,7 +423,7 @@ end
 function model.update()
 
     if not storage.ei.matter_machines then
-        return
+        return false
     end
 
     -- if no current break point then try to make a new one
@@ -433,7 +433,7 @@ function model.update()
 
     -- if no current break point then return
     if not storage.ei.stabilizer_break_point then
-        return
+        return false
     end
 
     -- get current break point
@@ -444,8 +444,10 @@ function model.update()
     -- get next break point
     if next(storage.ei.matter_machines, break_id) then
         storage.ei.stabilizer_break_point,_ = next(storage.ei.matter_machines, break_id)
+        return true
     else
         storage.ei.stabilizer_break_point = nil
+        return false
     end
 
 end

@@ -94,7 +94,7 @@ data:extend({
         },
         allowed_effects = {"speed", "consumption", "pollution", "productivity"},
         module_slots = 4,
-        energy_usage = "500kW",
+        energy_usage = "1.5MW",
         fluid_boxes = {
             {   
                 volume = 200,
@@ -173,5 +173,15 @@ data:extend({
             sound = {filename = "__base__/sound/chemical-plant-3.ogg", volume = 0.2},
             apparent_volume = 0.1,
         },
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 25, main_offset = util.by_pixel(-62.375,  53.25), shadow_offset = util.by_pixel(-62.375,  53.25), show_shadow = true },
+            { variation = 25, main_offset = util.by_pixel(-62.375,  53.25), shadow_offset = util.by_pixel(-62.375,  53.25), show_shadow = true },
+            { variation = 25, main_offset = util.by_pixel(-62.375,  53.25), shadow_offset = util.by_pixel(-62.375,  53.25), show_shadow = true },
+            { variation = 25, main_offset = util.by_pixel(-62.375,  53.25), shadow_offset = util.by_pixel(-62.375,  53.25), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     }
 })

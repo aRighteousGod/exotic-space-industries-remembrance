@@ -101,7 +101,22 @@ lab.energy_source = {
     fuel_inventory_size = 1,
     emissions_per_minute = {pollution = 6 },
     burnt_inventory_size = 1,
-    fuel_categories = {"chemical"},
+    fuel_categories = {"chemical"},	
+    smoke =
+    {
+      {
+        name = "ei-train-smoke",
+        deviation = {1.6, 1.6},
+        frequency = 25,
+        position = {0, 0},
+        starting_frame = 0,
+        starting_frame_deviation = 60,
+        height = 0.5,
+        height_deviation = 1,
+        starting_vertical_speed = 0.01,
+        starting_vertical_speed_deviation = 0.35,
+      }
+    }
 }
 
 lab.energy_usage = "100kW"

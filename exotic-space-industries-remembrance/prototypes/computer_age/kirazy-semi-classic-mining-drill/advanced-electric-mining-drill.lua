@@ -1640,7 +1640,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."advanced-electric-mining-drill.png",
         icon_size = 256,
-        prerequisites = {"automation-3"},
+        prerequisites = {"ei-advanced-computer-age-tech","logistics-3"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -1649,10 +1649,10 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["advanced-computer-age"],
             time = 20
         },
-        age = "alien-computer-age",
+        age = "advanced-computer-age",
     },
 })
 

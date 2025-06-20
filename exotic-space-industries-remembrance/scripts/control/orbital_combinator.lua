@@ -173,7 +173,7 @@ end
 
 function model.update()
     if not storage.ei and storage.ei.orbital_combinators then
-        return
+        return false
     end
 
     -- if no current break point then try to make a new one
@@ -183,7 +183,7 @@ function model.update()
 
     -- if no current break point then return
     if not storage.ei.orbital_combinators_break_point then
-        return
+        return false
     end
 
     -- get current break point
@@ -194,8 +194,10 @@ function model.update()
     -- get next break point
     if next(storage.ei.orbital_combinators, break_id) then
         storage.ei.orbital_combinators_break_point,_ = next(storage.ei.orbital_combinators, break_id)
+        return true
     else
        storage.ei.orbital_combinators_break_point = nil
+       return false
     end
 
 end

@@ -60,6 +60,16 @@ data:extend({
         type = "assembling-machine",
         icon = ei_graphics_item_path.."matter-stabilizer.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel( 3.875,  33.375), shadow_offset = util.by_pixel( 3.875,  33.375), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 3.875,  33.375), shadow_offset = util.by_pixel( 3.875,  33.375), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 3.875,  33.375), shadow_offset = util.by_pixel( 3.875,  33.375), show_shadow = true },
+            { variation = 30, main_offset = util.by_pixel( 3.875,  33.375), shadow_offset = util.by_pixel( 3.875,  33.375), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 1,

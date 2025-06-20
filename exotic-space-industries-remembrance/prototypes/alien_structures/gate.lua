@@ -31,14 +31,15 @@ data:extend({
         name = "ei-gate",
         type = "recipe",
         category = "crafting",
-        energy_required = 30,
+        energy_required = 60,
         ingredients =
         {
-            {type="item", name="concrete", amount=50},
-            {type="item", name="ei-electronic-parts", amount=100},
+            {type="item", name="concrete", amount=250},
+            {type="item", name="ei-electronic-parts", amount=200},
             {type="item", name="battery", amount=200},
-            {type="item", name="ei-high-energy-crystal", amount=50},
-            {type="item", name="steel-plate", amount=200},
+            {type="item", name="ei-high-energy-crystal", amount=100},
+            {type="item", name="steel-plate", amount=100},
+            {type="item", name="ei-steel-beam", amount=100},
             {type="item", name="ei-steel-mechanical-parts", amount=100}
         },
         results = {{type="item", name="ei-gate", amount=1}},
@@ -51,7 +52,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_2_path.."gate.png",
         icon_size = 256,
-        prerequisites = {"ei-alien-computer-age-tech","ei-gaia"},
+        prerequisites = {"ei-alien-computer-age-tech"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -78,7 +79,7 @@ data:extend({
         selection_box = {{-5.4, -5.4}, {5.4, 5.4}},
         map_color = ei_data.colors.assembler,
         -- minable = {mining_time = 1, result = "ei-gate"},
-        gui_mode = "none",
+        --gui_mode = "none",
         -- overlay other when no power and no destination
         --[[
         animation = {

@@ -173,9 +173,9 @@ data:extend({
             }
         },
     },
-    --[[
+    
     {
-        name = "ei-advanced-faulty-semiconductor",
+        name = "ei-faulty-advanced-semiconductor",
         type = "item",
         icon = ei_graphics_item_path.."advanced-faulty-waver.png",
         icon_size = 128,
@@ -183,7 +183,7 @@ data:extend({
         order = "b4",
         stack_size = 50
     },
-    ]]
+    
     {
         name = "ei-advanced-semiconductor",
         type = "item",
@@ -708,7 +708,8 @@ data:extend({
     {
         name = "ei-sus-plating",
         type = "recipe",
-        category = "chemistry",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "iron-plate", amount = 1},
@@ -719,6 +720,7 @@ data:extend({
         results = {
             {type = "item", name = "ei-sus-plating", amount = 1},
             {type = "item", name = "ei-bio-matter", amount = 1, probability = 0.8},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -727,7 +729,8 @@ data:extend({
     {
         name = "ei-bio-insulated-wire",
         type = "recipe",
-        category = "crafting",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "plastic-bar", amount = 2},
@@ -736,6 +739,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-insulated-wire", amount = 4},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -747,7 +751,8 @@ data:extend({
     {
         name = "ei-bio-energy-crystal",
         type = "recipe",
-        category = "ei-growing",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "ei-energy-crystal", amount = 1},
@@ -755,7 +760,8 @@ data:extend({
             {type = "item", name = "ei-bio-matter", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 3},
+            {type = "item", name = "ei-energy-crystal", amount_min = 2,amount_max=3},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -767,7 +773,8 @@ data:extend({
     {
         name = "ei-bio-high-energy-crystal",
         type = "recipe",
-        category = "ei-growing",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 60,
         ingredients = {
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
@@ -775,7 +782,8 @@ data:extend({
             {type = "item", name = "ei-bio-matter", amount = 3},
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 3},
+            {type = "item", name = "ei-high-energy-crystal", amount_min = 2,amount_max=3},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -787,7 +795,8 @@ data:extend({
     {
         name = "ei-bio-hydrofluoric-acid",
         type = "recipe",
-        category = "chemistry",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-fluorite", amount = 1},
@@ -797,6 +806,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-hydrofluoric-acid", amount = 250},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -808,7 +818,8 @@ data:extend({
     {
         name = "ei-bio-nitric-acid",
         type = "recipe",
-        category = "chemistry",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 3,
         ingredients = {
             {type = "item", name = "ei-crushed-gold", amount = 1},
@@ -818,6 +829,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-nitric-acid", amount = 100},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -829,7 +841,8 @@ data:extend({
     {
         name = "ei-bio-electronic-parts",
         type = "recipe",
-        category = "crafting",
+        category = "ei-bio-reactor",
+        additional_categories = {"ei-bio-chamber"},
         energy_required = 6,
         ingredients = {
             {type = "item", name = "battery", amount = 2},
@@ -840,6 +853,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-electronic-parts", amount = 5},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.9}
         },
         always_show_made_in = true,
         enabled = false,
@@ -847,6 +861,24 @@ data:extend({
         icon_size = 64,
         subgroup = "ei-alien-bio",
         order = "a-b",
+    },
+    {
+        name = "ei-oxygen-difluoride",
+        type = "recipe",
+        category = "chemistry",
+        energy_required = 3,
+        ingredients = {
+            {type = "fluid", name = "ei-oxygen-gas", amount = 50},
+            {type = "item", name = modprefix.."sand", amount = 3},
+            {type = "item", name = "ei-alien-resin", amount = 1},
+            {type = "item", name = "ei-fluorite", amount = 1},
+        },
+        results = {
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 35},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-oxygen-difluoride",
     },
     {
         name = "ei-undilute-morphium",
@@ -1190,7 +1222,7 @@ data:extend({
         results = {
             {type = "fluid", name = "ei-acidic-water", amount = 10},
             {type = "item", name = "ei-advanced-semiconductor", amount = 1, probability = 0.75},
-            {type = "item", name = "ei-faulty-semiconductor", amount = 1, probability = 0.25},
+            {type = "item", name = "ei-faulty-advanced-semiconductor", amount = 1, probability = 0.25},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1285,6 +1317,81 @@ data:extend({
         always_show_made_in = true,
         main_product = "ei-rocket-parts",
     },
+	{
+		type = "recipe",
+		name = "ei-space-steam-1",
+		category = "organic-or-chemistry",
+		subgroup = "fluid-recipes",
+		order = "d[other-chemistry]-b[space-steam]",
+		enabled = false,
+		energy_required = 1,
+		ingredients =
+		{
+		  {type = "item", name = "coal", amount = 1},
+		  {type = "item", name = "ice", amount = 1},
+          {type = "fluid", name = "thruster-oxidizer", amount = 5}
+		},
+		results =
+		{
+		  {type = "fluid", name = "steam", amount = 100, temperature = 165}
+		},
+		allow_productivity = false,
+		show_amount_in_title = false,
+		allow_decomposition = false,
+		icon = "__base__/graphics/icons/fluid/steam.png",
+		surface_conditions =
+        {
+           {
+              property = "gravity",
+              min = 0,
+              max = 0
+            }
+        },
+        crafting_machine_tint =
+		{
+			primary = {r = 1.000, g = 0.912, b = 0.036, a = 1.000}, -- #ffe809ff
+			secondary = {r = 0.707, g = 0.797, b = 0.335, a = 1.000}, -- #b4cb55ff
+			tertiary = {r = 0.681, g = 0.635, b = 0.486, a = 1.000}, -- #ada17bff
+			quaternary = {r = 1.000, g = 0.804, b = 0.000, a = 1.000}, -- #ffcd00ff
+		}
+    },
+    {
+        type = "recipe",
+		name = "ei-space-steam-2",
+		category = "organic-or-chemistry",
+		subgroup = "fluid-recipes",
+		order = "d[other-chemistry]-b[space-steam]",
+		enabled = false,
+		energy_required = 10,
+		ingredients =
+		{
+		  {type = "item", name = "rocket-fuel", amount = 10},
+		  {type = "fluid", name = "water", amount = 90},
+		},
+		results =
+		{
+		  {type = "fluid", name = "steam", amount = 1000, temperature = 165},
+		},
+		allow_productivity = false,
+		show_amount_in_title = false,
+		allow_decomposition = false,
+		icon = "__base__/graphics/icons/fluid/steam.png",
+		surface_conditions =
+        {
+           {
+              property = "gravity",
+              min = 0,
+              max = 0
+            }
+        },
+        crafting_machine_tint =
+		{
+			primary = {r = 1.000, g = 0.912, b = 0.036, a = 1.000}, -- #ffe809ff
+			secondary = {r = 0.707, g = 0.797, b = 0.335, a = 1.000}, -- #b4cb55ff
+			tertiary = {r = 0.681, g = 0.635, b = 0.486, a = 1.000}, -- #ada17bff
+			quaternary = {r = 1.000, g = 0.804, b = 0.000, a = 1.000}, -- #ffcd00ff
+		}
+	  },
     {
         name = "ei-module-base",
         type = "recipe",
@@ -1420,7 +1527,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-high-energy-crystal", amount = 1, probability = 0.001},
-            {type = "fluid", name = "ei-crystal-solution", amount = 99},
+            {type = "fluid", name = "ei-crystal-solution", amount_min = 1,amount_max=99},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1436,7 +1543,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 2},
+            {type = "item", name = "ei-high-energy-crystal", amount=1},
+            {type = "item", name = "ei-high-energy-crystal", amount_min=1,amount_max=2,probability=0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1877,6 +1985,25 @@ data:extend({
 --TECHS
 ------------------------------------------------------------------------------------------------------
 data:extend({
+        {
+        name = "ei-oxygen-difluoride",
+        type = "technology",
+        icon = ei_graphics_tech_path.."oxygen-difluoride.png",
+        icon_size = 128,
+        prerequisites = {"ei-bio-chamber","ei-oxygen-gas"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-oxygen-difluoride"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["computer-age"],
+            time = 20
+        },
+        age = "computer-age",
+    },
     {
         name = "ei-sus-plating",
         type = "technology",
@@ -1891,7 +2018,7 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["alien-computer-age"],
             time = 20
         },
         age = "alien-computer-age",
@@ -2031,7 +2158,7 @@ data:extend({
         icon = ei_graphics_tech_path.."personal-laser.png",
         icon_size = 256,
         icon_mipmaps = 4,
-        prerequisites = {"military-4", "ei-high-energy-crystal", "ei-computer-core"},
+        prerequisites = {"military-4", "ei-computer-core"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -2040,7 +2167,7 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["alien-computer-age"],
             time = 20
         },
         age = "computer-age",
@@ -2205,6 +2332,10 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-crush-faulty-advanced-semiconductor"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-semiconductor-monosilicon"
             },
         },
@@ -2285,7 +2416,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."high-energy-crystal.png",
         icon_size = 128,
-        prerequisites = {"ei-alien-computer-age-tech"},
+        prerequisites = {"ei-bio-chamber"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -2317,7 +2448,7 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["alien-computer-age"],
             time = 20
         },
         age = "computer-age",
@@ -2438,14 +2569,14 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."alien-computer-age-tech.png",
         icon_size = 256,
-        prerequisites = {"ei-big-lab", "ei-bio-chamber","ei-gaia","processing-unit"},
+        prerequisites = {"ei-big-lab", "ei-oxygen-difluoride","ei-gaia","processing-unit","ei-high-energy-crystal"},
         effects = {
             {
                 type = "unlock-recipe",
                 recipe = "ei-alien-computer-age-tech"
             },
             {
-            type = "unlock-recipe",
+                type = "unlock-recipe",
                 recipe = "ei-gaia-pump"
             },
         },
@@ -2561,6 +2692,11 @@ table.insert(data.raw["technology"]["military-4"].effects, {
     type = "unlock-recipe",
     recipe = "ei-compound-ammo"
 })
+--steam all the way in space :v Sassxolotl
+table.insert
+	(data.raw["technology"]["space-platform"].effects, {type = "unlock-recipe", recipe = "ei-space-steam-1"})
+table.insert
+	(data.raw["technology"]["space-platform-thruster"].effects, {type = "unlock-recipe", recipe = "ei-space-steam-2"})
 
 ei_lib.add_prerequisite("ei-quantum-age", "rocket-silo")
 ei_lib.add_prerequisite("ei-quantum-age", "ei-sus-plating")

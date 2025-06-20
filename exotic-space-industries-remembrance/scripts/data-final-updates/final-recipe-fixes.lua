@@ -145,16 +145,17 @@ end
 -- loop over all recipes
 for name,recipe in pairs(data.raw.recipe) do
     ei_lib.recipe_swap(name, "iron-gear-wheel", "ei-iron-mechanical-parts")
-        ei_lib.recipe_swap(name, "steel-gear-wheel", "ei-steel-mechanical-parts")
+    ei_lib.recipe_swap(name, "steel-gear-wheel", "ei-steel-mechanical-parts")
     ei_lib.recipe_swap(name, "iron-stick", "ei-iron-beam")
     ei_lib.recipe_swap(name, "nuclear-fuel", "ei-uranium-235-fuel")
     ei_lib.recipe_swap(name, "ei-space-data", "space-science-pack")
-    ei_lib.recipe_swap(name, "burner-assembling-machine", "ei-steam-assembler")
+    ei_lib.recipe_swap(name, "burner-assembling-machine", "ei-burner-assembler")
 end
 
 ei_lib.recipe_swap("concrete", "iron-ore", "ei-iron-beam")
 ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "ei-steel-beam")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-undilute-morphium")
+ei_lib.add_unlock_recipe("ei-morphium-usage","ei-slag-extraction-morphium")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-light-oil")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-kerosene")
 ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-heavy-oil")
@@ -198,15 +199,15 @@ if mods and mods["aai-signal-transmission"] then
 end
 ei_lib.add_unlock_recipe("electronics","stone-tablet")
 ei_lib.add_unlock_recipe("ei-steam-power","boiler")
---ei_lib.add_unlock_recipe("ei-glass","glass")
---ei_lib.add_unlock_recipe("steel-processing","steel-gear-wheel")
+ei_lib.add_unlock_recipe("ei-glass","kr-glass")
+--ei_lib.add_unlock_recipe("steel-processing","kr-steel-gear-wheel")
 
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-small-roboport")
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-big-roboport")
 --ei_lib.add_unlock_recipe("ei-electricity-power","kr-wind-turbine")
 ei_lib.add_unlock_recipe("atomic-bomb","nuclear-artillery-shell")
 ei_lib.add_unlock_recipe("rocket-silo","ei-orbital-combinator")
---ei_lib.add_unlock_recipe("ei-electronic-parts","electronic-components") --add k2 electronic components to EI equivalent
+ei_lib.add_unlock_recipe("ei-electronic-parts","kr-electronic-components") --add k2 electronic components to EI equivalent
 ei_lib.add_unlock_recipe("lithium-processing","lithium-chloride")
 
 --====================================================================================================
@@ -245,9 +246,9 @@ for _, recipe in pairs(data.raw.recipe) do
 --  if ei_lib.contains(recipe.name,"crusher") then recipe.surface_conditions = nil end
 
 --This was failing silently, added sanity checks, but seems unnecessary at this time? 4-14-25
-  if ei_lib.endswith(recipe.name,"-asteroid-crushing") and data.raw.technology and data.raw.technology[recipe.name] then
-    ei_lib.add_unlock_recipe(recipe.name,"crusher")
-  end
+--  if ei_lib.endswith(recipe.name,"-asteroid-crushing") and data.raw.technology and data.raw.technology[recipe.name] then
+--    ei_lib.add_unlock_recipe(recipe.name,"crusher")
+--  end
 
   if recipe.subgroup == "fill-barrel" and recipe.ingredients then
     for _, ingredient in pairs(recipe.ingredients) do

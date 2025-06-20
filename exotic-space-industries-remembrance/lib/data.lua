@@ -242,7 +242,8 @@ ei_data.science["interstellar"] = {
 ei_data.lab_inputs["dark-age-lab"] = {
   "ei-dark-age-tech",
   "ei-steam-age-tech",
-  "ei-electricity-age-tech"
+  "ei-electricity-age-tech",
+  "ei-computer-age-tech",
 }
 
 ei_data.lab_inputs["lab"] = {
@@ -252,9 +253,13 @@ ei_data.lab_inputs["lab"] = {
   "ei-computer-age-tech",
   "ei-advanced-computer-age-tech",
   "ei-alien-computer-age-tech",
+  "ei-quantum-age-tech",
+  "ei-fusion-quantum-age-tech",
+  "space-science-pack",
   "electromagnetic-science-pack",
   "metallurgic-science-pack",
-  "agricultural-science-pack"
+  "agricultural-science-pack",
+  "cryogenic-science-pack"
 }
 ei_data.lab_inputs["biolab"] = {
   "ei-dark-age-tech",
@@ -263,11 +268,13 @@ ei_data.lab_inputs["biolab"] = {
   "ei-computer-age-tech",
   "ei-advanced-computer-age-tech",
   "ei-alien-computer-age-tech",
+  "ei-quantum-age-tech",
+  "ei-fusion-quantum-age-tech",
+  "space-science-pack",
   "electromagnetic-science-pack",
   "metallurgic-science-pack",
   "agricultural-science-pack",
-  "ei-quantum-age-tech",
-  "ei-fusion-quantum-age-tech"
+  "cryogenic-science-pack"
 }
 ei_data.lab_inputs["biglab"] = {
   "ei-dark-age-tech",
@@ -276,13 +283,15 @@ ei_data.lab_inputs["biglab"] = {
   "ei-computer-age-tech",
   "ei-advanced-computer-age-tech",
   "ei-alien-computer-age-tech",
-  "electromagnetic-science-pack",
-  "metallurgic-science-pack",
-  "agricultural-science-pack",
   "ei-quantum-age-tech",
   "ei-fusion-quantum-age-tech",
   "ei-exotic-age-tech",
-  "ei-black-hole-exotic-age-tech"
+  "ei-black-hole-exotic-age-tech",
+  "space-science-pack",
+  "electromagnetic-science-pack",
+  "metallurgic-science-pack",
+  "agricultural-science-pack",
+  "cryogenic-science-pack"
 }
 -- EI equivalent of vanilla science packs
 ei_data.science_dict = {
@@ -321,17 +330,16 @@ ei_data.sub_age["alien-computer-age"] = "computer-age"
 ei_data.sub_age["both-computer-age"] = "computer-age"
 
 ei_data.add_to_sub_age["alien-computer-age"] = {
-    "logistics-3",
     "braking-force-6",
     "braking-force-7",
     "bulk-inserter",
     "inserter-capacity-bonus-3",
     "inserter-capacity-bonus-4",
-    "spidertron",
     "automation-3",
 }
 
 ei_data.add_to_sub_age["advanced-computer-age"] = {
+    "logistics-3",
     "mining-productivity-2",
     "research-speed-3",
     "research-speed-4",
@@ -689,8 +697,9 @@ ei_data.tech_structure["quantum-age"] = {
 ei_data.tech_structure["exotic-age"] = {
 
 }
-
+--not added to labs, amybe other stuff
 ei_data.tech_exclude_list = {
+    "automation-science-pack",
     "logistic-science-pack",
     "chemical-science-pack",
     "military-science-pack",

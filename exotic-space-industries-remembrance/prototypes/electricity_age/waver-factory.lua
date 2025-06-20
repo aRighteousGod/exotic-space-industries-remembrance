@@ -71,7 +71,7 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
-                recipe = "ei-sand-faulty-semiconductor"
+                recipe = "ei-crush-faulty-semiconductor"
             },
         },
         unit = {
@@ -86,6 +86,16 @@ data:extend({
         type = "assembling-machine",
         icon = ei_graphics_item_path.."waver-factory.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 14, main_offset = util.by_pixel( 0.875,  22.875), shadow_offset = util.by_pixel( 0.875,  22.875), show_shadow = true },
+            { variation = 14, main_offset = util.by_pixel( 0.875,  22.875), shadow_offset = util.by_pixel( 0.875,  22.875), show_shadow = true },
+            { variation = 14, main_offset = util.by_pixel( 0.875,  22.875), shadow_offset = util.by_pixel( 0.875,  22.875), show_shadow = true },
+            { variation = 14, main_offset = util.by_pixel( 0.875,  22.875), shadow_offset = util.by_pixel( 0.875,  22.875), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 0.5,
@@ -191,7 +201,7 @@ data:extend({
         main_product = "ei-semiconductor",
     },
     {
-        name = "ei-sand-faulty-semiconductor",
+        name = "ei-crush-faulty-semiconductor",
         type = "recipe",
         category = "ei-crushing",
         energy_required = 1,
@@ -199,12 +209,31 @@ data:extend({
             {type = "item", name = "ei-faulty-semiconductor", amount = 1},
         },
         results = {
-            {type = "item", name = modprefix.."sand", amount = 4},
+            {type = "item", name = modprefix.."sand", amount_min = 1,amount_max=4},
+            {type = "item", name = "ei-crushed-gold", amount_min = 0,amount_max=2,probability=0.25}
         },
         always_show_made_in = true,
         allow_decomposition = false,
         enabled = false,
         main_product = modprefix.."sand",
+    },
+    {
+        name = "ei-crush-faulty-advanced-semiconductor",
+        type = "recipe",
+        category = "ei-crushing",
+        energy_required = 1,
+        ingredients = {
+            {type = "item", name = "ei-faulty-advanced-semiconductor", amount = 1},
+        },
+        results = {
+            {type = "item", name ="ei-energy-crystal", amount = 1,probability=0.10},
+            {type = "item", name = "ei-crushed-gold", amount_min = 0,amount_max=2,probability=0.10},
+            {type = "item", name = modprefix.."sand", amount_min = 1,amount_max=4},
+        },
+        always_show_made_in = true,
+        allow_decomposition = false,
+        enabled = false,
+        main_product = "ei-sand",
     },
     {
         name = "ei-hydrofluoric-acid",

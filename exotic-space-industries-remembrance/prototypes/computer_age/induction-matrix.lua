@@ -647,6 +647,16 @@ local base = {
     type = "electric-energy-interface",
     icon = ei_graphics_item_path.."induction-matrix-core.png",
     icon_size = 64,
+    circuit_connector =  circuit_connector_definitions.create_vector(
+    universal_connector_template,
+    {
+        { variation = 22, main_offset = util.by_pixel( 0.5,  15), shadow_offset = util.by_pixel( 0.5,  15), show_shadow = true },
+        { variation = 22, main_offset = util.by_pixel( 0.5,  15), shadow_offset = util.by_pixel( 0.5,  15), show_shadow = true },
+        { variation = 22, main_offset = util.by_pixel( 0.5,  15), shadow_offset = util.by_pixel( 0.5,  15), show_shadow = true },
+        { variation = 22, main_offset = util.by_pixel( 0.5,  15), shadow_offset = util.by_pixel( 0.5,  15), show_shadow = true }
+    }
+    ),
+    circuit_wire_max_distance = default_circuit_wire_max_distance,
     flags = {"placeable-neutral", "placeable-player", "player-creation", "not-blueprintable"},
     max_health = 300,
     corpse = "big-remnants",

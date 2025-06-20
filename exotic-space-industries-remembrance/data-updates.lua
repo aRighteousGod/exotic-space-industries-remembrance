@@ -28,16 +28,9 @@ require("prototypes/metalworks")
 require("scripts/data-updates/icon_updates")
 -- apply locale patches
 require("scripts/data-updates/locale_updates")
+-- more asteroids
+require("scripts/data-updates/more_asteroids")
 
--- shoop
---[[
-if ei_lib.config("slag") then
-    require("scripts/data-updates/slag")
-end
-if ei_lib.config("ash") then
-    require("scripts/data-updates/ash")
-end
-]]
 --main menu backgrounds, nauvis soundtrack override
 require("scripts/data-updates/music_patches")
 

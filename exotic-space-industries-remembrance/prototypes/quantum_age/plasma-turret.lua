@@ -65,6 +65,13 @@ data:extend({
         name = "ei-plasma-turret",
         icon = ei_graphics_item_path.."plasma-turret.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation =  0, main_offset = util.by_pixel( 5.75,  71.375), shadow_offset = util.by_pixel( 5.75,  71.375), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-player", "player-creation"},
         minable = {
             mining_time = 0.5,

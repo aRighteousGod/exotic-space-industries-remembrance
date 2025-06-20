@@ -88,9 +88,9 @@ local newGunIngredients = {
         {type = "item", name = "superconductor", amount = 50},
         {type = "item", name = "holmium-plate", amount = 50},
         {type = "item", name = "ei-induction-matrix-core", amount = 1},
-        {type = "item", name = "ei-induction-matrix-advanced-solenoid", amount = 3},
-        {type = "item", name = "ei-induction-matrix-superior-coil", amount = 3},
-        {type = "item", name = "ei-induction-matrix-superior-converter", amount = 3},
+        {type = "item", name = "ei-induction-matrix-advanced-solenoid", amount = 1},
+        {type = "item", name = "ei-induction-matrix-superior-coil", amount = 1},
+        {type = "item", name = "ei-induction-matrix-superior-converter", amount = 1},
         {type = "item", name = "ei-superior-data", amount = 50},
         {type = "item", name = "ei-high-tech-parts", amount = 50},
         {type = "item", name = "lightning-collector", amount = 1},
@@ -101,11 +101,8 @@ ei_lib.recipe_hard_overwrite("zeus-wrath-zeus-gun",newGunIngredients)
 
 local newAmmoIngredients = {
         {type = "fluid", name = "electrolyte", amount = 50},
-        {type = "item", name = "ei-high-energy-crystal", amount = 5},
-        {type = "item", name = "ei-induction-matrix-advanced-solenoid", amount = 1},
-        {type = "item", name = "ei-induction-matrix-superior-coil", amount = 1},
-        {type = "item", name = "ei-induction-matrix-superior-converter", amount = 1},
-        {type = "item", name = "ei-high-tech-parts", amount = 5},
+        {type = "item", name = "ei-high-energy-crystal", amount = 10},
+        {type = "item", name = "ei-high-tech-parts", amount = 10},
         {type = "item", name = "ei-superior-data", amount = 10},
         {type = "item", name = "lightning-rod", amount = 1}
 }

@@ -27,7 +27,8 @@ data:extend({
 })
 
 ei_containers_lib.make_all(1, nil, 20, 2, false, {
-    {type="item", name="steel-plate", amount=10}
+    {type="item", name="steel-plate", amount=10},
+    {type="item", name="ei-steel-beam", amount=4}
 })
 
 ei_containers_lib.make_all(1, "blue", 20, 2, false, {
@@ -76,7 +77,8 @@ ei_containers_lib.make_all(1, "filter", 18, 2, false, {
 
 ei_containers_lib.make_all(2, nil, 32, 4, false, {
     {type="item", name="ei-1x1-container", amount=1},
-    {type="item", name="steel-plate", amount=25}
+    {type="item", name="steel-plate", amount=25},
+    {type="item",name="ei-steel-beam",amount=10}
 })
 
 ei_containers_lib.make_all(2, "blue", 32, 4, true, {
@@ -131,7 +133,7 @@ ei_containers_lib.make_all(2, "filter", 22, 4, false, {
 ei_containers_lib.make_all(6, nil, 64, 8, false, {
     {type="item", name="ei-2x2-container", amount=1},
     {type="item", name="steel-plate", amount=50},
-    {type="item", name="stone-brick", amount=25}
+    {type="item", name="ei-steel-beam", amount=20}
 })
 
 ei_containers_lib.make_all(6, "blue", 64, 8, true, {

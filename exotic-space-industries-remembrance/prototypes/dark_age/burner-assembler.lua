@@ -55,6 +55,16 @@ data:extend({
         type = "assembling-machine",
         icon = ei_graphics_item_path.."burner-assembler.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 25, main_offset = util.by_pixel(-30.875,  12.625), shadow_offset = util.by_pixel(-30.875,  12.625), show_shadow = true },
+            { variation = 25, main_offset = util.by_pixel(-30.875,  12.625), shadow_offset = util.by_pixel(-30.875,  12.625), show_shadow = true },
+            { variation = 25, main_offset = util.by_pixel(-30.875,  12.625), shadow_offset = util.by_pixel(-30.875,  12.625), show_shadow = true },
+            { variation = 25, main_offset = util.by_pixel(-30.875,  12.625), shadow_offset = util.by_pixel(-30.875,  12.625), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 0.5,
@@ -77,6 +87,21 @@ data:extend({
             emissions_per_minute = {pollution = 6},
             burnt_inventory_size = 1,
             fuel_categories = {"chemical"},
+            smoke =
+            {
+              {
+                name = "ei-train-smoke",
+                deviation = {1.6, 1.6},
+                frequency = 25,
+                position = {0, 0},
+                starting_frame = 0,
+                starting_frame_deviation = 60,
+                height = 0.5,
+                height_deviation = 1,
+                starting_vertical_speed = 0.01,
+                starting_vertical_speed_deviation = 0.35,
+             }
+            }
         },
         fast_replaceable_group = "assembling-machine",
         next_upgrade = "assembling-machine-1",

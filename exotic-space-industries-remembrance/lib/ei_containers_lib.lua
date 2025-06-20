@@ -251,6 +251,29 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
     image_size = 512
     adjust = 1
 
+    if size == 1 then
+        container.max_health = container.max_health * 1.5
+        container.resistances = {
+          { type = "physical", percent = 25 },
+          { type = "fire",     percent = 50 },
+          { type = "impact",   percent = 50 },
+        }
+    elseif size == 2 then
+        container.max_health = container.max_health * 3
+        container.resistances = {
+        { type = "physical", percent = 45 },
+        { type = "fire",     percent = 65 },
+        { type = "impact",   percent = 65 },
+    }
+    elseif size == 6 then
+        container.max_health = container.max_health * 6
+        container.resistances = {
+        { type = "physical", percent = 65 },
+        { type = "fire",     percent = 80 },
+        { type = "impact",   percent = 80 },
+    }
+    end
+    
     if size > 2 then
         image_size = 1024
         adjust = 0.5

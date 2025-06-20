@@ -250,7 +250,7 @@ data:extend({
             ingredients = ei_data.science["alien-computer-age"],
             time = 20
         },
-        -- age = "computer-age",
+         age = "alien-computer-age",
     },
     {
         name = "ei-farstation",
@@ -269,7 +269,7 @@ data:extend({
             ingredients = ei_data.science["alien-computer-age"],
             time = 20
         },
-        -- age = "computer-age",
+         age = "alien-computer-age",
     },
     {
         name = "ei-farstation-repair",

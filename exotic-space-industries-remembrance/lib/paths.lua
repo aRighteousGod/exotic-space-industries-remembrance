@@ -70,12 +70,3 @@ ei_trains_sounds_path = ei_trains_path.."sounds/em_trains/"
 ei_trains_entity_path = ei_trains_path.."graphics/entities/em_trains/"
 ei_trains_item_path = ei_trains_path.."graphics/items/"
 ei_trains_tech_path = ei_trains_path.."graphics/techs/"
---[[
-if ei_lib.config("slag") then
-    ei_slag_path = ei_path.."graphics/slag/"
-end
-
-if ei_lib.config("ash") then
-    ei_ash_path = ei_path.."graphics/ash/"
-end
-]]

@@ -65,6 +65,16 @@ data:extend({
         crafting_categories = {"oil-processing", "ei-advanced-refinery"},
         icon = ei_graphics_item_path.."advanced-refinery.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 34, main_offset = util.by_pixel( 27.75, -14.75), shadow_offset = util.by_pixel( 27.75, -14.75), show_shadow = true },
+            { variation = 34, main_offset = util.by_pixel( 27.75, -14.75), shadow_offset = util.by_pixel( 27.75, -14.75), show_shadow = true },
+            { variation = 34, main_offset = util.by_pixel( 27.75, -14.75), shadow_offset = util.by_pixel( 27.75, -14.75), show_shadow = true },
+            { variation = 34, main_offset = util.by_pixel( 27.75, -14.75), shadow_offset = util.by_pixel( 27.75, -14.75), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 0.5,

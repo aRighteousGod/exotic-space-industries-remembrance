@@ -58,6 +58,16 @@ data:extend({
     {
         name = "ei-castor",
         type = "assembling-machine",
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 28, main_offset = util.by_pixel( 28.125, -24.5), shadow_offset = util.by_pixel( 28.125, -24.5), show_shadow = true },
+            { variation = 28, main_offset = util.by_pixel( 28.125, -24.5), shadow_offset = util.by_pixel( 28.125, -24.5), show_shadow = true },
+            { variation = 28, main_offset = util.by_pixel( 28.125, -24.5), shadow_offset = util.by_pixel( 28.125, -24.5), show_shadow = true },
+            { variation = 28, main_offset = util.by_pixel( 28.125, -24.5), shadow_offset = util.by_pixel( 28.125, -24.5), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         icon = ei_graphics_item_path.."castor.png",
         icon_size = 64,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},

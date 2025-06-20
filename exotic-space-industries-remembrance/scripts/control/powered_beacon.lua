@@ -3,11 +3,11 @@ local model = {}
 
 function model.update_fluid_storages()
     if not storage.ei.fluid_entity then
-        return
+        return false
     end
 
     if not storage.ei.copper_beacon then
-        return
+        return false
     end
 
     if not storage.ei.copper_beacon.fluid_script_break_point and next(storage.ei.fluid_entity) then
@@ -77,12 +77,12 @@ function model.update_fluid_storages()
     else 
         storage.ei.copper_beacon.fluid_script_break_point,_ = next(storage.ei.fluid_entity)
     end
-
+    return true
 end
 
 function model.update()
     if not storage.ei.copper_beacon.master then
-        return
+        return false
     end
     
     if not storage.ei.copper_beacon.script_break_point and next(storage.ei.copper_beacon.master) then
@@ -104,7 +104,7 @@ function model.update()
     else 
         storage.ei.copper_beacon.script_break_point,_ = next(storage.ei.copper_beacon.master)
     end
-
+    return true
 end
 
 --next usage

@@ -1435,24 +1435,6 @@ data:extend({
         main_product = "ei-advanced-rocket-fuel",
     },
     {
-        name = "ei-oxygen-difluoride",
-        type = "recipe",
-        category = "chemistry",
-        energy_required = 3,
-        ingredients = {
-            {type = "fluid", name = "ei-oxygen-gas", amount = 50},
-            {type = "item", name = modprefix.."sand", amount = 3},
-            {type = "item", name = "ei-alien-resin", amount = 1},
-            {type = "item", name = "ei-fluorite", amount = 1},
-        },
-        results = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 35},
-        },
-        always_show_made_in = true,
-        enabled = false,
-        main_product = "ei-oxygen-difluoride",
-    },
-    {
         name = "ei-lithium-crystal",
         type = "recipe",
         category = "chemistry",
@@ -1704,10 +1686,12 @@ data:extend({
         energy_required = 3.5,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 100},
+            {type="item",name="ei-high-energy-crystal",amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 20,amount_max=80},
             {type = "item", name = "ei-crushed-neodym", amount = 1},
+            {type="item",name="ei-energy-crystal",amount=1,probability=0.05}
         },
         always_show_made_in = true,
         enabled = false,
@@ -2143,25 +2127,6 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-fish-growing"
-            },
-        },
-        unit = {
-            count = 100,
-            ingredients = ei_data.science["quantum-age"],
-            time = 20
-        },
-        age = "quantum-age",
-    },
-    {
-        name = "ei-oxygen-difluoride",
-        type = "technology",
-        icon = ei_graphics_tech_path.."oxygen-difluoride.png",
-        icon_size = 128,
-        prerequisites = {"ei-quantum-age"},
-        effects = {
-            {
-                type = "unlock-recipe",
-                recipe = "ei-oxygen-difluoride"
             },
         },
         unit = {
