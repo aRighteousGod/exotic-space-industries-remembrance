@@ -1,6 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: Remembrance 1.0.1 
+Date: 7-3-2025
+  Changes:
+  -Pneumatic soul no longer requires gold.
+  Fixes:
+  -Steam inserter filter icons now visible above steam fluidbox.
+---------------------------------------------------------------------------------------------------
 Version: Remembrance 1.0.0 
-Date: 5-3-25
+Date: 7-2-2025
     Additions:
     -Seven main menu background replacements—select a choice from startup options—defaults to The Crystal That Screams. Options include: Vector Bifurcation: Portal Ignition, Saluting the Solar Core, Daemonic Invitation, Yin and Yang: Cloudflesh, Industrial Dominance: Crystalline Vigil, and Choking Smog: Ascension Protocol
     -Soundtrack replacement for main menu.
@@ -52,9 +59,7 @@ Date: 5-3-25
       p = crafting progress (0–1)
       U = effective updates per stabilizer per second
       "The more it crafts, the closer it comes to rupture. Stabilizers help. Time never does."
-    -Exotic assemblers will now—upon suffering critical entropic cascade—emit beams, a floating message, glow, print a message with gps coordinates and cause electrical damage to all effective Matter stabilizers with distance falloff, expressed as:
-      Damage = (Max Matter Stabilizer Health) × max(0.5, 1 - (d² / r²))
-      d = distance from epicenter, r = 6 tiles
+    -Exotic assemblers will now—upon suffering critical entropic cascade—emit a floating message, print a message with gps coordinates and violently detonate rendering asunder all in proximity.
     -High temperature reactor now converts water -> steam at 1:10 ratio and ergo requires 1/10th the water for all its steam recipes. Fluid box input size 1200000 -> 120000.
     -Steel and Heat steel furnace energy consumption 90 -> 135kW.
     -Heat steel furnace emissions per minute 2 -> 1.25 pollution.
@@ -88,7 +93,7 @@ Date: 5-3-25
     -Restored production module limitations to EI modules.
     -Restored copper, iron, steel beam intermediates.
     -Restored electron tube intermediate.
-    -Restored dirty water -> fluorite, water+slag -> dirty water, water+sand -> ddirty water recipes.
+    -Restored dirty water -> fluorite, water+slag -> dirty water, water+sand -> dirty water recipes.
     -Restored EI specific vanilla recipe modifiers.
     -Arc Furnace/Plasma Heater ore smelting now has 1% chance of producing slag.
     -Restored slag mechanic—smelting produces accompanying slag which must be dealt with.

@@ -120,13 +120,14 @@ local pictures_to_shift = {
 for _, picture in ipairs(pictures_to_shift) do
     inserter[picture].shift = hand_shift
 end
-
+inserter.icon_draw_specification = {shift = {0, 0}, scale = 1, scale_for_many = 0.75, render_layer = "air-entity-info-icon"}
 -- set energy source to steam fluid box
 inserter.energy_source = {
     type = "fluid",
     fluid_box = {   
         filter = "steam",
         volume = 200,
+        secondary_draw_order = -1,
         pipe_covers = pipecoverspictures(),
         --pipe_picture = ei_pipe_steam,
         pipe_connections = {
@@ -164,7 +165,7 @@ long_inserter.platform_picture = {
 for _, picture in ipairs(pictures_to_shift) do
     long_inserter[picture].shift = hand_shift
 end
-
+long_inserter.icon_draw_specification = {shift = {0, 0}, scale = 1, scale_for_many = 0.75, render_layer = "air-entity-info-icon"}
 -- set energy source to steam fluid box
 long_inserter.energy_source = {
     type = "fluid",
@@ -172,6 +173,7 @@ long_inserter.energy_source = {
         filter = "steam",
         volume = 200,
         pipe_covers = pipecoverspictures(),
+        secondary_draw_order = -1,
         --pipe_picture = ei_pipe_steam,
         pipe_connections = {
             {flow_direction = "input-output", direction = defines.direction.east, position = {0, 0}},
