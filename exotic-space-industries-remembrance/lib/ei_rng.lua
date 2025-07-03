@@ -99,9 +99,5 @@ function ei_rng.float(name, min, max, entropy1, entropy2, entropy3, entropy4)
   return rng_value
 end
 
--- Optional inspection utility (shows only counter)
-function ei_rng.inspect()
-  log_echo("🔍 [ei_rng] Current tick: " .. game.tick .. ", counter: " .. storage.ei.rng_counter)
-end
 
 return ei_rng

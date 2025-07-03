@@ -18,7 +18,17 @@ gaia.map_gen_settings.autoplace_controls["ei-cryoflux-patch"] = {frequency = 5, 
 gaia.map_gen_settings.autoplace_controls["ei-ammonia-patch"] = {frequency = 5, size = 1, richness = 1}
 gaia.map_gen_settings.autoplace_controls["ei-morphium-patch"] = {frequency = 5, size = 1, richness = 1}
 gaia.map_gen_settings.autoplace_controls["ei-coal-gas-patch"] = {frequency = 5, size = 1, richness = 1}
-
+gaia.map_gen_settings.autoplace_controls["scrap"] = {frequency = 0.25, richness = 0.25, size = 0.25 }
+gaia.map_gen_settings.autoplace_settings.decorative.settings["fulgoran-ruin-tiny"] = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-attractor"] = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-big"]       = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-colossal"]  = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-huge"]      = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-medium"]    = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-small"]     = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-stonehenge"]= nil
+gaia.map_gen_settings.autoplace_settings.entity.settings["fulgoran-ruin-vault"]     = nil
+gaia.map_gen_settings.autoplace_settings.entity.settings.fulgurite = nil
 gaia.map_gen_settings.autoplace_settings.entity.settings["ei-phytogas-patch"] = {frequency = 5, size = 1, richness = 1}
 gaia.map_gen_settings.autoplace_settings.entity.settings["ei-cryoflux-patch"] = {frequency = 5, size = 1, richness = 1}
 gaia.map_gen_settings.autoplace_settings.entity.settings["ei-ammonia-patch"] = {frequency = 5, size = 1, richness = 1}
@@ -35,7 +45,7 @@ gaia_water = table.deepcopy(data.raw.tile["water"]);
 gaia_water.name = "ei-gaia-water"
 gaia_water.fluid = "ei-diluted-morphium";
 data:extend({gaia_water})
-
+gaia.water = "ei-gaia-water"
 local landfill = data.raw.item.landfill
 
 if landfill then

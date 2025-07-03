@@ -127,24 +127,21 @@ end
 --UPDATE
 ------------------------------------------------------------------------------------------------------
 
-function model.update_black_holes()
+function model.update_black_holes(event)
 
     if not storage.ei.black_hole then
         return
     end
 
-    if not storage.ei.black_hole then
-        return
-    end
 
     for unit,_ in pairs(storage.ei.black_hole) do
-        model.update_black_hole(unit)
+        model.update_black_hole(unit,event)
     end
 
 end
 
 
-function model.update_black_hole(unit)
+function model.update_black_hole(unit, event)
 
     local entity = storage.ei.black_hole[unit].entity
 
@@ -157,17 +154,17 @@ function model.update_black_hole(unit)
 
     model.update_battery(unit, entity)
 
-    model.make_energy(unit)
+    model.make_energy(unit, event)
 
     model.make_output(unit)
 
-    model.check_battery(unit, entity)
+    model.check_battery(unit, entity, event)
 
     model.update_stage(unit, entity)
 
     model.make_stage_picture(unit, entity)
 
-    model.apply_output(unit, entity)
+    model.apply_output(unit, entity, event)
 
 end
 
@@ -229,7 +226,7 @@ function model.update_battery(unit, entity)
 end
 
 
-function model.check_battery(unit, entity)
+function model.check_battery(unit, entity, event)
 
     if storage.ei.black_hole[unit].stage == 0 then
         return
@@ -245,17 +242,20 @@ function model.check_battery(unit, entity)
     if storage.ei.black_hole[unit].battery < 8 then
         storage.ei.black_hole[unit].stage = 0
         storage.ei.black_hole[unit].stage_progress = 0
-        ei_lib.crystal_echo_floating("WARNING: Black hole containment failure!",entity,6000,nil,entity.position.x,entity.position.y,unit)
+        ei_lib.crystal_echo_floating("WARNING: Black hole containment failure!",entity,6000,nil,entity.position.x,entity.position.y,unit,event.tick)
 
         -- also print chat message
-        ei_lib.crystal_echo("WARNING: Black hole containment failure at "..entity.position.x..", "..entity.position.y.."!","default-bold",game.players,nil,nil,nil,nil,nil,entity.position.x,entity.position.y,unit)
+        ei_lib.crystal_echo("WARNING: Black hole containment failure at "..entity.position.x..", "..entity.position.y.."!","default-bold",game.players,nil,nil,nil,nil,nil,entity.position.x,entity.position.y,unit,event.tick)
     end
 
 end
 
 
-function model.make_energy(unit)
-
+function model.make_energy(unit, event)
+    if not unit or not event then
+        log("ei blackhole make_energy passed nil unit or event")
+        return
+    end
     -- calc energy radiated away per second
 
     local mass = storage.ei.black_hole[unit].mass
@@ -279,7 +279,7 @@ function model.make_energy(unit)
     local energy = energy + mass_loss * 25 -- in GW
 
     -- safe this value if its 30 ticks after last save
-    local tick = game.tick
+    local tick = event.tick
     if tick - storage.ei.black_hole[unit].last_tick > 30 then
         storage.ei.black_hole[unit].energy_last = storage.ei.black_hole[unit].energy
         storage.ei.black_hole[unit].last_tick = tick
@@ -309,7 +309,7 @@ function model.make_output(unit)
 end
 
 
-function model.apply_output(unit, entity)
+function model.apply_output(unit, entity, event)
 
     local power_out = storage.ei.black_hole[unit].energy_out -- in GJ per tick
     local giga = 1000*1000*1000
@@ -326,6 +326,7 @@ function model.apply_output(unit, entity)
         -- no energy output in stage 0 and 1
         if storage.ei.black_hole[unit].stage ~= 2 then
             extractor.energy = 0
+            extractor.active = false
             goto continue
         end
 
@@ -338,9 +339,9 @@ function model.apply_output(unit, entity)
             extractor.energy = extractor.energy + giga*power_out -- rest of power, already in ticks
             power_out = 0
         end
-
+        extractor.active = true
         ::continue::
-
+        
     end
 
 end
@@ -504,7 +505,7 @@ end
 --REGISTERS
 ------------------------------------------------------------------------------------------------------
 
-function model.register_black_hole(entity)
+function model.register_black_hole(entity, event)
 
     if entity.name ~= "ei-black-hole" then
         return
@@ -518,7 +519,7 @@ function model.register_black_hole(entity)
     storage.ei.black_hole[entity.unit_number].battery = 0       -- energy for containement field (multiple of 5GW)
     storage.ei.black_hole[entity.unit_number].energy = 0
     storage.ei.black_hole[entity.unit_number].energy_last = 0
-    storage.ei.black_hole[entity.unit_number].last_tick = game.tick
+    storage.ei.black_hole[entity.unit_number].last_tick = event.tick
     storage.ei.black_hole[entity.unit_number].energy_out = 0 -- mean of energy values
     storage.ei.black_hole[entity.unit_number].stage = 0
     storage.ei.black_hole[entity.unit_number].stage_progress = 0 -- max 100
@@ -569,13 +570,13 @@ end
 --HANDLERS
 ------------------------------------------------------------------------------------------------------
 
-function model.on_built_entity(entity)
-
+function model.on_built_entity(event)
+    local entity = event.entity
     if model.entity_check(entity) == false then
         return
     end
 
-    model.register_black_hole(entity)
+    model.register_black_hole(entity, event)
 
     model.built_injector_pylon(entity)
 
@@ -591,9 +592,9 @@ function model.on_destroyed_entity(entity, transfer)
 end
 
 
-function model.update()
-    local tick = game.tick
-    model.update_black_holes()
+function model.update(event)
+    local tick = event.tick
+    model.update_black_holes(event)
     if tick % 15 == 0 then
         model.update_player_guis()
     end
@@ -1084,6 +1085,5 @@ end
 function model.on_gui_opened(event)
     model.open_gui(game.get_player(event.player_index))
 end
-
 
 return model

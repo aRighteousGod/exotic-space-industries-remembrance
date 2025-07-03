@@ -34,22 +34,22 @@ end
 
 function model.find_in_range(machine_type, surface, pos, range)
 
-    local entities = surface.find_entities_filtered{
+    local entities = surface.find_entities_filtered({
         position = pos,
         radius = range,
-    }
+        type ="assembling-machine"
+    })
 
     local matter_machines = {}
 
     for _, e in pairs(entities) do
 
         if machine_type == "stabilizer" then
-            if model.stabilizers[e.name] then
+            if model.stabilizers[e.name] and e.is_crafting() then
                 table.insert(matter_machines, e)
             end
-        end
 
-        if machine_type == "matter_machine" then
+        elseif machine_type == "matter_machine" then
             if model.matter_machines[e.name] then
                 table.insert(matter_machines, e)
             end
@@ -64,22 +64,67 @@ end
 
 function model.update_matter_machine(entity)
 
-    if not model.check_entity(entity) then
+    if not model.check_entity(entity) or not (entity.is_crafting() or entity.crafting_progress > 0) then
         return
     end
-
+    local sur = entity.surface
+    local pos = {["x"]=entity.position.x,["y"]=entity.position.y}
+    local range = ei_data.matter_stabilizer.matter_range
+    if not sur or not pos["x"] or not pos["y"] then
+        log("ei update_matter_machine got nil sur or pos for exotic assembler")
+        return
+    end
     -- get stabilizers in range
-    local stabilizers = model.find_in_range("stabilizer", entity.surface, entity.position, ei_data.matter_stabilizer.matter_range)
+    local stabilizers = model.find_in_range("stabilizer", sur, {pos["x"],pos["y"]}, range)
+    local stabilizers_nearby_count = #stabilizers or 0
 
-    if #stabilizers > 0 then
-        return
+    local progress = entity.crafting_progress or 0
+    local base_chance = 0.12 --0.12
+    local decay = 2.43
+    -- In-range / effective ones
+    -- floor at 1 to avoid div-by-zero
+    local total_matter_machines = storage.ei.matter_machines_count or 1
+
+    -- Estimate how often a single matter machine gets updated per second
+    -- Scale update pressure by total number of stabilizers (more stabilizers = more contention)
+    local updates_per_entity = math.min(ei_update_functions_length,(ei_updater_per_entity_calls_per_second / total_matter_machines))
+
+    -- Safety floor
+    if updates_per_entity < 0.01 then updates_per_entity = 0.01 end --cheese it by going over 9000 stabilizers? doubt it
+
+    -- Calculate explosion chance per update
+    local chance = base_chance / ((stabilizers_nearby_count + 1) ^ decay)
+    chance = chance * (1 + progress)^3
+    chance = chance / updates_per_entity --modulate based off how often the updater makes it to a particular machine
+    local rand = math.random()
+
+    if rand < chance then
+        --clickable with link
+        game.print({"exotic-industries.exotic-assembler-explode", sur.name, pos["x"], pos["y"]})
+        ei_lib.crystal_echo_floating("Containment Breach: Rationality Compromised.",entity,6000,nil,chance,stabilizers_nearby_count,total_matter_machines,updates_per_entity)
+        --Sayonara
+        entity.surface.create_entity{
+        name = "ei-matter-explosion",
+        position = entity.position,
+        target = entity.position,
+        speed = 0.3,
+        force = entity.force
+    }
+    else
+        rendering.draw_light {
+        sprite = "emt_charger_glow",
+        scale = 0.75,
+        intensity = 0.55, --same as plasma turret, ideal given explosion is the plasma bullet explosion
+        color = {r = 0.45, g = 0.1, b = 0.6},
+        target = entity,
+        surface = sur,
+        time_to_live = math.ceil((60 / updates_per_entity)*1.25),
+        players = game.connected_players,
+        blend_mode = "multiplicative",
+        apply_runtime_tint = true,
+        draw_as_glow = true,
+        }
     end
-
-    -- blow machine up if crafting progress is over 50 %
-    if entity.crafting_progress > 0.5 then
-        entity.die()
-    end
-
 end
 
 
@@ -91,8 +136,12 @@ function model.register_stabilizer(entity)
     if storage.ei.matter_stabilizers == nil then
         storage.ei.matter_stabilizers = {}
     end
+    if storage.ei.matter_stabilizers_count == nil then
+        storage.ei.matter_stabilizers_count = 0
+    end
 
     storage.ei.matter_stabilizers[entity.unit_number] = entity
+    storage.ei.matter_stabilizers_count = storage.ei.matter_stabilizers_count+1
 
 end
 
@@ -102,9 +151,11 @@ function model.unregister_stabilizer(entity)
     if storage.ei.matter_stabilizers == nil then
         return
     end
-
+    if storage.ei.matter_stabilizers_count == nil then
+       storage.ei.matter_stabilizers_count = 0
+    end
     storage.ei.matter_stabilizers[entity.unit_number] = nil
-
+    storage.ei.matter_stabilizers_count = math.max(0,storage.ei.matter_stabilizers_count-1)
 end
 
 
@@ -113,8 +164,11 @@ function model.register_matter_machine(entity)
     if storage.ei.matter_machines == nil then
         storage.ei.matter_machines = {}
     end
-
+    if storage.ei.matter_machines_count == nil then
+        storage.ei.matter_machines_count = 0
+    end
     storage.ei.matter_machines[entity.unit_number] = entity
+    storage.ei.matter_machines_count = storage.ei.matter_machines_count+1
 
 end
 
@@ -124,9 +178,11 @@ function model.unregister_matter_machine(entity)
     if storage.ei.matter_machines == nil then
         return
     end
-
+    if storage.ei.matter_machines_count == nil then
+       storage.ei.matter_machines_count = 0
+    end
     storage.ei.matter_machines[entity.unit_number] = nil
-
+    storage.ei.matter_machines_count = math.max(0,storage.ei.matter_machines_count-1)
 end
 
 
@@ -337,9 +393,7 @@ function model.on_built_entity(entity)
 
     if model.stabilizers[entity.name] then
         model.register_stabilizer(entity)
-    end
-
-    if model.matter_machines[entity.name] then
+    elseif model.matter_machines[entity.name] then
         model.register_matter_machine(entity)
     end
     
@@ -353,9 +407,7 @@ function model.on_destroyed_entity(entity)
 
         -- remove stabilizer from storage
         model.unregister_stabilizer(entity)
-    end
-
-    if model.matter_machines[entity.name] then
+    elseif model.matter_machines[entity.name] then
         model.remove_rendering(entity)
 
         -- remove matter machine from storage

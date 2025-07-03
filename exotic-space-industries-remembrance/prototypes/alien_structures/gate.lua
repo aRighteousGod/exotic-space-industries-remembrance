@@ -112,7 +112,7 @@ data:extend({
             type = "electric",
             buffer_capacity = "50GJ",
             usage_priority = "secondary-input",
-            input_flow_limit = "1GW",
+            input_flow_limit = "5GW",
             output_flow_limit = "0MW",
         },
         energy_usage = "200MW",
@@ -136,10 +136,13 @@ data:extend({
         hidden = true,
         collision_box = {{-5.4, -5.4}, {5.4, 5.4}},
         selection_box = {{-5.5, -5.5}, {5.5, 5.5}},
-        --circuit_wire_connection_point = data.raw["container"]["steel-chest"].circuit_wire_connection_point,
-        circuit_wire_max_distance = data.raw["container"]["steel-chest"].circuit_wire_max_distance,
-        circuit_connector_sprites = ei_lib.make_circuit_connector(-0.77, 1.6)[2],
-        circuit_wire_connection_point = ei_lib.make_circuit_connector(-0.77, 1.6)[1]
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel(-93.125,  128), shadow_offset = util.by_pixel(-93.125,  128), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
         type = "animation",

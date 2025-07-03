@@ -9,7 +9,7 @@ ei_lib.set_age_packs("rp-steam-calculator","steam-age")
 ei_lib.set_age_packs("rp-steam-roboports","steam-age")
 ei_lib.set_age_packs("rp-steam-logistics-chests","steam-age")
 
-
+ei_lib.recipe_add("rp-steam-soul","ei-gold-ingot",1)
 ei_lib.set_prerequisites("rp-steam-soul",{"rp-steam-calculator","rp-steam-piston"})
 ei_lib.set_prerequisites("rp-steam-calculator",{"ei-steam-assembler"})
 

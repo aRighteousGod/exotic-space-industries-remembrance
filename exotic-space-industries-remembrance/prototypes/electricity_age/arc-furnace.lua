@@ -112,10 +112,10 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-molten-gold-ingot"
             },
-            {
-                type = "unlock-recipe",
-                recipe = "ei-molten-gold-plate"
-            },
+--            {
+--                type = "unlock-recipe",
+--                recipe = "ei-molten-gold-plate"
+--            },
             {
                 type = "unlock-recipe",
                 recipe = "ei-molten-lead-pure-ore"
@@ -124,10 +124,10 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-molten-lead-ingot"
             },
-            {
-                type = "unlock-recipe",
-                recipe = "ei-molten-lead-plate"
-            },
+--            {
+--                type = "unlock-recipe",
+--                recipe = "ei-molten-lead-plate"
+--            },
             {
                 type = "unlock-recipe",
                 recipe = "ei-caster"
@@ -356,6 +356,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-iron", amount = 50},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -421,6 +422,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-copper", amount = 50},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -486,6 +488,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-steel", amount = 10},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -535,6 +538,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-gold", amount = 50},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -555,6 +559,7 @@ data:extend({
         enabled = false,
         main_product = "ei-molten-gold",
     },
+--[[
     {
         name = "ei-molten-gold-plate",
         type = "recipe",
@@ -571,7 +576,7 @@ data:extend({
         main_product = "ei-molten-gold",
         hide_from_player_crafting = true,
     },
-
+]]
     -- lead
     {
         name = "ei-molten-lead-pure-ore",
@@ -583,6 +588,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-lead", amount = 50},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01}
         },
         always_show_made_in = true,
         enabled = false,
@@ -603,6 +609,7 @@ data:extend({
         enabled = false,
         main_product = "ei-molten-lead",
     },
+    --[[
     {
         name = "ei-molten-lead-plate",
         type = "recipe",
@@ -619,4 +626,5 @@ data:extend({
         main_product = "ei-molten-lead",
         hide_from_player_crafting = true,
     },
+    ]]
 })

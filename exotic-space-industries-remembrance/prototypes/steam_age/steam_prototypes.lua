@@ -450,7 +450,7 @@ data:extend({
             {type = "item", name = "storage-tank", amount = 1},
         },
         always_show_made_in = true,
-        enabled = true,
+        enabled = false,
         main_product = "storage-tank",
     },
     {

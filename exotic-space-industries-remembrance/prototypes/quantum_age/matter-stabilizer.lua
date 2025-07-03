@@ -113,13 +113,22 @@ data:extend({
                     frame_count = 16,
                     animation_speed = 0.3,
                     run_mode = "backward",
+                    
                   }
                 },
                 {
                     light = {
                     type = "basic",
-                    intensity = 1,
-                    size = 15
+                    sprite = "emt_train_glow",
+                    draw_as_glow=true,
+                    blend_mode = "multiplicative-with-alpha",
+                    apply_runtime_tint=true,
+                    intensity = 0.65,
+                    flicker_interval = 48,
+                    flicker_min_modifier = 0.6,
+                    flicker_max_modifier = 0.7,
+                    color = { r = 0.0, g = 0.478, b = 0.655 },
+                    size = 20
                     }
                 }
             },

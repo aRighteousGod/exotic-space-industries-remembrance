@@ -247,16 +247,21 @@ ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-neo-loader"],"40500","60
 --Lane filtering / stacking
 local loader = data.raw["loader-1x1"]["ei-express-loader"]
 loader.max_belt_stack_size = 2
+loader.adjustable_belt_stack_size = true
 loader.filter_count = 1
 loader.per_lane_filters = false
 loader = data.raw["loader-1x1"]["ei-turbo-loader"]
-loader.max_belt_stack_size = 4
+loader.max_belt_stack_size = 2
+loader.adjustable_belt_stack_size = true
 loader.filter_count = 2
 loader.per_lane_filters = true
 loader = data.raw["loader-1x1"]["ei-neo-loader"]
-loader.max_belt_stack_size = 8-- Default for loaders is 1; increase to inserter value
+loader.max_belt_stack_size = data.raw["utility-constants"]["default"].max_belt_stack_size
+loader.adjustable_belt_stack_size = true
+-- Default for loaders is 1; increase to inserter value
 loader.filter_count = 2 -- Default is 5; set to 2 for lane filters to work
 loader.per_lane_filters = true -- Enable lane-specific filtering
+
 
 table.insert(data.raw["technology"]["logistics"].effects, {
     type = "unlock-recipe",

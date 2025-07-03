@@ -4,13 +4,10 @@ local model = {}
 --MOD COMPATIBILITY
 --====================================================================================================
 
-function model.check_init()
-
-    if game.tick ~= 1 then return end 
-
+function model.check_init(event)
     -- K2
     ---------------------------------------------------------------------------
-    if script.active_mods["Krastorio2"] then
+    if script.active_mods["krastorio2-spaced-out"] and remote.interfaces["kr-intergalactic-transceiver"] then
         remote.call("kr-intergalactic-transceiver", "set_no_victory", true)
     end
     

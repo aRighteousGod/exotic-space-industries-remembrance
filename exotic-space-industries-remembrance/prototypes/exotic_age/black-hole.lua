@@ -158,8 +158,16 @@ data:extend({
                 {
                     light = {
                     type = "basic",
-                    intensity = 1,
-                    size = 15
+                    sprite = "emt_train_glow",
+                    draw_as_glow=true,
+                    blend_mode = "multiplicative-with-alpha",
+                    apply_runtime_tint=true,
+                    intensity = 0.75,
+                    flicker_interval = 48,
+                    flicker_min_modifier = 0.7,
+                    flicker_max_modifier = 0.8,
+                    color = { r = 0.0, g = 0.678, b = 0.755 },
+                    size = 20
                     }
                 }
             },
@@ -266,6 +274,7 @@ data:extend({
         dying_explosion = "medium-explosion",
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
+        damaged_trigger_effect = data.raw.accumulator.accumulator.damaged_trigger_effect,
         map_color = ei_data.colors.assembler,
         energy_source = {
             type = 'electric',
@@ -276,28 +285,79 @@ data:extend({
             render_no_power_icon = false,
         },
         animation = {
-            filename = ei_graphics_entity_path.."energy-extractor-pylon_animation.png",
-            size = {512,512},
-            shift = {0, 0},
-            scale = 0.35,
-            line_length = 4,
-            lines_per_file = 4,
-            frame_count = 16,
-            animation_speed = 0.3,
+        filename = ei_graphics_entity_path.."energy-extractor-pylon_animation.png",
+        size = {512,512},
+        shift = {0, 0},
+        scale = 0.35,
+        line_length = 4,
+        lines_per_file = 4,
+        frame_count = 16,
+        animation_speed = 0.3,
+        run_mode = "backward",
         },
-        --[[
-        picture = {
-            filename = ei_graphics_entity_path.."energy-extractor-pylon.png",
-            size = {512,512},
-            shift = {0, 0},
-            scale = 0.35,
-            line_length = 1,
+        light = {
+        type = "basic",
+        sprite = "emt_train_glow",
+        draw_as_glow=true,
+        blend_mode = "multiplicative-with-alpha",
+        apply_runtime_tint=true,
+        intensity = 0.75,
+        flicker_interval = 48,
+        flicker_min_modifier = 0.7,
+        flicker_max_modifier = 0.8,
+        color = { r = 1.0, g = 0, b = 0.8 },
+        size = 20
         },
-        ]]
+
+--Bright Neon Pink
+--{ r = 1.0, g = 0.2, b = 0.6 },
+--Fuchsia Rose (Electric Violet-leaning)
+--{ r = 0.9, g = 0.2, b = 1.0 },
+--Deep Hot Pink (more moody)
+--{ r = 0.8, g = 0.1, b = 0.6 },
+--Radiant Magenta (aggressive neon)
+--{ r = 1.0, g = 0.0, b = 0.8 },
         energy_production = "0GW",
         energy_usage = "0GW",
-        --gui_mode = "none",
+        impact_category = "metal",
+        open_sound = sounds.electric_large_open,
+        close_sound = sounds.electric_large_close,
+        gui_mode = "none",
         continuous_animation = true,
+        working_sound =
+        {
+        main_sounds =
+        {
+            {
+            sound =
+            {
+                filename = "__base__/sound/accumulator-working.ogg",
+                volume = 0.4,
+                modifiers = volume_multiplier("main-menu", 1.44),
+                audible_distance_modifier = 0.75
+            },
+            match_volume_to_activity = true,
+            activity_to_volume_modifiers = {offset = 2, inverted = true},
+            fade_in_ticks = 4,
+            fade_out_ticks = 20
+            },
+            {
+            sound =
+            {
+                filename = "__base__/sound/accumulator-discharging.ogg",
+                volume = 0.4,
+                modifiers = volume_multiplier("main-menu", 1.44),
+                audible_distance_modifier = 0.75
+            },
+            match_volume_to_activity = true,
+            activity_to_volume_modifiers = {offset = 1},
+            fade_in_ticks = 4,
+            fade_out_ticks = 20
+            }
+        },
+        --idle_sound = {filename = "__base__/sound/accumulator-idle.ogg", volume = 0.35, audible_distance_modifier = 0.5},
+        max_sounds_per_prototype = 3,
+        },
         circuit_connector =  circuit_connector_definitions.create_vector(
         universal_connector_template,
         {
@@ -307,7 +367,7 @@ data:extend({
             { variation = 17, main_offset = util.by_pixel(-28.25,  15.25), shadow_offset = util.by_pixel(-28.25,  15.25), show_shadow = true }
         }
         ),
-        circuit_wire_max_distance = default_circuit_wire_max_distance
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
     },
     {
         type = "animation",

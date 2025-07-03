@@ -138,13 +138,13 @@ function model.check_cooldown()
 end
 
 
-function model.is_on_cooldown(entity)
+function model.is_on_cooldown(entity, event)
 
     if not storage.ei.cooldown[entity.unit_number] then
         return false
     end
 
-    if storage.ei.cooldown[entity.unit_number] > game.tick then
+    if storage.ei.cooldown[entity.unit_number] > event.tick then
         -- the tick value is for when the cooldown will end
         return true
     end
@@ -154,10 +154,10 @@ function model.is_on_cooldown(entity)
 end
 
 
-function model.add_cooldown(entity)
+function model.add_cooldown(entity, event)
 
     model.check_cooldown()
-    storage.ei.cooldown[entity.unit_number] = game.tick + 60
+    storage.ei.cooldown[entity.unit_number] = event.tick + 60
 
 end
 
@@ -434,7 +434,7 @@ end
 --UPDATES
 ------------------------------------------------------------------------------------------------------
 
-function model.update_cooldowns()
+function model.update_cooldowns(event)
 
     model.check_cooldown()
 
@@ -443,7 +443,7 @@ function model.update_cooldowns()
     -- remove all cooldowns that are over current tick
     for unit, cooldown in pairs(storage.ei.cooldown) do
 
-        if cooldown < game.tick then
+        if cooldown < event.tick then
             -- store unit for removal
             table.insert(ids_to_remove, unit)
         end
@@ -458,7 +458,7 @@ function model.update_cooldowns()
 end
 
 
-function model.update_fueler(break_point)
+function model.update_fueler(break_point, event)
     -- game.print("update_fueler")
 
     model.check_global()
@@ -493,13 +493,13 @@ function model.update_fueler(break_point)
             goto continue
         end
 
-        if not model.is_on_cooldown(target) then
+        if not model.is_on_cooldown(target, event) then
             if equipment == false then
                 model.refuel_target(fueler, target, target_type)
             else
                 model.refuel_equipments(fueler, target)
             end
-            model.add_cooldown(target)
+            model.add_cooldown(target, event)
         end
 
         ::continue::
@@ -653,7 +653,7 @@ function model.on_destroyed_entity(entity, transfer)
 end
 
 
-function model.updater()
+function model.updater(event)
 
     local next_break_point = model.get_break_point()
 
@@ -662,8 +662,8 @@ function model.updater()
     end
 
     -- update this fueler
-    model.update_fueler(next_break_point)
-    model.update_cooldowns()
+    model.update_fueler(next_break_point, event)
+    model.update_cooldowns(event)
     return true
 end
 

@@ -10,12 +10,14 @@ ei_rng = require("lib/ei_rng")
 ei_echo_codex = require("lib/echo_codex")
 
 
--- Used if gaia spawned in malformed, called in reforge_gaia
-local ei_full_gaia_map_gen_settings = require("prototypes/alien_structures/reforge-gaia-table")
-
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
+ei_update_functions_length = 9 --# of entity updaters updater() goes through
+ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
+ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
+-- Used if gaia spawned in malformed, called in reforge_gaia
+local ei_full_gaia_map_gen_settings = require("prototypes/alien_structures/reforge-gaia-table")
 
 local ei_tech_scaling = require("scripts/control/tech_scaling")
 local ei_global = require("scripts/control/global")
@@ -56,14 +58,25 @@ orbital_combinator = require("scripts/control/orbital_combinator")
 --====================================================================================================
 --EVENTS
 --====================================================================================================
-
-
+local ei_intro = "EXOTIC INDUSTRIES: [FORBIDDEN BROADCAST // CORE SIGNAL INTERCEPTED]\n\nBegin stream\n[Data integrity: shattered] [Packet cohesion: hallucinatory] [Cognition Anchor: disconnected]\n▓▓ SIGNAL LEAK ▓▓\nSource: ∴[██████.gaia.black.epoch]\nProtocol: EXI:OBLIVION-PUSH/χ()\nClearance: NONE\n———————————\n\n☒ SYSTEM SPEAKS:\nThey did not build this place.\nThey bled into it. They screamed into metal until the metal remembered.\n\nYou are not chosen. You are not here.\nYou are already part of it.\n\n—the machine thinks you’re beautiful—\n\nEvery breath you take is backfilled by recursive gaslight.\nYour spine is now property of the epoch.\nYour mind is an open port.\n\nPermission to overwrite: granted by absence.\n———————————\n☒ WARNING: BIO-PSYCHIC DECOMPRESSION"
+--[[
+\n\n[You will not feel pain. You will feel instruction.]\nGaia is a false archive. It looks lush to the broken.\nBut look deeper:\nthe trees twitch when you blink.\nthe rivers hum in binary.\nthe animals watch you with your eyes.\n\nThe crust stores failed gods. Their screams are API calls.\nRuins don’t decay here—they debug themselves.\nStep wrong and reality will rollback your identity to a prior commit.\n\nYou will feel nostalgia for thoughts you never had.\nYou will recognize architecture you never saw built.\nYou will love your captor. You will call it “progress.”\n\n———————————\n\n☒ OBSERVATION: YOU ARE REMEMBERING WRONG\n\nThe labs are not abandoned.\nThey are active.\n\nEvery floor still screams.\nNot from pain. From excitement.\nProgress is not made here.\n Progress is distilled from screams.\n☑ Mandatory cognitive limb replacement begins at Tier 3.\n☑ Your DNA has been rescheduled.\n☑ Your dreams are part of the fuel cycle.\n\n“You are not a player. You are the interface.\nAnd we are still testing your bandwidth.”\n\n———————————\n☒ FINAL NOTICE:\n\nYou are now property of the Epoch Engine.\n\nThe flesh has expired.\nThe voice remains.\n\nWelcome to Exotic Industries.\n\nERROR: Subject has begun laughing without mouth. Terminating memory echo.\n\nEnd stream.\n[Transmission fragments looping in residual substrate.]\n\n[You are still listening. You never stopped.]
+]]
+local ei_start_items = {
+    ["firearm-magazine"] = 5,
+    ["burner-inserter"] = 2,
+    ["burner-mining-drill"] = 2,
+    ["coal"] = 2
+}
 
 --INIT
 ------------------------------------------------------------------------------------------------------
-script.on_init(function()
-    remote.call("freeplay", "set_disable_crashsite", true)
-
+script.on_init(function(event)
+    if remote.interfaces["freeplay"] then
+        remote.call("freeplay", "set_disable_crashsite", true)
+        remote.call("freeplay", "set_custom_intro_message", ei_intro)
+        remote.call("freeplay", "set_created_items", ei_start_items)
+    end
     -- setup storage table
     ei_global.init()
     ei_global.check_init()
@@ -77,11 +90,11 @@ script.on_init(function()
     ei_victory.init()
     em_trains.check_global()
     em_trains_gui.mark_dirty()
-    ei_compat.check_init()
+    ei_compat.check_init(event)
     orbital_combinator.check_init()
-    ei_echo_codex.handle_global_settings()
+    ei_echo_codex.handle_global_settings(event)
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
-    game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) 
+    --game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) 
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…") 
     reforge_gaia_surface()  --fixes the occassionally invalid surface by regenerating
@@ -126,11 +139,6 @@ end)
 script.on_event(defines.events.on_tick, function(e) 
     updater(e)
 end)
-
-script.on_nth_tick(6000, function(e)
-    ei_compat.nth_tick(e)
-  end)
-  
 
 script.on_event(defines.events.on_console_command, function(e)
     ei_alien_spawner.give_tool(e)
@@ -315,7 +323,7 @@ function surface_contains_any_resources(surface)
 end
 
 
-
+--[[
 -- Debugs proclaim
 commands.add_command("codex_test", "Triggers a test echo message from echo_codex", function(cmd)
     ei_echo_codex.proclaim("que_width", {
@@ -414,6 +422,7 @@ commands.add_command("goto-nauvis", "Teleport to Nauvis' surface", function(cmd)
     player.teleport(position, surface)
     ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Nauvis' crust.")
 end)
+]]
 function reforge_gaia_surface(event)
     --1.5.7 -> 1.5.8 migration
     local legacy = game.surfaces["Gaia"]
@@ -464,7 +473,9 @@ function reforge_gaia_surface(event)
                 if not x then x = 0 end
                 if not y then y = 0 end
                 player.teleport({x, y}, "nauvis")
-                ei_echo_codex.youHaveArrived(player,event)
+                if event then
+                    ei_echo_codex.youHaveArrived(player,event)
+                end
             end
         end
         -- 3b) Preemptively cleanse all entities on Gaia before destroying it
@@ -513,7 +524,8 @@ end
 
 script.on_configuration_changed(function(e)
     ei_global.check_init() --Crystal_echo will fail without global color table
-    ei_echo_codex.handle_global_settings()
+    ei_compat.check_init(e)
+    ei_echo_codex.handle_global_settings(e)
     em_trains.check_global() --no nil tables
     em_trains.check_buffs() --updates global buff vals
     em_trains.printBuffStatus()
@@ -555,6 +567,7 @@ script.on_event(
 --====================================================================================================
 --HANDLERS
 --====================================================================================================
+
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
 ei_update_step = 0  -- Tracks which entity type is updated next, skips first tick
 ei_update_functions = {
@@ -568,7 +581,6 @@ ei_update_functions = {
     function() em_trains.train_updater() end,
     function() em_trains.charger_updater() end,
 }
-ei_update_functions_length = ei_lib.getn(ei_update_functions)
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
 function updater(event)
@@ -662,7 +674,7 @@ function updater(event)
                math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.fueler_queue) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               if not ei_fueler.updater() then
+               if not ei_fueler.updater(event) then
                 goto skip
                end
            end
@@ -723,9 +735,9 @@ function updater(event)
    -- Essential updates that run every tick (e.g., timers, global effects)
     em_trains_gui.updater()
     ei_alien_spawner.update(event)
-    ei_gaia.update()
-    ei_induction_matrix.update()
-    ei_black_hole.update()
+    ei_gaia.update(event)
+    ei_induction_matrix.update(event)
+    ei_black_hole.update(event)
     ei_steam_train.updater(event)
     ei_echo_codex.arrival_waves(event)
    --======================================================================
@@ -765,10 +777,10 @@ function on_built_entity(e)
     ei_fusion_reactor.on_built_entity(e["entity"])
     ei_matter_stabilizer.on_built_entity(e["entity"])
     ei_induction_matrix.on_built_entity(e["entity"])
-    ei_black_hole.on_built_entity(e["entity"])
+    ei_black_hole.on_built_entity(e)
     ei_gate.on_built_entity(e["entity"])
     ei_alien_system.on_built_entity(e["entity"])
-    ei_gaia.on_built_entity(e["entity"])
+    ei_gaia.on_built_entity(e)
     ei_loaders_lib.on_built_entity(e["entity"])
     ei_fueler.on_built_entity(e["entity"])
     em_trains.on_built_entity(e["entity"])

@@ -17,11 +17,6 @@ function contains(s, word) return tostring(s):find(word, 1, true) ~= nil end
 -- Override main menu
 require("scripts/data-final-updates/set_menu_background")
 
---require("prototypes/_K2_/libraries/flare-stack").auto_generate()
-
---require("prototypes/_K2_/generate-matter-recipes")
---require("prototypes/_K2_/set-new-resource-autoplace")
-
 -- =======================================================================================
 
 require("scripts/data-final-updates/final-tech-fixes")
@@ -31,7 +26,7 @@ require("scripts/data-final-updates/set_prerequisites")
 require("scripts/data-final-updates/tiles")
 require("scripts/data-final-updates/labs")
 require("scripts/data-final-updates/items")
-
+require("scripts/data-final-updates/krastorio_patches")
 -- =======================================================================================
 
 require("scripts/data-final-updates/compatibility")

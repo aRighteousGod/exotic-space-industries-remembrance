@@ -252,6 +252,11 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
     adjust = 1
 
     if size == 1 then
+        container.circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel( 0.5,  4.875), shadow_offset = util.by_pixel( 0.5,  4.875), show_shadow = true }
+        })
         container.max_health = container.max_health * 1.5
         container.resistances = {
           { type = "physical", percent = 25 },
@@ -259,6 +264,11 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
           { type = "impact",   percent = 50 },
         }
     elseif size == 2 then
+        container.circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 30, main_offset = util.by_pixel( 0.125,  18), shadow_offset = util.by_pixel( 0.125,  18), show_shadow = true }
+        })
         container.max_health = container.max_health * 3
         container.resistances = {
         { type = "physical", percent = 45 },
@@ -266,6 +276,11 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
         { type = "impact",   percent = 65 },
     }
     elseif size == 6 then
+        container.circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation =  1, main_offset = util.by_pixel( 75,  13.75), shadow_offset = util.by_pixel( 75,  13.75), show_shadow = true }
+        })
         container.max_health = container.max_health * 6
         container.resistances = {
         { type = "physical", percent = 65 },

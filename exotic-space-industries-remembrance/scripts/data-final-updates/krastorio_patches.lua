@@ -1,18 +1,23 @@
 --====================================================================================================
 -- -- CHECK FOR MOD
--- NOT YET FULLY UPDATED FOR 2.0 need to go through and add kr- wherever missing and potentially prune/modify prototypes as necessary. this was imported direct from ei 0.6.9
+-- ABSOLUTELY UNTESTED. BARE MINIMUM UPDATES HAVE BEEN DONE HERE BESIDES MINOR DATA STAGE FIXES. THIS IS IMPORTED DIRECT FROM EI 0.6.9
 --====================================================================================================
 
-if not mods["Krastorio2SpacedOut"] then
+if not mods["krastorio2-spaced-out"] then
+    return
+else
+    log("EI Compat: K2 Spaced Out detected—compatibility patch intentionally disabled in script.")
     return
 end
 
+
+local k2path = "__krastorio2-spaced-out__/"
 -- changes to K2 mod
 
 local ei_lib = require("lib.lib")
 local ei_data = require("lib.data")
-local matter = require("__Krastorio2__.lib.public.data-stages.matter-util")
-local variations_util = require("__Krastorio2__.lib.public.data-stages.create-roboport-states")
+local matter = require(k2path.."lib.public.data-stages.matter-util")
+local variations_util = require(k2path.."lib.public.data-stages.create-roboport-states")
 local _td = table.deepcopy
 
 --CONSTANTS

@@ -82,7 +82,7 @@ function model.check_global()
     if not storage.ei_emt.buffs then
         storage.ei_emt.buffs = {
             charger_range = 96, -- max: 512
-            charger_efficiency = 0.1, -- max: 0.9
+            charger_efficiency = 0, -- max: 0.9
             
             acc_level = 0,
             speed_level = 0
@@ -484,15 +484,16 @@ function ei_draw_train_glow(train, params)
 	}
 
 	if params then
-	for k, v in pairs(params) do
-	  glow_params[k] = v
-	end
+        for k, v in pairs(params) do
+        glow_params[k] = v
+        end
 	end
 
-	local color_index = ei_rng.int("trainglow", 1, #glow_params.color_pool, train.unit_number+train.speed, train.surface.index, train.position.x, train.position.y)
+
+	local color_index = math.random(1, #glow_params.color_pool)
 	local color = glow_params.color_pool[color_index]
-	local scale = ei_rng.int("trainglowscale",glow_params.scale_range[1],glow_params.scale_range[2],train.unit_number+train.speed, train.surface.index, train.position.x, train.position.y)
-	local intensity = ei_rng.float("trainglowintensity",glow_params.intensity_range[1],glow_params.intensity_range[2],train.unit_number+train.speed, train.surface.index, train.position.x, train.position.y)
+	local scale = math.random(glow_params.scale_range[1],glow_params.scale_range[2])
+	local intensity = math.random(glow_params.intensity_range[1],glow_params.intensity_range[2])
 
 	rendering.draw_light {
 	  sprite = glow_params.sprite,
@@ -508,7 +509,7 @@ function ei_draw_train_glow(train, params)
 	  draw_as_glow = glow_params.draw_as_glow,
 	}
   -- Apply the glow to each attached EM train car (wagon)
-  if train.train.carriages then
+  if train.train and train.train.carriages then
 	  for _, car in pairs(train.train.carriages) do
 		if car and car.valid and (car.name == "ei_em-fluid-wagon" or car.name == "ei_em-cargo-wagon") then
 		  rendering.draw_light {
@@ -550,18 +551,14 @@ function model.set_burner(train, state)
     return "working"
 end
 
-function ei_draw_charger_glow(charger, overrides, train)
+function ei_draw_charger_glow(charger, overrides)
     if not (charger and charger.valid) or not storage.ei.em_charger_glow then return end
-    local entropy
-    if train and train.valid then
-        entropy = train.unit_number + train.speed + train.position.x + train.position.y
-    end
-     local params = {
+     local glow_params = {
          sprite = "emt_charger_glow",
          time_to_live = storage.ei.em_charger_glow_timeToLive,
          surface = charger.surface,
          players = game.connected_players,
-         blend_mode = "multiplicative",
+         blend_mode = "multiplicative-with-alpha",
          apply_runtime_tint = true,
          draw_as_glow = true,
  
@@ -591,47 +588,44 @@ function ei_draw_charger_glow(charger, overrides, train)
 	if overrides then
 		 -- override any top-level params if needed
 		 for k, v in pairs(overrides or {}) do
-			 params[k] = v
+			 glow_params[k] = v
 		 end
 	end
-     -- always-on light (optional)
-     rendering.draw_light {
-         sprite = params.sprite,
+     -- always-on light
+    rendering.draw_light {
+         sprite = glow_params.sprite,
          scale = 2,
          intensity = 0.65,
          color = {r = 0, g = 0.4, b = 1.0},
          target = charger,
-         surface = params.surface,
+         surface = glow_params.surface,
          time_to_live = storage.ei.em_charger_glow_timeToLive,
-         players = params.players,
-         blend_mode = params.blend_mode,
-         apply_runtime_tint = params.apply_runtime_tint,
-         draw_as_glow = params.draw_as_glow,
+         players = glow_params.players,
+         blend_mode = glow_params.blend_mode,
+         apply_runtime_tint = glow_params.apply_runtime_tint,
+         draw_as_glow = glow_params.draw_as_glow,
      }
  
      -- randomize additional glow effects from each glow set
-     for _, glow_set in pairs(params.glow_sets) do
-		local seed = "charger_glow_" .. tostring(i)
-		local set = ei_rng.int(seed, 1, #params.glow_sets, charger.unit_number+entropy, charger.surface.index, charger.position.x, charger.position.y)
-		local color_index = ei_rng.int(seed, 1, #params.glow_sets[set].colors, charger.unit_number+entropy, charger.surface.index, charger.position.x, charger.position.y)
-		local color = params.glow_sets[set].colors[color_index]
-		local intensity = math.max(0.2, params.glow_sets[set].intensity or 0.5)
-		local scale = math.max(0.75, params.glow_sets[set].scale or 1)
- 
-         rendering.draw_light {
-             sprite = params.sprite,
-             scale = scale,
-             intensity = intensity,
-             color = color,
-             target = charger,
-             surface = params.surface,
-             time_to_live = storage.ei.em_charger_glow_timeToLive,
-             players = params.players,
-             blend_mode = params.blend_mode,
-             apply_runtime_tint = params.apply_runtime_tint,
-             draw_as_glow = params.draw_as_glow,
-         }
-     end
+    local set = math.random(1, #glow_params.glow_sets)
+	local color_index = math.random(1, #glow_params.color_pool)
+	local color = glow_params.color_pool[color_index]
+	local scale = math.random(glow_params.scale_range[1],glow_params.scale_range[2])
+	local intensity = math.random(glow_params.intensity_range[1],glow_params.intensity_range[2])
+
+        rendering.draw_light {
+            sprite = glow_params.sprite,
+            scale = scale,
+            intensity = intensity,
+            color = color,
+            target = charger,
+            surface = glow_params.surface,
+            time_to_live = storage.ei.em_charger_glow_timeToLive,
+            players = glow_params.players,
+            blend_mode = glow_params.blend_mode,
+            apply_runtime_tint = glow_params.apply_runtime_tint,
+            draw_as_glow = glow_params.draw_as_glow,
+        }
  end
 
 function model.has_enough_energy(charger, train)
@@ -654,7 +648,7 @@ function model.has_enough_energy(charger, train)
 
     if energy >= total_needed then
         charger.energy = charger.energy - total_needed
-        ei_draw_charger_glow(charger,false,train)
+        ei_draw_charger_glow(charger,false)
         --game.print("dec")
         return 1
     end

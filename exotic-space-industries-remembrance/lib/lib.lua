@@ -75,7 +75,7 @@ function ei_lib.get_random_different_value(tbl, previous, entropy1, entropy2, en
     local choice
     local entropy = 0
     repeat
-        choice = values[ei_rng.int("randtblvalu", 1, #values,entropy1, entropy2, entropy3, entropy4) + entropy]
+        choice = values[ei_rng.int(tostring(tbl), 1, #values,entropy1, entropy2, entropy3, (entropy4 or 0)+ entropy)]
         entropy = entropy + 1
     until choice ~= previous
 

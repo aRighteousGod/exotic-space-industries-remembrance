@@ -185,7 +185,11 @@ function echo_codex.proclaim(category, data)
 end
 
 
-function echo_codex.handle_global_settings()
+function echo_codex.handle_global_settings(event)
+  if not event then
+    local event = {}
+    event.tick = -1
+  end
     --=== [Read core config values] ===--
     local width               = ei_lib.config("em_updater_que_width") or 6
     local transparency        = ei_lib.config("em_updater_que_transparency") or 80
@@ -199,15 +203,21 @@ function echo_codex.handle_global_settings()
 
     local previous_tint = nil
   -- Helper to get new tint and adj
-  local function next_tint() --math.random cause this is called from an event
-      local tint = ei_lib.get_random_different_value(ei_lib.tint_palette, previous_tint,
-    math.random(1,6553600))
-      previous_tint = tint
+  local function next_tint(event)
+    local tint
+  if event then
+        tint = ei_lib.get_random_different_value(ei_lib.tint_palette, previous_tint,
+      math.random(1,6553600),event.tick)
+        previous_tint = tint
+  else
+        tint = ei_lib.get_random_different_value(ei_lib.tint_palette, previous_tint)
+        previous_tint = tint
+  end
       return tint, ei_lib.tint_palette[tint]
   end
   
     --=== [Width Announcement] ===--
-    local tint, tint_adj = next_tint()
+    local tint, tint_adj = next_tint(event)
     echo_codex.proclaim("que_width", {
         val = width,
         tint = tint,
@@ -217,7 +227,7 @@ function echo_codex.handle_global_settings()
     storage.ei.que_width = width
 
     --=== [Transparency Announcement] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     echo_codex.proclaim("transparency", {
         val = transparency,
         tint = tint,
@@ -227,7 +237,7 @@ function echo_codex.handle_global_settings()
     storage.ei.que_transparency = transparency / 100
 
     --=== [Queue Time-To-Live] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     echo_codex.proclaim("que_timetolive", {
         val = que_timetolive,
         tint = tint,
@@ -237,7 +247,7 @@ function echo_codex.handle_global_settings()
     storage.ei.que_timetolive = que_timetolive
 
     --=== [Train Glow Toggle] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     if train_glow then
         echo_codex.proclaim("train_glow_on", {
             tint = tint,
@@ -255,7 +265,7 @@ function echo_codex.handle_global_settings()
     storage.ei.em_train_glow_toggle = train_glow
 
     --=== [Train Glow TTL] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     echo_codex.proclaim("train_glow_timetolive", {
         val = trainGlowTimeToLive,
         tint = tint,
@@ -266,7 +276,7 @@ function echo_codex.handle_global_settings()
     storage.ei.em_train_glow_timeToLive = trainGlowTimeToLive
 
     --=== [Charger Glow Toggle] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     if charger_glow then
         echo_codex.proclaim("charger_glow_on", {
             tint = tint,
@@ -284,7 +294,7 @@ function echo_codex.handle_global_settings()
     storage.ei.em_charger_glow = charger_glow
 
     --=== [Charger Glow TTL] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     echo_codex.proclaim("charger_glow_timetolive", {
         val = chargerGlowTimeToLive,
         tint = tint,
@@ -294,7 +304,7 @@ function echo_codex.handle_global_settings()
     storage.ei.em_charger_glow_timeToLive = chargerGlowTimeToLive
 
     --=== [Queue Type Handling] ===--
-    tint, tint_adj = next_tint()
+    tint, tint_adj = next_tint(event)
     if que_type == "Beam" then
         echo_codex.proclaim("beam_lines", {
             tint = tint,
@@ -586,7 +596,7 @@ function echo_codex.reforge_gaia_surface()
   echo_codex.random_surface_echo((not final_count or final_count == 0) and "no_resources" or "surface_finalized")
 end
 
-
+--[[
 function echo_codex.sigil_cleanup()
   if not storage.ei.lamp_removals then return end
 
@@ -606,6 +616,6 @@ function echo_codex.sigil_cleanup()
     end
   end
 end
-
+]]
 
 return echo_codex

@@ -60,6 +60,126 @@ data:extend({
         },
         age = "both-quantum-age",
     },
+    {
+        name = "ei-matter-explosion",
+        type = "explosion",
+        flags = {"not-on-map"},
+        animations = {
+            {
+                filename = ei_graphics_other_path.."plasma-explosion.png",
+                size = {1944/6, 1248/3},
+                shift = {0, -6},
+                scale = 3,
+                line_length = 6,
+                lines_per_file = 6,
+                frame_count = 36,
+                animation_speed = 0.3,
+                draw_as_glow = true,
+                priority = "high",
+            },
+        },
+        light_intensity_peak_end_progress = 0.6,
+        light_size_peak_start_progress = 0.0675,
+        light_size_peak_end_progress = 0.9,
+        scale_out_duration = 45,
+        scale_end = 0.85,
+        scale_animation_speed = true,
+        light = {
+            intensity = 0.85,
+            blend_mode = "multiplicative",
+            draw_as_glow = true,
+            color = {r = 0.45, g = 0.1, b = 0.6},
+            size = 125
+        },
+        sound = {
+            aggregation = {
+                max_count = 40,
+                remove = true
+            },
+            variations = {
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_1.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_2.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_3.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_4.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_5.ogg",
+                    volume = 0.95
+                },
+                {
+                    filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_6.ogg",
+                    volume = 0.95
+                }
+            }
+        },
+        smoke = "smoke-fast",
+        smoke_count = 2,
+        smoke_slow_down_factor = 1,
+
+        created_effect = {
+            action_delivery = {
+                target_effects = {
+                    {
+                        type = "damage",
+                        damage = {amount = 2500, type = "electric"},
+                        force = "enemy",
+                    },
+                    {
+                        action = {
+                            action_delivery = {
+                                target_effects = {
+                                    {
+                                        damage = {amount = 1250,type = "explosion"},
+                                        force = "enemy",
+                                        type = "damage"
+                                    },
+                                },
+                                type = "instant"
+                            },
+                            radius = ei_data.matter_stabilizer.matter_range,
+                            type = "area"
+                        },
+                        type = "nested-result"
+                    },
+                    {
+                        check_buildability = true,
+                        entity_name = "huge-scorchmark-tintable",
+                        type = "create-entity"
+                    },
+                    {
+                        repeat_count = 1,
+                        type = "invoke-tile-trigger"
+                    },
+                    {
+                        decoratives_with_trigger_only = false,
+                        from_render_layer = "decorative",
+                        include_decals = false,
+                        include_soft_decoratives = true,
+                        invoke_decorative_trigger = true,
+                        radius = ei_data.matter_stabilizer.matter_range,
+                        to_render_layer = "object",
+                        type = "destroy-decoratives"
+                    }
+                },
+                type = "instant",
+            },
+            type = "direct",
+        },
+        
+        subgroup = "explosions",
+        order = "c-a-a2"
+    }
 })
 
 
@@ -85,7 +205,7 @@ local neo_assembler = {
     },
     max_health = 300,
     corpse = "big-remnants",
-    dying_explosion = "medium-explosion",
+    dying_explosion = "ei-matter-explosion",
     collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
     map_color = ei_data.colors.assembler,
@@ -96,10 +216,10 @@ local neo_assembler = {
         usage_priority = 'secondary-input',
         emissions_per_minute = {pollution = 4 },
     },
-    energy_usage = "1MW",
+    energy_usage = "5MW",
     result_inventory_size = 1,
     source_inventory_size = 1,
-    allowed_effects = {"speed", "consumption", "pollution", "productivity"},
+    allowed_effects = {"speed", "consumption", "pollution", "productivity","quality"},
     module_slots = 4,
     fluid_boxes = util.table.deepcopy(data.raw["assembling-machine"]["assembling-machine-3"].fluid_boxes),
     graphics_set = util.table.deepcopy(data.raw["assembling-machine"]["assembling-machine-3"].graphics_set),

@@ -1,7 +1,7 @@
 local model = {}
 ei_rng = require("lib/ei_rng")
 
-local DEBUG_TRACEROUTE = true
+local DEBUG_TRACEROUTE = false
 
 --====================================================================================================
 --GATE
@@ -14,7 +14,69 @@ model.inverse_surface = {
     ["gaia"] = "nauvis",
     ["nauvis"] = "gaia"
 }
-
+model.mass_weights = {
+    ["ei-advanced-faulty-semiconductor"] = 2,
+    ["ei-alien-beacon"] = 500,
+    ["ei-alien-beacon_off-1"] = 500,
+    ["ei-alien-beacon_off-2"] = 500,
+    ["ei-alien-beacon_off-3"] = 500,
+    ["ei-alien-flowers-1"] = 4,
+    ["ei-alien-flowers-10"] = 4,
+    ["ei-alien-flowers-11"] = 4,
+    ["ei-alien-flowers-2"] = 4,
+    ["ei-alien-flowers-3"] = 4,
+    ["ei-alien-flowers-4"] = 4,
+    ["ei-alien-flowers-5"] = 4,
+    ["ei-alien-flowers-6"] = 4,
+    ["ei-alien-flowers-7"] = 4,
+    ["ei-alien-flowers-8"] = 4,
+    ["ei-alien-flowers-9"] = 4,
+    ["ei-alien-resin"] = 4,
+    ["ei-alien-seed"] = 500,
+    ["ei-alien-stabilizer"] = 50,
+    ["ei-black-hole-data"] = 1,
+    ["ei-blooming-alien-seed"] = 500,
+    ["ei-charged-energy-crystal"] = 1.25,
+    ["ei-coal-chunk"] = 2,
+    ["ei-copper-chunk"] = 3,
+    ["ei-crushed-sulfur"] = 1,
+    ["ei-cryo-container-nitrogen"] = 2,
+    ["ei-cryo-container-oxygen"] = 2,
+    ["ei-crystal-accumulator_off-1"] = 125.0,
+    ["ei-crystal-accumulator_off-2"] = 125.0,
+    ["ei-crystal-accumulator_off-3"] = 125.0,
+    ["ei-crystal-accumulator_off-4"] = 125.0,
+    ["ei-empty-cryo-container"] = 2,
+    ["ei-energy-crystal"] = 1.25,
+    ["ei-exotic-matter-down"] = 1,
+    ["ei-exotic-matter-up"] = 1,
+    ["ei-exotic-ore"] = 10,
+    ["ei-farstation_off-1"] = 100,
+    ["ei-farstation_off-2"] = 100,
+    ["ei-farstation_off-3"] = 100,
+    ["ei-faulty-semiconductor"] = 2,
+    ["ei-fluorite"] = 1,
+    ["ei-gold-chunk"] = 5,
+    ["ei-iron-chunk"] = 3,
+    ["ei-lead-chunk"] = 3,
+    ["ei-neodym-chunk"] = 10,
+    ["ei-nuclear-waste"] = 100,
+    ["ei-plasma-data"] = 1,
+    ["ei-plutonium-239"] = 1,
+    ["ei-pure-copper"] = 1,
+    ["ei-pure-gold"] = 1,
+    ["ei-pure-iron"] = 1,
+    ["ei-pure-lead"] = 1,
+    ["ei-rift-stabilizer"] = 50,
+    ["ei-sulfur-chunk"] = 3,
+    ["ei-thorium-232"] = 3,
+    ["ei-uranium-233"] = 3,
+    ["ei-uranium-chunk"] = 5,
+    ["ei-used-plutonium-239-fuel"] = 10,
+    ["ei-used-thorium-232-fuel"] = 10,
+    ["ei-used-uranium-233-fuel"] = 10,
+    ["ei-used-uranium-235-fuel"] = 10,
+  }
 
 --DOC
 ------------------------------------------------------------------------------------------------------
@@ -134,22 +196,10 @@ function model.register_gate(gate, container)
     storage.ei.gate.gate[gate_unit].container = container
 
     -- set endpoint to (0, 0)
-    --storage.ei.gate.gate[gate_unit].exit = {surface = model.inverse_surface[gate.surface.name], x = 0, y = 0}
-    if not gate.surface or not gate.loc.x or not gate.loc.y then
-        for _,surface in pairs(game.surfaces) do
-            if surface and surface.valid and not surface.hidden then
-                local firstsurf = surface
-                goto continue
-            end
-        end
-        ::continue::
-        storage.ei.gate.gate[gate_unit].exit = {surface = firstsurf, x=0,y=0}
-    else
-        storage.ei.gate.gate[gate_unit].exit = {surface = gate.surface, x=gate.position.x or 0,y=gate.position.y or 0}
+    if model.inverse_surface[gate.surface.name] then
+        storage.ei.gate.gate[gate_unit].exit = {surface = model.inverse_surface[gate.surface.name], x = 0, y = 0}
     end
-    if storage.ei.gate.gate[gate_unit].exit == nil then
-        log("ei register_gate wound up with nil initial gate exit for "..gate_unit)
-    end
+
     storage.ei.gate.gate[gate_unit].state = false
 
 
@@ -268,21 +318,30 @@ function model.check_for_teleport(unit, gate)
         -- loop over source inv and try to transfer to target inv
         for i = 1, #source_inv do
             if source_inv[i].valid_for_read then
-                
-                local transfer_count = target_inv.insert(source_inv[i])
-                if transfer_count > 0 then
+                local item_stack = source_inv[i]
+                local item_name = item_stack.name
+                local item_count = item_stack.count
 
-                    if model.pay_energy(gate, {{name = source_inv[i].name, count = transfer_count}}) then
- 
-                        source_inv[i].count = source_inv[i].count - transfer_count
-                        success = true
+                -- Simulate a full transfer first
+                local simulated_stack = {{name = item_name, count = item_count}}
 
-                        ei_victory.count_value("gate_items_transported", transfer_count)
+                if model.pay_energy(gate, simulated_stack) == true then
+                    -- Try to insert into target inventory
+                    local transfer_count = target_inv.insert(item_stack)
 
+                    if transfer_count > 0 then
+                        -- Actually pay energy for the amount successfully inserted
+                        if model.pay_energy(gate, {{name = item_name, count = transfer_count}},true) == true then
+                            item_stack.count = item_stack.count - transfer_count
+                            success = true
+
+                            ei_victory.count_value("gate_items_transported", transfer_count)
+                        else
+                            -- Energy check passed earlier, but failed here: rollback insertion
+                            target_inv.remove({name = item_name, count = transfer_count})
+                        end
                     end
-
-                end 
-
+                end
             end
         end
 
@@ -362,6 +421,8 @@ function model.gate_state(gate)
 end
   
 --Recursively expand raw ingredient cost of an item
+--1 this doesn't work
+--2 needs to be rewritten to compute costs in final-fixes
 local function get_raw_ingredient_cost(item_name, multiplier, seen, depth)
     if not item_name or type(item_name) ~= "string" then
         log("[ERROR] Invalid item_name passed to get_raw_ingredient_cost: " .. serpent.block(item_name))
@@ -431,7 +492,7 @@ local function get_raw_ingredient_cost(item_name, multiplier, seen, depth)
 end
   
 --Master Function: Gate pays based on effective mass
-function model.pay_energy(gate, tablein)
+function model.pay_energy(gate, tablein, actuallypay)
     local total_energy = 0
 
     for _, entry in ipairs(tablein) do
@@ -446,30 +507,42 @@ function model.pay_energy(gate, tablein)
             local count = tonumber(entry.count) or 0
             if count > 0 then
                 local raw_costs = get_raw_ingredient_cost(entry.name, count)
-                if not raw_costs then return false end
-                for raw, amt in pairs(raw_costs) do
-                    local weight = model.mass_weights[raw] or 1
-                    local energy_contrib = weight * amt
+                if not raw_costs then
+                    local weight = model.mass_weights[entry] or 1
+                    local energy_contrib = weight * entry.count
 
                     total_energy = total_energy + energy_contrib
+                else
+                    for raw, amt in pairs(raw_costs) do
+                        local weight = model.mass_weights[raw] or 1
+                        local energy_contrib = weight * amt
 
-                    if DEBUG_TRACEROUTE then
-                        game.print("[Weight] " .. raw .. ": " .. amt .. " × " .. weight .. " = " .. energy_contrib)
+                        total_energy = total_energy + energy_contrib
+
+                        if DEBUG_TRACEROUTE then
+                            game.print("[Weight] " .. raw .. ": " .. amt .. " × " .. weight .. " = " .. energy_contrib)
+                        end
                     end
                 end
             end
         end
     end
-
+    total_energy = (total_energy^1.2) * 100 --expensive
     total_energy = total_energy * 1e6  -- MJ to J
-
+    if not actuallypay then
+        if gate.energy < total_energy then
+            return false
+        else
+            return true
+        end
+    end
     if gate.energy < total_energy then
-        ei_lib.crystal_echo_floating("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.",gate, 50)
+        ei_lib.crystal_echo_floating("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.",gate, 30)
         return false
     end
 
     gate.energy = gate.energy - total_energy
-    ei_lib.crystal_echo_floating("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.",gate, 50)
+    ei_lib.crystal_echo_floating("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.",gate, 30)
     return true
 end
 
@@ -597,7 +670,6 @@ end
 
 
 function model.render_animation(gate)
-
     local gate_unit = gate.unit_number
     local pick = math.random(1,4)
     if pick == 1 then

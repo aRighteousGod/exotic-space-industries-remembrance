@@ -223,7 +223,7 @@ data:extend({
         },
         unit = {
             count = 600,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["quantum-age"],
             time = 60
         },
         age = "quantum-age",
@@ -233,7 +233,7 @@ data:extend({
         type = "technology",
         icon = ei_robots_tech_path.."cargo-bots.png",
         icon_size = 256,
-        prerequisites = {"logistic-robotics"},
+        prerequisites = {"ei-advanced-computer-age-tech","logistic-robotics"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -242,17 +242,17 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["electricity-age"],
+            ingredients = ei_data.science["advanced-computer-age"],
             time = 30
         },
-        age = "electricity-age",
+        age = "advanced-computer-age",
     },
     {
         name = "ei-construction-bots",
         type = "technology",
         icon = ei_robots_tech_path.."construction-bots.png",
         icon_size = 256,
-        prerequisites = {"construction-robotics"},
+        prerequisites = {"ei-advanced-computer-age-tech","construction-robotics"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -261,10 +261,10 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["advanced-computer-age"],
             time = 30
         },
-        age = "electricity-age",
+        age = "advanced-computer-age",
     },
     {
         name = "ei-advanced-port",
@@ -395,12 +395,12 @@ data:extend({
             result = "ei-cargo-bot",
         },
         max_payload_size = 100,
-        speed = 0.01,
+        speed = 0.1,
         transfer_distance = 0.5,
         max_energy = "100MJ",
-        energy_per_tick = "0.1kJ",
+        energy_per_tick = "17kJ",
         speed_multiplier_when_out_of_energy = 0.2,
-        energy_per_move = "1kJ",
+        energy_per_move = "25kJ",
         min_to_charge = 0.2,
         max_to_charge = 0.9,
         cargo_centered = {0.0, 0.2},
@@ -597,7 +597,7 @@ data:extend({
         max_payload_size = 5,
         speed = 0.1,
         transfer_distance = 0.5,
-        max_energy = "5MJ",
+        max_energy = "25MJ",
         energy_per_tick = "0.1kJ",
         speed_multiplier_when_out_of_energy = 0.2,
         energy_per_move = "10kJ",
@@ -705,6 +705,13 @@ data:extend({
         type = "roboport",
         icon = ei_robots_item_path .. "advanced-port.png",
         icon_size = 64,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 25, main_offset = util.by_pixel(-88.875,  29.5), shadow_offset = util.by_pixel(-88.875,  29.5), show_shadow = true }
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-player", "placeable-neutral", "player-creation"},
         minable = {
             mining_time = 0.5,
@@ -811,9 +818,6 @@ data:extend({
 			animation_speed = 0.5
         },
 
-        circuit_wire_connection_point = circuit_connector_definitions["roboport"].points,
-        circuit_connector_sprites = circuit_connector_definitions["roboport"].sprites,
-        circuit_wire_max_distance = 20,
         default_available_logistic_output_signal = {type = "virtual", name = "signal-X"},
         default_total_logistic_output_signal = {type = "virtual", name = "signal-Y"},
         default_available_construction_output_signal = {type = "virtual", name = "signal-Z"},

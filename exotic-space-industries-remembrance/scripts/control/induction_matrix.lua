@@ -170,7 +170,7 @@ end
 --FLOODFIL LOGIC RELATED
 -----------------------------------------------------------------------------------------------------
 
-function model.check_connected_tiles(pos, surface, render, matrix_id, force)
+function model.check_connected_tiles(pos, surface, render, matrix_id, force, event)
 
     local max_connected_tiles = model.get_max_connected_tiles(force)
     local tile = surface.get_tile({x=pos.x - 0.25, y=pos.y - 0.25})
@@ -824,7 +824,7 @@ end
 --UPDATE RELATED
 -----------------------------------------------------------------------------------------------------
 
-function model.update_core(matrix_id)
+function model.update_core(matrix_id, event)
 
     local core = model.get_core_entity(matrix_id)
 
@@ -837,7 +837,7 @@ function model.update_core(matrix_id)
     end
 
     -- first redo the floodfill to be sure that all entities are picked up
-    local dict = model.check_connected_tiles(core.position, core.surface, false, matrix_id, core.force)
+    local dict = model.check_connected_tiles(core.position, core.surface, false, matrix_id, core.force, event)
 
     local coils = storage.ei.induction_matrix.core[matrix_id].coils
     local solenoids = storage.ei.induction_matrix.core[matrix_id].solenoids
@@ -854,7 +854,7 @@ function model.update_core(matrix_id)
     -- calc new stats and apply them if needed
     local new_stats = model.calculate_stats(coils, solenoids, converters)
 
-    model.show_stats(core.surface, core.position, new_stats)
+    model.show_stats(core.surface, core.position, new_stats, event)
     model.set_core_state(matrix_id, state)
 
     local old_stats = storage.ei.induction_matrix.core[matrix_id].stats
@@ -865,7 +865,7 @@ function model.update_core(matrix_id)
 end
 
 
-function model.update_dirty()
+function model.update_dirty(event)
 
     -- loop over all cores and update those which are marked as dirty
     model.check_global_init()
@@ -878,7 +878,7 @@ function model.update_dirty()
 
         if storage.ei.induction_matrix.core[matrix_id].dirty then
 
-            model.update_core(matrix_id)
+            model.update_core(matrix_id, event)
 
         end
 
@@ -892,7 +892,7 @@ end
 --RENDERING
 -----------------------------------------------------------------------------------------------------
 
-function model.queue_tile_render(surface, progress_list, color)
+function model.queue_tile_render(surface, progress_list, color, event)
 
     model.check_global_init()
 
@@ -902,7 +902,7 @@ function model.queue_tile_render(surface, progress_list, color)
 
 
     local speed = 8
-    local tick = game.tick
+    local tick = event.tick
     local Dt = #progress_list/speed + 10
 
     -- loop over all tiles in the progress list and add them to the render que
@@ -984,7 +984,7 @@ function model.render_tile_box(data)
 end
 
 
-function model.show_stats(surface, pos, stats)
+function model.show_stats(surface, pos, stats, event)
 
     -- first look trough the render queue for all stat-texts and if they are for this entity
     -- then update the entry with the new rendering
@@ -1040,7 +1040,7 @@ function model.show_stats(surface, pos, stats)
 
     if not queue_index then
         table.insert(storage.ei.induction_matrix.render_queue, {
-            tick = game.tick + 120,
+            tick = event.tick + 120,
             capacity_text = capacity_text,
             IO_text = IO_text,
             pos = pos,
@@ -1048,7 +1048,7 @@ function model.show_stats(surface, pos, stats)
             rtype = "stat-text",
         })
     else
-        storage.ei.induction_matrix.render_queue[queue_index].tick = game.tick + 120
+        storage.ei.induction_matrix.render_queue[queue_index].tick = event.tick + 120
         storage.ei.induction_matrix.render_queue[queue_index].capacity_text = capacity_text
         storage.ei.induction_matrix.render_queue[queue_index].IO_text = IO_text
     end
@@ -1113,7 +1113,7 @@ function model.get_matrix_current_stored_power(matrix_id)
 end
 
 
-function model.force_visual_update(matrix_id)
+function model.force_visual_update(matrix_id, event)
 
     model.check_global_init()
 
@@ -1127,7 +1127,7 @@ function model.force_visual_update(matrix_id)
         return
     end
 
-    local dict = model.check_connected_tiles(core.position, core.surface, true, matrix_id, core.force)
+    local dict = model.check_connected_tiles(core.position, core.surface, true, matrix_id, core.force, event)
 
     if dict == false then
         return
@@ -1438,9 +1438,9 @@ function model.on_destroyed_tile(event)
 end
 
 
-function model.update()
+function model.update(event)
 
-    local tick = game.tick
+    local tick = event.tick
 
     model.update_render_queue(tick)
     model.update_dirty()

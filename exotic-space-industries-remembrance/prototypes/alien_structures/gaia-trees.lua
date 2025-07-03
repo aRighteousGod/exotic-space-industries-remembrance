@@ -27,8 +27,9 @@ local function make_tree(number, autoplace, colors)
 
     if autoplace then
         tree.autoplace = autoplace
+    else
+        tree.autoplace = {probability_expression = "50 * fulgora_oil_mask * water_base(fulgora_coastline, 1000)"}
     end
-
     if colors then
         tree.colors = colors
     else

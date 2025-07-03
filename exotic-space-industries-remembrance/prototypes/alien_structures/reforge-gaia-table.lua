@@ -12,7 +12,7 @@ local model = {
       ["ei-phytogas-patch"] = { frequency = 5, richness = 1, size = 1 },
       fulgora_cliff        = {},
       fulgora_islands      = {},
-      scrap                = {},
+      scrap                = {frequency = 0.05, richness = 0.05, size = 0.05 },
     },
     autoplace_settings = {
       decorative = {
@@ -33,16 +33,7 @@ local model = {
           ["ei-cryoflux-patch"]       = { frequency = 5, richness = 1, size = 1 },
           ["ei-morphium-patch"]       = { frequency = 5, richness = 1, size = 1 },
           ["ei-phytogas-patch"]       = { frequency = 5, richness = 1, size = 1 },
-          ["fulgoran-ruin-attractor"] = {},
-          ["fulgoran-ruin-big"]       = {},
-          ["fulgoran-ruin-colossal"]  = {},
-          ["fulgoran-ruin-huge"]      = {},
-          ["fulgoran-ruin-medium"]    = {},
-          ["fulgoran-ruin-small"]     = {},
-          ["fulgoran-ruin-stonehenge"]= {},
-          ["fulgoran-ruin-vault"]     = {},
-          fulgurite                   = {},
-          scrap                       = {},
+          scrap                       = {frequency = 0.25, richness = 0.25, size = 0.25 },
         },
       },
       tile = {

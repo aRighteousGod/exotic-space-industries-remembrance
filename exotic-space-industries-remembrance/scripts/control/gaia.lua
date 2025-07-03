@@ -70,7 +70,7 @@ end
 --ENTITY LIFETIMES AND REGISTER
 ------------------------------------------------------------------------------------------------------
 
-function model.register_entity(entity, overload)
+function model.register_entity(entity, overload, event)
 
     overload = overload or false
 
@@ -96,14 +96,14 @@ function model.register_entity(entity, overload)
     -- register the entity for lifetime
     table.insert(storage.ei.damage_ticks, {
         ["entity"] = entity,
-        ["update_tick"] = game.tick + model.entity_damage_ticks[entity.name],
+        ["update_tick"] = event.tick + model.entity_damage_ticks[entity.name],
         ["damage"] = 90
     })
 
 end
 
 
-function model.update_entity_lifetimes()
+function model.update_entity_lifetimes(event)
 
     if not storage.ei.damage_ticks then
         return
@@ -122,7 +122,7 @@ function model.update_entity_lifetimes()
             goto continue
         end
 
-        if update_tick > game.tick then
+        if update_tick > event.tick then
             goto continue
         end
 
@@ -149,7 +149,7 @@ function model.update_entity_lifetimes()
 
         table.insert(new_update, {
             ["entity"] = entity,
-            ["update_tick"] = game.tick + model.entity_damage_ticks[entity.name],
+            ["update_tick"] = event.tick + model.entity_damage_ticks[entity.name],
             ["damage"] = damage
         })
 
@@ -164,7 +164,7 @@ function model.update_entity_lifetimes()
     
     -- remove old entities from the update list
     while true do
-        if not model.remove_search_tick(storage.ei.damage_ticks, game.tick) then
+        if not model.remove_search_tick(storage.ei.damage_ticks, event.tick) then
             break
         end
     end
@@ -346,22 +346,22 @@ end
 --HANDLERS
 --====================================================================================================
 
-function model.on_built_entity(entity)
-
+function model.on_built_entity(event)
+    local entity = event.entity
     if model.entity_check(entity) == false then
         return
     end
 
     model.destroy_building(entity)
     model.swap_entity(entity)
-    model.register_entity(entity)
+    model.register_entity(entity,event)
 
 end
 
 
-function model.update()
+function model.update(event)
 
-    model.update_entity_lifetimes()
+    model.update_entity_lifetimes(event)
 
 end
 

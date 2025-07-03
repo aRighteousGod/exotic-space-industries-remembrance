@@ -326,8 +326,14 @@ local new_ingredients_table = {
     ["stack-inserter"] = {
         {type="item",name="ei-electronic-parts", amount=5},
         {type="item",name="ei-advanced-motor", amount=4},
-        {type="item",name="fast-inserter", amount=1},
+        {type="item",name="bulk-inserter", amount=1},
         {type="item",name="ei-energy-crystal", amount=4},
+    },
+    ["bulk-inserter"] = {
+        {type="item",name="ei-electronic-parts", amount=5},
+        {type="item",name="ei-advanced-motor", amount=2},
+        {type="item",name="fast-inserter", amount=1},
+        {type="item",name="ei-energy-crystal", amount=2},
     },
     ["effectivity-module"] = {
         {type="item",name="ei-module-base", amount=1},
@@ -473,7 +479,7 @@ local ironSlag = {
     probability=0.1,
 }
 local steelSlag = {
-    recipe = "copper-plate",
+    recipe = "steel-plate",
     type = "item",
     ingredient="ei-slag",
     amountmin = 1,
@@ -484,29 +490,33 @@ ei_lib.recipe_output_add(copperSlag)
 ei_lib.recipe_output_add(ironSlag)
 ei_lib.recipe_output_add(steelSlag)
 
-
-data.raw["recipe"]["iron-plate"] = {
+]]
+ei_lib.raw["recipe"]["iron-plate"] = {
     results = {
     {type = "item", name = "iron-plate", amount = 1},
     {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
     },
-    icon = ei_graphics_item_path.."iron-ingot.png"
+    icon = ei_graphics_item_path.."iron-ingot.png",
+    icon_size = 64
 }
 
-data.raw["recipe"]["copper-plate"] = {
+ei_lib.raw["recipe"]["copper-plate"] = {
     results = {
     {type = "item", name = "copper-plate", amount = 1},
     {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
     },
-    icon = ei_graphics_item_path.."copper-ingot.png"
+    icon = ei_graphics_item_path.."copper-ingot.png",
+    icon_size = 64
 }
-data.raw["recipe"]["steel-plate"] = {
+ei_lib.raw["recipe"]["steel-plate"] = {
     results = {
     {type = "item", name = "steel-plate", amount = 1},
     {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
     },
-    icon = ei_graphics_item_path.."steel-ingot.png"
+    icon = ei_graphics_item_path.."steel-ingot.png",
+    icon_size = 64
 }
+--[[
 table.insert(ei_lib.raw.recipe["iron-plate"].results,{type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1})
 table.insert(ei_lib.raw.recipe["copper-plate"].results,{type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1})
 table.insert(ei_lib.raw.recipe["steel-plate"].results,{type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05})
