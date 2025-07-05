@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 7-5-2025
+  Additions:
+    - Imported french translation from Patch FR des Mods by @bev
+---------------------------------------------------------------------------------------------------
 Version: 1.0.4
 Date: 7-3-2025
   Additions:
@@ -82,7 +87,7 @@ Date: 7-2-2025
 
   Changes:
       - Spearling fast construction bot energy capacity 5 -> 25MJ.
-      - Obelisk cargo bot payload speed 1 -> 20km/h, energy per tick 0.1 -> 17KJ, energy per move 1 -> 25KJ.
+      - Obelisk cargo bot speed 1 -> 20km/h, energy per tick 0.1 -> 17KJ, energy per move 1 -> 25KJ.
       - Pneumatic Soul additionally requires 1 Gold ingot.
       - EI Tier 1 bots technologies moved to Simulation Computer Age.
       - Gaia spawns: Removed Fulgoran ruins, drastically reduced scrap size, richness, probability.
@@ -102,7 +107,7 @@ Date: 7-2-2025
       - High temperature reactor now converts water -> steam at 1:10 ratio and ergo requires 1/10th the water for all its steam recipes. Fluid box input size 1200000 -> 120000.
       - Steel and Heat steel furnace energy consumption 90 -> 135kW.
       - Heat steel furnace emissions per minute 2 -> 1.25 pollution.
-      - Gate recipe inputs: Concrete 50 > 250, Electronic parts 100 -> 200, Steel plate 200 -> 100, additionally requires 100 Steel beams.
+      - Gate recipe inputs: Concrete 50 -> 250, Electronic parts 100 -> 200, Steel plate 200 -> 100, additionally requires 100 Steel beams.
       - Burner lab, assembler, and quarry now emit smoke when working.
       - Burner lab can additionally research Computer Age technologies.
       - Flesh Crucible power usage 500 -> 750kW. Two additional pipe connections added to contend with additional recipes.
