@@ -192,7 +192,7 @@ function model.update_neutron_collector(entity, exclude)
 
     local foo = model.find_neutron_source(entity, exclude)
 
-    if foo.eff == 0 then
+    if foo.eff == 0 or entity.disabled_by_control_behavior then
         entity.set_recipe(nil)
         entity.recipe_locked = true
 
@@ -225,12 +225,13 @@ function model.update_neutron_collectors_in_range(neutron_source, exclude)
     local range = model.range
 
     local entities = neutron_source.surface.find_entities_filtered{
+        name = "ei-neutron-collector",
         position = neutron_source.position,
         radius = range,
     }
 
     for _, entity in ipairs(entities) do
-        if entity.name == "ei-neutron-collector" then
+        if entity then
             model.update_neutron_collector(entity, exclude)
         end
     end
@@ -273,7 +274,7 @@ function model.get_state(entity)
             return false
         end
 
-        return entity.is_crafting()
+        return (entity.is_crafting() and not entity.disabled_by_control_behavior)
     end
 
     if entity.type == "furnace" then
@@ -281,7 +282,7 @@ function model.get_state(entity)
             return false
         end
         
-        return entity.is_crafting()
+        return (entity.is_crafting() and not entity.disabled_by_control_behavior)
     end
 
     if entity.type == "reactor" then

@@ -193,7 +193,7 @@ data:extend({
         {type="item", name="stack-inserter", amount=4},
         {type="item", name="ei-advanced-motor", amount=20},
         {type="item", name="tungsten-carbide", amount=40},
-        {type="fluid", name="ei-lube-destilate", amount=100},
+        {type="fluid", name="electrolyte", amount=100},
         },
         results = {{type="item", name="ei-turbo-loader", amount=1}},
         enabled = false,

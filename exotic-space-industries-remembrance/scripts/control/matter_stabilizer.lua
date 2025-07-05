@@ -45,7 +45,7 @@ function model.find_in_range(machine_type, surface, pos, range)
     for _, e in pairs(entities) do
 
         if machine_type == "stabilizer" then
-            if model.stabilizers[e.name] and e.is_crafting() then
+            if model.stabilizers[e.name] and not e.disabled_by_control_behavior then
                 table.insert(matter_machines, e)
             end
 
@@ -64,7 +64,7 @@ end
 
 function model.update_matter_machine(entity)
 
-    if not model.check_entity(entity) or not (entity.is_crafting() or entity.crafting_progress > 0) then
+    if not model.check_entity(entity) or not entity.is_crafting() then
         return
     end
     local sur = entity.surface

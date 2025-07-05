@@ -497,7 +497,9 @@ ei_lib.raw["recipe"]["iron-plate"] = {
     {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
     },
     icon = ei_graphics_item_path.."iron-ingot.png",
-    icon_size = 64
+    icon_size = 64,
+    subgroup = "ei-refining-plate",
+    order = "a1",
 }
 
 ei_lib.raw["recipe"]["copper-plate"] = {
@@ -506,7 +508,9 @@ ei_lib.raw["recipe"]["copper-plate"] = {
     {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
     },
     icon = ei_graphics_item_path.."copper-ingot.png",
-    icon_size = 64
+    icon_size = 64,
+    subgroup = "ei-refining-plate",
+    order = "a2",
 }
 ei_lib.raw["recipe"]["steel-plate"] = {
     results = {
@@ -514,7 +518,9 @@ ei_lib.raw["recipe"]["steel-plate"] = {
     {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.05}
     },
     icon = ei_graphics_item_path.."steel-ingot.png",
-    icon_size = 64
+    icon_size = 64,
+    subgroup = "ei-refining-plate",
+    order = "a3",
 }
 --[[
 table.insert(ei_lib.raw.recipe["iron-plate"].results,{type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1})
@@ -637,6 +643,7 @@ ei_lib.recipe_new("flying-robot-frame",
     {type="item", name="battery", amount=2},
     {type="item", name="advanced-circuit", amount=5},
     {type="item", name="ei-steel-mechanical-parts", amount=10},
+    {type="item", name="ei-electronic-parts", amount=5},
     {type="item", name="ei-energy-crystal", amount=1},
     {type="fluid", name="lubricant", amount=100}
 })
@@ -660,6 +667,13 @@ ei_lib.recipe_new("rocket-fuel",
 
 --TECHS
 ------------------------------------------------------------------------------------------------------
+ei_lib.overwrite_entity_and_description("logistic-system","technology") -- overwrite to theory fluff because ei logistic containers is an post-grad tech
+ei_lib.remove_unlock_recipe("logistic-system", "active-provider-chest")
+ei_lib.remove_unlock_recipe("logistic-system", "buffer-chest")
+ei_lib.remove_unlock_recipe("logistic-system", "requester-chest")
+ei_lib.remove_unlock_recipe("logistic-robotics", "passive-provider-chest")
+ei_lib.remove_unlock_recipe("logistic-robotics", "storage-chest")
+
 ei_lib.raw["technology"]["flamethrower"].age = "steam-age" --need investigate why the pre-req table doesn't always stick
 ei_lib.raw["technology"]["concrete"].age = "steam-age"
 ei_lib.set_prerequisites("concrete", {"advanced-material-processing"})
@@ -1316,6 +1330,9 @@ ei_lib.raw.stream["flamethrower-fire-stream"] = {
 }
 
 
+ ei_lib.recipe_swap("turbo-transport-belt", "lubricant","electrolyte", 20)
+ ei_lib.recipe_swap("turbo-underground-belt", "lubricant","electrolyte", 40)
+  ei_lib.recipe_swap("turbo-splitter", "lubricant","electrolyte", 80)
 -- set next upgrade of turbo belt, splitter and underground to ei_neo-belt
 ei_lib.raw["transport-belt"]["turbo-transport-belt"].next_upgrade = "ei-neo-belt"
 ei_lib.raw["splitter"]["turbo-splitter"].next_upgrade = "ei-neo-splitter"

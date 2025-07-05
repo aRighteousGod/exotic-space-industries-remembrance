@@ -201,7 +201,7 @@ end
 function model.update_battery(unit, entity)
 
     -- find all energy injectors in range
-    -- check if they are running and if so add 10GW to battery for each injector
+    -- check if they are running and powered and if so add 10GW to battery for each injector
 
     local injectors = entity.surface.find_entities_filtered{
         name = "ei-energy-injector-pylon",
@@ -212,13 +212,13 @@ function model.update_battery(unit, entity)
     -- game.print("Found "..#injectors.." injectors")
 
     storage.ei.black_hole[unit].battery = 0
+    if #injectors>0 then
+        for _,injector in pairs(injectors) do
 
-    for _,injector in pairs(injectors) do
-
-        if injector.energy > 10*1000*1000 then
-            storage.ei.black_hole[unit].battery = storage.ei.black_hole[unit].battery + 1
+            if injector and injector.valid and  not injector.disabled_by_control_behavior and injector.energy > 10*1000*1000 then
+                storage.ei.black_hole[unit].battery = storage.ei.black_hole[unit].battery + 1
+            end
         end
-
     end
 
     -- game.print("Black hole battery: "..storage.ei.black_hole[unit].battery)
@@ -647,8 +647,15 @@ function model.get_injector_pylons_in_range(unit)
         position = entity.position,
         radius = 20,
     }
-
-    return #injectors
+    local count = 0
+    if #injectors>0 then
+        for _,active in pairs(injectors) do
+            if active and active.valid and not active.disabled_by_control_behavior then
+                count = count+1
+            end
+        end
+    end
+    return count
 
 end
 

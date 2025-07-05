@@ -164,35 +164,6 @@ ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-lubricant
 --ei_lib.enable_from_start("iron-stick")
 --ei_lib.enable_from_start("iron-gear-wheel")
 
-
-ei_lib.add_unlock_recipe("steel-processing","ei-1x1-container-filter")
-ei_lib.add_unlock_recipe("steel-processing","ei-2x2-container-filter")
-ei_lib.add_unlock_recipe("steel-processing","ei-6x6-container-filter")
-
-ei_lib.add_unlock_recipe("steel-processing","ei-1x1-container")
-ei_lib.add_unlock_recipe("steel-processing","ei-2x2-container")
-ei_lib.add_unlock_recipe("steel-processing","ei-6x6-container")
-
-ei_lib.add_unlock_recipe("logistic-robotics","ei-1x1-container-red")
-ei_lib.add_unlock_recipe("logistic-robotics","ei-2x2-container-red")
-ei_lib.add_unlock_recipe("logistic-robotics","ei-6x6-container-red")
-
-ei_lib.add_unlock_recipe("logistic-robotics","ei-1x1-container-yellow")
-ei_lib.add_unlock_recipe("logistic-robotics","ei-2x2-container-yellow")
-ei_lib.add_unlock_recipe("logistic-robotics","ei-6x6-container-yellow")
-
-ei_lib.add_unlock_recipe("logistic-robotics","ei-1x1-container-blue")
-ei_lib.add_unlock_recipe("logistic-robotics","ei-2x2-container-blue")
-ei_lib.add_unlock_recipe("logistic-robotics","ei-6x6-container-blue")
-
-ei_lib.add_unlock_recipe("logistic-system","ei-1x1-container-green")
-ei_lib.add_unlock_recipe("logistic-system","ei-2x2-container-green")
-ei_lib.add_unlock_recipe("logistic-system","ei-6x6-container-green")
-
-ei_lib.add_unlock_recipe("logistic-system","ei-1x1-container-pink")
-ei_lib.add_unlock_recipe("logistic-system","ei-2x2-container-pink")
-ei_lib.add_unlock_recipe("logistic-system","ei-6x6-container-pink")
-
 if mods and mods["aai-signal-transmission"] then
     ei_lib.add_unlock_recipe("aai-signal-transmission","aai-signal-sender")
     ei_lib.remove_unlock_recipe("space-platform","aai-signal-sender")
@@ -200,11 +171,11 @@ end
 ei_lib.add_unlock_recipe("electronics","stone-tablet")
 ei_lib.add_unlock_recipe("ei-steam-power","boiler")
 ei_lib.add_unlock_recipe("ei-glass","kr-glass")
---ei_lib.add_unlock_recipe("steel-processing","kr-steel-gear-wheel")
+ei_lib.add_unlock_recipe("steel-processing","kr-steel-gear-wheel")
 
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-small-roboport")
 --ei_lib.add_unlock_recipe("ei-advanced-port","kr-big-roboport")
---ei_lib.add_unlock_recipe("ei-electricity-power","kr-wind-turbine")
+ei_lib.add_unlock_recipe("ei-electricity-power","kr-wind-turbine")
 ei_lib.add_unlock_recipe("atomic-bomb","nuclear-artillery-shell")
 ei_lib.add_unlock_recipe("rocket-silo","ei-orbital-combinator")
 ei_lib.add_unlock_recipe("ei-electronic-parts","kr-electronic-components") --add k2 electronic components to EI equivalent

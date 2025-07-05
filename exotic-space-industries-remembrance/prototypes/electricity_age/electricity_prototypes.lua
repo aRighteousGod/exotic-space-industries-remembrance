@@ -688,7 +688,7 @@ data:extend({
         ingredients = {
             {type = "item", name = "ei-electronic-parts", amount = 1},
             {type = "item", name = "ei-energy-crystal", amount = 1},
-            {type = "fluid", name = "ei-lube-destilate", amount = 25},
+            {type = "fluid", name = "lubricant", amount = 25},
         },
         results = {
             {type = "item", name = "ei-computer-age-tech", amount = 2},
@@ -944,7 +944,7 @@ data:extend({
         category = "ei-arc-furnace",
         energy_required = 0.5,
         ingredients = {
-            {type = "item", name = modprefix.."sand", amount = 240},
+            {type = "item", name = modprefix.."sand", amount = 60},
         },
         results = {
             {type = "fluid", name = "ei-molten-glass", amount = 25},
@@ -1004,7 +1004,46 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["steam-age"],
+            ingredients = ei_data.science["electricity-age"],
+            time = 20
+        },
+        age = "electricity-age",
+    },
+    {
+        name = "ei-containers",
+        type = "technology",
+        icon = ei_path.."graphics/tech/containers.png",
+        icon_size = 256,
+        prerequisites = {"ei-electricity-age"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container-filter"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container-filter"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container-filter"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["electricity-age"],
             time = 20
         },
         age = "electricity-age",

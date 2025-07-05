@@ -1729,9 +1729,11 @@ data:extend({
         energy_required = 1,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 40},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "ei-pure-copper", amount = 1},
         },
         always_show_made_in = true,
@@ -1748,9 +1750,11 @@ data:extend({
         energy_required = 1,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 40},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "ei-pure-iron", amount = 1},
         },
         always_show_made_in = true,
@@ -1767,9 +1771,11 @@ data:extend({
         energy_required = 1.5,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 60},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "ei-pure-gold", amount = 1},
         },
         always_show_made_in = true,
@@ -1786,9 +1792,11 @@ data:extend({
         energy_required = 1.5,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 60},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "ei-pure-lead", amount = 1},
         },
         always_show_made_in = true,
@@ -1805,9 +1813,11 @@ data:extend({
         energy_required = 2.5,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 100},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "uranium-ore", amount = 1},
         },
         always_show_made_in = true,
@@ -1826,7 +1836,8 @@ data:extend({
             {type = "fluid", name = "ei-morphium", amount = 10},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "stone", amount = 1},
         },
         always_show_made_in = true,
@@ -1843,9 +1854,11 @@ data:extend({
         energy_required = 2.5,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 80},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 20},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
             {type = "item", name = "sulfur", amount = 1},
         },
         always_show_made_in = true,
@@ -2131,6 +2144,96 @@ data:extend({
             ingredients = ei_data.science["alien-computer-age"],
             time = 20
         },
+    },
+    {
+        name = "ei-logistic-containers",
+        type = "technology",
+        icon = ei_path.."graphics/tech/logistic-containers.png",
+        icon_size = 256,
+        prerequisites = {"ei-computer-core","ei-containers","logistic-robotics"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container-red"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container-red"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container-red"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container-yellow"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container-yellow"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container-yellow"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["computer-age"],
+            time = 20
+        },
+        age = "computer-age",
+    },
+    {
+        name = "ei-advanced-logistic-containers",
+        type = "technology",
+        icon = ei_path.."graphics/tech/advanced-logistic-containers.png",
+        icon_size = 256,
+        prerequisites = {"ei-logistic-containers","logistic-system"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container-green"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container-green"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container-green"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container-blue"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container-blue"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container-blue"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-1x1-container-pink"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-2x2-container-pink"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-6x6-container-pink"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["computer-age"],
+            time = 20
+        },
+        age = "computer-age",
     },
     {
         name = "ei-personal-leg",

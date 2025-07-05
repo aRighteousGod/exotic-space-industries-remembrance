@@ -18,7 +18,7 @@ ei_lib.raw.recipe["atan-air-scrubber"] = {
         { type = "item", name = "ei-electronic-parts", amount = 10 },
         { type = "item", name = "steel-plate", amount = 10 },
         { type = "item", name = "efficiency-module", amount = 2 },
-        { type = "fluid", name = "ei-lube-destilate", amount = 80 }
+        { type = "fluid", name = "lubricant", amount = 80 }
     }
 }
 

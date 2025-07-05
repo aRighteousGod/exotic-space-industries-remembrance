@@ -64,9 +64,10 @@ local ei_intro = "EXOTIC INDUSTRIES: [FORBIDDEN BROADCAST // CORE SIGNAL INTERCE
 ]]
 local ei_start_items = {
     ["firearm-magazine"] = 5,
+    ["pistol"] = 1,
     ["burner-inserter"] = 2,
     ["burner-mining-drill"] = 2,
-    ["coal"] = 2
+    ["coal"] = 4,
 }
 
 --INIT

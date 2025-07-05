@@ -635,12 +635,12 @@ data:extend({
         category = "ei-purifier",
         energy_required = 6,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 100},
+            {type = "fluid", name = "ei-morphium", amount = 10},
             {type="item",name="ei-high-energy-crystal",amount=1},
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max=5},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2},
             {type="item",name="ei-energy-crystal",amount=1,probability=0.05},
             {type= "item",name="ei-coal-chunk", amount_min=1, amount_max=3,probability=0.015},
             {type= "item",name="ei-iron-chunk", amount_min=1, amount_max=3,probability=0.01},
@@ -653,7 +653,7 @@ data:extend({
         },
         always_show_made_in = true,
         enabled = false,
-        main_product = "ei-acidic-water",
+        main_product = "ei-bio-sludge",
     },
     {
         name = "ei-slag-extraction-hydro",

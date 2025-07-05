@@ -46,12 +46,12 @@ local planet_stuffmapping = {
   ["vulcanus"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_vulcanus, 0.9),
   ["gleba"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_gleba, 0.9),
   ["fulgora"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_fulgora, 0.9),
---  ["gaia"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_gaia, 0.5),
+  ["gaia"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_gaia, 0.9),
   ["aquilo"] = more_asteroid_util.spawn_definitions(more_asteroid_util.fulgora_aquilo, 0.9),
   ["cerys"] = more_asteroid_util.spawn_definitions(more_asteroid_util.fulgora_cerys, 0.9),
-  ["muluna"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_muluna, 0.9)
+  ["muluna"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_muluna, 0.9),
+  ["maraxsis"] = more_asteroid_util.spawn_definitions(more_asteroid_util.vulcanus_maraxsis, 0.9)
 }
-
 local location_stuffmapping = {
   ["solar-system-edge"] = more_asteroid_util.spawn_definitions(more_asteroid_util.aquilo_solar_system_edge, 0.9),
   ["shattered-planet"] = more_asteroid_util.spawn_definitions(more_asteroid_util.shattered_planet_trip, 0.8)
@@ -61,7 +61,7 @@ local connection_stuffmapping = {
   ["nauvis-vulcanus"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_vulcanus),
   ["nauvis-gleba"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_gleba),
   ["nauvis-fulgora"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_fulgora),
---  ["nauvis-gaia"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_gaia),
+  ["nauvis-gaia"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_gaia),
   ["vulcanus-gleba"] = more_asteroid_util.spawn_definitions(more_asteroid_util.vulcanus_gleba),
   ["gleba-fulgora"] = more_asteroid_util.spawn_definitions(more_asteroid_util.gleba_fulgora),
   ["gleba-aquilo"] = more_asteroid_util.spawn_definitions(more_asteroid_util.gleba_aquilo),
@@ -69,7 +69,9 @@ local connection_stuffmapping = {
   ["aquilo-solar-system-edge"] = more_asteroid_util.spawn_definitions(more_asteroid_util.aquilo_solar_system_edge),
   ["solar-system-edge-shattered-planet"] = more_asteroid_util.spawn_definitions(more_asteroid_util.shattered_planet_trip),
   ["fulgora-cerys"] = more_asteroid_util.spawn_definitions(more_asteroid_util.fulgora_cerys),
-  ["nauvis-muluna"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_muluna)
+  ["nauvis-muluna"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_muluna),
+  ["vulcanus-maraxsis"] = more_asteroid_util.spawn_definitions(more_asteroid_util.vulcanus_maraxsis),
+  ["fulgora-maraxsis"] = more_asteroid_util.spawn_definitions(more_asteroid_util.fulgora_maraxsis)
 }
 
 
@@ -77,7 +79,16 @@ for _,planet in pairs(planets) do
   if planet_stuffmapping[planet.name] ~= nil then
     if planet.asteroid_spawn_definitions ~= nil then
       for _,def in pairs(planet_stuffmapping[planet.name]) do
-        table.insert(planet.asteroid_spawn_definitions, def)
+        if not mods["any-planet-start"] then
+          table.insert(planet.asteroid_spawn_definitions, def)
+        else 
+          if (settings.startup["aps-planet"].value ~= planet.name) then
+            table.insert(planet.asteroid_spawn_definitions, def)
+          elseif (string.find(def.asteroid, "medium") == nil) and (planet.asteroid_spawn_definitions ~= nil) then
+            --local name = planet.name
+            --table.insert(planet.asteroid_spawn_definitions, def)
+          end
+        end
       end
     else 
       planet.asteroid_spawn_definitions = planet_stuffmapping[planet.name]
@@ -127,3 +138,21 @@ table.insert(data.raw["technology"]["advanced-asteroid-processing"].effects, {ty
 
 table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-chemical-asteroid-crushing"})
 table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-advanced-chemical-asteroid-crushing"})
+
+local recipes = {"ei-uranium-asteroid-crushing", 
+"ei-rock-asteroid-crushing", 
+"ei-scrap-asteroid-crushing",
+"ei-organic-asteroid-crushing",
+"ei-petrified-asteroid-crushing",
+"ei-chemical-asteroid-crushing",
+"ei-advanced-uranium-asteroid-crushing",
+"ei-advanced-petrified-asteroid-crushing",
+"ei-advanced-rock-asteroid-crushing",
+"ei-advanced-scrap-asteroid-crushing",
+"ei-advanced-organic-asteroid-crushing",
+"ei-advanced-chemical-asteroid-crushing"}
+
+
+for i=1, 12 do
+  table.insert(data.raw["technology"]["asteroid-productivity"].effects, {type = "change-recipe-productivity", recipe = recipes[i], change = 0.1})
+end

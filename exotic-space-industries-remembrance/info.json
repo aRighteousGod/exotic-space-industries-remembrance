@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -73,6 +73,7 @@
         
         "! factorioplus",
         "! no-triggers",
+        "! More-Asteroids",
 
         "? aai-containers",
         "? aai-industry",

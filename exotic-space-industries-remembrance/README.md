@@ -10,7 +10,7 @@ Exotic Space Industries: Remembrance carries forward the original vision of Exot
 
 1. Download the latest release ZIP from the Factorio mod portal or this repo’s _Releases_ tab.  
 2. Drop the zip (un-extracted) into your **`mods/`** folder.  
-3. Launch Factorio and enable **Exotic Space Industries** in Mod Settings.  
+3. Launch Factorio and enable **Exotic Space Industries Remembrance** in Mod Settings.  
 
 ---
 
@@ -45,14 +45,14 @@ this program, within LICENSE.MD. If not, see https://www.gnu.org/licenses/.
 
 ## Contact / Issues
 
-Open an Issue or Discussion on the GitHub page, or ping **1righteousgod** on Discord.  
+Open an Issue or Discussion on the GitHub/Modportal pages, or ping **1righteousgod** on Discord.  
 Pull requests that respect the GPL and the mod’s design ethos are welcomed.
 
 ## ESI:Remembrance Github Branch Link
 https://github.com/aRighteousGod/exotic-space-industries-remembrance
 
 ## ESI:Remembrance Mod Portal Branch Link
-REPLACEME
+https://mods.factorio.com/mod/exotic-space-industries-remembrance
 
 
 For help with ESI and/or access to an RU speaker, ping **Eliont** on the EI discord

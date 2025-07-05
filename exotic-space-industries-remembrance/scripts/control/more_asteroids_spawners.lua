@@ -16,7 +16,8 @@ asteroid_functions.system_edge_ratio = {0, 0, 3, 0, 0, 0}
 
 asteroid_functions.cerys_ratio       = {3, 0, 3, 0, 0, 3}
 asteroid_functions.muluna_ratio      = {2, 5, 0, 0, 0, 0}
-asteroid_functions.gaia_ratio      = {1, 1, 1, 6, 1, 1}
+asteroid_functions.maraxsis_ratio    = {0, 2, 0, 4, 4, 0}
+asteroid_functions.gaia_ratio      = {2, 0, 1, 6, 0, 0}
 
 
 asteroid_functions.nauvis_chunks      = 0.0125
@@ -34,7 +35,10 @@ asteroid_functions.system_edge_huge   = 0.00125
 asteroid_functions.cerys_chunks       = 0.005
 asteroid_functions.cerys_medium       = 0.0005
 asteroid_functions.muluna_chunks      = 0.01
-asteroid_functions.gaia_chunks      = 0.00010
+asteroid_functions.maraxsis_chunks    = 0.001
+asteroid_functions.maraxsis_medium    = 0.0025
+asteroid_functions.gaia_chunks      = 0.001
+asteroid_functions.gaia_medium      = 0.0015
 
 asteroid_functions.chunk_angle = 1
 asteroid_functions.small_angle = 0.7
@@ -102,27 +106,6 @@ asteroid_functions.nauvis_fulgora =
   {
     {position = 0.1, ratios = asteroid_functions.nauvis_ratio},
     {position = 0.9, ratios = asteroid_functions.fulgora_ratio},
-  }
-}
-
-asteroid_functions.nauvis_gaia =
-{
-  types = {"uranium", "organic"},
-  probability_on_range_chunk =
-  {
-    {position = 0.1, probability = asteroid_functions.nauvis_chunks, angle_when_stopped = asteroid_functions.chunk_angle},
-    {position = 0.9, probability = asteroid_functions.gaia_chunks, angle_when_stopped = asteroid_functions.chunk_angle}
-  },
-  probability_on_range_medium =
-  {
-    {position = 0.1, probability = 0, angle_when_stopped = asteroid_functions.medium_angle},
-    {position = 0.5, probability = asteroid_functions.gaia_chunks * 3, angle_when_stopped = asteroid_functions.medium_angle},
-    {position = 0.9, probability = asteroid_functions.gaia_chunks, angle_when_stopped = asteroid_functions.medium_angle}
-  },
-  type_ratios =
-  {
-    {position = 0.1, ratios = asteroid_functions.nauvis_ratio},
-    {position = 0.9, ratios = asteroid_functions.gaia_ratio},
   }
 }
 
@@ -310,6 +293,76 @@ asteroid_functions.nauvis_muluna =
   {
     {position = 0.1, ratios = asteroid_functions.nauvis_ratio},
     {position = 0.9, ratios = asteroid_functions.muluna_ratio},
+  }
+}
+
+asteroid_functions.nauvis_gaia =
+{
+  types = {"uranium", "scrap","chemical"},
+  probability_on_range_chunk =
+  {
+    {position = 0.1, probability = asteroid_functions.nauvis_chunks, angle_when_stopped = asteroid_functions.chunk_angle},
+    {position = 0.3, probability = asteroid_functions.weighted_average(asteroid_functions.nauvis_chunks, asteroid_functions.muluna_chunks, 0.7) * 2, angle_when_stopped = asteroid_functions.chunk_angle},
+    {position = 0.6, probability = asteroid_functions.gaia_chunks, angle_when_stopped = asteroid_functions.chunk_angle},
+    {position = 0.9, probability = asteroid_functions.gaia_chunks, angle_when_stopped = asteroid_functions.chunk_angle}
+  },
+  probability_on_range_medium =
+  {
+    {position = 0.1, probability = asteroid_functions.nauvis_chunks * 0.5, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.3, probability = asteroid_functions.nauvis_chunks, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.6, probability = asteroid_functions.gaia_medium, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.9, probability = asteroid_functions.gaia_medium, angle_when_stopped = asteroid_functions.medium_angle}
+  },
+  type_ratios =
+  {
+    {position = 0.1, ratios = asteroid_functions.nauvis_ratio},
+    {position = 0.3, ratios = asteroid_functions.nauvis_ratio},
+    {position = 0.6, ratios = asteroid_functions.gaia_ratio},
+    {position = 0.9, ratios = asteroid_functions.gaia_ratio}
+  }
+}
+
+asteroid_functions.vulcanus_maraxsis =
+{
+  types = {"rock", "organic", "petrified"},
+  probability_on_range_chunk =
+  {
+    {position = 0.1, probability = asteroid_functions.vulcanus_chunks, angle_when_stopped = asteroid_functions.chunk_angle},
+    {position = 0.9, probability = asteroid_functions.maraxsis_chunks, angle_when_stopped = asteroid_functions.chunk_angle}
+  },
+  probability_on_range_medium =
+  {
+    {position = 0.1, probability = asteroid_functions.vulcanus_medium, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.3, probability = asteroid_functions.vulcanus_medium * 0.5, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.6, probability = asteroid_functions.maraxsis_medium * 0.5, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.9, probability = asteroid_functions.maraxsis_medium, angle_when_stopped = asteroid_functions.medium_angle}
+  },
+  type_ratios =
+  {
+    {position = 0.1, ratios = asteroid_functions.vulcanus_ratio},
+    {position = 0.9, ratios = asteroid_functions.maraxsis_ratio},
+  }
+}
+
+asteroid_functions.fulgora_maraxsis =
+{
+  types = {"rock", "organic", "petrified", "scrap"},
+  probability_on_range_chunk =
+  {
+    {position = 0.1, probability = asteroid_functions.fulgora_chunks, angle_when_stopped = asteroid_functions.chunk_angle},
+    {position = 0.9, probability = asteroid_functions.maraxsis_chunks, angle_when_stopped = asteroid_functions.chunk_angle}
+  },
+  probability_on_range_medium =
+  {
+    {position = 0.1, probability = asteroid_functions.fulgora_medium, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.3, probability = asteroid_functions.fulgora_medium * 0.5, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.6, probability = asteroid_functions.maraxsis_medium * 0.5, angle_when_stopped = asteroid_functions.medium_angle},
+    {position = 0.9, probability = asteroid_functions.maraxsis_medium, angle_when_stopped = asteroid_functions.medium_angle}
+  },
+  type_ratios =
+  {
+    {position = 0.1, ratios = asteroid_functions.fulgora_ratio},
+    {position = 0.9, ratios = asteroid_functions.maraxsis_ratio},
   }
 }
 
