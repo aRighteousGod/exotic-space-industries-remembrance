@@ -1,36 +1,65 @@
+ei_lib = require ("lib/lib")
+
+--type string, track table, planet string
+local function track_override(track_type, track_table, targetplanet)
+  for track,_ in pairs(track_table) do
+    modified = ei_lib.raw["ambient-sound"][track]
+    if modified then
+      log("ei track_override: "..track.." successfully overwritten by "..track_table[track])
+      modified.sound = ei_soundtrack_path_1..track_table[track]..".ogg"
+    else
+      log("ei track_override: "..track.." missing from data.raw, creating new entry for "..track_table[track])
+      data:extend{
+        {
+          type = "ambient-sound",
+          name = track_table[track],
+          track_type = track_type,
+          sound = ei_soundtrack_path_1..track_table[track]..".ogg",
+          planet = targetplanet
+        }
+      }
+    end
+  end
+end
 -- =======================================================================================
 -- Override nauvis tracks
-data.raw["ambient-sound"]["after-the-crash"].sound = ei_soundtrack_path_1.."dear_diary.ogg"
-data.raw["ambient-sound"]["automation"].sound = ei_soundtrack_path_1.."beyond_the_stars_ambient.ogg"
-data.raw["ambient-sound"]["resource-deficiency"].sound = ei_soundtrack_path_1.."drifting_beyond_the_stars.ogg"
-data.raw["ambient-sound"]["are-we-alone"].sound = ei_soundtrack_path_1.."futuristic_ambient_1.ogg"
-data.raw["ambient-sound"]["beyond-factory-outskirts"].sound = ei_soundtrack_path_1.."futuristic_ambient_2.ogg"
-data.raw["ambient-sound"]["censeqs-discrepancy"].sound = ei_soundtrack_path_1.."futuristic_ambient_3.ogg"
-data.raw["ambient-sound"]["efficiency-program"].sound = ei_soundtrack_path_1.."futuristic_ambient_4.ogg"
-data.raw["ambient-sound"]["expansion"].sound = ei_soundtrack_path_1.."path_to_lake_land.ogg"
-data.raw["ambient-sound"]["the-search-for-iron"].sound = ei_soundtrack_path_1.."cyberpunk_moonlight_sonata_v2.ogg"
-data.raw["ambient-sound"]["gathering-horizon"].sound = ei_soundtrack_path_1.."hitctrl_searching_within_ambient.ogg"
-data.raw["ambient-sound"]["research-and-minerals"].sound = ei_soundtrack_path_1.."dust.ogg"
-data.raw["ambient-sound"]["solar-intervention"].sound = ei_soundtrack_path_1.."the_eternal_sandsmix.ogg"
-data.raw["ambient-sound"]["the-oil-industry"].sound = ei_soundtrack_path_1.."alexander_ehlers_waking_the_devil.ogg"
-data.raw["ambient-sound"]["the-right-tools"].sound = ei_soundtrack_path_1.."thefallofarcana.ogg"
-data.raw["ambient-sound"]["pollution"].sound = ei_soundtrack_path_1.."arclight.ogg"
-data.raw["ambient-sound"]["turbine-dynamics"].sound = ei_soundtrack_path_1.."tropicstrike_youweremybrother.ogg"
-data.raw["ambient-sound"]["sentient"].sound = ei_soundtrack_path_1.."welcome_to_com_mecha.ogg"
-
-
+local ei_nauvis_track_override = {
+  ["after-the-crash"] = "dear_diary",
+  ["automation"] = "beyond_the_stars_ambient",
+  ["resource-deficiency"] = "drifting_beyond_the_stars",
+  ["are-we-alone"] = "futuristic_ambient_1",
+  ["beyond-factory-outskirts"] = "futuristic_ambient_2",
+  ["censeqs-discrepancy"] = "futuristic_ambient_3",
+  ["efficiency-program"] = "futuristic_ambient_4",
+  ["expansion"] = "path_to_lake_land",
+  ["the-search-for-iron"] = "cyberpunk_moonlight_sonata_v2",
+  ["gathering-horizon"] = "hitctrl_searching_within_ambient",
+  ["research-and-minerals"] = "dust",
+  ["solar-intervention"] = "the_eternal_sandsmix",
+  ["the-oil-industry"] = "alexander_ehlers_waking_the_devil",
+  ["the-right-tools"] = "thefallofarcana",
+  ["pollution"] = "arclight",
+  ["turbine-dynamics"] = "tropicstrike_youweremybrother",
+  ["sentient"] = "welcome_to_com_mecha"
+}
+track_override("main-track",ei_nauvis_track_override, "nauvis")
 -- =======================================================================================
 -- Override nauvis interludes
-data.raw["ambient-sound"]["anomaly"].sound = ei_soundtrack_path_1.."main_menu.ogg"
-data.raw["ambient-sound"]["first-light"].sound = ei_soundtrack_path_1.."scary_ambient_wind.ogg"
-data.raw["ambient-sound"]["transmit"].sound = ei_soundtrack_path_1.."space_graveyard.ogg"
-data.raw["ambient-sound"]["swell-pad"].sound = ei_soundtrack_path_1.."cave_themeb4.ogg"
-data.raw["ambient-sound"]["world-ambience-3"].sound = ei_soundtrack_path_1.."dark_amb.ogg"
-data.raw["ambient-sound"]["world-ambience-4"].sound = ei_soundtrack_path_1.."forest.ogg"
-data.raw["ambient-sound"]["world-ambience-5"].sound = ei_soundtrack_path_1.."giii_8inst_1.ogg"
-data.raw["ambient-sound"]["world-ambience-6"].sound = ei_soundtrack_path_1.."ambient_menu.ogg"
-if data.raw["ambient-sound"]["main-menu"] and not mods["krastorio2-spaced-out"] or not settings.startup["kr-main-menu-song"].value then
-  data.raw["ambient-sound"]["main-menu"].sound = ei_soundtrack_path_1.."main_menu.ogg"
+local ei_nauvis_interlude_override = {
+  ["anomaly"] = "main_menu",
+  ["first-light"] = "scary_ambient_wind",
+  ["transmit"] = "space_graveyard",
+  ["swell-pad"] = "cave_themeb4",
+  ["world-ambience-3"] = "dark_amb",
+  ["world-ambience-4"] = "forest",
+  ["world-ambience-5"] = "giii_8inst_1",
+  ["world-ambience-6"] = "ambient_menu"
+}
+track_override("interlude",ei_nauvis_interlude_override, "nauvis")
+
+
+if ei_lib.raw["ambient-sound"]["main-menu"] and not mods["krastorio2-spaced-out"] or not settings.startup["kr-main-menu-song"].value then
+  ei_lib.raw["ambient-sound"]["main-menu"].sound = ei_soundtrack_path_1.."main_menu.ogg"
 elseif mods["krastorio2-spaced-out"] and settings.startup["kr-main-menu-song"].value then --meow -.-
     data:extend{
       {

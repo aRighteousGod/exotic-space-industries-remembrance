@@ -1,13 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.6
+Date: 7.5.2025
+  Fixes:
+    - Swapped direct data.raw calls in music_patches with ei_lib.raw to prevent indexing nil values and now falls back to creating new track entries if originals are missing.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.5
-Date: 7-5-2025
+Date: 7.5.2025
   Additions:
-    - Imported french translation from Patch FR des Mods by @bev
+    - Imported french translation from Patch FR des Mods by @bev.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.4
-Date: 7-3-2025
+Date: 7.3.2025
   Additions:
-    - Individual technologies for the EI Containers progression— Containers (Electricity Age—Regular, Filter) -> Logistic Containers (Computer Age—Red, Yellow) -> Advanced Logistic Containers (Computer Age—Blue, Pink, Green)
+    - Individual technologies for the EI Containers progression— Containers (Electricity Age—Regular, Filter) -> Logistic Containers (Computer Age—Red, Yellow) -> Advanced Logistic Containers (Computer Age—Blue, Pink, Green).
   Changes:
     - Renamed Logistic System to Logistic Theory and rewrote description to reflect its lack of chest unlocks.
     - Flying robot frame additionally requires 5 Electronic parts.
@@ -20,12 +25,12 @@ Date: 7-3-2025
     - Gaia discovery and Induction matrix core tier 1 additionally require Epoch packs upto Computer Age.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.3
-Date: 7-3-2025
+Date: 7.3.2025
   Additions:
     - More asteroid spawner definition set created for Nauvis<->Gaia route.
   Changes:
     - Slag chunk extraction using Morphium recipe: Morphium input 100 -> 10. Acidic water output -> 1-3 Bio sludge.
-  (in line with 1.0.0 changes to Morphium->liquid extractions)
+    - (in line with 1.0.0 changes to Morphium->liquid extractions)
     - All Morphium->Resource extraction recipes additionally require 1 High energy crystal 
     - All Morphium->Resource extraction recipes outputs: Dirty water -> Bio sludge, additionally small chance to yield Energy crystal.
     - Starting coal 2 -> 4.
@@ -39,19 +44,19 @@ Date: 7-3-2025
     - Pruned changelog hallucinations and corrected formatting.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2 
-Date: 7-3-2025
+Date: 7.3.2025
   Fixes:
     - Copper, Iron, Steel ingot recipes sorted back into Material refining.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1 
-Date: 7-3-2025
+Date: 7.3.2025
   Changes:
     - Pneumatic soul no longer requires gold.
   Fixes:
     - Steam inserter filter icons now visible above steam fluidbox.
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.0 Remembrance
-Date: 7-2-2025
+Version: 1.0.0
+Date: 7.2.2025
   Additions:
       - Seven main menu background replacements—select a choice from startup options—defaults to The Crystal That Screams. Options include: Vector Bifurcation: Portal Ignition, Saluting the Solar Core, Daemonic Invitation, Yin and Yang: Cloudflesh, Industrial Dominance: Crystalline Vigil, and Choking Smog: Ascension Protocol
       - Soundtrack replacement for main menu.
@@ -82,9 +87,7 @@ Date: 7-2-2025
       - Cheese's Concentrated Solar added to required dependencies and slotted into Steam Age—recipes modified with EI specific materials and intermediates.
       - Fluid boiler glow added.
       - Mechanical inserter and long inserter added to Dark Age—through ancient dark rites these springs can filter 1 item while slowly coiling and uncoiling in perpetuem, powered only by the void.
-
-***NOTE: Restored indicates something was brought back from Exotic Industires 0.69 from Factorio 1.1.***
-
+  NOTE: Restored indicates something was brought back from Exotic Industires 0.69 from Factorio 1.1.***
   Changes:
       - Spearling fast construction bot energy capacity 5 -> 25MJ.
       - Obelisk cargo bot speed 1 -> 20km/h, energy per tick 0.1 -> 17KJ, energy per move 1 -> 25KJ.
@@ -257,7 +260,6 @@ Date: 7-2-2025
       - Gate activation threshold moved from 20% -> 90%.
       - Gate per item energy requirement now assesses weight table for scaling (ie count=count*weight table[item]), additionally paid energy cost scales by ((items*count)^1.2)*100
       - reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
-   
   Fixes:
       - Remote call which disables Krastorio2 singularity beacon win condition no longer endlessly called in on_nth tick—on init and config changed only.
       - Black hole, Induction matrix, and Gaia on_tick scripts now use the on_tick event.tick instead of game.tick.
@@ -285,10 +287,9 @@ Date: 7-2-2025
       - Crystal Accumulator technology name restored to lang_en
       - Avoiding gate energy draw no longer possible.
       - (Pre-Remembrance)Internal name for Gaia planet reverted to gaia, external name Gaia, preserving existing save files which did not have malformed Gaia generation settings. A dummy prototype remains as to not invalidate 1.5.7 saves before the on-load migration. If upgrading from 1.5.6 or before, you will no longer need to update your ship schedule. If from 1.5.7, you will need to update your ship schedule, and Gaia may display in category Other until clicked on to refresh it.
-
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.7
-Date: 4-30-25
+Version: 0.5.7
+Date: 4.30.25
   Additions:
       - EM Train Carriages now glow alongside EM Locomotives
   Changes:
@@ -297,15 +298,14 @@ Date: 4-30-25
   Fixes:
       - reforge_gaia behavior corrected, recursion stabilized. You will need to correct your ship schedule.
       - alien_spawner.lua transitioned from math.rand to ei_rng
-
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.6
-Date: 4-19-25
+Version: 0.5.6
+Date: 4.19.25
   Changes:
       - All (newly coded) math.rand switched to mp friendly synced variants reported by @debuasgaming
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.5
-Date: 4-17-25
+Version: 0.5.5
+Date: 4.17.25
   Additions:
       - Crystal_echo ei_lib command to support colorful printed messages
       - Custom HID headlights for EM trains. Also projects behind at reduced power.
@@ -328,30 +328,27 @@ Date: 4-17-25
       - EI tanks requirements for previous tier fixed, previously Spherical tank required Silo tank. Reported by @crysiszocker1
       - Loader prototype complexity setting toggle works again.
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.4
-Date: 4-16-25
+Version: 0.5.4
+Date: 4.16.25
   Changes:
      - K2 import related errors will log errors instead of preventing game from loading at all
   Fixes:
      - Duplicate map gen preset name removed from RU locale
-
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.3
-Date: 4-15-25
+Version: 0.5.3
+Date: 4.15.25
   Additions:
      - Custom sound effects for EM trains & cargo wagons
-
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.2
-Date: 4-15-25
+Version: 0.5.2
+Date: 4.15.25
   Fixes:
      - Commented out a naughty line related to inhibitor lamp
      - Removed errant deregister call from update charger.
      - Removed register charger debug output.
-
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.1
-Date: 4-15-25
+Version: 0.5.1
+Date: 4.15.25
   Additions:
     - Imported ru, zh locales from previous repository, applied pull from @astorin, now committed.. likely requires updates which will require native speaker
     - Visual indicators added for EM train charger -> train energy transfer process. Style can be set in startup settings to either Beam, Ring, or off.
@@ -369,17 +366,16 @@ Date: 4-15-25
     - EM trains/chargers no longer draw power assuming a 60 tick update cycle, now adjusts to the updaters tick settings.
     - ei_lib.add_unlock_recipe reworked with sanity checks and improved debug output.
     - Lignumis no longer adds unbuildable steam-science-pack to Gaia & some others
-
 ---------------------------------------------------------------------------------------------------
-Version: 1.5.0
-Date: 4-13-25
+Version: 0.5.0
+Date: 4.13.25
   Changes:
     - EI Storage tanks adjusted to provide iron:storage capacity ratios superior to the stock tank. Health was also increased and resistances to physical, impact, and fire added. The ratios are: stock tank-555:1, tank1-600:1, tank2:666:1, tank3:750:1.
   Fixes:
     - Tooltips added for metalworks recipes, arc furnace, purifier, crusher, biolab.
 ---------------------------------------------------------------------------------------------------
-Version: 1.4.9
-Date: 4-11-25
+Version: 0.4.9
+Date: 4.11.25
   Changes:
     - Loader electricity usage adjusted and now increases per tier
   Fixes:
@@ -387,8 +383,8 @@ Date: 4-11-25
     - Electronic components now tied to EI electronic parts technology. Reported by @Vasishtha
     - Spidertron limiter updated to use 2.0s new lua logistics commands, setting a logistic request on the spidertron will no longer cause a crash. Reported by @debuasgaming
 ---------------------------------------------------------------------------------------------------
-Version: 1.4.8
-Date: 4-10-25
+Version: 0.4.8
+Date: 4.10.25
   Additions:
     - Colorful animated glow effects for Arc Furnace, Plasma Heater, Gate, & Caster working states. (Current sprites imported from Glow Trees; credit to asher_sky)
     - Loader Complexity Patch: Startup setting which significantly increases material input complexity for loaders and REWARDS YOU by enabling filtering for the Express loader and stacking for the Neodymium loader
@@ -406,14 +402,14 @@ Date: 4-10-25
   Notes:
     - Several quick fixes have been implemented to allow the use of K2 imports, final implementations pending
 ---------------------------------------------------------------------------------------------------
-Version: 1.4.3
-Date: 04-04-25
+Version: 0.4.3
+Date: 04.04.25
   Changes:
     - UPS optimisation, thanks to 1righteousgod @ Discord
     - Bugfixes
 ---------------------------------------------------------------------------------------------------
-Version: 1.4.0
-Date: 03-04-25
+Version: 0.4.0
+Date: 03.04.25
   Changes:
     - Platform requests scanner - constant combinator outputting orbiting platform requests sorted by platforms. Can be connected to logistic container in set requests mode.
     - Ported Fueler Tower, can insert burnable fuel to vehicles and take burnt results
@@ -435,20 +431,20 @@ Date: 03-04-25
     - Will balance / simplify / merge recipes and items during gameplay
     - K2 intergalactic transceiver - working, but without victory trigger, for use in scenario, that, maybe will be later
 ---------------------------------------------------------------------------------------------------
-Version: 1.3.6
-Date: 18-03-25
+Version: 0.3.6
+Date: 18.03.25
   Changes:
     - AAI: burner-assembling-machine replaced in recipes with ei-steam-assembler
     - Laser tech prerequisites fix
 ---------------------------------------------------------------------------------------------------
-Version: 1.3.5
-Date: 18-03-25
+Version: 0.3.5
+Date: 18.03.25
   Changes:
     - Yellow splitter and loader use iron-mechanical-parts
     - Some tech order and unlocks glitches fixed 
 ---------------------------------------------------------------------------------------------------
-Version: 1.3.3
-Date: 16-03-25
+Version: 0.3.3
+Date: 16.03.25
   Changes:
     - Buffed pure ore - molten - cast recipes
     - Option to disable EI dynamic tech scaling
@@ -457,8 +453,8 @@ Date: 16-03-25
     - Concrete and refined-concrete need iron-stick instead of mechanical parts again
     - Lignumis Compatibility fixes, locale fixes
 ---------------------------------------------------------------------------------------------------
-Version: 1.3.0
-Date: 12-03-25
+Version: 0.3.0
+Date: 12.03.25
   Changes:
     - Dedicated filter inserter gone, as all inserters can now filter
     - Filter EI containers now 20 / 40 / 120 slots, non-filter 50 / 250 / 1000
@@ -466,15 +462,15 @@ Date: 12-03-25
     - Removed duplicating recipes - iron and copper smelting 
     - aai-industry: added stone-tablet recipe unlock to electronics
 ---------------------------------------------------------------------------------------------------
-Version: 1.2.1
-Date: 09-03-25
+Version: 0.2.1
+Date: 09.03.25
   Changes:
     - Option to setup all trigger tech with Computer Age science packs.
     - Morphium pools on Gaia can be landfilled
     - Reduced build restricted area behind thrusters.
 ---------------------------------------------------------------------------------------------------
-Version: 1.2.0
-Date: 04-03-25
+Version: 0.2.0
+Date: 04.03.25
   Changes:
     - Basic Lignumis Compatibility
     - Wood science pack => Dark Age science pack 
@@ -482,26 +478,26 @@ Date: 04-03-25
     - This two recipes changed to Lignumis ones
     - Some starting recipes shifted to steam age
 ---------------------------------------------------------------------------------------------------
-Version: 1.1.3
-Date: 03-03-25
+Version: 0.1.3
+Date: 03.03.25
   Changes:
     - Compatibility 
     - Localization 
     - Check and remove hidden tech in prerequisites rendering tech unresearchable
     - Option to flatten tech tree (default off)
 ---------------------------------------------------------------------------------------------------
-Version: 1.1.2
-Date: 01-03-25
+Version: 0.1.2
+Date: 01.03.25
   Changes:
     - Compatibility fixes
-  Marked as conflicting:
+  Marked-as-conflicting:
     - tenebris
     - tenebris-prime
     - WideChests
     - factorioplus
 ---------------------------------------------------------------------------------------------------
-Version: 1.1.0
-Date: 01-03-25
+Version: 0.1.0
+Date: 01.03.25
   Changes:
     - Many fixes for compatibility between different mods
     - Some fixes for future compatibility between different planets 
@@ -512,6 +508,3 @@ Date: 01-03-25
     - Muluna (planet-muluna) compatibility
     - Fixed recipes
     - Foxed localization
-[v1.5.5] - 2025-04-17
-
-[v1.5.5] - 2025-04-17

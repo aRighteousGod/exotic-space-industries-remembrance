@@ -266,6 +266,7 @@ ei_lib.raw = setmetatable({}, {
         local proto = cat[name]
         if not proto then
           log("ei_lib.raw: ❌ Prototype '" .. name .. "' missing in category '" .. category .. "'.")
+          return nil
         end
         return proto
       end,

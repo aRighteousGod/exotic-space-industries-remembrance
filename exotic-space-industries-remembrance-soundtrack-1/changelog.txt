@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 5-23-25
-    Additions:
-    -Soundtrack replacement for main menu.
-    -Full soundtrack replacement for Nauvis.
+  Additions:
+    - Soundtrack replacement for main menu.
+    - Full soundtrack replacement for Nauvis.
