@@ -673,6 +673,8 @@ ei_lib.remove_unlock_recipe("logistic-system", "buffer-chest")
 ei_lib.remove_unlock_recipe("logistic-system", "requester-chest")
 ei_lib.remove_unlock_recipe("logistic-robotics", "passive-provider-chest")
 ei_lib.remove_unlock_recipe("logistic-robotics", "storage-chest")
+ei_lib.remove_unlock_recipe("construction-robotics", "passive-provider-chest")
+ei_lib.remove_unlock_recipe("construction-robotics", "storage-chest")
 
 ei_lib.raw["technology"]["flamethrower"].age = "steam-age" --need investigate why the pre-req table doesn't always stick
 ei_lib.raw["technology"]["concrete"].age = "steam-age"
