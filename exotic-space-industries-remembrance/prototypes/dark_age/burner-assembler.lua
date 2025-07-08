@@ -90,9 +90,9 @@ data:extend({
             smoke =
             {
               {
-                name = "ei-train-smoke",
-                deviation = {1.6, 1.6},
-                frequency = 25,
+                name = "smoke",
+                deviation = {1.1, 1.1},
+                frequency = 10,
                 position = {0, 0},
                 starting_frame = 0,
                 starting_frame_deviation = 60,

@@ -63,9 +63,9 @@ burner_quarry.resource_searching_radius = 10
 burner_quarry.energy_source.smoke =
     {
       {
-        name = "ei-train-smoke",
+        name = "smoke",
         deviation = {1.6, 1.6},
-        frequency = 25,
+        frequency = 10,
         position = {0, 0},
         starting_frame = 0,
         starting_frame_deviation = 60,
