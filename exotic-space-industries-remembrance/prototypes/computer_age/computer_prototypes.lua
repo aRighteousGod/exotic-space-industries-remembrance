@@ -915,8 +915,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-concentrated-morphium", amount = 15},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -936,8 +936,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "light-oil", amount = 24},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -958,8 +958,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-kerosene", amount = 48},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -980,8 +980,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "heavy-oil", amount = 96},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1002,8 +1002,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "lubricant", amount = 192},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10}
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1027,7 +1027,7 @@ data:extend({
             {type = "item", name = "ei-crushed-coal", amount = 1},
             {type = "item", name = "ei-crushed-sulfur", amount = 1},
             {type = "fluid", name = "water", amount = 100},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1732,8 +1732,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "ei-pure-copper", amount = 1},
         },
         always_show_made_in = true,
@@ -1753,8 +1753,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "ei-pure-iron", amount = 1},
         },
         always_show_made_in = true,
@@ -1774,8 +1774,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "ei-pure-gold", amount = 1},
         },
         always_show_made_in = true,
@@ -1795,8 +1795,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "ei-pure-lead", amount = 1},
         },
         always_show_made_in = true,
@@ -1816,8 +1816,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "uranium-ore", amount = 1},
         },
         always_show_made_in = true,
@@ -1834,10 +1834,11 @@ data:extend({
         energy_required = 2.5,
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 10},
+            {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "stone", amount = 1},
         },
         always_show_made_in = true,
@@ -1846,7 +1847,6 @@ data:extend({
         order = "f",
         icon_size = 64,
     },
-
     {
         name = "ei-sulfur-extraction",
         type = "recipe",
@@ -1857,8 +1857,8 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05},
-            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount = 1, probability = 0.10,allow_productivity=false},
             {type = "item", name = "sulfur", amount = 1},
         },
         always_show_made_in = true,
@@ -1868,6 +1868,118 @@ data:extend({
         icon_size = 64,
     },
 
+
+    {
+        name = "ei-dirty-water-copper-extraction",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 40},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,allow_productivity=false},
+            {type = "item", name = "ei-pure-copper", amount = 1,probability = 0.05},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-extraction",
+        order = "b",
+        icon = ei_graphics_other_path.."copper-extraction.png",
+        icon_size = 64,
+    },
+    {
+        name = "ei-dirty-water-iron-extraction",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 40},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,allow_productivity=false},
+            {type = "item", name = "ei-pure-iron", amount = 1,probability = 0.05},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-extraction",
+        order = "a",
+        icon = ei_graphics_other_path.."iron-extraction.png",
+        icon_size = 64,
+    },
+    {
+        name = "ei-dirty-water-gold-extraction",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 1.5,
+        ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 60},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=25,allow_productivity=false},
+            {type = "item", name = "ei-pure-gold", amount = 1,probability = 0.05},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-extraction",
+        order = "c",
+        icon = ei_graphics_other_path.."gold-extraction.png",
+        icon_size = 64,
+    },
+    {
+        name = "ei-dirty-water-lead-extraction",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 1.5,
+        ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 60},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 7,amount_max=8,allow_productivity=false},
+            {type = "item", name = "ei-pure-lead", amount = 1,probability = 0.05},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-extraction",
+        order = "d",
+        icon = ei_graphics_other_path.."lead-extraction.png",
+        icon_size = 64,
+    },
+    {
+        name = "ei-dirty-water-uranium-extraction",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 2.5,
+        ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 80},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=20,allow_productivity=false},
+            {type = "item", name = "ei-crushed-uranium", amount = 1,probability = 0.05},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-extraction",
+        order = "f",
+        icon = ei_graphics_other_path.."uranium-extraction.png",
+        icon_size = 64,
+    },
+    {
+        name = "ei-dirty-water-stone",
+        type = "recipe",
+        category = "ei-advanced-chem-plant",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "water", amount = 10},
+            {type = "item", name = "stone", amount = 5},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount = 5},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-dirty-water",
+    },
 
     {
         name = "ei-petroleum-reforming",
@@ -2275,10 +2387,45 @@ data:extend({
         },
         age = "computer-age",
     },
+   {
+        name = "ei-dirty-water-usage",
+        type = "technology",
+        icon = ei_graphics_tech_path.."morphium-usage.png", --used to be called dirty-water-usage.png ...
+        icon_size = 128,
+        prerequisites = {"ei-computer-age"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-iron-extraction"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-copper-extraction"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-lead-extraction"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-uranium-extraction"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-gold-extraction"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["computer-age"],
+            time = 20
+        },
+        age = "computer-age",
+    },
     {
         name = "ei-morphium-usage",
         type = "technology",
-        icon = ei_graphics_tech_path.."morphium-usage.png",
+        icon = ei_path.."graphics/tech/morphium-usage.png",
         icon_size = 128,
         prerequisites = {"ei-computer-age","ei-gaia"},
         effects = {
@@ -2312,6 +2459,18 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-morphium-fluorite"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-slag-extraction-morphium"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-undilute-morphium"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-concentrated-morphium"
             },
             {
@@ -2321,10 +2480,41 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["alien-computer-age"],
+            ingredients = ei_data.science["computer-age"],
             time = 20
         },
         age = "computer-age",
+    },
+    {
+        name = "ei-morphium-usage-petro",
+        type = "technology",
+        icon = ei_path.."graphics/tech/morphium-usage.png",
+        icon_size = 128,
+        prerequisites = {"ei-alien-computer-age-tech","ei-morphium-usage"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-concentrated-morphium-light-oil"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-concentrated-morphium-kerosene"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-concentrated-morphium-heavy-oil"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-concentrated-morphium-lubricant"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["alien-computer-age"],
+            time = 20
+        },
+        age = "alien-computer-age",
     },
     {
         name = "ei-cryodust",
@@ -2441,6 +2631,25 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-semiconductor-monosilicon"
             },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 20
+        },
+        age = "advanced-computer-age",
+    },
+    {
+        name = "ei-dirty-water-production",
+        type = "technology",
+        icon = ei_graphics_tech_path.."dirty-water-production.png",
+        icon_size = 128,
+        prerequisites = {"ei-advanced-chem-plant", "ei-dirty-water-usage"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-stone"
+            }
         },
         unit = {
             count = 100,

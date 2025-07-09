@@ -1,16 +1,46 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 7-8-2025
+  Additions:
+    - Infinite productivity technologies for: Ore purification, Dirty water usage, and Morphium usage.
+    - Technology for creating dirty water from stone and water: Dirty water production.
+    - Technology for extracting pure ores from dirty water: Dirty water usage.
+    - Technology for extracting crushed neodymium from dirty water: Neodymium dirty water usage.
+    - Split Morphium -> Petroleum recipes off into seperate technology gated behind Morphium usage and Alien Computer Age.
+  Changes:
+    - Moved Morphium -> Fluorite recipe to Morphium usage technology.
+    - Morphium usage technology now shows Morphium instead of Dirty water icon.
+    - Reverted ESI 333% output buff to pure ore -> molten ore production (50->15).
+    - Updated 90 lines of lang zh-TW.
+    - Restored poor iron and copper chunks. (Can't be processed into Pure ore, higher probability of slag, 3:1 chunk:plate ratio)
+    - Restored removal of productivity from lubricant.
+    - Insulated pipes and storage tanks no longer require heating not to freeze (ie on Aquilo) and can additionally be crafted by the Cryogenic plant.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.8
+Date: 7-7-2025
+  Changes:
+    - Burner lab, assembler and quarry smoke sprite swapped and production thinned out.
+  Fixes:
+    - Beacon overload on_destroyed not updating machines.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.7
+Date: 7-7-2025
+  Fixes:
+    - Correctly remove vanilla passive provider and storage logistic chests from technology unlocks.
+    - Set internal flag indicating mods Space Age requirement.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.6
-Date: 7.5.2025
+Date: 7-5-2025
   Fixes:
     - Swapped direct data.raw calls in music_patches with ei_lib.raw to prevent indexing nil values and now falls back to creating new track entries if originals are missing.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.5
-Date: 7.5.2025
+Date: 7-5-2025
   Additions:
     - Imported french translation from Patch FR des Mods by @bev.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.4
-Date: 7.3.2025
+Date: 7-3-2025
   Additions:
     - Individual technologies for the EI Containers progression— Containers (Electricity Age—Regular, Filter) -> Logistic Containers (Computer Age—Red, Yellow) -> Advanced Logistic Containers (Computer Age—Blue, Pink, Green).
   Changes:
@@ -25,7 +55,7 @@ Date: 7.3.2025
     - Gaia discovery and Induction matrix core tier 1 additionally require Epoch packs upto Computer Age.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.3
-Date: 7.3.2025
+Date: 7-3-2025
   Additions:
     - More asteroid spawner definition set created for Nauvis<->Gaia route.
   Changes:
@@ -44,311 +74,312 @@ Date: 7.3.2025
     - Pruned changelog hallucinations and corrected formatting.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2 
-Date: 7.3.2025
+Date: 7-3-2025
   Fixes:
     - Copper, Iron, Steel ingot recipes sorted back into Material refining.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1 
-Date: 7.3.2025
+Date: 7-3-2025
   Changes:
     - Pneumatic soul no longer requires gold.
   Fixes:
     - Steam inserter filter icons now visible above steam fluidbox.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
-Date: 7.2.2025
+Date: 7-2-2025
   Additions:
-      - Seven main menu background replacements—select a choice from startup options—defaults to The Crystal That Screams. Options include: Vector Bifurcation: Portal Ignition, Saluting the Solar Core, Daemonic Invitation, Yin and Yang: Cloudflesh, Industrial Dominance: Crystalline Vigil, and Choking Smog: Ascension Protocol
-      - Soundtrack replacement for main menu.
-      - Full soundtrack replacement for Nauvis.
-      - Full soundtrack for Gaia.
-      - Positioned and or enabled wire connectors for all of the following: *Crystal accumulator, *EM train charger, Neuromarrow engine, Cannon turret, Plasma turret, Flesh crucible, Black hole generator, Energy injector/*extractor pylons, Fusion reactor, Fission facility, Neutron activator, Neutron collector, Nuclear waste storage, Burner heater, Fluid heater, *Industrial combustion turbine*, High temperature reactor, Advanced oil refinery, Gate, Advanced roboport, EI containers, *Induction matrix core, Particle accelerator, Matter stabilizer, Quantum computer, Advanced+Distillation towers, Burner assembler, Steam assembler, Steam crusher, Metalworks 1-4, Neo assembler, Exotic assembler, Crusher, Advanced crusher, Wafer factory, Caster, Air filter, Nano material factory, Advanced chemical plant, Advanced centrifuge, Plasma heater, Arc furnace, Purifier, Crystal grower, Computer core, and Small simulation chamber. *No functionality. —Props to Quezlers wire connector utility mod.
-      - Custom headlights for each Steam train.
-      - Custom engine start, engine stop, engine running, engine idle and 6 whistle-on-stop sounds for Steam trains.
-      - Custom firing sound with 6 variants for Plasma turret.
-      - Custom explosion sound with 6 variants for Plasma turret bullet explosion.
-      - Pulsing idle glow for Arc Furnace.
-      - Pulsing idle glow for Plasma Heater.
-      - Advanced semiconductor potentially yields advanced semiconductor failure which can be crushed into energy crystals, crushed gold, and sand.
-      - All the Bio alternative recipes now have a significant chance of producing Bio sludge.
-      - Slag can be run through the Purifier with either sulfuric or hydrosulfuric acid or morphium+high energy crystal to extract variable amounts of iron, copper, lead, sulfur, coal, neodymium, and uranium chunks at a low probability alongside a consistent but variable amount of acidic water.
-      - Import zh-CN locale from ai_cn by @lyx_kljk.
-      - Added two space only steam recipes.
-      - Imported and tweaked More Asteroids ESI fork.
-      - EI Turbo loader added and inserted into upgrade progression. It filters per lane and stacks upto 2. Sprite recolor credit to @Samario
-      - Elevated pipes added to required dependencies and slotted into Steam Age. The recipe's requirement for iron stick -> copper mechanical parts.
-      - Zeus Wrath lightning turret, gun, and ammo added to required dependencies and slotted into Quantum Age. Recipe requirements mostly replaced and supplemented with EI specific exotics.
-      - Explosive, Toxic, Cold, and Arachnid biters added to required dependencies—Explosive will spawn on Nauvis and Vulcanus, Cold will spawn on Nauvis and Aquillo, Toxic & Arachnid will spawn on Nauvis; these settings are enforced.
-      - Fulgoran Enemies added to required dependencies.
-      - RP Steam Roboports added to required dependencies and slotted into the Steam Age—behold the majesty of well thought out early-game mechanical bots. Beware: a bot running out of steam results in an impromptu meting with the ground! Also includes a STEAM POWERED PUMP, unlocked with Steam pistons.
-      - Atan Air Scrubber added to required dependencies and slotted into Computer Age—Recipes modified with EI specific materials, intermediates, waste products.
-      - Pollution Combinator (Jamie's Fork) added to required dependencies and slotted in Computer Age—recipe requirement for 1 Circuit -> 2 Electronic Parts.
-      - Atan ash added to required dependencies—ash sprite size scaling increased to improve visibility.
-      - Cheese's Concentrated Solar added to required dependencies and slotted into Steam Age—recipes modified with EI specific materials and intermediates.
-      - Fluid boiler glow added.
-      - Mechanical inserter and long inserter added to Dark Age—through ancient dark rites these springs can filter 1 item while slowly coiling and uncoiling in perpetuem, powered only by the void.
-  NOTE: Restored indicates something was brought back from Exotic Industires 0.69 from Factorio 1.1.***
+    - Seven main menu background replacements—select a choice from startup options—defaults to The Crystal That Screams. Options include: Vector Bifurcation: Portal Ignition, Saluting the Solar Core, Daemonic Invitation, Yin and Yang: Cloudflesh, Industrial Dominance: Crystalline Vigil, and Choking Smog: Ascension Protocol
+    - Soundtrack replacement for main menu.
+    - Full soundtrack replacement for Nauvis.
+    - Full soundtrack for Gaia.
+    - Positioned and or enabled wire connectors for all of the following: *Crystal accumulator, *EM train charger, Neuromarrow engine, Cannon turret, Plasma turret, Flesh crucible, Black hole generator, Energy injector/*extractor pylons, Fusion reactor, Fission facility, Neutron activator, Neutron collector, Nuclear waste storage, Burner heater, Fluid heater, *Industrial combustion turbine*, High temperature reactor, Advanced oil refinery, Gate, Advanced roboport, EI containers, *Induction matrix core, Particle accelerator, Matter stabilizer, Quantum computer, Advanced+Distillation towers, Burner assembler, Steam assembler, Steam crusher, Metalworks 1-4, Neo assembler, Exotic assembler, Crusher, Advanced crusher, Wafer factory, Caster, Air filter, Nano material factory, Advanced chemical plant, Advanced centrifuge, Plasma heater, Arc furnace, Purifier, Crystal grower, Computer core, and Small simulation chamber. *No functionality. —Props to Quezlers wire connector utility mod.
+    - Custom headlights for each Steam train.
+    - Custom engine start, engine stop, engine running, engine idle and 6 whistle-on-stop sounds for Steam trains.
+    - Custom firing sound with 6 variants for Plasma turret.
+    - Custom explosion sound with 6 variants for Plasma turret bullet explosion.
+    - Pulsing idle glow for Arc Furnace.
+    - Pulsing idle glow for Plasma Heater.
+    - Advanced semiconductor potentially yields advanced semiconductor failure which can be crushed into energy crystals, crushed gold, and sand.
+    - All the Bio alternative recipes now have a significant chance of producing Bio sludge.
+    - Slag can be run through the Purifier with either sulfuric or hydrosulfuric acid or morphium+high energy crystal to extract variable amounts of iron, copper, lead, sulfur, coal, neodymium, and uranium chunks at a low probability alongside a consistent but variable amount of acidic water.
+    - Import zh-CN locale from ai_cn by @lyx_kljk.
+    - Added two space only steam recipes.
+    - Imported and tweaked More Asteroids ESI fork.
+    - EI Turbo loader added and inserted into upgrade progression. It filters per lane and stacks upto 2. Sprite recolor credit to @Samario
+    - Elevated pipes added to required dependencies and slotted into Steam Age. The recipe's requirement for iron stick -> copper mechanical parts.
+    - Zeus Wrath lightning turret, gun, and ammo added to required dependencies and slotted into Quantum Age. Recipe requirements mostly replaced and supplemented with EI specific exotics.
+    - Explosive, Toxic, Cold, and Arachnid biters added to required dependencies—Explosive will spawn on Nauvis and Vulcanus, Cold will spawn on Nauvis and Aquillo, Toxic & Arachnid will spawn on Nauvis; these settings are enforced.
+    - Fulgoran Enemies added to required dependencies.
+    - RP Steam Roboports added to required dependencies and slotted into the Steam Age—behold the majesty of well thought out early-game mechanical bots. Beware: a bot running out of steam results in an impromptu meting with the ground! Also includes a STEAM POWERED PUMP, unlocked with Steam pistons.
+    - Atan Air Scrubber added to required dependencies and slotted into Computer Age—Recipes modified with EI specific materials, intermediates, waste products.
+    - Pollution Combinator (Jamie's Fork) added to required dependencies and slotted in Computer Age—recipe requirement for 1 Circuit -> 2 Electronic Parts.
+    - Atan ash added to required dependencies—ash sprite size scaling increased to improve visibility.
+    - Cheese's Concentrated Solar added to required dependencies and slotted into Steam Age—recipes modified with EI specific materials and intermediates.
+    - Fluid boiler glow added.
+    - Mechanical inserter and long inserter added to Dark Age—through ancient dark rites these springs can filter 1 item while slowly coiling and uncoiling in perpetuem, powered only by the void.
+    - NOTE Restored indicates something was brought back from Exotic Industires 0.69 from Factorio 1.1.***
   Changes:
-      - Spearling fast construction bot energy capacity 5 -> 25MJ.
-      - Obelisk cargo bot speed 1 -> 20km/h, energy per tick 0.1 -> 17KJ, energy per move 1 -> 25KJ.
-      - Pneumatic Soul additionally requires 1 Gold ingot.
-      - EI Tier 1 bots technologies moved to Simulation Computer Age.
-      - Gaia spawns: Removed Fulgoran ruins, drastically reduced scrap size, richness, probability.
-      - Set custom freeplay init message and starting loadout.
-      - Matter stabilizers light changed from white -> cerulean, scale and intensity reduced, gentle flicker added.
-      - Black hole energy injector pylon light changed from white -> turquoise , scale and intensity reduced, gentle flicker added.
-      - Black hole energy extractor pylon now lights up hot pink.
-      - Exotic assemblers energy requirement 1 -> 5 MW, additionally accepts Quality modules and glows while crafting. Death explosion changed from medium regular to huge plasma.
-      - Matter stabilizers must now be on to provide stabilization and Exotic assemblers must be crafting or have crafting progress to explode and are biased to explode with greater certainty the further along crafting progress is. In addition 1 Stabilizer no longer affords total protection against instability, an algorithm for matter machine chance to explode on any given update cycle can be expressed as:
-      P = [0.12 / (s + 1)^2.43] × (1 + p)^3 ÷ (U / S)
-      s = number of in-range stabilizers
-      S = total number of stabilizers in the world
-      p = crafting progress (0–1)
-      U = effective updates per stabilizer per second
-      "The more it crafts, the closer it comes to rupture. Stabilizers help. Time never does."
-      - Exotic assemblers will now—upon suffering critical entropic cascade—emit a floating message, print a message with gps coordinates and violently detonate rendering asunder all in proximity.
-      - High temperature reactor now converts water -> steam at 1:10 ratio and ergo requires 1/10th the water for all its steam recipes. Fluid box input size 1200000 -> 120000.
-      - Steel and Heat steel furnace energy consumption 90 -> 135kW.
-      - Heat steel furnace emissions per minute 2 -> 1.25 pollution.
-      - Gate recipe inputs: Concrete 50 -> 250, Electronic parts 100 -> 200, Steel plate 200 -> 100, additionally requires 100 Steel beams.
-      - Burner lab, assembler, and quarry now emit smoke when working.
-      - Burner lab can additionally research Computer Age technologies.
-      - Flesh Crucible power usage 500 -> 750kW. Two additional pipe connections added to contend with additional recipes.
-      - Neuromarrow Engine power usage 500kW -> 1.5MW.
-      - Bio related recipes that were made in assemblers or chem labs have been moved to the Neuromarrow Engine and Flesh Crucible.
-      - Crushing semiconductor now yields variable amounts of sand and occassionally crushed gold.
-      - Restored Stone path (1.6), Hazard (1.8), Refined(2.2), and Regular concrete (1.8) speed bonus buffs.
-      - Restored nuclear fuel 1.5x speed and acceleration bonuses.
-      - Restored Burner assembler recipe inputs: Additionally requires 2 Copper beams.
-      - Restored Rocket parts recipe inputs: Additionally requires 1 Copper beam.
-      - Plasma heater recipe inputs: Additionally requires 10 Electronic parts.
-      - Arc furnace recipe inputs: Additionally requires 10 Steel beams.
-      - Restored Fluid boiler recipe inputs: Additionally requires 2 Copper beams.
-      - Restored Burner/Electric quarry recipe inputs: Additionally requires 10 Copper beams.
-      - Electric quarry recipe inputs: Iron plate/Iron mechanical parts -> Steel Plate/Steel mechanical parts.
-      - Excavator recipe inputs: 24 Steel plate -> 12. Additionally requires 12 Steel beams. Restored requirement for 4 electric quarries.
-      - Restored Steam assembler recipe inputs: Additionally requires 2 Copper beams.
-      - Restored Steam crusher recipe inputs: Additionally requires 2 Copper beams.
-      - Restored Steam miner recipe inputs: 4 Iron mechanical parts -> 4 Copper beams.
-      - Big lab recipe inputs: 40 Energy crystal -> 100 High energy crystal. Additionally requires 100 Steel beams.
-      - Lab inputs: Electric lab goes upto Alien/Advanced Computer Age, Electromagnetic, Metllurgic, Agricultural. Biolab is same plus Quantum age. Big lab is same plus Exotic Age.
-      - Restored Electron tube intermediate.
-      - Solar panel buff reverted 100 -> 80kW.
-      - Restored barrels stacking to 1 concurrent with their drastically increased capacity.
-      - Restored ammo damage buff to regular and piercing round magazines.
-      - Restored Spidertron burner engine mechanic—additionally emits smoke and pollution.
-      - Restored production module limitations to EI modules.
-      - Restored copper, iron, steel beam intermediates.
-      - Restored electron tube intermediate.
-      - Restored dirty water -> fluorite, water+slag -> dirty water, water+sand -> dirty water recipes.
-      - Restored EI specific vanilla recipe modifiers.
-      - Arc Furnace/Plasma Heater ore smelting now has 1% chance of producing slag.
-      - Restored slag mechanic—smelting produces accompanying slag which must be dealt with.
-      - Milestone preset: Added variety of items, entities, and doodads.
-      - Advanced roboport doubled in size. Charging slots 6 -> 12. Slots 10 -> 20. Radius 70 -> 115. Idle energy usage 4 -> 8MW. Charging energy 4 -> 12 MW. Buffer capacity 400 -> 1GJ. Input flow limit 160 -> 300MW. Health 1000 -> 2000.
-      - Advanced roboport recipe: additionally requires 50 Electronic parts and 40 Steel beams, Roboports 4 -> 8, Processing units 20 -> 40, Advanced motors 20 -> 40. No longer allows Productivity.
-      - Biochamber power source restored to nutrients.
-      - Steam long inserter recipe inputs: Burner inserter -> Steam inserter, Steam engine -> Steel mechanical parts.
-      - Long inserter recipe inputs: Iron mechanical parts -> Steel mechanical parts.
-      - Morphium fluid related recipes moved to Alien intermediates.
-      - Simulation computer age tech recipe inputs: Simulation data 12 -> 48, 3 Electric engine unit -> 4 Data cables.
-      - Restored Gaia pump—on Gaia regular offshore pumps will face corporeal rejection, Gaia pumps must be used, and they too will choose non-existence if used outside of Gaia.
-      - Computer age tech recipe inputs: 1 Advanced circuit -> Electronic Parts, 10 Lubricant -> 25 lube distillate, output 1 -> 2 science, time 18s -> 27.
-      - Bio Sludge fuel value 0 -> 25kJ.
-      - Alien seeds no longer found in Fulgorite.
-      - Fulgoran ruins and scrap now yield iron mechanical parts and iron beams instead of iron gear wheels and iron sticks.
-      - Rocket silo 10 -> 4 modules.
-      - Accumulator buffer capacity 10 -> 6MJ. Input flow limit 325 -> 425kW. Output flow limit 325 -> 425kW.
-      - Fluid burn values modifed for: Crude oil 150 -> 50kJ. Heavy oil 100 -> 250kJ. Light oil 100 -> 500kJ.
-      - Steam train sprite updated to use @cupcakescankills animated steam train—the wheels spin in sync with movement and it has animations for elevated rails. Bear in mind UPS usage scales linearly with total count of this particular entity.
-      - Diesel locomotive emissions per minute 0 -> 1.75.
-      - Steam train smoke ending size increased.
-      - Steam train max power 800 -> 900kW. Friction force 0.003 -> 0.4 Air resistance 0.003 -> 0.01. Weight 4000 -> 4500. Emissions per minute 0 -> 10. Fuel effectivity 100 -> 70%. Front light colored to represent ye old soot coated incandescent.
-      - Steam basic cargo wagon friction force 0.0015 -> 0.1. Air resistance 0.002 -> 0.006
-      - Advanced steam train max power 1150 -> 1400kW. Smoke frequency 100 -> 175. Air resistance 0.002 -> 0.1. Friction force 0.002 -> 0.8. Emissions per minute 0 -> 5. Fuel effectivity 110 -> 85%. Front light colored to represent ye slightly less old soot coated incandescent.
-      - Steam advanced fluid wagon friction force 0.4 -> 0.05.
-      - Steam advanced cargo wagon friction force 0.4 -> 0.8.
-      - Gaia oceans now made of Diluted morphium instead of Morphium. Yields Morphium, Bio sludge, and 5% probability of energy crystal when combined with 1 High energy crystal and 10 Oxygen difluoride.
-      - Morphium -> Concentrated morphium now additionally requires 1 High energy crystal and 10 Oxygen difluoride and yields 1 energy crystal with 5% probability, and 1 bio sludge with 10% probability.
-      - Morphium -> Fluorite recipe additionally requires 1 High energy crystal and outputs 1 energy crystal with 5% probability.
-      - Concentrated Morphium -> Light oil/Kerosene/Heavy Oil/Lubricant: Recipes for each now adjusted to require equal proportions Concentrated morphium and steam, and additionally a high energy crystal. Yields adjusted to be Morphium input x3 = Output (So 64 Concentrated Morphium+Steam+1High energy crystal -> 192 Lubricant), and in addition all will yield energy crystal with 5% probability and bio sludge with 10% propability.
-      - Fueler maximum range startup setting 100 -> 32. Default setting 20 -> 16.
-      - EI tech scaling toggle disabled—bound in blood, commit to the dream or awaken forever.
-      - Ceiling on EI tech scaling multiplier now depends on scaling setting. (Very cheap: 500, More Cheap: 1000, Cheap: 1500, Default: 2000, Less Expensive: 3500, Expensive: 5000, Very Expensive: 100000).
-      - Barrel capacity startup option maximum 5000 -> 2000.
-      - Pipe to ground length startup configuration maximum 40 -> 20.
-      - Nuclear reactor bonus removed by default & startup toggle disabled.
-      - Nuclear reactor output startup configuration options brought closer together, 150 - 175 - 200 - 225 - 250MW versus 75 <-> 300MW.
-      - Beacon overload mechanic startup toggle disabled and default set to on—breaching the realms to disable it will incur irrevocable dishonor.
-      - Ultimate bug zapper range 500 -> 64. Pushback 4 -> 8 tiles. Damage 10k -> 2k. Energy input flow limit 10 -> 20MW.
-      - Vanilla beacon module slots 2 -> 1. Module distribution effectivity 1.5 -> 0.375. Distribution effectivity bonus per quality level 0.2 -> 0.125 Energy usage 125 -> 900kW. Cling to the old gods at your peril—for the rest, destiny awaits.
-      - Copper cooled beacon module distribution effectivity 0.25 -> 0.5. Distribution effectivity bonus per quality level 0 -> 0.25.
-      - Iron cooled beacon module slots 12 -> 6. Module distrubution effectivity 0.25 -> 0.75. Distribution effectivity bonus per quality level 0 -> 0.5.
-      - Warp beacon power usage 100 -> 250MW. Distribution effectivity bonus per quality level 0 -> 0.25.
-      - Alien beacon power usage 1W -> 125MW. Distribution effectivity bonus per quality level 0 -> 0.25.
-      - High capacity crane recipe requirement for 10 Steel ingots -> 20 Steel mechanical parts.
-      - Landfill from sand moved from Glass to Landfill technology.
-      - High energy crystal production restored to Computer Age.
-      - High energy crystal recipes adjusted to be probalistic.
-      - Spidertron restored to Computer Age, moved to the end.
-      - Quantum Age prerequisites changed from Alien/Simulation Computer Age base to Crystal accumulator, High energy crystal growing, Bio electronic parts, Bio nitric acid, Bio high energy crystal, and Compact beacon.
-      - Oxygen difluoride technology moved to Computer Age after Bio chamber.
-      - Bio chamber renamed to Flesh Crucible, and Bio reactor to Neuromarrow Engine—both have received updated descriptions of the horrors within.
-      - Alien computer age prerequisites now Oxygen difluoride and High energy crystal production.
-      - Alien computer age recipe now: 5 Blooming alien seeds, 1 High energy crystal, 50 Bio matter, and 100 Concentrated morphium per 10 cards over 70 seconds.
-      - Flying robot frame prerequisite changed to Electronic parts.
-      - Computer Age prerequisite changed from Electronic Parts -> Construction robotics, Logistic robotics, Semiconductor based circuit production, Oil Gathering, Crystal Grower, Logistics 2, Fluid wagon, Nuclear waste storage, Basic benzol production, High capacity crane, Arc Furnace, and Combustion Turbine.
-      - Steam engine recipe requirements for Copper mechanical parts 1 -> 2, additionally requires 2 Iron mechanical parts.
-      - Steam age tech recipe additionally requires 2 Pipes.
-      - Pump requires electricity again and moved to Fluid wagon unlock.
-      - Laser turret range 20 -> 30, damage 20 -> 12.
-      - Flamethrower moved to Steam Age and fluid consumption modified 3/s -> 15/s. Minimum range 6 -> 9. Range 30 -> 36. Cone of fire reduced 20%. Stream accuracy enhanced and turret inclination to lead targets improved. Additionally, various fluids have been allowed with damage modifiers as follows:Heavy Oil Distilate x0.4, Medium Oil Distilate x0.5, Residual Oil x0.65, Crude Oil x1, Heavy Oil x1.15, Light Oil x1.25, Petroleum Gas x1.35, Kerosene x1.45.
-      - Electric mining drill power usage 90 -> 150kw.
-      - Wooden chest now has 8 slots.
-      - Iron chest now has 12 slots and requires iron beams.
-      - Steel chest now has 16 slots and requires steel beams.
-      - EI Containers: 1x1 50 -> 20 slots, filter variant 18 slots. 2x2 250 -> 32 slots, filter variant 22 slots.. 6x6 1000 -> 64 slots, filter variant 26 slots. 
-      - EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Plate -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts. All base variants additionally require Steel beams. All logistic variants additionally require Simulation data: 1x1-10, 2x2-20, 6x6-40. Health multipliers applied per size: 1.5x for 1x1, 3x for 2x2, 6x for 6x6. Resistances to physical/fire/impact applied per size: 1x1-25/50/50. 2x2-45/65/65. 6x6-65/80/80.
-      - Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
-      - Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 2500. Explosive damage 300 -> 1250. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, acceleration enhanced, final speed unchanged.
-      - Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.
-      - Zeus turret renamed Poseidon Installation— range increased from 45 to 350, minimum range 8.75 -> 70, cooldown 0.5s -> 12s. Minimum drain 0 -> 75MW. Energy per shot 500MJ -> 1GJ. Maximum energy inflow 200MW -> 400MW. Energy buffer 20 -> 1.1GJ. Health 1000 -> 3000. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.  Appropriate description also bestowed.
-      - Zeus blaster renamed Aegaeon Lance and bestowed appropriate description. 
-      - Zeus wrath Lightning in a bottle renamed Voltaic Reliquary and bestowed appropriate description. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.
-      - Space platform starter pack reduced from 2000 -> 60.
-      - Assembling machines animation speed reverted to dynamic-from-speed instead of static.
-      - Recycler and crusher surface restrictions restored.
-      - Thruster exclusion zone revised from 15 tiles to 25—still dramatically lower than vanilla.
-      - Foundry fluidbox reverted from 5000 -> default.
-      - Fulgora oceans reverted to primordial—no longer crude oil.
-      - Gleba planting restrictions restored—no more planting anywhere.
-      - Epoch Tech requirements extended—now all the various epochs science are required all the way through the tech tree.
-      - Logistics restored to Steam Age as in original Exotic Industries.
-      - Yellow splitter circuit requirement restored.
-      - EI fluid tanks restored to Steam Age, tooltips correctly attributed, technologies unlock sequentially after the regular storage tank.
-      - Concrete moved to Steam Age—now requires Advanced materials handling.
-      - Concrete recipe's requirement for Iron ore    - > Iron beam.
-      - Refined concrete recipe's requirement for Copper mechanical parts -> Steel beam.
-      - Electricity age prerequisites now include Advanced steam train, Silo fluid storage tank, Burner heater, and Steam logistics chests.
-      - Advanced steam train prerequisites now include Automated rail transportation.
-      - Steam age prerequisites restored and amended: Military, Stone wall, Gun turret, Mechanical inserter and Burner assembler.
-      - Rocket lift capacity buff setting removed.
-      - Loader complexity patch setting removed. The mountain is now external—climb it if you dare.
-      - Neodymium loader max stack size now same as stack inserter. Stack size can be specified. Express loader now has single lane filtering and stacks to 2. -Additional inputs for Loader recipes from Express onwards. 
-      - All loader electricity requirements and energy buffers increased—overall there is a shorter duration of full speed items:second to buffer ratio.
-      - Krastorio2 no longer integrated. K2 Spaced Out can load alongside—immense though the overlap may be.
-      - English Informatron Wiki Pages brought to heel—in line with Remembrance ethos.
-      - Advanced bots have been renamed: Obelisk heavy cargo bot, Spearling fast construction bot, Wraithline advanced logistic bot, & Architectum advanced construction bot. Descriptions have been modified with appropriate mythos.
-      - Arc furnace, Plasma Heater, Gate, Crystal Grower descriptions updated.
-      - All references to Neodym now -> Neodymium.
-      - RU locale updated by @Hoochie63.
-      - Arc Furnace now maintains 12MW idle power draw unaffected by modules to preserve electrode readiness.
-      - Plasma Heater now has 24MW idle power draw unaffected by modules ensuring unbroken plasma confinement even while dormant.
-      - Fission research facility power draw 5MW -> 8.8MW.
-      - Wafer factory power draw 1MW -> 2.4MW.
-      - Deep drill power draw 1MW -> 4.2MW.
-      - Caster power draw 300kW -> 1.2MW.
-      - Crystal grower power draw 450kW -> 1.6MW.
-      - Purifier power draw 450kW -> 2MW.
-      - Distillation tower power draw 200kW -> 3.2MW.
-      - Crusher power draw 150kW -> 900kW.
-      - Nuclear waste dump working power draw 0 -> 5MW.
-      - Nuclear waste dump working pollution 0 -> 5.
-      - Gate energy buffer 5GJ -> 50GJ.
-      - Gate energy buffer maximum inflow rate 100MW -> 5GW.
-      - Gate energy usage 20MW -> 200MW.
-      - Gate activation threshold moved from 20% -> 90%.
-      - Gate per item energy requirement now assesses weight table for scaling (ie count=count*weight table[item]), additionally paid energy cost scales by ((items*count)^1.2)*100
-      - reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
+    - Spearling fast construction bot energy capacity 5 -> 25MJ.
+    - Obelisk cargo bot speed 1 -> 20km/h, energy per tick 0.1 -> 17KJ, energy per move 1 -> 25KJ.
+    - Pneumatic Soul additionally requires 1 Gold ingot.
+    - EI Tier 1 bots technologies moved to Simulation Computer Age.
+    - Gaia spawns: Removed Fulgoran ruins, drastically reduced scrap size, richness, probability.
+    - Set custom freeplay init message and starting loadout.
+    - Matter stabilizers light changed from white -> cerulean, scale and intensity reduced, gentle flicker added.
+    - Black hole energy injector pylon light changed from white -> turquoise , scale and intensity reduced, gentle flicker added.
+    - Black hole energy extractor pylon now lights up hot pink.
+    - Exotic assemblers energy requirement 1 -> 5 MW, additionally accepts Quality modules and glows while crafting. Death explosion changed from medium regular to huge plasma.
+    - Matter stabilizers must now be on to provide stabilization and Exotic assemblers must be crafting or have crafting progress to explode and are biased to explode with greater certainty the further along crafting progress is. In addition 1 Stabilizer no longer affords total protection against instability, an algorithm for matter machine chance to explode on any given update cycle can be expressed as:
+    - P = [0.12 / (s + 1)^2.43] × (1 + p)^3 ÷ (U / S)
+    - s = number of in-range stabilizers
+    - S = total number of stabilizers in the world
+    - p = crafting progress (0–1)
+    - U = effective updates per stabilizer per second
+    - "The more it crafts, the closer it comes to rupture. Stabilizers help. Time never does."
+    - Exotic assemblers will now—upon suffering critical entropic cascade—emit a floating message, print a message with gps coordinates and violently detonate rendering asunder all in proximity.
+    - High temperature reactor now converts water -> steam at 1:10 ratio and ergo requires 1/10th the water for all its steam recipes. Fluid box input size 1200000 -> 120000.
+    - Steel and Heat steel furnace energy consumption 90 -> 135kW.
+    - Heat steel furnace emissions per minute 2 -> 1.25 pollution.
+    - Gate recipe inputs: Concrete 50 -> 250, Electronic parts 100 -> 200, Steel plate 200 -> 100, additionally requires 100 Steel beams.
+    - Burner lab, assembler, and quarry now emit smoke when working.
+    - Burner lab can additionally research Computer Age technologies.
+    - Flesh Crucible power usage 500 -> 750kW. Two additional pipe connections added to contend with additional recipes.
+    - Neuromarrow Engine power usage 500kW -> 1.5MW.
+    - Bio related recipes that were made in assemblers or chem labs have been moved to the Neuromarrow Engine and Flesh Crucible.
+    - Crushing semiconductor now yields variable amounts of sand and occassionally crushed gold.
+    - Restored Stone path (1.6), Hazard (1.8), Refined(2.2), and Regular concrete (1.8) speed bonus buffs.
+    - Restored nuclear fuel 1.5x speed and acceleration bonuses.
+    - Restored Burner assembler recipe inputs: Additionally requires 2 Copper beams.
+    - Restored Rocket parts recipe inputs: Additionally requires 1 Copper beam.
+    - Plasma heater recipe inputs: Additionally requires 10 Electronic parts.
+    - Arc furnace recipe inputs: Additionally requires 10 Steel beams.
+    - Restored Fluid boiler recipe inputs: Additionally requires 2 Copper beams.
+    - Restored Burner/Electric quarry recipe inputs: Additionally requires 10 Copper beams.
+    - Electric quarry recipe inputs: Iron plate/Iron mechanical parts -> Steel Plate/Steel mechanical parts.
+    - Excavator recipe inputs: 24 Steel plate -> 12. Additionally requires 12 Steel beams. Restored requirement for 4 electric quarries.
+    - Restored Steam assembler recipe inputs: Additionally requires 2 Copper beams.
+    - Restored Steam crusher recipe inputs: Additionally requires 2 Copper beams.
+    - Restored Steam miner recipe inputs: 4 Iron mechanical parts -> 4 Copper beams.
+    - Big lab recipe inputs: 40 Energy crystal -> 100 High energy crystal. Additionally requires 100 Steel beams.
+    - Lab inputs: Electric lab goes upto Alien/Advanced Computer Age, Electromagnetic, Metllurgic, Agricultural. Biolab is same plus Quantum age. Big lab is same plus Exotic Age.
+    - Restored Electron tube intermediate.
+    - Solar panel buff reverted 100 -> 80kW.
+    - Restored barrels stacking to 1 concurrent with their drastically increased capacity.
+    - Restored ammo damage buff to regular and piercing round magazines.
+    - Restored Spidertron burner engine mechanic—additionally emits smoke and pollution.
+    - Restored production module limitations to EI modules.
+    - Restored copper, iron, steel beam intermediates.
+    - Restored electron tube intermediate.
+    - Restored dirty water -> fluorite, water+slag -> dirty water, water+sand -> dirty water recipes.
+    - Restored EI specific vanilla recipe modifiers.
+    - Restored Gaia specific pump.
+    - Arc Furnace/Plasma Heater ore smelting now has 1% chance of producing slag.
+    - Restored slag mechanic—smelting produces accompanying slag which must be dealt with.
+    - Milestone preset: Added variety of items, entities, and doodads.
+    - Advanced roboport doubled in size. Charging slots 6 -> 12. Slots 10 -> 20. Radius 70 -> 115. Idle energy usage 4 -> 8MW. Charging energy 4 -> 12 MW. Buffer capacity 400 -> 1GJ. Input flow limit 160 -> 300MW. Health 1000 -> 2000.
+    - Advanced roboport recipe: additionally requires 50 Electronic parts and 40 Steel beams, Roboports 4 -> 8, Processing units 20 -> 40, Advanced motors 20 -> 40. No longer allows Productivity.
+    - Biochamber power source restored to nutrients.
+    - Steam long inserter recipe inputs: Burner inserter -> Steam inserter, Steam engine -> Steel mechanical parts.
+    - Long inserter recipe inputs: Iron mechanical parts -> Steel mechanical parts.
+    - Morphium fluid related recipes moved to Alien intermediates.
+    - Simulation computer age tech recipe inputs: Simulation data 12 -> 48, 3 Electric engine unit -> 4 Data cables.
+    - Restored Gaia pump—on Gaia regular offshore pumps will face corporeal rejection, Gaia pumps must be used, and they too will choose non-existence if used outside of Gaia.
+    - Computer age tech recipe inputs: 1 Advanced circuit -> Electronic Parts, 10 Lubricant -> 25 lube distillate, output 1 -> 2 science, time 18s -> 27.
+    - Bio Sludge fuel value 0 -> 25kJ.
+    - Alien seeds no longer found in Fulgorite.
+    - Fulgoran ruins and scrap now yield iron mechanical parts and iron beams instead of iron gear wheels and iron sticks.
+    - Rocket silo 10 -> 4 modules.
+    - Accumulator buffer capacity 10 -> 6MJ. Input flow limit 325 -> 425kW. Output flow limit 325 -> 425kW.
+    - Fluid burn values modifed for: Crude oil 150 -> 50kJ. Heavy oil 100 -> 250kJ. Light oil 100 -> 500kJ.
+    - Steam train sprite updated to use @cupcakescankills animated steam train—the wheels spin in sync with movement and it has animations for elevated rails. Bear in mind UPS usage scales linearly with total count of this particular entity.
+    - Diesel locomotive emissions per minute 0 -> 1.75.
+    - Steam train smoke ending size increased.
+    - Steam train max power 800 -> 900kW. Friction force 0.003 -> 0.4 Air resistance 0.003 -> 0.01. Weight 4000 -> 4500. Emissions per minute 0 -> 10. Fuel effectivity 100 -> 70%. Front light colored to represent ye old soot coated incandescent.
+    - Steam basic cargo wagon friction force 0.0015 -> 0.1. Air resistance 0.002 -> 0.006
+    - Advanced steam train max power 1150 -> 1400kW. Smoke frequency 100 -> 175. Air resistance 0.002 -> 0.1. Friction force 0.002 -> 0.8. Emissions per minute 0 -> 5. Fuel effectivity 110 -> 85%. Front light colored to represent ye slightly less old soot coated incandescent.
+    - Steam advanced fluid wagon friction force 0.4 -> 0.05.
+    - Steam advanced cargo wagon friction force 0.4 -> 0.8.
+    - Gaia oceans now made of Diluted morphium instead of Morphium. Yields Morphium, Bio sludge, and 5% probability of energy crystal when combined with 1 High energy crystal and 10 Oxygen difluoride.
+    - Morphium -> Concentrated morphium now additionally requires 1 High energy crystal and 10 Oxygen difluoride and yields 1 energy crystal with 5% probability, and 1 bio sludge with 10% probability.
+    - Morphium -> Fluorite recipe additionally requires 1 High energy crystal and outputs 1 energy crystal with 5% probability.
+    - Concentrated Morphium -> Light oil/Kerosene/Heavy Oil/Lubricant: Recipes for each now adjusted to require equal proportions Concentrated morphium and steam, and additionally a high energy crystal. Yields adjusted to be Morphium input x3 = Output (So 64 Concentrated Morphium+Steam+1High energy crystal -> 192 Lubricant), and in addition all will yield energy crystal with 5% probability and bio sludge with 10% propability.
+    - Fueler maximum range startup setting 100 -> 32. Default setting 20 -> 16.
+    - EI tech scaling toggle disabled—bound in blood, commit to the dream or awaken forever.
+    - Ceiling on EI tech scaling multiplier now depends on scaling setting. (Very cheap: 500, More Cheap: 1000, Cheap: 1500, Default: 2000, Less Expensive: 3500, Expensive: 5000, Very Expensive: 100000).
+    - Barrel capacity startup option maximum 5000 -> 2000.
+    - Pipe to ground length startup configuration maximum 40 -> 20.
+    - Nuclear reactor bonus removed by default & startup toggle disabled.
+    - Nuclear reactor output startup configuration options brought closer together, 150 - 175 - 200 - 225 - 250MW versus 75 <-> 300MW.
+    - Beacon overload mechanic startup toggle disabled and default set to on—breaching the realms to disable it will incur irrevocable dishonor.
+    - Ultimate bug zapper range 500 -> 64. Pushback 4 -> 8 tiles. Damage 10k -> 2k. Energy input flow limit 10 -> 20MW.
+    - Vanilla beacon module slots 2 -> 1. Module distribution effectivity 1.5 -> 0.375. Distribution effectivity bonus per quality level 0.2 -> 0.125 Energy usage 125 -> 900kW. Cling to the old gods at your peril—for the rest, destiny awaits.
+    - Copper cooled beacon module distribution effectivity 0.25 -> 0.5. Distribution effectivity bonus per quality level 0 -> 0.25.
+    - Iron cooled beacon module slots 12 -> 6. Module distrubution effectivity 0.25 -> 0.75. Distribution effectivity bonus per quality level 0 -> 0.5.
+    - Warp beacon power usage 100 -> 250MW. Distribution effectivity bonus per quality level 0 -> 0.25.
+    - Alien beacon power usage 1W -> 125MW. Distribution effectivity bonus per quality level 0 -> 0.25.
+    - High capacity crane recipe requirement for 10 Steel ingots -> 20 Steel mechanical parts.
+    - Landfill from sand moved from Glass to Landfill technology.
+    - High energy crystal production restored to Computer Age.
+    - High energy crystal recipes adjusted to be probalistic.
+    - Spidertron restored to Computer Age, moved to the end.
+    - Quantum Age prerequisites changed from Alien/Simulation Computer Age base to Crystal accumulator, High energy crystal growing, Bio electronic parts, Bio nitric acid, Bio high energy crystal, and Compact beacon.
+    - Oxygen difluoride technology moved to Computer Age after Bio chamber.
+    - Bio chamber renamed to Flesh Crucible, and Bio reactor to Neuromarrow Engine—both have received updated descriptions of the horrors within.
+    - Alien computer age prerequisites now Oxygen difluoride and High energy crystal production.
+    - Alien computer age recipe now: 5 Blooming alien seeds, 1 High energy crystal, 50 Bio matter, and 100 Concentrated morphium per 10 cards over 70 seconds.
+    - Flying robot frame prerequisite changed to Electronic parts.
+    - Computer Age prerequisite changed from Electronic Parts -> Construction robotics, Logistic robotics, Semiconductor based circuit production, Oil Gathering, Crystal Grower, Logistics 2, Fluid wagon, Nuclear waste storage, Basic benzol production, High capacity crane, Arc Furnace, and Combustion Turbine.
+    - Steam engine recipe requirements for Copper mechanical parts 1 -> 2, additionally requires 2 Iron mechanical parts.
+    - Steam age tech recipe additionally requires 2 Pipes.
+    - Pump requires electricity again and moved to Fluid wagon unlock.
+    - Laser turret range 20 -> 30, damage 20 -> 12.
+    - Flamethrower moved to Steam Age and fluid consumption modified 3/s -> 15/s. Minimum range 6 -> 9. Range 30 -> 36. Cone of fire reduced 20%. Stream accuracy enhanced and turret inclination to lead targets improved. Additionally, various fluids have been allowed with damage modifiers as follows:Heavy Oil Distilate x0.4, Medium Oil Distilate x0.5, Residual Oil x0.65, Crude Oil x1, Heavy Oil x1.15, Light Oil x1.25, Petroleum Gas x1.35, Kerosene x1.45.
+    - Electric mining drill power usage 90 -> 150kw.
+    - Wooden chest now has 8 slots.
+    - Iron chest now has 12 slots and requires iron beams.
+    - Steel chest now has 16 slots and requires steel beams.
+    - EI Containers: 1x1 50 -> 20 slots, filter variant 18 slots. 2x2 250 -> 32 slots, filter variant 22 slots.. 6x6 1000 -> 64 slots, filter variant 26 slots. 
+    - EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Plate -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts. All base variants additionally require Steel beams. All logistic variants additionally require Simulation data: 1x1-10, 2x2-20, 6x6-40. Health multipliers applied per size: 1.5x for 1x1, 3x for 2x2, 6x for 6x6. Resistances to physical/fire/impact applied per size: 1x1-25/50/50. 2x2-45/65/65. 6x6-65/80/80.
+    - Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
+    - Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 2500. Explosive damage 300 -> 1250. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, acceleration enhanced, final speed unchanged.
+    - Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.
+    - Zeus turret renamed Poseidon Installation— range increased from 45 to 350, minimum range 8.75 -> 70, cooldown 0.5s -> 12s. Minimum drain 0 -> 75MW. Energy per shot 500MJ -> 1GJ. Maximum energy inflow 200MW -> 400MW. Energy buffer 20 -> 1.1GJ. Health 1000 -> 3000. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.  Appropriate description also bestowed.
+    - Zeus blaster renamed Aegaeon Lance and bestowed appropriate description. 
+    - Zeus wrath Lightning in a bottle renamed Voltaic Reliquary and bestowed appropriate description. Inner radius damage 500 -> 900. Outer radius damage 100 -> 300.
+    - Space platform starter pack reduced from 2000 -> 60.
+    - Assembling machines animation speed reverted to dynamic-from-speed instead of static.
+    - Recycler and crusher surface restrictions restored.
+    - Thruster exclusion zone revised from 15 tiles to 25—still dramatically lower than vanilla.
+    - Foundry fluidbox reverted from 5000 -> default.
+    - Fulgora oceans reverted to primordial—no longer crude oil.
+    - Gleba planting restrictions restored—no more planting anywhere.
+    - Epoch Tech requirements extended—now all the various epochs science are required all the way through the tech tree.
+    - Logistics restored to Steam Age as in original Exotic Industries.
+    - Yellow splitter circuit requirement restored.
+    - EI fluid tanks restored to Steam Age, tooltips correctly attributed, technologies unlock sequentially after the regular storage tank.
+    - Concrete moved to Steam Age—now requires Advanced materials handling.
+    - Concrete recipe's requirement for Iron ore    - > Iron beam.
+    - Refined concrete recipe's requirement for Copper mechanical parts -> Steel beam.
+    - Electricity age prerequisites now include Advanced steam train, Silo fluid storage tank, Burner heater, and Steam logistics chests.
+    - Advanced steam train prerequisites now include Automated rail transportation.
+    - Steam age prerequisites restored and amended: Military, Stone wall, Gun turret, Mechanical inserter and Burner assembler.
+    - Rocket lift capacity buff setting removed.
+    - Loader complexity patch setting removed. The mountain is now external—climb it if you dare.
+    - Neodymium loader max stack size now same as stack inserter. Stack size can be specified. Express loader now has single lane filtering and stacks to 2. -Additional inputs for Loader recipes from Express onwards. 
+    - All loader electricity requirements and energy buffers increased—overall there is a shorter duration of full speed items:second to buffer ratio.
+    - Krastorio2 no longer integrated. K2 Spaced Out can load alongside—immense though the overlap may be.
+    - English Informatron Wiki Pages brought to heel—in line with Remembrance ethos.
+    - Advanced bots have been renamed: Obelisk heavy cargo bot, Spearling fast construction bot, Wraithline advanced logistic bot, & Architectum advanced construction bot. Descriptions have been modified with appropriate mythos.
+    - Arc furnace, Plasma Heater, Gate, Crystal Grower descriptions updated.
+    - All references to Neodym now -> Neodymium.
+    - RU locale updated by @Hoochie63.
+    - Arc Furnace now maintains 12MW idle power draw unaffected by modules to preserve electrode readiness.
+    - Plasma Heater now has 24MW idle power draw unaffected by modules ensuring unbroken plasma confinement even while dormant.
+    - Fission research facility power draw 5MW -> 8.8MW.
+    - Wafer factory power draw 1MW -> 2.4MW.
+    - Deep drill power draw 1MW -> 4.2MW.
+    - Caster power draw 300kW -> 1.2MW.
+    - Crystal grower power draw 450kW -> 1.6MW.
+    - Purifier power draw 450kW -> 2MW.
+    - Distillation tower power draw 200kW -> 3.2MW.
+    - Crusher power draw 150kW -> 900kW.
+    - Nuclear waste dump working power draw 0 -> 5MW.
+    - Nuclear waste dump working pollution 0 -> 5.
+    - Gate energy buffer 5GJ -> 50GJ.
+    - Gate energy buffer maximum inflow rate 100MW -> 5GW.
+    - Gate energy usage 20MW -> 200MW.
+    - Gate activation threshold moved from 20% -> 90%.
+    - Gate per item energy requirement now assesses weight table for scaling (ie count=count*weight table[item]), additionally paid energy cost scales by ((items*count)^1.2)*100
+    - reforge_gaia transitioned to internal on_nthtick scheduler to support reverting internal name to gaia.
   Fixes:
-      - Remote call which disables Krastorio2 singularity beacon win condition no longer endlessly called in on_nth tick—on init and config changed only.
-      - Black hole, Induction matrix, and Gaia on_tick scripts now use the on_tick event.tick instead of game.tick.
-      - EM train power draw no longer initializes with 10% reduction via efficiency, now properly defaults to 0%.
-      - Fueler updater now uses on_tick event.tick instead of game.tick.
-      - Circuit connectors properly positioned on EI Loaders.
-      - Initial gate camera view/exit will not throw nil error on surfaces other than Gaia and Nauvis.
-      - Exotic matter down tooltip now says down instead of up.
-      - Entity updater will skip to next entity type if totally empty queue detected for current entity.
-      - Lab, Big Lab, Biolab now correctly add all detected science packs as possible inputs & they'll be AFTER the Epochs.
-      - EI bots no longer invisible while carrying cargo.
-      - Non logistic EI Containers will no longer alert for being out of a logistics zone.
-      - EM Charger will no longer ignore EM Trains chained together with Multiple Unit mod.
-      - Alien spawner balanced & deterministic rarity system restored.
-      - Steam & EM Train prototypes updated to use 2.0 start, stop, drive, idle definitions, correcting certain inconsistencies.
-      - EM Charger no longer makes non-EM wagons glow.
-      - EM Charger no longer uses game.tick for glow seed entropy.
-      - EM Trains no longer play the whooshing past you noise unless at a sufficient speed.
-      - EI_rng no longer accesses game.tick or global storage internally to avoid desyncs. Entropy is now provided from the calling function by local deterministic variables.
-      - Where deterministically possible, math.random usage restored.
-      - EM Train impact sounds re-exported as 48khz .ogg with consistently named files to ensure proper loading and playback.
-      - Bobs Logistic crash related to incorrect next_upgrade on EI containers fixed.
-      - Neodymium transport belt, underground, splitter moved after Turbo in crafting menu.
-      - Inserter crane entries corrected in Milestones preset.
-      - Crystal Accumulator technology name restored to lang_en
-      - Avoiding gate energy draw no longer possible.
-      - (Pre-Remembrance)Internal name for Gaia planet reverted to gaia, external name Gaia, preserving existing save files which did not have malformed Gaia generation settings. A dummy prototype remains as to not invalidate 1.5.7 saves before the on-load migration. If upgrading from 1.5.6 or before, you will no longer need to update your ship schedule. If from 1.5.7, you will need to update your ship schedule, and Gaia may display in category Other until clicked on to refresh it.
+    - Remote call which disables Krastorio2 singularity beacon win condition no longer endlessly called in on_nth tick—on init and config changed only.
+    - Black hole, Induction matrix, and Gaia on_tick scripts now use the on_tick event.tick instead of game.tick.
+    - EM train power draw no longer initializes with 10% reduction via efficiency, now properly defaults to 0%.
+    - Fueler updater now uses on_tick event.tick instead of game.tick.
+    - Circuit connectors properly positioned on EI Loaders.
+    - Initial gate camera view/exit will not throw nil error on surfaces other than Gaia and Nauvis.
+    - Exotic matter down tooltip now says down instead of up.
+    - Entity updater will skip to next entity type if totally empty queue detected for current entity.
+    - Lab, Big Lab, Biolab now correctly add all detected science packs as possible inputs & they'll be AFTER the Epochs.
+    - EI bots no longer invisible while carrying cargo.
+    - Non logistic EI Containers will no longer alert for being out of a logistics zone.
+    - EM Charger will no longer ignore EM Trains chained together with Multiple Unit mod.
+    - Alien spawner balanced & deterministic rarity system restored.
+    - Steam & EM Train prototypes updated to use 2.0 start, stop, drive, idle definitions, correcting certain inconsistencies.
+    - EM Charger no longer makes non-EM wagons glow.
+    - EM Charger no longer uses game.tick for glow seed entropy.
+    - EM Trains no longer play the whooshing past you noise unless at a sufficient speed.
+    - EI_rng no longer accesses game.tick or global storage internally to avoid desyncs. Entropy is now provided from the calling function by local deterministic variables.
+    - Where deterministically possible, math.random usage restored.
+    - EM Train impact sounds re-exported as 48khz .ogg with consistently named files to ensure proper loading and playback.
+    - Bobs Logistic crash related to incorrect next_upgrade on EI containers fixed.
+    - Neodymium transport belt, underground, splitter moved after Turbo in crafting menu.
+    - Inserter crane entries corrected in Milestones preset.
+    - Crystal Accumulator technology name restored to lang_en
+    - Avoiding gate energy draw no longer possible.
+    - (Pre-Remembrance)Internal name for Gaia planet reverted to gaia, external name Gaia, preserving existing save files which did not have malformed Gaia generation settings. A dummy prototype remains as to not invalidate 1.5.7 saves before the on-load migration. If upgrading from 1.5.6 or before, you will no longer need to update your ship schedule. If from 1.5.7, you will need to update your ship schedule, and Gaia may display in category Other until clicked on to refresh it.
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.7
-Date: 4.30.25
+Date: 4-30-2025
   Additions:
-      - EM Train Carriages now glow alongside EM Locomotives
+    - EM Train Carriages now glow alongside EM Locomotives
   Changes:
-      - lang_ru updated by ashot15
-      - ei_rng switched from UPS expensive factorio rng to deterministic linear congruential generator
+    - lang_ru updated by ashot15
+    - ei_rng switched from UPS expensive factorio rng to deterministic linear congruential generator
   Fixes:
-      - reforge_gaia behavior corrected, recursion stabilized. You will need to correct your ship schedule.
-      - alien_spawner.lua transitioned from math.rand to ei_rng
+    - reforge_gaia behavior corrected, recursion stabilized. You will need to correct your ship schedule.
+    - alien_spawner.lua transitioned from math.rand to ei_rng
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.6
-Date: 4.19.25
+Date: 4-19-2025
   Changes:
-      - All (newly coded) math.rand switched to mp friendly synced variants reported by @debuasgaming
+    - All (newly coded) math.rand switched to mp friendly synced variants reported by @debuasgaming
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.5
-Date: 4.17.25
+Date: 4-17-2025
   Additions:
-      - Crystal_echo ei_lib command to support colorful printed messages
-      - Custom HID headlights for EM trains. Also projects behind at reduced power.
-      - Custom underglow for EM trains while loading/unloading.
-      - 6 Custom whooshing noises for EM trains moving down tracks.
-      - 6 Custom crash noises for EM trains.
-      - Custom brake sound for EM trains.
-      - Warp in effect on login ;)
-      - Train diagnostic readout on researching any buff or startup configuration change.
-      - EM Charger Glow, EM Train Glow added to startup settings as startup toggles.
-      - EM Charger glow fade duration and EM train glow fade duration added as startup numeric values.
-      - EM Updater Ring que width added as startup numeric value.
-      - EM Updater Ring que transparency added as startup numeric value.
-      - EM Updater Ring que fade duration added as startup numeric value.
+    - Crystal_echo ei_lib command to support colorful printed messages
+    - Custom HID headlights for EM trains. Also projects behind at reduced power.
+    - Custom underglow for EM trains while loading/unloading.
+    - 6 Custom whooshing noises for EM trains moving down tracks.
+    - 6 Custom crash noises for EM trains.
+    - Custom brake sound for EM trains.
+    - Warp in effect on login ;)
+    - Train diagnostic readout on researching any buff or startup configuration change.
+    - EM Charger Glow, EM Train Glow added to startup settings as startup toggles.
+    - EM Charger glow fade duration and EM train glow fade duration added as startup numeric values.
+    - EM Updater Ring que width added as startup numeric value.
+    - EM Updater Ring que transparency added as startup numeric value.
+    - EM Updater Ring que fade duration added as startup numeric value.
   Changes:
-      - EM Updater Ring que customization added, indicated color will now reflect working/offline/error/etc status.
-      - AAI burner lab disabled due to overlap with EI burner lab. Reported by @L??M??3674
+    - EM Updater Ring que customization added, indicated color will now reflect working/offline/error/etc status.
+    - AAI burner lab disabled due to overlap with EI burner lab. Reported by @L??M??3674
   Fixes:
-      - Gaia correctly receives autoplacement instructions IE the 5 Exotic Industries specific resources will now consistently spawn.. WHEN YOU CONNECT ON CONFIGURATION CHANGE GAIA WILL BE SCANNED AND IF NONE OF THE CUSTOM RESOURCES ARE FOUND, DESTROYED AND REGENERATED ... PLAYERS WILL BE TELEPORTED TO NAUVIS.
-      - EI tanks requirements for previous tier fixed, previously Spherical tank required Silo tank. Reported by @crysiszocker1
-      - Loader prototype complexity setting toggle works again.
+    - Gaia correctly receives autoplacement instructions IE the 5 Exotic Industries specific resources will now consistently spawn.. WHEN YOU CONNECT ON CONFIGURATION CHANGE GAIA WILL BE SCANNED AND IF NONE OF THE CUSTOM RESOURCES ARE FOUND, DESTROYED AND REGENERATED ... PLAYERS WILL BE TELEPORTED TO NAUVIS.
+    - EI tanks requirements for previous tier fixed, previously Spherical tank required Silo tank. Reported by @crysiszocker1
+    - Loader prototype complexity setting toggle works again.
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.4
-Date: 4.16.25
+Date: 4-16-2025
   Changes:
      - K2 import related errors will log errors instead of preventing game from loading at all
   Fixes:
      - Duplicate map gen preset name removed from RU locale
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.3
-Date: 4.15.25
+Date: 4-15-2025
   Additions:
      - Custom sound effects for EM trains & cargo wagons
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.2
-Date: 4.15.25
+Date: 4-15-2025
   Fixes:
      - Commented out a naughty line related to inhibitor lamp
      - Removed errant deregister call from update charger.
      - Removed register charger debug output.
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.1
-Date: 4.15.25
+Date: 4-15-2025
   Additions:
     - Imported ru, zh locales from previous repository, applied pull from @astorin, now committed.. likely requires updates which will require native speaker
     - Visual indicators added for EM train charger -> train energy transfer process. Style can be set in startup settings to either Beam, Ring, or off.
@@ -368,14 +399,14 @@ Date: 4.15.25
     - Lignumis no longer adds unbuildable steam-science-pack to Gaia & some others
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.0
-Date: 4.13.25
+Date: 4-13-2025
   Changes:
     - EI Storage tanks adjusted to provide iron:storage capacity ratios superior to the stock tank. Health was also increased and resistances to physical, impact, and fire added. The ratios are: stock tank-555:1, tank1-600:1, tank2:666:1, tank3:750:1.
   Fixes:
     - Tooltips added for metalworks recipes, arc furnace, purifier, crusher, biolab.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.9
-Date: 4.11.25
+Date: 4-11-2025
   Changes:
     - Loader electricity usage adjusted and now increases per tier
   Fixes:
@@ -384,7 +415,7 @@ Date: 4.11.25
     - Spidertron limiter updated to use 2.0s new lua logistics commands, setting a logistic request on the spidertron will no longer cause a crash. Reported by @debuasgaming
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.8
-Date: 4.10.25
+Date: 4-10-2025
   Additions:
     - Colorful animated glow effects for Arc Furnace, Plasma Heater, Gate, & Caster working states. (Current sprites imported from Glow Trees; credit to asher_sky)
     - Loader Complexity Patch: Startup setting which significantly increases material input complexity for loaders and REWARDS YOU by enabling filtering for the Express loader and stacking for the Neodymium loader
@@ -403,13 +434,13 @@ Date: 4.10.25
     - Several quick fixes have been implemented to allow the use of K2 imports, final implementations pending
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.3
-Date: 04.04.25
+Date: 4-4-2025
   Changes:
     - UPS optimisation, thanks to 1righteousgod @ Discord
     - Bugfixes
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.0
-Date: 03.04.25
+Date: 3-4-2025
   Changes:
     - Platform requests scanner - constant combinator outputting orbiting platform requests sorted by platforms. Can be connected to logistic container in set requests mode.
     - Ported Fueler Tower, can insert burnable fuel to vehicles and take burnt results
@@ -432,19 +463,19 @@ Date: 03.04.25
     - K2 intergalactic transceiver - working, but without victory trigger, for use in scenario, that, maybe will be later
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.6
-Date: 18.03.25
+Date: 3-18-2025
   Changes:
     - AAI: burner-assembling-machine replaced in recipes with ei-steam-assembler
     - Laser tech prerequisites fix
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.5
-Date: 18.03.25
+Date: 3-18-2025
   Changes:
     - Yellow splitter and loader use iron-mechanical-parts
     - Some tech order and unlocks glitches fixed 
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.3
-Date: 16.03.25
+Date: 3-16-2025
   Changes:
     - Buffed pure ore - molten - cast recipes
     - Option to disable EI dynamic tech scaling
@@ -454,7 +485,7 @@ Date: 16.03.25
     - Lignumis Compatibility fixes, locale fixes
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.0
-Date: 12.03.25
+Date: 3-12-2025
   Changes:
     - Dedicated filter inserter gone, as all inserters can now filter
     - Filter EI containers now 20 / 40 / 120 slots, non-filter 50 / 250 / 1000
@@ -463,14 +494,14 @@ Date: 12.03.25
     - aai-industry: added stone-tablet recipe unlock to electronics
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.1
-Date: 09.03.25
+Date: 3-9-2025
   Changes:
     - Option to setup all trigger tech with Computer Age science packs.
     - Morphium pools on Gaia can be landfilled
     - Reduced build restricted area behind thrusters.
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.0
-Date: 04.03.25
+Date: 3-4-2025
   Changes:
     - Basic Lignumis Compatibility
     - Wood science pack => Dark Age science pack 
@@ -479,7 +510,7 @@ Date: 04.03.25
     - Some starting recipes shifted to steam age
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.3
-Date: 03.03.25
+Date: 3-3-2025
   Changes:
     - Compatibility 
     - Localization 
@@ -487,7 +518,7 @@ Date: 03.03.25
     - Option to flatten tech tree (default off)
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.2
-Date: 01.03.25
+Date: 3-1-2025
   Changes:
     - Compatibility fixes
   Marked-as-conflicting:
@@ -497,7 +528,7 @@ Date: 01.03.25
     - factorioplus
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
-Date: 01.03.25
+Date: 3-1-2025
   Changes:
     - Many fixes for compatibility between different mods
     - Some fixes for future compatibility between different planets 

@@ -1685,6 +1685,25 @@ data:extend({
         category = "centrifuging",
         energy_required = 3.5,
         ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min=15,amount_max=20},
+            {type = "item", name = "ei-crushed-neodym", amount = 1,probability=0.01},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-extraction",
+        order = "e",
+        icon = ei_graphics_other_path.."neodym-extraction.png",
+        icon_size = 64,
+    },
+    {
+        name = "ei-neodym-extraction-morphium",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 3.5,
+        ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 100},
             {type="item",name="ei-high-energy-crystal",amount=1}
         },
@@ -1696,7 +1715,7 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         subgroup = "ei-refining-extraction",
-        order = "e",
+        order = "e2",
         icon = ei_graphics_other_path.."neodym-extraction.png",
         icon_size = 64,
     },
@@ -1983,15 +2002,34 @@ data:extend({
 ------------------------------------------------------------------------------------------------------
 data:extend({
     {
-        name = "ei-neodym-morphium-usage",
+        name = "ei-neodym-dirty-water-usage",
         type = "technology",
-        icon = ei_graphics_tech_path.."morphium-usage.png",
+        icon = ei_graphics_tech_path.."morphium-usage.png", --used to be called dirty-water-usage.png ...
         icon_size = 128,
         prerequisites = {"ei-neodym-refining"},
         effects = {
             {
                 type = "unlock-recipe",
                 recipe = "ei-neodym-extraction"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["quantum-age"],
+            time = 20
+        },
+        age = "quantum-age",
+    },
+    {
+        name = "ei-neodym-morphium-usage",
+        type = "technology",
+        icon = ei_path.."graphics/tech/morphium-usage.png",
+        icon_size = 128,
+        prerequisites = {"ei-neodym-refining"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-neodym-extraction-morphium"
             },
         },
         unit = {

@@ -104,13 +104,7 @@ local recipes = {
 }
 
 local remove_prod = {
-
-}
-
-local crafting_categories = {
-    "ei-waver-factory",
-    "smelting",
-    "rocket-building",
+    "lubricant",
 }
 
 -- add them to limitation of productivity modules
@@ -130,10 +124,15 @@ for i,v in pairs(remove_prod) do
     ei_lib.raw["recipe"][v].allow_productivity = false
 end
 
+local crafting_categories = {
+    "ei-waver-factory",
+    "smelting",
+    "rocket-building",
+}
 -- get all recipes that have given crafting category and add them to limitation of productivity modules
 
 for i,v in pairs(crafting_categories) do
-    for i2,v2 in pairs(data.raw["recipe"]) do
+    for i2,v2 in pairs(ei_lib.raw["recipe"]) do
         if v2.category == v then
             v2.allow_productivity = true
         end
@@ -144,6 +143,8 @@ end
 -- fix recipes that need vanilla iron-ore, copper-ore or iron-gear-wheel/iron-stick
 -- loop over all recipes
 for name,recipe in pairs(data.raw.recipe) do
+    --ei_lib.recipe_swap(name, "iron-ore", "ei-poor-iron-chunk")
+    --ei_lib.recipe_swap(name, "copper-ore", "ei-poor-copper-chunk")
     ei_lib.recipe_swap(name, "iron-gear-wheel", "ei-iron-mechanical-parts")
     ei_lib.recipe_swap(name, "steel-gear-wheel", "ei-steel-mechanical-parts")
     ei_lib.recipe_swap(name, "iron-stick", "ei-iron-beam")
@@ -154,12 +155,6 @@ end
 
 ei_lib.recipe_swap("concrete", "iron-ore", "ei-iron-beam")
 ei_lib.recipe_swap("refined-concrete", "ei-copper-mechanical-parts", "ei-steel-beam")
-ei_lib.add_unlock_recipe("ei-morphium-usage","ei-undilute-morphium")
-ei_lib.add_unlock_recipe("ei-morphium-usage","ei-slag-extraction-morphium")
-ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-light-oil")
-ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-kerosene")
-ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-heavy-oil")
-ei_lib.add_unlock_recipe("ei-morphium-usage","ei-concentrated-morphium-lubricant")
 
 --ei_lib.enable_from_start("iron-stick")
 --ei_lib.enable_from_start("iron-gear-wheel")

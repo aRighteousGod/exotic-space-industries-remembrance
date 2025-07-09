@@ -229,10 +229,6 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
-                recipe = "ei-morphium-fluorite"
-            },
-            {
-                type = "unlock-recipe",
                 recipe = "ei-dirty-water-fluorite"
             },
             {
@@ -374,7 +370,7 @@ data:extend({
             {type = "item", name = "ei-gold-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 10},
+            {type = "fluid", name = "ei-dirty-water", amount = 10,allow_productivity=false},
             {type = "item", name = "ei-pure-gold", amount = 5},
         },
         always_show_made_in = true,
@@ -394,7 +390,7 @@ data:extend({
             {type = "item", name = "ei-lead-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 10},
+            {type = "fluid", name = "ei-dirty-water", amount = 10,allow_productivity=false},
             {type = "item", name = "ei-pure-lead", amount = 5},
         },
         always_show_made_in = true,
@@ -414,7 +410,7 @@ data:extend({
             {type = "item", name = "ei-iron-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5},
+            {type = "fluid", name = "ei-dirty-water", amount = 5,allow_productivity=false},
             {type = "item", name = "ei-pure-iron", amount = 5},
         },
         always_show_made_in = true,
@@ -434,7 +430,7 @@ data:extend({
             {type = "item", name = "ei-copper-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5},
+            {type = "fluid", name = "ei-dirty-water", amount = 5,allow_productivity=false},
             {type = "item", name = "ei-pure-copper", amount = 5},
         },
         always_show_made_in = true,

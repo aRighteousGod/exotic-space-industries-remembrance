@@ -23,8 +23,6 @@ ei_data = require("lib/data")
 --MAIN CONTENT CODE
 --====================================================================================================
 
---require("prototypes/_K2_/data")
-
 -- add new categories, entities, items, techs, recipes fluids, resources
 
 require("prototypes/pipe-covers")
@@ -44,6 +42,7 @@ require("prototypes/exotic_age/exotic_age")
 require("prototypes/electricity_age/robots")
 require("prototypes/loaders")
 require("prototypes/more_asteroids")
+require("prototypes/productivity")
 --====================================================================================================
 --COMPATIBILITY CODE
 --====================================================================================================

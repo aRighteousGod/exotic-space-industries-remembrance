@@ -49,6 +49,25 @@ data:extend({
         subgroup = "ei-refining-parts",
         order = "a2",
     },
+    {
+        name = "ei-poor-iron-chunk",
+        type = "item",
+        icon = ei_graphics_item_path.."poor-iron-chunk.png",
+        icon_size = 64,
+        stack_size = 100,
+        subgroup = "ei-refining-raw",
+        order = "a1",
+    },
+    {
+        name = "ei-poor-copper-chunk",
+        type = "item",
+        icon = ei_graphics_item_path.."poor-copper-chunk.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+        stack_size = 100,
+        subgroup = "ei-refining-raw",
+        order = "a2",
+    },
 {
         name = "ei-slag",
         type = "item",
@@ -128,6 +147,38 @@ data:extend({
 --RECIPES
 ------------------------------------------------------------------------------------------------------
 data:extend({
+    {
+        name = "ei-poor-iron-chunk-smelting",
+        type = "recipe",
+        category = "smelting",
+        energy_required = 3.2,
+        ingredients = {
+            {type="item",name="ei-poor-iron-chunk", amount=3}
+        },
+        results = {
+            {type = "item", name = "iron-plate", amount = 1},
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33}
+        },
+        always_show_made_in = true,
+        enabled = true,
+        main_product = "iron-plate",
+    },
+    {
+        name = "ei-poor-copper-chunk-smelting",
+        type = "recipe",
+        category = "smelting",
+        energy_required = 3.2,
+        ingredients = {
+            {type="item",name="ei-poor-copper-chunk", amount=3}
+        },
+        results = {
+            {type = "item", name = "copper-plate", amount = 1},
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33}
+        },
+        always_show_made_in = true,
+        enabled = true,
+        main_product = "copper-plate",
+    },
     {
         name = "ei-iron-beam",
         type = "recipe",

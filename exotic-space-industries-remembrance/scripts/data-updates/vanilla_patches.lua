@@ -17,6 +17,13 @@ end
 --CHANGES
 --====================================================================================================
 
+--MINING
+------------------------------------------------------------------------------------------------------
+
+-- set output of copper and iron ore to ore chunks
+ei_lib.raw["resource"]["iron-ore"].minable.result = "ei-poor-iron-chunk"
+ei_lib.raw["resource"]["copper-ore"].minable.result = "ei-poor-copper-chunk"
+
 --Fulgora ruins, scrap recycling
 -----------------------------------------------------------------------------------------------------
 local replaced = {
@@ -1343,6 +1350,11 @@ ei_lib.raw["underground-belt"]["turbo-underground-belt"].next_upgrade = "ei-neo-
 -- set localised descriptions
 ei_lib.raw["item"]["burner-inserter"].localised_description = {"item-description.ei_burner-inserter"}
 ei_lib.raw["item"]["oil-refinery"].localised_description = {"item-description.ei_oil-refinery"}
+
+-- set localised name of ores to ei ones
+data.raw["resource"]["iron-ore"].localised_name = {"item-name.ei-poor-iron-chunk"}
+data.raw["resource"]["copper-ore"].localised_name = {"item-name.ei-poor-copper-chunk"}
+
 
 --====================================================================================================
 --FUNCTION STUFF

@@ -105,6 +105,8 @@ data:extend({
 		circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites,
 		circuit_wire_max_distance = 20,
         flow_length_in_ticks = 1,
+        heating_energy = "0W",
+        additional_categories = "cryogenics",
         window_bounding_box = {{0,0},{1,1}},
         pictures = {
             picture = {
@@ -161,6 +163,8 @@ data:extend({
 local pipe = util.table.deepcopy(data.raw.pipe.pipe)
 pipe.name = "ei-insulated-pipe"
 pipe.minable.result = "ei-insulated-pipe"
+pipe.heating_energy = "0W"
+pipe.additional_categories = "cryogenics"
 -- pipe.fluid_box.filter = "ei-liquid-nitrogen"
 
 -- loop over pictures and swap first part of filename with ei_graphics_insulated_path
@@ -182,7 +186,8 @@ local pipeToGround = util.table.deepcopy(data.raw["pipe-to-ground"]["pipe-to-gro
 pipeToGround.name = "ei-insulated-underground-pipe"
 pipeToGround.minable.result = "ei-insulated-underground-pipe"
 pipeToGround.fluid_box.pipe_connections[2].max_underground_distance = 11
-
+pipeToGround.heating_energy = "0W"
+pipeToGround.additional_categories = "cryogenics"
 
 for k, v in pairs(pipeToGround.pictures) do
     if(v.filename) then

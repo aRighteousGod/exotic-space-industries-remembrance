@@ -823,7 +823,6 @@ function on_destroyed_entity(e)
         ei_register.unregister_slave_entity("copper_beacon", slave_entity ,e["entity"], true)
         ei_register.unregister_master_entity("copper_beacon", master_unit)
         ei_register.subtract_spaced_update()
-        ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
         ::continue::
     end
 
@@ -836,11 +835,10 @@ function on_destroyed_entity(e)
         ei_register.unregister_slave_entity("copper_beacon", slave_entity ,e["entity"], true)
         ei_register.unregister_master_entity("copper_beacon", master_unit)
         ei_register.subtract_spaced_update()
-        ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
         ::continue::
     end
 
-    --ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
+    ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_alien_spawner.on_destroyed_entity(e["entity"])
     ei_matter_stabilizer.on_destroyed_entity(e["entity"])
