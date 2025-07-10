@@ -1,4 +1,27 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 7-9-2025
+  Changes:
+    - Foundry molten metal from ores slag output probability 100 -> 33%.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 7-9-2025
+  Additions:
+    - Burner and electric lab made compatible with Disco Science. @ShayoDarkleaf
+  Changes:
+    - Caster can additionally craft holmium and tungsten plates.
+    - Combined molten metals from foundry with arc furnace equivalents.
+    - Foundry molten metal from lava stone output -> 8-12 slag.
+    - Foundry molten metal from ores additionally produces slag.
+    - Foundry iron gear wheel casting -> iron mechanical parts casting.
+    - Foundry iron stick casting -> iron beam.
+    - Foundry crafting speed reduced 4 -> 1.5. Power usage increased 2.5 -> 58MW. Module slots reduced 4 -> 2.
+  Fixes:
+    - Prevented productivity from affecting slag output.
+    - Prevented productivity from affecting morphium -> extraction by-products.
+    - Lang entry for neodymium extraction from morphium.
+    - Lang entry definition typo corrected for poor chunk smelting.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.9
 Date: 7-8-2025
   Additions:

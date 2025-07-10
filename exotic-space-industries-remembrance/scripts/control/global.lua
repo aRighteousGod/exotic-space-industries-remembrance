@@ -22,8 +22,6 @@ function ei_global.init()
     storage.ei["spawner_queue"] = {}
     storage.ei["orbital_combinators"] = {}
     storage.ei.spaced_updates = 0
-	storage.ei.rng_counter = 0
-    storage.ei.last_tick = 0
     storage.ei.arrival_waves = {}
     storage.ei.alien = {}
     storage.ei.locomotives = {}

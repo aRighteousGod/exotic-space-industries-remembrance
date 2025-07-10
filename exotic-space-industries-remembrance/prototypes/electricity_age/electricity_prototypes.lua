@@ -707,7 +707,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -754,7 +754,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -770,7 +770,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-neodym-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -786,7 +786,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -802,7 +802,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,

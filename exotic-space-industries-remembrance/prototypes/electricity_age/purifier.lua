@@ -450,7 +450,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -467,7 +467,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -484,7 +484,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -501,7 +501,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
@@ -636,8 +636,8 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2},
-            {type="item",name="ei-energy-crystal",amount=1,probability=0.05},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2,allow_productivity=false},
+            {type="item",name="ei-energy-crystal",amount=1,probability=0.05,allow_productivity=false},
             {type= "item",name="ei-coal-chunk", amount_min=1, amount_max=3,probability=0.015},
             {type= "item",name="ei-iron-chunk", amount_min=1, amount_max=3,probability=0.01},
             {type= "item",name="ei-copper-chunk", amount_min=1, amount_max=3,probability=0.008},
@@ -661,7 +661,7 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15,allow_productivity=false},
             {type= "item",name="ei-coal-chunk", amount_min=0, amount_max=2,probability=0.015},
             {type= "item",name="ei-iron-chunk", amount_min=0, amount_max=2,probability=0.01},
             {type= "item",name="ei-copper-chunk", amount_min=0, amount_max=2,probability=0.008},
@@ -685,7 +685,7 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45,allow_productivity=false},
             {type= "item",name="ei-coal-chunk", amount_min=0, amount_max=1,probability=0.015},
             {type= "item",name="ei-iron-chunk", amount_min=0, amount_max=1,probability=0.01},
             {type= "item",name="ei-copper-chunk", amount_min=0, amount_max=1,probability=0.008},

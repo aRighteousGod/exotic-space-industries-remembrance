@@ -1355,6 +1355,47 @@ ei_lib.raw["item"]["oil-refinery"].localised_description = {"item-description.ei
 data.raw["resource"]["iron-ore"].localised_name = {"item-name.ei-poor-iron-chunk"}
 data.raw["resource"]["copper-ore"].localised_name = {"item-name.ei-poor-copper-chunk"}
 
+-- foundry
+ei_lib.merge_fluid("molten-iron", "ei-molten-iron", true)
+ei_lib.merge_fluid("molten-copper", "ei-molten-copper", true)
+ei_lib.raw["assembling-machine"].foundry = {
+    crafting_speed = 1.5,
+    energy_usage = "58MW",
+    module_slots = 2,
+}
+ei_lib.raw.recipe["casting-iron-gear-wheel"].results = {
+    {type="item",name="ei-iron-mechanical-parts",amount=1}
+}
+ei_lib.raw.recipe["casting-iron-stick"].results = {
+    {type="item",name="ei-iron-beam",amount=1}
+}
+ei_lib.raw.recipe["molten-copper"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,allow_productivity=false
+}
+ei_lib.raw.recipe["molten-iron"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,allow_productivity=false
+}
+ei_lib.raw.recipe["molten-copper-from-lava"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,allow_productivity=false
+}
+ei_lib.raw.recipe["molten-iron-from-lava"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,allow_productivity=false
+}
+--allow caster to produce space-age plates
+local addToCaster = {
+    "holmium-plate",
+    "tungsten-plate"
+}
+for _,toCast in pairs(addToCaster) do
+    local recipe = ei_lib.raw.recipe[toCast]
+    if recipe then
+        if recipe.additional_categories then
+            table.insert(recipe.additional_categories,"ei-casting") 
+        else
+            recipe.additional_categories = {"ei-casting"}
+        end
+    end
+end
 
 --====================================================================================================
 --FUNCTION STUFF

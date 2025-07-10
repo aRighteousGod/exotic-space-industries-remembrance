@@ -157,7 +157,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33}
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = true,
@@ -173,7 +173,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33}
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = true,
