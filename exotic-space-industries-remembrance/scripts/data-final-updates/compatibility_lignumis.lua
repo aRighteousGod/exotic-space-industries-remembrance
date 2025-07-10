@@ -19,14 +19,14 @@ if mods["lignumis"] then
   ei_lib.add_unlock_recipe("ei-steam-age","ei-steam-age-tech")
   ei_lib.add_unlock_recipe("ei-steam-age","lignumis-steam-age")
   
-  data.raw.recipe['ei-dark-age-tech'].enabled = true
-  data.raw.recipe['lignumis-dark-age'].enabled = true
+  ei_lib.raw.recipe['ei-dark-age-tech'].enabled = true
+  ei_lib.raw.recipe['lignumis-dark-age'].enabled = true
   
-  data.raw.item.wood.fuel_category = "chemical"
-  data.raw.item.lumber.fuel_category = "chemical"
+  ei_lib.raw.item.wood.fuel_category = "chemical"
+  ei_lib.raw.item.lumber.fuel_category = "chemical"
   
-  data.raw.item.lumber.place_as_tile = table.deepcopy(data.raw.item.wood.place_as_tile)
-  data.raw.item.wood.place_as_tile = nil
+  ei_lib.raw.item.lumber.place_as_tile = table.deepcopy(data.raw.item.wood.place_as_tile)
+  ei_lib.raw.item.wood.place_as_tile = nil
   
   ei_lib.recipe_swap("burner-mining-drill", "ei-iron-mechanical-parts", "wooden-gear-wheel")
   ei_lib.recipe_swap("burner-mining-drill", "iron-plate", "stone-brick")
@@ -34,25 +34,30 @@ if mods["lignumis"] then
   ei_lib.recipe_swap("ei-dark-age-lab", "iron-plate", "lumber")
   ei_lib.recipe_swap("ei-dark-age-lab", "ei-copper-mechanical-parts", "wooden-gear-wheel")
   
-  ei_lib.recipe_swap("basic-construction-robot-copper", "basic-circuit-board", "wooden-gear-wheel")
-  ei_lib.recipe_swap("ei-burner-assembler", "ei-copper-mechanical-parts", "wooden-gear-wheel")
-  ei_lib.recipe_swap("steam-assembling-machine", "ei-steam-assembler", "ei-burner-assembler")
-  ei_lib.recipe_swap("lumber-mill", "ei-steam-assembler", "ei-burner-assembler")
+  ei_lib.recipe_swap("burner-inserter", "ei-copper-mechanical-parts", "wooden-gear-wheel")
+  ei_lib.recipe_swap("ei-mechanical-inserter", "ei-iron-mechanical-parts", "wooden-gear-wheel")
+  ei_lib.recipe_swap("steam-assembling-machine", "ei-burner-assembler", "burner-assembling-machine")
+  ei_lib.recipe_swap("lumber-mill", "ei-burner-assembler", "steam-assembling-machine")
 
-  ei_lib.recipe_swap("ei-burner-quarry", "transport-belt", "wood-transport-belt")
-  ei_lib.recipe_swap("ei-burner-quarry", "iron-plate", "stone-brick")
-  ei_lib.recipe_swap("ei-burner-quarry", "ei-iron-mechanical-parts", "wooden-gear-wheel")
+  ei_lib.raw["assembling-machine"]["burner-assembling-machine"]["crafting_speed"] = ei_lib.raw["assembling-machine"]["ei-burner-assembler"]["crafting_speed"]
 
-  data.raw["assembling-machine"]["ei-steam-assembler"]["crafting_speed"] = 1.0
+  ei_lib.raw["assembling-machine"]["steam-assembling-machine"]["crafting_speed"] = ei_lib.raw["assembling-machine"]["ei-steam-assembler"]["crafting_speed"]
 
-  if data.raw["assembling-machine"]["burner-assembling-machine"] then 
-    data.raw["assembling-machine"]["ei-burner-assembler"].crafting_categories = table.deepcopy(data.raw["assembling-machine"]["burner-assembling-machine"].crafting_categories)
+  local ei_burner = ei_lib.raw["assembling-machine"]["ei-burner-assembler"]
+  local lig_burner = ei_lib.raw["assembling-machine"]["burner-assembling-machine"]
+  for _,mergefrom in pairs(lig_burner.crafting_categories) do
+      if not ei_lib.table_contains_value(ei_burner.crafting_categories, mergefrom) then
+        table.insert(ei_burner.crafting_categories,mergefrom)
+      end
+    end
+
+  local ei_steamer = ei_lib.raw["assembling-machine"]["ei-steam-assembler"]
+  local lig_steamer = ei_lib.raw["assembling-machine"]["steam-assembling-machine"]
+  for _,mergefrom in pairs(lig_steamer.crafting_categories) do
+      if not ei_lib.table_contains_value(ei_steamer.crafting_categories, mergefrom) then
+        table.insert(ei_steamer.crafting_categories,mergefrom)
+      end
+    end
   end
-
-  if data.raw["assembling-machine"]["steam-assembling-machine"] then
-    data.raw["assembling-machine"]["ei-steam-assembler"].crafting_categories = table.deepcopy(data.raw["assembling-machine"]["steam-assembling-machine"].crafting_categories)
-  end
-
   -- ei_lib.add_unlock_recipe("ei-dark-age","basic-circuit-board")
   -- ei_lib.remove_unlock_recipe("automation-2","steam-science-pack-steam")
-end

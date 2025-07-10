@@ -757,6 +757,21 @@ function on_built_entity(e)
         ei_register.register_fluid_entity(e["entity"])
     end
 
+    --steam pump jump-start steam
+    if e["entity"].name == "rp-steam-pump" then
+        local startsteam = {
+            name="steam",
+            amount=3,
+            temperature=150
+        }
+        local multi = 1
+        if e.entity.quality and e.entity.quality.level then
+            multi = 0.33*e.entity.quality.level
+        end
+        startsteam["amount"] = math.min(100,math.max(3,startsteam["amount"]*multi))
+        e["entity"].set_fluid(2,startsteam)
+    end
+
     if e["entity"].name == "ei-copper-beacon" then
         local master_unit = ei_register.register_master_entity("copper_beacon", e["entity"])
         local slave_entity = ei_register.make_slave("copper_beacon", master_unit, "ei-copper-beacon_slave", {x = 0,y = 0})
