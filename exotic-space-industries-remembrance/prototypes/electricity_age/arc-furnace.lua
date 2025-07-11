@@ -500,7 +500,7 @@ data:extend({
         category = "ei-arc-furnace",
         energy_required = 0.25,
         ingredients = {
-            {type = "item", name = "steel-plate", amount = 1},
+            {type = "item", name = "ei-steel-beam", amount = 1},
         },
         results = {
             {type = "fluid", name = "ei-molten-steel", amount = 20},

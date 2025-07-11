@@ -678,6 +678,7 @@ ei_lib.overwrite_entity_and_description("logistic-system","technology") -- overw
 ei_lib.remove_unlock_recipe("logistic-system", "active-provider-chest")
 ei_lib.remove_unlock_recipe("logistic-system", "buffer-chest")
 ei_lib.remove_unlock_recipe("logistic-system", "requester-chest")
+ei_lib.remove_unlock_recipe("logistic-robotics", "requester-chest")
 ei_lib.remove_unlock_recipe("logistic-robotics", "passive-provider-chest")
 ei_lib.remove_unlock_recipe("logistic-robotics", "storage-chest")
 ei_lib.remove_unlock_recipe("construction-robotics", "passive-provider-chest")
@@ -1356,8 +1357,6 @@ data.raw["resource"]["iron-ore"].localised_name = {"item-name.ei-poor-iron-chunk
 data.raw["resource"]["copper-ore"].localised_name = {"item-name.ei-poor-copper-chunk"}
 
 -- foundry
-ei_lib.merge_fluid("molten-iron", "ei-molten-iron", true)
-ei_lib.merge_fluid("molten-copper", "ei-molten-copper", true)
 ei_lib.raw["assembling-machine"].foundry = {
     crafting_speed = 1.5,
     energy_usage = "58MW",
@@ -1381,6 +1380,9 @@ ei_lib.raw.recipe["molten-copper-from-lava"].results[2] = {
 ei_lib.raw.recipe["molten-iron-from-lava"].results[2] = {
     type="item",name="ei-slag",amount_min=8,amount_max=12,allow_productivity=false
 }
+
+ei_lib.merge_fluid("ei-molten-iron", "molten-iron", false)
+ei_lib.merge_fluid("ei-molten-copper", "molten-copper", false)
 --allow caster to produce space-age plates
 local addToCaster = {
     "holmium-plate",

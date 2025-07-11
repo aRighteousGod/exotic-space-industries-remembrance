@@ -58,6 +58,28 @@ if mods["lignumis"] then
         table.insert(ei_steamer.crafting_categories,mergefrom)
       end
     end
+  ei_lib.raw.recipe["molten-gold"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,allow_productivity=false
+}
+ local gp = ei_lib.raw.recipe["gold-plate"]
+  ei_lib.raw.recipe["gold-plate"].ingredients = {
+    {type="item",name="gold-ore",amount=3}
+}
+  ei_lib.raw.recipe["gold-plate"].results = {
+    {type="item",name="gold-plate",amount=1},
+    {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,allow_productivity=false}
+}
+  ei_lib.raw.recipe["gold-plate"] = {
+    icon = Lignumis.graphics .. "icons/gold-plate.png",
+    subgroup = "raw-material",
+    color_hint = { text = "C" },
+    order = "a[smelting]-0[gold-plate]",
+  }
+  ei_lib.merge_item("ei-gold-chunk","gold-ore",false)
+  --ei_lib.merge_item("gold-plate","ei-gold-ingot",true)
+  ei_lib.merge_fluid("ei-molten-gold","molten-gold",false)
+
   end
+  
   -- ei_lib.add_unlock_recipe("ei-dark-age","basic-circuit-board")
   -- ei_lib.remove_unlock_recipe("automation-2","steam-science-pack-steam")

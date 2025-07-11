@@ -1,11 +1,22 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 7-10-2025
+  Changes:
+    - Merged Lignumis gold ore and molten gold with EI equivalents.
+    - Lignumis molten gold from ore recipe additionally yields slag.
+    - Lignumis gold plate recipe additionally yields slag.
+  Fixes:
+    - Foundry molten iron & copper now merge into EI equivalents instead of vice versa.
+    - Steel beam -> molten steel recipe input corrected to Steel beam, not Steel ingot.
+    - Removed vanilla requester chest from logistic robotics.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.1
 Date: 7-10-2025
   Additions:
     - Steam pumps are now created with enough steam to jump-start fluid flow in remote bases—initial amount increases with quality.
   Changes:
     - Foundry molten metal from ores slag output probability 100 -> 33%.
-    - Lignumis compatibility updated, start should now be possible.
+    - Lignumis compatibility remediated, start should now be possible.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 7-9-2025
