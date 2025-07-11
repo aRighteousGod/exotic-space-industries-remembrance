@@ -56,7 +56,7 @@ data:extend({
         next_upgrade = "ei-advanced-deep-drill",
         resource_categories = {"ei-drilling"},
         module_slots = 1,
-        allowed_effects = {"consumption", "speed", "productivity", "pollution"},
+        allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"},
         energy_source = {
             type = "fluid",
             fluid_box = {   

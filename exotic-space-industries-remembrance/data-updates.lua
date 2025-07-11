@@ -31,7 +31,7 @@ require("scripts/data-updates/locale_updates")
 -- more asteroids
 require("scripts/data-updates/more_asteroids")
 
---main menu backgrounds, nauvis soundtrack override
+--nauvis soundtrack override
 require("scripts/data-updates/music_patches")
 
 -- apply mod patches

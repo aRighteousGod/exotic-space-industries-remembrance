@@ -123,7 +123,7 @@ data:extend({
             },
         },
         fast_replaceable_group = "ei-crusher",
-        allowed_effects = {"speed", "productivity", "consumption", "pollution"},
+        allowed_effects = {"speed", "productivity", "consumption", "pollution","quality"},
         module_slots = 2,
         working_sound =
         {

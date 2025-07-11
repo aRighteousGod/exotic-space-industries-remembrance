@@ -215,7 +215,7 @@ data:extend({
             usage_priority = 'secondary-input',
         },
         energy_usage = "8.8MW",
-        allowed_effects = {"speed", "productivity", "consumption", "pollution"},
+        allowed_effects = {"speed", "productivity", "consumption", "pollution","quality"},
         module_slots = 4,
         graphics_set = {
             animation = {

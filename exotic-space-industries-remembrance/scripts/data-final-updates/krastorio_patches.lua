@@ -1388,7 +1388,7 @@ local recipe_overwrite = {
         {"ei-condensed-cryodust", 1},
         {type="fluid", name="lubricant", amount=55},
     },
-    ["kr-advanced-laoder"] = {
+    ["kr-advanced-loader"] = {
         {"kr-express-loader", 2},
         {"ei-steel-mechanical-parts", 5},
         {"ei-condensed-cryodust", 1},

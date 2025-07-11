@@ -85,7 +85,7 @@ data:extend({
         collision_box = {{-1.3,-1.3},{1.3,1.3}},
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
         map_color = ei_data.colors.assembler,
-        allowed_effects = {"speed", "consumption", "pollution"},
+        allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
         minable = {
             mining_time = 1,
             result = "ei-iron-beacon",

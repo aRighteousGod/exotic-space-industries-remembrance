@@ -70,6 +70,8 @@ data:extend({
             { variation = 17, main_offset = util.by_pixel(-37.5,  29.875), shadow_offset = util.by_pixel(-37.5,  29.875), show_shadow = true }
         }
         ),
+        module_slots = 2,
+        allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
         circuit_wire_max_distance = default_circuit_wire_max_distance,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {

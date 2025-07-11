@@ -498,7 +498,7 @@ end
 
 function model.update_informatron(player)
 
-    -- "dirty" relaod page
+    -- "dirty" reload page
     -- close informatron gui
 
     if player.gui.screen["informatron"] then

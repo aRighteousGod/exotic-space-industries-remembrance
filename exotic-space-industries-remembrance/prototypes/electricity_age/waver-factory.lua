@@ -174,7 +174,7 @@ data:extend({
                 }
             },
         },
-        allowed_effects = {"speed", "productivity", "consumption", "pollution"},
+        allowed_effects = {"speed", "productivity", "consumption", "pollution","quality"},
         module_slots = 2,
         working_sound =
         {

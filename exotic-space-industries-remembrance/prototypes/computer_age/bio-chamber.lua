@@ -129,7 +129,7 @@ data:extend({
                 }
             },
         },
-        allowed_effects = {"speed", "consumption", "pollution"},
+        allowed_effects = {"speed", "consumption", "pollution","quality"},
         module_slots = 1,
         fluid_boxes = {
             {   
