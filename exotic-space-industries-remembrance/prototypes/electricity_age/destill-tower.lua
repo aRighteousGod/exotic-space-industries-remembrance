@@ -103,6 +103,7 @@ data:extend({
             type = 'heat',
             max_temperature = 275,
             min_working_temperature = 215,
+            emissions_per_minute={pollution=10},
             specific_heat = ei_data.specific_heat,
             max_transfer = '10MW',
             connections = {

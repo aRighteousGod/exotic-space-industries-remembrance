@@ -80,9 +80,10 @@ data:extend({
         crafting_speed = 2,
         energy_source = {
             type = 'electric',
+            emissions_per_minute={pollution=4},
             usage_priority = 'secondary-input',
         },
-        energy_usage = "350kW",
+        energy_usage = "1.4MW",
         graphics_set = {
             animation = {
                 filename = ei_graphics_entity_path.."advanced-crusher.png",

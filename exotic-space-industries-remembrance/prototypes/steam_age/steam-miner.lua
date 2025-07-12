@@ -45,10 +45,12 @@ miner.icon_size = 64
 miner.icon_mipmaps = 1
 miner.minable.result = "ei-steam-miner"
 miner.mining_speed = 0.35
-
+miner.module_slots = 2
+miner.allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"}
 -- set energy source
 miner.energy_source = {
     type = "fluid",
+    emissions_per_minute={pollution=10},
     fluid_box = {   
         filter = "steam",
         volume = 200,
@@ -60,7 +62,7 @@ miner.energy_source = {
         },
         production_type = "input-output",
     },
-    effectivity = 1,
+    effectivity = 0.7,
     scale_fluid_usage = true,
 }
 miner.fast_replaceable_group = "burner-mining-drill"

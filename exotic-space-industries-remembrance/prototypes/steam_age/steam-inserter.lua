@@ -136,7 +136,7 @@ inserter.energy_source = {
         },
         production_type = "input-output",
     },
-    effectivity = 0.1,
+    effectivity = 0.7,
     scale_fluid_usage = true,
 }
 
@@ -181,7 +181,7 @@ long_inserter.energy_source = {
         },
         production_type = "input-output",
     },
-    effectivity = 0.1,
+    effectivity = 0.7,
     scale_fluid_usage = true,
 }
 

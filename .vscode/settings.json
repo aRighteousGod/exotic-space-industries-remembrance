@@ -1,4 +1,7 @@
 {
     "github.copilot.chat.agent.thinkingTool": true,
+    "Lua.diagnostics.globals": [
+        "storage"
+    ],
     
 }

@@ -127,10 +127,11 @@ data:extend({
         energy_source = {
             type = 'electric',
             usage_priority = 'secondary-input',
+            emissions_per_minute = {pollution=8}
         },
         allowed_effects = {"speed", "consumption", "pollution", "productivity","quality"},
         module_slots = 4,
-        energy_usage = "500kW",
+        energy_usage = "2.5MW",
         fluid_boxes = {
             {   
                 volume = 200,

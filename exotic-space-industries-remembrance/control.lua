@@ -52,7 +52,7 @@ em_trains_gui = require("scripts/control/em-trains/gui")
 em_trains_informatron = require("scripts/control/em-trains/informatron")
 
 ei_steam_train = require("scripts/control/steam_train")
-
+ei_camp_fire = require("scripts/control/camp_fire")
 orbital_combinator = require("scripts/control/orbital_combinator")
 
 --====================================================================================================
@@ -570,7 +570,7 @@ script.on_event(
 --====================================================================================================
 
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
-ei_update_step = 0  -- Tracks which entity type is updated next, skips first tick
+ei_update_step = 1  -- Tracks which entity type is updated next, skips first tick
 ei_update_functions = {
     function() ei_powered_beacon.update() end,
     function() ei_powered_beacon.update_fluid_storages() end,
@@ -622,7 +622,7 @@ function updater(event)
            end
 
        elseif ei_update_step == 3 then
-           if storage.ei and storage.ei["neutron_sources"] and  ei_lib.getn(storage.ei["neutron_sources"]) then
+           if storage.ei and storage.ei["neutron_sources"] and ei_lib.getn(storage.ei["neutron_sources"]) then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei["neutron_sources"]) / divisor), ei_maxEntityUpdates))
                end
            for i = 1, updates_needed do
@@ -653,7 +653,7 @@ function updater(event)
    else -- Otherwise, ei_update_step is >= 5
 
        if ei_update_step == 5 then
-           if storage.ei and storage.ei.orbital_combinators and  ei_lib.getn(storage.ei.orbital_combinators) then
+           if storage.ei and storage.ei.orbital_combinators and ei_lib.getn(storage.ei.orbital_combinators) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.orbital_combinators) / divisor), ei_maxEntityUpdates))
                 end
            for i = 1, updates_needed do
@@ -740,6 +740,7 @@ function updater(event)
     ei_induction_matrix.update(event)
     ei_black_hole.update(event)
     ei_steam_train.updater(event)
+    ei_camp_fire.updater(event)
     ei_echo_codex.arrival_waves(event)
    --======================================================================
 end
@@ -802,6 +803,7 @@ function on_built_entity(e)
     em_trains.on_built_entity(e["entity"])
     orbital_combinator.add(e["entity"])
     ei_steam_train.on_built_entity(e)
+    ei_camp_fire.on_built_entity(e)
 end
 
 function on_built_tile(e)
@@ -863,6 +865,7 @@ function on_destroyed_entity(e)
     ei_fueler.on_destroyed_entity(e["entity"], transfer)
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])
+    ei_camp_fire.on_destroyed_entity(e)
     --ei_steam_train.on_destroyed_entity(e["entity"])
 end
 

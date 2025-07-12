@@ -79,6 +79,25 @@ if mods["lignumis"] then
   --ei_lib.merge_item("gold-plate","ei-gold-ingot",true)
   ei_lib.merge_fluid("ei-molten-gold","molten-gold",false)
 
+  data:extend{
+    {
+        name = "ei-cast-gold-plate",
+        type = "recipe",
+        category = "ei-casting",
+        energy_required = 0.5,
+        ingredients = {
+            {type = "fluid", name = "ei-molten-gold", amount = 10},
+        },
+        results = {
+            {type = "item", name = "gold-plate", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "gold-plate",
+        hide_from_player_crafting = true,
+    },
+  }
+  ei_lib.add_unlock_recipe("ei-arc-furnace", "ei-cast-gold-plate")
   end
   
   -- ei_lib.add_unlock_recipe("ei-dark-age","basic-circuit-board")

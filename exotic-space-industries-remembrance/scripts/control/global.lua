@@ -25,7 +25,7 @@ function ei_global.init()
     storage.ei.arrival_waves = {}
     storage.ei.alien = {}
     storage.ei.locomotives = {}
-    
+    storage.ei.campfire = {}
     storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
@@ -44,6 +44,9 @@ function ei_global.check_init()
     end
     if not storage.ei.gaia_reforged_version then
         storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
+    end
+    if not storage.ei.campfire then
+        storage.ei.campfire = {}
     end
     if not storage.ei.locomotives then
         storage.ei.locomotives = {}

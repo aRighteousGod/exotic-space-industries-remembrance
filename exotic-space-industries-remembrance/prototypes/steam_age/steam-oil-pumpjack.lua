@@ -89,6 +89,7 @@ pump.module_slots = 0
 -- set energy source
 pump.energy_source = {
     type = "fluid",
+    emissions_per_minute={pollution=10},
     fluid_box = {   
         filter = "steam",
         volume = 200,
@@ -99,7 +100,7 @@ pump.energy_source = {
         },
         production_type = "input",
     },
-    effectivity = 1,
+    effectivity = 0.7,
     scale_fluid_usage = true,
 }
 

@@ -102,6 +102,7 @@ data:extend({
         crafting_speed = 0.5,
         energy_source = {
             type = "fluid",
+            emissions_per_minute={pollution=2},
             fluid_box = {   
                 filter = "steam",
                 volume = 200,
@@ -113,7 +114,7 @@ data:extend({
                 },
                 production_type = "input-output",
             },
-            effectivity = 0.3,
+            effectivity = 0.7,
             scale_fluid_usage = true,
         },
         fast_replaceable_group = "ei-crusher",

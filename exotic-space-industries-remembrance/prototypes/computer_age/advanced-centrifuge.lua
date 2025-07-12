@@ -85,11 +85,12 @@ data:extend({
         crafting_speed = 3,
         energy_source = {
             type = 'electric',
+            emissions_per_minute={pollution=8},
             usage_priority = 'secondary-input',
         },
         allowed_effects = {"speed", "consumption", "pollution", "productivity","quality"},
         module_slots = 4,
-        energy_usage = "750kW",
+        energy_usage = "900kW",
         fluid_boxes = {
             {   
                 volume = 200,

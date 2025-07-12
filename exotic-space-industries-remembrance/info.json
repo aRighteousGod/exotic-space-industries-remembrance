@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.1.3",
+    "version": "1.1.4",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -23,6 +23,8 @@
         "atan-ash",
         "PollutionCombinator-JamieFork",
         "ch-concentrated-solar",
+        "Flammable_Oils_QUICKFIX",
+        "? WaterTurret-revived",
         "? more-quality-scaling",
         "? diurnal-dynamics",
         "? fire-lights",

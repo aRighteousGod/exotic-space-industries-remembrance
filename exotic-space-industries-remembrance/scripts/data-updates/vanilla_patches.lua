@@ -927,12 +927,14 @@ ei_lib.raw.locomotive.locomotive = {
 }
 
 -- make oil-refinery heat based
+data.raw["assembling-machine"]["oil-refinery"].energy_usage = "1.5MW"
 data.raw["assembling-machine"]["oil-refinery"].energy_source = {
     type = 'heat',
     max_temperature = 275,
     min_working_temperature = 185,
     specific_heat = ei_data.specific_heat,
     max_transfer = '10MW',
+    emissions_per_minute = {pollution=15},
     connections = {
         {position = {-2.3, 0}, direction = defines.direction.west},
         {position = {-2.3, 1}, direction = defines.direction.west},
@@ -1036,8 +1038,14 @@ ei_lib.raw.accumulator.accumulator = {
 ei_lib.raw["item"]["nuclear-reactor"].subgroup = "ei-nuclear-buildings"
 ei_lib.raw["item"]["nuclear-reactor"].order = "b-a"
 
+ei_lib.raw["mining-drill"]["big-mining-drill"].energy_usage = "2MW"
+ei_lib.raw["furnace"]["steel-furnace"].energy_usage = "135kW"
+
+--electric chem plant uses same energy but is slower than heat chem plant 1 vs 1.5
+ei_lib.raw["assembling-machine"]["chemical-plant"].energy_usage = "1MW"
+
 -- set fast replaceable group for chem plant
-data.raw["assembling-machine"]["chemical-plant"].fast_replaceable_group = "chemical-plant"
+ei_lib.raw["assembling-machine"]["chemical-plant"].fast_replaceable_group = "chemical-plant"
 
 -- make mining radius of burner mining drill 
 ei_lib.raw["mining-drill"]["burner-mining-drill"].radius_visualisation_picture = ei_lib.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture
@@ -1361,6 +1369,7 @@ ei_lib.raw["assembling-machine"].foundry = {
     crafting_speed = 1.5,
     energy_usage = "58MW",
     module_slots = 2,
+    emissions_per_minute = {pollution=18},
 }
 ei_lib.raw.recipe["casting-iron-gear-wheel"].results = {
     {type="item",name="ei-iron-mechanical-parts",amount=1}

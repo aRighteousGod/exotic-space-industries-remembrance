@@ -44,7 +44,7 @@ plant.minable.result = "ei-heat-chemical-plant"
 plant.fast_replaceable_group = "chemical-plant"
 plant.next_upgrade = "chemical-plant"
 plant.energy_usage = "1MW"
-plant.crafting_speed = 0.5
+plant.crafting_speed = 1.5
 
 plant.graphics_set = {
   animation = ei_lib.make_4way_animation_from_spritesheet({ layers =
@@ -77,6 +77,7 @@ plant.energy_source = {
     min_working_temperature = 185,
     specific_heat = ei_data.specific_heat,
     max_transfer = '10MW',
+    emissions_per_minute={pollution=5},
     connections = {
         {position = {-1.3, 0}, direction = defines.direction.west},
         -- {position = {0,1.4}, direction = defines.direction.south},

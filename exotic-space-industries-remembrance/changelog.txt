@@ -1,4 +1,58 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.4
+Date: 7-11-2025
+  Additions:
+    - Added camp-fire which can burn fuel for light, slotted into Dark age—caution around open flames is always warranted.
+    - Lignumis compatibility adds recipe to Caster for gold plate.
+    - Added flammable oils to required dependencies—flammable fluids in destroyed pipes have a chance to catch fire and/or explode. See optional dependency WaterTurret-revived for countermeasure.
+  Changes:
+    - Heat chemical plant crafting speed 0.5 -> 1.5.
+    - Heat chemical plant emissions 0 -> 5/m.
+    - Chemical plant energy usage 217kW -> 1MW.
+    - Advanced chemical plant energy usage 500kW -> 2.5MW.
+    - Advanced chemical plant emissions 0 -> 8/m.
+    - Heat oil refinery energy usage 420kW -> 1.5MW
+    - Heat oil refinery pollution 0 -> 15/m.
+    - Advanced oil refinery energy usage 500kW -> 3MW.
+    - Advanced oil refinery pollution 10 -> 25/m.
+    - Foundry emissions 6 -> 18/m.
+    - Steam assembler effectivity 30 -> 70%.
+    - Steam inserters effectivity 10 -> 70%.
+    - Basic oil pump jack effectivity 100 -> 70%.
+    - Basic oil pump jack emissions 0 -> 10/m.
+    - Advanced centrifuge emissions 0 -> 8/m.
+    - Advanced centrifuge energy usage 750 -> 900kW.
+    - Steam mining drill emissions 0 -> 10/m.
+    - Steam mining drill effectivity 100 -> 70%
+    - Steam mining drill module slots 0 -> 2.
+    - Excavator emissions 0 -> 25/m.
+    - Electric quarry emissions 100 -> 30/m.
+    - Electric quarry mining speed 0.5 -> 1.
+    - Burner quarry emissions 12 -> 36/m.
+    - Burner quarry mining speed 0.5 -> 1.
+    - Burner quarry energy usage 150kW -> 1.1MW.
+    - Advanced deep drill module slots 2 -> 4.
+    - Advanced deep drill energy usage 2 -> 7MW.
+    - Deep drill module slots 1 -> 2.
+    - Big mining drill energy usage 300 kW -> 2MW.
+    - Steam assembler emissions 0 -> 4/m.
+    - Steam crusher emissions 0 -> 2/m.
+    - Crusher emissions 0 -> 2/m.
+    - Advanced crusher emissions 0 -> 4/m.
+    - Advanced crusher energy usage 362 kW -> 1.4MW.
+    - Crystal grower emissions 0 -> 4/m.
+    - Purifier emissions 0 -> 8/m.
+    - Wafer factory emissions 0 -> 6/m.
+    - Distillation tower emissions 0 -> 10/m.
+    - Advanced distillation tower emissions 0 -> 12/m.
+    - Advanced distillation tower energy usage 207kW -> 6MW.
+    - Hypercooler emissions 0 -> 8/m.
+    - Neuromarrow Engine emissions 0 -> 35/m.
+    - Flesh Crucible emissions 0 -> 20/m.
+    - Nano material factory emissions 0 -> 8/m.
+  Fixes:
+    - Included lang definitions for: ei-matter-explosion and Lignumis entries which were (winding up?) missing.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 7-11-2025
   Additions:

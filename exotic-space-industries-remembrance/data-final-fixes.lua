@@ -18,6 +18,7 @@ function contains(s, word) return tostring(s):find(word, 1, true) ~= nil end
 require("scripts/data-final-updates/set_menu_background")
 
 -- =======================================================================================
+require("scripts/data-final-updates/camp_fire")
 require("scripts/data-final-updates/flare_stack")
 require("scripts/data-final-updates/final-tech-fixes")
 require("scripts/data-final-updates/final-recipe-fixes")

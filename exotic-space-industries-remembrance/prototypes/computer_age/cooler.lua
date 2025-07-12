@@ -178,6 +178,7 @@ data:extend({
         crafting_speed = 1,
         energy_source = {
             type = 'electric',
+            emissions_per_minute={pollution=8},
             usage_priority = 'secondary-input',
         },
         allowed_effects = {"speed", "consumption", "pollution"},

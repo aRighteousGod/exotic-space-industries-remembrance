@@ -61,6 +61,7 @@ data:extend({
         crafting_speed = 2,
         energy_source = {
             type = "electric",
+            emissions_per_minute={pollution=12},
             usage_priority = "secondary-input",
         },
         allowed_effects = {"speed", "productivity", "consumption", "pollution"},
@@ -94,7 +95,7 @@ data:extend({
                 production_type = "output",
             },
         },
-        energy_usage = "200kW",
+        energy_usage = "6MW",
         graphics_set = {
             animation = {
                 filename = ei_graphics_entity_path.."advanced-destill-tower.png",

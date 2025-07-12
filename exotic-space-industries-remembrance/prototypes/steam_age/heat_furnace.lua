@@ -1,6 +1,7 @@
 local heat_furnace_entity = table.deepcopy(data.raw["furnace"]["steel-furnace"])
 heat_furnace_entity.name = "ei-heat-steel-furnace"
 heat_furnace_entity.minable.result = "ei-heat-steel-furnace"
+heat_furnace_entity.energy_usage = "135kW"
 heat_furnace_entity.energy_source = {
   type = 'heat',
   max_temperature = 275,
