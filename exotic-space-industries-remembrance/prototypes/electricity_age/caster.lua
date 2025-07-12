@@ -157,6 +157,15 @@ data:extend({
                 },
                 production_type = "input",
             },
+            {   
+                volume = 200,
+                pipe_covers = pipecoverspictures(),
+                pipe_picture = ei_pipe_electricity,
+                pipe_connections = {
+                    {flow_direction = "input", direction = defines.direction.west, position = {-1, 0}},
+                },
+                production_type = "input",
+            },
         },
         fluid_boxes_off_when_no_fluid_recipe = true,
         working_sound =
@@ -243,6 +252,23 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "steel-plate",
+        hide_from_player_crafting = true,
+    },
+    {
+        name = "ei-molten-carbon-symbiote-casting",
+        type = "recipe",
+        category = "ei-casting",
+        energy_required = 4,
+        ingredients = {
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10, minimum_temperature=900},
+            {type = "fluid", name = "steam", amount = 100, minimum_temperature=500},
+        },
+        results = {
+            {type = "item", name = "ei-carbon", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-carbon",
         hide_from_player_crafting = true,
     },
 })

@@ -12,3 +12,13 @@ ei_lib.set_age_packs("rp-steam-logistics-chests","steam-age")
 ei_lib.set_prerequisites("rp-steam-soul",{"rp-steam-calculator","rp-steam-piston"})
 ei_lib.set_prerequisites("rp-steam-calculator",{"ei-steam-assembler"})
 
+local chests = {
+    ["rp-steam-logistic-chest-active-provider"] = 32,
+    ["rp-steam-logistic-chest-passive-provider"] = 32,
+    ["rp-steam-logistic-chest-storage"] = 32,
+    ["rp-steam-logistic-chest-buffer"] = 32,
+    ["rp-steam-logistic-chest-requester"] = 32,
+}
+for chest,capacity in pairs(chests) do
+    ei_lib.raw["logistic-container"][chest]["inventory_size"] = capacity
+end

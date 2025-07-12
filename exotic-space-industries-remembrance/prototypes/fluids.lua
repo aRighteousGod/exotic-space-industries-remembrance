@@ -400,6 +400,38 @@ data:extend({
         auto_barrel = false
     },
     {
+        name = "ei-molten-carbon",
+        type = "fluid",
+        icon = ei_path.."graphics/fluids/molten-carbon.png",
+        icon_size = 256,
+        default_temperature = 900,
+        max_temperature = 1000,
+        base_color = { r = 0.04, g = 0.04, b = 0.04 },       -- nearly-black with subtle tone
+        flow_color = { r = 0.3, g = 0.03, b = 0.03 },        -- dark red shimmer like blood in oil_solid
+        gas_temperature = 1000,
+		pressure_to_speed_ratio = 0.400, 
+		flow_to_energy_ratio = 0,
+        subgroup = "ei-refining-molten",
+        order = "a-h",
+        auto_barrel = false
+    },
+    {
+        name = "ei-molten-carbon-symbiote",
+        type = "fluid",
+        icon = ei_path.."graphics/fluids/molten-carbon-symbiote.png",
+        icon_size = 256,
+        default_temperature = 900,
+        max_temperature = 1000,
+        base_color = { r = 0.07, g = 0.65, b = 0.55 },       -- deep teal/emerald, reflects structure
+        flow_color = { r = 0.6, g = 0.95, b = 0.95 },        -- luminous mint-glow for energized matrix_id
+        gas_temperature = 1000,
+		pressure_to_speed_ratio = 0.400, 
+		flow_to_energy_ratio = 0,
+        subgroup = "ei-refining-molten",
+        order = "a-i",
+        auto_barrel = false
+    },
+    {
         name = "ei-uranium-hexafluorite",
         type = "fluid",
         icon = ei_graphics_fluid_path.."uranium-hexafluorite.png",

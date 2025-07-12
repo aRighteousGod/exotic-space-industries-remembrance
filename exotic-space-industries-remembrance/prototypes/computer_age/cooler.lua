@@ -80,6 +80,7 @@ data:extend({
             {type = "fluid", name = "ammonia", amount = 10},
         },
         always_show_made_in = true,
+        hide_from_player_crafting = true,
         enabled = false,
         main_product = "ammonia",
     },

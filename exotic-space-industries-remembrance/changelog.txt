@@ -1,4 +1,29 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.5
+Date: 7-12-2025
+  Additions:
+    - Alternative artillery shell and turret recipes using ingredients located on Nauvis created and added to Artillery technology.
+    - Alternative pre-quantum age carbon-fiber plate production involving Carbon and Molten glass in the Arc Furnace to make high-temperature Molten carbon combined with High energy crystal and/or Energy crystal solution in the Crystal grower to make high-temperature molten carbon symbiote which the Caster then combines with 500c steam to cast Carbon-fiber plates—all recipes unlocked with Rocket Silo, cooled molten carbon can be fed back through the Arc furnace to heat it up again.
+  Changes:
+    - Quantum age carbon fiber plate recipe inputs: 1 crushed coal -> 1 carbon, additionally requires 3 ceramic, sulfuric acid -> hydrofluoric acid, steam must be at least 900c. 
+    - Quantum age carbon fiber plate recipe crafting time 5 -> 20s.
+    - Nano material factory energy usage 4 -> 80MW.
+    - Artillery turret recipe input: 40 iron mechanical parts -> 15 iron mechanical parts, 15 steel mechanical parts, 5 iron beam, 5 steel beam.
+    - Artillery shell recipe input: 8 explosives -> 4 explosive cannon shell, additionally requires 2 electronic parts.
+    - Inserter capacity bonus 1 additionally affects bulk inserter.
+    - Slag extraction, fluorite from sand, fluorite from dirty water, dirty water from any sorted into material refining category.
+    - [BREAKING]Purifier inputs/outputs 1 -> 2.
+    - [BREAKING]Crystal grower inputs/outputs 1/0 -> 2/2.
+    - [BREAKING]Arc furnace fluid input 0 -> 1, output 1 -> 2.
+    - Caster fluid inputs 1 -> 2.
+    - Water extraction from morphium additionally outputs bio sludge.
+    - Bio sludge as byproduct production drastically curtailed and productivity forbidden.
+    - Steam logistic chest size 48 -> 32.
+    - Fluorite from morphium category crafting-with-fluid -> centrifuging.
+    - Fluorite from dirty water category crafting-with-fluid -> purifier. Additionally outputs water.
+  Fixes:
+    - Added lang definition for ei-warm-fire.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.4
 Date: 7-11-2025
   Additions:

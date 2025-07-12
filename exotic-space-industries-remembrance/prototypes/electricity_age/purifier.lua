@@ -305,7 +305,7 @@ data:extend({
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_big,
                 pipe_connections = {
-                    {flow_direction = "input", direction = defines.direction.east, position = {2, 0}},
+                    {flow_direction = "input", direction = defines.direction.east, position = {2, 1}},
                 },
                 production_type = "input",
             },
@@ -314,7 +314,25 @@ data:extend({
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_big,
                 pipe_connections = {
-                    {flow_direction = "output", direction = defines.direction.west, position = {-2, 0}},
+                    {flow_direction = "input", direction = defines.direction.east, position = {2, -1}},
+                },
+                production_type = "input",
+            },
+            {   
+                volume = 200,
+                pipe_covers = pipecoverspictures(),
+                pipe_picture = ei_pipe_big,
+                pipe_connections = {
+                    {flow_direction = "output", direction = defines.direction.west, position = {-2, 1}},
+                },
+                production_type = "output",
+            },
+            {   
+                volume = 200,
+                pipe_covers = pipecoverspictures(),
+                pipe_picture = ei_pipe_big,
+                pipe_connections = {
+                    {flow_direction = "output", direction = defines.direction.west, position = {-2, -1}},
                 },
                 production_type = "output",
             },
@@ -512,35 +530,17 @@ data:extend({
     {
         name = "ei-dirty-water-fluorite",
         type = "recipe",
-        category = "crafting-with-fluid",
+        category = "ei-purifier",
         energy_required = 8,
         ingredients = {
             {type = "fluid", name = "ei-dirty-water", amount = 100},
         },
         results = {
             {type = "item", name = "ei-fluorite", amount_min = 1, amount_max=3, probability=0.35},
+            {type = "fluid", name = "water", amount_min = 1,amount_max=10,allow_productivity=false}
         },
         always_show_made_in = true,
         enabled = false,
-        main_product = "ei-fluorite",
-    },
-    {
-        name = "ei-morphium-fluorite",
-        type = "recipe",
-        category = "crafting-with-fluid",
-        energy_required = 4,
-        ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 50},
-            {type = "item", name ="ei-high-energy-crystal", amount = 1}
-        },
-        results = {
-            {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.05}
-        },
-        always_show_made_in = true,
-        enabled = false,
-        subgroup = "ei-alien-intermediates",
-        order = "a-a2b",
         main_product = "ei-fluorite",
     },
     {
@@ -593,6 +593,8 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "landfill",
+        subgroup = "ei-refining-purified",
+        order = "a-g",
     },
     {
         name = "ei-dirty-water-slag",
@@ -609,6 +611,8 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-dirty-water",
+        subgroup = "ei-refining-purified",
+        order = "a-h",
     },
     {
         name = "ei-dirty-water-sand",
@@ -625,6 +629,8 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-dirty-water",
+        subgroup = "ei-refining-purified",
+        order = "a-i",
     },
     {
         name = "ei-slag-extraction-morphium",
@@ -674,6 +680,8 @@ data:extend({
         },
         always_show_made_in = true,
         enabled = false,
+        subgroup = "ei-refining-purified",
+        order = "a-j",
         main_product = "ei-acidic-water",
     },
     {
@@ -698,6 +706,8 @@ data:extend({
         },
         always_show_made_in = true,
         enabled = false,
+        subgroup = "ei-refining-purified",
+        order = "a-k",
         main_product = "ei-acidic-water",
     },
 })

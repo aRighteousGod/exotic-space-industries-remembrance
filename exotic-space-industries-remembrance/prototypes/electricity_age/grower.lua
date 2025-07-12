@@ -80,6 +80,42 @@ data:extend({
         main_product = "ei-energy-crystal",
     },
     {
+        name = "ei-molten-carbon-fusion",
+        type = "recipe",
+        category = "ei-growing",
+        energy_required = 30,
+        ingredients = {
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,minimum_temperature=925},
+            {type = "fluid", name = "ei-crystal-solution", amount = 10},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,probability=0.70},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.30,allow_productivity=false}
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-carbon-symbiote",
+    },
+    {
+        name = "ei-molten-carbon-fusion-high-energy",
+        type = "recipe",
+        category = "ei-growing",
+        energy_required = 30,
+        ingredients = {
+            {type="item",name="ei-high-energy-crystal",amount=1},
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,minimum_temperature=925},
+            {type = "fluid", name = "ei-crystal-solution", amount = 10},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,probability=0.95},
+            {type="item",name="ei-energy-crystal",amount=1,probability=0.05,allow_productivity=false},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.05,allow_productivity=false}
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-carbon-symbiote",
+    },
+    {
         name = "ei-grower",
         type = "technology",
         icon = ei_graphics_tech_path.."grower.png",
@@ -148,9 +184,36 @@ data:extend({
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_big,
                 pipe_connections = {
-                    {flow_direction = "input", direction = defines.direction.east, position = {2, 0}},
+                    {flow_direction = "input", direction = defines.direction.east, position = {2, 1}},
                 },
                 production_type = "input",
+            },
+            {   
+                volume = 200,
+                pipe_covers = pipecoverspictures(),
+                pipe_picture = ei_pipe_big,
+                pipe_connections = {
+                    {flow_direction = "input", direction = defines.direction.east, position = {2, -1}},
+                },
+                production_type = "input",
+            },
+            {   
+                volume = 200,
+                pipe_covers = pipecoverspictures(),
+                pipe_picture = ei_pipe_big,
+                pipe_connections = {
+                    {flow_direction = "output", direction = defines.direction.west, position = {-2, 1}},
+                },
+                production_type = "output",
+            },
+            {   
+                volume = 200,
+                pipe_covers = pipecoverspictures(),
+                pipe_picture = ei_pipe_big,
+                pipe_connections = {
+                    {flow_direction = "output", direction = defines.direction.west, position = {-2, -1}},
+                },
+                production_type = "output",
             },
         },
         fluid_boxes_off_when_no_fluid_recipe = true,

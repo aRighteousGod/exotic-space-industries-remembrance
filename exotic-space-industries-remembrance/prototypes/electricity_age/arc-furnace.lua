@@ -128,6 +128,7 @@ data:extend({
 --                type = "unlock-recipe",
 --                recipe = "ei-molten-lead-plate"
 --            },
+
             {
                 type = "unlock-recipe",
                 recipe = "ei-caster"
@@ -200,7 +201,6 @@ data:extend({
         allowed_effects = {"speed", "consumption", "pollution"},
         module_slots = 2,
         fluid_boxes = {
-            --[[
             {   
                 volume = 200,
                 pipe_covers = pipecoverspictures(),
@@ -210,7 +210,6 @@ data:extend({
                 },
                 production_type = "input",
             },
-            ]]
             {   
                 volume = 200,
                 pipe_covers = pipecoverspictures(),
@@ -627,4 +626,51 @@ data:extend({
         hide_from_player_crafting = true,
     },
     ]]
+    {
+        name = "ei-molten-carbon",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 6,
+        ingredients = {
+            {type = "fluid", name = "ei-molten-glass", amount = 10},
+            {type = "item", name = "carbon", amount = 1},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.002,allow_productivity=false}
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-carbon",
+    },
+    {
+        name = "ei-molten-carbon-reheat",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 4,
+        ingredients = {
+            {type = "fluid", name = "ei-molten-carbon", amount = 10},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-carbon",
+    },
+    {
+        name = "ei-molten-carbon-symbiote-reheat",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 4,
+        ingredients = {
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10},
+        },
+        results = {
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-molten-carbon",
+    },
 })

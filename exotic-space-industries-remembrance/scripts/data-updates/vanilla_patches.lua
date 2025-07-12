@@ -77,10 +77,51 @@ end
 
 --RECIPES
 ------------------------------------------------------------------------------------------------------
-
+--alt artillery-shell
+local alt_shell = table.deepcopy(ei_lib.raw.recipe["artillery-shell"])
+alt_shell.name = "ei-artillery-shell"
+alt_shell.ingredients = {
+    {type="item",name="explosive-cannon-shell", amount=4},
+    {type="item",name="ei-high-energy-crystal", amount=1},
+    {type="item",name="ei-electronic-parts", amount=2},
+    {type="item",name="ei-crushed-sulfur", amount=8},
+    {type="item",name="radar", amount=1},
+}
+data:extend{alt_shell}
+ei_lib.add_unlock_recipe("artillery","ei-artillery-shell")
+--alt artillery-turret
+local alt_shell = table.deepcopy(ei_lib.raw.recipe["artillery-turret"])
+alt_shell.name = "ei-artillery-turret"
+alt_shell.ingredients = {
+    {type="item",name="processing-unit", amount=10},
+    {type="item",name="ei-carbon", amount=40},
+    {type="item",name="refined-concrete", amount=60},
+    {type="item",name="ei-iron-mechanical-parts", amount=15},
+    {type="item",name="ei-steel-mechanical-parts", amount=15},
+    {type="item",name="ei-iron-beam", amount=5},
+    {type="item",name="ei-steel-beam", amount=5},
+}
+data:extend{alt_shell}
+ei_lib.add_unlock_recipe("artillery","ei-artillery-turret")
 -- overwrite table for vanilla recipes
 -- index is recipe name, value is table with new recipe data
 local new_ingredients_table = {
+    ["artillery-turret"] = {
+    {type="item",name="processing-unit", amount=10},
+    {type="item",name="tungsten-plate", amount=60},
+    {type="item",name="refined-concrete", amount=60},
+    {type="item",name="ei-iron-mechanical-parts", amount=15},
+    {type="item",name="ei-steel-mechanical-parts", amount=15},
+    {type="item",name="ei-iron-beam", amount=5},
+    {type="item",name="ei-steel-beam", amount=5},
+    },
+    ["artillery-shell"] = {
+    {type="item",name="explosive-cannon-shell", amount=4},
+    {type="item",name="calcite", amount=1},
+    {type="item",name="ei-electronic-parts", amount=2},
+    {type="item",name="tungsten-plate", amount=4},
+    {type="item",name="radar", amount=1},
+    },
     ["transport-belt"] = {
         {type="item",name="iron-plate", amount=1},
         {type="item",name="ei-iron-mechanical-parts", amount=2}
@@ -858,12 +899,13 @@ ei_lib.raw.technology.electronics.effects = {
 --ei_lib.set_age_packs("electric-engine","steam-age")
 
 -- make inserter-capaity-bonus-1 buff normal inserters
-ei_lib.raw.technology["inserter-capacity-bonus-1"].effects = {
-    {
+
+table.insert(ei_lib.raw.technology["inserter-capacity-bonus-1"].effects,
+{
         type = "inserter-stack-size-bonus",
         modifier = 1
     }
-}
+)
 
 --FUEL CATEGORIES
 ------------------------------------------------------------------------------------------------------
@@ -1280,6 +1322,16 @@ ei_lib.raw.module["speed-module-3"].effect = {
 data.raw.module["ei-productivity-module-4"].limitation = data.raw.module["productivity-module"].limitation
 data.raw.module["ei-productivity-module-5"].limitation = data.raw.module["productivity-module"].limitation
 data.raw.module["ei-productivity-module-6"].limitation = data.raw.module["productivity-module"].limitation
+-- properly set logistics 3 age and prere 
+ei_lib.raw.technology["logistics-3"].age = "advanced-computer-age"
+ei_lib.raw.technology["logistics-3"].prerequisites = {"ei-advanced-computer-age-tech","logistics-2"}
+--carbon fiber plate casting pre-quantum age
+ei_lib.add_unlock_recipe("rocket-silo","ei-molten-carbon")
+ei_lib.add_unlock_recipe("rocket-silo","ei-molten-carbon-fusion")
+ei_lib.add_unlock_recipe("rocket-silo","ei-molten-carbon-fusion-high-energy")
+ei_lib.add_unlock_recipe("rocket-silo","ei-molten-carbon-symbiote-casting")
+ei_lib.add_unlock_recipe("rocket-silo","ei-molten-carbon-reheat")
+ei_lib.add_unlock_recipe("rocket-silo","ei-molten-carbon-symbiote-reheat")
 
 -- add 2 more module slots to rocket silo
 ei_lib.raw["rocket-silo"]["rocket-silo"].module_slots = 4
