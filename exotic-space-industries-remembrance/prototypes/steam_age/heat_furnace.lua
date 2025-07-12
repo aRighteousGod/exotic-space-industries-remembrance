@@ -10,10 +10,38 @@ heat_furnace_entity.energy_source = {
   max_transfer = '10MW',
   emissions_per_minute = { pollution = 1.25 },
   connections = {
-      {position = { -1.0,  0.0 }, direction = defines.direction.west},
-      {position = {  0.0,  1.0 }, direction = defines.direction.south},
-      {position = {  1.0,  0.0 }, direction = defines.direction.east},
-      {position = {  0.0, -1.0 }, direction = defines.direction.north}
+    {
+      position = {-0.5, -0.5},
+      direction = defines.direction.north
+    },
+    {
+      position = {-0.5, -0.5},
+      direction = defines.direction.west
+    },
+    {
+      position = {0.5, -0.5},
+      direction = defines.direction.north
+    },
+    {
+      position = {0.5, -0.5},
+      direction = defines.direction.east
+    },
+    {
+      position = {-0.5, 0.5},
+      direction = defines.direction.south
+    },
+    {
+      position = {-0.5, 0.5},
+      direction = defines.direction.west
+    },
+    {
+      position = {0.5, 0.5},
+      direction = defines.direction.south
+    },
+    {
+      position = {0.5, 0.5},
+      direction = defines.direction.east
+    },
   }
 }
 
