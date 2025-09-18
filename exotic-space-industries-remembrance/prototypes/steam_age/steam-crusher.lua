@@ -62,6 +62,10 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-crushed-coke-pellets"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-crushed-iron"
             },
         },
@@ -101,7 +105,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-crushing","crushing"},
         crafting_speed = 0.5,
-        heating_energy = ei_data.heating_energy["ei-steam-crusher"],
+        heating_energy = "200kW",
         energy_source = {
             type = "fluid",
             emissions_per_minute={pollution=2},

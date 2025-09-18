@@ -37,6 +37,7 @@ data:extend({
         icon = ei_graphics_tech_path.."burner-assembler.png",
         icon_size = 256,
         prerequisites = {"ei-dark-age"},
+        ignore_tech_cost_multiplier = true,
         effects = {
             {
                 type = "unlock-recipe",
@@ -65,6 +66,7 @@ data:extend({
         }
         ),
         circuit_wire_max_distance = default_circuit_wire_max_distance,
+        heating_energy = "100kW",
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 0.5,

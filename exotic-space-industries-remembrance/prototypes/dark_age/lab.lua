@@ -127,7 +127,7 @@ lab.map_color = ei_data.colors.assembler
 lab.minable.result = "ei-dark-age-lab"
 lab.next_upgrade = "lab"
 lab.fast_replaceable_group = "lab"
-
+lab.heating_energy = "0kW"
 data:extend({
     {
         name = "ei-dark-age-lab",

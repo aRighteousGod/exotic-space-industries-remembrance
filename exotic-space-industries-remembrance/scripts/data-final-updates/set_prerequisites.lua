@@ -124,6 +124,8 @@ ei_lib.set_prerequisites("tungsten-carbide",{"planet-discovery-vulcanus"})
 ei_lib.set_prerequisites("logistic-robotics",{"robotics","rp-steam-logistics-chests"})
 ei_lib.set_prerequisites("construction-robotics",{"robotics","rp-steam-roboports"})
 
+ei_lib.set_prerequisites("electric-energy-accumulators",{"ei-electricity-power","battery","plastics"})
+
 ei_lib.set_prerequisites("worker-robots-storage-1",{"logistic-robotics","construction-robotics"})
 ei_lib.set_prerequisites("worker-robots-speed-1",{"logistic-robotics","construction-robotics"})
 
@@ -155,10 +157,9 @@ ei_lib.set_prerequisites("nuclear-power",{"ei-fission-facility"})
 
 
 ei_lib.set_prerequisites("automation-2",{"automation","ei-computer-age","ei-electronic-parts","ei-advanced-motor"})
-ei_lib.set_prerequisites("ei_fueler",{"ei-electricity-age"})
 
 ei_lib.add_prerequisite("laser-shooting-speed-1","laser")
-ei_lib.add_prerequisite("laser-turret","laser")
+ei_lib.set_prerequisites("laser-turret",{"laser","battery","advanced-circuit"})
 ei_lib.add_prerequisite("laser-weapons-damage-1","laser")
 ei_lib.add_prerequisite("personal-laser-defense-equipment","laser")
 ei_lib.add_prerequisite("ei-personal-laser","laser")
@@ -173,8 +174,7 @@ ei_lib.set_prerequisites("electric-energy-distribution-1",{"ei-electricity-power
 
 ei_lib.set_prerequisites("electric-energy-distribution-2",{"electric-energy-distribution-1"})
 
-ei_lib.set_prerequisites("battery",{"electric-energy-accumulators"})
-ei_lib.set_prerequisites("battery-equipment",{"battery"})
+ei_lib.set_prerequisites("battery",{"ei-electricity-power"})
 
 ei_lib.set_prerequisites("kr-ai-core",{"ei-advanced-computer-age-tech"})
 
@@ -182,7 +182,8 @@ ei_lib.set_prerequisites("kr-fusion-energy",{"lithium-processing","nuclear-power
 ei_lib.set_prerequisites("captive-biter-spawner",{"cryogenic-science-pack","biter-egg-handling"})
 ei_lib.set_prerequisites("lubricant",{"ei-destill-tower"})
 ei_lib.set_prerequisites("sulfur-processing",{"ei-steam-oil-processing"})
-ei_lib.set_prerequisites("explosives",{"sulfur-processing","ei-advanced-coke-processing","flammables","electronics"})
+ei_lib.set_prerequisites("explosives",{"sulfur-processing","ei-advanced-coke-processing","flammables"})
+
 ei_lib.set_prerequisites("electric-engine",{"lubricant","electronics","engine"})
 ei_lib.set_prerequisites("ei-electricity-age",{"ei-steam-inserter","logistics","ei-steam-assembler","ei-tank-silo","ei-steam-advanced-train","rp-steam-logistics-chests","ei-fluid-boiler","ei-lube-destilation","electric-engine","ei-deep-mining"})
 ei_lib.set_prerequisites("explosive-rocketry",{"rocketry"})
@@ -193,6 +194,23 @@ ei_lib.set_prerequisites("artillery",{"ei-advanced-computer-age-tech","processin
 ei_lib.set_prerequisites("artillery-shell-range-1",{"artillery"})
 ei_lib.set_prerequisites("artillery-shell-speed-1",{"artillery"})
 ei_lib.set_prerequisites("artillery-shell-damage-1",{"artillery"})
+ei_lib.set_prerequisites("advanced-oil-processing",{"ei-destill-tower","ei-electricity-age-tech"})
+ei_lib.set_prerequisites("battery-equipment",{"battery","modular-armor"})
+ei_lib.set_prerequisites("solar-panel-equipment",{"solar-energy","advanced-circuit","modular-armor"})
+
+ei_lib.set_prerequisites("belt-immunity-equipment",{"advanced-circuit","modular-armor"})
+ei_lib.set_prerequisites("fission-reactor-equipment",{"processing-unit","power-armor","nuclear-power","low-density-structure"})
+ei_lib.set_prerequisites("discharge-defense",{"advanced-circuit","modular-armor","plastics"})
+ei_lib.set_prerequisites("energy-shield-equipment",{"advanced-circuit","ei-grower","modular-armor"})
+ei_lib.set_prerequisites("exoskeleton-equipment",{"advanced-circuit","modular-armor"})
+ei_lib.set_prerequisites("night-vision-equipment",{"advanced-circuit","modular-armor"})
+ei_lib.set_prerequisites("personal-roboport-equipment",{"battery","advanced-circuit","modular-armor"})
+ei_lib.set_prerequisites("modular-armor",{"heavy-armor","advanced-circuit"})
+ei_lib.set_prerequisites("power-armor",{"modular-armor","ei-grower","ei-advanced-motor","ei-electronic-parts"})
+ei_lib.set_prerequisites("energy-shield-mk2-equipment",{"ei-advanced-computer-age-tech","energy-shield-equipment","low-density-structure"})
+ei_lib.set_prerequisites("battery-mk2-equipment",{"ei-advanced-computer-age-tech","battery-equipment","low-density-structure"})
+ei_lib.set_prerequisites("personal-roboport-mk2-equipment",{"ei-advanced-computer-age-tech","personal-roboport-equipment","electromagnetic-plant"})
+ei_lib.set_prerequisites("power-armor-mk2",{"power-armor","ei-advanced-computer-age-tech","low-density-structure","ei-high-energy-crystal"})
 
 -- ======================================================================================
 

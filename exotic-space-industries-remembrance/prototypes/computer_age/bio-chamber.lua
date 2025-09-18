@@ -24,7 +24,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."bio-chamber.png",
         icon_size = 256,
-        prerequisites = {"ei-deep-pumpjack","ei-morphium-usage"},
+        prerequisites = {"ei-morphium-usage"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -101,6 +101,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-bio-chamber","organic","ei-bio-reactor"},
         crafting_speed = 1,
+        heating_energy = "100kW",
         energy_source = {
             type = 'electric',
             emissions_per_minute={pollution=20,spores=20},

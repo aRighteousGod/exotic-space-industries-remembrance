@@ -1,4 +1,118 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.50
+Date: 9-18-2025
+  Features:
+    - Insulated wires updated with new icon with 4 variations—imported from Unused renders by Malcolm Riley.
+    - Imported Cannon turret from AdditionalTurrets with tweaked stats—Takes the place of previously moved Cannon turret in Steam age.
+    - Restored Unprimed (formerly Inactive) advanced semiconductor base item and recipe—unlocked with Advanced semiconductor processing technology.
+    - Added Spoilage Scanner to optional dependencies—a combinator which allows signals outputting the average of, the most, or the least spoiled items in a container.
+    - Created recipe to crush Coke pellets into Crushed coke—unlocked with Steam crusher.
+    - Created Basic heat exchanger—can consume upto 2MW of 275c heat to produce steam. Requires 2 Iron beams, 6 Iron ingots, 50 Copper ingots, and 10 Pipes.
+  Changes:
+    - High temperature reactor technology prerequisites: Additionally requires Carbon manipulation.
+    - Concentrated Solar Energy technology recipe unlocks: Removed Heat exchanger and Heat pipe.
+    - Burner heater technology recipe unlocks: Additionally unlocks Basic heat exchanger.
+    - Heat exchanger recipe inputs: 10 Pipes -> 1 Basic heat exchanger, Copper ingots 100 -> 75, Steel ingots 10 -> 6, additionally requires 2 Steel beams.
+    - Deep drills' secondary fluid input now filters for Sulfuric acid.
+    - Deep drills' heating energy: 75 -> 200kW.
+    - Increased fadeout time and lightened coloring of Steam locomotives smoke effect.
+    - Increased density, spread variation, and fadeout time, darkened coloring, and reduced initial speed of Diesel locomotive smoke effect.
+    - Diesel locomotive max power: 600 -> 800kW.
+    - Diesel locomotive weight: 2000 -> 2500.
+    - Diesel train pollution emissions per minute: 1.75 -> 2.5.
+    - Diesel fuel unit pollution emission modifier: 100 -> 70%.
+    - Diesel fuel unit acceleration effect: 100 -> 115%.
+    - Diesel fuel unit top speed effect: 100 -> 85%.
+    - Carbon manipulation technology prerequisites: Swapped High energy crystal production with High energy crystal growing.
+    - Morphium usage science pack ingredients: Additionally requires Cosmic criticality pack.
+    - High energy rocket fuel technology prerequisites: Added Oxygen difluoride.
+    - High energy crystal production technology prerequisites: Set to Computer core.
+    - Advanced lab technology prerequisites: Additionally requires High energy crystal growing.
+    - Refueling tower technology prerequisites: Set to Automation and Electronic parts.
+    - Refueling / Auto fueling tower names: aligned to Fuelwarden tower.
+    - Fuelwarden tower health: 100 -> 1000.
+    - Fuelwarden tower crafting time: 1 -> 3s.
+    - Fuelwarden tower recipe inputs: 1 Gun turret -> 4 Electronic parts, 10 Iron ingots -> 15 Copper ingots, 10 Iron mechanical parts -> 25 Copper mechanical parts, additionally requires 4 Steel beams.
+    - Gaia discovery technology prerequisites: Set to Deep pumpjack, High energy crystal production, and Rocket silo.
+    - Moved Deep pumpjack to Simulation age.
+    - Deep pumpjack technology prerequisites: Set to Excavator and Automation 3.
+    - Modular armor recipe inputs: Additionally requires 40 Electric engine units.
+    - Moved Power armor to Computer age.
+    - Power armor technology prerequisites: Set to Modular armor, Electronic parts, Crystal grower, and Advanced motor
+    - Power armor recipe inputs: 40 Electric engine units -> 20 Advanced motors, 40 Advanced circuits -> 30 Electronic parts.
+    - Power armor MK2 technology prerequisites: Set to High energy crystal production, Low density structure, Processing unit, and Simulation age.
+    - Insulated pipes, pipe to ground, and tanks now have 90% resistance to Fire, Acid, Poison and Cold damage types.
+    - Burner assembler technology now ignores tech cost multiplier.
+    - Stone crushing recipe outputs: 2 Sand -> 2-3.
+    - Advanced semiconductor recipe inputs: Semiconductor -> Unprimed advanced semiconductor base.
+    - Advanced semiconductor wafer with monosilicon recipe inputs: Semiconductor -> Unprimed advanced semiconductor base.
+    - Advanced semiconductor wafer by monosilicon recipe outputs: Advanced semiconductor wafer 1 -> 3.
+    - Advanced semiconductor processing technology prerequisites: Additionally requires Nitric acid.
+    - Cannon turret renamed Twin-bore cannon turret.
+    - Twin-bore cannon turret recipe inputs: 1 Gun turret -> 2 Cannon turret MK1, 35 Iron mechanical parts -> 35 Steel mechanical parts, 20 Steel ingots -> 8 Advanced circuits.
+    - Twin-bore cannon turret projectiles: Speed increased 25%.
+    - Twin-bore cannon turret firing time: 2s -> 1.8.
+    - Twin-bore cannon turret now requires electricity to fire.
+    - Twin-bore cannon turret aiming: Now leads shots.
+    - Moved Twin-bore cannon turret back to Electricity age, technology prerequisites are Advanced circuit, Cannon turret MK1, and Electricity power.
+    - T2 Explosives recipe outputs: Explosives 6 -> 12.
+    - T3 Explosives recipe inputs: Sulfuric acidic 250 -> 190, Nitric acid 275 -> 270.
+    - Steam inserters next upgrade set to electrical equivalents.
+    - Burner inserter next upgrade set to Steam inserter.
+    - Explosives technology prerequisites: Removed Electronics.
+    - Battery equipment technology prerequisites: Set to Battery and Modular armor.
+    - Personal battery MK2 equipment technology prerequisites: Set to Simulation age, Battery equipment, and Low density structure.
+    - Belt immunity equipment technology prerequisites: Set to Advanced circuit and Modular armor.
+    - Discharge defense equipment technology prerequisites: Set to Advanced circuit, Modular armor, and Plastics.
+    - Energy shield equipment technology prerequisites: Set to Advanced circuit, Crystal grower, and Modualr armor.
+    - Energy shield MK2 equipment technology prerequisites: Set to Simulation age, Energy shield equipment, and Low density structure.
+    - Exoskeleton equipment technology prerequisites: Set to Advanced circuit and Modular armor.
+    - Night vision equipment technology prerequisites: Set to Advanced circuit and Modular armor.
+    - Personal roboport equipment technology prerequisites: Set to Battery, Advanced circuit, and Modular armor.
+    - Personal roboport equipment technology prerequisites: Set to Personal roboport equipment, Electromagnetic plant, and Simulation age.
+    - Portable solar panel equipment technology prerequisites: Additionally requires Modular armor.
+    - Portable fission reactor equipment technology prerequisites: Set to Power armor, Processing unit, Nuclear power, and Low density structure.
+    - Modular armor technology prerequisites: Set to Heavy armor and Advanced circuit.
+    - Post Promethium pack Research productivity technology now requires all Science packs.
+    - Promethium science pack technology now requires all Age packs upto Fusion-Quantum.
+    - Exotic matter separation science pack ingredients: Additionally requires Fusion-Quantum age.
+    - Laser turret technology prerequisites: Additionally requires Advanced circuit and Battery.
+    - Fluoroketone recipe inputs: 1 Solid fuel -> 30 Light oil.
+    - Cliff explosives technology prerequisites: Moved to Computer age, set requirements to Explosives, Planet discovery Vulcanus, and Military 2.
+    - Computer age ore purification shows that it requires Computer age to research.
+    - Electric energy accumulators technology prerequisites: Set to Plastics and Battery.
+    - Battery technology prerequisites: Set to Electricity power.
+    - Restored Barrels only stacking to 1.
+    - Reduced probability of Nauvis main-track "Leave the world tonight" playing by 66%.
+    - (Failed to) Differentiate(d) map coloring of Gaia tiles and resource patches. (Prototypes not respected because..?)
+    - Increased scaling and visibility of Hydrofluoric acid recipe variants icons.
+  Bugfixes:
+    - Fixed that EM train buffs might only update when loading a save with modified settings instead of when research finishes.
+    - Fixed that EM train buffs did not display visual indicators upon being applied.
+    - Added Rubia's invisible beacons to beacon overload exclusion list.
+    - Fixed that Lignumis Steam and Wood science packs were restored when allowing Dark -> Electricity age packs on sciences requiring a non-age pack.
+    - Fixed that Cryogenics category was applied to Insulated items instead of recipes preventing crafting by Cryogenics plant.
+    - Fixed that Steam oil processing recipe required exactly 165c Steam instead of >= 165c.
+    - Automation technology science pack cost now affected by technology multiplier.
+    - Fixed that smelters could still do vanilla Steel ingot (plate) recipe despite it being hidden.
+    - Vulcanus, Gleba, Fulgora planet discovery technologies properly require Computer age pack.
+    - Fixed that age science pack yield multiplier wasn't taking effect.
+    - Increased many items icon scaling to cleanly divide 1 and prevent dithering issues on belts.
+    - Adjusting Exotic age science pack multiplier startup setting no longer adjusts Fusion-Quantum age pack.
+    - All EI entities now have heating values and suffer freezing effects.
+    - Long handed steam inserter can now only be fast-replaced with Long handed inserters.
+    - Steam inserter can now only be fast-replaced with Inserters.
+    - Migrated Fuelwarden tower internal names from 1.1 -> 2.0 schema.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.49
+Date: 9-9-2025
+  Features:
+    - Added startup options to adjust yield of each individual Age's science pack recipe.
+  Changes:
+    - Adjusted Tech scaling ceiling startup setting description to indicate Starting technology price has an implicit effect on effective maximum technology cost.
+  Bugfixes:
+    - Electricity age pack requirements corrected to Dark & Steam age only.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.48
 Date: 9-8-2025
   Features:
@@ -65,7 +179,7 @@ Date: 9-8-2025
     - Moved Cannon turret technology from Electricity to Steam age, prerequisites are Explosives and Electric engine unit.
     - Moved Deep mining technology from Electricity to Steam age, prerequisites are Sulfur processing and Electric engine unit.
     - Deep miner recipe inputs: 4 Electric mining drills -> 4 Steam quarries.
-    - Electricity age technology prerequisites: Swapped Engine for Electric engine unit, additionally requires Deep mining, Electric engine unit, and Lubricant reforming.
+    - Electricity age technology prerequisites: Swapped Engine for Electric engine unit, additionally requires Deep mining and Lubricant reforming.
     - Purifier technology prerequisites: Swapped Deep mining for Automation.
     - Uranium mining technology prerequisites: Swapped Deep mining for Electric mining drill.
     - Moved Kerosene -> Diesel recipe unlock from Sulfur processing to Oil byproduct processing technology.
@@ -177,8 +291,8 @@ Date: 9-3-2025
     - Ash separation recipe outputs: Poor iron chunk 4 -> 8%, Coal 25 -> 33%, Slag 1 -> 5%.
     - Vanilla Carbon recipe inputs: 2 Coal -> 6 Coal coke, Sulfuric acid 20 -> 45.
     - Vanilla Carbon recipe outputs: Carbon 1 -> 2-3, additionally yields 1-5 250c Steam.
-    - Foundry Steel plate casting recipe inputs: 30 Molten iron -> 20 Molten steel.
-    - Foundry Steel plate casting recipe outputs: Steel plate 1 -> 2.
+    - Foundry Steel ingot casting recipe inputs: 30 Molten iron -> 20 Molten steel.
+    - Foundry Steel ingot casting recipe outputs: Steel ingot 1 -> 2.
     - Foundry Low density structure casting inputs: 80 Molten iron -> 50 Molten steel.
     - Glass technology now uses the updated Industrial glass icon.
     - T1 Acid neutralisation recipe inputs: Calcite 1 -> 15.
@@ -1519,8 +1633,8 @@ Date: 7-2-2025
     - Arc furnace recipe inputs: Additionally requires 10 Steel beams.
     - Restored Fluid boiler recipe inputs: Additionally requires 2 Copper beams.
     - Restored Burner/Electric quarry recipe inputs: Additionally requires 10 Copper beams.
-    - Electric quarry recipe inputs: Iron plate/Iron mechanical parts -> Steel Plate/Steel mechanical parts.
-    - Excavator recipe inputs: 24 Steel plate -> 12. Additionally requires 12 Steel beams. Restored requirement for 4 electric quarries.
+    - Electric quarry recipe inputs: Iron plate/Iron mechanical parts -> Steel Ingot/Steel mechanical parts.
+    - Excavator recipe inputs: 24 Steel ingot -> 12. Additionally requires 12 Steel beams. Restored requirement for 4 electric quarries.
     - Restored Steam assembler recipe inputs: Additionally requires 2 Copper beams.
     - Restored Steam crusher recipe inputs: Additionally requires 2 Copper beams.
     - Restored Steam miner recipe inputs: 4 Iron mechanical parts -> 4 Copper beams.
@@ -1603,7 +1717,7 @@ Date: 7-2-2025
     - Iron chest now has 12 slots and requires iron beams.
     - Steel chest now has 16 slots and requires steel beams.
     - EI Containers: 1x1 50 -> 20 slots, filter variant 18 slots. 2x2 250 -> 32 slots, filter variant 22 slots.. 6x6 1000 -> 64 slots, filter variant 26 slots. 
-    - EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Plate -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts. All base variants additionally require Steel beams. All logistic variants additionally require Simulation data: 1x1-10, 2x2-20, 6x6-40. Health multipliers applied per size: 1.5x for 1x1, 3x for 2x2, 6x for 6x6. Resistances to physical/fire/impact applied per size: 1x1-25/50/50. 2x2-45/65/65. 6x6-65/80/80.
+    - EI Containers: Each tier now only requires 1 of the previous. Logistics variants recipes requirement for Steel Ingot -> Steel Mechanical Parts. Tier 1 logistic variants all additionally require 1 Steel mechanical part. Filter variants requirement for circuits -> Steel mechanical parts. All base variants additionally require Steel beams. All logistic variants additionally require Simulation data: 1x1-10, 2x2-20, 6x6-40. Health multipliers applied per size: 1.5x for 1x1, 3x for 2x2, 6x for 6x6. Resistances to physical/fire/impact applied per size: 1x1-25/50/50. 2x2-45/65/65. 6x6-65/80/80.
     - Plasma turret and Zeus Wrath imports recipes complexity and absolute material requirements significantly increased.
     - Plasma turret range reduced 300 -> 200. Energy drain 40MW -> 70MW. Energy per shot 100MJ -> 900MJ. Energy Buffer 200 -> 950MJ. Maximum energy inflow 200 -> 400MW. Electric damage 1000 -> 2500. Explosive damage 300 -> 1250. Health 1000 -> 2000. Footprint & physical size doubled. Aiming traversal characteristics slowed. Projectile quintupled in size. Explosion radius 9 -> 13.5 and given purple glow.  Projectiles initial speed dramatically lowered, acceleration enhanced, final speed unchanged.
     - Zeus wrath technology renamed Thalassic Ascension—descriptor appropriate for relic-tier weaponry applied.

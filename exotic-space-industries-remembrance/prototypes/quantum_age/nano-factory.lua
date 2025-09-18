@@ -98,6 +98,7 @@ data:extend({
         -- crafting_categories = {"ei-nano-factory", "crafting", "advanced-crafting", "crafting-with-fluid"},
         crafting_categories = {"ei-nano-factory","electromagnetics","cryogenics"},
         crafting_speed = 2,
+        heating_energy = "300kW",
         energy_source = {
             type = 'electric',
             emissions_per_minute={pollution=8},

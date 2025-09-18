@@ -1,5 +1,6 @@
 ei_lib = require ("lib/lib")
-
+-- weight = 10 is default
+-- set it anyway in case it was modified elsewhere
 if ei_lib.raw["ambient-sound"]["main-menu"] and not mods["krastorio2-spaced-out"] or not settings.startup["kr-main-menu-song"].value then
   ei_lib.raw["ambient-sound"]["main-menu"].sound = ei_soundtrack_path_1.."main_menu.ogg"
 elseif mods["krastorio2-spaced-out"] and settings.startup["kr-main-menu-song"].value then --meow -.-
@@ -8,13 +9,15 @@ elseif mods["krastorio2-spaced-out"] and settings.startup["kr-main-menu-song"].v
         type = "ambient-sound",
         name = "ei-main-menu-1",
         track_type = "menu-track",
-        sound = ei_soundtrack_path_1.."main_menu.ogg"
+        sound = ei_soundtrack_path_1.."main_menu.ogg",
+        weight = 10
       },
       {
         type = "ambient-sound",
         name = "ei-main-menu-2", --two because kr2 adds 2, 50:50 play ratio
         track_type = "menu-track",
-        sound = ei_soundtrack_path_1.."main_menu.ogg"
+        sound = ei_soundtrack_path_1.."main_menu.ogg",
+        weight = 10
       },
     }
 end
@@ -27,6 +30,7 @@ local function track_override(track_type, track_table, targetplanet)
     if modified then
       log("ei track_override: "..track.." successfully overwritten by "..track_table[track])
       modified.sound = ei_soundtrack_path_1..track_table[track]..".ogg"
+      modified.weight = 10
     else
       log("ei track_override: "..track.." missing from data.raw, creating new entry for "..track_table[track])
       data:extend{
@@ -35,7 +39,8 @@ local function track_override(track_type, track_table, targetplanet)
           name = track_table[track],
           track_type = track_type,
           sound = ei_soundtrack_path_1..track_table[track]..".ogg",
-          planet = targetplanet
+          planet = targetplanet,
+          weight = 10
         }
       }
     end
@@ -71,42 +76,48 @@ if ei_lib.config("nauvis-main-tracks-override") then
     name = "my-very-own-dead-ship",
     track_type = "main-track",
     planet = "nauvis",
-    sound = ei_soundtrack_path_1.."blackmoor_ninjas.ogg"
+    sound = ei_soundtrack_path_1.."blackmoor_ninjas.ogg",
+    weight = 10
   },
   {
     type = "ambient-sound",
     name = "leave-the-world-behind",
     track_type = "main-track",
     planet = "nauvis",
-    sound = ei_soundtrack_path_1.."kimlightyear_leave_the_world_tonight.ogg"
+    sound = ei_soundtrack_path_1.."kimlightyear_leave_the_world_tonight.ogg",
+    weight = 3,
   },
   {
     type = "ambient-sound",
     name = "inevitability",
     track_type = "main-track",
     planet = "nauvis",
-    sound = ei_soundtrack_path_1.."inevitability.ogg"
+    sound = ei_soundtrack_path_1.."inevitability.ogg",
+    weight = 10
   },
   {
     type = "ambient-sound",
     name = "villified",
     track_type = "main-track",
     planet = "nauvis",
-    sound = ei_soundtrack_path_1.."villified.ogg"
+    sound = ei_soundtrack_path_1.."villified.ogg",
+    weight = 10
   },
   {
     type = "ambient-sound",
     name = "a-new-page",
     track_type = "main-track",
     planet = "nauvis",
-    sound = ei_soundtrack_path_1.."a_new_page.ogg"
+    sound = ei_soundtrack_path_1.."a_new_page.ogg",
+    weight = 10
   },
   {
     type = "ambient-sound",
     name = "death-is-just-another-path",
     track_type = "main-track",
     planet = "nauvis",
-    sound = ei_soundtrack_path_1.."death_is_just_another_path.ogg"
+    sound = ei_soundtrack_path_1.."death_is_just_another_path.ogg",
+    weight = 10
   },
 }
 end
@@ -131,35 +142,40 @@ if ei_lib.config("nauvis-interlude-tracks-override") then
       name = "my-very-own-dead-ship",
       track_type = "interlude",
       planet = "nauvis",
-      sound = ei_soundtrack_path_1.."myveryowndeadship.ogg"
+      sound = ei_soundtrack_path_1.."myveryowndeadship.ogg",
+      weight = 10
     },
     {
       type = "ambient-sound",
       name = "catacomb",
       track_type = "interlude",
       planet = "nauvis",
-      sound = ei_soundtrack_path_1.."catacomb.ogg"
+      sound = ei_soundtrack_path_1.."catacomb.ogg",
+      weight = 10
     },
     {
       type = "ambient-sound",
       name = "brightwood",
       track_type = "interlude",
       planet = "nauvis",
-      sound = ei_soundtrack_path_1.."brightwood.ogg"
+      sound = ei_soundtrack_path_1.."brightwood.ogg",
+      weight = 10
     },
     {
       type = "ambient-sound",
       name = "bleakwood",
       track_type = "interlude",
       planet = "nauvis",
-      sound = ei_soundtrack_path_1.."bleakwood.ogg"
+      sound = ei_soundtrack_path_1.."bleakwood.ogg",
+      weight = 10
     },
     {
       type = "ambient-sound",
       name = "underground",
       track_type = "interlude",
       planet = "nauvis",
-      sound = ei_soundtrack_path_1.."underground.ogg"
+      sound = ei_soundtrack_path_1.."underground.ogg",
+      weight = 10
     },
   }
 end

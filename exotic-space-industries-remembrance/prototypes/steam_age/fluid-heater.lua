@@ -86,6 +86,7 @@ data:extend({
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
         consumption = "1300kW",
+        heating_energy = "0kW",
         energy_source = {
             type = "fluid",
             fluid_box = {

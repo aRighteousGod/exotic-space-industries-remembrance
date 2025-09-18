@@ -1,6 +1,3 @@
-
-local model = {}
-
 --[[
 ==============storage structure================================
 storage.ei = storage.ei

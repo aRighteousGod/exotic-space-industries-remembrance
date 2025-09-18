@@ -56,6 +56,7 @@ data:extend({
         next_upgrade = "ei-advanced-deep-drill",
         resource_categories = {"ei-drilling"},
         module_slots = 2,
+        heating_energy = "200kW",
         allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"},
         energy_source = {
             type = "fluid",
@@ -86,7 +87,8 @@ data:extend({
 			width = 12,
 			height = 12
 		},
-        input_fluid_box = {   
+        input_fluid_box = {
+            filter = "sulfuric-acid",
             volume = 200,
             pipe_covers = pipecoverspictures(),
             pipe_picture = ei_pipe_big,

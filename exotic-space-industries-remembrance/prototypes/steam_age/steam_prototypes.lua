@@ -60,12 +60,12 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."crushed-coke.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-coke-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -92,12 +92,12 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."crushed-iron.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-iron-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -113,17 +113,17 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."steel-blend.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."steel-blend-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."steel-blend-2.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -162,19 +162,19 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."crushed-coal.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-coal-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-coal-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -182,24 +182,24 @@ data:extend({
     {
         name = "ei-ceramic",
         type = "item",
-        icon = ei_path.."graphics/item/ceramic.png",
+        icon = ei_graphics_3_path.."graphics/item/ceramic.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/ceramic.png",
+                filename = ei_graphics_3_path.."graphics/item/ceramic.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/ceramic-2.png",
+                filename = ei_graphics_3_path.."graphics/item/ceramic-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/ceramic-3.png",
+                filename = ei_graphics_3_path.."graphics/item/ceramic-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -221,24 +221,24 @@ data:extend({
     {
         name = "ei-glass",
         type = "item",
-        icon = ei_path.."graphics/item/industrial-glass.png",
+        icon = ei_graphics_3_path.."graphics/item/industrial-glass.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/industrial-glass.png",
+                filename = ei_graphics_3_path.."graphics/item/industrial-glass.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/industrial-glass-2.png",
+                filename = ei_graphics_3_path.."graphics/item/industrial-glass-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/industrial-glass-3.png",
+                filename = ei_graphics_3_path.."graphics/item/industrial-glass-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -263,14 +263,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."electric-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."electric-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -316,17 +316,17 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."crushed-gold.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-gold-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-gold-2.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -342,17 +342,17 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."crushed-sulfur.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-sulfur-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-sulfur-2.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -527,6 +527,21 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-coke-pellets",
+    },
+    {
+        name = "ei-crushed-coke-pellets",
+        type = "recipe",
+        category = "ei-crushing",
+        energy_required = 3,
+        ingredients = {
+            {type="item", name="ei-coke-pellets", amount=5}
+        },
+        results = {
+            {type = "item", name = "ei-crushed-coke", amount = 10},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-crushed-coke",
     },
     {
         name = "ei-crushed-coke",
@@ -725,11 +740,21 @@ data:extend({
         type = "recipe",
         category = "ei-crushing",
         energy_required = 1,
+        icons = {
+          {
+              icon = data.raw.item["ei-sand"].icon,
+              icon_size = data.raw.item["ei-sand"].icon_size,
+          },
+          {
+              icon = ei_graphics_other_path.."overlay_1.png",
+              icon_size = 64,
+          }
+        },
         ingredients = {
             {type="item", name="stone", amount=1},
         },
         results = {
-            {type = "item", name = modprefix.."sand", amount = 2},
+            {type = "item", name = modprefix.."sand", amount_min = 2,amount_max=3},
         },
         always_show_made_in = true,
         enabled = false,
@@ -840,7 +865,7 @@ data:extend({
     energy_required = 5,
     ingredients =
     {
-      {type = "fluid", name = "steam", amount = 500, temperature = 165},
+      {type = "fluid", name = "steam", amount = 500, minimum_temperature = 165},
       {type = "fluid", name = "crude-oil", amount = 50}
     },
     results =
@@ -849,7 +874,7 @@ data:extend({
         {type="fluid", name="petroleum-gas", amount_min=23,amount_max=27},
         {type="fluid", name="light-oil", amount_min=8,amount_max=12},
     },
-    icon = ei_path.."graphics/other/basic-steam-oil-processing.png",
+    icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
     icon_size = 64,
     subgroup = "fluid-recipes",
     order = "a[oil-processing]-b[basic-oil-processing]b"
@@ -870,7 +895,7 @@ data:extend({
         {type="fluid", name="ei-residual-oil", amount_min=48,amount_max=52},
         {type="fluid", name="petroleum-gas", amount_min=48,amount_max=52},
     },
-    icon = ei_path.."graphics/other/basic-water-oil-processing.png",
+    icon = ei_graphics_3_path.."graphics/other/basic-water-oil-processing.png",
     icon_size = 64,
     subgroup = "fluid-recipes",
     order = "a[oil-processing]-b[basic-oil-processing]a"
@@ -1299,7 +1324,7 @@ data:extend({
     {
         name = "ei-glass",
         type = "technology",
-        icon = ei_path.."graphics/item/industrial-glass.png",
+        icon = ei_graphics_3_path.."graphics/item/industrial-glass.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-steam-crusher"},

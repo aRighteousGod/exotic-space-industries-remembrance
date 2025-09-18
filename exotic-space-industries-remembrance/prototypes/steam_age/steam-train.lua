@@ -8,6 +8,9 @@ local thick_smoke = table.deepcopy(data.raw["trivial-smoke"]["train-smoke"])
 thick_smoke.name = "ei-train-smoke"
 thick_smoke.start_scale = 0.2
 thick_smoke.end_scale = 3.5
+thick_smoke.duration = 450
+thick_smoke.fade_away_duration = 200
+thick_smoke.color = {r = 0.33, g = 0.33, b = 0.33, a = 0.275}
 
 -- basic steam train
 
@@ -172,7 +175,7 @@ data:extend({
 		energy_source =
 		{
 			type = "burner",
-			fuel_categories = {"chemical","ei-rocket-fuel","ei-nuclear-fuel","ei-fusion-fuel"},
+			fuel_categories = {"chemical","ei-rocket-fuel","ei-nuclear-fuel","ei-nuclear-fuel-cell","ei-fusion-fuel"},
 			effectivity = 0.70,
 			fuel_inventory_size = 3,
 			burnt_inventory_size = 3,
@@ -990,7 +993,7 @@ data:extend({
 		},
 		energy_source = {
 			type = "burner",
-			fuel_categories = {"chemical","ei-rocket-fuel","ei-nuclear-fuel","ei-fusion-fuel"},
+			fuel_categories = {"chemical","ei-rocket-fuel","ei-nuclear-fuel","ei-nuclear-fuel-cell","ei-fusion-fuel"},
 			effectivity = 0.85,
 			fuel_inventory_size = 2,
 			burnt_inventory_size = 2,

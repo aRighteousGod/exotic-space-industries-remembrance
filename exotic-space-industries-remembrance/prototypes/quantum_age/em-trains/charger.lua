@@ -47,6 +47,7 @@ data:extend({
         max_health = 1000,
         corpse = "big-remnants",
         dying_explosion = "medium-explosion",
+        heating_energy = "100kW",
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = {r = 1, g = 0.67, b = 0.3},

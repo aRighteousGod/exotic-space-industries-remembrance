@@ -90,8 +90,8 @@ inserter.name = "ei-steam-inserter"
 inserter.icon = ei_graphics_item_path.."steam-inserter.png"
 
 inserter.minable.result = "ei-steam-inserter"
-inserter.fast_replaceable_group = "pipe"
-inserter.next_upgrade = nil
+--inserter.fast_replaceable_group = "pipe"
+inserter.next_upgrade = "inserter"
 
 -- set new platform picture
 inserter.platform_picture = {
@@ -148,8 +148,8 @@ long_inserter.name = "ei-steam-long-inserter"
 long_inserter.icon = ei_graphics_item_path.."steam-long-inserter.png"
 
 long_inserter.minable.result = "ei-steam-long-inserter"
-long_inserter.fast_replaceable_group = "pipe"
-long_inserter.next_upgrade = nil
+--long_inserter.fast_replaceable_group = "pipe"
+long_inserter.next_upgrade = "long-handed-inserter"
 
 -- set new platform picture
 long_inserter.platform_picture = {

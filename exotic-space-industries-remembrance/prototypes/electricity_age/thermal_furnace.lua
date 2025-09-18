@@ -1,5 +1,5 @@
-local icon_dir = ei_path.."graphics/item/"
-local sprite_dir = ei_path.."graphics/entity/thermal-furnace/"
+local icon_dir = ei_graphics_3_path.."graphics/item/"
+local sprite_dir = ei_graphics_3_path.."graphics/entity/thermal-furnace/"
 --From Heated Fabrication by @MrLumme
 ei_lib = require("lib/lib")
 ei_data = require("lib/data")
@@ -401,7 +401,7 @@ data:extend({heat_furnace_item, heat_furnace_recipe,
 		name = "ei-thermal-furnace",
 		icon_size = 256,
 		icon_mipmaps = 4,
-		icon = ei_path.."graphics/tech/thermal-furnace.png",
+		icon = ei_graphics_3_path.."graphics/tech/thermal-furnace.png",
 		effects = {
 			{type = "unlock-recipe", recipe = "ei-thermal-furnace"}
 		},

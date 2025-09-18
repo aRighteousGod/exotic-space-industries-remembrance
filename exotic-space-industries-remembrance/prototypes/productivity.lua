@@ -5,7 +5,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-slag-chunk-extraction",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png", 
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png", 
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -89,7 +89,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-morphium-usage",
-	icon = ei_path.."graphics/tech/morphium-usage.png",
+	icon = ei_graphics_3_path.."graphics/tech/morphium-usage.png",
     icon_size = 128,
     icon_mipmaps = 3,
     effects =
@@ -170,7 +170,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-pure-ore-smelting",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -211,7 +211,7 @@ data:extend({
         change = 0.1
 		},
     },
-    prerequisites = {"ei-arc-furnace"},
+    prerequisites = {"ei-arc-furnace","ei-computer-age"},
     unit =
     {
       count_formula = formula,
@@ -225,7 +225,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-pure-ore-smelting-advanced",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -280,7 +280,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-pure-ore-smelting-quantum",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -335,7 +335,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-pure-ore-smelting-exotic",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
       icon_mipmaps = 4,
     effects =
@@ -390,7 +390,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-pure-ore-smelting-black-hole",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -445,7 +445,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-ore-purification",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -481,7 +481,7 @@ data:extend({
         change = 0.1
 		},
     },
-    prerequisites = {"ei-purifier"},
+    prerequisites = {"ei-purifier","ei-computer-age"},
     unit =
     {
       count_formula = formula,
@@ -495,7 +495,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-ore-purification-simulation",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -545,7 +545,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-ore-purification-quantum",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -595,7 +595,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-ore-purification-exotic",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =
@@ -645,7 +645,7 @@ data:extend({
 {
 	type = "technology",
 	name = "ei-productivity-ore-purification-black-hole",
-	icon = ei_path.."graphics/tech/ore-purification-productivity.png",
+	icon = ei_graphics_3_path.."graphics/tech/ore-purification-productivity.png",
     icon_size = 256,
     icon_mipmaps = 4,
     effects =

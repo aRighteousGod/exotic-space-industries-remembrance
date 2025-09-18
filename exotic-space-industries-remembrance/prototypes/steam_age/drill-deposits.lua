@@ -572,7 +572,7 @@ data:extend({
         variation_count = 1
       }
     },
-    map_color = {r=0.0, g=0.86, b=1},
+    map_color = {r=0, g=0.615, b=0.901},
     map_grid = false
   },
   {
@@ -632,7 +632,7 @@ data:extend({
         variation_count = 1
       }
     },
-    map_color = {r=0.23, g=1, b=0.06},
+    map_color = {r=0.235, g=0.78, b=0},
     map_grid = false
   },
   {
@@ -690,7 +690,7 @@ data:extend({
         variation_count = 1
       }
     },
-    map_color = {r=0.04, g=0.3, b=0.3},
+    map_color = {r=0.58, g=0.168, b=1.0},
     map_grid = false
   },
   {
@@ -750,7 +750,7 @@ data:extend({
         variation_count = 1
       }
     },
-    map_color = {r=0.04, g=0.3, b=0.3},
+    map_color = {r=0.921, g=0.921, b=0.921},
     map_grid = false
   },
   {
@@ -810,7 +810,7 @@ data:extend({
         variation_count = 1
       }
     },
-    map_color = {r=0.04, g=0.3, b=0.3},
+    map_color = {r=0.788, g=0.2, b=0},
     map_grid = false
   },
   {

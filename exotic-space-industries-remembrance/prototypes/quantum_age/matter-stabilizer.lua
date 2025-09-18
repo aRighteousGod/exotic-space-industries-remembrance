@@ -84,6 +84,7 @@ data:extend({
         fixed_recipe = "ei-matter-stabilizer-running",
         crafting_categories = {"ei-matter-stabilizer"},
         crafting_speed = 2,
+        heating_energy = "100kW",
         energy_source = {
             type = 'electric',
             usage_priority = 'secondary-input',

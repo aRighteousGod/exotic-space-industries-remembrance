@@ -89,6 +89,7 @@ data:extend({
         selection_box = {{-5.5, -5.5}, {5.5, 5.5}},
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei_fusion-reactor"},
+        heating_energy = "500kW",
         crafting_speed = 1,
         energy_source = {
             type = 'electric',

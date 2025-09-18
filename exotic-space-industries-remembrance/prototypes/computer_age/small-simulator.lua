@@ -33,14 +33,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -48,7 +48,7 @@ data:extend({
     {
         name = "ei-simulation-data-chemical",
         type = "item",
-        icon = ei_path.."graphics/item/simulation-data-chemical.png",
+        icon = ei_graphics_3_path.."graphics/item/simulation-data-chemical.png",
         icon_size = 128,
         subgroup = "ei-refining-tech",
         order = "a-a-c",
@@ -58,15 +58,15 @@ data:extend({
             {
               {
                 size = 128,
-                filename = ei_path.."graphics/item/simulation-data-chemical.png",
-                scale = 0.375/2
+                filename = ei_graphics_3_path.."graphics/item/simulation-data-chemical.png",
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -74,7 +74,7 @@ data:extend({
     {
         name = "ei-simulation-data-organic",
         type = "item",
-        icon = ei_path.."graphics/item/simulation-data-organic.png",
+        icon = ei_graphics_3_path.."graphics/item/simulation-data-organic.png",
         icon_size = 128,
         subgroup = "ei-refining-tech",
         order = "a-a-d",
@@ -84,15 +84,15 @@ data:extend({
             {
               {
                 size = 128,
-                filename = ei_path.."graphics/item/simulation-data-organic.png",
-                scale = 0.375/2
+                filename = ei_graphics_3_path.."graphics/item/simulation-data-organic.png",
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -100,7 +100,7 @@ data:extend({
     {
         name = "ei-simulation-data-stone",
         type = "item",
-        icon = ei_path.."graphics/item/simulation-data-stone.png",
+        icon = ei_graphics_3_path.."graphics/item/simulation-data-stone.png",
         icon_size = 128,
         subgroup = "ei-refining-tech",
         order = "a-a-e",
@@ -110,15 +110,15 @@ data:extend({
             {
               {
                 size = 128,
-                filename = ei_path.."graphics/item/simulation-data-stone.png",
-                scale = 0.375/2
+                filename = ei_graphics_3_path.."graphics/item/simulation-data-stone.png",
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -126,7 +126,7 @@ data:extend({
     {
         name = "ei-simulation-data-uranium",
         type = "item",
-        icon = ei_path.."graphics/item/simulation-data-uranium.png",
+        icon = ei_graphics_3_path.."graphics/item/simulation-data-uranium.png",
         icon_size = 128,
         subgroup = "ei-refining-tech",
         order = "a-a-f",
@@ -136,15 +136,15 @@ data:extend({
             {
               {
                 size = 128,
-                filename = ei_path.."graphics/item/simulation-data-uranium.png",
-                scale = 0.375/2
+                filename = ei_graphics_3_path.."graphics/item/simulation-data-uranium.png",
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -152,7 +152,7 @@ data:extend({
     {
         name = "ei-simulation-data-petrified",
         type = "item",
-        icon = ei_path.."graphics/item/simulation-data-petrified.png",
+        icon = ei_graphics_3_path.."graphics/item/simulation-data-petrified.png",
         icon_size = 128,
         subgroup = "ei-refining-tech",
         order = "a-a-g",
@@ -162,15 +162,15 @@ data:extend({
             {
               {
                 size = 128,
-                filename = ei_path.."graphics/item/simulation-data-petrified.png",
-                scale = 0.375/2
+                filename = ei_graphics_3_path.."graphics/item/simulation-data-petrified.png",
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -178,7 +178,7 @@ data:extend({
     {
         name = "ei-simulation-data-scrap",
         type = "item",
-        icon = ei_path.."graphics/item/simulation-data-scrap.png",
+        icon = ei_graphics_3_path.."graphics/item/simulation-data-scrap.png",
         icon_size = 128,
         subgroup = "ei-refining-tech",
         order = "a-a-h",
@@ -188,15 +188,15 @@ data:extend({
             {
               {
                 size = 128,
-                filename = ei_path.."graphics/item/simulation-data-scrap.png",
-                scale = 0.375/2
+                filename = ei_graphics_3_path.."graphics/item/simulation-data-scrap.png",
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -215,14 +215,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."space-data.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."space-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -266,6 +266,7 @@ data:extend({
         },
         max_health = 300,
         corpse = "big-remnants",
+        heating_energy = "200kW",
         dying_explosion = "medium-explosion",
         collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},

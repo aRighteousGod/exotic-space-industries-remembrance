@@ -218,7 +218,7 @@ data:extend({
     {
         name = "ei-neuro-reactive-residue",
         type = "item",
-        icon = ei_path.."graphics/item/neuro-reactive-residue.png",
+        icon = ei_graphics_3_path.."graphics/item/neuro-reactive-residue.png",
         icon_size = 512,
         icon_mipmaps = 5,
         stack_size = 100,
@@ -229,7 +229,7 @@ data:extend({
     {
         name = "ei-sporeglass-heart",
         type = "item",
-        icon = ei_path.."graphics/item/sporeglass-heart.png",
+        icon = ei_graphics_3_path.."graphics/item/sporeglass-heart.png",
         icon_size = 512,
         icon_mipmaps = 5,
         stack_size = 100,
@@ -240,7 +240,7 @@ data:extend({
     {
         name = "ei-gravity-braided-ore",
         type = "item",
-        icon = ei_path.."graphics/item/gravity-braided-ore.png",
+        icon = ei_graphics_3_path.."graphics/item/gravity-braided-ore.png",
         icon_size = 512,
         icon_mipmaps = 5,
         stack_size = 100,
@@ -251,7 +251,7 @@ data:extend({
     {
         name = "ei-isotopic-ghost-shell",
         type = "item",
-        icon = ei_path.."graphics/item/isotopic-ghost-shell.png",
+        icon = ei_graphics_3_path.."graphics/item/isotopic-ghost-shell.png",
         icon_size = 512,
         icon_mipmaps = 5,
         stack_size = 100,
@@ -262,7 +262,7 @@ data:extend({
     {
         name = "ei-chrono-fossil-shard",
         type = "item",
-        icon = ei_path.."graphics/item/chrono-fossil-shard.png",
+        icon = ei_graphics_3_path.."graphics/item/chrono-fossil-shard.png",
         icon_size = 512,
         icon_mipmaps = 5,
         stack_size = 100,
@@ -273,7 +273,7 @@ data:extend({
     {
         name = "ei-worm-torn-relay-core",
         type = "item",
-        icon = ei_path.."graphics/item/worm-torn-relay-core.png",
+        icon = ei_graphics_3_path.."graphics/item/worm-torn-relay-core.png",
         icon_size = 512,
         icon_mipmaps = 5,
         stack_size = 100,
@@ -293,25 +293,25 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."crushed-neodym.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-neodym-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-neodym-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-neodym-3.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -329,25 +329,25 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."crushed-pure-neodym.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-pure-neodym-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-pure-neodym-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-pure-neodym-3.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -374,25 +374,25 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."carbon-nanotube.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."carbon-nanotube-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."carbon-nanotube-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."carbon-nanotube-3.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -409,24 +409,24 @@ data:extend({
     {
         name = "ei-magnet",
         type = "item",
-        icon = ei_path.."graphics/item/neodymium-magnet.png",
+        icon = ei_graphics_3_path.."graphics/item/neodymium-magnet.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/neodymium-magnet.png",
+                filename = ei_graphics_3_path.."graphics/item/neodymium-magnet.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/neodymium-magnet-2.png",
+                filename = ei_graphics_3_path.."graphics/item/neodymium-magnet-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/neodymium-magnet-3.png",
+                filename = ei_graphics_3_path.."graphics/item/neodymium-magnet-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -450,14 +450,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."magnet-data.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."magnet-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -476,14 +476,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."fusion-data.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."simulation-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -503,14 +503,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."fusion-quantum-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."quantum-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -530,14 +530,14 @@ data:extend({
     --           {
     --             size = 64,
     --             filename = ei_graphics_item_path.."exotic-quantum-age-tech.png",
-    --             scale = 0.375
+    --             scale = 0.5
     --           },
     --           {
     --             draw_as_light = true,
     --             flags = {"light"},
     --             size = 64,
     --             filename = ei_graphics_item_path.."quantum-age-tech_light.png",
-    --             scale = 0.375
+    --             scale = 0.5
     --           }
     --         }
     --     },
@@ -585,24 +585,24 @@ data:extend({
     {
         name = "ei-plasma-cube",
         type = "item",
-        icon = ei_path.."graphics/item/plasma-cube.png",
+        icon = ei_graphics_3_path.."graphics/item/plasma-cube.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/plasma-cube.png",
+                filename = ei_graphics_3_path.."graphics/item/plasma-cube.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/plasma-cube-2.png",
+                filename = ei_graphics_3_path.."graphics/item/plasma-cube-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/plasma-cube-3.png",
+                filename = ei_graphics_3_path.."graphics/item/plasma-cube-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -624,24 +624,24 @@ data:extend({
     {
         name = "ei-eu-magnet",
         type = "item",
-        icon = ei_path.."graphics/item/eu-magnet.png",
+        icon = ei_graphics_3_path.."graphics/item/eu-magnet.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/eu-magnet.png",
+                filename = ei_graphics_3_path.."graphics/item/eu-magnet.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/eu-magnet-2.png",
+                filename = ei_graphics_3_path.."graphics/item/eu-magnet-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/eu-magnet-3.png",
+                filename = ei_graphics_3_path.."graphics/item/eu-magnet-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -672,24 +672,24 @@ data:extend({
     {
         name = "ei-high-tech-parts",
         type = "item",
-        icon = ei_path.."graphics/item/high-tech-parts.png",
+        icon = ei_graphics_3_path.."graphics/item/high-tech-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/high-tech-parts.png",
+                filename = ei_graphics_3_path.."graphics/item/high-tech-parts.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/high-tech-parts-2.png",
+                filename = ei_graphics_3_path.."graphics/item/high-tech-parts-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/high-tech-parts-3.png",
+                filename = ei_graphics_3_path.."graphics/item/high-tech-parts-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -699,19 +699,7 @@ data:extend({
         subgroup = "intermediate-product",
         order = "b6-a",
     },
-    {
-        name = "ei-advanced-rocket-fuel",
-        type = "item",
-        icon = ei_graphics_item_path.."advanced-rocket-fuel.png",
-        icon_size = 64,
-        stack_size = 10,
-        subgroup = "intermediate-product",
-        order = "p[rocket-fuel]-b",
-        fuel_category = "ei-rocket-fuel",
-        fuel_value = "180MJ",
-        fuel_acceleration_multiplier = 2.1,
-        fuel_top_speed_multiplier = 1.3,
-    },
+
     {
         name = "ei-lithium-crystal",
         type = "item",
@@ -725,25 +713,25 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."lithium-crystal.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."lithium-crystal-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."lithium-crystal-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."lithium-crystal-3.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -763,14 +751,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."exotic-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."exotic-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -1201,6 +1189,31 @@ data:extend({
         main_product = "ei-magnet",
     },
     {
+        name = "ei-sand-mass",
+        type = "recipe",
+        category = "ei-crushing-mass",
+        energy_required = 15,
+        icons = {
+          {
+              icon = data.raw.item["ei-sand"].icon,
+              icon_size = data.raw.item["ei-sand"].icon_size,
+          },
+          {
+              icon = ei_graphics_other_path.."overlay_3.png",
+              icon_size = 64,
+          }
+        },
+        ingredients = {
+            {type="item", name="stone", amount=15},
+        },
+        results = {
+            {type = "item", name = modprefix.."sand", amount_min = 30,amount_max=115},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = modprefix.."sand",
+    },
+    {
         name = "ei-pre-circuit-board",
         type = "recipe",
         category = "centrifuging",
@@ -1542,22 +1555,6 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-bio-armor",
-    },
-    {
-        name = "ei-advanced-rocket-fuel",
-        type = "recipe",
-        category = "centrifuging",
-        energy_required = 20,
-        ingredients = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 15},
-            {type = "item", name = "rocket-fuel", amount = 2},
-        },
-        results = {
-            {type = "item", name = "ei-advanced-rocket-fuel", amount = 1},
-        },
-        always_show_made_in = true,
-        enabled = false,
-        main_product = "ei-advanced-rocket-fuel",
     },
     {
         name = "ei-lithium-crystal",
@@ -2179,7 +2176,7 @@ data:extend({
     {
         name = "ei-neodym-morphium-usage",
         type = "technology",
-        icon = ei_path.."graphics/tech/morphium-usage.png",
+        icon = ei_graphics_3_path.."graphics/tech/morphium-usage.png",
         icon_size = 128,
         icon_mipmaps = 3,
         prerequisites = {"ei-quantum-age"},
@@ -2296,7 +2293,7 @@ data:extend({
     {
         name = "ei-neodymium-magnet",
         type = "technology",
-        icon = ei_path.."graphics/item/neodymium-magnet.png",
+        icon = ei_graphics_3_path.."graphics/item/neodymium-magnet.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-neodym-refining"},
@@ -2393,7 +2390,7 @@ data:extend({
     {
         name = "ei-eu-magnet",
         type = "technology",
-        icon = ei_path.."graphics/item/eu-magnet.png",
+        icon = ei_graphics_3_path.."graphics/item/eu-magnet.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-clean-plating"},
@@ -2930,7 +2927,7 @@ data:extend({
     {
         name = "ei-plasma-cube",
         type = "technology",
-        icon = ei_path.."graphics/item/plasma-cube.png",
+        icon = ei_graphics_3_path.."graphics/item/plasma-cube.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-fusion-data"},
@@ -2981,7 +2978,7 @@ data:extend({
     {
         name = "ei-exotic-matter-separation",
         type = "technology",
-        icon = ei_path.."graphics/tech/exotic-matter-separation.png",
+        icon = ei_graphics_3_path.."graphics/tech/exotic-matter-separation.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-eu-circuit","promethium-science-pack"},
@@ -2997,7 +2994,7 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["quantum-age"],
+            ingredients = ei_data.science["both-quantum-age"],
             time = 20
         },
         age = "quantum-age",

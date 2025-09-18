@@ -61,6 +61,7 @@ data:extend({
         collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
+        heating_energy = "100kW",
         energy_source = {
             type = 'electric',
             usage_priority = 'primary-output',
@@ -110,6 +111,7 @@ data:extend({
         collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
+        heating_energy = "100kW",
         energy_source = {
             type = 'electric',
             usage_priority = 'primary-output',
@@ -316,7 +318,7 @@ data:extend({
     {
         name = "ei-crystal-accumulator-quantum",
         type = "technology",
-        icon = ei_path.."graphics/tech/crystal-accumulator-quantum.png",
+        icon = ei_graphics_3_path.."graphics/tech/crystal-accumulator-quantum.png",
         icon_size = 256,
         prerequisites = {"ei-crystal-accumulator","quantum-processor","ei-quantum-age"},
         effects = {
@@ -358,7 +360,7 @@ data:extend({
         type = "recipe",
         category = "crafting",
         energy_required = 35,
-        icon = ei_path.."graphics/tech/crystal-accumulator-quantum.png",
+        icon = ei_graphics_3_path.."graphics/tech/crystal-accumulator-quantum.png",
         icon_size = 256,
         ingredients = {
             {type = "item", name = "ei-sus-plating", amount = 18},
@@ -393,7 +395,7 @@ data:extend({
         name = "ei-crystal-accumulator-quantum",
         type = "recipe",
         category = "crafting",
-        icon = ei_path.."graphics/tech/crystal-accumulator-quantum.png",
+        icon = ei_graphics_3_path.."graphics/tech/crystal-accumulator-quantum.png",
         icon_size = 256,
         energy_required = 35,
         ingredients = {

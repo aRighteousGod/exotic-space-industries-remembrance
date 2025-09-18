@@ -99,6 +99,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-neutron-collector"},
         crafting_speed = 1,
+        heating_energy = "100kW",
         energy_source = {
             type = 'electric',
             usage_priority = 'secondary-input',
@@ -158,14 +159,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."charged-neutron-container.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."charged-neutron-container_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },

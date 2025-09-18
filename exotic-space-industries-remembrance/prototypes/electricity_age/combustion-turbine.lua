@@ -89,7 +89,7 @@ data:extend({
             smoke = {
                 {
                     name = "smoke",
-                    deviation = {0.11, 0.11},
+                    deviation = {0.1, 0.1},
                     frequency = 45,
                     position = {0, -1.75},
                     starting_vertical_speed = 0.08,
@@ -98,6 +98,7 @@ data:extend({
             }
         },
         max_power_output = "12MW",
+        heating_energy = "0kW",
         animation = {
             filename = ei_graphics_entity_path.."combustion-turbine_animation.png",
             size = {512,512},

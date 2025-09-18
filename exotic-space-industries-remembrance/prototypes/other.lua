@@ -251,6 +251,10 @@ data:extend({
         type = "fuel-category",
     },
     {
+        name = "ei-nuclear-fuel-cell",
+        type = "fuel-category",
+    },
+    {
         name = "ei-fusion-fuel",
         type = "fuel-category",
     },

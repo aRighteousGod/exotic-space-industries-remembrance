@@ -63,6 +63,7 @@ data:extend({
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-lufter"},
+        heating_energy = "100kW",
         crafting_speed = 1,
         energy_source = {
             type = 'electric',

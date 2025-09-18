@@ -21,7 +21,8 @@ function ei_global.init()
     storage.ei["neutron_sources"] = {}
     storage.ei["spawner_queue"] = {}
     storage.ei["orbital_combinators"] = {}
-    storage.ei.spaced_updates = 0
+    --depreciated by NSB
+    --storage.ei.spaced_updates = 0
     storage.ei.fluid_entity = {}
     storage.ei.fluid_entity_count = 0
     storage.ei.arrival_waves = {}
@@ -89,9 +90,12 @@ function ei_global.check_init(event)
         storage.ei["orbital_combinators"] = {}
     end
     --powered beacons
+    --depreciated by NSB
+    --[[
     if not storage.ei.spaced_updates then
         storage.ei.spaced_updates = 0
     end
+    ]]
     --powered beacon and etc fluid handlers
     if not storage.ei.fluid_entity then
         storage.ei.fluid_entity = {}

@@ -69,6 +69,7 @@ data:extend({
             usage_priority = 'secondary-input',
         },
         energy_usage = "500kW",
+        heating_energy = "100kW",
         graphics_set = {
             animation = {
                 filename = ei_graphics_entity_path.."neutron-activator.png",

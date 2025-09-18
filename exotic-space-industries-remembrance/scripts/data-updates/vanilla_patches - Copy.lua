@@ -655,6 +655,7 @@ if cp then
 end
 if sp then
     sp.hidden = true
+    sp.enabled = false
 end
 
 -- treat cracking
@@ -667,7 +668,7 @@ ei_lib.raw["recipe"]["basic-oil-processing"] = {
         {type="fluid", name="ei-residual-oil", amount_min=28,amount_max=32},
         {type="fluid", name="petroleum-gas", amount_min=38,amount_max=42},
     },
-    icon = ei_path.."graphics/other/basic-oil-processing.png",
+    icon = ei_graphics_3_path.."graphics/other/basic-oil-processing.png",
     icon_size = 64,
 }
 ei_lib.raw["recipe"]["light-oil-cracking"].results = 
@@ -840,8 +841,6 @@ new_prerequisites_table["electricity-age"] = {
     {"laser", "ei-grower"},
     {"power-armor", "ei-grower"},
     {"solar-energy", "ei-waver-factory"},
-    {"solar-panel-equipment", "solar-energy"},
-    {"solar-panel-equipment", "advanced-circuit"},
     {"tank","advanced-circuit"},
     {"tank","plastics"},
     {"tank","explosives"},
@@ -989,11 +988,6 @@ ei_lib.raw.technology.electronics.effects = {
         recipe = "ei-ceramic-steam-assembler"
     },
 }
---move cannon shells from tank to explosives
-ei_lib.remove_unlock_recipe("tank","cannon-shell")
-ei_lib.remove_unlock_recipe("tank","explosive-cannon-shell")
-ei_lib.add_unlock_recipe("explosives","cannon-shell")
-ei_lib.add_unlock_recipe("explosives","explosive-cannon-shell")
 
 --rename to Electric chemical plant
 ei_lib.raw.technology["oil-processing"] = {
@@ -1052,7 +1046,7 @@ ei_lib.raw.item["nuclear-fuel"] = {
     localised_description = {"item-description.ei-nuclear-fuel"},
     subgroup = "ei-nuclear-fission-fuel",
     burnt_result = "depleted-uranium-fuel-cell",
-    icon = ei_path.."graphics/item/uranium-fuel-cell.png",
+    icon = ei_graphics_3_path.."graphics/item/uranium-fuel-cell.png",
     icon_size = 256,
     icon_mipmaps = 4,
     stack_size=20,
@@ -1068,7 +1062,7 @@ ei_lib.raw.item["depleted-uranium-fuel-cell"] = {
     localised_name = {"item-name.ei-depleted-uranium-fuel-cell"},
     localised_description = {"item-description.ei-depleted-uranium-fuel-cell"},
     subgroup = "ei-nuclear-fission-fuel",
-    icon = ei_path.."graphics/item/depleted-uranium-fuel-cell.png",
+    icon = ei_graphics_3_path.."graphics/item/depleted-uranium-fuel-cell.png",
     icon_size = 256,
     icon_mipmaps = 4,
     stack_size=20,
@@ -1170,7 +1164,7 @@ ei_lib.raw.locomotive.locomotive = {
     
     energy_source = {
         emissions_per_minute = { pollution = 1.75 },
-        fuel_categories = {"ei-diesel-fuel"},
+        fuel_categories = {"ei-diesel-fuel","ei-nuclear-fuel-cell",},
         fuel_inventory_size = 3,
         burnt_inventory_size = 3,
     }
@@ -1282,7 +1276,7 @@ ei_lib.raw["assembling-machine"]["centrifuge"].fluid_boxes_off_when_no_fluid_rec
 -- remove neighbour bonus from nuclear reactor and set fuel category to ei_nuclear_fuel
 -- also set energy output to 100MW (setting)
 
-ei_lib.raw["reactor"]["nuclear-reactor"].energy_source.fuel_categories = {"ei-nuclear-fuel"}
+ei_lib.raw["reactor"]["nuclear-reactor"].energy_source.fuel_categories = {"ei-nuclear-fuel","ei-nuclear-fuel-cell",}
 ei_lib.raw["reactor"]["nuclear-reactor"].energy_source.effectivity = 1
 if ei_lib.config("nuclear-reactor-remove-bonus") then
     ei_lib.raw["reactor"]["nuclear-reactor"].neighbour_bonus = 0
@@ -1804,14 +1798,14 @@ end
 ei_lib.raw.technology["space-science-pack"] = {
     localised_name = {"technology-name.ei-space-science-pack"},
     localised_description = {"technology-description.ei-space-science-pack"},
-    icon = ei_path.."graphics/item/cosmic-criticality-pack.png",
+    icon = ei_graphics_3_path.."graphics/item/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
 }
 
 --Increase space science pack difficulty, make alt recipes with different fuels
 ei_lib.raw.tool["space-science-pack"] = {
-    icon = ei_path.."graphics/item/cosmic-criticality-pack.png",
+    icon = ei_graphics_3_path.."graphics/item/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
     localised_name = {"item-name.ei-space-science-pack"},
@@ -1819,7 +1813,7 @@ ei_lib.raw.tool["space-science-pack"] = {
 }
 ei_lib.raw.recipe["space-science-pack"] = {
     category = "centrifuging",
-    icon = ei_path.."graphics/item/cosmic-criticality-pack.png",
+    icon = ei_graphics_3_path.."graphics/item/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
 }

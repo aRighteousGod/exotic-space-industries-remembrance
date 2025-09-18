@@ -4,7 +4,7 @@ local sounds = require "__base__.prototypes.entity.sounds"
 
 
 local picture = {
-    filename = ei_path.."graphics/entity/camp-fire.png",
+    filename = ei_graphics_3_path.."graphics/entity/camp-fire.png",
     width = 192,
     height = 192,
     scale = 0.5,
@@ -25,7 +25,7 @@ data:extend{
     {
         type = "furnace",
         name = "ei-camp-fire",
-        icon = ei_path.."graphics/entity/camp-fire.png",
+        icon = ei_graphics_3_path.."graphics/entity/camp-fire.png",
         icon_size = 128, icon_mipmaps = 2,
         minable = {mining_time = 0.1, result = "ei-camp-fire"},
         flags = {"placeable-neutral", "placeable-player", "player-creation", "placeable-off-grid"},
@@ -41,11 +41,11 @@ data:extend{
         damaged_trigger_effect = hit_effects.rock(),
         dying_trigger_effect = decorative_trigger_effects.huge_rock(),
         energy_usage = "50kW",
+        heating_energy = "0kW",
         crafting_speed = 1,
         crafting_categories = {"ei-burning"},
         source_inventory_size = 1,
         result_inventory_size = 1,
-        heating_energy = ei_data.heating_energy["ei-camp-fire"],
         bottleneck_ignore = true,
         surface_conditions = {
             {property = "pressure",    min = 33, max = 100000},
@@ -95,7 +95,7 @@ data:extend{
     {
         type = "item",
         name = "ei-camp-fire",
-        icon = ei_path.."graphics/item/camp-fire.png",
+        icon = ei_graphics_3_path.."graphics/item/camp-fire.png",
         icon_size = 128, icon_mipmaps = 2,
         subgroup = "smelting-machine",
         order = "A",

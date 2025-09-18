@@ -34,25 +34,25 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."crushed-uranium.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-uranium-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-uranium-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-uranium-3.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -70,25 +70,25 @@ data:extend({
             {
                 filename = ei_graphics_item_path.."crushed-pure-uranium.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-pure-uranium-1.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-pure-uranium-2.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-pure-uranium-3.png",
                 icon_mipmaps = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -125,14 +125,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."fission-tech.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."fission-tech_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
         },
@@ -154,14 +154,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."uranium-235-fuel.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."fission-fuel_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -215,6 +215,7 @@ data:extend({
             usage_priority = 'secondary-input',
         },
         energy_usage = "8.8MW",
+        heating_energy = "200kW",
         allowed_effects = {"speed", "productivity", "consumption", "pollution","quality"},
         module_slots = 4,
         graphics_set = {

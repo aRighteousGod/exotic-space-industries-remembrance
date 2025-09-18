@@ -247,7 +247,7 @@ function model.cast_beam(fueler, target)
 
     -- create a beam between the fueler and the target
     local beam = fueler.surface.create_entity({
-        name = "ei_fuel-beam",
+        name = "ei-fuel-beam",
         position = fueler.position,
         source_offset = {0, -1},
         source = fueler,
@@ -481,7 +481,7 @@ function model.update_fueler(break_point, event)
     -- get all entities of the target type in range
     local targets = fueler.surface.find_entities_filtered{
         position = fueler.position,
-        radius = settings.startup["ei_fueler_range"].value,
+        radius = ei_lib.config("fueler_range"),
         type = {target_type,"ammo-turret","artillery-turret","artillery-wagon"}
     }
 
@@ -581,11 +581,11 @@ function model.register_fueler(entity)
     storage.ei.fueler[unit].entity = entity
 
     -- get lenght of queue
-    local queue_lenght = #storage.ei.fueler_queue
+    local queue_length = #storage.ei.fueler_queue
     table.insert(storage.ei.fueler_queue, unit)
 
     -- store the position in the queue
-    storage.ei.fueler[unit].queue_pos = queue_lenght + 1
+    storage.ei.fueler[unit].queue_pos = queue_length + 1
 
 end
 
@@ -629,7 +629,7 @@ function model.on_built_entity(entity)
         return
     end
 
-    if entity.name ~= "ei_fueler" then
+    if entity.name ~= "ei-fueler" then
         return
     end
 
@@ -644,7 +644,7 @@ function model.on_destroyed_entity(entity, transfer)
         return
     end
 
-    if entity.name ~= "ei_fueler" then
+    if entity.name ~= "ei-fueler" then
         return
     end
 
@@ -673,16 +673,16 @@ end
 
 function model.open_gui(player)
 
-    if player.gui.relative["ei_fueler-console"] then
+    if player.gui.relative["ei-fueler-console"] then
         model.close_gui(player)
     end
 
     local root = player.gui.relative.add{
         type = "frame",
-        name = "ei_fueler-console",
+        name = "ei-fueler-console",
         anchor = {
             gui = defines.relative_gui_type.container_gui,
-            name = "ei_fueler",
+            name = "ei-fueler",
             position = defines.relative_gui_position.right,
         },
         direction = "vertical",
@@ -707,7 +707,7 @@ function model.open_gui(player)
             sprite = "virtual-signal/informatron",
             style = "frame_action_button",
             tags = {
-                parent_gui = "ei_fueler-console",
+                parent_gui = "ei-fueler-console",
                 action = "goto-informatron",
                 page = "exotic-industries-fueler-informatron"
             }
@@ -756,7 +756,7 @@ function model.open_gui(player)
                 tooltip = {"entity-name." .. target_name},
                 tags = {
                     action = "set-target-type",
-                    parent_gui = "ei_fueler-console",
+                    parent_gui = "ei-fueler-console",
                     target_type = target_name
                 },
                 style = "ei_slot_button_radio"
@@ -777,22 +777,22 @@ function model.open_gui(player)
         }
         equipment_frame.add{
             type = "sprite-button",
-            sprite = "ei_vehicle",
+            sprite = "ei-vehicle",
             tooltip = {"exotic-industries-fueler.vehicle"},
             tags = {
                 action = "set-equipment-type",
-                parent_gui = "ei_fueler-console",
+                parent_gui = "ei-fueler-console",
                 equipment_type = false
             },
             style = "ei_slot_button_radio"
         }
         equipment_frame.add{
             type = "sprite-button",
-            sprite = "ei_equipment",
+            sprite = "ei-equipment",
             tooltip = {"exotic-industries-fueler.equipment"},
             tags = {
                 action = "set-equipment-type",
-                parent_gui = "ei_fueler-console",
+                parent_gui = "ei-fueler-console",
                 equipment_type = true
             },
             style = "ei_slot_button_radio"
@@ -812,7 +812,7 @@ function model.update_gui(player)
 
     -- sync gui with current setting of tower
 
-    local root = player.gui.relative["ei_fueler-console"]
+    local root = player.gui.relative["ei-fueler-console"]
     if not root then
         return
     end
@@ -849,6 +849,10 @@ end
 
 
 function model.close_gui(player)
+    if player.gui.relative["ei-fueler-console"] then
+        player.gui.relative["ei-fueler-console"].destroy()
+    end
+    --probably better way to do this
     if player.gui.relative["ei_fueler-console"] then
         player.gui.relative["ei_fueler-console"].destroy()
     end
@@ -858,7 +862,7 @@ end
 function model.on_gui_click(event)
     if event.element.tags.action == "set-target-type" then
         local player = game.players[event.player_index]
-        local root = player.gui.relative["ei_fueler-console"]
+        local root = player.gui.relative["ei-fueler-console"]
         if not root then
             return
         end
@@ -878,7 +882,7 @@ function model.on_gui_click(event)
 
     if event.element.tags.action == "set-equipment-type" then
         local player = game.players[event.player_index]
-        local root = player.gui.relative["ei_fueler-console"]
+        local root = player.gui.relative["ei-fueler-console"]
         if not root then
             return
         end

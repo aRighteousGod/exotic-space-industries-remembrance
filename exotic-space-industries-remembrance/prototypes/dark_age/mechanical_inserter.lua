@@ -95,7 +95,7 @@ inserter.next_upgrade = nil
 inserter.filter_count = 1
 inserter.rotation_speed = 0.0014
 inserter.extension_speed = 0.0035
-
+inserter.heating_energy = "50kW"
 -- set new platform picture
 inserter.platform_picture = {
     sheet = {
@@ -149,7 +149,7 @@ long_inserter.next_upgrade = nil
 long_inserter.filter_count = 1
 long_inserter.rotation_speed = 0.0013
 long_inserter.extension_speed = 0.0035
-
+long_inserter.heating_energy = "50kW"
 -- set new platform picture
 long_inserter.platform_picture = {
     sheet = {

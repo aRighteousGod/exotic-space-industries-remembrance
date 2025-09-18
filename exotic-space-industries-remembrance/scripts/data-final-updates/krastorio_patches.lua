@@ -676,7 +676,7 @@ local K2_CHANGES = {
     ["generator-equipment"] = {
         ["nuclear-reactor-equipment"] = {
             burner = {
-                type = "burner", fuel_categories = {"ei-nuclear-fuel"},
+                type = "burner", fuel_categories = {"ei-nuclear-fuel","ei-nuclear-fuel-cell",},
                 effectivity = 0.25, fuel_inventory_size = 3, burnt_inventory_size = 3
             },
         },
@@ -2093,7 +2093,7 @@ data.raw["locomotive"]["kr-nuclear-locomotive"].energy_source.fuel_categories = 
 for _, spider in pairs(data.raw["spider-vehicle"]) do
     spider.energy_source = {
         type = "burner",
-        fuel_categories = {"chemical", "ei-nuclear-fuel", "ei-fusion-fuel"},
+        fuel_categories = {"chemical", "ei-nuclear-fuel","ei-nuclear-fuel-cell", "ei-fusion-fuel"},
         effectivity = 1,
         fuel_inventory_size = 3,
         burnt_inventory_size = 3,

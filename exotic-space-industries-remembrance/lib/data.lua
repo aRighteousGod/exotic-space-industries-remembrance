@@ -178,6 +178,7 @@ ei_data.science["both-quantum-age"] = {
     {"ei-alien-computer-age-tech",1},
     {"ei-quantum-age-tech",1},
     {"ei-fusion-quantum-age-tech",1},
+    {"space-science-pack",1},
 --    {"ei-matter-quantum-age-tech",1},
 --    {"ei-imersite-quantum-age-tech",1},
 }
@@ -237,10 +238,12 @@ ei_data.science["interstellar"] = {
 --    {"ei-imersite-quantum-age-tech",1},
 --    {"ei-matter-quantum-age-tech",1},
     {"ei-black-hole-exotic-age-tech",1},
+    {"space-science-pack",1},
     {"electromagnetic-science-pack",1},
     {"metallurgic-science-pack",1},
     {"agricultural-science-pack",1},
     {"cryogenic-science-pack",1},
+    {"promethium-science-pack",1},
 }
 
 -- inputs for labs
@@ -323,8 +326,8 @@ ei_data.science_dict_obsolete = {
 --    ["ei-dark-age-tech"] = true,
 --    ["ei-steam-age-tech"] = true,
 --    ["ei-electricity-age-tech"] = true,
---    ["wood-science-pack"] = true,
---    ["steam-science-pack"] = true,
+    ["wood-science-pack"] = true,
+    ["steam-science-pack"] = true,
 }
 
 --====================================================================================================
@@ -557,7 +560,6 @@ ei_data.tech_structure["electricity-age"] = {
     "night-vision-equipment",
     "personal-roboport-equipment",
     "modular-armor",
-    "power-armor",
     "tank",
 --    "braking-force-3",
 --    "braking-force-4",
@@ -570,7 +572,6 @@ ei_data.tech_structure["electricity-age"] = {
 
 --    "physical-projectile-damage-4",
     "land-mine",
-    "cliff-explosives",
 --    "logistic-system",
 --    "worker-robots-speed-1",
 --    "worker-robots-speed-2",
@@ -623,13 +624,13 @@ ei_data.tech_structure["computer-age"] = {
     "stronger-explosives-3",
     "explosive-rocketry",
     "processing-unit",
+    "power-armor",
 --    "automation-3",
     "battery-mk2-equipment",
-    "energy-shield-mk2-equipment",
-    "power-armor-mk2",
     "personal-roboport-mk2-equipment",
     "braking-force-6",
 --    "braking-force-7",
+    "cliff-explosives",
     "modules",
     "refined-flammables-4",
     -- "effect-transmission",
@@ -885,11 +886,12 @@ function ei_data.repair_tool_entity_filter(name)
 end
 
 --====================================================================================================
--- HEATING_ENERGY
+-- HEATING_ENERGY unused
 -- in watts
 --an argument could be made this is excessive and it would fall on deaf ears ^_^
 --====================================================================================================
 --gh = get heat
+--[[
 local function gh(category,entity)
     if not category or entity then return nil end
     if not data.raw[category] then return nil end
@@ -1006,7 +1008,7 @@ for rawCatName,rawCat in pairs(entities) do
         ::skip::
     end
 end
-
+]]
 --====================================================================================================
 -- computing power types
 ei_data.computing_types = {

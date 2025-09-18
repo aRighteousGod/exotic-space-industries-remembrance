@@ -6,6 +6,10 @@ ei_data = require("lib/data")
 
 data:extend({
     {
+        name = "ei-crushing-mass",
+        type = "recipe-category",
+    },
+    {
         name = "ei-advanced-crusher",
         type = "item",
         icon = ei_graphics_item_path.."advanced-crusher.png",
@@ -41,6 +45,10 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-advanced-crusher"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-sand-mass"
             }
         },
         unit = {
@@ -74,11 +82,11 @@ data:extend({
         corpse = "big-remnants",
         dying_explosion = "medium-explosion",
         result_inventory_size = 24,
+        heating_energy = "300kW",
         collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
-        crafting_categories = {"ei-crushing","crushing"},
-        heating_energy = ei_data.heating_energy["ei-advanced-crusher"],
+        crafting_categories = {"ei-crushing","ei-crushing-bulk","ei-crushing-mass","crushing"},
         crafting_speed = 2,
         energy_source = {
             type = 'electric',

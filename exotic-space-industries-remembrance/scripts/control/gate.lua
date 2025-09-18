@@ -1,15 +1,22 @@
 local model = {}
-ei_rng = require("lib/ei_rng")
+ei_rng = require("lib/rng")
 
 local DEBUG_TRACEROUTE = false
 
 --====================================================================================================
 --GATE
+--current issues
+--mp desync when activated/interacted
+--need to recurse over all transferable items in data-updates-final and make a table
+--along the lines of mass_weights to then charge energy based on some approximation
+--of "mass"
 --====================================================================================================
+--depreciated
 model.energy_costs = {
     ["player"] = 10,
     ["item"] = 1
 }
+--should be depreciated
 model.inverse_surface = {
     ["gaia"] = "nauvis",
     ["nauvis"] = "gaia"

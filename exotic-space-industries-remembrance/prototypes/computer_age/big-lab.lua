@@ -39,7 +39,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."big-lab.png",
         icon_size = 256,
-        prerequisites = {"ei-computer-core"},
+        prerequisites = {"ei-computer-core","ei-high-energy-crystal-growing"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -80,6 +80,7 @@ data:extend({
             usage_priority = "secondary-input"
         },
         energy_usage = "20MW",
+        heating_energy = "400kW",
         inputs = {},
         allowed_effects = {"speed", "productivity", "consumption", "pollution"},
         module_slots = 6,

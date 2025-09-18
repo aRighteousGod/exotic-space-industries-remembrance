@@ -88,6 +88,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-steam-assembler", "crafting", "crafting-with-fluid", "electronics",},
         crafting_speed = 0.5,
+        heating_energy = "100kW",
         energy_source = {
             type = "fluid",
             emissions_per_minute={pollution=4},

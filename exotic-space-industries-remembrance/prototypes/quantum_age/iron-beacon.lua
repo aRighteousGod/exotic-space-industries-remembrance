@@ -89,6 +89,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         fast_replaceable_group = "ei-nitrogen-beacon",
         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
+        heating_energy = "200kW",
         minable = {
             mining_time = 1,
             result = "ei-iron-beacon",

@@ -139,6 +139,7 @@ data:extend({
         source_inventory_size = 1,
         allowed_effects = {"speed", "consumption", "pollution","quality"},
         module_slots = 2,
+        heating_energy = "200kW",
         fluid_boxes = {
             
             {   
@@ -391,14 +392,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."plasma-data.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."plasma-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },

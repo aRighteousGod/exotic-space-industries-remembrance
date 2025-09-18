@@ -10,7 +10,7 @@ local ei_lib = require("lib/lib")
 modprefix = "ei-"
 ei_graphics_base_path = "__base__/graphics/icons/"
 
-ei_path = "__exotic-space-industries-remembrance__/"
+ei_graphics_3_path = "__exotic-space-industries-remembrance__/"
 ei_soundtrack_path_1 = "__exotic-space-industries-remembrance-soundtrack-1__/sounds/ambient/"
 ei_soundtrack_path_2 = "__exotic-space-industries-remembrance-soundtrack-2__/sounds/ambient/"
 ei_graphics_path = "__exotic-space-industries-remembrance-graphics-1__/"
@@ -44,7 +44,7 @@ ei_graphics_icon_2_path = ei_graphics_2_path.."graphics/icons/"
 ei_graphics_tech_2_path = ei_graphics_2_path.."graphics/techs/"
 
 ei_menu_backgrounds_path = ei_graphics_2_path.."graphics/background/"
-ei_graphics_glow_path = ei_path.."graphics/glow/"
+ei_graphics_glow_path = ei_graphics_3_path.."graphics/glow/"
 
 ei_loaders_item_path = ei_graphics_item_2_path
 ei_loaders_entity_path = ei_graphics_entity_2_path

@@ -42,6 +42,7 @@ data:extend({
         name = "ei-insulated-pipe",
         type = "recipe",
         category = "crafting",
+        additional_categories = {"cryogenics"},
         energy_required = 1,
         ingredients =
         {
@@ -58,6 +59,7 @@ data:extend({
         name = "ei-insulated-underground-pipe",
         type = "recipe",
         category = "crafting",
+        additional_categories = {"cryogenics"},
         energy_required = 1,
         ingredients =
         {
@@ -73,6 +75,7 @@ data:extend({
         name = "ei-insulated-tank",
         type = "recipe",
         category = "crafting",
+        additional_categories = {"cryogenics"},
         energy_required = 1,
         ingredients =
         {
@@ -93,6 +96,12 @@ data:extend({
         icon_size = 64,
         flags = {"player-creation","placeable-neutral","not-upgradable"},
         max_health = 500,
+        resistances = {
+            {type = "fire", percent = 90},
+            {type = "acid", percent = 90},
+            {type = "poison", percent = 90},
+            {type = "cold", percent = 90},
+		},
         corpse = "big-remnants",
         collision_box = {{-1.4,-1.4},{1.4,1.4}},
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
@@ -105,7 +114,7 @@ data:extend({
 		circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites,
 		circuit_wire_max_distance = 20,
         flow_length_in_ticks = 1,
-        heating_energy = ei_data.heating_energy["ei-insulated-tank"],
+        heating_energy = "0kW",
         additional_categories = "cryogenics",
         window_bounding_box = {{0,0},{1,1}},
         pictures = {
@@ -163,8 +172,13 @@ data:extend({
 local pipe = util.table.deepcopy(data.raw.pipe.pipe)
 pipe.name = "ei-insulated-pipe"
 pipe.minable.result = "ei-insulated-pipe"
-pipe.heating_energy = ei_data.heating_energy["ei-insulated-pipe"]
-pipe.additional_categories = "cryogenics"
+pipe.heating_energy = "0kW"
+pipe.resistances = {
+    {type = "fire", percent = 90},
+    {type = "acid", percent = 90},
+    {type = "poison", percent = 90},
+    {type = "cold", percent = 90},
+}
 -- pipe.fluid_box.filter = "ei-liquid-nitrogen"
 
 -- loop over pictures and swap first part of filename with ei_graphics_insulated_path
@@ -187,7 +201,12 @@ pipeToGround.name = "ei-insulated-underground-pipe"
 pipeToGround.minable.result = "ei-insulated-underground-pipe"
 pipeToGround.fluid_box.pipe_connections[2].max_underground_distance = 11
 pipeToGround.heating_energy = "0W"
-pipeToGround.additional_categories = "cryogenics"
+pipeToGround.resistances = {
+    {type = "fire", percent = 90},
+    {type = "acid", percent = 90},
+    {type = "poison", percent = 90},
+    {type = "cold", percent = 90},
+}
 
 for k, v in pairs(pipeToGround.pictures) do
     if(v.filename) then

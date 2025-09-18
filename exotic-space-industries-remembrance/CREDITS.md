@@ -17,3 +17,7 @@ Thermal furnace from Heated Fabrication by @MyLumme
 Acidthrower from Additional turrets
 Originally by @DarkNova
 Updated by @Beathoven
+
+insulated wire item 1-4 item sprites from unused renders by malcolm riley
+
+cannon mk1 art originally by... YuokiTani ?

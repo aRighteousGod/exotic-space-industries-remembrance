@@ -11,6 +11,8 @@ function steam_train.updater(event)
    	if event.tick % WHEEL_UPDATE_TICK > 0 then
 		return
 	end
+	--looping all of them per update means script usage scales linearly, good thing
+	--they're early game only
 	for i = 1, #storage.ei.locomotives, 1 do
 		local v = storage.ei.locomotives[i]
 		if not v then
@@ -97,6 +99,7 @@ function steam_train.on_script_built(event)
 		end
 end
 ]]
+--ideally this would be handled by on_destroyed_entity
 function steam_train.steam_locomotive_cleanup()
 	local wheels = {}
 	local elevated_wheels = {}

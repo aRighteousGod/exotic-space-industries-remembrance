@@ -89,6 +89,7 @@ data:extend({
             emissions_per_minute = { pollution = 5 }
         },
         energy_usage = "5MW",
+        heating_energy = "100kW",
         fixed_recipe = "ei-store-nuclear-waste",
         graphics_set = {
             animation = {

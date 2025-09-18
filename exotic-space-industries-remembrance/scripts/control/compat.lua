@@ -27,13 +27,14 @@ function model.check_init(event)
                 remote.call("DiscoScience", "setIngredientColor", "ei-fusion-quantum-age-tech", {r = 1.0, g = 0.48, b = 0.07})
                 remote.call("DiscoScience", "setIngredientColor", "ei-exotic-age-tech", {r = 0.81, g = 0.97, b = 0.0})
                 remote.call("DiscoScience", "setIngredientColor", "ei-black-hole-exotic-age-tech", {r = 1.0, g = 0.70, b = 0.32})
-            end
                 --[[
-                remote.call("DiscoScience", "setIngredientColor", "basic-tech-card", {r = 0.89, g = 0.43, b = 0.29})
-                remote.call("DiscoScience", "setIngredientColor", "advanced-tech-card", {r = 1.0, g = 1.00, b = 0.53})
-                remote.call("DiscoScience", "setIngredientColor", "singularity-tech-card", {r = 1.0, g = 0.02, b = 1.00})
-                remote.call("DiscoScience", "setIngredientColor", "matter-tech-card", {r = 0.02, g = 0.90, b = 0.98})
-                ]]
+                if script.active_mods["krastorio2-spaced-out"] then
+                    remote.call("DiscoScience", "setIngredientColor", "basic-tech-card", {r = 0.89, g = 0.43, b = 0.29})
+                    remote.call("DiscoScience", "setIngredientColor", "advanced-tech-card", {r = 1.0, g = 1.00, b = 0.53})
+                    remote.call("DiscoScience", "setIngredientColor", "singularity-tech-card", {r = 1.0, g = 0.02, b = 1.00})
+                    remote.call("DiscoScience", "setIngredientColor", "matter-tech-card", {r = 0.02, g = 0.90, b = 0.98})
+                end]]
+            end
         end
     end
 end
@@ -45,6 +46,8 @@ end
 
 --====================================================================================================
 --Mod Interfaces
+--need to add something to allow additions to beacon overload exclusion list
+--function model.counts_for_overload(entity) in /scripts/control/beacon_overload
 --====================================================================================================
 
 -- add more surface that accept gaia buildings

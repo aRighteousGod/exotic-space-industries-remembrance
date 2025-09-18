@@ -44,6 +44,7 @@ plant.minable.result = "ei-heat-chemical-plant"
 plant.fast_replaceable_group = "chemical-plant"
 plant.next_upgrade = "chemical-plant"
 plant.energy_usage = "1MW"
+plant.heating_energy = "100kW"
 plant.crafting_speed = 1.5
 table.insert(plant.crafting_categories,"ei-burning")
 plant.graphics_set = {

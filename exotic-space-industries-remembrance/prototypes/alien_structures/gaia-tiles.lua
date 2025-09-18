@@ -38,7 +38,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(-10, 0.7, 11, 11) + noise_layer_noise(19)'},
 
         walking_sound = data.raw.tile["grass-1"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.184, g=0.207, b=0.027},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["grass-1"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["grass-1"].vehicle_friction_modifier,
@@ -68,7 +68,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(0.45, 0.45, 11, 0.8) + noise_layer_noise(20)'},
 
         walking_sound = data.raw.tile["grass-2"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.215, g=0.207, b=0.04},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["grass-2"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["grass-2"].vehicle_friction_modifier,
@@ -98,7 +98,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(-10, 0.7, 11, 11) + noise_layer_noise(19)'},
 
         walking_sound = data.raw.tile["grass-1"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.235, g=0.207, b=0.05},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["grass-1"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["grass-1"].vehicle_friction_modifier,
@@ -128,7 +128,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(0.45, 0.45, 11, 0.8) + noise_layer_noise(20)'},
 
         walking_sound = data.raw.tile["grass-2"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.215, g=0.274, b=0.04},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["grass-2"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["grass-2"].vehicle_friction_modifier,
@@ -158,7 +158,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(0.45, 0.45, 11, 0.8) + noise_layer_noise(20)'},
 
         walking_sound = data.raw.tile["grass-2"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.149, g=0.247, b=0.06},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["grass-2"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["grass-2"].vehicle_friction_modifier,
@@ -187,7 +187,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(0.45, -10, 0.55, 0.35) + noise_layer_noise(13)'},
 
         walking_sound = data.raw.tile["dirt-4"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.6, g=0.227, b=0},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["dirt-4"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["dirt-4"].vehicle_friction_modifier,
@@ -216,7 +216,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(-10, 0.3, 0.45, 0.35) + noise_layer_noise(7)'},
 
         walking_sound = data.raw.tile["dry-dirt"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.65, g=0.305, b=0.09},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["dry-dirt"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["dry-dirt"].vehicle_friction_modifier,
@@ -245,7 +245,7 @@ data:extend({
         autoplace = {probability_expression = 'expression_in_range_base(-10, 0.35, 0.55, 0.4) + noise_layer_noise(8)'},
 
         walking_sound = data.raw.tile["dirt-3"].walking_sound,
-        map_color={r=55, g=53, b=11},
+        map_color={r=0.368, g=0.168, b=0.05},
         scorch_mark_color = {r = 0.318, g = 0.222, b = 0.152, a = 1.000},
         pollution_absorption_per_second = data.raw.tile["dirt-3"].pollution_absorption_per_second,
         vehicle_friction_modifier = data.raw.tile["dirt-3"].vehicle_friction_modifier,

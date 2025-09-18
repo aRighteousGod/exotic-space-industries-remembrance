@@ -3,14 +3,13 @@ ei_lib.set_age_packs("space-platform-thruster","computer-age")
 ei_lib.set_age_packs("aai-signal-transmission","computer-age")
 ei_lib.set_age_packs("ei-computer-core","computer-age")
 ei_lib.set_age_packs("recycling","computer-age")
-ei_lib.set_age_packs("ei-morphium-usage","computer-age")
+ei_lib.set_age_packs("ei-morphium-usage","computer-age-space")
 ei_lib.set_age_packs("kovarex-enrichment-process","computer-age")
 ei_lib.set_age_packs("ei-black-hole","black-hole-exotic-age")
 ei_lib.set_age_packs("electronics","steam-age")
 ei_lib.set_age_packs("steel-axe","steam-age")
 ei_lib.set_age_packs("logistic-system","computer-age")
 ei_lib.set_age_packs("ei-advanced-logistic-containers","computer-age")
-ei_lib.set_age_packs("cliff-explosives","computer-age")
 ei_lib.set_age_packs("refined-flammables-6","computer-age")
 ei_lib.set_age_packs("rocket-fuel","computer-age")
 ei_lib.set_age_packs("rocket-silo","computer-age")
@@ -28,6 +27,12 @@ ei_lib.set_age_packs("ei-gaia","computer-age-space")
 ei_lib.set_age_packs("ei-induction-matrix","computer-age-space")
 ei_lib.set_age_packs("advanced-wood-gas-processing","computer-age-space")
 ei_lib.set_age_packs("wood-gas-processing-to-crude-oil","computer-age-space")
+--age is set in vanilla patches but doesn't apply -.-
+ei_lib.set_age_packs("planet-discovery-vulcanus","computer-age-space")
+ei_lib.set_age_packs("planet-discovery-gleba","computer-age-space")
+ei_lib.set_age_packs("planet-discovery-fulgora","computer-age-space")
+ei_lib.set_age_packs("ei-gaia","computer-age-space")
+
 ei_lib.set_age_packs("radar","electricity-age")
 ei_lib.set_age_packs("automation-2","computer-age")
 ei_lib.set_science_packs("interstellar-science-pack",ei_data.science["interstellar"])
@@ -41,16 +46,17 @@ ei_lib.set_age_packs("oil-processing","electricity-age")
 ei_lib.set_age_packs("electric-engine","steam-age")
 ei_lib.set_age_packs("sulfur-processing","steam-age")
 ei_lib.set_age_packs("explosives","steam-age")
-ei_lib.set_age_packs("ei-cannon-turret","steam-age")
 ei_lib.set_age_packs("lubricant","steam-age")
+ei_lib.set_age_packs("ei-cannon-turret-mk1","steam-age")
 ei_lib.set_age_packs("ei-lube-destilation","steam-age")
 ei_lib.set_age_packs("ei-deep-mining","steam-age")
 ei_lib.set_age_packs("extinguisher","steam-age")
 ei_lib.set_age_packs("ei-acidthrower-turret","steam-age")
 ei_lib.set_age_packs("ei-electricity-power","electricity-age")
 ei_lib.set_age_packs("electric-mining-drill","electricity-age")
-ei_lib.set_age_packs("ei_fueler","electricity-age")
-
+ei_lib.set_age_packs("ei-fueler","electricity-age")
+ei_lib.set_age_packs("research-productivity","interstellar")
+ei_lib.set_age_packs("promethium-science-pack","both-quantum-age")
 if ei_lib.config("no-triggers") then
   for _,tech in pairs(data.raw.technology) do
     if data.raw.technology[tech.name]["research_trigger"] then 
@@ -60,6 +66,10 @@ if ei_lib.config("no-triggers") then
   end 
 end
 
+--electricity age gets set here because some of the techs moved to steam age have elec as a prereq before set_prerequisites
+--it's questionable whether set_age and set_pre should be before final_tech fixes.. but it's less
+--work to just put this here.. for now... x70^ v
+ei_lib.set_age_packs("ei-electricity-age","steam-age")
 ei_lib.set_age_packs("copper-processing","steam-age")
 ei_lib.set_age_packs("iron-processing","steam-age")
 ei_lib.set_age_packs("burner-mechanics","dark-age")

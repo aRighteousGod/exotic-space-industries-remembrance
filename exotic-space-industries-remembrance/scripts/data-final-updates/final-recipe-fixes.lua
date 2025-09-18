@@ -113,7 +113,9 @@ local recipes = {
 	"ei-molten-carbon-fusion",
 	"ei-molten-carbon-fusion-high-energy",
 	"ei-basic-steam-oil-processing",
-	"ei-basic-water-oil-processing"
+	"ei-basic-water-oil-processing",
+	"ei-explosives-solid-sulfuric-nitric",
+	"ei-explosives-light-crushed"
 }
 
 for i,v in pairs(recipes) do
@@ -293,12 +295,20 @@ data.raw.recipe["splitter"].category = "crafting"
 
 local function overwrite_barrel_capacity(recipeItem, capacity)
   if recipeItem and recipeItem.type == "fluid" then
-      recipeItem.stack_size = 1
-      recipeItem.amount = capacity
-      recipeItem.ignored_by_stats = capacity
-  end
+		recipeItem.amount = capacity
+		recipeItem.ignored_by_stats = capacity
+	end
 end
 
+local barrel = ei_lib.raw.item.barrel
+if barrel then
+	barrel.stack_size = 1
+end
+for _, item in pairs(data.raw.item) do
+	if item and item.name and string.sub(item.name, -7) == "-barrel" then
+		item.stack_size = 1
+	end
+end
 for _, recipe in pairs(data.raw.recipe) do
 	if recipe.name and string.sub(recipe.name, 1, 3) == "ei-" then
 		--recipe.always_show_made_in = false
@@ -745,61 +755,75 @@ data.raw.recipe["ei-carbon"].crafting_machine_tint =
 	tertiary = {r = 1.000, g = 0.978, b = 0.513, a = 1.000},
 	quaternary = {r = 0.210, g = 0.170, b = 0.013, a = 1.000}
 }
---[[
-data:extend({
-  {
-    name = "ei-gear-to-plates",
-    type = "recipe",
-    category = "crafting",
-    energy_required = 1,
-    ingredients = {
-        {type="item", name="iron-gear-wheel", amount = 2},
-    },
-    results = {
-        {type = "item", name = "iron-plate", amount = 1},
-    },
-    enabled = true,
-    main_product = "iron-plate",
-},
-{
-    name = "ei-iron-stick-to-iron-parts",
-    type = "recipe",
-    category = "crafting",
-    energy_required = 0.5,
-    ingredients = {
-        {type="item", name="iron-stick", amount = 2},
-    },
-    results = {
-        {type = "item", name = "ei-iron-mechanical-parts", amount = 1},
-    },
-    enabled = true,
-    main_product = "ei-iron-mechanical-parts",
-},
-{
-    name = "ei-cable-to-plates",
-    type = "recipe",
-    category = "crafting",
-    energy_required = 0.5,
-    ingredients = {
-        {type="item", name="copper-cable", amount = 2},
-    },
-    results = {
-        {type = "item", name = "copper-plate", amount = 1},
-    },
-    enabled = true,
-    main_product = "copper-plate",
-},
-{
-    name = "ei-cable-to-copper-parts",
-    type = "recipe",
-    category = "crafting",
-    energy_required = 0.5,
-    ingredients = {
-        {type="item", name="copper-cable", amount = 2},
-    },
-    results = {
-        {type = "item", name = "ei-copper-mechanical-parts", amount = 1},
-    },
-    enabled = true,
-    main_product = "ei-copper-mechanical-parts",
-},]]
+
+--Science pack yield adjustment settings
+--dark
+local dark_yield = ei_lib.config("science-pack-yield-dark")
+local dark_pack_amount = ei_lib.raw.recipe["ei-dark-age-tech"].results[1]["amount"]
+if dark_yield and dark_yield ~= dark_pack_amount then
+	ei_lib.raw.recipe["ei-dark-age-tech"].results[1]["amount"] = dark_yield
+	log("EI science pack yield adjusted to: "..dark_pack_amount.." for Dark age science pack")
+end
+--steam
+local steam_yield = ei_lib.config("science-pack-yield-steam")
+local steam_pack_amount = ei_lib.raw.recipe["ei-steam-age-tech"].results[1]["amount"]
+if steam_yield and steam_yield ~= steam_pack_amount then
+	ei_lib.raw.recipe["ei-steam-age-tech"].results[1]["amount"] = steam_yield
+	log("EI science pack yield adjusted to: "..steam_pack_amount.." for Steam age science pack")
+end
+--electricity
+local electricity_yield = ei_lib.config("science-pack-yield-electricity")
+local electricity_pack_amount = ei_lib.raw.recipe["ei-electricity-age-tech"].results[1]["amount"]
+if electricity_yield and electricity_yield ~= electricity_pack_amount then
+	ei_lib.raw.recipe["ei-electricity-age-tech"].results[1]["amount"] = electricity_yield
+	log("EI science pack yield adjusted to: "..electricity_pack_amount.." for Electricity age science pack")
+end
+--computer
+local computer_yield = ei_lib.config("science-pack-yield-computer")
+local computer_pack_amount = ei_lib.raw.recipe["ei-computer-age-tech"].results[1]["amount"]
+if computer_yield ~= computer_pack_amount then
+	ei_lib.raw.recipe["ei-computer-age-tech"].results[1]["amount"] = computer_yield
+	log("EI science pack yield adjusted to: "..computer_pack_amount.." for Computer age science pack")
+end
+--simulation
+local simulation_yield = ei_lib.config("science-pack-yield-simulation")
+local simulation_pack_amount = ei_lib.raw.recipe["ei-advanced-computer-age-tech"].results[1]["amount"]
+if simulation_yield and simulation_yield ~= simulation_pack_amount then
+	ei_lib.raw.recipe["ei-advanced-computer-age-tech"].results[1]["amount"] = simulation_yield
+	log("EI science pack yield adjusted to: "..simulation_pack_amount.." for Simulation age science pack")
+end
+--alien
+local alien_yield = ei_lib.config("science-pack-yield-alien")
+local alien_pack_amount = ei_lib.raw.recipe["ei-alien-computer-age-tech"].results[1]["amount"]
+if alien_yield and alien_yield ~= alien_pack_amount then
+	ei_lib.raw.recipe["ei-alien-computer-age-tech"].results[1]["amount"] = alien_yield
+	log("EI science pack yield adjusted to: "..alien_pack_amount.." for Alien age science pack")
+end
+--quantum
+local quantum_yield = ei_lib.config("science-pack-yield-quantum")
+local quantum_pack_amount = ei_lib.raw.recipe["ei-quantum-age-tech"].results[1]["amount"]
+if quantum_yield and quantum_yield ~= quantum_pack_amount then
+	ei_lib.raw.recipe["ei-quantum-age-tech"].results[1]["amount"] = quantum_yield
+	log("EI science pack yield adjusted to: "..quantum_pack_amount.." for Quantum age science pack")
+end
+--fusion-quantum
+local fusion_quantum_yield = ei_lib.config("science-pack-yield-fusion-quantum")
+local fusion_quantum_pack_amount = ei_lib.raw.recipe["ei-fusion-quantum-age-tech"].results[1]["amount"]
+if fusion_quantum_yield and fusion_quantum_yield ~= fusion_quantum_pack_amount then
+	ei_lib.raw.recipe["ei-fusion-quantum-age-tech"].results[1]["amount"] = fusion_quantum_yield
+	log("EI science pack yield adjusted to: "..fusion_quantum_pack_amount.." for Fusion-Quantum age science pack")
+end
+--exotic
+local exotic_yield = ei_lib.config("science-pack-yield-exotic")
+local exotic_pack_amount = ei_lib.raw.recipe["ei-exotic-age-tech"].results[1]["amount"]
+if exotic_yield and exotic_yield ~= exotic_pack_amount then
+	ei_lib.raw.recipe["ei-exotic-age-tech"].results[1]["amount"] = exotic_yield
+	log("EI science pack yield adjusted to: "..exotic_pack_amount.." for Exotic age science pack")
+end
+--black-hole
+local black_hole_yield = ei_lib.config("science-pack-yield-black-hole")
+local black_hole_pack_amount = ei_lib.raw.recipe["ei-black-hole-exotic-age-tech"].results[1]["amount"]
+if black_hole_yield and black_hole_yield ~= black_hole_pack_amount then
+	ei_lib.raw.recipe["ei-black-hole-exotic-age-tech"].results[1]["amount"] = black_hole_yield
+	log("EI science pack yield adjusted to: "..black_hole_pack_amount.." for Black-hole Exotic age science pack")
+end

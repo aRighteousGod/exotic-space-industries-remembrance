@@ -248,7 +248,7 @@ data:extend{
 
     essential = true,
     icon_size = 256,
-    prerequisites = {"rocket-silo"},
+    prerequisites = {"ei-high-energy-crystal","ei-deep-pumpjack","rocket-silo"},
     effects = {
       {
         space_location = "gaia",
@@ -261,7 +261,7 @@ data:extend{
         ingredients = ei_data.science["computer-age-space"],
         time = 20
     },
-    age = "advanced-computer-age"
+    age = "computer-age"
 },
 --dummy prototype to account for 1.5.7 prototype name change "gaia" -> "Gaia" and subsequent 1.5.8 reversion
   {

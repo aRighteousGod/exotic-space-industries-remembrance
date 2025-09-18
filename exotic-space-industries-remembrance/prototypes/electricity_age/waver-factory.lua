@@ -109,6 +109,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-waver-factory"},
         crafting_speed = 1,
+        heating_energy = "200kW",
         energy_source = {
             type = 'electric',
             emissions_per_minute={pollution=6},
@@ -242,9 +243,9 @@ data:extend({
         category = "chemistry",
         energy_required = 2,
         icons = {
-            { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.2, shift = { -0, -3 } },
-            { icon = "__base__/graphics/icons/fluid/water.png", scale = 0.2, shift = { -3, 3 } },
-            { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.2, shift = { 3, 3 } },
+            { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.3, shift = { -0, -5 } },
+            { icon = "__base__/graphics/icons/fluid/water.png", scale = 0.3, shift = { -5, 5 } },
+            { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.3, shift = { 5, 5 } },
         },
         ingredients = {
             {type="fluid", name="water", amount=200},
@@ -267,9 +268,9 @@ data:extend({
         category = "chemistry",
         energy_required = 1.6,
         icons = {
-            { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.2, shift = { -0, -3 } },
-            { icon = "__base__/graphics/icons/fluid/steam.png", scale = 0.2, shift = { -3, 3 } },
-            { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.2, shift = { 3, 3 } },
+            { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.3, shift = { -0, -5 } },
+            { icon = "__base__/graphics/icons/fluid/steam.png", scale = 0.3, shift = { -5, 5 } },
+            { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.3, shift = { 5, 5 } },
         },
         ingredients = {
             {type="fluid", name="steam", amount=2000},
@@ -292,10 +293,10 @@ data:extend({
         category = "chemistry",
         energy_required = 0.8,
         icons = {
-            { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.2, shift = { 3, -3 } },
-            { icon = data.raw.item["atan-ash"].icon,            scale = 0.2, shift = { -3, -3 } },
-            { icon = "__base__/graphics/icons/fluid/steam.png", scale = 0.2, shift = { -3, 3 } },
-            { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.2, shift = { 3, 3 } },
+            { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.3, shift = { 5, -5 } },
+            { icon = data.raw.item["atan-ash"].icon,            scale = 0.3, shift = { -5, -5 } },
+            { icon = "__base__/graphics/icons/fluid/steam.png", scale = 0.3, shift = { -5, 5 } },
+            { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.3, shift = { 5, 5 } },
         },
         ingredients = {
             {type="fluid", name="steam", amount=1000},

@@ -38,7 +38,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."induction-matrix-core.png",
         icon_size = 256,
-        prerequisites = {"ei-computer-age","ei-gaia"},
+        prerequisites = {"ei-computer-age","ei-big-lab"},
         effects = {
             {
                 type = "unlock-recipe",

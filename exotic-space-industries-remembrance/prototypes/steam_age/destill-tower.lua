@@ -99,6 +99,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-destill-tower"},
         crafting_speed = 1,
+        heating_energy = "100kW",
         energy_source = {
             type = 'heat',
             max_temperature = 275,

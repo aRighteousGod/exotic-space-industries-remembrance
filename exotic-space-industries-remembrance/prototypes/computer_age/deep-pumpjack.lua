@@ -24,7 +24,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_2_path.."deep-pumpjack.png",
         icon_size = 256,
-        prerequisites = {"ei-computer-age","ei-gaia"},
+        prerequisites = {"automation-3","ei-excavator"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -33,10 +33,10 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["advanced-computer-age"],
             time = 20
         },
-        age = "computer-age",
+        age = "advanced-computer-age",
     },
     {
         name = "ei-deep-pumpjack",
@@ -74,6 +74,7 @@ data:extend({
         --fast_replaceable_group = "ei-deep-drill",
         resource_categories = {"ei-pumping", "basic-fluid"},
         module_slots = 2,
+        heating_energy = "75kW",
         allowed_effects = {"consumption", "speed", "productivity", "pollution"},
         energy_source = {
             type = "fluid",

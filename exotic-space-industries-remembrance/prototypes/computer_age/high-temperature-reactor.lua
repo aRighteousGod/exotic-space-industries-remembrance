@@ -42,7 +42,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."high-temperature-reactor.png",
         icon_size = 256,
-        prerequisites = {"ei-computer-core", "ei-plutonium-239-recycling", "nuclear-power","low-density-structure","ei-nitric-acid","uranium-processing","ei-advanced-motor"},
+        prerequisites = {"ei-computer-core", "ei-plutonium-239-recycling", "nuclear-power","low-density-structure","ei-nitric-acid","uranium-processing","ei-advanced-motor","ei-carbon-manipulation"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -120,6 +120,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-high-temperature-reactor"},
         crafting_speed = 1,
+        heating_energy = "200kW",
         energy_source = {
             type = 'heat',
             max_temperature = 1000,
@@ -340,14 +341,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."uranium-233-fuel.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."fission-fuel_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -378,14 +379,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."plutonium-239-fuel.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."fission-fuel_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -416,14 +417,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."thorium-232-fuel.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."fission-fuel_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },

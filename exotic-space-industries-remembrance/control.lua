@@ -6,7 +6,7 @@ require("util")
 
 ei_lib = require("lib/lib")
 ei_data = require("lib/data")
-ei_rng = require("lib/ei_rng")
+ei_rng = require("lib/rng")
 ei_echo_codex = require("lib/echo_codex")
 
 
@@ -42,7 +42,7 @@ ei_gate = require("scripts/control/gate")
 ei_alien_system = require("scripts/control/alien_system")
 ei_debug = require("scripts/control/debug")
 ei_compat = require("scripts/control/compat")
-ei_loaders_lib = require("lib/ei_loaders_lib")
+ei_loaders_lib = require("lib/loaders")
 
 ei_fueler = require("scripts/control/fueler/fueler")
 ei_fueler_informatron = require("scripts/control/fueler/informatron")
@@ -214,7 +214,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
         ei_black_hole.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-gate-container" then
         ei_gate.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
-    elseif name == "ei_fueler" then
+    elseif name == "ei-fueler" then
         ei_fueler.open_gui(game.get_player(event.player_index))
     end
 end)
@@ -231,7 +231,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
         ei_black_hole.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-gate-container" then
         ei_gate.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
-    elseif name == "ei_fueler" then
+    elseif name == "ei-fueler" then
         ei_fueler.close_gui(game.get_player(event.player_index))
     end
 end)
@@ -250,7 +250,7 @@ script.on_event(defines.events.on_gui_click, function(event)
         ei_gate.on_gui_click(event)
     elseif parent_gui == "ei-alien-gui" then
         ei_alien_system.on_gui_click(event)
-    elseif parent_gui == "ei_fueler-console" then
+    elseif parent_gui == "ei-fueler-console" then
         ei_fueler.on_gui_click(event)
     elseif parent_gui == "mod_gui" then
       em_trains_gui.on_gui_click(event)
@@ -529,8 +529,8 @@ script.on_configuration_changed(function(e)
     ei_compat.check_init(e)
     ei_echo_codex.handle_global_settings(e)
     em_trains.check_global() --no nil tables
-    em_trains.check_buffs(e) --updates global buff vals
-    em_trains.printBuffStatus()
+    em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
+
     em_trains.reinitialize_chargers() --applies updated buffs
     em_trains.reinitialize_trains()
     em_trains.update_rail_counts()

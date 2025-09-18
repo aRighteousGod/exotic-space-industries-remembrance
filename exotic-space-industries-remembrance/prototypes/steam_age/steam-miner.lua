@@ -71,6 +71,7 @@ miner.icon = ei_graphics_item_path.."steam-miner.png"
 miner.icon_size = 64
 miner.icon_mipmaps = 1
 miner.minable.result = "ei-steam-miner"
+miner.heating_energy = "50kW"
 miner.mining_speed = 0.35
 miner.module_slots = 2
 miner.allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"}
@@ -108,6 +109,7 @@ steam_quarry.name = modprefix.."steam-quarry"
 steam_quarry.minable = {mining_time = 1, result = modprefix.."steam-quarry"}
 steam_quarry.resource_searching_radius = 15
 steam_quarry.energy_usage = "1.05MW"
+steam_quarry.heating_energy = "50kW"
 steam_quarry.energy_source = {
     type = "fluid",
     emissions_per_minute={pollution=32},

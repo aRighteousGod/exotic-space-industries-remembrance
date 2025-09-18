@@ -1,0 +1,20 @@
+{
+  "technology":
+  [
+    ["ei_fueler", "ei-fueler"]
+  ],
+  "entity":
+  [
+    ["ei_fueler", "ei-fueler"]
+  ],
+  "item":
+  [
+    ["ei_fueler", "ei-fueler"]
+  ],
+  "recipe":
+  [
+    ["ei_fueler", "ei-fueler"],
+    ["ei_fueler-recycling", "ei-fueler-recycling"],
+    ["item-ei_fueler-incineration", "item-ei-fueler-incineration"]
+  ]
+}

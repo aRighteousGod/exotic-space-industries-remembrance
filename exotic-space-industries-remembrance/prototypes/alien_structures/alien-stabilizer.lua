@@ -34,6 +34,7 @@ data:extend({
         type = "assembling-machine",
         icon = ei_graphics_item_path.."alien-stabilizer.png",
         icon_size = 64,
+        heating_energy = "100kW",
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {
             mining_time = 1,

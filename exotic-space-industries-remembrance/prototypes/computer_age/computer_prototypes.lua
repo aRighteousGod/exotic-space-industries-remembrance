@@ -12,24 +12,24 @@ data:extend({
     {
         name = "ei-module-part",
         type = "item",
-        icon = ei_path.."graphics/item/module-part.png",
+        icon = ei_graphics_3_path.."graphics/item/module-part.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/module-part.png",
+                filename = ei_graphics_3_path.."graphics/item/module-part.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/module-part-2.png",
+                filename = ei_graphics_3_path.."graphics/item/module-part-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/module-part-3.png",
+                filename = ei_graphics_3_path.."graphics/item/module-part-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -89,24 +89,24 @@ data:extend({
     {
         name = "ei-high-energy-crystal",
         type = "item",
-        icon = ei_path.."graphics/item/high-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/item/high-energy-crystal.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/high-energy-crystal.png",
+                filename = ei_graphics_3_path.."graphics/item/high-energy-crystal.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/high-energy-crystal-2.png",
+                filename = ei_graphics_3_path.."graphics/item/high-energy-crystal-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/high-energy-crystal-3.png",
+                filename = ei_graphics_3_path.."graphics/item/high-energy-crystal-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -130,7 +130,7 @@ data:extend({
     {
         name = "ei-rocket-parts",
         type = "item",
-        icon = ei_path.."graphics/item/rocket-parts.png",
+        icon = ei_graphics_3_path.."graphics/item/rocket-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         scale = 0.0625,
@@ -153,14 +153,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."advanced-computer-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."computer-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -180,14 +180,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."alien-computer-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."computer-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -207,14 +207,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."quantum-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."quantum-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -240,9 +240,18 @@ data:extend({
         stack_size = 50
     },
     {
+        name = "ei-advanced-base-semiconductor",
+        type = "item",
+        icon = ei_graphics_item_path.."advanced-base-waver.png",
+        icon_size = 128,
+        subgroup = "intermediate-product",
+        order = "b3-1",
+        stack_size = 50
+    },
+    {
         name = "ei-computing-unit",
         type = "item",
-        icon = ei_path.."graphics/item/computing-unit.png",
+        icon = ei_graphics_3_path.."graphics/item/computing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         subgroup = "intermediate-product",
@@ -358,7 +367,7 @@ data:extend({
               {
                 filename = ei_graphics_item_path.."compound-ammo.png",
                 mipmap_count = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
               },
               {
@@ -368,7 +377,7 @@ data:extend({
                   "light"
                 },
                 mipmap_count = 4,
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
               }
             }
@@ -420,6 +429,19 @@ data:extend({
         },
     },
     {
+        name = "ei-advanced-rocket-fuel",
+        type = "item",
+        icon = ei_graphics_item_path.."advanced-rocket-fuel.png",
+        icon_size = 64,
+        stack_size = 10,
+        subgroup = "intermediate-product",
+        order = "p[rocket-fuel]-b",
+        fuel_category = "ei-rocket-fuel",
+        fuel_value = "180MJ",
+        fuel_acceleration_multiplier = 2.1,
+        fuel_top_speed_multiplier = 1.3,
+    },
+    {
         name = "ei-cryodust",
         type = "item",
         icon = ei_graphics_item_2_path.."cryodust.png",
@@ -430,32 +452,32 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_2_path.."cryodust-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_2_path.."cryodust-2.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_2_path.."cryodust-3.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_2_path.."cryodust-4.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_2_path.."cryodust-5.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_2_path.."cryodust-6.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -692,27 +714,27 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."silicon.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."silicon-2.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."silicon-3.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."silicon-4.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."silicon-5.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -728,17 +750,17 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."monosilicon.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."monosilicon-2.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."monosilicon-3.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -746,7 +768,7 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-control-unit",
-        icon = ei_path.."graphics/item/rocket-processing-unit.png",
+        icon = ei_graphics_3_path.."graphics/item/rocket-processing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         subgroup = "intermediate-product",
@@ -818,7 +840,7 @@ data:extend({
         },
         always_show_made_in = true,
         enabled = false,
-        icon = ei_path.."graphics/other/bio-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/other/bio-energy-crystal.png",
         icon_size = 64,
         subgroup = "ei-alien-bio",
         order = "a-c",
@@ -841,7 +863,7 @@ data:extend({
         result_is_always_fresh = true,
         always_show_made_in = true,
         enabled = false,
-        icon = ei_path.."graphics/other/bio-high-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/other/bio-high-energy-crystal.png",
         icon_size = 64,
         subgroup = "ei-alien-bio",
         order = "a-d",
@@ -911,7 +933,7 @@ data:extend({
         },
         always_show_made_in = true,
         enabled = false,
-        icon = ei_path.."graphics/other/bio-electronic-parts.png",
+        icon = ei_graphics_3_path.."graphics/other/bio-electronic-parts.png",
         icon_size = 64,
         subgroup = "ei-alien-bio",
         order = "a-b",
@@ -1297,6 +1319,24 @@ data:extend({
         main_product = "ei-personal-leg",
     },
     {
+        name = "ei-advanced-base-semiconductor",
+        type = "recipe",
+        category = "ei-waver-factory",
+        energy_required = 2,
+        ingredients = {
+            {type = "fluid", name = "ei-nitric-acid", amount = 5},
+            {type = "item", name = "ei-sand", amount = 8},
+            {type = "item", name = "ei-semiconductor", amount = 1},
+        },
+        results = {
+            {type = "item", name = "ei-advanced-base-semiconductor", amount = 1, probability = 0.75},
+            {type = "item", name = "ei-faulty-semiconductor", amount = 1, probability = 0.25},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-advanced-base-semiconductor",
+    },
+    {
         name = "ei-advanced-semiconductor",
         type = "recipe",
         category = "ei-waver-factory",
@@ -1304,7 +1344,7 @@ data:extend({
         ingredients = {
             {type = "item", name = "ei-crushed-gold", amount = 6},
             {type = "item", name = "ei-energy-crystal", amount = 2},
-            {type = "item", name = "ei-semiconductor", amount = 1},
+            {type = "item", name = "ei-advanced-base-semiconductor", amount = 1},
         },
         results = {
             {type = "fluid", name = "ei-acidic-water", amount = 10},
@@ -1429,6 +1469,22 @@ data:extend({
         enabled = false,
         always_show_made_in = true,
         main_product = "ei-rocket-parts",
+    },
+    {
+        name = "ei-advanced-rocket-fuel",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 20,
+        ingredients = {
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 15},
+            {type = "item", name = "rocket-fuel", amount = 2},
+        },
+        results = {
+            {type = "item", name = "ei-advanced-rocket-fuel", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-advanced-rocket-fuel",
     },
 	{
 		type = "recipe",
@@ -1807,7 +1863,7 @@ data:extend({
         name = "ei-advanced-motor",
         type = "recipe",
         category = "crafting-with-fluid",
-        icon = ei_path.."graphics/tech/advanced-motor.png",
+        icon = ei_graphics_3_path.."graphics/tech/advanced-motor.png",
         icon_size = 256,
         icon_mipmaps = 4,
         energy_required = 10,
@@ -1828,7 +1884,7 @@ data:extend({
         name = "ei-advanced-motor-cryo",
         type = "recipe",
         category = "crafting-with-fluid",
-        icon = ei_path.."graphics/tech/advanced-motor-cryo.png",
+        icon = ei_graphics_3_path.."graphics/tech/advanced-motor-cryo.png",
         icon_size = 256,
         icon_mipmaps = 4,
         energy_required = 8,
@@ -2234,11 +2290,11 @@ data:extend({
             {type = "item", name = "ei-monosilicon", amount = 2},
             {type = "item", name = "ei-crushed-gold", amount = 6},
             {type = "item", name = "ei-energy-crystal", amount = 2},
-            {type = "item", name = "ei-semiconductor", amount = 1},
+            {type = "item", name = "ei-advanced-base-semiconductor", amount = 1},
         },
         results = {
             {type = "fluid", name = "ei-acidic-water", amount = 10},
-            {type = "item", name = "ei-advanced-semiconductor", amount = 1},
+            {type = "item", name = "ei-advanced-semiconductor", amount = 3},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2253,7 +2309,7 @@ data:extend({
         energy_required = 30,
         enabled = false,
         category = "crafting",
-        icons = {{icon=ei_path.."graphics/item/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
+        icons = {{icon=ei_graphics_3_path.."graphics/item/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
         ingredients =
         {
             {type="item", name="advanced-circuit", amount=10},
@@ -2301,6 +2357,81 @@ data:extend({
         {type = "fluid", name = "sulfuric-acid", amount_min=95,amount_max=125}
         },
     },
+    --basic cryogenic fractionation
+{
+        name = "ei-liquid-nitrogen-oil-processing",
+        type = "recipe",
+        category = "oil-processing",
+        energy_required = 10,
+        ingredients =
+        {
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
+            {type = "fluid", name = "crude-oil", amount = 50}
+        },
+        results =
+        {
+            {type="fluid", name="ei-kerosene", amount_min=48,amount_max=52},
+            {type="fluid", name="ei-heavy-destilate", amount_min=33,amount_max=37},
+            {type="fluid", name="ei-residual-oil", amount_min=18,amount_max=22},
+        },
+        --icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
+        --icon_size = 64,
+        subgroup = "fluid-recipes",
+        order = "a[oil-processing]-b[advanced-oil-processing]1",
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-kerosene",
+    },
+    --basic oxidative cracking
+{
+        name = "ei-liquid-oxygen-heavy-oil-cracking",
+        type = "recipe",
+        category = "oil-processing",
+        energy_required = 10,
+        ingredients =
+        {
+            {type = "fluid", name = "ei-liquid-oxygen", amount = 100},
+            {type = "fluid", name = "heavy-oil", amount = 50}
+        },
+        results =
+        {
+            {type="fluid", name="petroleum-gas", amount_min=68,amount_max=72},
+            {type="fluid", name="ei-benzol", amount_min=33,amount_max=37},
+            {type="fluid", name="ei-coal-gas", amount_min=18,amount_max=22},
+        },
+        --icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
+        --icon_size = 64,
+        subgroup = "fluid-recipes",
+        order = "a[oil-processing]-b[advanced-oil-processing]2",
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "petroleum-gas",
+    },
+    --basic Acid Hydrolysis / Nitration
+{
+        name = "ei-nitric-acid-medium-destilate-cracking",
+        type = "recipe",
+        category = "oil-processing",
+        energy_required = 10,
+        ingredients =
+        {
+            {type = "fluid", name = "ei-nitric-acid", amount = 100},
+            {type = "fluid", name = "ei-medium-destilate", amount = 50}
+        },
+        results =
+        {
+            {type="fluid", name="ei-diesel", amount_min=68,amount_max=72},
+            {type="fluid", name="ei-ammonia-gas", amount_min=33,amount_max=37},
+            {type="fluid", name="ei-dinitrogen-tetroxide-gas", amount_min=18,amount_max=22},
+        },
+        --icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
+        --icon_size = 64,
+        subgroup = "fluid-recipes",
+        order = "a[oil-processing]-b[advanced-oil-processing]3",
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-diesel",
+    },
 })
 
 --TECHS
@@ -2309,7 +2440,7 @@ data:extend({
         {
         name = "ei-advanced-motor",
         type = "technology",
-        icon = ei_path.."graphics/tech/advanced-motor.png",
+        icon = ei_graphics_3_path.."graphics/tech/advanced-motor.png",
         icon_size = 256,
         icon_mipmaps = 4,
         prerequisites = {"ei-computer-age"},
@@ -2318,6 +2449,18 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-advanced-motor"
             },
+            --[[
+            {
+                type = "unlock-recipe",
+                recipe = "ei-liquid-nitrogen-oil-processing"
+            },            {
+                type = "unlock-recipe",
+                recipe = "ei-liquid-oxygen-heavy-oil-cracking"
+            },            {
+                type = "unlock-recipe",
+                recipe = "ei-nitric-acid-medium-destilate-cracking"
+            },
+            ]]
         },
         unit = {
             count = 100,
@@ -2404,7 +2547,7 @@ data:extend({
     {
         name = "ei-bio-energy-crystal",
         type = "technology",
-        icon = ei_path.."graphics/other/bio-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/other/bio-energy-crystal.png",
         icon_size = 64,
         prerequisites = {"ei-bio-reactor", "ei-grower"},
         effects = {
@@ -2422,7 +2565,7 @@ data:extend({
     {
         name = "ei-bio-high-energy-crystal",
         type = "technology",
-        icon = ei_path.."graphics/other/bio-high-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/other/bio-high-energy-crystal.png",
         icon_size = 64,
         prerequisites = {"ei-bio-energy-crystal"},
         effects = {
@@ -2476,7 +2619,7 @@ data:extend({
     {
         name = "ei-bio-electronic-parts",
         type = "technology",
-        icon = ei_path.."graphics/other/bio-electronic-parts.png",
+        icon = ei_graphics_3_path.."graphics/other/bio-electronic-parts.png",
         icon_size = 64,
         prerequisites = {"ei-bio-insulated-wire"},
         effects = {
@@ -2494,7 +2637,7 @@ data:extend({
     {
         name = "ei-logistic-containers",
         type = "technology",
-        icon = ei_path.."graphics/tech/logistic-containers.png",
+        icon = ei_graphics_3_path.."graphics/tech/logistic-containers.png",
         icon_size = 256,
         icon_mipmaps = 4,
         prerequisites = {"ei-computer-core","ei-containers","logistic-robotics"},
@@ -2534,7 +2677,7 @@ data:extend({
     {
         name = "ei-advanced-logistic-containers",
         type = "technology",
-        icon = ei_path.."graphics/tech/advanced-logistic-containers.png",
+        icon = ei_graphics_3_path.."graphics/tech/advanced-logistic-containers.png",
         icon_size = 256,
         icon_mipmaps = 4,
         prerequisites = {"ei-logistic-containers","logistic-system"},
@@ -2661,7 +2804,7 @@ data:extend({
     {
         name = "ei-morphium-usage",
         type = "technology",
-        icon = ei_path.."graphics/tech/morphium-usage.png",
+        icon = ei_graphics_3_path.."graphics/tech/morphium-usage.png",
         icon_size = 128,
         icon_mipmaps = 3,
         prerequisites = {"ei-computer-age","ei-gaia"},
@@ -2717,7 +2860,7 @@ data:extend({
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            ingredients = ei_data.science["computer-age-space"],
             time = 20
         },
         age = "computer-age",
@@ -2725,7 +2868,7 @@ data:extend({
     {
         name = "ei-morphium-usage-petro",
         type = "technology",
-        icon = ei_path.."graphics/tech/morphium-usage.png",
+        icon = ei_graphics_3_path.."graphics/tech/morphium-usage.png",
         icon_size = 128,
         icon_mipmaps = 3,
         prerequisites = {"ei-alien-computer-age-tech","ei-morphium-usage"},
@@ -2788,7 +2931,7 @@ data:extend({
     {
         name = "ei-advanced-motor-cryodust",
         type = "technology",
-        icon = ei_path.."graphics/tech/advanced-motor-cryo.png",
+        icon = ei_graphics_3_path.."graphics/tech/advanced-motor-cryo.png",
         icon_size = 256,
         icon_mipmaps = 4,
         prerequisites = {"ei-cryodust","ei-advanced-motor"},
@@ -2891,7 +3034,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_item_path.."advanced-rocket-fuel.png",
         icon_size = 64,
-        prerequisites = {"ei-rocket-parts","ei-advanced-chem-plant"},
+        prerequisites = {"ei-rocket-parts","ei-advanced-chem-plant","ei-oxygen-difluoride"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -3012,7 +3155,7 @@ data:extend({
     {
         name = "ei-rocket-parts",
         type = "technology",
-        icon = ei_path.."graphics/item/rocket-parts.png",
+        icon = ei_graphics_3_path.."graphics/item/rocket-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-rocket-control-unit", "low-density-structure", "rocketry"},
@@ -3032,10 +3175,10 @@ data:extend({
     {
         name = "ei-high-energy-crystal",
         type = "technology",
-        icon = ei_path.."graphics/tech/high-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/tech/high-energy-crystal.png",
         icon_size = 256,
         icon_mipmaps = 4,
-        prerequisites = {"ei-bio-chamber"},
+        prerequisites = {"ei-computer-core"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -3056,7 +3199,7 @@ data:extend({
     {
         name = "ei-high-energy-crystal-growing",
         type = "technology",
-        icon = ei_path.."graphics/tech/high-energy-crystal-growing.png",
+        icon = ei_graphics_3_path.."graphics/tech/high-energy-crystal-growing.png",
         icon_size = 256,
         icon_mipmaps = 4,
         prerequisites = {"ei-high-energy-crystal"},
@@ -3168,7 +3311,7 @@ data:extend({
     {
         name = "ei-advanced-computer-age-tech",
         type = "technology",
-        icon = ei_path.."graphics/tech/simulation-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/simulation-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-big-lab", "ei-nitric-acid","processing-unit"},
@@ -3188,10 +3331,10 @@ data:extend({
     {
         name = "ei-alien-computer-age-tech",
         type = "technology",
-        icon = ei_path.."graphics/tech/alien-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/alien-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
-        prerequisites = {"ei-big-lab", "ei-oxygen-difluoride","ei-gaia","processing-unit","ei-high-energy-crystal"},
+        prerequisites = {"ei-big-lab", "ei-oxygen-difluoride","ei-gaia"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -3239,7 +3382,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-rocket-control-unit",
-        icons = {{icon=ei_path.."graphics/item/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
+        icons = {{icon=ei_graphics_3_path.."graphics/item/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
         effects =
         {
           {
@@ -3260,7 +3403,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-rocket-processing-unit",
-        icon = ei_path.."graphics/item/rocket-processing-unit.png",
+        icon = ei_graphics_3_path.."graphics/item/rocket-processing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         effects =
@@ -3284,9 +3427,9 @@ data:extend({
     {
         name = "ei-carbon-manipulation",
         type = "technology",
-        icon = ei_path.."graphics/tech/carbon-manipulation.png",
+        icon = ei_graphics_3_path.."graphics/tech/carbon-manipulation.png",
         icon_size = 256,
-        prerequisites = {"space-platform","ei-high-energy-crystal"},
+        prerequisites = {"space-platform","ei-high-energy-crystal-growing"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -3333,8 +3476,12 @@ data:extend({
         type = "technology",
         icon = ei_graphics_item_path.."advanced-waver.png",
         icon_size = 128,
-        prerequisites = {"ei-computer-core","ei-waver-factory"},
+        prerequisites = {"ei-computer-core","ei-waver-factory","ei-nitric-acid"},
         effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-advanced-base-semiconductor"
+            },
             {
                 type = "unlock-recipe",
                 recipe = "ei-advanced-semiconductor"
@@ -3354,7 +3501,7 @@ data:extend({
     {
         name = "ei-computing-unit",
         type = "technology",
-        icon = ei_path.."graphics/item/computing-unit.png",
+        icon = ei_graphics_3_path.."graphics/item/computing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-copper-beacon","ei-advanced-deep-drill","ei-advanced-centrifuge","ei-advanced-refinery","ei-sus-plating","ei-cryodust"},

@@ -32,7 +32,7 @@ data:extend({
     {
         name = "ei-dark-age",
         type = "technology",
-        icon = ei_path.."graphics/tech/dark-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/dark-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {
@@ -59,7 +59,7 @@ data:extend({
     {
         name = "ei-steam-age",
         type = "technology",
-        icon = ei_path.."graphics/tech/steam-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/steam-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {
@@ -90,7 +90,7 @@ data:extend({
     {
         name = "ei-electricity-age",
         type = "technology",
-        icon = ei_path.."graphics/tech/electricity-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/electricity-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {
@@ -117,7 +117,7 @@ data:extend({
     {
         name = "ei-computer-age",
         type = "technology",
-        icon = ei_path.."graphics/tech/computer-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/computer-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {
@@ -140,7 +140,7 @@ data:extend({
     {
         name = "ei-quantum-age",
         type = "technology",
-        icon = ei_path.."graphics/tech/quantum-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/quantum-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-quantum-computer"},
@@ -161,7 +161,7 @@ data:extend({
     {
         name = "ei-exotic-age",
         type = "technology",
-        icon = ei_path.."graphics/tech/exotic-age.png",
+        icon = ei_graphics_3_path.."graphics/tech/exotic-age.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-cavity","ei-efficiency-module-6","ei-productivity-module-6","ei-speed-module-6","ei-plasma-turret","zeus-wrath-zeus-wrath","ei-induction-matrix-superior-converter","ei-induction-matrix-superior-coil"},

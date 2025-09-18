@@ -64,7 +64,7 @@ data:extend({
     {
         name = "ei-high-tech-parts",
         type = "technology",
-        icon = ei_path.."graphics/item/high-tech-parts.png",
+        icon = ei_graphics_3_path.."graphics/item/high-tech-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-accelerator","ei-eu-magnet","ei-exotic-assembler","ei-plasma-cube"},
@@ -226,6 +226,7 @@ local neo_assembler = {
         result = "ei-exotic-assembler"
     },
     max_health = 300,
+    heating_energy = "100kW",
     corpse = "big-remnants",
     dying_explosion = "ei-matter-explosion",
     collision_box = {{-1.4, -1.4}, {1.4, 1.4}},

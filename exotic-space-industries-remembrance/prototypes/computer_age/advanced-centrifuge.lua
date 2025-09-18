@@ -83,6 +83,7 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.assembler,
         crafting_speed = 3,
+        heating_energy = "200kW",
         energy_source = {
             type = 'electric',
             emissions_per_minute={pollution=8},

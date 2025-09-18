@@ -18,7 +18,8 @@ data:extend({
         subgroup = "energy",
         order = "f[nuclear-energy]-b[basic-heat-pipe]",
         place_result = "ei-basic-heat-pipe",
-        stack_size = 50
+        stack_size = 50,
+        weight = 20*kg,
     },
     {
         name = "ei-basic-heat-pipe",

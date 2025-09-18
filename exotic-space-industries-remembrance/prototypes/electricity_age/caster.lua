@@ -75,6 +75,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-casting"},
         crafting_speed = 1,
+        heating_energy = "100kW",
         energy_source = {
             type = 'electric',
             usage_priority = 'secondary-input',

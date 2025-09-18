@@ -89,7 +89,7 @@ function rolling_stock_back_light()
             minimum_darkness = 0.3,
             picture =
             {
-                filename = ei_path.."graphics/em_trains/em_train_rear_light_170x170.png",
+                filename = ei_graphics_3_path.."graphics/em_trains/em_train_rear_light_170x170.png",
                 priority = "medium",
                 scale = 1,
                 width = 170,

@@ -160,7 +160,7 @@ local tech_swap_dict = ei_data.tech_swap_dict
 local exclude = {
     ["electric-engine"] = true,
     ["ei-electricity-power"] = true,
-    ["ei-computer-age-tech"] = true,
+    --["ei-computer-age-tech"] = true,
 }
 
 -- also get all techs wich have space science pack as prereuisite

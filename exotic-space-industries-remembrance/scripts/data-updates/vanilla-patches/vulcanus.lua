@@ -93,7 +93,7 @@ if a_n then
     {
         name = "ei-acid-neutralisation-t2",
         type = "technology",
-        icon = ei_path.."graphics/fluid/acid-neutralisation-t2.png",
+        icon = ei_graphics_3_path.."graphics/fluid/acid-neutralisation-t2.png",
         icon_size = 64,
         prerequisites = {"ei-nitric-acid","metallurgic-science-pack"},
         effects = {

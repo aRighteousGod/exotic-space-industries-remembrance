@@ -24,14 +24,14 @@ data:extend({
               {
                 size = 128,
                 filename = ei_graphics_item_path.."black-hole-data.png",
-                scale = 0.375/2
+                scale = 0.5/2
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 128,
                 filename = ei_graphics_item_path.."space-data_light.png",
-                scale = 0.375/2
+                scale = 0.5/2
               }
             }
           },
@@ -52,14 +52,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."black-hole-exotic-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."exotic-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -132,14 +132,14 @@ data:extend({
           {
             size = 64,
             filename = ei_graphics_item_path.."black-hole-exotic-age-tech.png",
-            scale = 0.375
+            scale = 0.5
           },
           {
             draw_as_light = true,
             flags = {"light"},
             size = 64,
             filename = ei_graphics_item_path.."exotic-age-tech_light.png",
-            scale = 0.375
+            scale = 0.5
           }
         }
     },

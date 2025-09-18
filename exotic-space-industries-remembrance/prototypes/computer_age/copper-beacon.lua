@@ -89,6 +89,7 @@ data:extend({
         map_color = ei_data.colors.assembler,
         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
         fast_replaceable_group = "ei-nitrogen-beacon",
+        heating_energy = "200kW",
         --NSB not compatible with upgrades atp
         --next_upgrade = "ei-iron-beacon",
         minable = {

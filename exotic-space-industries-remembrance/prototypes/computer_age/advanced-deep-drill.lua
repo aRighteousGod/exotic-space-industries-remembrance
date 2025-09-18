@@ -74,6 +74,7 @@ data:extend({
         resource_categories = {"ei-drilling"},
         module_slots = 4,
         allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"},
+        heating_energy = "200kW",
         energy_source = {
             type = "fluid",
             fluid_box = {   
@@ -106,6 +107,7 @@ data:extend({
         input_fluid_box = {   
             volume = 200,
             pipe_covers = pipecoverspictures(),
+            filter = "sulfuric-acid",
             pipe_picture = ei_pipe_big,
             pipe_connections = {
                 --{direction = defines.direction.east, position = {2, 0}},

@@ -22,6 +22,9 @@ ei_data = require("lib/data")
 -- base globals
 sounds = require("__base__.prototypes.entity.sounds")
 hit_effects = require("__base__.prototypes.entity.hit-effects")
+item_sounds = require("__base__.prototypes.item_sounds")
+item_tints = require("__base__.prototypes.item-tints")
+simulations = require("__base__.prototypes.factoriopedia-simulations")
 
 --====================================================================================================
 --MAIN CONTENT CODE

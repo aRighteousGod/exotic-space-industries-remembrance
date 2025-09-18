@@ -24,7 +24,7 @@ function model.page_content(page_name, player_index, element)
     local image_container = element.add{type = "flow"}
     image_container.style.horizontal_align = "center"
     image_container.style.horizontally_stretchable = true
-    image_container.add{type = "sprite", sprite = "ei_fueler-sprite"}
+    image_container.add{type = "sprite", sprite = "ei-fueler-sprite"}
 
     element.add{type = "label", caption = {"exotic-industries-fueler-informatron.welcome-text-2"}}
   end

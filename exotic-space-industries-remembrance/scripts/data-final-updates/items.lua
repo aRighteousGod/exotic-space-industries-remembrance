@@ -88,6 +88,7 @@ end
 --don't make ash from rocket nuclear fusion
 local removeash = {
     "ei-nuclear-fuel",
+    "ei-nuclear-fuel-cell",
     "ei-rocket-fuel",
     "ei-fusion-fuel"
 }

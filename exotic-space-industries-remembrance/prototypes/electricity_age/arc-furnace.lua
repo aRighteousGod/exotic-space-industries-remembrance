@@ -204,6 +204,7 @@ data:extend({
             drain = "12MW"
         },
         energy_usage = "30MW",
+        heating_energy = "300kW",
         result_inventory_size = 1,
         source_inventory_size = 1,
         allowed_effects = {"speed", "consumption", "pollution"},

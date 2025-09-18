@@ -1,4 +1,4 @@
-ei_loaders_lib = require("lib/ei_loaders_lib")
+ei_loaders_lib = require("lib/loaders")
 
 --====================================================================================================
 --BASE PROTOTYPES

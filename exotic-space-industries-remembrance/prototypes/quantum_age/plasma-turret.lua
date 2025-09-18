@@ -79,6 +79,7 @@ data:extend({
             result = "ei-plasma-turret"
         },
         max_health = 2000,
+        heating_energy = "100kW",
         corpse = "big-remnants",
         dying_explosion = "big-explosion",
 --        collision_box = {{-1.4, -1.4}, {1.4, 1.4}},

@@ -1,6 +1,6 @@
 local model = {}
 ei_lib = require("lib/lib")
-ei_rng = require("lib/ei_rng")
+ei_rng = require("lib/rng")
 -- DOC
 
 -- Charger gets registered when placed
@@ -155,94 +155,69 @@ function model.printBuffStatus()
     end
 end
 
---Get buffs
-function model.check_buffs(event)
-    local got1 = false
-    local got2 = false
-    local got3 = false
-    local output = output or false
-    --method 1
-    if not game.players then
-        log("check_buffs detected no game.players")
-    elseif not game.players[1] then
-        log("check_buffs detected no game.players[1]")
-    elseif not game.players[1].force then
-        log("check_buffs detected no game.players[1].force")
-    elseif not game.players[1].force.technologies then
-        log("check_buffs detected no game.players[1].force.technologies")
-    else
-        for tier=20,1, -1 do --reverse so we stop checking that buff when we find its highest value
-            if not got1 and game.players[1].force.technologies["ei_acc_"..tier] and game.players[1].force.technologies["ei_acc_"..tier].researched then
-                local accBuff = tonumber(tier)
-                storage.ei_emt.buffs.acc_level = math.max(storage.ei_emt.buffs.acc_level,accBuff)
-                got1 = true
-            end
-            if not got2 and game.players[1].force.technologies["ei_spd_"..tier] and game.players[1].force.technologies["ei_spd_"..tier].researched then
-                local spdBuff = tonumber(tier)
-                storage.ei_emt.buffs.speed_level = math.max(storage.ei_emt.buffs.speed_level,spdBuff)
-                got2 = true
-            end
-            if not got3 and game.players[1].force.technologies["ei_eff_"..tier] and game.players[1].force.technologies["ei_eff_"..tier].researched then
-                local effBuff = tonumber(tier)
-
-                local actual = model.effBuffMultipliers[effBuff] or 0
-                storage.ei_emt.buffs.charger_efficiency = actual
-                got3 = true
-            end
-            if got1 and got2 and got3 then
-                return
-            end
+-- helper to get the highest researched tier for a given prefix
+local function get_highest_tier(technologies, prefix, max_tier)
+    for tier = max_tier, 1, -1 do
+        local tech = technologies[prefix .. tier]
+        if tech and tech.researched then
+            return tier
         end
     end
-
-    --method 2
-    if not event then 
-        log("check_buffs detected no event")
-        return
-    elseif not event.player_index then 
-        log("check_buffs detected no event.player_index")
-        return
-    end
-    local player = game.get_player(event.player_index)
-    if not player then
-        log("check_buffs got invalid player")
-        return
-    end
-    local force = player.force
-    if not force then
-        log("check_buffs got invalid player.force")
-        return
-    end
-    local technologies = force.technologies
-    if not technologies then
-        log("check_buffs got invalid player.force.technologies")
-        return
-    end
-
-    for tier=20,1, -1 do --reverse so we stop checking that buff when we find its highest value
-        if not got1 and technologies["ei_acc_"..tier] and technologies["ei_acc_"..tier].researched then
-            local accBuff = tonumber(tier)
-            storage.ei_emt.buffs.acc_level = math.max(storage.ei_emt.buffs.acc_level,accBuff)
-            got1 = true
-        end
-        if not got2 and technologies["ei_spd_"..tier] and technologies["ei_spd_"..tier].researched then
-            local spdBuff = tonumber(tier)
-            storage.ei_emt.buffs.speed_level = math.max(storage.ei_emt.buffs.speed_level,spdBuff)
-            got2 = true
-        end
-        if not got3 and technologies["ei_eff_"..tier] and technologies["ei_eff_"..tier].researched then
-            local effBuff = tonumber(tier)
-
-            local actual = model.effBuffMultipliers[effBuff] or 0
-            storage.ei_emt.buffs.charger_efficiency = actual
-            got3 = true
-        end
-        if got1 and got2 and got3 then
-            return
-        end
-    end
-
+    return 0
 end
+--returns actual buff tiers
+function model.return_buffs(technologies)
+    if not technologies then return false end
+
+    local output = {
+        acceleration = get_highest_tier(technologies, "ei_acc_", 20),
+        speed        = get_highest_tier(technologies, "ei_spd_", 20),
+        efficiency   = get_highest_tier(technologies, "ei_eff_", 5),
+    }
+
+    -- strip zero values
+    for k,v in pairs(output) do
+        if v == 0 then
+            output[k] = nil
+        end
+    end
+
+    if next(output) ~= nil then
+        return output
+    else
+        return false
+    end
+end
+
+
+--finds a technologies list to check for buffs
+function model.check_buffs(event)
+    local technologies
+    local player
+    local output
+    if game.players and game.players[1] then
+        player = game.players[1]
+        if player and player.force and player.force.technologies then
+            technologies = game.players[1].force.technologies
+            output = model.return_buffs(technologies)
+        end
+    end
+    if not output then
+        if event and event.player_index then
+            player = game.get_player(event.player_index)
+            if player and player.force and player.force.technologies then
+                technologies = player.force.technologies
+                output = model.return_buffs(technologies)
+            end
+        end
+    end
+    if output then
+        return output
+    else
+        return false
+    end
+end
+
 --UPDATE
 ------------------------------------------------------------------------------------------------------
 
@@ -258,7 +233,7 @@ function model.apply_buffs(buff, level, single, entity)
     local time = 10
     if single then
         if buff == "eff" then
-            local effBuff = effBuffMultipliers[level] or 0
+            local effBuff = model.effBuffMultipliers[level] or 0
             model.render_status_rings(target,status,radius,ei_ticksPerFullUpdate,override)
             --model.make_rings(target, storage.ei_emt.buffs.charger_range, 0.5)
             model.update_charger(target)
@@ -275,7 +250,6 @@ function model.apply_buffs(buff, level, single, entity)
         end
     elseif not single then
        if buff == "eff" then
-            local effBuff = 0.1 + 0.17 * level
             for i,v in pairs(storage.ei_emt.chargers) do
 
             --model.make_rings(v.entity, storage.ei_emt.buffs.charger_range, 0.5)
@@ -1079,7 +1053,7 @@ function model.toggle_range_highlight(player)
 end
 
 --HANDLERS 
-------------------------------------------------------------------------------------------------------\
+------------------------------------------------------------------------------------------------------
 
 function model.train_updater()
    return model.update_trains()
@@ -1090,7 +1064,41 @@ function model.charger_updater()
 end
 
 function model.on_research_finished(event)
-
+    --if you use the research all techs cheat this has a ups penalty
+    --but otherwise negligible ups effect
+    local buffs = model.check_buffs(event)
+    if buffs then
+        local print = false
+        if buffs["acceleration"] then
+            if buffs["acceleration"] > storage.ei_emt.buffs.acc_level then
+                storage.ei_emt.buffs.acc_level = buffs["acceleration"]
+                model.apply_buffs("acc", buffs["acceleration"])
+                print = true
+            end
+        end
+        if buffs["efficiency"] then
+            local actual = model.effBuffMultipliers[buffs["efficiency"]] or 0
+            if actual > storage.ei_emt.buffs.charger_efficiency then
+                storage.ei_emt.buffs.charger_efficiency = actual
+                model.apply_buffs("eff", buffs["efficiency"])
+                print = true
+            end
+        end
+        if buffs["speed"] then
+            if buffs["speed"] > storage.ei_emt.buffs.speed_level then
+                storage.ei_emt.buffs.speed_level = buffs["speed"]
+                model.apply_buffs("spd", buffs["speed"])
+                print = true
+            end
+        end
+        if print then
+            model.printBuffStatus()
+        end
+    end
+end
+--this depreciated method of singularly checking the completed research
+--is more efficient but inexplicably would fail to fire at times
+--[[
     local name = event.research.name
 
     -- name starts with "ei_" and ends with a number
@@ -1116,9 +1124,10 @@ function model.on_research_finished(event)
       -- game.print(short_name .. " - " .. tier)
       model.apply_buffs(model.techs[short_name], tonumber(tier))
       model.printBuffStatus()
+    
     end
+    ]]
 
-end
 
 
 function model.on_built_entity(entity)

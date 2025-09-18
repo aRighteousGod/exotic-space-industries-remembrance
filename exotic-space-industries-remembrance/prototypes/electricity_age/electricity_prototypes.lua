@@ -57,8 +57,35 @@ data:extend({
     {
         name = "ei-insulated-wire",
         type = "item",
-        icon = ei_graphics_item_path.."insulated-wire.png",
+        icon = ei_graphics_3_path.."graphics/item/insulated-wire-1.png",
         icon_size = 64,
+        icon_mipmaps = 4,
+        pictures = {
+            {
+                filename = ei_graphics_3_path.."graphics/item/insulated-wire-1.png",
+                icon_mipmaps = 4,
+                scale = 0.5,
+                size = 64
+            },
+            {
+                filename = ei_graphics_3_path.."graphics/item/insulated-wire-2.png",
+                icon_mipmaps = 4,
+                scale = 0.5,
+                size = 64
+            },
+            {
+                filename = ei_graphics_3_path.."graphics/item/insulated-wire-3.png",
+                icon_mipmaps = 4,
+                scale = 0.5,
+                size = 64
+            },
+            {
+                filename = ei_graphics_3_path.."graphics/item/insulated-wire-4.png",
+                icon_mipmaps = 4,
+                scale = 0.5,
+                size = 64
+            },
+        },
         stack_size = 100,
         subgroup = "intermediate-product",
         order = "a[copper-wire]-a[insulated-wire]",
@@ -74,12 +101,12 @@ data:extend({
         pictures = {
             {
                 filename = ei_graphics_item_path.."crushed-copper.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
             {
                 filename = ei_graphics_item_path.."crushed-copper-1.png",
-                scale = 0.375,
+                scale = 0.5,
                 size = 64
             },
         },
@@ -106,24 +133,24 @@ data:extend({
     {
         name = "ei-electronic-parts",
         type = "item",
-        icon = ei_path.."graphics/item/electronic-parts.png",
+        icon = ei_graphics_3_path.."graphics/item/electronic-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/item/electronic-parts.png",
+                filename = ei_graphics_3_path.."graphics/item/electronic-parts.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/electronic-parts-2.png",
+                filename = ei_graphics_3_path.."graphics/item/electronic-parts-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/item/electronic-parts-3.png",
+                filename = ei_graphics_3_path.."graphics/item/electronic-parts-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -137,7 +164,7 @@ data:extend({
     {
         name = "ei-diesel-fuel-unit-empty",
         type = "item",
-        icon = ei_path.."graphics/item/diesel-fuel-unit-empty.png",
+        icon = ei_graphics_3_path.."graphics/item/diesel-fuel-unit-empty.png",
         icon_size = 80,
         stack_size = 10,
         subgroup = "raw-material",
@@ -153,8 +180,9 @@ data:extend({
         order = "c[solid-fuel]-a[diesel-fuel-unit]",
         fuel_category = "ei-diesel-fuel",
         fuel_value = "20MJ",
-        fuel_acceleration_multiplier = 1.0,
-        fuel_top_speed_multiplier = 1.0,
+        fuel_emissions_multiplier = 0.7,
+        fuel_acceleration_multiplier = 1.15,
+        fuel_top_speed_multiplier = 0.85,
         burnt_result = "ei-diesel-fuel-unit-empty"
     },
     {
@@ -172,14 +200,14 @@ data:extend({
               {
                 size = 64,
                 filename = ei_graphics_item_path.."computer-age-tech.png",
-                scale = 0.375
+                scale = 0.5
               },
               {
                 draw_as_light = true,
                 flags = {"light"},
                 size = 64,
                 filename = ei_graphics_item_path.."computer-age-tech_light.png",
-                scale = 0.375
+                scale = 0.5
               }
             }
         },
@@ -222,6 +250,31 @@ data:extend({
 ------------------------------------------------------------------------------------------------------
 
 data:extend({
+    {
+        name = "ei-sand-bulk",
+        type = "recipe",
+        category = "ei-crushing-bulk",
+        energy_required = 5,
+        icons = {
+          {
+              icon = data.raw.item["ei-sand"].icon,
+              icon_size = data.raw.item["ei-sand"].icon_size,
+          },
+          {
+              icon = ei_graphics_other_path.."overlay_2.png",
+              icon_size = 64,
+          }
+        },
+        ingredients = {
+            {type="item", name="stone", amount=5},
+        },
+        results = {
+            {type = "item", name = modprefix.."sand", amount_min = 10,amount_max=25},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = modprefix.."sand",
+    },
     {
         name = "ei-concrete-slag",
         type = "recipe",
@@ -642,7 +695,7 @@ data:extend({
     {
         name = "ei-containers",
         type = "technology",
-        icon = ei_path.."graphics/tech/containers.png",
+        icon = ei_graphics_3_path.."graphics/tech/containers.png",
         icon_size = 256,
         icon_mipmaps = 4,
         prerequisites = {"ei-electricity-age"},
@@ -705,7 +758,7 @@ data:extend({
     {
         name = "ei-electronic-parts",
         type = "technology",
-        icon = ei_path.."graphics/item/electronic-parts.png",
+        icon = ei_graphics_3_path.."graphics/item/electronic-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-waver-factory", "battery"},
@@ -752,7 +805,7 @@ data:extend({
     {
         name = "ei-molten-glass",
         type = "technology",
-        icon = ei_path.."graphics/tech/molten-glass.png",
+        icon = ei_graphics_3_path.."graphics/tech/molten-glass.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-arc-furnace"},

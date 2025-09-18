@@ -30,6 +30,7 @@ data:extend({
         icon = ei_graphics_item_path.."alien-beacon.png",
         icon_size = 64,
         max_health = 300,
+        heating_energy = "200kW",
         corpse = "big-remnants",
         collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},

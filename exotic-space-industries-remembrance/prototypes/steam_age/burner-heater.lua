@@ -46,6 +46,10 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-basic-heat-pipe"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-basic-heat-exchanger"
             }
         },
         unit = {
@@ -76,6 +80,7 @@ data:extend({
             result = "ei-burner-heater"
         },
         max_health = 300,
+        heating_energy = "0kW",
         corpse = "big-remnants",
         dying_explosion = "medium-explosion",
         collision_box = {{-1.4, -1.4}, {1.4, 1.4}},

@@ -89,6 +89,7 @@ data:extend({
             result = "ei-accelerator"
         },
         max_health = 1000,
+        heating_energy = "500kW",
         corpse = "big-remnants",
         dying_explosion = "medium-explosion",
         collision_box = {{-5.4, -5.4}, {5.4, 5.4}},

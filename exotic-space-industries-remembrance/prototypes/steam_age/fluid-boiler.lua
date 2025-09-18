@@ -89,6 +89,7 @@ boiler.fluid_box = {
     production_type = "input-output",
     filter = "water"
 }
+boiler.heating_energy = "0kW"
 boiler.energy_source = {
     type = "fluid",
     fluid_box = {
