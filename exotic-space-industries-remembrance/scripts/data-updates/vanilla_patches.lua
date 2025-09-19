@@ -1273,6 +1273,14 @@ ei_lib.raw["fluid"]["light-oil"] = {
     fuel_value = "500kJ",
     fuel_emissions_multiplier = 1.0
 }
+local spider_smoke = table.deepcopy(ei_lib.raw["trivial-smoke"]["train-smoke"])
+spider_smoke.name = "ei-spider-smoke"
+spider_smoke.start_scale = 0.33
+spider_smoke.end_scale = 4.2
+spider_smoke.duration = 90
+spider_smoke.fade_away_duration = 90
+spider_smoke.color = {r = 0.24, g = 0.24, b = 0.24, a = 0.333}
+data:extend({spider_smoke})
 --Darker, longer duration, longer fadeout, smaller start_Scale, larger end_scale
 --similar to actual diesel which makes a lingering plume
 ei_lib.raw["trivial-smoke"]["train-smoke"] = {
@@ -1511,7 +1519,7 @@ for _, spider in pairs(data.raw["spider-vehicle"]) do
         },
         smoke = {
             {
-            name = "ei-train-smoke",
+            name = "ei-spider-smoke",
             deviation = {1.8, 1.8},
             frequency = 245,
             position = {0, 0},

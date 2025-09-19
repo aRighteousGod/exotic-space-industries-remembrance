@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.51
+Date: 9-19-2025
+  Changes:
+    - Spidertron smoke effects: Differentiated from Train smoke—has shorter duration, fadeout, spread time.
+  Bugfixes:
+    - Fixed that duplicate entries would be made for EM trains and chargers in the processing queue upon changing configuration.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.50
 Date: 9-18-2025
   Features:
@@ -84,7 +91,7 @@ Date: 9-18-2025
     - Battery technology prerequisites: Set to Electricity power.
     - Restored Barrels only stacking to 1.
     - Reduced probability of Nauvis main-track "Leave the world tonight" playing by 66%.
-    - (Failed to) Differentiate(d) map coloring of Gaia tiles and resource patches. (Prototypes not respected because..?)
+    - Differentiated map coloring of Gaia tiles and resource patches. (Alien biomes causes issues)
     - Increased scaling and visibility of Hydrofluoric acid recipe variants icons.
   Bugfixes:
     - Fixed that EM train buffs might only update when loading a save with modified settings instead of when research finishes.

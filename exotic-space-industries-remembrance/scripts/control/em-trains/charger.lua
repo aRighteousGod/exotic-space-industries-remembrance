@@ -321,6 +321,8 @@ end
 function model.deregister_all_trains()
     --if  storage.ei_emt.trains and ei_lib.getn(storage.ei_emt.trains) > 0 then
     storage.ei_emt.trains = {}
+    storage.ei_emt.trains_register = {}
+    storage.ei_emt.trains_que = {}
 --        for unit_number in pairs(storage.ei_emt.trains) do
 --            if unit_number and unit_number.entity then
 --                em_trains.deregister_train(unit_number)
@@ -332,6 +334,8 @@ end
 function model.deregister_all_chargers()
         --if storage.ei_emt.chargers and ei_lib.getn(storage.ei_emt.chargers) > 0 then
         storage.ei_emt.chargers = {}
+        storage.ei_emt.chargers_register = {}
+        storage.ei_emt.chargers_que = {}
 --            for unit_number in pairs(storage.ei_emt.chargers) do
 --                if unit_number and unit_number.entity then
 --                    em_trains.deregister_charger(unit_number)
@@ -341,6 +345,7 @@ function model.deregister_all_chargers()
 end
 function model.reinitialize_chargers()
     local effBuff =  storage.ei_emt.buffs.eff_level or 0
+    model.deregister_all_chargers()
     for _, surface in pairs(game.surfaces) do
         local entities = surface.find_entities_filtered{name = "ei_charger"}
         if entities and ei_lib.getn(entities) > 0 then
@@ -359,6 +364,7 @@ end
 function model.reinitialize_trains()
     local accBuff =  storage.ei_emt.buffs.acc_level or 0
     local spdBuff =  storage.ei_emt.buffs.spd_level or 0
+    model.deregister_all_trains()
     for _, surface in pairs(game.surfaces) do
         local entities = surface.find_entities_filtered{name = "ei_em-locomotive"}
         if entities and ei_lib.getn(entities) then

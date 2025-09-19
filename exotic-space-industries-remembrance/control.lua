@@ -525,27 +525,29 @@ end
 
 
 script.on_configuration_changed(function(e)
-    ei_global.check_init(e) --Crystal_echo will fail without global color table
-    ei_compat.check_init(e)
-    ei_echo_codex.handle_global_settings(e)
-    em_trains.check_global() --no nil tables
-    em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
+    if next(e.mod_changes) ~= nil then
+        ei_global.check_init(e) --Crystal_echo will fail without global color table
+        ei_compat.check_init(e)
+        ei_echo_codex.handle_global_settings(e)
+        em_trains.check_global() --no nil tables
+        em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
 
-    em_trains.reinitialize_chargers() --applies updated buffs
-    em_trains.reinitialize_trains()
-    em_trains.update_rail_counts()
-    em_trains_gui.mark_dirty()
+        em_trains.reinitialize_chargers() --applies updated buffs
+        em_trains.reinitialize_trains()
+        --em_trains.update_rail_counts()
+        em_trains_gui.mark_dirty()
 
-    ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
-    ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
-    ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
-    ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
+        ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
+        ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
+        ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
+        ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
 
-    reforge_gaia_surface(e) --Must be called AFTER check_global
+        reforge_gaia_surface(e) --Must be called AFTER check_global
 
-    ei_tech_scaling.init()
-    ei_victory.init()  -- Required for Better Victory Screen
-    orbital_combinator.check_init()
+        ei_tech_scaling.init()
+        ei_victory.init()  -- Required for Better Victory Screen
+        orbital_combinator.check_init()
+    end
 end)
 
 script.on_event(

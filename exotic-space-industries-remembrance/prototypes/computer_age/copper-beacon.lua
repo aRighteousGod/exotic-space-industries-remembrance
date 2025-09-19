@@ -88,7 +88,7 @@ data:extend({
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
         map_color = ei_data.colors.assembler,
         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
-        fast_replaceable_group = "ei-nitrogen-beacon",
+        --fast_replaceable_group = "ei-nitrogen-beacon",
         heating_energy = "200kW",
         --NSB not compatible with upgrades atp
         --next_upgrade = "ei-iron-beacon",
@@ -98,6 +98,11 @@ data:extend({
         },
         distribution_effectivity = 0.5,
         distribution_effectivity_bonus_per_quality_level = 0.25,
+        --[[
+        energy_source = {
+            type = "void"
+        },
+        ]]
         energy_source = {
             type = "fluid",
             fluid_box = {
@@ -118,6 +123,7 @@ data:extend({
             burns_fluid = true,
             scale_fluid_usage = true,
         },
+
         energy_usage = "5MW",
         module_slots = 4,
         supply_area_distance = ei_data.beacon_range,

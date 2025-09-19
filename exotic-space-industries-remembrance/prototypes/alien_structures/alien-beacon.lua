@@ -42,12 +42,18 @@ data:extend({
         },
         distribution_effectivity = 1,
         distribution_effectivity_bonus_per_quality_level = 0.25,
+        --[[
+        energy_source = {
+            type = "void"
+        },
+        ]]
         energy_source = {
             type = "burner",
             fuel_categories = {"ei-bio-matter"},
             fuel_inventory_size = 1,
             --emissions_per_minute = { pollution = 30 }
         },
+
         energy_usage = "30MW",
         module_slots = 8,
         supply_area_distance = 20,
@@ -88,12 +94,18 @@ data:extend({
         },
         distribution_effectivity = 2,
         distribution_effectivity_bonus_per_quality_level = 0.25,
+        --[[
+        energy_source = {
+            type = "void"
+        },
+        ]]
         energy_source = {
             type = "burner",
             fuel_categories = {"ei-bio-matter"},
             fuel_inventory_size = 1,
             --emissions_per_minute = { pollution = 30 }
         },
+
         energy_usage = "60MW",
         module_slots = 10,
         supply_area_distance = 64,
