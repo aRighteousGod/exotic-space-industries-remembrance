@@ -420,15 +420,6 @@ data:extend({
         subgroup = "ei-refining-raw",
         order = "a-b",
     },
-    {
-        name = "ei-uranium-chunk",
-        type = "item",
-        icon = ei_graphics_item_path.."uranium-chunk.png",
-        icon_size = 64,
-        stack_size = 100,
-        subgroup = "ei-refining-raw",
-        order = "a-f",
-    },
 })
 
 

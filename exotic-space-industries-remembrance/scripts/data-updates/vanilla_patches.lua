@@ -20,6 +20,7 @@ end
 --MINING
 ------------------------------------------------------------------------------------------------------
 local oreswaps = {
+    ["uranium-ore"] = "ei-poor-uranium-chunk",
     ["iron-ore"] = "ei-poor-iron-chunk",
     ["copper-ore"] = "ei-poor-copper-chunk"
 }
@@ -197,7 +198,7 @@ local new_ingredients_table = {
     },
     ["stone-wall"] = {
         {type="item",name="stone-brick", amount=3},
-        {type="item",name="ei-iron-beam", amount=1} 
+        {type="item",name="ei-iron-beam", amount=1}
     },
     ["offshore-pump"] = {
         {type="item",name="ei-copper-mechanical-parts", amount=4},
@@ -699,16 +700,62 @@ ei_lib.raw["recipe"]["rocket-fuel"].category = "chemistry"
 local ip = ei_lib.raw["recipe"]["iron-plate"]
 local cp = ei_lib.raw["recipe"]["copper-plate"]
 local sp = ei_lib.raw["recipe"]["steel-plate"]
+
+--if these aren't removed sometimes they inexplicably show back up
 if ip then
+    data.raw.recipe["iron-plate"] = nil
+    --[[
+    ip.ingredients = nil
+    ip.results = nil
+    ip.icon = "__core__/graphics/cancel.png"
+    ip.icon_size = 64
+    ip.icon_mipmaps = 4
     ip.enabled = false
     ip.hidden = true
+    ]]
 end
 if cp then
+    data.raw.recipe["copper-plate"] = nil
+    --[[
+    cp.ingredients = nil
+    cp.results = nil
+    cp.icon = "__core__/graphics/cancel.png"
+    cp.icon_size = 64
+    cp.icon_mipmaps = 4
     cp.enabled = false
     cp.hidden = true
+    ]]
 end
 if sp then
+    ei_lib.remove_unlock_recipe("steel-processing","steel-plate")
+    data.raw.recipe["steel-plate"] = nil
+    --[[
+    sp.ingredients = nil
+    sp.results = nil
+    sp.icon = "__core__/graphics/cancel.png"
+    sp.icon_size = 64
+    sp.icon_mipmaps = 4
+    sp.enabled = false
     sp.hidden = true
+    ]]
+end
+--remove_recipe_unlock swaps unlocks and productivity effects using below table
+local r_r_u = {
+    ["steel-plate"] = "ei-steel-plate",
+    ["copper-plate"] = "ei-poor-copper-chunk-smelting",
+    ["iron-plate"] = "ei-poor-iron-chunk-smelting",
+}
+for _,tech in pairs(data.raw.technology) do
+    if tech and tech.effects then
+        for index in pairs(tech.effects) do
+            if tech.effects[index] and tech.effects[index].recipe then
+                if r_r_u[tech.effects[index].recipe] then
+                    log("swapping "..tech.effects[index].recipe.." from "..tech.name.." with "..r_r_u[tech.effects[index].recipe].." due to EI using alternative recipes")
+                    tech.effects[index].recipe = r_r_u[tech.effects[index].recipe]
+                end
+            end
+        end
+    end
 end
 
 --move cannon shells from tank to explosives
@@ -2018,6 +2065,7 @@ ei_lib.raw["item"]["oil-refinery"].localised_description = {"item-description.ei
 -- set localised name of ores to ei ones
 data.raw["resource"]["iron-ore"].localised_name = {"item-name.ei-poor-iron-chunk"}
 data.raw["resource"]["copper-ore"].localised_name = {"item-name.ei-poor-copper-chunk"}
+data.raw["resource"]["uranium-ore"].localised_name = {"item-name.ei-poor-uranium-chunk"}
 
 local p_d_v = ei_lib.raw.technology["planet-discovery-vulcanus"]
 if p_d_v then

@@ -303,10 +303,34 @@ end
 local barrel = ei_lib.raw.item.barrel
 if barrel then
 	barrel.stack_size = 1
+	if barrel.weight then
+		barrel.weight = barrel.weight * 10
+	end
+	--[[
+	if barrel.flags then
+		if not ei_lib.table_contains_value(barrel.flags, "not-stackable") then
+			table.insert(barrel.flags, "not-stackable")
+		end
+	else
+		barrel.flags = {"not-stackable"}
+	end
+	]]
 end
 for _, item in pairs(data.raw.item) do
 	if item and item.name and string.sub(item.name, -7) == "-barrel" then
 		item.stack_size = 1
+		if item.weight then
+			item.weight = item.weight * 10
+		end
+		--[[
+		if item.flags then
+			if not ei_lib.table_contains_value(item.flags, "not-stackable") then
+				table.insert(item.flags, "not-stackable")
+			end
+		else
+			item.flags = {"not-stackable"}
+		end
+		]]
 	end
 end
 for _, recipe in pairs(data.raw.recipe) do

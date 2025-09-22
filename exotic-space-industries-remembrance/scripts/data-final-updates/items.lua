@@ -65,11 +65,11 @@ for _, itemType in pairs(itemTypes) do
         local shouldChange = true
         if item.flags then
             for _, flag in ipairs(item.flags) do
-                if table.contains(possibleFlags, flag) then
+                --if table.contains(possibleFlags, flag) then
                     if flag == "not-stackable" then
                         shouldChange = false
                         break
-                    end
+                    --end
                 end
             end
         end

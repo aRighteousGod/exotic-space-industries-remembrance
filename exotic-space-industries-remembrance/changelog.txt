@@ -1,4 +1,30 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.54
+Date: 9-21-2025
+  Features:
+    - Added Enhanced Walls by @Ink_dash to required dependencies—provides an additional two tiers of walls which have been reconfigured as the Ceramite bulkhead wall and the Plastcrete rampart wall.
+    - Created new icon for Uranium chunks.
+    - Created Poor uranium chunk item and icon.
+    - Created Poor uranium chunk crushing recipe—yields 0-2 Uranium ore, and 1-3 Stone.
+  Changes:
+    - Surface uranium deposits now yield Poor uranium chunks.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.53
+Date: 9-20-2025
+  Changes:
+    - Igrys Copper plate productivity will additionally affect Caster copper plate casting.
+  Bugfixes:
+    - Fixed that the Excavator's Gaian excavation recipe was unlocked by Aquilo and not Gaia.
+    - Fixed that Morphium usage productivity did not affect Morphium -> Sulfur and -> Stone recipes.
+    - Swapped technology effects which point at the removed Vanilla plate recipes with EI ingot equivalents which would otherwise prevent loading with IE Igrys.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.52
+Date: 9-19-2025
+  Bugfixes:
+    - Completely removed vanilla iron, copper, and steel ingot (plate) recipes—once and for all precluding smelters inexplicably selecting them even as they've been disabled and hidden.
+    - Fixed that Nuclear fuel cell fuel category didn't have localisation name.
+    - Fixed that barrels rocket stack size was set to 200 preventing automatically loading rocket.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.51
 Date: 9-19-2025
   Changes:
@@ -9,6 +35,7 @@ Date: 9-19-2025
 Version: 1.2.50
 Date: 9-18-2025
   Features:
+    - Complete Polish translation by @S3BA-pl!
     - Insulated wires updated with new icon with 4 variations—imported from Unused renders by Malcolm Riley.
     - Imported Cannon turret from AdditionalTurrets with tweaked stats—Takes the place of previously moved Cannon turret in Steam age.
     - Restored Unprimed (formerly Inactive) advanced semiconductor base item and recipe—unlocked with Advanced semiconductor processing technology.

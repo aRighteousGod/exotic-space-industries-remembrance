@@ -114,11 +114,21 @@ data:extend({
         recipe = "ei-uranium-extraction",
         change = 0.1
 		},
+	  {
+		type = "change-recipe-productivity",
+        recipe = "ei-stone-extraction",
+        change = 0.1
+		},
       {
         type = "change-recipe-productivity",
         recipe = "ei-gold-extraction",
         change = 0.1
       },
+	  {
+		type = "change-recipe-productivity",
+        recipe = "ei-sulfur-extraction",
+        change = 0.1
+		},
 	  {
 		type = "change-recipe-productivity",
         recipe = "ei-copper-extraction",

@@ -22,6 +22,26 @@ data:extend({
         stack_size = 50
     },
     {
+        name = "ei-poor-uranium-chunk",
+        type = "item",
+        icon = ei_path.."graphics/item/poor-uranium-chunk.png",
+        icon_size = 128,
+        icon_mipmaps = 3,
+        stack_size = 100,
+        subgroup = "ei-refining-raw",
+        order = "a-f",
+    },
+    {
+        name = "ei-uranium-chunk",
+        type = "item",
+        icon = ei_path.."graphics/item/uranium-chunk.png",
+        icon_size = 128,
+        icon_mipmaps = 3,
+        stack_size = 100,
+        subgroup = "ei-refining-raw",
+        order = "a-f2",
+    },
+    {
         name = "ei-crushed-uranium",
         type = "item",
         icon = ei_graphics_item_path.."crushed-uranium.png",
@@ -270,6 +290,22 @@ data:extend({
         circuit_wire_max_distance = default_circuit_wire_max_distance
     },
     {
+        name = "ei-poor-uranium-ore",
+        type = "recipe",
+        category = "ei-crushing",
+        energy_required = 2,
+        ingredients = {
+            {type = "item", name = "ei-poor-uranium-chunk", amount = 1},
+        },
+        results = {
+            {type = "item", name = "uranium-ore", amount_min = 0,amount_max=2},
+            {type = "item", name = "stone", amount_min = 1, amount_max = 3},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "uranium-ore",
+    },
+    {
         name = "ei-uranium-ore",
         type = "recipe",
         category = "ei-crushing",
@@ -466,7 +502,10 @@ table.insert(data.raw.technology["uranium-processing"].effects,  {
     type = "unlock-recipe",
     recipe = "ei-uranium-ore"
 })
-
+table.insert(data.raw.technology["uranium-processing"].effects,  {
+    type = "unlock-recipe",
+    recipe = "ei-poor-uranium-ore"
+})
 table.insert(data.raw.technology["uranium-processing"].effects,  {
     type = "unlock-recipe",
     recipe = "uranium-processing"

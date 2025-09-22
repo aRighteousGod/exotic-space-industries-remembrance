@@ -389,7 +389,7 @@ if pda and pda.effects then
         recipe = "ei-excavator-running-aquilo"
     })
 end
-local pdgaia = ei_lib.raw.technology["planet-discovery-aquilo"]
+local pdgaia = ei_lib.raw.technology["ei-gaia"]
 if pdgaia and pdgaia.effects then
     table.insert(pdgaia.effects,
     {
