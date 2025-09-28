@@ -96,7 +96,6 @@ data:extend({
         enabled = false,
         main_product = "plastic-bar",
     },
-
     {
         name = "ei-advanced-chem-plant",
         type = "assembling-machine",
@@ -125,7 +124,6 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.assembler,
         crafting_speed = 3,
-        heating_energy = "200kW",
         energy_source = {
             type = 'electric',
             usage_priority = 'secondary-input',
@@ -134,6 +132,7 @@ data:extend({
         allowed_effects = {"speed", "consumption", "pollution", "productivity","quality"},
         module_slots = 4,
         energy_usage = "2.5MW",
+        heating_energy = "300kW",
         fluid_boxes = {
             {   
                 volume = 200,
@@ -243,7 +242,7 @@ data:extend({
                 },
                 production_type = "output",
             },
-        },
+        }
         graphics_set = {
             animation = {
                 filename = ei_graphics_entity_path.."advanced-chem-plant.png",

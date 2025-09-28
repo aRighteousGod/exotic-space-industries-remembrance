@@ -393,7 +393,7 @@ local new_ingredients_table = {
     ["accumulator"] = {
         {type="item",name="steel-plate", amount=6},
         {type="item",name="battery", amount=5},
-        {type="item",name="plastic-bar", amount=2},
+        {type="item",name="plastic-bar", amount=2}
     },
     ["stack-inserter"] = {
         {type="item",name="ei-electronic-parts", amount=5},
@@ -842,7 +842,6 @@ new_prerequisites_table["electricity-age"] = {
     {"power-armor", "ei-grower"},
     {"solar-energy", "ei-waver-factory"},
     {"tank","advanced-circuit"},
-    {"tank","plastics"},
     {"tank","explosives"},
     {"logistics-2","plastics"}
 }

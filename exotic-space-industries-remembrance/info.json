@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.2.54",
+    "version": "1.2.56",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -60,6 +60,7 @@
         "? textplates",
         "? more-quality-scaling",
         "? spoilage-scanner",
+        "? better-victory-screen",
 
         "(?) lignumis",
 

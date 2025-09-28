@@ -600,7 +600,7 @@ end
 
 
 
-
+--[[
 table.insert(data.raw["technology"]["ei-steam-age"].effects, {
   type = "unlock-quality",
   quality = "rare"
@@ -615,7 +615,7 @@ table.insert(data.raw["technology"]["ei-computer-age"].effects, {
   type = "unlock-quality",
   quality = "legendary"
 })
-
+]]
 
 -- =================================================================================================
 ei_lib.remove_tech("nuclear-fuel-reprocessing")

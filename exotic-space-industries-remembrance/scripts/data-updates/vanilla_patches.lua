@@ -440,9 +440,10 @@ local new_ingredients_table = {
         {type="item",name="copper-plate", amount=50},
     },
     ["accumulator"] = {
-        {type="item",name="steel-plate", amount=6},
+        {type="item",name="ei-steel-beam", amount=4},
         {type="item",name="battery", amount=5},
-        {type="item",name="plastic-bar", amount=2},
+        {type="item",name="ei-insulated-wire",amount=2},
+        {type="item",name="electronic-circuit", amount=1},
     },
     ["stack-inserter"] = {
         {type="item",name="ei-electronic-parts", amount=5},
@@ -633,6 +634,26 @@ local new_ingredients_table = {
         {type="fluid", name="lubricant", amount=100}
     },
 -- recipes for modules
+    ["quality-module"] = {
+        {type="item", name="ei-module-base", amount=1},
+        {type="item", name="ei-cpu", amount=5},
+        {type="item", name="electronic-circuit", amount=5},
+        {type="item", name="ei-energy-crystal", amount=5},
+    },
+    ["quality-module-2"] = {
+        {type="item", name="ei-module-base", amount=1},
+        {type="item", name="quality-module", amount=2},
+        {type="item", name="ei-electronic-parts", amount=5},
+        {type="item", name="processing-unit", amount=5},
+        {type="item", name="ei-high-energy-crystal", amount=5},
+    },
+    ["quality-module-3"] = {
+        {type="item", name="ei-module-base", amount=1},
+        {type="item", name="quality-module-2", amount=2},
+        {type="item", name="ei-computing-unit", amount=5},
+        {type="item", name="processing-unit", amount=5},
+        {type="item", name="superconductor", amount=1},
+    },
     ["speed-module"] = {
         {type="item", name="ei-module-base", amount=1},
         {type="fluid", name="ei-liquid-nitrogen", amount=25}
@@ -1000,7 +1021,7 @@ new_prerequisites_table["electricity-age"] = {
 --    {"lubricant", "ei-destill-tower"}, --moved to set_prerequisites
     {"sulfur-processing", "ei-destill-tower"},
     {"coal-liquefaction", "ei-benzol"},
-    {"advanced-oil-processing", "ei-destill-tower"},
+--    {"advanced-oil-processing", "ei-electricity-age-tech"}, --moved to data
     {"laser", "ei-grower"},
     {"power-armor", "ei-grower"},
     {"solar-energy", "ei-waver-factory"},
@@ -1009,7 +1030,6 @@ new_prerequisites_table["electricity-age"] = {
     {"solar-panel-equipment", "advanced-circuit"},
     {"radar", "ei-electricity-power"},
     {"tank","advanced-circuit"},
-    {"tank","plastics"},
     {"tank","explosives"},
     {"logistics-2","plastics"}
 }
@@ -1018,6 +1038,7 @@ new_prerequisites_table["computer-age"] = {
     {"speed-module-2", "ei-computer-core"},
     {"productivity-module-2", "ei-computer-core"},
     {"efficiency-module-2", "ei-computer-core"},
+    {"quality-module-2", "ei-computer-core"},
     {"rocket-silo", "ei-computer-age"},
     {"low-density-structure", "ei-advanced-steel"},
     {"ei-rocket-parts", "rocket-fuel"},
@@ -1305,20 +1326,20 @@ end
 
 -- set fluid burn values for crude, light, heavy - oil and petrol
 ei_lib.raw["fluid"]["crude-oil"] = {
-    fuel_value = "50kJ",
+    fuel_value = "100kJ",
     fuel_emissions_multiplier = 1.25
 }
 ei_lib.raw["fluid"]["heavy-oil"] =  {
-    fuel_value = "250kJ",
+    fuel_value = "500kJ",
     fuel_emissions_multiplier = 1.1
 }
 ei_lib.raw["fluid"]["petroleum-gas"] = {
-    fuel_value = "400kJ",
-    fuel_emissions_multiplier = 0.8
+    fuel_value = "800kJ",
+    fuel_emissions_multiplier = 0.7
 }
 ei_lib.raw["fluid"]["light-oil"] = {
-    fuel_value = "500kJ",
-    fuel_emissions_multiplier = 1.0
+    fuel_value = "1000kJ",
+    fuel_emissions_multiplier = 0.8
 }
 local spider_smoke = table.deepcopy(ei_lib.raw["trivial-smoke"]["train-smoke"])
 spider_smoke.name = "ei-spider-smoke"
@@ -1786,6 +1807,26 @@ ei_lib.raw.module["speed-module-3"].icon = ei_graphics_item_path .. "speed-modul
 ei_lib.raw.module["efficiency-module"].icon = ei_graphics_item_path .. "effectivity-module.png"
 ei_lib.raw.module["efficiency-module-2"].icon = ei_graphics_item_path .. "effectivity-module-2.png"
 ei_lib.raw.module["efficiency-module-3"].icon = ei_graphics_item_path .. "effectivity-module-3.png"
+
+-- modify quality modules
+ei_lib.raw.module["quality-module"].effect = {
+    productivity = -0.25,
+    consumption = 1,
+    speed = -0.3,
+    quality=0.3
+}
+ei_lib.raw.module["quality-module-2"].effect = {
+    productivity = -0.50,
+    consumption = 2,
+    speed = -0.6,
+    quality=0.45
+}
+ei_lib.raw.module["quality-module-3"].effect = {
+    productivity = -0.75,
+    consumption = 3,
+    speed = -0.9,
+    quality=0.6
+}
 
 -- nerf vanilla modules a bit
 ei_lib.raw.module["productivity-module"].effect = {

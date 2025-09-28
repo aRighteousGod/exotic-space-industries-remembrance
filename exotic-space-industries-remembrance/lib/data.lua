@@ -537,7 +537,7 @@ ei_data.tech_structure["steam-age"] = {
     "steel-axe",
     "steel-processing",
     "military-2",
-
+    "plastics",
 }
 
 ei_data.tech_structure["electricity-age"] = {
@@ -594,7 +594,6 @@ ei_data.tech_structure["electricity-age"] = {
     "uranium-ammo",
     "uranium-processing",
     -- "nuclear-fuel-reprocessing",
-    "plastics",
     "sulfur-processing",
     "solar-energy",
     "solar-panel-equipment",

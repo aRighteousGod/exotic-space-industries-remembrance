@@ -525,7 +525,7 @@ data:extend({
         category = "ei-crushing",
         energy_required = 3,
         ingredients = {
-            {type="item", name="ei-coke-pellets", amount=5}
+            {type="item", name="ei-coke-pellets", amount=1}
         },
         results = {
             {type = "item", name = "ei-crushed-coke", amount = 10},

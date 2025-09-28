@@ -179,7 +179,7 @@ data:extend({
         subgroup = "raw-material",
         order = "c[solid-fuel]-a[diesel-fuel-unit]",
         fuel_category = "ei-diesel-fuel",
-        fuel_value = "20MJ",
+        fuel_value = "40MJ",
         fuel_emissions_multiplier = 0.7,
         fuel_acceleration_multiplier = 1.15,
         fuel_top_speed_multiplier = 0.85,
@@ -733,11 +733,31 @@ data:extend({
         age = "electricity-age",
     },
     {
+        name = "ei-insulated-wire",
+        type = "technology",
+        icon = ei_graphics_3_path.."graphics/item/insulated-wire-1.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+        prerequisites = {"ei-electricity-age","plastics"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-insulated-wire"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["electricity-age"],
+            time = 20
+        },
+        age = "electricity-age",
+    },
+    {
         name = "ei-benzol",
         type = "technology",
         icon = ei_graphics_tech_path.."benzol.png",
         icon_size = 256,
-        prerequisites = {"plastics"},
+        prerequisites = {"ei-electricity-age","plastics"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -878,10 +898,6 @@ table.insert(data.raw.technology["automation"].effects,
     recipe = "inserter"
 })
 
-table.insert(data.raw.technology["plastics"].effects,  {
-    type = "unlock-recipe",
-    recipe = "ei-insulated-wire"
-})
 table.insert(data.raw.technology["electric-mining-drill"].effects,  {
     type = "unlock-recipe",
     recipe = modprefix.."electric-quarry"

@@ -21,6 +21,11 @@ planet_map_gen.gaia = function ()
     map_gen_settings.autoplace_controls["ei-ammonia-patch"] = {frequency = 3, size = 1, richness = 1}
     map_gen_settings.autoplace_controls["ei-coal-gas-patch"] = {frequency = 3, size = 1, richness = 1}
     map_gen_settings.autoplace_controls["scrap"] = {frequency = 0.05, richness = 0.05, size = 0.05 }
+    
+    if mods["Electric_flying_enemies"] then
+        map_gen_settings.no_enemies_mode=false
+        map_gen_settings.autoplace_controls["electric_enemies"] = {frequency = 1, richness =1, size = 1 }
+    end
 
     map_gen_settings.autoplace_settings.entity.settings = {}
     map_gen_settings.autoplace_settings.entity.settings["ei-morphium-patch"] = {frequency = 3, size = 1, richness = 1}

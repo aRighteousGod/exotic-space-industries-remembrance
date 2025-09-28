@@ -568,7 +568,7 @@ function ei_lib.recipe_remove(recipe, ingredient)
 
         -- if ingredient is found, remove it
         -- here first index is ingredient name, second index is amount
-        if v[1] == ingredient then
+        if v.name == ingredient then
             table.remove(data.raw.recipe[recipe].ingredients, i)
         end
     end

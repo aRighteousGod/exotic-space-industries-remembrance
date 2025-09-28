@@ -530,11 +530,12 @@ script.on_configuration_changed(function(e)
         ei_compat.check_init(e)
         ei_echo_codex.handle_global_settings(e)
         em_trains.check_global() --no nil tables
-        em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
+
 
         em_trains.reinitialize_chargers() --applies updated buffs
         em_trains.reinitialize_trains()
         --em_trains.update_rail_counts()
+        em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
         em_trains_gui.mark_dirty()
 
         ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
@@ -544,6 +545,21 @@ script.on_configuration_changed(function(e)
 
         reforge_gaia_surface(e) --Must be called AFTER check_global
 
+        if script.active_mods["Electric_flying_enemies"] then
+            local gaia = game.get_surface("gaia")
+            if planet then
+                local mgs = gaia.map_gen_settings
+                if mgs then
+                    if mgs.autoplace_controls then
+                        if not mgs.autoplace_controls["electric_enemies"] then
+                            mgs.autoplace_controls["electric_enemies"] = {frequency = 1, richness =1, size = 1 }
+                        end
+                        mgs.no_enemies_mode=false
+                    end
+                end
+            end
+
+        end
         ei_tech_scaling.init()
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()

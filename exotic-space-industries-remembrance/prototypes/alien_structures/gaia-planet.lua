@@ -279,3 +279,12 @@ data:extend{
     hidden = true
   }
 }
+
+local pdgaia = ei_lib.raw.technology["ei-gaia"]
+if pdgaia and pdgaia.effects then
+    table.insert(pdgaia.effects,
+    {
+        type = "unlock-recipe",
+        recipe = "ei-excavator-running-gaia"
+    })
+end

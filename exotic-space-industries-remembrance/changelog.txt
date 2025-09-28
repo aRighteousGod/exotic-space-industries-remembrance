@@ -1,4 +1,48 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.56
+Date: 9-25-2025
+  Bugfixes:
+    - Fixed that Electric enemies failed to spawn on Gaia. @averagesquid
+---------------------------------------------------------------------------------------------------
+Version: 1.2.55
+Date: 9-25-2025
+  Features:
+    - Restored Better victory screen to optional dependencies—provides mod specific end-game stats.
+    - Created Insulated wire technology in Electricity age & transferred Insulated wire recipe unlock.
+  Changes:
+    - Crude oil fuel value: 50 -> 100 kJ.
+    - Heavy oil fuel value: 250 -> 500kJ.
+    - Petroleum gas fuel value: 400 -> 800kJ.
+    - Petroleum gas fuel emissions multiplier: 80 -> 70%.
+    - Light oil fuel value: 500 -> 1000kJ.
+    - Light oil fuel emissions multiplier: 100 -> 80%.
+    - Kerosene fuel value: 140 -> 280kJ.
+    - Coal gas fuel value: 50 -> 100kJ.
+    - Diesel fuel value: 200 -> 400kJ.
+    - Diesel fuel unit fuel value: 20 -> 40MJ.
+    - Quality module 1 effects: Set to Productivity -25%, Energy consumption +100%, Speed -30%, Quality +3%.
+    - Quality module 2 effects: Set to Productivity -50%, Energy consumption +200%, Speed -60%, Quality +4.5%.
+    - Quality module 3 effects: Set to Productivity -75%, Energy consumption +300%, Speed -90%, Quality +6%.
+    - Quality module recipe inputs: Set to 1 Module core, 5 CPU's, and 5 Energy crystals.
+    - Quality module 2 recipe inputs: Set to 1 Module core, 2 Quality modules, 5 Electronic parts, 5 Processing units, and 5 High energy crystals.
+    - Quality module 3 recipe inputs: Set to 1 Module core, 2 Quality module 2's, 5 Computing units, 5 Processing units, and 1 Superconductor.
+    - Removed Rare quality unlock from Steam age.
+    - Removed Epic quality unlock from Electricity age.
+    - Removed Legendary quality unlock from Computer age.
+    - Barrel capacity startup setting tooltip now informs that capacity is meant to be high because barrels only stack to 1.
+    - Moved Plastics technology to Steam age—prerequisite is Oil processing.
+    - Electricity age technology prerequisites: Additionally requires Plastics.
+    - Explosives technology prerequisites: Additionally requires Plastics and Electronics.
+    - Oil byproduct processing technology prerequisites: Set to Electricity age.
+    - Advanced circuit technology prerequisites: Additionally requires Insulated wire.
+    - Accumulator technology prerequisites: Set to Battery and Insulated wire.
+    - Accumulator recipe inputs: 6 Steel ingots -> 4 Steel beams, 2 Plastic bars -> 2 Insulated wires, additionally requires 1 Electronic circuit.
+  Bugfixes:
+    - Fixed that Crushing coal coke pellets recipe required 5 pellets instead of 1.
+    - Fixed that ei_lib.recipe_remove used 1.1 prototype schema preventing removal of ingredients.
+    - Fluoroketone now properly removes Solid fuel from recipe in lieu of Light oil.
+    - Fixed that the Gaian excavation recipe unlock failed to be added to Gaia planet discovery.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.54
 Date: 9-21-2025
   Features:
