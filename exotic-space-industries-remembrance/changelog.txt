@@ -1,7 +1,12 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.56
-Date: 9-25-2025
+Date: 9-28-2025
+  Changes:
+    - Heavy duty personal laser technology prerequisites: Additionally requires Personal laser defense equipment.
   Bugfixes:
+    - Fixed that old gaia migration script could sometimes prevent starting a new game.
+    - Fixed that Thorium-232 fuelrod displayed incorrect tooltip regarding output of heated liquid lead.
+    - Fixed that the reinitialize em trains/chargers functions calls to apply buffs used improper format.
     - Fixed that Electric enemies failed to spawn on Gaia. @averagesquid
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.55

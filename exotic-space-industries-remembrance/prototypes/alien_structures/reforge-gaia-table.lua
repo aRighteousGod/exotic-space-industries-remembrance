@@ -10,9 +10,10 @@ local model = {
       ["ei-cryoflux-patch"] = { frequency = 5, richness = 1, size = 1 },
       ["ei-morphium-patch"] = { frequency = 5, richness = 1, size = 1 },
       ["ei-phytogas-patch"] = { frequency = 5, richness = 1, size = 1 },
-      gaia_cliff        = {},
-      scrap                = {frequency = 0.05, richness = 0.05, size = 0.05 },
-    },
+      ["gaia_cliff"]        = {},
+      ["scrap"]             = {frequency = 0.05, richness = 0.05, size = 0.05 },
+      ["electric_enemies"]  = { frequency = 1, richness = 1, size = 1 },
+      },
     autoplace_settings = {
       decorative = {
         settings = {
@@ -25,7 +26,8 @@ local model = {
           ["ei-cryoflux-patch"]       = { frequency = 5, richness = 1, size = 1 },
           ["ei-morphium-patch"]       = { frequency = 5, richness = 1, size = 1 },
           ["ei-phytogas-patch"]       = { frequency = 5, richness = 1, size = 1 },
-          scrap                       = {frequency = 0.05, richness = 0.05, size = 0.05 },
+          ["scrap"]                   = {frequency = 0.05, richness = 0.05, size = 0.05 },
+          ["electric_enemies"]       = { frequency = 1, richness = 1, size = 1 },
           --[[
           ["ei-alien-flowers-1"] = {frequency = 1, size = 4, richness = 1},
           ["ei-alien-flowers-2"] = {frequency = 1, size = 4, richness = 1},

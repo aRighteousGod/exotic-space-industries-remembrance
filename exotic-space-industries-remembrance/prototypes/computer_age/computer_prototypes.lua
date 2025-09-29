@@ -2752,7 +2752,7 @@ data:extend({
         icon = ei_graphics_tech_path.."personal-laser.png",
         icon_size = 256,
         icon_mipmaps = 4,
-        prerequisites = {"military-4", "ei-computer-core"},
+        prerequisites = {"military-4", "ei-computer-core","personal-laser-defense-equipment"},
         effects = {
             {
                 type = "unlock-recipe",

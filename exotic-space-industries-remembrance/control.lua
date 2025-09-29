@@ -426,6 +426,7 @@ commands.add_command("goto-nauvis", "Teleport to Nauvis' surface", function(cmd)
 end)
 ]]
 function reforge_gaia_surface(event)
+    --[[
     --1.5.7 -> 1.5.8 migration
     local legacy = game.surfaces["Gaia"]
     local canonical = game.planets["gaia"]
@@ -435,6 +436,7 @@ function reforge_gaia_surface(event)
       canonical.associate_surface(legacy)
       ei_lib.crystal_echo("☲ [Ghost Reclaimed] — The lost echo of 'Gaia' has been bound to its true self. Memory and flesh rejoin.")
     end
+    ]]
     if storage.ei.gaia_reforged == 1 then return end
     local planet_name = "gaia"
     local planet = game.planets[planet_name]
@@ -547,19 +549,25 @@ script.on_configuration_changed(function(e)
 
         if script.active_mods["Electric_flying_enemies"] then
             local gaia = game.get_surface("gaia")
-            if planet then
+            if gaia then
                 local mgs = gaia.map_gen_settings
                 if mgs then
                     if mgs.autoplace_controls then
                         if not mgs.autoplace_controls["electric_enemies"] then
-                            mgs.autoplace_controls["electric_enemies"] = {frequency = 1, richness =1, size = 1 }
+                            mgs.autoplace_controls["electric_enemies"] = {frequency = 1, richness =1, size = 5 }
                         end
-                        mgs.no_enemies_mode=false
+                        
                     end
+                    if mgs.autoplace_settings then
+                        if not mgs.autoplace_settings["electric_enemies"] then
+                            mgs.autoplace_settings.entity.settings["electric_enemies"] = {frequency = 1, richness =1, size = 5 }
+                        end
+                    end
+                    mgs.no_enemies_mode=false
                 end
             end
-
         end
+
         ei_tech_scaling.init()
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()

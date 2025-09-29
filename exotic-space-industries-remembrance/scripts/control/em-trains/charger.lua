@@ -353,7 +353,7 @@ function model.reinitialize_chargers()
                 if entity and entity.valid then
                     em_trains.register_charger(entity)
                     if effBuff then
-                        em_trains.apply_buffs(em_trains.techs["ei-eff"], effBuff, true, entity)
+                        em_trains.apply_buffs("eff", effBuff, true, entity)
                     end
                 end
             end
@@ -372,10 +372,10 @@ function model.reinitialize_trains()
                 if entity and entity.valid then
                     em_trains.register_train(entity)
                     if spdBuff then
-                         em_trains.apply_buffs(em_trains.techs["ei-spd"], spdBuff, true, entity)
+                         em_trains.apply_buffs("spd", spdBuff, true, entity)
                     end
                     if accBuff then
-                        em_trains.apply_buffs(em_trains.techs["ei-acc"], accBuff, true, entity)
+                        em_trains.apply_buffs("acc", accBuff, true, entity)
                     end
                 end
             end

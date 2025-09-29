@@ -163,6 +163,7 @@ ei_lib.add_prerequisite("laser-shooting-speed-1","laser")
 ei_lib.set_prerequisites("laser-turret",{"laser","battery","advanced-circuit"})
 ei_lib.add_prerequisite("laser-weapons-damage-1","laser")
 ei_lib.add_prerequisite("personal-laser-defense-equipment","laser")
+
 ei_lib.add_prerequisite("ei-personal-laser","laser")
 ei_lib.add_prerequisite("ei-black-hole-exploration","ei-fusion-drive")
 
