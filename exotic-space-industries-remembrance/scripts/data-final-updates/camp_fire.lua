@@ -24,6 +24,9 @@ local function add_recipe(energy,speed,name,item)
         hide_from_player_crafting = true,
         allow_productivity = true,
         ingredients = {{type="item", name=name, amount=1}},
+        surface_conditions = {
+            {property = "pressure",    min = 33, max = 100000},
+        },
         results = {{
             type = "item",
             name = item['burnt_result'] or "atan-ash",
@@ -34,8 +37,35 @@ local function add_recipe(energy,speed,name,item)
             amount = 1,
             probability = 1,
             emissions_multiplier = item['fuel_emissions_multiplier'] or 1,
-        }},
-    })
+        }}}
+    )
+    --[[
+    table.insert(recipes, {
+        type = "recipe",
+        name = "ei-oxygenated-warm-fire-from-" .. name,
+        localised_name = {"recipe-name.ei-oxygenated-warm-fire"},
+        category = "ei-burning",
+        icon = "__core__/graphics/arrows/heat-exchange-indication.png",
+        icon_size = 48,
+        energy_required = (12.3 + energy / 1e6) * speed,
+        enabled = true,
+        always_show_products = true,
+        show_amount_in_title = false,
+        allowed_effects = {"speed", "consumption","quality","productivity"},
+        hide_from_player_crafting = true,
+        allow_productivity = true,
+        ingredients = {
+            {type="fluid", name="ei-oxygen-gas", amount=math.max(1,(12.3 + energy / 1e6) * speed)},
+            {type="item", name=name, amount=1}
+        },
+        results = {{
+            type = "item",
+            name = item['burnt_result'] or "atan-ash",
+            amount = 1 + math.floor((((12.3 + energy / 1e6) * speed) ^ 0.5) / 3),
+            probability = 1,
+            emissions_multiplier = item['fuel_emissions_multiplier'] or 1,
+        }}}
+    )]]
 end
 
 for name,item in pairs(data.raw['item']) do

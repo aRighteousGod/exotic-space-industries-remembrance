@@ -168,7 +168,7 @@ data:extend({
         icon = ei_graphics_other_path.."vent_nitrogen.png",
         icon_size = 64,
         subgroup = "fluid-recipes",
-        order = "b[fluid-chemistry]-h[ei_nitrogen-gas-vent]"
+        order = "b[fluid-chemistry]-h[ei-nitrogen-gas-vent]"
     },
     {
         name = "ei-oxygen-gas",
@@ -200,7 +200,7 @@ data:extend({
         icon = ei_graphics_other_path.."vent_oxygen.png",
         icon_size = 64,
         subgroup = "fluid-recipes",
-        order = "b[fluid-chemistry]-h[ei_oxygen-gas-vent]"
+        order = "b[fluid-chemistry]-h[ei-oxygen-gas-vent]"
     },
     {
         name = "ei-extract-water",
@@ -234,6 +234,46 @@ data:extend({
         icon = ei_graphics_other_path.."vent_steam.png",
         icon_size = 64,
         subgroup = "fluid-recipes",
-        order = "b[fluid-chemistry]-i[ei_steam-vent]"
+        order = "b[fluid-chemistry]-i[ei-steam-vent]"
+    },
+    {
+        name = "ei-benzol-vent",
+        type = "recipe",
+        category = "ei-lufter",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-benzol", amount = 50},
+        },
+        results = {},
+        always_show_made_in = true,
+        enabled = false,
+        icon = data.raw.fluid["ei-benzol"].icon,
+        icon_size = data.raw.fluid["ei-benzol"].icon_size,
+        icons = {
+            { icon = data.raw.fluid["ei-benzol"].icon, scale = 1 },
+            { icon = "__base__/graphics/icons/signal/signal-no-entry.png", scale = 1.5}
+        },
+        subgroup = "fluid-recipes",
+        order = "b[fluid-chemistry]-i[ei-benzol-vent]"
+    },
+    {
+        name = "ei-coal-gas-vent",
+        type = "recipe",
+        category = "ei-lufter",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-coal-gas", amount = 50},
+        },
+        results = {},
+        always_show_made_in = true,
+        enabled = false,
+        icon = data.raw.fluid["ei-coal-gas"].icon,
+        icon_size = data.raw.fluid["ei-coal-gas"].icon_size,
+        icons = {
+            { icon = data.raw.fluid["ei-coal-gas"].icon, scale = 1 },
+            { icon = "__base__/graphics/icons/signal/signal-no-entry.png", scale = 1.5}
+        },
+        subgroup = "fluid-recipes",
+        order = "b[fluid-chemistry]-i[ei-benzol-vent]"
     },
 })

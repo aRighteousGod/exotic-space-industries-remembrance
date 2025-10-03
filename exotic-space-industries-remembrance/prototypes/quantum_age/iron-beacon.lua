@@ -62,7 +62,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."iron-beacon.png",
         icon_size = 128,
-        prerequisites = {"ei-quantum-computer", "research-speed-5", "mining-productivity-3", "ei-nano-factory", "ei-copper-beacon"},
+        prerequisites = {"ei-quantum-computer", "ei-nano-factory", "ei-copper-beacon"},
         effects = {
             {
                 type = "unlock-recipe",

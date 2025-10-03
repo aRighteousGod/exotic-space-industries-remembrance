@@ -780,6 +780,15 @@ data.raw.recipe["ei-carbon"].crafting_machine_tint =
 	quaternary = {r = 0.210, g = 0.170, b = 0.013, a = 1.000}
 }
 
+--do fluorine to fluorite recipe
+data.raw.recipe["ei-carbon"].crafting_machine_tint =
+{
+	primary = {r=0.3, g=0.3, b=0.3, a = 1.000},
+	secondary = {r=0.1, g=0.1, b=0.1, a = 1.000},
+	tertiary = {r = 1.000, g = 0.978, b = 0.513, a = 1.000},
+	quaternary = {r = 0.210, g = 0.170, b = 0.013, a = 1.000}
+}
+
 --Science pack yield adjustment settings
 --dark
 local dark_yield = ei_lib.config("science-pack-yield-dark")

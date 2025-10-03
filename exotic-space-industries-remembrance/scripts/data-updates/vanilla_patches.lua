@@ -2233,6 +2233,48 @@ if cryo then
     cryo.module_slots = 4
     table.insert(cryo.crafting_categories,"ei-cooler")
 end
+data:extend({
+    {
+    name = "ei-fluorite-fluorine-calcite",
+    type = "recipe",
+    category = "chemistry",
+    energy_required = 6,
+    ingredients = {
+        {type = "fluid", name = "fluorine", amount = 15},
+        {type = "item", name = "calcite", amount = 1},
+    },
+    results = {
+        {type = "item", name = "ei-fluorite", amount = 2},
+        {type = "fluid", name = "ei-oxygen-gas", amount = 15},
+        --co2?
+    },
+    always_show_made_in = true,
+    enabled = false,
+    main_product = "ei-fluorite",
+    },
+    {
+        name = "ei-fluorine-vent",
+        type = "recipe",
+        category = "ei-lufter",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "fluorine", amount = 50},
+        },
+        results = {},
+        always_show_made_in = true,
+        enabled = false,
+        icon = data.raw.fluid["fluorine"].icon,
+        icon_size = data.raw.fluid["fluorine"].icon_size,
+        icons = {
+            { icon = data.raw.fluid["fluorine"].icon, scale = 1 },
+            { icon = "__base__/graphics/icons/signal/signal-no-entry.png", scale = 1.5}
+        },
+        subgroup = "fluid-recipes",
+        order = "b[fluid-chemistry]-i[ei-fluorine-vent]"
+    },
+})
+table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-fluorite-fluorine-calcite"})
+table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-fluorine-vent"})
 --====================================================================================================
 --Fulgora
 --====================================================================================================

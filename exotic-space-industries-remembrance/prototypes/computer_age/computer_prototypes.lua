@@ -3614,3 +3614,4 @@ table.insert(data.raw["technology"]["space-platform"].effects, {type = "unlock-r
 table.insert(data.raw["technology"]["space-platform-thruster"].effects, {type = "unlock-recipe", recipe = "ei-space-steam-2"})
 table.insert(data.raw["technology"]["space-platform-thruster"].effects, {type = "unlock-recipe", recipe = "ei-thruster-oxidizer"})
 table.insert(data.raw["technology"]["advanced-asteroid-processing"].effects, {type = "unlock-recipe", recipe = "ei-advanced-thruster-oxidizer"})
+

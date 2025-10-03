@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.57
+Date: 10-2-2025
+  Features:
+    - Created Fluorite from Fluorine & Calcite recipe—unlocked with Planet discovery Aquilo.
+    - Created Vent fluorine gas recipe for Air filter—unlocked with Planet discovery Aquilo.
+    - Created Vent coal gas recipe for Air filter—unlocked with Hypercooler.
+    - Created Vent benzol recipe for Air filter—unlocked with Hypercooler.
+  Changes:
+    - Burning recipes now require an atmosphere.
+    - Aquilian excavation recipe inputs: Drill fluid 756 -> 189.
+    - Aquilian excavation recipe crafting time: 180 -> 45s.
+  Bugfixes:
+    - Fixed that Absolute zero phase array beacon technology research required mining and research productivity technologies.
+    - Fixed that Thorium-232 Cosmic Criticality Pack was labeled Uranium-232.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.56
 Date: 9-28-2025
   Changes:

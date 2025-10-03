@@ -175,6 +175,14 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-benzol-vent"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-coal-gas-vent"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-lufter"
             },
             {

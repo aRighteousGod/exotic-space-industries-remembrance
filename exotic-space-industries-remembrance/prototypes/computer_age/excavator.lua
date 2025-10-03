@@ -303,9 +303,9 @@ data:extend({
         name = "ei-excavator-running-aquilo",
         type = "recipe",
         category = "ei-excavator",
-        energy_required = 180,
+        energy_required = 45,
         ingredients = {
-            {type = "fluid", name = "ei-drill-fluid", amount = 756},
+            {type = "fluid", name = "ei-drill-fluid", amount = 189},
             {type = "fluid", name = "fluoroketone-hot", amount = 150},
         },
         results = {
