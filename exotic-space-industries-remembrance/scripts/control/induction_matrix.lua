@@ -21,7 +21,8 @@ model.coils = {
 
 
 model.solenoids = {
-    ["ei-induction-matrix-basic-solenoid"] = true,
+    ["ei-induction-matrix-basic-solenoid"] = 1,
+    ["ei-induction-matrix-advanced-solenoid"] = 0.5,
 }
 
 
@@ -621,7 +622,7 @@ function model.calculate_stats(coils, solenoids, converters)
         for _, solenoid in pairs(coil_solenoids) do
 
             if model.solenoids[solenoid.name] then
-                solenoids_around = solenoids_around + 1
+                solenoids_around = solenoids_around + model.solenoids[solenoid.name]
             end
 
         end

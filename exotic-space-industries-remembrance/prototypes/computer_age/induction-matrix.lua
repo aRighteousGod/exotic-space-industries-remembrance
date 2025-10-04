@@ -300,7 +300,6 @@ data:extend({
     },
 
     -- solenoids
-    --[[
     {
         name = "ei-induction-matrix-advanced-solenoid",
         type = "technology",
@@ -320,7 +319,6 @@ data:extend({
         },
         age = "advanced-computer-age",
     },
-    ]]
     {
         name = "ei-induction-matrix-basic-solenoid",
         type = "item",

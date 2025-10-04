@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.58
+Date: 10-4-2025
+  Features:
+    - Implemented Advanced solenoid technology allowing unlocking the recipe for Induction matrix and relic recipes—can place more of them before hurting capacity.
+  Changes:
+    - Advanced exoskeleton equipment technology prerequisites: Additionally requires Exoskeleton equipment.
+    - Filling cryo container with nitrogen or oxygen recipes: No longer affected by Quality modules.
+  Bugfixes:
+    - Plasma turret and other relic weaponry no longer inaccessible due to missing Advanced solenoid recipe.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.57
 Date: 10-2-2025
   Features:
