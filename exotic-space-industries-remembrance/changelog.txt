@@ -1,4 +1,23 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.60
+Date: 10-8-2025
+  Bugfixes:
+    - Fixed that EM locomotive upgrade research technologies ignored tech cost multiplier.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.59
+Date: 10-6-2025
+  Changes:
+    - Semiconductor from monosilicon recipe inputs: Hydrofluoric acid 10 -> 30, Crushed gold 5 -> 15.
+    - Semiconductor from monosilicon recipe outputs: Semiconductor 4 -> 12.
+    - Semiconductor from monosilicon recipe crafting time: 5 -> 15s.
+    - Advanced semiconductor from monosilicon recipe inputs: Crushed gold 6 -> 18, Energy crystal 2 -> 6, Unprimed semiconductor 1 -> 3.
+    - Advanced semiconductor from monosilicon recipe outputs: Advanced semiconductor 3 -> 9, Acidic water 10 -> 30.
+    - Advanced semiconductor from monosilicon recipe crafting time: 2 -> 6s.
+    - Restored pre-ESI T1 steel blend and steel blend smelting recipes—2 crushed coke and 5 crushed iron for 1 steel ingot.
+    - Restored pre-ESI T2 molten steel blend recipe—15 molten iron and 1 crushed coke for 10 molten steel.
+  Bugfixes:
+    - Oxygen gas production now correctly unlocks Vaporizing liquid oxygen instead of Vaporizing Ammonia gas.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.58
 Date: 10-4-2025
   Features:

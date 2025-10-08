@@ -1380,7 +1380,7 @@ data:extend({
         category = "chemistry",
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-molten-iron", amount = 10},
+            {type = "fluid", name = "ei-molten-iron", amount = 15},
             {type = "item", name = "ei-crushed-coke", amount = 1},
         },
         results = {
@@ -2270,14 +2270,14 @@ data:extend({
         name = "ei-semiconductor-monosilicon",
         type = "recipe",
         category = "ei-waver-factory",
-        energy_required = 5,
+        energy_required = 15,
         ingredients = {
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 10},
-            {type = "item", name = "ei-crushed-gold", amount = 5},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 30},
+            {type = "item", name = "ei-crushed-gold", amount = 15},
             {type = "item", name = "ei-monosilicon", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-semiconductor", amount = 4},
+            {type = "item", name = "ei-semiconductor", amount = 12},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2289,16 +2289,16 @@ data:extend({
         name = "ei-advanced-semiconductor-monosilicon",
         type = "recipe",
         category = "ei-waver-factory",
-        energy_required = 2,
+        energy_required = 6,
         ingredients = {
             {type = "item", name = "ei-monosilicon", amount = 2},
-            {type = "item", name = "ei-crushed-gold", amount = 6},
-            {type = "item", name = "ei-energy-crystal", amount = 2},
-            {type = "item", name = "ei-advanced-base-semiconductor", amount = 1},
+            {type = "item", name = "ei-crushed-gold", amount = 18},
+            {type = "item", name = "ei-energy-crystal", amount = 6},
+            {type = "item", name = "ei-advanced-base-semiconductor", amount = 3},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount = 10},
-            {type = "item", name = "ei-advanced-semiconductor", amount = 3},
+            {type = "fluid", name = "ei-acidic-water", amount = 30},
+            {type = "item", name = "ei-advanced-semiconductor", amount = 9},
         },
         always_show_made_in = true,
         enabled = false,
@@ -3142,7 +3142,7 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
-                recipe = "ei-vaporize-liquid-ammonia"
+                recipe = "ei-vaporize-liquid-oxygen"
             },
             {
                 type = "unlock-recipe",

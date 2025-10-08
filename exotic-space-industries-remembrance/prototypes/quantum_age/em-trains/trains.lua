@@ -371,7 +371,7 @@ local function make_multiple_techs(tab)
 		}
 		blank_copy.unit = table.deepcopy(tab[4])
 		blank_copy.unit.count = (tab[4].count)*(i*10)
-		blank_copy.ignore_tech_cost_multiplier = true
+		blank_copy.ignore_tech_cost_multiplier = false
 
 		data:extend({blank_copy})
 		

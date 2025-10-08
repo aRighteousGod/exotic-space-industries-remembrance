@@ -620,7 +620,7 @@ data:extend({
         energy_required = 2,
         ingredients = {
             {type="item", name="ei-crushed-coke", amount=2},
-            {type="item", name="ei-crushed-iron", amount=10}
+            {type="item", name="ei-crushed-iron", amount=5}
         },
         results = {
             {type = "item", name = "ei-steel-blend", amount = 1},
@@ -633,12 +633,12 @@ data:extend({
         name = "ei-steel-plate",
         type = "recipe",
         category = "smelting",
-        energy_required = 20,
+        energy_required = 2,
         ingredients = {
             {type="item", name = "ei-steel-blend", amount = 1}
         },
         results = {
-            {type = "item", name = "steel-plate", amount = 10},
+            {type = "item", name = "steel-plate", amount = 1},
             {type="item",name="ei-slag",amount_min=1,amount_max=2,probability=0.1}
         },
         always_show_made_in = true,
