@@ -55,20 +55,24 @@ for item_name, item in pairs(data.raw["item"]) do
             "assembling-machine",
             "rocket-silo",
             "container",
-            "mining-drill"
+            "mining-drill",
+            "pipe",
+            "beacon",
+            "furnace",
+            "tank"
         }
 
         local entity = nil
         for i,v in ipairs(possible_types) do
-            if data.raw[v][item.place_result] then
+            if data.raw[v] and data.raw[v][item] and data.raw[v][item.place_result] then
                 entity = data.raw[v][item.place_result]
 
-                if not entity then goto continue end
+                if not entity or entity.localised_description then goto continue end
                 if not item.localised_description then goto continue end
                 -- if entity.localised_description then goto continue end
                 data.raw[v][item.place_result].localised_description = item.localised_description
 
-                log("copied description from item "..item_name.." to entity "..item.place_result)
+                log("EI locale_updates: copied description from item "..item_name.." to entity "..item.place_result)
 
                 goto continue
             end

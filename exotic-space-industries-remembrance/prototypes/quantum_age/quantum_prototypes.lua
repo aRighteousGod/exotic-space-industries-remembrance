@@ -44,7 +44,7 @@ data:extend({
         order = "a[speed]-c[speed-module-3]-c",
         category = "speed",
         tier = 6,
-        effect = { speed = 0.8, consumption = 0.5},
+        effect = { speed = 0.8, consumption = 0.6},
     },
     {
         name = "ei-efficiency-module-4",

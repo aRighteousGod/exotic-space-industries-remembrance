@@ -19,6 +19,7 @@ require("scripts/data-final-updates/set_menu_background")
 
 -- =======================================================================================
 require("scripts/data-final-updates/assembler_reskin")
+require("scripts/data-final-updates/legacy_train_model")
 require("scripts/data-final-updates/camp_fire")
 require("scripts/data-final-updates/flare_stack")
 require("scripts/data-final-updates/final-tech-fixes")
@@ -27,6 +28,7 @@ require("scripts/data-final-updates/set_age_packs")
 require("scripts/data-final-updates/set_prerequisites")
 require("scripts/data-final-updates/tiles")
 require("scripts/data-final-updates/labs")
+require("scripts/data-final-updates/recycling")
 require("scripts/data-final-updates/items")
 require("scripts/data-final-updates/krastorio_patches")
 

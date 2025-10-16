@@ -693,7 +693,7 @@ ei_lib.recipe_new("lubricant",
 })
 ei_lib.raw["recipe"]["lubricant"].results = {
     {type="fluid", name="lubricant", amount_min=6,amount_max=10},
-    {type="fluid", name="steam", amount_min=3,amount_max=7},
+    {type="fluid", name="steam", amount_min=3,amount_max=7,temperature=350},
 }
 local l_icon = ei_lib.raw.fluid["lubricant"].icon
 local l_icon_size = ei_lib.raw.fluid["lubricant"].icon_size

@@ -3285,6 +3285,10 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-hydrogen"
             },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-hydrogen-gas-vent"
+            },
         },
         unit = {
             count = 100,

@@ -1,4 +1,56 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.62
+Date: 10-16-2025
+  Features:
+    - Created X1 "Goliath" atomic locomotive—requires Carbon manipulation and Simulation age, situated inbetween Diesel and EM locomotives. Capable of >400 km/h using Uranium 235 fuel cells, weighing only 1600 kg, with enhanced resistances and 75% additional braking force over the Diesel locomotive—this tyrant is ready to rule your railways.
+    - Created CF-9 "Black Ark" advanced cargo wagon—requires Carbon manipulation and Simulation age, a more resilient lighter weight cargo wagon specced out for modern performance.
+    - Added Legacy Train Model by @aspct to required dependencies—used as the graphics for the new Nuclear locomotive.
+    - Created Vent hydrogen gas recipe for Air filter—unlocked with Ammonia production.
+  Changes:
+    - Steam train fuel types: Can no longer use Nuclear or Fusion fuels.
+    - EM locomotive/cargo/fluid wagon resistances: Additionally has -15/50% resistance to cold.
+    - EM locomotive recipe inputs: Swapped Diesel locomotive with X1 "Goliath" atomic locomotive.
+    - EM cargo wagon recipe inputs: Swapped Cargo wagon with CF-9 "Black Arc" advanced cargo wagon.
+    - EM locomotive technology requirements: Additionally requires X1 "Goliath" atomic locomotive and CF-9 "Black Ark" advanced cargo wagon.
+    - Insulated pipes, pipe to ground, and tank damage resistances: Fire, Acid, Cold, Poison 90 -> 100%.
+    - Acidthrower sticker (lingering effect) movement speed debuff: 20 -> 50%.
+    - Air scrubber energy usage: 155kW -> 1.337MW - (1.337*((Quality-1)*0.0725)) ie -7.25% energy usage per Quality level.
+    - Pollution filter cleaning recipes' inputs: Steam 500 -> 3750, minimum temperature 0 -> 300c.
+    - Pollution filter cleaning recipes' outputs: 6-10 Pollution filters -> 4-10, 1-10 Ash/Spoilage -> 3-30.
+    - Pollution filter cleaning recipes' crafting time: 60 -> 180s.
+    - Pollution filter cleaning recipes no longer allow productivity.
+    - Pollution filter recipes' inputs: Plastic bar 1 -> 2, Carbon 1 -> 2, Medium distillate 80 -> 100.
+    - Pollution filter recipes crafting time: 2 -> 20s.
+    - Roboports constant energy drain: 50 -> 500kW.
+    - Steam roboport electric buffer: 7500 -> 9000kJ.
+    - Dark age technology: No longer unlocks Normal & Uncommon quality.
+    - Advanced rock asteroid crushing recipe outputs: Tungsten ore probability 8 -> 6%, additionally can yield 2-4 Calcite with 12% probability.
+  Bugfixes:
+    - Temporarily disabled Exotic assembler interaction with Matter stabilizers if game is MP to prevent desyncs.
+    - Temporarily disabled Gate teleportation if game is MP to prevent desyncs.
+    - Temporarily disabled invalid fluid in pipe causing destruction if game is MP to prevent desyncs.
+    - Temporarily disabled EM train updater if game is MP to prevent desyncs.
+    - Fixed that locale updater wouldn't attach item descriptions to their placeable entity in all cases.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.61
+Date: 10-13-2025
+  Features:
+    - Created additional T1 recycler recipe—requires 45 Electronic parts, 15 Steel ingots, 4 Steel beams, 20 Iron mechanical parts, 20 Steel mechanical parts, 12 Electric engine units, and 20 Concrete.
+  Changes:
+    - Recycler recipe inputs: Processing units 6 -> 8, Steel ingots 20 -> 15, Iron mechanical parts 40 -> 20, 20 Concrete -> 5 Refined concrete, additionally requires 4 Steel beams, 20 Steel mechanical parts, and 3 Advanced motors.
+    - Twin-bore cannon turrets will no longer lead shots in order to enhance accuracy.
+    - Twin-bore cannon turret shell's movement speed: 0.125 -> 0.2.
+    - Twin-bore cannon turret shell firing direction deviation: 0.1 -> 0.033.
+    - Quarries' pollution emissions: Increased 1/3.
+    - Quarry descriptions: Corrected to accurately convey their stats and downside.
+    - Speed module 6 energy consumption modifier: +50 -> +60%.
+    - Lubricant recipe outputs: Steam temperature 15 -> 350c.
+  Bugfixes:
+    - Fixed that recycling items with edited recipes would yield their original recipe's ingredients.
+    - Potentially prevented desyncs from pipes being destroyed for containing data substrates.
+    - Fixed that Quarry descriptions didn't show on their entities.
+    - Fixed that Ceramite and Plastcrete wall entities did not properly reflect their item name.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.60
 Date: 10-8-2025
   Bugfixes:

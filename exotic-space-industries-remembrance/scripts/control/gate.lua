@@ -1321,7 +1321,11 @@ function model.update()
     if not storage.ei.gate.gate then
         return false
     end
+    
     model.update_player_guis()
+    if game.is_multiplayer() then
+        return false
+    end
     --model.update_player_guis()
     -- fixed in remote-config
     -- model.update_player_permissions()

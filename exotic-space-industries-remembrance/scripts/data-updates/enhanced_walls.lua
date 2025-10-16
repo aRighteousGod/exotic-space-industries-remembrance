@@ -26,6 +26,8 @@ ei_lib.recipe_new("tough-wall",{
     {type="item", name="concrete", amount=4},
 })
 local tw = ei_lib.raw.wall["tough-wall"]
+tw.localised_name = {"item-name.ei-tough-wall"}
+tw.localised_description = {"item-description.ei-tough-wall"}
 tw.resistances = {
   {
     type = "physical",
@@ -81,6 +83,8 @@ ei_lib.recipe_new("plated-wall",{
     {type="item", name="refined-concrete", amount=4},
 })
 local pw = ei_lib.raw.wall["plated-wall"]
+pw.localised_name = {"item-name.ei-plated-wall"}
+pw.localised_description = {"item-description.ei-plated-wall"}
 pw.resistances = {
   {
     type = "physical",

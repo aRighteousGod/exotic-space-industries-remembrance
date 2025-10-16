@@ -39,14 +39,6 @@ data:extend({
 
         },
         effects = {
-            {
-            type = "unlock-quality",
-            quality = "normal"
-            },
-            {
-            type = "unlock-quality",
-            quality = "uncommon"
-            }
         },
         unit = {
             count = 100,

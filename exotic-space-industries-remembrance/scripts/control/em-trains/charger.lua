@@ -1062,6 +1062,9 @@ end
 ------------------------------------------------------------------------------------------------------
 
 function model.train_updater()
+    if game.is_multiplayer() then
+        return false
+    end
    return model.update_trains()
 
 end

@@ -175,7 +175,7 @@ data:extend({
 		energy_source =
 		{
 			type = "burner",
-			fuel_categories = {"chemical","ei-rocket-fuel","ei-nuclear-fuel","ei-nuclear-fuel-cell","ei-fusion-fuel"},
+			fuel_categories = {"chemical","ei-rocket-fuel"},
 			effectivity = 0.70,
 			fuel_inventory_size = 3,
 			burnt_inventory_size = 3,
@@ -993,7 +993,7 @@ data:extend({
 		},
 		energy_source = {
 			type = "burner",
-			fuel_categories = {"chemical","ei-rocket-fuel","ei-nuclear-fuel","ei-nuclear-fuel-cell","ei-fusion-fuel"},
+			fuel_categories = {"chemical","ei-rocket-fuel"},
 			effectivity = 0.85,
 			fuel_inventory_size = 2,
 			burnt_inventory_size = 2,

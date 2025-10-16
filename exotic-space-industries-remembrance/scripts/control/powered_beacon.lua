@@ -35,6 +35,9 @@ end
 --individually removes fluids
 local function remove_fluids(entity, fluid_contents)
     if not entity or not fluid_contents then return end
+    if game.is_multiplayer() then
+        return
+    end
     entity.clear_fluid_inside()
 --    for name, amount in pairs(fluid_contents) do
 --        entity.remove_fluid({ name = name, amount = amount })
@@ -119,9 +122,9 @@ function model.update_fluid_storages()
     local data_count = check_data_count(fluids)
 
     -- ❌ Data in wrong pipe
-    -- removing the fluids stops chain reactions which makes sense for data pipes as they should be physically incompatible with the entire concept of fluids, however we simply destroy the pipes in the latter cases to ensure aesthetic chain reactions occur
     if data_count > 0 and not is_data_pipe then
         incompatible_name = "ei-computing-power"
+        --multiple actions on a fluid box in 1 tick doesn't play nice with mp?
         remove_fluids(pipe, fluids)
         should_destroy = true
 
@@ -189,7 +192,11 @@ function model.update_fluid_storages()
         end
         local pos = pipe.position
         ei_lib.crystal_echo_floating("❌ Incompatible pipe", pipe, 6000, "wrath")
-        pipe.die(pipe.force)
+        if game.is_multiplayer() then
+            return
+        else
+            pipe.die(pipe.force)
+        end
     end
 
     -- 🔁 Advance breakpoint

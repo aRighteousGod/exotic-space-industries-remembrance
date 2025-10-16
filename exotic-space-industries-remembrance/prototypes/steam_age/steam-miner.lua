@@ -96,7 +96,8 @@ miner.energy_source = {
 miner.fast_replaceable_group = "burner-mining-drill"
 miner.radius_visualisation_picture = data.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture
 miner.resource_searching_radius = 2
-
+miner.module_slots = 2
+miner.allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"}
 data:extend({miner})
 
 data.raw["mining-drill"]["burner-mining-drill"].next_upgrade = "ei-steam-miner"
@@ -127,11 +128,11 @@ steam_quarry.energy_source = {
     effectivity = 1.0,
     scale_fluid_usage = true,
 }
-miner.module_slots = 2
-miner.allowed_effects = {"consumption", "speed", "productivity", "pollution","quality"}
+
 steam_quarry.mining_speed = 1.5
 steam_quarry.resource_drain_rate_percent = 65
 steam_quarry.performance_to_activity_rate = 2.0
+steam_quarry.energy_source.emissions_per_minute.pollution = steam_quarry.energy_source.emissions_per_minute.pollution * 4
 
 data:extend({steam_quarry})
 table.insert(data.raw["technology"]["ei-steam-power"].effects, {type = "unlock-recipe", recipe = "ei-steam-quarry"})

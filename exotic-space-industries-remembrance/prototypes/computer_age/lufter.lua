@@ -276,4 +276,24 @@ data:extend({
         subgroup = "fluid-recipes",
         order = "b[fluid-chemistry]-i[ei-benzol-vent]"
     },
+    {
+        name = "ei-hydrogen-gas-vent",
+        type = "recipe",
+        category = "ei-lufter",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 50},
+        },
+        results = {},
+        always_show_made_in = true,
+        enabled = false,
+        icon = data.raw.fluid["ei-hydrogen-gas"].icon,
+        icon_size = data.raw.fluid["ei-coal-gas"].icon_size,
+        icons = {
+            { icon = data.raw.fluid["ei-hydrogen-gas"].icon, scale = 1 },
+            { icon = "__base__/graphics/icons/signal/signal-no-entry.png", scale = 1.5}
+        },
+        subgroup = "fluid-recipes",
+        order = "b[fluid-chemistry]-i[ei-hydrogen-vent]"
+    },
 })

@@ -17,7 +17,7 @@ local fire_small_damage_per_tick = 7 / 60
 local sticker_option = {
   	poison = {
 		tint = {r = 0.5, g = 0.5, b = 0.5, a = 0.3},
-		target_movement_modifier = 0.8,
+		target_movement_modifier = 0.5,
 		duration_in_ticks = 10 * 60,
 		damage_per_tick = { amount = (50 / 60)*1.15, type = "poison" }
 	},

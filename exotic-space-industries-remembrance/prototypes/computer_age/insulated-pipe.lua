@@ -97,10 +97,10 @@ data:extend({
         flags = {"player-creation","placeable-neutral","not-upgradable"},
         max_health = 500,
         resistances = {
-            {type = "fire", percent = 90},
-            {type = "acid", percent = 90},
-            {type = "poison", percent = 90},
-            {type = "cold", percent = 90},
+            {type = "fire", percent = 100},
+            {type = "acid", percent = 100},
+            {type = "poison", percent = 100},
+            {type = "cold", percent = 100},
 		},
         corpse = "big-remnants",
         collision_box = {{-1.4,-1.4},{1.4,1.4}},
@@ -174,10 +174,10 @@ pipe.name = "ei-insulated-pipe"
 pipe.minable.result = "ei-insulated-pipe"
 pipe.heating_energy = "0kW"
 pipe.resistances = {
-    {type = "fire", percent = 90},
-    {type = "acid", percent = 90},
-    {type = "poison", percent = 90},
-    {type = "cold", percent = 90},
+    {type = "fire", percent = 100},
+    {type = "acid", percent = 100},
+    {type = "poison", percent = 100},
+    {type = "cold", percent = 100},
 }
 -- pipe.fluid_box.filter = "ei-liquid-nitrogen"
 
@@ -202,10 +202,10 @@ pipeToGround.minable.result = "ei-insulated-underground-pipe"
 pipeToGround.fluid_box.pipe_connections[2].max_underground_distance = 11
 pipeToGround.heating_energy = "0W"
 pipeToGround.resistances = {
-    {type = "fire", percent = 90},
-    {type = "acid", percent = 90},
-    {type = "poison", percent = 90},
-    {type = "cold", percent = 90},
+    {type = "fire", percent = 100},
+    {type = "acid", percent = 100},
+    {type = "poison", percent = 100},
+    {type = "cold", percent = 100},
 }
 
 for k, v in pairs(pipeToGround.pictures) do

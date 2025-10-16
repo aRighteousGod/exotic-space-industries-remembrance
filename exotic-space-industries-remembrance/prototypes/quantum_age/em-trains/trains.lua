@@ -196,7 +196,7 @@ data:extend({
 		additional_categories = {"electronics"},
         energy_required = 10,
         ingredients = {
-          {type="item", name="locomotive", amount=1},
+          {type="item", name="ei-nuclear-locomotive", amount=1},
           {type="item", name="ei-carbon-structure", amount=25},
           {type="item", name="ei-clean-plating", amount=25},
           {type="item", name="ei-advanced-motor", amount=20},
@@ -230,7 +230,7 @@ data:extend({
         category = "crafting",
         energy_required = 10,
         ingredients = {
-			{type="item", name="cargo-wagon", amount=1},
+			{type="item", name="ei-advanced-cargo-wagon", amount=1},
 			{type="item", name="ei-carbon-structure", amount=15},
 			{type="item", name="ei-clean-plating", amount=15},
 			{type="item", name="ei_em-fielder", amount=8},
@@ -269,7 +269,7 @@ data:extend({
         type = "technology",
         icon = ei_trains_tech_path.."em-locomotive.png",
         icon_size = 256,
-        prerequisites = {"ei-eu-magnet", "energy-shield-mk2-equipment", "fluid-wagon", "ei-copper-beacon"},
+        prerequisites = {"ei-eu-magnet", "energy-shield-mk2-equipment", "fluid-wagon", "ei-copper-beacon","ei-nuclear-locomotive","ei-advanced-cargo-wagon"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -440,7 +440,8 @@ data:extend({
 			{type = "physical", decrease = 15, percent = 30 },
 			{type = "impact",decrease = 50,percent = 60},
 			{type = "explosion",decrease = 15,percent = 30},
-			{type = "acid",decrease = 10,percent = 20}
+			{type = "acid",decrease = 10,percent = 20},
+			{type = "cold",decrease = 15,percent = 50}
 		},
     energy_source = {
       type = "burner",
@@ -662,7 +663,8 @@ data:extend({
 			{type = "physical", decrease = 15, percent = 30 },
 			{type = "impact",decrease = 50,percent = 60},
 			{type = "explosion",decrease = 15,percent = 30},
-			{type = "acid",decrease = 10,percent = 20}
+			{type = "acid",decrease = 10,percent = 20},
+			{type = "cold",decrease = 15,percent = 50}
 		},
 		vertical_selection_shift = -0.8,
 		gui_front_tank =
@@ -838,7 +840,8 @@ data:extend({
 			{type = "physical", decrease = 15, percent = 30 },
 			{type = "impact",decrease = 50,percent = 60},
 			{type = "explosion",decrease = 15,percent = 30},
-			{type = "acid",decrease = 10,percent = 20}
+			{type = "acid",decrease = 10,percent = 20},
+			{type = "cold",decrease = 15,percent = 50}
 		},
 		vertical_selection_shift = -0.8,
 		--back_light = rolling_stock_back_light(),

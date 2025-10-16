@@ -3,7 +3,7 @@ import os
 
 def generate_mipmaps(input_path, output_path=None):
     base_image = Image.open(input_path).convert("RGBA")
-    mip_sizes = [128, 64, 32]
+    mip_sizes = [512, 256, 128, 64, 32]
 
     mipmaps = [base_image.resize((size, size), Image.LANCZOS) for size in mip_sizes]
 
@@ -23,5 +23,4 @@ def generate_mipmaps(input_path, output_path=None):
     combined.save(output_path)
     print(f"Saved mipmap strip as '{output_path}'.")
 
-generate_mipmaps('uranium-chunk.png')
-generate_mipmaps('poor-uranium-chunk.png')
+generate_mipmaps('advanced-cargo-wagon.png')

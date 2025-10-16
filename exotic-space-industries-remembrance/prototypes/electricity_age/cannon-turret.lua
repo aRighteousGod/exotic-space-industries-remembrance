@@ -134,7 +134,7 @@ data:extend({
         attack_parameters = {
             type = "projectile",
             ammo_category = "cannon-shell",
-            lead_target_for_projectile_speed = 0.125,
+            --lead_target_for_projectile_speed = 0.025,
             cooldown = 108,
             projectile_center = {0, 0.14},
             projectile_creation_distance = 2,
@@ -151,8 +151,8 @@ data:extend({
             },
             shell_particle = {
                 name = "shell-particle",
-                direction_deviation = 0.1,
-                speed = 0.125,
+                direction_deviation = 0.033,
+                speed = 0.2,
                 speed_deviation = 0.03,
                 center = {-0.0625, 0},
                 creation_distance = -1.925,

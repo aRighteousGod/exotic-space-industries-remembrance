@@ -95,6 +95,14 @@ ei_data.science["advanced-computer-age"] = {
     {"ei-advanced-computer-age-tech",1},
 }
 
+ei_data.science["advanced-computer-age-space"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
+    {"ei-computer-age-tech",1},
+    {"ei-advanced-computer-age-tech",1},
+    {"space-science-pack",1},
+}
 ei_data.science["alien-computer-age"] = {
     {"ei-dark-age-tech",1},
     {"ei-steam-age-tech",1},

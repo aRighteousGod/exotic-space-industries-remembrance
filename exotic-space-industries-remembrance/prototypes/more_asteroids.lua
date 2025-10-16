@@ -613,7 +613,8 @@ data:extend(
         results =
         {
         {type = "item", name = "stone", amount_min = 5,amount_max=10},
-        {type = "item", name = "tungsten-ore", amount_min = 1,amount_max=5,probability=0.08},
+        {type = "item", name = "tungsten-ore", amount_min = 1,amount_max=5,probability=0.06},
+        {type = "item", name = "calcite", amount_min = 2,amount_max=4,probability=0.12},
     		{type = "item", name = "ei-gold-chunk", amount_min = 1,amount_max=3,probability=0.12},
         {type = "item", name = "ei-rock-asteroid-chunk", amount = 1, probability = 0.05},
         {type = "item", name = "ei-gravity-braided-ore", amount = 1, probability = 0.04}
