@@ -1249,6 +1249,7 @@ data:extend({
         name = "ei-processing-unit-circuit-board",
         type = "recipe",
         category = "crafting",
+        additional_categories = {"electronics"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "ei-advanced-semiconductor", amount = 1},

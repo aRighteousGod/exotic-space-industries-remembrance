@@ -1,9 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.63
+Date: 10-16-2025
+  Bugfixes:
+    - Fixed that Electromagnetic plant couldn't craft Advanced circuit from Electron tube recipe.
+    - Fixed that Electromagnetic plant couldn't craft Processing unit from Reflux circuit board recipe.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.62
 Date: 10-16-2025
   Features:
     - Created X1 "Goliath" atomic locomotive—requires Carbon manipulation and Simulation age, situated inbetween Diesel and EM locomotives. Capable of >400 km/h using Uranium 235 fuel cells, weighing only 1600 kg, with enhanced resistances and 75% additional braking force over the Diesel locomotive—this tyrant is ready to rule your railways.
-    - Created CF-9 "Black Ark" advanced cargo wagon—requires Carbon manipulation and Simulation age, a more resilient lighter weight cargo wagon specced out for modern performance.
+    - Created CF-9 "Black Ark" advanced cargo wagon—requires Carbon manipulation and Simulation age; a more resilient lighter weight cargo wagon specced out for modern performance.
     - Added Legacy Train Model by @aspct to required dependencies—used as the graphics for the new Nuclear locomotive.
     - Created Vent hydrogen gas recipe for Air filter—unlocked with Ammonia production.
   Changes:

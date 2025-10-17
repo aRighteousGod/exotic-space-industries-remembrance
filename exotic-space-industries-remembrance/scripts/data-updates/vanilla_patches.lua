@@ -711,6 +711,7 @@ local new_ingredients_table = {
 }
 --adjust categories to allow above changes
 ei_lib.raw["recipe"]["advanced-circuit"].category = "crafting-with-fluid"
+ei_lib.raw["recipe"]["advanced-circuit"].additional_categories = {"electronics-with-fluid"}
 ei_lib.raw["recipe"]["flying-robot-frame"].category = "crafting-with-fluid"
 ei_lib.raw["recipe"]["speed-module"].category = "electronics-with-fluid"
 ei_lib.raw["recipe"]["assembling-machine-2"].category = "crafting-with-fluid"
