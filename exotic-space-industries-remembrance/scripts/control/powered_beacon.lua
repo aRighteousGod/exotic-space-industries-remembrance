@@ -69,6 +69,9 @@ end
 
 --Checks if fluid_entity[fluid_break_index] needs exploded, degraded, etc, advances to next entry in table
 function model.update_fluid_storages()
+    if game.is_multiplayer() then
+        return
+    end
     local debug = false
     local fluid_entities = storage.ei.fluid_entity
     if not fluid_entities or not next(fluid_entities) then
@@ -192,11 +195,7 @@ function model.update_fluid_storages()
         end
         local pos = pipe.position
         ei_lib.crystal_echo_floating("❌ Incompatible pipe", pipe, 6000, "wrath")
-        if game.is_multiplayer() then
-            return
-        else
-            pipe.die(pipe.force)
-        end
+        pipe.die(pipe.force)
     end
 
     -- 🔁 Advance breakpoint

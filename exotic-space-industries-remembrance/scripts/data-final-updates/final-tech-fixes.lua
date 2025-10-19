@@ -569,16 +569,33 @@ if data.raw.technology["worker-robots-storage-4"] and data.raw.technology["worke
   data.raw.technology["worker-robots-storage-10"].icon_size = 256
 end
 
+-- Set cost of every technology to startPrice from settings
+-- used with scaling tech costs in control stage
+
+local startPrice = ei_lib.config("tech-scaling-startPrice")
 
 for i,v in pairs(data.raw.technology) do
-  data.raw.technology[i].hidden = false
-
-  if data.raw.technology[i].unit then
-    if data.raw.technology[i].unit.count and data.raw.technology[i].unit.ingredients then
-      if data.raw.technology[i].unit.count >= 9999 then data.raw.technology[i].unit.count = 9999 end
-      if data.raw.technology[i].unit.time >= 9999 then data.raw.technology[i].unit.time = 9999 end
+    data.raw.technology[i].hidden = false
+    if not ei_lib.config("no-tech-scaling") then
+      -- treat science cost:
+      -- if non multiple tech .count is accessible
+      if data.raw.technology[i].unit then
+        if data.raw.technology[i].unit.count then
+          data.raw.technology[i].unit.count = startPrice
+        end
+        -- if multiple tech .count_formula is accessible
+        if data.raw.technology[i].unit.count_formula then
+          data.raw.technology[i].unit.count_formula = "2^((L-1)*0.5)*"..tostring(startPrice)
+        end
+      end
     end
-  end
+
+if data.raw.technology[i].unit then
+    if data.raw.technology[i].unit.count and data.raw.technology[i].unit.ingredients then
+        if data.raw.technology[i].unit.count >= 9999 then data.raw.technology[i].unit.count = 9999 end
+        if data.raw.technology[i].unit.time >= 9999 then data.raw.technology[i].unit.time = 9999 end
+    end
+end
 
   if data.raw.technology[i].unit then
     if data.raw.technology[i].unit.ingredients then

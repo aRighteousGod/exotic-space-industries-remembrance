@@ -1,4 +1,22 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.66
+Date: 10-18-2025
+  Bugfixes:
+    - Fixed that game would crash loading while attempting to remake Gaia when it already existed.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.65
+Date: 10-18-2025
+  Changes:
+    - Scrap asteroid recycling recipe outputs: Maximum yield of any item 1 -> 4.
+  Bugfixes:
+    - Fixed that Scrap asteroid crushing was copying from the vanilla scrap recycling recipe instead of the EI equivalent.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.64
+Date: 10-18-2025
+  Bugfixes:
+    - Fixed that external mods technologies or technologies added after initial data stage could be unaffected by starting tech cost.
+    - Fixed that the invalid pipe updater still partially ran during MP, causing a desync.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.63
 Date: 10-16-2025
   Bugfixes:
@@ -10,7 +28,7 @@ Date: 10-16-2025
   Features:
     - Created X1 "Goliath" atomic locomotive—requires Carbon manipulation and Simulation age, situated inbetween Diesel and EM locomotives. Capable of >400 km/h using Uranium 235 fuel cells, weighing only 1600 kg, with enhanced resistances and 75% additional braking force over the Diesel locomotive—this tyrant is ready to rule your railways.
     - Created CF-9 "Black Ark" advanced cargo wagon—requires Carbon manipulation and Simulation age; a more resilient lighter weight cargo wagon specced out for modern performance.
-    - Added Legacy Train Model by @aspct to required dependencies—used as the graphics for the new Nuclear locomotive.
+    - Added Legacy Train Model by @aspct to required dependencies—used as the graphics for the new atomic locomotive and advanced cargo wagon.
     - Created Vent hydrogen gas recipe for Air filter—unlocked with Ammonia production.
   Changes:
     - Steam train fuel types: Can no longer use Nuclear or Fusion fuels.

@@ -426,7 +426,7 @@ commands.add_command("goto-nauvis", "Teleport to Nauvis' surface", function(cmd)
 end)
 ]]
 function reforge_gaia_surface(event)
-    --[[
+
     --1.5.7 -> 1.5.8 migration
     local legacy = game.surfaces["Gaia"]
     local canonical = game.planets["gaia"]
@@ -436,7 +436,7 @@ function reforge_gaia_surface(event)
       canonical.associate_surface(legacy)
       ei_lib.crystal_echo("☲ [Ghost Reclaimed] — The lost echo of 'Gaia' has been bound to its true self. Memory and flesh rejoin.")
     end
-    ]]
+
     if storage.ei.gaia_reforged == 1 then return end
     local planet_name = "gaia"
     local planet = game.planets[planet_name]
