@@ -1019,7 +1019,7 @@ end
 
 function model.fix_toggle_range()
 
-    for _, player in pairs(game.players) do
+    for _, player in pairs(game.connected_players) do
         
         local player_index = player.index
         if storage.ei_emt.gui[player_index] then
@@ -1105,7 +1105,7 @@ function model.on_research_finished(event)
         end
     end
 end
---this depreciated method of singularly checking the completed research
+--this deprecated method of singularly checking the completed research
 --is more efficient but inexplicably would fail to fire at times
 --[[
     local name = event.research.name

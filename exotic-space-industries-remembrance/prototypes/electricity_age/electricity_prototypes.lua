@@ -57,30 +57,30 @@ data:extend({
     {
         name = "ei-insulated-wire",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/insulated-wire-1.png",
+        icon = ei_graphics_3_path.."graphics/items/insulated-wire-1.png",
         icon_size = 64,
         icon_mipmaps = 4,
         pictures = {
             {
-                filename = ei_graphics_3_path.."graphics/item/insulated-wire-1.png",
+                filename = ei_graphics_3_path.."graphics/items/insulated-wire-1.png",
                 icon_mipmaps = 4,
                 scale = 0.5,
                 size = 64
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/insulated-wire-2.png",
+                filename = ei_graphics_3_path.."graphics/items/insulated-wire-2.png",
                 icon_mipmaps = 4,
                 scale = 0.5,
                 size = 64
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/insulated-wire-3.png",
+                filename = ei_graphics_3_path.."graphics/items/insulated-wire-3.png",
                 icon_mipmaps = 4,
                 scale = 0.5,
                 size = 64
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/insulated-wire-4.png",
+                filename = ei_graphics_3_path.."graphics/items/insulated-wire-4.png",
                 icon_mipmaps = 4,
                 scale = 0.5,
                 size = 64
@@ -133,24 +133,24 @@ data:extend({
     {
         name = "ei-electronic-parts",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/electronic-parts.png",
+        icon = ei_graphics_3_path.."graphics/items/electronic-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_graphics_3_path.."graphics/item/electronic-parts.png",
+                filename = ei_graphics_3_path.."graphics/items/electronic-parts.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/electronic-parts-2.png",
+                filename = ei_graphics_3_path.."graphics/items/electronic-parts-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/electronic-parts-3.png",
+                filename = ei_graphics_3_path.."graphics/items/electronic-parts-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -164,7 +164,7 @@ data:extend({
     {
         name = "ei-diesel-fuel-unit-empty",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/diesel-fuel-unit-empty.png",
+        icon = ei_graphics_3_path.."graphics/items/diesel-fuel-unit-empty.png",
         icon_size = 80,
         stack_size = 10,
         subgroup = "raw-material",
@@ -735,7 +735,7 @@ data:extend({
     {
         name = "ei-insulated-wire",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/item/insulated-wire-1.png",
+        icon = ei_graphics_3_path.."graphics/items/insulated-wire-1.png",
         icon_size = 64,
         icon_mipmaps = 4,
         prerequisites = {"ei-electricity-age","plastics"},
@@ -778,7 +778,7 @@ data:extend({
     {
         name = "ei-electronic-parts",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/item/electronic-parts.png",
+        icon = ei_graphics_3_path.."graphics/items/electronic-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-waver-factory", "battery"},

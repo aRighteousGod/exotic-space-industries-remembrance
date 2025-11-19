@@ -1,5 +1,5 @@
-local icon_dir = ei_graphics_3_path.."graphics/item/"
-local sprite_dir = ei_graphics_3_path.."graphics/entity/thermal-furnace/"
+local icon_dir = ei_graphics_3_path.."graphics/items/"
+local sprite_dir = ei_graphics_3_path.."graphics/entities/thermal-furnace/"
 --From Heated Fabrication by @MrLumme
 ei_lib = require("lib/lib")
 ei_data = require("lib/data")

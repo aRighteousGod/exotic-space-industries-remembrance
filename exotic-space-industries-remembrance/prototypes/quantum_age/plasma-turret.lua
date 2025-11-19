@@ -233,7 +233,7 @@ data:extend({
                 target_effects = {
                     {
                         type = "damage",
-                        damage = {amount = 2500, type = "electric"},
+                        damage = {amount = 2500, type = "ei-plasma"},
                         force = "not-same",
                     },
                     {

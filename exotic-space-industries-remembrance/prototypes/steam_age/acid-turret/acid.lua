@@ -31,7 +31,7 @@ return
 	
 	animation = 
 	{
-		filename = inputs.filename and inputs.filename or ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/spark.png",
+		filename = inputs.filename and inputs.filename or ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/spark.png",
 		line_length = inputs.line_length and inputs.line_length or 5,
 		width = inputs.width and inputs.width or 64,
 		height = inputs.height and inputs.height or 64,
@@ -51,7 +51,7 @@ return
 end
 data:extend({
 
-  	sticker_set{name="ei-poison-sticker", filename=ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/spark.png",
+  	sticker_set{name="ei-poison-sticker", filename=ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/spark.png",
 		line_length=5, width=64, height=64, frame_count=5, direction_count=1, scale=0.5,
 		target_movement_modifier = sticker_option.poison.target_movement_modifier,
 		tint = sticker_option.poison.tint,
@@ -72,7 +72,7 @@ local ret_layers =
   {
     -- diffuse
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-turret-gun-extension.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-turret-gun-extension.png",
       priority = "medium",
       frame_count = opts and opts.frame_count or m_frame_count,
       line_length = opts and opts.line_length or m_line_length,
@@ -201,7 +201,7 @@ end
 function acidutil.flamethrower_turret_prepared_animation(shft, opts)
   local diffuse_layer =
   {
-    filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-turret-gun.png",
+    filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-turret-gun.png",
     priority = "medium",
     counterclockwise = true,
     line_length = 8,
@@ -213,7 +213,7 @@ function acidutil.flamethrower_turret_prepared_animation(shft, opts)
   }
   local glow_layer =
   {
-    filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-turret-gun-active.png",
+    filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-turret-gun-active.png",
     counterclockwise = true,
     line_length = 8,
     width = 158,
@@ -227,7 +227,7 @@ function acidutil.flamethrower_turret_prepared_animation(shft, opts)
 
   local glow_light_layer =
   {
-    filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-turret-gun-active.png",
+    filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-turret-gun-active.png",
     counterclockwise = true,
     line_length = 8,
     width = 158,
@@ -529,7 +529,7 @@ data:extend({
 	
 	animation = 
 	{       
-		filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-01.png",
+		filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-01.png",
 		line_length = 10,
 		width = 84,
 		height = 130,
@@ -645,7 +645,7 @@ data:extend({
   {
     type = "fluid-turret",
 	  name = "ei-acidthrower-turret",
-	  icon = ei_graphics_3_path.."graphics/item/acid-turret.png",
+	  icon = ei_graphics_3_path.."graphics/items/acid-turret.png",
 	  icon_size = 32,
     flags = {"placeable-player", "player-creation"},
 	  minable = {mining_time = 0.5, result = "ei-acidthrower-turret"},
@@ -1364,7 +1364,7 @@ acidsmoke
 	{
 		type = "item",
 		name = "ei-acidthrower-turret",
-		icon = ei_graphics_3_path.."graphics/item/acid-turret.png",
+		icon = ei_graphics_3_path.."graphics/items/acid-turret.png",
 		icon_size = 32,
 		subgroup = "defensive-structure",
 		order = "b[turret]-c[flamethrower-turret]-a[acidthrower-turret]",

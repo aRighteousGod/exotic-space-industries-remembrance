@@ -82,6 +82,14 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-coolant-exchange"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-coolant-exchange-steam"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-big-turbine"
             },
         },

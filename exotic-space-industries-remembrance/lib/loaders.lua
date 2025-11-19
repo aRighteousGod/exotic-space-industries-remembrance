@@ -59,7 +59,7 @@ local loader_like = {
 --UTIL FUNCTIONS
 --====================================================================================================
 
-function ei_loaders_lib.make_loader(tier, next_upgrade, belt_animation_set, speed)
+function ei_loaders_lib.make_loader(tier, next_upgrade, belt_animation_set, speed, alt_item_path, alt_entity_path)
     local loader = table.deepcopy(data.raw["loader-1x1"]["ei-loader-base"])
 
     if tier then
@@ -73,12 +73,21 @@ function ei_loaders_lib.make_loader(tier, next_upgrade, belt_animation_set, spee
     end
     
     loader.name = "ei-"..tier.."loader"
-    loader.icon = ei_loaders_item_path..tier.."loader.png"
+    if alt_item_path then
+        loader.icon = alt_item_path..tier.."loader.png"
+    else
+        loader.icon = ei_loaders_item_path..tier.."loader.png"
+    end
     loader.minable.result = "ei-"..tier.."loader"
     loader.speed = speed
     loader.belt_animation_set = belt_animation_set
-    loader.structure.direction_in.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
-    loader.structure.direction_out.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
+    if alt_entity_path then
+        loader.structure.direction_in.sheet.filename = alt_entity_path..tier.."loader.png"
+        loader.structure.direction_out.sheet.filename = alt_entity_path..tier.."loader.png"
+    else
+        loader.structure.direction_in.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
+        loader.structure.direction_out.sheet.filename = ei_loaders_entity_path..tier.."loader.png"
+    end
     data:extend({loader})
 end
 

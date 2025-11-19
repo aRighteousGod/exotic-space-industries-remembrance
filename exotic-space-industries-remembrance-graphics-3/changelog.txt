@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 2025-11-17
+  Changes:
+    - Imported all graphics added to main mod file since 1.0.1.
+    - Imported loader graphics from Exotic Industries: Loaders (2.0 Port).
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2025-9-9
   Changes:
@@ -7,5 +13,5 @@ Date: 2025-9-9
 Version: 1.0.0
 Date: 2025-5-23
   Changes:
-    - Branched from ESI 1.5.7 / Graphics-3 1.1.0
+    - Branched from ESI 1.5.7 / Graphics-3 1.1.0.
 ---------------------------------------------------------------------------------------------------

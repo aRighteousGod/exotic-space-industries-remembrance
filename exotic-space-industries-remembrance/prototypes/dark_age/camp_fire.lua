@@ -4,7 +4,7 @@ local sounds = require "__base__.prototypes.entity.sounds"
 
 
 local picture = {
-    filename = ei_graphics_3_path.."graphics/entity/camp-fire.png",
+    filename = ei_graphics_3_path.."graphics/entities/camp-fire.png",
     width = 192,
     height = 192,
     scale = 0.5,
@@ -25,7 +25,7 @@ data:extend{
     {
         type = "furnace",
         name = "ei-camp-fire",
-        icon = ei_graphics_3_path.."graphics/entity/camp-fire.png",
+        icon = ei_graphics_3_path.."graphics/entities/camp-fire.png",
         icon_size = 128, icon_mipmaps = 2,
         minable = {mining_time = 0.1, result = "ei-camp-fire"},
         flags = {"placeable-neutral", "placeable-player", "player-creation", "placeable-off-grid"},
@@ -95,7 +95,7 @@ data:extend{
     {
         type = "item",
         name = "ei-camp-fire",
-        icon = ei_graphics_3_path.."graphics/item/camp-fire.png",
+        icon = ei_graphics_3_path.."graphics/items/camp-fire.png",
         icon_size = 128, icon_mipmaps = 2,
         subgroup = "smelting-machine",
         order = "A",

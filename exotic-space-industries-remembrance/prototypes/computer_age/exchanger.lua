@@ -53,7 +53,7 @@ data:extend({
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
         crafting_categories = {"ei-exchanger"},
-        fixed_recipe = "ei-coolant-exchange",
+        --fixed_recipe = "ei-coolant-exchange",
         crafting_speed = 1,
         energy_source = {
             type = 'electric',
@@ -191,5 +191,22 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-critical-steam",
+    },
+    {
+        name = "ei-coolant-exchange-steam",
+        type = "recipe",
+        category = "ei-exchanger",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-hot-coolant", amount = 3},
+            {type = "fluid", name = "water", amount = 120},
+        },
+        results = {
+            {type = "fluid", name = "ei-cold-coolant", amount = 3},
+            {type = "fluid", name = "steam", amount = 1200, temperature=500},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "steam",
     },
 })

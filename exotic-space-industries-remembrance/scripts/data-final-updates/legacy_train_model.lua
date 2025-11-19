@@ -40,7 +40,7 @@ function train_front_light()
             minimum_darkness = 0.3,
             picture =
             {
-                filename = ei_path.."graphics/entities/nuclear_locomotive/nuclear_locomotive_light_cone_280x400.png",
+                filename = ei_graphics_3_path.."graphics/entities/nuclear_locomotive/nuclear_locomotive_light_cone_280x400.png",
                 priority = "medium",
                 scale = 1,
                 width = 280,
@@ -57,7 +57,7 @@ function train_front_light()
             minimum_darkness = 0.3,
             picture =
             {
-                filename = ei_path.."graphics/entities/nuclear_locomotive/nuclear_locomotive_light_cone_280x400.png",
+                filename = ei_graphics_3_path.."graphics/entities/nuclear_locomotive/nuclear_locomotive_light_cone_280x400.png",
                 priority = "medium",
                 scale = 1,
                 width = 280,
@@ -259,7 +259,7 @@ data:extend({
     {
         name = "ei-advanced-cargo-wagon",
         type = "technology",
-        icon = ei_path.."graphics/tech/advanced-cargo-wagon.png",
+        icon = ei_graphics_3_path.."graphics/tech/advanced-cargo-wagon.png",
         icon_size = 512,
         icon_mipmaps = 4,
         prerequisites = {"ei-advanced-computer-age-tech","railway","ei-carbon-manipulation"},
@@ -279,7 +279,7 @@ data:extend({
     {
         name = "ei-nuclear-locomotive",
         type = "technology",
-        icon = ei_path.."graphics/tech/nuclear-locomotive.png",
+        icon = ei_graphics_3_path.."graphics/tech/nuclear-locomotive.png",
         icon_size = 512,
         icon_mipmaps = 4,
         prerequisites = {"ei-advanced-computer-age-tech","railway","ei-carbon-manipulation","nuclear-power"},

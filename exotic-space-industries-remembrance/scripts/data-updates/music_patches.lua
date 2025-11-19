@@ -1,27 +1,32 @@
 ei_lib = require ("lib/lib")
 -- weight = 10 is default
 -- set it anyway in case it was modified elsewhere
-if ei_lib.raw["ambient-sound"]["main-menu"] and not mods["krastorio2-spaced-out"] or not settings.startup["kr-main-menu-song"].value then
-  ei_lib.raw["ambient-sound"]["main-menu"].sound = ei_soundtrack_path_1.."main_menu.ogg"
-elseif mods["krastorio2-spaced-out"] and settings.startup["kr-main-menu-song"].value then --meow -.-
-    data:extend{
-      {
-        type = "ambient-sound",
-        name = "ei-main-menu-1",
-        track_type = "menu-track",
-        sound = ei_soundtrack_path_1.."main_menu.ogg",
-        weight = 10
-      },
-      {
-        type = "ambient-sound",
-        name = "ei-main-menu-2", --two because kr2 adds 2, 50:50 play ratio
-        track_type = "menu-track",
-        sound = ei_soundtrack_path_1.."main_menu.ogg",
-        weight = 10
-      },
-    }
+if ei_lib.raw["ambient-sound"]["main-menu"] then
+  data.raw["ambient-sound"]["main-menu"] = nil
 end
-
+data:extend{
+  {
+    type = "ambient-sound",
+    name = "ei-main-menu-1",
+    track_type = "menu-track",
+    sound = ei_soundtrack_path_1.."main_menu.ogg",
+    weight = 10
+  },
+  {
+    type = "ambient-sound",
+    name = "ei-main-menu-2",
+    track_type = "menu-track",
+    sound = ei_soundtrack_path_1.."ambient_menu.ogg",
+    weight = 10
+  },
+  {
+    type = "ambient-sound",
+    name = "ei-main-menu-3",
+    track_type = "menu-track",
+    sound = ei_soundtrack_path_2.."gaia1_menu_master.ogg",
+    weight = 10
+  },
+}
 
 --type string, track table, planet string
 local function track_override(track_type, track_table, targetplanet)

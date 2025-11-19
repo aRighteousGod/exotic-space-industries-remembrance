@@ -135,4 +135,8 @@ if recycler then
         table.insert(saca.results,output_bak)
     end
     end
+    local nwr = data.raw.recipe["ei-nuclear-waste-recycling"]
+    if nwr then
+        nwr = nil
+    end
 end

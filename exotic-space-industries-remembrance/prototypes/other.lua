@@ -275,6 +275,11 @@ data:extend({
         group = "production",
         order = "i",
     },
+  {
+    type = "damage-type",
+    name = "ei-plasma"
+    },
+
 })
 
 if not data.raw["item-subgroup"]["loader"] then 

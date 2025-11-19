@@ -394,7 +394,7 @@ function model.calc_efficiency(entity, source)
 
     if source.name == "ei-fusion-reactor" then
 
-        local recipe = "ei-fusion-F1-ei-heated-deuterium-F2-ei-heated-tritium-TM-medium-FM-medium"
+        local recipe = "ei-fusion-F1__ei-heated-deuterium-F2__ei-heated-tritium-TM__medium-FM__medium"--"ei-fusion-F1-ei-heated-deuterium-F2-ei-heated-tritium-TM-medium-FM-medium"
         
         if source.get_recipe() then
             recipe = source.get_recipe().name

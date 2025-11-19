@@ -1,7 +1,7 @@
 function cannon_turret_sheet(inputs)
     return {
         layers = {{
-            filename = ei_graphics_3_path.."graphics/entity/cannon-turret-mk1/cannon-turret-sheet.png",
+            filename = ei_graphics_3_path.."graphics/entities/cannon-turret-mk1/cannon-turret-sheet.png",
             priority = "medium",
             scale = 0.75,
             width = 128,
@@ -33,7 +33,7 @@ data:extend({
     {
     type = "item",
     name = "ei-cannon-turret-mk1",
-    icon = ei_graphics_3_path.."graphics/item/cannon-turret-mk1.png",
+    icon = ei_graphics_3_path.."graphics/items/cannon-turret-mk1.png",
     icon_size = 64,
     subgroup = "defensive-structure",
     order = "c-ab",
@@ -61,7 +61,7 @@ data:extend({
     {
     type = "recipe",
     name = "ei-cannon-turret-mk1",
-    icon = ei_graphics_3_path.."graphics/item/cannon-turret-mk1.png",
+    icon = ei_graphics_3_path.."graphics/items/cannon-turret-mk1.png",
     icon_size = 64,
     icon_mipmaps = 4,
     subgroup = turret_recipe_subgroup,
@@ -83,7 +83,7 @@ data:extend({
 {
     type = "ammo-turret",
     name = "ei-cannon-turret-mk1",
-    icon = ei_graphics_3_path.."graphics/item/cannon-turret-mk1.png",
+    icon = ei_graphics_3_path.."graphics/items/cannon-turret-mk1.png",
     icon_size = 64,
     icon_mipmaps = 4,
     flags = {"placeable-player", "player-creation", "building-direction-8-way"},

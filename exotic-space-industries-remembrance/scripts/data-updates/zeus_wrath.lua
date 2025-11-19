@@ -37,7 +37,7 @@ attack_parameters = {
                 }
         }
 }
-
+--turret
 --Inner radius damage
 ei_lib.patch_nested_value(
   data.raw["electric-turret"]["zeus-wrath-zeus-turret"],
@@ -51,6 +51,20 @@ ei_lib.patch_nested_value(
   300
 )
 
+--Inner radius type
+ei_lib.patch_nested_value(
+  data.raw["electric-turret"]["zeus-wrath-zeus-turret"],
+  "attack_parameters.ammo_type.action.action_delivery[2].target_effects[2].action[1].action_delivery.target_effects[1].damage.type",
+  "ei-plasma"
+)
+--Outer radius type
+ei_lib.patch_nested_value(
+  data.raw["electric-turret"]["zeus-wrath-zeus-turret"],
+  "attack_parameters.ammo_type.action.action_delivery[2].target_effects[2].action[2].action_delivery.target_effects[1].damage.type",
+  "ei-plasma"
+)
+
+--gun
 --Inner radius damage
 ei_lib.patch_nested_value(
   data.raw["ammo"]["zeus-wrath-lightning-ammo"],
@@ -63,7 +77,18 @@ ei_lib.patch_nested_value(
   "ammo_type.action.action_delivery[2].target_effects[2].action[2].action_delivery.target_effects[1].damage.amount",
   300
 )
-
+--Inner radius damage
+ei_lib.patch_nested_value(
+  data.raw["ammo"]["zeus-wrath-lightning-ammo"],
+  "ammo_type.action.action_delivery[2].target_effects[2].action[1].action_delivery.target_effects[1].damage.type",
+  "ei-plasma"
+)
+--Outer radius damage
+ei_lib.patch_nested_value(
+  data.raw["ammo"]["zeus-wrath-lightning-ammo"],
+  "ammo_type.action.action_delivery[2].target_effects[2].action[2].action_delivery.target_effects[1].damage.type",
+  "ei-plasma"
+)
 local newTurretIngredients = {
         {type = "fluid", name = "electrolyte", amount = 2000},
         {type = "item", name = "ei-high-energy-crystal", amount = 100},

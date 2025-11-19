@@ -271,7 +271,7 @@ function create_asteroid_chunk_parameter(number)
     {
       color_texture =
       {
-        filename = ei_graphics_3_path.."graphics/entity/asteroid/".. asteroid_type .."/"..asteroid_sizes[size].."/".."asteroid-" .. asteroid_type .. "-" .. asteroid_sizes[size] .. "-colour-" .. suffix .. ".png",
+        filename = ei_graphics_3_path.."graphics/entities/asteroid/".. asteroid_type .."/"..asteroid_sizes[size].."/".."asteroid-" .. asteroid_type .. "-" .. asteroid_sizes[size] .. "-colour-" .. suffix .. ".png",
         size =  sizes_resolution[size][1],
         scale = scale
       },
@@ -363,7 +363,7 @@ function create_asteroid_chunk_parameter(number)
               percent = asteroid_data.resistances[damage_name].percent[asteroid_size]
             })
           else
-            if damage_name ~= "impact" and damage_name ~= "poison" and damage_name ~= "acid" then
+            if damage_name ~= "impact" and damage_name ~= "poison" and damage_name ~= "ei-plasma" and damage_name ~= "acid" then
               table.insert(resistances,
               {
                 type = damage_name,

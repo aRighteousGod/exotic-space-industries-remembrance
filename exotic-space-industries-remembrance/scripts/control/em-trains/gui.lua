@@ -275,7 +275,7 @@ function model.updater()
         return
     end
 
-    for _, player in pairs(game.players) do
+    for _, player in pairs(game.connected_players) do
         model.make_mod_button(player)
         model.update_mod_gui(player)
     end

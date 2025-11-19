@@ -21,3 +21,5 @@ Updated by @Beathoven
 insulated wire item 1-4 item sprites from unused renders by malcolm riley
 
 cannon mk1 art originally by... YuokiTani ?
+
+Additional EI loader prototypes and graphics by @Samario from Exotic Industries: Loaders (2.0 Port)

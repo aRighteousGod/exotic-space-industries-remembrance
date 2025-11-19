@@ -182,24 +182,24 @@ data:extend({
     {
         name = "ei-ceramic",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/ceramic.png",
+        icon = ei_graphics_3_path.."graphics/items/ceramic.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_graphics_3_path.."graphics/item/ceramic.png",
+                filename = ei_graphics_3_path.."graphics/items/ceramic.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/ceramic-2.png",
+                filename = ei_graphics_3_path.."graphics/items/ceramic-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/ceramic-3.png",
+                filename = ei_graphics_3_path.."graphics/items/ceramic-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -221,24 +221,24 @@ data:extend({
     {
         name = "ei-glass",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/industrial-glass.png",
+        icon = ei_graphics_3_path.."graphics/items/industrial-glass.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_graphics_3_path.."graphics/item/industrial-glass.png",
+                filename = ei_graphics_3_path.."graphics/items/industrial-glass.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/industrial-glass-2.png",
+                filename = ei_graphics_3_path.."graphics/items/industrial-glass-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/industrial-glass-3.png",
+                filename = ei_graphics_3_path.."graphics/items/industrial-glass-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -1315,7 +1315,7 @@ data:extend({
     {
         name = "ei-glass",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/item/industrial-glass.png",
+        icon = ei_graphics_3_path.."graphics/items/industrial-glass.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-steam-crusher"},

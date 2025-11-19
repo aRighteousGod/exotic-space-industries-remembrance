@@ -20,7 +20,7 @@ function acidutil.create_acid_pictures(opts)
   local retval =
   {
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-01.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-01.png",
       line_length = 10,
       width = 84,
       height = 130,
@@ -33,7 +33,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-02.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-02.png",
       line_length = 10,
       width = 82,
       height = 106,
@@ -46,7 +46,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-03.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-03.png",
       line_length = 10,
       width = 84,
       height = 124,
@@ -59,7 +59,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-04.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-04.png",
       line_length = 10,
       width = 84,
       height = 94,
@@ -72,7 +72,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.25 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-01.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-01.png",
       line_length = 10,
       width = 84,
       height = 130,
@@ -85,7 +85,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-02.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-02.png",
       line_length = 10,
       width = 82,
       height = 106,
@@ -98,7 +98,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-03.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-03.png",
       line_length = 10,
       width = 84,
       height = 124,
@@ -111,7 +111,7 @@ function acidutil.create_acid_pictures(opts)
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-04.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-04.png",
       line_length = 10,
       width = 84,
       height = 94,
@@ -143,7 +143,7 @@ function acidutil.create_small_tree_flame_animations()
   local retval =
   {
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-01.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-01.png",
       line_length = 10,
       width = 84,
       height = 130,
@@ -156,7 +156,7 @@ function acidutil.create_small_tree_flame_animations()
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-02.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-02.png",
       line_length = 10,
       width = 82,
       height = 106,
@@ -168,7 +168,7 @@ function acidutil.create_small_tree_flame_animations()
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-03.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-03.png",
       line_length = 10,
       width = 84,
       height = 124,
@@ -181,7 +181,7 @@ function acidutil.create_small_tree_flame_animations()
       shift = { 0, -0.7 }
     },
     {
-      filename = ei_graphics_3_path.."graphics/entity/acid-turret/acid-flame/acid-flame-04.png",
+      filename = ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/acid-flame-04.png",
       line_length = 10,
       width = 84,
       height = 94,

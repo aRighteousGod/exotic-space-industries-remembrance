@@ -12,24 +12,24 @@ data:extend({
     {
         name = "ei-module-part",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/module-part.png",
+        icon = ei_graphics_3_path.."graphics/items/module-part.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_graphics_3_path.."graphics/item/module-part.png",
+                filename = ei_graphics_3_path.."graphics/items/module-part.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/module-part-2.png",
+                filename = ei_graphics_3_path.."graphics/items/module-part-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/module-part-3.png",
+                filename = ei_graphics_3_path.."graphics/items/module-part-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -89,24 +89,24 @@ data:extend({
     {
         name = "ei-high-energy-crystal",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/high-energy-crystal.png",
+        icon = ei_graphics_3_path.."graphics/items/high-energy-crystal.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_graphics_3_path.."graphics/item/high-energy-crystal.png",
+                filename = ei_graphics_3_path.."graphics/items/high-energy-crystal.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/high-energy-crystal-2.png",
+                filename = ei_graphics_3_path.."graphics/items/high-energy-crystal-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_graphics_3_path.."graphics/item/high-energy-crystal-3.png",
+                filename = ei_graphics_3_path.."graphics/items/high-energy-crystal-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
@@ -130,7 +130,7 @@ data:extend({
     {
         name = "ei-rocket-parts",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/rocket-parts.png",
+        icon = ei_graphics_3_path.."graphics/items/rocket-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         scale = 0.0625,
@@ -251,7 +251,7 @@ data:extend({
     {
         name = "ei-computing-unit",
         type = "item",
-        icon = ei_graphics_3_path.."graphics/item/computing-unit.png",
+        icon = ei_graphics_3_path.."graphics/items/computing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         subgroup = "intermediate-product",
@@ -768,7 +768,7 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-control-unit",
-        icon = ei_graphics_3_path.."graphics/item/rocket-processing-unit.png",
+        icon = ei_graphics_3_path.."graphics/items/rocket-processing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         subgroup = "intermediate-product",
@@ -2196,22 +2196,66 @@ data:extend({
         icon_size = 64,
     },
     {
-        name = "ei-dirty-water-stone",
+        name = "ei-dirty-water-stone-water",
         type = "recipe",
         category = "ei-advanced-chem-plant",
-        energy_required = 1,
+        energy_required = 180,
+        icons = {
+            { icon = data.raw.fluid["water"].icon,            scale = 0.2, shift = { 3, 3 } },
+            { icon = data.raw.fluid["ei-dirty-water"].icon, scale = 0.2, shift = { -3, -3 } },
+        },
         ingredients = {
-            {type = "fluid", name = "water", amount = 10},
-            {type = "item", name = "stone", amount = 5},
+            {type = "fluid", name = "water", amount = 500},
+            {type = "item", name = "stone", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 250,amount_max=350},
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-dirty-water",
     },
-
+    {
+        name = "ei-dirty-water-stone-steam",
+        type = "recipe",
+        category = "ei-advanced-chem-plant",
+        energy_required = 60,
+        icons = {
+            { icon = data.raw.fluid["steam"].icon,            scale = 0.2, shift = { 3, 3 } },
+            { icon = data.raw.fluid["ei-dirty-water"].icon, scale = 0.2, shift = { -3, -3 } },
+        },
+        ingredients = {
+            {type = "fluid", name = "steam", amount = 5000, minimum_temperature=500},
+            {type = "item", name = "stone", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 475, amount_max= 525},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-dirty-water",
+    },
+    {
+        name = "ei-dirty-water-stone-steam-acid",
+        type = "recipe",
+        category = "ei-advanced-chem-plant",
+        energy_required = 20,
+        icons = {
+            { icon = data.raw.fluid["sulfuric-acid"].icon,            scale = 0.2, shift = { 3, 3 } },
+            { icon = data.raw.fluid["ei-dirty-water"].icon, scale = 0.2, shift = { -3, -3 } },
+        },
+        ingredients = {
+            {type = "fluid", name = "steam", amount = 5000, minimum_temperature=500},
+            {type = "fluid", name = "sulfuric-acid", amount = 100},
+            {type = "item", name = "stone", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount_min = 500, amount_max = 550},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-dirty-water",
+    },
     {
         name = "ei-petroleum-reforming",
         type = "recipe",
@@ -2313,7 +2357,7 @@ data:extend({
         energy_required = 30,
         enabled = false,
         category = "crafting",
-        icons = {{icon=ei_graphics_3_path.."graphics/item/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
+        icons = {{icon=ei_graphics_3_path.."graphics/items/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
         ingredients =
         {
             {type="item", name="advanced-circuit", amount=10},
@@ -3096,7 +3140,15 @@ data:extend({
         effects = {
             {
                 type = "unlock-recipe",
-                recipe = "ei-dirty-water-stone"
+                recipe = "ei-dirty-water-stone-water"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-stone-steam"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-dirty-water-stone-steam-acid"
             }
         },
         unit = {
@@ -3159,7 +3211,7 @@ data:extend({
     {
         name = "ei-rocket-parts",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/item/rocket-parts.png",
+        icon = ei_graphics_3_path.."graphics/items/rocket-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-rocket-control-unit", "low-density-structure", "rocketry"},
@@ -3390,7 +3442,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-rocket-control-unit",
-        icons = {{icon=ei_graphics_3_path.."graphics/item/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
+        icons = {{icon=ei_graphics_3_path.."graphics/items/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
         effects =
         {
           {
@@ -3411,7 +3463,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-rocket-processing-unit",
-        icon = ei_graphics_3_path.."graphics/item/rocket-processing-unit.png",
+        icon = ei_graphics_3_path.."graphics/items/rocket-processing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         effects =
@@ -3509,7 +3561,7 @@ data:extend({
     {
         name = "ei-computing-unit",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/item/computing-unit.png",
+        icon = ei_graphics_3_path.."graphics/items/computing-unit.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-copper-beacon","ei-advanced-deep-drill","ei-advanced-centrifuge","ei-advanced-refinery","ei-sus-plating","ei-cryodust"},

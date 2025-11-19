@@ -1616,7 +1616,7 @@ end
 
 function model.update_player_guis()
 
-    for _, player in pairs(game.players) do
+    for _, player in pairs(game.connected_players) do
         if player.gui.screen["ei-induction-matrix-console"] then
             if not player.opened then
                 model.close_gui(player)

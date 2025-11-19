@@ -102,7 +102,7 @@ data:extend({
     {
         name = "ei-steam-basic-train",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/technology/steam-locomotion.png",
+        icon = ei_graphics_3_path.."graphics/tech/steam-locomotion.png",
         icon_size = 512,
         prerequisites = {"ei-steam-power"},
         effects = {
@@ -244,7 +244,7 @@ data:extend({
 				width = 512,
 				height = 512,
 				blend_mode = "normal",
-				filename =  ei_graphics_3_path .. "graphics/entity/steam-locomotive/body/lights.png",
+				filename =  ei_graphics_3_path .. "graphics/entities/steam-locomotive/body/lights.png",
 				scale = 0.525,
 				shift = util.by_pixel(0, -19)
 			},
@@ -256,7 +256,7 @@ data:extend({
 				width = 512,
 				height = 512,
 				blend_mode = "normal",
-				filename =  ei_graphics_3_path .. "graphics/entity/steam-locomotive/sloped/lights_sloped.png",
+				filename =  ei_graphics_3_path .. "graphics/entities/steam-locomotive/sloped/lights_sloped.png",
 				scale = 0.525,
 				shift = util.by_pixel(0, -19)
 			}
@@ -274,7 +274,7 @@ data:extend({
 						lines_per_file = 16,
 						width = 512,
 						height = 512,
-						filename = ei_graphics_3_path .. "graphics/entity/steam-locomotive/body/body.png",
+						filename = ei_graphics_3_path .. "graphics/entities/steam-locomotive/body/body.png",
 						scale = 0.525,
 						shift = util.by_pixel(0, -19)
 					},
@@ -287,7 +287,7 @@ data:extend({
 						width = 512,
 						height = 512,
 						blend_mode = "additive",
-						filename = ei_graphics_3_path .. "graphics/entity/steam-locomotive/body/mask.png",
+						filename = ei_graphics_3_path .. "graphics/entities/steam-locomotive/body/mask.png",
 						scale = 0.525,
 						shift = util.by_pixel(0, -19)
 					},
@@ -299,7 +299,7 @@ data:extend({
 						lines_per_file = 16,
 						width = 512,
 						height = 512,
-						filename = ei_graphics_3_path .. "graphics/entity/steam-locomotive/body/shadow.png",
+						filename = ei_graphics_3_path .. "graphics/entities/steam-locomotive/body/shadow.png",
 						scale = 0.525,
 						shift = util.by_pixel(-7, -19)
 					}
@@ -314,7 +314,7 @@ data:extend({
 						lines_per_file = 8,
 						width = 512,
 						height = 512,
-						filename = ei_graphics_3_path .. "graphics/entity/steam-locomotive/sloped/sloped.png",
+						filename = ei_graphics_3_path .. "graphics/entities/steam-locomotive/sloped/sloped.png",
 						scale = 0.525,
 						shift = util.by_pixel(0, -19)
 					},
@@ -327,7 +327,7 @@ data:extend({
 						width = 512,
 						height = 512,
 						blend_mode = "additive",
-						filename = ei_graphics_3_path .. "graphics/entity/steam-locomotive/sloped/mask_sloped.png",
+						filename = ei_graphics_3_path .. "graphics/entities/steam-locomotive/sloped/mask_sloped.png",
 						scale = 0.525,
 						shift = util.by_pixel(0, -19)
 					}
@@ -1284,18 +1284,18 @@ data:extend({
 		slice=16,
 		animation_speed = 1.25,
 		filenames = {
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_0.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_1.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_2.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_3.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_4.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_5.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_6.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_7.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_8.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_9.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_10.png",
-			ei_graphics_3_path.."graphics/entity/steam-wheels/wheel_11.png"
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_0.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_1.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_2.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_3.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_4.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_5.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_6.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_7.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_8.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_9.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_10.png",
+			ei_graphics_3_path.."graphics/entities/steam-wheels/wheel_11.png"
 		}
 	}
 },
@@ -1314,7 +1314,7 @@ placement_entity.pictures.rotated = {
 	lines_per_file = 16,
 	width = 512,
 	height = 512,
-	filename = ei_graphics_3_path .. "graphics/entity/steam-locomotive/body/placement_entity.png",
+	filename = ei_graphics_3_path .. "graphics/entities/steam-locomotive/body/placement_entity.png",
 	scale = 0.525,
 	shift = util.by_pixel(0, -19)
 }

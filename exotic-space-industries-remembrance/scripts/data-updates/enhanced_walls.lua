@@ -60,7 +60,7 @@ tw.resistances = {
   },
   {
     type = "laser",
-    percent = 87.5,
+    percent = 80,
     decrease = 2,
   }
 }
@@ -117,7 +117,7 @@ pw.resistances = {
   },
   {
     type = "laser",
-    percent = 95,
+    percent = 87.5,
     decrease = 4,
   }
 }

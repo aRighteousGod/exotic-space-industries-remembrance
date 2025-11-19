@@ -38,7 +38,7 @@ function model.on_built_entity(entity)
   -- set inital recipe and lock it
 
   if not entity.get_recipe() then
-      entity.set_recipe("ei_fusion-F1__ei-heated-deuterium-F2__ei-heated-tritium-TM__medium-FM__medium")
+      entity.set_recipe("ei-fusion-F1__ei-heated-deuterium-F2__ei-heated-tritium-TM__medium-FM__medium")
   end
   entity.recipe_locked = true
 
@@ -311,7 +311,7 @@ function model.update_recipe(player)
   local injection_rate = model.slider_array[injection_rate_slider.slider_value]
 
   local recipe = string.format(
-      "ei_fusion-F1__%s-F2__%s-TM__%s-FM__%s",
+      "ei-fusion-F1__%s-F2__%s-TM__%s-FM__%s",
       fuel_1, fuel_2, temperature, injection_rate
   )
   if prototypes.recipe[recipe] then

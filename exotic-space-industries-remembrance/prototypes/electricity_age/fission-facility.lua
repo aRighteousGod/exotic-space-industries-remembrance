@@ -24,7 +24,7 @@ data:extend({
     {
         name = "ei-poor-uranium-chunk",
         type = "item",
-        icon = ei_path.."graphics/item/poor-uranium-chunk.png",
+        icon = ei_graphics_3_path.."graphics/items/poor-uranium-chunk.png",
         icon_size = 128,
         icon_mipmaps = 3,
         stack_size = 100,
@@ -34,7 +34,7 @@ data:extend({
     {
         name = "ei-uranium-chunk",
         type = "item",
-        icon = ei_path.."graphics/item/uranium-chunk.png",
+        icon = ei_graphics_3_path.."graphics/items/uranium-chunk.png",
         icon_size = 128,
         icon_mipmaps = 3,
         stack_size = 100,

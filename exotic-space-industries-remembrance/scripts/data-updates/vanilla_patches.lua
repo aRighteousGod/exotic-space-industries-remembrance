@@ -870,7 +870,7 @@ ei_lib.recipe_new("lubricant",
 })
 ei_lib.raw["recipe"]["lubricant"].results = {
     {type="fluid", name="lubricant", amount_min=6,amount_max=10},
-    {type="fluid", name="steam", amount_min=3,amount_max=7},
+    {type="fluid", name="steam", amount_min=3,amount_max=7,temperature=350},
 }
 local l_icon = ei_lib.raw.fluid["lubricant"].icon
 local l_icon_size = ei_lib.raw.fluid["lubricant"].icon_size
@@ -1232,7 +1232,7 @@ ei_lib.raw.item["nuclear-fuel"] = {
     localised_description = {"item-description.ei-nuclear-fuel"},
     subgroup = "ei-nuclear-fission-fuel",
     burnt_result = "depleted-uranium-fuel-cell",
-    icon = ei_graphics_3_path.."graphics/item/uranium-fuel-cell.png",
+    icon = ei_graphics_3_path.."graphics/items/uranium-fuel-cell.png",
     icon_size = 256,
     icon_mipmaps = 4,
     stack_size=20,
@@ -1248,7 +1248,7 @@ ei_lib.raw.item["depleted-uranium-fuel-cell"] = {
     localised_name = {"item-name.ei-depleted-uranium-fuel-cell"},
     localised_description = {"item-description.ei-depleted-uranium-fuel-cell"},
     subgroup = "ei-nuclear-fission-fuel",
-    icon = ei_graphics_3_path.."graphics/item/depleted-uranium-fuel-cell.png",
+    icon = ei_graphics_3_path.."graphics/items/depleted-uranium-fuel-cell.png",
     icon_size = 256,
     icon_mipmaps = 4,
     stack_size=20,
@@ -2012,14 +2012,14 @@ end
 ei_lib.raw.technology["space-science-pack"] = {
     localised_name = {"technology-name.ei-space-science-pack"},
     localised_description = {"technology-description.ei-space-science-pack"},
-    icon = ei_graphics_3_path.."graphics/item/cosmic-criticality-pack.png",
+    icon = ei_graphics_3_path.."graphics/items/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
 }
 
 --Increase space science pack difficulty, make alt recipes with different fuels
 ei_lib.raw.tool["space-science-pack"] = {
-    icon = ei_graphics_3_path.."graphics/item/cosmic-criticality-pack.png",
+    icon = ei_graphics_3_path.."graphics/items/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
     localised_name = {"item-name.ei-space-science-pack"},
@@ -2027,7 +2027,7 @@ ei_lib.raw.tool["space-science-pack"] = {
 }
 ei_lib.raw.recipe["space-science-pack"] = {
     category = "centrifuging",
-    icon = ei_graphics_3_path.."graphics/item/cosmic-criticality-pack.png",
+    icon = ei_graphics_3_path.."graphics/items/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
 }
@@ -2166,7 +2166,7 @@ for _,toCast in pairs(addToCaster) do
     local recipe = ei_lib.raw.recipe[toCast]
     if recipe then
         if recipe.additional_categories then
-            table.insert(recipe.additional_categories,"ei-casting") 
+            table.insert(recipe.additional_categories,"ei-casting")
         else
             recipe.additional_categories = {"ei-casting"}
         end
@@ -2179,6 +2179,8 @@ if a_n then
     --acid neutralisation t2
     local a_n_t2 = table.deepcopy(a_n)
     a_n_t2.name = "ei-acid-neutralisation-t2"
+    a_n_t2.icon = ei_graphics_3_path.."graphics/fluid/acid-neutralisation-t2.png"
+    a_n_t2.icon_size = 64
     a_n_t2.ingredients = {
         {type= "item", name= "calcite", amount=15},
         {type= "fluid", name= "sulfuric-acid", amount=750},
@@ -2309,6 +2311,12 @@ local ag_sci_pack = ei_lib.raw.recipe["agricultural-science-pack"]
 if ag_sci_pack then
 	table.insert(ag_sci_pack.ingredients,{type = "item", name = "nutrients", amount = 40})
 end
+-- Biolab uses nutrients, @StephenB
+local originalEnergySource = ei_lib.raw.lab.biolab.energy_source
+ei_lib.raw.lab.biolab.energy_source = table.deepcopy(data.raw["assembling-machine"].biochamber.energy_source)
+-- Leaving power at 300kW. Biochambers use 500kW.
+-- Biochambers have -1/m pollution emission (ie they reduce pollution). Biolabs had 8/m pollution emission, but this changes it to -1/m. Captive biter spawners are also -1/m. Looking at a simple Nauvis base importing most sciences, biolabs are actually the majority of the pollution, so I'm changing it back to 8/m.
+ei_lib.raw.lab.biolab.energy_source.emissions_per_minute = originalEnergySource.emissions_per_minute
 
 --====================================================================================================
 --FUNCTION STUFF

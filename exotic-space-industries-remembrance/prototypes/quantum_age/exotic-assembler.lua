@@ -64,7 +64,7 @@ data:extend({
     {
         name = "ei-high-tech-parts",
         type = "technology",
-        icon = ei_graphics_3_path.."graphics/item/high-tech-parts.png",
+        icon = ei_graphics_3_path.."graphics/items/high-tech-parts.png",
         icon_size = 512,
         icon_mipmaps = 5,
         prerequisites = {"ei-accelerator","ei-eu-magnet","ei-exotic-assembler","ei-plasma-cube"},

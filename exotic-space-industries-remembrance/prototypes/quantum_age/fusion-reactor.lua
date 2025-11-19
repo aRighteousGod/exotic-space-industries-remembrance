@@ -6,7 +6,7 @@ ei_data = require("lib/data")
 
 data:extend({
     {
-        name = "ei_fusion-reactor",
+        name = "ei-fusion-reactor",
         type = "recipe-category",
     },
     {
@@ -88,7 +88,7 @@ data:extend({
         collision_box = {{-5.4, -5.4}, {5.4, 5.4}},
         selection_box = {{-5.5, -5.5}, {5.5, 5.5}},
         map_color = ei_data.colors.assembler,
-        crafting_categories = {"ei_fusion-reactor"},
+        crafting_categories = {"ei-fusion-reactor"},
         heating_energy = "500kW",
         crafting_speed = 1,
         energy_source = {
@@ -188,9 +188,9 @@ data:extend({
 ------------------------------------------------------------------------------------------------------
 
 local base_recipe = {
-    name = "ei_dt-fusion",
+    name = "ei-dt-fusion",
     type = "recipe",
-    category = "ei_fusion-reactor",
+    category = "ei-fusion-reactor",
     energy_required = 1,
     ingredients = {
         {type = "fluid", name = "ei-heated-deuterium", amount = 15}, -- fuel 1
@@ -266,7 +266,7 @@ for fuel1, fuel2_combinations in pairs(fuel_combinations) do
 
                 for fuel_injection_mode, fuel_injection_mode_values in pairs(fuel_injection_modes) do
                     local recipe = table.deepcopy(base_recipe)
-                    recipe.name = "ei_fusion-F1__"..fuel1.."-F2__"..fuel2.."-TM__"..temp_mode.."-FM__"..fuel_injection_mode
+                    recipe.name = "ei-fusion-F1__"..fuel1.."-F2__"..fuel2.."-TM__"..temp_mode.."-FM__"..fuel_injection_mode
 
                     recipe.ingredients[1].name = fuel1
                     recipe.ingredients[1].amount = fuel_injection_mode_values[2]

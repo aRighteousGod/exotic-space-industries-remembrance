@@ -56,6 +56,7 @@ ei_lib.set_age_packs("ei-electricity-power","electricity-age")
 ei_lib.set_age_packs("electric-mining-drill","electricity-age")
 ei_lib.set_age_packs("ei-fueler","electricity-age")
 ei_lib.set_age_packs("research-productivity","interstellar")
+ei_lib.set_age_packs("atomic-bomb","space-quantum-age")
 ei_lib.set_age_packs("promethium-science-pack","both-quantum-age")
 if ei_lib.config("no-triggers") then
   for _,tech in pairs(data.raw.technology) do
