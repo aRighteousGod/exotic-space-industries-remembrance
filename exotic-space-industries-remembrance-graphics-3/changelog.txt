@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
-Date: 2025-11-17
+Date: 2025-11-19
   Changes:
     - Imported all graphics added to main mod file since 1.0.1.
     - Imported loader graphics from Exotic Industries: Loaders (2.0 Port).

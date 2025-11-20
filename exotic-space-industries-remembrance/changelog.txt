@@ -1,9 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.68
+Date: 11-20-2025
+  Changes:
+    - Acidthrower technology prerequisites: Additionally requires Engine unit.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.67
-Date: 10-18-2025
+Date: 11-19-2025
   Features:
     - Created Plasma damage category.
-    - Plasma turret and Poseidon installation primary damage types changed from electric to plasma.
+    - Plasma turret and Poseidon installation primary damage type changed from electric to plasma.
     - Added Milestones to optional dependencies—keeps a ledger of notable technological achievements and creation of such.
     - Imported Exotic Industries: Loaders (2.0 Port) by @Samario which adds loader integration with additional belt adding mods—Castra, Ultimate belts, Advanced belts, 5dim's, K2, Factorio+.
     - Dirty water production technology now unlocks two additional Dirty water from stone recipes—5000 >= 500c Steam + 100 Stone over 60s -> 475 - 525 Dirty water, and 5000 >= 500c Steam + 100 Stone + 100 Sulfuric acid over 20s -> 500-550 Dirty water.
@@ -18,13 +23,12 @@ Date: 10-18-2025
     - Flamethrower technology prerequisites: Additionally requires Engine unit.
   Bugfixes:
     - Fixed that High redox acid neutralisation showed the T1 recipe icon.
-    - Fixed that EI Fusion reactor didn't count as a neutron source.
+    - Fixed that EI Fusion reactor didn't count as a neutron source. (Currently placed reactors need to be rebuilt.)
     - Fixed that a recycling recipe existed for Nuclear waste.
     - Fixed that Atomic bomb didn't require Quantum age science pack.
     - Fixed that Biolab required electricity instead of nutrients.
     - Fixed that GUI updaters would iterate over all players which ever existed instead of only connected players.
     - Fixed that Lubricant recipe's 350c steam was still 15c.
-    - Fixed that Exotic assembler / Matter stabilizer descriptions referenced volatility chance as per second instead of per tick.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.66
 Date: 10-18-2025

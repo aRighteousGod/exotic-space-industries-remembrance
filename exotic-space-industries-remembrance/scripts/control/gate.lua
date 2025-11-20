@@ -582,7 +582,6 @@ function model.update_energy(unit, gate)
     end
 
     -- update gui if open
-    for _, player in pairs(game.players) do
     for _, player in pairs(game.connected_players) do
         if player.gui.relative["ei-gate-console"] then
             -- only update the gui if the gui open belongs to this gate
@@ -1034,8 +1033,6 @@ end
 
 
 function model.update_player_guis()
-
-    for _, player in pairs(game.players) do
     for _, player in pairs(game.connected_players) do
         if player.gui.relative["ei-gate-console"] then
             if not player.opened then
