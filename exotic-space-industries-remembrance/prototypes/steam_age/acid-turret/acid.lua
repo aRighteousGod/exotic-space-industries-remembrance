@@ -1392,7 +1392,7 @@ acidsmoke
     type = "technology",
     icon = ei_graphics_3_path.."graphics/tech/acid-turret.png",
     icon_size = 128,
-    prerequisites = {"sulfur-processing","flammables","engine-unit"},
+    prerequisites = {"sulfur-processing","flammables","engine"},
     effects = {
         {
             type = "unlock-recipe",

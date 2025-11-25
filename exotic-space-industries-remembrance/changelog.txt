@@ -1,8 +1,15 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.68
-Date: 11-20-2025
+Date: 11-24-2025
+  Features:
+    - Added Tesla's Legacy to required dependencies—adds upgradeable tesla coils and a tesla tank. Situated in Electric and Simulation ages.
   Changes:
+    - Tesla weapons technology name -> Replica Fulgoran tesla coil weaponry.
+    - Replica Fulgoran tesla coil weaponry technology prerequisites: Additionally requires Advanced tesla coil.
+    - Replica Fulgoran tesla coil recipe inputs: Additionally requires 1 Advanced tesla coil.
     - Acidthrower technology prerequisites: Additionally requires Engine unit.
+  Bugfixes:
+    - Fixed that Ceramite bulkhead wall and Plastcrete rampart wall technologies still reflected their default names.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.67
 Date: 11-19-2025
