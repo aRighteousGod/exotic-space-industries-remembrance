@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.69
+Date: 12-4-2025
+  Changes:
+    - Neo splitter now accepts circuit connections in line with Factorio 2.0.67 splitter changes.
+  Bugfixes:
+    - Beacon overload script switched to singular entity search which checks individual beacon's range preventing erroneous overload when using ie vanilla beacons.
+    - Neutron collector internal control script correctly checks against updated internal names for fusion reactor recipes properly allowing collection of neutrons from fusion reactors—from @NaK1119.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.68
 Date: 11-24-2025
   Features:

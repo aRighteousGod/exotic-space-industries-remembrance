@@ -95,57 +95,76 @@ function model.counts_for_overload(entity)
     return false
 end
 
-
--- count how many beacons are in range of this machine, assume beacon range is 3
+-- count how many beacons are in range of this machine,
+-- using each beacon's actual supply_area_distance
 function model.count_beacons(entity)
-    
-    if model.entity_check(entity) == false then
+    if not model.entity_check(entity) then
         return 0
     end
 
-    local count = 0
-    local range = ei_data.beacon_range
+    local surface = entity.surface
+    local pos = entity.position
+    local proto = entity.prototype
 
-    -- consider size of machine as well
-    local size = entity.prototype.collision_box.right_bottom.x - entity.prototype.collision_box.left_top.x
+    -- approximate machine "radius" from collision box
+    local box = proto.collision_box
+    local size_x = box.right_bottom.x - box.left_top.x
+    local size_y = box.right_bottom.y - box.left_top.y
+    local half_size = math.max(size_x, size_y) * 0.5
 
-    -- get area around machine
+    -- max range any beacon could reasonably have
+    -- (used only to bound the search area; actual check per beacon below)
+    local max_range = ei_data.beacon_range
+
     local area = {
-        {entity.position.x - range - size/2, entity.position.y - range - size/2},
-        {entity.position.x + range + size/2, entity.position.y + range + size/2}
+        {pos.x - max_range - half_size, pos.y - max_range - half_size},
+        {pos.x + max_range + half_size, pos.y + max_range + half_size}
     }
 
-    -- count beacon type entites in area
-    local beacons = entity.surface.find_entities_filtered{
+    -- single query: grab all beacons in the area
+    local candidates = surface.find_entities_filtered{
         area = area,
         type = "beacon"
     }
 
-    -- count alien beacons + singularity beacons
-    local alien_beacons = entity.surface.find_entities_filtered{
-        area = area,
-        name = "ei-alien-beacon"
-    }
-    local warp_beacons = entity.surface.find_entities_filtered{
-        area = area,
-        name = "ei-warp-beacon"
-    }
-    local kr_beacons = {};
-    if script.active_mods["krastorio2-spaced-out"] then
-        kr_beacons = entity.surface.find_entities_filtered{
-        area = area,
-        name = "kr-singularity-beacon"
-    }
+    local count = 0
+
+    for _, beacon in ipairs(candidates) do
+        local type = beacon.prototype
+        local range = type.get_supply_area_distance(beacon.quality) or 0
+
+        -- chebyshev distance
+        local dx = math.abs(beacon.position.x - pos.x)
+        local dy = math.abs(beacon.position.y - pos.y)
+        local cheb = math.max(dx, dy)
+
+        -- expand by half_size so big machines still count if any part is inside
+        if cheb <= range + half_size then
+            local name = beacon.name
+
+            -- subtractive beacons
+            if name == "ei-alien-beacon" or name == "ei-warp-beacon" then
+                --these don't count
+
+            else
+                -- base weight
+                local weight = 1
+
+                -- iron beacons count double
+                if name == "ei-iron-beacon" then
+                    weight = 2
+                end
+
+                -- kr-singularity-beacon (and any other normal beacon) just uses weight=1
+                -- since it's already type="beacon", it gets picked up automatically
+                count = count + weight
+            end
+        end
     end
 
-    -- now add the number of iron beacons since they count double
-    local iron_beacons = entity.surface.find_entities_filtered{
-        area = area,
-        name = "ei-iron-beacon"
-    }
-
-    return #beacons + #iron_beacons + #kr_beacons - #alien_beacons - #warp_beacons
+    return count
 end
+
 
 
 function model.update_overload(entity, destroy_type, beacon_value)

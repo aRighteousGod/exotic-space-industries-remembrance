@@ -384,6 +384,12 @@ data:extend({
 		selection_box = {{-0.9, -0.5}, {0.9, 0.5}},		
 		structure_animation_speed_coefficient = 1.2,
 		structure_animation_movement_cooldown = 10,
+		circuit_wire_max_distance = splitter_circuit_wire_max_distance,
+		circuit_connector = circuit_connector_definitions["splitter"],
+		default_input_left_condition = { first = {type="virtual", name="signal-I"}, comparator="<", second=0},
+		default_input_right_condition = { first = {type="virtual", name="signal-I"}, comparator=">", second=0},
+		default_output_left_condition = { first = {type="virtual", name="signal-O"}, comparator="<", second=0},
+		default_output_right_condition = { first = {type="virtual", name="signal-O"}, comparator=">", second=0},
 		belt_animation_set = 
         {
             animation_set =

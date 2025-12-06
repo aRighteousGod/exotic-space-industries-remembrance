@@ -400,10 +400,10 @@ function model.calc_efficiency(entity, source)
             recipe = source.get_recipe().name
         end
 
-        fuel1 = recipe:match("F1-(.+)-F2-")
-        fuel2 = recipe:match("F2-(.+)-TM-")
-        temp_mode = recipe:match("TM-(.+)-FM-")
-        fuel_mode = recipe:match("FM-(.+)")
+        fuel1 = recipe:match("F1__(.+)%-F2__")
+        fuel2 = recipe:match("F2__(.+)%-TM__")
+        temp_mode = recipe:match("TM__(.+)%-FM__")
+        fuel_mode = recipe:match("FM__(.+)") 
 
         efficiency = efficiency * 2 * model.calc_fusion_flux(fuel1, fuel2, temp_mode, fuel_mode)
     end
