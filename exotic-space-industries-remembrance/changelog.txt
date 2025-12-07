@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.70
+Date: 12-7-2025
+  Bugfixes:
+    - Fixed loaders becoming visually desynced and not functioning as intended when autoplaced against wagons.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.69
 Date: 12-4-2025
   Changes:

@@ -45,6 +45,9 @@ local container_like = {
     "ammo-turret",
     "agricultural-tower",
     "mining-drill",
+    "cargo-wagon",
+    "fluid-wagon",
+    "artillery-wagon"
 }
 
 local loader_like = {
@@ -187,61 +190,62 @@ function ei_loaders_lib.flip_loader_type(loader)
     end
 end
 
-
 --====================================================================================================
 --SNAPPING LOGIC
 --====================================================================================================
 
-
 function ei_loaders_lib.snap_input(loader, mode)
-    -- check for belt like and container like
-    local output_pos, input_pos = ei_loaders_lib.get_positions(loader)
+	-- check for belt like and container like
+	local output_pos, input_pos = ei_loaders_lib.get_positions(loader)
 
-    if mode == "container_like" then
-        -- for container like
-        local container_like = loader.surface.find_entities_filtered{
-            position = output_pos,
-            type = container_like,
-            force = loader.force,
-        }
+	if mode == "container_like" then
+		-- where is the container/train actually located?
+		local front_containers = loader.surface.find_entities_filtered({
+			position = output_pos,
+			type = container_like,
+			force = loader.force,
+		})
 
-        if #container_like > 0 then
-            -- is the belt part of the loader facing the container?
-            local loader_type = loader.loader_type
+		local back_containers = loader.surface.find_entities_filtered({
+			position = input_pos,
+			type = container_like,
+			force = loader.force,
+		})
 
-            -- output is default loader type
-            if loader_type == "output" then
-                -- here the belt part of the loader is always facing to the container
-                -- like, therfore we need to flip the entire loader
-                loader.direction = ei_loaders_lib.flip_direction(loader.direction)
-            end
-        end
-    end
-    
-    if mode == "belt_like" then
-        -- for belt like
-        local belt_like = loader.surface.find_entities_filtered{
-            position = output_pos,
-            type = belt_like,
-            force = loader.force,
-        }
+		-- Design choice:
+		-- we want containers (incl. trains) to be on the "back" side (input_pos).
+		-- If we only see a container in front, flip the loader once.
+		if #front_containers > 0 and #back_containers == 0 then
+			loader.direction = ei_loaders_lib.flip_direction(loader.direction)
+		end
+	end
 
-        if #belt_like > 0 then
-            if not belt_like[1].valid then
-                return
-            end
+	if mode == "belt_like" then
+		-- for belt like
+		local belts_found = loader.surface.find_entities_filtered({
+			position = output_pos,
+			type = belt_like, -- uses the global list
+			force = loader.force,
+		})
 
-            -- get  direction of loader and belt_like
-            local belt_direction = belt_like[1].direction
-            local loader_direction = loader.direction
+		if #belts_found > 0 then
+			local belt_entity = belts_found[1]
+			if not belt_entity.valid then
+				return
+			end
 
-            -- only need to flip loader if loader type is wrong way
-            if belt_direction == ei_loaders_lib.flip_direction(loader_direction) then
-                ei_loaders_lib.flip_loader_type(loader)
-            end
-        end
-    end
+			-- get direction of loader and belt_like
+			local belt_direction = belt_entity.direction
+			local loader_direction = loader.direction
+
+			-- only need to flip loader_type if loader is "backwards" relative to belt
+			if belt_direction == ei_loaders_lib.flip_direction(loader_direction) then
+				ei_loaders_lib.flip_loader_type(loader)
+			end
+		end
+	end
 end
+
 
 
 function ei_loaders_lib.call_snap_input(belt, pos)
