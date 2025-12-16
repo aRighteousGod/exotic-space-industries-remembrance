@@ -1,6 +1,6 @@
 local model = {}
 ei_lib = require("lib/lib")
-ei_rng = require("lib/rng")
+--ei_rng = require("lib/rng")
 -- DOC
 
 -- Charger gets registered when placed
@@ -14,9 +14,37 @@ ei_rng = require("lib/rng")
 --MAIN
 --====================================================================================================
 
+model.chargers = {
+    ["ei_charger"] = true,
+    ["uncommon-ei_charger"] = true,
+    ["rare-ei_charger"] = true,
+    ["epic-ei_charger"] = true,
+    ["legendary-ei_charger"] = true,
+}
 model.trains = {
     ["ei_em-locomotive"] = true,
-    ["ei_em-locomotive-mu"] = true --multiple unit consist mod
+    ["uncommon-ei_em-locomotive"] = true,
+    ["rare-ei_em-locomotive"] = true,
+    ["epic-ei_em-locomotive"] = true,
+    ["legendary-ei_em-locomotive"] = true,
+    ["ei_em-locomotive-mu"] = true, --multiple unit consist mod
+    ["uncommon-ei_em-locomotive-mu"] = true,
+    ["rare-ei_em-locomotive-mu"] = true,
+    ["epic-ei_em-locomotive-mu"] = true,
+    ["legendary-ei_em-locomotive-mu"] = true,
+}
+
+model.wagons = {
+    ["ei_em-cargo-wagon"] = true,
+    ["ei_em-fluid-wagon"] = true,
+    ["uncommon-ei_em-cargo-wagon"] = true,
+    ["uncommon-ei_em-fluid-wagon"] = true,
+    ["rare-ei_em-cargo-wagon"] = true,
+    ["rare-ei_em-fluid-wagon"] = true,
+    ["epic-ei_em-cargo-wagon"] = true,
+    ["epic-ei_em-fluid-wagon"] = true,
+    ["legendary-ei_em-cargo-wagon"] = true,
+    ["legendary-ei_em-fluid-wagon"] = true,
 }
 
 model.techs = {
@@ -27,6 +55,12 @@ model.techs = {
 
 --UTIL
 ------------------------------------------------------------------------------------------------------
+
+-- checks if the given name is an em loco
+-- might be good to detect if non-standard qualities are in use and use this, or maybe build a list at startup
+function model.is_em_train(name)
+    return string.find(name, "ei_em%-locomotive") ~= nil
+end
 
 function model.entity_check(entity)
 
@@ -344,11 +378,19 @@ function model.deregister_all_chargers()
 --        end
 end
 function model.reinitialize_chargers()
-    local effBuff =  storage.ei_emt.buffs.eff_level or 0
     model.deregister_all_chargers()
     for _, surface in pairs(game.surfaces) do
-        local entities = surface.find_entities_filtered{name = "ei_charger"}
+		local entities = surface.find_entities_filtered({
+			name = {
+				"ei_charger",
+				--"uncommon-ei_charger",
+				--"rare-ei_charger",
+				--"epic-ei_charger",
+				--"legendary-ei_charger",
+			},
+		})
         if entities and ei_lib.getn(entities) > 0 then
+            local effBuff =  storage.ei_emt.buffs.eff_level or 0
             for _, entity in pairs(entities) do
                 if entity and entity.valid then
                     em_trains.register_charger(entity)
@@ -362,12 +404,20 @@ function model.reinitialize_chargers()
 end
 
 function model.reinitialize_trains()
-    local accBuff =  storage.ei_emt.buffs.acc_level or 0
-    local spdBuff =  storage.ei_emt.buffs.spd_level or 0
     model.deregister_all_trains()
     for _, surface in pairs(game.surfaces) do
-        local entities = surface.find_entities_filtered{name = "ei_em-locomotive"}
+		local entities = surface.find_entities_filtered({
+			name = {
+				"ei_em-locomotive", --quality is an additional filter so if 1 isn't set it grabs all of them
+				--"uncommon-ei_em-locomotive",
+				--"rare-ei_em-locomotive",
+				--"epic-ei_em-locomotive",
+				--"legendary-ei_em-locomotive",
+			},
+		})
         if entities and ei_lib.getn(entities) then
+            local accBuff =  storage.ei_emt.buffs.acc_level or 0
+            local spdBuff =  storage.ei_emt.buffs.spd_level or 0
             for _, entity in pairs(entities) do
                 if entity and entity.valid then
                     em_trains.register_train(entity)
@@ -559,7 +609,7 @@ function ei_draw_train_glow(train, params)
   -- Apply the glow to each attached EM train car (wagon)
   if train.train and train.train.carriages then
 	  for _, car in pairs(train.train.carriages) do
-		if car and car.valid and (car.name == "ei_em-fluid-wagon" or car.name == "ei_em-cargo-wagon") then
+		if car and car.valid and model.wagons[car.name] then
 		  rendering.draw_light {
 			sprite = glow_params.sprite,
 			scale = scale,
@@ -1145,7 +1195,7 @@ function model.on_built_entity(entity)
         return
     end
 
-    if entity.name == "ei_charger" then
+    if model.chargers[entity.name] then
         model.register_charger(entity)
         model.animate_range(entity, true, nil)
         model.fix_toggle_range()
@@ -1166,7 +1216,7 @@ function model.on_destroyed_entity(entity)
         return
     end
 
-    if entity.name == "ei_charger" then
+    if model.chargers[entity.name] then
         model.unregister_charger(entity)
         em_trains_gui.mark_dirty()
     elseif ei_lib.table_contains_value(ei_rail_types,entity.name) then

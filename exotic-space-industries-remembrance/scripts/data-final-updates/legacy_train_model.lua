@@ -308,8 +308,8 @@ local techs_to_remove = {
 for _,tech in pairs(techs_to_remove) do
     ei_lib.remove_unlock_recipe("railway",tech)
 end
-ei_lib.add_unlock_recipe("railway","ei-advanced-cargo-wagon")
-ei_lib.add_unlock_recipe("railway","ei-nuclear-locomotive")
+--ei_lib.add_unlock_recipe("railway","ei-advanced-cargo-wagon")
+--ei_lib.add_unlock_recipe("railway","ei-nuclear-locomotive")
 
 --remove the mod's items, recipes, entities
 --[[

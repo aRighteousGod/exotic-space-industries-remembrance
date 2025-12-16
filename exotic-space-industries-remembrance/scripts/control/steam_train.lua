@@ -5,7 +5,7 @@ local WheelControl = require("lib/handle_wheels.lua")
 --====================================================================================================
 --Steam locomotive by cupcakescankill / IonShield
 --====================================================================================================
-WHEEL_UPDATE_TICK = math.max(1,math.min(5,ei_ticksPerFullUpdate/30)) --Looks ridiculous if they don't happen often enough
+WHEEL_UPDATE_TICK = math.floor(math.max(1,math.min(5,ei_ticksPerFullUpdate/30))) --Looks ridiculous if they don't happen often enough
 CLEANUP_UPDATE_TICK = ei_ticksPerFullUpdate*10 --600
 function steam_train.updater(event)
    	if event.tick % WHEEL_UPDATE_TICK > 0 then

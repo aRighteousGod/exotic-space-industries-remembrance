@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.71
+Date: 12-15-2025
+  Bugfixes:
+    - Fixed that railway technology unlocked Nuclear locomotive and Advanced cargo wagon.
+    - Fixed that quality EM locomotives didn't charge. @Shadoxa
+    - Fixed that quality EM chargers didn't charge.
+    - Fixed that quality EM wagons wouldn't display glow effects.
+    - Fixed that animated steam locomotive updater could misbehave with non-default update cycle tick lengths.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.70
 Date: 12-7-2025
   Bugfixes:
