@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.72
+Date: 12-19-2025
+  Features:
+    - Imported Shotgun turret from Past's Defense Stuff by @PastTheFuture—situated in Dark age after Gun turret and Military technologies.
+  Changes:
+    - Shotgun shells will no longer collide with friendly structures and will now collide with asteroids.
+  Bugfixes:
+    - Fixed that steam quarry produced 4x the intended pollution.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.71
 Date: 12-15-2025
   Bugfixes:

@@ -1636,12 +1636,16 @@ data.raw["tile"]["hazard-concrete-left"].walking_speed_modifier = 1.8
 data.raw["tile"]["refined-concrete"].walking_speed_modifier = 2.2
 data.raw["tile"]["refined-hazard-concrete-left"].walking_speed_modifier = 2.2
 
---prevent cannon shells from colliding with friendly structures and allow collision with asteroids
-local cannon_shell_projectiles = {
+local shot_shell_projectile = ei_lib.raw["projectile"]["shotgun-shell-projectile"]
+
+--prevent projectiles from colliding with friendly structures and allow collision with asteroids
+local modify_collision_projectiles = {
     "cannon-projectile",
     "explosive-cannon-projectile",
     "explosive-uranium-cannon-projectile",
     "uranium-cannon-projectile",
+    "shotgun-pellet",
+    "piercing-shotgun-pellet",
 }
 local collision_mask = {
     layers = {
@@ -1652,7 +1656,7 @@ local collision_mask = {
     },
     not_colliding_with_itself = true
 }
-for _,projectile in ipairs(cannon_shell_projectiles) do
+for _,projectile in ipairs(modify_collision_projectiles) do
     data.raw["projectile"][projectile].force_condition = "not-same"
     data.raw["projectile"][projectile].hit_collision_mask = collision_mask
 

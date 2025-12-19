@@ -132,7 +132,7 @@ steam_quarry.energy_source = {
 steam_quarry.mining_speed = 1.5
 steam_quarry.resource_drain_rate_percent = 65
 steam_quarry.performance_to_activity_rate = 2.0
-steam_quarry.energy_source.emissions_per_minute.pollution = steam_quarry.energy_source.emissions_per_minute.pollution * 4
+
 
 data:extend({steam_quarry})
 table.insert(data.raw["technology"]["ei-steam-power"].effects, {type = "unlock-recipe", recipe = "ei-steam-quarry"})

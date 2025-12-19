@@ -11,6 +11,7 @@
 require("lab")
 require("burner-assembler")
 require("burner_quarry")
+require("shotgun_turret")
 require("dark_prototypes")
 require("mechanical_inserter")
 require("camp_fire")
