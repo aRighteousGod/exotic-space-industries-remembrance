@@ -87,7 +87,7 @@ electric_quarry.minable = {mining_time = 1, result = modprefix.."electric-quarry
 electric_quarry.resource_searching_radius = 15
 electric_quarry.energy_usage = "1MW"
 electric_quarry.mining_speed = 1.5
-electric_quarry.energy_source.emissions_per_minute.pollution = electric_quarry.energy_source.emissions_per_minute.pollution * 4
+electric_quarry.energy_source.emissions_per_minute.pollution = 32 --electric_quarry.energy_source.emissions_per_minute.pollution * 4
 electric_quarry.performance_to_activity_rate = 2.0
 electric_quarry.resource_drain_rate_percent = 65
 electric_quarry.icon = ei_graphics_kirazy_path.."icon/electric-mining-drill.png"

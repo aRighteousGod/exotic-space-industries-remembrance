@@ -1,8 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.73
+Date: 12-22-2025
+  Features:
+    - Imported and modified Dragon's Breath shotgun shell from Past's Defense Stuff by @PastTheFuture—Spews flaming shells which explode and cause fires. Unlocked after Metallurgy science in the Computer age.
+  Changes:
+    - Electric quarry pollution emissions per minute: 40 -> 32.
+  Bugfixes:
+    - Fixed that Shotgun turret wasn't affected by physical projectile damage upgrade technologies.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.72
 Date: 12-19-2025
   Features:
-    - Imported Shotgun turret from Past's Defense Stuff by @PastTheFuture—situated in Dark age after Gun turret and Military technologies.
+    - Imported and tweaked Shotgun turret from Past's Defense Stuff by @PastTheFuture—situated in Dark age after Gun turret and Military technologies.
   Changes:
     - Shotgun shells will no longer collide with friendly structures and will now collide with asteroids.
   Bugfixes:

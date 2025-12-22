@@ -1636,8 +1636,6 @@ data.raw["tile"]["hazard-concrete-left"].walking_speed_modifier = 1.8
 data.raw["tile"]["refined-concrete"].walking_speed_modifier = 2.2
 data.raw["tile"]["refined-hazard-concrete-left"].walking_speed_modifier = 2.2
 
-local shot_shell_projectile = ei_lib.raw["projectile"]["shotgun-shell-projectile"]
-
 --prevent projectiles from colliding with friendly structures and allow collision with asteroids
 local modify_collision_projectiles = {
     "cannon-projectile",
@@ -1646,6 +1644,7 @@ local modify_collision_projectiles = {
     "uranium-cannon-projectile",
     "shotgun-pellet",
     "piercing-shotgun-pellet",
+    "ei-dragons-breath-shotgun-pellet",
 }
 local collision_mask = {
     layers = {
