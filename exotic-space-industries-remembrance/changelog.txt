@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.74
+Date: 12-22-2025
+  Changes:
+    - Dragon's Breath shotgun shell explosive area of effect: 0.5 -> 0.75.
+    - Dragon's Breath shotgun shell explosive damage: 10 - > 14.
+  Bugfixes:
+    - Fixed that Metallurgic science pack was erroneously being added to many technologies.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.73
 Date: 12-22-2025
   Features:

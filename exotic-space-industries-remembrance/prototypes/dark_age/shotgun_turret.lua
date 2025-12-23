@@ -319,13 +319,13 @@ data:extend({
 		action = {
 			{
 				type = "area",
-				radius = 0.5,
+				radius = 0.75,
 				action_delivery = {
 					type = "instant",
 					target_effects = {
 						{
 							type = "damage",
-							damage = { amount = 10, type = "explosion" },
+							damage = { amount = 14, type = "explosion" },
 						},
 					},
 				},
@@ -364,7 +364,7 @@ data:extend({
 				},
 			},
 		},
-		light = { intensity = 0.75, size = 4 , color={r=1.0,g=0.2,b=0.1} },
+		light = { intensity = 0.75, size = 4, color = { r = 1.0, g = 0.2, b = 0.1 } },
 		animation = {
 			{
 				filename = "__base__/graphics/entity/bullet/bullet.png",
@@ -382,7 +382,7 @@ data:extend({
 				frame_count = 90,
 				axially_symmetrical = false,
 				direction_count = 1,
-                draw_as_glow = true,
+				draw_as_glow = true,
 				blend_mode = "additive",
 				animation_speed = 0.125,
 				scale = 1,
@@ -449,7 +449,7 @@ data:extend({
 		results = {
 			{ type = "item", name = "ei-dragons-breath-shotgun-shell", amount = 1 },
 			{ type = "item", name = "ei-slag", amount_min = 6, amount_max = 18 },
-            { type = "item", name = "atan-ash", amount_min = 15, amount_max = 30, probability = 0.98 },
+			{ type = "item", name = "atan-ash", amount_min = 15, amount_max = 30, probability = 0.98 },
 		},
 		enabled = false,
 		always_show_made_in = true,
@@ -461,7 +461,7 @@ data:extend({
 		icon = ei_path .. "graphics/icons/dragons-breath-shotgun-shell.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
-		prerequisites = { "metallurgic-science-pack", "military-4", "ei-carbon-manipulation", "ei-nitric-acid" },
+		prerequisites = { "metallurgic-science-pack", "military-4", "ei-carbon-manipulation" },
 		effects = {
 			{
 				type = "unlock-recipe",
@@ -476,6 +476,3 @@ data:extend({
 		age = "computer-age",
 	},
 })
-
-local d_b_s_s_tech = ei_lib.raw.technology["ei-dragons-breath-shotgun-shell"]
-table.insert(d_b_s_s_tech.unit.ingredients,{"metallurgic-science-pack",1})
