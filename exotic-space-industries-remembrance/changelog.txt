@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.75
+Date: 12-24-2025
+  Bugfixes:
+    - Fixed that both cannon turrets weren't affected by physical projectile damage upgrade technologies.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.74
 Date: 12-22-2025
   Changes:
