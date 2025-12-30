@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.76
+Date: 12-29-2025
+  Bugfixes:
+    - Fixed that T2 and T3 plastic bar recipes weren't affected by plastic bar productivity technology.
+    - Fixed that T2 processing unit recipe wasn't affected by processing unit productivity technology.
+    - Fixed that assembled rocket part reflected incorrect name.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.75
 Date: 12-24-2025
   Bugfixes:

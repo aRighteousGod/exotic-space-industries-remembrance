@@ -1874,6 +1874,34 @@ data.raw.module["ei-productivity-module-6"].limitation = data.raw.module["produc
 -- properly set logistics 3 age and prere 
 ei_lib.raw.technology["logistics-3"].age = "advanced-computer-age"
 ei_lib.set_prerequisites("logistics-3",{"ei-advanced-computer-age-tech","logistics-2","ei-carbon-manipulation"})
+--plastic bar productivity
+local pbp = ei_lib.raw.technology["plastic-bar-productivity"]
+if pbp and pbp.effects then
+    table.insert(pbp.effects,
+    {
+        type = "change-recipe-productivity",
+        recipe = "ei-plastic-benzol",
+        change = 0.1
+    })
+    table.insert(pbp.effects,
+    {
+        type = "change-recipe-productivity",
+        recipe = "ei-plastic-crushed-coke",
+        change = 0.1
+    })
+end
+
+--processing unit productivity
+local pup = ei_lib.raw.technology["processing-unit-productivity"]
+if pup and pup.effects then
+    table.insert(pup.effects,
+    {
+        type = "change-recipe-productivity",
+        recipe = "ei-processing-unit-circuit-board",
+        change = 0.1
+    })
+end
+
 --add t1 steel ingot casting to steel productivity
 
 local spp = ei_lib.raw.technology["steel-plate-productivity"]
@@ -1902,7 +1930,7 @@ rocket_part_recipe.ingredients = {
 rocket_part_recipe.localised_name = {"recipe-name.ei-rocket-assembly"}
 --adjust Rocket part name display
 local rocket_part = ei_lib.raw["item"]["rocket-part"]
-rocket_part_recipe.localised_name = {"recipe-name.ei-rocket-assembled"}
+rocket_part.localised_name = {"item-name.ei-rocket-assembled"}
 
 local rfp = ei_lib.raw.technology["rocket-fuel-productivity"]
 if rfp and rfp.effects then
