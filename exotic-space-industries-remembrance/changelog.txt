@@ -1,8 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.78
+Date: 1-1-2026
+  Bugfixes:
+    - Military 2 now shows Steam age as a prerequisite.
+    - Fixed that Caster's casting steel ingot recipe received no steel plate productivity technology bonus and Furnace's recipe received it twice.
+    - Fixed that liquid nitrogen which needs *a* fuel value to be used in cooled beacons was dense enough to be net energy positive in burners.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.77
 Date: 12-31-2025
   Bugfixes:
-    - Loaders snap logic rewritten to prevent inconsistent snap behavior when dealing with ghosts / latency in building placement.
+    - Loaders snap logic rewritten to prevent inconsistent behavior when dealing with ghosts / latency in building placement.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.76
 Date: 12-29-2025

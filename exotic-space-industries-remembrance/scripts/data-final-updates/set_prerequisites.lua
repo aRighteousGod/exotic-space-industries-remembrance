@@ -144,7 +144,7 @@ ei_lib.set_prerequisites("space-platform-thruster",{"space-platform"})
 ei_lib.set_prerequisites("interstellar-science-pack",{"space-science-pack"})
 ei_lib.set_prerequisites("interstellar-science-pack",{"space-science-pack"})
 ei_lib.set_prerequisites("electric-mining-drill",{"ei-electricity-power"})
-ei_lib.set_prerequisites("military-2",{"military"})
+ei_lib.set_prerequisites("military-2",{"military","ei-steam-age"})
 ei_lib.set_prerequisites("flamethrower",{"flammables","engine"})
 
 ei_lib.set_prerequisites("wdm_home_planet",{})

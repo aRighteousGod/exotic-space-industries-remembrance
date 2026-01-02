@@ -124,7 +124,7 @@ data:extend({
             scale_fluid_usage = true,
         },
 
-        energy_usage = "5MW",
+        energy_usage = "60W",
         module_slots = 4,
         supply_area_distance = ei_data.beacon_range,
         radius_visualisation_picture =

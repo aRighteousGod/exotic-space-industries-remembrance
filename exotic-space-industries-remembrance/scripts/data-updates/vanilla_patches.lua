@@ -1909,7 +1909,7 @@ if spp and spp.effects then
     table.insert(spp.effects,
     {
         type = "change-recipe-productivity",
-        recipe = "ei-steel-plate",
+        recipe = "ei-cast-steel-ingot",
         change = 0.1
     })
 end

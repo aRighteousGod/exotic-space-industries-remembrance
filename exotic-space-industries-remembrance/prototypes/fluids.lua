@@ -503,7 +503,7 @@ data:extend({
         type = "fluid",
         icon = ei_graphics_fluid_path.."liquid-nitrogen.png",
         icon_size = 64,
-        fuel_value = "1MJ",
+        fuel_value = "12J",
         default_temperature = 15,
         max_temperature = 1000,
         gas_temperature = 100,
