@@ -1,0 +1,16 @@
+{
+  "entity":
+  [
+    ["steampunk-lamp", "ei-steampunk-lamp"]
+  ],
+  "item":
+  [
+    ["steampunk-lamp", "ei-steampunk-lamp"]
+  ],
+  "recipe":
+  [
+    ["steampunk-lamp", "ei-steampunk-lamp"],
+    ["steampunk-lamp-recycling", "ei-steampunk-lamp-recycling"],
+    ["item-steampunk-lamp-incineration", "item-ei-steampunk-lamp-incineration"]
+  ]
+}

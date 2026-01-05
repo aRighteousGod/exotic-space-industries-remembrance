@@ -74,6 +74,9 @@ if recycler then
         {type="item",name="ei-simulation-data", amount_min=0,amount=1,probability=0.01},
         {type="item",name="ei-crushed-gold", amount_min=0,amount_max=1,probability=0.16},
     }
+
+    data.raw.recipe["iron-stick-recycling"] = nil
+
     ei_lib.raw.recipe["ei-energy-crystal-recycling"].results = {
         {type="item",name="ei-sand", amount_min=0,amount_max=1,probability=0.18},
         {type="item",name="ei-crushed-sulfur", amount_min=0,amount=1,probability=0.11},

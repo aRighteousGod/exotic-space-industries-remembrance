@@ -31,6 +31,7 @@ data:extend({
         name = "ei-burning",
         order = "zzz"
     },
+    
     {
         name = "ei-refining",
         type = "item-group",

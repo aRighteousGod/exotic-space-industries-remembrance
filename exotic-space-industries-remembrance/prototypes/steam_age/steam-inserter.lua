@@ -79,7 +79,7 @@ data:extend({
             time = 20
         },
         age = "steam-age",
-    }, 
+    },
 })
 
 -- deep copy burner inserter

@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.2.78",
+    "version": "1.2.79",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -32,6 +32,7 @@
         "SolarMatrix",
         "enhanced-walls",
         "AspctTrainPatch",
+        "SteampunkLamp",
         "~ zzz-nonstandard-beacons",
 
         "? distant-misfires",

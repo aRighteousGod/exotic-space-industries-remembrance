@@ -1599,9 +1599,9 @@ mining_drill.name = "ei-advanced-electric-mining-drill"
 mining_drill.minable.result = "ei-advanced-electric-mining-drill"
 mining_drill.next_upgrade = "ei-superior-electric-mining-drill"
 mining_drill.fast_replaceable_group = "electric-mining-drill"
-mining_drill.mining_speed = 0.75
+mining_drill.mining_speed = 1
 mining_drill.energy_usage = "300kW"
-mining_drill.resource_searching_radius = 3.5
+mining_drill.resource_searching_radius = 4
 mining_drill.module_slots = 5
 
 

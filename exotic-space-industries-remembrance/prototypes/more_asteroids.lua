@@ -827,7 +827,7 @@ data:extend(
 	    	{type = "fluid", name = "ei-liquid-nitrogen", amount_min = 10,amount_max=20,probability=0.5},
 	    	{type = "fluid", name = "ei-liquid-oxygen", amount_min = 10,amount_max=20,probability=0.5},
         {type = "item", name = "ei-petrified-asteroid-chunk", amount = 1, probability = 0.05},
-        {type = "item", name = "ei-chrono-fossil-shard", amount = 1, probability = 0.02}
+        {type = "item", name = "ei-chrono-fossil-shard", amount = 1, probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false

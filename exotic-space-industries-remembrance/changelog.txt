@@ -1,9 +1,21 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.79
+Date: 1-5-2026
+  Features:
+    - Added Steampunk lamp by @Sacredanarchy to required dependencies—modified to add the Kerosene lamp to the Steam age.
+  Changes:
+    - Advanced electric mining drill mining area: 7x7 -> 8x8.
+    - Advanced electric mining drill mining speed: 0.75 -> 1/s.
+    - Superior electric mining drill mining speed: 1.25 -> 1.75
+  Bugfixes:
+    - Copper mechanical parts will no longer sometimes recycle into iron ingots.
+    - Advanced petrified asteroid scrap crushing recipe output chance for Chrono-fossil shard corrected from 2 -> 4%.  
+---------------------------------------------------------------------------------------------------
 Version: 1.2.78
 Date: 1-1-2026
   Bugfixes:
     - Military 2 now shows Steam age as a prerequisite.
-    - Fixed that Caster's casting steel ingot recipe received no steel plate productivity technology bonus and Furnace's recipe received it twice.
+    - Fixed that Caster's steel ingot casting recipe received no steel plate productivity technology bonus while Furnace's recipe received it twice.
     - Fixed that liquid nitrogen which needs *a* fuel value to be used in cooled beacons was dense enough to be net energy positive in burners.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.77
