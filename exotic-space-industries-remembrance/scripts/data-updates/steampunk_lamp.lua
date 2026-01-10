@@ -199,7 +199,7 @@ data:extend({
 })
 
 ei_lib.remove_unlock_recipe("lamp", "steampunk-lamp")
-data.raw.lamp["steampunk-lamp"] = nil
-data.raw.recipe["steampunk-lamp"] = nil
-data.raw.recipe["steampunk-lamp-recycling"] = nil
-data.raw.item["steampunk-lamp"] = nil
+data.raw.lamp["steampunk-lamp"].hidden = true
+data.raw.recipe["steampunk-lamp"].hidden = true
+data.raw.recipe["steampunk-lamp-recycling"].hidden = true
+data.raw.item["steampunk-lamp"].hidden = true

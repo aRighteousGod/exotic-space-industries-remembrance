@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.80
+Date: 1-6-2026
+  Bugfixes:
+    - Fixed that loading might be prevented if another mod referenced the steampunk lamp after deletion.
+    - Removed Neodymium magnet unlock recipe from Neodymium refining technology.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.79
 Date: 1-5-2026
   Features:

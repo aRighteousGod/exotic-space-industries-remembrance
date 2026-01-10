@@ -2279,10 +2279,6 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-neodym-ingot"
             },
-            {
-                type = "unlock-recipe",
-                recipe = "ei-magnet"
-            },
         },
         unit = {
             count = 100,
