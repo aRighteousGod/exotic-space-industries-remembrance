@@ -334,4 +334,5 @@ data.raw.item["legacy-cargo-wagon"].hidden = true
 data.raw["cargo-wagon"]["legacy-cargo-wagon"].hidden = true
 data.raw.recipe["legacy-cargo-wagon"].hidden = true
 data.raw.recipe["legacy-cargo-wagon-new"].hidden = true
-data.raw.recipe["locomotive-recycling"] = nil
+--data.raw.recipe["legacy-locomotive-recycling"].hidden = true
+--data.raw.recipe["legacy-cargo-wagon-recycling"].hidden = true

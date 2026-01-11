@@ -1393,6 +1393,7 @@ ei_lib.raw.locomotive.locomotive = {
 }
 
 -- let car and tank use alternative fuels
+-- this is duplicated in teslas_legacy.lua to cover tesla mod vehicles
 local t_extra_fuels = {
     "ei-rocket-fuel",
     "ei-nuclear-fuel",

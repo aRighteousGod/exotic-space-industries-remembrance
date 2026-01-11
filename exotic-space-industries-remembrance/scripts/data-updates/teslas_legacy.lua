@@ -155,3 +155,22 @@ if ttr then
 end
 
 ei_lib.raw["car"]["tl-tesla-tank"].inventory_size = 16
+
+local t_extra_fuels = {
+    "ei-rocket-fuel",
+    "ei-nuclear-fuel",
+    "ei-nuclear-fuel-cell",
+    "ei-fusion-fuel",
+    "ei-diesel-fuel"
+}
+local t = {
+    "tl-tesla-tank",
+}
+for _,ent in pairs(t) do
+    local target = data.raw.car[ent]
+    if target and target.energy_source and target.energy_source.fuel_categories then
+        for _,f in pairs(t_extra_fuels) do
+            table.insert(target.energy_source.fuel_categories,f)
+        end
+    end
+end

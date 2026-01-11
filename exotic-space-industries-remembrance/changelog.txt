@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.81
+Date: 1-10-2026
+  Changes:
+    - Steam bots' minimum battery to seek charge: 20 -> 35%.
+  Bugfixes:
+    - Fixed that High energy crystals used as catalysts were being affected by productivity. PR from @asimsir "Taitsu" 
+    - Fixed that Tesla tank couldn't use rocket, nuclear, fusion, diesel fuels.
+    - Fixed that quality bonus for air scrubber energy usage wasn't properly applied.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.80
 Date: 1-6-2026
   Bugfixes:

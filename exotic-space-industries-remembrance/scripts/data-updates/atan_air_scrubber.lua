@@ -15,7 +15,7 @@ if aas then
     aas.energy_usage = "1.337MW"
     for name, quality in pairs(data.raw["quality"]) do
         local target = name.."-atan-air-scrubber"
-        local type_aas = ei_lib.raw.furnace[name]
+        local type_aas = ei_lib.raw.furnace[target]
         if type_aas then
             local usage = 1.337-(1.337*((quality.level-1)*0.0725))
             type_aas.energy_usage = tostring(usage).."MW"
@@ -91,7 +91,7 @@ ei_lib.raw.recipe["atan-pollution-filter-cleaning"] = {
         amount_min = 3,
         amount_max = 30,
         probability = 0.75,
-        ignored_by_productivity = 10,
+        ignored_by_productivity = 30,
     },
 },
 }
@@ -126,7 +126,7 @@ ei_lib.raw.recipe["atan-spore-filter-cleaning"] = {
         amount_min = 3,
         amount_max = 30,
         probability = 0.75,
-        ignored_by_productivity = 10,
+        ignored_by_productivity = 30,
     },
 },
 }

@@ -28,3 +28,12 @@ local chests = {
 for chest,capacity in pairs(chests) do
     ei_lib.raw["logistic-container"][chest]["inventory_size"] = capacity
 end
+--meaning at 35% battery the steam bots will seek to charge. default 20% results in mass casualties
+local rscb = ei_lib.raw["construction-robot"]["rp-steam-construction-bot"]
+if rscb then
+    rscb.min_to_charge = 0.35
+end
+local rslb = ei_lib.raw["logistic-robot"]["rp-steam-logistic-bot"]
+if rslb then
+    rslb.min_to_charge = 0.35
+end
