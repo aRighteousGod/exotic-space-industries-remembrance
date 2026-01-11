@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.82
+Date: 1-10-2026
+  Changes:
+    - Air scrubber quality scaling now follows a curve over however many quality steps winding up with a max 35% reduction in energy usage vs prior flat 6.25% reduction per step.
+  Bugfixes:
+    - Fixed that air scrubber quality scaling didn't account for additional quality levels and could cause failure to load.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.81
 Date: 1-10-2026
   Changes:

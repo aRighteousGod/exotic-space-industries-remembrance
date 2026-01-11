@@ -10,18 +10,48 @@ local ei_lib = require("lib/lib")
 
 --atan-air-scrubber main entity, prefixes name with quality- when placed
 
+local base_usage = 1.337
+local max_reduction = 0.35
+local curve_blend = 0.15 -- 0 = linear, 1 = smoothstep
+
 local aas = ei_lib.raw.furnace["atan-air-scrubber"]
 if aas then
-    aas.energy_usage = "1.337MW"
-    for name, quality in pairs(data.raw["quality"]) do
-        local target = name.."-atan-air-scrubber"
-        local type_aas = ei_lib.raw.furnace[target]
-        if type_aas then
-            local usage = 1.337-(1.337*((quality.level-1)*0.0725))
-            type_aas.energy_usage = tostring(usage).."MW"
+    aas.energy_usage = base_usage .. "MW"
+
+    local qualities = data.raw["quality"]
+    if qualities then
+        local quality_count = ei_lib.getn(qualities)
+        local steps = math.max(quality_count - 1, 1)
+
+        for name, quality in pairs(qualities) do
+            local target = name .. "-atan-air-scrubber"
+            local type_aas = ei_lib.raw.furnace[target]
+
+            if type_aas then
+                -- normalize quality level to 0..1
+                local t = math.min(
+                    math.max((quality.level - 1) / steps, 0),
+                    1
+                )
+
+                -- linear curve
+                local linear = t
+
+                -- smoothstep S-curve
+                local smooth = t * t * (3 - 2 * t)
+
+                -- blend curves
+                local curve = linear * (1 - curve_blend) + smooth * curve_blend
+
+                local reduction = max_reduction * curve
+                local usage = math.max(0.985,base_usage * (1 - reduction))
+            
+                type_aas.energy_usage = tostring(usage) .. "MW"
+            end
         end
     end
 end
+
 
 ei_lib.raw.technology["atan-pollution-scrubbing"].age = "computer-age"
 
