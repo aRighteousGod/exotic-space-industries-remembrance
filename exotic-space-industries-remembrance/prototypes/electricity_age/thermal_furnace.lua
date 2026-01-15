@@ -53,7 +53,7 @@ data:extend({
     collision_box = {{-1.7, -1.2}, {1.7, 1.2}},
     selection_box = {{-2, -1.5}, {2, 1.5}},
     damaged_trigger_effect = hit_effects.entity(),
-    module_slots = 2,
+    module_slots = 3,
     icon_draw_specification = {shift = {0, -0.1}},
     icons_positioning =
     {
@@ -61,8 +61,8 @@ data:extend({
     },
     allowed_effects = {"consumption", "speed", "productivity", "pollution", "quality"},
     crafting_categories = {"smelting"},
-    result_inventory_size = 1,
-    crafting_speed = 4,
+    result_inventory_size = 2,
+    crafting_speed = 4.5,
     energy_usage = "1MW",
     source_inventory_size = 1,
     energy_source =

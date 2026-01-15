@@ -483,7 +483,7 @@ script.on_event(
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
 ei_update_step = 1  -- Tracks which entity type is updated next, skips first tick
 ei_update_functions = {
-    function() ei_powered_beacon.update() end, --depreciated
+    function() ei_powered_beacon.update() end, --deprecated
     function() ei_powered_beacon.update_fluid_storages() end,
     function() ei_neutron_collector.update() end,
     function() ei_matter_stabilizer.update() end,

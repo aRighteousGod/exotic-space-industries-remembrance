@@ -1,4 +1,23 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.83
+Date: 1-15-2026
+  Features:
+    - If Recipe Icons Improvement for Exotic Space Industries Remembrance by NaK1119 isn't detected on spawn an alert will be displayed—can be disabled in startup settings.
+  Changes:
+    - Dragon's breath shotgun shell pellets' impact now elicit an explosion effect and scorchmark, as well as removing decoratives.
+    - Dragon's breath pellet explosive area: 0.75 -> 1.
+    - Dragon's breath pellet explosive damage: 14 -> 16.
+    - Dragon's breath pellet immediate fire damage: 3 -> 8.
+    - Dragon's breath pellet direct hit: additionally does 10 physical damage.
+    - Thermal furnace module slots: 2 -> 3.
+    - Thermal furnace result inventory size: 1 -> 2.
+    - Thermal furnace crafting speed: 4 -> 4.5.
+    - Replica Fulgoran tesla tower health: 1000 -> 1800.
+    - Replica Fulgoran tesla tower resistances: electrical 0 -> (-10) 95%.
+    - Enforced Tesla's legacy entity settings.
+  Bugfixes:
+    - Ash now recycles into itself instead of Crushed coal.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.82
 Date: 1-10-2026
   Changes:

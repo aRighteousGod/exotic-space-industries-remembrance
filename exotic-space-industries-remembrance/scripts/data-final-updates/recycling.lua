@@ -76,7 +76,9 @@ if recycler then
     }
 
     data.raw.recipe["iron-stick-recycling"] = nil
-
+    ei_lib.raw.recipe["atan-ash-recycling"].results = {
+        {type="item",name="atan-ash", amount_min=0,amount_max=1,probability=0.25},
+    }
     ei_lib.raw.recipe["ei-energy-crystal-recycling"].results = {
         {type="item",name="ei-sand", amount_min=0,amount_max=1,probability=0.18},
         {type="item",name="ei-crushed-sulfur", amount_min=0,amount=1,probability=0.11},

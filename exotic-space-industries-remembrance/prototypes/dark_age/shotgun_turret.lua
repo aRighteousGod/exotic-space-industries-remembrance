@@ -319,13 +319,24 @@ data:extend({
 		action = {
 			{
 				type = "area",
-				radius = 0.75,
+				radius = 1,
 				action_delivery = {
 					type = "instant",
 					target_effects = {
 						{
 							type = "damage",
-							damage = { amount = 14, type = "explosion" },
+							damage = { amount = 16, type = "explosion" },
+							apply_damage_to_trees = true,
+						},
+						{
+							type = "create-entity",
+							entity_name = "explosion-hit",
+							--check_buildability = true,
+						},
+						{
+							type = "create-entity",
+							entity_name = "small-scorchmark-tintable",
+							check_buildability = true,
 						},
 					},
 				},
@@ -343,7 +354,7 @@ data:extend({
 						},
 						{
 							type = "damage",
-							damage = { amount = 3, type = "fire" },
+							damage = { amount = 8, type = "fire" },
 							apply_damage_to_trees = true,
 						},
 					},
@@ -355,10 +366,28 @@ data:extend({
 					type = "instant",
 					target_effects = {
 						{
+							type = "damage",
+							damage = { amount = 10, type = "physical" },
+						},
+						{
 							type = "create-fire",
 							entity_name = "fire-flame",
 							show_in_tooltip = true,
 							initial_ground_flame_count = 2,
+						},
+						{
+							type = "invoke-tile-trigger",
+							repeat_count = 1,
+						},
+						{
+							type = "destroy-decoratives",
+							from_render_layer = "decorative",
+							to_render_layer = "object",
+							include_soft_decoratives = true, -- soft decoratives are decoratives with grows_through_rail_path = true
+							include_decals = false,
+							invoke_decorative_trigger = true,
+							decoratives_with_trigger_only = false, -- if true, destroys only decoratives that have trigger_effect set
+							radius = 1,
 						},
 					},
 				},
@@ -367,9 +396,8 @@ data:extend({
 		light = { intensity = 0.85, size = 4, color = { r = 1.0, g = 0.2, b = 0.1 } },
 		animation = {
 			{
-				filename = "__base__/graphics/entity/bullet/bullet.png",
+				filename = "__base__/graphics/entity/piercing-bullet/piercing-bullet.png",
 				draw_as_glow = true,
-				frame_count = 1,
 				width = 3,
 				height = 50,
 				priority = "high",

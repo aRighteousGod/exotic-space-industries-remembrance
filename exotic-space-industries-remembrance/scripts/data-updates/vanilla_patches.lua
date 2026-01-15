@@ -2331,6 +2331,14 @@ if electro then
     electro.module_slots = 3
     table.insert(electro.crafting_categories,"ei-waver-factory")
 end
+local t_t = ei_lib.raw["electric-turret"]["tesla-turret"]
+if t_t then
+    t_t.max_health = 1800
+    t_t.resistances =
+    {
+        {type = "electric", decrease = 10, percent = 95 },
+    }
+end
 --====================================================================================================
 --Gleba
 --====================================================================================================
