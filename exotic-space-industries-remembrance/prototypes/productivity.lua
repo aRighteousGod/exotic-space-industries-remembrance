@@ -71,7 +71,7 @@ data:extend({
       },
       {
         type = "change-recipe-productivity",
-        recipe = "ei-dirty-water-copper-extraction",
+        recipe = "ei-neodym-extraction",
         change = 0.1
       }
     },
@@ -131,7 +131,7 @@ data:extend({
 		},
 	  {
 		type = "change-recipe-productivity",
-        recipe = "ei-copper-extraction",
+        recipe = "ei-neodym-extraction-morphium",
         change = 0.1
 		},
 	  {
