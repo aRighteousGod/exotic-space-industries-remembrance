@@ -1262,6 +1262,7 @@ data:extend({
         },
         always_show_made_in = true,
         enabled = false,
+        auto_recycle = false,
         main_product = "processing-unit",
         subgroup = "intermediate-product",
         order = "g[processing-unit]-a",
@@ -1724,6 +1725,7 @@ data:extend({
         type = "recipe",
         category = "ei-nano-factory",
         energy_required = 120,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-carbon-nanotube", amount = 2},
             {type = "item", name = "low-density-structure", amount = 2},
@@ -1746,6 +1748,7 @@ data:extend({
         category = "crafting",
         additional_categories = {"organic"},
         energy_required = 10,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-neodym-ingot", amount = 3},
             {type = "item", name = "ei-gold-ingot", amount = 2},
@@ -1768,6 +1771,7 @@ data:extend({
         type = "recipe",
         category = "ei-advanced-refinery",
         energy_required = 60,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "solid-fuel", amount = 20},
             {type = "item", name = "ei-cryodust", amount = 5},
@@ -1790,6 +1794,7 @@ data:extend({
         type = "recipe",
         category = "crafting",
         energy_required = 10,
+        auto_recycle = false,
         ingredients =
         {
             {type="item", name="ei-rocket-control-unit", amount=1},
@@ -1809,6 +1814,7 @@ data:extend({
         type = "recipe",
         category = "crafting",
         energy_required = 10,
+        auto_recycle = false,
         ingredients =
         {
             {type="item", name="ei-rocket-control-unit", amount=1},

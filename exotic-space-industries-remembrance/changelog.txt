@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.84
+Date: 1-16-2026
+  Features:
+    - Added /refresh_beacon_overload command to recalculate all machines beacon overload status.
+  Bugfixes:
+    - Items will no longer recycle into their alternative bio recipe's ingredients.
+    - Filled/unfilled cryo-container recipes now skipped by autorecycle generator.
+    - Rocket parts will no longer recycle into their higher tier recipe's ingredients.
+    - Fixed that Morphium usage productivity technology affected Copper extraction twice and didn't affect Neodymium extraction. @asimsir "Taitsu"
+    - Fixed that Dirty water extraction productivity technology affected Copper extraction twice and didn't affect Neodymium extraction. @asimsir "Taitsu"
+    - Fixed that Beacon overload distance check could be inaccurate preventing overload.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.83
 Date: 1-15-2026
   Features:

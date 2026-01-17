@@ -23,7 +23,7 @@ local ei_tech_scaling = require("scripts/control/tech_scaling")
 local ei_global = require("scripts/control/global")
 ei_register = require("scripts/control/register_util")
 ei_powered_beacon = require("scripts/control/powered_beacon")
-local ei_beacon_overload = require("scripts/control/beacon_overload")
+ei_beacon_overload = require("scripts/control/beacon_overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron_limiter")
 
 
@@ -428,7 +428,7 @@ script.on_configuration_changed(function(e)
         --em_trains.update_rail_counts()
         em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
         em_trains_gui.mark_dirty()
-
+        ei_beacon_overload.refresh_all_overloads()
         ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
         ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
         ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")

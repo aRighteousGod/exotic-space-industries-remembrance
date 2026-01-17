@@ -807,6 +807,7 @@ data:extend({
         category = "ei-bio-reactor",
         additional_categories = {"ei-bio-chamber","organic"},
         energy_required = 2,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "plastic-bar", amount = 2},
             {type = "item", name = "copper-cable", amount = 4},
@@ -829,6 +830,7 @@ data:extend({
         category = "ei-bio-reactor",
         additional_categories = {"ei-bio-chamber","organic"},
         energy_required = 10,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-energy-crystal", amount = 1},
             {type = "fluid", name = "ei-acidic-water", amount = 10},
@@ -851,6 +853,7 @@ data:extend({
         category = "ei-bio-reactor",
         additional_categories = {"ei-bio-chamber","organic"},
         energy_required = 60,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
             {type = "fluid", name = "ei-crystal-solution", amount = 3},
@@ -920,6 +923,7 @@ data:extend({
         category = "ei-bio-reactor",
         additional_categories = {"ei-bio-chamber","organic"},
         energy_required = 6,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "battery", amount = 2},
             {type = "item", name = "ei-insulated-wire", amount = 2},
@@ -1456,6 +1460,7 @@ data:extend({
         type = "recipe",
         category = "crafting",
         energy_required = 10,
+        auto_recycle = false,
         ingredients =
         {
             {type="item", name="ei-rocket-control-unit", amount=1},
@@ -1600,6 +1605,7 @@ data:extend({
         type = "recipe",
         category = "crafting-with-fluid",
         energy_required = 1,
+        auto_recycle = false,
         ingredients = {
             {type = "fluid", name = "ei-liquid-nitrogen", amount = ei_lib.config("barrel-capacity")},
             {type = "item", name = "ei-empty-cryo-container", amount = 1},
@@ -1620,6 +1626,7 @@ data:extend({
         type = "recipe",
         category = "crafting-with-fluid",
         energy_required = 1,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-cryo-container-nitrogen", amount = 1},
         },
@@ -1640,6 +1647,7 @@ data:extend({
         type = "recipe",
         category = "crafting-with-fluid",
         energy_required = 1,
+        auto_recycle = false,
         ingredients = {
             {type = "fluid", name = "ei-liquid-oxygen", amount = ei_lib.config("barrel-capacity")},
             {type = "item", name = "ei-empty-cryo-container", amount = 1},
@@ -1660,6 +1668,7 @@ data:extend({
         type = "recipe",
         category = "crafting-with-fluid",
         energy_required = 1,
+        auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-cryo-container-oxygen", amount = 1},
         },

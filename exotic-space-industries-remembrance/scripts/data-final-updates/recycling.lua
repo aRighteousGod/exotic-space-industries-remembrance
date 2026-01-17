@@ -63,6 +63,8 @@ if recycler then
     --run vanilla recycling recipe generator again
     local recycling = require("__quality__/prototypes/recycling")
 
+    -- auto_recycle = false tells the recycling recipe generator to skip
+
     -- Generating the recycle (reverse) recipes
     for name, recipe in pairs(data.raw.recipe) do
         recycling.generate_recycling_recipe(recipe)

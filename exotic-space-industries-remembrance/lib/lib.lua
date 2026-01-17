@@ -29,7 +29,7 @@ function ei_lib.unique_values_only(tbl)
     for _, val in ipairs(tbl) do
         if not seen[val] then
             seen[val] = true
-            table.insert(out, val)
+            table.insert(out, #out+1,val)
         end
     end
     return out

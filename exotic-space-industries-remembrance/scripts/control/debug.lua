@@ -44,7 +44,12 @@ commands.add_command("codex_test", "Triggers a test echo message from echo_codex
         floating_time_to_live = 6000
     })
 end)
-
+commands.add_command("refresh_beacon_overload", "Recalculates all machines beacon overload status", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player or not player.admin then return end
+    ei_lib.crystal_echo("Beacon overload recalculates across the cosmos")
+    ei_beacon_overload.refresh_all_overloads()
+end)
 commands.add_command("goto-gaia", "Teleport to Gaia's surface", function(cmd)
     local player = game.get_player(cmd.player_index)
     if not player or not player.admin then return end

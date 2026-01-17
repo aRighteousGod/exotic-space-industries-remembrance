@@ -95,6 +95,20 @@ function model.counts_for_overload(entity)
     return false
 end
 
+local function area_extend(area, range)
+  local area2 = table.deepcopy(area)
+  for k1, v1 in pairs(area2) do
+    local m = 1
+    if k1 == 1 or k1 == "left_top" then
+      m = -1
+    end
+    for k2, v2 in pairs(v1) do
+      v1[k2] = v2 + range * m
+    end
+  end
+  return area2
+end
+
 -- count how many beacons are in range of this machine,
 -- using each beacon's actual supply_area_distance
 function model.count_beacons(entity)
@@ -103,61 +117,63 @@ function model.count_beacons(entity)
     end
 
     local surface = entity.surface
-    local pos = entity.position
     local proto = entity.prototype
+    if not (surface and proto) then
+        return 0
+    end
 
-    -- approximate machine "radius" from collision box
-    local box = proto.collision_box
-    local size_x = box.right_bottom.x - box.left_top.x
-    local size_y = box.right_bottom.y - box.left_top.y
-    local half_size = math.max(size_x, size_y) * 0.5
+    -- machine bounding box (world coords)
+    local bbox = entity.bounding_box
+    if not bbox then
+        return 0
+    end
 
-    -- max range any beacon could reasonably have
-    -- (used only to bound the search area; actual check per beacon below)
+    -- max possible beacon range, used only to bound initial search
     local max_range = ei_data.beacon_range
+    if not max_range or max_range <= 0 then
+        return 0
+    end
 
-    local area = {
-        {pos.x - max_range - half_size, pos.y - max_range - half_size},
-        {pos.x + max_range + half_size, pos.y + max_range + half_size}
-    }
+    -- broad-phase search: machine box expanded by max beacon range
+    local search_area = area_extend(bbox, max_range)
 
-    -- single query: grab all beacons in the area
+    -- grab all beacons that could possibly affect this machine
     local candidates = surface.find_entities_filtered{
-        area = area,
+        area = search_area,
         type = "beacon"
     }
 
-    local count = 0
 
+    if not candidates then return 0 end
+    local filtered = {}
     for _, beacon in ipairs(candidates) do
-        local type = beacon.prototype
-        local range = type.get_supply_area_distance(beacon.quality) or 0
+        if not filtered[beacon.name] then
+            filtered[beacon.name] = beacon
+        end
+    end
 
-        -- chebyshev distance
-        local dx = math.abs(beacon.position.x - pos.x)
-        local dy = math.abs(beacon.position.y - pos.y)
-        local cheb = math.max(dx, dy)
+    local count = 0
+    for name, beacon in pairs(filtered) do
+        if beacon.valid and name ~= "ei-alien-beacon" and name ~= "ei-warp-beacon" then
+            local bproto = beacon.prototype
+            if bproto and bproto.get_supply_area_distance then
+                -- actual supply range (quality-aware)
+                local range = bproto.get_supply_area_distance(beacon.quality) or 0
+                if range > 0 then
+                    -- precise check: does beacon center lie inside
+                    -- (machine bounding box expanded by THIS beacon's range)?
+                    local area = area_extend(bbox, range)
+                    local got = surface.count_entities_filtered{
+                        area = area,
+                        name = name
+                    }
+                    -- iron beacons count double
+                    if name == "ei-iron-beacon" then
+                        got = got*2
+                    end
 
-        -- expand by half_size so big machines still count if any part is inside
-        if cheb <= range + half_size then
-            local name = beacon.name
-
-            -- subtractive beacons
-            if name == "ei-alien-beacon" or name == "ei-warp-beacon" then
-                --these don't count
-
-            else
-                -- base weight
-                local weight = 1
-
-                -- iron beacons count double
-                if name == "ei-iron-beacon" then
-                    weight = 2
+                    count = count + got
                 end
-
-                -- kr-singularity-beacon (and any other normal beacon) just uses weight=1
-                -- since it's already type="beacon", it gets picked up automatically
-                count = count + weight
             end
         end
     end
@@ -165,7 +181,24 @@ function model.count_beacons(entity)
     return count
 end
 
+function model.refresh_all_overloads()
+    -- go through all machines and update their overload status
+    -- used on init/load
 
+    -- get all surfaces
+    local surfaces = game.surfaces
+
+    for _, surface in pairs(surfaces) do
+        -- get all machines on this surface
+        local machines = surface.find_entities_filtered{
+            type = {"assembling-machine", "furnace", "lab", "rocket-silo", "mining-drill"}
+        }
+
+        for _, machine in ipairs(machines) do
+            model.update_overload(machine)
+        end
+    end
+end
 
 function model.update_overload(entity, destroy_type, beacon_value)
 
@@ -215,33 +248,49 @@ function model.update_all_machines_in_range(entity, destroy_type, beacon_value)
     -- triggers when beacon is built or removed
     -- update all machines in range of this beacon
 
-    if model.entity_check(entity) == false then
+    if not model.entity_check(entity) then
+        return
+    end
+
+    local surface = entity.surface
+    local proto = entity.prototype
+    if not (surface and proto) then
         return
     end
 
     -- get range of this beacon
-    local range = entity.prototype.get_supply_area_distance()
+    local range = 0
+    if proto.get_supply_area_distance then
+        range = proto.get_supply_area_distance(entity.quality) or 0
+    end
+    if range <= 0 then
+        return
+    end
 
-    -- consider size of machine as well
-    local size = entity.prototype.collision_box.right_bottom.x - entity.prototype.collision_box.left_top.x
+    -- expand around beacon using its actual bounding box (edge-correct)
+    local bbox = entity.bounding_box
+    if not bbox then
+        return
+    end
 
-    -- get area around beacon
-    local area = {
-        {entity.position.x - range - size/2, entity.position.y - range - size/2},
-        {entity.position.x + range + size/2, entity.position.y + range + size/2}
-    }
+    local area = area_extend(bbox, range)
 
     -- get all machines in area
-    local machines = entity.surface.find_entities_filtered{
+    local machines = surface.find_entities_filtered{
         area = area,
         type = {"assembling-machine", "furnace", "lab", "rocket-silo", "mining-drill"}
     }
 
+    if not machines or #machines == 0 then
+        return
+    end
+
     -- update all machines
-    for _, machine in pairs(machines) do
+    for _, machine in ipairs(machines) do
         model.update_overload(machine, destroy_type, beacon_value)
     end
 end
+
 
 --SPRITE STUFF
 ------------------------------------------------------------------------------------------------------
