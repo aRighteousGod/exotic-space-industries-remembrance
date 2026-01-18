@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.86
+Date: 1-18-2026
+  Bugfixes:
+    - Fixed that debug access to new recipes was still enabled on Advanced motor technology.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.85
+Date: 1-18-2026
+  Features:
+    - Created technologies to unlock alternative oil-handling pathways—Cryogenic fractionation, Oxidative cracking, Acid hydrolysis & nitration. Unlocked after Electrified oil processing.
+  Bugfixes:
+    - High temperature coolant exchanger recipes will no longer display in the player crafting menu.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.84
 Date: 1-16-2026
   Features:

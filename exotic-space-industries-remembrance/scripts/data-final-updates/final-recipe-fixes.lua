@@ -115,7 +115,10 @@ local recipes = {
 	"ei-basic-steam-oil-processing",
 	"ei-basic-water-oil-processing",
 	"ei-explosives-solid-sulfuric-nitric",
-	"ei-explosives-light-crushed"
+	"ei-explosives-light-crushed",
+	"ei-liquid-nitrogen-oil-processing",
+	"ei-liquid-oxygen-heavy-oil-cracking",
+	"ei-nitric-acid-medium-destilate-cracking",
 }
 
 for i,v in pairs(recipes) do

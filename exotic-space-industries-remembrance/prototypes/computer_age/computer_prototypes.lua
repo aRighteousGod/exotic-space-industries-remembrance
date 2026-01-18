@@ -2431,8 +2431,9 @@ data:extend({
             {type="fluid", name="ei-heavy-destilate", amount_min=33,amount_max=37},
             {type="fluid", name="ei-residual-oil", amount_min=18,amount_max=22},
         },
-        --icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
-        --icon_size = 64,
+        icon = ei_path.."graphics/icons/cryogenic-fractionation.png",
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "fluid-recipes",
         order = "a[oil-processing]-b[advanced-oil-processing]1",
         always_show_made_in = true,
@@ -2456,8 +2457,9 @@ data:extend({
             {type="fluid", name="ei-benzol", amount_min=33,amount_max=37},
             {type="fluid", name="ei-coal-gas", amount_min=18,amount_max=22},
         },
-        --icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
-        --icon_size = 64,
+        icon = ei_path.."graphics/icons/oxidative-cracking.png",
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "fluid-recipes",
         order = "a[oil-processing]-b[advanced-oil-processing]2",
         always_show_made_in = true,
@@ -2481,8 +2483,9 @@ data:extend({
             {type="fluid", name="ei-ammonia-gas", amount_min=33,amount_max=37},
             {type="fluid", name="ei-dinitrogen-tetroxide-gas", amount_min=18,amount_max=22},
         },
-        --icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
-        --icon_size = 64,
+        icon = ei_path.."graphics/icons/acid-hydrolysis-nitration.png",
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "fluid-recipes",
         order = "a[oil-processing]-b[advanced-oil-processing]3",
         always_show_made_in = true,
@@ -2506,18 +2509,6 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-advanced-motor"
             },
-            --[[
-            {
-                type = "unlock-recipe",
-                recipe = "ei-liquid-nitrogen-oil-processing"
-            },            {
-                type = "unlock-recipe",
-                recipe = "ei-liquid-oxygen-heavy-oil-cracking"
-            },            {
-                type = "unlock-recipe",
-                recipe = "ei-nitric-acid-medium-destilate-cracking"
-            },
-            ]]
         },
         unit = {
             count = 100,
@@ -3066,6 +3057,66 @@ data:extend({
             time = 20
         },
         age = "computer-age",
+    },
+        {
+        name = "ei-liquid-nitrogen-oil-processing",
+        type = "technology",
+        icon = ei_path.."graphics/icons/cryogenic-fractionation.png",
+        icon_size = 512,
+        icon_mipmaps = 5,
+        prerequisites = {"ei-advanced-refinery","ei-cooler"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-liquid-nitrogen-oil-processing"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 20
+        },
+        age = "advanced-computer-age",
+    },
+        {
+        name = "ei-liquid-oxygen-heavy-oil-cracking",
+        type = "technology",
+        icon = ei_path.."graphics/icons/oxidative-cracking.png",
+        icon_size = 512,
+        icon_mipmaps = 5,
+        prerequisites = {"ei-advanced-refinery","ei-cooler"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-liquid-oxygen-heavy-oil-cracking"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 20
+        },
+        age = "advanced-computer-age",
+    },
+        {
+        name = "ei-nitric-acid-medium-destilate-cracking",
+        type = "technology",
+        icon = ei_path.."graphics/icons/acid-hydrolysis-nitration.png",
+        icon_size = 512,
+        icon_mipmaps = 5,
+        prerequisites = {"ei-advanced-refinery","ei-nitric-acid"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-nitric-acid-medium-destilate-cracking"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 20
+        },
+        age = "advanced-computer-age",
     },
     {
         name = "ei-lithium-battery",
