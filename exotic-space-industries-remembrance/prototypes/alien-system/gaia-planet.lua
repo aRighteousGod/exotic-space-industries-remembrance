@@ -1,6 +1,6 @@
 local asteroid_util = require("__space-age__.prototypes.planet.asteroid-spawn-definitions")
-local planet_map_gen = require("gaia_map_gen")
-local presets = require("lib/spawner_presets")
+local planet_map_gen = require("gaia-map-gen")
+local presets = require("lib/spawner-presets")
 local ei_lib = require("lib/lib")
 local gaia = table.deepcopy(data.raw.planet.fulgora)
 
@@ -286,5 +286,10 @@ if pdgaia and pdgaia.effects then
     {
         type = "unlock-recipe",
         recipe = "ei-excavator-running-gaia"
+    })
+    table.insert(pdgaia.effects,
+    {
+        type = "unlock-recipe",
+        recipe = "ei-surface-harvester-running-gaia"
     })
 end

@@ -1,6 +1,6 @@
 -- Init storage variables for Exotic Industries
 ei_lib = require("lib/lib")
-ei_echo_codex = require("lib/echo_codex")
+ei_echo_codex = require("lib/echo-codex")
 local ei_global = {}
 
 

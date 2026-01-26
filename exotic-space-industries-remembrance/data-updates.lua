@@ -14,56 +14,56 @@ ei_lib = require("lib/lib")
 -- reorganize vanilla data
 
 -- remove vanilla resources from autoplace-controls
-require("scripts/data-updates/vanilla_resources")
+require("scripts/data-updates/vanilla-resources")
 -- set science costs to startPrice and set prerequisite to "ei-temp" tech for vanilla techs
-require("scripts/data-updates/tech_flattening")
+require("scripts/data-updates/tech-flattening")
 -- set prerequisites of vanilla techs for IE
-require("scripts/data-updates/tech_structure")
+require("scripts/data-updates/tech-structure")
 
 -- apply vanilla patches
-require("scripts/data-updates/vanilla_patches")
+require("scripts/data-updates/vanilla-patches")
 
 -- add metalworks
 require("prototypes/metalworks")
 --Make sure icon updates get put on top of the overridden solar panel item icons
-require("scripts/data-updates/solar_matrix")
+require("scripts/data-updates/solar-matrix")
 -- apply icon patches
-require("scripts/data-updates/icon_updates")
+require("scripts/data-updates/icon-updates")
 -- apply locale patches
-require("scripts/data-updates/locale_updates")
+require("scripts/data-updates/locale-updates")
 -- more asteroids
-require("scripts/data-updates/more_asteroids")
+require("scripts/data-updates/more-asteroids")
 
 --nauvis soundtrack override
-require("scripts/data-updates/music_patches")
+require("scripts/data-updates/music-patches")
 
 -- apply mod patches
-require("scripts/data-updates/nanobot_patches")
-require("scripts/data-updates/fmf_patches")
-require("scripts/data-updates/sp_patches")
-require("scripts/data-updates/flow_control_patches")
-require("scripts/data-updates/teleporters_patches")
-require("scripts/data-updates/solar_patches")
-require("scripts/data-updates/text_plates_patches")
-require("scripts/data-updates/extra_storage_tanks_patches")
-require("scripts/data-updates/zeus_wrath")
-require("scripts/data-updates/rp_steam_roboports")
-require("scripts/data-updates/atan_air_scrubber")
-require("scripts/data-updates/atan_ash")
-require("scripts/data-updates/pollution_combinator_jamie_fork")
-require("scripts/data-updates/disco_science")
+require("scripts/data-updates/nanobot-patches")
+require("scripts/data-updates/fmf-patches")
+require("scripts/data-updates/sp-patches")
+require("scripts/data-updates/flow-control-patches")
+require("scripts/data-updates/teleporters-patches")
+require("scripts/data-updates/solar-patches")
+require("scripts/data-updates/text-plates-patches")
+require("scripts/data-updates/extra-storage-tanks-patches")
+require("scripts/data-updates/zeus-wrath")
+require("scripts/data-updates/rp-steam-roboports")
+require("scripts/data-updates/atan-air-scrubber")
+require("scripts/data-updates/atan-ash")
+require("scripts/data-updates/pollution-combinator-jamie-fork")
+require("scripts/data-updates/disco-science")
 require("scripts/data-updates/extinguisher")
-require("scripts/data-updates/vehicle_inventory_limiter")
-require("scripts/data-updates/accumulator_v2")
-require("scripts/data-updates/colorful_biochamber")
-require("scripts/data-updates/flamethrower_wagon")
+require("scripts/data-updates/vehicle-inventory-limiter")
+require("scripts/data-updates/accumulator-v2")
+require("scripts/data-updates/colorful-biochamber")
+require("scripts/data-updates/flamethrower-wagon")
 require("scripts/data-updates/doeworks")
-require("scripts/data-updates/enhanced_walls")
+require("scripts/data-updates/enhanced-walls")
 require("scripts/data-updates/castra-loaders")
 require("scripts/data-updates/factorio-plus-loaders")
 require("scripts/data-updates/5dim-loaders")
 require("scripts/data-updates/advanced-belts-loaders")
 require("scripts/data-updates/ultimate-belts-loaders")
 require("scripts/data-updates/krastorio-loaders")
-require("scripts/data-updates/teslas_legacy")
-require("scripts/data-updates/steampunk_lamp")
+require("scripts/data-updates/teslas-legacy")
+require("scripts/data-updates/steampunk-lamp")

@@ -1,4 +1,4 @@
--- require all prototypes for dark age here
+-- require all prototypes for exotic age here
 -- for data stage only
 
 --====================================================================================================
@@ -8,10 +8,9 @@
 -- prototype definitions for buildable entities get seperate files
 -- those include prototype definitions for recipes, items, techs and categories
 
-require("lab")
-require("burner-assembler")
-require("burner_quarry")
-require("shotgun_turret")
-require("dark_prototypes")
-require("mechanical_inserter")
-require("camp_fire")
+-- add general prototypes
+require("exotic-prototypes")
+-- add black hole
+require("black-hole")
+-- add holo signs
+require("holo")

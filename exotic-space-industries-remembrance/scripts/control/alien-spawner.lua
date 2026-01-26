@@ -1,7 +1,7 @@
 
 local model = {}
 ei_rng = require("lib/rng")
-local presets = require("lib/spawner_presets")
+local presets = require("lib/spawner-presets")
 
 --====================================================================================================
 --ALIEN SPAWNER

@@ -7,7 +7,7 @@ require("util")
 ei_lib = require("lib/lib")
 ei_data = require("lib/data")
 ei_rng = require("lib/rng")
-ei_echo_codex = require("lib/echo_codex")
+ei_echo_codex = require("lib/echo-codex")
 
 
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
@@ -17,29 +17,29 @@ ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
 -- Used if gaia spawned in malformed, called in reforge_gaia
-local ei_full_gaia_map_gen_settings = require("prototypes/alien_structures/reforge-gaia-table")
+local ei_full_gaia_map_gen_settings = require("prototypes/alien-system/reforge-gaia-table")
 
-local ei_tech_scaling = require("scripts/control/tech_scaling")
+local ei_tech_scaling = require("scripts/control/tech-scaling")
 local ei_global = require("scripts/control/global")
-ei_register = require("scripts/control/register_util")
-ei_powered_beacon = require("scripts/control/powered_beacon")
-ei_beacon_overload = require("scripts/control/beacon_overload")
-local ei_spidertron_limiter = require("scripts/control/spidertron_limiter")
+ei_register = require("scripts/control/register-util")
+ei_powered_beacon = require("scripts/control/powered-beacon")
+ei_beacon_overload = require("scripts/control/beacon-overload")
+local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 
 
-ei_victory = require("scripts/control/victory_disabler")
-ei_alien_spawner = require("scripts/control/alien_spawner")
+ei_victory = require("scripts/control/victory-disabler")
+ei_alien_spawner = require("scripts/control/alien-spawner")
 ei_informatron = require("scripts/control/informatron")
-ei_milestone_preset = require("scripts/control/milestone_preset")
-ei_matter_stabilizer = require("scripts/control/matter_stabilizer")
-ei_neutron_collector = require("scripts/control/neutron_collector")
-ei_fusion_reactor = require("scripts/control/fusion_reactor")
-ei_induction_matrix = require("scripts/control/induction_matrix")
-ei_black_hole = require("scripts/control/black_hole")
-ei_informatron_messager = require("scripts/control/informatron_messager")
+ei_milestone_preset = require("scripts/control/milestone-preset")
+ei_matter_stabilizer = require("scripts/control/matter-stabilizer")
+ei_neutron_collector = require("scripts/control/neutron-collector")
+ei_fusion_reactor = require("scripts/control/fusion-reactor")
+ei_induction_matrix = require("scripts/control/induction-matrix")
+ei_black_hole = require("scripts/control/black-hole")
+ei_informatron_messager = require("scripts/control/informatron-messager")
 ei_gaia = require("scripts/control/gaia")
 ei_gate = require("scripts/control/gate")
-ei_alien_system = require("scripts/control/alien_system")
+ei_alien_system = require("scripts/control/alien-system")
 ei_debug = require("scripts/control/debug")
 ei_compat = require("scripts/control/compat")
 ei_loaders_lib = require("lib/loaders")
@@ -51,9 +51,9 @@ em_trains = require("scripts/control/em-trains/charger")
 em_trains_gui = require("scripts/control/em-trains/gui")
 em_trains_informatron = require("scripts/control/em-trains/informatron")
 
-ei_steam_train = require("scripts/control/steam_train")
-ei_camp_fire = require("scripts/control/camp_fire")
-orbital_combinator = require("scripts/control/orbital_combinator")
+ei_steam_train = require("scripts/control/steam-train")
+ei_camp_fire = require("scripts/control/camp-fire")
+orbital_combinator = require("scripts/control/orbital-combinator")
 
 --====================================================================================================
 --EVENTS

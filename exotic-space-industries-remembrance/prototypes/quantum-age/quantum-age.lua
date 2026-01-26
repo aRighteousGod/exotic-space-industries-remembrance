@@ -30,4 +30,4 @@ require("em-trains/trains")
 
 
 
-require("quantum_prototypes")
+require("quantum-prototypes")

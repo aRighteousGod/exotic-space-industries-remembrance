@@ -39,7 +39,7 @@ crusher.fluid_boxes_off_when_no_fluid_recipe = true;
 local planets = data.raw["planet"]
 local locations = data.raw["space-location"]
 local connections = data.raw["space-connection"]
-local more_asteroid_util = require("scripts/control/more_asteroids_spawners.lua")
+local more_asteroid_util = require("scripts/control/more-asteroids-spawners.lua")
 
 local planet_stuffmapping = {
   ["nauvis"] = more_asteroid_util.spawn_definitions(more_asteroid_util.nauvis_vulcanus, 0.1),

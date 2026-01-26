@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.87
+Date: 1-25-2026
+  Features:
+    - Created Surface harvester, a tier 1 Excavator which only requires energy and outputs surface materials. Has Burner, steam, & electric variants unlocked in Dark, Steam, & Electric ages.
+    - Restored Stone well pump to Dark age—functions as a low output offshore pump which doesn't require power.
+  Bugfixes:
+    - Fixed that EI beacons lacked death explosions.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.86
 Date: 1-18-2026
   Bugfixes:

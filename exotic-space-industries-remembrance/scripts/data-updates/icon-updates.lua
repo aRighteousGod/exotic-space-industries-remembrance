@@ -33,7 +33,8 @@ local level_table = {
         "ei-advanced-destill-tower",
         "ei-advanced-centrifuge",
         "ei-deep-pumpjack",
-        "heat-exchanger"
+        "heat-exchanger",
+        "ei-steam-surface-harvester"
     },
     ["3"] = {
         "assembling-machine-3",
@@ -41,6 +42,7 @@ local level_table = {
         "ei-solar-panel-3",
         "ei-superior-electric-mining-drill",
         "ei-advanced-chem-plant",
+        "ei-electric-surface-harvester"
     },
     ["4"] = {
         "ei-neo-assembler",

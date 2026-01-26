@@ -42,7 +42,7 @@ model.entity_damage_ticks = {
   
 }
 
-local presets = require("lib/spawner_presets")
+local presets = require("lib/spawner-presets")
 
 --====================================================================================================
 --UTIL

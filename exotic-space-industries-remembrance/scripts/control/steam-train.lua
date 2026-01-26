@@ -1,7 +1,7 @@
 
 steam_train = {}
 
-local WheelControl = require("lib/handle_wheels.lua")
+local WheelControl = require("lib/handle-wheels.lua")
 --====================================================================================================
 --Steam locomotive by cupcakescankill / IonShield
 --====================================================================================================

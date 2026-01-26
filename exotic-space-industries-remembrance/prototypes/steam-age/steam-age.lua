@@ -5,7 +5,7 @@
 --MAIN CONTENT CODE
 --====================================================================================================
 
-require("steam_prototypes")
+require("steam-prototypes")
 require("coke-furnace")
 require("steam-assembler")
 require("steam-crusher")
@@ -14,7 +14,7 @@ require("steam-train")
 require("steam-oil-pumpjack")
 require("burner-heater")
 require("fluid-heater")
-require("heat_furnace")
+require("heat-furnace")
 require("basic-heat-pipe")
 require("basic-heat-exchanger")
 require("heat-chemical-plant")
@@ -27,4 +27,5 @@ require("deep-drill")
 require("drill-deposits")
 require("acid-turret/acid-util")
 require("acid-turret/acid")
+require("steam-surface-harvester")
 --============================================
