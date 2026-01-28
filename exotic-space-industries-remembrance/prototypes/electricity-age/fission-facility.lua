@@ -346,7 +346,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-crushed-pure-uranium", amount = 5},
-            {type = "fluid", name = "ei-uranium-solution", amount = 5,allow_productivity=false},
+            {type = "fluid", name = "ei-uranium-solution", amount = 5,ignored_by_stats=5},
         },
         always_show_made_in = true,
         enabled = false,

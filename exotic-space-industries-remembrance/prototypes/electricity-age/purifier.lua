@@ -402,7 +402,7 @@ data:extend({
             {type = "item", name = "ei-gold-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 10,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount = 10,ignored_by_stats=10},
             {type = "item", name = "ei-pure-gold", amount = 5},
         },
         always_show_made_in = true,
@@ -422,7 +422,7 @@ data:extend({
             {type = "item", name = "ei-lead-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 10,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount = 10,ignored_by_stats=10},
             {type = "item", name = "ei-pure-lead", amount = 5},
         },
         always_show_made_in = true,
@@ -442,7 +442,7 @@ data:extend({
             {type = "item", name = "ei-iron-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount = 5,ignored_by_stats=5},
             {type = "item", name = "ei-pure-iron", amount = 5},
         },
         always_show_made_in = true,
@@ -462,7 +462,7 @@ data:extend({
             {type = "item", name = "ei-copper-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount = 5,ignored_by_stats=5},
             {type = "item", name = "ei-pure-copper", amount = 5},
         },
         always_show_made_in = true,
@@ -482,7 +482,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -499,7 +499,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -516,7 +516,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -533,7 +533,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,allow_productivity=false}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -550,7 +550,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-fluorite", amount_min = 1, amount_max=3, probability=0.35},
-            {type = "fluid", name = "water", amount_min = 1,amount_max=10,allow_productivity=false}
+            {type = "fluid", name = "water", amount_min = 1,amount_max=10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -656,9 +656,9 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2,allow_productivity=false},
-           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,allow_productivity=false},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2,ignored_by_stats=2},
+           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
             {type= "item",name="ei-coal-chunk", amount_min=1, amount_max=3,probability=0.3},
             {type= "item",name="ei-iron-chunk", amount_min=1, amount_max=3,probability=0.2},
             {type= "item",name="ei-copper-chunk", amount_min=1, amount_max=3,probability=0.16},
@@ -682,7 +682,7 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15,allow_productivity=false},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15,ignored_by_stats=15},
             {type= "item",name="ei-coal-chunk", amount_min=0, amount_max=2,probability=0.15},
             {type= "item",name="ei-iron-chunk", amount_min=0, amount_max=2,probability=0.1},
             {type= "item",name="ei-copper-chunk", amount_min=0, amount_max=2,probability=0.08},
@@ -708,7 +708,7 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45,allow_productivity=false},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45,ignored_by_stats=45},
             {type= "item",name="ei-coal-chunk", amount_min=0, amount_max=1,probability=0.075},
             {type= "item",name="ei-iron-chunk", amount_min=0, amount_max=1,probability=0.05},
             {type= "item",name="ei-copper-chunk", amount_min=0, amount_max=1,probability=0.04},

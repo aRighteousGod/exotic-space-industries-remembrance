@@ -476,8 +476,8 @@ data:extend({
 		},
 		results = {
 			{ type = "item", name = "ei-dragons-breath-shotgun-shell", amount = 1 },
-			{ type = "item", name = "ei-slag", amount_min = 6, amount_max = 18 },
-			{ type = "item", name = "atan-ash", amount_min = 15, amount_max = 30, probability = 0.98 },
+			{ type = "item", name = "ei-slag", amount_min = 6, amount_max = 18, ignored_by_stats=18 },
+			{ type = "item", name = "atan-ash", amount_min = 15, amount_max = 30, probability = 0.98, ignored_by_stats=30 },
 		},
 		enabled = false,
 		always_show_made_in = true,

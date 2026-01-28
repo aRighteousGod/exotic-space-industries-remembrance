@@ -795,7 +795,7 @@ data:extend({
         results = {
             {type = "item", name = "ei-sus-plating", amount = 1},
             {type = "item", name = "ei-bio-matter", amount = 1, probability = 0.8},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -815,7 +815,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-insulated-wire", amount = 4},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -838,7 +838,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-energy-crystal", amount_min = 2,amount_max=3},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -861,7 +861,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-high-energy-crystal", amount_min = 2,amount_max=3},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         result_is_always_fresh = true,
         always_show_made_in = true,
@@ -885,7 +885,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-hydrofluoric-acid", amount = 250},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -908,7 +908,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-nitric-acid", amount = 100},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -933,7 +933,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-electronic-parts", amount = 5},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,allow_productivity=false}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -972,7 +972,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-oxygen-difluoride", amount_min = 70, amount_max = 110},
-            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=6,probability=0.1,allow_productivity=false},
+            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=6,probability=0.1,ignored_by_stats=6},
         },
         always_show_made_in = true,
         enabled = false,
@@ -990,9 +990,9 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-morphium", amount = 10},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98 ,allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=15,probability=0.9,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=15,probability=0.9,ignored_by_stats=15},
         },
         always_show_made_in = true,
         icon = ei_graphics_fluid_path.."diluted-morphium.png",
@@ -1014,9 +1014,9 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-concentrated-morphium", amount = 15},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1036,9 +1036,9 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "light-oil", amount = 24},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1059,9 +1059,9 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-kerosene", amount = 48},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1082,9 +1082,9 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "heavy-oil", amount = 96},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1105,9 +1105,9 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "lubricant", amount = 192},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1131,9 +1131,9 @@ data:extend({
             {type = "item", name = "ei-crushed-coal", amount = 1},
             {type = "item", name = "ei-crushed-sulfur", amount = 1},
             {type = "fluid", name = "water", amount = 100},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=2, probability=0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=2, probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1172,8 +1172,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1},
-           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
+           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
 
         },
         always_show_made_in = true,
@@ -1191,8 +1191,8 @@ data:extend({
             {type = "fluid", name = "ei-oxygen-gas", amount = 25},
         },
         results = {
-            {type = "item", name = "ei-evolved-alien-seed", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1, probability = 0.25},
+            {type = "item", name = "ei-evolved-alien-seed", amount = 1, probability = 0.5,ignored_by_stats=1},
+            {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1, probability = 0.25,ignored_by_stats=1},
             {type = "item", name = "ei-bio-matter", amount = 1, probability = 0.5},
             {type = "fluid", name = "ei-bio-sludge", amount = 20},
         },
@@ -1231,8 +1231,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-cryodust", amount = 1},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1389,8 +1389,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-steel", amount = 10, temperature = 900},
-            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, probability = 0.25,allow_productivity=false},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, probability = 0.25,ignored_by_stats=2},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1410,8 +1410,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-steel", amount = 20, temperature = 900},
-            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, probability = 0.05,allow_productivity=false},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, probability = 0.05,ignored_by_stats=2},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1865,8 +1865,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-alien-computer-age-tech", amount = 2},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1945,9 +1945,9 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability=0.10,allow_productivity=false}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability=0.10,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1965,9 +1965,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "ei-pure-copper", amount = 1},
         },
         always_show_made_in = true,
@@ -1987,9 +1987,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "ei-pure-iron", amount = 1},
         },
         always_show_made_in = true,
@@ -2009,9 +2009,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "ei-pure-gold", amount = 1},
         },
         always_show_made_in = true,
@@ -2031,9 +2031,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "ei-pure-lead", amount = 1},
         },
         always_show_made_in = true,
@@ -2053,9 +2053,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.9,allow_productivity=false},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.10,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.9,ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.10,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "uranium-ore", amount = 1},
         },
         always_show_made_in = true,
@@ -2075,9 +2075,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "stone", amount = 1},
         },
         always_show_made_in = true,
@@ -2096,9 +2096,9 @@ data:extend({
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, allow_productivity=false, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
             {type = "item", name = "sulfur", amount = 1},
         },
         always_show_made_in = true,
@@ -2118,7 +2118,7 @@ data:extend({
             {type = "fluid", name = "ei-dirty-water", amount = 40},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,ignored_by_stats=15},
             {type = "item", name = "ei-pure-copper", amount = 1,probability = 0.05},
         },
         always_show_made_in = true,
@@ -2137,7 +2137,7 @@ data:extend({
             {type = "fluid", name = "ei-dirty-water", amount = 40},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,ignored_by_stats=15},
             {type = "item", name = "ei-pure-iron", amount = 1,probability = 0.05},
         },
         always_show_made_in = true,
@@ -2156,7 +2156,7 @@ data:extend({
             {type = "fluid", name = "ei-dirty-water", amount = 60},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=25,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=25,ignored_by_stats=25},
             {type = "item", name = "ei-pure-gold", amount = 1,probability = 0.05},
         },
         always_show_made_in = true,
@@ -2175,7 +2175,7 @@ data:extend({
             {type = "fluid", name = "ei-dirty-water", amount = 60},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 7,amount_max=8,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 7,amount_max=8,ignored_by_stats=8},
             {type = "item", name = "ei-pure-lead", amount = 1,probability = 0.05},
         },
         always_show_made_in = true,
@@ -2194,7 +2194,7 @@ data:extend({
             {type = "fluid", name = "ei-dirty-water", amount = 80},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=20,allow_productivity=false},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=20,ignored_by_stats=20},
             {type = "item", name = "ei-crushed-uranium", amount = 1,probability = 0.05},
         },
         always_show_made_in = true,

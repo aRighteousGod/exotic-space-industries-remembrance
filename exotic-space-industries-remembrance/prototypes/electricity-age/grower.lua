@@ -112,7 +112,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,probability=0.70},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.30,allow_productivity=false}
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.30,ignored_by_stats=3}
         },
         always_show_made_in = true,
         enabled = false,
@@ -130,8 +130,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,probability=0.95},
-            {type="item",name="ei-energy-crystal",amount=1,probability=0.05,allow_productivity=false},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.05,allow_productivity=false}
+            {type="item",name="ei-energy-crystal",amount=1,probability=0.05,ignored_by_stats=1},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.05,ignored_by_stats=3}
         },
         always_show_made_in = true,
         enabled = false,

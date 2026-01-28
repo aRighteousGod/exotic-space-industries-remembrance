@@ -642,7 +642,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-glass", amount = 25},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,

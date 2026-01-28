@@ -1147,7 +1147,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-neodym", amount = 20},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1860,8 +1860,8 @@ data:extend({
         results = {
             {type = "fluid", name = "ei-dirty-water", amount_min = 20,amount_max=80},
             {type = "item", name = "ei-crushed-neodym", amount = 1},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.92,allow_productivity=false},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.08,allow_productivity=false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.92,ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.08,ignored_by_stats=1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1885,8 +1885,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-clean-plating", amount = 1},
-           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,allow_productivity=false},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,allow_productivity=false},
+           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,ignored_by_stats=1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
         },
         always_show_made_in = true,
         enabled = false,

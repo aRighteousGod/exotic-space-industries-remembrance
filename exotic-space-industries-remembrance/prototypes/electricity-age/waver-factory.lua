@@ -305,9 +305,9 @@ data:extend({
             {type="item", name="atan-ash", amount=30},
         },
         results = {
-            {type="fluid", name="ei-dirty-water", amount_min=5,amount_max=15},
+            {type="fluid", name="ei-dirty-water", amount_min=5,amount_max=15,ignored_by_stats=15},
             {type="fluid", name="ei-hydrofluoric-acid", amount_min=95,amount_max=105},
-            {type="item", name="ei-slag", amount_min=1,amount_max=2}
+            {type="item", name="ei-slag", amount_min=1,amount_max=2,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,

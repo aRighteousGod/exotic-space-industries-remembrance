@@ -117,8 +117,8 @@ local solar_matrix_tech = ei_lib.raw.technology["solar-matrix"]
 local solar_e_tech = ei_lib.raw.technology["solar-energy"]
 --we use this as default model
 if solar_matrix_tech and solar_e_tech then
-    solar_matrix_tech.enabled = false
-    solar_matrix_tech.hidden = true
+    data.raw.technology["solar-matrix"].enabled = false
+    data.raw.technology["solar-matrix"].hidden = true
     solar_e_tech.icon = table.deepcopy(solar_matrix_tech.icon)
     solar_e_tech.icon_size = table.deepcopy(solar_matrix_tech.icon_size)
 end

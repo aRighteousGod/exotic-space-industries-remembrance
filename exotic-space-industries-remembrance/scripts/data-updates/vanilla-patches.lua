@@ -2175,16 +2175,16 @@ ei_lib.raw.recipe["casting-iron-stick"].results = {
     {type="item",name="ei-iron-beam",amount=1}
 }
 ei_lib.raw.recipe["molten-copper"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,allow_productivity=false
+    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,ignored_by_stats=12
 }
 ei_lib.raw.recipe["molten-iron"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,allow_productivity=false
+    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,ignored_by_stats=12
 }
 ei_lib.raw.recipe["molten-copper-from-lava"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,allow_productivity=false
+    type="item",name="ei-slag",amount_min=8,amount_max=12,ignored_by_stats=12
 }
 ei_lib.raw.recipe["molten-iron-from-lava"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,allow_productivity=false
+    type="item",name="ei-slag",amount_min=8,amount_max=12,ignored_by_stats=12
 }
 
 ei_lib.merge_fluid("ei-molten-iron", "molten-iron", false)

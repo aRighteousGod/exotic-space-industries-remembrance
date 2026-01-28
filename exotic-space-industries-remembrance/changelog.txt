@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.88
+Date: 1-27-2026
+  Bugfixes:
+    - Fixed that Solar matrix technology might not be hidden.
+    - Fixed that Slag, Ash, and Uranium solution from purification were affected by productivity.
+    - Fixed that Dirty water, Acidic water, Bio sludge, Alien seed, High energy crystal, and Energy crystal were affected by productivity in the context of being a catalyst or by-product.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.87
 Date: 1-25-2026
   Features:

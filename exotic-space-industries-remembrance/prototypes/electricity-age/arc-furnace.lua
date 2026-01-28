@@ -364,7 +364,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-iron", amount = 15, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.33,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.33,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -380,7 +380,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-iron", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -446,7 +446,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-copper", amount = 15, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.33,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.33,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -462,7 +462,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-copper", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -577,7 +577,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-gold", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -627,7 +627,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-lead", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,allow_productivity=false}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -678,7 +678,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
-            {type = "item", name = "atan-ash", amount_min = 2, amount_max = 6, probability = 0.90,allow_productivity=false}
+            {type = "item", name = "atan-ash", amount_min = 2, amount_max = 6, probability = 0.90,ignored_by_stats=6}
         },
         always_show_made_in = true,
         enabled = false,
@@ -695,7 +695,7 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
-            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 3, probability = 0.60,allow_productivity=false}
+            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 3, probability = 0.60,ignored_by_stats=3}
         },
         always_show_made_in = true,
         enabled = false,
