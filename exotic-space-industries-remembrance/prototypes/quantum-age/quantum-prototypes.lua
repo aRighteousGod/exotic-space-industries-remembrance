@@ -1390,7 +1390,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-fusion-quantum-age-tech", amount = 1},
-            {type = "item", name = "ei-neutron-container", amount_min = 1, amount_max=2, probability = 0.96},
+            {type = "item", name = "ei-neutron-container", amount_min = 1, amount_max=2, probability = 0.96,ignored_by_stats=2},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1498,7 +1498,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-eu-magnet", amount = 1},
-            {type = "item", name = "ei-cryocondensate", amount = 1},
+            {type = "item", name = "ei-cryocondensate", amount = 1,ignored_by_stats=1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1534,7 +1534,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-high-tech-parts", amount = 5},
-            {type = "item", name = "ei-exotic-matter-down", amount = 1},
+            {type = "item", name = "ei-exotic-matter-down", amount = 1,ignored_by_stats=1},
         },
         always_show_made_in = true,
         enabled = false,

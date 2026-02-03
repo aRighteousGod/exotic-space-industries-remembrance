@@ -12,7 +12,7 @@ animated steam train art by cupcakescankill, integrated code from @ionshield
 
 Camp fire branched from @dodo.the.last's Fire Place
 
-Thermal furnace from Heated Fabrication by @MyLumme
+Thermal furnace from Heated Fabrication by @MrLumme
 
 Acidthrower from Additional turrets
 Originally by @DarkNova

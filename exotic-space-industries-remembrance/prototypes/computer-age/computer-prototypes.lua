@@ -1249,7 +1249,7 @@ data:extend({
             {type = "fluid", name = "ei-cryoflux", amount = 25},
         },
         results = {
-            {type = "item", name = "ei-cryodust", amount = 3},
+            {type = "item", name = "ei-cryodust", amount = 3,ignored_by_stats=1},
             {type = "item", name = "ei-cryocondensate", amount = 1},
         },
         always_show_made_in = true,
@@ -1267,7 +1267,7 @@ data:extend({
             {type = "fluid", name = "ei-nitrogen-gas", amount = 25},
         },
         results = {
-            {type = "item", name = "ei-cryocondensate", amount = 9},
+            {type = "item", name = "ei-cryocondensate", amount = 9,ignored_by_stats=9},
             {type = "item", name = "ei-condensed-cryodust", amount = 4},
         },
         always_show_made_in = true,

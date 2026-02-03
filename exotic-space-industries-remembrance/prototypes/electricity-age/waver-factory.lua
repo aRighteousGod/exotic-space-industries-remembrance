@@ -253,7 +253,7 @@ data:extend({
             {type="item", name="ei-fluorite", amount=2},
         },
         results = {
-            {type="fluid", name="ei-acidic-water", amount_min=5,amount_max=15},
+            {type="fluid", name="ei-acidic-water", amount_min=5,amount_max=15,ignored_by_stats=15},
             {type="fluid", name="ei-hydrofluoric-acid", amount_min=175,amount_max=225},
         },
         always_show_made_in = true,
@@ -278,7 +278,7 @@ data:extend({
             {type="item", name="ei-fluorite", amount=2},
         },
         results = {
-            {type="fluid", name="ei-acidic-water", amount_min=2,amount_max=12},
+            {type="fluid", name="ei-acidic-water", amount_min=2,amount_max=12,ignored_by_stats=12},
             {type="fluid", name="ei-hydrofluoric-acid", amount_min=190,amount_max=240},
         },
         always_show_made_in = true,

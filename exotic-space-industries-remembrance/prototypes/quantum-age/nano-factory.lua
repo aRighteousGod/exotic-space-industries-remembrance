@@ -200,8 +200,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-carbon", amount_min = 2, amount_max=3},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=20},
-            {type = "fluid", name = "ei-hydrogen-gas", amount_min = 5, amount_max=15}
+            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=20,ignored_by_stats=20},
+            {type = "fluid", name = "ei-hydrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15},
         },
         always_show_made_in = true,
         enabled = false,
@@ -220,8 +220,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-carbon-nanotube", amount_min = 1, amount_max=3},
-            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max=5}
+            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max=5,ignored_by_stats=5},
         },
         always_show_made_in = true,
         enabled = false,
@@ -240,8 +240,8 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-carbon-structure", amount = 5},
-            {type = "fluid", name = "ei-ammonia-gas", amount_min = 15, amount_max=30},
-            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15},
+            {type = "fluid", name = "ei-ammonia-gas", amount_min = 15, amount_max=30,ignored_by_stats=30},
+            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15},
         },
         always_show_made_in = true,
         enabled = false,

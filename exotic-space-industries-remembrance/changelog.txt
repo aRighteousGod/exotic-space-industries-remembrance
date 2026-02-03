@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.89
+Date: 1-28-2026
+  Changes:
+    - Nuclear waste storage power input priority: tertiary -> secondary.
+    - Removed Overloaded trains from optional dependencies due to unresolved issues, check it's discussion page for details.
+    - Swapped optional dependency P2P-Automation : Platform to Platform Logistics for IPL - Inter Platform Logistics due to it being functionally and technically superior.
+  Bugfixes:
+    - Fixed that Fusion-quantum age science pack neutron container catalyst was affected by productivity.
+    - Fixed that Black hole exotic age science pack neutron container catalyst was affected by productivity.
+    - Fixed that T2 Carbon-fiber plate and Cryoflux recipes' catalysts and/or by-products were affected by productivity.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.88
 Date: 1-27-2026
   Bugfixes:
