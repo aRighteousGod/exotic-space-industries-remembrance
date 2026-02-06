@@ -143,6 +143,15 @@ end
 --REGISTRY
 ------------------------------------------------------------------------------------------------------
 
+-- Helper function to invalidate sorted keys cache
+function model.invalidate_sorted_keys()
+    if storage.ei then
+        storage.ei.matter_machines_sorted_keys = nil
+        storage.ei.stabilizer_break_point_index = nil
+    end
+end
+
+
 function model.register_stabilizer(entity)
 
     if storage.ei.matter_stabilizers == nil then
@@ -181,6 +190,9 @@ function model.register_matter_machine(entity)
     end
     storage.ei.matter_machines[entity.unit_number] = entity
     storage.ei.matter_machines_count = storage.ei.matter_machines_count+1
+    
+    -- Invalidate sorted keys cache when machine is added
+    model.invalidate_sorted_keys()
 
 end
 
@@ -195,6 +207,9 @@ function model.unregister_matter_machine(entity)
     end
     storage.ei.matter_machines[entity.unit_number] = nil
     storage.ei.matter_machines_count = math.max(0,storage.ei.matter_machines_count-1)
+    
+    -- Invalidate sorted keys cache when machine is removed
+    model.invalidate_sorted_keys()
 end
 
 
@@ -291,26 +306,27 @@ function model.remove_rendering(entity)
     -- remove this entity from rendering
     -- assume it is a matter machine
 
-    for _, render in pairs(storage.ei.selected_render) do
+    for i = #storage.ei.selected_render, 1, -1 do
+        local render = storage.ei.selected_render[i]
         if render.type == "connection" and render.target == entity then
             render.render.destroy()
-            table.remove(storage.ei.selected_render, _)
+            table.remove(storage.ei.selected_render, i)
         end
     end
 
     -- assume it is a stabilizer
 
-    for _, render in pairs(storage.ei.selected_render) do
+    for i = #storage.ei.selected_render, 1, -1 do
+        local render = storage.ei.selected_render[i]
         if render.type == "range" and render.source == entity then
             render.render.destroy()
-            table.remove(storage.ei.selected_render, _)
+            table.remove(storage.ei.selected_render, i)
         end
 
         if render.type == "connection" and render.source == entity then
             render.render.destroy()
-            table.remove(storage.ei.selected_render, _)
+            table.remove(storage.ei.selected_render, i)
         end
-
     end
 
 end
@@ -489,31 +505,68 @@ function model.update()
     if not storage.ei.matter_machines then
         return false
     end
-    --temporary bandaid to prevent desyncs, likely need to make a generic entity handler that uses ordered tables and schedules table edits rather then doing them on built/destroyed
-    if game.is_multiplayer() then
-        return false
-    end
-    -- if no current break point then try to make a new one
-    if not storage.ei.stabilizer_break_point and next(storage.ei.matter_machines) then
-        storage.ei.stabilizer_break_point,_ = next(storage.ei.matter_machines)
+
+    -- Check if sorted keys need rebuilding (machines added/removed or cache cleared)
+    local needs_rebuild = false
+    if not storage.ei.matter_machines_sorted_keys then
+        needs_rebuild = true
+    else
+        -- Verify cache is still valid (no machine additions/removals)
+        if #storage.ei.matter_machines_sorted_keys ~= (storage.ei.matter_machines_count or 0) then
+            needs_rebuild = true
+        end
     end
 
-    -- if no current break point then return
-    if not storage.ei.stabilizer_break_point then
+    -- Initialize sorted keys if needed
+    if needs_rebuild then
+        storage.ei.matter_machines_sorted_keys = {}
+        for key, _ in pairs(storage.ei.matter_machines) do
+            table.insert(storage.ei.matter_machines_sorted_keys, key)
+        end
+        table.sort(storage.ei.matter_machines_sorted_keys)
+        storage.ei.stabilizer_break_point_index = nil
+    end
+
+    -- if no machines exist, return
+    if #storage.ei.matter_machines_sorted_keys == 0 then
         return false
+    end
+
+    -- if no current break point then start at the beginning
+    if not storage.ei.stabilizer_break_point_index then
+        storage.ei.stabilizer_break_point_index = 1
     end
 
     -- get current break point
-    local break_id = storage.ei.stabilizer_break_point
-
-    model.update_matter_machine(storage.ei.matter_machines[break_id])
+    local break_index = storage.ei.stabilizer_break_point_index
+    local break_id = storage.ei.matter_machines_sorted_keys[break_index]
+    
+    -- Validate break_id still exists (could have been deleted)
+    if break_id and storage.ei.matter_machines and storage.ei.matter_machines[break_id] then
+        local machine = storage.ei.matter_machines[break_id]
+        if machine and machine.valid then
+            model.update_matter_machine(machine)
+        else
+            -- Machine entity is invalid, remove from table and rebuild cache
+            storage.ei.matter_machines[break_id] = nil
+            storage.ei.matter_machines_count = math.max(0, (storage.ei.matter_machines_count or 1) - 1)
+            model.invalidate_sorted_keys()
+            return true  -- Continue processing next tick
+        end
+    else
+        -- Machine was removed, rebuild cache
+        model.invalidate_sorted_keys()
+        return true  -- Continue processing next tick
+    end
 
     -- get next break point
-    if next(storage.ei.matter_machines, break_id) then
-        storage.ei.stabilizer_break_point,_ = next(storage.ei.matter_machines, break_id)
+    if break_index < #storage.ei.matter_machines_sorted_keys then
+        storage.ei.stabilizer_break_point_index = break_index + 1
         return true
     else
-        storage.ei.stabilizer_break_point = nil
+        -- Reached end of list, clear cache to rebuild next cycle
+        storage.ei.stabilizer_break_point_index = nil
+        storage.ei.matter_machines_sorted_keys = nil
         return false
     end
 
