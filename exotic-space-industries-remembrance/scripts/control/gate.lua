@@ -1350,8 +1350,19 @@ function model.update()
 
     -- gate loop
 
-    -- Initialize sorted keys if needed
+    -- Check if sorted keys need rebuilding (gates added/removed or cache cleared)
+    local needs_rebuild = false
     if not storage.ei.gate.gate_sorted_keys then
+        needs_rebuild = true
+    else
+        -- Verify cache is still valid (no gate additions/removals)
+        if #storage.ei.gate.gate_sorted_keys ~= ei_lib.getn(storage.ei.gate.gate) then
+            needs_rebuild = true
+        end
+    end
+
+    -- Initialize sorted keys if needed
+    if needs_rebuild then
         storage.ei.gate.gate_sorted_keys = {}
         for key, _ in pairs(storage.ei.gate.gate) do
             table.insert(storage.ei.gate.gate_sorted_keys, key)
@@ -1360,27 +1371,37 @@ function model.update()
         storage.ei.gate.gate_break_point_index = nil
     end
 
-    -- if no current break point then try to make a new one
-    if not storage.ei.gate.gate_break_point_index and #storage.ei.gate.gate_sorted_keys > 0 then
-        storage.ei.gate.gate_break_point_index = 1
+    -- if no gates exist, return
+    if #storage.ei.gate.gate_sorted_keys == 0 then
+        return false
     end
 
-    -- if no current break point then return
+    -- if no current break point then start at the beginning
     if not storage.ei.gate.gate_break_point_index then
-        return false
+        storage.ei.gate.gate_break_point_index = 1
     end
 
     -- get current break point
     local break_index = storage.ei.gate.gate_break_point_index
     local break_id = storage.ei.gate.gate_sorted_keys[break_index]
     
+    -- Validate break_id still exists (could have been deleted)
     if break_id and storage.ei.gate.gate and storage.ei.gate.gate[break_id] then
         local gate = storage.ei.gate.gate[break_id].gate
-        if gate then
+        if gate and gate.valid then
             model.check_for_teleport(break_id, gate)
             model.update_renders(break_id, gate)
             model.update_energy(break_id, gate)
+        else
+            -- Gate entity is invalid, remove from table and rebuild cache
+            storage.ei.gate.gate[break_id] = nil
+            model.invalidate_sorted_keys()
+            return true  -- Continue processing next tick
         end
+    else
+        -- Gate was removed, rebuild cache
+        model.invalidate_sorted_keys()
+        return true  -- Continue processing next tick
     end
 
     -- get next break point
@@ -1388,8 +1409,9 @@ function model.update()
         storage.ei.gate.gate_break_point_index = break_index + 1
         return true
     else
+        -- Reached end of list, clear cache to rebuild next cycle
         storage.ei.gate.gate_break_point_index = nil
-        storage.ei.gate.gate_sorted_keys = nil  -- Clear to rebuild on next cycle
+        storage.ei.gate.gate_sorted_keys = nil
         return false
     end
 
