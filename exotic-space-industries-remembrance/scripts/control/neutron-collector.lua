@@ -11,6 +11,15 @@ model.range = 10 + 1.5 -- range of neutron collector in tiles + 1.5 collector si
 model.neutron_sources = {}
 model.dist_buffs = {}
 
+-- Add this helper function at the top of the file after model.dist_buffs definition
+function model.invalidate_sorted_keys()
+    if storage.ei then
+        storage.ei.neutron_sources_sorted_keys = nil
+        storage.ei["neutron_script_break_point_index"] = nil
+        storage.ei["neutron_script_break_point"] = nil
+    end
+end
+
 -- values are additional percent after range calculation
 model.neutron_sources["ei-high-temperature-reactor"] = -20
 model.neutron_sources["nuclear-reactor"] = -30
@@ -422,7 +431,6 @@ end
 
 --REGISTRY
 ------------------------------------------------------------------------------------------------------
-
 function model.register_neutron_source(entity)
     -- register a neutron source
     -- add it to the storage table
@@ -446,6 +454,9 @@ function model.register_neutron_source(entity)
     storage.ei["neutron_sources"][entity.unit_number] = {}
     storage.ei["neutron_sources"][entity.unit_number]["collectors"] = {}
     storage.ei["neutron_sources"][entity.unit_number]["entity"] = entity
+    
+    -- Invalidate sorted keys cache when source is added
+    model.invalidate_sorted_keys()
 end
 
 
@@ -458,6 +469,9 @@ function model.deregister_neutron_source(entity)
     end
 
     storage.ei["neutron_sources"][entity.unit_number] = nil
+    
+    -- Invalidate sorted keys cache when source is removed
+    model.invalidate_sorted_keys()
 end
 
 
@@ -494,61 +508,78 @@ function model.update()
         return false
     end
 
-    -- if no current break point set new one if possible return if not
-    if not storage.ei["neutron_script_break_point"] and next(storage.ei["neutron_sources"]) then
-        storage.ei["neutron_script_break_point"],_ = next(storage.ei["neutron_sources"])
+    -- Check if sorted keys need rebuilding (sources added/removed or cache cleared)
+    local needs_rebuild = false
+    if not storage.ei.neutron_sources_sorted_keys then
+        needs_rebuild = true
+    else
+        -- Verify cache is still valid (check count matches)
+        local actual_count = 0
+        for _ in pairs(storage.ei["neutron_sources"]) do
+            actual_count = actual_count + 1
+        end
+        if #storage.ei.neutron_sources_sorted_keys ~= actual_count then
+            needs_rebuild = true
+        end
     end
 
-    if not storage.ei["neutron_script_break_point"] then
+    -- Initialize sorted keys if needed
+    if needs_rebuild then
+        storage.ei.neutron_sources_sorted_keys = {}
+        for key, _ in pairs(storage.ei["neutron_sources"]) do
+            table.insert(storage.ei.neutron_sources_sorted_keys, key)
+        end
+        table.sort(storage.ei.neutron_sources_sorted_keys)
+        storage.ei["neutron_script_break_point_index"] = nil
+    end
+
+    -- if no sources exist, return
+    if #storage.ei.neutron_sources_sorted_keys == 0 then
+        storage.ei["neutron_script_break_point"] = nil
         return false
     end
 
+    -- if no current break point then start at the beginning
+    if not storage.ei["neutron_script_break_point_index"] then
+        storage.ei["neutron_script_break_point_index"] = 1
+    end
+
     -- get current break point
-    local i = storage.ei["neutron_script_break_point"]
-
-    -- check that source still exists
-    if storage.ei["neutron_sources"][i] == nil then
+    local break_index = storage.ei["neutron_script_break_point_index"]
+    local break_id = storage.ei.neutron_sources_sorted_keys[break_index]
+    
+    -- Validate break_id still exists (could have been deleted)
+    if break_id and storage.ei["neutron_sources"][break_id] then
+        local source = storage.ei["neutron_sources"][break_id]["entity"]
         
-        if next(storage.ei["neutron_sources"], i) then
-            -- is there a possible next source?
-            storage.ei["neutron_script_break_point"],_ = next(storage.ei["neutron_sources"], i)
-
-        elseif next(storage.ei["neutron_sources"]) then
-            -- is there a possible first source
-            new_i,_ = next(storage.ei["neutron_sources"])
-            -- if its the the current one?
-            if  new_i == i then
-                -- no possible next or first source
-                storage.ei["neutron_script_break_point"] = nil
-                return false
-            end
-
-            storage.ei["neutron_script_break_point"] = new_i
+        if model.entity_check(source) then
+            model.update_all_collector_states(source)
         else
-            -- no possible next or first source
-            storage.ei["neutron_script_break_point"] = nil
-            return false
+            -- Source entity is invalid, remove from table and rebuild cache
+            storage.ei["neutron_sources"][break_id] = nil
+            storage.ei.neutron_sources_sorted_keys = nil
+            storage.ei["neutron_script_break_point_index"] = nil
+            return true  -- Continue processing next tick
         end
-
-        i = storage.ei["neutron_script_break_point"]
-    end
-
-    -- get current source
-    local source = storage.ei["neutron_sources"][i]["entity"]
-
-    if model.entity_check(source) == false then
-        return
-    end
-
-    model.update_all_collector_states(source)
-
-    -- set new break point
-    if next(storage.ei["neutron_sources"], i) then
-        storage.ei["neutron_script_break_point"],_ = next(storage.ei["neutron_sources"], i)
     else
-        storage.ei["neutron_script_break_point"],_ = next(storage.ei["neutron_sources"])
+        -- Source was removed, rebuild cache
+        storage.ei.neutron_sources_sorted_keys = nil
+        storage.ei["neutron_script_break_point_index"] = nil
+        return true  -- Continue processing next tick
     end
-    return true
+
+    -- get next break point
+    if break_index < #storage.ei.neutron_sources_sorted_keys then
+        storage.ei["neutron_script_break_point_index"] = break_index + 1
+        return true
+    else
+        -- Reached end of list, clear cache to rebuild next cycle
+        storage.ei["neutron_script_break_point_index"] = nil
+        storage.ei.neutron_sources_sorted_keys = nil
+        storage.ei["neutron_script_break_point"] = nil  -- Keep for backwards compatibility
+        return false
+    end
+
 end
 
 --SPRITE RELATED
