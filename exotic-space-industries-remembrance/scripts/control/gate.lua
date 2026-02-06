@@ -187,7 +187,6 @@ function model.transfer(transfer)
     target_inv.insert({name = "ei-gate", count = 1})
 end
 
-
 function model.register_gate(gate, container)
 
     model.check_global_init()
@@ -208,7 +207,9 @@ function model.register_gate(gate, container)
     end
 
     storage.ei.gate.gate[gate_unit].state = false
-
+    
+    -- Invalidate sorted keys cache when gate is added
+    model.invalidate_sorted_keys()
 
 end
 
@@ -278,6 +279,8 @@ function model.destroy_gate(gate, container)
 
     if storage.ei.gate.gate[gate_unit] then
         storage.ei.gate.gate[gate_unit] = nil
+        -- Invalidate sorted keys cache when gate is removed
+        model.invalidate_sorted_keys()
     end
 
 end
@@ -569,7 +572,6 @@ function model.teleport_player(character, gate)
 
 end
 
-
 function model.update_energy(unit, gate)
     -- if energy below 90% of 50GJ turn off
     if gate.energy < 45 * 1e9 then -- 45 GJ
@@ -581,8 +583,14 @@ function model.update_energy(unit, gate)
         storage.ei.gate.gate[unit].state = false
     end
 
-    -- update gui if open
+    -- update gui if open (DETERMINISTIC)
+    local player_list = {}
     for _, player in pairs(game.connected_players) do
+        table.insert(player_list, player)
+    end
+    table.sort(player_list, function(a, b) return a.index < b.index end)
+    
+    for _, player in ipairs(player_list) do
         if player.gui.relative["ei-gate-console"] then
             -- only update the gui if the gui open belongs to this gate
             local open_gate = model.find_gate(player.opened)
@@ -612,6 +620,13 @@ function model.create_gate_user_permission_group()
     group.set_allows_action(defines.input_action.start_walking, true)
     group.set_allows_action(defines.input_action.use_item, true)
 
+end
+
+function model.invalidate_sorted_keys()
+    if storage.ei.gate then
+        storage.ei.gate.gate_sorted_keys = nil
+        storage.ei.gate.gate_break_point_index = nil
+    end
 end
 
 
@@ -1031,9 +1046,16 @@ function model.update_gui(player, data, ontick)
 
 end
 
-
 function model.update_player_guis()
+    -- Create deterministic player list
+    local player_list = {}
     for _, player in pairs(game.connected_players) do
+        table.insert(player_list, player)
+    end
+    -- Sort by player index for deterministic order
+    table.sort(player_list, function(a, b) return a.index < b.index end)
+    
+    for _, player in ipairs(player_list) do
         if player.gui.relative["ei-gate-console"] then
             if not player.opened then
                 model.close_gui(player)
@@ -1182,7 +1204,6 @@ function model.choose_position(player)
 
 end
 
-
 function model.get_data(gate)
 
     if not gate then return end
@@ -1197,11 +1218,13 @@ function model.get_data(gate)
         data.energy = 0
     end
 
-    -- get list of all surfaces
+    -- get list of all surfaces (DETERMINISTIC)
     local surfaces = {}
     for i,v in pairs(game.surfaces) do
         table.insert(surfaces, v.name)
     end
+    -- Sort surfaces alphabetically for deterministic order
+    table.sort(surfaces)
     data.surfaces = surfaces
 
     local exit = storage.ei.gate.gate[gate.unit_number].exit
