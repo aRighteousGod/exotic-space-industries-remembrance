@@ -1310,7 +1310,6 @@ function model.on_destroyed_entity(entity, transfer)
 
 end
 
-
 function model.update()
 
     if not storage.ei.gate then
@@ -1322,28 +1321,36 @@ function model.update()
     end
     
     model.update_player_guis()
-    if game.is_multiplayer() then
-        return false
-    end
-    --model.update_player_guis()
-    -- fixed in remote-config
-    -- model.update_player_permissions()
+    --if game.is_multiplayer() then
+    --    return false
+    --end
 
     -- gate loop
 
+    -- Initialize sorted keys if needed
+    if not storage.ei.gate.gate_sorted_keys then
+        storage.ei.gate.gate_sorted_keys = {}
+        for key, _ in pairs(storage.ei.gate.gate) do
+            table.insert(storage.ei.gate.gate_sorted_keys, key)
+        end
+        table.sort(storage.ei.gate.gate_sorted_keys)
+        storage.ei.gate.gate_break_point_index = nil
+    end
 
     -- if no current break point then try to make a new one
-    if not storage.ei.gate.gate_break_point and next(storage.ei.gate.gate) then
-       storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate)
+    if not storage.ei.gate.gate_break_point_index and #storage.ei.gate.gate_sorted_keys > 0 then
+        storage.ei.gate.gate_break_point_index = 1
     end
 
     -- if no current break point then return
-    if not storage.ei.gate.gate_break_point then
+    if not storage.ei.gate.gate_break_point_index then
         return false
     end
 
     -- get current break point
-    local break_id = storage.ei.gate.gate_break_point
+    local break_index = storage.ei.gate.gate_break_point_index
+    local break_id = storage.ei.gate.gate_sorted_keys[break_index]
+    
     if break_id and storage.ei.gate.gate and storage.ei.gate.gate[break_id] then
         local gate = storage.ei.gate.gate[break_id].gate
         if gate then
@@ -1354,12 +1361,13 @@ function model.update()
     end
 
     -- get next break point
-    if next(storage.ei.gate.gate, break_id) then
-        storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate, break_id)
+    if break_index < #storage.ei.gate.gate_sorted_keys then
+        storage.ei.gate.gate_break_point_index = break_index + 1
         return true
     else
-       storage.ei.gate.gate_break_point = nil
-       return false
+        storage.ei.gate.gate_break_point_index = nil
+        storage.ei.gate.gate_sorted_keys = nil  -- Clear to rebuild on next cycle
+        return false
     end
 
 end
