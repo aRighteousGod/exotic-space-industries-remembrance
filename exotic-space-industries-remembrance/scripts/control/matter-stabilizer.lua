@@ -502,75 +502,72 @@ end
 
 function model.update()
 
-    if not storage.ei.matter_machines then
+    if not storage.ei then
         return false
     end
 
-    -- Check if sorted keys need rebuilding (machines added/removed or cache cleared)
-    local needs_rebuild = false
-    if not storage.ei.matter_machines_sorted_keys then
-        needs_rebuild = true
-    else
-        -- Verify cache is still valid (no machine additions/removals)
-        if #storage.ei.matter_machines_sorted_keys ~= (storage.ei.matter_machines_count or 0) then
-            needs_rebuild = true
-        end
+    if not storage.ei.matter_stabilizer then
+        return false
     end
 
-    -- Initialize sorted keys if needed
-    if needs_rebuild then
-        storage.ei.matter_machines_sorted_keys = {}
-        for key, _ in pairs(storage.ei.matter_machines) do
-            table.insert(storage.ei.matter_machines_sorted_keys, key)
+    if not storage.ei.matter_stabilizer.machines then
+        return false
+    end
+
+    -- Always rebuild sorted keys at the start of each cycle (when index is nil or 1)
+    if not storage.ei.matter_stabilizer.machines_break_point_index or storage.ei.matter_stabilizer.machines_break_point_index == 1 or storage.ei.matter_stabilizer.needs_sorted_rebuild then
+        storage.ei.matter_stabilizer.machines_sorted_keys = {}
+        for key, _ in pairs(storage.ei.matter_stabilizer.machines) do
+            table.insert(storage.ei.matter_stabilizer.machines_sorted_keys, key)
         end
-        table.sort(storage.ei.matter_machines_sorted_keys)
-        storage.ei.stabilizer_break_point_index = nil
+        table.sort(storage.ei.matter_stabilizer.machines_sorted_keys)
+        storage.ei.matter_stabilizer.machines_break_point_index = 1
+        storage.ei.matter_stabilizer.needs_sorted_rebuild = nil
     end
 
     -- if no machines exist, return
-    if #storage.ei.matter_machines_sorted_keys == 0 then
+    if #storage.ei.matter_stabilizer.machines_sorted_keys == 0 then
         return false
     end
 
-    -- if no current break point then start at the beginning
-    if not storage.ei.stabilizer_break_point_index then
-        storage.ei.stabilizer_break_point_index = 1
-    end
 
     -- get current break point
-    local break_index = storage.ei.stabilizer_break_point_index
-    local break_id = storage.ei.matter_machines_sorted_keys[break_index]
-    
-    -- Validate break_id still exists (could have been deleted)
-    if break_id and storage.ei.matter_machines and storage.ei.matter_machines[break_id] then
-        local machine = storage.ei.matter_machines[break_id]
-        if machine and machine.valid then
-            model.update_matter_machine(machine)
+    local break_index = storage.ei.matter_stabilizer.machines_break_point_index
+    local break_id = storage.ei.matter_stabilizer.machines_sorted_keys[break_index]
+
+    -- Validate break_id still exists
+    if break_id and storage.ei.matter_stabilizer.machines[break_id] then
+        local machine_data = storage.ei.matter_stabilizer.machines[break_id]
+        
+        if machine_data.entity and machine_data.entity.valid then
+            model.update_matter_machine(break_id)
         else
-            -- Machine entity is invalid, remove from table and rebuild cache
-            storage.ei.matter_machines[break_id] = nil
-            storage.ei.matter_machines_count = math.max(0, (storage.ei.matter_machines_count or 1) - 1)
+            -- Machine entity is invalid, remove and rebuild
+            storage.ei.matter_stabilizer.machines[break_id] = nil
             model.invalidate_sorted_keys()
-            return true  -- Continue processing next tick
+            return true
         end
     else
-        -- Machine was removed, rebuild cache
+        -- Machine was removed, rebuild next cycle
         model.invalidate_sorted_keys()
-        return true  -- Continue processing next tick
+        return true
+    end
+
+    -- Check if cache was invalidated during processing
+    if storage.ei.matter_stabilizer.needs_sorted_rebuild then
+        return true
     end
 
     -- get next break point
-    if break_index < #storage.ei.matter_machines_sorted_keys then
-        storage.ei.stabilizer_break_point_index = break_index + 1
+    if break_index < #storage.ei.matter_stabilizer.machines_sorted_keys then
+        storage.ei.matter_stabilizer.machines_break_point_index = break_index + 1
         return true
     else
-        -- Reached end of list, clear cache to rebuild next cycle
-        storage.ei.stabilizer_break_point_index = nil
-        storage.ei.matter_machines_sorted_keys = nil
+        -- Reached end of list, reset to beginning (will trigger rebuild)
+        storage.ei.matter_stabilizer.machines_break_point_index = 1
         return false
     end
 
 end
-
 
 return model
