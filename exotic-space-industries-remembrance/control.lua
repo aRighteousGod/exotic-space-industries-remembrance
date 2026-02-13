@@ -156,6 +156,7 @@ end)
 script.on_event(defines.events.on_player_selected_area, function(e)
     ei_alien_spawner.on_player_selected_area(e)
     ei_alien_system.on_player_selected_area(e)
+    ei_gate.on_player_selected_area(e)
 end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(e)
@@ -164,6 +165,7 @@ end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
     ei_matter_stabilizer.on_player_cursor_stack_changed(e)
+    ei_gate.on_player_cursor_stack_changed(e)
 end)
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
@@ -284,6 +286,10 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
+end)
+
+script.on_event(defines.events.on_player_left_game, function(event)
+    ei_gate.on_player_left_game(event.player_index)
 end)
 
 --OTHER
@@ -422,6 +428,17 @@ script.on_configuration_changed(function(e)
         ei_echo_codex.handle_global_settings(e)
         em_trains.check_global() --no nil tables
 
+        -- Clean up stale gate remote selection state to avoid crashes on save reload
+        if storage.ei and storage.ei.gate and storage.ei.gate.remote then
+            for p_index, _ in pairs(storage.ei.gate.remote) do
+                local p = game.get_player(p_index)
+                if p and p.cursor_stack and p.cursor_stack.valid_for_read
+                   and p.cursor_stack.name == "ei-gate-position-selector" then
+                    p.cursor_stack.clear()
+                end
+            end
+            storage.ei.gate.remote = {}
+        end
 
         em_trains.reinitialize_chargers() --applies updated buffs
         em_trains.reinitialize_trains()
@@ -481,7 +498,7 @@ script.on_event(
 --====================================================================================================
 
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
-ei_update_step = 1  -- Tracks which entity type is updated next, skips first tick
+-- ei_update_step is now computed from game.tick to ensure multiplayer determinism
 ei_update_functions = {
     function() ei_powered_beacon.update() end, --deprecated
     function() ei_powered_beacon.update_fluid_storages() end,
@@ -497,6 +514,8 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 
 function updater(event)
   local updates_needed = 1
+  -- Compute update step from game tick to ensure multiplayer determinism
+  local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
    if ei_update_step < 5 then -- Reduces the average number of `if` checks
@@ -638,12 +657,6 @@ function updater(event)
        end
    end
     ::skip::
-
-   -- Increment ei_update_step and loop back to 1 if needed
-   ei_update_step = ei_update_step + 1
-   if ei_update_step > ei_update_functions_length then --yeeeoooorrmmmm
-       ei_update_step = 1
-   end
 
    -- Essential updates that run every tick (e.g., timers, global effects)
     em_trains_gui.updater()
