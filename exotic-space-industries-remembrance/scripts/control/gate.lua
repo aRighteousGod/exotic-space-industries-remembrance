@@ -6,7 +6,6 @@ local DEBUG_TRACEROUTE = false
 --====================================================================================================
 --GATE
 --current issues
---mp desync when activated/interacted
 --need to recurse over all transferable items in data-updates-final and make a table
 --along the lines of mass_weights to then charge energy based on some approximation
 --of "mass"
@@ -1096,15 +1095,7 @@ function model.update_gui(player, data, ontick)
 end
 
 function model.update_player_guis()
-    -- Create deterministic player list
-    local player_list = {}
     for _, player in pairs(game.connected_players) do
-        table.insert(player_list, player)
-    end
-    -- Sort by player index for deterministic order
-    table.sort(player_list, function(a, b) return a.index < b.index end)
-    
-    for _, player in ipairs(player_list) do
         if player.gui.relative["ei-gate-console"] then
             if not player.opened then
                 model.close_gui(player)
@@ -1256,12 +1247,12 @@ end
 function model.get_data(gate)
 
     if not gate or not gate.valid then 
-        return nil
+        return
     end
 
     -- Check if gate data exists in storage
     if not storage.ei.gate.gate[gate.unit_number] then
-        return nil
+        return
     end
 
     local data = {}
@@ -1274,7 +1265,7 @@ function model.get_data(gate)
         data.energy = 0
     end
 
-    -- get list of all surfaces (DETERMINISTIC)
+    -- get list of all surfaces
     local surfaces = {}
     for i,v in pairs(game.surfaces) do
         table.insert(surfaces, v.name)
@@ -1399,8 +1390,6 @@ function model.update()
         return false
     end
 
-    --model.update_player_guis()
-
     -- Always rebuild sorted keys at the start of each cycle (when index is nil or 1)
     if not storage.ei.gate.gate_break_point_index or storage.ei.gate.gate_break_point_index == 1 or storage.ei.gate.needs_sorted_rebuild then
         storage.ei.gate.gate_sorted_keys = {}
@@ -1425,42 +1414,34 @@ function model.update()
     if break_id and storage.ei.gate.gate and storage.ei.gate.gate[break_id] then
         local gate = storage.ei.gate.gate[break_id].gate
         if gate and gate.valid then
-            -- Call functions in sequence, but re-check gate data after each
             model.check_for_teleport(break_id, gate)
             
-            -- Re-validate gate data still exists after check_for_teleport
             if storage.ei.gate.gate[break_id] and gate.valid then
                 model.update_renders(break_id, gate)
             end
             
-            -- Re-validate again before update_energy
             if storage.ei.gate.gate[break_id] and gate.valid then
                 model.update_energy(break_id, gate)
             end
             
-            -- Check if sorted keys was invalidated during processing
             if storage.ei.gate.needs_sorted_rebuild then
                 -- Cache invalidated, will rebuild on next call
                 return true
             end
         else
-            -- Gate entity is invalid, remove from table and mark for rebuild
             storage.ei.gate.gate[break_id] = nil
             model.invalidate_sorted_keys()
             return true
         end
     else
-        -- Gate was removed, mark for rebuild
         model.invalidate_sorted_keys()
         return true
     end
 
-    -- Check again before accessing gate_sorted_keys
     if storage.ei.gate.needs_sorted_rebuild then
         return true
     end
 
-    -- get next break point
     if break_index < #storage.ei.gate.gate_sorted_keys then
         storage.ei.gate.gate_break_point_index = break_index + 1
         return true

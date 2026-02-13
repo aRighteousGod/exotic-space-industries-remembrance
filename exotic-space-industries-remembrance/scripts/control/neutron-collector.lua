@@ -11,16 +11,6 @@ model.range = 10 + 1.5 -- range of neutron collector in tiles + 1.5 collector si
 model.neutron_sources = {}
 model.dist_buffs = {}
 
--- Add this helper function at the top of the file after model.dist_buffs definition
-function model.invalidate_sorted_keys()
-    if storage.ei then
-        storage.ei.neutron_sources_sorted_keys = nil
-        storage.ei["neutron_script_break_point_index"] = nil
-        storage.ei["neutron_script_break_point"] = nil
-        storage.ei.needs_neutron_sorted_rebuild = true
-    end
-end
-
 -- values are additional percent after range calculation
 model.neutron_sources["ei-high-temperature-reactor"] = -20
 model.neutron_sources["nuclear-reactor"] = -30
@@ -29,6 +19,16 @@ model.neutron_sources["ei-castor"] = -50
 model.neutron_sources["ei-fusion-reactor"] = 10
 
 model.dist_buffs["ei-fusion-reactor"] = 3
+
+
+function model.invalidate_sorted_keys()
+    if storage.ei then
+        storage.ei.neutron_sources_sorted_keys = nil
+        storage.ei["neutron_script_break_point_index"] = nil
+        storage.ei["neutron_script_break_point"] = nil
+        storage.ei.needs_neutron_sorted_rebuild = true
+    end
+end
 
 function model.calc_distance(entity, source)
 
@@ -502,10 +502,6 @@ end
 
 
 function model.update()
-
-    if not storage.ei then
-        return false
-    end
 
     if not storage.ei.neutron_sources then
         return false
