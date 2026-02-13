@@ -1095,7 +1095,15 @@ function model.update_gui(player, data, ontick)
 end
 
 function model.update_player_guis()
+    -- Create deterministic player list
+    local player_list = {}
     for _, player in pairs(game.connected_players) do
+        table.insert(player_list, player)
+    end
+    -- Sort by player index for deterministic order
+    table.sort(player_list, function(a, b) return a.index < b.index end)
+    
+    for _, player in ipairs(player_list) do
         if player.gui.relative["ei-gate-console"] then
             if not player.opened then
                 model.close_gui(player)
@@ -1247,12 +1255,12 @@ end
 function model.get_data(gate)
 
     if not gate or not gate.valid then 
-        return
+        return nil
     end
 
     -- Check if gate data exists in storage
     if not storage.ei.gate.gate[gate.unit_number] then
-        return
+        return nil
     end
 
     local data = {}
@@ -1442,6 +1450,7 @@ function model.update()
         return true
     end
 
+    -- get next break point
     if break_index < #storage.ei.gate.gate_sorted_keys then
         storage.ei.gate.gate_break_point_index = break_index + 1
         return true
