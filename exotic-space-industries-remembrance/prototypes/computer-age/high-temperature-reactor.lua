@@ -241,8 +241,8 @@ data:extend({
         },
         results = {
             {type = "fluid", name = "ei-cold-coolant", amount_min = 8,amount_max=12},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 25,amount_max=50},
-            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2,probability=0.25},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 25,amount_max=50,ignored_by_stats=50},
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2,probability=0.25,ignored_by_stats=2},
         },
         always_show_made_in = true,
         enabled = false,

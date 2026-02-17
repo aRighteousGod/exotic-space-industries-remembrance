@@ -803,14 +803,14 @@ data:extend({
         name = "ei-electron-tube",
         type = "recipe",
         category = "crafting",
-        energy_required = 1,
+        energy_required = 4,
         ingredients = {
-            {type = "item", name = "copper-cable", amount = 1},
+            {type = "item", name = "copper-cable", amount = 4},
             {type = "item", name = "ei-glass", amount = 1},
-            {type = "item", name = "ei-ceramic", amount = 1}
+            {type = "item", name = "ei-ceramic", amount = 2}
         },
         results = {
-            {type = "item", name = "ei-electron-tube", amount = 1},
+            {type = "item", name = "ei-electron-tube", amount = 4},
         },
         always_show_made_in = true,
         enabled = false,

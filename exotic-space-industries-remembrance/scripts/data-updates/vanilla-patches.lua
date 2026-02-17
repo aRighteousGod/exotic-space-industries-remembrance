@@ -2169,7 +2169,7 @@ ei_lib.raw.recipe["casting-steel"].results = {
     {type="item",name="steel-plate",amount=2}
 }
 ei_lib.raw.recipe["casting-iron-gear-wheel"].results = {
-    {type="item",name="ei-iron-mechanical-parts",amount=1}
+    {type="item",name="ei-iron-mechanical-parts",amount=2}
 }
 ei_lib.raw.recipe["casting-iron-stick"].results = {
     {type="item",name="ei-iron-beam",amount=1}
@@ -2186,7 +2186,29 @@ ei_lib.raw.recipe["molten-copper-from-lava"].results[2] = {
 ei_lib.raw.recipe["molten-iron-from-lava"].results[2] = {
     type="item",name="ei-slag",amount_min=8,amount_max=12,ignored_by_stats=12
 }
-
+local t_plate_recipe = ei_lib.raw.recipe["tungsten-plate"]
+if t_plate_recipe then
+    t_plate_recipe.results[2] = {
+        type="item",name="ei-slag",amount_min=1,amount_max=2,probability=0.44,ignored_by_stats=2
+    }
+    t_plate_recipe.icon = ei_lib.raw.item["tungsten-plate"].icon
+    t_plate_recipe.icon_size = ei_lib.raw.item["tungsten-plate"].icon_size
+    t_plate_recipe.localised_name = {"item-name.tungsten-plate"}
+end
+--[[
+local t_carbide_recipe = ei_lib.raw.recipe["tungsten-carbide"]
+if t_carbide_recipe then
+    t_carbide_recipe.results[2] = {
+        type="item",name="ei-slag",amount_min=1,amount_max=2,probability=0.22,ignored_by_stats=2
+    }
+    t_carbide_recipe.results[3] = {
+        type="item",name="atan-ash",amount_min=1,amount_max=2,probability=0.11,ignored_by_stats=2
+    }
+    t_carbide_recipe.icon = ei_lib.raw.item["tungsten-carbide"].icon
+    t_carbide_recipe.icon_size = ei_lib.raw.item["tungsten-carbide"].icon_size
+    t_carbide_recipe.localised_name = {"item-name.tungsten-carbide"}
+end
+]]
 ei_lib.merge_fluid("ei-molten-iron", "molten-iron", false)
 ei_lib.merge_fluid("ei-molten-copper", "molten-copper", false)
 --allow caster to produce space-age plates
@@ -2312,6 +2334,27 @@ data:extend({
 })
 table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-fluorite-fluorine-calcite"})
 table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-fluorine-vent"})
+
+local lithium_plate = ei_lib.raw.recipe["lithium-plate"]
+if lithium_plate then
+    lithium_plate.results[2] =
+    {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.11,ignored_by_stats=2}
+    lithium_plate.icon = data.raw.item["lithium-plate"].icon
+    lithium_plate.icon_size = data.raw.item["lithium-plate"].icon_size
+    lithium_plate.localised_name = {"item-name.lithium-plate"}
+    end
+
+local fluoro_cooling = ei_lib.raw.recipe["fluoroketone-cooling"]
+if fluoro_cooling then
+	fluoro_cooling.ingredients = {
+		{ type = "fluid", name = "ei-liquid-nitrogen", amount = 50, ignored_by_stats = 50 },
+		{ type = "fluid", name = "fluoroketone-hot", amount = 10, ignored_by_stats = 10 },
+	}
+	fluoro_cooling.results = {
+        { type = "fluid", name = "ei-nitrogen-gas", amount = 125, ignored_by_stats = 125 },
+		{ type = "fluid", name = "fluoroketone-cold", amount = 10, temperature = -150, ignored_by_stats = 10 },
+	}
+end
 --====================================================================================================
 --Fulgora
 --====================================================================================================
