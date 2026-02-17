@@ -1,9 +1,24 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.90
+Date: 2-16-2026
+  Features:
+    - Hypercooler working animation lighting now exudes frosty aura.
+    - Hypercooler recipes now feature tint when used in Cryogenic plant.
+  Changes:
+    - Fluoroketone cooling recipe inputs: Additionally requires 50 Liquid nitrogen.
+    - Fluoroketone cooling recipe outputs: Additionally yields 125 Nitrogen gas.
+    - Lithium plate smelting recipe outputs: Additionally yields 1-2 slag with 11% probability.
+    - Foundry Casting iron mechanical parts recipe output: 1 -> 2.
+    - Casting tungsten plate recipe outputs: Additionally yields 1-2 Slag with 44% probability.
+    - Electron tube recipe inputs: Copper cable 1 -> 4, Ceramic 1 -> 2.
+    - Electron tube recipe outputs: Electron tube 1 -> 4.
+    - Electron tube recipe crafting time: 1 -> 4s.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.89
 Date: 1-28-2026
   Changes:
     - Nuclear waste storage power input priority: tertiary -> secondary.
-    - Removed Overloaded trains from optional dependencies due to unresolved issues, check it's discussion page for details.
+    - Removed Overloaded trains from optional dependencies due to unresolved issues—check it's discussion page for details.
     - Swapped optional dependency P2P-Automation : Platform to Platform Logistics for IPL - Inter Platform Logistics due to it being functionally and technically superior.
   Bugfixes:
     - Fixed that Fusion-quantum age science pack neutron container catalyst was affected by productivity.
