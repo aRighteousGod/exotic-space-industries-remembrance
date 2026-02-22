@@ -6,7 +6,6 @@ local DEBUG_TRACEROUTE = false
 --====================================================================================================
 --GATE
 --current issues
---mp desync when activated/interacted
 --need to recurse over all transferable items in data-updates-final and make a table
 --along the lines of mass_weights to then charge energy based on some approximation
 --of "mass"
@@ -187,7 +186,6 @@ function model.transfer(transfer)
     target_inv.insert({name = "ei-gate", count = 1})
 end
 
-
 function model.register_gate(gate, container)
 
     model.check_global_init()
@@ -208,7 +206,9 @@ function model.register_gate(gate, container)
     end
 
     storage.ei.gate.gate[gate_unit].state = false
-
+    
+    -- Invalidate sorted keys cache when gate is added
+    model.invalidate_sorted_keys()
 
 end
 
@@ -278,6 +278,8 @@ function model.destroy_gate(gate, container)
 
     if storage.ei.gate.gate[gate_unit] then
         storage.ei.gate.gate[gate_unit] = nil
+        -- Invalidate sorted keys cache when gate is removed
+        model.invalidate_sorted_keys()
     end
 
 end
@@ -290,6 +292,11 @@ function model.check_for_teleport(unit, gate)
     -- spawn in exit if not and teleport
 
     if not model.gate_state(gate) then
+        return
+    end
+
+    -- Validate gate data still exists
+    if not storage.ei.gate.gate[unit] then
         return
     end
 
@@ -313,12 +320,25 @@ function model.check_for_teleport(unit, gate)
 
         end
 
+        -- Validate source container exists and is valid
         local source_container = storage.ei.gate.gate[unit].container
+        if not source_container or not source_container.valid then
+            -- Source container is missing or invalid, gate data is corrupted
+            -- Clean up this gate
+            storage.ei.gate.gate[unit] = nil
+            model.invalidate_sorted_keys()
+            return
+        end
+
         local source_inv = source_container.get_inventory(defines.inventory.chest)
-        if source_inv.is_empty() then return end
+        if not source_inv or source_inv.is_empty() then 
+            return 
+        end
 
         local target_inv = exit_container.get_inventory(defines.inventory.chest)
-        if target_inv.is_full() then return end
+        if not target_inv or target_inv.is_full() then 
+            return 
+        end
 
         local success = false
 
@@ -409,8 +429,17 @@ end
 
 function model.gate_state(gate)
 
-    -- will be false if no exit is set
+    -- Validate gate entity
+    if not gate or not gate.valid then
+        return false
+    end
 
+    -- Validate gate data exists
+    if not storage.ei.gate.gate[gate.unit_number] then
+        return false
+    end
+
+    -- will be false if no exit is set
     if not storage.ei.gate.gate[gate.unit_number].exit then
         return false
     end
@@ -426,7 +455,7 @@ function model.gate_state(gate)
 
     return true
 end
-  
+
 --Recursively expand raw ingredient cost of an item
 --1 this doesn't work
 --2 needs to be rewritten to compute costs in final-fixes
@@ -569,8 +598,18 @@ function model.teleport_player(character, gate)
 
 end
 
-
 function model.update_energy(unit, gate)
+    
+    -- Validate gate entity
+    if not gate or not gate.valid then
+        return
+    end
+
+    -- Validate gate data exists
+    if not storage.ei.gate.gate[unit] then
+        return
+    end
+
     -- if energy below 90% of 50GJ turn off
     if gate.energy < 45 * 1e9 then -- 45 GJ
 
@@ -579,21 +618,6 @@ function model.update_energy(unit, gate)
         end
 
         storage.ei.gate.gate[unit].state = false
-    end
-
-    -- update gui if open
-    for _, player in pairs(game.connected_players) do
-        if player.gui.relative["ei-gate-console"] then
-            -- only update the gui if the gui open belongs to this gate
-            local open_gate = model.find_gate(player.opened)
-            if not open_gate then goto continue end
-            if open_gate.unit_number ~= unit then goto continue end
-
-            local data = model.get_data(gate)
-            model.update_gui(player, data, true)
-        end
-
-        ::continue::
     end
 
 end
@@ -614,12 +638,21 @@ function model.create_gate_user_permission_group()
 
 end
 
+function model.invalidate_sorted_keys()
+    if storage.ei.gate then
+        storage.ei.gate.gate_sorted_keys = nil
+        storage.ei.gate.gate_break_point_index = nil
+        -- Add a flag to force rebuild on next update
+        storage.ei.gate.needs_sorted_rebuild = true
+    end
+end
+
 
 --RENDERING
 -----------------------------------------------------------------------------------------------------
 
 function model.render_exit(gate, box)
-    if gate or box then
+    if not gate or not box then
         return
     end
 
@@ -681,7 +714,7 @@ end
 
 function model.render_animation(gate)
     local gate_unit = gate.unit_number
-    local pick = math.random(1,4)
+    local pick = (gate_unit % 4) + 1
     if pick == 1 then
         local light = rendering.draw_light {
             sprite = "gate_glow",
@@ -757,6 +790,16 @@ end
 
 function model.update_renders(unit, gate)
 
+    -- Validate gate entity
+    if not gate or not gate.valid then
+        return
+    end
+
+    -- Validate gate data exists
+    if not storage.ei.gate.gate[unit] then
+        return
+    end
+
     local state = model.gate_state(gate)
     -- if state true -> check if need to render animation
     -- if state false -> check if need to destroy animation + cleanup
@@ -780,6 +823,24 @@ function model.open_gui(player)
 
     if player.gui.relative["ei-gate-console"] then
         model.close_gui(player)
+    end
+
+    local gate = model.find_gate(player.opened)
+    if not gate then
+        -- No gate found, can't open GUI
+        return
+    end
+
+    -- Check if gate is registered
+    if not storage.ei.gate.gate[gate.unit_number] then
+        -- Gate exists but isn't registered - register it now
+        local container = player.opened
+        if container and container.valid and container.name == "ei-gate-container" then
+            model.register_gate(gate, container)
+        else
+            -- Can't find container, can't open GUI
+            return
+        end
     end
 
     local root = player.gui.relative.add{
@@ -955,8 +1016,10 @@ function model.open_gui(player)
 
     end
 
-    local data = model.get_data(model.find_gate(player.opened))
-    model.update_gui(player, data)
+    local data = model.get_data(gate)
+    if data then
+        model.update_gui(player, data)
+    end
 
 end
 
@@ -1031,9 +1094,16 @@ function model.update_gui(player, data, ontick)
 
 end
 
-
 function model.update_player_guis()
+    -- Create deterministic player list
+    local player_list = {}
     for _, player in pairs(game.connected_players) do
+        table.insert(player_list, player)
+    end
+    -- Sort by player index for deterministic order
+    table.sort(player_list, function(a, b) return a.index < b.index end)
+    
+    for _, player in ipairs(player_list) do
         if player.gui.relative["ei-gate-console"] then
             if not player.opened then
                 model.close_gui(player)
@@ -1182,10 +1252,16 @@ function model.choose_position(player)
 
 end
 
-
 function model.get_data(gate)
 
-    if not gate then return end
+    if not gate or not gate.valid then 
+        return nil
+    end
+
+    -- Check if gate data exists in storage
+    if not storage.ei.gate.gate[gate.unit_number] then
+        return nil
+    end
 
     local data = {}
     if gate.electric_buffer_size then
@@ -1202,6 +1278,8 @@ function model.get_data(gate)
     for i,v in pairs(game.surfaces) do
         table.insert(surfaces, v.name)
     end
+    -- Sort surfaces alphabetically for deterministic order
+    table.sort(surfaces)
     data.surfaces = surfaces
 
     local exit = storage.ei.gate.gate[gate.unit_number].exit
@@ -1310,7 +1388,6 @@ function model.on_destroyed_entity(entity, transfer)
 
 end
 
-
 function model.update()
 
     if not storage.ei.gate then
@@ -1320,46 +1397,67 @@ function model.update()
     if not storage.ei.gate.gate then
         return false
     end
-    
-    model.update_player_guis()
-    if game.is_multiplayer() then
-        return false
-    end
-    --model.update_player_guis()
-    -- fixed in remote-config
-    -- model.update_player_permissions()
 
-    -- gate loop
-
-
-    -- if no current break point then try to make a new one
-    if not storage.ei.gate.gate_break_point and next(storage.ei.gate.gate) then
-       storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate)
+    -- Always rebuild sorted keys at the start of each cycle (when index is nil or 1)
+    if not storage.ei.gate.gate_break_point_index or storage.ei.gate.gate_break_point_index == 1 or storage.ei.gate.needs_sorted_rebuild then
+        storage.ei.gate.gate_sorted_keys = {}
+        for key, _ in pairs(storage.ei.gate.gate) do
+            table.insert(storage.ei.gate.gate_sorted_keys, key)
+        end
+        table.sort(storage.ei.gate.gate_sorted_keys)
+        storage.ei.gate.gate_break_point_index = 1
+        storage.ei.gate.needs_sorted_rebuild = nil
     end
 
-    -- if no current break point then return
-    if not storage.ei.gate.gate_break_point then
+    -- if no gates exist, return
+    if #storage.ei.gate.gate_sorted_keys == 0 then
         return false
     end
 
     -- get current break point
-    local break_id = storage.ei.gate.gate_break_point
+    local break_index = storage.ei.gate.gate_break_point_index
+    local break_id = storage.ei.gate.gate_sorted_keys[break_index]
+    
+    -- Validate break_id still exists (could have been deleted)
     if break_id and storage.ei.gate.gate and storage.ei.gate.gate[break_id] then
         local gate = storage.ei.gate.gate[break_id].gate
-        if gate then
+        if gate and gate.valid then
             model.check_for_teleport(break_id, gate)
-            model.update_renders(break_id, gate)
-            model.update_energy(break_id, gate)
+            
+            if storage.ei.gate.gate[break_id] and gate.valid then
+                model.update_renders(break_id, gate)
+            end
+            
+            if storage.ei.gate.gate[break_id] and gate.valid then
+                model.update_energy(break_id, gate)
+            end
+            
+            if storage.ei.gate.needs_sorted_rebuild then
+                -- Cache invalidated, will rebuild on next call
+                return true
+            end
+        else
+            storage.ei.gate.gate[break_id] = nil
+            model.invalidate_sorted_keys()
+            return true
         end
+    else
+        model.invalidate_sorted_keys()
+        return true
+    end
+
+    if storage.ei.gate.needs_sorted_rebuild then
+        return true
     end
 
     -- get next break point
-    if next(storage.ei.gate.gate, break_id) then
-        storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate, break_id)
+    if break_index < #storage.ei.gate.gate_sorted_keys then
+        storage.ei.gate.gate_break_point_index = break_index + 1
         return true
     else
-       storage.ei.gate.gate_break_point = nil
-       return false
+        -- Reached end of list, reset to beginning which will trigger rebuild
+        storage.ei.gate.gate_break_point_index = 1
+        return false
     end
 
 end

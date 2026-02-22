@@ -473,6 +473,11 @@ script.on_event(
   },
     function(event)
         ei_echo_codex.youHaveArrived(event)
+        if event.name == defines.events.on_player_joined_game then
+            ei_gate.invalidate_sorted_keys()
+            ei_neutron_collector.invalidate_sorted_keys()
+            ei_matter_stabilizer.invalidate_sorted_keys()
+        end
     end
 )
 
@@ -481,7 +486,7 @@ script.on_event(
 --====================================================================================================
 
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
-ei_update_step = 1  -- Tracks which entity type is updated next, skips first tick
+
 ei_update_functions = {
     function() ei_powered_beacon.update() end, --deprecated
     function() ei_powered_beacon.update_fluid_storages() end,
@@ -496,11 +501,16 @@ ei_update_functions = {
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
 function updater(event)
+
+  if not storage.ei_update_step then
+      storage.ei_update_step = 1
+  end
+
   local updates_needed = 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
-   if ei_update_step < 5 then -- Reduces the average number of `if` checks
-       if ei_update_step == 1 then
+   if storage.ei_update_step < 5 then -- Reduces the average number of `if` checks
+       if storage.ei_update_step == 1 then
            --Check global once per entity updater cycle
            ei_global.check_init(event)
            --[[
@@ -519,7 +529,7 @@ function updater(event)
                end
             ]]
 
-       elseif ei_update_step == 2 then
+       elseif storage.ei_update_step == 2 then
            if storage.ei and storage.ei.fluid_entity and storage.ei.fluid_entity_count and storage.ei.fluid_entity_count > 0 then
                updates_needed = math.max(1,math.min(math.ceil(storage.ei.fluid_entity_count / divisor), ei_maxEntityUpdates))
                for i = 1, updates_needed do
@@ -533,7 +543,7 @@ function updater(event)
                 end
             end
 
-       elseif ei_update_step == 3 then
+       elseif storage.ei_update_step == 3 then
            if storage.ei and storage.ei["neutron_sources"] and ei_lib.getn(storage.ei["neutron_sources"]) then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei["neutron_sources"]) / divisor), ei_maxEntityUpdates))
                end
@@ -547,7 +557,7 @@ function updater(event)
                end
            end
 
-       elseif ei_update_step == 4 then
+       elseif storage.ei_update_step == 4 then
            if storage.ei and storage.ei.matter_machines and #storage.ei.matter_machines then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.matter_machines) / divisor), ei_maxEntityUpdates))
                end
@@ -564,7 +574,7 @@ function updater(event)
 
    else -- Otherwise, ei_update_step is >= 5
 
-       if ei_update_step == 5 then
+       if storage.ei_update_step == 5 then
            if storage.ei and storage.ei.orbital_combinators and ei_lib.getn(storage.ei.orbital_combinators) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.orbital_combinators) / divisor), ei_maxEntityUpdates))
                 end
@@ -578,7 +588,7 @@ function updater(event)
                end
            end
 
-       elseif ei_update_step == 6 then
+       elseif storage.ei_update_step == 6 then
            if storage.ei and storage.ei.fueler_queue and #storage.ei.fueler_queue then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.fueler_queue) / divisor), ei_maxEntityUpdates))
                end
@@ -592,7 +602,7 @@ function updater(event)
                end
            end
 
-       elseif ei_update_step == 7 then
+       elseif storage.ei_update_step == 7 then
            if storage.ei and storage.ei.gate and storage.ei.gate.gate and  ei_lib.getn(storage.ei.gate.gate) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates))
                 end
@@ -606,7 +616,7 @@ function updater(event)
                end
            end
 
-       elseif ei_update_step == 8 then
+       elseif storage.ei_update_step == 8 then
            em_trains.check_global()
 
            if storage.ei_emt and storage.ei_emt.trains and ei_lib.getn(storage.ei_emt.trains) then
@@ -621,7 +631,7 @@ function updater(event)
                    goto skip
                    end
            end
-       elseif ei_update_step == 9 then
+       elseif storage.ei_update_step == 9 then
            em_trains.check_global()
            if storage.ei_emt and storage.ei_emt.chargers and  ei_lib.getn(storage.ei_emt.chargers) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei_emt.chargers) / divisor), ei_maxEntityUpdates))
@@ -640,9 +650,9 @@ function updater(event)
     ::skip::
 
    -- Increment ei_update_step and loop back to 1 if needed
-   ei_update_step = ei_update_step + 1
-   if ei_update_step > ei_update_functions_length then --yeeeoooorrmmmm
-       ei_update_step = 1
+   storage.ei_update_step = storage.ei_update_step + 1
+   if storage.ei_update_step > ei_update_functions_length then
+       storage.ei_update_step = 1
    end
 
    -- Essential updates that run every tick (e.g., timers, global effects)
