@@ -128,6 +128,10 @@ function model.check_global_init()
         storage.ei.gate.exit_platform = {}
     end
 
+    if not storage.ei.gate.remote then
+        storage.ei.gate.remote = {}
+    end
+
 end
 
 
@@ -544,12 +548,12 @@ function model.pay_energy(gate, tablein, actuallypay)
         end
     end
     if gate.energy < total_energy then
-        ei_lib.crystal_echo_floating("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.",gate, 30)
+       -- ei_lib.crystal_echo("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.", nil, gate, nil, true, nil, true, 30)
         return false
     end
 
     gate.energy = gate.energy - total_energy
-    ei_lib.crystal_echo_floating("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.",gate, 30)
+    -- ei_lib.crystal_echo("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.", nil, gate, nil, true, nil, true, 30)
     return true
 end
 
@@ -583,17 +587,14 @@ function model.update_energy(unit, gate)
 
     -- update gui if open
     for _, player in pairs(game.connected_players) do
-        if player.gui.relative["ei-gate-console"] then
-            -- only update the gui if the gui open belongs to this gate
-            local open_gate = model.find_gate(player.opened)
-            if not open_gate then goto continue end
-            if open_gate.unit_number ~= unit then goto continue end
-
-            local data = model.get_data(gate)
-            model.update_gui(player, data, true)
+        local root = player.gui.relative["ei-gate-console"]
+        if root then
+            local gui_gate_unit = root.tags and root.tags.gate_unit
+            if gui_gate_unit == unit then
+                local data = model.get_data(gate)
+                model.update_gui(player, data, true)
+            end
         end
-
-        ::continue::
     end
 
 end
@@ -619,7 +620,7 @@ end
 -----------------------------------------------------------------------------------------------------
 
 function model.render_exit(gate, box)
-    if gate or box then
+    if not gate or not box then
         return
     end
 
@@ -681,67 +682,40 @@ end
 
 function model.render_animation(gate)
     local gate_unit = gate.unit_number
-    local pick = math.random(1,4)
-    if pick == 1 then
-        local light = rendering.draw_light {
+    local pick = ei_rng.int("gate_light", 1, 4, gate_unit, game.tick)
+
+    local colors = {
+        {r = 0, g = 0.4, b = 1.0},
+        {r = 0.4, g = 0.2, b = 1.0},
+        {r = 0.2, g = 0.2, b = 1.0},
+        {r = 0.4, g = 0.1, b = 0.8},
+    }
+    local color = colors[pick]
+
+    -- Reuse existing light if valid, otherwise create new
+    local light = storage.ei.gate.gate[gate_unit].light
+    if light and light.valid then
+        light.color = color
+        light.time_to_live = ei_ticksPerFullUpdate * 2
+    else
+        light = rendering.draw_light {
             sprite = "gate_glow",
             scale = 3,
             intensity = 0.2,
-            color = {r = 0, g = 0.4, b = 1.0},
+            color = color,
             target = gate,
             surface = gate.surface,
-            time_to_live = ei_ticksPerFullUpdate*2,
-            players = game.connected_players,
+            time_to_live = ei_ticksPerFullUpdate * 2,
             blend_mode = "multiplicative",
             apply_runtime_tint = true,
             draw_as_glow = true,
         }
-    elseif pick == 2 then
-        local light = rendering.draw_light {
-            sprite = "gate_glow",
-            scale = 3,
-            intensity = 0.2,
-            color = {r = 0.4, g = 0.2, b = 1.0},
-            target = gate,
-            surface = gate.surface,
-            time_to_live = ei_ticksPerFullUpdate*2,
-            players = game.connected_players,
-            blend_mode = "multiplicative",
-            apply_runtime_tint = true,
-            draw_as_glow = true,
-        }
-    elseif pick == 3 then
-        local light = rendering.draw_light {
-            sprite = "gate_glow",
-            scale = 3,
-            intensity = 0.2,
-            color = {r = 0.2, g = 0.2, b = 1.0},
-            target = gate,
-            surface = gate.surface,
-            time_to_live = ei_ticksPerFullUpdate*2,
-            players = game.connected_players,
-            blend_mode = "multiplicative",
-            apply_runtime_tint = true,
-            draw_as_glow = true,
-        }
-    elseif pick == 4 then
-        local light = rendering.draw_light {
-            sprite = "gate_glow",
-            scale = 3,
-            intensity = 0.2,
-            color = {r = 0.4, g = 0.1, b = 0.8},
-            target = gate,
-            surface = gate.surface,
-            time_to_live = ei_ticksPerFullUpdate*2,
-            players = game.connected_players,
-            blend_mode = "multiplicative",
-            apply_runtime_tint = true,
-            draw_as_glow = true,
-        }
+        storage.ei.gate.gate[gate_unit].light = light
     end
+
     if storage.ei.gate.gate[gate_unit].animation then return end
 
-    animation = rendering.draw_animation{
+    local animation = rendering.draw_animation{
         animation = "ei-gate-running",
         target = gate,
         surface = gate.surface,
@@ -766,6 +740,10 @@ function model.update_renders(unit, gate)
             storage.ei.gate.gate[unit].animation.destroy()
             storage.ei.gate.gate[unit].animation = nil
         end
+        if storage.ei.gate.gate[unit].light then
+            storage.ei.gate.gate[unit].light.destroy()
+            storage.ei.gate.gate[unit].light = nil
+        end
     else
         model.render_animation(gate)
     end
@@ -782,6 +760,10 @@ function model.open_gui(player)
         model.close_gui(player)
     end
 
+    -- Get gate unit for tags
+    local gate = model.find_gate(player.opened)
+    local gate_unit = gate and gate.unit_number
+
     local root = player.gui.relative.add{
         type = "frame",
         name = "ei-gate-console",
@@ -791,6 +773,7 @@ function model.open_gui(player)
             position = defines.relative_gui_position.right,
         },
         direction = "vertical",
+        tags = { gate_unit = gate_unit }
     }
 
     do -- Titlebar
@@ -895,7 +878,8 @@ function model.open_gui(player)
             name = "surface",
             tags = {
                 parent_gui = "ei-gate-console",
-                action = "set-surface"
+                action = "set-surface",
+                gate_unit = gate_unit
             }
         }
 
@@ -919,6 +903,7 @@ function model.open_gui(player)
             tags = {
                 action = "set-position",
                 parent_gui = "ei-gate-console",
+                gate_unit = gate_unit
             }
         }
 
@@ -935,6 +920,7 @@ function model.open_gui(player)
             tags = {
                 action = "set-state",
                 parent_gui = "ei-gate-console",
+                gate_unit = gate_unit
             }
         }
 
@@ -955,7 +941,7 @@ function model.open_gui(player)
 
     end
 
-    local data = model.get_data(model.find_gate(player.opened))
+    local data = model.get_data(gate)
     model.update_gui(player, data)
 
 end
@@ -964,8 +950,9 @@ end
 function model.update_gui(player, data, ontick)
 
     if not data then return end
-
     local root = player.gui.relative["ei-gate-console"]
+    if not root then return end
+
     local status = root["main-container"]["status-flow"]
     local control = root["main-container"]["control-flow"]
 
@@ -1001,7 +988,8 @@ function model.update_gui(player, data, ontick)
     dropdown.tags = {
         parent_gui = "ei-gate-console",
         action = "set-surface",
-        surface_list = data.surfaces -- to get surface later on with index
+        surface_list = data.surfaces, -- to get surface later on with index
+        gate_unit = dropdown.tags.gate_unit -- preserve gate_unit
     }
 
     -- Position button
@@ -1034,39 +1022,47 @@ end
 
 function model.update_player_guis()
     for _, player in pairs(game.connected_players) do
-        if player.gui.relative["ei-gate-console"] then
-            if not player.opened then
+        local root = player.gui.relative["ei-gate-console"]
+        if root then
+            local gate_unit = root.tags and root.tags.gate_unit
+            if not gate_unit or not storage.ei.gate.gate[gate_unit] then
                 model.close_gui(player)
-                return
+                goto continue
             end
 
-            local gate = model.find_gate(player.opened)
+            local gate = storage.ei.gate.gate[gate_unit].gate
+            if not gate or not gate.valid then
+                model.close_gui(player)
+                goto continue
+            end
+
             local data = model.get_data(gate)
             model.update_gui(player, data, true)
         end
+        ::continue::
     end
 
 end
 
 
-function model.update_surface(player)
+function model.update_surface(player, gate_unit)
 
-    local entity = player.opened
+    if not gate_unit then return end
+    if not storage.ei.gate.gate[gate_unit] then return end
+
     local root = player.gui.relative["ei-gate-console"]
-    if not root or not entity then return end
-
-    if entity.name ~= "ei-gate-container" then return end
+    if not root then return end
 
     local dropdown = root["main-container"]["control-flow"]["target-flow"]["dropdown-flow"]["surface"]
     local selected_surface = dropdown.tags.surface_list[dropdown.selected_index]
 
-    local gate = model.find_gate(entity)
+    local gate = storage.ei.gate.gate[gate_unit].gate
+    if not gate or not gate.valid then return end
 
-    if not gate then return end
-    if not storage.ei.gate.gate[gate.unit_number].exit then
-        storage.ei.gate.gate[gate.unit_number].exit = {}
+    if not storage.ei.gate.gate[gate_unit].exit then
+        storage.ei.gate.gate[gate_unit].exit = {}
     end
-    storage.ei.gate.gate[gate.unit_number].exit.surface = selected_surface
+    storage.ei.gate.gate[gate_unit].exit.surface = selected_surface
 
     local data = model.get_data(gate)
     model.update_gui(player, data)
@@ -1074,16 +1070,13 @@ function model.update_surface(player)
 end
 
 
-function model.toggle_state(player)
+function model.toggle_state(player, gate_unit)
 
-    local entity = player.opened
-    local root = player.gui.relative["ei-gate-console"]
-    if not root or not entity then return end
+    if not gate_unit then return end
+    if not storage.ei.gate.gate[gate_unit] then return end
 
-    if entity.name ~= "ei-gate-container" then return end
-
-    local gate = model.find_gate(entity)
-    if not gate then return end
+    local gate = storage.ei.gate.gate[gate_unit].gate
+    if not gate or not gate.valid then return end
 
     -- try to toggle state, if not enough energy return
     local energy = gate.energy
@@ -1091,94 +1084,62 @@ function model.toggle_state(player)
         game.print({"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name})
     else
         -- toggle state
-        storage.ei.gate.gate[gate.unit_number].state = not storage.ei.gate.gate[gate.unit_number].state
+        storage.ei.gate.gate[gate_unit].state = not storage.ei.gate.gate[gate_unit].state
     end
 
-    local data = model.get_data(gate)
-    model.update_gui(player, data)
+    -- GUI update is cosmetic — guard against missing GUI
+    local root = player.gui.relative["ei-gate-console"]
+    if root then
+        local data = model.get_data(gate)
+        model.update_gui(player, data)
+    end
 
 end
 
 
-function model.choose_position(player)
+function model.choose_position(player, gate_unit)
 
-    local entity = player.opened
-    local root = player.gui.relative["ei-gate-console"]
-    if not root or not entity then return end
+    if not gate_unit then return end
+    if not storage.ei.gate.gate[gate_unit] then return end
 
-    if entity.name ~= "ei-gate-container" then return end
+    local gate = storage.ei.gate.gate[gate_unit].gate
+    if not gate or not gate.valid then return end
 
-    local gate = model.find_gate(entity)
-    if not gate then return end
+    -- if currently a selection is in progress for this player
+    if storage.ei.gate.remote and storage.ei.gate.remote[player.index] then return end
 
-    -- if currently a selection is in progress
-    if storage.ei.gate.remote then return end
+    -- Determine target surface and position for remote view
+    local gate_data = storage.ei.gate.gate[gate_unit]
+    local target_surface_name = gate_data.exit and gate_data.exit.surface or gate.surface.name
+    local target_surface = game.get_surface(target_surface_name)
+    if not target_surface then target_surface = gate.surface end
 
-    local current = {
-        surface = player.surface.name,
-        position = player.position
-    }
-
-    local target = {
-        surface = storage.ei.gate.gate[gate.unit_number].exit.surface,
-        position = {storage.ei.gate.gate[gate.unit_number].exit.x or 0, storage.ei.gate.gate[gate.unit_number].exit.y or 0}
-    }
-
-    -- make player "op"
-    local character = player.character
-    if not character then return end
-
-    character.destructible = false
-    character.operable = false
-
-    -- clone character to current
-    local clone = character.clone({
-        position = current.position,
-        surface = game.get_surface(current.surface),
-        force = player.force,
-        create_build_effect_smoke = false
-    })
-
-    -- swap to clone and tp clone to target
-    player.character = clone
-    player.teleport(target.position, game.get_surface(target.surface))
-
-    -- detach clone from player
-    player.character = nil
-    clone.destroy({raise_destroy = false})
-
-    -- remember original character + player
-    storage.ei.gate.remote = {
-        player = player,
-        original_character = character,
-        gate_unit = gate.unit_number
-    }
-
-    -- change player permission group to "gate-user", normal is "Default"
-    if not game.permissions.get_group("gate-user") then
-        model.create_gate_user_permission_group()
+    local center_pos = {0, 0}
+    if gate_data.exit and gate_data.exit.x then
+        center_pos = {gate_data.exit.x, gate_data.exit.y}
     end
 
-    --game.permissions.get_group("gate-user").add_player(player)
-    --game.permissions.get_group("Default").remove_player(player)
-    
-    -- instead set permission group to "gate-user"
-    --player.permission_group = game.permissions.get_group("gate-user")
-    model.change_permission(player, "gate-user", "Default")
-
-    -- open map for player and give him gate remote
-    player.cursor_stack.set_stack({name = "ei-gate-remote", count = 1})
-
-    --[[
-    for i,v in ipairs(game.permissions.groups) do
-        game.print(v.name)
-        if v.players then
-            for _,plyer in ipairs(v.players) do
-                game.print(plyer.name)
-            end
-        end
+    -- Store state
+    if not storage.ei.gate.remote then
+        storage.ei.gate.remote = {}
     end
-    ]]
+
+    local was_remote = player.controller_type == defines.controllers.remote
+    storage.ei.gate.remote[player.index] = {
+        gate_unit = gate_unit,
+        was_remote = was_remote,
+        original_character = not was_remote and player.character or nil
+    }
+
+    -- Switch to remote view on target surface
+    if not was_remote then
+        player.set_controller{type = defines.controllers.remote, surface = target_surface, position = center_pos}
+    end
+
+    -- Give player the selection tool
+    player.cursor_stack.set_stack({name = "ei-gate-position-selector", count = 1})
+
+    player.print({"exotic-industries.gate-position-selection-instructions"})
 
 end
 
@@ -1320,12 +1281,13 @@ function model.update()
     if not storage.ei.gate.gate then
         return false
     end
-    
-    model.update_player_guis()
-    if game.is_multiplayer() then
-        return false
+
+    -- Initialize remote table for existing saves (before multiplayer fix)
+    if not storage.ei.gate.remote then
+        storage.ei.gate.remote = {}
     end
-    --model.update_player_guis()
+
+    model.update_player_guis()
     -- fixed in remote-config
     -- model.update_player_permissions()
 
@@ -1369,67 +1331,108 @@ function model.used_remote(event)
     local position = event.target_position
     local surface = game.get_surface(event.surface_index)
 
-    local remote_data = storage.ei.gate.remote
-    local player = remote_data.player
-    local gate_unit = remote_data.gate_unit
-    local original_character = remote_data.original_character
+    -- Identify the player from the source entity (the character that threw the capsule)
+    if not event.source_entity or not event.source_entity.valid then return end
+    local player = event.source_entity.player
+    if not player then return end
 
-    if remote_data then
-        if storage.ei.gate.gate[gate_unit] then
+    local player_index = player.index
+    if not storage.ei.gate.remote or not storage.ei.gate.remote[player_index] then return end
 
-            if not model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true) then
+    local gate_unit = storage.ei.gate.remote[player_index].gate_unit
+    if not gate_unit then return end
 
-                storage.ei.gate.gate[gate_unit].exit = {
-                    surface = surface.name,
-                    x = position.x,
-                    y = position.y
-                }
-
-            end
-        
+    -- Set the gate exit position
+    if storage.ei.gate.gate[gate_unit] then
+        if not model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true) then
+            storage.ei.gate.gate[gate_unit].exit = {
+                surface = surface.name,
+                x = position.x,
+                y = position.y
+            }
         end
     end
 
-    -- return player to normal permission group
-    --game.permissions.get_group("Default").add_player(player)
-    --game.permissions.get_group("gate-user").remove_player(player)
-    --player.permission_group = game.permissions.get_group("Default")
-    model.change_permission(player, "Default", "gate-user")
-
-    -- swap back to original character
-    local transport = surface.create_entity({
-        name = "character",
-        position = position,
-        force = player.force
-    })
-
-    player.character = transport
-    player.teleport(
-        original_character.position,
-        original_character.surface
-    )
-
-    -- do the swap!
-    player.character = original_character
-    transport.destroy({raise_destroy = false})
-
-    -- de "op" original character
-    original_character.destructible = true
-    original_character.operable = true
-
-    -- cleanup
-    storage.ei.gate.remote = nil
+    -- Cleanup
+    storage.ei.gate.remote[player_index] = nil
 
 end
+
+
+function model.on_player_selected_area(event)
+    if event.item ~= "ei-gate-position-selector" then return end
+
+    local player_index = event.player_index
+    if not storage.ei.gate.remote or not storage.ei.gate.remote[player_index] then return end
+
+    local gate_unit = storage.ei.gate.remote[player_index].gate_unit
+    if not gate_unit then
+        model.cleanup_position_selection(player_index)
+        return
+    end
+
+    -- Calculate center of selection area (single-click = tiny area, center ≈ click pos)
+    local area = event.area
+    local position = {
+        x = (area.left_top.x + area.right_bottom.x) / 2,
+        y = (area.left_top.y + area.right_bottom.y) / 2
+    }
+    local surface = event.surface
+
+    -- Set the gate exit position
+    if storage.ei.gate.gate[gate_unit] then
+        if not model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true) then
+            storage.ei.gate.gate[gate_unit].exit = {
+                surface = surface.name,
+                x = position.x,
+                y = position.y
+            }
+        end
+    end
+
+    model.cleanup_position_selection(player_index)
+end
+
+
+function model.cleanup_position_selection(player_index)
+    if not storage.ei.gate.remote then return end
+    local remote_data = storage.ei.gate.remote[player_index]
+    if not remote_data then return end
+
+    local player = game.get_player(player_index)
+    if player then
+        -- Clear selection tool from cursor if still held
+        if player.cursor_stack and player.cursor_stack.valid_for_read
+           and player.cursor_stack.name == "ei-gate-position-selector" then
+            player.cursor_stack.clear()
+        end
+
+        -- Exit remote view if we entered it
+        if not remote_data.was_remote and player.controller_type == defines.controllers.remote then
+            local character = remote_data.original_character
+            if character and character.valid then
+                player.set_controller{type = defines.controllers.character, character = character}
+            elseif player.character and player.character.valid then
+                player.set_controller{type = defines.controllers.character, character = player.character}
+            else
+                player.set_controller{type = defines.controllers.character}
+                log("[ESI:R gate] cleanup: no valid character for player " .. player.name .. ", created new one")
+            end
+        end
+    end
+
+    storage.ei.gate.remote[player_index] = nil
+end
+
 
 --GUI HANDLER
 -----------------------------------------------------------------------------------------------------
 
 function model.on_gui_selection_state_changed(event)
-    local action = event.element.tags.action
+    local tags = event.element.tags
 
-    if action == "set-surface" then
-        model.update_surface(game.get_player(event.player_index))
+    if tags.action == "set-surface" then
+        model.update_surface(game.get_player(event.player_index), tags.gate_unit)
     end
 end
 
@@ -1447,25 +1450,68 @@ end
 
 
 function model.on_gui_click(event)
-    if event.element.tags.action == "set-state" then
-        model.toggle_state(game.get_player(event.player_index))
+    local tags = event.element.tags
+    local gate_unit = tags.gate_unit
+
+    if tags.action == "set-state" then
+        model.toggle_state(game.get_player(event.player_index), gate_unit)
         return
     end
 
-    if event.element.tags.action == "set-position" then
-        model.choose_position(game.get_player(event.player_index))
+    if tags.action == "set-position" then
+        model.choose_position(game.get_player(event.player_index), gate_unit)
         return
     end
 
-    if event.element.tags.action == "goto-informatron" then
-        if game.forces["player"].technologies["ei-gate"].enabled == true then
+    if tags.action == "goto-informatron" then
+        local player = game.get_player(event.player_index)
+        if player and player.force.technologies["ei-gate"].enabled == true then
             remote.call("informatron", "informatron_open_to_page", {
                 player_index = event.player_index,
                 interface = "exotic-industries-informatron",
-                page_name = event.element.tags.page
+                page_name = tags.page
             })
             return
         end
+    end
+end
+
+
+function model.on_player_left_game(player_index)
+    if not storage.ei.gate then return end
+    if not storage.ei.gate.remote then return end
+    if not storage.ei.gate.remote[player_index] then return end
+
+    -- Only clear cursor and storage, skip controller restoration (Factorio handles player state on disconnect)
+    local player = game.get_player(player_index)
+    if player then
+        if player.cursor_stack and player.cursor_stack.valid_for_read
+           and player.cursor_stack.name == "ei-gate-position-selector" then
+            player.cursor_stack.clear()
+        end
+    end
+    storage.ei.gate.remote[player_index] = nil
+end
+
+
+function model.on_player_cursor_stack_changed(event)
+    if not storage.ei.gate then return end
+    if not storage.ei.gate.remote then return end
+
+    local player_index = event.player_index
+    local remote_data = storage.ei.gate.remote[player_index]
+    if not remote_data then return end
+
+    local player = game.get_player(player_index)
+    if not player then
+        storage.ei.gate.remote[player_index] = nil
+        return
+    end
+
+    -- If cursor no longer holds the gate position selector, clean up
+    if not player.cursor_stack or not player.cursor_stack.valid_for_read
+       or player.cursor_stack.name ~= "ei-gate-position-selector" then
+        model.cleanup_position_selection(player_index)
     end
 end
 

@@ -219,6 +219,25 @@ data:extend({
         filename = ei_graphics_entity_2_path.."position_marker.png",
         width = 258,
         height = 183,
+    },
+    {
+        type = "selection-tool",
+        name = "ei-gate-position-selector",
+        icon = ei_graphics_item_2_path.."gate-remote.png",
+        icon_size = 64,
+        stack_size = 1,
+        flags = {"only-in-cursor", "spawnable"},
+        hidden = true,
+        select = {
+            border_color = {r = 0.6, g = 0.2, b = 0.8, a = 0.5},
+            mode = {"any-entity", "any-tile"},
+            cursor_box_type = "entity",
+        },
+        alt_select = {
+            border_color = {r = 0.6, g = 0.2, b = 0.8, a = 0.5},
+            mode = {"any-entity", "any-tile"},
+            cursor_box_type = "entity",
+        },
     }
     --[[
     {
