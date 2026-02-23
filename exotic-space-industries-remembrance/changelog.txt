@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.91
+Date: 2-23-2026
+  Features:
+    - RU locale now available. PR by @kazakovaNet
+  Bugfixes:
+    - Gate, fueler, insulated pipe mechanics, and EM locomotives no longer desync multiplayer. Pre-existing gates from singleplayer will need to be rebuilt. PR by @Spacedragoon
+---------------------------------------------------------------------------------------------------
 Version: 1.2.90
 Date: 2-16-2026
   Features:

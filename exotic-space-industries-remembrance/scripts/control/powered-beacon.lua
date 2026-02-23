@@ -35,9 +35,7 @@ end
 --individually removes fluids
 local function remove_fluids(entity, fluid_contents)
     if not entity or not fluid_contents then return end
-    if game.is_multiplayer() then
-        return
-    end
+
     entity.clear_fluid_inside()
 --    for name, amount in pairs(fluid_contents) do
 --        entity.remove_fluid({ name = name, amount = amount })
@@ -69,9 +67,6 @@ end
 
 --Checks if fluid_entity[fluid_break_index] needs exploded, degraded, etc, advances to next entry in table
 function model.update_fluid_storages()
-    if game.is_multiplayer() then
-        return
-    end
     local debug = false
     local fluid_entities = storage.ei.fluid_entity
     if not fluid_entities or not next(fluid_entities) then
@@ -155,23 +150,13 @@ function model.update_fluid_storages()
         -- ☢️ Transform cryo-fluids and destroy heated ones
         if fluids["ei-liquid-nitrogen"] and fluids["ei-liquid-nitrogen"] > 0 then
             local amt = fluids["ei-liquid-nitrogen"]
-            if not game.is_multiplayer() then
-                remove_fluids(pipe,fluids)
-                pipe.insert_fluid({ name = "ei-nitrogen-gas", amount = amt })
-            else
-                incompatible_name = fname
-                should_destroy = true
-            end
+            remove_fluids(pipe,fluids)
+            pipe.insert_fluid({ name = "ei-nitrogen-gas", amount = amt })
 
         elseif fluids["ei-liquid-oxygen"] and fluids["ei-liquid-oxygen"] > 0 then
             local amt = fluids["ei-liquid-oxygen"]
-            if not game.is_multiplayer() then
-                remove_fluids(pipe,fluids)
-                pipe.insert_fluid({ name = "ei-oxygen-gas", amount = amt })
-            else
-                incompatible_name = fname
-                should_destroy = true
-            end
+            remove_fluids(pipe,fluids)
+            pipe.insert_fluid({ name = "ei-oxygen-gas", amount = amt })
         else
             for fname, _ in pairs(fluids) do
                 if string.sub(fname, 1, 10) == "ei-heated-" or ei_lib.table_contains_value(needs_insulated,fname) then

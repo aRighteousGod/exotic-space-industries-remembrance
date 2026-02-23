@@ -548,12 +548,12 @@ function model.pay_energy(gate, tablein, actuallypay)
         end
     end
     if gate.energy < total_energy then
-       -- ei_lib.crystal_echo("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.", nil, gate, nil, true, nil, true, 30)
+        ei_lib.crystal_echo_floating("☠ [Insufficient Offering] — " .. math.floor(total_energy/1e6) .. " MJ demanded; ritual aborted.", gate, 60,"serenity")
         return false
     end
 
     gate.energy = gate.energy - total_energy
-    -- ei_lib.crystal_echo("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.", nil, gate, nil, true, nil, true, 30)
+    ei_lib.crystal_echo_floating("⚡ [Void Toll Paid] — " .. math.floor(total_energy/1e6) .. " MJ consumed.", gate, 60,"wrath")
     return true
 end
 
@@ -680,9 +680,9 @@ function model.render_exit(gate, box)
 end
 
 
-function model.render_animation(gate)
+function model.render_animation(gate, event)
     local gate_unit = gate.unit_number
-    local pick = ei_rng.int("gate_light", 1, 4, gate_unit, game.tick)
+    local pick = math.random(1,4) --ei_rng.int("gate_light", 1, 4, gate_unit, event.tick)
 
     local colors = {
         {r = 0, g = 0.4, b = 1.0},
@@ -693,25 +693,25 @@ function model.render_animation(gate)
     local color = colors[pick]
 
     -- Reuse existing light if valid, otherwise create new
-    local light = storage.ei.gate.gate[gate_unit].light
-    if light and light.valid then
+    --local light = storage.ei.gate.gate[gate_unit].light
+--[[    if light and light.valid then
         light.color = color
         light.time_to_live = ei_ticksPerFullUpdate * 2
-    else
-        light = rendering.draw_light {
-            sprite = "gate_glow",
-            scale = 3,
-            intensity = 0.2,
-            color = color,
-            target = gate,
-            surface = gate.surface,
-            time_to_live = ei_ticksPerFullUpdate * 2,
-            blend_mode = "multiplicative",
-            apply_runtime_tint = true,
-            draw_as_glow = true,
-        }
-        storage.ei.gate.gate[gate_unit].light = light
-    end
+    else]]
+    local light = rendering.draw_light {
+        sprite = "gate_glow",
+        scale = 4,
+        intensity = 0.22,
+        color = color,
+        target = gate,
+        surface = gate.surface,
+        time_to_live = ei_ticksPerFullUpdate * 2,
+        blend_mode = "multiplicative",
+        apply_runtime_tint = true,
+        draw_as_glow = true,
+    }
+        --storage.ei.gate.gate[gate_unit].light = light
+    --end
 
     if storage.ei.gate.gate[gate_unit].animation then return end
 
@@ -729,7 +729,7 @@ function model.render_animation(gate)
 end
 
 
-function model.update_renders(unit, gate)
+function model.update_renders(unit, gate, event)
 
     local state = model.gate_state(gate)
     -- if state true -> check if need to render animation
@@ -745,7 +745,7 @@ function model.update_renders(unit, gate)
             storage.ei.gate.gate[unit].light = nil
         end
     else
-        model.render_animation(gate)
+        model.render_animation(gate, event)
     end
 
 end
@@ -1272,7 +1272,7 @@ function model.on_destroyed_entity(entity, transfer)
 end
 
 
-function model.update()
+function model.update(event)
 
     if not storage.ei.gate then
         return false
@@ -1310,7 +1310,7 @@ function model.update()
         local gate = storage.ei.gate.gate[break_id].gate
         if gate then
             model.check_for_teleport(break_id, gate)
-            model.update_renders(break_id, gate)
+            model.update_renders(break_id, gate, event)
             model.update_energy(break_id, gate)
         end
     end

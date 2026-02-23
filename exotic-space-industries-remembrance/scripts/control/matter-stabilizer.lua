@@ -489,10 +489,7 @@ function model.update()
     if not storage.ei.matter_machines then
         return false
     end
-    --temporary bandaid to prevent desyncs, likely need to make a generic entity handler that uses ordered tables and schedules table edits rather then doing them on built/destroyed
-    if game.is_multiplayer() then
-        return false
-    end
+
     -- if no current break point then try to make a new one
     if not storage.ei.stabilizer_break_point and next(storage.ei.matter_machines) then
         storage.ei.stabilizer_break_point,_ = next(storage.ei.matter_machines)

@@ -620,7 +620,7 @@ function updater(event)
                math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               if not ei_gate.update() then -- only try once if nil ie reach end of breakpoints or no entities to update
+               if not ei_gate.update(event) then -- only try once if nil ie reach end of breakpoints or no entities to update
                    goto skip
                end
            end

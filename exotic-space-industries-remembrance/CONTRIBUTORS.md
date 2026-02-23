@@ -5,3 +5,5 @@ Hoochie63 lang_ru May 2025
 lyx_kljk lang_ZH-CN May 2025
 baadfood July 2025
 S3BA-pl September 2025
+kazakovaNet Feb 2026
+Spacedragoon Feb 2026
