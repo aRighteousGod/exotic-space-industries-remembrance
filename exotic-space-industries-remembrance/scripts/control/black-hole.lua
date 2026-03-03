@@ -493,9 +493,17 @@ function model.invoke_victory(unit)
     storage.ei.victory[force.name] = true
 
     ei_victory.add_interface()
-
-    -- if remote.interfaces["better-victory-screen"] and remote.interfaces["better-victory-screen"]["trigger_victory"] then
-    --     remote.call("better-victory-screen", "trigger_victory", force)
+	game.reset_game_state()
+	game.enable_galaxy_of_fame_button = true
+	game.set_game_state({
+		game_finished = true,
+		player_won = true,
+		can_continue = true,
+		victorious_force = force,
+	})
+    if remote.interfaces["better-victory-screen"] and remote.interfaces["better-victory-screen"]["trigger_victory"] then
+        remote.call("better-victory-screen", "trigger_victory", force)
+    end
     -- else
     --     game.set_game_state{game_finished = true, player_won = true, can_continue = true, victorious_force = force}
     -- end

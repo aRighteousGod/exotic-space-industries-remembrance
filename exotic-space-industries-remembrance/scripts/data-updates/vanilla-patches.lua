@@ -1008,6 +1008,7 @@ new_prerequisites_table["steam-age"] = {
     {"electronics", "ei-glass"},
     {"flamethrower","flammables"},
     {"concrete","advanced-material-processing"},
+    {"advanced-material-processing","steel-processing"},
     {"automobilism","engine"}
 }
 

@@ -1,10 +1,25 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.92
+Date: 3-3-2026
+  Features:
+    - Heat steel furnace entity and item now have unique icons imported from Electric steel furnace by @Morlot.
+    - Rocket launches now emit pollution on launch based on their surface's evolution factor. Two additional startup settings have been added to control this mechanic.
+    - Added /reset_victory debug command to allow end screen to trigger if stable black hole was achieved pre 1.2.92.
+  Changes:
+    - Tesla tank health: 2500 -> 5000.
+    - Tesla tank damage: 150 -> 300.
+    - Tesla tank firing rate: 0.75 -> 1.
+    - Tesla tank range: 24 -> 30.
+    - Advanced material processing technology prerequisites: Swapped Steam age with Steel processing.
+  Bugfixes:
+    - Fixed victory screen not triggering on achieving stable black hole.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.91
 Date: 2-23-2026
   Features:
     - RU locale now available. PR by @kazakovaNet
   Bugfixes:
-    - Gate, fueler, insulated pipe mechanics, and EM locomotives no longer desync multiplayer. Pre-existing gates from singleplayer will need to be rebuilt. PR by @Spacedragoon
+    - Gate, fueler, insulated pipe mechanics, exotic assembler and EM locomotives no longer desync multiplayer. Pre-existing gates from singleplayer will need to be rebuilt. PR by @Spacedragoon
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.90
 Date: 2-16-2026

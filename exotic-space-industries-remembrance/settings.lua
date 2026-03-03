@@ -146,6 +146,23 @@ data:extend({
       order  = "a6",
   },
   {
+      name = "ei-rocket-launch-pollution-mode",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "linear",
+      allowed_values = {"linear", "quadratic", "exponential", "threshold", "hybrid"},
+      order  = "a7",
+  },
+  {
+      name = "ei-rocket-launch-pollution-cap",
+      type = "int-setting",
+      setting_type = "startup",
+      default_value = 10000,
+      minimum_value = 5000,
+      maximum_value = 100000,
+      order  = "a7b",
+  },
+  {
       name = "ei-nuclear-reactor-remove-bonus",
       type = "bool-setting",
       setting_type = "startup",

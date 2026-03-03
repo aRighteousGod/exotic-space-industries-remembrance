@@ -25,3 +25,5 @@ cannon mk1 art originally by... YuokiTani ?
 Additional EI loader prototypes and graphics by @Samario from Exotic Industries: Loaders (2.0 Port)
 
 Shotgun turret from Past's Defense Stuff by @PastTheFuture
+
+heat steel furnace icon from Electric steel furnace by @Morlot

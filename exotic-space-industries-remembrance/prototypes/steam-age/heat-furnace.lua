@@ -4,7 +4,8 @@ data:extend({
 {
     type = "furnace",
     name = "ei-heat-steel-furnace",
-    icon = "__base__/graphics/icons/steel-furnace.png",
+    icon = ei_path.."graphics/icons/heat-steel-furnace.png",
+    icon_size = 64,
     flags = {"placeable-neutral", "placeable-player", "player-creation"},
     minable = {mining_time = 0.2, result = "ei-heat-steel-furnace"},
     fast_replaceable_group = "furnace",
@@ -24,7 +25,7 @@ data:extend({
       sound =
       {
         filename = "__base__/sound/steel-furnace.ogg",
-        volume = 0.32,
+        volume = 0.28,
         advanced_volume_control = {attenuation = "exponential"},
         audible_distance_modifier = 0.5,
       },
@@ -95,7 +96,7 @@ data:extend({
       maximum_intensity = 0.95,
     },
 
-    smoke = {
+    --[[smoke = {
       {
         name = "smoke", -- lighter, faster dissipating smoke
         frequency = 4,       -- much lower frequency
@@ -103,7 +104,7 @@ data:extend({
         starting_vertical_speed = 0.12,
         starting_frame_deviation = 60,
       }
-    },
+    },]]
 
     },
     graphics_set =
@@ -113,7 +114,7 @@ data:extend({
         layers =
         {
           {
-            filename = "__base__/graphics/entity/steel-furnace/steel-furnace.png",
+            filename = ei_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace.png",
             priority = "high",
             width = 171,
             height = 174,
@@ -121,12 +122,12 @@ data:extend({
             scale = 0.5
           },
           {
-            filename = "__base__/graphics/entity/steel-furnace/steel-furnace-shadow.png",
+            filename = ei_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace-shadow.png",
             priority = "high",
-            width = 277,
+            width = 163,
             height = 85,
             draw_as_shadow = true,
-            shift = util.by_pixel(39.25, 11.25),
+            shift = util.by_pixel(20, 11.25),
             scale = 0.5
           }
         }
@@ -138,50 +139,20 @@ data:extend({
           effect = "flicker",
           animation =
           {
-            filename = "__base__/graphics/entity/steel-furnace/steel-furnace-fire.png",
+            filename = ei_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace-heater.png",
             priority = "high",
-            line_length = 8,
-            width = 57,
-            height = 81,
-            frame_count = 48,
+            --line_length = 8,
+            width = 48,
+            height = 20,
+            frame_count = 12,
             draw_as_glow = true,
-            shift = util.by_pixel(-0.75, 5.75),
+            shift = util.by_pixel(0, 20.5),
             scale = 0.5
           },
         },
         {
           fadeout = true,
-          effect = "flicker",
-          animation =
-          {
-            filename = "__base__/graphics/entity/steel-furnace/steel-furnace-glow.png",
-            priority = "high",
-            width = 60,
-            height = 43,
-            draw_as_glow = true,
-            shift = {0.03125, 0.640625},
-            blend_mode = "additive"
-          }
-        },
-        {
-          fadeout = true,
-          effect = "flicker",
-          animation =
-          {
-            filename = "__base__/graphics/entity/steel-furnace/steel-furnace-working.png",
-            priority = "high",
-            line_length = 1,
-            width = 128,
-            height = 150,
-            draw_as_glow = true,
-            shift = util.by_pixel(0, -5),
-            blend_mode = "additive",
-            scale = 0.5,
-          }
-        },
-        {
-          fadeout = true,
-          effect = "flicker",
+          --effect = "flicker",
           animation =
           {
             filename = "__base__/graphics/entity/steel-furnace/steel-furnace-ground-light.png",

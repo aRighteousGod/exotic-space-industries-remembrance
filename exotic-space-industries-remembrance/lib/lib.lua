@@ -23,6 +23,13 @@ function ei_lib.clean_nils(t)
   return ans
 end
 
+-- clamp a number into [lo, hi].
+function ei_lib.clamp(x, lo, hi)
+  if x < lo then return lo end
+  if x > hi then return hi end
+  return x
+end
+
 --returns input tbl minus duplicates
 function ei_lib.unique_values_only(tbl)
     local seen, out = {}, {}

@@ -43,6 +43,7 @@ ei_alien_system = require("scripts/control/alien-system")
 ei_debug = require("scripts/control/debug")
 ei_compat = require("scripts/control/compat")
 ei_loaders_lib = require("lib/loaders")
+ei_rocket_launch_pollution = require("scripts/control/rocket-launch-pollution")
 
 ei_fueler = require("scripts/control/fueler/fueler")
 ei_fueler_informatron = require("scripts/control/fueler/informatron")
@@ -171,6 +172,11 @@ end)
 script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
     ei_spidertron_limiter.on_entity_logistic_slot_changed(e)
 end)
+
+script.on_event(defines.events.on_rocket_launched, function(e)
+    ei_rocket_launch_pollution.on_rocket_launched(e)
+end)
+
 
 --RESEARCH RELATED
 ------------------------------------------------------------------------------------------------------

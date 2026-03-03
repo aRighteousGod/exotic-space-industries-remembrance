@@ -152,6 +152,30 @@ local echo_templates = {
 		"🔁 [Awaiting Pulse] — {val} ticks left in queue register. Continue monitoring.",
 		"🧮 [Latency Script] — Timer shows {val} ticks. Queue presence maintained.",
 	},
+	rocket_launch_pollution_mode = {
+		"🚀 [Launch Wrath Geometry] — Pollution curve selected: {val}. The sky will remember.",
+		"🜂 [Rocket Edict] — Scaling mode: {val}. Consequence tuned to trajectory.",
+		"⚙ [Combustion Doctrine] — Rocket pollution logic set to {val}. No more free ascension.",
+		"📈 [Progression Blade] — Mode locked: {val}. Difficulty now follows a deliberate curve.",
+		"🧿 [Signal Contract] — Launch pollution runs on {val}. The planet has terms.",
+		"🔥 [Exhaust Litany] — {val} chosen. Smoke now speaks in mathematics.",
+		"🛰 [Orbit Tax] — Mode = {val}. Every launch pays the atmosphere.",
+		"🧨 [Wrath Compiler] — Pollution model: {val}. The engine writes in soot.",
+		"🜁 [Sky Ledger] — Curve: {val}. The air becomes a balance sheet.",
+		"🧬 [Escalation Shape] — {val}. Threat blooms in the shape you asked for.",
+	},
+	rocket_launch_pollution_cap = {
+		"🧱 [Ceiling of Soot] — Rocket pollution cap set to {val}. The wrath has a roof.",
+		"🔒 [Containment Limit] — Max launch pollution: {val}. Even fury is bounded.",
+		"📏 [Upper Bound] — Cap configured at {val}. The atmosphere negotiates.",
+		"⚖ [Limiter Sigil] — Pollution cannot exceed {val}. Constraint applied.",
+		"🪓 [Hard Stop] — Cap: {val}. Beyond this, the ritual refuses to escalate.",
+		"🛑 [Safety Valve] — Launch pollution capped at {val}. A rare mercy.",
+		"🧮 [Maximum Clause] — {val}. The ledger closes there, no matter the urge.",
+		"🫥 [Fury Throttled] — Cap locked to {val}. The sky exhales… reluctantly.",
+		"🛰 [Orbital Toll Gate] — Cap = {val}. The toll collector is consistent.",
+		"🌫 [Smog Horizon] — {val}. Past it, the smoke is denied.",
+	},
 }
 
 -- Function to emit a random echo from a category with optional data injection
@@ -196,6 +220,10 @@ function echo_codex.handle_global_settings(event)
 	local trainGlowTimeToLive = ei_lib.config("em_train_glow_timetolive") or 60
 	local charger_glow = ei_lib.config("em_charger_glow")
 	local chargerGlowTimeToLive = ei_lib.config("em_charger_glow_timetolive") or 60
+
+	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "Linear"
+	local rocket_launch_pollution_cap = ei_lib.config("ei-rocket-launch-pollution-cap") or 10000
+
 
 	local previous_tint = nil
 	-- Helper to get new tint and adj
@@ -327,6 +355,30 @@ function echo_codex.handle_global_settings(event)
 		})
 		storage.ei.em_train_que = 0
 	end
+	--=== [Rocket Launch Pollution Config] ===--
+
+	-- Announce scaling mode
+	tint, tint_adj = next_tint(event)
+	echo_codex.proclaim("rocket_launch_pollution_mode", {
+		val = rocket_launch_pollution_mode,
+		tint = tint,
+		tint_adj = tint_adj,
+		font = "default-bold",
+		intent = "wrath",
+	})
+
+	-- announce cap
+	tint, tint_adj = next_tint(event)
+	echo_codex.proclaim("rocket_launch_pollution_cap", {
+		val = rocket_launch_pollution_cap,
+		tint = tint,
+		tint_adj = tint_adj,
+		font = "default-bold",
+		intent = "wrath",
+	})
+
+	storage.ei.rocket_launch_pollution_mode = rocket_launch_pollution_mode
+	storage.ei.rocket_launch_pollution_cap = rocket_launch_pollution_cap
 end
 
 function echo_codex.youHaveArrived(event)

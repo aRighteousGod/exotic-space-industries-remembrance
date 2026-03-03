@@ -8,6 +8,9 @@ local victory_disabler = {}
 
 
 function victory_disabler.init()
+    if remote.interfaces["space_finish_script"] then
+        remote.call("space_finish_script", "set_no_victory", true)
+	end
     for _, interface in pairs{"silo_script", "better-victory-screen"} do
         if remote.interfaces[interface] and remote.interfaces[interface]["set_no_victory"] then
           remote.call(interface, "set_no_victory", true)

@@ -29,6 +29,18 @@ function model.teleport_to(event)
   ei_lib.crystal_echo("Teleporting")
   player.teleport({0,0}, destination)
 end
+-- Debugs proclaim
+commands.add_command("victory_reset", "Resets victory status which allows victory screen to trigger.", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player or not player.admin then return end
+    local force = player.force
+    if force and force.name and storage.ei.victory and storage.ei.victory[force.name] == true then
+        storage.ei.victory[force.name] = false
+        ei_lib.crystal_echo("The hour is again late but not over")
+    else
+        ei_lib.crystal_echo("The hour is not late yet, or victory was not achieved before. No reset needed.")
+    end
+end)
 
 -- Debugs proclaim
 commands.add_command("codex_test", "Triggers a test echo message from echo_codex", function(cmd)
