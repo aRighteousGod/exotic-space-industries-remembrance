@@ -221,7 +221,7 @@ function echo_codex.handle_global_settings(event)
 	local charger_glow = ei_lib.config("em_charger_glow")
 	local chargerGlowTimeToLive = ei_lib.config("em_charger_glow_timetolive") or 60
 
-	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "Linear"
+	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "linear"
 	local rocket_launch_pollution_cap = ei_lib.config("ei-rocket-launch-pollution-cap") or 10000
 
 
@@ -377,8 +377,8 @@ function echo_codex.handle_global_settings(event)
 		intent = "wrath",
 	})
 
-	storage.ei.rocket_launch_pollution_mode = rocket_launch_pollution_mode
-	storage.ei.rocket_launch_pollution_cap = rocket_launch_pollution_cap
+	storage.ei.rocket_launch_pollution.mode = rocket_launch_pollution_mode
+	storage.ei.rocket_launch_pollution.cap = rocket_launch_pollution_cap
 end
 
 function echo_codex.youHaveArrived(event)

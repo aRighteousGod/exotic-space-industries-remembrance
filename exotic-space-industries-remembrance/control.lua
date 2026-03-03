@@ -177,6 +177,9 @@ script.on_event(defines.events.on_rocket_launched, function(e)
     ei_rocket_launch_pollution.on_rocket_launched(e)
 end)
 
+script.on_event(defines.events.on_rocket_launch_ordered, function(e)
+    ei_rocket_launch_pollution.on_rocket_launch_ordered(e)
+end)
 
 --RESEARCH RELATED
 ------------------------------------------------------------------------------------------------------
@@ -673,6 +676,7 @@ function updater(event)
     ei_steam_train.updater(event)
     ei_camp_fire.updater(event)
     ei_echo_codex.arrival_waves(event)
+    ei_rocket_launch_pollution.updater(event)
    --======================================================================
 end
 

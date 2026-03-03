@@ -90,12 +90,16 @@ local function get_rocket_launch_pollution(force, surface)
   local evo = force.get_evolution_factor(surface) or 0
   evo = ei_lib.clamp(evo, 0, 1)
 
-  -- Pull config values with defaults so this function stays resilient
-  -- even if someone deletes a config field during refactor/testing.
-  local base = storage.ei.rocket_launch_pollution_cap or cfg.base
-  local min_scale = cfg.min_scale or 0.1
-  local mode = storage.ei.rocket_launch_pollution_mode or "linear"
-
+  local base = storage.ei.rocket_launch_pollution.cap
+  local min_scale = cfg.min_scale
+  local mode = storage.ei.rocket_launch_pollution.mode
+  
+  if not (base or min_scale or mode) then
+    -- Fallback to safe defaults if config is missing for some reason.
+    base = base or cfg.base
+    min_scale = min_scale or 0.1
+    mode = mode or cfg.mode
+  end
   -- =========================
   -- MODE: LINEAR
   -- =========================
@@ -213,8 +217,158 @@ local function get_rocket_launch_pollution(force, surface)
     return base * math.max(min_scale, evo)
   end
 end
+-- Spawn a visible, lingering smoke effect at the rocket silo launch site.
+-- Spiral-lingering smoke: expands outward over time.
+local function spawn_launch_smoke_spiral(surface, pos, pollution)
+  local burst_count   = ei_lib.clamp(math.floor(pollution / 1500), 60, 240)
+  local spiral_ticks  = ei_lib.clamp(math.floor(pollution / 180), 720, 4280)
+  local emit_stride   = 8
+  local per_emit      = ei_lib.clamp(math.floor(pollution / 6000), 20, 80)
+
+  local start_radius  = 0.8
+  local max_radius    = ei_lib.clamp(2.5 + pollution / 10000, 3.0, 15.0)
+  local radius_step   = (max_radius - start_radius) / math.max(1, math.floor(spiral_ticks / emit_stride))
+  local angle_step    = 0.55
+
+  local SMOKE_NAME = "smoke"
+
+  -- burst now (at liftoff)
+  for i = 1, burst_count do
+    surface.create_trivial_smoke{
+      name = SMOKE_NAME,
+      position = {
+        x = pos.x + (math.random() - 0.5) * 3.0,
+        y = pos.y + (math.random() - 0.5) * 3.0
+      },
+      starting_frame_deviation = math.random(0, 60),
+    }
+  end
+
+  -- spiral job
+  storage.ei.rocket_launch_pollution.launch_smoke = storage.ei.rocket_launch_pollution.launch_smoke or {}
+  table.insert(storage.ei.rocket_launch_pollution.launch_smoke, {
+    surface_index = surface.index,
+    origin = { x = pos.x, y = pos.y },
+    name = SMOKE_NAME,
+
+    remaining = spiral_ticks,
+    stride = emit_stride,
+    per_emit = per_emit,
+
+    angle = math.random() * math.pi * 2,
+    angle_step = angle_step,
+
+    radius = start_radius,
+    radius_step = radius_step,
+
+    jitter = 0.35,
+  })
+end
+
+local function update_launch_smoke_spiral()
+  local q = storage.ei.rocket_launch_pollution.launch_smoke
+  if not (q and #q > 0) then return end
+
+  for i = #q, 1, -1 do
+    local job = q[i]
+    job.remaining = job.remaining - 1
+
+    if (job.remaining % job.stride) == 0 then
+      local surface = game.surfaces[job.surface_index]
+      if surface then
+        job.angle = job.angle + job.angle_step
+        job.radius = job.radius + job.radius_step
+
+        local cx = job.origin.x + math.cos(job.angle) * job.radius
+        local cy = job.origin.y + math.sin(job.angle) * job.radius
+
+        for n = 1, job.per_emit do
+          surface.create_trivial_smoke{
+            name = job.name,
+            position = {
+              x = cx + (math.random() - 0.5) * job.jitter,
+              y = cy + (math.random() - 0.5) * job.jitter
+            },
+            starting_frame_deviation = math.random(0, 60),
+          }
+        end
+      end
+    end
+
+    if job.remaining <= 0 then
+      table.remove(q, i)
+    end
+  end
+end
+
+local function update_rocket_liftoff_queue(event)
+  local q = storage.ei
+    and storage.ei.rocket_launch_pollution
+    and storage.ei.rocket_launch_pollution.liftoff_queue
+
+  if not (q and #q > 0) then return end
+
+  local now = event.tick
+  for i = #q, 1, -1 do
+    local job = q[i]
+    if job.tick <= now then
+      local surface = game.surfaces[job.surface_index]
+      if surface then
+        -- Apply pollution at liftoff
+        surface.pollute(job.position, job.pollution)
+
+        --local msg = {"exotic-industries.rocket-launch-pollution", string.format("%.0f", job.pollution)}
+
+        -- Spiral smoke at liftoff
+        spawn_launch_smoke_spiral(surface, job.position, job.pollution)
+      end
+
+      table.remove(q, i)
+    end
+  end
+end
+
+function model.updater(event)
+  if not (storage.ei and storage.ei.rocket_launch_pollution) then return end
+  update_rocket_liftoff_queue(event)
+  update_launch_smoke_spiral()
+end
+
+local function queue_rocket_liftoff_wrath(silo, pollution)
+  if not silo or not silo.valid then return end
+  local surface = silo.surface
+  local pos = silo.position
+
+  -- Sync point: how long from “ordered” until the rocket actually launches.
+  local delay = silo.prototype.launch_wait_time or 0
+
+  storage.ei = storage.ei or {}
+  storage.ei.rocket_launch_pollution = storage.ei.rocket_launch_pollution or {}
+  storage.ei.rocket_launch_pollution.liftoff_queue = storage.ei.rocket_launch_pollution.liftoff_queue or {}
+
+  table.insert(storage.ei.rocket_launch_pollution.liftoff_queue, {
+    tick = game.tick + delay,
+    surface_index = surface.index,
+    position = { x = pos.x, y = pos.y },
+    silo_unit_number = silo.unit_number,
+    pollution = pollution,
+  })
+end
 
 -- Event handler for rocket launches.
+function model.on_rocket_launch_ordered(event)
+  local silo = event.rocket_silo
+  if not (silo and silo.valid) then return end
+
+  local surface = silo.surface
+  local force = silo.force
+  if not (surface and surface.valid and force and force.valid) then return end
+
+  -- Calculate pollution based on the configured scaling mode and current evolution.
+  local pollution = get_rocket_launch_pollution(force, surface)
+  queue_rocket_liftoff_wrath(silo, pollution)
+end
+
 -- Triggered whenever a rocket is launched from a silo.
 function model.on_rocket_launched(event)
   local silo = event.rocket_silo
@@ -233,7 +387,7 @@ function model.on_rocket_launched(event)
 
   -- Emit pollution at the silo's position on the same surface.
   surface.pollute(silo.position, pollution)
-  --local msg = {"exotic-industries.rocket-launch-pollution", pollution}
+
   local msg = pollution.." pollution emitted"
   ei_lib.crystal_echo_floating(
     msg,
@@ -241,6 +395,8 @@ function model.on_rocket_launched(event)
     1800,
     "wrath"
   )
+  --local msg = {"exotic-industries.rocket-launch-pollution", pollution}
+
   -- Optional debug
   -- game.print(string.format(
   --   "[rocket pollution] mode=%s evo=%.3f pollution=%.1f surface=%s force=%s",

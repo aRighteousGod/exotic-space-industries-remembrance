@@ -1,9 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.93
+Date: 3-3-2026
+  Features:
+    - Rocket launch pollution is now visually signified by smoke from the launch site.
+  Bugfixes:
+    - Fixed that rocket launch pollution setting changes might not take effect.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.92
 Date: 3-3-2026
   Features:
     - Heat steel furnace entity and item now have unique icons imported from Electric steel furnace by @Morlot.
-    - Rocket launches now emit pollution on launch based on their surface's evolution factor. Two additional startup settings have been added to control this mechanic.
+    - Rockets now emit pollution on launch based on their surface's evolution factor. Two additional startup settings have been added to control this mechanic.
     - Added /reset_victory debug command to allow end screen to trigger if stable black hole was achieved pre 1.2.92.
   Changes:
     - Tesla tank health: 2500 -> 5000.

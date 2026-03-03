@@ -22,6 +22,9 @@ function ei_global.init()
     storage.ei["spawner_queue"] = {}
     storage.ei["orbital_combinators"] = {}
     storage.ei["rocket_launch_pollution"] = {}
+    storage.ei["rocket_launch_pollution"].mode = "linear"
+    storage.ei["rocket_launch_pollution"].cap = 10000
+    storage.ei["rocket_launch_pollution"].launch_smoke = {}
     --depreciated by NSB
     --storage.ei.spaced_updates = 0
     storage.ei.fluid_entity = {}
@@ -43,9 +46,7 @@ function ei_global.check_init(event)
     if not storage.ei.arrival_waves then
         storage.ei.arrival_waves = {}
     end
-    if not storage.ei.original_gaia_settings then
-        storage.ei.original_gaia_settings = full_gaia_map_gen_settings
-    end
+
     if not storage.ei.gaia_reforged then
         storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     end
@@ -57,6 +58,9 @@ function ei_global.check_init(event)
     end
     if not storage.ei.rocket_launch_pollution then
         storage.ei.rocket_launch_pollution = {}
+        storage.ei["rocket_launch_pollution"].mode = "linear"
+        storage.ei["rocket_launch_pollution"].cap = 10000
+        storage.ei["rocket_launch_pollution"].launch_smoke = {}
     end
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}
