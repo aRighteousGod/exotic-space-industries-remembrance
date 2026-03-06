@@ -72,7 +72,7 @@ data:extend({
     {type="item", name="ei-iron-mechanical-parts", amount=35},
     {type="item", name="engine-unit", amount=10},
     {type="item", name="steel-plate", amount=20},
-    {type="item", name="electronic-circuit", amount=4},
+    {type="item", name="ei-ceramic", amount=8},
     },
     results = {
         {type = "item",name = "ei-cannon-turret-mk1",amount = 1}

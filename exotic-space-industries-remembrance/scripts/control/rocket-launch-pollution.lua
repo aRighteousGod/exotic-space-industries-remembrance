@@ -334,7 +334,7 @@ function model.updater(event)
   update_launch_smoke_spiral()
 end
 
-local function queue_rocket_liftoff_wrath(silo, pollution)
+local function queue_rocket_liftoff_wrath(silo, pollution, event)
   if not silo or not silo.valid then return end
   local surface = silo.surface
   local pos = silo.position
@@ -347,7 +347,7 @@ local function queue_rocket_liftoff_wrath(silo, pollution)
   storage.ei.rocket_launch_pollution.liftoff_queue = storage.ei.rocket_launch_pollution.liftoff_queue or {}
 
   table.insert(storage.ei.rocket_launch_pollution.liftoff_queue, {
-    tick = game.tick + delay,
+    tick = event.tick + delay,
     surface_index = surface.index,
     position = { x = pos.x, y = pos.y },
     silo_unit_number = silo.unit_number,
@@ -366,7 +366,7 @@ function model.on_rocket_launch_ordered(event)
 
   -- Calculate pollution based on the configured scaling mode and current evolution.
   local pollution = get_rocket_launch_pollution(force, surface)
-  queue_rocket_liftoff_wrath(silo, pollution)
+  queue_rocket_liftoff_wrath(silo, pollution, event)
 end
 
 -- Triggered whenever a rocket is launched from a silo.

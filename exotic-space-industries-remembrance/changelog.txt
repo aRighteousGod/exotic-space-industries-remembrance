@@ -1,4 +1,21 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.95
+Date: 3-5-2026
+  Features:
+    - Imported Minigun turret from AdditionalTurrets by DarkNova—situated in the Electricity age, bullet hell has arrived and requires tithes of ammo as well as electricity.
+  Changes:
+    - Standardized resistance of Twin-barrel cannon turret, Combat shotgun turret, Minigun turret.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.94
+Date: 3-5-2026
+  Features:
+    - Imported Combat shotgun turret from Factorio+ by Fishbus—situated in the Electricity age, has enhanced range, accuracy, and firing rate while requiring electricity to function.
+  Changes:
+    - Cannon turret MK1 recipe inputs: 4 Electronic circuits -> 8 Ceramic.
+    - Shotgun turret now uses high resolution base graphic.
+  Bugfixes:
+    - Fixed that Frost biter death explosion startup setting might be disabled.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.93
 Date: 3-3-2026
   Features:
@@ -84,7 +101,7 @@ Date: 1-18-2026
 Version: 1.2.84
 Date: 1-16-2026
   Features:
-    - Added /refresh_beacon_overload command to recalculate all machines beacon overload status.
+    - Added /refresh_beacon_overload command to recalculate all machines' beacon overload status.
   Bugfixes:
     - Items will no longer recycle into their alternative bio recipe's ingredients.
     - Filled/unfilled cryo-container recipes now skipped by autorecycle generator.

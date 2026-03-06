@@ -27,3 +27,7 @@ Additional EI loader prototypes and graphics by @Samario from Exotic Industries:
 Shotgun turret from Past's Defense Stuff by @PastTheFuture
 
 heat steel furnace icon from Electric steel furnace by @Morlot
+
+auto shotgun turret from Factorio+ by fishbus
+
+gatling turret from additionalturrets by DarkNova

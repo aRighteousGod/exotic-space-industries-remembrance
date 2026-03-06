@@ -2005,6 +2005,13 @@ ei_lib.raw["electric-turret"]["laser-turret"] = {
     }
 }
 
+--adjusting speed of sound changes pitch
+ei_lib.patch_nested_value(
+  data.raw["beam"]["laser-beam"],
+  "working_sound.sound.speed",
+  0.9
+)
+
 --Note: Add individual stream types to provide visual differentiation for different fluids
 ei_lib.raw["fluid-turret"]["flamethrower-turret"] = {
     attack_parameters = {

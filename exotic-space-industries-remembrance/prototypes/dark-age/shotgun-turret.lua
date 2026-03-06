@@ -1,4 +1,5 @@
 --originally from Past's defense stuff by @PastTheFuture
+
 data:extend({
 	{
 		type = "item",
@@ -25,9 +26,11 @@ data:extend({
 		heating_energy = "50kW",
 		corpse = "gun-turret-remnants",
 		dying_explosion = "gun-turret-explosion",
+		fast_replaceable_group = "ei-shotgun-turret",
+		next_upgrade = "ei-auto-shotgun-turret",
 		collision_box = { { -0.7, -0.7 }, { 0.7, 0.7 } },
 		selection_box = { { -1, -1 }, { 1, 1 } },
-		--damaged_trigger_effect = hit_effects.entity(),
+		damaged_trigger_effect = hit_effects.entity(),
 		rotation_speed = 0.004958333,
 		preparing_speed = 0.08,
 		preparing_sound = sounds.gun_turret_activate,
@@ -43,43 +46,25 @@ data:extend({
 				animation = {
 					layers = {
 						{
-							filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-base.png",
+							filename = "__base__/graphics/entity/laser-turret/laser-turret-base.png",
 							priority = "high",
-							width = 70,
-							height = 52,
-							frame_count = 1,
+							width = 138,
+							height = 104,
 							direction_count = 1,
-							shift = util.by_pixel(0, 2),
-							hr_version = {
-								filename = ei_path .. "graphics/entities/shotgun-turret/hr-shotgun-turret-base.png",
-								priority = "high",
-								width = 138,
-								height = 104,
-								frame_count = 1,
-								direction_count = 1,
-								shift = util.by_pixel(-0.5, 2),
-								scale = 0.5,
-							},
+							frame_count = 1,
+							shift = util.by_pixel(-0.5, 2),
+							scale = 0.5,
 						},
 						{
-							filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-base-shadow.png",
-							width = 66,
-							height = 42,
-							frame_count = 1,
-							direction_count = 1,
+							filename = "__base__/graphics/entity/laser-turret/laser-turret-base-shadow.png",
+							line_length = 1,
+							width = 132,
+							height = 82,
 							draw_as_shadow = true,
+							direction_count = 1,
+							frame_count = 1,
 							shift = util.by_pixel(6, 3),
-							hr_version = {
-								filename = ei_path
-									.. "graphics/entities/shotgun-turret/hr-shotgun-turret-base-shadow.png",
-								width = 132,
-								height = 82,
-								frame_count = 1,
-								direction_count = 1,
-								draw_as_shadow = true,
-								shift = util.by_pixel(6, 3),
-								scale = 0.5,
-							},
+							scale = 0.5,
 						},
 					},
 				},
@@ -210,6 +195,7 @@ data:extend({
 		attack_parameters = {
 			type = "projectile",
 			ammo_category = "shotgun-shell",
+			rotate_penalty = 5, -- >0 will discourage turrets from targeting units that would take longer to turn to face.
 			cooldown = 60,
 			projectile_creation_distance = 1.39375,
 			projectile_center = { 0, -0.0875 },
@@ -226,7 +212,7 @@ data:extend({
 			range = 15,
 			sound = sounds.shotgun,
 		},
-
+		icon_draw_specification = { scale = 0.75 },
 		call_for_help_radius = 40,
 		water_reflection = {
 			pictures = {

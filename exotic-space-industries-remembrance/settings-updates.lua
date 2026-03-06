@@ -85,7 +85,7 @@ set_bool("lignumis","lignumis-inserter-progression",false)
 set_bool("lignumis","lignumis-ammo-progression",false)
 
 set_string("Explosive_biters","eb-spawn-planet","both")
-set_bool("Cold_biters","fb-enable-dying-explosion",true)
+set_bool("Cold_biters","cb-enable-dying-explosion",true)
 set_string("Cold_biters","fb-spawn-planet","both")
 set_bool("Toxic_biters","tb-allow-infection",true)
 set_bool("zeus-wrath","zeus-wrath-friendly-fire",true)

@@ -60,7 +60,9 @@ function ei_global.check_init(event)
         storage.ei.rocket_launch_pollution = {}
         storage.ei["rocket_launch_pollution"].mode = "linear"
         storage.ei["rocket_launch_pollution"].cap = 10000
-        storage.ei["rocket_launch_pollution"].launch_smoke = {}
+    end
+    if not storage.ei.rocket_launch_pollution.launch_smoke then
+        storage.ei.rocket_launch_pollution.launch_smoke = {}
     end
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}

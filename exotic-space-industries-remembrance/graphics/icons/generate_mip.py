@@ -23,6 +23,4 @@ def generate_mipmaps(input_path, output_path=None):
     combined.save(output_path)
     print(f"Saved mipmap strip as '{output_path}'.")
 
-generate_mipmaps('burner-surface-harvester.png')
-generate_mipmaps('steam-surface-harvester.png')
-generate_mipmaps('electric-surface-harvester.png')
+generate_mipmaps('gatling-turret.png')
