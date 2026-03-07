@@ -20,6 +20,7 @@ require("scripts/data-final-updates/set-menu-background")
 -- =======================================================================================
 require("scripts/data-final-updates/assembler-reskin")
 require("scripts/data-final-updates/legacy-train-model")
+require("scripts/data-final-updates/distant-misfires")
 require("scripts/data-final-updates/camp-fire")
 require("scripts/data-final-updates/flare-stack")
 require("scripts/data-final-updates/final-tech-fixes")

@@ -1,4 +1,24 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.96
+Date: 3-6-2026
+  Features:
+    - Minigun turret now has custom preparing and folding sounds.
+  Changes:
+    - Reduced Minigun turret firing sound volume.
+    - Minigun turret will now prefer to attack targets which require less turning to aim at.
+    - Compound rounds magazine stack size: 200 -> 100.
+    - Compound rounds magazine size: 100 -> 10.
+    - Minigun turret stack size: 50 -> 10.
+    - Twin-bore cannon turret stack size: 50 -> 10.
+    - Minigun turret recipe inputs: Electric engine unit 6 -> 8, Advanced circuit 12 -> 15.
+    - Minigun turret health: 1000 -> 1500.
+    - Tesla tank damage: 300 -> 400.
+    - Tesla tank range: 30 -> 35.
+  Bugfixes:
+    - Fixed that Minigun turret and Combat shotgun turret damage upgrade descriptions were missing localisation keys.
+    - Fixed that Tesla tank health override wasn't applying (2000 -> 5000).
+    - Fixed that Compound rounds magazine didn't receive size buff when Distant Misfires mod was active.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.95
 Date: 3-5-2026
   Features:
@@ -13,6 +33,7 @@ Date: 3-5-2026
   Changes:
     - Cannon turret MK1 recipe inputs: 4 Electronic circuits -> 8 Ceramic.
     - Shotgun turret now uses high resolution base graphic.
+    - Pitch of laser turret firing sound lowered.
   Bugfixes:
     - Fixed that Frost biter death explosion startup setting might be disabled.
 ---------------------------------------------------------------------------------------------------

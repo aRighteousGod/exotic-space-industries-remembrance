@@ -1698,9 +1698,10 @@ for _,projectile in ipairs(modify_collision_projectiles) do
         end
     end
 end
-
+local fa_mag = ei_lib.raw["ammo"]["firearm-magazine"]
+--fa_mag.magazine_size = 12
 -- improve damage per bullet of firearm-magazine and piercing-rounds-magazine
-ei_lib.raw["ammo"]["firearm-magazine"].ammo_type =     {
+fa_mag.ammo_type =     {
     action =
     {
     {
@@ -1741,7 +1742,9 @@ ei_lib.raw["ammo"]["firearm-magazine"].ammo_type =     {
     }
 }
 
-ei_lib.raw["ammo"]["piercing-rounds-magazine"].ammo_type =     {
+local pr_mag = ei_lib.raw["ammo"]["piercing-rounds-magazine"]
+--pr_mag.magazine_size = 12
+pr_mag.ammo_type =     {
     action =
     {
     type = "direct",
@@ -1775,7 +1778,16 @@ ei_lib.raw["ammo"]["piercing-rounds-magazine"].ammo_type =     {
     }
     }
 }
+--[[
+local ur_mag = ei_lib.raw["ammo"]["uranium-rounds-magazine"]
+ur_mag.magazine_size = 12
 
+local shot_shells = ei_lib.raw["ammo"]["shotgun-shell"]
+shot_shells.magazine_size = 12
+
+local pr_shot_shells = ei_lib.raw["ammo"]["piercing-shotgun-shell"]
+pr_shot_shells.magazine_size = 12
+]]
 -- increase radar energy usage
 ei_lib.raw.radar.radar.energy_usage = "1.2MW" --default 300kW
 

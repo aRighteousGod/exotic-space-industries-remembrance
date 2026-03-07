@@ -361,7 +361,7 @@ data:extend({
         icon_mipmaps = 4,
         subgroup = "ammo",
         order = "a[basic-clips]-d[compound-ammo]",
-        magazine_size = 100,
+        magazine_size = 10,
         pictures = {
             layers = {
               {
@@ -382,7 +382,7 @@ data:extend({
               }
             }
         },
-        stack_size = 200,
+        stack_size = 100,
         ammo_category = "bullet",
         ammo_type = {
             action = {

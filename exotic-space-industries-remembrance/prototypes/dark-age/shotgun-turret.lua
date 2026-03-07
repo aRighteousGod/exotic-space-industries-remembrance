@@ -443,7 +443,7 @@ data:extend({
 				},
 			},
 		},
-		magazine_size = 10,
+		magazine_size = 12,
 		subgroup = "ammo",
 		order = "b[shotgun]-c[incendiary]-b[piercing]",
 		stack_size = 100,

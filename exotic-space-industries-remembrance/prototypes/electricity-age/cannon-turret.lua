@@ -13,7 +13,7 @@ data:extend({
         subgroup = "defensive-structure",
         order = "c-ab",
         place_result = "ei-cannon-turret",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-cannon-turret",

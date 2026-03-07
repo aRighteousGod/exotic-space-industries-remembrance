@@ -174,3 +174,4 @@ for _,ent in pairs(t) do
         end
     end
 end
+ttr.max_health = 5000
