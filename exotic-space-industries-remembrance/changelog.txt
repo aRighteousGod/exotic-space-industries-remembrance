@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.97
+Date: 3-6-2026
+  Bugfixes:
+    - Actually fixed Tesla tank health override.
+    - Fixed that T1 Processing unit recipe wasn't craftable in Assemblers without a fluid input.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.96
 Date: 3-6-2026
   Features:

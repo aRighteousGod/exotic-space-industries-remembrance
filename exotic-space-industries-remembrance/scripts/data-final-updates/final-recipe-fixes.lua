@@ -23,7 +23,11 @@ for i, v in pairs(data.raw.recipe) do
 end
 
 -- error(serpent.block(data.raw.technology['planet-discovery-gleba']))
-
+local p_unit = ei_lib.raw.recipe["processing-unit"]
+if p_unit then
+	p_unit.category = "crafting"
+	p_unit.additional_categories = {"electronics"}
+end
 --====================================================================================================
 --RECIPES THAT ALLOW PRODUCTIVITY
 --====================================================================================================

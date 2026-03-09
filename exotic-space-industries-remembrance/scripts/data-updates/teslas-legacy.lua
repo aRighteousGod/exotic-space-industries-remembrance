@@ -153,9 +153,6 @@ if ttr then
         {type="item",name="tl-advanced-tesla-coil", amount=2},
     }
 end
-
-ei_lib.raw["car"]["tl-tesla-tank"].inventory_size = 16
-
 local t_extra_fuels = {
     "ei-rocket-fuel",
     "ei-nuclear-fuel",
@@ -163,15 +160,13 @@ local t_extra_fuels = {
     "ei-fusion-fuel",
     "ei-diesel-fuel"
 }
-local t = {
-    "tl-tesla-tank",
-}
-for _,ent in pairs(t) do
-    local target = data.raw.car[ent]
-    if target and target.energy_source and target.energy_source.fuel_categories then
-        for _,f in pairs(t_extra_fuels) do
-            table.insert(target.energy_source.fuel_categories,f)
-        end
+
+local tte = ei_lib.raw["car"]["tl-tesla-tank"]
+if tte then
+    tte.inventory_size = 16
+    tte.max_health = 5000
+
+    for _,f in pairs(t_extra_fuels) do
+        table.insert(tte.energy_source.fuel_categories,f)
     end
 end
-ttr.max_health = 5000
