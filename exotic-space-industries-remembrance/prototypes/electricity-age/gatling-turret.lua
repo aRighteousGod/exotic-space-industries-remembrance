@@ -73,6 +73,7 @@ data:extend({
 			{ type = "impact", percent = 75 },
 		},
 		corpse = "big-remnants",
+		damaged_trigger_effect = hit_effects.entity(),
 		collision_box = { { -1.4, -1.4 }, { 1.4, 1.4 } },
 		selection_box = { { -1.5, -1.5 }, { 1.5, 1.5 } },
 		--collision_box = { { -0.7, -0.7 }, { 0.7, 0.7 } },
@@ -87,8 +88,18 @@ data:extend({
 		automated_ammo_count = 10,
 		can_retarget_while_starting_attack = true,
 		attacking_speed = 20,
-        preparing_sound = ei_path .. "sounds/gatling-turret-preparing.ogg",
-        folding_sound = ei_path .. "sounds/gatling-turret-folding.ogg",
+        preparing_sound = {
+				{
+					filename = ei_path .. "sounds/gatling-turret-preparing.ogg",
+					volume = 0.6,
+				},
+			},
+        folding_sound = {
+				{
+					filename = ei_path .. "sounds/gatling-turret-folding.ogg",
+					volume = 0.6,
+				},
+			},
         alert_when_attacking = true,
         open_sound = sounds.machine_open,
         close_sound = sounds.machine_close,

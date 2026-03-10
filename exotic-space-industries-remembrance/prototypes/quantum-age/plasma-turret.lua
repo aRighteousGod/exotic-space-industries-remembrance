@@ -82,6 +82,7 @@ data:extend({
         heating_energy = "100kW",
         corpse = "big-remnants",
         dying_explosion = "big-explosion",
+        damaged_trigger_effect = hit_effects.entity(),
 --        collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
 --        selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         collision_box = {{-2.8, -2.8}, {2.8, 2.8}},

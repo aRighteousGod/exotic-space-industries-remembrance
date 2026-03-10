@@ -268,7 +268,7 @@ function model.refuel_target(fueler, target, target_type)
     local fueler_inventory = fueler.get_inventory(defines.inventory.chest)
 
     -- ammo insert
-    target_inventory = target.get_inventory(defines.inventory.turret_ammo)
+    local target_inventory = target.get_inventory(defines.inventory.turret_ammo)
     if target_inventory == nil then target_inventory = target.get_inventory(defines.inventory.artillery_turret_ammo) end
     if target_inventory == nil then target_inventory = target.get_inventory(defines.inventory.artillery_wagon_ammo) end
 
@@ -280,7 +280,7 @@ function model.refuel_target(fueler, target, target_type)
     end
 
 
-    local target_inventory = nil
+    target_inventory = nil
 
     if target_type == "car" or target_type == "spider-vehicle" or target_type == "locomotive" then
 
@@ -462,10 +462,27 @@ function model.update_fueler(break_point, event)
     -- game.print("update_fueler")
 
     model.check_global()
+    model.check_queue()
     model.check_cooldown()
 
-    local unit = storage.ei.fueler_queue[break_point]
-    local fueler = storage.ei.fueler[unit].entity
+    local fueler_queue = storage
+        and storage.ei
+        and storage.ei.fueler_queue
+    local fueler_store = storage
+        and storage.ei
+        and storage.ei.fueler
+
+    if not fueler_queue or not fueler_store then
+        return
+    end
+
+    local unit = break_point and fueler_queue[break_point]
+    local fueler_data = unit and fueler_store[unit]
+    local fueler = fueler_data and fueler_data.entity
+
+    if not model.entity_check(fueler) then
+        return
+    end
 
     -- get what entity_type this fueler currently fuels
     -- and then try to insert as many items from the fueler inv as possible
@@ -517,7 +534,13 @@ function model.get_target_type(unit)
     -- get the current entity type that this fueler is fueling
     -- if none id given then return the default type (locomotive)
 
-    local target_type = storage.ei.fueler[unit].target_type
+    local fueler_data = storage
+        and storage.ei
+        and storage.ei.fueler
+        and unit
+        and storage.ei.fueler[unit]
+
+    local target_type = fueler_data and fueler_data.target_type
 
     if not target_type then
         target_type = model.target_types[1]
@@ -537,7 +560,17 @@ function model.set_target_type(unit, target_type)
         target_type = model.target_types[1]
     end
 
-    storage.ei.fueler[unit].target_type = target_type
+    local fueler_data = storage
+        and storage.ei
+        and storage.ei.fueler
+        and unit
+        and storage.ei.fueler[unit]
+
+    if not fueler_data then
+        return
+    end
+
+    fueler_data.target_type = target_type
 
     -- game.print("Set target type to: " .. target_type)
 
@@ -546,7 +579,13 @@ end
 
 function model.get_equipment(unit)
 
-    local equipment = storage.ei.fueler[unit].equipment
+    local fueler_data = storage
+        and storage.ei
+        and storage.ei.fueler
+        and unit
+        and storage.ei.fueler[unit]
+
+    local equipment = fueler_data and fueler_data.equipment
 
     if not equipment then
         equipment = false
@@ -600,23 +639,34 @@ function model.unregister_fueler(entity, transfer)
 
     model.check_global()
     model.check_queue()
+
+    local fueler_store = storage
+        and storage.ei
+        and storage.ei.fueler
+
+    if not fueler_store or not unit then
+        return
+    end
+
+    local fueler_data = fueler_store[unit]
+    local fueler_queue = storage.ei and storage.ei.fueler_queue
     
     -- remove the unit from the queue
-    local sus_pos = storage.ei.fueler[unit].queue_pos
+    local sus_pos = fueler_data and fueler_data.queue_pos
 
-    if storage.ei.fueler_queue[sus_pos] == unit then
-        table.remove(storage.ei.fueler_queue, sus_pos)
-    else
+    if fueler_queue and sus_pos and fueler_queue[sus_pos] == unit then
+        table.remove(fueler_queue, sus_pos)
+    elseif fueler_queue then
         -- if the unit is not at that pos, then check for others
-        for i, v in pairs(storage.ei.fueler_queue) do
+        for i, v in pairs(fueler_queue) do
             if v == unit then
-                table.remove(storage.ei.fueler_queue, i)
+                table.remove(fueler_queue, i)
             end
         end
     end
 
     -- delete the entry from storage 
-    storage.ei.fueler[unit] = nil
+    fueler_store[unit] = nil
 
 end
 
