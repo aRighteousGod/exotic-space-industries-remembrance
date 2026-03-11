@@ -28,6 +28,7 @@ data:extend({
     filter_count = 1,
     -- next_upgrade = "ei-fast-loader",
     speed = data.raw["transport-belt"]["transport-belt"].speed,
+    icon_draw_specification = {scale = 0.66},
     structure = {
         direction_in = {
             sheet = {

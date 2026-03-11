@@ -84,10 +84,10 @@ ei_lib.raw.recipe["atan-spore-filter"] = {
     additional_categories = {"organic-or-assembling"},
     energy_required = 20,
     ingredients = {
-        { type = "item", name = "carbon", amount = 4 },
+        { type = "item", name = "carbon-fiber", amount = 4 },
         { type = "item", name = "steel-plate", amount = 1 },
         { type = "item", name = "plastic-bar", amount = 2 },
-        { type = "fluid", name = "ei-medium-destilate", amount = 100 }
+        { type = "fluid", name = "ei-heavy-destilate", amount = 100 }
     }
 }
         
@@ -131,7 +131,7 @@ ei_lib.raw.recipe["atan-spore-filter-cleaning"] = {
     allow_productivity = false,
     ingredients = {
         { type = "item", name = "atan-used-spore-filter", amount = 10 },
-        { type = "fluid", name = "steam", amount = 3750, minimum_temperature = 300 },
+        { type = "fluid", name = "steam", amount = 3750, minimum_temperature = 500 },
         { type = "fluid", name = "ei-kerosene", amount = 50 }
     },
     results = {
@@ -160,3 +160,5 @@ ei_lib.raw.recipe["atan-spore-filter-cleaning"] = {
     },
 },
 }
+
+ei_lib.set_prerequisites("atan-spore-scrubbing", {"carbon-fiber","atan-pollution-scrubbing"})

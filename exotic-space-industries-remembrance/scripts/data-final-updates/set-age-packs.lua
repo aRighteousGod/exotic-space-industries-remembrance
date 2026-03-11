@@ -67,9 +67,9 @@ if ei_lib.config("no-triggers") then
   end 
 end
 
-local d_b_s_s_tech = ei_lib.raw.technology["ei-dragons-breath-shotgun-shell"]
-table.insert(d_b_s_s_tech.unit.ingredients,{"metallurgic-science-pack",1})
-
+ei_lib.set_age_packs("ei-dragons-breath-shotgun-shell","computer-age-space-vulcanus")
+ei_lib.set_age_packs("ei-bio-oil","computer-age-space-gleba")
+ei_lib.set_age_packs("rocket-fuel-productivity","computer-age-space-gleba")
 --electricity age gets set here because some of the techs moved to steam age have elec as a prereq before set_prerequisites
 --it's questionable whether set_age and set_pre should be before final_tech fixes.. but it's less
 --work to just put this here.. for now... x70^ v

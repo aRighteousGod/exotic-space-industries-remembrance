@@ -122,6 +122,9 @@ local recipes = {
 	"ei-liquid-nitrogen-oil-processing",
 	"ei-liquid-oxygen-heavy-oil-cracking",
 	"ei-nitric-acid-medium-destilate-cracking",
+	"ei-bio-oil-refining",
+	"ei-water-bio-oil-refining",
+	"ei-steam-bio-oil-refining"
 }
 
 for i, v in pairs(recipes) do

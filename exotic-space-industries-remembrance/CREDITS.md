@@ -31,3 +31,5 @@ heat steel furnace icon from Electric steel furnace by @Morlot
 auto shotgun turret from Factorio+ by fishbus
 
 gatling turret from additionalturrets by DarkNova
+
+bio oil by Kil_Jaeden

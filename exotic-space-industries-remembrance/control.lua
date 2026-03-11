@@ -44,6 +44,7 @@ ei_debug = require("scripts/control/debug")
 ei_compat = require("scripts/control/compat")
 ei_loaders_lib = require("lib/loaders")
 ei_rocket_launch_pollution = require("scripts/control/rocket-launch-pollution")
+ei_fulgora_day_length_variation = require("scripts/control/fulgora-day-length-variation")
 
 ei_fueler = require("scripts/control/fueler/fueler")
 ei_fueler_informatron = require("scripts/control/fueler/informatron")
@@ -677,6 +678,7 @@ function updater(event)
     ei_camp_fire.updater(event)
     ei_echo_codex.arrival_waves(event)
     ei_rocket_launch_pollution.updater(event)
+    ei_fulgora_day_length_variation.updater(event)
    --======================================================================
 end
 

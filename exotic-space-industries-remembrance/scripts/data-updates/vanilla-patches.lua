@@ -2037,6 +2037,7 @@ ei_lib.raw["fluid-turret"]["flamethrower-turret"] = {
             {type = "ei-heavy-destilate", damage_modifier = 0.4, damage_override_animation_modifier = 0.4},
             {type = "ei-medium-destilate", damage_modifier = 0.5, damage_override_animation_modifier = 0.5},
             {type = "ei-residual-oil", damage_modifier = 0.65, damage_override_animation_modifier = 0.65},
+            {type = "ei-bio-oil", damage_modifier = 0.8, damage_override_animation_modifier = 0.8},
             {type = "crude-oil"},
             {type = "heavy-oil", damage_modifier = 1.15, damage_override_animation_modifier = 1.15},
             {type = "light-oil", damage_modifier = 1.25, damage_override_animation_modifier = 1.25},
@@ -2298,6 +2299,10 @@ if a_n then
         {type = "fluid", name= "ei-acidic-water", amount_min=50,amount_max=250}
     }
 end
+--tungsten requires lubricant
+ei_lib.raw["resource"]["tungsten-ore"].minable.required_fluid = "lubricant"
+ei_lib.raw["resource"]["tungsten-ore"].minable.fluid_amount = 25
+
 --====================================================================================================
 --Aquilo
 --====================================================================================================
@@ -2410,16 +2415,263 @@ local p_d_g = ei_lib.raw.technology["planet-discovery-gleba"]
 if p_d_g then
     p_d_g.age = "computer-age"
 end
-local ag_sci_pack = ei_lib.raw.recipe["agricultural-science-pack"]
-if ag_sci_pack then
-	table.insert(ag_sci_pack.ingredients,{type = "item", name = "nutrients", amount = 40})
-end
+
+ei_lib.raw.recipe["agricultural-science-pack"].ingredients = {
+	{ type = "item", name = "nutrients", amount = 120}, -- def 40
+    { type = "item", name = "bioflux", amount = 3}, -- def 1
+    { type = "item", name = "pentapod-egg", amount = 2}, -- def 1
+}
+ei_lib.raw.recipe["agricultural-science-pack"].results = {
+	{ type = "item", name = "agricultural-science-pack", amount_min = 1, amount_max = 3}, -- def 1
+}
+ei_lib.raw.recipe["agricultural-science-pack"].energy_required = 8 -- def 4
+ei_lib.raw.recipe["agricultural-science-pack"].always_show_products = true
+
 -- Biolab uses nutrients, @StephenB
 local originalEnergySource = ei_lib.raw.lab.biolab.energy_source
 ei_lib.raw.lab.biolab.energy_source = table.deepcopy(data.raw["assembling-machine"].biochamber.energy_source)
 -- Leaving power at 300kW. Biochambers use 500kW.
 -- Biochambers have -1/m pollution emission (ie they reduce pollution). Biolabs had 8/m pollution emission, but this changes it to -1/m. Captive biter spawners are also -1/m. Looking at a simple Nauvis base importing most sciences, biolabs are actually the majority of the pollution, so I'm changing it back to 8/m.
 ei_lib.raw.lab.biolab.energy_source.emissions_per_minute = originalEnergySource.emissions_per_minute
+ei_lib.raw.recipe["jellynut-processing"].results = {
+	{ type = "item", name = "jellynut-seed", amount = 1, probability = 0.02 },
+	{ type = "item", name = "jelly", amount_min = 2, amount_max = 6 }, -- def 4
+}
+ei_lib.raw.recipe["jellynut-processing"].always_show_products = true
+
+ei_lib.raw.recipe["yumako-processing"].results = {
+	{ type = "item", name = "yumako-seed", amount = 1, probability = 0.02 },
+	{ type = "item", name = "yumako-mash", amount_min = 1, amount_max = 3 }, -- def 2
+}
+ei_lib.raw.recipe["yumako-processing"].always_show_products = true
+
+ei_lib.raw.recipe["bioflux"].results = {
+	{ type = "item", name = "bioflux", amount_min = 1, amount_max = 7 }, -- def 4
+}
+ei_lib.raw.recipe["bioflux"].always_show_products = true
+
+ei_lib.raw.recipe["nutrients-from-yumako-mash"].results = {
+	{ type = "item", name = "nutrients", amount_min = 2, amount_max = 10, probability=0.94 }, -- def 6
+    { type = "item", name = "spoilage", amount_min = 1, amount_max = 2, probability=0.04, ignored_by_stats = 2},
+}
+ei_lib.raw.recipe["nutrients-from-yumako-mash"].always_show_products = true
+
+ei_lib.raw.recipe["nutrients-from-bioflux"].results = {
+	{ type = "item", name = "nutrients", amount_min = 20, amount_max = 60, probability = 0.96 }, -- def 40
+    { type = "item", name = "spoilage", amount_min = 2, amount_max = 8, probability=0.02, ignored_by_stats = 2},
+}
+ei_lib.raw.recipe["nutrients-from-bioflux"].always_show_products = true
+
+ei_lib.raw.recipe["nutrients-from-biter-egg"].results = {
+	{ type = "item", name = "nutrients", amount_min = 15, amount_max = 30}, -- def 20
+}
+ei_lib.raw.recipe["nutrients-from-biter-egg"].always_show_products = true
+
+ei_lib.raw.recipe["biolubricant"].ingredients = {
+	{ type = "item", name = "jelly", amount = 120}, -- def 4
+    { type = "item", name = "bioflux", amount = 4}, -- def 1
+}
+ei_lib.raw.recipe["biolubricant"].results = {
+	{ type = "fluid", name = "lubricant", amount_min = 10, amount_max = 40}, -- def 20
+}
+ei_lib.raw.recipe["biolubricant"].energy_required = 66 -- def 33
+ei_lib.raw.recipe["biolubricant"].always_show_products = true
+
+ei_lib.raw.recipe["rocket-fuel-from-jelly"].ingredients = {
+	{ type = "item", name = "jelly", amount = 150}, -- def 30
+    { type = "item", name = "bioflux", amount = 20}, -- def 2
+    { type = "fluid", name = "ei-liquid-oxygen", amount = 90}, -- def 30 water
+    { type = "fluid", name = "ammonia", amount = 60},
+}
+ei_lib.raw.recipe["rocket-fuel-from-jelly"].results = {
+	{ type = "item", name = "rocket-fuel", amount_min = 1, amount_max = 5, probability=0.33}, -- def 1, still average 1 per craft
+    { type = "fluid", name = "ei-dirty-water", amount_min = 3, amount_max = 12, probability= 0.33, ignored_by_stats = 12},
+    { type = "fluid", name = "ei-acidic-water", amount_min = 3, amount_max = 12, probability= 0.33, ignored_by_stats = 12},
+    { type = "item", name = "spoilage", amount_min = 1, amount_max = 6, probability=0.33, ignored_by_stats = 6}, -- def 2
+}
+ei_lib.raw.recipe["rocket-fuel-from-jelly"].always_show_products = true
+ei_lib.raw.recipe["rocket-fuel-from-jelly"].energy_required = 60
+
+ei_lib.raw.recipe["bioplastic"].ingredients = {
+	{ type = "item", name = "yumako-mash", amount = 16}, -- def 4
+    { type = "item", name = "bioflux", amount = 4}, -- def 1
+}
+ei_lib.raw.recipe["bioplastic"].results = {
+	{ type = "item", name = "plastic-bar", amount_min = 1, amount_max = 6}, -- def 3
+}
+ei_lib.raw.recipe["bioplastic"].energy_required = 8 -- def 2
+ei_lib.raw.recipe["bioplastic"].always_show_products = true
+
+ei_lib.raw.recipe["biosulfur"].ingredients = {
+	{ type = "item", name = "spoilage", amount = 20}, -- def 5
+    { type = "item", name = "bioflux", amount = 4}, -- def 1
+}
+ei_lib.raw.recipe["biosulfur"].results = {
+	{ type = "item", name = "sulfur", amount_min = 1, amount_max = 4}, -- def 2
+}
+ei_lib.raw.recipe["biosulfur"].energy_required = 8 -- def 2
+ei_lib.raw.recipe["biosulfur"].always_show_products = true
+
+ei_lib.raw.technology["carbon-fiber"].localised_description = {"technology-description.ei-carbon-fiber"}    
+ei_lib.raw.recipe["carbon-fiber"].localised_description = {"technology-description.ei-carbon-fiber"}
+
+ei_lib.raw.recipe["carbon-fiber"].ingredients = { --default 1 carbon, 10 yumako mash
+	{ type = "fluid", name = "ei-molten-carbon-symbiote", amount = 20},
+    { type = "fluid", name = "steam", amount = 200, minimum_temperature = 500 },
+    { type = "item", name = "pentapod-egg", amount = 1},
+    { type = "item", name = "yumako-mash", amount = 20}, -- def 10
+}
+local cf_ac = ei_lib.raw.recipe["carbon-fiber"].additional_categories
+if cf_ac then
+    table.insert(cf_ac,"ei-casting")
+else
+    ei_lib.raw.recipe["carbon-fiber"].additional_categories = {"ei-casting"}
+end
+ei_lib.raw.recipe["carbon-fiber"].results = {
+	{ type = "item", name = "carbon-fiber", amount_min = 1, amount_max = 3}, -- def 1
+}
+ei_lib.raw.recipe["carbon-fiber"].energy_required = 15 -- def 5
+ei_lib.raw.recipe["carbon-fiber"].always_show_products = true
+
+ei_lib.raw.recipe["pentapod-egg"].ingredients = {
+	{ type = "item", name = "nutrients", amount = 60}, -- def 30
+    { type = "item", name = "pentapod-egg", amount = 1}, -- def 1
+    { type = "fluid", name = "water", amount = 120}, -- def 60
+}
+ei_lib.raw.recipe["pentapod-egg"].results = {
+	{ type = "item", name = "pentapod-egg", amount_min = 2, amount_max = 3}, -- def 2
+}
+ei_lib.raw.recipe["pentapod-egg"].energy_required = 25 -- def 2
+ei_lib.raw.recipe["pentapod-egg"].always_show_products = true
+--====================================================================================================
+--Glowing science packs
+--originally from Alternate Glowing Science Packs by ochotona_princeps 
+--====================================================================================================
+ei_lib.raw.tool["electromagnetic-science-pack"].pictures = {
+layers = {
+    {
+        filename = ei_path.."graphics/items/fulgora-science-vial.png",
+        size = 128,
+    	scale = 0.25,
+    },
+    {
+        draw_as_light = true,
+        filename = ei_path.."graphics/items/fulgora-science-vial-glow.png",
+        size = 128,
+    	scale = 0.25,
+    }
+}
+}
+
+ei_lib.raw.tool["promethium-science-pack"].pictures = {
+layers = {
+    {
+        filename = ei_path.."graphics/items/promethium-science-vial.png",
+        size = 128,
+    	scale = 0.25,
+    },
+    {
+        draw_as_light = true,
+        filename = ei_path.."graphics/items/promethium-science-vial-glow.png",
+        size = 128,
+    	scale = 0.25,
+    }
+}
+}
+
+ei_lib.raw.tool["cryogenic-science-pack"].pictures = {
+layers = {
+    {
+        filename = ei_path.."graphics/items/aquilo-science-vial.png",
+        size = 128,
+    	scale = 0.25,
+    },
+    {
+        draw_as_light = true,
+        filename = ei_path.."graphics/items/aquilo-science-vial-glow.png",
+        size = 128,
+        scale = 0.25,
+    }
+}
+}
+
+ei_lib.raw.tool["metallurgic-science-pack"].pictures = {
+layers = {
+    {
+        filename = ei_path.."graphics/items/vulcanus-science-vial.png",
+        size = 128,
+    	scale = 0.25,
+    },
+    {
+        draw_as_light = true,
+        filename = ei_path.."graphics/items/vulcanus-science-vial-glow.png",
+        size = 128,
+    	scale = 0.25,
+    }
+}
+}
+
+ei_lib.raw.tool["agricultural-science-pack"].pictures = {
+layers = {
+    {
+        filename = ei_path.."graphics/items/gleba-science-vial.png",
+        size = 128,
+    	scale = 0.25,
+    },
+    {
+        draw_as_light = true,
+        filename = ei_path.."graphics/items/gleba-science-vial-glow.png",
+        size = 128,
+    	scale = 0.25,
+    }
+}
+}
+local unset = {} -- Marker to set attribute to nil
+local items = {
+    ["metallurgic-science-pack"] = {
+        icon_size = 128,
+        icon = ei_path.."graphics/items/vulcanus-science-vial.png",
+        icons = unset,
+        icon_mipmaps = 4,
+    },
+    ["electromagnetic-science-pack"] = {
+        icon_size = 128,
+        icon = ei_path.."graphics/items/fulgora-science-vial.png",
+        icons = unset,
+        icon_mipmaps = 4,
+    },
+    ["agricultural-science-pack"] = {
+        icon_size = 128,
+        icon = ei_path.."graphics/items/gleba-science-vial.png",
+        icons = unset,
+        icon_mipmaps = 4,
+    },
+    ["cryogenic-science-pack"] = {
+        icon_size = 128,
+        icon = ei_path.."graphics/items/aquilo-science-vial.png",
+        icons = unset,
+        icon_mipmaps = 4,
+    },
+    ["promethium-science-pack"] = {
+        icon_size = 128,
+        icon = ei_path.."graphics/items/promethium-science-vial.png",
+        icons = unset,
+        icon_mipmaps = 4,
+    },
+}
+for name, definition in pairs(items) do
+    for property, value in pairs(definition) do
+        if value == unset then
+            value = nil
+        end
+        if ei_lib.raw.technology[name] then
+            ei_lib.raw.technology[name][property] = value
+        end
+        if ei_lib.raw.tool[name] then
+            ei_lib.raw.tool[name][property] = value
+        end
+    end
+end
 
 --====================================================================================================
 --FUNCTION STUFF

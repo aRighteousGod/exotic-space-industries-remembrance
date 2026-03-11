@@ -176,6 +176,16 @@ local echo_templates = {
 		"🛰 [Orbital Toll Gate] — Cap = {val}. The toll collector is consistent.",
 		"🌫 [Smog Horizon] — {val}. Past it, the smoke is denied.",
 	},
+	fulgora_day_length_variation_max_multiplier = {
+		"[Zenith Edict] — The heavens of Fulgora may now be stretched to {val}-fold.",
+		"[Crown of Stormlight] — The upper bound of the sun-road is sealed at {val}.",
+		"[Celestial Apex] — The longest ordained turning now rises to {val}.",
+	},
+	fulgora_day_length_variation_min_multiplier = {
+		"[Nadir Decree] — The shortest turning of Fulgora is bound to {val}.",
+		"[Root of Dawn] — The lower seal of the day-cycle now rests at {val}.",
+		"[Under-Cycle Oath] — The minimum ordained span is set to {val}.",
+	},
 }
 
 -- Function to emit a random echo from a category with optional data injection
@@ -223,7 +233,8 @@ function echo_codex.handle_global_settings(event)
 
 	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "linear"
 	local rocket_launch_pollution_cap = ei_lib.config("ei-rocket-launch-pollution-cap") or 10000
-
+	local fulgora_day_length_variation_max_multiplier = ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
+	local fulgora_day_length_variation_min_multiplier = ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
 
 	local previous_tint = nil
 	-- Helper to get new tint and adj
@@ -379,6 +390,27 @@ function echo_codex.handle_global_settings(event)
 
 	storage.ei.rocket_launch_pollution.mode = rocket_launch_pollution_mode
 	storage.ei.rocket_launch_pollution.cap = rocket_launch_pollution_cap
+
+	-- Announce fulgora day-length variation bounds
+	tint, tint_adj = next_tint(event)
+	echo_codex.proclaim("fulgora_day_length_variation_max_multiplier", {
+		val = fulgora_day_length_variation_max_multiplier,
+		tint = tint,
+		tint_adj = tint_adj,
+		font = "default-bold",
+	})
+
+	tint, tint_adj = next_tint(event)
+	echo_codex.proclaim("fulgora_day_length_variation_min_multiplier", {
+		val = fulgora_day_length_variation_min_multiplier,
+		tint = tint,
+		tint_adj = tint_adj,
+		font = "default-bold",
+	})
+
+
+	storage.ei.fulgora_day_length_variation.max_multiplier = fulgora_day_length_variation_max_multiplier
+	storage.ei.fulgora_day_length_variation.min_multiplier = fulgora_day_length_variation_min_multiplier
 end
 
 function echo_codex.youHaveArrived(event)

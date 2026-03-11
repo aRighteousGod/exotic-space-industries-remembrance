@@ -86,7 +86,22 @@ ei_data.science["computer-age-space"] = {
     {"ei-computer-age-tech",1},
     {"space-science-pack",1},
 }
-
+ei_data.science["computer-age-space-vulcanus"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
+    {"ei-computer-age-tech",1},
+    {"space-science-pack",1},
+    {"metallurgic-science-pack",1},
+}
+ei_data.science["computer-age-space-gleba"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
+    {"ei-computer-age-tech",1},
+    {"space-science-pack",1},
+    {"agricultural-science-pack",1},
+}
 ei_data.science["advanced-computer-age"] = {
     {"ei-dark-age-tech",1},
     {"ei-steam-age-tech",1},

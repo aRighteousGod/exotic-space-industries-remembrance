@@ -60,6 +60,7 @@ data:extend({
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         inventory_size = 50,
         inventory_type = "with_filters_and_bar",
+        icon_draw_specification = {scale = 0.8},
         circuit_connector_sprites = data.raw["container"]["steel-chest"].circuit_connector_sprites,
         circuit_wire_connection_point = data.raw["container"]["steel-chest"].circuit_wire_connection_point,
         circuit_wire_max_distance = data.raw["container"]["steel-chest"].circuit_wire_max_distance,

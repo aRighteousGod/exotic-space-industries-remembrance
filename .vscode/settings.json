@@ -3,5 +3,6 @@
     "Lua.diagnostics.globals": [
         "storage"
     ],
+    "stylua.targetReleaseVersion": "latest",
     
 }

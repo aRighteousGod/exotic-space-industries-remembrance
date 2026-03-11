@@ -77,6 +77,7 @@ data:extend({
         folding_speed = 0.04,
         inventory_size = 1,
         heating_energy = "100kW",
+        icon_draw_specification = {scale = 0.8},
         automated_ammo_count = 10,
         attacking_speed = 0.6,
         preparing_sound = sounds.gun_turret_activate,

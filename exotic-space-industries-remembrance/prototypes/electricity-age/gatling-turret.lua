@@ -59,6 +59,13 @@ data:extend({
 		max_health = 1500,
 		heating_energy = "100kW",
 		hide_resistances = false,
+        circuit_connector =  circuit_connector_definitions.create_vector(
+        universal_connector_template,
+        {
+            { variation = 28, main_offset = util.by_pixel( 47.5,  32.25), shadow_offset = util.by_pixel( 47.5,  32.25), show_shadow = true },
+        }
+        ),
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
 		energy_source = {
 			type = "electric",
 			buffer_capacity = "666kJ",
@@ -92,12 +99,14 @@ data:extend({
 				{
 					filename = ei_path .. "sounds/gatling-turret-preparing.ogg",
 					volume = 0.6,
+					audible_distance_modifier = 0.66,
 				},
 			},
         folding_sound = {
 				{
 					filename = ei_path .. "sounds/gatling-turret-folding.ogg",
 					volume = 0.6,
+					audible_distance_modifier = 0.66,
 				},
 			},
         alert_when_attacking = true,
