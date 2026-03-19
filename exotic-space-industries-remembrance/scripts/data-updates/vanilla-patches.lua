@@ -2490,7 +2490,7 @@ ei_lib.raw.recipe["rocket-fuel-from-jelly"].results = {
     { type = "item", name = "spoilage", amount_min = 1, amount_max = 6, probability=0.33, ignored_by_stats = 6}, -- def 2
 }
 ei_lib.raw.recipe["rocket-fuel-from-jelly"].always_show_products = true
-ei_lib.raw.recipe["rocket-fuel-from-jelly"].energy_required = 60
+ei_lib.raw.recipe["rocket-fuel-from-jelly"].energy_required = 60 --def 10
 
 ei_lib.raw.recipe["bioplastic"].ingredients = {
 	{ type = "item", name = "yumako-mash", amount = 16}, -- def 4
@@ -2534,14 +2534,15 @@ ei_lib.raw.recipe["carbon-fiber"].energy_required = 15 -- def 5
 ei_lib.raw.recipe["carbon-fiber"].always_show_products = true
 
 ei_lib.raw.recipe["pentapod-egg"].ingredients = {
-	{ type = "item", name = "nutrients", amount = 60}, -- def 30
+	{ type = "item", name = "nutrients", amount = 75}, -- def 30
     { type = "item", name = "pentapod-egg", amount = 1}, -- def 1
-    { type = "fluid", name = "water", amount = 120}, -- def 60
+    { type = "fluid", name = "water", amount = 150}, -- def 60
 }
 ei_lib.raw.recipe["pentapod-egg"].results = {
-	{ type = "item", name = "pentapod-egg", amount_min = 2, amount_max = 3}, -- def 2
+    { type = "item", name = "pentapod-egg", amount = 1}, -- def 2
+	{ type = "item", name = "pentapod-egg", amount_min = 1, amount_max = 3, probability=0.75}, 
 }
-ei_lib.raw.recipe["pentapod-egg"].energy_required = 25 -- def 2
+ei_lib.raw.recipe["pentapod-egg"].energy_required = 37 -- def 15
 ei_lib.raw.recipe["pentapod-egg"].always_show_products = true
 --====================================================================================================
 --Glowing science packs
@@ -2672,7 +2673,43 @@ for name, definition in pairs(items) do
         end
     end
 end
+--====================================================================================================
+--Allow tracks in space
+--EM locomotive and wagons are allowed in their prototype files
+--====================================================================================================
+local space_condition = {
+    {
+        property = "gravity",
+        min = 0,
+        max = 1000
+    }
+}
+local space_condition_targets = {
+--    {type = "cargo-wagon", name = "cargo-wagon"},
+--    {type = "fluid-wagon", name = "fluid-wagon"},
+    {type = "rail-signal", name = "rail-signal"},
+    {type = "rail-chain-signal", name = "rail-chain-signal"},
+    {type = "curved-rail-b", name = "curved-rail-b"},
+    {type = "curved-rail-a", name = "curved-rail-a"},
+    {type = "half-diagonal-rail", name = "half-diagonal-rail"},
+    {type = "straight-rail", name = "straight-rail"},
+    {type = "rail-ramp", name = "rail-ramp"},
+    {type = "elevated-straight-rail", name = "elevated-straight-rail"},
+    {type = "elevated-half-diagonal-rail", name = "elevated-half-diagonal-rail"},
+    {type = "elevated-curved-rail-a", name = "elevated-curved-rail-a"},
+    {type = "elevated-curved-rail-b", name = "elevated-curved-rail-b"},
+    {type = "rail-support", name = "rail-support"},
+    {type = "train-stop", name = "train-stop"},
+    {type = "item", name = "rail-signal"},
+    {type = "item", name = "rail-chain-signal"},
+}
 
+for _, target in ipairs(space_condition_targets) do
+    local prototypes = data.raw[target.type]
+    if prototypes and prototypes[target.name] then
+        prototypes[target.name].surface_conditions = table.deepcopy(space_condition)
+    end
+end
 --====================================================================================================
 --FUNCTION STUFF
 --====================================================================================================

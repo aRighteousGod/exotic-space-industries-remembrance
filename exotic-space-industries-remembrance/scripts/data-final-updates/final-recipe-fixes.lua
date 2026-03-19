@@ -165,6 +165,7 @@ end
 local remove_prod = {
 	"lubricant",
 	"ei-lube-destilation",
+	"ei-lube-destilate-steam-finishing",
 	"ei-vaporize-liquid-ammonia",
 	"ei-vaporize-liquid-nitrogen",
 	"ei-vaporize-liquid-oxygen",

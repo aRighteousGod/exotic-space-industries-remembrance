@@ -434,6 +434,13 @@ data:extend({
 		air_resistance = 0.01,
 		vertical_selection_shift = -0.5,
 		energy_per_hit_point = 5,
+		surface_conditions = {
+			{
+			property = "gravity",
+			min = 0,
+			max = 1000
+			}
+		},
 		resistances =
 		{
 			{type = "fire", decrease = 15, percent = 50 },
@@ -656,7 +663,14 @@ data:extend({
 		braking_force = braking_force_wagon,
 		friction_force = friction_force,
 		air_resistance = air_resistance,
-		energy_per_hit_point = 5,    
+		energy_per_hit_point = 5,
+		surface_conditions = {
+			{
+			property = "gravity",
+			min = 0,
+			max = 1000
+			}
+		},
 		resistances =
 		{
 			{type = "fire", decrease = 15, percent = 50 },
@@ -823,17 +837,24 @@ data:extend({
 		max_health = 600,
 		corpse = "medium-remnants",
 		dying_explosion = "medium-explosion",
-		
+
 		collision_box = {{-0.6, -2.4}, {0.6, 2.4}},
 		selection_box = {{-1.0, -2.7}, {1, 3.3}},		
 		connection_distance = 3, joint_distance = 4,
-		
+
 		weight = weight,
 		max_speed = max_speed_wagon,
 		braking_force = braking_force_wagon,
 		friction_force = friction_force,
 		air_resistance = air_resistance,
-		energy_per_hit_point = 5,    
+		energy_per_hit_point = 5,
+		surface_conditions = {
+			{
+			property = "gravity",
+			min = 0,
+			max = 1000
+			}
+		},
 		resistances =
 		{
 			{type = "fire", decrease = 15, percent = 50 },

@@ -197,6 +197,7 @@ enacwi.place_result = "ei-advanced-cargo-wagon"
 local enacw = table.deepcopy(data.raw["cargo-wagon"]["legacy-cargo-wagon"])
 enacw.name = "ei-advanced-cargo-wagon"
 enacw.weight = weight_cargo
+
 enacw.resistances =
 {
     {type = "fire", decrease = 30, percent = 75 },

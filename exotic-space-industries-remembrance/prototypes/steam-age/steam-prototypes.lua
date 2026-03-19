@@ -913,6 +913,28 @@ data:extend({
     order = "b[fluid-chemistry]-g[lube-extraction]",
 },
 {
+    name = "ei-lube-destilate-steam-finishing",
+    type = "recipe",
+    category = "chemistry",
+    energy_required = 4,
+    ingredients = {
+        {type = "fluid", name = "ei-lube-destilate", amount = 25},
+        {type = "fluid", name = "steam", amount = 10, minimum_temperature = 350},
+    },
+    results = {
+        {type = "fluid", name = "lubricant", amount_min = 8, amount_max = 12},
+        {type = "fluid", name = "ei-coal-gas", amount_min = 4, amount_max = 6},
+    },
+    always_show_made_in = true,
+    enabled = false,
+    main_product = "lubricant",
+    localised_name = {"fluid-name.lubricant"},
+    icon = data.raw.fluid["lubricant"].icon,
+    icon_size = data.raw.fluid["lubricant"].icon_size,
+    subgroup = "fluid-recipes",
+    order = "b[fluid-chemistry]-g[lube-extraction]-a[steam-finishing]",
+},
+{
     name = "ei-electric-engine-lube",
     type = "recipe",
     category = "advanced-crafting",
@@ -1346,6 +1368,10 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-lube-destilation"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-lube-destilate-steam-finishing"
             },
         },
         unit = {

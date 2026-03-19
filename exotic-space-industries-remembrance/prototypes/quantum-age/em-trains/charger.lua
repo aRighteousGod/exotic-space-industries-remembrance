@@ -61,6 +61,13 @@ data:extend({
             output_flow_limit = "0W",
         },
         energy_usage = "10MW",
+        surface_conditions = {
+            {
+                property = "gravity",
+                min = 0,
+                max = 1000
+            }
+        },
         --[[
         animation = {
             filename = ei_trains_entity_path.."charger.png",

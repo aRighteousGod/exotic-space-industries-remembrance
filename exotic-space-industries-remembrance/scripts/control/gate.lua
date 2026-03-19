@@ -348,8 +348,17 @@ function model.check_for_teleport(unit, gate)
 
                             ei_victory.count_value("gate_items_transported", transfer_count)
                         else
-                            -- Energy check passed earlier, but failed here: rollback insertion
-                            target_inv.remove({name = item_name, count = transfer_count})
+                            -- Energy failed after insertion; eject the partial transfer from the gate.
+                            local removed_count = target_inv.remove({name = item_name, count = transfer_count})
+                            if removed_count > 0 then
+                                item_stack.count = item_stack.count - removed_count
+                                gate.surface.spill_item_stack(
+                                    gate.position,
+                                    {name = item_name, count = removed_count},
+                                    true,
+                                    gate.force
+                                )
+                            end
                         end
                     end
                 end
@@ -575,7 +584,7 @@ end
 
 
 function model.update_energy(unit, gate)
-    -- if energy below 90% of 50GJ turn off
+    -- if energy below 45GJ turn off
     if gate.energy < 45 * 1e9 then -- 45 GJ
 
         if storage.ei.gate.gate[unit].state == true then
@@ -1080,7 +1089,7 @@ function model.toggle_state(player, gate_unit)
 
     -- try to toggle state, if not enough energy return
     local energy = gate.energy
-    if energy < 1000000000 then
+    if energy < (45 * 1e9) then
         game.print({"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name})
     else
         -- toggle state

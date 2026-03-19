@@ -164,6 +164,12 @@ data:extend({
 		air_resistance = 0.01,
 		vertical_selection_shift = -0.5,
 		energy_per_hit_point = 5,
+		surface_conditions = {
+			{
+			property = "gravity",
+			min = 1,
+			}
+		},
 		resistances =
 		{
 			{type = "fire", decrease = 15, percent = 50 },
@@ -987,9 +993,19 @@ data:extend({
 		air_resistance = 0.01,
 		vertical_selection_shift = -0.5,
 		energy_per_hit_point = 5,
-		resistances = {
-			{type = "physical", decrease = 15, percent = 30},
-			{type = "impact", decrease = 50, percent = 60}
+		resistances =
+		{
+			{type = "fire", decrease = 15, percent = 50 },
+			{type = "physical", decrease = 15, percent = 30 },
+			{type = "impact",decrease = 50,percent = 60},
+			{type = "explosion",decrease = 15,percent = 30},
+			{type = "acid",decrease = 10,percent = 20}
+		},
+		surface_conditions = {
+			{
+			property = "gravity",
+			min = 1,
+			}
 		},
 		energy_source = {
 			type = "burner",

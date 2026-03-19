@@ -1,9 +1,18 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.00
-Date: 3-11-2026
+Date: 3-18-2026
+  Features:
+    - Added additional recipe unlock to Lubricant reforming technology—25 Lubricant distillate + 10 >= 350c Steam -> 8-12 Lubricant and 4-6 Coal gas.
+    - Electromagnetic locomotives and wagons—as well as tracks, stations, and signals—are now usable on space platforms.
   Changes:
-    - Pentapod egg recipe inputs: Nutrients 30 -> 60, Water 60 -> 120.
-    - Pentapod egg recipe outputs: Pentapod egg 2 -> 2-3.
+    - Gate energy buffer: 60 -> 180 GJ.
+    - Gate energy inflow limit: 25 -> 60 GW.
+    - Pentapod egg recipe inputs: Nutrients 30 -> 75, Water 60 -> 150.
+    - Pentapod egg recipe outputs: Pentapod egg 2 -> 1 + 1-3 with 75% probability.
+    - Pentapod egg crafting time: 15 -> 37s.
+  Bugfixes:
+    - Fixed that Cliff explosives technology didn't require Computer age science pack.
+    - Fixed that Carbon fiber technology didn't require Computer age science pack.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.99
 Date: 3-11-2026
@@ -11,7 +20,7 @@ Date: 3-11-2026
     - Gleba, Fulgora, Vulcanus, Aquilo, and Promethium science sigils now bear awakened twin-icons that shimmer with inner light. @ochotona_princeps
     - Minigun turret now supports circuit connections.
     - Beneath Fulgora’s storm-crowned heavens, the sun’s course is rewritten once each cycle, spanning 10% to 200% of its ordained length—adjustable with two new startup settings.
-    - Imported Bio oil by @Kil_Jaeden—reborn as Broodswarm oil, the black ichor of Gleba, unfurling new rites of craft across it's living chains
+    - Imported Bio oil by @Kil_Jaeden—reborn as Broodslime oil, the black ichor of Gleba, unfurling new rites of craft across it's living chains
   Changes:
     - Minigun turret folding and preparing sounds now fall off in volume more aggressively with distance.
     - Rocket fuel productivity technology science packs: Additionally requires Cosmic criticality.
@@ -28,7 +37,7 @@ Date: 3-11-2026
     - Bioplastic crafting time: 2 -> 8s.
     - Biolubricant recipe inputs: Jelly 60 -> 120, additionally requires 4 Bioflux.
     - Biolubricant recipe outputs: Lubricant 20 -> 10-40.
-    - Bilubricant crafting time: 33 -> 66s.
+    - Biolubricant crafting time: 33 -> 66s.
     - Biosulfur recipe inputs: Spoilage 5 -> 20, Bioflux 1 -> 4.
     - Biosulfur recipe outputs: Sulfur 2 -> 1-4.
     - Biosulfur recipe crafting time: 2 -> 8s.

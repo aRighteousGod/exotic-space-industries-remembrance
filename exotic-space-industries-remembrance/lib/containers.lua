@@ -398,6 +398,7 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
             container.inventory_type = fixType.inventory_type
         end
     end
+
     data:extend({container})
 end
 

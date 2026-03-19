@@ -68,7 +68,9 @@ if ei_lib.config("no-triggers") then
 end
 
 ei_lib.set_age_packs("ei-dragons-breath-shotgun-shell","computer-age-space-vulcanus")
+ei_lib.set_age_packs("cliff-explosives","computer-age-space-vulcanus")
 ei_lib.set_age_packs("ei-bio-oil","computer-age-space-gleba")
+ei_lib.set_age_packs("carbon-fiber","computer-age-space-gleba")
 ei_lib.set_age_packs("rocket-fuel-productivity","computer-age-space-gleba")
 --electricity age gets set here because some of the techs moved to steam age have elec as a prereq before set_prerequisites
 --it's questionable whether set_age and set_pre should be before final_tech fixes.. but it's less
