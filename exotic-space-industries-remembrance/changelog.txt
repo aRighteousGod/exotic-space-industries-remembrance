@@ -1,4 +1,36 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.01
+Date: 3-22-2026
+  Features:
+    - Quarries and Big mining drill will now gradually scar and degrade nearby terrain upon depleting resource deposits.
+    - Added additional recipe unlock to Broodslime oil technology—1 Pentapod egg, 150 Nutrients, 90 Broodslime oil -> 1 Pentapod egg + 2-4 Pentapod egg with 95% probability.
+    - Gates now accrue stress, cooldown, and receiver saturation while in use, and emit breach residue during heavy transit.
+    - Added Gate receiver entity—functions as the destination, gets an automatic ID which can be overriden by circuit signal-I.
+    - Gate GUI now selects dedicated receivers instead of editing new surface/position exits directly—receiver can be set by circuit.
+    - Gate now has an integrated invisible combinator in the lower middle of it's sprite allowing outputting of state, energy, and stress, as well as inputting of enable on signal-E and destination ID on signal-D.
+    - Induction matrix core now outputs current charge on signal-C, total capacity on signal-T, and max IO on signal-M to the circuit network—only while it is actually wired, and only upto once per second.
+    - Gate now outputs active, energy, and stress as custom signals to the circuit network.
+    - Created Breach residue—an artifact of warp travel similar to slag, for now it can be neutralized through the purifier.
+  Changes:
+    - Carbon fiber technology prerequisites: Additionally requires Carbon manipulation.
+    - Gates no longer use a permanent 200MW idle drain.
+    - Gate InformaTron/wiki pages were updated for receiver routing and wiring.
+  Bugfixes:
+    - Singular guaranteed Pentapod egg from Pentapod egg recipe no longer affected by productivity.
+    - Gates no longer forget their desired enabled state after a brownout.
+    - Gates no longer impossible to remove from remote view.
+    - Gates no longer accept items when inactive.
+    - Gate position selection now correctly exits remote view after a target is chosen.
+    - Players no longer remain stranded in gate remote view if the selected gate is removed mid-selection.
+    - Induction matrix no longer unable to be pipetted.
+    - Induction matrix no longer fails to be placed in remote view.
+    - Induction matrix no longer errors while cleaning up cores after matrix tiles are removed.
+    - Induction matrix duplicate-core cleanup now consistently removes only the duplicate core.
+    - Induction matrix reanalyze visuals, render cleanup, and multiplayer GUI refreshes no longer skip updates.
+    - Fixed broken rich-text formatting in the Beacon Overhaul, Exotic matter machines, and Black hole InformaTron entries.
+    - Gate InformaTron page now shows by default.
+    - Fixed that Pentapod egg recipe showed missing locale key.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.00
 Date: 3-18-2026
   Features:

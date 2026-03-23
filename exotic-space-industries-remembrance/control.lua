@@ -1,5 +1,18 @@
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 require("util")
+-- control.lua is the top-level runtime coordinator for the mod.
+--
+-- Most gameplay systems live in their own modules and own their local logic/state.
+-- This file focuses on orchestration:
+-- - load modules in one place
+-- - register Factorio events once
+-- - fan those events out to the relevant subsystems
+-- - run the staggered on_tick scheduler for heavier updates
+-- - host global repair/migration helpers that cut across multiple modules
+--
+-- In practice this means the file is intentionally "wide": it knows about many systems,
+-- but it should avoid embedding feature-specific business logic unless that logic is
+-- fundamentally cross-cutting.
 --====================================================================================================
 --REQUIREMENTS
 --====================================================================================================
@@ -10,13 +23,18 @@ ei_rng = require("lib/rng")
 ei_echo_codex = require("lib/echo-codex")
 
 
+-- Update pacing is configurable so the mod can spread expensive entity work across a
+-- longer tick window on large saves. The derived values below are used by updater() to
+-- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
 ei_update_functions_length = 9 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
--- Used if gaia spawned in malformed, called in reforge_gaia
+-- Canonical Gaia generation settings used when the planet needs to be rebuilt or repaired.
+-- This is intentionally loaded up front because reforge_gaia_surface() can run during init
+-- and configuration-change migrations before the rest of the world is fully trusted.
 local ei_full_gaia_map_gen_settings = require("prototypes/alien-system/reforge-gaia-table")
 
 local ei_tech_scaling = require("scripts/control/tech-scaling")
@@ -45,6 +63,7 @@ ei_compat = require("scripts/control/compat")
 ei_loaders_lib = require("lib/loaders")
 ei_rocket_launch_pollution = require("scripts/control/rocket-launch-pollution")
 ei_fulgora_day_length_variation = require("scripts/control/fulgora-day-length-variation")
+ei_mining_scars = require("scripts/control/mining-scars")
 
 ei_fueler = require("scripts/control/fueler/fueler")
 ei_fueler_informatron = require("scripts/control/fueler/informatron")
@@ -79,22 +98,28 @@ local ei_respawn_items = {
 --INIT
 ------------------------------------------------------------------------------------------------------
 script.on_init(function(event)
+    -- Freeplay customization happens before the rest of init so new saves begin with the
+    -- intended intro, inventory, and crashsite behavior immediately.
     if remote.interfaces["freeplay"] then
         remote.call("freeplay", "set_disable_crashsite", true)
         remote.call("freeplay", "set_custom_intro_message", ei_intro)
         remote.call("freeplay", "set_created_items", ei_start_items)
         remote.call("freeplay", "set_respawn_items", ei_respawn_items)
     end
-    -- setup storage table
+
+    -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
     ei_global.check_init(event)
 
-    -- init other
+    -- Feature-level init comes after global storage so modules can safely register their
+    -- own tables, caches, and migration state.
     ei_tech_scaling.init()
     ei_register.init({"copper_beacon"}, true)
     ei_register.init({"fluid_entity"}, false)
 
-    -- disable vanilla victory condition by rocket launch
+    -- The remaining startup work mostly synchronizes world-level side effects:
+    -- disable vanilla victory, prepare train globals, repair Gaia if required,
+    -- and emit the codex/arrival messaging for the new save.
     ei_victory.init()
     em_trains.check_global()
     em_trains_gui.mark_dirty()
@@ -112,6 +137,9 @@ end)
 --ENTITY RELATED
 ------------------------------------------------------------------------------------------------------
 
+-- Entity/tile events are normalized through wrapper functions below so subsystems can
+-- share one code path regardless of whether the change came from a player, a robot,
+-- a script-raise, or an entity death.
 script.on_event({
     defines.events.on_built_entity,
     defines.events.on_robot_built_entity,
@@ -150,31 +178,38 @@ script.on_event(defines.events.on_tick, function(e)
 end)
 
 script.on_event(defines.events.on_console_command, function(e)
+    -- Console commands are only routed to systems that intentionally expose debug/admin hooks.
     ei_alien_spawner.give_tool(e)
     ei_gaia.spawn_command(e)
     ei_debug.teleport_to(e)
 end)
 
 script.on_event(defines.events.on_player_selected_area, function(e)
+    -- Selection tools are shared by a few systems, so the raw event is fanned out here.
     ei_alien_spawner.on_player_selected_area(e)
     ei_alien_system.on_player_selected_area(e)
     ei_gate.on_player_selected_area(e)
 end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(e)
+    -- Selection-change handlers are lightweight enough to dispatch directly every time.
     ei_matter_stabilizer.on_selected_entity_changed(e)
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
+    -- Cursor changes matter for systems that temporarily replace the player's held item
+    -- with a tool/selector and need to clean up when the cursor changes.
     ei_matter_stabilizer.on_player_cursor_stack_changed(e)
     ei_gate.on_player_cursor_stack_changed(e)
 end)
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
+    -- Spidertron limiter reacts to slot edits instead of polling logistics every tick.
     ei_spidertron_limiter.on_entity_logistic_slot_changed(e)
 end)
 
 script.on_event(defines.events.on_rocket_launched, function(e)
+    -- Rocket pollution uses both "ordered" and "launched" so it can model the full launch flow.
     ei_rocket_launch_pollution.on_rocket_launched(e)
 end)
 
@@ -185,21 +220,21 @@ end)
 --RESEARCH RELATED
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_research_finished, function(e)
-
-    -- set new tech costs
+    -- Research completion has both immediate balance implications (tech scaling, train buffs)
+    -- and player-facing documentation implications (informatron unlock messaging).
     ei_tech_scaling.on_research_finished()
-
-    -- notify player for informatron changes
     ei_informatron_messager.on_research_finished(e)
-
     em_trains.on_research_finished(e)
-
 end)
 
 --WORLD RELATED
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_chunk_generated, function(e)
     ei_alien_spawner.on_chunk_generated(e)
+end)
+
+script.on_event(defines.events.on_resource_depleted, function(e)
+    ei_mining_scars.on_resource_depleted(e)
 end)
 --[[
 script.on_event(defines.events.on_player_respawned, function(event)
@@ -213,6 +248,8 @@ end)
 --GUI RELATED
 -----------------------------------------------------------------------------------------------------
 
+-- GUI dispatch is centralized here because several systems open custom screens from
+-- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
     local name = event.entity and event.entity.name
 
@@ -220,18 +257,20 @@ script.on_event(defines.events.on_gui_opened, function(event)
       return
     elseif name == "ei-fusion-reactor" then
         ei_fusion_reactor.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
-    elseif ei_induction_matrix.core[name] then
+    elseif ei_induction_matrix.core[name] or ei_induction_matrix.proxy[name] then
         ei_induction_matrix.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-black-hole" then
         ei_black_hole.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
-    elseif name == "ei-gate-container" then
-        ei_gate.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
+    elseif name == "ei-gate" or name == "ei-gate-container" then
+        ei_gate.on_gui_opened(event)
     elseif name == "ei-fueler" then
         ei_fueler.open_gui(game.get_player(event.player_index))
     end
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
+    -- Close routing mirrors open routing, but some UIs close by element name rather than
+    -- entity because the custom screen may have replaced the player's opened target.
     local name = event.entity and event.entity.name
     local element_name = event.element and event.element.name
 
@@ -249,6 +288,8 @@ script.on_event(defines.events.on_gui_closed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_click, function(event)
+    -- Button clicks are dispatched by the parent GUI tag, which keeps the actual button
+    -- names free to stay local to each feature's UI code.
     local parent_gui = event.element.tags.parent_gui
     if not parent_gui then return end
 
@@ -275,6 +316,7 @@ script.on_event(defines.events.on_gui_click, function(event)
 end)
 
 script.on_event(defines.events.on_gui_value_changed, function(event)
+    -- Only a subset of custom UIs use sliders/value widgets, so this stays narrow.
     local parent_gui = event.element.tags.parent_gui
     if not parent_gui then return end
 
@@ -284,6 +326,7 @@ script.on_event(defines.events.on_gui_value_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+    -- Selection-state changes are currently only meaningful for the gate console dropdowns.
     local parent_gui = event.element.tags.parent_gui
     if not parent_gui then return end
 
@@ -293,18 +336,23 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
 end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
+    -- Script trigger effects are used for capsule/remote actions that originate from data-stage
+    -- prototypes but need runtime behavior.
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
 end)
 
 script.on_event(defines.events.on_player_left_game, function(event)
+    -- Gate remote state is player-bound, so disconnects need explicit cleanup.
     ei_gate.on_player_left_game(event.player_index)
 end)
 
 --OTHER
 ------------------------------------------------------------------------------------------------------
 
+-- Gaia surface repair only cares about the mod's custom resource patches. If none of
+-- them exist after generation/migration, the surface is considered malformed and rebuilt.
 local patch_resources = {
   "ei-phytogas-patch",
   "ei-cryoflux-patch",
@@ -314,6 +362,8 @@ local patch_resources = {
 }
 
 function surface_contains_any_resources(surface)
+  -- Defensive validation here keeps migration logging readable if a bad surface reference
+  -- slips through during a configuration change or broken save recovery.
   if not surface or not surface.count_entities_filtered then
     log("surface_contains_any_resources: invalid surface object passed")
     return false
@@ -331,6 +381,19 @@ function surface_contains_any_resources(surface)
 end
 
 function reforge_gaia_surface(event)
+    -- Gaia has accumulated a few historical edge cases:
+    -- - old saves where the surface was named "Gaia" instead of the canonical "gaia"
+    -- - malformed generation settings
+    -- - missing custom resource patches after generation or migration
+    --
+    -- This helper repairs all of those in one place. When Gaia is judged invalid it:
+    -- 1. evacuates connected players
+    -- 2. destroys the stale surface/entities
+    -- 3. recreates the surface from canonical settings
+    -- 4. re-associates it with the planet prototype on the next tick
+    --
+    -- The delayed reassociation avoids doing the rename/planet binding while the old
+    -- surface still exists.
 
     --1.5.7 -> 1.5.8 migration
     local legacy = game.surfaces["Gaia"]
@@ -433,6 +496,9 @@ end
 
 script.on_configuration_changed(function(e)
     if next(e.mod_changes) ~= nil then
+        -- This is the mod's broad migration/repair pass. It re-validates globals,
+        -- clears stale cursor/gui state, reapplies runtime buffs, repairs Gaia, and
+        -- reruns subsystem init that depends on changed prototypes or settings.
         ei_global.check_init(e) --Crystal_echo will fail without global color table
         ei_compat.check_init(e)
         ei_echo_codex.handle_global_settings(e)
@@ -448,6 +514,12 @@ script.on_configuration_changed(function(e)
                 end
             end
             storage.ei.gate.remote = {}
+        end
+
+        for _, player in pairs(game.players) do
+            if player and player.valid and player.gui.relative["ei-gate-console"] then
+                ei_gate.close_gui(player)
+            end
         end
 
         em_trains.reinitialize_chargers() --applies updated buffs
@@ -499,6 +571,8 @@ script.on_event(
     defines.events.on_player_respawned
   },
     function(event)
+        -- These events all represent moments where the player may need the codex arrival
+        -- experience reapplied: loading, joining, skipping cutscenes, or respawning.
         ei_echo_codex.youHaveArrived(event)
     end
 )
@@ -509,20 +583,30 @@ script.on_event(
 
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
 -- ei_update_step is now computed from game.tick to ensure multiplayer determinism
+-- The list is kept here mostly as documentation of the scheduled subsystems; the actual
+-- updater uses an explicit branch per step because the branch-specific queue sizing and
+-- guard conditions differ between systems.
 ei_update_functions = {
-    function() ei_powered_beacon.update() end, --deprecated
-    function() ei_powered_beacon.update_fluid_storages() end,
-    function() ei_neutron_collector.update() end,
-    function() ei_matter_stabilizer.update() end,
-    function() orbital_combinator.update() end,
-    function() ei_fueler.updater() end,
-    function() ei_gate.update() end,
-    function() em_trains.train_updater() end,
-    function() em_trains.charger_updater() end,
+    function() ei_powered_beacon.update() end, -- deprecated legacy beacon updater
+    function() ei_powered_beacon.update_fluid_storages() end, -- custom fluid entity queue
+    function() ei_neutron_collector.update() end, -- neutron source/collector queue
+    function() ei_matter_stabilizer.update() end, -- matter machine stabilization queue
+    function() orbital_combinator.update() end, -- orbital logistics mirroring
+    function() ei_fueler.updater() end, -- fueler task queue
+    function() ei_gate.update() end, -- gate queue / breakpoint walker
+    function() em_trains.train_updater() end, -- rolling stock logic
+    function() em_trains.charger_updater() end, -- charger logic
 }
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
 function updater(event)
+  -- updater() has two tiers:
+  -- 1. a scheduled tier that spreads heavy per-entity work across a fixed cycle
+  -- 2. a mandatory tier that still runs every tick for systems that depend on timers
+  --    or fast global reactions
+  --
+  -- game.tick decides which scheduled branch runs this tick. Because all peers compute
+  -- the same step from the same tick, this stays deterministic in multiplayer.
   local updates_needed = 1
   -- Compute update step from game tick to ensure multiplayer determinism
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
@@ -530,7 +614,8 @@ function updater(event)
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
    if ei_update_step < 5 then -- Reduces the average number of `if` checks
        if ei_update_step == 1 then
-           --Check global once per entity updater cycle
+           -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
+           -- It ensures storage still has the expected tables before later steps run.
            ei_global.check_init(event)
            --[[
            --now handled by Nonstandard beacons
@@ -549,6 +634,7 @@ function updater(event)
             ]]
 
        elseif ei_update_step == 2 then
+           -- Step 2 services the invalid fluid pipe logic
            if storage.ei and storage.ei.fluid_entity and storage.ei.fluid_entity_count and storage.ei.fluid_entity_count > 0 then
                updates_needed = math.max(1,math.min(math.ceil(storage.ei.fluid_entity_count / divisor), ei_maxEntityUpdates))
                for i = 1, updates_needed do
@@ -563,6 +649,7 @@ function updater(event)
             end
 
        elseif ei_update_step == 3 then
+           -- Step 3 advances neutron collectors against their registered source set.
            if storage.ei and storage.ei["neutron_sources"] and ei_lib.getn(storage.ei["neutron_sources"]) then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei["neutron_sources"]) / divisor), ei_maxEntityUpdates))
                end
@@ -577,6 +664,7 @@ function updater(event)
            end
 
        elseif ei_update_step == 4 then
+           -- Step 4 services matter stabilizers and their nearby volatile machines.
            if storage.ei and storage.ei.matter_machines and #storage.ei.matter_machines then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.matter_machines) / divisor), ei_maxEntityUpdates))
                end
@@ -594,6 +682,7 @@ function updater(event)
    else -- Otherwise, ei_update_step is >= 5
 
        if ei_update_step == 5 then
+           -- Step 5 mirrors logistic/platform state into orbital combinators.
            if storage.ei and storage.ei.orbital_combinators and ei_lib.getn(storage.ei.orbital_combinators) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.orbital_combinators) / divisor), ei_maxEntityUpdates))
                 end
@@ -608,6 +697,7 @@ function updater(event)
            end
 
        elseif ei_update_step == 6 then
+           -- Step 6 advances the fueler queue, which may be large on train-heavy saves.
            if storage.ei and storage.ei.fueler_queue and #storage.ei.fueler_queue then
                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.fueler_queue) / divisor), ei_maxEntityUpdates))
                end
@@ -622,6 +712,7 @@ function updater(event)
            end
 
        elseif ei_update_step == 7 then
+           -- Step 7 advances gate state, transport, and receiver logic.
            if storage.ei and storage.ei.gate and storage.ei.gate.gate and  ei_lib.getn(storage.ei.gate.gate) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates))
                 end
@@ -636,6 +727,8 @@ function updater(event)
            end
 
        elseif ei_update_step == 8 then
+           -- Step 8 services EM rolling stock separately from chargers so both can be
+           -- budgeted independently.
            em_trains.check_global()
 
            if storage.ei_emt and storage.ei_emt.trains and ei_lib.getn(storage.ei_emt.trains) then
@@ -651,6 +744,7 @@ function updater(event)
                    end
            end
        elseif ei_update_step == 9 then
+           -- Step 9 handles EM chargers after train updates have had a chance to run.
            em_trains.check_global()
            if storage.ei_emt and storage.ei_emt.chargers and  ei_lib.getn(storage.ei_emt.chargers) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei_emt.chargers) / divisor), ei_maxEntityUpdates))
@@ -668,7 +762,9 @@ function updater(event)
    end
     ::skip::
 
-   -- Essential updates that run every tick (e.g., timers, global effects)
+   -- Essential updates that run every tick regardless of the scheduled branch above.
+   -- These are generally timer-driven or need quick reactions that would feel wrong if
+   -- delayed to a once-per-cycle slot.
     em_trains_gui.updater()
     ei_alien_spawner.update(event)
     ei_gaia.update(event)
@@ -683,14 +779,17 @@ function updater(event)
 end
 
 function on_built_entity(e)
+    -- Centralized post-build routing keeps every subsystem on the same event surface.
+    -- This wrapper also hosts the small amount of truly cross-cutting setup that is not
+    -- owned by any single feature module.
     if not e or not e["entity"] or not e["entity"].valid then
       return
     end
 
-    --entities which can be affected by custom fluids
+    -- Entities registered here participate in shared fluid handling managed by register-util.
     if ei_powered_beacon.counts_for_fluid_handling(e["entity"]) then
         ei_register.register_fluid_entity(e["entity"])
-    --steam pump jump-start steam
+    -- Steam pumps receive a tiny priming amount so their startup state is less brittle.
     elseif e["entity"].name == "rp-steam-pump" then
         local startsteam = {
             name="steam",
@@ -724,6 +823,9 @@ function on_built_entity(e)
     ]]
     end
 
+    -- Feature fan-out starts here. Most modules simply inspect the entity and return if
+    -- it is not theirs, so it is safe for the central dispatcher to call them in sequence.
+
     ei_beacon_overload.on_built_entity(e["entity"])
     ei_neutron_collector.on_built_entity(e["entity"])
     ei_fusion_reactor.on_built_entity(e["entity"])
@@ -742,20 +844,28 @@ function on_built_entity(e)
 end
 
 function on_built_tile(e)
+    -- Tile events only matter to the induction matrix right now, but they stay wrapped
+    -- here for consistency with the entity dispatcher pattern.
     ei_induction_matrix.on_built_tile(e)
 end
 
 function on_destroyed_entity(e)
+    -- Build/destroy symmetry matters because several modules need to undo registration,
+    -- spill/transfer items correctly, or distinguish pre-mining from after-the-fact death.
     if not e or not e["entity"] or not e["entity"].valid then
       return
     end
 
+    -- "pre" means a player/robot initiated the removal and a transfer target may exist.
+    -- "past" means the entity is already being removed due to death or a script destroy.
     if e["robot"] or e["player_index"] then
         e["destroy_type"] = "pre"
     else
         e["destroy_type"] = "past"
     end
 
+    -- Some subsystems accept either a robot reference or a player index here because
+    -- they only need to know whether removed items should be handed back.
     local transfer = nil or e["robot"] or e["player_index"]
 
     if ei_powered_beacon.counts_for_fluid_handling(e["entity"]) then
@@ -766,6 +876,7 @@ function on_destroyed_entity(e)
         ]]
     end
 
+    -- As with on_built_entity(), modules self-filter if the entity is irrelevant to them.
     ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_alien_spawner.on_destroyed_entity(e["entity"])

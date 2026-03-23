@@ -662,7 +662,7 @@ local base = {
     }
     ),
     circuit_wire_max_distance = default_circuit_wire_max_distance,
-    flags = {"placeable-neutral", "placeable-player", "player-creation", "not-blueprintable"},
+    flags = {"placeable-neutral", "placeable-player", "player-creation"},
     max_health = 300,
     corpse = "big-remnants",
     dying_explosion = "medium-explosion",
@@ -670,6 +670,7 @@ local base = {
     selection_box = {{-1, -1}, {1, 1}},
     map_color = ei_data.colors.assembler,
     minable = {mining_time = 1, result = "ei-induction-matrix-core"},
+    placeable_by = {item = "ei-induction-matrix-core", count = 1},
     gui_mode = "all",
     animation = {
         filename = ei_graphics_entity_path.."induction-matrix-core_animation.png",
@@ -690,6 +691,7 @@ local base = {
         input_flow_limit = "1MW",
         output_flow_limit = "1MW",
     },
+    selectable_in_game = false,
 }
 
 local function make_matrix_core(i)
@@ -708,6 +710,34 @@ end
 for i = 0, 16 do
     make_matrix_core(i)
 end
+
+local matrix_wire_proxy = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+matrix_wire_proxy.name = "ei-induction-matrix-core-circuit-interface"
+matrix_wire_proxy.icon = ei_graphics_other_path.."64_empty.png"
+matrix_wire_proxy.flags = {"not-blueprintable", "not-on-map", "not-flammable", "not-repairable", "not-upgradable", "hide-alt-info"}
+matrix_wire_proxy.hidden = true
+matrix_wire_proxy.minable = {mining_time = 1, result = "ei-induction-matrix-core"}
+matrix_wire_proxy.placeable_by = {item = "ei-induction-matrix-core", count = 1}
+matrix_wire_proxy.max_health = 300
+matrix_wire_proxy.collision_box = {{0, 0}, {0, 0}}
+matrix_wire_proxy.selection_box = {{-1, -1}, {1, 1}}
+matrix_wire_proxy.item_slot_count = 3
+matrix_wire_proxy.activity_led_light = {intensity = 0, size = 0, color = {r = 1, g = 1, b = 1}}
+matrix_wire_proxy.activity_led_sprites = {
+    north = util.empty_sprite(),
+    east = util.empty_sprite(),
+    south = util.empty_sprite(),
+    west = util.empty_sprite(),
+}
+matrix_wire_proxy.sprites = {
+    north = util.empty_sprite(),
+    east = util.empty_sprite(),
+    south = util.empty_sprite(),
+    west = util.empty_sprite(),
+}
+matrix_wire_proxy.circuit_wire_max_distance = default_circuit_wire_max_distance
+
+data:extend({matrix_wire_proxy})
 
 -- make ground tiles
 local tile = table.deepcopy(data.raw["tile"]["tutorial-grid"])

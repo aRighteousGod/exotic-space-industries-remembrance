@@ -33,10 +33,12 @@ function model.menu(player_index)
         world_gen_related = {
             resources = 1,
             artifacts = 1,
+            gate = 1,
         },
         new_logistics = {
             train_progression = 1,
             cranes_and_belts = 1,
+            bots = 1,
         },
         new_mechanics = {
             beacon_overhaul = 1,
@@ -46,7 +48,9 @@ function model.menu(player_index)
         },
         nuclear_fission_and_fusion = {
             fission = 1,
+            --htr_reactor = 1,
             fusion_power = 1,
+            --neutrons = 1,
         },
     }
 
@@ -54,19 +58,6 @@ function model.menu(player_index)
     if force then
 
         model.new_mechanics.black_hole = 1
-
-        -- knowledge system page
-        if storage.ei and storage.ei.knowledge then
-
-            if storage.ei.knowledge["player"] then
-                model.world_gen_related.knowledge = nil
-                model.world_gen_related.gate = 1
-                model.world_gen_related.repair = 1
-
-                model.world_gen_related.artifacts = nil
-            end
-
-        end
 
     end
 
@@ -195,21 +186,24 @@ function model.artifacts(player_index, element)
 end
 
 function model.gate(player_index, element)
-    element.add{type = "label", caption = {"exotic-industries-informatron.gate"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.gate-text"}}
+    local function add_section(section_key, text_key, sprite_name)
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. section_key}, style = "heading_1_label"}
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
 
-    local image_container = element.add{type = "flow"}
-    image_container.style.horizontal_align = "center"
-    image_container.style.horizontally_stretchable = true
-    image_container.add{type = "sprite", sprite = "ei_gate"}
+        if sprite_name then
+            local image_container = element.add{type = "flow"}
+            image_container.style.horizontal_align = "center"
+            image_container.style.horizontally_stretchable = true
+            image_container.add{type = "sprite", sprite = sprite_name}
+        end
+    end
 
-    element.add{type = "label", caption = {"exotic-industries-informatron.drone"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.drone-text"}}
-
-    local image_container = element.add{type = "flow"}
-    image_container.style.horizontal_align = "center"
-    image_container.style.horizontally_stretchable = true
-    image_container.add{type = "sprite", sprite = "ei_drone"}
+    add_section("gate", "gate-text", "ei_gate")
+    add_section("gate-2", "gate-text-2")
+    add_section("gate-3", "gate-text-3")
+    add_section("gate-4", "gate-text-4")
+    add_section("gate-5", "gate-text-5")
+    add_section("gate-6", "gate-text-6")
 end
 
 function model.repair(player_index, element)
@@ -251,14 +245,16 @@ end
 function model.cranes_and_belts(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.cranes-and-belts"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.cranes-and-belts-text"}}
+end
+
+function model.bots(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.bots"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.bots-text"}}
 
     local image_container = element.add{type = "flow"}
     image_container.style.horizontal_align = "center"
     image_container.style.horizontally_stretchable = true
     image_container.add{type = "sprite", sprite = "ei_robots"}
-
-    element.add{type = "label", caption = {"exotic-industries-informatron.bots"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.bots-text"}}
 end
 
 
@@ -412,6 +408,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "cranes_and_belts" then
         model.cranes_and_belts(player_index, element)
+    end
+
+    if page_name == "bots" then
+        model.bots(player_index, element)
     end
 
     -- =======================================================

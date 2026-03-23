@@ -157,6 +157,45 @@ local sulfur_from_bio_oil_recipe = {
 		{ property = "pressure", min = 2000, max = 2000 },
 	},
 }
+local pentapod_egg_from_bio_oil_recipe = {
+    type = "recipe",
+    name = "ei-pentapod-egg-from-bio-oil",
+    icon = "__space-age__/graphics/icons/pentapod-egg-3.png",
+    category = "organic",
+    surface_conditions =
+    {
+      {
+        property = "pressure",
+        min = 2000,
+        max = 2000
+      }
+    },
+    subgroup = "agriculture-processes",
+    order = "d[organic-processing]-a[pentapod-egg2]",
+    auto_recycle = false,
+    enabled = false,
+    allow_productivity = true,
+    reset_freshness_on_craft = true,
+    hide_from_signal_gui = true,
+    energy_required = 37,
+    ingredients =
+    {
+		{type = "item", name = "pentapod-egg", amount = 1, ignored_by_stats = 1},
+		{type = "item", name = "nutrients", amount = 60},
+		{type = "fluid", name = "ei-bio-oil", amount = 90}
+    },
+    results =
+    {
+		{type = "item", name = "pentapod-egg", amount = 1, ignored_by_stats = 1, ignored_by_productivity = 1},
+		{type = "item", name = "pentapod-egg", amount_min = 2, amount_max = 4, probability = 0.95},
+    },
+    crafting_machine_tint =
+    {
+		primary = {r = 45, g = 129, b = 86, a = 1.000},
+		secondary = {r = 122, g = 75, b = 156, a = 1.000},
+    }
+}
+
 local carbon_fiber_from_bio_oil_recipe = {
 	type = "recipe",
 	name = "ei-carbon-fiber-from-bio-oil",
@@ -221,6 +260,10 @@ local tech = {
 		{
 			type = "unlock-recipe",
 			recipe = sulfur_from_bio_oil_recipe.name,
+		},
+		{
+			type = "unlock-recipe",
+			recipe = pentapod_egg_from_bio_oil_recipe.name,
 		},
 	},
 	unit = {
@@ -315,6 +358,7 @@ data:extend({
 	plastic_from_bio_oil_recipe,
 	sulfur_from_bio_oil_recipe,
 	carbon_fiber_from_bio_oil_recipe,
+	pentapod_egg_from_bio_oil_recipe,
 	tech,
 	carbon_tech,
 })

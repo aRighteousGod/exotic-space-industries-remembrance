@@ -628,6 +628,24 @@ data:extend({
         order = "a-h",
     },
     {
+        name = "ei-breach-residue-neutralization",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 4,
+        ingredients = {
+            {type = "item", name = "ei-breach-residue", amount = 5},
+            {type = "fluid", name = "water", amount = 25},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount = 25},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-dirty-water",
+        subgroup = "ei-refining-purified",
+        order = "a-h1",
+    },
+    {
         name = "ei-dirty-water-sand",
         type = "recipe",
         category = "ei-purifier",
