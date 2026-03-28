@@ -221,7 +221,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.assembler,
-        inventory_size = 40,
+        inventory_size = 30,
         inventory_type = "with_filters_and_bar",
         picture = {
             filename = ei_graphics_entity_2_path.."drone-port.png",

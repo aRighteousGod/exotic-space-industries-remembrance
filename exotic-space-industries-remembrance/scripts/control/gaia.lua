@@ -1,22 +1,10 @@
+local ei_lib = require("lib/lib")
+
 local model = {}
 
 --====================================================================================================
 --GAIA
 --====================================================================================================
-
-local tile_settings = {
-}
-
-local entity_settings = {
-    ["tree-01"] = {frequency = 0, size = 0, richness = 0},
-    ["tree-02"] = {frequency = 0, size = 0, richness = 0},
-    ["tree-05"] = {frequency = 0, size = 0, richness = 0},
-    ["tree-09"] = {frequency = 0, size = 0, richness = 0},
-}
-
-local decorative_settings = {
-    ["green-pita"] = {frequency = 0.1, size = 1, richness = 1},
-}
 
 -- buildings that will get destroyed on gaia
 model.destroy_gaia = {
@@ -42,7 +30,30 @@ model.entity_damage_ticks = {
   
 }
 
-local presets = require("lib/spawner-presets")
+local function gaia_planet()
+    return game.planets and game.planets["gaia"] or nil
+end
+
+local function legacy_gaia_surface()
+    local surface = game.surfaces and game.surfaces["Gaia"]
+    if surface and surface.valid then
+        return surface
+    end
+end
+
+local function safe_return_surface()
+    return game.surfaces["nauvis"] or game.default_surface
+end
+
+local function connected_players_on_surface(surface)
+    local players = {}
+    for _, player in pairs(game.connected_players) do
+        if player.surface == surface then
+            table.insert(players, player)
+        end
+    end
+    return players
+end
 
 --====================================================================================================
 --UTIL
@@ -52,7 +63,8 @@ function model.entity_check(entity)
 
     if not storage.gaia_surfaces then 
       storage.gaia_surfaces = {}
-      storage.gaia_surfaces['gaia'] = true 
+      storage.gaia_surfaces["gaia"] = true
+      storage.gaia_surfaces["Gaia"] = true
     end
 
     if entity == nil then
@@ -64,6 +76,90 @@ function model.entity_check(entity)
     end
 
     return true
+end
+
+function model.ensure_surface()
+    local planet = gaia_planet()
+    if not planet then
+        return nil
+    end
+
+    local surface = planet.surface
+    if surface and surface.valid then
+        storage.gaia_surfaces = storage.gaia_surfaces or {}
+        storage.gaia_surfaces[surface.name] = true
+        return surface
+    end
+
+    local legacy_surface = legacy_gaia_surface()
+    if legacy_surface then
+        storage.gaia_surfaces = storage.gaia_surfaces or {}
+        storage.gaia_surfaces[legacy_surface.name] = true
+        storage.gaia_surfaces["gaia"] = true
+        planet:associate_surface(legacy_surface)
+        ei_lib.crystal_echo("Gaia surface rebound from legacy name")
+        return legacy_surface
+    end
+
+    if planet.create_surface then
+        local created = planet:create_surface()
+        if created and created.valid then
+            storage.gaia_surfaces = storage.gaia_surfaces or {}
+            storage.gaia_surfaces[created.name] = true
+            storage.gaia_surfaces["gaia"] = true
+            ei_lib.crystal_echo("Gaia surface created")
+            return created
+        end
+    end
+
+    return nil
+end
+
+function model.create_gaia()
+    return model.ensure_surface()
+end
+
+function model.reforge_gaia_surface(event)
+    local planet = gaia_planet()
+    if not planet then
+        return nil
+    end
+
+    local surface = model.ensure_surface()
+    if not (surface and surface.valid) then
+        return nil
+    end
+
+    local return_surface = safe_return_surface()
+    for _, player in pairs(connected_players_on_surface(surface)) do
+        ei_lib.crystal_echo("Moving " .. player.name .. " off Gaia for recovery")
+        if return_surface then
+            player.teleport({0, 0}, return_surface)
+        end
+        if event and event.tick then
+            ei_lib.crystal_echo("Gaia recovery moved " .. player.name .. " to safety")
+        end
+    end
+
+    for _, entity in pairs(surface.find_entities()) do
+        if entity and entity.valid then
+            pcall(function()
+                entity.destroy({raise_destroy = true})
+            end)
+        end
+    end
+
+    game.delete_surface(surface.name)
+
+    local rebuilt = planet:create_surface()
+    if rebuilt and rebuilt.valid then
+        storage.gaia_surfaces = storage.gaia_surfaces or {}
+        storage.gaia_surfaces["gaia"] = true
+        ei_lib.crystal_echo("Gaia recovery rebuilt the surface")
+        return rebuilt
+    end
+
+    return nil
 end
 
 
@@ -331,12 +427,17 @@ function model.spawn_command(event)
     end
 
     local player = game.get_player(event.player_index)
+    if not player then
+        return
+    end
     
     if event.command == "gaia" then
         game.print("Spawning Gaia")
 
-        model.create_gaia()
-        player.teleport({0,0}, "gaia")
+        local surface = model.create_gaia()
+        if surface then
+            player.teleport({0, 0}, surface)
+        end
     end
     
 end

@@ -38,6 +38,7 @@ ei_graphics_destination_path = ei_graphics_path.."graphics/destinations/"
 
 ei_graphics_terrain_path = ei_graphics_2_path.."graphics/terrain/"
 ei_graphics_tree_path = ei_graphics_2_path.."graphics/trees/"
+ei_graphics_gaia_tree_path = ei_path.."graphics/trees/"
 ei_graphics_entity_2_path = ei_graphics_2_path.."graphics/entities/"
 ei_graphics_item_2_path = ei_graphics_2_path.."graphics/items/"
 ei_graphics_icon_2_path = ei_graphics_2_path.."graphics/icons/"

@@ -34,7 +34,6 @@ function ei_global.init()
     storage.ei.alien = {}
     storage.ei.locomotives = {}
     storage.ei.campfire = {}
-    storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
 end
@@ -46,10 +45,6 @@ function ei_global.check_init(event)
     end
     if not storage.ei.arrival_waves then
         storage.ei.arrival_waves = {}
-    end
-
-    if not storage.ei.gaia_reforged then
-        storage.ei.gaia_reforged = 0    --Leaving room for planetary evolution down the road
     end
     if not storage.ei.campfire then
         storage.ei.campfire = {}
@@ -102,6 +97,12 @@ function ei_global.check_init(event)
 
     if not storage.ei["orbital_combinators"] then
         storage.ei["orbital_combinators"] = {}
+    end
+    if storage.ei.gaia_reforged ~= nil then
+        storage.ei.gaia_reforged = nil
+    end
+    if storage.ei.original_gaia_settings ~= nil then
+        storage.ei.original_gaia_settings = nil
     end
     --powered beacons
     --depreciated by NSB

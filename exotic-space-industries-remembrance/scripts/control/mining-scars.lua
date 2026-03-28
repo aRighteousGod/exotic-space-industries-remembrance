@@ -14,9 +14,9 @@ local SCAR_PROBABILITY = 0.7
 
 -- Drill types that trigger mining scars
 local ENABLED_DRILL_TYPES = {
-	["burner-mining-drill"] = true,
-	["steam-mining-drill"] = true,
-	["electric-mining-drill"] = true,
+	["ei-burner-quarry"] = true,
+	["ei-steam-quarry"] = true,
+	["ei-electric-quarry"] = true,
 	["big-mining-drill"] = true,
 }
 

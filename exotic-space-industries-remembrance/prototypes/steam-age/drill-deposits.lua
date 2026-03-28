@@ -38,15 +38,15 @@ function ei_autoplace(name, rarity)
   end
 
   if rarity == "gaia" then
-    local base_density = 1
-    local base_spots_per_km2 = 1
-    local has_starting_area_placement = true
-    local random_spot_size_minimum = 0.5
-    local random_spot_size_maximum = 1.25
-    local random_probability = 1/48
-    local additional_richness = 500000
-    local richness_multiplier = 2
-    local richness_multiplier_distance_bonus = 2
+    base_density = 1
+    base_spots_per_km2 = 1
+    has_starting_area_placement = true
+    random_spot_size_minimum = 0.5
+    random_spot_size_maximum = 1.25
+    random_probability = 1/48
+    additional_richness = 500000
+    richness_multiplier = 2
+    richness_multiplier_distance_bonus = 2
   end
 
   autoplace = resource_autoplace.resource_autoplace_settings

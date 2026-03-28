@@ -205,5 +205,69 @@ model.entity_presets["small-teleporter-site"] = {
     ["structure"] = { [1] = { ["name"] = "ei-alien-flowers-4",["position"] = { ["x"] = 17.7578125,["y"] = 5.65625,} ,["destructible"] = true,} ,[2] = { ["name"] = "ei-alien-flowers-6",["position"] = { ["x"] = 20.4609375,["y"] = 7.23046875,} ,["destructible"] = true,} ,[3] = { ["name"] = "ei-alien-flowers-1",["position"] = { ["x"] = 13.70703125,["y"] = 8.26953125,} ,["destructible"] = true,} ,[4] = { ["name"] = "ei-alien-flowers-3",["position"] = { ["x"] = 19.640625,["y"] = 8.16796875,} ,["destructible"] = true,} ,[5] = { ["name"] = "ei-alien-flowers-8",["position"] = { ["x"] = 24.078125,["y"] = 9.6796875,} ,["destructible"] = true,} ,[6] = { ["name"] = "teleporter-flying-text",["position"] = { ["x"] = 16.9296875,["y"] = 9.84765625,} ,["destructible"] = true,} ,[7] = { ["name"] = "teleporter",["position"] = { ["x"] = 16.9296875,["y"] = 11.84765625,} ,["destructible"] = true,} ,[8] = { ["name"] = "ei-alien-flowers-5",["position"] = { ["x"] = 20.3984375,["y"] = 10.44921875,} ,["destructible"] = true,} ,[9] = { ["name"] = "ei-alien-flowers-8",["position"] = { ["x"] = 9.875,["y"] = 13.3984375,} ,["destructible"] = true,} ,[10] = { ["name"] = "ei-alien-flowers-7",["position"] = { ["x"] = 16.9765625,["y"] = 13.37109375,} ,["destructible"] = true,} ,[11] = { ["name"] = "ei-alien-flowers-3",["position"] = { ["x"] = 13.875,["y"] = 14.33203125,} ,["destructible"] = true,} ,[12] = { ["name"] = "ei-alien-flowers-5",["position"] = { ["x"] = 14.66796875,["y"] = 15.58984375,} ,["destructible"] = true,} ,[13] = { ["name"] = "ei-alien-flowers-1",["position"] = { ["x"] = 22.578125,["y"] = 16.1953125,} ,["destructible"] = true,} ,} 
 }
 
+local gaia_rock_names = {
+    ["huge-rock"] = true,
+    ["big-rock"] = true,
+    ["big-sand-rock"] = true,
+}
+
+local function should_swap_gaia_rocks(preset_name)
+    return preset_name:match("^farstation%-site_") or preset_name:match("^stabilizer%-site_")
+end
+
+local function pick_gaia_tree_variant(preset_name, original_name, occurrence, index)
+    if original_name == "ei-gaia-tree-01" then
+        if should_swap_gaia_rocks(preset_name) and (occurrence + #preset_name + index) % 2 == 0 then
+            return "ei-gaia-tree-06"
+        end
+
+        return "ei-gaia-tree-03"
+    end
+
+    if original_name == "ei-gaia-tree-02" then
+        return "ei-gaia-tree-04"
+    end
+
+    if original_name == "ei-gaia-tree-05" then
+        return "ei-gaia-tree-06"
+    end
+end
+
+local function diversify_gaia_trees(preset_name, preset)
+    if not preset.structure then
+        return
+    end
+
+    local preset_seed = #preset_name
+    local gaia_tree_counts = {
+        ["ei-gaia-tree-01"] = 0,
+        ["ei-gaia-tree-02"] = 0,
+        ["ei-gaia-tree-05"] = 0,
+    }
+
+    for index, entry in ipairs(preset.structure) do
+        if gaia_tree_counts[entry.name] then
+            gaia_tree_counts[entry.name] = gaia_tree_counts[entry.name] + 1
+            local replacement_name = pick_gaia_tree_variant(preset_name, entry.name, gaia_tree_counts[entry.name], index)
+
+            if replacement_name and (gaia_tree_counts[entry.name] + preset_seed + index) % 3 == 0 then
+                entry.name = replacement_name
+            end
+        end
+    end
+end
+
+for preset_name, preset in pairs(model.entity_presets) do
+    if should_swap_gaia_rocks(preset_name) and preset.structure then
+        for _, entry in ipairs(preset.structure) do
+            if gaia_rock_names[entry.name] then
+                entry.name = "ei-gaia-boulder-big"
+            end
+        end
+    end
+
+    diversify_gaia_trees(preset_name, preset)
+end
+
 
 return model

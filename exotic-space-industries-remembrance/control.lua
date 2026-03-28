@@ -32,11 +32,6 @@ ei_update_functions_length = 9 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
--- Canonical Gaia generation settings used when the planet needs to be rebuilt or repaired.
--- This is intentionally loaded up front because reforge_gaia_surface() can run during init
--- and configuration-change migrations before the rest of the world is fully trusted.
-local ei_full_gaia_map_gen_settings = require("prototypes/alien-system/reforge-gaia-table")
-
 local ei_tech_scaling = require("scripts/control/tech-scaling")
 local ei_global = require("scripts/control/global")
 ei_register = require("scripts/control/register-util")
@@ -118,8 +113,8 @@ script.on_init(function(event)
     ei_register.init({"fluid_entity"}, false)
 
     -- The remaining startup work mostly synchronizes world-level side effects:
-    -- disable vanilla victory, prepare train globals, repair Gaia if required,
-    -- and emit the codex/arrival messaging for the new save.
+    -- disable vanilla victory, prepare train globals, and emit the codex/arrival
+    -- messaging for the new save.
     ei_victory.init()
     em_trains.check_global()
     em_trains_gui.mark_dirty()
@@ -127,10 +122,8 @@ script.on_init(function(event)
     orbital_combinator.check_init()
     ei_echo_codex.handle_global_settings(event)
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
-    --game.planets["gaia"]:create_surface(ei_full_gaia_map_gen_settings) 
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…") 
-    reforge_gaia_surface()  --fixes the occassionally invalid surface by regenerating
     ei_echo_codex.youHaveArrived(event)
 end)
 
@@ -221,7 +214,6 @@ end)
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_research_finished, function(e)
     -- Research completion has both immediate balance implications (tech scaling, train buffs)
-    -- and player-facing documentation implications (informatron unlock messaging).
     ei_tech_scaling.on_research_finished()
     ei_informatron_messager.on_research_finished(e)
     em_trains.on_research_finished(e)
@@ -351,154 +343,11 @@ end)
 --OTHER
 ------------------------------------------------------------------------------------------------------
 
--- Gaia surface repair only cares about the mod's custom resource patches. If none of
--- them exist after generation/migration, the surface is considered malformed and rebuilt.
-local patch_resources = {
-  "ei-phytogas-patch",
-  "ei-cryoflux-patch",
-  "ei-ammonia-patch",
-  "ei-morphium-patch",
-  "ei-coal-gas-patch"
-}
-
-function surface_contains_any_resources(surface)
-  -- Defensive validation here keeps migration logging readable if a bad surface reference
-  -- slips through during a configuration change or broken save recovery.
-  if not surface or not surface.count_entities_filtered then
-    log("surface_contains_any_resources: invalid surface object passed")
-    return false
-  end
-  for _, resource_name in pairs(patch_resources) do
-    local found = surface.count_entities_filtered{
-      name = resource_name,
-      type = "resource"
-    }
-    if found > 0 then
-      return true, resource_name, found
-    end
-  end
-  return false
-end
-
-function reforge_gaia_surface(event)
-    -- Gaia has accumulated a few historical edge cases:
-    -- - old saves where the surface was named "Gaia" instead of the canonical "gaia"
-    -- - malformed generation settings
-    -- - missing custom resource patches after generation or migration
-    --
-    -- This helper repairs all of those in one place. When Gaia is judged invalid it:
-    -- 1. evacuates connected players
-    -- 2. destroys the stale surface/entities
-    -- 3. recreates the surface from canonical settings
-    -- 4. re-associates it with the planet prototype on the next tick
-    --
-    -- The delayed reassociation avoids doing the rename/planet binding while the old
-    -- surface still exists.
-
-    --1.5.7 -> 1.5.8 migration
-    local legacy = game.surfaces["Gaia"]
-    local canonical = game.planets["gaia"]
-    if legacy and canonical and not canonical.surface then
-      log("[Gaia Migration] Rebinding 1.5.7 'Gaia' surface to prototype 'gaia'")
-      legacy.name = "gaia"
-      canonical.associate_surface(legacy)
-      ei_lib.crystal_echo("☲ [Ghost Reclaimed] — The lost echo of 'Gaia' has been bound to its true self. Memory and flesh rejoin.")
-    end
-
-    if storage.ei.gaia_reforged == 1 then return end
-    local planet_name = "gaia"
-    local planet = game.planets[planet_name]
-    if not planet then
-        ei_lib.crystal_echo("☠ [Void’s Echo] — Gaia’s name lies unwritten; the rite dissolves into silent void.")
-        return
-    end
-
-    local gaia_settings = ei_full_gaia_map_gen_settings
-    local function checksum(tbl)
-        local s = serpent.block(tbl, {sortkeys=true, numformat="%0.8f"})
-        local sum = 0 for i = 1, #s do sum = (sum + s:byte(i)) % 2147483647 end
-        return sum
-    end
-
-    -- 1) Grab old Gaia surface, if any
-    local old_surface = planet.surface
-
-    -- 2) If old exists and matches desired settings with resources, do nothing
-    if old_surface and old_surface.valid then
-        if checksum(old_surface.map_gen_settings) == checksum(gaia_settings) then
-            local has, res, cnt = surface_contains_any_resources(old_surface)
-            if has then
-                ei_lib.crystal_echo("✔ [Echo Intact] — " .. res .. " crystals detected (" .. cnt .. "). Gaia stands.")
-                storage.ei.gaia_reforged = 1
-                return
-            end
-        end
-    end
-
-    -- 3a) Evacuate any players still on old Gaia
-    if old_surface and old_surface.valid then
-        for _, player in pairs(game.connected_players) do
-            if player.surface == old_surface then
-                ei_lib.crystal_echo("⚠ [Displacement] — Shunting " .. player.name .. " off world.")
-                local x = ei_rng.int(player.name .. "-x", 0, 20) or 0
-                local y = ei_rng.int(player.name .. "-y", 0, 20) or 0
-                if not x then x = 0 end
-                if not y then y = 0 end
-                player.teleport({x, y}, "nauvis")
-                if event then
-                    ei_echo_codex.youHaveArrived(player,event)
-                end
-            end
-        end
-        -- 3b) Preemptively cleanse all entities on Gaia before destroying it
-        for _, entity in pairs(old_surface.find_entities()) do
-            if entity.valid then
-            pcall(function()
-                entity.destroy({raise_destroy = true})
-            end)
-            end
-        end
-        ei_lib.crystal_echo("✖ [Silence] — No crystal veins resonate. Calling Gaia into the void…")
-    end
-
-    -- 4) Stage a new surface via low-level API
-    local map_gen = util.table.deepcopy(gaia_settings)
-    --map_gen.name = nil
-    local new_surface = game.create_surface("Gaia", map_gen) --Capital because the other is gaia
-    if not new_surface or not new_surface.valid then
-        ei_lib.crystal_echo("☠ [Invocation Fracture] — Failed to birth Gaia’s new form; dusk endures.")
-        return
-    end
-    -- 5) Delete old surface after associating
-    if old_surface and old_surface.valid then
-        game.delete_surface(old_surface.name)
-    end
-    -- 6) Schedule deferred recreation
-    script.on_nth_tick(1, function()
-        -- Abort if already reforged externally
-        if storage.ei.gaia_reforged == 1 then
-            script.on_nth_tick(1, nil)
-            return
-        end
-        -- If old surface still exists, wait
-        if game.surfaces[planet_name] then return end
-        new_surface.name = "gaia" --Now we can uncapitalize it
-        -- 7) Associate new surface with the planet
-        planet.associate_surface(new_surface)
-        -- 8) Update player, save settings, save reforge status, remove scheduler
-        ei_lib.crystal_echo("✧ [Resurrection] — Gaia’s heart ignites once more upon a cleansed crust.")
-        storage.ei.original_gaia_settings = gaia_settings --In case a mod modifies it, we'll know
-        storage.ei.gaia_reforged = 1
-        script.on_nth_tick(1, nil)
-    end)
-end
-
-
 script.on_configuration_changed(function(e)
     if next(e.mod_changes) ~= nil then
         -- This is the mod's broad migration/repair pass. It re-validates globals,
-        -- clears stale cursor/gui state, reapplies runtime buffs, repairs Gaia, and
-        -- reruns subsystem init that depends on changed prototypes or settings.
+        -- clears stale cursor/gui state, reapplies runtime buffs, and reruns subsystem
+        -- init that depends on changed prototypes or settings.
         ei_global.check_init(e) --Crystal_echo will fail without global color table
         ei_compat.check_init(e)
         ei_echo_codex.handle_global_settings(e)
@@ -532,29 +381,6 @@ script.on_configuration_changed(function(e)
         ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
         ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
         ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
-
-        reforge_gaia_surface(e) --Must be called AFTER check_global
-
-        if script.active_mods["Electric_flying_enemies"] then
-            local gaia = game.get_surface("gaia")
-            if gaia then
-                local mgs = gaia.map_gen_settings
-                if mgs then
-                    if mgs.autoplace_controls then
-                        if not mgs.autoplace_controls["electric_enemies"] then
-                            mgs.autoplace_controls["electric_enemies"] = {frequency = 1, richness =1, size = 5 }
-                        end
-                        
-                    end
-                    if mgs.autoplace_settings then
-                        if not mgs.autoplace_settings["electric_enemies"] then
-                            mgs.autoplace_settings.entity.settings["electric_enemies"] = {frequency = 1, richness =1, size = 5 }
-                        end
-                    end
-                    mgs.no_enemies_mode=false
-                end
-            end
-        end
 
         ei_tech_scaling.init()
         ei_victory.init()  -- Required for Better Victory Screen
@@ -832,7 +658,7 @@ function on_built_entity(e)
     ei_matter_stabilizer.on_built_entity(e["entity"])
     ei_induction_matrix.on_built_entity(e)
     ei_black_hole.on_built_entity(e)
-    ei_gate.on_built_entity(e["entity"])
+    ei_gate.on_built_entity(e)
     ei_alien_system.on_built_entity(e["entity"])
     ei_gaia.on_built_entity(e)
     ei_loaders_lib.on_built_entity(e["entity"])
@@ -883,7 +709,7 @@ function on_destroyed_entity(e)
     ei_matter_stabilizer.on_destroyed_entity(e["entity"])
     ei_induction_matrix.on_destroyed_entity(e)
     ei_black_hole.on_destroyed_entity(e["entity"], transfer)
-    ei_gate.on_destroyed_entity(e["entity"], transfer)
+    ei_gate.on_destroyed_entity(e)
     ei_fueler.on_destroyed_entity(e["entity"], transfer)
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])

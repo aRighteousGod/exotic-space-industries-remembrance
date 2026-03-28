@@ -1,9 +1,27 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.03
+Date: 3-27-2026
+  Features:
+    - Gaia's verdant realms now awaken with bespoke genesis, her landscapes sculpted by the arcane forge of creation.
+  Changes:
+    - Gate receiver inventory size: 40 -> 30.
+    - Gaia planet conditions retuned to fit its temperate mid-orbit placement—visual orbital distance 10 -> 23, solar power in space 120 -> 160, surface solar power 20 -> 45, magnetic field 99 -> 45, pressure 800 -> 1600, and day-night cycle 3 -> 8 minutes.
+  Bugfixes:
+    - Fixed a gate crash caused by using the 1.0 spill-item API when breach residue or rollback cargo had to be spilled.
+    - Fixed that Gaia tiles lacked locale entries.
+    - Removed the unsafe Gaia save rename migration which could collide legacy and live Gaia planet entries when upgrading existing saves.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.02
+Date: 3-23-2026
+  Bugfixes:
+    - Mining scars corrected to quarries instead of mining drills.
+    - Gates now preserve transferred item metadata—quality, ammo count, durability, health, spoilage, tags, and custom descriptions.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.01
 Date: 3-22-2026
   Features:
     - Quarries and Big mining drill will now gradually scar and degrade nearby terrain upon depleting resource deposits.
-    - Added additional recipe unlock to Broodslime oil technology—1 Pentapod egg, 150 Nutrients, 90 Broodslime oil -> 1 Pentapod egg + 2-4 Pentapod egg with 95% probability.
+    - Added additional recipe unlock to Broodslime oil technology—1 Pentapod egg, 60 Nutrients, 90 Broodslime oil -> 1 Pentapod egg + 2-4 Pentapod egg with 95% probability.
     - Gates now accrue stress, cooldown, and receiver saturation while in use, and emit breach residue during heavy transit.
     - Added Gate receiver entity—functions as the destination, gets an automatic ID which can be overriden by circuit signal-I.
     - Gate GUI now selects dedicated receivers instead of editing new surface/position exits directly—receiver can be set by circuit.

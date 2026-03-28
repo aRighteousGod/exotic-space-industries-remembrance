@@ -143,6 +143,9 @@ function ei_lib.switch_string(switch_table, string)
     return nil
 end
 
+function ei_lib.get_event_tick(event)
+    return event and event.tick or 0
+end
 
 -- quick access to startup settings
 function ei_lib.config(name)

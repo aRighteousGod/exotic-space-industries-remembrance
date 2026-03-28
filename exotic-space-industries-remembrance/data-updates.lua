@@ -13,7 +13,7 @@ ei_lib = require("lib/lib")
 
 -- reorganize vanilla data
 
--- remove vanilla resources from autoplace-controls
+-- set up the branded default map-gen preset
 require("scripts/data-updates/vanilla-resources")
 -- set science costs to startPrice and set prerequisite to "ei-temp" tech for vanilla techs
 require("scripts/data-updates/tech-flattening")

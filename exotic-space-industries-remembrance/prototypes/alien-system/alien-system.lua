@@ -9,10 +9,6 @@
 require("alien-beacon")
 -- add alien stabilizer
 require("alien-stabilizer")
--- add new tiles
-require("gaia-tiles")
--- add new trees
-require("gaia-trees")
 -- add gate
 require("gate")
 -- add crystal accumulator
@@ -21,5 +17,3 @@ require("crystal-accumulator")
 require("farstation")
 -- add other
 require("alien-structures")
--- add other
-require("gaia-planet")

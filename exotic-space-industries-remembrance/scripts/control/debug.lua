@@ -62,17 +62,19 @@ commands.add_command("refresh_beacon_overload", "Recalculates all machines beaco
     ei_lib.crystal_echo("Beacon overload recalculates across the cosmos")
     ei_beacon_overload.refresh_all_overloads()
 end)
+commands.add_command("reforge-gaia", "Destroy and recreate Gaia's surface from the current planet prototype.", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player or not player.admin then return end
+    local surface = ei_gaia.reforge_gaia_surface(cmd)
+    if not surface then return end
+    player.teleport({0, 0}, surface)
+    ei_lib.crystal_echo("Gaia has been reforged from the current planetary pattern")
+end)
 commands.add_command("goto-gaia", "Teleport to Gaia's surface", function(cmd)
     local player = game.get_player(cmd.player_index)
     if not player or not player.admin then return end
-    local planet = game.planets["gaia"]
-    local surface = planet and planet.surface
-    if not surface then
-        game.planets["gaia"]:create_surface("gaia")
-        ei_lib.crystal_echo("✈ [Astral Transit] - Gaia begins to remember why she came...")
-        --reforge_gaia_surface()
-        return
-    end
+    local surface = ei_gaia.create_gaia()
+    if not surface then return end
     local position = {0, 0}  -- center of the world
     player.teleport(position, surface)
     ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Gaia’s crust.")
