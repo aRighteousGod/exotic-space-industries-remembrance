@@ -151,7 +151,7 @@ data:extend({
     {
         type = "noise-expression",
         name = "gaia_wet_mask",
-        expression = "clamp(gaia_select(gaia_wetness, 0.6, 1.08, 0.16, 0, 1) * gaia_select(gaia_lushness, 0.34, 1.08, 0.14, 0, 1) * gaia_select(gaia_rockiness, -1, 0.42, 0.14, 0, 1) * gaia_land_mask, 0, 1)",
+        expression = "clamp(gaia_select(gaia_wetness, 0.52, 1.08, 0.18, 0, 1) * gaia_select(gaia_lushness, 0.28, 1.08, 0.16, 0, 1) * gaia_select(gaia_rockiness, -1, 0.5, 0.16, 0, 1) * gaia_land_mask, 0, 1)",
     },
     {
         type = "noise-expression",
@@ -166,7 +166,7 @@ data:extend({
     {
         type = "noise-expression",
         name = "gaia_wet_transition_mask",
-        expression = "clamp(max(gaia_meadow_mask * gaia_select(gaia_wetness, 0.38, 0.86, 0.14, 0, 1) * gaia_select(gaia_water_edge_mask, -1, 0.72, 0.16, 0.45, 1), gaia_wet_mask * gaia_select(gaia_water_edge_mask, 0.05, 1.0, 0.12, 0.45, 1) * gaia_select(gaia_lushness, 0.24, 1.1, 0.14, 0, 1)), 0, 1)",
+        expression = "clamp(max(gaia_meadow_mask * gaia_select(gaia_wetness, 0.32, 0.92, 0.16, 0, 1) * gaia_select(gaia_water_edge_mask, -1, 0.84, 0.18, 0.35, 1), gaia_wet_mask * gaia_select(gaia_water_edge_mask, -0.02, 1.0, 0.14, 0.35, 1) * gaia_select(gaia_lushness, 0.18, 1.1, 0.16, 0, 1)), 0, 1)",
     },
     {
         type = "noise-expression",

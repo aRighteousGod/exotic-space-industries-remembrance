@@ -166,13 +166,27 @@ function model.resources(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.surface-patches"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.surface-patches-text"}}
 
-    local image_container = element.add{type = "flow"}
-    image_container.style.horizontal_align = "center"
-    image_container.style.horizontally_stretchable = true
-    image_container.add{type = "sprite", sprite = "ei_uranium_patch"}
+    local surface_image_container = element.add{type = "flow"}
+    surface_image_container.style.horizontal_align = "center"
+    surface_image_container.style.horizontally_stretchable = true
+    surface_image_container.add{type = "sprite", sprite = "item/ei-poor-iron-chunk"}
+    surface_image_container.add{type = "sprite", sprite = "item/ei-poor-copper-chunk"}
+    surface_image_container.add{type = "sprite", sprite = "item/stone"}
 
     element.add{type = "label", caption = {"exotic-industries-informatron.veins"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.veins-text"}}
+
+    local vein_image_container = element.add{type = "flow"}
+    vein_image_container.style.horizontal_align = "center"
+    vein_image_container.style.horizontally_stretchable = true
+    vein_image_container.add{type = "sprite", sprite = "item/ei-iron-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-copper-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-coal-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-sulfur-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-lead-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-gold-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-uranium-chunk"}
+    vein_image_container.add{type = "sprite", sprite = "item/ei-neodym-chunk"}
 end
 
 function model.artifacts(player_index, element)

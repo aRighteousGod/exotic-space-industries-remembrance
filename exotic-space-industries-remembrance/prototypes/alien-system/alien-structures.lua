@@ -257,7 +257,7 @@ data:extend({
         icon = ei_graphics_item_path.."alien-flowers.png",
         flags = {"placeable-neutral", "placeable-off-grid"},
         picture = {
-            filename = ei_graphics_entity_path.."alien-flowers-6.png",
+            filename = ei_graphics_3_path.."graphics/entities/alien-flowers-6.png",
             size = {512/2,512/2},
             shift = {0, 0},
 	        scale = 0.35*2,

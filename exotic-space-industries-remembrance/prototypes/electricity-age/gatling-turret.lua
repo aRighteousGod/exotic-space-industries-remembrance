@@ -2,7 +2,7 @@ function gatling_place(inputs)
 	return {
 		layers = {
 			{
-				filename = ei_path .. "graphics/entities/gatling-turret/gatling-place.png",
+				filename = ei_graphics_3_path .. "graphics/entities/gatling-turret/gatling-place.png",
 				priority = "medium",
 				scale = 1.5,
 				width = 128,
@@ -22,7 +22,7 @@ function gatling_sheet(inputs)
 	return {
 		layers = {
 			{
-				filename = ei_path .. "graphics/entities/gatling-turret/gatling-sheet.png",
+				filename = ei_graphics_3_path .. "graphics/entities/gatling-turret/gatling-sheet.png",
 				priority = "medium",
 				scale = 0.75,
 				width = 256,
@@ -40,7 +40,7 @@ data:extend({
 	{
 		name = "ei-gatling-turret",
 		type = "item",
-		icon = ei_path .. "graphics/icons/gatling-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/gatling-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		subgroup = "defensive-structure",
@@ -51,7 +51,7 @@ data:extend({
 	{
 		type = "ammo-turret",
 		name = "ei-gatling-turret",
-		icon = ei_path .. "graphics/icons/gatling-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/gatling-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		flags = { "placeable-player", "player-creation" },
@@ -97,14 +97,14 @@ data:extend({
 		attacking_speed = 20,
         preparing_sound = {
 				{
-					filename = ei_path .. "sounds/gatling-turret-preparing.ogg",
+                filename = ei_sounds_path .. "gatling-turret-preparing.ogg",
 					volume = 0.6,
 					audible_distance_modifier = 0.66,
 				},
 			},
         folding_sound = {
 				{
-					filename = ei_path .. "sounds/gatling-turret-folding.ogg",
+                filename = ei_sounds_path .. "gatling-turret-folding.ogg",
 					volume = 0.6,
 					audible_distance_modifier = 0.66,
 				},
@@ -143,7 +143,7 @@ data:extend({
 			min_range = 4,
 			sound = {
 				{
-					filename = ei_path .. "sounds/gatling-turret-firing.ogg",
+                filename = ei_sounds_path .. "gatling-turret-firing.ogg",
 					volume = 0.7,
 				},
 			},
@@ -172,7 +172,7 @@ data:extend({
 	{
 		name = "ei-gatling-turret",
 		type = "technology",
-		icon = ei_path .. "graphics/icons/gatling-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/gatling-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		prerequisites = {

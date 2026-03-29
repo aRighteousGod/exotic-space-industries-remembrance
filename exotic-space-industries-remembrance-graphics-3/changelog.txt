@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 2026-3-29
+  Changes:
+    - Imported all graphics added to main mod file since 1.0.2.
+    - Imported all sounds added to main mod file since 1.0.2.
+    - Added recolored Gaia decorative sprites.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 2025-11-19
   Changes:

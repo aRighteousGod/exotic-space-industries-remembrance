@@ -22,6 +22,81 @@ local gaia_shore_tiles = merge_tile_groups(gaia_biomes.tile_groups.meadow, gaia_
 local gaia_fringe_tiles = gaia_biomes.tile_groups.rock_fringe
 local gaia_shoulder_tiles = merge_tile_groups(gaia_biomes.tile_groups.meadow, gaia_biomes.tile_groups.rock_fringe)
 
+local function make_ambient_volume_control(darkness_threshold)
+    local advanced_volume_control =
+    {
+        fades =
+        {
+            fade_in =
+            {
+                curve_type = "S-curve",
+                from = {control = 0.5, volume_percentage = 0.0},
+                to = {control = 1.5, volume_percentage = 100.0},
+            }
+        }
+    }
+
+    if darkness_threshold ~= nil then
+        advanced_volume_control.darkness_threshold = darkness_threshold
+    end
+
+    return advanced_volume_control
+end
+
+local function make_ambient_sound(filename, variation_count, volume, tuning, advanced_volume_control)
+    return {
+        sound =
+        {
+            variations = sound_variations(filename, variation_count, volume),
+            advanced_volume_control = advanced_volume_control or make_ambient_volume_control(),
+        },
+        radius = tuning.radius,
+        min_entity_count = tuning.min_entity_count,
+        max_entity_count = tuning.max_entity_count,
+        entity_to_sound_ratio = tuning.entity_to_sound_ratio,
+        average_pause_seconds = tuning.average_pause_seconds,
+    }
+end
+
+local gaia_meadow_tree_tuning = {
+    radius = 18,
+    min_entity_count = 8,
+    max_entity_count = 24,
+    entity_to_sound_ratio = 0.06,
+    average_pause_seconds = 0,
+}
+
+local gaia_wet_tree_tuning = {
+    radius = 18,
+    min_entity_count = 6,
+    max_entity_count = 20,
+    entity_to_sound_ratio = 0.08,
+    average_pause_seconds = 0,
+}
+
+local gaia_rock_tree_tuning = {
+    radius = 18,
+    min_entity_count = 8,
+    max_entity_count = 18,
+    entity_to_sound_ratio = 0.05,
+    average_pause_seconds = 0,
+}
+
+local gaia_meadow_ambient = {
+    make_ambient_sound("__base__/sound/world/trees/tree-ambient-leaves", 5, 0.12, gaia_meadow_tree_tuning),
+    make_ambient_sound("__base__/sound/world/day/world-tree-critters-day", 6, 0.08, gaia_meadow_tree_tuning, make_ambient_volume_control(-0.3)),
+    make_ambient_sound("__base__/sound/world/night/world-tree-insects-night", 8, 0.10, gaia_meadow_tree_tuning, make_ambient_volume_control(0.3)),
+}
+
+local gaia_wet_ambient = {
+    make_ambient_sound("__space-age__/sound/world/tiles/insects-deep-mud", 8, 0.12, gaia_wet_tree_tuning),
+    make_ambient_sound("__space-age__/sound/world/tiles/night-frogs", 10, 0.08, gaia_wet_tree_tuning, make_ambient_volume_control(0.6)),
+}
+
+local gaia_rock_ambient = {
+    make_ambient_sound("__space-age__/sound/world/semi-persistent/wind-gust", 6, 0.10, gaia_rock_tree_tuning),
+}
+
 data:extend({
     {
         type = "noise-expression",
@@ -202,12 +277,12 @@ local tree_colors = {
 }
 
 local gaia_tree_definitions = {
-    ["01"] = {source = "01", tiles = gaia_meadow_tiles},
-    ["02"] = {source = "02", tiles = gaia_wet_tiles},
-    ["03"] = {source = "01", tiles = gaia_meadow_tiles},
-    ["04"] = {source = "02", tiles = gaia_shore_tiles},
-    ["05"] = {source = "05", tiles = gaia_fringe_tiles},
-    ["06"] = {source = "05", tiles = gaia_shoulder_tiles},
+    ["01"] = {source = "01", tiles = gaia_meadow_tiles, ambient_sounds = gaia_meadow_ambient},
+    ["02"] = {source = "02", tiles = gaia_wet_tiles, ambient_sounds = gaia_wet_ambient},
+    ["03"] = {source = "01", tiles = gaia_meadow_tiles, ambient_sounds_group = "ei-gaia-tree-01"},
+    ["04"] = {source = "02", tiles = gaia_shore_tiles, ambient_sounds_group = "ei-gaia-tree-02"},
+    ["05"] = {source = "05", tiles = gaia_fringe_tiles, ambient_sounds = gaia_rock_ambient},
+    ["06"] = {source = "05", tiles = gaia_shoulder_tiles, ambient_sounds_group = "ei-gaia-tree-05"},
 }
 
 local function gaia_leaf_filename(number, variation_letter)
@@ -255,6 +330,9 @@ local function make_tree(number)
     for i, variation in ipairs(tree.variations) do
         remap_gaia_tree_variation(tree.variations[i], number)
     end
+
+    tree.ambient_sounds = definition.ambient_sounds
+    tree.ambient_sounds_group = definition.ambient_sounds_group
 
     data:extend({tree})
 end

@@ -14,13 +14,17 @@ local function merge_tile_groups(...)
 end
 
 model.tile_groups = {
-    meadow = {
+    meadow_green = {
         "ei-gaia-grass-1",
+    },
+    meadow_purple = {
         "ei-gaia-grass-1-var",
     },
-    wet = {
+    wet_green = {
         "ei-gaia-grass-2",
         "ei-gaia-grass-2-var",
+    },
+    wet_bloom = {
         "ei-gaia-grass-2-var-2",
     },
     rock_fringe = {
@@ -35,6 +39,8 @@ model.tile_groups = {
     },
 }
 
+model.tile_groups.meadow = merge_tile_groups(model.tile_groups.meadow_green, model.tile_groups.meadow_purple)
+model.tile_groups.wet = merge_tile_groups(model.tile_groups.wet_green, model.tile_groups.wet_bloom)
 model.tile_groups.grass = merge_tile_groups(model.tile_groups.meadow, model.tile_groups.wet)
 model.tile_groups.rock = merge_tile_groups(model.tile_groups.rock_fringe, model.tile_groups.rock_core)
 model.tile_groups.lush = merge_tile_groups(model.tile_groups.meadow, model.tile_groups.wet)

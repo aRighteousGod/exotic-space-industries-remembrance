@@ -4,7 +4,7 @@ shotgun_turret_scale = 0.48
 
 function shotgun_turret_extension(inputs)
 	return {
-		filename = ei_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret.png",
+		filename = ei_graphics_3_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret.png",
 		priority = "medium",
 		width = 1328 / 8,
 		height = 1208 / 8,
@@ -20,7 +20,7 @@ end
 
 function shotgun_turret_extension_mask(inputs)
 	return {
-		filename = ei_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-mask.png",
+		filename = ei_graphics_3_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-mask.png",
 		flags = { "mask" },
 		width = 1328 / 8,
 		height = 1208 / 8,
@@ -37,7 +37,7 @@ end
 
 function shotgun_turret_extension_shadow(inputs)
 	return {
-		filename = ei_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-shadow.png",
+		filename = ei_graphics_3_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-shadow.png",
 		width = 1328 / 8,
 		height = 1208 / 8,
 		direction_count = 8,
@@ -55,7 +55,7 @@ function shotgun_turret_attack(inputs)
 	return {
 		layers = {
 			{
-				filename = ei_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret.png",
+				filename = ei_graphics_3_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret.png",
 				priority = "low",
 				line_length = 8,
 				width = 1328 / 8,
@@ -67,7 +67,7 @@ function shotgun_turret_attack(inputs)
 				scale = shotgun_turret_scale,
 			},
 			{
-				filename = ei_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-mask.png",
+				filename = ei_graphics_3_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-mask.png",
 				flags = { "mask" },
 				width = 1328 / 8,
 				height = 1208 / 8,
@@ -81,7 +81,7 @@ function shotgun_turret_attack(inputs)
 				scale = shotgun_turret_scale,
 			},
 			{
-				filename = ei_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-shadow.png",
+				filename = ei_graphics_3_path .. "graphics/entities/auto-shotgun-turret/shotgun-turret-shadow.png",
 				width = 1328 / 8,
 				height = 1208 / 8,
 				direction_count = 64,
@@ -101,7 +101,7 @@ data:extend({
 	{
 		type = "item",
 		name = "ei-auto-shotgun-turret",
-		icon = ei_path .. "graphics/icons/auto-shotgun-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/auto-shotgun-turret.png",
 		icon_size = 64,
 		icon_mipmaps = 4,
 		subgroup = "defensive-structure",
@@ -113,7 +113,7 @@ data:extend({
 		type = "ammo-turret",
 		name = "ei-auto-shotgun-turret",
 		placeable_by = { item = "ei-auto-shotgun-turret", count = 1 },
-		icon = ei_path .. "graphics/icons/auto-shotgun-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/auto-shotgun-turret.png",
 		icon_size = 64,
 		icon_mipmaps = 4,
 		circuit_connector = data.raw["ammo-turret"]["gun-turret"].circuit_connector,
@@ -268,7 +268,7 @@ data:extend({
 	{
 		name = "ei-auto-shotgun-turret",
 		type = "technology",
-		icon = ei_path .. "graphics/tech/auto-shotgun-turret.png",
+		icon = ei_graphics_3_path .. "graphics/tech/auto-shotgun-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		prerequisites = { "ei-shotgun-turret", "ei-electricity-power", "military-3", "advanced-circuit", "electric-engine" },

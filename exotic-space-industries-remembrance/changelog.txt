@@ -1,3 +1,25 @@
+﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.05
+Date: 3-29-2026
+  Features:
+    - Gaia now has ambient and wind sounds, enriching her landscapes with subtle harmonies.
+    - Gaia decoratives switched from tinting to actual recoloring, improving alignment with their biomes.
+    - Separate recolored decoratives created for the purple Gaia tiles, improving harmony and reducing contrast.
+    - Forged Nauvis deep mines into a stratified extraction regime: iron and copper now march in fault-bound metal provinces, coal and sulfur congeal through sedimentary basins, lead and gold rise from hydrothermal frontier corridors, while uranium and neodymium are exiled to outer scar-zones and anomaly pockets where the planet’s wounds still glow.
+  Changes:
+    - Updated Informatron New resource system page.
+    - Minigun and Heavy minigun now use the same firing sound as the Minigun turret.
+    - Adjusted Gaia world generation to more consistently display the full gamut of tiles.
+    - Alien spawner now samples nearby biome and swaps preset trees to match the neighborhood.
+  Bugfixes:
+    - Alien flower 6 is now an amber bloom instead of a golden rock.
+    - Dark blue Gaia boulders no longer yield ice instead of stone.
+    - Gaia boulders no longer use base boulder locale name.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.04
+Date: 3-28-2026
+  Bugfixes:
+    - Removed duplicate locale categories which prevented loading.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.03
 Date: 3-27-2026

@@ -4,7 +4,7 @@ data:extend({
 	{
 		type = "item",
 		name = "ei-shotgun-turret",
-		icon = ei_path .. "graphics/icons/shotgun-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/shotgun-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		subgroup = "defensive-structure",
@@ -15,7 +15,7 @@ data:extend({
 	{
 		type = "ammo-turret",
 		name = "ei-shotgun-turret",
-		icon = ei_path .. "graphics/icons/shotgun-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/shotgun-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		flags = { "placeable-player", "player-creation" },
@@ -88,12 +88,12 @@ data:extend({
 					scale = 1,
 					stripes = {
 						{
-							filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-1.png",
+							filename = ei_graphics_3_path .. "graphics/entities/shotgun-turret/shotgun-turret-1.png",
 							width_in_frames = 1,
 							height_in_frames = 32,
 						},
 						{
-							filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-2.png",
+							filename = ei_graphics_3_path .. "graphics/entities/shotgun-turret/shotgun-turret-2.png",
 							width_in_frames = 1,
 							height_in_frames = 32,
 						},
@@ -116,12 +116,12 @@ data:extend({
 					scale = 1,
 					stripes = {
 						{
-							filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-mask-1.png",
+							filename = ei_graphics_3_path .. "graphics/entities/shotgun-turret/shotgun-turret-mask-1.png",
 							width_in_frames = 1,
 							height_in_frames = 32,
 						},
 						{
-							filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-mask-2.png",
+							filename = ei_graphics_3_path .. "graphics/entities/shotgun-turret/shotgun-turret-mask-2.png",
 							width_in_frames = 1,
 							height_in_frames = 32,
 						},
@@ -144,52 +144,6 @@ data:extend({
 				},
 			},
 		},
-		--[[ 1.1 proto style
-		base_picture = {
-			layers = {
-				{
-					filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-base.png",
-					priority = "high",
-					width = 70,
-					height = 52,
-					direction_count = 1,
-					frame_count = 1,
-					shift = util.by_pixel(0, 2),
-					hr_version = {
-						filename = ei_path .. "graphics/entities/shotgun-turret/hr-shotgun-turret-base.png",
-						priority = "high",
-						width = 138,
-						height = 104,
-						direction_count = 1,
-						frame_count = 1,
-						shift = util.by_pixel(-0.5, 2),
-						scale = 0.5,
-					},
-				},
-				{
-					filename = ei_path .. "graphics/entities/shotgun-turret/shotgun-turret-base-shadow.png",
-					line_length = 1,
-					width = 66,
-					height = 42,
-					draw_as_shadow = true,
-					direction_count = 1,
-					frame_count = 1,
-					shift = util.by_pixel(6, 3),
-					hr_version = {
-						filename = ei_path .. "graphics/entities/shotgun-turret/hr-shotgun-turret-base-shadow.png",
-						line_length = 1,
-						width = 132,
-						height = 82,
-						draw_as_shadow = true,
-						direction_count = 1,
-						frame_count = 1,
-						shift = util.by_pixel(6, 3),
-						scale = 0.5,
-					},
-				},
-			},
-		},
-        ]]
 		vehicle_impact_sound = sounds.generic_impact,
 
 		attack_parameters = {
@@ -246,7 +200,7 @@ data:extend({
 	{
 		name = "ei-shotgun-turret",
 		type = "technology",
-		icon = ei_path .. "graphics/icons/shotgun-turret.png",
+		icon = ei_graphics_3_path .. "graphics/icons/shotgun-turret.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		prerequisites = { "gun-turret", "military" },
@@ -408,7 +362,7 @@ data:extend({
 	{
 		type = "ammo",
 		name = "ei-dragons-breath-shotgun-shell",
-		icon = ei_path .. "graphics/icons/dragons-breath-shotgun-shell.png",
+		icon = ei_graphics_3_path .. "graphics/icons/dragons-breath-shotgun-shell.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		ammo_category = "shotgun-shell",
@@ -472,7 +426,7 @@ data:extend({
 	{
 		name = "ei-dragons-breath-shotgun-shell",
 		type = "technology",
-		icon = ei_path .. "graphics/icons/dragons-breath-shotgun-shell.png",
+		icon = ei_graphics_3_path .. "graphics/icons/dragons-breath-shotgun-shell.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		prerequisites = { "metallurgic-science-pack", "military-4", "ei-carbon-manipulation" },

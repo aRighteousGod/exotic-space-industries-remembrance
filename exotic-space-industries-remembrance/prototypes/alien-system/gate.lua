@@ -288,24 +288,24 @@ data:extend({
     {
         type = "item",
         name = "ei-breach-residue",
-        icon = ei_path.."graphics/items/breach-residue-1.png",
+        icon = ei_graphics_3_path.."graphics/items/breach-residue-1.png",
         icon_size = 512,
         icon_mipmaps = 5,
         pictures = {
             {
-                filename = ei_path.."graphics/items/breach-residue-1.png",
+                filename = ei_graphics_3_path.."graphics/items/breach-residue-1.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/items/breach-residue-2.png",
+                filename = ei_graphics_3_path.."graphics/items/breach-residue-2.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625
             },
             {
-                filename = ei_path.."graphics/items/breach-residue-3.png",
+                filename = ei_graphics_3_path.."graphics/items/breach-residue-3.png",
                 mipmap_count = 5,
                 size = 512,
                 scale = 0.0625

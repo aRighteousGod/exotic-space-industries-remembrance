@@ -1,75 +1,262 @@
 
 local resource_autoplace = require("__core__/lualib/resource-autoplace")
 
+local nauvis_profile_expressions = {
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_common_inner_bias",
+    expression = "clamp(1.18 - distance / 2600, 0.32, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_lead_frontier_bias",
+    expression = "clamp((distance - 260) / 420, 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_gold_frontier_bias",
+    expression = "clamp((distance - 420) / 480, 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_outer_scar_bias",
+    expression = "clamp((distance - 600) / 700, 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_fault_noise",
+    expression = "0.5 + 0.5 * multioctave_noise{x = x, y = y, persistence = 0.72, seed0 = map_seed, seed1 = 9101, octaves = 4, input_scale = 1/85}"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_metal_split_noise",
+    expression = "0.5 + 0.5 * multioctave_noise{x = x + 250, y = y - 180, persistence = 0.7, seed0 = map_seed, seed1 = 9102, octaves = 3, input_scale = 1/110}"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_basin_noise",
+    expression = "0.5 + 0.5 * multioctave_noise{x = x - 400, y = y + 140, persistence = 0.75, seed0 = map_seed, seed1 = 9103, octaves = 4, input_scale = 1/120}"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_scar_noise",
+    expression = "0.5 + 0.5 * multioctave_noise{x = x, y = y, persistence = 0.68, seed0 = map_seed, seed1 = 9104, octaves = 3, input_scale = 1/70}"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_anomaly_noise",
+    expression = "0.5 + 0.5 * multioctave_noise{x = x + 1200, y = y - 900, persistence = 0.65, seed0 = map_seed, seed1 = 9105, octaves = 2, input_scale = 1/45}"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_metal_belt",
+    expression = "clamp(0.25 + 0.45 * ei_nauvis_fault_noise + 0.2 * aux + 0.15 * clamp(elevation, 0, 1), 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_basin_belt",
+    expression = "clamp(0.2 + 0.45 * ei_nauvis_basin_noise + 0.25 * moisture + 0.2 * clamp(1 - max(elevation, 0), 0, 1), 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_sulfur_fringe",
+    expression = "clamp((0.64 - abs(ei_nauvis_basin_noise - 0.66)) * 2.1, 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_hydrothermal_belt",
+    expression = "clamp((0.62 - abs(ei_nauvis_fault_noise - 0.55)) * 1.9 + 0.12 * aux + 0.08 * clamp(elevation, 0, 1), 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_scar_belt",
+    expression = "clamp((0.58 - abs(ei_nauvis_scar_noise - 0.52)) * 1.9 + 0.18 * clamp(elevation, 0, 1) + 0.16 * (1 - moisture), 0, 1)"
+  },
+  {
+    type = "noise-expression",
+    name = "ei_nauvis_anomaly_pockets",
+    expression = "clamp((0.35 - abs(ei_nauvis_anomaly_noise - 0.5)) * 3.4, 0, 1)"
+  },
+}
+
+data:extend(nauvis_profile_expressions)
+
 --====================================================================================================
 --DRILL DEPOSITS
 --====================================================================================================
 
-function ei_autoplace(name, rarity)
+local nauvis_autoplace_profiles = {
+  ["ei-iron-structural"] = {
+    base_density = 6.2,
+    base_spots_per_km2 = 1.15,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.5,
+    random_spot_size_maximum = 1.25,
+    random_probability = 1 / 48,
+    additional_richness = 500000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.4,
+    probability_mask = "clamp(0.24 + 0.92 * ei_nauvis_common_inner_bias * ei_nauvis_metal_belt * (0.85 + 0.3 * (1 - ei_nauvis_metal_split_noise)), 0, 1)",
+    richness_mask = "1.05 + 0.1 * tier_from_start + 0.24 * ei_nauvis_metal_belt",
+    candidate_spot_count = 22,
+  },
+  ["ei-copper-structural"] = {
+    base_density = 6.15,
+    base_spots_per_km2 = 1.18,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.5,
+    random_spot_size_maximum = 1.25,
+    random_probability = 1 / 48,
+    additional_richness = 500000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.35,
+    probability_mask = "clamp(0.24 + 0.9 * ei_nauvis_common_inner_bias * ei_nauvis_metal_belt * (0.85 + 0.3 * ei_nauvis_metal_split_noise), 0, 1)",
+    richness_mask = "1.02 + 0.1 * tier_from_start + 0.22 * ei_nauvis_metal_belt",
+    candidate_spot_count = 22,
+  },
+  ["ei-coal-basin"] = {
+    base_density = 5.2,
+    base_spots_per_km2 = 1.0,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.45,
+    random_spot_size_maximum = 1.2,
+    random_probability = 1 / 48,
+    additional_richness = 500000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.3,
+    probability_mask = "clamp(0.24 + 0.9 * ei_nauvis_common_inner_bias * ei_nauvis_basin_belt, 0, 1)",
+    richness_mask = "1 + 0.08 * tier_from_start + 0.18 * ei_nauvis_basin_belt",
+    candidate_spot_count = 22,
+  },
+  ["ei-sulfur-basin"] = {
+    base_density = 4.6,
+    base_spots_per_km2 = 0.95,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.45,
+    random_spot_size_maximum = 1.15,
+    random_probability = 1 / 48,
+    additional_richness = 550000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.35,
+    probability_mask = "clamp(0.18 + 0.88 * ei_nauvis_common_inner_bias * ei_nauvis_basin_belt * (0.65 + 0.35 * ei_nauvis_sulfur_fringe), 0, 1)",
+    richness_mask = "1.03 + 0.1 * tier_from_start + 0.16 * ei_nauvis_basin_belt + 0.12 * ei_nauvis_sulfur_fringe",
+    candidate_spot_count = 20,
+  },
+  ["ei-lead-frontier"] = {
+    base_density = 0.7,
+    base_spots_per_km2 = 0.35,
+    has_starting_area_placement = false,
+    random_spot_size_minimum = 0.45,
+    random_spot_size_maximum = 1.15,
+    random_probability = 1 / 48,
+    additional_richness = 700000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.45,
+    probability_mask = "clamp(0.04 + 1.05 * ei_nauvis_lead_frontier_bias * ei_nauvis_hydrothermal_belt, 0, 1)",
+    richness_mask = "1.15 + 0.18 * tier_from_start + 0.28 * ei_nauvis_hydrothermal_belt",
+    candidate_spot_count = 20,
+  },
+  ["ei-gold-frontier"] = {
+    base_density = 0.45,
+    base_spots_per_km2 = 0.22,
+    has_starting_area_placement = false,
+    random_spot_size_minimum = 0.4,
+    random_spot_size_maximum = 1.1,
+    random_probability = 1 / 48,
+    additional_richness = 850000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.5,
+    probability_mask = "clamp(0.02 + 1.15 * ei_nauvis_gold_frontier_bias * ei_nauvis_hydrothermal_belt, 0, 1)",
+    richness_mask = "1.28 + 0.24 * tier_from_start + 0.34 * ei_nauvis_hydrothermal_belt",
+    candidate_spot_count = 18,
+  },
+  ["ei-uranium-scar"] = {
+    base_density = 0.35,
+    base_spots_per_km2 = 0.16,
+    has_starting_area_placement = false,
+    random_spot_size_minimum = 0.45,
+    random_spot_size_maximum = 1.1,
+    random_probability = 1 / 48,
+    additional_richness = 900000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.55,
+    probability_mask = "clamp(0.01 + 1.18 * ei_nauvis_outer_scar_bias * ei_nauvis_scar_belt, 0, 1)",
+    richness_mask = "1.35 + 0.3 * tier_from_start + 0.32 * ei_nauvis_scar_belt",
+    candidate_spot_count = 18,
+  },
+  ["ei-neodym-anomaly"] = {
+    base_density = 0.18,
+    base_spots_per_km2 = 0.09,
+    has_starting_area_placement = false,
+    random_spot_size_minimum = 0.2,
+    random_spot_size_maximum = 0.9,
+    random_probability = 1 / 48,
+    additional_richness = 1250000,
+    richness_multiplier = 2,
+    richness_multiplier_distance_bonus = 2.8,
+    probability_mask = "clamp(1.25 * ei_nauvis_outer_scar_bias * ei_nauvis_scar_belt * ei_nauvis_anomaly_pockets, 0, 1)",
+    richness_mask = "1.6 + 0.4 * tier_from_start + 0.36 * ei_nauvis_scar_belt + 0.42 * ei_nauvis_anomaly_pockets",
+    candidate_spot_count = 16,
+  },
+}
 
-  -- default to rarity "common", other possible "rare" and "very-rare"
+local gaia_autoplace_profile = {
+  base_density = 1,
+  base_spots_per_km2 = 1,
+  has_starting_area_placement = true,
+  random_spot_size_minimum = 0.5,
+  random_spot_size_maximum = 1.25,
+  random_probability = 1 / 48,
+  additional_richness = 500000,
+  richness_multiplier = 2,
+  richness_multiplier_distance_bonus = 2,
+}
 
-  local base_density = 6 -- how much on average is placed near the starting area
-  local base_spots_per_km2 = 1.2 -- number of spots per km^2 near the starting area
-  local has_starting_area_placement = true
-  local random_spot_size_minimum = 0.5
-  local random_spot_size_maximum = 1.25
-  local random_probability = 1/48
-  local additional_richness = 500000
-  local richness_multiplier = 2
-  local richness_multiplier_distance_bonus = 2.5
-
-  if rarity == "rare" then
-    has_starting_area_placement = false
-    base_density = 0.4
-    base_spots_per_km2 = 0.2
-    random_spot_size_minimum = 0.5
-    random_spot_size_maximum = 1.25
-    additional_richness = 800000
+local function apply_profile_masks(autoplace, profile)
+  if not profile.probability_mask then
+    return autoplace
   end
 
-  if rarity == "very-rare" then
-    has_starting_area_placement = false
-    base_density = 0.2
-    base_spots_per_km2 = 0.1
-    random_spot_size_minimum = 0.2
-    random_spot_size_maximum = 1
-    additional_richness = 1200000
+  local mask = profile.probability_mask
+  local richness_multiplier = profile.richness_mask or ("max(0.25, 0.65 + 0.85 * (" .. mask .. "))")
+
+  autoplace.probability_expression = "clamp((" .. autoplace.probability_expression .. ") * (" .. mask .. "), 0, 1)"
+  autoplace.richness_expression = "max(0, (" .. autoplace.richness_expression .. ") * (" .. richness_multiplier .. "))"
+
+  return autoplace
+end
+
+function ei_autoplace(name, profile_name)
+  local profile = gaia_autoplace_profile
+
+  if profile_name ~= "gaia" then
+    profile = nauvis_autoplace_profiles[profile_name]
   end
 
-  if rarity == "gaia" then
-    base_density = 1
-    base_spots_per_km2 = 1
-    has_starting_area_placement = true
-    random_spot_size_minimum = 0.5
-    random_spot_size_maximum = 1.25
-    random_probability = 1/48
-    additional_richness = 500000
-    richness_multiplier = 2
-    richness_multiplier_distance_bonus = 2
+  if not profile then
+    error("Unknown EI autoplace profile: " .. tostring(profile_name))
   end
 
-  autoplace = resource_autoplace.resource_autoplace_settings
+  local autoplace = resource_autoplace.resource_autoplace_settings
 	{
 		name = name,
 		order = "x1",
-		base_density = base_density,
-		richness_multiplier = richness_multiplier,
-		richness_multiplier_distance_bonus = richness_multiplier_distance_bonus,
-		base_spots_per_km2 = base_spots_per_km2,
-		has_starting_area_placement = has_starting_area_placement,
-		random_spot_size_minimum = random_spot_size_minimum,
-		random_spot_size_maximum = random_spot_size_maximum,
-    random_probability = random_probability,
+		base_density = profile.base_density,
+		richness_multiplier = profile.richness_multiplier,
+		richness_multiplier_distance_bonus = profile.richness_multiplier_distance_bonus,
+		base_spots_per_km2 = profile.base_spots_per_km2,
+		has_starting_area_placement = profile.has_starting_area_placement,
+		random_spot_size_minimum = profile.random_spot_size_minimum,
+		random_spot_size_maximum = profile.random_spot_size_maximum,
+    random_probability = profile.random_probability,
 		regular_blob_amplitude_multiplier = 1,
 		richness_post_multiplier = 1.0,
-		additional_richness = additional_richness,
+		additional_richness = profile.additional_richness,
 		regular_rq_factor_multiplier = 1,
-		candidate_spot_count = 22
+		candidate_spot_count = profile.candidate_spot_count or 22
 	}
 
-  return autoplace
-
+  return apply_profile_masks(autoplace, profile)
 end
 
 data:extend({
@@ -97,7 +284,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-gold-patch", "rare"),
+        autoplace = ei_autoplace("ei-gold-patch", "ei-gold-frontier"),
         stage_counts = {0},
         stages =
         {
@@ -146,7 +333,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-lead-patch", "common"),
+        autoplace = ei_autoplace("ei-lead-patch", "ei-lead-frontier"),
         stage_counts = {0},
         stages =
         {
@@ -195,7 +382,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-neodym-patch", "very-rare"),
+        autoplace = ei_autoplace("ei-neodym-patch", "ei-neodym-anomaly"),
         stage_counts = {0},
         stages =
         {
@@ -244,7 +431,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-iron-patch", "common"),
+        autoplace = ei_autoplace("ei-iron-patch", "ei-iron-structural"),
         stage_counts = {0},
         stages =
         {
@@ -293,7 +480,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-copper-patch", "common"),
+        autoplace = ei_autoplace("ei-copper-patch", "ei-copper-structural"),
         stage_counts = {0},
         stages =
         {
@@ -342,7 +529,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-coal-patch", "common"),
+        autoplace = ei_autoplace("ei-coal-patch", "ei-coal-basin"),
         stage_counts = {0},
         stages =
         {
@@ -393,7 +580,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         --collision_mask = {"item-layer", "water-tile"},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-        autoplace = ei_autoplace("ei-uranium-patch", "rare"),
+        autoplace = ei_autoplace("ei-uranium-patch", "ei-uranium-scar"),
         stage_counts = {0},
         stages =
         {
@@ -442,7 +629,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-sulfur-patch", "common"),
+    autoplace = ei_autoplace("ei-sulfur-patch", "ei-sulfur-basin"),
     stage_counts = {0},
     stages =
     {
@@ -832,7 +1019,7 @@ for _, resource_name in pairs({
   "ei-uranium-patch",
   "ei-sulfur-patch",
 }) do
-  -- enable placing and control. I think.
+  -- Register the existing control names on Nauvis so previews, UI controls, and saves keep working.
   data.raw["planet"]["nauvis"].map_gen_settings.autoplace_settings["entity"]["settings"][resource_name] = {}
   data.raw["planet"]["nauvis"].map_gen_settings.autoplace_controls[resource_name] = {}
 end

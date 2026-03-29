@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.3.03",
+    "version": "1.3.05",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -97,7 +97,7 @@
 
         "exotic-space-industries-remembrance-graphics-1",
         "exotic-space-industries-remembrance-graphics-2",
-        "exotic-space-industries-remembrance-graphics-3 >= 1.0.2",
+        "exotic-space-industries-remembrance-graphics-3 >= 1.0.3",
         "exotic-space-industries-remembrance-soundtrack-1",
         "exotic-space-industries-remembrance-soundtrack-2"
     ]

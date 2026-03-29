@@ -2,7 +2,7 @@ data:extend({
 	{
 		name = "ei-steam-surface-harvester",
 		type = "technology",
-		icon = ei_path .. "graphics/tech/steam-surface-harvester.png",
+		icon = ei_graphics_3_path .. "graphics/tech/steam-surface-harvester.png",
 		icon_size = 512,
 		icon_mipmaps = 5,
 		age = "steam-age",
@@ -87,7 +87,7 @@ data:extend({
 		energy_usage = "150kW",
 		working_sound = {
 			sound = {
-				filename = ei_path .. "sounds/classic-electric-mining-drill.ogg",
+                filename = ei_sounds_path .. "classic-electric-mining-drill.ogg",
 				volume = 0.75,
 			},
 			idle_sound = {

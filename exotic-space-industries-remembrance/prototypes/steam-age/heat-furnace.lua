@@ -4,7 +4,7 @@ data:extend({
 {
     type = "furnace",
     name = "ei-heat-steel-furnace",
-    icon = ei_path.."graphics/icons/heat-steel-furnace.png",
+    icon = ei_graphics_3_path.."graphics/icons/heat-steel-furnace.png",
     icon_size = 64,
     flags = {"placeable-neutral", "placeable-player", "player-creation"},
     minable = {mining_time = 0.2, result = "ei-heat-steel-furnace"},
@@ -114,7 +114,7 @@ data:extend({
         layers =
         {
           {
-            filename = ei_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace.png",
+            filename = ei_graphics_3_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace.png",
             priority = "high",
             width = 171,
             height = 174,
@@ -122,7 +122,7 @@ data:extend({
             scale = 0.5
           },
           {
-            filename = ei_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace-shadow.png",
+            filename = ei_graphics_3_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace-shadow.png",
             priority = "high",
             width = 163,
             height = 85,
@@ -139,7 +139,7 @@ data:extend({
           effect = "flicker",
           animation =
           {
-            filename = ei_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace-heater.png",
+            filename = ei_graphics_3_path.."graphics/entities/heat-steel-furnace/heat-steel-furnace-heater.png",
             priority = "high",
             --line_length = 8,
             width = 48,

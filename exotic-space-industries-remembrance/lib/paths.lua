@@ -16,6 +16,7 @@ ei_soundtrack_path_2 = "__exotic-space-industries-remembrance-soundtrack-2__/sou
 ei_graphics_path = "__exotic-space-industries-remembrance-graphics-1__/"
 ei_graphics_2_path = "__exotic-space-industries-remembrance-graphics-2__/"
 ei_graphics_3_path = "__exotic-space-industries-remembrance-graphics-3__/"
+ei_sounds_path = ei_graphics_3_path.."sounds/"
 
 ei_graphics_entity_path = ei_graphics_path.."graphics/entities/"
 ei_graphics_item_path = ei_graphics_path.."graphics/items/"
@@ -38,7 +39,8 @@ ei_graphics_destination_path = ei_graphics_path.."graphics/destinations/"
 
 ei_graphics_terrain_path = ei_graphics_2_path.."graphics/terrain/"
 ei_graphics_tree_path = ei_graphics_2_path.."graphics/trees/"
-ei_graphics_gaia_tree_path = ei_path.."graphics/trees/"
+ei_graphics_gaia_tree_path = ei_graphics_3_path.."graphics/trees/"
+ei_graphics_decorative_path = ei_graphics_3_path.."graphics/decorative/"
 ei_graphics_entity_2_path = ei_graphics_2_path.."graphics/entities/"
 ei_graphics_item_2_path = ei_graphics_2_path.."graphics/items/"
 ei_graphics_icon_2_path = ei_graphics_2_path.."graphics/icons/"

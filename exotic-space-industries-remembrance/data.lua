@@ -59,13 +59,6 @@ require("prototypes/productivity")
 
 alien_biomes_priority_tiles = alien_biomes_priority_tiles or {}
 table.insert(alien_biomes_priority_tiles, "ei-induction-matrix-tile")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-rock-3")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-rock-2")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-rock-1")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-grass-2_var")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-grass-2")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-grass-1_var")
-table.insert(alien_biomes_priority_tiles, "ei-gaia-grass-1")
 
 --====================================================================================================
 

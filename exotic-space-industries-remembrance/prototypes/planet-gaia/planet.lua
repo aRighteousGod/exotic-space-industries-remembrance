@@ -3,6 +3,22 @@ local ei_lib = require("lib/lib")
 local asteroid_util = require("__space-age__.prototypes.planet.asteroid-spawn-definitions")
 local gaia_procession_catalogue = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/procession-catalogue")
 
+local function gaia_world_ambient_sound(filename_stem, variation_count, volume, tuning, advanced_volume_control)
+  return
+  {
+    sound =
+    {
+      variations = sound_variations(filename_stem, variation_count, volume),
+      advanced_volume_control = advanced_volume_control or default_tile_sounds_advanced_volume_control(),
+    },
+    radius = tuning.radius,
+    min_entity_count = tuning.min_entity_count,
+    max_entity_count = tuning.max_entity_count,
+    entity_to_sound_ratio = tuning.entity_to_sound_ratio,
+    average_pause_seconds = tuning.average_pause_seconds,
+  }
+end
+
 local gaia_asteroid_ratio = {2, 6, 1, 0}
 local gaia_asteroid_chunks = 0.001
 local gaia_asteroid_medium = 0.0015
@@ -49,6 +65,32 @@ gaia_water.fluid = "ei-diluted-morphium";
 gaia_water.autoplace = {
   control = "gaia_water",
   probability_expression = "clamp(1.1 * gaia_water_mask * (" .. gaia_water_control .. "), 0, 1)",
+}
+gaia_water.ambient_sounds = {
+  gaia_world_ambient_sound(
+    "__base__/sound/world/water/waterlap",
+    10,
+    0.18,
+    {
+      radius = 7.5,
+      min_entity_count = 4,
+      max_entity_count = 12,
+      entity_to_sound_ratio = 0.10,
+      average_pause_seconds = 0,
+    }
+  ),
+  gaia_world_ambient_sound(
+    "__space-age__/sound/world/tiles/oil-gloop",
+    10,
+    0.05,
+    {
+      radius = 7.5,
+      min_entity_count = 4,
+      max_entity_count = 12,
+      entity_to_sound_ratio = 0.10,
+      average_pause_seconds = 0,
+    }
+  ),
 }
 data:extend({gaia_cliff, gaia_water})
 local landfill = ei_lib.raw.item.landfill
@@ -111,6 +153,35 @@ data:extend({
                 size = 2048
             }
         }
+    },
+    persistent_ambient_sounds = {
+      base_ambience = {
+        {sound = {filename = "__base__/sound/world/world_base_wind.ogg", volume = 0.12}},
+      },
+      wind = {
+        {filename = "__base__/sound/wind/wind.ogg", volume = 0.22},
+        {
+          sound = {
+            filename = "__space-age__/sound/wind/base-wind-gleba-day.ogg",
+            volume = 0.10,
+            advanced_volume_control = {darkness_threshold = -0.7},
+          }
+        },
+        {
+          sound = {
+            filename = "__space-age__/sound/wind/base-wind-gleba-night.ogg",
+            volume = 0.08,
+            advanced_volume_control = {darkness_threshold = 0.85},
+          }
+        },
+      },
+      semi_persistent = {
+        {
+          sound = {variations = sound_variations("__space-age__/sound/world/semi-persistent/distant-rumble", 3, 0.05)},
+          delay_mean_seconds = 28,
+          delay_variance_seconds = 10,
+        }
+      },
     },
     water = "ei-gaia-water",
 },

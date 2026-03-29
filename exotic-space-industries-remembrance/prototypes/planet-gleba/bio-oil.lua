@@ -4,7 +4,7 @@ local bio_oil_fluid = {
 	type = "fluid",
 	subgroup = "fluid",
 	name = "ei-bio-oil",
-	icon = ei_path .. "graphics/fluids/bio-oil.png",
+	icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png",
 	icon_mipmaps = 4,
 	icon_size = 64,
 	base_color = { 60, 130, 50 },
@@ -39,7 +39,7 @@ local refining_recipe = {
 	subgroup = "fluid-recipes",
 	category = "oil-processing",
 	icons = {
-		{ icon = ei_path .. "graphics/fluids/bio-oil.png", scale = 0.2, shift = { -0, -3 } },
+		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.2, shift = { -0, -3 } },
 		{ icon = data.raw.fluid["ei-medium-destilate"].icon, scale = 0.2, shift = { -3, 3 } },
 		{ icon = data.raw.fluid["ei-heavy-destilate"].icon, scale = 0.2, shift = { 3, 3 } },
 	},
@@ -63,7 +63,7 @@ local water_refining_recipe = {
 	subgroup = "fluid-recipes",
 	category = "oil-processing",
 	icons = {
-		{ icon = ei_path .. "graphics/fluids/bio-oil.png", scale = 0.2, shift = { -3, -3 } },
+		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.2, shift = { -3, -3 } },
         { icon = "__base__/graphics/icons/fluid/water.png", scale = 0.2, shift = { 3, -3 } },
 		{ icon = data.raw.fluid["ei-medium-destilate"].icon, scale = 0.2, shift = { -3, 3 } },
 		{ icon = data.raw.fluid["ei-heavy-destilate"].icon, scale = 0.2, shift = { 3, 3 } },
@@ -90,7 +90,7 @@ local steam_refining_recipe = {
 	subgroup = "fluid-recipes",
 	category = "oil-processing",
 	icons = {
-		{ icon = ei_path .. "graphics/fluids/bio-oil.png", scale = 0.2, shift = { -0, -3 } },
+		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.2, shift = { -0, -3 } },
         { icon = "__base__/graphics/icons/fluid/steam.png", scale = 0.2, shift = { 3, -3 } },
 		{ icon = data.raw.fluid["ei-medium-destilate"].icon, scale = 0.2, shift = { -3, 3 } },
 		{ icon = data.raw.fluid["ei-heavy-destilate"].icon, scale = 0.2, shift = { 3, 3 } },
@@ -117,7 +117,7 @@ local plastic_from_bio_oil_recipe = {
 	category = "organic",
 	icons = {
 		{ icon = "__base__/graphics/icons/plastic-bar.png", scale = 0.8, shift = { 6, 0 } },
-		{ icon = ei_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },
+		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },
 	},
 	ingredients = {
 		{ type = "fluid", name = "ei-bio-oil", amount = 10 },
@@ -140,7 +140,7 @@ local sulfur_from_bio_oil_recipe = {
 	category = "organic",
 	icons = {
 		{ icon = "__base__/graphics/icons/sulfur.png", scale = 0.8, shift = { 6, 0 } },
-		{ icon = ei_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },
+		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },
 	},
 	ingredients = {
 		{ type = "fluid", name = "ei-bio-oil", amount = 10 },
@@ -202,7 +202,7 @@ local carbon_fiber_from_bio_oil_recipe = {
 	category = "organic",
 	icons = {
 		{ icon = "__space-age__/graphics/icons/carbon-fiber.png", scale = 0.8, shift = { 6, 0 } },
-		{ icon = ei_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },
+		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },
 	},
 	ingredients = {
 		{ type = "fluid", name = "ei-bio-oil", amount = 150 },

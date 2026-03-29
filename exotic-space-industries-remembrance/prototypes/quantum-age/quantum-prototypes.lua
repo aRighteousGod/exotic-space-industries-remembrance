@@ -972,20 +972,12 @@ data:extend({
                 starting_frame_speed = 0.4,
                 starting_frame_speed_deviation = 0.1
             },
-            sound = {
-                {
-                    filename = "__base__/sound/fight/submachine-gunshot-1.ogg",
-                    volume = 0.6
-                },
-                {
-                    filename = "__base__/sound/fight/submachine-gunshot-2.ogg",
-                    volume = 0.6
-                },
-                {
-                    filename = "__base__/sound/fight/submachine-gunshot-3.ogg",
-                    volume = 0.6
-                }
-            },
+			sound = {
+				{
+                filename = ei_sounds_path .. "gatling-turret-firing.ogg",
+					volume = 0.65,
+				},
+			},
             type = "projectile"
         },
     },

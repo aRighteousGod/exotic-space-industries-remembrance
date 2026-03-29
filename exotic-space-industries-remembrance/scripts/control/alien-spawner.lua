@@ -2,6 +2,28 @@
 local model = {}
 ei_rng = require("lib/rng")
 local presets = require("lib/spawner-presets")
+local gaia_biomes = require("prototypes/planet-gaia/biomes")
+
+local function tile_lookup(tile_names)
+    local lookup = {}
+
+    for _, tile_name in ipairs(tile_names) do
+        lookup[tile_name] = true
+    end
+
+    return lookup
+end
+
+local gaia_tile_groups = gaia_biomes.tile_groups
+local gaia_tile_lookup = {
+    meadow_green = tile_lookup(gaia_tile_groups.meadow_green),
+    meadow_purple = tile_lookup(gaia_tile_groups.meadow_purple),
+    wet_green = tile_lookup(gaia_tile_groups.wet_green),
+    wet_bloom = tile_lookup(gaia_tile_groups.wet_bloom),
+    rock_fringe = tile_lookup(gaia_tile_groups.rock_fringe),
+    rock_core = tile_lookup(gaia_tile_groups.rock_core),
+    water = tile_lookup(gaia_tile_groups.water),
+}
 
 --====================================================================================================
 --ALIEN SPAWNER
@@ -197,6 +219,123 @@ function model.entity_check(entity)
 
 end
 
+function model.is_gaia_surface(surface)
+    if not surface then
+        return false
+    end
+
+    if surface.name == "gaia" or surface.name == "Gaia" then
+        return true
+    end
+
+    return storage.gaia_surfaces and storage.gaia_surfaces[surface.name] or false
+end
+
+function model.is_gaia_tree_name(name)
+    return name and string.find(name, "^ei%-gaia%-tree%-%d%d$") ~= nil
+end
+
+function model.gaia_tile_family(tile_name)
+    if gaia_tile_lookup.meadow_green[tile_name] or gaia_tile_lookup.meadow_purple[tile_name] then
+        return "meadow"
+    end
+
+    if gaia_tile_lookup.wet_green[tile_name] or gaia_tile_lookup.wet_bloom[tile_name] or gaia_tile_lookup.water[tile_name] then
+        return "wet"
+    end
+
+    if gaia_tile_lookup.rock_fringe[tile_name] or gaia_tile_lookup.rock_core[tile_name] then
+        return "rock"
+    end
+end
+
+function model.resolve_gaia_tree_name(surface, position)
+    local detail = {
+        meadow_green = 0,
+        meadow_purple = 0,
+        wet_green = 0,
+        wet_bloom = 0,
+        rock_fringe = 0,
+        rock_core = 0,
+        water = 0,
+    }
+
+    for y = -2, 2 do
+        for x = -2, 2 do
+            local tile = surface.get_tile({x = position.x + x, y = position.y + y})
+
+            if tile and tile.valid then
+                local tile_name = tile.name
+
+                if gaia_tile_lookup.meadow_green[tile_name] then
+                    detail.meadow_green = detail.meadow_green + 1
+                elseif gaia_tile_lookup.meadow_purple[tile_name] then
+                    detail.meadow_purple = detail.meadow_purple + 1
+                elseif gaia_tile_lookup.wet_green[tile_name] then
+                    detail.wet_green = detail.wet_green + 1
+                elseif gaia_tile_lookup.wet_bloom[tile_name] then
+                    detail.wet_bloom = detail.wet_bloom + 1
+                elseif gaia_tile_lookup.rock_fringe[tile_name] then
+                    detail.rock_fringe = detail.rock_fringe + 1
+                elseif gaia_tile_lookup.rock_core[tile_name] then
+                    detail.rock_core = detail.rock_core + 1
+                elseif gaia_tile_lookup.water[tile_name] then
+                    detail.water = detail.water + 1
+                end
+            end
+        end
+    end
+
+    local scores = {
+        meadow = detail.meadow_green + detail.meadow_purple,
+        wet = detail.wet_green + detail.wet_bloom + (detail.water * 0.5),
+        rock = detail.rock_fringe + detail.rock_core,
+    }
+
+    local center_tile = surface.get_tile(position)
+    local center_family = center_tile and center_tile.valid and model.gaia_tile_family(center_tile.name) or nil
+    local family = "meadow"
+    local best_score = scores.meadow
+
+    for _, candidate in ipairs({"wet", "rock"}) do
+        local score = scores[candidate]
+
+        if score > best_score then
+            family = candidate
+            best_score = score
+        elseif score == best_score and center_family == candidate then
+            family = candidate
+        end
+    end
+
+    if family == "meadow" then
+        if detail.meadow_green >= detail.meadow_purple then
+            return "ei-gaia-tree-01"
+        end
+
+        return "ei-gaia-tree-03"
+    end
+
+    if family == "wet" then
+        if detail.water > 0 or detail.wet_bloom > detail.wet_green then
+            return "ei-gaia-tree-04"
+        end
+
+        return "ei-gaia-tree-02"
+    end
+
+    local meadow_score = scores.meadow
+    local rock_score = scores.rock
+    local mixed_meadow_rock = meadow_score > 0 and rock_score > 0
+    local fringe_heavy = detail.rock_fringe >= detail.rock_core
+
+    if mixed_meadow_rock or fringe_heavy then
+        return "ei-gaia-tree-06"
+    end
+
+    return "ei-gaia-tree-05"
+end
+
 
 function model.spawn_tiles(preset, surface, pos)
     -- pos is the center of the preset
@@ -276,7 +415,7 @@ function model.spawn_entities(preset, surface, pos)
         return
     end
 
-    force = "neutral"
+    local force = "neutral"
 
     if preset.force then
         force = preset.force
@@ -285,18 +424,23 @@ function model.spawn_entities(preset, surface, pos)
     model.prepare_entities(preset, surface, pos)
 
     for _, entity in ipairs(preset.structure) do
+        local entity_name = entity.name
         local entity_position = {
             ["x"] = pos.x + entity.position["x"],
             ["y"] = pos.y + entity.position["y"]
         }
 
-        if model.forbidden_entities[entity.name] then
+        if model.forbidden_entities[entity_name] then
             goto continue
+        end
+
+        if model.is_gaia_surface(surface) and model.is_gaia_tree_name(entity_name) then
+            entity_name = model.resolve_gaia_tree_name(surface, entity_position)
         end
 
         -- check if entity can be spawned
         if not surface.can_place_entity({
-            name = entity.name,
+            name = entity_name,
             position = entity_position,
             force = force
         }) then
@@ -316,7 +460,7 @@ function model.spawn_entities(preset, surface, pos)
         end
 
         local spawned_entity = surface.create_entity({
-            name = entity.name,
+            name = entity_name,
             position = entity_position,
             force = force,
             raise_built = true
