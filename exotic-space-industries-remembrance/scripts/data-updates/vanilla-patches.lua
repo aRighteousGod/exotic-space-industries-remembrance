@@ -2443,6 +2443,9 @@ if biolab then
         log("Could not find biochamber to copy energy source from, leaving biolab energy source unchanged")
     end
 end
+--add electric lab unlock to biolab
+ei_lib.add_prerequisite("biolab","ei-electric-lab")
+
 local jelly_proc_r = ei_lib.raw.recipe["jellynut-processing"]
 if jelly_proc_r then
     jelly_proc_r.results = {

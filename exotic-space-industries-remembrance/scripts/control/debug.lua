@@ -62,7 +62,7 @@ commands.add_command("refresh_beacon_overload", "Recalculates all machines beaco
     ei_lib.crystal_echo("Beacon overload recalculates across the cosmos")
     ei_beacon_overload.refresh_all_overloads()
 end)
-commands.add_command("reforge-gaia", "Destroy and recreate Gaia's surface from the current planet prototype.", function(cmd)
+commands.add_command("reforge_gaia", "Destroy and recreate Gaia's surface from the current planet prototype.", function(cmd)
     local player = game.get_player(cmd.player_index)
     if not player or not player.admin then return end
     local surface = ei_gaia.reforge_gaia_surface(cmd)

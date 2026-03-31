@@ -93,10 +93,6 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-electricity-age-tech"
             },
-            {
-                type = "unlock-recipe",
-                recipe = "lab"
-            }
         },
         unit = {
             count = 300,

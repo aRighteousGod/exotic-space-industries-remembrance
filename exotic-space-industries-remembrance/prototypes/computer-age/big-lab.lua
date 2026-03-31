@@ -39,7 +39,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."big-lab.png",
         icon_size = 256,
-        prerequisites = {"ei-computer-core","ei-high-energy-crystal-growing"},
+        prerequisites = {"ei-computer-core","ei-high-energy-crystal-growing","ei-electric-lab"},
         effects = {
             {
                 type = "unlock-recipe",

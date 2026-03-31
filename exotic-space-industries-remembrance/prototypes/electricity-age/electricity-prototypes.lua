@@ -685,6 +685,25 @@ data:extend({
         age = "electricity-age",
     },
     {
+        name = "ei-electric-lab",
+        type = "technology",
+        icon = data.raw.lab["lab"].icon,
+        icon_size = data.raw.lab["lab"].icon_size,
+        prerequisites = {"ei-electricity-power"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "lab"
+            }
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["electricity-age"],
+            time = 20
+        },
+        age = "electricity-age",
+    },
+    {
         name = "ei-containers",
         type = "technology",
         icon = ei_graphics_3_path.."graphics/tech/containers.png",

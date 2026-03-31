@@ -1,4 +1,14 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.06
+Date: 3-30-2026
+  Changes:
+    - Added descriptions to lubricant reforming recipes.
+    - Moved unlock for Electric lab recipe from Electricity age and into new Electric lab technology—requires electricity power.
+    - Advanced lab technology prerequisites: Additionally requires Electric lab.
+    - Bio lab technology prerequisites: Additionally requires Electric lab.
+  Bugfixes:
+    - Fixed that /reforge_gaia might generate an empty Gaia.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.05
 Date: 3-29-2026
   Features:
@@ -27,7 +37,7 @@ Date: 3-27-2026
     - Gaia's verdant realms now awaken with bespoke genesis, her landscapes sculpted by the arcane forge of creation.
   Changes:
     - Gate receiver inventory size: 40 -> 30.
-    - Gaia planet conditions retuned to fit its temperate mid-orbit placement—visual orbital distance 10 -> 23, solar power in space 120 -> 160, surface solar power 20 -> 45, magnetic field 99 -> 45, pressure 800 -> 1600, and day-night cycle 3 -> 8 minutes.
+    - Gaia planet conditions retuned to fit its temperate mid-orbit placement—visual orbital distance 10 -> 23, solar power in space 120 -> 160, surface solar power 20 -> 45, magnetic field 99 -> 45, pressure 800 -> 1600, and day-night cycle 3 -> 12 minutes.
   Bugfixes:
     - Fixed a gate crash caused by using the 1.0 spill-item API when breach residue or rollback cargo had to be spilled.
     - Fixed that Gaia tiles lacked locale entries.

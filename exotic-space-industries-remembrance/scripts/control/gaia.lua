@@ -1,5 +1,7 @@
 local ei_lib = require("lib/lib")
 
+local gaia_mapgen_data = require("scripts/control/gaia-mapgen-data")
+
 local model = {}
 
 --====================================================================================================
@@ -31,7 +33,7 @@ model.entity_damage_ticks = {
 }
 
 local function gaia_planet()
-    return game.planets and game.planets["gaia"] or nil
+    return game.planets["gaia"] or nil
 end
 
 local function legacy_gaia_surface()
@@ -78,6 +80,86 @@ function model.entity_check(entity)
     return true
 end
 
+--====================================================================================================
+--SURFACE MIGRATION (for old worlds missing new autoplace controls)
+--====================================================================================================
+
+function model.migrate_gaia_surface(surface)
+    if not (surface and surface.valid) then
+        return
+    end
+
+    local current_settings = surface.map_gen_settings
+    if not current_settings then
+        return
+    end
+
+    -- Get the complete, current autoplace controls and settings
+    local proper_controls = gaia_mapgen_data.get_autoplace_controls()
+    local proper_settings = gaia_mapgen_data.get_autoplace_settings()
+
+    local needs_update = false
+
+    -- Check if surface is missing any required autoplace controls
+    for control_name, _ in pairs(proper_controls) do
+        if not current_settings.autoplace_controls or not current_settings.autoplace_controls[control_name] then
+            needs_update = true
+            break
+        end
+    end
+
+    if needs_update then
+        -- Ensure autoplace_controls exists
+        if not current_settings.autoplace_controls then
+            current_settings.autoplace_controls = {}
+        end
+
+        -- Update/add all required autoplace controls
+        for control_name, control_settings in pairs(proper_controls) do
+            if not current_settings.autoplace_controls[control_name] then
+                current_settings.autoplace_controls[control_name] = table.deepcopy(control_settings)
+            end
+        end
+
+        -- Ensure autoplace_settings exists and has all required entities/decoratives
+        if not current_settings.autoplace_settings then
+            current_settings.autoplace_settings = table.deepcopy(proper_settings)
+        else
+            -- Merge in missing entity settings
+            if proper_settings.entity then
+                if not current_settings.autoplace_settings.entity then
+                    current_settings.autoplace_settings.entity = {settings = {}}
+                end
+                if not current_settings.autoplace_settings.entity.settings then
+                    current_settings.autoplace_settings.entity.settings = {}
+                end
+                for entity_name, entity_settings in pairs(proper_settings.entity.settings) do
+                    if not current_settings.autoplace_settings.entity.settings[entity_name] then
+                        current_settings.autoplace_settings.entity.settings[entity_name] = table.deepcopy(entity_settings)
+                    end
+                end
+            end
+
+            -- Merge in missing decorative settings
+            if proper_settings.decorative then
+                if not current_settings.autoplace_settings.decorative then
+                    current_settings.autoplace_settings.decorative = {settings = {}}
+                end
+                if not current_settings.autoplace_settings.decorative.settings then
+                    current_settings.autoplace_settings.decorative.settings = {}
+                end
+                for decorative_name, decorative_settings in pairs(proper_settings.decorative.settings) do
+                    if not current_settings.autoplace_settings.decorative.settings[decorative_name] then
+                        current_settings.autoplace_settings.decorative.settings[decorative_name] = table.deepcopy(decorative_settings)
+                    end
+                end
+            end
+        end
+
+        ei_lib.crystal_echo("✧ [Gaia Awakening] — Updated Gaia's autoplace controls to current version")
+    end
+end
+
 function model.ensure_surface()
     local planet = gaia_planet()
     if not planet then
@@ -88,6 +170,8 @@ function model.ensure_surface()
     if surface and surface.valid then
         storage.gaia_surfaces = storage.gaia_surfaces or {}
         storage.gaia_surfaces[surface.name] = true
+        -- Migrate old surface to have new autoplace controls
+        model.migrate_gaia_surface(surface)
         return surface
     end
 
@@ -98,6 +182,8 @@ function model.ensure_surface()
         storage.gaia_surfaces["gaia"] = true
         planet:associate_surface(legacy_surface)
         ei_lib.crystal_echo("Gaia surface rebound from legacy name")
+        -- Migrate old surface to have new autoplace controls
+        model.migrate_gaia_surface(legacy_surface)
         return legacy_surface
     end
 
@@ -112,6 +198,20 @@ function model.ensure_surface()
         end
     end
 
+    -- Future-proof: create surface manually from map-gen data and associate
+    local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
+    local created = game.create_surface("gaia", map_gen_settings)
+    if created and created.valid then
+        pcall(function()
+            planet:associate_surface(created)
+        end)
+        storage.gaia_surfaces = storage.gaia_surfaces or {}
+        storage.gaia_surfaces[created.name] = true
+        storage.gaia_surfaces["gaia"] = true
+        ei_lib.crystal_echo("Gaia surface created (manual create_surface + planet association)")
+        return created
+    end
+
     return nil
 end
 
@@ -124,44 +224,69 @@ function model.reforge_gaia_surface(event)
     if not planet then
         return nil
     end
+    local surface = planet.surface
+    local return_surface = safe_return_surface()
+    if surface then
+        -- Only teleport players who are actually on this surface
+        for _, player in pairs(connected_players_on_surface(surface)) do
+            if return_surface then
+                player.teleport({0, 0}, return_surface)
+                ei_lib.crystal_echo("Moving " .. player.name .. " off Gaia for recovery")
+                if event and event.tick then
+                    ei_lib.crystal_echo("Gaia recovery moved " .. player.name .. " to safety")
+                end
+            else
+                ei_lib.crystal_echo("No safe surface found to move " .. player.name .. " during Gaia recovery")
+                return nil
+            end
+        end
 
-    local surface = model.ensure_surface()
-    if not (surface and surface.valid) then
+        for _, entity in pairs(surface.find_entities()) do
+            if entity and entity.valid then
+                pcall(function()
+                    entity.destroy({raise_destroy = true})
+                end)
+            end
+        end
+    end
+
+    -- Ensure the target gaia name is free from existing surface collisions before creating new surface
+    if game.surfaces["gaia"] then
+        game.delete_surface("gaia")
+        ei_lib.crystal_echo("Gaia recovery removed old Gaia surface to clear way for rebuild, run command again to complete rebuild")
+    elseif game.surfaces["Gaia"] then
+        game.delete_surface("Gaia")
+        ei_lib.crystal_echo("Gaia recovery removed old Gaia surface to clear way for rebuild, run command again to complete rebuild")
+    else
+        local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
+        local rebuilt = game.create_surface("gaia", map_gen_settings)
+        if rebuilt and rebuilt.valid and planet then
+            -- associate the newly created surface with the planet
+            pcall(function()
+                planet:associate_surface(rebuilt)
+            end)
+
+            storage.gaia_surfaces = storage.gaia_surfaces or {}
+            storage.gaia_surfaces["gaia"] = true
+            storage.gaia_surfaces[rebuilt.name] = true
+
+            -- Migrate old surface to have new autoplace controls
+            ei_lib.crystal_echo("Gaia recovery rebuilt the surface with complete map-gen and planet association")
+            return rebuilt
+        end
+
+        ei_lib.crystal_echo("Gaia recovery failed to recreate surface")
         return nil
     end
-
-    local return_surface = safe_return_surface()
-    for _, player in pairs(connected_players_on_surface(surface)) do
-        ei_lib.crystal_echo("Moving " .. player.name .. " off Gaia for recovery")
-        if return_surface then
-            player.teleport({0, 0}, return_surface)
-        end
-        if event and event.tick then
-            ei_lib.crystal_echo("Gaia recovery moved " .. player.name .. " to safety")
-        end
-    end
-
-    for _, entity in pairs(surface.find_entities()) do
-        if entity and entity.valid then
-            pcall(function()
-                entity.destroy({raise_destroy = true})
-            end)
-        end
-    end
-
-    game.delete_surface(surface.name)
-
-    local rebuilt = planet:create_surface()
-    if rebuilt and rebuilt.valid then
-        storage.gaia_surfaces = storage.gaia_surfaces or {}
-        storage.gaia_surfaces["gaia"] = true
-        ei_lib.crystal_echo("Gaia recovery rebuilt the surface")
-        return rebuilt
-    end
-
-    return nil
 end
 
+function model.reforge_on_tick(event)
+    if storage.ei.reforge_gaia and event.tick >= storage.ei.reforge_gaia_tick then
+        model.reforge_gaia_surface(event)
+        storage.ei.reforge_gaia = nil
+        storage.ei.reforge_gaia_tick = nil
+    end
+end
 
 --ENTITY LIFETIMES AND REGISTER
 ------------------------------------------------------------------------------------------------------
