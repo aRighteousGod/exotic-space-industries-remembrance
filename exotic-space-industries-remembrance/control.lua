@@ -443,6 +443,7 @@ function updater(event)
            -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
            -- It ensures storage still has the expected tables before later steps run.
            ei_global.check_init(event)
+           ei_gaia.reforge_on_tick(event)
            --[[
            --now handled by Nonstandard beacons
            if storage.ei and storage.ei.spaced_updates and storage.ei.spaced_updates > 0 then

@@ -16,4 +16,4 @@ if not legacy_surface or not legacy_surface.valid then
     return
 end
 
-gaia_planet:associate_surface(legacy_surface)
+gaia_planet.associate_surface(legacy_surface)

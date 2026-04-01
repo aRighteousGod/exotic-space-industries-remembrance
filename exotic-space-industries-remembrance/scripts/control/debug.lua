@@ -68,7 +68,6 @@ commands.add_command("reforge_gaia", "Destroy and recreate Gaia's surface from t
     local surface = ei_gaia.reforge_gaia_surface(cmd)
     if not surface then return end
     player.teleport({0, 0}, surface)
-    ei_lib.crystal_echo("Gaia has been reforged from the current planetary pattern")
 end)
 commands.add_command("goto-gaia", "Teleport to Gaia's surface", function(cmd)
     local player = game.get_player(cmd.player_index)

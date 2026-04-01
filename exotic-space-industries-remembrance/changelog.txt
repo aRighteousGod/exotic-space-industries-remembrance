@@ -1,4 +1,11 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.07
+Date: 4-1-2026
+  Changes:
+    - /reforge_gaia now only needs to be called once, further calls will report status of process.
+  Bugfixes:
+    - /reforge_gaia will no longer fail to associate the new surface with the planet.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.06
 Date: 3-30-2026
   Changes:

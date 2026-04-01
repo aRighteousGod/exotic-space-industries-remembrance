@@ -180,7 +180,7 @@ function model.ensure_surface()
         storage.gaia_surfaces = storage.gaia_surfaces or {}
         storage.gaia_surfaces[legacy_surface.name] = true
         storage.gaia_surfaces["gaia"] = true
-        planet:associate_surface(legacy_surface)
+        planet.associate_surface(legacy_surface)
         ei_lib.crystal_echo("Gaia surface rebound from legacy name")
         -- Migrate old surface to have new autoplace controls
         model.migrate_gaia_surface(legacy_surface)
@@ -188,7 +188,7 @@ function model.ensure_surface()
     end
 
     if planet.create_surface then
-        local created = planet:create_surface()
+        local created = planet.create_surface()
         if created and created.valid then
             storage.gaia_surfaces = storage.gaia_surfaces or {}
             storage.gaia_surfaces[created.name] = true
@@ -202,9 +202,7 @@ function model.ensure_surface()
     local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
     local created = game.create_surface("gaia", map_gen_settings)
     if created and created.valid then
-        pcall(function()
-            planet:associate_surface(created)
-        end)
+        planet.associate_surface(created)
         storage.gaia_surfaces = storage.gaia_surfaces or {}
         storage.gaia_surfaces[created.name] = true
         storage.gaia_surfaces["gaia"] = true
@@ -219,72 +217,475 @@ function model.create_gaia()
     return model.ensure_surface()
 end
 
-function model.reforge_gaia_surface(event)
-    local planet = gaia_planet()
-    if not planet then
-        return nil
-    end
-    local surface = planet.surface
-    local return_surface = safe_return_surface()
-    if surface then
-        -- Only teleport players who are actually on this surface
-        for _, player in pairs(connected_players_on_surface(surface)) do
-            if return_surface then
-                player.teleport({0, 0}, return_surface)
-                ei_lib.crystal_echo("Moving " .. player.name .. " off Gaia for recovery")
-                if event and event.tick then
-                    ei_lib.crystal_echo("Gaia recovery moved " .. player.name .. " to safety")
-                end
-            else
-                ei_lib.crystal_echo("No safe surface found to move " .. player.name .. " during Gaia recovery")
-                return nil
-            end
-        end
+local reforge_staging_surface_name = "gaia-reforge-staging"
+local reforge_phase_timeout_ticks = 60 * 60
+local reforge_phase_retry_notice_interval = 10 * 60
+local reforge_phase_status = {
+    migrate_legacy = "resolving any legacy Gaia surface before the rebuild.",
+    check_intact = "checking whether Gaia already matches the intended terrain and still bears resources.",
+    evacuate = "moving players off Gaia before the rebuild continues.",
+    purge = "clearing the old Gaia shell of remaining entities.",
+    stage_surface = "preparing a staged Gaia surface from the current map generation pattern.",
+    queue_delete = "queueing the old Gaia shell for deletion.",
+    wait_for_release = "waiting for the old planetary bond to dissolve.",
+    rename_and_bind = "taking the canonical gaia name and binding the staged surface to the planet.",
+    verify = "verifying the staged surface is now Gaia's canonical planet surface.",
+}
+local fail_reforge
 
-        for _, entity in pairs(surface.find_entities()) do
-            if entity and entity.valid then
-                pcall(function()
-                    entity.destroy({raise_destroy = true})
-                end)
-            end
-        end
-    end
-
-    -- Ensure the target gaia name is free from existing surface collisions before creating new surface
-    if game.surfaces["gaia"] then
-        game.delete_surface("gaia")
-        ei_lib.crystal_echo("Gaia recovery removed old Gaia surface to clear way for rebuild, run command again to complete rebuild")
-    elseif game.surfaces["Gaia"] then
-        game.delete_surface("Gaia")
-        ei_lib.crystal_echo("Gaia recovery removed old Gaia surface to clear way for rebuild, run command again to complete rebuild")
+local function update_gaia_surface_registry(surface_name, enabled)
+    storage.gaia_surfaces = storage.gaia_surfaces or {}
+    if enabled then
+        storage.gaia_surfaces[surface_name] = true
     else
-        local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
-        local rebuilt = game.create_surface("gaia", map_gen_settings)
-        if rebuilt and rebuilt.valid and planet then
-            -- associate the newly created surface with the planet
-            pcall(function()
-                planet:associate_surface(rebuilt)
-            end)
-
-            storage.gaia_surfaces = storage.gaia_surfaces or {}
-            storage.gaia_surfaces["gaia"] = true
-            storage.gaia_surfaces[rebuilt.name] = true
-
-            -- Migrate old surface to have new autoplace controls
-            ei_lib.crystal_echo("Gaia recovery rebuilt the surface with complete map-gen and planet association")
-            return rebuilt
-        end
-
-        ei_lib.crystal_echo("Gaia recovery failed to recreate surface")
-        return nil
+        storage.gaia_surfaces[surface_name] = nil
     end
 end
 
+local function reforge_status_text(phase)
+    return reforge_phase_status[phase] or "rebuilding Gaia."
+end
+
+local function report_reforge_status(state)
+    if not state then
+        return
+    end
+
+    ei_lib.crystal_echo("◌ [Reforge Status] — Gaia reforge is " .. reforge_status_text(state.phase))
+end
+
+local function current_reforge_tick(event)
+    return event and event.tick or game.tick
+end
+
+local function set_reforge_phase(state, phase, event)
+    if not state then
+        return
+    end
+
+    state.phase = phase
+    state.phase_started_tick = current_reforge_tick(event)
+    state.phase_last_retry_notice_tick = nil
+end
+
+local function retry_or_fail_reforge_phase(state, event, wait_message, fail_message)
+    local tick = current_reforge_tick(event)
+    local phase_started_tick = state.phase_started_tick or state.started_tick or tick
+
+    if tick - phase_started_tick >= reforge_phase_timeout_ticks then
+        fail_reforge(state, fail_message)
+        return false
+    end
+
+    if wait_message then
+        local last_notice_tick = state.phase_last_retry_notice_tick or 0
+        if state.phase_last_retry_notice_tick == nil or tick - last_notice_tick >= reforge_phase_retry_notice_interval then
+            ei_lib.crystal_echo(wait_message)
+            state.phase_last_retry_notice_tick = tick
+        end
+    end
+
+    return true
+end
+
+local function checksum(tbl)
+    local serialized = serpent.block(tbl, {sortkeys = true, numformat = "%0.8f"})
+    local sum = 0
+
+    for i = 1, #serialized do
+        sum = (sum + serialized:byte(i)) % 2147483647
+    end
+
+    return sum
+end
+
+local function surface_contains_any_resources(surface)
+    if not (surface and surface.valid) then
+        return false, nil, 0
+    end
+
+    local resources = surface.find_entities_filtered({type = "resource"})
+    if not resources or #resources == 0 then
+        return false, nil, 0
+    end
+
+    return true, resources[1].name, #resources
+end
+
+local function gaia_map_settings_match(surface)
+    if not (surface and surface.valid) then
+        return false
+    end
+
+    local desired_settings = gaia_mapgen_data.get_map_gen_settings()
+    local ok_current, current_checksum = pcall(checksum, surface.map_gen_settings)
+    local ok_desired, desired_checksum = pcall(checksum, desired_settings)
+
+    return ok_current and ok_desired and current_checksum == desired_checksum
+end
+
+local function resolve_reforge_safe_surface(state)
+    if state and state.safe_surface_name then
+        local safe_surface = game.get_surface(state.safe_surface_name)
+        if safe_surface and safe_surface.valid then
+            return safe_surface
+        end
+    end
+
+    return safe_return_surface()
+end
+
+local function resolve_reforge_source_surface(state, planet)
+    if planet and planet.surface and planet.surface.valid and planet.surface.name ~= state.staging_surface_name then
+        return planet.surface
+    end
+
+    local canonical_surface = game.surfaces and game.surfaces[state.result_surface_name]
+    if canonical_surface and canonical_surface.valid and canonical_surface.name ~= state.staging_surface_name then
+        return canonical_surface
+    end
+
+    local legacy_surface = legacy_gaia_surface()
+    if legacy_surface and legacy_surface.name ~= state.staging_surface_name then
+        return legacy_surface
+    end
+end
+
+fail_reforge = function(state, message)
+    if message then
+        ei_lib.crystal_echo(message)
+    end
+
+    if state and state.staging_surface_name then
+        update_gaia_surface_registry(state.staging_surface_name, false)
+    end
+
+    storage.ei.reforge_gaia = nil
+    return nil
+end
+
+local function complete_reforge(state, surface)
+    if not (state and surface and surface.valid) then
+        return nil
+    end
+
+    update_gaia_surface_registry(state.staging_surface_name, false)
+    update_gaia_surface_registry("Gaia", false)
+    update_gaia_surface_registry(surface.name, true)
+    update_gaia_surface_registry("gaia", true)
+
+    if state.teleport_when_done and state.request_player_index then
+        local player = game.get_player(state.request_player_index)
+        if player and player.valid then
+            player.teleport({0, 0}, surface)
+        end
+    end
+
+    storage.ei.reforge_gaia = nil
+    return surface
+end
+
+function model.reforge_gaia_surface(event)
+    local planet = gaia_planet()
+    if not planet then
+        ei_lib.crystal_echo("☠ [Void's Echo] — Gaia's name lies unwritten; the rite dissolves into silent void.")
+        return nil
+    end
+
+    storage.ei = storage.ei or {}
+
+    if storage.ei.reforge_gaia then
+        report_reforge_status(storage.ei.reforge_gaia)
+        return nil
+    end
+
+    local safe_surface = safe_return_surface()
+    if not safe_surface then
+        ei_lib.crystal_echo("☠ [Invocation Fracture] — No safe return surface exists for Gaia's evacuees.")
+        return nil
+    end
+
+    storage.ei.reforge_gaia = {
+        phase = "migrate_legacy",
+        started_tick = current_reforge_tick(event),
+        phase_started_tick = current_reforge_tick(event),
+        request_player_index = event and event.player_index or nil,
+        teleport_when_done = not not (event and event.player_index),
+        safe_surface_name = safe_surface.name,
+        staging_surface_name = reforge_staging_surface_name,
+        result_surface_name = "gaia",
+    }
+
+    report_reforge_status(storage.ei.reforge_gaia)
+    model.reforge_on_tick(event or {tick = game.tick})
+    return nil
+end
+
 function model.reforge_on_tick(event)
-    if storage.ei.reforge_gaia and event.tick >= storage.ei.reforge_gaia_tick then
-        model.reforge_gaia_surface(event)
-        storage.ei.reforge_gaia = nil
-        storage.ei.reforge_gaia_tick = nil
+    if not (storage.ei and storage.ei.reforge_gaia) then
+        return
+    end
+
+    local state = storage.ei.reforge_gaia
+    local planet = gaia_planet()
+    if not planet then
+        retry_or_fail_reforge_phase(
+            state,
+            event,
+            "◌ [Stillness] — Gaia's planetary record cannot yet be reached. The rite keeps searching for the bond.",
+            "☠ [Void's Echo] — Gaia vanished from the planet registry during reforging."
+        )
+        return
+    end
+
+    if state.phase == "migrate_legacy" then
+        local legacy_surface = legacy_gaia_surface()
+        if legacy_surface and not (planet.surface and planet.surface.valid) then
+            planet.associate_surface(legacy_surface)
+            update_gaia_surface_registry(legacy_surface.name, true)
+            update_gaia_surface_registry("gaia", true)
+            ei_lib.crystal_echo("☲ [Ghost Reclaimed] — Legacy Gaia has been rebound to the canonical gaia planet.")
+        end
+
+        set_reforge_phase(state, "check_intact", event)
+        return
+    end
+
+    if state.phase == "check_intact" then
+        local current_surface = planet.surface
+        if current_surface and current_surface.valid and current_surface.name == state.result_surface_name then
+            if gaia_map_settings_match(current_surface) then
+                local has_resources, resource_name, resource_count = surface_contains_any_resources(current_surface)
+                if has_resources then
+                    ei_lib.crystal_echo("✔ [Echo Intact] — " .. resource_name .. " crystals endure (" .. resource_count .. "). Gaia stands.")
+                    complete_reforge(state, current_surface)
+                    return
+                end
+            end
+        end
+
+        set_reforge_phase(state, "evacuate", event)
+        return
+    end
+
+    if state.phase == "evacuate" then
+        local source_surface = resolve_reforge_source_surface(state, planet)
+        if source_surface then
+            local safe_surface = resolve_reforge_safe_surface(state)
+            if not safe_surface then
+                retry_or_fail_reforge_phase(
+                    state,
+                    event,
+                    "◌ [Stillness] — Gaia's evacuees still have no safe refuge. The rite will keep searching.",
+                    "☠ [Invocation Fracture] — No safe surface remains for Gaia's evacuees."
+                )
+                return
+            end
+
+            for _, player in pairs(connected_players_on_surface(source_surface)) do
+                ei_lib.crystal_echo("⚠ [Displacement] — Moving " .. player.name .. " to safety while Gaia is reforged.")
+                player.teleport({0, 0}, safe_surface)
+                if event and event.tick then
+                    ei_echo_codex.youHaveArrived({player_index = player.index, tick = event.tick})
+                end
+            end
+        end
+
+        set_reforge_phase(state, "purge", event)
+        return
+    end
+
+    if state.phase == "purge" then
+        local source_surface = resolve_reforge_source_surface(state, planet)
+        if source_surface then
+            for _, entity in pairs(source_surface.find_entities()) do
+                if entity and entity.valid then
+                    pcall(function()
+                        entity.destroy({raise_destroy = true})
+                    end)
+                end
+            end
+        end
+
+        set_reforge_phase(state, "stage_surface", event)
+        return
+    end
+
+    if state.phase == "stage_surface" then
+        local staging_surface = game.surfaces[state.staging_surface_name]
+        if staging_surface and staging_surface.valid then
+            if staging_surface.planet then
+                retry_or_fail_reforge_phase(
+                    state,
+                    event,
+                    "◌ [Stillness] — Gaia's staging shell is still bound elsewhere. The rite is waiting for it to release.",
+                    "☠ [Invocation Fracture] — Gaia's staging surface is already planet-bound and cannot be safely reused."
+                )
+                return
+            end
+
+            if not state.staging_cleanup_requested then
+                game.delete_surface(staging_surface)
+                state.staging_cleanup_requested = true
+                return
+            end
+
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's old staging shell is still fading. The rite is waiting for the surface to clear.",
+                "☠ [Invocation Fracture] — Gaia's old staging surface did not clear in time for a fresh rebuild."
+            )
+            return
+        end
+
+        state.staging_cleanup_requested = nil
+
+        local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
+        local created_surface = game.create_surface(state.staging_surface_name, map_gen_settings)
+        if not (created_surface and created_surface.valid) then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's staged shell has not formed yet. The rite is still shaping it from the map generation table.",
+                "☠ [Invocation Fracture] — Failed to shape Gaia's staged surface from the map generation table."
+            )
+            return
+        end
+
+        update_gaia_surface_registry(created_surface.name, true)
+        ei_lib.crystal_echo("✖ [Silence] — Gaia's old shell has been cleared. A new shell is being prepared.")
+        set_reforge_phase(state, "queue_delete", event)
+        return
+    end
+
+    if state.phase == "queue_delete" then
+        if not state.delete_requested then
+            local canonical_surface = game.surfaces[state.result_surface_name]
+            if canonical_surface and canonical_surface.valid and canonical_surface.name ~= state.staging_surface_name then
+                game.delete_surface(canonical_surface)
+            end
+
+            local legacy_surface = legacy_gaia_surface()
+            if legacy_surface and legacy_surface.valid and legacy_surface.name ~= state.staging_surface_name then
+                game.delete_surface(legacy_surface)
+            end
+
+            state.delete_requested = true
+            ei_lib.crystal_echo("◌ [Stillness] — The new Gaia waits while the old planetary bond dissolves.")
+        end
+
+        set_reforge_phase(state, "wait_for_release", event)
+        return
+    end
+
+    if state.phase == "wait_for_release" then
+        local canonical_surface = game.surfaces[state.result_surface_name]
+        local legacy_surface = legacy_gaia_surface()
+        local canonical_planet_surface = planet.surface
+
+        if canonical_surface and canonical_surface.valid then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's old canonical surface still clings to the void. The rite remains patient.",
+                "☠ [Invocation Fracture] — Gaia's old canonical surface did not release within one minute."
+            )
+            return
+        end
+
+        if legacy_surface and legacy_surface.valid and legacy_surface.name ~= state.staging_surface_name then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's legacy shell still lingers. The rite remains patient.",
+                "☠ [Invocation Fracture] — Gaia's legacy shell did not release within one minute."
+            )
+            return
+        end
+
+        if canonical_planet_surface and canonical_planet_surface.valid and canonical_planet_surface.name ~= state.staging_surface_name then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's old planetary bond has not dissolved yet. The rite remains patient.",
+                "☠ [Invocation Fracture] — Gaia's old planetary bond did not dissolve within one minute."
+            )
+            return
+        end
+
+        set_reforge_phase(state, "rename_and_bind", event)
+        return
+    end
+
+    if state.phase == "rename_and_bind" then
+        local staging_surface = game.surfaces[state.staging_surface_name]
+        if not (staging_surface and staging_surface.valid) then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's staged shell cannot yet be reached. The rite keeps seeking it.",
+                "☠ [Invocation Fracture] — Gaia's staged surface vanished before the canonical bond could be restored."
+            )
+            return
+        end
+
+        local ok_rename, rename_err = pcall(function()
+            staging_surface.name = state.result_surface_name
+        end)
+        if not ok_rename then
+            log("[Gaia Reforge] Staging surface rename failed: " .. tostring(rename_err))
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's staged shell has not yet taken the canonical gaia name. The rite will keep trying.",
+                "☠ [Invocation Fracture] — Gaia's staged surface could not take the canonical gaia name."
+            )
+            return
+        end
+
+        planet.associate_surface(staging_surface)
+
+        set_reforge_phase(state, "verify", event)
+        return
+    end
+
+    if state.phase == "verify" then
+        local rebuilt_surface = game.surfaces[state.result_surface_name]
+        if not (rebuilt_surface and rebuilt_surface.valid) then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's renamed shell is not yet stable enough to verify. The rite keeps watching.",
+                "☠ [Invocation Fracture] — Gaia's renamed surface is missing during final verification."
+            )
+            return
+        end
+
+        if planet.surface ~= rebuilt_surface then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's shell exists, but the planet still points elsewhere. The rite keeps testing the bond.",
+                "☠ [Invocation Fracture] — Gaia's staged surface exists, but the canonical planet still points elsewhere."
+            )
+            return
+        end
+
+        if not rebuilt_surface.planet or rebuilt_surface.planet.name ~= state.result_surface_name then
+            retry_or_fail_reforge_phase(
+                state,
+                event,
+                "◌ [Stillness] — Gaia's shell exists, but the final planetary signature is not yet stable. The rite keeps watching.",
+                "☠ [Invocation Fracture] — Gaia's staged surface exists, but canonical binding verification failed."
+            )
+            return
+        end
+
+        model.migrate_gaia_surface(rebuilt_surface)
+        ei_lib.crystal_echo("✧ [Resurrection] — Gaia's new surface has taken the canonical name and the planet bond is restored.")
+        complete_reforge(state, rebuilt_surface)
+        return
     end
 end
 
