@@ -1,4 +1,13 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.08
+Date: 4-1-2026
+  Features:
+    - Bound Nauvis surface patches to a cradle-and-scars regime: the landing zone now stands as a protected industrial reserve where iron, copper, coal, stone, and oil remain fit to found first industry, while beyond that cradle the crust fractures into remnant belts and exhausted scar-fields where iron, copper, and uranium persist only as spent surface relics.
+    - Added Nauvis evolution grace startup setting—evolution will trend down by 0.005 per 5 minutes if evolution exceeds: Pre-Steam age 0.25, Pre-Electricity age 0.5, and is inactive upon reaching Electricity age.
+  Changes:
+    - Adjusted default map preset to lower biter pressure.
+    - Updated non-english Informatron pages regarding updated resource generation doctrine.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.07
 Date: 4-1-2026
   Changes:

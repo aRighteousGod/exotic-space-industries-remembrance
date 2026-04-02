@@ -171,7 +171,10 @@ function model.resources(player_index, element)
     surface_image_container.style.horizontally_stretchable = true
     surface_image_container.add{type = "sprite", sprite = "item/ei-poor-iron-chunk"}
     surface_image_container.add{type = "sprite", sprite = "item/ei-poor-copper-chunk"}
+    surface_image_container.add{type = "sprite", sprite = "item/ei-poor-uranium-chunk"}
+    surface_image_container.add{type = "sprite", sprite = "item/coal"}
     surface_image_container.add{type = "sprite", sprite = "item/stone"}
+    surface_image_container.add{type = "sprite", sprite = "fluid/crude-oil"}
 
     element.add{type = "label", caption = {"exotic-industries-informatron.veins"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.veins-text"}}

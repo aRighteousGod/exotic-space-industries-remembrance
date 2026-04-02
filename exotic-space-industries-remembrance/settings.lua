@@ -385,6 +385,13 @@ data:extend({
       default_value = true,
       order  = "c1g4",
   },
+  {
+      name = "ei-nauvis-pressure-grace",
+      type = "bool-setting",
+      setting_type = "startup",
+      default_value = true,
+      order  = "c1g5",
+  },
   --this was used before the cyclic per tick entity updater was made
     {
         name = "ei_fueler_max_updates_per_tick",

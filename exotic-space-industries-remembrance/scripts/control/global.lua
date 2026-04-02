@@ -26,6 +26,8 @@ function ei_global.init()
     storage.ei["rocket_launch_pollution"].cap = 10000
     storage.ei["rocket_launch_pollution"].launch_smoke = {}
     storage.ei.fulgora_day_length_variation = {}
+    storage.ei.nauvis_pressure = {}
+    storage.ei.nauvis_pressure.milestone_reached = false
     --depreciated by NSB
     --storage.ei.spaced_updates = 0
     storage.ei.fluid_entity = {}
@@ -62,6 +64,10 @@ function ei_global.check_init(event)
     end
     if not storage.ei.fulgora_day_length_variation then
         storage.ei.fulgora_day_length_variation = {}
+    end
+    if not storage.ei.nauvis_pressure then
+        storage.ei.nauvis_pressure = {}
+        storage.ei.nauvis_pressure.milestone_reached = false
     end
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}

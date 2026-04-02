@@ -1,4 +1,4 @@
-
+-- Forged Nauvis deep mines into a stratified extraction regime: iron and copper now march in fault-bound metal provinces, coal and sulfur congeal through sedimentary basins, lead and gold rise from hydrothermal frontier corridors, while uranium and neodymium are exiled to outer scar-zones and anomaly pockets where the planet’s wounds still glow.
 local resource_autoplace = require("__core__/lualib/resource-autoplace")
 
 local nauvis_profile_expressions = {
