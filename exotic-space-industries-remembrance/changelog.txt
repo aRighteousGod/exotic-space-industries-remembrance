@@ -1,4 +1,25 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.09
+Date: 4-2-2026
+  Features:
+    - Quality now shapes EM transport—Higher-quality Chargers weave a cleaner crystalline lattice, reducing upkeep and transfer loss, while higher-quality EM locomotives can preserve field coherence for a few seconds after leaving the mesh before the song of the rail goes silent.
+    - Exotic assemblers now maintain a persistent containment glow while active; rising cascade risk escalates into localized crackle, heavier warnings, and short stabilizer-to-assembler arc discharges.
+  Changes:
+    - Switched Nauvis evolution grace script to use on_research_finished, on_configuration_changed, and compare against last run tick to reduce UPS usage.
+    - Switched Camp-fire script to compare against last run tick to reduce UPS usage.
+    - Rewrote Fuelwarden tower runtime around a target-driven scheduler with per-surface indexing and delayed target queues, gave quality a throughput bonus so higher-quality towers can service more targets per update, and added /rescan_fuelers for admin runtime repair.
+    - Refactored EM train charger runtime to use per-surface chunk indexing and deduplicated unit-number queues for faster charger lookup; pre-existing saves now rebuild automatically and admins can force a repair with /rescan_emt.
+    - Optimized black hole runtime by caching nearby pylons, removing steady-state world scans from tick and GUI paths, and skipping redundant visual/output writes for better UPS.
+    - Rewrote matter stabilizer runtime around cached stabilizer-to-assembler links, chunk indexing, and per-surface queues so the steady-state volatility updater no longer scans the world every pass; admins can repair the cache with /rescan_matter_stabilizers.
+    - Orbital platform request scanners now form adjacent banks, spread large surface-local request sets across multiple scanners, and emit overflow telemetry when the bank runs out of room.
+    - Added an Informatron page documenting platform request scanner behavior and wiring use cases.
+  Bugfixes:
+    - Fixed a black hole teardown crash when mining or robot-removing a black hole with quality-aware inventory contents.
+    - Fuelers now preserve quality and other stack metadata when transferring fuel and ammo.
+    - Fixed that orbital platform request scanners could crash when too many request slots had to be mirrored.
+    - Fixed that Spiderlings could reject valid fuel logistic requests because the limiter checked item names instead of actual fuel categories.
+    - Fixed matter stabilizer selection overlays so one player's range and connection visuals no longer clear another player's view in multiplayer.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.08
 Date: 4-1-2026
   Features:
@@ -53,7 +74,7 @@ Date: 3-27-2026
     - Gaia's verdant realms now awaken with bespoke genesis, her landscapes sculpted by the arcane forge of creation.
   Changes:
     - Gate receiver inventory size: 40 -> 30.
-    - Gaia planet conditions retuned to fit its temperate mid-orbit placement—visual orbital distance 10 -> 23, solar power in space 120 -> 160, surface solar power 20 -> 45, magnetic field 99 -> 45, pressure 800 -> 1600, and day-night cycle 3 -> 12 minutes.
+    - Gaia planet conditions retuned to fit its temperate mid-orbit placement—visual orbital distance 10 -> 23, solar power in space 120 -> 160, surface solar power 20 -> 45, magnetic field 99 -> 45, pressure 800 -> 1600, and day-night cycle 3 -> 8 minutes.
   Bugfixes:
     - Fixed a gate crash caused by using the 1.0 spill-item API when breach residue or rollback cargo had to be spilled.
     - Fixed that Gaia tiles lacked locale entries.

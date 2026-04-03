@@ -53,8 +53,115 @@ model.techs = {
     ["ei_spd"] = "spd"
 }
 
+local EM_CHUNK_SIZE = 32
+local EM_RUNTIME_VERSION = 1
+local EM_TICKS_PER_SECOND = 60
+local EM_LOCO_GRACE_DRAIN_WATTS = 1000000
+local QUALITY_CHARGER_UPKEEP_MAX_REDUCTION = 0.20
+local QUALITY_CHARGER_TRANSFER_MAX_REDUCTION = 0.12
+local QUALITY_LOCO_DEMAND_MAX_REDUCTION = 0.16
+local QUALITY_LOCO_MAX_GRACE_TICKS = 480
+local quality_level_bounds_cache = nil
+
 --UTIL
 ------------------------------------------------------------------------------------------------------
+
+local function new_queue_state()
+    return {
+        items = {},
+        head = 1,
+        tail = 0,
+        queued = {}
+    }
+end
+
+local function ensure_queue_state(queue)
+    queue = queue or {}
+    queue.items = queue.items or {}
+    queue.head = queue.head or 1
+    queue.tail = queue.tail or 0
+    queue.queued = queue.queued or {}
+    return queue
+end
+
+local function get_chunk_coordinate(tile_coordinate)
+    return math.floor(tile_coordinate / EM_CHUNK_SIZE)
+end
+
+local function get_chunk_coordinates(position)
+    return get_chunk_coordinate(position.x), get_chunk_coordinate(position.y)
+end
+
+local function get_chunk_coverage(position, radius)
+    return get_chunk_coordinate(position.x - radius),
+        get_chunk_coordinate(position.x + radius),
+        get_chunk_coordinate(position.y - radius),
+        get_chunk_coordinate(position.y + radius)
+end
+
+local function is_within_range_squared(source_position, target_position, max_range_sqr)
+    local delta_x = source_position.x - target_position.x
+    local delta_y = source_position.y - target_position.y
+    return (delta_x * delta_x + delta_y * delta_y) <= max_range_sqr
+end
+
+local function get_surface_index(surface)
+    return surface and surface.index or nil
+end
+
+local function get_item_prototypes()
+    if prototypes and prototypes.item then
+        return prototypes.item
+    end
+    if game and game.item_prototypes then
+        return game.item_prototypes
+    end
+end
+
+local function get_quality_prototypes()
+    if prototypes and prototypes.quality then
+        return prototypes.quality
+    end
+    if game and game.quality_prototypes then
+        return game.quality_prototypes
+    end
+end
+
+local function get_quality_level_bounds()
+    if quality_level_bounds_cache then
+        return quality_level_bounds_cache.min_level, quality_level_bounds_cache.max_level
+    end
+
+    -- Custom quality mods can add or re-space levels, so normalize against the
+    -- actual runtime min/max instead of assuming the vanilla 1..5 ladder.
+    local min_level = 1
+    local max_level = 1
+    local found_level = false
+    local quality_prototypes = get_quality_prototypes()
+
+    if quality_prototypes then
+        for _, quality in pairs(quality_prototypes) do
+            local level = quality.level
+            if ei_lib.is_valid_number(level) then
+                if not found_level then
+                    min_level = level
+                    max_level = level
+                    found_level = true
+                else
+                    min_level = math.min(min_level, level)
+                    max_level = math.max(max_level, level)
+                end
+            end
+        end
+    end
+
+    quality_level_bounds_cache = {
+        min_level = min_level,
+        max_level = max_level
+    }
+
+    return min_level, max_level
+end
 
 -- checks if the given name is an em loco
 -- might be good to detect if non-standard qualities are in use and use this, or maybe build a list at startup
@@ -77,36 +184,81 @@ end
 
 
 function model.check_global()
+    local runtime_was_missing = false
+    local runtime_components_missing = false
+
     if not storage.ei_emt then
         storage.ei_emt = {}
+        runtime_was_missing = true
     end
 
     -- [charger_id] = {entity, rail_count, surface}
     if not storage.ei_emt.chargers then
         storage.ei_emt.chargers = {}
     end
-    -- chargers that are not in update cycle
-    if not storage.ei_emt.chargers_register then
-        storage.ei_emt.chargers_register = {}
-    end
-
-    -- list of chargers in update cycle, first element gets updated next
-    if not storage.ei_emt.chargers_que then
-        storage.ei_emt.chargers_que = {}
-    end
     -- [train_id] = {entity, surface}
     if not storage.ei_emt.trains then
         storage.ei_emt.trains = {}
     end
 
-    -- trains that are not in update cycle
-    if not storage.ei_emt.trains_register then
-        storage.ei_emt.trains_register = {}
+    if not storage.ei_emt.charger_surfaces then
+        storage.ei_emt.charger_surfaces = {}
+        runtime_components_missing = true
     end
 
-    -- list of trains in update cycle, first element gets updated next
-    if not storage.ei_emt.trains_que then
-        storage.ei_emt.trains_que = {}
+    if not storage.ei_emt.charger_chunks then
+        storage.ei_emt.charger_chunks = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.charger_surface_queues then
+        storage.ei_emt.charger_surface_queues = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.charger_surface_counts then
+        storage.ei_emt.charger_surface_counts = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.charger_active_surfaces then
+        storage.ei_emt.charger_active_surfaces = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.charger_active_surface_positions then
+        storage.ei_emt.charger_active_surface_positions = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.charger_active_surface_cursor then
+        storage.ei_emt.charger_active_surface_cursor = 1
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.train_surface_queues then
+        storage.ei_emt.train_surface_queues = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.train_surface_counts then
+        storage.ei_emt.train_surface_counts = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.train_active_surfaces then
+        storage.ei_emt.train_active_surfaces = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.train_active_surface_positions then
+        storage.ei_emt.train_active_surface_positions = {}
+        runtime_components_missing = true
+    end
+
+    if not storage.ei_emt.train_active_surface_cursor then
+        storage.ei_emt.train_active_surface_cursor = 1
+        runtime_components_missing = true
     end
 
     if not storage.ei_emt.gui then
@@ -126,6 +278,656 @@ function model.check_global()
     -- here the power draw for each rail in charger range is calculated
     -- from ~eff*(acc_level + max_speed_level)
 
+    local chargers_exist = next(storage.ei_emt.chargers) ~= nil
+    local trains_exist = next(storage.ei_emt.trains) ~= nil
+    local charger_scheduler_empty = #storage.ei_emt.charger_active_surfaces == 0
+        or next(storage.ei_emt.charger_surface_queues) == nil
+        or next(storage.ei_emt.charger_surface_counts) == nil
+    local train_scheduler_empty = #storage.ei_emt.train_active_surfaces == 0
+        or next(storage.ei_emt.train_surface_queues) == nil
+        or next(storage.ei_emt.train_surface_counts) == nil
+
+    if storage.ei_emt.runtime_version ~= EM_RUNTIME_VERSION then
+        storage.ei_emt.needs_runtime_rebuild = true
+    elseif runtime_components_missing and (chargers_exist or trains_exist) then
+        storage.ei_emt.needs_runtime_rebuild = true
+    elseif chargers_exist and (next(storage.ei_emt.charger_surfaces) == nil
+        or next(storage.ei_emt.charger_chunks) == nil
+        or charger_scheduler_empty) then
+        storage.ei_emt.needs_runtime_rebuild = true
+    elseif trains_exist and train_scheduler_empty then
+        storage.ei_emt.needs_runtime_rebuild = true
+    elseif storage.ei_emt.needs_runtime_rebuild == nil then
+        storage.ei_emt.needs_runtime_rebuild = false
+    end
+
+    if runtime_was_missing and next(storage.ei_emt.chargers) == nil and next(storage.ei_emt.trains) == nil then
+        storage.ei_emt.runtime_version = EM_RUNTIME_VERSION
+        storage.ei_emt.needs_runtime_rebuild = false
+    end
+
+end
+
+function model.get_entity_name_list(entity_map)
+    local names = {}
+    for name in pairs(entity_map) do
+        names[#names + 1] = name
+    end
+    return names
+end
+
+function model.get_existing_entity_name_list(entity_map)
+    local names = {}
+    local entity_prototypes = nil
+
+    -- Factorio 2.0 moved runtime prototype access from `game` to `prototypes`.
+    if prototypes and prototypes.entity then
+        entity_prototypes = prototypes.entity
+    elseif game and game.entity_prototypes then
+        entity_prototypes = game.entity_prototypes
+    end
+
+    if not entity_prototypes then
+        return model.get_entity_name_list(entity_map)
+    end
+
+    for name in pairs(entity_map) do
+        if entity_prototypes[name] then
+            names[#names + 1] = name
+        end
+    end
+
+    return names
+end
+
+function model.get_charger_power_usage(rail_count, charger)
+    rail_count = rail_count or 0
+    local upkeep_factor = model.get_charger_upkeep_factor(charger)
+    -- Research remains the global network scaler; charger quality trims the local
+    -- upkeep cost for this specific field node.
+    return (rail_count * 250 * 1000 + 10 * 1000 * 1000)
+        * (1 - storage.ei_emt.buffs.charger_efficiency)
+        * upkeep_factor
+        / 60
+end
+
+function model.get_normalized_quality_factor(entity)
+    if not entity or not entity.quality or not ei_lib.is_valid_number(entity.quality.level) then
+        return 0
+    end
+
+    local min_level, max_level = get_quality_level_bounds()
+    if not ei_lib.is_valid_number(min_level) or not ei_lib.is_valid_number(max_level) or max_level <= min_level then
+        return 0
+    end
+
+    -- Collapse any quality ladder into 0..1 so our min/max bonuses stay stable
+    -- even when other mods add more intermediate quality steps.
+    return ei_lib.clamp((entity.quality.level - min_level) / (max_level - min_level), 0, 1)
+end
+
+local function unwrap_runtime_entity(entity_or_entry)
+    if type(entity_or_entry) == "table" and entity_or_entry.entity then
+        return entity_or_entry.entity
+    end
+    return entity_or_entry
+end
+
+function model.get_charger_upkeep_factor(charger)
+    charger = unwrap_runtime_entity(charger)
+    return 1 - QUALITY_CHARGER_UPKEEP_MAX_REDUCTION * model.get_normalized_quality_factor(charger)
+end
+
+function model.get_charger_transfer_factor(charger)
+    charger = unwrap_runtime_entity(charger)
+    return 1 - QUALITY_CHARGER_TRANSFER_MAX_REDUCTION * model.get_normalized_quality_factor(charger)
+end
+
+function model.get_locomotive_demand_factor(train)
+    train = unwrap_runtime_entity(train)
+    return 1 - QUALITY_LOCO_DEMAND_MAX_REDUCTION * model.get_normalized_quality_factor(train)
+end
+
+function model.get_locomotive_grace_ticks(train)
+    train = unwrap_runtime_entity(train)
+    return math.floor(QUALITY_LOCO_MAX_GRACE_TICKS * model.get_normalized_quality_factor(train) + 0.5)
+end
+
+function model.get_selected_em_fuel_prototype()
+    local item_prototypes = get_item_prototypes()
+    if not item_prototypes then
+        return nil
+    end
+
+    local acc = storage.ei_emt and storage.ei_emt.buffs and storage.ei_emt.buffs.acc_level or 0
+    local speed = storage.ei_emt and storage.ei_emt.buffs and storage.ei_emt.buffs.speed_level or 0
+    return item_prototypes["ei_emt-fuel_" .. tostring(acc) .. "_" .. tostring(speed)]
+end
+
+function model.get_item_fuel_value(item_like)
+    if not item_like then
+        return nil
+    end
+
+    -- Runtime burner handles may expose either the numeric fuel value directly or
+    -- only a prototype identity, so support both paths.
+    if ei_lib.is_valid_number(item_like.fuel_value) then
+        return item_like.fuel_value
+    end
+
+    if type(item_like.name) == "string" then
+        local item_prototypes = get_item_prototypes()
+        local item_prototype = item_prototypes and item_prototypes[item_like.name] or nil
+        if item_prototype and ei_lib.is_valid_number(item_prototype.fuel_value) then
+            return item_prototype.fuel_value
+        end
+    end
+
+    return nil
+end
+
+function model.get_train_fuel_fraction(train)
+    if not train or not train.burner then
+        return 0, nil
+    end
+
+    local fuel_value = model.get_item_fuel_value(train.burner.currently_burning)
+    if not fuel_value or fuel_value <= 0 then
+        return 0, fuel_value
+    end
+
+    local remaining = train.burner.remaining_burning_fuel or 0
+    return ei_lib.clamp(remaining / fuel_value, 0, 1), fuel_value
+end
+
+function model.ensure_train_grace_reserve(train, train_entry)
+    if not train_entry or not train or not train.burner then
+        return false
+    end
+
+    local current_tick = game and game.tick or 0
+    local grace_until_tick = train_entry.grace_until_tick or 0
+    if grace_until_tick <= 0 or current_tick > grace_until_tick then
+        return false
+    end
+
+    local fuel_prototype = model.get_selected_em_fuel_prototype()
+    if not fuel_prototype then
+        return false
+    end
+
+    local fuel_value = model.get_item_fuel_value(fuel_prototype)
+    if not fuel_value or fuel_value <= 0 then
+        return false
+    end
+
+    -- Grace uses the normal research-selected EM fuel and simply tops it up to the
+    -- minimum reserve needed to survive until the grace window expires.
+    train.burner.currently_burning = fuel_prototype
+
+    local remaining_grace_ticks = math.max(0, grace_until_tick - current_tick)
+    local required_reserve = EM_LOCO_GRACE_DRAIN_WATTS * remaining_grace_ticks / EM_TICKS_PER_SECOND
+    required_reserve = math.min(required_reserve, fuel_value)
+    local current_remaining = train.burner.remaining_burning_fuel or 0
+
+    if current_remaining < required_reserve then
+        train.burner.remaining_burning_fuel = required_reserve
+    end
+
+    ei_draw_train_glow(train)
+    return true
+end
+
+function model.get_surface_scheduler_state(prefix)
+    return storage.ei_emt[prefix .. "_surface_queues"],
+        storage.ei_emt[prefix .. "_surface_counts"],
+        storage.ei_emt[prefix .. "_active_surfaces"],
+        storage.ei_emt[prefix .. "_active_surface_positions"],
+        prefix .. "_active_surface_cursor"
+end
+
+function model.compact_queue(queue)
+    queue = ensure_queue_state(queue)
+    if queue.head <= 256 or queue.head <= (queue.tail / 2) then
+        return
+    end
+
+    local new_items = {}
+    local new_tail = 0
+    for index = queue.head, queue.tail do
+        local unit_number = queue.items[index]
+        if unit_number ~= nil then
+            new_tail = new_tail + 1
+            new_items[new_tail] = unit_number
+        end
+    end
+
+    queue.items = new_items
+    queue.head = 1
+    queue.tail = new_tail
+end
+
+function model.reset_surface_scheduler(prefix)
+    storage.ei_emt[prefix .. "_surface_queues"] = {}
+    storage.ei_emt[prefix .. "_surface_counts"] = {}
+    storage.ei_emt[prefix .. "_active_surfaces"] = {}
+    storage.ei_emt[prefix .. "_active_surface_positions"] = {}
+    storage.ei_emt[prefix .. "_active_surface_cursor"] = 1
+end
+
+function model.ensure_surface_queue(prefix, surface_index)
+    local queues = storage.ei_emt[prefix .. "_surface_queues"]
+    local queue = ensure_queue_state(queues[surface_index])
+    queues[surface_index] = queue
+    return queue
+end
+
+function model.activate_surface(prefix, surface_index)
+    if not surface_index then
+        return
+    end
+
+    local _, _, active_surfaces, active_positions, cursor_key = model.get_surface_scheduler_state(prefix)
+    if active_positions[surface_index] then
+        return
+    end
+
+    active_surfaces[#active_surfaces + 1] = surface_index
+    active_positions[surface_index] = #active_surfaces
+    if not storage.ei_emt[cursor_key] or storage.ei_emt[cursor_key] < 1 then
+        storage.ei_emt[cursor_key] = 1
+    end
+end
+
+function model.deactivate_surface(prefix, surface_index)
+    if not surface_index then
+        return
+    end
+
+    local queues, _, active_surfaces, active_positions, cursor_key = model.get_surface_scheduler_state(prefix)
+    local remove_index = active_positions[surface_index]
+    queues[surface_index] = nil
+    if not remove_index then
+        return
+    end
+
+    table.remove(active_surfaces, remove_index)
+    active_positions[surface_index] = nil
+    for index = remove_index, #active_surfaces do
+        active_positions[active_surfaces[index]] = index
+    end
+
+    if #active_surfaces == 0 then
+        storage.ei_emt[cursor_key] = 1
+        return
+    end
+
+    local cursor = storage.ei_emt[cursor_key] or 1
+    if remove_index < cursor then
+        cursor = cursor - 1
+    end
+    if cursor > #active_surfaces then
+        cursor = 1
+    end
+    if cursor < 1 then
+        cursor = 1
+    end
+    storage.ei_emt[cursor_key] = cursor
+end
+
+function model.adjust_surface_count(prefix, surface_index, delta)
+    if not surface_index or not delta or delta == 0 then
+        return
+    end
+
+    local _, counts = model.get_surface_scheduler_state(prefix)
+    local new_count = (counts[surface_index] or 0) + delta
+    if new_count <= 0 then
+        counts[surface_index] = nil
+        model.deactivate_surface(prefix, surface_index)
+        return
+    end
+
+    counts[surface_index] = new_count
+    model.activate_surface(prefix, surface_index)
+end
+
+function model.enqueue_surface_unit(prefix, surface_index, unit_number)
+    if not unit_number then
+        return false
+    end
+
+    local queue = model.ensure_surface_queue(prefix, surface_index)
+    if queue.queued[unit_number] then
+        return false
+    end
+
+    queue.tail = queue.tail + 1
+    queue.items[queue.tail] = unit_number
+    queue.queued[unit_number] = true
+    return true
+end
+
+function model.dequeue_surface_unit(prefix, surface_index)
+    local queues = storage.ei_emt[prefix .. "_surface_queues"]
+    local queue = queues[surface_index]
+    if not queue then
+        return nil
+    end
+
+    queue = ensure_queue_state(queue)
+    queues[surface_index] = queue
+
+    while queue.head <= queue.tail do
+        local head_index = queue.head
+        local unit_number = queue.items[head_index]
+        queue.items[head_index] = nil
+        queue.head = head_index + 1
+
+        if unit_number ~= nil then
+            queue.queued[unit_number] = nil
+            model.compact_queue(queue)
+            return unit_number
+        end
+    end
+
+    queue.items = {}
+    queue.head = 1
+    queue.tail = 0
+    return nil
+end
+
+function model.requeue_surface_unit(prefix, surface_index, unit_number)
+    return model.enqueue_surface_unit(prefix, surface_index, unit_number)
+end
+
+function model.allocate_surface_budgets(prefix, budget)
+    local _, counts, active_surfaces, _, cursor_key = model.get_surface_scheduler_state(prefix)
+    local allocations = {}
+    local active_surface_count = #active_surfaces
+
+    budget = math.max(0, math.floor(tonumber(budget) or 0))
+    if budget <= 0 or active_surface_count == 0 then
+        return allocations
+    end
+
+    local cursor = storage.ei_emt[cursor_key] or 1
+    if cursor < 1 or cursor > active_surface_count then
+        cursor = 1
+    end
+
+    local function get_surface_at_offset(offset)
+        local position = ((cursor + offset - 2) % active_surface_count) + 1
+        return active_surfaces[position]
+    end
+
+    if budget < active_surface_count then
+        for offset = 1, budget do
+            local surface_index = get_surface_at_offset(offset)
+            allocations[surface_index] = 1
+        end
+        storage.ei_emt[cursor_key] = ((cursor + budget - 1) % active_surface_count) + 1
+        return allocations
+    end
+
+    local remaining = budget
+    local total_entities = 0
+    for _, surface_index in ipairs(active_surfaces) do
+        allocations[surface_index] = 1
+        remaining = remaining - 1
+        total_entities = total_entities + (counts[surface_index] or 0)
+    end
+
+    if remaining <= 0 or total_entities <= 0 then
+        return allocations
+    end
+
+    local assigned = 0
+    for _, surface_index in ipairs(active_surfaces) do
+        local extra = math.floor(remaining * ((counts[surface_index] or 0) / total_entities))
+        if extra > 0 then
+            allocations[surface_index] = allocations[surface_index] + extra
+        end
+        assigned = assigned + extra
+    end
+
+    local leftover = remaining - assigned
+    if leftover > 0 then
+        for offset = 1, leftover do
+            local surface_index = get_surface_at_offset(offset)
+            allocations[surface_index] = allocations[surface_index] + 1
+        end
+        storage.ei_emt[cursor_key] = ((cursor + leftover - 1) % active_surface_count) + 1
+    end
+
+    return allocations
+end
+
+function model.process_surface_quota(prefix, surface_index, quota, registry_name, update_entity, remove_entry)
+    local processed = 0
+    for _ = 1, quota do
+        while true do
+            local unit_number = model.dequeue_surface_unit(prefix, surface_index)
+            if not unit_number then
+                return processed
+            end
+
+            local entry = storage.ei_emt[registry_name][unit_number]
+            local entity = entry and entry.entity or nil
+            if entry and entry.surface_index == surface_index and model.entity_check(entity) then
+                update_entity(entity)
+                if storage.ei_emt[registry_name][unit_number] then
+                    model.requeue_surface_unit(prefix, surface_index, unit_number)
+                end
+                processed = processed + 1
+                break
+            end
+
+            if entry then
+                remove_entry(unit_number, entry)
+            end
+        end
+    end
+
+    return processed
+end
+
+function model.process_surface_scheduler(prefix, registry_name, budget, update_entity, remove_entry)
+    local active_surfaces = storage.ei_emt[prefix .. "_active_surfaces"]
+    if not active_surfaces or #active_surfaces == 0 then
+        return false
+    end
+
+    local surface_order = {}
+    for index = 1, #active_surfaces do
+        surface_order[index] = active_surfaces[index]
+    end
+
+    local allocations = model.allocate_surface_budgets(prefix, budget)
+    local processed = 0
+    for _, surface_index in ipairs(surface_order) do
+        local quota = allocations[surface_index] or 0
+        if quota > 0 then
+            processed = processed + model.process_surface_quota(prefix, surface_index, quota, registry_name, update_entity, remove_entry)
+        end
+    end
+
+    return processed > 0
+end
+
+function model.clear_legacy_runtime_fields()
+    storage.ei_emt.chargers_register = nil
+    storage.ei_emt.chargers_que = nil
+    storage.ei_emt.trains_register = nil
+    storage.ei_emt.trains_que = nil
+    storage.ei_emt.charger_queue = nil
+    storage.ei_emt.train_queue = nil
+end
+
+function model.get_surface_charger_set(surface_index, create)
+    local surface_set = storage.ei_emt.charger_surfaces[surface_index]
+    if not surface_set and create then
+        surface_set = {}
+        storage.ei_emt.charger_surfaces[surface_index] = surface_set
+    end
+    return surface_set
+end
+
+function model.get_chunk_bucket(surface_index, chunk_x, chunk_y, create)
+    local surface_chunks = storage.ei_emt.charger_chunks[surface_index]
+    if not surface_chunks and create then
+        surface_chunks = {}
+        storage.ei_emt.charger_chunks[surface_index] = surface_chunks
+    end
+
+    if not surface_chunks then
+        return nil
+    end
+
+    local x_bucket = surface_chunks[chunk_x]
+    if not x_bucket and create then
+        x_bucket = {}
+        surface_chunks[chunk_x] = x_bucket
+    end
+
+    if not x_bucket then
+        return nil
+    end
+
+    local chunk_bucket = x_bucket[chunk_y]
+    if not chunk_bucket and create then
+        chunk_bucket = {}
+        x_bucket[chunk_y] = chunk_bucket
+    end
+
+    return chunk_bucket
+end
+
+function model.build_charger_entry(entity)
+    local surface_index = get_surface_index(entity.surface)
+    local chunk_x, chunk_y = get_chunk_coordinates(entity.position)
+    local coverage_min_chunk_x, coverage_max_chunk_x, coverage_min_chunk_y, coverage_max_chunk_y =
+        get_chunk_coverage(entity.position, storage.ei_emt.buffs.charger_range)
+
+    return {
+        entity = entity,
+        rail_count = model.get_rail_count(entity),
+        surface = entity.surface,
+        surface_index = surface_index,
+        chunk_x = chunk_x,
+        chunk_y = chunk_y,
+        coverage_min_chunk_x = coverage_min_chunk_x,
+        coverage_max_chunk_x = coverage_max_chunk_x,
+        coverage_min_chunk_y = coverage_min_chunk_y,
+        coverage_max_chunk_y = coverage_max_chunk_y
+    }
+end
+
+function model.build_train_entry(entity)
+    return {
+        entity = entity,
+        surface = entity.surface,
+        surface_index = get_surface_index(entity.surface),
+        -- Explicit grace state lets quality locomotives bridge short coverage gaps
+        -- without changing the broader EM fuel/progression system.
+        grace_until_tick = 0
+    }
+end
+
+function model.index_charger(charger_id, charger_entry)
+    if not charger_entry or not charger_entry.surface_index then
+        return
+    end
+
+    local surface_set = model.get_surface_charger_set(charger_entry.surface_index, true)
+    surface_set[charger_id] = true
+
+    for chunk_x = charger_entry.coverage_min_chunk_x, charger_entry.coverage_max_chunk_x do
+        for chunk_y = charger_entry.coverage_min_chunk_y, charger_entry.coverage_max_chunk_y do
+            local chunk_bucket = model.get_chunk_bucket(charger_entry.surface_index, chunk_x, chunk_y, true)
+            chunk_bucket[charger_id] = true
+        end
+    end
+end
+
+function model.unindex_charger(charger_id, charger_entry)
+    if not charger_entry or not charger_entry.surface_index then
+        return
+    end
+
+    local surface_index = charger_entry.surface_index
+    local surface_set = model.get_surface_charger_set(surface_index, false)
+    if surface_set then
+        surface_set[charger_id] = nil
+        if next(surface_set) == nil then
+            storage.ei_emt.charger_surfaces[surface_index] = nil
+        end
+    end
+
+    local surface_chunks = storage.ei_emt.charger_chunks[surface_index]
+    if not surface_chunks then
+        return
+    end
+
+    for chunk_x = charger_entry.coverage_min_chunk_x, charger_entry.coverage_max_chunk_x do
+        local x_bucket = surface_chunks[chunk_x]
+        if x_bucket then
+            for chunk_y = charger_entry.coverage_min_chunk_y, charger_entry.coverage_max_chunk_y do
+                local chunk_bucket = x_bucket[chunk_y]
+                if chunk_bucket then
+                    chunk_bucket[charger_id] = nil
+                    if next(chunk_bucket) == nil then
+                        x_bucket[chunk_y] = nil
+                    end
+                end
+            end
+
+            if next(x_bucket) == nil then
+                surface_chunks[chunk_x] = nil
+            end
+        end
+    end
+
+    if next(surface_chunks) == nil then
+        storage.ei_emt.charger_chunks[surface_index] = nil
+    end
+end
+
+function model.remove_charger_entry(charger_id, charger_entry)
+    charger_entry = charger_entry or storage.ei_emt.chargers[charger_id]
+    if not charger_entry then
+        return false
+    end
+
+    model.unindex_charger(charger_id, charger_entry)
+    model.adjust_surface_count("charger", charger_entry.surface_index, -1)
+    storage.ei_emt.chargers[charger_id] = nil
+    return true
+end
+
+function model.remove_train_entry(train_id, train_entry)
+    train_entry = train_entry or storage.ei_emt.trains[train_id]
+    if not train_entry then
+        return false
+    end
+
+    model.adjust_surface_count("train", train_entry.surface_index, -1)
+    storage.ei_emt.trains[train_id] = nil
+    return true
+end
+
+function model.invalidate_runtime_state()
+    storage.ei_emt.needs_runtime_rebuild = true
+    storage.ei_emt.runtime_version = nil
+end
+
+function model.ensure_runtime_ready()
+    model.check_global()
+    if storage.ei_emt.runtime_rebuild_in_progress or not storage.ei_emt.needs_runtime_rebuild then
+        return
+    end
+
+    model.rebuild_runtime_state("auto")
 end
 --formula is 1 - below gets multiplied by power_usage
 model.effBuffMultipliers = {
@@ -287,11 +1089,8 @@ function model.apply_buffs(buff, level, single, entity)
             for i,v in pairs(storage.ei_emt.chargers) do
 
             --model.make_rings(v.entity, storage.ei_emt.buffs.charger_range, 0.5)
-            if(v.entity) then
-                target = entity
-                model.update_charger(target)
-            elseif(storage.ei_emt.chargers and v.unit_number and storage.ei_emt.chargers[v.unit_number]) then
-                target = storage.ei_emt.chargers[v.unit_number].entity --yee SHALL NOT AVOID PAYMENT
+            if model.entity_check(v.entity) then
+                target = v.entity
                 model.update_charger(target)
             end
             model.render_status_rings(target,status,radius,ei_ticksPerFullUpdate,override)
@@ -320,7 +1119,7 @@ function model.register_que_charger(charger)
     end
 
     model.check_global()
-    table.insert(storage.ei_emt.chargers_register, charger)
+    model.enqueue_surface_unit("charger", get_surface_index(charger.surface), charger.unit_number)
 end
 function model.register_que_train(train)
     if not model.entity_check(train) then
@@ -328,7 +1127,7 @@ function model.register_que_train(train)
     end
 
     model.check_global()
-    table.insert(storage.ei_emt.trains_register, train)
+    model.enqueue_surface_unit("train", get_surface_index(train.surface), train.unit_number)
 end
 function model.que_charger(charger)
     if not model.entity_check(charger) then
@@ -337,7 +1136,7 @@ function model.que_charger(charger)
     end
 
     model.check_global()
-    table.insert(storage.ei_emt.chargers_que, charger)
+    model.enqueue_surface_unit("charger", get_surface_index(charger.surface), charger.unit_number)
 
 end
 
@@ -348,55 +1147,43 @@ function model.que_train(train)
     end
 
     model.check_global()
-    table.insert(storage.ei_emt.trains_que, train)
+    model.enqueue_surface_unit("train", get_surface_index(train.surface), train.unit_number)
 
 end
 
 function model.deregister_all_trains()
-    --if  storage.ei_emt.trains and ei_lib.getn(storage.ei_emt.trains) > 0 then
+    model.check_global()
     storage.ei_emt.trains = {}
-    storage.ei_emt.trains_register = {}
-    storage.ei_emt.trains_que = {}
---        for unit_number in pairs(storage.ei_emt.trains) do
---            if unit_number and unit_number.entity then
---                em_trains.deregister_train(unit_number)
---            end
---        end
---    end
+    model.reset_surface_scheduler("train")
+    model.clear_legacy_runtime_fields()
 end
 
 function model.deregister_all_chargers()
-        --if storage.ei_emt.chargers and ei_lib.getn(storage.ei_emt.chargers) > 0 then
-        storage.ei_emt.chargers = {}
-        storage.ei_emt.chargers_register = {}
-        storage.ei_emt.chargers_que = {}
---            for unit_number in pairs(storage.ei_emt.chargers) do
---                if unit_number and unit_number.entity then
---                    em_trains.deregister_charger(unit_number)
---                end
---            end
---        end
+    model.check_global()
+    storage.ei_emt.chargers = {}
+    storage.ei_emt.charger_surfaces = {}
+    storage.ei_emt.charger_chunks = {}
+    model.reset_surface_scheduler("charger")
+    model.clear_legacy_runtime_fields()
 end
+
 function model.reinitialize_chargers()
+    model.check_global()
     model.deregister_all_chargers()
+
+    local charger_names = model.get_existing_entity_name_list(model.chargers)
+    if next(charger_names) == nil then
+        return
+    end
+
     for _, surface in pairs(game.surfaces) do
 		local entities = surface.find_entities_filtered({
-			name = {
-				"ei_charger",
-				--"uncommon-ei_charger",
-				--"rare-ei_charger",
-				--"epic-ei_charger",
-				--"legendary-ei_charger",
-			},
+			name = charger_names,
 		})
-        if entities and ei_lib.getn(entities) > 0 then
-            local effBuff =  storage.ei_emt.buffs.eff_level or 0
+        if entities and next(entities) ~= nil then
             for _, entity in pairs(entities) do
                 if entity and entity.valid then
-                    em_trains.register_charger(entity)
-                    if effBuff then
-                        em_trains.apply_buffs("eff", effBuff, true, entity)
-                    end
+                    model.register_charger(entity)
                 end
             end
         end
@@ -404,77 +1191,70 @@ function model.reinitialize_chargers()
 end
 
 function model.reinitialize_trains()
+    model.check_global()
     model.deregister_all_trains()
+
+    local train_names = model.get_existing_entity_name_list(model.trains)
+    if next(train_names) == nil then
+        return
+    end
+
     for _, surface in pairs(game.surfaces) do
 		local entities = surface.find_entities_filtered({
-			name = {
-				"ei_em-locomotive", --quality is an additional filter so if 1 isn't set it grabs all of them
-				--"uncommon-ei_em-locomotive",
-				--"rare-ei_em-locomotive",
-				--"epic-ei_em-locomotive",
-				--"legendary-ei_em-locomotive",
-			},
+			name = train_names,
 		})
-        if entities and ei_lib.getn(entities) then
-            local accBuff =  storage.ei_emt.buffs.acc_level or 0
-            local spdBuff =  storage.ei_emt.buffs.spd_level or 0
+        if entities and next(entities) ~= nil then
             for _, entity in pairs(entities) do
                 if entity and entity.valid then
-                    em_trains.register_train(entity)
-                    if spdBuff then
-                         em_trains.apply_buffs("spd", spdBuff, true, entity)
-                    end
-                    if accBuff then
-                        em_trains.apply_buffs("acc", accBuff, true, entity)
-                    end
+                    model.register_train(entity)
                 end
             end
         end
     end
 end
 
-function model.update_chargers()
+function model.rebuild_runtime_state(reason)
     model.check_global()
-    -- first add new registries
-    for i,v in ipairs(storage.ei_emt.chargers_register) do
-        if model.entity_check(v) then
-            model.que_charger(v)
-            end
+    if storage.ei_emt.runtime_rebuild_in_progress then
+        return
     end
-    storage.ei_emt.chargers_register = {}
-    if ei_lib.getn(storage.ei_emt.chargers_que) == 0 then
-        return false
-        end
-    -- update and reque first element
-    local charger = storage.ei_emt.chargers_que[1]
-    model.update_charger(charger)
-    model.que_charger(charger)
-    table.remove(storage.ei_emt.chargers_que,1) -- very costly
-    return true
+
+    storage.ei_emt.runtime_rebuild_in_progress = true
+
+    model.reinitialize_chargers()
+    model.reinitialize_trains()
+
+    storage.ei_emt.runtime_version = EM_RUNTIME_VERSION
+    storage.ei_emt.needs_runtime_rebuild = false
+    storage.ei_emt.runtime_rebuild_in_progress = false
+
+    model.fix_toggle_range()
+    em_trains_gui.mark_dirty()
 end
 
-function model.update_trains()
+function model.update_chargers(budget)
+    model.ensure_runtime_ready()
+    if next(storage.ei_emt.chargers) == nil then
+        return false
+    end
+
+    budget = math.max(1, math.floor(tonumber(budget) or 1))
+    return model.process_surface_scheduler("charger", "chargers", budget, model.update_charger, model.remove_charger_entry)
+end
+
+function model.update_trains(budget)
 
     -- update logic: cycle through train updates
-    -- every train has a 1MW acc power, fuel always has 1GJ fuel == 1000s
-    -- enough to update trains after n-ticks
+    -- EM locomotives nominally burn 1MW against a 1GJ fuel unit,
+    -- but out-of-range shutdown is controlled by the script update path.
 
-    model.check_global()
-
-    -- first add new registries
-    for i,v in ipairs(storage.ei_emt.trains_register) do
-        if model.entity_check(v) then model.que_train(v) end
+    model.ensure_runtime_ready()
+    if next(storage.ei_emt.trains) == nil then
+        return false
     end
-    storage.ei_emt.trains_register = {}
 
-    if ei_lib.getn(storage.ei_emt.trains_que) == 0 then return false end
-    -- update and reque first element
-    local train = storage.ei_emt.trains_que[1]
-    
-    model.update_train(train)
-    model.que_train(train)
-    table.remove(storage.ei_emt.trains_que,1) -- very costly
-    return true
+    budget = math.max(1, math.floor(tonumber(budget) or 1))
+    return model.process_surface_scheduler("train", "trains", budget, model.update_train, model.remove_train_entry)
 end
 
 function model.update_train(train)
@@ -482,7 +1262,38 @@ function model.update_train(train)
     if not model.entity_check(train) then
         return
     end
-    local status = model.set_burner(train, model.find_charger(train))
+
+    local train_entry = storage.ei_emt.trains[train.unit_number]
+    if not train_entry then
+        return
+    end
+
+    if not ei_lib.is_valid_number(train_entry.grace_until_tick) then
+        train_entry.grace_until_tick = 0
+    end
+
+    local state = model.find_charger(train)
+    local status
+
+    if ei_lib.is_valid_number(state) and state > 0 then
+        -- Successful coverage refreshes both the burner fill and the countdown for
+        -- any future out-of-mesh grace window.
+        local grace_ticks = model.get_locomotive_grace_ticks(train)
+        if grace_ticks > 0 then
+            train_entry.grace_until_tick = (game and game.tick or 0) + grace_ticks
+        else
+            train_entry.grace_until_tick = 0
+        end
+        status = model.set_burner(train, state)
+    elseif model.ensure_train_grace_reserve(train, train_entry) then
+        -- Grace keeps the train alive briefly, but it is still degraded operation
+        -- rather than true charger-backed propulsion.
+        status = "warning"
+    else
+        train_entry.grace_until_tick = 0
+        status = model.set_burner(train, 0)
+    end
+
     model.render_status_rings(train,status,8,10)
 end
 
@@ -631,19 +1442,19 @@ end
 
 function model.set_burner(train, state)
     if not train or not train.burner then return "error" end
-    if state == 0 or state == inf then train.burner.remaining_burning_fuel = 0 return "offline" end
-
-    local acc = storage.ei_emt.buffs.acc_level or 0
-    local speed = storage.ei_emt.buffs.speed_level or 0
-    if not train.burner then
+    if not ei_lib.is_valid_number(state) or state <= 0 then
+        train.burner.remaining_burning_fuel = 0
         return "offline"
-        end
-    train.burner.currently_burning = prototypes.item["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
-    -- error(serpent.block(train.burner.currently_burning.name.fuel_value))
-    -- game.print("currently_burning: " .. serpent.line(train.burner.currently_burning.fuel_value))
-    train.burner.remaining_burning_fuel = train.burner.currently_burning.name.fuel_value*state
-    -- turn this into double, as its may be smthing like 0.534343 -> 0.5
-    train.burner.remaining_burning_fuel = train.burner.currently_burning.name.fuel_value*state
+    end
+
+    local fuel_prototype = model.get_selected_em_fuel_prototype()
+    local fuel_value = model.get_item_fuel_value(fuel_prototype)
+    if not fuel_prototype or not fuel_value then
+        return "offline"
+    end
+
+    train.burner.currently_burning = fuel_prototype
+    train.burner.remaining_burning_fuel = fuel_value * state
     if not train.burner.remaining_burning_fuel then return "warning" end
     ei_draw_train_glow(train)
     return "working"
@@ -816,12 +1627,17 @@ function model.has_enough_energy(charger, train)
     end
 
     local energy = charger.energy
-    local total_needed = (1 - storage.ei_emt.buffs.charger_efficiency) * (1 + 0.1*storage.ei_emt.buffs.acc_level) * (1 + 0.1*storage.ei_emt.buffs.speed_level) *1000*1000*100 -- in MJ, up to 400 MJ
+    -- Effective charge cost keeps research as the main multiplier, then layers in
+    -- local charger quality and local locomotive quality on top.
+    local total_needed = (1 - storage.ei_emt.buffs.charger_efficiency)
+        * model.get_charger_transfer_factor(charger)
+        * model.get_locomotive_demand_factor(train)
+        * (1 + 0.1*storage.ei_emt.buffs.acc_level)
+        * (1 + 0.1*storage.ei_emt.buffs.speed_level)
+        * 1000*1000*100 -- in MJ, up to 400 MJ
     --game.print(total_needed)
     local left = 0
-    if train and train.burner and train.burner.currently_burning and train.burner.remaining_burning_fuel then
-        left = train.burner.remaining_burning_fuel/train.burner.currently_burning.name.fuel_value
-    end
+    left = model.get_train_fuel_fraction(train)
     total_needed = total_needed*(1 - left)
     -- TODO only charge when is over 50% full
 
@@ -844,41 +1660,42 @@ end
 
 function model.find_charger(train)
     if not train or not train.surface or not train.position.x or not train.position.y then return 0 end
-    local t_pos = {["x"] = train.position.x, ["y"] = train.position.y} -- avoid issues with shorthand notation, might be obsolete
-    local surface = train.surface
-    local max_range_sqr = storage.ei_emt.buffs.charger_range*storage.ei_emt.buffs.charger_range
+
+    local surface_index = get_surface_index(train.surface)
+    local chunk_x, chunk_y = get_chunk_coordinates(train.position)
+    local candidates = model.get_chunk_bucket(surface_index, chunk_x, chunk_y, false)
+    if not candidates then
+        return 0
+    end
+
+    local max_range_sqr = storage.ei_emt.buffs.charger_range * storage.ei_emt.buffs.charger_range
     local parts = 0
 
-    for i,v in pairs(storage.ei_emt.chargers) do
-        if model.entity_check(v.entity) then
-
-            if v.entity.surface == surface then
-
-                local c_pos = {["x"] = v.entity.position.x, ["y"] = v.entity.position.y}
-                if ((t_pos.x - c_pos.x)*(t_pos.x - c_pos.x) + (t_pos.y - c_pos.y)*(t_pos.y - c_pos.y)) <= max_range_sqr then
-                    
-                    parts = parts + model.has_enough_energy(v.entity, train)
-                    if parts >= 1 then
-                        local status = "working"
-                        if(train) then
-                            model.cast_beam(v.entity, train)
-                            model.render_status_rings(v.entity,status,8,10)
-                            end
-                        if ei_rng.int("trainglowscale",1,40) == 1 then
-                            local offset_x = (ei_rng.float("chargerbeamx")) * 50  -- random between -50 and +50
-                            local offset_y = (ei_rng.float("chargerbeamy")) * 50
-                            local target_position = {
-                                x = v.entity.position.x + offset_x,
-                                y = v.entity.position.y + offset_y
-                            }
-                            model.cast_beam(v.entity, target_position)
-                            end
-                        return 1
+    for charger_id in pairs(candidates) do
+        local charger_entry = storage.ei_emt.chargers[charger_id]
+        local charger = charger_entry and charger_entry.entity or nil
+        if model.entity_check(charger) and charger_entry.surface_index == surface_index then
+            if is_within_range_squared(train.position, charger.position, max_range_sqr) then
+                parts = parts + model.has_enough_energy(charger, train)
+                if parts >= 1 then
+                    local status = "working"
+                    model.cast_beam(charger, train)
+                    model.render_status_rings(charger, status, 8, 10)
+                    if ei_rng.int("trainglowscale", 1, 40) == 1 then
+                        local offset_x = ei_rng.float("chargerbeamx") * 50
+                        local offset_y = ei_rng.float("chargerbeamy") * 50
+                        local target_position = {
+                            x = charger.position.x + offset_x,
+                            y = charger.position.y + offset_y
+                        }
+                        model.cast_beam(charger, target_position)
                     end
+                    return 1
                 end
             end
         end
     end
+
     if(ei_lib.is_valid_number(parts)) then
         return parts
     else
@@ -893,19 +1710,23 @@ function model.update_charger_from_rail(rail, sign)
         return
     end
 
-    local radius = storage.ei_emt.buffs.charger_range
-    local chargers = rail.surface.find_entities_filtered({
-        position = rail.position,
-        radius = radius,
-        name = "ei_charger"
-    })
+    model.ensure_runtime_ready()
 
-    for _, charger in ipairs(chargers) do
-        local charger_id = charger.unit_number
-        storage.ei_emt.chargers[charger_id].rail_count = storage.ei_emt.chargers[charger_id].rail_count + sign
-        local charge = storage.ei_emt.chargers[charger_id].entity
-        if charge then
-            charge.power_usage = (storage.ei_emt.chargers[charger_id].rail_count *250*1000 + 10*1000*1000) * (1-storage.ei_emt.buffs.charger_efficiency) /  60  -- 250W per rail + 10MW idle
+    local surface_index = get_surface_index(rail.surface)
+    local chunk_x, chunk_y = get_chunk_coordinates(rail.position)
+    local chargers = model.get_chunk_bucket(surface_index, chunk_x, chunk_y, false)
+    if not chargers then
+        return
+    end
+
+    local max_range_sqr = storage.ei_emt.buffs.charger_range * storage.ei_emt.buffs.charger_range
+    for charger_id in pairs(chargers) do
+        local charger_entry = storage.ei_emt.chargers[charger_id]
+        local charge = charger_entry and charger_entry.entity or nil
+        if model.entity_check(charge) and charger_entry.surface_index == surface_index
+            and is_within_range_squared(rail.position, charge.position, max_range_sqr) then
+            charger_entry.rail_count = math.max(0, (charger_entry.rail_count or 0) + sign)
+            charge.power_usage = model.get_charger_power_usage(charger_entry.rail_count, charge)
         end
     end
 end
@@ -914,7 +1735,9 @@ function model.update_rail_counts()
     if not storage.ei_emt.chargers then return end
     for charger in pairs(storage.ei_emt.chargers) do
         if storage.ei_emt.chargers[charger].entity then
-            storage.ei_emt.chargers[charger].rail_count = model.get_rail_count(storage.ei_emt.chargers[charger].entity)
+            local charger_entry = storage.ei_emt.chargers[charger]
+            charger_entry.rail_count = model.get_rail_count(charger_entry.entity)
+            charger_entry.entity.power_usage = model.get_charger_power_usage(charger_entry.rail_count, charger_entry.entity)
         end
     end
 end
@@ -934,17 +1757,20 @@ function model.get_rail_count(charger)
     end
 
 function model.update_charger(charger)
-    visual = visual or false -- should highlight counted rails?
-
     -- charger stil exists/vaild?
     if not model.entity_check(charger) then return false end
 
     local charger_id = charger.unit_number
-    storage.ei_emt.chargers[charger_id].rail_count = model.get_rail_count(charger)
-    local rail_count = storage.ei_emt.chargers[charger_id].rail_count or 1
+    local charger_entry = storage.ei_emt.chargers[charger_id]
+    if not charger_entry then
+        return false
+    end
+
+    charger_entry.rail_count = model.get_rail_count(charger)
+    local rail_count = charger_entry.rail_count or 1
 
     local radius = 6
-    charger.power_usage = (storage.ei_emt.chargers[charger_id].rail_count *250*1000 + 10*1000*1000) * (1-storage.ei_emt.buffs.charger_efficiency) /  60  -- 250W per rail + 10MW idle
+    charger.power_usage = model.get_charger_power_usage(charger_entry.rail_count, charger)
 
     local status = "default"
     local has_power_usage = charger.power_usage ~= nil
@@ -1009,14 +1835,18 @@ function model.register_charger(entity)
     model.check_global()
 
     local charger_id = entity.unit_number
-    storage.ei_emt.chargers[charger_id] = {
-        entity = entity,
-        rail_count = model.get_rail_count(entity),
-        surface = entity.surface
-    }
+    local existing_entry = storage.ei_emt.chargers[charger_id]
+    if existing_entry then
+        model.remove_charger_entry(charger_id, existing_entry)
+    end
+
+    local charger_entry = model.build_charger_entry(entity)
+    storage.ei_emt.chargers[charger_id] = charger_entry
+    model.index_charger(charger_id, charger_entry)
+    model.adjust_surface_count("charger", charger_entry.surface_index, 1)
 
     -- adjust its power usage
-    entity.power_usage = (storage.ei_emt.chargers[charger_id].rail_count *250*1000 + 10*1000*1000) * (1-storage.ei_emt.buffs.charger_efficiency) /  60  -- 250W per rail + 10MW idle
+    entity.power_usage = model.get_charger_power_usage(charger_entry.rail_count, entity)
     --game.print("register_charger power usage "..entity.power_usage)
     -- set energy to max so that it does not need the full charge
     -- no free lunch
@@ -1032,7 +1862,7 @@ function model.unregister_charger(entity)
     model.check_global()
     if entity and entity.unit_number then
         local charger_id = entity.unit_number
-        storage.ei_emt.chargers[charger_id] = nil
+        model.remove_charger_entry(charger_id)
     else
         log("unregister_charger passed nil entity")
     end
@@ -1044,10 +1874,14 @@ function model.register_train(entity)
     model.check_global()
 
     local train_id = entity.unit_number
-    storage.ei_emt.trains[train_id] = {
-        entity = entity,
-        surface = entity.surface
-    }
+    local existing_entry = storage.ei_emt.trains[train_id]
+    if existing_entry then
+        model.remove_train_entry(train_id, existing_entry)
+    end
+
+    local train_entry = model.build_train_entry(entity)
+    storage.ei_emt.trains[train_id] = train_entry
+    model.adjust_surface_count("train", train_entry.surface_index, 1)
 
     model.register_que_train(entity)
 
@@ -1059,7 +1893,7 @@ function model.unregister_train(entity)
     model.check_global()
 
     local train_id = entity.unit_number
-    storage.ei_emt.trains[train_id] = nil
+    model.remove_train_entry(train_id)
     --em_trails.remove_active_train(entity)
 end
 
@@ -1085,6 +1919,7 @@ end
 function model.toggle_range_highlight(player)
 
     model.check_global()
+    model.ensure_runtime_ready()
 
     local player_index = player.index
 
@@ -1111,12 +1946,12 @@ end
 --HANDLERS 
 ------------------------------------------------------------------------------------------------------
 
-function model.train_updater()
-   return model.update_trains()
+function model.train_updater(budget)
+   return model.update_trains(budget)
 
 end
-function model.charger_updater()
-    return model.update_chargers()
+function model.charger_updater(budget)
+    return model.update_chargers(budget)
 end
 
 function model.on_research_finished(event)
@@ -1192,15 +2027,23 @@ function model.on_built_entity(entity)
         return
     end
 
-    if model.chargers[entity.name] then
+    local is_charger = model.chargers[entity.name]
+    local is_rail = ei_lib.table_contains_value(ei_rail_types, entity.name)
+    local is_train = model.trains[entity.name]
+
+    if is_charger or is_rail or is_train then
+        model.ensure_runtime_ready()
+    end
+
+    if is_charger then
         model.register_charger(entity)
         model.animate_range(entity, true, nil)
         model.fix_toggle_range()
         em_trains_gui.mark_dirty()
-    elseif ei_lib.table_contains_value(ei_rail_types,entity.name) then
+    elseif is_rail then
         model.update_charger_from_rail(entity, 1)
         em_trains_gui.mark_dirty()
-    elseif model.trains[entity.name] then
+    elseif is_train then
         model.register_train(entity)
         em_trains_gui.mark_dirty()
     end
@@ -1213,17 +2056,36 @@ function model.on_destroyed_entity(entity)
         return
     end
 
-    if model.chargers[entity.name] then
+    local is_charger = model.chargers[entity.name]
+    local is_rail = ei_lib.table_contains_value(ei_rail_types, entity.name)
+    local is_train = model.trains[entity.name]
+
+    if is_charger or is_rail or is_train then
+        model.ensure_runtime_ready()
+    end
+
+    if is_charger then
         model.unregister_charger(entity)
         em_trains_gui.mark_dirty()
-    elseif ei_lib.table_contains_value(ei_rail_types,entity.name) then
+    elseif is_rail then
         model.update_charger_from_rail(entity, -1)
         em_trains_gui.mark_dirty()
-    elseif model.trains[entity.name] then
+    elseif is_train then
         model.unregister_train(entity)
         em_trains_gui.mark_dirty()
     end
 end
+
+commands.add_command("rescan_emt", "Rebuilds EM train chargers, train queues, and spatial indexes.", function(command)
+    local player = command.player_index and game.get_player(command.player_index) or nil
+    if not player or not player.admin then
+        return
+    end
+
+    ei_lib.crystal_echo("EM train runtime rescan initiated.")
+    model.rebuild_runtime_state("manual")
+    ei_lib.crystal_echo("EM train runtime rescan complete.")
+end)
 
 
 return model

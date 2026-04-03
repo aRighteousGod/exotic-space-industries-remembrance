@@ -37,6 +37,7 @@ function model.menu(player_index)
         },
         new_logistics = {
             train_progression = 1,
+            orbital_scanner = 1,
             cranes_and_belts = 1,
             bots = 1,
         },
@@ -259,6 +260,22 @@ function model.train_progression(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.spidertron-text"}}
 end
 
+function model.orbital_scanner(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text"}}
+
+    local image_container = element.add{type = "flow"}
+    image_container.style.horizontal_align = "center"
+    image_container.style.horizontally_stretchable = true
+    image_container.add{type = "sprite", sprite = "item/ei-orbital-combinator"}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text-3"}}
+end
+
 function model.cranes_and_belts(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.cranes-and-belts"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.cranes-and-belts-text"}}
@@ -421,6 +438,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "train_progression" then
         model.train_progression(player_index, element)
+    end
+
+    if page_name == "orbital_scanner" then
+        model.orbital_scanner(player_index, element)
     end
 
     if page_name == "cranes_and_belts" then

@@ -121,6 +121,10 @@ script.on_init(function(event)
     em_trains_gui.mark_dirty()
     ei_compat.check_init(event)
     orbital_combinator.check_init()
+    ei_fueler.check_global()
+    ei_fueler.rebuild_runtime_state("init")
+    ei_matter_stabilizer.check_global()
+    ei_matter_stabilizer.rebuild_runtime_state("init")
     ei_echo_codex.handle_global_settings(event)
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
@@ -218,6 +222,7 @@ script.on_event(defines.events.on_research_finished, function(e)
     ei_tech_scaling.on_research_finished()
     ei_informatron_messager.on_research_finished(e)
     em_trains.on_research_finished(e)
+    ei_nauvis_pressure_grace.on_research_finished(e)
 end)
 
 --WORLD RELATED
@@ -339,6 +344,7 @@ end)
 script.on_event(defines.events.on_player_left_game, function(event)
     -- Gate remote state is player-bound, so disconnects need explicit cleanup.
     ei_gate.on_player_left_game(event.player_index)
+    ei_matter_stabilizer.on_player_left_game(event.player_index)
 end)
 
 --OTHER
@@ -352,7 +358,10 @@ script.on_configuration_changed(function(e)
         ei_global.check_init(e) --Crystal_echo will fail without global color table
         ei_compat.check_init(e)
         ei_echo_codex.handle_global_settings(e)
+        ei_nauvis_pressure_grace.on_configuration_changed(e)
         em_trains.check_global() --no nil tables
+        ei_fueler.check_global()
+        ei_matter_stabilizer.check_global()
 
         -- Clean up stale gate remote selection state to avoid crashes on save reload
         if storage.ei and storage.ei.gate and storage.ei.gate.remote then
@@ -372,8 +381,9 @@ script.on_configuration_changed(function(e)
             end
         end
 
-        em_trains.reinitialize_chargers() --applies updated buffs
-        em_trains.reinitialize_trains()
+        em_trains.rebuild_runtime_state("configuration-changed")
+        ei_fueler.rebuild_runtime_state("configuration-changed")
+        ei_matter_stabilizer.rebuild_runtime_state("configuration-changed")
         --em_trains.update_rail_counts()
         em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
         em_trains_gui.mark_dirty()
@@ -444,6 +454,8 @@ function updater(event)
            -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
            -- It ensures storage still has the expected tables before later steps run.
            ei_global.check_init(event)
+           ei_nauvis_pressure_grace.updater(event)
+           ei_camp_fire.updater(event)
            ei_gaia.reforge_on_tick(event)
            --[[
            --now handled by Nonstandard beacons
@@ -493,12 +505,13 @@ function updater(event)
 
        elseif ei_update_step == 4 then
            -- Step 4 services matter stabilizers and their nearby volatile machines.
-           if storage.ei and storage.ei.matter_machines and #storage.ei.matter_machines then
-               updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.matter_machines) / divisor), ei_maxEntityUpdates))
-               end
-           for i = 1, updates_needed do
-               if storage.ei and storage.ei.matter_machines and
-               math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.matter_machines) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+           local matter_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
+           if matter_machine_count > 0 then
+               updates_needed = math.max(1,math.min(math.ceil(matter_machine_count / divisor), ei_maxEntityUpdates))
+                end
+            for i = 1, updates_needed do
+               local live_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
+               if math.max(1,math.min(math.ceil(live_machine_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
                if not ei_matter_stabilizer.update() then
@@ -511,31 +524,28 @@ function updater(event)
 
        if ei_update_step == 5 then
            -- Step 5 mirrors logistic/platform state into orbital combinators.
-           if storage.ei and storage.ei.orbital_combinators and ei_lib.getn(storage.ei.orbital_combinators) then
-                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.orbital_combinators) / divisor), ei_maxEntityUpdates))
-                end
-           for i = 1, updates_needed do
-               if storage.ei and storage.ei.orbital_combinators and
-               math.max(1,math.min(math.ceil(ei_lib.getn(storage.ei.orbital_combinators) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                   goto skip
-                   end
-               if not orbital_combinator.update() then
+           if storage.ei and storage.ei.orbital_combinator_bank_count and storage.ei.orbital_combinator_bank_count > 0 then
+                updates_needed = math.max(1,math.min(math.ceil(storage.ei.orbital_combinator_bank_count / divisor), ei_maxEntityUpdates))
+                 end
+            for i = 1, updates_needed do
+               if storage.ei and storage.ei.orbital_combinator_bank_count and
+               math.max(1,math.min(math.ceil(storage.ei.orbital_combinator_bank_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                    goto skip
+                    end
+                if not orbital_combinator.update() then
                 goto skip
                end
            end
 
        elseif ei_update_step == 6 then
-           -- Step 6 advances the fueler queue, which may be large on train-heavy saves.
-           if storage.ei and storage.ei.fueler_queue and #storage.ei.fueler_queue then
-               updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.fueler_queue) / divisor), ei_maxEntityUpdates))
-               end
+           -- Step 6 advances the Fueler target scheduler against its ready-target workload.
+           local fueler_ready_count = ei_fueler.get_ready_target_count()
+           if fueler_ready_count > 0 then
+               updates_needed = math.max(1,math.min(math.ceil(fueler_ready_count / divisor), ei_maxEntityUpdates))
+           end
            for i = 1, updates_needed do
-               if storage.ei and storage.ei.fueler_queue and
-               math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.fueler_queue) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                   goto skip
-                   end
                if not ei_fueler.updater(event) then
-                goto skip
+                   goto skip
                end
            end
 
@@ -559,32 +569,26 @@ function updater(event)
            -- budgeted independently.
            em_trains.check_global()
 
+           updates_needed = 0
            if storage.ei_emt and storage.ei_emt.trains and ei_lib.getn(storage.ei_emt.trains) then
                 updates_needed = math.max(1,math.min(math.ceil(ei_lib.getn(storage.ei_emt.trains) / divisor), ei_maxEntityUpdates))
-                end
-           for i = 1, updates_needed do
-               if storage.ei_emt and storage.ei_emt.trains and
-               math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei_emt.trains) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+           end
+           if updates_needed > 0 then
+               if not em_trains.train_updater(updates_needed) then
                    goto skip
-                   end
-               if not em_trains.train_updater() then -- only try once if nil
-                   goto skip
-                   end
+               end
            end
        elseif ei_update_step == 9 then
            -- Step 9 handles EM chargers after train updates have had a chance to run.
            em_trains.check_global()
+           updates_needed = 0
            if storage.ei_emt and storage.ei_emt.chargers and  ei_lib.getn(storage.ei_emt.chargers) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei_emt.chargers) / divisor), ei_maxEntityUpdates))
-                end
-           for i = 1, updates_needed do
-               if storage.ei_emt and storage.ei_emt.chargers and
-               math.max(1,math.min(math.ceil(ei_lib.getn(storage.ei_emt.chargers) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+           end
+           if updates_needed > 0 then
+               if not em_trains.charger_updater(updates_needed) then
                    goto skip
-                   end
-               if not em_trains.charger_updater() then -- only try once if nil
-                   goto skip
-                   end
+               end
            end
        end
    end
@@ -599,11 +603,9 @@ function updater(event)
     ei_induction_matrix.update(event)
     ei_black_hole.update(event)
     ei_steam_train.updater(event)
-    ei_camp_fire.updater(event)
     ei_echo_codex.arrival_waves(event)
     ei_rocket_launch_pollution.updater(event)
     ei_fulgora_day_length_variation.updater(event)
-    ei_nauvis_pressure_grace.updater(event)
    --======================================================================
 end
 

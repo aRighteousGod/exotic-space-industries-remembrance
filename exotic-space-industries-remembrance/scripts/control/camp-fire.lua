@@ -24,7 +24,17 @@ function model.on_destroyed_entity(event)
     end
 end
 function model.updater(event)
-    if not event or (event.tick % FIRE_UPDATE_TICK > 0) or not storage.ei.campfire or ei_lib.getn(storage.ei.campfire) == 0 then return end
+    if not event or not event.tick or not storage.ei.campfire or ei_lib.getn(storage.ei.campfire) == 0 then
+        return
+    end
+
+    local last_run_tick = storage.ei.campfire_last_run_tick or 0
+    if event.tick - last_run_tick < FIRE_UPDATE_TICK then
+        return
+    end
+
+    storage.ei.campfire_last_run_tick = event.tick
+
     for id, entity in pairs(storage.ei.campfire) do
         if entity.valid and entity.is_crafting() then
             local name = "ei-small-fire"

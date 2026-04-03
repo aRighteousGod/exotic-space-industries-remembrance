@@ -201,6 +201,22 @@ data:extend
     },
 
     circuit_wire_max_distance = 100
+  },
+  {
+    type = "virtual-signal",
+    name = "ei-orbital-overflow",
+    icons = {
+      {
+        icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
+        icon_size = 64,
+      },
+      {
+        icon = ei_graphics_other_path.."overlay_1.png",
+        icon_size = 64,
+        tint = {r = 1, g = 0.45, b = 0.2, a = 0.95},
+      },
+    },
+    order = "ei-orbital-a",
   }
 }
 

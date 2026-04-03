@@ -1,4 +1,14 @@
 local model = {}
+local BLACK_HOLE_NAME = "ei-black-hole"
+local ENERGY_INJECTOR_NAME = "ei-energy-injector-pylon"
+local ENERGY_EXTRACTOR_NAME = "ei-energy-extractor-pylon"
+local BLACK_HOLE_RADIUS = 20
+-- The cache self-heals on a timer so stale refs from save/load or missed invalidations
+-- do not persist forever, but steady-state black holes avoid scanning every tick.
+local BLACK_HOLE_CACHE_REFRESH_TICKS = 300
+local BLACK_HOLE_GUI_REFRESH_TICKS = 30
+local INJECTOR_MIN_ENERGY = 10 * 1000 * 1000
+local GIGA = 1000 * 1000 * 1000
 
 --====================================================================================================
 --BLACK HOLE
@@ -48,6 +58,54 @@ function model.get_transfer_inv(transfer)
 end
 
 
+local function get_quality_name(item_like)
+    if not item_like then
+        return nil
+    end
+
+    local quality = item_like.quality
+    if quality and quality.name then
+        return quality.name
+    end
+
+    return quality
+end
+
+
+local function make_item_with_quality_id(item_like)
+    if not item_like or not item_like.name then
+        return nil
+    end
+
+    local item_with_quality = {
+        name = item_like.name
+    }
+
+    local quality = get_quality_name(item_like)
+    if quality then
+        item_with_quality.quality = quality
+    end
+
+    return item_with_quality
+end
+
+
+local function normalize_content_entry(item_key, item_value)
+    if type(item_key) == "string" then
+        return {
+            name = item_key,
+            count = item_value
+        }
+    end
+
+    if type(item_value) == "table" and item_value.name and item_value.count then
+        return item_value
+    end
+
+    return nil
+end
+
+
 function model.transfer_valid(source, transfer)
 
     local target_inv = model.get_transfer_inv(transfer)
@@ -59,21 +117,28 @@ function model.transfer_valid(source, transfer)
 
     -- check if contents of source and the source itself can be inserted into the target
     local source_inv = source.get_inventory(defines.inventory.chest)
-    local source_contents = source_inv.get_contents()
+    local source_contents = source_inv and source_inv.get_contents() or {}
 
     local return_value = true
 
-    for item, count in pairs(source_contents) do
+    for item_key, item_value in pairs(source_contents) do
+        local item = normalize_content_entry(item_key, item_value)
+        if item then
+            local insertable_probe = make_item_with_quality_id(item) or item.name
+            local ok, insertable_count = pcall(target_inv.get_insertable_count, insertable_probe)
 
-        local insertable_count = target_inv.get_insertable_count(item)
-
-        if insertable_count < count then
-            return_value = false
+            if not ok or insertable_count < item.count then
+                return_value = false
+            end
         end
     end
 
     -- check if the source itself can be inserted into the target
-    if not target_inv.can_insert({name = source.name, count = 1}) then
+    local source_stack = make_item_with_quality_id(source) or {name = source.name}
+    source_stack.count = 1
+    local ok, can_insert = pcall(target_inv.can_insert, source_stack)
+
+    if not ok or not can_insert then
         return_value = false
     end
 
@@ -81,7 +146,7 @@ function model.transfer_valid(source, transfer)
         if type(transfer) ~= "number" then
             -- robot
             -- if the source inv is not empty, the robot will not mine the source
-            if not source_inv.is_empty() then
+            if source_inv and not source_inv.is_empty() then
                 return_value = false
             end
         end
@@ -124,6 +189,178 @@ function model.check_init(id)
 end
 
 
+local function get_entity_ref_id(entity)
+    -- Most nearby pylons have a unit number, but the fallback keeps the cache comparison
+    -- resilient for entities that only have position-based identity.
+    if not entity or not entity.valid then
+        return nil
+    end
+
+    if entity.unit_number then
+        return entity.unit_number
+    end
+
+    return table.concat({
+        entity.surface.index,
+        entity.name,
+        entity.position.x,
+        entity.position.y
+    }, ":")
+end
+
+
+local function same_entity_refs(current_refs, new_refs)
+    -- Compare membership instead of table identity so fresh scan results can reuse the
+    -- same cache unless the nearby set actually changed.
+    local current = {}
+    local current_count = 0
+
+    for _, entity in ipairs(current_refs or {}) do
+        local id = get_entity_ref_id(entity)
+        if id then
+            current[id] = true
+            current_count = current_count + 1
+        end
+    end
+
+    local new_count = 0
+    for _, entity in ipairs(new_refs or {}) do
+        local id = get_entity_ref_id(entity)
+        if not id or not current[id] then
+            return false
+        end
+
+        new_count = new_count + 1
+    end
+
+    return current_count == new_count
+end
+
+
+function model.ensure_runtime_defaults(black_hole_data, event)
+    -- Cache fields are transient runtime state, so they must be rebuilt lazily for older
+    -- saves and for pre-existing black holes after script changes.
+    if not black_hole_data then
+        return
+    end
+
+    if not black_hole_data.injectors then
+        black_hole_data.injectors = {}
+    end
+
+    if not black_hole_data.extractors then
+        black_hole_data.extractors = {}
+    end
+
+    if black_hole_data.cache_dirty == nil then
+        black_hole_data.cache_dirty = true
+    end
+
+    if black_hole_data.last_cache_refresh == nil then
+        black_hole_data.last_cache_refresh = event and event.tick or 0
+    end
+
+    if black_hole_data.cached_injector_count == nil then
+        black_hole_data.cached_injector_count = 0
+    end
+
+    if black_hole_data.cached_active_injector_count == nil then
+        black_hole_data.cached_active_injector_count = 0
+    end
+
+    if black_hole_data.cached_extractor_count == nil then
+        black_hole_data.cached_extractor_count = 0
+    end
+
+    if black_hole_data.extractor_state_dirty == nil then
+        black_hole_data.extractor_state_dirty = true
+    end
+
+    if black_hole_data.output_stage_active == nil then
+        black_hole_data.output_stage_active = false
+    end
+
+    if black_hole_data.last_overlay_stage == nil then
+        black_hole_data.last_overlay_stage = -1
+    end
+end
+
+
+function model.refresh_nearby_pylons(black_hole_data, entity, event, force_refresh)
+    -- The hot-path UPS win is here: refresh nearby pylons only when topology changed or
+    -- the periodic self-heal window expires, then reuse entity refs every tick.
+    model.ensure_runtime_defaults(black_hole_data, event)
+
+    local tick = event and event.tick or 0
+    if not force_refresh
+       and not black_hole_data.cache_dirty
+       and tick - black_hole_data.last_cache_refresh < BLACK_HOLE_CACHE_REFRESH_TICKS then
+        return false
+    end
+
+    local injectors = entity.surface.find_entities_filtered{
+        name = ENERGY_INJECTOR_NAME,
+        position = entity.position,
+        radius = BLACK_HOLE_RADIUS,
+    }
+    local extractors = entity.surface.find_entities_filtered{
+        name = ENERGY_EXTRACTOR_NAME,
+        position = entity.position,
+        radius = BLACK_HOLE_RADIUS,
+    }
+
+    local injectors_changed = not same_entity_refs(black_hole_data.injectors, injectors)
+    local extractors_changed = not same_entity_refs(black_hole_data.extractors, extractors)
+
+    black_hole_data.injectors = injectors
+    black_hole_data.extractors = extractors
+    black_hole_data.cached_injector_count = #injectors
+    black_hole_data.cached_extractor_count = #extractors
+    black_hole_data.cache_dirty = false
+    black_hole_data.last_cache_refresh = tick
+
+    if extractors_changed then
+        black_hole_data.extractor_state_dirty = true
+    end
+
+    return injectors_changed or extractors_changed
+end
+
+
+function model.mark_nearby_black_holes_dirty(entity)
+    -- Pylon build/destroy is rare compared to on_tick, so paying the radius search here
+    -- is much cheaper than making every black hole rediscover neighbors constantly.
+    if not model.entity_check(entity) then
+        return
+    end
+
+    if entity.name ~= ENERGY_INJECTOR_NAME and entity.name ~= ENERGY_EXTRACTOR_NAME then
+        return
+    end
+
+    if not storage.ei or not storage.ei.black_hole then
+        return
+    end
+
+    local black_holes = entity.surface.find_entities_filtered{
+        name = BLACK_HOLE_NAME,
+        position = entity.position,
+        radius = BLACK_HOLE_RADIUS,
+    }
+
+    for _, black_hole in ipairs(black_holes) do
+        local unit = black_hole.unit_number
+        if black_hole.valid and unit and storage.ei.black_hole[unit] then
+            local black_hole_data = storage.ei.black_hole[unit]
+            black_hole_data.cache_dirty = true
+            if entity.name == ENERGY_EXTRACTOR_NAME then
+                black_hole_data.extractor_state_dirty = true
+            end
+        end
+    end
+end
+
+
 --UPDATE
 ------------------------------------------------------------------------------------------------------
 
@@ -142,55 +379,65 @@ end
 
 
 function model.update_black_hole(unit, event)
+    local black_hole_data = storage.ei.black_hole[unit]
+    if not black_hole_data then
+        return
+    end
 
-    local entity = storage.ei.black_hole[unit].entity
+    local entity = black_hole_data.entity
 
     if not model.entity_check(entity) then
         return
     end
 
+    -- Core simulation still runs every tick; only the expensive discovery work is cached.
+    model.ensure_runtime_defaults(black_hole_data, event)
+    model.refresh_nearby_pylons(black_hole_data, entity, event)
+
     -- aborb all items in inventory and add them to mass count
-    model.update_mass(unit, entity)
+    model.update_mass(black_hole_data, entity)
 
-    model.update_battery(unit, entity)
+    model.update_battery(black_hole_data)
 
-    model.make_energy(unit, event)
+    model.make_energy(black_hole_data, event)
 
-    model.make_output(unit)
+    model.make_output(black_hole_data)
 
-    model.check_battery(unit, entity, event)
+    model.check_battery(black_hole_data, entity, event)
 
-    model.update_stage(unit, entity)
+    model.update_stage(black_hole_data)
 
-    model.make_stage_picture(unit, entity)
+    model.make_stage_picture(black_hole_data, entity)
 
-    model.apply_output(unit, entity, event)
+    model.apply_output(black_hole_data)
 
 end
 
 
-function model.update_mass(unit, entity)
+function model.update_mass(black_hole_data, entity)
 
-    if storage.ei.black_hole[unit].stage == 0 then
-
-        if storage.ei.black_hole[unit].stage_progress == 0 then
-            return
-        end
-
-    end
-
-    local inv = entity.get_inventory(defines.inventory.chest)
-
-    if not inv then
+    if black_hole_data.stage == 0 and black_hole_data.stage_progress == 0 then
         return
     end
 
-    local items = inv.get_contents()
-    for _, item in pairs(items) do
-        storage.ei.black_hole[unit].mass = storage.ei.black_hole[unit].mass + item.count
+    local inv = entity.get_inventory(defines.inventory.chest)
+    -- Most black holes spend long stretches empty, so skip the contents walk entirely in
+    -- the common steady-state case.
+    if not inv or inv.is_empty() then
+        return
     end
 
-    -- clear inventory
+    local mass_gain = 0
+    local items = inv.get_contents()
+    for _, item in ipairs(items) do
+        mass_gain = mass_gain + item.count
+    end
+
+    if mass_gain <= 0 then
+        return
+    end
+
+    black_hole_data.mass = black_hole_data.mass + mass_gain
     inv.clear()
 
     -- game.print("Black hole mass: "..storage.ei.black_hole[unit].mass)
@@ -198,27 +445,26 @@ function model.update_mass(unit, entity)
 end
 
 
-function model.update_battery(unit, entity)
+function model.update_battery(black_hole_data)
 
-    -- find all energy injectors in range
-    -- check if they are running and powered and if so add 10GW to battery for each injector
+    local battery = 0
+    local cache_dirty = false
 
-    local injectors = entity.surface.find_entities_filtered{
-        name = "ei-energy-injector-pylon",
-        position = entity.position,
-        radius = 20,
-    }
-
-    -- game.print("Found "..#injectors.." injectors")
-
-    storage.ei.black_hole[unit].battery = 0
-    if #injectors>0 then
-        for _,injector in pairs(injectors) do
-
-            if injector and injector.valid and  not injector.disabled_by_control_behavior and injector.energy > 10*1000*1000 then
-                storage.ei.black_hole[unit].battery = storage.ei.black_hole[unit].battery + 1
+    -- Battery now derives from cached injector refs rather than a fresh surface scan.
+    for _, injector in ipairs(black_hole_data.injectors) do
+        if injector and injector.valid then
+            if not injector.disabled_by_control_behavior and injector.energy > INJECTOR_MIN_ENERGY then
+                battery = battery + 1
             end
+        else
+            cache_dirty = true
         end
+    end
+
+    black_hole_data.battery = battery
+    black_hole_data.cached_active_injector_count = battery
+    if cache_dirty then
+        black_hole_data.cache_dirty = true
     end
 
     -- game.print("Black hole battery: "..storage.ei.black_hole[unit].battery)
@@ -226,22 +472,22 @@ function model.update_battery(unit, entity)
 end
 
 
-function model.check_battery(unit, entity, event)
+function model.check_battery(black_hole_data, entity, event)
 
-    if storage.ei.black_hole[unit].stage == 0 then
+    if black_hole_data.stage == 0 then
         return
     end
 
-    if (storage.ei.black_hole[unit].stage == 1 and storage.ei.black_hole[unit].stage_progress == 0) then
+    if black_hole_data.stage == 1 and black_hole_data.stage_progress == 0 then
         return
     end
 
     -- if battery less then 8 then reset the stage and stage progress
     -- and print warning
 
-    if storage.ei.black_hole[unit].battery < 8 then
-        storage.ei.black_hole[unit].stage = 0
-        storage.ei.black_hole[unit].stage_progress = 0
+    if black_hole_data.battery < 8 then
+        black_hole_data.stage = 0
+        black_hole_data.stage_progress = 0
         ei_lib.crystal_echo_floating("WARNING: Black hole containment failure!",entity,6000,nil)
 
         -- also print chat message
@@ -251,14 +497,14 @@ function model.check_battery(unit, entity, event)
 end
 
 
-function model.make_energy(unit, event)
-    if not unit or not event then
+function model.make_energy(black_hole_data, event)
+    if not black_hole_data or not event then
         log("ei blackhole make_energy passed nil unit or event")
         return
     end
     -- calc energy radiated away per second
 
-    local mass = storage.ei.black_hole[unit].mass
+    local mass = black_hole_data.mass
 
     if mass < 0 then
         mass = 0
@@ -275,17 +521,17 @@ function model.make_energy(unit, event)
         mass_loss = 0
     end
     
-    storage.ei.black_hole[unit].mass = mass - mass_loss
+    black_hole_data.mass = mass - mass_loss
     local energy = energy + mass_loss * 25 -- in GW
 
     -- safe this value if its 30 ticks after last save
     local tick = event.tick
-    if tick - storage.ei.black_hole[unit].last_tick > 30 then
-        storage.ei.black_hole[unit].energy_last = storage.ei.black_hole[unit].energy
-        storage.ei.black_hole[unit].last_tick = tick
+    if tick - black_hole_data.last_tick > 30 then
+        black_hole_data.energy_last = black_hole_data.energy
+        black_hole_data.last_tick = tick
     end
 
-    storage.ei.black_hole[unit].energy = energy / 100 -- energy generated in this tick in GJ
+    black_hole_data.energy = energy / 100 -- energy generated in this tick in GJ
     -- *60 to get power output in GW
 
     -- game.print("Black hole energy: "..storage.ei.black_hole[unit].energy.." GW")
@@ -293,95 +539,119 @@ function model.make_energy(unit, event)
 end
 
 
-function model.make_output(unit)
+function model.make_output(black_hole_data)
 
     -- calc energy output
 
-    local energy = storage.ei.black_hole[unit].energy
-    local energy_last = storage.ei.black_hole[unit].energy_last
+    local energy = black_hole_data.energy
+    local energy_last = black_hole_data.energy_last
 
     local energy_out = (energy + energy_last) / 2
 
-    storage.ei.black_hole[unit].energy_out = energy_out
+    black_hole_data.energy_out = energy_out
 
     -- game.print("Black hole energy out: "..storage.ei.black_hole[unit].energy_out.." GW")
 
 end
 
 
-function model.apply_output(unit, entity, event)
+function model.apply_output(black_hole_data)
 
-    local power_out = storage.ei.black_hole[unit].energy_out -- in GJ per tick
-    local giga = 1000*1000*1000
+    local power_out = black_hole_data.energy_out -- in GJ per tick
+    local cache_dirty = false
+    local stage_is_active = black_hole_data.stage == 2
 
-    -- get all extractor pylons in range
-    local extractors = entity.surface.find_entities_filtered{
-        name = "ei-energy-extractor-pylon",
-        position = entity.position,
-        radius = 20,
-    }
-
-    for _,extractor in pairs(extractors) do
-
-        -- no energy output in stage 0 and 1
-        if storage.ei.black_hole[unit].stage ~= 2 then
-            extractor.energy = 0
-            extractor.active = false
-            goto continue
+    if not stage_is_active then
+        -- Leaving stage 2 is when we need to zero/disable extractors. Avoid repeating the
+        -- same writes every tick once the cached set is already in the correct state.
+        if black_hole_data.output_stage_active or black_hole_data.extractor_state_dirty then
+            for _, extractor in ipairs(black_hole_data.extractors) do
+                if extractor and extractor.valid then
+                    if extractor.energy ~= 0 then
+                        extractor.energy = 0
+                    end
+                    if extractor.active then
+                        extractor.active = false
+                    end
+                else
+                    cache_dirty = true
+                end
+            end
+            black_hole_data.extractor_state_dirty = false
         end
 
-        -- a single extractor can extract 100GJ/s == 100GJ/60 ticks
+        black_hole_data.output_stage_active = false
+        if cache_dirty then
+            black_hole_data.cache_dirty = true
+        end
+        return
+    end
 
-        if power_out*60 > 100 then
-            extractor.energy = extractor.energy + 100*giga/60 -- add 100GJ/60 ticks
-            power_out = power_out - 100/60
+    -- Active output still updates every tick, but it walks the cached extractor refs
+    -- instead of rediscovering pylons in the world first.
+    for _, extractor in ipairs(black_hole_data.extractors) do
+        if extractor and extractor.valid then
+            -- a single extractor can extract 100GJ/s == 100GJ/60 ticks
+            if power_out * 60 > 100 then
+                extractor.energy = extractor.energy + 100 * GIGA / 60
+                power_out = power_out - 100 / 60
+            else
+                extractor.energy = extractor.energy + GIGA * power_out
+                power_out = 0
+            end
+
+            if not extractor.active then
+                extractor.active = true
+            end
         else
-            extractor.energy = extractor.energy + giga*power_out -- rest of power, already in ticks
-            power_out = 0
+            cache_dirty = true
         end
-        extractor.active = true
-        ::continue::
-        
+    end
+
+    black_hole_data.output_stage_active = true
+    black_hole_data.extractor_state_dirty = false
+    if cache_dirty then
+        black_hole_data.cache_dirty = true
     end
 
 end
 
 
-function model.update_stage(unit)
+function model.update_stage(black_hole_data)
 
     -- stage progess of 0 means stage before is completed, but button for next stage is not pressed yet
     -- button press sets progress to 1
 
-    if storage.ei.black_hole[unit].stage == 0 then
+    if black_hole_data.stage == 0 then
 
-        if storage.ei.black_hole[unit].stage_progress > 0 then
+        if black_hole_data.stage_progress > 0 then
 
             -- 1000 mass is needed to get to stage 1
-            if storage.ei.black_hole[unit].mass >= 1000 then
-                storage.ei.black_hole[unit].stage = 1
-                storage.ei.black_hole[unit].stage_progress = 0
+            if black_hole_data.mass >= 1000 then
+                black_hole_data.stage = 1
+                black_hole_data.stage_progress = 0
             else
-                storage.ei.black_hole[unit].stage_progress = storage.ei.black_hole[unit].mass / 1000 * 100
+                black_hole_data.stage_progress = black_hole_data.mass / 1000 * 100
             end
 
         end
 
     end
 
-    if storage.ei.black_hole[unit].stage == 1 then
+    if black_hole_data.stage == 1 then
 
-        if storage.ei.black_hole[unit].stage_progress > 0 then
+        if black_hole_data.stage_progress > 0 then
 
             -- machine needs to run with 8 pylons active (40 GW in) for 1 minute
             -- so here count stageprogess in ticks
 
-            if storage.ei.black_hole[unit].stage_progress < 3600 then
-                storage.ei.black_hole[unit].stage_progress = storage.ei.black_hole[unit].stage_progress + 1
+            if black_hole_data.stage_progress < 3600 then
+                black_hole_data.stage_progress = black_hole_data.stage_progress + 1
             else
-                storage.ei.black_hole[unit].stage = 2
-                storage.ei.black_hole[unit].stage_progress = 0
+                black_hole_data.stage = 2
+                black_hole_data.stage_progress = 0
 
-                model.invoke_victory(unit)
+                model.invoke_victory(black_hole_data)
             end
 
         end
@@ -395,30 +665,31 @@ function model.update_stage(unit)
 end
 
 
-function model.make_stage_picture(unit, entity)
+function model.make_stage_picture(black_hole_data, entity)
 
-    local stage = storage.ei.black_hole[unit].stage
+    local stage = black_hole_data.stage
+    local overlay = black_hole_data.overlay
+
+    if overlay and not overlay.valid then
+        overlay = nil
+        black_hole_data.overlay = nil
+    end
 
     -- for stage 0 noting to do
     
     if stage == 0 then
-
-        -- check if there is a overlay, if yes remove it
-
-        if storage.ei.black_hole[unit].overlay ~= nil then
-            
-            storage.ei.black_hole[unit].overlay.destroy()
-            storage.ei.black_hole[unit].overlay = nil
-
+        if overlay ~= nil then
+            overlay.destroy()
+            black_hole_data.overlay = nil
         end
-
+        black_hole_data.last_overlay_stage = stage
+        black_hole_data.last_overlay_frame = nil
+        return
     end
 
     if stage == 1 then
-
         -- draw an overlay according to the current stage progress, the overlay has 36 frames total
-
-        local progress = storage.ei.black_hole[unit].stage_progress
+        local progress = black_hole_data.stage_progress
         -- max progress is 3600 ticks, so 1 new frame every 100 ticks
 
         local frame = math.floor(progress / 100)
@@ -426,10 +697,16 @@ function model.make_stage_picture(unit, entity)
             frame = 35
         end
 
+        -- Rendering property writes are not free, so only touch the overlay when the
+        -- visible frame actually changes.
+        if black_hole_data.last_overlay_stage == stage
+           and black_hole_data.last_overlay_frame == frame
+           and overlay ~= nil then
+            return
+        end
 
-        if storage.ei.black_hole[unit].overlay == nil then
-
-            storage.ei.black_hole[unit].overlay = rendering.draw_animation{
+        if overlay == nil then
+            overlay = rendering.draw_animation{
                 animation = "ei-black-hole_growing",
                 target = entity,
                 surface = entity.surface,
@@ -439,48 +716,52 @@ function model.make_stage_picture(unit, entity)
                 x_scale = 1,
                 y_scale = 1,
             }
-
         else
-            storage.ei.black_hole[unit].overlay.animation = "ei-black-hole_growing"
-            storage.ei.black_hole[unit].overlay.animation_offset = frame
-
+            if black_hole_data.last_overlay_stage ~= stage then
+                overlay.animation = "ei-black-hole_growing"
+                overlay.animation_speed = 0
+            end
+            overlay.animation_offset = frame
         end
 
+        black_hole_data.overlay = overlay
+        black_hole_data.last_overlay_stage = stage
+        black_hole_data.last_overlay_frame = frame
+        return
     end
 
-    if stage == 2 then
-
-        -- check if the current overlay is "ei-black-hole_glowing", if not change it
-
-        if storage.ei.black_hole[unit].overlay == nil then
-
-            storage.ei.black_hole[unit].overlay = rendering.draw_animation{
-                animation = "ei-black-hole_glowing",
-                target = entity,
-                surface = entity.surface,
-                render_layer = "object",
-                x_scale = 1,
-                y_scale = 1,
-                animation_speed = 0.3,
-            }
-
-        else
-            storage.ei.black_hole[unit].overlay.animation = "ei-black-hole_glowing"
-            storage.ei.black_hole[unit].overlay.animation_speed = 0.3
-
-        end
-
+    if black_hole_data.last_overlay_stage == stage and overlay ~= nil then
+        return
     end
+
+    if overlay == nil then
+        overlay = rendering.draw_animation{
+            animation = "ei-black-hole_glowing",
+            target = entity,
+            surface = entity.surface,
+            render_layer = "object",
+            x_scale = 1,
+            y_scale = 1,
+            animation_speed = 0.3,
+        }
+    else
+        overlay.animation = "ei-black-hole_glowing"
+        overlay.animation_speed = 0.3
+    end
+
+    black_hole_data.overlay = overlay
+    black_hole_data.last_overlay_stage = stage
+    black_hole_data.last_overlay_frame = nil
 
 end
 
 
-function model.invoke_victory(unit)
+function model.invoke_victory(black_hole_data)
 
     -- get force of black hole and check if this force has achieved victory
     -- if no give victory to this force
 
-    local force = storage.ei.black_hole[unit].entity.force
+    local force = black_hole_data.entity.force
 
     if not storage.ei.victory then
         storage.ei.victory = {}
@@ -515,22 +796,23 @@ end
 
 function model.register_black_hole(entity, event)
 
-    if entity.name ~= "ei-black-hole" then
+    if entity.name ~= BLACK_HOLE_NAME then
         return
     end
 
     model.check_init(entity.unit_number)
 
     -- register this black hole
-    storage.ei.black_hole[entity.unit_number].entity = entity
-    storage.ei.black_hole[entity.unit_number].mass = 0
-    storage.ei.black_hole[entity.unit_number].battery = 0       -- energy for containement field (multiple of 5GW)
-    storage.ei.black_hole[entity.unit_number].energy = 0
-    storage.ei.black_hole[entity.unit_number].energy_last = 0
-    storage.ei.black_hole[entity.unit_number].last_tick = event.tick
-    storage.ei.black_hole[entity.unit_number].energy_out = 0 -- mean of energy values
-    storage.ei.black_hole[entity.unit_number].stage = 0
-    storage.ei.black_hole[entity.unit_number].stage_progress = 0 -- max 100
+    local black_hole_data = storage.ei.black_hole[entity.unit_number]
+    black_hole_data.entity = entity
+    black_hole_data.mass = 0
+    black_hole_data.battery = 0       -- energy for containement field (multiple of 5GW)
+    black_hole_data.energy = 0
+    black_hole_data.energy_last = 0
+    black_hole_data.last_tick = event.tick
+    black_hole_data.energy_out = 0 -- mean of energy values
+    black_hole_data.stage = 0
+    black_hole_data.stage_progress = 0 -- max 100
 
     -- spawn the animation in
     local animation = rendering.draw_animation{
@@ -542,14 +824,20 @@ function model.register_black_hole(entity, event)
         y_scale = 1,
     }
 
-    storage.ei.black_hole[entity.unit_number].animation = animation
+    black_hole_data.animation = animation
+    black_hole_data.overlay = nil
+    black_hole_data.last_overlay_frame = nil
+
+    model.ensure_runtime_defaults(black_hole_data, event)
+    black_hole_data.cache_dirty = true
+    model.refresh_nearby_pylons(black_hole_data, entity, event, true)
 
 end
 
 
 function model.unregister_black_hole(entity, transfer)
 
-    if entity.name ~= "ei-black-hole" then
+    if entity.name ~= BLACK_HOLE_NAME then
         return
     end
 
@@ -566,12 +854,20 @@ end
 
 
 function model.built_injector_pylon(entity)
+    if entity.name ~= ENERGY_INJECTOR_NAME then
+        return
+    end
 
+    model.mark_nearby_black_holes_dirty(entity)
 end
 
 
 function model.built_extractor_pylon(entity)
+    if entity.name ~= ENERGY_EXTRACTOR_NAME then
+        return
+    end
 
+    model.mark_nearby_black_holes_dirty(entity)
 end
 
 
@@ -594,6 +890,10 @@ end
 
 
 function model.on_destroyed_entity(entity, transfer)
+    if entity.name == ENERGY_INJECTOR_NAME or entity.name == ENERGY_EXTRACTOR_NAME then
+        model.mark_nearby_black_holes_dirty(entity)
+        return
+    end
 
     model.unregister_black_hole(entity, transfer)
 
@@ -603,7 +903,7 @@ end
 function model.update(event)
     local tick = event.tick
     model.update_black_holes(event)
-    if tick % 15 == 0 then
+    if tick % BLACK_HOLE_GUI_REFRESH_TICKS == 0 then
         model.update_player_guis()
     end
 
@@ -648,22 +948,12 @@ function model.get_injector_pylons_in_range(unit)
 
     model.check_init(unit)
 
-    local entity = storage.ei.black_hole[unit].entity
+    local black_hole_data = storage.ei.black_hole[unit]
+    model.ensure_runtime_defaults(black_hole_data)
 
-    local injectors = entity.surface.find_entities_filtered{
-        name = "ei-energy-injector-pylon",
-        position = entity.position,
-        radius = 20,
-    }
-    local count = 0
-    if #injectors>0 then
-        for _,active in pairs(injectors) do
-            if active and active.valid and not active.disabled_by_control_behavior then
-                count = count+1
-            end
-        end
-    end
-    return count
+    -- GUI reads the same cached value the runtime uses, so opening the console does not
+    -- trigger extra world scans.
+    return black_hole_data.cached_active_injector_count or 0
 
 end
 
@@ -673,15 +963,12 @@ function model.get_extractor_pylons_in_range(unit)
 
     model.check_init(unit)
 
-    local entity = storage.ei.black_hole[unit].entity
+    local black_hole_data = storage.ei.black_hole[unit]
+    model.ensure_runtime_defaults(black_hole_data)
 
-    local extractors = entity.surface.find_entities_filtered{
-        name = "ei-energy-extractor-pylon",
-        position = entity.position,
-        radius = 20,
-    }
-
-    return #extractors
+    -- Extractor count is cached for the same reason as injectors: GUI updates should stay
+    -- read-only from the world's perspective.
+    return black_hole_data.cached_extractor_count or 0
 
 end
 

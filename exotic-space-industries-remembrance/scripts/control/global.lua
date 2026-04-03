@@ -21,13 +21,17 @@ function ei_global.init()
     storage.ei["neutron_sources"] = {}
     storage.ei["spawner_queue"] = {}
     storage.ei["orbital_combinators"] = {}
+    storage.ei.orbital_combinator_banks = {}
+    storage.ei.orbital_combinator_bank_by_unit = {}
+    storage.ei.orbital_combinator_bank_count = 0
     storage.ei["rocket_launch_pollution"] = {}
     storage.ei["rocket_launch_pollution"].mode = "linear"
     storage.ei["rocket_launch_pollution"].cap = 10000
     storage.ei["rocket_launch_pollution"].launch_smoke = {}
     storage.ei.fulgora_day_length_variation = {}
     storage.ei.nauvis_pressure = {}
-    storage.ei.nauvis_pressure.milestone_reached = false
+    storage.ei.nauvis_pressure.milestone = 0
+    storage.ei.nauvis_pressure.last_run_tick = 0
     --depreciated by NSB
     --storage.ei.spaced_updates = 0
     storage.ei.fluid_entity = {}
@@ -36,6 +40,7 @@ function ei_global.init()
     storage.ei.alien = {}
     storage.ei.locomotives = {}
     storage.ei.campfire = {}
+    storage.ei.campfire_last_run_tick = 0
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
 end
@@ -50,6 +55,9 @@ function ei_global.check_init(event)
     end
     if not storage.ei.campfire then
         storage.ei.campfire = {}
+    end
+    if not storage.ei.campfire_last_run_tick then
+        storage.ei.campfire_last_run_tick = 0
     end
     if not storage.ei.locomotives then
         storage.ei.locomotives = {}
@@ -67,7 +75,10 @@ function ei_global.check_init(event)
     end
     if not storage.ei.nauvis_pressure then
         storage.ei.nauvis_pressure = {}
-        storage.ei.nauvis_pressure.milestone_reached = false
+        storage.ei.nauvis_pressure.milestone = 0
+    end
+    if not storage.ei.nauvis_pressure.last_run_tick then
+        storage.ei.nauvis_pressure.last_run_tick = 0
     end
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}
@@ -103,6 +114,15 @@ function ei_global.check_init(event)
 
     if not storage.ei["orbital_combinators"] then
         storage.ei["orbital_combinators"] = {}
+    end
+    if not storage.ei.orbital_combinator_banks then
+        storage.ei.orbital_combinator_banks = {}
+    end
+    if not storage.ei.orbital_combinator_bank_by_unit then
+        storage.ei.orbital_combinator_bank_by_unit = {}
+    end
+    if storage.ei.orbital_combinator_bank_count == nil then
+        storage.ei.orbital_combinator_bank_count = 0
     end
     if storage.ei.gaia_reforged ~= nil then
         storage.ei.gaia_reforged = nil

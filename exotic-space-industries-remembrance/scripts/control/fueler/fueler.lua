@@ -1,252 +1,631 @@
 local model = {}
 
---====================================================================================================
---FUELER
---====================================================================================================
+local FUELER_RUNTIME_VERSION = 1
+local FUELER_CHUNK_SIZE = 32
+
+local SUCCESS_COOLDOWN_TICKS = 60
+local FAILED_ACTION_COOLDOWN_TICKS = 120
+local MOVING_RETRY_COOLDOWN_TICKS = 30
+local STATIC_RETRY_COOLDOWN_TICKS = 300
+
+local quality_level_bounds_cache = nil
+
+local runtime_target_types = {
+    ["locomotive"] = true,
+    ["car"] = true,
+    ["spider-vehicle"] = true,
+    ["ammo-turret"] = true,
+    ["artillery-turret"] = true,
+    ["artillery-wagon"] = true
+}
+
+local runtime_target_type_names = {
+    "locomotive",
+    "car",
+    "spider-vehicle",
+    "ammo-turret",
+    "artillery-turret",
+    "artillery-wagon"
+}
+
+local static_target_types = {
+    ["ammo-turret"] = true,
+    ["artillery-turret"] = true,
+    ["artillery-wagon"] = true
+}
 
 model.target_types = {
     "locomotive",
     "car",
-    "spidertron", -- needed for EI changes
-    "character", -- refering to player equipment
+    "spidertron",
+    "character",
 }
 
---UTIL
-------------------------------------------------------------------------------------------------------
-
-function model.get_transfer_inv(transfer)
-    -- transfer is either a player index, a robot, or nil
-    -- needed to prevent unregistration when the transferer cant mine due to full inv
-
-    if not transfer then
-        return nil
-    end
-
-    if type(transfer) == "number" then
-        -- player index
-        local player = game.get_player(transfer)
-        return player.get_main_inventory()
-    end
-
-    if transfer.valid then
-        -- robot
-        local robot = transfer
-        return robot.get_inventory(defines.inventory.robot_cargo)
-    end
-
-    return nil
-
+local function ensure_queue(queue)
+    queue = queue or {}
+    queue.items = queue.items or {}
+    queue.head = queue.head or 1
+    queue.tail = queue.tail or 0
+    queue.queued = queue.queued or {}
+    return queue
 end
 
+local function compact_queue(queue)
+    queue = ensure_queue(queue)
 
-function model.transfer_valid(source, transfer)
-
-    local target_inv = model.get_transfer_inv(transfer)
-    
-    if not target_inv then
-        -- case for when destroyed by gun f.e. -> need to unregister
-        return true
+    if queue.head > queue.tail then
+        queue.items = {}
+        queue.head = 1
+        queue.tail = 0
+        return queue
     end
 
-    -- check if contents of source and the source itself can be inserted into the target
-    local source_inv = source.get_inventory(defines.inventory.chest)
-    local source_contents = source_inv.get_contents()
+    if queue.head > 64 and queue.head > math.floor((queue.tail - queue.head + 1) / 2) then
+        local new_items = {}
+        local new_tail = 0
 
-    local return_value = true
+        for index = queue.head, queue.tail do
+            local item = queue.items[index]
+            if item ~= nil then
+                new_tail = new_tail + 1
+                new_items[new_tail] = item
+            end
+        end
 
-    if not source_inv then return end
-    if not source_contents then return end
-
-    -- for item, count in pairs(source_contents) do
-        
-    --     local insertable_count = target_inv.get_insertable_count(item)
-
-    --     if insertable_count < count then
-    --         return_value = false
-    --     end
-    -- end
-
-    -- check if the source itself can be inserted into the target
-    if not target_inv.can_insert({name = source.name, count = 1}) then
-        return_value = false
+        queue.items = new_items
+        queue.head = 1
+        queue.tail = new_tail
     end
 
-    if return_value == true then
-        if type(transfer) ~= "number" then
-            -- robot
-            -- if the source inv is not empty, the robot will not mine the source
-            if not source_inv.is_empty() then
-                return_value = false
+    return queue
+end
+
+local function get_quality_prototypes()
+    if prototypes and prototypes.quality then
+        return prototypes.quality
+    end
+
+    if game and game.quality_prototypes then
+        return game.quality_prototypes
+    end
+end
+
+local function get_quality_level_bounds()
+    if quality_level_bounds_cache then
+        return quality_level_bounds_cache.min_level, quality_level_bounds_cache.max_level
+    end
+
+    local min_level = 1
+    local max_level = 1
+    local found_level = false
+    local quality_prototypes = get_quality_prototypes()
+
+    if quality_prototypes then
+        for _, quality in pairs(quality_prototypes) do
+            local level = quality.level
+            if ei_lib.is_valid_number(level) then
+                if not found_level then
+                    min_level = level
+                    max_level = level
+                    found_level = true
+                else
+                    min_level = math.min(min_level, level)
+                    max_level = math.max(max_level, level)
+                end
             end
         end
     end
 
-    return return_value
+    quality_level_bounds_cache = {
+        min_level = min_level,
+        max_level = max_level
+    }
 
+    return min_level, max_level
 end
 
+local function get_chunk_coordinate(tile_coordinate)
+    return math.floor(tile_coordinate / FUELER_CHUNK_SIZE)
+end
+
+local function get_chunk_coordinates(position)
+    return get_chunk_coordinate(position.x), get_chunk_coordinate(position.y)
+end
+
+local function get_chunk_coverage(position, radius)
+    return get_chunk_coordinate(position.x - radius),
+        get_chunk_coordinate(position.x + radius),
+        get_chunk_coordinate(position.y - radius),
+        get_chunk_coordinate(position.y + radius)
+end
+
+local function is_within_range_squared(source, target, range_sqr)
+    local dx = source.x - target.x
+    local dy = source.y - target.y
+    return dx * dx + dy * dy <= range_sqr
+end
+
+local function get_surface_index(surface)
+    return surface and surface.index or nil
+end
+
+local function get_force_index(force)
+    return force and force.index or nil
+end
+
+local function try_get_stack_field(item_stack, getter)
+    local ok, value = pcall(getter, item_stack)
+    if ok then
+        return value
+    end
+
+    return nil
+end
+
+local function copy_localised_string(value)
+    if type(value) == "table" then
+        return table.deepcopy(value)
+    end
+
+    return value
+end
+
+local function make_item_stack_definition(item_stack, count)
+    if not item_stack or not item_stack.valid_for_read then
+        return nil
+    end
+
+    local stack_definition = {
+        name = item_stack.name,
+        count = count or item_stack.count
+    }
+
+    local quality = try_get_stack_field(item_stack, function(stack)
+        local stack_quality = stack.quality
+        return stack_quality and stack_quality.name or nil
+    end)
+    if quality then
+        stack_definition.quality = quality
+    end
+
+    local health = try_get_stack_field(item_stack, function(stack) return stack.health end)
+    if health ~= nil then
+        stack_definition.health = health
+    end
+
+    local durability = try_get_stack_field(item_stack, function(stack) return stack.durability end)
+    if durability ~= nil then
+        stack_definition.durability = durability
+    end
+
+    local ammo = try_get_stack_field(item_stack, function(stack) return stack.ammo end)
+    if ammo ~= nil then
+        stack_definition.ammo = ammo
+    end
+
+    local spoil_percent = try_get_stack_field(item_stack, function(stack) return stack.spoil_percent end)
+    if spoil_percent ~= nil then
+        stack_definition.spoil_percent = spoil_percent
+    end
+
+    local tags = try_get_stack_field(item_stack, function(stack) return stack.tags end)
+    if tags ~= nil then
+        stack_definition.tags = table.deepcopy(tags)
+    end
+
+    local custom_description = try_get_stack_field(item_stack, function(stack) return stack.custom_description end)
+    if custom_description ~= nil then
+        stack_definition.custom_description = copy_localised_string(custom_description)
+    end
+
+    return stack_definition
+end
+
+local function get_runtime_tower_target_type(unit_number)
+    return model.get_target_type(unit_number)
+end
+
+local function get_entity_target_type(entity)
+    if not entity or not entity.type then
+        return nil
+    end
+
+    if entity.type == "spider-vehicle" then
+        return "spidertron"
+    end
+
+    return entity.type
+end
+
+local function is_vehicle_target_type(target_type)
+    return target_type == "locomotive"
+        or target_type == "car"
+        or target_type == "spider-vehicle"
+end
 
 function model.entity_check(entity)
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return entity ~= nil and entity.valid == true
 end
 
+function model.get_normalized_quality_factor(entity)
+    if not entity or not entity.quality or not ei_lib.is_valid_number(entity.quality.level) then
+        return 0
+    end
+
+    local min_level, max_level = get_quality_level_bounds()
+    if not ei_lib.is_valid_number(min_level) or not ei_lib.is_valid_number(max_level) or max_level <= min_level then
+        return 0
+    end
+
+    return ei_lib.clamp((entity.quality.level - min_level) / (max_level - min_level), 0, 1)
+end
+
+function model.get_quality_sort_level(entity)
+    if entity and entity.quality and ei_lib.is_valid_number(entity.quality.level) then
+        return entity.quality.level
+    end
+
+    return 0
+end
+
+function model.get_service_budget(entity)
+    return 1 + math.floor(model.get_normalized_quality_factor(entity) * 2 + 0.000001)
+end
+
+function model.clear_legacy_runtime_fields()
+    if not storage.ei then
+        return
+    end
+
+    storage.ei.fueler_queue = nil
+    storage.ei.fueler_break_point = nil
+    storage.ei.cooldown = nil
+end
 
 function model.check_global()
-
     if not storage.ei then
         storage.ei = {}
     end
 
     if not storage.ei.fueler then
-      storage.ei.fueler = {}
+        storage.ei.fueler = {}
     end
 
+    local runtime = storage.ei.fueler_rt
+    local runtime_was_missing = false
+    local runtime_components_missing = false
+
+    if not runtime then
+        runtime = {}
+        storage.ei.fueler_rt = runtime
+        runtime_was_missing = true
+    end
+
+    local function ensure_component(name, default)
+        if runtime[name] == nil then
+            runtime[name] = default
+            runtime_components_missing = true
+        end
+    end
+
+    ensure_component("towers", {})
+    ensure_component("tower_chunks", {})
+    ensure_component("targets", {})
+    ensure_component("target_surface_queues", {})
+    ensure_component("target_surface_counts", {})
+    ensure_component("active_surfaces", {})
+    ensure_component("active_surface_positions", {})
+    ensure_component("active_surface_cursor", 1)
+    ensure_component("delayed_target_buckets", {})
+    ensure_component("ready_target_count", 0)
+    ensure_component("target_count", 0)
+    ensure_component("player_queue", ensure_queue(nil))
+    ensure_component("player_states", {})
+    ensure_component("delayed_player_buckets", {})
+    ensure_component("last_due_target_release_tick", -1)
+    ensure_component("last_due_player_release_tick", -1)
+    ensure_component("runtime_rebuild_in_progress", false)
+
+    runtime.player_queue = ensure_queue(runtime.player_queue)
+
+    if runtime.runtime_version ~= FUELER_RUNTIME_VERSION then
+        runtime.needs_rebuild = true
+    elseif runtime_components_missing then
+        runtime.needs_rebuild = true
+    elseif runtime.needs_rebuild == nil then
+        runtime.needs_rebuild = false
+    end
+
+    if runtime_was_missing and next(storage.ei.fueler) == nil then
+        runtime.runtime_version = FUELER_RUNTIME_VERSION
+        runtime.needs_rebuild = false
+    end
+
+    return runtime
 end
 
+function model.reset_runtime_storage(runtime)
+    runtime.towers = {}
+    runtime.tower_chunks = {}
+    runtime.targets = {}
+    runtime.target_surface_queues = {}
+    runtime.target_surface_counts = {}
+    runtime.active_surfaces = {}
+    runtime.active_surface_positions = {}
+    runtime.active_surface_cursor = 1
+    runtime.delayed_target_buckets = {}
+    runtime.ready_target_count = 0
+    runtime.target_count = 0
+    runtime.player_queue = ensure_queue(nil)
+    runtime.player_states = {}
+    runtime.delayed_player_buckets = {}
+    runtime.last_due_target_release_tick = -1
+    runtime.last_due_player_release_tick = -1
+    runtime.runtime_version = FUELER_RUNTIME_VERSION
+    runtime.needs_rebuild = false
 
-function model.check_queue()
-
-    if not storage.ei then
-      storage.ei = {}
-    end
-
-    if not storage.ei.fueler_queue then
-      storage.ei.fueler_queue = {}
-    end
-
+    model.clear_legacy_runtime_fields()
 end
 
-
-function model.check_cooldown()
-
-    if not storage.ei then
-      storage.ei = {}
+function model.get_surface_queue(runtime, surface_index, create)
+    local queue = runtime.target_surface_queues[surface_index]
+    if not queue and create then
+        queue = ensure_queue(nil)
+        runtime.target_surface_queues[surface_index] = queue
     end
 
-    if not storage.ei.cooldown then
-      storage.ei.cooldown = {}
+    if not queue then
+        return nil
     end
 
+    return ensure_queue(queue)
 end
 
-
-function model.is_on_cooldown(entity, event)
-
-    if not storage.ei.cooldown[entity.unit_number] then
-        return false
+function model.add_active_surface(runtime, surface_index)
+    if runtime.active_surface_positions[surface_index] then
+        return
     end
 
-    if storage.ei.cooldown[entity.unit_number] > event.tick then
-        -- the tick value is for when the cooldown will end
+    runtime.active_surfaces[#runtime.active_surfaces + 1] = surface_index
+    runtime.active_surface_positions[surface_index] = #runtime.active_surfaces
+end
+
+function model.remove_active_surface(runtime, surface_index)
+    local remove_index = runtime.active_surface_positions[surface_index]
+    if not remove_index then
+        return
+    end
+
+    local active_surfaces = runtime.active_surfaces
+    table.remove(active_surfaces, remove_index)
+    runtime.active_surface_positions[surface_index] = nil
+
+    for index = remove_index, #active_surfaces do
+        runtime.active_surface_positions[active_surfaces[index]] = index
+    end
+
+    if #active_surfaces == 0 then
+        runtime.active_surface_cursor = 1
+        return
+    end
+
+    if runtime.active_surface_cursor > #active_surfaces then
+        runtime.active_surface_cursor = 1
+    end
+end
+
+function model.get_tower_chunk_bucket(runtime, surface_index, chunk_x, chunk_y, create)
+    local surface_chunks = runtime.tower_chunks[surface_index]
+    if not surface_chunks and create then
+        surface_chunks = {}
+        runtime.tower_chunks[surface_index] = surface_chunks
+    end
+
+    if not surface_chunks then
+        return nil
+    end
+
+    local x_bucket = surface_chunks[chunk_x]
+    if not x_bucket and create then
+        x_bucket = {}
+        surface_chunks[chunk_x] = x_bucket
+    end
+
+    if not x_bucket then
+        return nil
+    end
+
+    local chunk_bucket = x_bucket[chunk_y]
+    if not chunk_bucket and create then
+        chunk_bucket = {}
+        x_bucket[chunk_y] = chunk_bucket
+    end
+
+    return chunk_bucket
+end
+
+function model.build_tower_entry(entity)
+    local range = ei_lib.config("fueler_range")
+    local min_chunk_x, max_chunk_x, min_chunk_y, max_chunk_y = get_chunk_coverage(entity.position, range)
+
+    return {
+        entity = entity,
+        surface_index = get_surface_index(entity.surface),
+        min_chunk_x = min_chunk_x,
+        max_chunk_x = max_chunk_x,
+        min_chunk_y = min_chunk_y,
+        max_chunk_y = max_chunk_y,
+        slice_tick = -1,
+        slice_remaining = 0
+    }
+end
+
+function model.index_tower(runtime, tower_id, tower_entry)
+    if not tower_entry or not tower_entry.surface_index then
+        return
+    end
+
+    for chunk_x = tower_entry.min_chunk_x, tower_entry.max_chunk_x do
+        for chunk_y = tower_entry.min_chunk_y, tower_entry.max_chunk_y do
+            local bucket = model.get_tower_chunk_bucket(runtime, tower_entry.surface_index, chunk_x, chunk_y, true)
+            bucket[tower_id] = true
+        end
+    end
+end
+
+function model.unindex_tower(runtime, tower_id, tower_entry)
+    if not tower_entry or not tower_entry.surface_index then
+        return
+    end
+
+    local surface_chunks = runtime.tower_chunks[tower_entry.surface_index]
+    if not surface_chunks then
+        return
+    end
+
+    for chunk_x = tower_entry.min_chunk_x, tower_entry.max_chunk_x do
+        local x_bucket = surface_chunks[chunk_x]
+        if x_bucket then
+            for chunk_y = tower_entry.min_chunk_y, tower_entry.max_chunk_y do
+                local bucket = x_bucket[chunk_y]
+                if bucket then
+                    bucket[tower_id] = nil
+                    if next(bucket) == nil then
+                        x_bucket[chunk_y] = nil
+                    end
+                end
+            end
+
+            if next(x_bucket) == nil then
+                surface_chunks[chunk_x] = nil
+            end
+        end
+    end
+
+    if next(surface_chunks) == nil then
+        runtime.tower_chunks[tower_entry.surface_index] = nil
+    end
+end
+
+function model.get_tower_slice_remaining(tower_entry, tick)
+    if not tower_entry or not model.entity_check(tower_entry.entity) then
+        return 0
+    end
+
+    if tower_entry.slice_tick ~= tick then
+        tower_entry.slice_tick = tick
+        tower_entry.slice_remaining = model.get_service_budget(tower_entry.entity)
+    end
+
+    return tower_entry.slice_remaining or 0
+end
+
+function model.consume_tower_slice_budget(tower_entry, tick)
+    local remaining = model.get_tower_slice_remaining(tower_entry, tick)
+    if remaining <= 0 then
+        return 0
+    end
+
+    tower_entry.slice_remaining = remaining - 1
+    return tower_entry.slice_remaining
+end
+
+function model.get_transfer_inv(transfer)
+    if not transfer then
+        return nil
+    end
+
+    if type(transfer) == "number" then
+        local player = game.get_player(transfer)
+        return player and player.get_main_inventory() or nil
+    end
+
+    if transfer.valid then
+        return transfer.get_inventory(defines.inventory.robot_cargo)
+    end
+
+    return nil
+end
+
+function model.transfer_valid(source, transfer)
+    local target_inv = model.get_transfer_inv(transfer)
+
+    if not target_inv then
         return true
     end
 
-    return false
+    local source_inv = source.get_inventory(defines.inventory.chest)
+    local return_value = true
 
+    local source_stack = {name = source.name, count = 1}
+    local quality = source.quality
+    if quality and quality.name then
+        source_stack.quality = quality.name
+    elseif quality then
+        source_stack.quality = quality
+    end
+
+    if not target_inv.can_insert(source_stack) then
+        return_value = false
+    end
+
+    if return_value == true and type(transfer) ~= "number" then
+        if source_inv and not source_inv.is_empty() then
+            return_value = false
+        end
+    end
+
+    return return_value
 end
 
-
-function model.add_cooldown(entity, event)
-
-    model.check_cooldown()
-    storage.ei.cooldown[entity.unit_number] = event.tick + 60
-
-end
-
-
-function model.clone_fuel(itemstack, source_inv, target_inv, clearup_stack)
-
+local function clone_stack(itemstack, target_inv)
     if not itemstack.valid_for_read then
-        return
+        return 0
     end
 
-    if not target_inv.can_insert(itemstack.name) then
-        return
+    local original_count = itemstack.count
+    local stack_definition = make_item_stack_definition(itemstack, original_count)
+    if not stack_definition then
+        return 0
     end
 
-    local count = target_inv.insert({name=itemstack.name, count=itemstack.count})
-    table.insert(clearup_stack, {itemstack.name, count})
+    local inserted = target_inv.insert(stack_definition)
+    if not inserted or inserted <= 0 then
+        return 0
+    end
 
+    itemstack.count = original_count - inserted
+    return inserted
 end
 
-function model.clone_ammo(itemstack, source_inv, target_inv, clearup_stack)
-
-    if not itemstack.valid_for_read then
-        return
-    end
-
-    if not target_inv.can_insert(itemstack.name) then
-        return
-    end
-
-    local count = target_inv.insert({name=itemstack.name, count=itemstack.count})
-    table.insert(clearup_stack, {itemstack.name, count})
-
-end
-
-
-function model.cleanup_clones(inv, clearup_stack)
-
+function model.transfer_fuel(source_inventory, target_inventory)
     local action = false
 
-    -- remove the itemstacks that were inserted into the target inventory
-    for _, itemstack in ipairs(clearup_stack) do
-        inv.remove({name=itemstack[1], count=itemstack[2]})
-        action = true
+    for index = 1, #source_inventory do
+        local itemstack = source_inventory[index]
+        if clone_stack(itemstack, target_inventory) > 0 then
+            action = true
+        end
     end
 
     return action
-
 end
 
+function model.transfer_ammo(source_inventory, target_inventory)
+    local action = false
 
-function model.transfer_fuel(fueler_inventory, target_inventory)
-
-    local itemstacks_inserted = {}
-
-        for i=1, #fueler_inventory do
-
-            local itemstack = fueler_inventory[i]
-            model.clone_fuel(itemstack, fueler_inventory, target_inventory, itemstacks_inserted)
-    
+    for index = 1, #source_inventory do
+        local itemstack = source_inventory[index]
+        if clone_stack(itemstack, target_inventory) > 0 then
+            action = true
         end
-    
-    local action = model.cleanup_clones(fueler_inventory, itemstacks_inserted)
+    end
 
     return action
-
 end
-
-function model.transfer_ammo(fueler_inventory, target_inventory)
-
-    local itemstacks_inserted = {}
-
-        for i=1, #fueler_inventory do
-
-            local itemstack = fueler_inventory[i]
-            model.clone_ammo(itemstack, fueler_inventory, target_inventory, itemstacks_inserted)
-    
-        end
-    
-    local action = model.cleanup_clones(fueler_inventory, itemstacks_inserted)
-
-    return action
-
-end
-
 
 function model.cast_beam(fueler, target)
-
-    -- create a beam between the fueler and the target
-    local beam = fueler.surface.create_entity({
+    fueler.surface.create_entity({
         name = "ei-fuel-beam",
         position = fueler.position,
         source_offset = {0, -1},
@@ -255,285 +634,772 @@ function model.cast_beam(fueler, target)
         duration = 30,
         force = fueler.force,
     })
-
 end
-
 
 function model.refuel_target(fueler, target, target_type)
-
-    -- game.print("refueling target")
-    -- game.print("fueler: " .. fueler.name)
-    -- game.print("target: " .. target.name)
-
     local fueler_inventory = fueler.get_inventory(defines.inventory.chest)
+    local action = false
 
-    -- ammo insert
-    local target_inventory = target.get_inventory(defines.inventory.turret_ammo)
-    if target_inventory == nil then target_inventory = target.get_inventory(defines.inventory.artillery_turret_ammo) end
-    if target_inventory == nil then target_inventory = target.get_inventory(defines.inventory.artillery_wagon_ammo) end
-
-    if target_inventory then 
-      local action = model.transfer_ammo(fueler_inventory, target_inventory)
-      if action then
-          model.cast_beam(fueler, target)
-      end
+    local ammo_inventory = target.get_inventory(defines.inventory.turret_ammo)
+    if ammo_inventory == nil then
+        ammo_inventory = target.get_inventory(defines.inventory.artillery_turret_ammo)
+    end
+    if ammo_inventory == nil then
+        ammo_inventory = target.get_inventory(defines.inventory.artillery_wagon_ammo)
     end
 
-
-    target_inventory = nil
-
-    if target_type == "car" or target_type == "spider-vehicle" or target_type == "locomotive" then
-
-        target_inventory = target.get_fuel_inventory()
-
+    if ammo_inventory then
+        action = model.transfer_ammo(fueler_inventory, ammo_inventory) or action
     end
 
-    if target_inventory == nil then
-        return
-    end
+    if is_vehicle_target_type(target_type) then
+        local fuel_inventory = target.get_fuel_inventory()
+        if fuel_inventory then
+            if not fueler_inventory.is_empty() then
+                action = model.transfer_fuel(fueler_inventory, fuel_inventory) or action
+            end
 
-    -- fueler -> target
-    if not fueler_inventory.is_empty() then
-        local action = model.transfer_fuel(fueler_inventory, target_inventory)
-        if action then
-            model.cast_beam(fueler, target)
+            local result_inventory = target.get_burnt_result_inventory()
+            if result_inventory and not fueler_inventory.is_full() and not result_inventory.is_empty() then
+                action = model.transfer_fuel(result_inventory, fueler_inventory) or action
+            end
         end
     end
 
-    -- target -> fueler
-    local result_inventory = target.get_burnt_result_inventory()
-
-    if not result_inventory then
-        return
+    if action then
+        model.cast_beam(fueler, target)
     end
 
-    if fueler_inventory.is_full() then
-        return
-    end
-
-    if not result_inventory.is_empty() then
-        local action = model.transfer_fuel(result_inventory, fueler_inventory)
-        if action then
-            model.cast_beam(fueler, target)
-        end
-    end
+    return action
 end
 
-
 function model.refuel_equipments(fueler, target)
-
     local fueler_inventory = fueler.get_inventory(defines.inventory.chest)
-
     if not target.grid then
-        return
+        return false
     end
 
     local equipments = target.grid.equipment
-
     if #equipments == 0 then
-        return
+        return false
     end
 
-    -- for every equip in the target try to insert fuel from the fueler
+    local action = false
+
     for _, equipment in ipairs(equipments) do
+        if equipment.valid and equipment.burner then
+            local burner_inventory = equipment.burner.inventory
+            if not fueler_inventory.is_empty() then
+                action = model.transfer_fuel(fueler_inventory, burner_inventory) or action
+            end
 
-        if not equipment.valid then
-            goto continue
-        end
-
-        if not equipment.burner then
-            goto continue
-        end
-
-        -- fueler -> target
-        local burner_inventory = equipment.burner.inventory
-        if not fueler_inventory.is_empty() then
-            local action = model.transfer_fuel(fueler_inventory, burner_inventory)
-            if action then
-                model.cast_beam(fueler, target)
+            local result_inventory = equipment.burner.burnt_result_inventory
+            if result_inventory and not fueler_inventory.is_full() and not result_inventory.is_empty() then
+                action = model.transfer_fuel(result_inventory, fueler_inventory) or action
             end
         end
-
-        -- target -> fueler
-        local result_inventory = equipment.burner.burnt_result_inventory
-        if not result_inventory then
-            goto continue
-        end
-
-        if fueler_inventory.is_full() then
-            goto continue
-        end
-
-        if not result_inventory.is_empty() then
-            local action = model.transfer_fuel(result_inventory, fueler_inventory)
-            if action then
-                model.cast_beam(fueler, target)
-            end
-        end
-
-        ::continue::
-
     end
 
+    if action then
+        model.cast_beam(fueler, target)
+    end
+
+    return action
 end
 
+function model.remove_ready_target(runtime, target_entry)
+    if not target_entry or not target_entry.ready_queued or not target_entry.ready_surface_index then
+        return
+    end
 
-function model.get_break_point()
+    local queue = model.get_surface_queue(runtime, target_entry.ready_surface_index, false)
+    if queue and queue.queued[target_entry.unit_number] then
+        queue.queued[target_entry.unit_number] = nil
+        runtime.ready_target_count = math.max(0, (runtime.ready_target_count or 0) - 1)
 
-    model.check_queue()
-
-    -- id,_ = next() returns the first element of a table
-    -- id,_ = next(_, id) returns the next element of a table
-
-    -- if there already is a break point, then try to move it forward one step
-    -- if that is not possible then try to return the first element
-    -- if that is not possible then return nil
-
-    -- if there id no current break point, then try to return the first element
-    -- if that is not possible then return nil
-
-    local break_point = storage.ei.fueler_break_point
-
-    if break_point then
-
-        -- if no element in fueler_queue then return nil and reset the break point
-        if not next(storage.ei.fueler_queue) then
-            storage.ei.fueler_break_point = nil
-            return nil
+        local surface_index = target_entry.ready_surface_index
+        runtime.target_surface_counts[surface_index] = math.max(0, (runtime.target_surface_counts[surface_index] or 0) - 1)
+        if runtime.target_surface_counts[surface_index] == 0 then
+            runtime.target_surface_counts[surface_index] = nil
+            model.remove_active_surface(runtime, surface_index)
         end
+    end
 
-        -- try to move the break point forward one step
-        if next(storage.ei.fueler_queue, break_point) then
-            storage.ei.fueler_break_point,_ = next(storage.ei.fueler_queue, break_point)
-            return storage.ei.fueler_break_point
-        end
+    target_entry.ready_queued = false
+    target_entry.ready_surface_index = nil
+end
 
-        -- cant move the break point forward, so try to return the first element
-        if next(storage.ei.fueler_queue) then
-            storage.ei.fueler_break_point,_ = next(storage.ei.fueler_queue)
-            return storage.ei.fueler_break_point
-        end
+function model.enqueue_ready_target(runtime, target_id, surface_index)
+    local target_entry = runtime.targets[target_id]
+    if not target_entry or target_entry.ready_queued then
+        return false
+    end
 
-        -- cant return the first element, so return nil
+    surface_index = surface_index or target_entry.surface_index
+    if not surface_index then
+        return false
+    end
+
+    local queue = model.get_surface_queue(runtime, surface_index, true)
+    if queue.queued[target_id] then
+        target_entry.ready_queued = true
+        target_entry.ready_surface_index = surface_index
+        return true
+    end
+
+    queue.tail = queue.tail + 1
+    queue.items[queue.tail] = target_id
+    queue.queued[target_id] = true
+
+    target_entry.ready_queued = true
+    target_entry.ready_surface_index = surface_index
+
+    runtime.ready_target_count = (runtime.ready_target_count or 0) + 1
+    runtime.target_surface_counts[surface_index] = (runtime.target_surface_counts[surface_index] or 0) + 1
+    model.add_active_surface(runtime, surface_index)
+    return true
+end
+
+function model.dequeue_surface_target(runtime, surface_index)
+    local queue = model.get_surface_queue(runtime, surface_index, false)
+    if not queue then
         return nil
-
     end
 
-    -- there is no break point, so try to return the first element
-    if next(storage.ei.fueler_queue) then
-        storage.ei.fueler_break_point,_ = next(storage.ei.fueler_queue)
-        return storage.ei.fueler_break_point
-    end
+    while queue.head <= queue.tail do
+        local target_id = queue.items[queue.head]
+        queue.items[queue.head] = nil
+        queue.head = queue.head + 1
 
-    -- cant return the first element, so return nil
-    return nil
-
-end
-
-
---UPDATES
-------------------------------------------------------------------------------------------------------
-
-function model.update_cooldowns(event)
-
-    model.check_cooldown()
-
-    local ids_to_remove = {}
-
-    -- remove all cooldowns that are over current tick
-    for unit, cooldown in pairs(storage.ei.cooldown) do
-
-        if cooldown < event.tick then
-            -- store unit for removal
-            table.insert(ids_to_remove, unit)
-        end
-
-    end
-
-    -- remove all stored units
-    for i, unit in ipairs(ids_to_remove) do
-        storage.ei.cooldown[unit] = nil
-    end
-
-end
-
-
-function model.update_fueler(break_point, event)
-    -- game.print("update_fueler")
-
-    model.check_global()
-    model.check_queue()
-    model.check_cooldown()
-
-    local fueler_queue = storage
-        and storage.ei
-        and storage.ei.fueler_queue
-    local fueler_store = storage
-        and storage.ei
-        and storage.ei.fueler
-
-    if not fueler_queue or not fueler_store then
-        return
-    end
-
-    local unit = break_point and fueler_queue[break_point]
-    local fueler_data = unit and fueler_store[unit]
-    local fueler = fueler_data and fueler_data.entity
-
-    if not model.entity_check(fueler) then
-        return
-    end
-
-    -- get what entity_type this fueler currently fuels
-    -- and then try to insert as many items from the fueler inv as possible
-    -- into all targets of that type
-
-    local target_type = model.get_target_type(unit)
-    local equipment = model.get_equipment(unit)
-
-    if target_type == "spidertron" then
-        target_type = "spider-vehicle"
-    end
-
-    -- get all entities of the target type in range
-    local targets = fueler.surface.find_entities_filtered{
-        position = fueler.position,
-        radius = ei_lib.config("fueler_range"),
-        type = {target_type,"ammo-turret","artillery-turret","artillery-wagon"}
-    }
-
-    -- exclude targets that are on cooldown for refueling
-    -- for the others try refueling them
-    for i, target in ipairs(targets) do
-
-        if not model.entity_check(target) then
-            goto continue
-        end
-
-        if not model.is_on_cooldown(target, event) then
-            if equipment == false then
-                model.refuel_target(fueler, target, target_type)
-            else
-                model.refuel_equipments(fueler, target)
+        if target_id ~= nil and queue.queued[target_id] then
+            queue.queued[target_id] = nil
+            runtime.ready_target_count = math.max(0, (runtime.ready_target_count or 0) - 1)
+            runtime.target_surface_counts[surface_index] = math.max(0, (runtime.target_surface_counts[surface_index] or 0) - 1)
+            if runtime.target_surface_counts[surface_index] == 0 then
+                runtime.target_surface_counts[surface_index] = nil
+                model.remove_active_surface(runtime, surface_index)
             end
-            model.add_cooldown(target, event)
+
+            compact_queue(queue)
+
+            local target_entry = runtime.targets[target_id]
+            if target_entry then
+                target_entry.ready_queued = false
+                target_entry.ready_surface_index = nil
+            end
+
+            return target_id
         end
-
-        ::continue::
-
     end
 
+    compact_queue(queue)
+    return nil
 end
 
+function model.unschedule_target(runtime, target_entry)
+    if not target_entry or not target_entry.next_ready_tick then
+        return
+    end
 
---GETTERS AND SETTERS
-------------------------------------------------------------------------------------------------------
+    local due_tick = target_entry.next_ready_tick
+    local bucket = runtime.delayed_target_buckets[due_tick]
+    if bucket then
+        bucket[target_entry.unit_number] = nil
+        if next(bucket) == nil then
+            runtime.delayed_target_buckets[due_tick] = nil
+        end
+    end
+
+    target_entry.next_ready_tick = nil
+end
+
+function model.schedule_target(runtime, target_entry, current_tick, delay)
+    if not target_entry then
+        return
+    end
+
+    model.remove_ready_target(runtime, target_entry)
+    model.unschedule_target(runtime, target_entry)
+
+    local due_tick = current_tick + delay
+    local bucket = runtime.delayed_target_buckets[due_tick]
+    if not bucket then
+        bucket = {}
+        runtime.delayed_target_buckets[due_tick] = bucket
+    end
+
+    bucket[target_entry.unit_number] = true
+    target_entry.next_ready_tick = due_tick
+end
+
+function model.remove_ready_player(runtime, player_state)
+    local queue = runtime.player_queue
+    if not player_state or not player_state.ready_queued or not queue.queued[player_state.player_index] then
+        if player_state then
+            player_state.ready_queued = false
+        end
+        return
+    end
+
+    queue.queued[player_state.player_index] = nil
+    player_state.ready_queued = false
+end
+
+function model.enqueue_ready_player(runtime, player_index)
+    local player_state = runtime.player_states[player_index]
+    if not player_state or player_state.ready_queued then
+        return false
+    end
+
+    local queue = runtime.player_queue
+    if queue.queued[player_index] then
+        player_state.ready_queued = true
+        return true
+    end
+
+    queue.tail = queue.tail + 1
+    queue.items[queue.tail] = player_index
+    queue.queued[player_index] = true
+    player_state.ready_queued = true
+    return true
+end
+
+function model.dequeue_ready_player(runtime)
+    local queue = runtime.player_queue
+    while queue.head <= queue.tail do
+        local player_index = queue.items[queue.head]
+        queue.items[queue.head] = nil
+        queue.head = queue.head + 1
+
+        if player_index ~= nil and queue.queued[player_index] then
+            queue.queued[player_index] = nil
+            compact_queue(queue)
+
+            local player_state = runtime.player_states[player_index]
+            if player_state then
+                player_state.ready_queued = false
+            end
+
+            return player_index
+        end
+    end
+
+    compact_queue(queue)
+    return nil
+end
+
+function model.unschedule_player(runtime, player_state)
+    if not player_state or not player_state.next_ready_tick then
+        return
+    end
+
+    local due_tick = player_state.next_ready_tick
+    local bucket = runtime.delayed_player_buckets[due_tick]
+    if bucket then
+        bucket[player_state.player_index] = nil
+        if next(bucket) == nil then
+            runtime.delayed_player_buckets[due_tick] = nil
+        end
+    end
+
+    player_state.next_ready_tick = nil
+end
+
+function model.schedule_player(runtime, player_state, current_tick, delay)
+    if not player_state then
+        return
+    end
+
+    model.remove_ready_player(runtime, player_state)
+    model.unschedule_player(runtime, player_state)
+
+    local due_tick = current_tick + delay
+    local bucket = runtime.delayed_player_buckets[due_tick]
+    if not bucket then
+        bucket = {}
+        runtime.delayed_player_buckets[due_tick] = bucket
+    end
+
+    bucket[player_state.player_index] = true
+    player_state.next_ready_tick = due_tick
+end
+
+function model.build_target_entry(entity)
+    return {
+        unit_number = entity.unit_number,
+        entity = entity,
+        entity_type = entity.type,
+        surface_index = get_surface_index(entity.surface),
+        ready_queued = false,
+        ready_surface_index = nil,
+        next_ready_tick = nil
+    }
+end
+
+function model.remove_tower_entry(runtime, tower_id, tower_entry)
+    tower_entry = tower_entry or runtime.towers[tower_id]
+    if not tower_entry then
+        return false
+    end
+
+    model.unindex_tower(runtime, tower_id, tower_entry)
+    runtime.towers[tower_id] = nil
+    return true
+end
+
+function model.remove_target_entry(runtime, target_id, target_entry)
+    target_entry = target_entry or runtime.targets[target_id]
+    if not target_entry then
+        return false
+    end
+
+    model.remove_ready_target(runtime, target_entry)
+    model.unschedule_target(runtime, target_entry)
+    runtime.targets[target_id] = nil
+    runtime.target_count = math.max(0, (runtime.target_count or 0) - 1)
+    return true
+end
+
+function model.unregister_player_by_index(runtime, player_index)
+    local player_state = runtime.player_states[player_index]
+    if not player_state then
+        return false
+    end
+
+    model.remove_ready_player(runtime, player_state)
+    model.unschedule_player(runtime, player_state)
+    runtime.player_states[player_index] = nil
+    return true
+end
+
+function model.register_fueler(entity)
+    local runtime = model.check_global()
+    local unit_number = entity.unit_number
+    if not unit_number then
+        return
+    end
+
+    local fueler_data = storage.ei.fueler[unit_number] or {}
+    storage.ei.fueler[unit_number] = fueler_data
+    fueler_data.entity = entity
+    fueler_data.queue_pos = nil
+
+    local existing = runtime.towers[unit_number]
+    if existing then
+        model.unindex_tower(runtime, unit_number, existing)
+    end
+
+    local tower_entry = model.build_tower_entry(entity)
+    runtime.towers[unit_number] = tower_entry
+    model.index_tower(runtime, unit_number, tower_entry)
+end
+
+function model.unregister_fueler(entity, transfer)
+    if not model.transfer_valid(entity, transfer) then
+        return
+    end
+
+    local runtime = model.check_global()
+    local unit_number = entity.unit_number
+    if not unit_number then
+        return
+    end
+
+    model.remove_tower_entry(runtime, unit_number)
+    storage.ei.fueler[unit_number] = nil
+end
+
+function model.is_supported_runtime_target(entity)
+    return entity
+        and entity.unit_number ~= nil
+        and entity.type ~= nil
+        and runtime_target_types[entity.type] == true
+end
+
+function model.register_target(entity)
+    if not model.is_supported_runtime_target(entity) then
+        return
+    end
+
+    local runtime = model.check_global()
+    local target_id = entity.unit_number
+    local target_entry = runtime.targets[target_id]
+
+    if target_entry then
+        target_entry.entity = entity
+        target_entry.entity_type = entity.type
+        target_entry.surface_index = get_surface_index(entity.surface)
+        model.unschedule_target(runtime, target_entry)
+        if not target_entry.ready_queued then
+            model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
+        end
+        return
+    end
+
+    target_entry = model.build_target_entry(entity)
+    runtime.targets[target_id] = target_entry
+    runtime.target_count = (runtime.target_count or 0) + 1
+    model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
+end
+
+function model.unregister_target(entity)
+    if not entity or entity.unit_number == nil then
+        return
+    end
+
+    local runtime = model.check_global()
+    model.remove_target_entry(runtime, entity.unit_number)
+end
+
+function model.sync_connected_players(runtime)
+    local seen_players = {}
+
+    for _, player in pairs(game.connected_players) do
+        seen_players[player.index] = true
+
+        if player.character and model.entity_check(player.character) then
+            local player_state = runtime.player_states[player.index]
+            local character_changed = false
+
+            if not player_state then
+                player_state = {
+                    player_index = player.index,
+                    character = player.character,
+                    ready_queued = false,
+                    next_ready_tick = nil
+                }
+                runtime.player_states[player.index] = player_state
+                character_changed = true
+            elseif player_state.character ~= player.character then
+                player_state.character = player.character
+                character_changed = true
+            else
+                player_state.character = player.character
+            end
+
+            if character_changed and not player_state.ready_queued and not player_state.next_ready_tick then
+                model.enqueue_ready_player(runtime, player.index)
+            end
+        else
+            model.unregister_player_by_index(runtime, player.index)
+        end
+    end
+
+    local stale_players = {}
+    for player_index in pairs(runtime.player_states) do
+        if not seen_players[player_index] then
+            stale_players[#stale_players + 1] = player_index
+        end
+    end
+
+    for _, player_index in ipairs(stale_players) do
+        model.unregister_player_by_index(runtime, player_index)
+    end
+end
+
+function model.release_due_targets(runtime, tick)
+    if runtime.last_due_target_release_tick == tick then
+        return
+    end
+
+    runtime.last_due_target_release_tick = tick
+
+    local bucket = runtime.delayed_target_buckets[tick]
+    if not bucket then
+        return
+    end
+
+    runtime.delayed_target_buckets[tick] = nil
+
+    for target_id in pairs(bucket) do
+        local target_entry = runtime.targets[target_id]
+        if target_entry then
+            target_entry.next_ready_tick = nil
+            if model.entity_check(target_entry.entity) then
+                target_entry.surface_index = get_surface_index(target_entry.entity.surface)
+                model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
+            else
+                model.remove_target_entry(runtime, target_id, target_entry)
+            end
+        end
+    end
+end
+
+function model.release_due_players(runtime, tick)
+    if runtime.last_due_player_release_tick == tick then
+        return
+    end
+
+    runtime.last_due_player_release_tick = tick
+
+    local bucket = runtime.delayed_player_buckets[tick]
+    if not bucket then
+        return
+    end
+
+    runtime.delayed_player_buckets[tick] = nil
+
+    for player_index in pairs(bucket) do
+        local player_state = runtime.player_states[player_index]
+        if player_state then
+            player_state.next_ready_tick = nil
+
+            local player = game.get_player(player_index)
+            if player and player.connected and player.character and model.entity_check(player.character) then
+                player_state.character = player.character
+                model.enqueue_ready_player(runtime, player_index)
+            else
+                model.unregister_player_by_index(runtime, player_index)
+            end
+        end
+    end
+end
+
+function model.get_candidate_towers(runtime, target)
+    if not model.entity_check(target) or not target.surface or not target.position then
+        return {}
+    end
+
+    local surface_index = get_surface_index(target.surface)
+    local chunk_x, chunk_y = get_chunk_coordinates(target.position)
+    local bucket = model.get_tower_chunk_bucket(runtime, surface_index, chunk_x, chunk_y, false)
+    if not bucket then
+        return {}
+    end
+
+    local candidates = {}
+    local range_sqr = ei_lib.config("fueler_range") * ei_lib.config("fueler_range")
+    local target_force_index = get_force_index(target.force)
+
+    for tower_id in pairs(bucket) do
+        local tower_entry = runtime.towers[tower_id]
+        local tower = tower_entry and tower_entry.entity or nil
+
+        if model.entity_check(tower)
+            and tower_entry.surface_index == surface_index
+            and target_force_index == get_force_index(tower.force)
+            and is_within_range_squared(target.position, tower.position, range_sqr) then
+            candidates[#candidates + 1] = tower_entry
+        elseif tower_entry and not model.entity_check(tower) then
+            model.remove_tower_entry(runtime, tower_id, tower_entry)
+            storage.ei.fueler[tower_id] = nil
+        end
+    end
+
+    table.sort(candidates, function(left, right)
+        local left_quality = model.get_quality_sort_level(left.entity)
+        local right_quality = model.get_quality_sort_level(right.entity)
+        if left_quality ~= right_quality then
+            return left_quality > right_quality
+        end
+
+        return left.entity.unit_number < right.entity.unit_number
+    end)
+
+    return candidates
+end
+
+function model.tower_matches_target(tower_entry, desired_target_type, equipment_mode, allow_any_vehicle_mode)
+    if not tower_entry or not model.entity_check(tower_entry.entity) then
+        return false
+    end
+
+    local unit_number = tower_entry.entity.unit_number
+    if unit_number == nil then
+        return false
+    end
+
+    if model.get_equipment(unit_number) ~= equipment_mode then
+        return false
+    end
+
+    if not equipment_mode and allow_any_vehicle_mode then
+        return true
+    end
+
+    return get_runtime_tower_target_type(unit_number) == desired_target_type
+end
+
+function model.select_service_towers(runtime, target, desired_target_type, allow_vehicle_mode, allow_equipment_mode, allow_any_vehicle_mode, tick)
+    local candidates = model.get_candidate_towers(runtime, target)
+    local best_vehicle = nil
+    local best_equipment = nil
+
+    for _, tower_entry in ipairs(candidates) do
+        if model.get_tower_slice_remaining(tower_entry, tick) > 0 then
+            if allow_vehicle_mode and not best_vehicle
+                and model.tower_matches_target(tower_entry, desired_target_type, false, allow_any_vehicle_mode) then
+                best_vehicle = tower_entry
+            end
+
+            if allow_equipment_mode and not best_equipment
+                and model.tower_matches_target(tower_entry, desired_target_type, true, false) then
+                best_equipment = tower_entry
+            end
+
+            if (not allow_vehicle_mode or best_vehicle) and (not allow_equipment_mode or best_equipment) then
+                break
+            end
+        end
+    end
+
+    return best_vehicle, best_equipment
+end
+
+function model.get_retry_delay(entity_type)
+    if static_target_types[entity_type] then
+        return STATIC_RETRY_COOLDOWN_TICKS
+    end
+
+    return MOVING_RETRY_COOLDOWN_TICKS
+end
+
+function model.process_target_entry(runtime, target_entry, event)
+    local target = target_entry and target_entry.entity or nil
+    if not model.entity_check(target) then
+        if target_entry then
+            model.remove_target_entry(runtime, target_entry.unit_number, target_entry)
+        end
+        return false
+    end
+
+    target_entry.surface_index = get_surface_index(target.surface)
+
+    local desired_target_type = get_entity_target_type(target)
+    local allow_vehicle_mode = target.type ~= "character"
+    local allow_equipment_mode = target.type == "character" or is_vehicle_target_type(target.type)
+    local allow_any_vehicle_mode = static_target_types[target.type] == true
+
+    local vehicle_tower, equipment_tower = model.select_service_towers(
+        runtime,
+        target,
+        desired_target_type,
+        allow_vehicle_mode,
+        allow_equipment_mode,
+        allow_any_vehicle_mode,
+        event.tick
+    )
+
+    local attempted = false
+    local success = false
+
+    if vehicle_tower then
+        attempted = true
+        model.consume_tower_slice_budget(vehicle_tower, event.tick)
+        success = model.refuel_target(vehicle_tower.entity, target, target.type) or success
+    end
+
+    if equipment_tower then
+        attempted = true
+        model.consume_tower_slice_budget(equipment_tower, event.tick)
+        success = model.refuel_equipments(equipment_tower.entity, target) or success
+    end
+
+    if success then
+        model.schedule_target(runtime, target_entry, event.tick, SUCCESS_COOLDOWN_TICKS)
+    elseif attempted then
+        model.schedule_target(runtime, target_entry, event.tick, FAILED_ACTION_COOLDOWN_TICKS)
+    else
+        model.schedule_target(runtime, target_entry, event.tick, model.get_retry_delay(target.type))
+    end
+
+    return true
+end
+
+function model.process_player_state(runtime, player_state, event)
+    local player = player_state and game.get_player(player_state.player_index) or nil
+    local character = player_state and player_state.character or nil
+
+    if not player or not player.connected or not model.entity_check(character) then
+        model.unregister_player_by_index(runtime, player_state and player_state.player_index)
+        return false
+    end
+
+    local _, equipment_tower = model.select_service_towers(
+        runtime,
+        character,
+        "character",
+        false,
+        true,
+        false,
+        event.tick
+    )
+
+    local attempted = false
+    local success = false
+
+    if equipment_tower then
+        attempted = true
+        model.consume_tower_slice_budget(equipment_tower, event.tick)
+        success = model.refuel_equipments(equipment_tower.entity, character) or success
+    end
+
+    if success then
+        model.schedule_player(runtime, player_state, event.tick, SUCCESS_COOLDOWN_TICKS)
+    elseif attempted then
+        model.schedule_player(runtime, player_state, event.tick, FAILED_ACTION_COOLDOWN_TICKS)
+    else
+        model.schedule_player(runtime, player_state, event.tick, MOVING_RETRY_COOLDOWN_TICKS)
+    end
+
+    return true
+end
+
+function model.process_ready_target(runtime, event)
+    local active_surface_count = #runtime.active_surfaces
+    if active_surface_count == 0 then
+        return false
+    end
+
+    if runtime.active_surface_cursor > active_surface_count then
+        runtime.active_surface_cursor = 1
+    end
+
+    local surface_attempts = active_surface_count
+    while surface_attempts > 0 do
+        local surface_index = runtime.active_surfaces[runtime.active_surface_cursor]
+        runtime.active_surface_cursor = runtime.active_surface_cursor + 1
+        if runtime.active_surface_cursor > active_surface_count then
+            runtime.active_surface_cursor = 1
+        end
+
+        while true do
+            local target_id = model.dequeue_surface_target(runtime, surface_index)
+            if not target_id then
+                break
+            end
+
+            local target_entry = runtime.targets[target_id]
+            if target_entry and model.entity_check(target_entry.entity) then
+                return model.process_target_entry(runtime, target_entry, event)
+            end
+
+            if target_entry then
+                model.remove_target_entry(runtime, target_id, target_entry)
+            end
+        end
+
+        surface_attempts = surface_attempts - 1
+    end
+
+    return false
+end
+
+function model.process_ready_player(runtime, event)
+    while true do
+        local player_index = model.dequeue_ready_player(runtime)
+        if not player_index then
+            return false
+        end
+
+        local player_state = runtime.player_states[player_index]
+        if player_state then
+            return model.process_player_state(runtime, player_state, event)
+        end
+    end
+end
 
 function model.get_target_type(unit)
-
-    -- get the current entity type that this fueler is fueling
-    -- if none id given then return the default type (locomotive)
-
     local fueler_data = storage
         and storage.ei
         and storage.ei.fueler
@@ -541,21 +1407,14 @@ function model.get_target_type(unit)
         and storage.ei.fueler[unit]
 
     local target_type = fueler_data and fueler_data.target_type
-
     if not target_type then
         target_type = model.target_types[1]
     end
 
     return target_type
-
 end
 
-
 function model.set_target_type(unit, target_type)
-
-    -- set the current entity type that this fueler is fueling
-    -- if none id given then set the default type (locomotive)
-
     if not target_type then
         target_type = model.target_types[1]
     end
@@ -566,19 +1425,12 @@ function model.set_target_type(unit, target_type)
         and unit
         and storage.ei.fueler[unit]
 
-    if not fueler_data then
-        return
+    if fueler_data then
+        fueler_data.target_type = target_type
     end
-
-    fueler_data.target_type = target_type
-
-    -- game.print("Set target type to: " .. target_type)
-
 end
 
-
 function model.get_equipment(unit)
-
     local fueler_data = storage
         and storage.ei
         and storage.ei.fueler
@@ -586,143 +1438,169 @@ function model.get_equipment(unit)
         and storage.ei.fueler[unit]
 
     local equipment = fueler_data and fueler_data.equipment
-
-    if not equipment then
+    if equipment == nil then
         equipment = false
     end
 
     return equipment
-
 end
 
-
 function model.set_equipment(unit, equipment)
-
     if not equipment then
         equipment = false
     end
 
-    storage.ei.fueler[unit].equipment = equipment
-
+    if storage.ei and storage.ei.fueler and storage.ei.fueler[unit] then
+        storage.ei.fueler[unit].equipment = equipment
+    end
 end
 
---REGISTER
-------------------------------------------------------------------------------------------------------
-
-function model.register_fueler(entity)
-
-    local unit = entity.unit_number
-
-    model.check_global()
-    model.check_queue()
-
-    storage.ei.fueler[unit] = {}
-    storage.ei.fueler[unit].entity = entity
-
-    -- get lenght of queue
-    local queue_length = #storage.ei.fueler_queue
-    table.insert(storage.ei.fueler_queue, unit)
-
-    -- store the position in the queue
-    storage.ei.fueler[unit].queue_pos = queue_length + 1
-
-end
-
-
-function model.unregister_fueler(entity, transfer)
-
-    if not model.transfer_valid(entity, transfer) then
+function model.rebuild_runtime_state(reason)
+    local runtime = model.check_global()
+    if runtime.runtime_rebuild_in_progress then
         return
     end
 
-    local unit = entity.unit_number
+    runtime.runtime_rebuild_in_progress = true
+    model.reset_runtime_storage(runtime)
 
-    model.check_global()
-    model.check_queue()
+    local seen_fuelers = {}
 
-    local fueler_store = storage
-        and storage.ei
-        and storage.ei.fueler
+    for _, surface in pairs(game.surfaces) do
+        local fuelers = surface.find_entities_filtered({
+            name = "ei-fueler"
+        })
 
-    if not fueler_store or not unit then
-        return
-    end
-
-    local fueler_data = fueler_store[unit]
-    local fueler_queue = storage.ei and storage.ei.fueler_queue
-    
-    -- remove the unit from the queue
-    local sus_pos = fueler_data and fueler_data.queue_pos
-
-    if fueler_queue and sus_pos and fueler_queue[sus_pos] == unit then
-        table.remove(fueler_queue, sus_pos)
-    elseif fueler_queue then
-        -- if the unit is not at that pos, then check for others
-        for i, v in pairs(fueler_queue) do
-            if v == unit then
-                table.remove(fueler_queue, i)
+        for _, fueler in pairs(fuelers) do
+            if model.entity_check(fueler) then
+                model.register_fueler(fueler)
+                seen_fuelers[fueler.unit_number] = true
             end
         end
     end
 
-    -- delete the entry from storage 
-    fueler_store[unit] = nil
+    for unit_number in pairs(storage.ei.fueler) do
+        if not seen_fuelers[unit_number] then
+            storage.ei.fueler[unit_number] = nil
+        end
+    end
 
+    for _, surface in pairs(game.surfaces) do
+        local targets = surface.find_entities_filtered({
+            type = runtime_target_type_names
+        })
+
+        for _, entity in pairs(targets) do
+            if model.entity_check(entity) then
+                model.register_target(entity)
+            end
+        end
+    end
+
+    model.sync_connected_players(runtime)
+
+    runtime.runtime_version = FUELER_RUNTIME_VERSION
+    runtime.needs_rebuild = false
+    runtime.runtime_rebuild_in_progress = false
+
+    if reason == "manual" then
+        model.clear_legacy_runtime_fields()
+    end
+end
+
+function model.ensure_runtime_ready()
+    local runtime = model.check_global()
+    if runtime.runtime_rebuild_in_progress then
+        return runtime
+    end
+
+    if runtime.needs_rebuild then
+        model.rebuild_runtime_state("auto")
+        runtime = storage.ei and storage.ei.fueler_rt or runtime
+    end
+
+    return runtime
+end
+
+function model.get_ready_target_count()
+    local runtime = model.check_global()
+    return runtime.ready_target_count or 0
 end
 
 --HANDLERS
 ------------------------------------------------------------------------------------------------------
 
 function model.on_built_entity(entity)
-
     if not model.entity_check(entity) then
         return
     end
 
-    if entity.name ~= "ei-fueler" then
+    local runtime = model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
         return
     end
 
-    model.register_fueler(entity)
-
+    if entity.name == "ei-fueler" then
+        model.register_fueler(entity)
+    elseif model.is_supported_runtime_target(entity) then
+        model.register_target(entity)
+    end
 end
-
 
 function model.on_destroyed_entity(entity, transfer)
-
-    if not model.entity_check(entity) then
+    if not entity or entity.unit_number == nil then
         return
     end
 
-    if entity.name ~= "ei-fueler" then
+    local runtime = model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
         return
     end
 
-    model.unregister_fueler(entity, transfer)
+    if entity.name == "ei-fueler" then
+        if model.entity_check(entity) then
+            model.unregister_fueler(entity, transfer)
+        end
+        return
+    end
 
+    if runtime_target_types[entity.type] then
+        model.unregister_target(entity)
+    end
 end
 
-
 function model.updater(event)
-
-    local next_break_point = model.get_break_point()
-
-    if not next_break_point then
+    local runtime = model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
         return false
     end
 
-    -- update this fueler
-    model.update_fueler(next_break_point, event)
-    model.update_cooldowns(event)
-    return true
+    model.sync_connected_players(runtime)
+    model.release_due_targets(runtime, event.tick)
+    model.release_due_players(runtime, event.tick)
+
+    if model.process_ready_target(runtime, event) then
+        return true
+    end
+
+    return model.process_ready_player(runtime, event)
 end
 
+commands.add_command("rescan_fuelers", "Rebuilds Fueler tower runtime queues, target indices, and player tracking state.", function(command)
+    local player = command.player_index and game.get_player(command.player_index) or nil
+    if player and not player.admin then
+        return
+    end
+
+    ei_lib.crystal_echo("Fueler runtime rescan initiated.")
+    model.rebuild_runtime_state("manual")
+    ei_lib.crystal_echo("Fueler runtime rescan complete.")
+end)
 
 --GUI
 ------------------------------------------------------------------------------------------------------
 
 function model.open_gui(player)
-
     if player.gui.relative["ei-fueler-console"] then
         model.close_gui(player)
     end
@@ -738,7 +1616,7 @@ function model.open_gui(player)
         direction = "vertical",
     }
 
-    do -- Titlebar
+    do
         local titlebar = root.add{type = "flow", direction = "horizontal"}
         titlebar.add{
             type = "label",
@@ -771,7 +1649,7 @@ function model.open_gui(player)
         style = "inside_shallow_frame",
     }
 
-    do -- control subheader
+    do
         main_container.add{
             type = "frame",
             style = "ei_subheader_frame",
@@ -780,7 +1658,7 @@ function model.open_gui(player)
             caption = {"exotic-industries-fueler.fueler-gui-control-title"},
             style = "subheader_caption_label",
         }
-    
+
         local control_flow = main_container.add{
             type = "flow",
             name = "control-flow",
@@ -799,6 +1677,7 @@ function model.open_gui(player)
             name = "target-frame",
             style = "slot_button_deep_frame"
         }
+
         for _, target_name in ipairs(model.target_types) do
             button_frame.add{
                 type = "sprite-button",
@@ -812,6 +1691,7 @@ function model.open_gui(player)
                 style = "ei_slot_button_radio"
             }
         end
+
         control_flow.add{type = "empty-widget", style = "ei_vertical_pusher"}
 
         control_flow.add{
@@ -825,6 +1705,7 @@ function model.open_gui(player)
             name = "equipment-frame",
             style = "slot_button_deep_frame"
         }
+
         equipment_frame.add{
             type = "sprite-button",
             sprite = "ei-vehicle",
@@ -836,6 +1717,7 @@ function model.open_gui(player)
             },
             style = "ei_slot_button_radio"
         }
+
         equipment_frame.add{
             type = "sprite-button",
             sprite = "ei-equipment",
@@ -849,19 +1731,12 @@ function model.open_gui(player)
         }
 
         control_flow.add{type = "empty-widget", style = "ei_vertical_pusher"}
-        
-
     end
 
     model.update_gui(player)
-
 end
 
-
 function model.update_gui(player)
-
-    -- sync gui with current setting of tower
-
     local root = player.gui.relative["ei-fueler-console"]
     if not root then
         return
@@ -870,44 +1745,29 @@ function model.update_gui(player)
     local control = root["main-container"]["control-flow"]
     local target_frame = control["target-frame"]
 
-    -- get sync
     local fueler_unit = player.opened.unit_number
     local target = model.get_target_type(fueler_unit)
     local equipment = model.get_equipment(fueler_unit)
 
-    -- update gui
-    -- target_frame.tags = {selected = target}
     for _, elem in pairs(target_frame.children) do
-        if elem.tags.target_type == target then
-            elem.enabled = false
-        else
-            elem.enabled = true
-        end
+        elem.enabled = elem.tags.target_type ~= target
     end
 
     local equipment_frame = control["equipment-frame"]
-    -- equipment_frame.tags = {selected = equipment}
     for _, elem in pairs(equipment_frame.children) do
-        if elem.tags.equipment_type == equipment then
-            elem.enabled = false
-        else
-            elem.enabled = true
-        end
+        elem.enabled = elem.tags.equipment_type ~= equipment
     end
-
 end
-
 
 function model.close_gui(player)
     if player.gui.relative["ei-fueler-console"] then
         player.gui.relative["ei-fueler-console"].destroy()
     end
-    --probably better way to do this
+
     if player.gui.relative["ei_fueler-console"] then
         player.gui.relative["ei_fueler-console"].destroy()
     end
 end
-
 
 function model.on_gui_click(event)
     if event.element.tags.action == "set-target-type" then
@@ -922,7 +1782,6 @@ function model.on_gui_click(event)
 
         model.set_target_type(fueler_unit, target)
 
-        -- if new target type is player then set equipment to true
         if target == "character" then
             model.set_equipment(fueler_unit, true)
         end
@@ -940,17 +1799,15 @@ function model.on_gui_click(event)
         local fueler_unit = player.opened.unit_number
         local equipment_type = event.element.tags.equipment_type
 
-        -- dont let player set equipment to false if target is player
         if equipment_type == false and model.get_target_type(fueler_unit) == "character" then
             return
         end
 
         model.set_equipment(fueler_unit, equipment_type)
-
         model.update_gui(player)
     end
 
-    if event.element.tags.action == "goto-informatron" then 
+    if event.element.tags.action == "goto-informatron" then
         remote.call("informatron", "informatron_open_to_page", {
             player_index = event.player_index,
             interface = "exotic-industries-fueler-informatron",
@@ -959,11 +1816,4 @@ function model.on_gui_click(event)
     end
 end
 
-
 return model
-
--- TODO
--- more UPS optimization
--- add character handling
--- add tech
--- add gui
