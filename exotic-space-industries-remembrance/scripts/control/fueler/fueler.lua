@@ -1548,7 +1548,7 @@ function model.on_built_entity(entity)
 end
 
 function model.on_destroyed_entity(entity, transfer)
-    if not entity or entity.unit_number == nil then
+    if not model.entity_check(entity) then
         return
     end
 
