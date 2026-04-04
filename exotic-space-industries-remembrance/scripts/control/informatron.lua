@@ -1,5 +1,15 @@
 local model = {}
 
+local function add_centered_sprite_row(element, sprites)
+    local image_container = element.add{type = "flow"}
+    image_container.style.horizontal_align = "center"
+    image_container.style.horizontally_stretchable = true
+
+    for _, sprite in ipairs(sprites) do
+        image_container.add{type = "sprite", sprite = sprite}
+    end
+end
+
 --====================================================================================================
 --INFORMATRON
 --====================================================================================================
@@ -29,14 +39,22 @@ function model.menu(player_index)
         game_related = {
             overall = 1,
             ages_and_tech = 1,
+            tech_scaling = 1,
+            nauvis_pressure_grace = 1,
+            rocket_launch_pollution = 1,
+            turrets = 1,
         },
         world_gen_related = {
             resources = 1,
+            mining_scars = 1,
+            asteroid_variants = 1,
+            fulgora_day_variation = 1,
             artifacts = 1,
             gate = 1,
         },
         new_logistics = {
             train_progression = 1,
+            em_trains = 1,
             orbital_scanner = 1,
             cranes_and_belts = 1,
             bots = 1,
@@ -45,6 +63,7 @@ function model.menu(player_index)
             beacon_overhaul = 1,
             specialised_pipes = 1,
             induction_matrix = 1,
+            teslas_legacy = 1,
             exotic_stabilizer = 1,
         },
         nuclear_fission_and_fusion = {
@@ -154,6 +173,73 @@ function model.ages_and_tech(player_index, element)
 
 end
 
+function model.tech_scaling(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.tech"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.tech-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.tech-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.tech-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.tech-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.tech-text-3"}}
+end
+
+function model.nauvis_pressure_grace(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.nauvis-pressure-grace"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.nauvis-pressure-grace-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.nauvis-pressure-grace-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.nauvis-pressure-grace-text-2"}}
+end
+
+function model.rocket_launch_pollution(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-launch-pollution"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-launch-pollution-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/rocket-silo",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-launch-pollution-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-launch-pollution-text-2"}}
+end
+
+function model.turrets(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-shotgun-turret",
+        "item/ei-auto-shotgun-turret",
+        "item/ei-acidthrower-turret",
+        "item/ei-cannon-turret-mk1",
+        "item/ei-cannon-turret",
+        "item/ei-gatling-turret",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text-3"}}
+
+    add_centered_sprite_row(element, {
+        "item/flamethrower-turret",
+        "item/laser-turret",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-4"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text-4"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-5"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text-5"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-plasma-turret",
+        "item/zeus-wrath-zeus-turret",
+    })
+end
+
 
 function model.world_gen_related(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.world-gen-related"}, style = "heading_1_label"}
@@ -167,30 +253,126 @@ function model.resources(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.surface-patches"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.surface-patches-text"}}
 
-    local surface_image_container = element.add{type = "flow"}
-    surface_image_container.style.horizontal_align = "center"
-    surface_image_container.style.horizontally_stretchable = true
-    surface_image_container.add{type = "sprite", sprite = "item/ei-poor-iron-chunk"}
-    surface_image_container.add{type = "sprite", sprite = "item/ei-poor-copper-chunk"}
-    surface_image_container.add{type = "sprite", sprite = "item/ei-poor-uranium-chunk"}
-    surface_image_container.add{type = "sprite", sprite = "item/coal"}
-    surface_image_container.add{type = "sprite", sprite = "item/stone"}
-    surface_image_container.add{type = "sprite", sprite = "fluid/crude-oil"}
+    add_centered_sprite_row(element, {
+        "item/ei-poor-iron-chunk",
+        "item/ei-poor-copper-chunk",
+        "item/ei-poor-uranium-chunk",
+        "item/coal",
+        "item/stone",
+        "fluid/crude-oil",
+    })
 
     element.add{type = "label", caption = {"exotic-industries-informatron.veins"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.veins-text"}}
 
-    local vein_image_container = element.add{type = "flow"}
-    vein_image_container.style.horizontal_align = "center"
-    vein_image_container.style.horizontally_stretchable = true
-    vein_image_container.add{type = "sprite", sprite = "item/ei-iron-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-copper-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-coal-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-sulfur-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-lead-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-gold-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-uranium-chunk"}
-    vein_image_container.add{type = "sprite", sprite = "item/ei-neodym-chunk"}
+    add_centered_sprite_row(element, {
+        "item/ei-iron-chunk",
+        "item/ei-copper-chunk",
+        "item/ei-coal-chunk",
+        "item/ei-sulfur-chunk",
+        "item/ei-lead-chunk",
+        "item/ei-gold-chunk",
+        "item/ei-uranium-chunk",
+        "item/ei-neodym-chunk",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.chunk-grades"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.chunk-grades-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-poor-iron-chunk",
+        "item/ei-poor-copper-chunk",
+        "item/ei-poor-uranium-chunk",
+        "item/ei-iron-chunk",
+        "item/ei-copper-chunk",
+        "item/ei-uranium-chunk",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.chunk-refining"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.chunk-refining-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-purifier",
+        "item/ei-pure-iron",
+        "item/ei-pure-copper",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.chunk-refining-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.chunk-refining-text-2"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-arc-furnace",
+        "fluid/ei-molten-iron",
+        "fluid/ei-molten-copper",
+        "item/ei-plasma-heater",
+    })
+end
+
+function model.mining_scars(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-burner-quarry",
+        "item/ei-steam-quarry",
+        "item/ei-electric-quarry",
+        "item/big-mining-drill",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars-text-2"}}
+end
+
+function model.asteroid_variants(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.asteroid-variants"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.asteroid-variants-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-chemical-asteroid-chunk",
+        "item/ei-organic-asteroid-chunk",
+        "item/ei-rock-asteroid-chunk",
+        "item/ei-uranium-asteroid-chunk",
+        "item/ei-petrified-asteroid-chunk",
+        "item/ei-scrap-asteroid-chunk",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.chemical-asteroid"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.chemical-asteroid-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.organic-asteroid"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.organic-asteroid-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.rock-asteroid"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.rock-asteroid-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.uranium-asteroid"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.uranium-asteroid-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.petrified-asteroid"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.petrified-asteroid-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.scrap-asteroid"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.scrap-asteroid-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.asteroid-anomalies"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.asteroid-anomalies-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-neuro-reactive-residue",
+        "item/ei-sporeglass-heart",
+        "item/ei-gravity-braided-ore",
+        "item/ei-isotopic-ghost-shell",
+        "item/ei-chrono-fossil-shard",
+        "item/ei-worm-torn-relay-core",
+    })
+end
+
+function model.fulgora_day_variation(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.fulgora-day-variation"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.fulgora-day-variation-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.fulgora-day-variation-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.fulgora-day-variation-text-2"}}
 end
 
 function model.artifacts(player_index, element)
@@ -249,7 +431,7 @@ end
 
 function model.train_progression(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.train-progression"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.train-progression-text"}}
+    element.add{type = "label", caption = {"exotic-industries-informatron.train-progression-text-2"}}
 
     local image_container = element.add{type = "flow"}
     image_container.style.horizontal_align = "center"
@@ -258,6 +440,24 @@ function model.train_progression(player_index, element)
 
     element.add{type = "label", caption = {"exotic-industries-informatron.spidertron"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.spidertron-text"}}
+end
+
+function model.em_trains(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.em-trains"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei_charger",
+        "item/ei_em-locomotive",
+        "item/ei_em-cargo-wagon",
+        "item/ei_em-fluid-wagon",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-text-3"}}
 end
 
 function model.orbital_scanner(player_index, element)
@@ -285,10 +485,24 @@ function model.bots(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.bots"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.bots-text"}}
 
-    local image_container = element.add{type = "flow"}
-    image_container.style.horizontal_align = "center"
-    image_container.style.horizontally_stretchable = true
-    image_container.add{type = "sprite", sprite = "ei_robots"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.steam-bots"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.steam-bots-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/rp-steam-roboport",
+        "item/rp-steam-logistic-bot",
+        "item/rp-steam-construction-bot",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.steam-bots-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.steam-bots-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.bots-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.bots-text-2"}}
+
+    add_centered_sprite_row(element, {
+        "ei_robots",
+    })
 end
 
 
@@ -311,10 +525,21 @@ function model.specialised_pipes(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.specialised-pipes"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.specialised-pipes-text"}}
 
-    local image_container = element.add{type = "flow"}
-    image_container.style.horizontal_align = "center"
-    image_container.style.horizontally_stretchable = true
-    image_container.add{type = "sprite", sprite = "ei_pipes"}
+    add_centered_sprite_row(element, {
+        "ei_pipes",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.specialised-pipes-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.specialised-pipes-text-2"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-insulated-pipe",
+        "item/ei-insulated-underground-pipe",
+        "item/ei-insulated-tank",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.specialised-pipes-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.specialised-pipes-text-3"}}
 end
 
 function model.induction_matrix(player_index, element)
@@ -328,6 +553,27 @@ function model.induction_matrix(player_index, element)
 
     element.add{type = "label", caption = {"exotic-industries-informatron.induction-matrix-2"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.induction-matrix-2-text"}}
+end
+
+function model.teslas_legacy(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/tl-basic-tesla-coil",
+        "item/tl-advanced-tesla-coil",
+        "item/tesla-turret",
+        "item/tl-tesla-tank",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-3"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-4"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-4"}}
 end
 
 function model.exotic_stabilizer(player_index, element)
@@ -406,6 +652,22 @@ function model.page_content(page_name, player_index, element)
         model.ages_and_tech(player_index, element)
     end
 
+    if page_name == "tech_scaling" then
+        model.tech_scaling(player_index, element)
+    end
+
+    if page_name == "nauvis_pressure_grace" then
+        model.nauvis_pressure_grace(player_index, element)
+    end
+
+    if page_name == "rocket_launch_pollution" then
+        model.rocket_launch_pollution(player_index, element)
+    end
+
+    if page_name == "turrets" then
+        model.turrets(player_index, element)
+    end
+
     -- =======================================================
     if page_name == "world_gen_related" then
         model.world_gen_related(player_index, element)
@@ -413,6 +675,18 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "resources" then
         model.resources(player_index, element)
+    end
+
+    if page_name == "mining_scars" then
+        model.mining_scars(player_index, element)
+    end
+
+    if page_name == "asteroid_variants" then
+        model.asteroid_variants(player_index, element)
+    end
+
+    if page_name == "fulgora_day_variation" then
+        model.fulgora_day_variation(player_index, element)
     end
 
     if page_name == "repair" then
@@ -438,6 +712,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "train_progression" then
         model.train_progression(player_index, element)
+    end
+
+    if page_name == "em_trains" then
+        model.em_trains(player_index, element)
     end
 
     if page_name == "orbital_scanner" then
@@ -467,6 +745,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "induction_matrix" then
         model.induction_matrix(player_index, element)
+    end
+
+    if page_name == "teslas_legacy" then
+        model.teslas_legacy(player_index, element)
     end
 
     if page_name == "exotic_stabilizer" then

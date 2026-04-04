@@ -80,7 +80,7 @@ function model.open_gui(player)
           tooltip = {"exotic-industries.gui-open-informatron"},
           style = "frame_action_button",
           tags = {
-              parent_gui = "ei_rocket-silo-console",
+              parent_gui = "ei-fusion-reactor-console",
               action = "goto-informatron",
               page = "fusion_power"
           }
@@ -314,6 +314,12 @@ function model.update_recipe(player)
       "ei-fusion-F1__%s-F2__%s-TM__%s-FM__%s",
       fuel_1, fuel_2, temperature, injection_rate
   )
+  local current_recipe = entity.get_recipe and entity.get_recipe() or nil
+
+  if current_recipe and current_recipe.name == recipe then
+      return
+  end
+
   if prototypes.recipe[recipe] then
       entity.set_recipe(recipe)
       model.update_gui(player, {fuel_1, fuel_2, temperature, injection_rate})

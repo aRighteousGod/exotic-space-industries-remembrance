@@ -121,8 +121,14 @@ script.on_init(function(event)
     em_trains_gui.mark_dirty()
     ei_compat.check_init(event)
     orbital_combinator.check_init()
+    -- Steam train wheel helpers are runtime-only entities, so init always rebuilds that cache
+    -- from the live world instead of trusting whatever happened to be serialized last save.
+    ei_steam_train.check_global()
+    ei_steam_train.rebuild_runtime_state("init")
     ei_fueler.check_global()
     ei_fueler.rebuild_runtime_state("init")
+    ei_neutron_collector.check_global()
+    ei_neutron_collector.rebuild_runtime_state("init")
     ei_matter_stabilizer.check_global()
     ei_matter_stabilizer.rebuild_runtime_state("init")
     ei_echo_codex.handle_global_settings(event)
@@ -155,6 +161,12 @@ script.on_event({
 	defines.events.script_raised_destroy
     }, function(e)
     on_destroyed_entity(e)
+end)
+
+script.on_event(defines.events.on_train_changed_state, function(e)
+    -- Steam train wheel updates are active-set driven, so train state changes wake parked
+    -- locomotives back up before the next short-cadence wheel pass.
+    ei_steam_train.on_train_changed_state(e.train)
 end)
 
 script.on_event({
@@ -360,7 +372,10 @@ script.on_configuration_changed(function(e)
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
         em_trains.check_global() --no nil tables
+        -- Keep the steam train runtime schema migrated before the rebuild pass below repopulates it.
+        ei_steam_train.check_global()
         ei_fueler.check_global()
+        ei_neutron_collector.check_global()
         ei_matter_stabilizer.check_global()
 
         -- Clean up stale gate remote selection state to avoid crashes on save reload
@@ -382,7 +397,11 @@ script.on_configuration_changed(function(e)
         end
 
         em_trains.rebuild_runtime_state("configuration-changed")
+        -- Configuration changes can invalidate helper entities or runtime layout assumptions, so
+        -- the steam train system repairs itself from world state here.
+        ei_steam_train.rebuild_runtime_state("configuration-changed")
         ei_fueler.rebuild_runtime_state("configuration-changed")
+        ei_neutron_collector.rebuild_runtime_state("configuration-changed")
         ei_matter_stabilizer.rebuild_runtime_state("configuration-changed")
         --em_trains.update_rail_counts()
         em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
@@ -489,18 +508,13 @@ function updater(event)
             end
 
        elseif ei_update_step == 3 then
-           -- Step 3 advances neutron collectors against their registered source set.
-           if storage.ei and storage.ei["neutron_sources"] and ei_lib.getn(storage.ei["neutron_sources"]) then
-               updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei["neutron_sources"]) / divisor), ei_maxEntityUpdates))
-               end
-           for i = 1, updates_needed do
-               if storage.ei and storage.ei["neutron_sources"] and
-               math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei["neutron_sources"]) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                   goto skip
-                   end
-               if not ei_neutron_collector.update() then
-                goto skip
-               end
+           -- Step 3 spends neutron budget on two queues:
+           -- dirty collectors that need a full retarget/recompute, and connected sources
+           -- that still need low-lag active-state polling.
+           local neutron_work_count = ei_neutron_collector.get_pending_work_count()
+           if neutron_work_count > 0 then
+               updates_needed = math.max(1, math.min(math.ceil(neutron_work_count / divisor), ei_maxEntityUpdates))
+               ei_neutron_collector.update(updates_needed)
            end
 
        elseif ei_update_step == 4 then
@@ -719,7 +733,8 @@ function on_destroyed_entity(e)
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])
     ei_camp_fire.on_destroyed_entity(e)
-    --ei_steam_train.on_destroyed_entity(e["entity"])
+    -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
+    ei_steam_train.on_destroyed_entity(e["entity"])
 end
 
 function on_destroyed_tile(e)

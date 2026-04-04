@@ -1,4 +1,22 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.12
+  Bugfixes:
+    - JA locale no longer has invalid characters or duplicated categories preventing loading.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.11
+Date: 4-4-2026
+  Changes:
+    - Reworked neutron collector runtime around dirty collector refreshes and connected-source polling, removing steady-state scans of unpaired neutron sources and caching fusion recipe multipliers for improved UPS.
+    - Fusion reactor GUI now skips redundant recipe resets and nearby neutron collector refreshes when the selected settings already match the active recipe.
+    - Reworked steam train wheel runtime around unit-number indexed active queues, train-state wakeups, and spread audits so idle steam locomotives no longer pay the same steady-state update cost as moving ones; saves now rebuild the runtime automatically on init and configuration change.
+    - Added Informatron pages for the differentiated asteroids, the Fulgora day length variator, quarry and big mining drill scars, rocket launch pollution, defensive emplacements, EM locomotive quality effects, poor vs good vs pure chunks, and the Nauvis pressure grace startup setting.
+    - Updated non-English Informatron locales for the new pages and added Japanese locale coverage for them.
+  Bugfixes:
+    - Fixed that the Orbital combinator removal script might crash when an entity had already been deleted.
+    - Fixed neutron collectors retaining stale source links after retargeting or source teardown, which could let old sources keep toggling collectors and inflate steady-state update cost.
+    - Fixed the fusion reactor GUI Informatron button routing so it opens the reactor documentation page correctly.
+    - Fixed steam train wheel helper entities lingering after locomotive teardown or going missing after runtime drift by rebuilding or recreating them through the new steam train runtime repair path.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.10
 Date: 4-3-2026
   Bugfixes:

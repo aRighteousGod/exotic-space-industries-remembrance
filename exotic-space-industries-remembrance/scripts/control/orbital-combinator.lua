@@ -367,7 +367,7 @@ end
 
 
 function model.rem(entity)
-  if not entity or entity.name ~= ORBITAL_COMBINATOR_NAME or not entity.unit_number then
+  if not entity or not entity.valid or entity.name ~= ORBITAL_COMBINATOR_NAME or not entity.unit_number then
     return
   end
 

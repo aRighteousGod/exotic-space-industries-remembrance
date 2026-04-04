@@ -3,6 +3,18 @@ ei_lib = require("lib/lib")
 ei_echo_codex = require("lib/echo-codex")
 local ei_global = {}
 
+local function new_steam_train_runtime()
+    -- Steam trains maintain a full tracked set plus a smaller active queue for frequent wheel updates.
+    return {
+        locomotives_by_unit = {},
+        tracked_units = {},
+        tracked_index_by_unit = {},
+        active_units = {},
+        active_index_by_unit = {},
+        audit_cursor = 1
+    }
+end
+
 
 --====================================================================================================
 --GLOBAL VARIABLES
@@ -18,7 +30,7 @@ function ei_global.init()
 
     storage.ei["overload_icons"] = {}
     storage.ei["neutron_collector_animation"] = {}
-    storage.ei["neutron_sources"] = {}
+    storage.ei.neutron_runtime = {}
     storage.ei["spawner_queue"] = {}
     storage.ei["orbital_combinators"] = {}
     storage.ei.orbital_combinator_banks = {}
@@ -38,7 +50,8 @@ function ei_global.init()
     storage.ei.fluid_entity_count = 0
     storage.ei.arrival_waves = {}
     storage.ei.alien = {}
-    storage.ei.locomotives = {}
+    -- Initialize the indexed steam train runtime shape up front so new saves and migrated saves agree.
+    storage.ei.locomotives = new_steam_train_runtime()
     storage.ei.campfire = {}
     storage.ei.campfire_last_run_tick = 0
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
@@ -59,8 +72,10 @@ function ei_global.check_init(event)
     if not storage.ei.campfire_last_run_tick then
         storage.ei.campfire_last_run_tick = 0
     end
-    if not storage.ei.locomotives then
-        storage.ei.locomotives = {}
+    -- Older saves may still carry the legacy locomotive array, so rebuild the container if the
+    -- indexed fields are missing.
+    if not storage.ei.locomotives or not storage.ei.locomotives.locomotives_by_unit then
+        storage.ei.locomotives = new_steam_train_runtime()
     end
     if not storage.ei.rocket_launch_pollution then
         storage.ei.rocket_launch_pollution = {}
@@ -104,8 +119,8 @@ function ei_global.check_init(event)
         storage.ei["neutron_collector_animation"] = {}
     end
 
-    if not storage.ei["neutron_sources"] then
-        storage.ei["neutron_sources"] = {}
+    if not storage.ei.neutron_runtime then
+        storage.ei.neutron_runtime = {}
     end
 
     if not storage.ei["spawner_queue"] then
