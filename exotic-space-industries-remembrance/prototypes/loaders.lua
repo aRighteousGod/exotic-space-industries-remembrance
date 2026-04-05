@@ -16,6 +16,7 @@ data:extend({
         result = "ei-loader"
     },
     max_health = 300,
+    heating_energy = "75kW",
     corpse = "small-remnants",
     collision_box = {{-0.4, -0.45}, {0.4, 0.45}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},

@@ -106,6 +106,7 @@ script.on_init(function(event)
     -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
     ei_global.check_init(event)
+    ei_gate.on_init(event)
 
     -- Feature-level init comes after global storage so modules can safely register their
     -- own tables, caches, and migration state.
@@ -369,6 +370,7 @@ script.on_configuration_changed(function(e)
         -- init that depends on changed prototypes or settings.
         ei_global.check_init(e) --Crystal_echo will fail without global color table
         ei_compat.check_init(e)
+        ei_gate.on_configuration_changed(e)
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
         em_trains.check_global() --no nil tables

@@ -19,6 +19,30 @@ local RECEIVER_SATURATION_DECAY_PER_SECOND = 1.5
 local GATE_ARMED_UPKEEP_W = 30 * 1e6
 local GATE_STRESS_UPKEEP_W = 1.5 * 1e6
 local GATE_COOLDOWN_UPKEEP_W = 30 * 1e6
+local GATE_DISTANCE_SAME_SURFACE_MULT = 0.15
+local GATE_DISTANCE_SAME_LOCATION_CROSS_SURFACE_MULT = 2.5
+local GATE_DISTANCE_UNKNOWN_INTERSURFACE_MULT = 3.0
+local GATE_DISTANCE_INTERLOCATION_MIN_MULT = 2.5
+local GATE_DISTANCE_INTERLOCATION_MAX_MULT = 8.0
+local GATE_DISTANCE_INTERLOCATION_CURVE_EXPONENT = 0.6
+local GATE_TRANSFER_STRESS_CAP = 35
+local GATE_DISTANCE_STRESS_MAX_MULT = 1.75
+local GATE_TENDRIL_STRESS_FLOOR = 60
+local GATE_TENDRIL_MIN_INTERVAL_TICKS = 30
+local GATE_TENDRIL_CHANCE_PER_SECOND_AT_FLOOR = 0.1
+local GATE_TENDRIL_CHANCE_PER_SECOND_AT_MAX = 0.7
+local GATE_TENDRIL_TARGET_RADIUS = 18
+local GATE_TENDRIL_DAMAGE_MIN = 20
+local GATE_TENDRIL_DAMAGE_MAX = 65
+local GATE_TENDRIL_DAMAGE_RADIUS = 0.85
+local GATE_TENDRIL_SOURCE_OFFSETS = {
+    {x = -3.55, y = -2.95},
+    {x = -4.15, y = -0.85},
+    {x = -3.55, y = 1.25},
+    {x = 3.55, y = -2.95},
+    {x = 4.15, y = -0.85},
+    {x = 3.55, y = 1.25},
+}
 
 --====================================================================================================
 -- GATE
@@ -266,6 +290,451 @@ local function copy_localised_string(value)
 end
 
 
+local function lerp(minimum, maximum, ratio)
+    return minimum + ((maximum - minimum) * ratio)
+end
+
+
+local function make_space_location_label(location_name)
+    local prototype = prototypes and prototypes.space_location and prototypes.space_location[location_name]
+    if prototype and prototype.localised_name then
+        return prototype.localised_name
+    end
+
+    return location_name
+end
+
+
+local function make_surface_label(surface)
+    if not surface then
+        return {"exotic-industries.gate-gui-status-span-unresolved-anchor"}
+    end
+
+    if surface.localised_name then
+        return surface.localised_name
+    end
+
+    return surface.name
+end
+
+
+function model.rebuild_distance_cache()
+    model.check_global_init()
+
+    -- The distance cache is intentionally rebuilt only at load/config-change time.
+    -- Static starmap coordinates never need to be recomputed during normal gate updates,
+    -- and keeping this work out of the quote path lets moving-platform routes pay only for
+    -- their final interpolation step at runtime.
+    local cache = {
+        locations = {},
+        pair_distance = {},
+        max_pair_distance = 1,
+    }
+
+    local space_locations = prototypes and prototypes.space_location or {}
+    for location_name, prototype in pairs(space_locations) do
+        local position = prototype.position
+        if position and position.x ~= nil and position.y ~= nil then
+            cache.locations[location_name] = {
+                x = position.x,
+                y = position.y,
+            }
+            cache.pair_distance[location_name] = {}
+        end
+    end
+
+    -- Precompute the full pair matrix once so inter-location quotes become a table lookup.
+    for from_name, from_point in pairs(cache.locations) do
+        for to_name, to_point in pairs(cache.locations) do
+            if cache.pair_distance[from_name][to_name] == nil then
+                local dx = from_point.x - to_point.x
+                local dy = from_point.y - to_point.y
+                local raw_distance = math.sqrt((dx * dx) + (dy * dy))
+                cache.pair_distance[from_name][to_name] = raw_distance
+                cache.pair_distance[to_name][from_name] = raw_distance
+                if raw_distance > cache.max_pair_distance then
+                    cache.max_pair_distance = raw_distance
+                end
+            end
+        end
+    end
+
+    storage.ei.gate.distance_cache = cache
+    return cache
+end
+
+
+function model.ensure_distance_cache()
+    model.check_global_init()
+
+    local cache = storage.ei.gate.distance_cache
+    if not cache or type(cache) ~= "table" or type(cache.locations) ~= "table" or type(cache.pair_distance) ~= "table" then
+        cache = model.rebuild_distance_cache()
+    end
+
+    if not cache.max_pair_distance or cache.max_pair_distance <= 0 then
+        cache.max_pair_distance = 1
+    end
+
+    return cache
+end
+
+
+function model.get_surface_anchor(surface)
+    if not surface then
+        return nil
+    end
+
+    local cache = model.ensure_distance_cache()
+    local platform = surface.platform
+
+    if platform and platform.valid then
+        local connection = platform.space_connection
+        if connection and connection.valid then
+            local from_name = connection.from and connection.from.name
+            local to_name = connection.to and connection.to.name
+            local from_point = from_name and cache.locations[from_name]
+            local to_point = to_name and cache.locations[to_name]
+            local route_length = tonumber(connection.length) or 0
+            local route_distance = tonumber(platform.distance)
+
+            -- Moving platforms are priced from live route progress instead of simply snapping
+            -- to the orbit they most recently visited. This keeps gate cost understandable when
+            -- the receiver is in transit between two astronomical anchors.
+            if from_point and to_point and route_length > 0 and route_distance then
+                local progress = clamp(route_distance / route_length, 0, 1)
+                return {
+                    x = lerp(from_point.x, to_point.x, progress),
+                    y = lerp(from_point.y, to_point.y, progress),
+                    location_name = nil,
+                    label = {
+                        "",
+                        make_space_location_label(from_name),
+                        " -> ",
+                        make_space_location_label(to_name)
+                    }
+                }
+            end
+        end
+
+        local current_location = platform.space_location
+        if current_location and cache.locations[current_location.name] then
+            local point = cache.locations[current_location.name]
+            return {
+                x = point.x,
+                y = point.y,
+                location_name = current_location.name,
+                label = make_space_location_label(current_location.name)
+            }
+        end
+
+        local last_location = platform.last_visited_space_location
+        if last_location and cache.locations[last_location.name] then
+            local point = cache.locations[last_location.name]
+            return {
+                x = point.x,
+                y = point.y,
+                location_name = last_location.name,
+                label = make_space_location_label(last_location.name)
+            }
+        end
+    end
+
+    local planet = surface.planet
+    if planet and planet.valid and cache.locations[planet.name] then
+        local point = cache.locations[planet.name]
+        return {
+            x = point.x,
+            y = point.y,
+            location_name = planet.name,
+            label = make_space_location_label(planet.name)
+        }
+    end
+
+    if cache.locations[surface.name] then
+        local point = cache.locations[surface.name]
+        return {
+            x = point.x,
+            y = point.y,
+            location_name = surface.name,
+            label = make_space_location_label(surface.name)
+        }
+    end
+
+    return nil
+end
+
+
+function model.get_span_band(multiplier)
+    if multiplier <= GATE_DISTANCE_SAME_SURFACE_MULT then
+        return {"exotic-industries.gate-gui-span-band-local"}
+    end
+
+    if multiplier < 3.5 then
+        return {"exotic-industries.gate-gui-span-band-orbital"}
+    end
+
+    if multiplier <= 6.0 then
+        return {"exotic-industries.gate-gui-span-band-interplanetary"}
+    end
+
+    return {"exotic-industries.gate-gui-span-band-deep-space"}
+end
+
+
+function model.distance_multiplier_to_span_ratio(multiplier)
+    return clamp(
+        (multiplier - GATE_DISTANCE_SAME_SURFACE_MULT)
+            / (GATE_DISTANCE_INTERLOCATION_MAX_MULT - GATE_DISTANCE_SAME_SURFACE_MULT),
+        0,
+        1
+    )
+end
+
+
+function model.resolve_distance_quote(source_surface, target_surface)
+    -- Distance pricing is layered on top of cargo burden:
+    -- - same surface: almost free
+    -- - same astronomical anchor, different surface: large fixed floor
+    -- - different anchors: geometry-driven multiplier
+    --
+    -- The interpolation uses an ease-out curve instead of a raw linear ramp so outer planets
+    -- like Aquilo sit much closer to the high end even though the full cache still contains
+    -- farther destinations such as solar-system-edge style endpoints.
+    local default_result = {
+        raw_distance = 0,
+        distance_multiplier = 1,
+        span_ratio = 0,
+        source_anchor_name = make_surface_label(source_surface),
+        target_anchor_name = make_surface_label(target_surface),
+        span_band = {"exotic-industries.gate-gui-span-band-local"},
+        resolved = false,
+    }
+
+    if not source_surface or not target_surface then
+        return default_result
+    end
+
+    if source_surface.index == target_surface.index then
+        return {
+            raw_distance = 0,
+            distance_multiplier = GATE_DISTANCE_SAME_SURFACE_MULT,
+            span_ratio = model.distance_multiplier_to_span_ratio(GATE_DISTANCE_SAME_SURFACE_MULT),
+            source_anchor_name = make_surface_label(source_surface),
+            target_anchor_name = make_surface_label(target_surface),
+            span_band = {"exotic-industries.gate-gui-span-band-local"},
+            resolved = true,
+        }
+    end
+
+    local cache = model.ensure_distance_cache()
+    local source_anchor = model.get_surface_anchor(source_surface)
+    local target_anchor = model.get_surface_anchor(target_surface)
+
+    if not source_anchor or not target_anchor then
+        return {
+            raw_distance = 0,
+            distance_multiplier = GATE_DISTANCE_UNKNOWN_INTERSURFACE_MULT,
+            span_ratio = model.distance_multiplier_to_span_ratio(GATE_DISTANCE_UNKNOWN_INTERSURFACE_MULT),
+            source_anchor_name = source_anchor and source_anchor.label or make_surface_label(source_surface),
+            target_anchor_name = target_anchor and target_anchor.label or make_surface_label(target_surface),
+            span_band = model.get_span_band(GATE_DISTANCE_UNKNOWN_INTERSURFACE_MULT),
+            resolved = false,
+        }
+    end
+
+    if source_anchor.location_name
+    and target_anchor.location_name
+    and source_anchor.location_name == target_anchor.location_name then
+        return {
+            raw_distance = 0,
+            distance_multiplier = GATE_DISTANCE_SAME_LOCATION_CROSS_SURFACE_MULT,
+            span_ratio = model.distance_multiplier_to_span_ratio(GATE_DISTANCE_SAME_LOCATION_CROSS_SURFACE_MULT),
+            source_anchor_name = source_anchor.label,
+            target_anchor_name = target_anchor.label,
+            span_band = {"exotic-industries.gate-gui-span-band-orbital"},
+            resolved = true,
+        }
+    end
+
+    local raw_distance
+    if source_anchor.location_name and target_anchor.location_name then
+        raw_distance = cache.pair_distance[source_anchor.location_name]
+            and cache.pair_distance[source_anchor.location_name][target_anchor.location_name]
+    end
+
+    if raw_distance == nil then
+        local dx = source_anchor.x - target_anchor.x
+        local dy = source_anchor.y - target_anchor.y
+        raw_distance = math.sqrt((dx * dx) + (dy * dy))
+    end
+
+    local normalized_distance = clamp(raw_distance / cache.max_pair_distance, 0, 1)
+    normalized_distance = normalized_distance ^ GATE_DISTANCE_INTERLOCATION_CURVE_EXPONENT
+    local distance_multiplier = lerp(
+        GATE_DISTANCE_INTERLOCATION_MIN_MULT,
+        GATE_DISTANCE_INTERLOCATION_MAX_MULT,
+        normalized_distance
+    )
+
+    return {
+        raw_distance = raw_distance,
+        distance_multiplier = distance_multiplier,
+        span_ratio = model.distance_multiplier_to_span_ratio(distance_multiplier),
+        source_anchor_name = source_anchor.label,
+        target_anchor_name = target_anchor.label,
+        span_band = model.get_span_band(distance_multiplier),
+        resolved = true,
+    }
+end
+
+
+function model.get_gate_target_surface(gate_data)
+    if not gate_data then
+        return nil
+    end
+
+    if model.entity_check(gate_data.effective_target_entity) then
+        return gate_data.effective_target_entity.surface
+    end
+
+    local exit = gate_data.effective_exit or gate_data.legacy_exit
+    if exit and exit.surface then
+        return game.get_surface(exit.surface)
+    end
+
+    return nil
+end
+
+
+function model.update_distance_snapshot(gate, gate_data)
+    if not model.entity_check(gate) or not gate_data then
+        return nil
+    end
+
+    local target_surface = model.get_gate_target_surface(gate_data)
+    gate_data.distance_snapshot = model.resolve_distance_quote(gate.surface, target_surface)
+    return gate_data.distance_snapshot
+end
+
+
+local function get_gate_tendril_source_position(gate)
+    local pick = GATE_TENDRIL_SOURCE_OFFSETS[math.random(1, #GATE_TENDRIL_SOURCE_OFFSETS)]
+    return {
+        x = gate.position.x + pick.x,
+        y = gate.position.y + pick.y
+    }
+end
+
+
+local function get_gate_tendril_target_position(gate)
+    -- Sample inside the same broad footprint as the gate glow so the arcs feel like
+    -- local instability around the machine rather than long-range artillery fire.
+    local angle = math.random() * math.pi * 2
+    local radius = math.sqrt(math.random()) * GATE_TENDRIL_TARGET_RADIUS
+    return {
+        x = gate.position.x + (math.cos(angle) * radius),
+        y = gate.position.y + (math.sin(angle) * radius)
+    }
+end
+
+
+local function get_tendril_damage_amount(stress)
+    local normalized = clamp((stress - GATE_TENDRIL_STRESS_FLOOR) / (MAX_GATE_STRESS - GATE_TENDRIL_STRESS_FLOOR), 0, 1)
+    return lerp(GATE_TENDRIL_DAMAGE_MIN, GATE_TENDRIL_DAMAGE_MAX, normalized)
+end
+
+
+local function entity_can_take_health_damage(entity)
+    if not entity or not entity.valid then
+        return false
+    end
+
+    local ok, health = pcall(function()
+        return entity.health
+    end)
+
+    return ok and health ~= nil
+end
+
+
+function model.emit_stress_tendril(gate, gate_data, event)
+    if not model.entity_check(gate) or not gate_data then
+        return
+    end
+
+    local stress = gate_data.stress or 0
+    if stress < GATE_TENDRIL_STRESS_FLOOR then
+        gate_data.last_tendril_roll_tick = ei_lib.get_event_tick(event)
+        return
+    end
+
+    local current_tick = ei_lib.get_event_tick(event)
+    local last_roll_tick = gate_data.last_tendril_roll_tick or current_tick
+    local elapsed_ticks = math.max(0, current_tick - last_roll_tick)
+    gate_data.last_tendril_roll_tick = current_tick
+
+    if elapsed_ticks <= 0 then
+        return
+    end
+
+    if current_tick < ((gate_data.last_tendril_strike_tick or -GATE_TENDRIL_MIN_INTERVAL_TICKS) + GATE_TENDRIL_MIN_INTERVAL_TICKS) then
+        return
+    end
+
+    local normalized = clamp((stress - GATE_TENDRIL_STRESS_FLOOR) / (MAX_GATE_STRESS - GATE_TENDRIL_STRESS_FLOOR), 0, 1)
+    local chance_per_second = lerp(GATE_TENDRIL_CHANCE_PER_SECOND_AT_FLOOR, GATE_TENDRIL_CHANCE_PER_SECOND_AT_MAX, normalized)
+    local roll_chance = clamp(chance_per_second * (elapsed_ticks / 60), 0, 1)
+
+    if math.random() > roll_chance then
+        return
+    end
+
+    local source_position = get_gate_tendril_source_position(gate)
+    local target_position = get_gate_tendril_target_position(gate)
+
+    gate.surface.create_entity{
+        name = "electric-beam-no-sound",
+        position = source_position,
+        source = source_position,
+        target = target_position,
+        duration = 18,
+        force = gate.force
+    }
+
+    gate.surface.create_trivial_smoke{
+        name = "electric-smoke",
+        position = target_position
+    }
+    gate.surface.create_trivial_smoke{
+        name = "electric-smoke",
+        position = {
+            x = target_position.x + ((math.random() - 0.5) * 0.6),
+            y = target_position.y + ((math.random() - 0.5) * 0.6)
+        }
+    }
+
+    local damage_amount = get_tendril_damage_amount(stress)
+    local victims = gate.surface.find_entities_filtered{
+        position = target_position,
+        radius = GATE_TENDRIL_DAMAGE_RADIUS
+    }
+
+    for _, victim in ipairs(victims) do
+        if victim.valid
+        and victim ~= gate
+        and victim ~= gate_data.container
+        and victim ~= gate_data.wire_proxy
+        and victim.name ~= "ei-gate-receiver"
+        and entity_can_take_health_damage(victim) then
+            victim.damage(damage_amount, game.forces.neutral, "electric")
+        end
+    end
+
+    gate_data.last_tendril_strike_tick = current_tick
+end
+
+
 function model.make_item_with_quality_id(item_stack)
     if not item_stack or not item_stack.valid_for_read then
         return nil
@@ -396,6 +865,14 @@ function model.ensure_gate_defaults(gate_unit, event)
 
     if gate_data.wire_proxy_wired == nil then
         gate_data.wire_proxy_wired = false
+    end
+
+    if gate_data.last_tendril_roll_tick == nil then
+        gate_data.last_tendril_roll_tick = ei_lib.get_event_tick(event)
+    end
+
+    if gate_data.last_tendril_strike_tick == nil then
+        gate_data.last_tendril_strike_tick = -GATE_TENDRIL_MIN_INTERVAL_TICKS
     end
 
     gate_data.state = gate_data.manual_enabled
@@ -629,7 +1106,11 @@ end
 -- - stress / cooldown / residue penalties
 -- Keeping these values together avoids the old mismatch where the gate could reason about one
 -- transfer size and end up paying for a different one.
-function model.quote_transfer(entries)
+--
+-- Distance affects energy and gate stress, but receiver saturation and residue stay tied to
+-- physical burden. That keeps long-span transfers feeling harsher on the breach itself without
+-- making every remote receiver saturate purely because it lives far away.
+function model.quote_transfer(entries, source_surface, target_surface)
     local total_count = 0
     for _, entry in ipairs(entries) do
         if type(entry) == "table" and entry.count then
@@ -638,12 +1119,25 @@ function model.quote_transfer(entries)
     end
 
     local burden = model.measure_transfer_burden(entries)
+    local distance_quote = model.resolve_distance_quote(source_surface, target_surface)
+    local base_energy = model.energy_from_burden(burden)
+    local distance_multiplier = distance_quote and distance_quote.distance_multiplier or 1
+    local span_ratio = distance_quote and distance_quote.span_ratio or 0
+    local base_stress = math.sqrt(math.max(burden, 0))
+    local stress_multiplier = lerp(1, GATE_DISTANCE_STRESS_MAX_MULT, span_ratio)
 
     return {
         count = total_count,
         burden = burden,
-        energy_j = model.energy_from_burden(burden),
-        stress_delta = math.min(25, math.sqrt(math.max(burden, 0))),
+        base_energy_j = base_energy,
+        raw_distance = distance_quote.raw_distance or 0,
+        distance_multiplier = distance_multiplier,
+        span_ratio = span_ratio,
+        source_anchor_name = distance_quote.source_anchor_name,
+        target_anchor_name = distance_quote.target_anchor_name,
+        span_band = distance_quote.span_band,
+        energy_j = math.floor(base_energy * distance_multiplier),
+        stress_delta = math.min(GATE_TRANSFER_STRESS_CAP, base_stress * stress_multiplier),
         saturation_delta = math.min(20, math.sqrt(math.max(burden, 0)) * 0.8),
         residue_delta = burden,
     }
@@ -1539,6 +2033,7 @@ function model.resolve_gate_target(gate, event)
     gate_data.effective_exit = resolved_target.exit
     gate_data.effective_receiver_id = resolved_target.receiver_id
     gate_data.manual_target_conflicted = manual_target.conflicted
+    model.update_distance_snapshot(gate, gate_data)
 
     return gate_data
 
@@ -1726,6 +2221,7 @@ function model.check_for_teleport(unit, gate, event)
 
     local target_inv = exit_container.get_inventory(defines.inventory.chest)
     if not target_inv or target_inv.is_full() then return end
+    local target_surface = exit_container.surface
 
     local success = false
 
@@ -1740,13 +2236,13 @@ function model.check_for_teleport(unit, gate, event)
             local movable_count = math.min(item_count, ok and insertable_count or item_count)
             if movable_count > 0 then
                 local transfer_stack = model.make_item_stack_definition(item_stack, movable_count)
-                local quote = model.quote_transfer({{name = item_name, count = movable_count}})
+                local quote = model.quote_transfer({{name = item_name, count = movable_count}}, gate.surface, target_surface)
                 if transfer_stack and model.can_pay_quote(gate, quote) then
                     local transfer_count = target_inv.insert(transfer_stack)
                     if transfer_count > 0 then
                         local actual_quote = quote
                         if transfer_count ~= movable_count then
-                            actual_quote = model.quote_transfer({{name = item_name, count = transfer_count}})
+                            actual_quote = model.quote_transfer({{name = item_name, count = transfer_count}}, gate.surface, target_surface)
                         end
 
                         if model.commit_quote(gate, actual_quote) then
@@ -1843,7 +2339,9 @@ end
 -- relies on the static mass table and the quote helpers above so energy, stress, and residue all
 -- derive from the same measured transfer.
 function model.pay_energy(gate, tablein, actuallypay)
-    local quote = model.quote_transfer(tablein)
+    local gate_data = gate and storage.ei.gate.gate[gate.unit_number]
+    local target_surface = gate_data and model.get_gate_target_surface(gate_data) or nil
+    local quote = model.quote_transfer(tablein, gate and gate.surface or nil, target_surface)
 
     if not actuallypay then
         return model.can_pay_quote(gate, quote)
@@ -2084,6 +2582,10 @@ function model.update_renders(unit, gate, event)
         end
     else
         model.render_animation(gate, event)
+        -- High stress can leak out as short-range electrical tendrils around the gate body.
+        -- These are purely local hazards: they stay inside the glow footprint, originate from
+        -- the six outer cylinder extensions, and only roll while the gate is actually active.
+        model.emit_stress_tendril(gate, storage.ei.gate.gate[unit], event)
     end
 
 end
@@ -2113,6 +2615,7 @@ function model.get_gui_elements(player)
     local elements = {
         root = root,
         energy = status_flow and status_flow["energy"],
+        span = status_flow and status_flow["span"],
         stress = status_flow and status_flow["stress"],
         dropdown = dropdown_flow and dropdown_flow["receiver"],
         legacy_status = target_flow and target_flow["legacy-status"],
@@ -2127,6 +2630,9 @@ function model.get_gui_elements(player)
         return nil
     end
     if not (elements.energy and elements.energy.valid) then
+        return nil
+    end
+    if not (elements.span and elements.span.valid) then
         return nil
     end
     if not (elements.stress and elements.stress.valid) then
@@ -2244,6 +2750,13 @@ function model.build_gui(player, gate)
             caption = {"exotic-industries.gate-gui-status-energy", 0},
             tooltip = {"exotic-industries.gate-gui-status-energy-tooltip"},
             style = "ei_status_progressbar"
+        }
+        status_flow.add{
+            type = "progressbar",
+            name = "span",
+            caption = {"exotic-industries.gate-gui-status-span-unresolved"},
+            tooltip = {"exotic-industries.gate-gui-status-span-tooltip-unresolved"},
+            style = "ei_status_progressbar_purple"
         }
         status_flow.add{
             type = "progressbar",
@@ -2403,6 +2916,7 @@ function model.update_gui(player, data, ontick, gate)
     end
 
     local energy = gui.energy
+    local span = gui.span
     local stress = gui.stress
     local dropdown = gui.dropdown
     local legacy_status = gui.legacy_status
@@ -2416,6 +2930,9 @@ function model.update_gui(player, data, ontick, gate)
     -- poking back into storage except when it needs to rebuild a stale GUI shell.
     energy.caption = {"exotic-industries.gate-gui-status-energy", string.format("%.0f", data.energy/1000000)}
     energy.value = data.energy / data.max_energy
+    span.caption = data.span_caption
+    span.tooltip = data.span_tooltip
+    span.value = data.span_value
     stress.caption = {"exotic-industries.gate-gui-status-stress", data.stress}
     stress.value = data.stress_ratio
 
@@ -2610,6 +3127,27 @@ function model.get_data(gate, event)
     data.stress = math.floor((gate_data.stress or 0) + 0.5)
     data.stress_ratio = clamp((gate_data.stress or 0) / MAX_GATE_STRESS, 0, 1)
 
+    local span_data = gate_data.distance_snapshot or model.update_distance_snapshot(gate, gate_data)
+    if span_data and (span_data.resolved or model.get_gate_target_surface(gate_data)) then
+        data.span_caption = {
+            "exotic-industries.gate-gui-status-span",
+            span_data.span_band or {"exotic-industries.gate-gui-span-band-local"},
+            string.format("%.2f", span_data.distance_multiplier or 1)
+        }
+        data.span_tooltip = {
+            "exotic-industries.gate-gui-status-span-tooltip",
+            span_data.source_anchor_name or make_surface_label(gate.surface),
+            span_data.target_anchor_name or {"exotic-industries.gate-gui-status-span-unresolved-anchor"},
+            string.format("%.1f", span_data.raw_distance or 0),
+            string.format("%.2f", span_data.distance_multiplier or 1)
+        }
+        data.span_value = span_data.span_ratio or 0
+    else
+        data.span_caption = {"exotic-industries.gate-gui-status-span-unresolved"}
+        data.span_tooltip = {"exotic-industries.gate-gui-status-span-tooltip-unresolved"}
+        data.span_value = 0
+    end
+
     local receiver_items = {
         {"exotic-industries.gate-gui-no-receivers"}
     }
@@ -2742,6 +3280,17 @@ end
 
 --HANDLERS
 -----------------------------------------------------------------------------------------------------
+
+function model.on_init(event)
+    model.check_global_init()
+    model.rebuild_distance_cache()
+end
+
+
+function model.on_configuration_changed(event)
+    model.check_global_init()
+    model.rebuild_distance_cache()
+end
 
 function model.on_built_entity(event)
 
