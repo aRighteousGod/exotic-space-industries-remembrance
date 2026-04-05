@@ -174,9 +174,15 @@ function model.update_fluid_storages()
         if incompatible_name and pipe.localised_name then
             --incompatible_name = {"fluid-name."..incompatible_name..""} or incompatible_name
             --incompatible_prototype = prototypes.fluid[incompatible_name]
-            game.print({ "exotic-industries.incompatible-pipe-1", incompatible_name, pipe.localised_name, pipe.gps_tag })
+            ei_lib.notify_connected_players(
+                "insulated_pipe",
+                { "exotic-industries.incompatible-pipe-1", incompatible_name, pipe.localised_name, pipe.gps_tag }
+            )
         else
-            game.print({ "exotic-industries.incompatible-pipe-2", pipe.name, pipe.gps_tag })
+            ei_lib.notify_connected_players(
+                "insulated_pipe",
+                { "exotic-industries.incompatible-pipe-2", pipe.name, pipe.gps_tag }
+            )
         end
         local pos = pipe.position
         ei_lib.crystal_echo_floating("❌ Incompatible pipe", pipe, 6000, "wrath")

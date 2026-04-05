@@ -392,6 +392,34 @@ data:extend({
       default_value = true,
       order  = "c1g5",
   },
+  {
+      name = "ei-gate-notifications",
+      type = "bool-setting",
+      setting_type = "runtime-per-user",
+      default_value = true,
+      order  = "e1",
+  },
+  {
+      name = "ei-black-hole-notifications",
+      type = "bool-setting",
+      setting_type = "runtime-per-user",
+      default_value = true,
+      order  = "e2",
+  },
+  {
+      name = "ei-matter-machine-notifications",
+      type = "bool-setting",
+      setting_type = "runtime-per-user",
+      default_value = true,
+      order  = "e3",
+  },
+  {
+      name = "ei-insulated-pipe-notifications",
+      type = "bool-setting",
+      setting_type = "runtime-per-user",
+      default_value = true,
+      order  = "e4",
+  },
   --this was used before the cyclic per tick entity updater was made
     {
         name = "ei_fueler_max_updates_per_tick",

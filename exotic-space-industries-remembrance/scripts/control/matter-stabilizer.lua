@@ -1133,7 +1133,10 @@ function model.update_matter_machine(machine_data)
     model.update_machine_presentation(runtime, machine_data, risk_tier, risk_per_second_estimate, active_stabilizers)
 
     if math.random() < chance then
-        game.print({"exotic-industries.exotic-assembler-explode", entity.name, entity.gps_tag})
+        ei_lib.notify_connected_players(
+            "matter_machine",
+            {"exotic-industries.exotic-assembler-explode", entity.name, entity.gps_tag}
+        )
         ei_lib.crystal_echo_floating("Containment Breach: Rationality Compromised.", entity, 6000, nil)
         entity.surface.create_entity{
             name = "ei-matter-explosion",

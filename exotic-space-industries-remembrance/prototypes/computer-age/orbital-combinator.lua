@@ -9,7 +9,7 @@ local remnants =
     type = "corpse",
     se_allow_in_space = true,
     name = "ei-orbital-combinator-remnants",
-    icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
+    icon = ei_path.."graphics/icons/orbital-request-combinator.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = {"placeable-neutral", "not-on-map"},
     subgroup = "circuit-network-remnants",
@@ -23,15 +23,16 @@ local remnants =
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet (1,
     {
-      filename = ei_graphics_2_path.."graphics/orbital-combinator/remnants.png",
+      filename = ei_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator-remnants.png",
       line_length = 1,
-      width = 60,
-      height = 56,
+      width = 118,
+      height = 112,
       frame_count = 1,
       variation_count = 1,
       axially_symmetrical = false,
       direction_count = 4,
       shift = util.by_pixel(0, 0),
+      scale = 0.5,
     })
   },
 }
@@ -54,18 +55,20 @@ function OrbitalCombinator(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = ei_graphics_2_path.."graphics/orbital-combinator/entity.png",
-          width = 58,
-          height = 52,
+          filename = ei_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator.png",
+          width = 114,
+          height = 102,
           frame_count = 1,
           shift = util.by_pixel(0, 5),
+          scale = 0.5,
         },
         {
-          filename = "__base__/graphics/entity/combinator/constant-combinator-shadow.png",
-          width = 50,
-          height = 34,
+          filename = ei_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator-shadow.png",
+          width = 98,
+          height = 66,
           frame_count = 1,
-          shift = util.by_pixel(9, 6),
+          shift = util.by_pixel(8.5, 5.5),
+          scale = 0.5,
           draw_as_shadow = true,
         }
       }
@@ -75,38 +78,43 @@ function OrbitalCombinator(combinator)
     north = util.draw_as_glow
     {
       filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-N.png",
-      width = 8,
-      height = 6,
+      width = 14,
+      height = 12,
       frame_count = 1,
-      shift = util.by_pixel(9, -12),
+      shift = util.by_pixel(9, -11.5),
+      scale = 0.5,
     },
     east = util.draw_as_glow
     {
       filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-E.png",
-      width = 8,
-      height = 8,
+      width = 14,
+      height = 14,
       frame_count = 1,
-      shift = util.by_pixel(8, 0),
+      shift = util.by_pixel(7.5, -0.5),
+      scale = 0.5,
     },
     south = util.draw_as_glow
     {
       filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-S.png",
-      width = 8,
-      height = 8,
+      width = 14,
+      height = 16,
       frame_count = 1,
-      shift = util.by_pixel(-9, 2),
+      shift = util.by_pixel(-9, 2.5),
+      scale = 0.5,
     },
     west = util.draw_as_glow
     {
       filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-W.png",
-      width = 8,
-      height = 8,
+      width = 14,
+      height = 16,
       frame_count = 1,
       shift = util.by_pixel(-7, -15),
+      scale = 0.5,
     }
   }
   combinator.circuit_wire_connection_points =
   {
+    -- north
     {
       shadow =
       {
@@ -115,10 +123,11 @@ function OrbitalCombinator(combinator)
       },
       wire =
       {
-        red = util.by_pixel(-8.5, -17.5),
-        green = util.by_pixel(7, -17.5)
+        red = util.by_pixel(-8.5, -14.5),
+        green = util.by_pixel(7, -14.5)
       }
     },
+    -- east
     {
       shadow =
       {
@@ -127,10 +136,11 @@ function OrbitalCombinator(combinator)
       },
       wire =
       {
-        red = util.by_pixel(16, -16.5),
-        green = util.by_pixel(16, -3.5)
+        red = util.by_pixel(15, -13.5),
+        green = util.by_pixel(17.5, -0.5)
       }
     },
+    -- south
     {
       shadow =
       {
@@ -139,10 +149,11 @@ function OrbitalCombinator(combinator)
       },
       wire =
       {
-        red = util.by_pixel(9, 7.5),
-        green = util.by_pixel(-6.5, 7.5)
+        red = util.by_pixel(9, 9.5),
+        green = util.by_pixel(-6, 9.5)
       }
     },
+    -- west
     {
       shadow =
       {
@@ -151,8 +162,8 @@ function OrbitalCombinator(combinator)
       },
       wire =
       {
-        red = util.by_pixel(-15, -0.5),
-        green = util.by_pixel(-15, -13.5)
+        red = util.by_pixel(-14, 3.5),
+        green = util.by_pixel(-16, -10.5)
       }
     }
   }
@@ -167,7 +178,7 @@ data:extend
     type = "constant-combinator",
     se_allow_in_space = true,
     name = "ei-orbital-combinator",
-    icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
+    icon = ei_path.."graphics/icons/orbital-request-combinator.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 0.1, result = "ei-orbital-combinator"},
@@ -189,7 +200,7 @@ data:extend
     {
       intensity = 0,
       size = 1,
-      color = {r = 1.0, g = 1.0, b = 1.0}
+      color = {r = 1.0, g = 0.5, b = 0.0}
     },
 
     activity_led_light_offsets =
@@ -207,7 +218,7 @@ data:extend
     name = "ei-orbital-overflow",
     icons = {
       {
-        icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
+        icon = ei_path.."graphics/icons/orbital-request-combinator.png",
         icon_size = 64,
       },
       {
@@ -227,7 +238,7 @@ data:extend
     type = "item",
     se_allow_in_space = true,
     name = "ei-orbital-combinator",
-    icon = ei_graphics_2_path.."graphics/orbital-combinator/icon.png",
+    icon = ei_path.."graphics/icons/orbital-request-combinator.png",
     icon_size = 64, icon_mipmaps = 4,
     subgroup = "circuit-network",
     place_result="ei-orbital-combinator",

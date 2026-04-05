@@ -33,3 +33,5 @@ auto shotgun turret from Factorio+ by fishbus
 gatling turret from additionalturrets by DarkNova
 
 bio oil by Kil_Jaeden
+
+orbital request combinator icon from Orbital Request Combinator by @Skjolbir

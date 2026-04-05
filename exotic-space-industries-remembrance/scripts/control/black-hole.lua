@@ -491,7 +491,11 @@ function model.check_battery(black_hole_data, entity, event)
         ei_lib.crystal_echo_floating("WARNING: Black hole containment failure!",entity,6000,nil)
 
         -- also print chat message
-        ei_lib.crystal_echo("WARNING: Black hole containment failure at "..entity.position.x..", "..entity.position.y.."!","default-bold",game.connected_players,nil,nil,nil,nil,nil)
+        ei_lib.notify_connected_players(
+            "black_hole",
+            "WARNING: Black hole containment failure at "..entity.position.x..", "..entity.position.y.."!",
+            {mode = "crystal_echo", font = "default-bold"}
+        )
     end
 
 end

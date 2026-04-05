@@ -1,4 +1,11 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.14
+Date: 4-4-2026
+  Features:
+    - Black hole generator, Gate, Matter stabilizer, and Insulated pipe global messages now have per-user runtime settings to control whether they are received.
+  Changes:
+    - Orbital request combinator now features custom icon from (incidentally identically named) Orbital Request Combinator by @Skjolbir.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.13
 Date: 4-4-2026
   Bugfixes:

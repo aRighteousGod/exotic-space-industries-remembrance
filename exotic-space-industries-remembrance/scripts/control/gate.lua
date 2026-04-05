@@ -1802,7 +1802,10 @@ function model.find_container(gate, surface, position, print_out, event)
         gate_data.manual_receiver_id = nil
 
         if print_out then
-            game.print({"exotic-industries.gate-exit-container-set", surface.name, position.x, position.y, container.name})
+            ei_lib.notify_connected_players(
+                "gate",
+                {"exotic-industries.gate-exit-container-set", surface.name, position.x, position.y, container.name}
+            )
         end
     else
         gate_data.exit_container = nil
@@ -1815,7 +1818,10 @@ function model.find_container(gate, surface, position, print_out, event)
         gate_data.manual_receiver_id = nil
 
         if print_out then
-            game.print({"exotic-industries.gate-exit-set", surface.name, position.x, position.y})
+            ei_lib.notify_connected_players(
+                "gate",
+                {"exotic-industries.gate-exit-set", surface.name, position.x, position.y}
+            )
         end
         model.refresh_gate_live_state(gate, event)
         return false
@@ -1913,7 +1919,10 @@ function model.update_energy(unit, gate, event)
     local wants_power = gate_data.effective_enabled and model.entity_check(gate_data.effective_target_entity)
     if gate.energy < LOW_POWER_J then
         if wants_power and not gate_data.last_low_power then
-            game.print({"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name})
+            ei_lib.notify_connected_players(
+                "gate",
+                {"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name}
+            )
         end
         gate_data.last_low_power = wants_power
     else
@@ -2510,7 +2519,10 @@ function model.toggle_state(player, gate_unit, event)
     gate_data.state = gate_data.manual_enabled
 
     if gate_data.manual_enabled and gate.energy < LOW_POWER_J then
-        game.print({"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name})
+        ei_lib.notify_connected_players(
+            "gate",
+            {"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name}
+        )
     end
 
     model.refresh_gate_live_state(gate, event)

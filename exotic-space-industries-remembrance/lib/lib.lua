@@ -1881,5 +1881,83 @@ function ei_lib.crystal_echo_floating(msg, target, floating_timetolive, intent, 
     ei_lib.crystal_echo(msg, nil, target, tint or nil, nil, intent or nil, true, floating_timetolive)
 end
 
+ei_lib.notification_setting_names = {
+    gate = "ei-gate-notifications",
+    black_hole = "ei-black-hole-notifications",
+    matter_machine = "ei-matter-machine-notifications",
+    insulated_pipe = "ei-insulated-pipe-notifications"
+}
+
+local function resolve_notification_player(player_or_index)
+    if type(player_or_index) == "number" then
+        return game and game.get_player(player_or_index) or nil
+    end
+
+    return player_or_index
+end
+
+function ei_lib.get_player_setting_value(player_or_index, setting_name, default_value)
+    local fallback = default_value
+    if fallback == nil then
+        fallback = true
+    end
+
+    if not settings or not settings.get_player_settings then
+        return fallback
+    end
+
+    local player = resolve_notification_player(player_or_index)
+    if not player or not player.valid then
+        return fallback
+    end
+
+    local ok, player_settings = pcall(settings.get_player_settings, player)
+    if not ok or not player_settings then
+        return fallback
+    end
+
+    local setting = player_settings[setting_name]
+    if not setting or setting.value == nil then
+        return fallback
+    end
+
+    return setting.value
+end
+
+function ei_lib.player_allows_notification(player_or_index, notification_kind)
+    local setting_name = ei_lib.notification_setting_names[notification_kind] or notification_kind
+    return ei_lib.get_player_setting_value(player_or_index, setting_name, true)
+end
+
+-- Route gameplay notifications through connected players so each player can opt in or out per
+-- system without changing the message call sites across the control scripts.
+function ei_lib.notify_connected_players(notification_kind, message, options)
+    if not game or not game.connected_players then
+        return
+    end
+
+    options = options or {}
+    local mode = options.mode or "print"
+
+    for _, player in pairs(game.connected_players) do
+        if player and player.valid and ei_lib.player_allows_notification(player, notification_kind) then
+            if mode == "crystal_echo" and type(message) == "string" then
+                ei_lib.crystal_echo(
+                    message,
+                    options.font,
+                    player.index,
+                    options.tint,
+                    options.force_full_tint,
+                    options.intent,
+                    options.as_floating_text,
+                    options.floating_timetolive
+                )
+            else
+                player.print(message)
+            end
+        end
+    end
+end
+
 
 return ei_lib
