@@ -4,12 +4,12 @@ local gaia_biomes = require("__exotic-space-industries-remembrance__/prototypes/
 local gaia_decorative_settings = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/decoratives")
 
 local gaia_patch_controls = {
-    ["ei-morphium-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-phytogas-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-cryoflux-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-ammonia-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-coal-gas-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["scrap"] = {frequency = 0.05, richness = 0.05, size = 0.05},
+    ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
+    ["ei-phytogas-patch"] = {frequency = 2.4, size = 1.15, richness = 0.95},
+    ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
+    ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
+    ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
+    ["ei-gaia-relic-debris"] = {frequency = 0.14, richness = 0.2, size = 0.12},
 }
 
 local gaia_entity_settings = table.deepcopy(gaia_patch_controls)

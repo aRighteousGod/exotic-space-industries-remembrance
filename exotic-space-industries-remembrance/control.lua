@@ -35,6 +35,7 @@ ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_
 local ei_tech_scaling = require("scripts/control/tech-scaling")
 local ei_global = require("scripts/control/global")
 ei_register = require("scripts/control/register-util")
+local ei_teslas_legacy = require("scripts/control/teslas-legacy")
 ei_powered_beacon = require("scripts/control/powered-beacon")
 ei_beacon_overload = require("scripts/control/beacon-overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
@@ -106,6 +107,7 @@ script.on_init(function(event)
     -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
     ei_global.check_init(event)
+    ei_teslas_legacy.on_init(event)
     ei_gate.on_init(event)
 
     -- Feature-level init comes after global storage so modules can safely register their
@@ -161,7 +163,17 @@ script.on_event({
 	defines.events.on_robot_pre_mined,
 	defines.events.script_raised_destroy
     }, function(e)
+    if e.name == defines.events.on_entity_died then
+        ei_teslas_legacy.on_entity_died(e)
+    end
     on_destroyed_entity(e)
+end)
+
+script.on_event(defines.events.on_entity_damaged, function(event)
+    -- Tesla legacy keeps the broad damage hook disabled in hybrid mode, but fidelity mode
+    -- still needs this centralized forwarding point so the owned runtime can selectively
+    -- restore the original recursive helper behavior.
+    ei_teslas_legacy.on_entity_damaged(event)
 end)
 
 script.on_event(defines.events.on_train_changed_state, function(e)
@@ -233,6 +245,7 @@ end)
 script.on_event(defines.events.on_research_finished, function(e)
     -- Research completion has both immediate balance implications (tech scaling, train buffs)
     ei_tech_scaling.on_research_finished()
+    ei_teslas_legacy.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
     em_trains.on_research_finished(e)
     ei_nauvis_pressure_grace.on_research_finished(e)
@@ -349,6 +362,7 @@ end)
 script.on_event(defines.events.on_script_trigger_effect, function(event)
     -- Script trigger effects are used for capsule/remote actions that originate from data-stage
     -- prototypes but need runtime behavior.
+    ei_teslas_legacy.on_script_trigger_effect(event)
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
@@ -370,6 +384,7 @@ script.on_configuration_changed(function(e)
         -- init that depends on changed prototypes or settings.
         ei_global.check_init(e) --Crystal_echo will fail without global color table
         ei_compat.check_init(e)
+        ei_teslas_legacy.on_configuration_changed(e)
         ei_gate.on_configuration_changed(e)
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
@@ -420,9 +435,13 @@ script.on_configuration_changed(function(e)
     end
 end)
 
+script.on_load(function()
+    ei_teslas_legacy.on_load()
+    ei_echo_codex.youHaveArrived(event)
+end)
+
 script.on_event(
   {
-    defines.events.on_load,
     defines.events.on_player_joined_game,
     defines.events.on_cutscene_cancelled,
     defines.events.on_cutscene_finished,
@@ -430,7 +449,7 @@ script.on_event(
   },
     function(event)
         -- These events all represent moments where the player may need the codex arrival
-        -- experience reapplied: loading, joining, skipping cutscenes, or respawning.
+        -- experience reapplied: joining, skipping cutscenes, or respawning.
         ei_echo_codex.youHaveArrived(event)
     end
 )
@@ -688,6 +707,7 @@ function on_built_entity(e)
     orbital_combinator.add(e["entity"])
     ei_steam_train.on_built_entity(e)
     ei_camp_fire.on_built_entity(e)
+    ei_teslas_legacy.on_built_entity(e)
 end
 
 function on_built_tile(e)

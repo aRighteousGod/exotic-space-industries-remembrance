@@ -200,16 +200,77 @@ local nauvis_autoplace_profiles = {
   },
 }
 
-local gaia_autoplace_profile = {
-  base_density = 1,
-  base_spots_per_km2 = 1,
-  has_starting_area_placement = true,
-  random_spot_size_minimum = 0.5,
-  random_spot_size_maximum = 1.25,
-  random_probability = 1 / 48,
-  additional_richness = 500000,
-  richness_multiplier = 2,
-  richness_multiplier_distance_bonus = 2,
+local gaia_autoplace_profiles = {
+  ["gaia-cryoflux"] = {
+    base_density = 1.5,
+    base_spots_per_km2 = 1.9,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.44,
+    random_spot_size_maximum = 1.02,
+    random_probability = 1 / 48,
+    additional_richness = 780000,
+    richness_multiplier = 2.45,
+    richness_multiplier_distance_bonus = 2.3,
+    probability_mask = "gaia_cryoflux_habitat",
+    richness_mask = "gaia_cryoflux_richness",
+    candidate_spot_count = 36,
+  },
+  ["gaia-phytogas"] = {
+    base_density = 1.14,
+    base_spots_per_km2 = 1.08,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.82,
+    random_spot_size_maximum = 1.56,
+    random_probability = 1 / 48,
+    additional_richness = 520000,
+    richness_multiplier = 1.95,
+    richness_multiplier_distance_bonus = 2.0,
+    probability_mask = "gaia_phytogas_habitat",
+    richness_mask = "gaia_phytogas_richness",
+    candidate_spot_count = 24,
+  },
+  ["gaia-morphium"] = {
+    base_density = 1.8,
+    base_spots_per_km2 = 2.3,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.5,
+    random_spot_size_maximum = 1.2,
+    random_probability = 1 / 48,
+    additional_richness = 640000,
+    richness_multiplier = 2.1,
+    richness_multiplier_distance_bonus = 2.15,
+    probability_mask = "gaia_morphium_habitat",
+    richness_mask = "gaia_morphium_richness",
+    candidate_spot_count = 36,
+  },
+  ["gaia-ammonia"] = {
+    base_density = 1.34,
+    base_spots_per_km2 = 1.52,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.54,
+    random_spot_size_maximum = 1.12,
+    random_probability = 1 / 48,
+    additional_richness = 560000,
+    richness_multiplier = 2.0,
+    richness_multiplier_distance_bonus = 2.1,
+    probability_mask = "gaia_ammonia_habitat",
+    richness_mask = "gaia_ammonia_richness",
+    candidate_spot_count = 30,
+  },
+  ["gaia-coal-gas"] = {
+    base_density = 0.94,
+    base_spots_per_km2 = 0.86,
+    has_starting_area_placement = true,
+    random_spot_size_minimum = 0.68,
+    random_spot_size_maximum = 1.36,
+    random_probability = 1 / 48,
+    additional_richness = 620000,
+    richness_multiplier = 2.1,
+    richness_multiplier_distance_bonus = 2.15,
+    probability_mask = "gaia_coal_gas_habitat",
+    richness_mask = "gaia_coal_gas_richness",
+    candidate_spot_count = 20,
+  },
 }
 
 local function apply_profile_masks(autoplace, profile)
@@ -227,11 +288,7 @@ local function apply_profile_masks(autoplace, profile)
 end
 
 function ei_autoplace(name, profile_name)
-  local profile = gaia_autoplace_profile
-
-  if profile_name ~= "gaia" then
-    profile = nauvis_autoplace_profiles[profile_name]
-  end
+  local profile = gaia_autoplace_profiles[profile_name] or nauvis_autoplace_profiles[profile_name]
 
   if not profile then
     error("Unknown EI autoplace profile: " .. tostring(profile_name))
@@ -679,7 +736,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-core-patch", "gaia"),
+    autoplace = ei_autoplace("ei-core-patch", "gaia-core"),
     stage_counts = {0},
     stages =
     {
@@ -744,7 +801,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-cryoflux-patch", "gaia"),
+    autoplace = ei_autoplace("ei-cryoflux-patch", "gaia-cryoflux"),
     stage_counts = {0},
     stages =
     {
@@ -804,7 +861,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-phytogas-patch", "gaia"),
+    autoplace = ei_autoplace("ei-phytogas-patch", "gaia-phytogas"),
     stage_counts = {0},
     stages =
     {
@@ -862,7 +919,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-morphium-patch", "gaia"),
+    autoplace = ei_autoplace("ei-morphium-patch", "gaia-morphium"),
     stage_counts = {0},
     stages =
     {
@@ -922,7 +979,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-ammonia-patch", "gaia"),
+    autoplace = ei_autoplace("ei-ammonia-patch", "gaia-ammonia"),
     stage_counts = {0},
     stages =
     {
@@ -982,7 +1039,7 @@ data:extend({
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     --collision_mask = {"item-layer", "water-tile"},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    autoplace = ei_autoplace("ei-coal-gas-patch", "gaia"),
+    autoplace = ei_autoplace("ei-coal-gas-patch", "gaia-coal-gas"),
     stage_counts = {0},
     stages =
     {

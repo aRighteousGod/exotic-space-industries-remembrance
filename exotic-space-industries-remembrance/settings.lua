@@ -1,6 +1,12 @@
 -- settings for Exotic Industries
 ei_lib = require("lib/lib")
- --At least 1 tick per entity updater type
+-- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
+-- Requiring the vendored settings here keeps the public setting list in one place and avoids
+-- making the embedded TL module look like an independent top-level mod again.
+require("teslas_legacy.settings")
+-- These bounds feed EI's entity-update tuning setting later in this file. The minimum stays
+-- above zero so every updater family still runs, while the maximum remains a "safe large"
+-- value that divides cleanly for EI's staggered update buckets.
 local localMinimumFullUpdateTicks =  9 --default is 60
 local localMaximumFullUpdateTicks =  6003 --divides evenly
 data:extend({
@@ -393,6 +399,14 @@ data:extend({
       order  = "c1g5",
   },
   {
+      name = "ei-gate-difficulty",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "Recovered",
+      allowed_values = {"Recovered", "Attuned", "Resonant", "Paradox"},
+      order  = "c1g5a",
+  },
+  {
       name = "ei-gate-notifications",
       type = "bool-setting",
       setting_type = "runtime-per-user",
@@ -432,5 +446,4 @@ data:extend({
         order  = "d1",
         hidden = true
     },
-
 })

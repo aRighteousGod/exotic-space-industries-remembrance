@@ -4,25 +4,37 @@
 
 local gaia_mapgen_data = {}
 
+local function copy_value(value)
+    if type(value) ~= "table" then
+        return value
+    end
+
+    local clone = {}
+    for key, nested in pairs(value) do
+        clone[copy_value(key)] = copy_value(nested)
+    end
+    return clone
+end
+
 -- Resource patch autoplace settings (from map-gen.lua)
 gaia_mapgen_data.patch_controls = {
-    ["ei-morphium-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-phytogas-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-cryoflux-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-ammonia-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-coal-gas-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["scrap"] = {frequency = 0.05, richness = 0.05, size = 0.05},
+    ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
+    ["ei-phytogas-patch"] = {frequency = 2.4, size = 1.15, richness = 0.95},
+    ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
+    ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
+    ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
+    ["ei-gaia-relic-debris"] = {frequency = 0.14, richness = 0.2, size = 0.12},
 }
 
 -- Entity autoplace settings (trees and boulders)
 gaia_mapgen_data.entity_settings = {
     -- Resource patches
-    ["ei-morphium-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-phytogas-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-cryoflux-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-ammonia-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["ei-coal-gas-patch"] = {frequency = 3, size = 1, richness = 1},
-    ["scrap"] = {frequency = 0.05, richness = 0.05, size = 0.05},
+    ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
+    ["ei-phytogas-patch"] = {frequency = 2.4, size = 1.15, richness = 0.95},
+    ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
+    ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
+    ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
+    ["ei-gaia-relic-debris"] = {frequency = 0.14, richness = 0.2, size = 0.12},
     -- Trees
     ["ei-gaia-tree-01"] = {frequency = 1.4, richness = 1, size = 0.85},
     ["ei-gaia-tree-02"] = {frequency = 1.15, richness = 1, size = 0.75},
@@ -66,9 +78,23 @@ gaia_mapgen_data.decorative_settings = {
     ["ei-gaia-tiny-rock-cluster"] = {frequency = 0.7, richness = 1, size = 0.9},
 }
 
+gaia_mapgen_data.tile_settings = {
+    ["ei-gaia-grass-1"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-grass-2"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-grass-1-var"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-grass-2-var"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-grass-2-var-2"] = {frequency = 1, richness = 1, size = 1},
+    -- Runtime-created/reforged Gaia surfaces need explicit tile candidates or the secondary
+    -- rock variants can silently disappear even when the data-stage planet spawns them fine.
+    ["ei-gaia-rock-1"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-rock-2"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-rock-3"] = {frequency = 1, richness = 1, size = 1},
+    ["ei-gaia-water"] = {frequency = 1, richness = 1, size = 1},
+}
+
 -- All autoplace controls (including terrain and resources)
 function gaia_mapgen_data.get_autoplace_controls()
-    local controls = table.deepcopy(gaia_mapgen_data.patch_controls)
+    local controls = copy_value(gaia_mapgen_data.patch_controls)
     -- Terrain controls
     controls["gaia_water"] = {frequency = 1, size = 1}
     controls["gaia_trees"] = {frequency = 1, size = 1}
@@ -84,9 +110,9 @@ end
 -- Complete autoplace settings with entity, decorative, and tile sections
 function gaia_mapgen_data.get_autoplace_settings()
     return {
-        entity = {settings = table.deepcopy(gaia_mapgen_data.entity_settings)},
-        decorative = {settings = table.deepcopy(gaia_mapgen_data.decorative_settings)},
-        tile = {settings = {}},  -- Tile settings are dynamic based on biomes, not included here
+        entity = {settings = copy_value(gaia_mapgen_data.entity_settings)},
+        decorative = {settings = copy_value(gaia_mapgen_data.decorative_settings)},
+        tile = {settings = copy_value(gaia_mapgen_data.tile_settings)},
     }
 end
 

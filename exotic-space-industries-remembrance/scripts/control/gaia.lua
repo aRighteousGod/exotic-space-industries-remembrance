@@ -4,6 +4,18 @@ local gaia_mapgen_data = require("scripts/control/gaia-mapgen-data")
 
 local model = {}
 
+local function copy_value(value)
+    if type(value) ~= "table" then
+        return value
+    end
+
+    local clone = {}
+    for key, nested in pairs(value) do
+        clone[copy_value(key)] = copy_value(nested)
+    end
+    return clone
+end
+
 --====================================================================================================
 --GAIA
 --====================================================================================================
@@ -99,12 +111,23 @@ function model.migrate_gaia_surface(surface)
     local proper_settings = gaia_mapgen_data.get_autoplace_settings()
 
     local needs_update = false
+    local current_autoplace_settings = current_settings.autoplace_settings
 
     -- Check if surface is missing any required autoplace controls
     for control_name, _ in pairs(proper_controls) do
         if not current_settings.autoplace_controls or not current_settings.autoplace_controls[control_name] then
             needs_update = true
             break
+        end
+    end
+
+    if not needs_update then
+        local current_tile_settings = current_autoplace_settings and current_autoplace_settings.tile and current_autoplace_settings.tile.settings
+        for tile_name, _ in pairs(proper_settings.tile.settings) do
+            if not current_tile_settings or not current_tile_settings[tile_name] then
+                needs_update = true
+                break
+            end
         end
     end
 
@@ -116,14 +139,14 @@ function model.migrate_gaia_surface(surface)
 
         -- Update/add all required autoplace controls
         for control_name, control_settings in pairs(proper_controls) do
-            if not current_settings.autoplace_controls[control_name] then
-                current_settings.autoplace_controls[control_name] = table.deepcopy(control_settings)
+                if not current_settings.autoplace_controls[control_name] then
+                current_settings.autoplace_controls[control_name] = copy_value(control_settings)
             end
         end
 
         -- Ensure autoplace_settings exists and has all required entities/decoratives
         if not current_settings.autoplace_settings then
-            current_settings.autoplace_settings = table.deepcopy(proper_settings)
+            current_settings.autoplace_settings = copy_value(proper_settings)
         else
             -- Merge in missing entity settings
             if proper_settings.entity then
@@ -135,7 +158,7 @@ function model.migrate_gaia_surface(surface)
                 end
                 for entity_name, entity_settings in pairs(proper_settings.entity.settings) do
                     if not current_settings.autoplace_settings.entity.settings[entity_name] then
-                        current_settings.autoplace_settings.entity.settings[entity_name] = table.deepcopy(entity_settings)
+                        current_settings.autoplace_settings.entity.settings[entity_name] = copy_value(entity_settings)
                     end
                 end
             end
@@ -150,7 +173,23 @@ function model.migrate_gaia_surface(surface)
                 end
                 for decorative_name, decorative_settings in pairs(proper_settings.decorative.settings) do
                     if not current_settings.autoplace_settings.decorative.settings[decorative_name] then
-                        current_settings.autoplace_settings.decorative.settings[decorative_name] = table.deepcopy(decorative_settings)
+                        current_settings.autoplace_settings.decorative.settings[decorative_name] = copy_value(decorative_settings)
+                    end
+                end
+            end
+
+            -- Merge in missing tile settings so runtime Gaia surfaces keep parity with
+            -- the data-stage biome tile candidates.
+            if proper_settings.tile then
+                if not current_settings.autoplace_settings.tile then
+                    current_settings.autoplace_settings.tile = {settings = {}}
+                end
+                if not current_settings.autoplace_settings.tile.settings then
+                    current_settings.autoplace_settings.tile.settings = {}
+                end
+                for tile_name, tile_settings in pairs(proper_settings.tile.settings) do
+                    if not current_settings.autoplace_settings.tile.settings[tile_name] then
+                        current_settings.autoplace_settings.tile.settings[tile_name] = copy_value(tile_settings)
                     end
                 end
             end

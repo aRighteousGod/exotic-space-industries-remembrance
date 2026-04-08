@@ -1,11 +1,40 @@
--- Read cost of last technology in the game (exclude infinite technologies)
--- Calculate reasearch cost of each technology and set technology_price_multiplier accordingly
+-- Count visible, non-repeatable technologies with thematic weighting discounts applied to
+-- refinement-heavy branches, then use that total to set technology_price_multiplier.
 
 local ei_tech_scaling = {}
+local tech_weighting = require("lib/tech-weighting")
 
 --====================================================================================================
 --TECH SCALING
 --====================================================================================================
+
+local function count_researched_weight(force)
+    local current_techs = 0
+
+    for _, technology in pairs(force.technologies) do
+        -- Runtime force techs carry the live researched/enabled state, while the weighting
+        -- helper decides whether that prototype should count at all and by how much.
+        if technology.enabled and technology.researched and tech_weighting.should_count_technology(technology.prototype) then
+            current_techs = current_techs + tech_weighting.get_technology_weight(technology.name, technology.prototype)
+        end
+    end
+
+    return current_techs
+end
+
+local function count_total_weight()
+    local total_techs = 0
+
+    for _, technology in pairs(prototypes.technology) do
+        -- The total curve budget is derived from the loaded prototype set, using the same
+        -- exclusion and discount rules as the researched-count pass above.
+        if tech_weighting.should_count_technology(technology) then
+            total_techs = total_techs + tech_weighting.get_technology_weight(technology.name, technology)
+        end
+    end
+
+    return total_techs
+end
 
 local function update_multiplier()
     if ei_lib.config("no-tech-scaling") then return end
@@ -17,14 +46,7 @@ local function update_multiplier()
     -- do this for player force -> no support for multiple forces yet
     local force = game.forces[1]
 
-    local currentTechs = 0
-    for _, tech in pairs(force.technologies) do
-        if tech.enabled and tech.prototype.research_unit_count_formula == nil then
-            if tech.researched then
-                currentTechs = currentTechs + 1
-            end
-        end
-    end
+    local currentTechs = count_researched_weight(force)
 
     local formulaType = ei_lib.config("tech-scaling-curveForm")
     local multiplier = ei_tech_scaling.get_multiplier(
@@ -63,8 +85,12 @@ function ei_tech_scaling.init()
     storage.ei["tech_scaling"].maxCost = maxCost
     storage.ei["tech_scaling"].startPrice = ei_lib.config("tech-scaling-startPrice")
 
+    -- Validate the active rule set once during init so ambiguous bucket edits stop here
+    -- instead of producing a subtly wrong price curve mid-save.
+    tech_weighting.audit_technology_weights(prototypes.technology)
+
     -- count total number of technologies
-    storage.ei["tech_scaling"].techCount = ei_lib.getn(prototypes.technology)
+    storage.ei["tech_scaling"].techCount = count_total_weight()
 
     -- set initial multiplier
     update_multiplier()

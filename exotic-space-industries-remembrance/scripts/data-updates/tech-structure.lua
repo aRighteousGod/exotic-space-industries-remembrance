@@ -113,7 +113,12 @@ local function make_dummy_techs(ages_dummy_dict)
                 goto continue
             end
 
-            local next_age = "ei-"..ages_dummy_dict[age].."-dummy"
+            local next_dummy_age = ages_dummy_dict[age]
+            if not next_dummy_age then
+                goto continue
+            end
+
+            local next_age = "ei-"..next_dummy_age.."-dummy"
             
             if next_age then
                 set_prerequisites(next_age, i)

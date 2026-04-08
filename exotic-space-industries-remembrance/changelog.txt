@@ -1,4 +1,36 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.17
+Date: 4-7-2026
+  Info:
+    - Recipe Icons Improvement for Exotic Space Industries: Remembrance version <= 1.1.10 will be incompatible! This will last until an update removing the Tesla's Legacy dependency is released—a manual edit only involves opening the Recipe Icons mod zip and removing tesla_legacy_sa from the info.json file.
+    - If the Gaia resource and terrain generation updates are desired on an existing save, the /reforge_gaia command must be used! However, this will DELETE the Gaia surface and create a new one, use with caution!
+  Features:
+    - Added a startup Gate attunement setting for the breach gate and receiver. Recovered keeps the current progression, while Attuned, Resonant, and Paradox move the technology deeper into late alien, late quantum, and exotic age respectively and steepen both recipes.
+    - Built explicit full-coverage table and rebalanced gate transfer burden around clearer physical classes: blueprints and control tools stay negligible, common intermediates remain light, dense resources and fuel forms weigh more heavily, and large machinery, vehicles, and breach-scale hardware now impose the severe toll they should.
+    - Gaia no longer leans on trace Fulgoran scrap patches for salvage flavor; it now spawns very rare Gaia relic debris in shoreline and fringe ruin belts with a dedicated recovery table.
+    - Gaia's five main resources now generate through hard hydrology-and-succession provinces instead of the old shared Gaia profile: morphium clings to shore basins, phytogas blooms in meadow groves, ammonia festers in interior wetlands, cryoflux forms in cold wet rock fringe, and coal gas vents from dry shoulder and rock-core belts.
+    - Vulcanus foundries now get EI copper/steel beam and mechanical-part casting recipes matching the standard recipes, and foundry recipe locale for the beam/gear conversions is corrected across all supported languages.
+    - Expanded Tesla's Legacy into a full late-game doctrine: waveform harmonics now feed into Storm lattice for the basic coil, Dielectric rupture for the advanced coil, Bridge coupling for the vanilla tesla family bridge, Reactance overdrive for the tesla tank, and Exotic waveform convergence as the final capstone.
+    - Added a Tesla doctrine startup mode setting. Legacy fidelity is now the default path and restores the exact original Tesla's Legacy helper recursion, persistence, timer cleanup, kill-gated aftershocks, and tank volatility flow, while Hybrid is a lighter TL-specific lattice path.
+    - Added Exotic age coil variant technologies to functionally modernize basic and advanced tesla coils.
+    - Tesla doctrine technologies now count less toward EI's global tech-scaling curve, so the late electric branch no longer inflates research scaling like a full set of heavyweight strategic unlocks.
+    - Legacy harmonics and doctrine now push real runtime behavior: the basic coil graduates into branching field-arc chaining, the advanced coil into heavier kill-confirm aftershocks, the bridge line into restrained late specialization, and the tesla tank into stronger overdrive volatility.
+    - Technologies can now count for less towards tech scaling—either 3/4, 1/2, or 1/4 of a progression, indicated by a tiny high-contrast 3/4, 1/2, or 1/4 marker on the technology icon, while full-weight techs remain unmarked.
+    - Added /rescan_induction_matrix so admins can rebuild induction matrix runtime state, proxy mappings, and circuit output bookkeeping on existing saves.
+    - Added a Loader Informatron page in all supported locales covering tier progression, stacking, lane filtering, automatic snapping to valid wagon/rail/container bindings, and the electricity requirement for EI loaders.
+  Changes:
+    - Updated Tesla's Legacy locale and Informatron across all supported languages to explain the internalized branch, the bridge into teslagun/tesla-ammo/the replica Fulgoran tesla path, and waveform harmonics.
+    - Updated the Tesla Informatron page and English Tesla locale to explain the new behavior-mode split, the full doctrine ladder, the final exotic convergence step, and the intended floating-text defaults.
+    - Tesla doctrine technologies now use explicit EI age placement across advanced-computer-age-space, quantum-age, fusion-quantum-age, and exotic-age instead of behaving like a loose stack of side upgrades.
+    - Gate activation threshold raised from 45 GJ to 100 GJ, and the gate's internal energy store increased from 180 GJ to 3.2 TJ with a 430 GW input limit so one fully charged gate can pay the worst-case single-item transfer quote before falling back below arming energy.
+    - Gaia's rock biomes now use a broader geology pass: the rock slider's size setting gently expands or contracts rocky biome footprint, frequency drives rock breakup detail, all three rock tile varieties should now arrive before us.
+    - Carbon fiber can no longer be made in Caster.
+  Bugfixes:
+    - Repaired several non-English locale issues across recent Informatron additions, including garbled text, untranslated blocks, and awkward machine-translated wording in FR, PL, RU, zh-CN, zh-TW, and JA.
+    - Fixed zh-TW locale key naming drift where many entries incorrectly used `ei_...` instead of `ei-...`, restoring proper localization lookup.
+    - Cleaned up remaining RU and zh-TW locale stragglers in recent documentation updates, including broken tech-scaling text and untranslated support files.
+    - Iron beam and iron mechanical parts foundry recipes no longer show up as Iron stick and Gearwheel.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.16
 Date: 4-5-2026
   Bugfixes:

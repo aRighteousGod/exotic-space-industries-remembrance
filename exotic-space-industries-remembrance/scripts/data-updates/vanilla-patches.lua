@@ -2189,12 +2189,117 @@ ei_lib.raw.recipe["casting-steel"].ingredients = {
 ei_lib.raw.recipe["casting-steel"].results = {
     {type="item",name="steel-plate",amount=2}
 }
-ei_lib.raw.recipe["casting-iron-gear-wheel"].results = {
-    {type="item",name="ei-iron-mechanical-parts",amount=2}
-}
-ei_lib.raw.recipe["casting-iron-stick"].results = {
-    {type="item",name="ei-iron-beam",amount=1}
-}
+
+local casting_iron_gear_wheel = ei_lib.raw.recipe["casting-iron-gear-wheel"]
+local iron_mechanical_parts = ei_lib.raw.item["ei-iron-mechanical-parts"]
+if casting_iron_gear_wheel and iron_mechanical_parts then
+    casting_iron_gear_wheel.results = {
+        {type = "item", name = "ei-iron-mechanical-parts", amount = 2}
+    }
+    casting_iron_gear_wheel.main_product = "ei-iron-mechanical-parts"
+    casting_iron_gear_wheel.localised_name = nil
+    casting_iron_gear_wheel.icon = iron_mechanical_parts.icon
+    casting_iron_gear_wheel.icon_size = iron_mechanical_parts.icon_size
+    casting_iron_gear_wheel.icons = iron_mechanical_parts.icons and util.table.deepcopy(iron_mechanical_parts.icons) or nil
+end
+
+local casting_iron_stick = ei_lib.raw.recipe["casting-iron-stick"]
+local iron_beam = ei_lib.raw.item["ei-iron-beam"]
+if casting_iron_stick and iron_beam then
+    casting_iron_stick.results = {
+        {type = "item", name = "ei-iron-beam", amount = 1}
+    }
+    casting_iron_stick.main_product = "ei-iron-beam"
+    casting_iron_stick.localised_name = nil
+    casting_iron_stick.icon = iron_beam.icon
+    casting_iron_stick.icon_size = iron_beam.icon_size
+    casting_iron_stick.icons = iron_beam.icons and util.table.deepcopy(iron_beam.icons) or nil
+end
+
+local casting_ei_copper_beam_template = ei_lib.raw.recipe["casting-iron-stick"]
+local copper_beam = ei_lib.raw.item["ei-copper-beam"]
+if casting_ei_copper_beam_template and copper_beam then
+    local casting_ei_copper_beam = util.table.deepcopy(casting_ei_copper_beam_template)
+    casting_ei_copper_beam.name = "casting-ei-copper-beam"
+    casting_ei_copper_beam.ingredients = {
+        {type = "fluid", name = "ei-molten-copper", amount = 20, fluidbox_multiplier = 10}
+    }
+    casting_ei_copper_beam.results = {
+        {type = "item", name = "ei-copper-beam", amount = 1}
+    }
+    casting_ei_copper_beam.energy_required = 2
+    casting_ei_copper_beam.main_product = "ei-copper-beam"
+    casting_ei_copper_beam.localised_name = nil
+    casting_ei_copper_beam.icon = copper_beam.icon
+    casting_ei_copper_beam.icon_size = copper_beam.icon_size
+    casting_ei_copper_beam.icons = copper_beam.icons and util.table.deepcopy(copper_beam.icons) or nil
+    data:extend({casting_ei_copper_beam})
+    ei_lib.add_unlock_recipe("foundry", "casting-ei-copper-beam")
+end
+
+local casting_ei_steel_beam_template = ei_lib.raw.recipe["casting-iron-stick"]
+local steel_beam = ei_lib.raw.item["ei-steel-beam"]
+if casting_ei_steel_beam_template and steel_beam then
+    local casting_ei_steel_beam = util.table.deepcopy(casting_ei_steel_beam_template)
+    casting_ei_steel_beam.name = "casting-ei-steel-beam"
+    casting_ei_steel_beam.ingredients = {
+        {type = "fluid", name = "ei-molten-steel", amount = 20, fluidbox_multiplier = 10}
+    }
+    casting_ei_steel_beam.results = {
+        {type = "item", name = "ei-steel-beam", amount = 1}
+    }
+    casting_ei_steel_beam.energy_required = 2
+    casting_ei_steel_beam.main_product = "ei-steel-beam"
+    casting_ei_steel_beam.localised_name = nil
+    casting_ei_steel_beam.icon = steel_beam.icon
+    casting_ei_steel_beam.icon_size = steel_beam.icon_size
+    casting_ei_steel_beam.icons = steel_beam.icons and util.table.deepcopy(steel_beam.icons) or nil
+    data:extend({casting_ei_steel_beam})
+    ei_lib.add_unlock_recipe("foundry", "casting-ei-steel-beam")
+end
+
+local casting_ei_copper_mechanical_parts_template = ei_lib.raw.recipe["casting-iron-gear-wheel"]
+local copper_mechanical_parts = ei_lib.raw.item["ei-copper-mechanical-parts"]
+if casting_ei_copper_mechanical_parts_template and copper_mechanical_parts then
+    local casting_ei_copper_mechanical_parts = util.table.deepcopy(casting_ei_copper_mechanical_parts_template)
+    casting_ei_copper_mechanical_parts.name = "casting-ei-copper-mechanical-parts"
+    casting_ei_copper_mechanical_parts.ingredients = {
+        {type = "fluid", name = "ei-molten-copper", amount = 10, fluidbox_multiplier = 10}
+    }
+    casting_ei_copper_mechanical_parts.results = {
+        {type = "item", name = "ei-copper-mechanical-parts", amount = 2}
+    }
+    casting_ei_copper_mechanical_parts.energy_required = 0.5
+    casting_ei_copper_mechanical_parts.main_product = "ei-copper-mechanical-parts"
+    casting_ei_copper_mechanical_parts.localised_name = nil
+    casting_ei_copper_mechanical_parts.icon = copper_mechanical_parts.icon
+    casting_ei_copper_mechanical_parts.icon_size = copper_mechanical_parts.icon_size
+    casting_ei_copper_mechanical_parts.icons = copper_mechanical_parts.icons and util.table.deepcopy(copper_mechanical_parts.icons) or nil
+    data:extend({casting_ei_copper_mechanical_parts})
+    ei_lib.add_unlock_recipe("foundry", "casting-ei-copper-mechanical-parts")
+end
+
+local casting_ei_steel_mechanical_parts_template = ei_lib.raw.recipe["casting-iron-gear-wheel"]
+local steel_mechanical_parts = ei_lib.raw.item["ei-steel-mechanical-parts"]
+if casting_ei_steel_mechanical_parts_template and steel_mechanical_parts then
+    local casting_ei_steel_mechanical_parts = util.table.deepcopy(casting_ei_steel_mechanical_parts_template)
+    casting_ei_steel_mechanical_parts.name = "casting-ei-steel-mechanical-parts"
+    casting_ei_steel_mechanical_parts.ingredients = {
+        {type = "fluid", name = "ei-molten-steel", amount = 10, fluidbox_multiplier = 10}
+    }
+    casting_ei_steel_mechanical_parts.results = {
+        {type = "item", name = "ei-steel-mechanical-parts", amount = 2}
+    }
+    casting_ei_steel_mechanical_parts.energy_required = 1
+    casting_ei_steel_mechanical_parts.main_product = "ei-steel-mechanical-parts"
+    casting_ei_steel_mechanical_parts.localised_name = nil
+    casting_ei_steel_mechanical_parts.icon = steel_mechanical_parts.icon
+    casting_ei_steel_mechanical_parts.icon_size = steel_mechanical_parts.icon_size
+    casting_ei_steel_mechanical_parts.icons = steel_mechanical_parts.icons and util.table.deepcopy(steel_mechanical_parts.icons) or nil
+    data:extend({casting_ei_steel_mechanical_parts})
+    ei_lib.add_unlock_recipe("foundry", "casting-ei-steel-mechanical-parts")
+end
+
 ei_lib.raw.recipe["molten-copper"].results[2] = {
     type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,ignored_by_stats=12
 }
@@ -2571,12 +2676,15 @@ if ca_fi_r then
 }
     ca_fi_r.energy_required = 15 -- def 5
     ca_fi_r.always_show_products = true
+    --this may return but foundry can do casting and that doesn't make sense, reconsider an extra category to only add to caster later..although the recipe description would seem to lean biochamber
+    --[[
     local cf_ac = ca_fi_r.additional_categories
     if cf_ac then
         table.insert(cf_ac,"ei-casting")
     else
         ei_lib.raw.recipe["carbon-fiber"].additional_categories = {"ei-casting"}
     end
+    ]]
 end
 local pen_egg_r = ei_lib.raw.recipe["pentapod-egg"]
 if pen_egg_r then

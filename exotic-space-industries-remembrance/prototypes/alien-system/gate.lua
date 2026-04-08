@@ -142,9 +142,9 @@ data:extend({
         -- continuous_animation = true,
         energy_source = {
             type = "electric",
-            buffer_capacity = "180GJ",
+            buffer_capacity = "3.2TJ",
             usage_priority = "secondary-input",
-            input_flow_limit = "60GW",
+            input_flow_limit = "430GW",
             output_flow_limit = "0MW",
         },
         energy_usage = "0W",

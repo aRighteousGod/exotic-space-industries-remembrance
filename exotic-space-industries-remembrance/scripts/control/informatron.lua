@@ -57,6 +57,7 @@ function model.menu(player_index)
             em_trains = 1,
             orbital_scanner = 1,
             cranes_and_belts = 1,
+            loaders = 1,
             bots = 1,
         },
         new_mechanics = {
@@ -481,6 +482,31 @@ function model.cranes_and_belts(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.cranes-and-belts-text"}}
 end
 
+function model.loaders(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-loader",
+        "item/ei-fast-loader",
+        "item/ei-express-loader",
+        "item/ei-turbo-loader",
+        "item/ei-neo-loader",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-text-3"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-4"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-text-4"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-5"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.loaders-text-5"}}
+end
+
 function model.bots(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.bots"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.bots-text"}}
@@ -556,24 +582,43 @@ function model.induction_matrix(player_index, element)
 end
 
 function model.teslas_legacy(player_index, element)
+    local behavior_mode = "legacy-fidelity"
+    if settings and settings.startup and settings.startup["ei-tl-behavior-mode"] then
+        behavior_mode = settings.startup["ei-tl-behavior-mode"].value or behavior_mode
+    end
+
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text"}}
 
     add_centered_sprite_row(element, {
         "item/tl-basic-tesla-coil",
         "item/tl-advanced-tesla-coil",
-        "item/tesla-turret",
         "item/tl-tesla-tank",
     })
 
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-2"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-2"}}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-2", {"string-mod-setting.ei-tl-behavior-mode-" .. behavior_mode}}}
 
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-3"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-3"}}
 
+    add_centered_sprite_row(element, {
+        "item/teslagun",
+        "item/tesla-ammo",
+        "item/tesla-turret",
+    })
+
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-4"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-4"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-5"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-5"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-6"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-6"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-7"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-7"}}
 end
 
 function model.exotic_stabilizer(player_index, element)
@@ -724,6 +769,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "cranes_and_belts" then
         model.cranes_and_belts(player_index, element)
+    end
+
+    if page_name == "loaders" then
+        model.loaders(player_index, element)
     end
 
     if page_name == "bots" then

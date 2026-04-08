@@ -29,6 +29,21 @@ function model.table_concat(t1, t2)
     return t1
 end
 
+function model.get_sorted_lookup_names(lookup)
+    -- Factorio filtered entity searches need dense arrays, while the rest of this script
+    -- prefers sparse lookup sets for fast membership checks.
+
+    local names = {}
+
+    for name in pairs(lookup) do
+        table.insert(names, name)
+    end
+
+    table.sort(names)
+
+    return names
+end
+
 -- given capacitance of infuction coils in MJ
 model.coils = {
     ["ei-induction-matrix-basic-coil"] = 25,
@@ -747,6 +762,37 @@ function model.wire_proxy_has_connections(proxy)
     end
 
     return false
+
+end
+
+
+function model.find_existing_wire_proxy(core)
+    -- Manual/runtime rescans try to preserve already-wired proxy entities instead of
+    -- recreating them, which would otherwise drop player circuit connections.
+
+    if model.entity_check(core) == false then
+        return nil
+    end
+
+    local fallback = nil
+    local proxies = core.surface.find_entities_filtered{
+        position = core.position,
+        name = MATRIX_WIRE_PROXY_NAME,
+    }
+
+    for _, proxy in ipairs(proxies) do
+        if model.entity_check(proxy) then
+            if model.wire_proxy_has_connections(proxy) then
+                return proxy
+            end
+
+            if not fallback then
+                fallback = proxy
+            end
+        end
+    end
+
+    return fallback
 
 end
 
@@ -1673,6 +1719,125 @@ function model.get_core_entity(matrix_id)
 end
 
 
+function model.get_core_tier(core)
+    -- Core tier is encoded in the prototype suffix and is used as the stored IO exponent.
+
+    if model.entity_check(core) == false then
+        return 0
+    end
+
+    return tonumber(string.match(core.name, "(%d+)$")) or 0
+
+end
+
+
+function model.reset_runtime_storage()
+    -- Manual rescans rebuild the logical matrix tables from the live world, so any stale
+    -- serialized membership/proxy bookkeeping is discarded up front.
+
+    model.check_global_init()
+
+    storage.ei.induction_matrix.render_queue = {}
+    storage.ei.induction_matrix.core = {
+        stats = {
+            max_IO = 0,
+            capacity = 0
+        }
+    }
+    storage.ei.induction_matrix.to_remove = {}
+    storage.ei.induction_matrix.proxy = {}
+
+end
+
+
+function model.rebuild_runtime_state(reason)
+    -- Rebuild every logical matrix from live entities on every surface.
+    -- Existing proxy entities are reused when possible so circuit wiring survives the
+    -- repair pass, while orphaned proxies are removed afterward.
+
+    model.check_global_init()
+    model.reset_runtime_storage()
+
+    local core_names = model.get_sorted_lookup_names(model.core)
+    local rebuilt_matrices = 0
+    local removed_orphan_proxies = 0
+
+    for _, surface in pairs(game.surfaces) do
+        local cores = surface.find_entities_filtered{
+            name = core_names,
+        }
+
+        for _, core in ipairs(cores) do
+            if model.entity_check(core) == false then
+                goto continue
+            end
+
+            local dict = model.check_connected_tiles(core.position, core.surface, false, core.unit_number, core.force)
+            if dict == false then
+                goto continue
+            end
+
+            local matrix_id = dict.matrix_id
+            local live_core = model.get_core_entity(matrix_id)
+            local matrix = storage.ei.induction_matrix.core[matrix_id]
+
+            if model.entity_check(live_core) == false or not matrix then
+                goto continue
+            end
+
+            local proxy = model.find_existing_wire_proxy(live_core)
+            if model.entity_check(proxy) then
+                matrix.wire_proxy = proxy
+            end
+            matrix.signal_cache = nil
+
+            model.set_core_state(matrix_id, dict.state)
+
+            local old_stats = matrix.stats or {}
+            if old_stats.max_IO == nil then
+                old_stats.max_IO = model.get_core_tier(live_core)
+            end
+
+            local new_stats = model.calculate_stats(matrix.coils, matrix.solenoids, matrix.converters)
+            local new_id = model.apply_stats(matrix_id, old_stats, new_stats, live_core, dict.state)
+
+            if storage.ei.induction_matrix.core[new_id] then
+                storage.ei.induction_matrix.core[new_id].dirty = false
+                storage.ei.induction_matrix.core[new_id].signal_cache = nil
+                model.ensure_wire_proxy(new_id)
+                model.update_wire_proxy_signals(new_id)
+                rebuilt_matrices = rebuilt_matrices + 1
+            end
+
+            ::continue::
+        end
+    end
+
+    model.remove_old_cores()
+
+    for _, surface in pairs(game.surfaces) do
+        local proxies = surface.find_entities_filtered{
+            name = MATRIX_WIRE_PROXY_NAME,
+        }
+
+        for _, proxy in ipairs(proxies) do
+            if model.entity_check(proxy)
+            and not storage.ei.induction_matrix.proxy[proxy.unit_number] then
+                proxy.destroy({raise_destroy=false})
+                removed_orphan_proxies = removed_orphan_proxies + 1
+            end
+        end
+    end
+
+    return {
+        reason = reason,
+        rebuilt_matrices = rebuilt_matrices,
+        removed_orphan_proxies = removed_orphan_proxies,
+    }
+
+end
+
+
 --HANDLERS
 ------------------------------------------------------------------------------------------------------
 
@@ -2273,5 +2438,24 @@ function model.on_gui_click(event)
         model.update_gui(player)
     end
 end
+
+commands.add_command("rescan_induction_matrix", "Rebuilds induction matrix runtime state, proxy mappings, and circuit output bookkeeping.", function(command)
+    local player = command.player_index and game.get_player(command.player_index) or nil
+    if player and not player.admin then
+        return
+    end
+
+    ei_lib.crystal_echo("Induction matrix runtime rescan initiated.")
+
+    local summary = model.rebuild_runtime_state("manual")
+
+    ei_lib.crystal_echo(
+        "Induction matrix runtime rescan complete. Rebuilt "
+        .. summary.rebuilt_matrices
+        .. " matrices and removed "
+        .. summary.removed_orphan_proxies
+        .. " orphan proxies."
+    )
+end)
 
 return model

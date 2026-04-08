@@ -22,6 +22,12 @@ local function gaia_control_multiplier(control_name, size_scale, frequency_scale
     return "(slider_rescale(control:" .. control_name .. ":size, " .. size_scale .. ") * slider_rescale(control:" .. control_name .. ":frequency, " .. frequency_scale .. "))"
 end
 
+-- Rock biome size is already baked into the terrain-noise masks. The tile-level split only
+-- uses the frequency side here so the slider's "size" half does not double-amplify rock coverage.
+local function gaia_rock_frequency_multiplier()
+    return "slider_rescale(control:gaia_rocks:frequency, 2)"
+end
+
 local function gaia_world_ambient_sound(filename_stem, variation_count, volume, tuning, advanced_volume_control)
     return {
         sound = {
@@ -171,7 +177,7 @@ data:extend({
         order = "a[gaia]-a[rock]",
         layer = 60,
         control = "gaia_rocks",
-        probability_expression = "clamp(1.9 * gaia_rock_fringe_mask * gaia_select(gaia_variant_noise, -1, 0.76, 0.16, 0.22, 1) * " .. gaia_control_multiplier("gaia_rocks") .. ", 0, 2.0)",
+        probability_expression = "clamp(1.9 * gaia_rock_fringe_mask * gaia_select(gaia_variant_noise, -1, 0.76, 0.16, 0.22, 1) * " .. gaia_rock_frequency_multiplier() .. ", 0, 2.0)",
         map_color = {r = 117, g = 104, b = 89},
         ambient_sounds = gaia_world_ambient_sound(
             "__space-age__/sound/world/semi-persistent/wind-gust",
@@ -186,6 +192,8 @@ data:extend({
             }
         ),
     }),
+    -- The outer rocky fringe uses the broad variant noise split, while the core bedrock below
+    -- is reserved for rock-2 and rock-3 using the dedicated rock feature noise.
     make_gaia_tile({
         name = "ei-gaia-rock-2",
         base_tile = "dry-dirt",
@@ -196,7 +204,7 @@ data:extend({
         order = "a[gaia]-a[rock]",
         layer = 61,
         control = "gaia_rocks",
-        probability_expression = "clamp(1.55 * gaia_rock_core_mask * gaia_select(gaia_variant_noise, -1, 0.42, 0.14, 0, 1) * " .. gaia_control_multiplier("gaia_rocks") .. ", 0, 1.55)",
+        probability_expression = "clamp(1.7 * gaia_rock_core_mask * gaia_select(gaia_rock_feature_noise, -1, 0.5, 0.18, 0.2, 1) * " .. gaia_rock_frequency_multiplier() .. ", 0, 1.8)",
         map_color = {r = 142, g = 98, b = 79},
         ambient_sounds_group = "ei-gaia-rock-1",
     }),
@@ -210,7 +218,7 @@ data:extend({
         order = "a[gaia]-a[rock]",
         layer = 62,
         control = "gaia_rocks",
-        probability_expression = "clamp(1.55 * gaia_rock_core_mask * gaia_select(gaia_variant_noise, 0.5, 1.08, 0.14, 0, 1) * " .. gaia_control_multiplier("gaia_rocks") .. ", 0, 1.55)",
+        probability_expression = "clamp(1.65 * gaia_rock_core_mask * gaia_select(gaia_rock_feature_noise, 0.45, 1.1, 0.16, 0, 1) * " .. gaia_rock_frequency_multiplier() .. ", 0, 1.75)",
         map_color = {r = 151, g = 131, b = 103},
         ambient_sounds_group = "ei-gaia-rock-1",
     }),

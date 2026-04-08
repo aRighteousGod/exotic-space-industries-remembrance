@@ -32,6 +32,7 @@ require("scripts/data-final-updates/labs")
 require("scripts/data-final-updates/recycling")
 require("scripts/data-final-updates/items")
 require("scripts/data-final-updates/krastorio-patches")
+require("teslas_legacy.final_overlay_ei")
 
 
 --=======================================================================================
@@ -128,3 +129,11 @@ for _,tech in pairs(data.raw.technology) do
     end
   end
 end
+
+-- Gate attunement stays near the end so the startup setting remains the final word on gate
+-- tech placement and both gate recipes after the repo's generic age/prereq passes.
+require("scripts/data-final-updates/gate-difficulty")
+
+-- Weighted-tech badges are a pure icon pass, so they can run truly last after every other
+-- final tech rewrite has settled on its finished icon and science layout.
+require("scripts/data-final-updates/tech-weight-badges")

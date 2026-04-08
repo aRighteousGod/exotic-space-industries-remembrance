@@ -200,6 +200,8 @@ local carbon_fiber_from_bio_oil_recipe = {
 	type = "recipe",
 	name = "ei-carbon-fiber-from-bio-oil",
 	category = "organic",
+	subgroup = "agriculture-products",
+	order = "a[organic-products]-h[carbon-fiber]-a[broodslime-oil]",
 	icons = {
 		{ icon = "__space-age__/graphics/icons/carbon-fiber.png", scale = 0.8, shift = { 6, 0 } },
 		{ icon = ei_graphics_3_path .. "graphics/fluids/bio-oil.png", scale = 0.6, shift = { -6, 0 } },

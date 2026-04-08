@@ -53,6 +53,7 @@ require("prototypes/planet-gleba/gleba")
 require("prototypes/loaders")
 require("prototypes/more-asteroids")
 require("prototypes/productivity")
+require("teslas_legacy.data")
 --====================================================================================================
 --COMPATIBILITY CODE
 --====================================================================================================
