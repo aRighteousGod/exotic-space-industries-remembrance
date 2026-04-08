@@ -197,6 +197,7 @@ script.on_event({
 end)
 
 script.on_event(defines.events.on_tick, function(e) 
+    ei_tech_scaling.on_tick()
     updater(e)
 end)
 
@@ -428,14 +429,17 @@ script.on_configuration_changed(function(e)
         ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
         ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
         ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
-
-        ei_tech_scaling.init()
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()
     end
+
+    -- Startup settings can change without giving the tech-scaling system any useful
+    -- serialized state update, so always refresh the curve from live settings here.
+    ei_tech_scaling.init()
 end)
 
 script.on_load(function()
+    ei_tech_scaling.on_load()
     ei_teslas_legacy.on_load()
     ei_echo_codex.youHaveArrived(event)
 end)
@@ -450,6 +454,9 @@ script.on_event(
     function(event)
         -- These events all represent moments where the player may need the codex arrival
         -- experience reapplied: joining, skipping cutscenes, or respawning.
+        -- Refresh tech scaling here as well so opening an existing save repairs the
+        -- multiplier even before the first simulation tick advances.
+        ei_tech_scaling.on_player_joined_game()
         ei_echo_codex.youHaveArrived(event)
     end
 )

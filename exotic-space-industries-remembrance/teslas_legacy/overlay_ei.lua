@@ -1146,7 +1146,11 @@ local function create_doctrine_technology(spec)
     type = "technology",
     name = spec.name,
     icon = spec.icon,
-    icon_size = spec.icon_size or 256,
+    -- Tesla doctrine techs mostly reuse the legacy 128px icon set. Defaulting these
+    -- to 256 makes Factorio read past the actual sprite bounds for icons like
+    -- tl-single-zap-damage-technology.png, so keep the doctrine constructor aligned
+    -- with the TL icon atlas unless a specific tech opts out.
+    icon_size = spec.icon_size or 128,
     icon_mipmaps = spec.icon_mipmaps or 4,
     localised_name = {"technology-name." .. spec.name},
     localised_description = {"technology-description." .. spec.name},
@@ -1174,6 +1178,7 @@ local function add_doctrine_technologies()
       extra_ingredients = harmonics_extra,
       count = 700,
       icon = TECH_ICON.harmonics,
+      icon_size = 256,
       prerequisites = {
         "tesla-weapons",
         "tl-advanced-tesla-coils-technology",
@@ -1194,6 +1199,7 @@ local function add_doctrine_technologies()
       extra_ingredients = harmonics_extra,
       count = 1000,
       icon = TECH_ICON.harmonics,
+      icon_size = 256,
       prerequisites = {
         "ei-waveform-harmonics-1",
         "electric-weapons-damage-4",
@@ -1214,6 +1220,7 @@ local function add_doctrine_technologies()
       extra_ingredients = harmonics_extra,
       count = 1400,
       icon = TECH_ICON.harmonics,
+      icon_size = 256,
       prerequisites = {
         "ei-waveform-harmonics-2",
         "tl-single-zap-probability-technology-3",
@@ -1336,6 +1343,7 @@ local function add_doctrine_technologies()
       age = "quantum-age",
       count = 1250,
       icon = TECH_ICON.bridge,
+      icon_size = 256,
       prerequisites = {
         "ei-waveform-harmonics-3",
         "ei-quantum-age",
@@ -1355,6 +1363,7 @@ local function add_doctrine_technologies()
       age = "quantum-age",
       count = 1850,
       icon = TECH_ICON.bridge,
+      icon_size = 256,
       prerequisites = {"ei-bridge-coupling-1"},
       effects = {
         {type = "ammo-damage", ammo_category = LEGACY_FAMILY_CATEGORY, modifier = 0.10},
@@ -1429,6 +1438,7 @@ local function add_doctrine_technologies()
     age = "exotic-age",
     count = 4200,
     icon = TECH_ICON.exotic,
+    icon_size = 256,
     prerequisites = {
       "ei-exotic-age",
       "ei-storm-lattice-3",

@@ -115,6 +115,19 @@ local function bucket_matches(name, rules, chain_root)
     return false
 end
 
+local function has_repeatable_formula(technology)
+    local formula = technology and technology.research_unit_count_formula
+    if formula == nil then
+        return false
+    end
+
+    if type(formula) == "string" then
+        return formula ~= ""
+    end
+
+    return formula ~= false
+end
+
 function tech_weighting.get_chain_root(name)
     -- Pack-wide ladders mostly use the familiar `family-1`, `family-2`, ... naming scheme.
     -- Matching on the shared root lets a single rule catch the whole chain without listing
@@ -133,13 +146,10 @@ function tech_weighting.should_count_technology(technology)
     end
 
     if WEIGHTING_RULES.exclude.repeatable then
-        -- Formula-count and max-level technologies are treated as repeatables for scaling
-        -- purposes even when the chain has a visible finite cap in data.
-        if technology.research_unit_count_formula ~= nil then
-            return false
-        end
-
-        if technology.max_level ~= nil then
+        -- Runtime `max_level` is not stable enough to distinguish true repeatables from
+        -- ordinary finite technologies. The authored count formula is the repeatable signal
+        -- we intentionally use across this pack.
+        if has_repeatable_formula(technology) then
             return false
         end
     end
@@ -220,7 +230,7 @@ function tech_weighting.audit_technology_weights(technology_prototypes)
     for technology_name, technology in pairs(technology_prototypes or {}) do
         if technology.hidden then
             summary.excluded_hidden = summary.excluded_hidden + 1
-        elseif technology.research_unit_count_formula ~= nil or technology.max_level ~= nil then
+        elseif has_repeatable_formula(technology) then
             summary.excluded_repeatable = summary.excluded_repeatable + 1
         else
             local matches = get_matching_buckets(technology_name)

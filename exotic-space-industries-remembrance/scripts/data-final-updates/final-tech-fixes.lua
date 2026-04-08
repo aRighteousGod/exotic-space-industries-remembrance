@@ -3,6 +3,7 @@
 -- TODO: add recursive age inclusion
 
 local ei_data = require("lib/data")
+local tech_scaling_common = require("lib/tech-scaling-common")
 function endswith(str,suf) return str:sub(-string.len(suf)) == suf end
 function startswith(text, prefix) return text:find(prefix, 1, true) == 1 end
 function contains(s, word) return tostring(s):find(word, 1, true) ~= nil end
@@ -573,6 +574,16 @@ end
 -- used with scaling tech costs in control stage
 
 local startPrice = ei_lib.config("tech-scaling-startPrice")
+local maxCost = ei_lib.switch_string(
+  ei_data.tech_scaling.switch_table,
+  ei_lib.config("tech-scaling-maxCost")
+)
+local additionalMultiplier = ei_lib.config("tech-scaling-additionalMultiplier")
+local baseStartPrice = tech_scaling_common.get_effective_base_start_price(
+  startPrice,
+  maxCost,
+  additionalMultiplier
+)
 
 for i,v in pairs(data.raw.technology) do
     data.raw.technology[i].hidden = false
@@ -581,11 +592,11 @@ for i,v in pairs(data.raw.technology) do
       -- if non multiple tech .count is accessible
       if data.raw.technology[i].unit then
         if data.raw.technology[i].unit.count then
-          data.raw.technology[i].unit.count = startPrice
+          data.raw.technology[i].unit.count = baseStartPrice
         end
         -- if multiple tech .count_formula is accessible
         if data.raw.technology[i].unit.count_formula then
-          data.raw.technology[i].unit.count_formula = "2^((L-1)*0.5)*"..tostring(startPrice)
+          data.raw.technology[i].unit.count_formula = "2^((L-1)*0.5)*"..tostring(baseStartPrice)
         end
       end
     end

@@ -3,10 +3,17 @@
 
 local ei_tech_scaling = {}
 local tech_weighting = require("lib/tech-weighting")
+local tech_scaling_common = require("lib/tech-scaling-common")
+local tech_scaling_shared = require("lib/tech-scaling-shared")
+local refresh_after_load = false
 
 --====================================================================================================
 --TECH SCALING
 --====================================================================================================
+
+local function get_primary_force()
+    return game.forces.player or game.forces[1]
+end
 
 local function count_researched_weight(force)
     local current_techs = 0
@@ -25,11 +32,11 @@ end
 local function count_total_weight()
     local total_techs = 0
 
-    for _, technology in pairs(prototypes.technology) do
+    for technology_name, technology in pairs(prototypes.technology) do
         -- The total curve budget is derived from the loaded prototype set, using the same
         -- exclusion and discount rules as the researched-count pass above.
         if tech_weighting.should_count_technology(technology) then
-            total_techs = total_techs + tech_weighting.get_technology_weight(technology.name, technology)
+            total_techs = total_techs + tech_weighting.get_technology_weight(technology_name, technology)
         end
     end
 
@@ -37,19 +44,27 @@ local function count_total_weight()
 end
 
 local function update_multiplier()
-    if ei_lib.config("no-tech-scaling") then return end
+    if ei_lib.config("no-tech-scaling") then
+        game.difficulty_settings.technology_price_multiplier = 1
+        return
+    end
 
     local maxCost = storage.ei["tech_scaling"].maxCost
     local startPrice = storage.ei["tech_scaling"].startPrice
+    local baseStartPrice = storage.ei["tech_scaling"].baseStartPrice
     local techCount = storage.ei["tech_scaling"].techCount
 
     -- do this for player force -> no support for multiple forces yet
-    local force = game.forces[1]
+    local force = get_primary_force()
+    if not force then
+        game.difficulty_settings.technology_price_multiplier = 1
+        return
+    end
 
     local currentTechs = count_researched_weight(force)
 
     local formulaType = ei_lib.config("tech-scaling-curveForm")
-    local multiplier = ei_tech_scaling.get_multiplier(
+    local scaled_cost = tech_scaling_shared.get_scaled_cost(
         maxCost,
         techCount,
         startPrice,
@@ -58,41 +73,52 @@ local function update_multiplier()
     )
 
     local additional_multiplier = ei_lib.config("tech-scaling-additionalMultiplier")
-    local total_multiplier = multiplier * additional_multiplier
-
-    if total_multiplier > maxCost then
-        total_multiplier = maxCost
-    end
+    local total_multiplier = scaled_cost * additional_multiplier / math.max(1, baseStartPrice)
 
     -- apply the multiplier
-    game.difficulty_settings.technology_price_multiplier = math.min(1000, total_multiplier)
+    game.difficulty_settings.technology_price_multiplier = math.min(
+        tech_scaling_common.INTERNAL_MULTIPLIER_CAP,
+        total_multiplier
+    )
 end
 
-function ei_tech_scaling.init()
-    if ei_lib.config("no-tech-scaling") then return end
-    
+local function refresh_from_settings()
+    if not storage.ei then
+        storage.ei = {}
+    end
+
     if not storage.ei["tech_scaling"] then
         storage.ei["tech_scaling"] = {}
     end
 
-    -- switch for max Cost
     local maxCost = ei_lib.switch_string(
         ei_data["tech_scaling"].switch_table,
         ei_lib.config("tech-scaling-maxCost")
+    ) or storage.ei["tech_scaling"].maxCost or ei_data["tech_scaling"].switch_table["Default"]
+
+    local startPrice = ei_lib.config("tech-scaling-startPrice") or storage.ei["tech_scaling"].startPrice or 10
+    local additional_multiplier = ei_lib.config("tech-scaling-additionalMultiplier") or 1
+
+    storage.ei["tech_scaling"].maxCost = maxCost
+    storage.ei["tech_scaling"].startPrice = startPrice
+    storage.ei["tech_scaling"].baseStartPrice = tech_scaling_common.get_effective_base_start_price(
+        startPrice,
+        maxCost,
+        additional_multiplier
     )
 
-    -- set max Cost and start price
-    storage.ei["tech_scaling"].maxCost = maxCost
-    storage.ei["tech_scaling"].startPrice = ei_lib.config("tech-scaling-startPrice")
-
-    -- Validate the active rule set once during init so ambiguous bucket edits stop here
-    -- instead of producing a subtly wrong price curve mid-save.
+    -- Rebuild the curve inputs from live settings and the current prototype set instead of
+    -- trusting whatever was serialized into the save before this load.
     tech_weighting.audit_technology_weights(prototypes.technology)
-
-    -- count total number of technologies
     storage.ei["tech_scaling"].techCount = count_total_weight()
 
-    -- set initial multiplier
+    if storage.ei["tech_scaling"].techCount <= 0 then
+        log("EI tech scaling rebuilt a zero weighted tech budget; holding research cost multiplier at the safe curve start.")
+    end
+end
+
+function ei_tech_scaling.init()
+    refresh_from_settings()
     update_multiplier()
 end
 
@@ -100,6 +126,58 @@ function ei_tech_scaling.on_research_finished()
     if ei_lib.config("no-tech-scaling") then return end
     update_multiplier()
 end
+
+function ei_tech_scaling.on_load()
+    refresh_after_load = true
+end
+
+function ei_tech_scaling.on_tick()
+    if not refresh_after_load then
+        return
+    end
+
+    refresh_after_load = false
+    ei_tech_scaling.init()
+end
+
+function ei_tech_scaling.on_player_joined_game()
+    ei_tech_scaling.init()
+end
+
+commands.add_command(
+    "refresh_tech_scaling",
+    "Rebuilds tech scaling state from live settings and recalculates the active research cost multiplier.",
+    function(command)
+        local player = command.player_index and game.get_player(command.player_index) or nil
+        if command.player_index and (not player or not player.admin) then
+            return
+        end
+
+        ei_lib.crystal_echo("Tech scaling refresh initiated.")
+
+        ei_tech_scaling.init()
+
+        local force = get_primary_force()
+        local researched_weight = force and count_researched_weight(force) or 0
+        local total_weight = storage.ei["tech_scaling"].techCount or 0
+
+        ei_lib.crystal_echo(
+            "Tech scaling refresh complete. Multiplier now x"
+            .. string.format("%.2f", game.difficulty_settings.technology_price_multiplier or 1)
+            .. "; weighted progress "
+            .. string.format("%.2f", researched_weight)
+            .. "/"
+            .. string.format("%.2f", total_weight)
+            .. "; configured start "
+            .. tostring(storage.ei["tech_scaling"].startPrice or 0)
+            .. ", hidden base "
+            .. tostring(storage.ei["tech_scaling"].baseStartPrice or 0)
+            .. ", ceiling "
+            .. tostring(storage.ei["tech_scaling"].maxCost or 0)
+            .. "."
+        )
+    end
+)
 
 --FORMULA DERIVATION
 ------------------------------------------------------------------------------------------------------
@@ -153,22 +231,7 @@ end
 -- therfore overall exponential is cheapest, then quadratic and linear is most difficult
 
 function ei_tech_scaling.get_multiplier(X, N, C, n, formulaType)
-    -- set default formulaType to quadratic
-    formulaType = formulaType or "quadratic"
-
-    if formulaType == "linear" then
-        return (X - C)/(N*C)*n + 1
-    end
-
-    if formulaType == "quadratic" then
-        return (X - C)/(N^2 * C) * n^2 + 1
-    end
-
-    if formulaType == "exponential" then
-        return (math.exp(n/N * math.log(X + 1 - C)) - 1)/C + 1
-    end
-
-    return 1
+    return tech_scaling_shared.get_multiplier(X, N, C, n, formulaType)
 end
 
 

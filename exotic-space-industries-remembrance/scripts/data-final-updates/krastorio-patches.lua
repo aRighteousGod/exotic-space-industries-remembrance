@@ -7,6 +7,13 @@ if not mods["Krastorio2-spaced-out"] then
     return
 end
 local ei_lib = require("lib.lib")
+local ei_data = require("lib.data")
+local tech_scaling_common = require("lib/tech-scaling-common")
+local base_start_price = tech_scaling_common.get_effective_base_start_price(
+    ei_lib.config("tech-scaling-startPrice"),
+    ei_lib.switch_string(ei_data.tech_scaling.switch_table, ei_lib.config("tech-scaling-maxCost")),
+    ei_lib.config("tech-scaling-additionalMultiplier")
+)
 local containers = {
 ["warehouse"] = 48,
 ["active-provider-warehouse"] = 48,
@@ -2318,7 +2325,7 @@ for tech_name, tech in pairs(data.raw.technology) do
         goto continue
     end
 
-    tech.unit.count = ei_lib.config("tech-scaling-startPrice")
+    tech.unit.count = base_start_price
 
     ::continue::
 end

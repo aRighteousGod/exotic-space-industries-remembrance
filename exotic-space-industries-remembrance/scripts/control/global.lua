@@ -26,6 +26,7 @@ function ei_global.init()
     storage.ei["tech_scaling"] = {}
     storage.ei["tech_scaling"].maxCost = 0
     storage.ei["tech_scaling"].startPrice = 0
+    storage.ei["tech_scaling"].baseStartPrice = 0
     storage.ei["tech_scaling"].techCount = 0
 
     storage.ei["overload_icons"] = {}
@@ -105,6 +106,10 @@ function ei_global.check_init(event)
 
     if not storage.ei["tech_scaling"].startPrice then
         storage.ei["tech_scaling"].startPrice = 0
+    end
+
+    if not storage.ei["tech_scaling"].baseStartPrice then
+        storage.ei["tech_scaling"].baseStartPrice = 0
     end
 
     if not storage.ei["tech_scaling"].techCount then
