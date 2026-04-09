@@ -5,7 +5,6 @@ local ei_tech_scaling = {}
 local tech_weighting = require("lib/tech-weighting")
 local tech_scaling_common = require("lib/tech-scaling-common")
 local tech_scaling_shared = require("lib/tech-scaling-shared")
-local refresh_after_load = false
 
 --====================================================================================================
 --TECH SCALING
@@ -125,23 +124,6 @@ end
 function ei_tech_scaling.on_research_finished()
     if ei_lib.config("no-tech-scaling") then return end
     update_multiplier()
-end
-
-function ei_tech_scaling.on_load()
-    refresh_after_load = true
-end
-
-function ei_tech_scaling.on_tick()
-    if not refresh_after_load then
-        return
-    end
-
-    refresh_after_load = false
-    ei_tech_scaling.init()
-end
-
-function ei_tech_scaling.on_player_joined_game()
-    ei_tech_scaling.init()
 end
 
 commands.add_command(

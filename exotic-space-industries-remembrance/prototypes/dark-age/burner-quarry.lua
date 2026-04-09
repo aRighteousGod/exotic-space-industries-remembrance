@@ -57,6 +57,7 @@ data:extend({
 local burner_quarry = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"])
 burner_quarry.name = modprefix.."burner-quarry"
 burner_quarry.minable = {mining_time = 1, result = modprefix.."burner-quarry"}
+burner_quarry.radius_visualisation_picture = table.deepcopy(data.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture)
 burner_quarry.resource_searching_radius = 15
 burner_quarry.energy_source.emissions_per_minute.pollution = burner_quarry.energy_source.emissions_per_minute.pollution * 4
 burner_quarry.energy_usage = "1.1MW"
@@ -84,6 +85,7 @@ data:extend({burner_quarry})
 local electric_quarry = table.deepcopy(data.raw["mining-drill"]["electric-mining-drill"])
 electric_quarry.name = modprefix.."electric-quarry"
 electric_quarry.minable = {mining_time = 1, result = modprefix.."electric-quarry"}
+electric_quarry.radius_visualisation_picture = table.deepcopy(data.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture)
 electric_quarry.resource_searching_radius = 15
 electric_quarry.energy_usage = "1MW"
 electric_quarry.mining_speed = 1.5

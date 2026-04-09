@@ -451,6 +451,7 @@ function create_advanced_tesla_coil_turret()
     collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
     allow_copy_paste = true,
+    start_attacking_only_when_can_shoot = true,
   
     attack_parameters =  
     {

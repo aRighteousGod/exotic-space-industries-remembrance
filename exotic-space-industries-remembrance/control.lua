@@ -197,7 +197,6 @@ script.on_event({
 end)
 
 script.on_event(defines.events.on_tick, function(e) 
-    ei_tech_scaling.on_tick()
     updater(e)
 end)
 
@@ -379,16 +378,23 @@ end)
 ------------------------------------------------------------------------------------------------------
 
 script.on_configuration_changed(function(e)
-    if next(e.mod_changes) ~= nil then
+    local mod_changes_present = next(e.mod_changes or {}) ~= nil
+    local startup_settings_changed = e.mod_startup_settings_changed
+
+    if mod_changes_present or startup_settings_changed then
+        ei_global.check_init(e) -- Crystal_echo and startup-setting mirrors expect these tables.
+        ei_echo_codex.handle_global_settings(e)
+        ei_nauvis_pressure_grace.on_configuration_changed(e)
+        ei_teslas_legacy.on_configuration_changed(e)
+    end
+
+    if mod_changes_present then
         -- This is the mod's broad migration/repair pass. It re-validates globals,
         -- clears stale cursor/gui state, reapplies runtime buffs, and reruns subsystem
         -- init that depends on changed prototypes or settings.
-        ei_global.check_init(e) --Crystal_echo will fail without global color table
         ei_compat.check_init(e)
-        ei_teslas_legacy.on_configuration_changed(e)
         ei_gate.on_configuration_changed(e)
-        ei_echo_codex.handle_global_settings(e)
-        ei_nauvis_pressure_grace.on_configuration_changed(e)
+
         em_trains.check_global() --no nil tables
         -- Keep the steam train runtime schema migrated before the rebuild pass below repopulates it.
         ei_steam_train.check_global()
@@ -433,30 +439,26 @@ script.on_configuration_changed(function(e)
         orbital_combinator.check_init()
     end
 
-    -- Startup settings can change without giving the tech-scaling system any useful
-    -- serialized state update, so always refresh the curve from live settings here.
+    -- `mod_changes` does not cover startup-setting-only changes, and tech scaling depends on
+    -- both startup settings and the loaded prototype set, so refresh it for every
+    -- configuration-changed event.
     ei_tech_scaling.init()
 end)
 
 script.on_load(function()
-    ei_tech_scaling.on_load()
     ei_teslas_legacy.on_load()
     ei_echo_codex.youHaveArrived(event)
 end)
 
 script.on_event(
   {
-    defines.events.on_player_joined_game,
     defines.events.on_cutscene_cancelled,
     defines.events.on_cutscene_finished,
     defines.events.on_player_respawned
   },
     function(event)
-        -- These events all represent moments where the player may need the codex arrival
-        -- experience reapplied: joining, skipping cutscenes, or respawning.
-        -- Refresh tech scaling here as well so opening an existing save repairs the
-        -- multiplier even before the first simulation tick advances.
-        ei_tech_scaling.on_player_joined_game()
+        -- Once the player is fully back inside the simulation, it is safe to replay the
+        -- arrival ritual visuals and messaging.
         ei_echo_codex.youHaveArrived(event)
     end
 )

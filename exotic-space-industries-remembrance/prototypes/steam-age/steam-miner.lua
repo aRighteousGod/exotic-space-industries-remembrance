@@ -108,6 +108,7 @@ local steam_quarry = table.deepcopy(data.raw["mining-drill"]["burner-mining-dril
 steam_quarry.icon = ei_graphics_kirazy_path.."icon/electric-mining-drill.png"
 steam_quarry.name = modprefix.."steam-quarry"
 steam_quarry.minable = {mining_time = 1, result = modprefix.."steam-quarry"}
+steam_quarry.radius_visualisation_picture = table.deepcopy(data.raw["mining-drill"]["electric-mining-drill"].radius_visualisation_picture)
 steam_quarry.resource_searching_radius = 15
 steam_quarry.energy_usage = "1.05MW"
 steam_quarry.heating_energy = "50kW"
