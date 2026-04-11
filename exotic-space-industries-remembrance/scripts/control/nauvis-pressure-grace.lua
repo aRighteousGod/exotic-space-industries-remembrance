@@ -63,7 +63,9 @@ function model.updater(event)
         return
     end
 
-    if storage.ei.nauvis_pressure.enabled == false or storage.ei.nauvis_pressure.milestone == 2 then
+    if storage.ei.enemy_difficulty == "Impossible"
+        or storage.ei.nauvis_pressure.enabled == false
+        or storage.ei.nauvis_pressure.milestone == 2 then
         return
     end
 

@@ -70,6 +70,21 @@ local function set_color(mod,name,value)
   end
 end
 
+local function force_string_values(mod, matcher, value)
+  if not mods[mod] then
+    return
+  end
+
+  for name, prototype in pairs(data.raw["string-setting"] or {}) do
+    if matcher(name) then
+      prototype.hidden = true
+      prototype["default_value"] = value
+      prototype["forced_value"] = value
+      prototype["allowed_values"] = {value}
+    end
+  end
+end
+
 -- set_bool("passive-radar","mining-returns-pradar",true)
 -- set_bool("","",true)
 
@@ -85,9 +100,20 @@ set_bool("lignumis","lignumis-inserter-progression",false)
 set_bool("lignumis","lignumis-ammo-progression",false)
 
 set_string("Explosive_biters","eb-spawn-planet","both")
+set_float("Cold_biters","cb-HealthScaler",1.0)
+set_float("Cold_biters","cb-DamageScaler",1.0)
 set_bool("Cold_biters","cb-enable-dying-explosion",true)
 set_string("Cold_biters","fb-spawn-planet","both")
+set_float("Explosive_biters","eb-HealthScaler",1.0)
+set_float("Explosive_biters","eb-DamageScaler",1.0)
+set_float("Toxic_biters","tb-HealthScaler",1.0)
+set_float("Toxic_biters","tb-DamageScaler",1.0)
 set_bool("Toxic_biters","tb-allow-infection",true)
+set_float("Electric_flying_enemies","fulgenemy-damage",1.0)
+force_string_values("ArmouredBiters", function(name)
+  return string.match(name, "^ab%-.+%-armoured%-biter%-health$") ~= nil
+    or string.match(name, "^ab%-.+%-armoured%-biter%-resistances$") ~= nil
+end, "100%")
 set_bool("zeus-wrath","zeus-wrath-friendly-fire",true)
 set_bool("zeus-wrath","zeus-wrath-friendly-fire-gun",true)
 

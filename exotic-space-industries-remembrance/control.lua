@@ -227,8 +227,19 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
 end)
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
-    -- Spidertron limiter reacts to slot edits instead of polling logistics every tick.
+    -- Slot edits can wake both per-entity logistics guards and scanner cache invalidation.
     ei_spidertron_limiter.on_entity_logistic_slot_changed(e)
+    orbital_combinator.on_entity_logistic_slot_changed(e)
+end)
+
+script.on_event(defines.events.on_entity_settings_pasted, function(e)
+    -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
+    orbital_combinator.on_entity_settings_pasted(e)
+end)
+
+script.on_event(defines.events.on_space_platform_changed_state, function(e)
+    -- Platform travel/state changes can move a platform into or out of a scanner surface snapshot.
+    orbital_combinator.on_space_platform_changed_state(e)
 end)
 
 script.on_event(defines.events.on_rocket_launched, function(e)
@@ -568,18 +579,26 @@ function updater(event)
 
        if ei_update_step == 5 then
            -- Step 5 mirrors logistic/platform state into orbital combinators.
+           local bank_count = 0
            if storage.ei and storage.ei.orbital_combinator_bank_count and storage.ei.orbital_combinator_bank_count > 0 then
-                updates_needed = math.max(1,math.min(math.ceil(storage.ei.orbital_combinator_bank_count / divisor), ei_maxEntityUpdates))
+                bank_count = storage.ei.orbital_combinator_bank_count
+                updates_needed = math.max(1,math.min(math.ceil(bank_count / divisor), ei_maxEntityUpdates))
                  end
-            for i = 1, updates_needed do
-               if storage.ei and storage.ei.orbital_combinator_bank_count and
-               math.max(1,math.min(math.ceil(storage.ei.orbital_combinator_bank_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                    goto skip
+            if bank_count > 0 then
+                for i = 1, updates_needed do
+                    local current_bank_count = 0
+                    if storage.ei and storage.ei.orbital_combinator_bank_count and storage.ei.orbital_combinator_bank_count > 0 then
+                        current_bank_count = storage.ei.orbital_combinator_bank_count
                     end
-                if not orbital_combinator.update() then
-                goto skip
-               end
-           end
+                    if current_bank_count == 0
+                    or math.max(1,math.min(math.ceil(current_bank_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                        goto skip
+                    end
+                    if not orbital_combinator.update() then
+                        goto skip
+                    end
+                end
+            end
 
        elseif ei_update_step == 6 then
            -- Step 6 advances the Fueler target scheduler against its ready-target workload.

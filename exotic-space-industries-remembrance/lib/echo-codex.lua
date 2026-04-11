@@ -232,10 +232,14 @@ function echo_codex.handle_global_settings(event)
 	local chargerGlowTimeToLive = ei_lib.config("em_charger_glow_timetolive") or 60
 
 	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "linear"
-	local rocket_launch_pollution_cap = ei_lib.config("ei-rocket-launch-pollution-cap") or 10000
+	local rocket_launch_pollution_cap = ei_lib.config("rocket-launch-pollution-cap") or 10000
 	local fulgora_day_length_variation_max_multiplier = ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
 	local fulgora_day_length_variation_min_multiplier = ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
-	local nauvis_pressure_grace = ei_lib.config("nauvis-pressure-grace") or true
+	local enemy_difficulty = ei_lib.config("enemy-difficulty") or "Tempered"
+	local nauvis_pressure_grace = ei_lib.config("nauvis-pressure-grace")
+	if nauvis_pressure_grace == nil then
+		nauvis_pressure_grace = true
+	end
 
 	local previous_tint = nil
 	-- Helper to get new tint and adj
@@ -412,8 +416,8 @@ function echo_codex.handle_global_settings(event)
 
 	storage.ei.fulgora_day_length_variation.max_multiplier = fulgora_day_length_variation_max_multiplier
 	storage.ei.fulgora_day_length_variation.min_multiplier = fulgora_day_length_variation_min_multiplier
-	--add text later
-	storage.ei.nauvis_pressure.enabled = nauvis_pressure_grace
+	storage.ei.enemy_difficulty = enemy_difficulty
+	storage.ei.nauvis_pressure.enabled = nauvis_pressure_grace and enemy_difficulty ~= "Impossible"
 end
 
 function echo_codex.youHaveArrived(event)

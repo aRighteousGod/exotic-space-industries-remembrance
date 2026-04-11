@@ -132,6 +132,7 @@ end
 
 -- Gate attunement stays near the end so the startup setting remains the final word on gate
 -- tech placement and both gate recipes after the repo's generic age/prereq passes.
+require("scripts/data-final-updates/enemy-difficulty")
 require("scripts/data-final-updates/gate-difficulty")
 
 -- Weighted-tech badges are a pure icon pass, so they can run truly last after every other

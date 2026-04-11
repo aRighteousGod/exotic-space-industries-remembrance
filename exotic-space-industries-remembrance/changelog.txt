@@ -1,4 +1,13 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.20
+Date: 4-10-2026
+  Features:
+    - Added bidirectional enemy difficulty scaling startup setting with a dedicated Informatron page in all locales—from Merciful to Impossible, the bleeding is yours to name. Default setting is now Tempered and is an overall reduction in difficulty from Original, which is the pre 1.3.20 enemy stats.
+  Changes:
+    - Plasma turret firing energy: 900MJ -> 1.4 GJ.
+    - Plasma turret now fires a sequential three-bolt procession with delayed follow-up releases so the fortress gun finally feels like a relic verdict instead of a single over-deliberate orb.
+    - Orbital request combinators now cache platform request state, reuse same-surface page materialization across scanner banks, diff section writes slot-by-slot, and invalidate from hub edits plus platform state changes, cutting scanner UPS overhead on large saves without changing visible output.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.19
 Date: 4-9-2026
   Bugfixes:

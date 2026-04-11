@@ -301,6 +301,151 @@ local function update_launch_smoke_spiral()
   end
 end
 
+local function is_impossible_difficulty()
+  return storage
+    and storage.ei
+    and storage.ei.enemy_difficulty == "Impossible"
+end
+
+local function find_enemy_force()
+  if not (game and game.forces) then
+    return nil
+  end
+
+  local enemy_force = game.forces.enemy
+  if enemy_force and enemy_force.valid then
+    return enemy_force
+  end
+
+  return nil
+end
+
+local function sort_entities_by_distance(entities, origin)
+  table.sort(entities, function(a, b)
+    local ax = a.position.x - origin.x
+    local ay = a.position.y - origin.y
+    local bx = b.position.x - origin.x
+    local by = b.position.y - origin.y
+    return (ax * ax + ay * ay) < (bx * bx + by * by)
+  end)
+end
+
+local function has_apex_launch_pressure(evo, pollution)
+  local cap = rocket_pollution_config.base
+  if storage and storage.ei and storage.ei.rocket_launch_pollution and storage.ei.rocket_launch_pollution.cap then
+    cap = storage.ei.rocket_launch_pollution.cap
+  end
+
+  return evo >= 0.9 and pollution >= cap * 0.9
+end
+
+local function try_form_retaliation(surface, position, pollution)
+  if not is_impossible_difficulty() then
+    return false
+  end
+
+  local enemy_force = find_enemy_force()
+  if not enemy_force then
+    return false
+  end
+
+  local evo = enemy_force.get_evolution_factor(surface) or 0
+  if evo <= 0 then
+    return false
+  end
+
+  local radius = ei_lib.clamp(72 + pollution / 90 + evo * 48, 96, 256)
+  local max_units = ei_lib.clamp(math.floor(6 + pollution / 900 + evo * 10), 8, 28)
+
+  if has_apex_launch_pressure(evo, pollution) then
+    radius = radius * 1.15
+    max_units = ei_lib.clamp(math.floor(max_units * 1.25 + 0.5), 8, 36)
+  end
+
+  local nearby_units = surface.find_entities_filtered{
+    position = position,
+    radius = radius,
+    force = enemy_force,
+    type = "unit",
+  }
+
+  local nearby_spawners = surface.find_entities_filtered{
+    position = position,
+    radius = radius,
+    force = enemy_force,
+    type = "unit-spawner",
+  }
+
+  if (#nearby_units == 0 and #nearby_spawners == 0) or #nearby_units == 0 then
+    return false
+  end
+
+  local valid_units = {}
+  for _, unit in ipairs(nearby_units) do
+    if unit and unit.valid then
+      valid_units[#valid_units + 1] = unit
+    end
+  end
+
+  if #valid_units == 0 then
+    return false
+  end
+
+  sort_entities_by_distance(valid_units, position)
+
+  local selected_units = {}
+  for index = 1, math.min(max_units, #valid_units) do
+    selected_units[#selected_units + 1] = valid_units[index]
+  end
+
+  if #selected_units == 0 then
+    return false
+  end
+
+  local anchor_unit = selected_units[1]
+  local unit_group = surface.create_unit_group{
+    position = {x = anchor_unit.position.x, y = anchor_unit.position.y},
+    force = enemy_force,
+  }
+
+  if not (unit_group and unit_group.valid) then
+    return false
+  end
+
+  local added_units = 0
+  for _, unit in ipairs(selected_units) do
+    if unit and unit.valid then
+      local ok = pcall(function()
+        unit_group.add_member(unit)
+      end)
+      if ok then
+        added_units = added_units + 1
+      end
+    end
+  end
+
+  if added_units == 0 then
+    unit_group.destroy()
+    return false
+  end
+
+  unit_group.set_command{
+    type = defines.command.attack_area,
+    destination = position,
+    radius = 18,
+    distraction = defines.distraction.by_enemy,
+  }
+
+  surface.create_entity{
+    name = "flying-text",
+    position = position,
+    text = "Enemy retaliation!",
+    color = {r = 1, g = 0.25, b = 0.25},
+  }
+
+  return true
+end
+
 local function update_rocket_liftoff_queue(event)
   local q = storage.ei
     and storage.ei.rocket_launch_pollution
@@ -317,10 +462,9 @@ local function update_rocket_liftoff_queue(event)
         -- Apply pollution at liftoff
         surface.pollute(job.position, job.pollution)
 
-        --local msg = {"exotic-industries.rocket-launch-pollution", string.format("%.0f", job.pollution)}
-
         -- Spiral smoke at liftoff
         spawn_launch_smoke_spiral(surface, job.position, job.pollution)
+        try_form_retaliation(surface, job.position, job.pollution)
       end
 
       table.remove(q, i)
@@ -371,41 +515,9 @@ end
 
 -- Triggered whenever a rocket is launched from a silo.
 function model.on_rocket_launched(event)
-  local silo = event.rocket_silo
-
-  -- Defensive guard:
-  -- The event *should* provide a valid silo, but mods / edge cases / migration weirdness
-  -- can happen, so fail safely.
-  if not (silo and silo.valid) then return end
-
-  local surface = silo.surface
-  local force = silo.force
-  if not (surface and surface.valid and force and force.valid) then return end
-
-  -- Calculate pollution based on the configured scaling mode and current evolution.
-  local pollution = get_rocket_launch_pollution(force, surface)
-
-  -- Emit pollution at the silo's position on the same surface.
-  surface.pollute(silo.position, pollution)
-
-  local msg = pollution.." pollution emitted"
-  ei_lib.crystal_echo_floating(
-    msg,
-    silo,
-    1800,
-    "wrath"
-  )
-  --local msg = {"exotic-industries.rocket-launch-pollution", pollution}
-
-  -- Optional debug
-  -- game.print(string.format(
-  --   "[rocket pollution] mode=%s evo=%.3f pollution=%.1f surface=%s force=%s",
-  --   rocket_pollution_config.mode,
-  --   force.get_evolution_factor(surface) or -1,
-  --   pollution,
-  --   surface.name,
-  --   force.name
-  -- ))
+  -- Pollution, smoke, and Impossible retaliation are all synchronized through the
+  -- ordered-launch queue so they land at the actual liftoff moment.
+  return
 end
 
 return model

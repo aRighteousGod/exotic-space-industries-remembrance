@@ -4,6 +4,83 @@ ei_data = require("lib/data")
 -- PLASMA TURRET
 --====================================================================================================
 
+local plasma_firing_sound_files = {
+    "plasma_turret_firing_1.ogg",
+    "plasma_turret_firing_2.ogg",
+    "plasma_turret_firing_3.ogg",
+    "plasma_turret_firing_4.ogg",
+    "plasma_turret_firing_5.ogg",
+    "plasma_turret_firing_6.ogg",
+}
+
+local plasma_firing_sound_volumes = {0.9, 0.95, 0.95, 0.9, 0.95, 0.9}
+local plasma_splash_radius = 13.5
+local plasma_volley_buffer_capacity = "1.4GJ"
+local plasma_triangle_apex_offset = plasma_splash_radius * 0.06
+local plasma_triangle_half_width = plasma_splash_radius * 0.08
+local plasma_triangle_base_depth = plasma_splash_radius * 0.015
+
+local function plasma_firing_sound(volume_scale, aggregation_max_count)
+    local variations = {}
+
+    for i, file_name in ipairs(plasma_firing_sound_files) do
+        table.insert(variations, {
+            filename = ei_graphics_2_path.."sounds/weapons/"..file_name,
+            volume = plasma_firing_sound_volumes[i] * volume_scale,
+        })
+    end
+
+    return {
+        aggregation = {
+            max_count = aggregation_max_count or 40,
+            remove = true,
+        },
+        variations = variations,
+    }
+end
+
+local function plasma_projectile_delivery(options)
+    options = options or {}
+
+    return {
+        type = "projectile",
+        projectile = "ei-plasma-bullet",
+        starting_speed = options.starting_speed or 0.1,
+        starting_speed_deviation = options.starting_speed_deviation,
+        direction_deviation = options.direction_deviation or 0.16,
+        range_deviation = options.range_deviation or 0.16,
+        source_offset = options.source_offset,
+        max_range = 300,
+    }
+end
+
+local function plasma_followup_trigger(name, delay, projectile_delivery_options)
+    return {
+        type = "delayed-active-trigger",
+        name = name,
+        delay = delay,
+        cancel_when_source_is_destroyed = true,
+        action = {
+            {
+                type = "direct",
+                action_delivery = {
+                    type = "instant",
+                    source_effects = {
+                        {
+                            type = "play-sound",
+                            sound = plasma_firing_sound(0.8, 24),
+                        },
+                    },
+                },
+            },
+            {
+                type = "direct",
+                action_delivery = plasma_projectile_delivery(projectile_delivery_options),
+            },
+        },
+    }
+end
+
 data:extend({
     {
         name = "ei-plasma-turret",
@@ -94,7 +171,7 @@ data:extend({
 		},
         energy_source = {
 			type = "electric",
-			buffer_capacity = "950MJ",
+			buffer_capacity = plasma_volley_buffer_capacity,
 			input_flow_limit = "400MW",
 			drain = "70MW",
 			usage_priority = "primary-input"
@@ -103,7 +180,7 @@ data:extend({
         preparing_speed = 0.06,
         folding_speed = 0.06,
         attacking_speed = 0.2,
-        prepare_range = 210,
+        prepare_range = 200,
         folded_animation = {
             filename = ei_graphics_entity_path.."plasma-turret_animation.png",
             size = {512,512},
@@ -162,73 +239,65 @@ data:extend({
         attack_parameters = {
             type = "projectile",
             ammo_category = "electric",
-            cooldown = 300,
+            cooldown = 240,
             projectile_center = {0, 0.14},
             projectile_creation_distance = 2.3,
             range = 200,
             min_range = 40,
             health_penalty = -1000,
-            rotate_penalty = 100,
-            sound = {
-                
-                aggregation = {
-                    max_count = 40,
-                    remove = true
-                },
-                variations = {
-                        {
-                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_1.ogg",
-                            volume = 0.9
-                        },
-                        {
-                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_2.ogg",
-                            volume = 0.95
-                        },
-                        {
-                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_3.ogg",
-                            volume = 0.95
-                        },
-                        {
-                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_4.ogg",
-                            volume = 0.9
-                        },
-                        {
-                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_5.ogg",
-                            volume = 0.95
-                        },
-                        {
-                            filename = ei_graphics_2_path.."sounds/weapons/plasma_turret_firing_6.ogg",
-                            volume = 0.9
-                        }
-                    }
-                
-            },
+            rotate_penalty = 160,
+            sound = plasma_firing_sound(1, 40),
             damage_modifier = 1,
             ammo_type = {
                 type = "projectile",
                 category = "electric",
-                energy_consumption = "900MJ",
+                energy_consumption = plasma_volley_buffer_capacity,
                 projectile = "ei-plasma-bullet",
                 speed = 10,
                 action = {
-                    type = "direct",
-                    action_delivery = {
-                        type = "projectile",
-                        projectile = "ei-plasma-bullet",
-                        starting_speed = 0.1,
-                        direction_deviation = 0.5,
-                        range_deviation = 0.5,
-                        max_range = 300,
-                    }
+                    {
+                        type = "direct",
+                        action_delivery = plasma_projectile_delivery({
+                            source_offset = {0, -plasma_triangle_apex_offset},
+                            direction_deviation = 0.075,
+                            range_deviation = 0.07,
+                        }),
+                    },
+                    {
+                        type = "direct",
+                        action_delivery = {
+                            type = "delayed",
+                            delayed_trigger = "ei-plasma-burst-followup-1",
+                        },
+                    },
+                    {
+                        type = "direct",
+                        action_delivery = {
+                            type = "delayed",
+                            delayed_trigger = "ei-plasma-burst-followup-2",
+                        },
+                    },
                 }
             }
         },
     },
+    plasma_followup_trigger("ei-plasma-burst-followup-1", 8, {
+        source_offset = {-plasma_triangle_half_width, plasma_triangle_base_depth},
+        starting_speed_deviation = 0.005,
+        direction_deviation = 0.095,
+        range_deviation = 0.085,
+    }),
+    plasma_followup_trigger("ei-plasma-burst-followup-2", 16, {
+        source_offset = {plasma_triangle_half_width, plasma_triangle_base_depth * 1.2},
+        starting_speed_deviation = 0.007,
+        direction_deviation = 0.105,
+        range_deviation = 0.095,
+    }),
     {
         name = "ei-plasma-bullet",
         type = "projectile",
         flags = {"not-on-map"},
-        acceleration = 0.07,
+        acceleration = 0.13,
         action = {
             action_delivery = {
                 target_effects = {
@@ -249,7 +318,7 @@ data:extend({
                                 },
                                 type = "instant"
                             },
-                            radius = 13.5,
+                            radius = plasma_splash_radius,
                             type = "area"
                         },
                         type = "nested-result"
@@ -273,7 +342,7 @@ data:extend({
                         include_decals = false,
                         include_soft_decoratives = true,
                         invoke_decorative_trigger = true,
-                        radius = 13.5,
+                        radius = plasma_splash_radius,
                         to_render_layer = "object",
                         type = "destroy-decoratives"
                     }

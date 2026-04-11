@@ -37,11 +37,15 @@ function ei_global.init()
     storage.ei.orbital_combinator_banks = {}
     storage.ei.orbital_combinator_bank_by_unit = {}
     storage.ei.orbital_combinator_bank_count = 0
+    storage.ei.orbital_combinator_platform_cache = {}
+    storage.ei.orbital_combinator_platform_by_hub = {}
+    storage.ei.orbital_combinator_platform_reconcile_tick = 0
     storage.ei["rocket_launch_pollution"] = {}
     storage.ei["rocket_launch_pollution"].mode = "linear"
     storage.ei["rocket_launch_pollution"].cap = 10000
     storage.ei["rocket_launch_pollution"].launch_smoke = {}
     storage.ei.fulgora_day_length_variation = {}
+    storage.ei.enemy_difficulty = "Tempered"
     storage.ei.nauvis_pressure = {}
     storage.ei.nauvis_pressure.milestone = 0
     storage.ei.nauvis_pressure.last_run_tick = 0
@@ -88,6 +92,9 @@ function ei_global.check_init(event)
     end
     if not storage.ei.fulgora_day_length_variation then
         storage.ei.fulgora_day_length_variation = {}
+    end
+    if not storage.ei.enemy_difficulty then
+        storage.ei.enemy_difficulty = "Tempered"
     end
     if not storage.ei.nauvis_pressure then
         storage.ei.nauvis_pressure = {}
@@ -143,6 +150,15 @@ function ei_global.check_init(event)
     end
     if storage.ei.orbital_combinator_bank_count == nil then
         storage.ei.orbital_combinator_bank_count = 0
+    end
+    if not storage.ei.orbital_combinator_platform_cache then
+        storage.ei.orbital_combinator_platform_cache = {}
+    end
+    if not storage.ei.orbital_combinator_platform_by_hub then
+        storage.ei.orbital_combinator_platform_by_hub = {}
+    end
+    if storage.ei.orbital_combinator_platform_reconcile_tick == nil then
+        storage.ei.orbital_combinator_platform_reconcile_tick = 0
     end
     if storage.ei.gaia_reforged ~= nil then
         storage.ei.gaia_reforged = nil

@@ -399,12 +399,20 @@ data:extend({
       order  = "c1g5",
   },
   {
+      name = "ei-enemy-difficulty",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "Tempered",
+      allowed_values = {"Merciful", "Gentle", "Tempered", "Original", "Severe", "Nightmare", "Impossible"},
+      order  = "c1g5a",
+  },
+  {
       name = "ei-gate-difficulty",
       type = "string-setting",
       setting_type = "startup",
       default_value = "Recovered",
       allowed_values = {"Recovered", "Attuned", "Resonant", "Paradox"},
-      order  = "c1g5a",
+      order  = "c1g5b",
   },
   {
       name = "ei-gate-notifications",

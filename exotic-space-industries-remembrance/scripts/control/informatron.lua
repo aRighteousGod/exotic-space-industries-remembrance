@@ -10,6 +10,265 @@ local function add_centered_sprite_row(element, sprites)
     end
 end
 
+local enemy_difficulty_doc_profiles = {
+    Merciful = {
+        unit_health = 0.55,
+        healing = 0.55,
+        armoured_health = 0.45,
+        armoured_resistance = 0.55,
+        damage = 0.65,
+        range = 0.90,
+        movement = 0.90,
+        attack_cooldown = 1.35,
+        spawner_health = 0.65,
+        spawner_healing = 0.65,
+        spawn_cooldown = 1.80,
+        owned_friend_caps = 0.60,
+    },
+    Gentle = {
+        unit_health = 0.70,
+        healing = 0.70,
+        armoured_health = 0.60,
+        armoured_resistance = 0.70,
+        damage = 0.78,
+        range = 0.93,
+        movement = 0.93,
+        attack_cooldown = 1.20,
+        spawner_health = 0.78,
+        spawner_healing = 0.78,
+        spawn_cooldown = 1.45,
+        owned_friend_caps = 0.75,
+    },
+    Tempered = {
+        unit_health = 0.82,
+        healing = 0.82,
+        armoured_health = 0.75,
+        armoured_resistance = 0.85,
+        damage = 0.88,
+        range = 0.96,
+        movement = 0.96,
+        attack_cooldown = 1.10,
+        spawner_health = 0.88,
+        spawner_healing = 0.88,
+        spawn_cooldown = 1.25,
+        owned_friend_caps = 0.85,
+    },
+    Original = {
+        unit_health = 1.00,
+        healing = 1.00,
+        armoured_health = 1.00,
+        armoured_resistance = 1.00,
+        damage = 1.00,
+        range = 1.00,
+        movement = 1.00,
+        attack_cooldown = 1.00,
+        spawner_health = 1.00,
+        spawner_healing = 1.00,
+        spawn_cooldown = 1.00,
+        owned_friend_caps = 1.00,
+    },
+    Severe = {
+        unit_health = 1.18,
+        healing = 1.15,
+        armoured_health = 1.30,
+        armoured_resistance = 1.15,
+        damage = 1.12,
+        range = 1.03,
+        movement = 1.04,
+        attack_cooldown = 0.92,
+        spawner_health = 1.15,
+        spawner_healing = 1.15,
+        spawn_cooldown = 0.85,
+        owned_friend_caps = 1.15,
+    },
+    Nightmare = {
+        unit_health = 1.40,
+        healing = 1.30,
+        armoured_health = 1.65,
+        armoured_resistance = 1.28,
+        damage = 1.25,
+        range = 1.06,
+        movement = 1.08,
+        attack_cooldown = 0.82,
+        spawner_health = 1.38,
+        spawner_healing = 1.30,
+        spawn_cooldown = 0.70,
+        owned_friend_caps = 1.35,
+    },
+    Impossible = {
+        unit_health = 1.75,
+        healing = 1.55,
+        armoured_health = 2.10,
+        armoured_resistance = 1.40,
+        damage = 1.42,
+        range = 1.10,
+        movement = 1.12,
+        attack_cooldown = 0.72,
+        spawner_health = 1.75,
+        spawner_healing = 1.50,
+        spawn_cooldown = 0.55,
+        owned_friend_caps = 1.60,
+    },
+}
+
+local enemy_difficulty_doc_order = {
+    "Merciful",
+    "Gentle",
+    "Tempered",
+    "Original",
+    "Severe",
+    "Nightmare",
+    "Impossible",
+}
+
+local function enemy_difficulty_locale(key)
+    return {"exotic-industries-informatron."..key}
+end
+
+local function add_wrapped_label(parent, caption, max_width)
+    local label = parent.add{type = "label", caption = caption}
+    label.style.single_line = false
+    if max_width then
+        label.style.maximal_width = max_width
+    end
+    return label
+end
+
+local function add_enemy_difficulty_cell(grid, caption, width, align)
+    local label = grid.add{type = "label", caption = caption}
+    label.style.single_line = false
+    label.style.maximal_width = width
+    label.style.minimal_width = width
+    label.style.horizontal_align = align or "left"
+    return label
+end
+
+local function percent_text(multiplier)
+    return tostring(math.floor(multiplier * 100 + 0.5)).."%"
+end
+
+local function localised_lines(lines)
+    local result = {""}
+
+    for index, line in ipairs(lines) do
+        table.insert(result, line)
+        if index < #lines then
+            table.insert(result, "\n")
+        end
+    end
+
+    return result
+end
+
+local function percent_term(multiplier, key)
+    return {"", percent_text(multiplier), " ", enemy_difficulty_locale(key)}
+end
+
+local function tier_locale(name)
+    return enemy_difficulty_locale("enemy-difficulty-tier-"..string.lower(name))
+end
+
+local function tier_caption(name)
+    if name == "Tempered" then
+        return localised_lines({
+            tier_locale(name),
+            enemy_difficulty_locale("enemy-difficulty-note-tempered"),
+        })
+    elseif name == "Original" then
+        return localised_lines({
+            tier_locale(name),
+            enemy_difficulty_locale("enemy-difficulty-note-original"),
+        })
+    elseif name == "Impossible" then
+        return localised_lines({
+            tier_locale(name),
+            enemy_difficulty_locale("enemy-difficulty-note-impossible"),
+        })
+    end
+
+    return tier_locale(name)
+end
+
+local function build_enemy_difficulty_row(profile, name)
+    if name == "Original" then
+        return {
+            tier_caption(name),
+            localised_lines({
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-flesh"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-healing"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-armour"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-armoured-resistance"),
+            }),
+            localised_lines({
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-bite"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-cadence"),
+            }),
+            localised_lines({
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-reach"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-stride"),
+            }),
+            localised_lines({
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-hives"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-spawner-healing"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-brood"),
+                enemy_difficulty_locale("enemy-difficulty-term-dependency-pack-law"),
+            }),
+        }
+    end
+
+    return {
+        tier_caption(name),
+        localised_lines({
+            percent_term(profile.unit_health, "enemy-difficulty-term-flesh"),
+            percent_term(profile.healing, "enemy-difficulty-term-healing"),
+            percent_term(profile.armoured_health, "enemy-difficulty-term-armoured"),
+            percent_term(profile.armoured_resistance, "enemy-difficulty-term-armoured-resistance"),
+        }),
+        localised_lines({
+            percent_term(profile.damage, "enemy-difficulty-term-bite"),
+            percent_term(profile.attack_cooldown, "enemy-difficulty-term-cadence"),
+        }),
+        localised_lines({
+            percent_term(profile.range, "enemy-difficulty-term-reach"),
+            percent_term(profile.movement, "enemy-difficulty-term-stride"),
+        }),
+        localised_lines({
+            percent_term(profile.spawner_health, "enemy-difficulty-term-hive-shell"),
+            percent_term(profile.spawner_healing, "enemy-difficulty-term-spawner-healing"),
+            percent_term(profile.spawn_cooldown, "enemy-difficulty-term-brood"),
+            percent_term(profile.owned_friend_caps, "enemy-difficulty-term-pack-law"),
+        }),
+    }
+end
+
+local function add_enemy_difficulty_table(element)
+    local widths = {
+        [1] = 110,
+        [2] = 185,
+        [3] = 170,
+        [4] = 155,
+        [5] = 220,
+    }
+
+    local grid = element.add{type = "table", column_count = 5}
+    grid.style.horizontal_spacing = 12
+    grid.style.vertical_spacing = 8
+    grid.style.top_margin = 4
+
+    add_enemy_difficulty_cell(grid, enemy_difficulty_locale("enemy-difficulty-table-tier"), widths[1])
+    add_enemy_difficulty_cell(grid, enemy_difficulty_locale("enemy-difficulty-table-bodies"), widths[2])
+    add_enemy_difficulty_cell(grid, enemy_difficulty_locale("enemy-difficulty-table-bite-rhythm"), widths[3])
+    add_enemy_difficulty_cell(grid, enemy_difficulty_locale("enemy-difficulty-table-reach-stride"), widths[4])
+    add_enemy_difficulty_cell(grid, enemy_difficulty_locale("enemy-difficulty-table-hive-pressure"), widths[5])
+
+    for _, name in ipairs(enemy_difficulty_doc_order) do
+        local row = build_enemy_difficulty_row(enemy_difficulty_doc_profiles[name], name)
+        for _, cell in ipairs(row) do
+            add_enemy_difficulty_cell(grid, cell, widths[_], _ == 1 and "center" or "left")
+        end
+    end
+end
+
 --====================================================================================================
 --INFORMATRON
 --====================================================================================================
@@ -40,6 +299,7 @@ function model.menu(player_index)
             overall = 1,
             ages_and_tech = 1,
             tech_scaling = 1,
+            enemy_difficulty = 1,
             nauvis_pressure_grace = 1,
             rocket_launch_pollution = 1,
             turrets = 1,
@@ -183,6 +443,51 @@ function model.tech_scaling(player_index, element)
 
     element.add{type = "label", caption = {"exotic-industries-informatron.tech-3"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.tech-text-3"}}
+end
+
+function model.enemy_difficulty(player_index, element)
+    element.add{type = "label", caption = enemy_difficulty_locale("enemy-difficulty"), style = "heading_1_label"}
+    add_wrapped_label(
+        element,
+        enemy_difficulty_locale("enemy-difficulty-text"),
+        920
+    )
+
+    element.add{type = "label", caption = enemy_difficulty_locale("enemy-difficulty-2"), style = "heading_1_label"}
+    add_wrapped_label(
+        element,
+        enemy_difficulty_locale("enemy-difficulty-text-2"),
+        920
+    )
+    add_enemy_difficulty_table(element)
+
+    element.add{type = "label", caption = enemy_difficulty_locale("enemy-difficulty-3"), style = "heading_1_label"}
+    add_wrapped_label(
+        element,
+        enemy_difficulty_locale("enemy-difficulty-text-3"),
+        920
+    )
+
+    element.add{type = "label", caption = enemy_difficulty_locale("enemy-difficulty-4"), style = "heading_1_label"}
+    add_wrapped_label(
+        element,
+        enemy_difficulty_locale("enemy-difficulty-text-4"),
+        920
+    )
+
+    element.add{type = "label", caption = enemy_difficulty_locale("enemy-difficulty-5"), style = "heading_1_label"}
+    add_wrapped_label(
+        element,
+        enemy_difficulty_locale("enemy-difficulty-text-5"),
+        920
+    )
+
+    element.add{type = "label", caption = enemy_difficulty_locale("enemy-difficulty-6"), style = "heading_1_label"}
+    add_wrapped_label(
+        element,
+        enemy_difficulty_locale("enemy-difficulty-text-6"),
+        920
+    )
 end
 
 function model.nauvis_pressure_grace(player_index, element)
@@ -699,6 +1004,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "tech_scaling" then
         model.tech_scaling(player_index, element)
+    end
+
+    if page_name == "enemy_difficulty" then
+        model.enemy_difficulty(player_index, element)
     end
 
     if page_name == "nauvis_pressure_grace" then
