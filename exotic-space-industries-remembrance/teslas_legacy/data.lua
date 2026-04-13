@@ -1,4 +1,15 @@
-﻿require "teslas_legacy.prototypes.entity.beam.tl-tesla-coil-beam"
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: data-stage prototype aggregation for data
+-- loaded_by: exotic-space-industries-remembrance\data.lua
+-- cadence: data-stage load
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload, prototype cache rebuild
+--==============================================================================
+require "teslas_legacy.prototypes.entity.beam.tl-tesla-coil-beam"
 require "teslas_legacy.prototypes.entity.explosion.tl-tesla-coil-explosion"
 require "teslas_legacy.prototypes.entity.explosion.tl-tesla-coil-turret-explosion"
 require "teslas_legacy.prototypes.entity.electric-turret.tl-advanced-tesla-coil-turret"

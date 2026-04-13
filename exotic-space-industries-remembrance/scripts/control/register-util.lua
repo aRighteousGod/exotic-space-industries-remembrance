@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: shared entity registration helpers
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build/destroy helper dispatch
+-- forwarded_events: add_spaced_update, deregister_collector_entity, deregister_fluid_entity, extend_beacon_table, init, init_beacon, link_slave, make_slave, register_collector_entity, register_fluid_entity, register_master_entity, setup_master_slave, subtract_spaced_update, teardown_master_slave, unregister_master_entity, unregister_slave_entity
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, entity rebuilds
+--==============================================================================
 --[[
 ==============storage structure================================
 storage.ei = storage.ei
@@ -72,14 +83,41 @@ end
 
 function model.register_fluid_entity(entity)
     ensure_subtables("fluid_entity")
+    if not (entity and entity.valid and entity.unit_number) then
+        return false
+    end
+
+    if ei_fluid_safety and ei_fluid_safety.on_fluid_entity_registered then
+        return ei_fluid_safety.on_fluid_entity_registered(entity)
+    end
+
+    if storage.ei.fluid_entity[entity.unit_number] then
+        storage.ei.fluid_entity[entity.unit_number] = entity
+        return false
+    end
+
     storage.ei.fluid_entity_count = (storage.ei.fluid_entity_count or 0) + 1
     storage.ei.fluid_entity[entity.unit_number] = entity
+    return true
 end
 
 function model.deregister_fluid_entity(entity)
     ensure_subtables("fluid_entity")
+    if not entity then
+        return false
+    end
+
+    if ei_fluid_safety and ei_fluid_safety.on_fluid_entity_deregistered then
+        return ei_fluid_safety.on_fluid_entity_deregistered(entity)
+    end
+
+    if not storage.ei.fluid_entity[entity.unit_number] then
+        return false
+    end
+
     storage.ei.fluid_entity_count = math.max(0, (storage.ei.fluid_entity_count or 0) - 1)
     storage.ei.fluid_entity[entity.unit_number] = nil
+    return true
 end
 
 ---------------------------------------------------------------------

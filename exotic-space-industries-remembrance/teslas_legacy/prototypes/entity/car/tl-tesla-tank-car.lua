@@ -1,4 +1,4 @@
-﻿local hit_effects = require ("__base__/prototypes/entity/hit-effects")
+local hit_effects = require ("__base__/prototypes/entity/hit-effects")
 local sounds = require("__base__/prototypes/entity/sounds.lua")
 local movement_triggers = require("__base__.prototypes.entity.movement-triggers")
 
@@ -18,7 +18,7 @@ data:extend({
   {
     type = "car",
     name = "tl-tesla-tank",
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/icons/Teslatank.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/icons/Teslatank.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = 
     {
@@ -164,22 +164,22 @@ data:extend({
       stripes =
       {
         {
-         filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-1.png",
+         filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-1.png",
          width_in_frames = 2,
          height_in_frames = 16
         },
         {
-         filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-2.png",
+         filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-2.png",
          width_in_frames = 2,
          height_in_frames = 16
         },
         {
-         filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-3.png",
+         filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-3.png",
          width_in_frames = 2,
          height_in_frames = 16
         },
         {
-         filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-4.png",
+         filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-light-4.png",
          width_in_frames = 2,
          height_in_frames = 16
         }
@@ -197,22 +197,22 @@ data:extend({
         stripes =
         {
           {
-           filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-1.png",
+           filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-1.png",
            width_in_frames = 2,
            height_in_frames = 16
           },
           {
-           filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-2.png",
+           filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-2.png",
            width_in_frames = 2,
            height_in_frames = 16
           },
           {
-           filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-3.png",
+           filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-3.png",
            width_in_frames = 2,
            height_in_frames = 16
           },
           {
-           filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-4.png",
+           filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-light-4.png",
            width_in_frames = 2,
            height_in_frames = 16
           }
@@ -237,22 +237,22 @@ data:extend({
           stripes =
           {
             {
-             filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-1.png",
+             filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-1.png",
              width_in_frames = 2,
              height_in_frames = 16
             },
             {
-             filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-2.png",
+             filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-2.png",
              width_in_frames = 2,
              height_in_frames = 16
             },
             {
-             filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-3.png",
+             filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-3.png",
              width_in_frames = 2,
              height_in_frames = 16
             },
             {
-             filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-4.png",
+             filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-4.png",
              width_in_frames = 2,
              height_in_frames = 16
             }
@@ -270,22 +270,22 @@ data:extend({
             stripes =
             {
               {
-               filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-1.png",
+               filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-1.png",
                width_in_frames = 2,
                height_in_frames = 16
               },
               {
-               filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-2.png",
+               filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-2.png",
                width_in_frames = 2,
                height_in_frames = 16
               },
               {
-               filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-3.png",
+               filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-3.png",
                width_in_frames = 2,
                height_in_frames = 16
               },
               {
-               filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-4.png",
+               filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-4.png",
                width_in_frames = 2,
                height_in_frames = 16
               }
@@ -306,22 +306,22 @@ data:extend({
           stripes = 
           {
             {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-1.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-1.png",
               width_in_frames = 2,
               height_in_frames = 16
             },
             {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-2.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-2.png",
               width_in_frames = 2,
               height_in_frames = 16
             },
             {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-3.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-3.png",
               width_in_frames = 2,
               height_in_frames = 16
             },
             {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-4.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-mask-4.png",
               width_in_frames = 2,
               height_in_frames = 16
             }
@@ -340,22 +340,22 @@ data:extend({
             stripes = 
             {
               {
-                filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-1.png",
+                filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-1.png",
                 width_in_frames = 2,
                 height_in_frames = 16
                },
                {
-                filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-2.png",
+                filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-2.png",
                 width_in_frames = 2,
                 height_in_frames = 16
                },
                {
-                filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-3.png",
+                filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-3.png",
                 width_in_frames = 2,
                 height_in_frames = 16
                },
                {
-                filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-4.png",
+                filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-mask-4.png",
                 width_in_frames = 2,
                 height_in_frames = 16
                }             
@@ -375,22 +375,22 @@ data:extend({
           stripes = util.multiplystripes(2,
           {
            {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-1.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-1.png",
             width_in_frames = 1,
             height_in_frames = 16
            },
            {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-2.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-2.png",
             width_in_frames = 1,
             height_in_frames = 16
            },
            {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-3.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-3.png",
             width_in_frames = 1,
             height_in_frames = 16
            },
            {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-4.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-base-shadow-4.png",
             width_in_frames = 1,
             height_in_frames = 16
            }
@@ -408,22 +408,22 @@ data:extend({
             stripes = util.multiplystripes(2,
             {
              {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-1.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-1.png",
               width_in_frames = 1,
               height_in_frames = 16
              },
              {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-2.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-2.png",
               width_in_frames = 1,
               height_in_frames = 16
              },
              {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-3.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-3.png",
               width_in_frames = 1,
               height_in_frames = 16
              },
              {
-              filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-4.png",
+              filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-base-shadow-4.png",
               width_in_frames = 1,
               height_in_frames = 16
              }
@@ -438,7 +438,7 @@ data:extend({
       layers =
       {
         {
-          filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-turret.png",
+          filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-turret.png",
           priority = "low",
           line_length = 8,
           width = 140,
@@ -449,7 +449,7 @@ data:extend({
           animation_speed = 8,
           hr_version =
           {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-turret.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-turret.png",
             priority = "low",
             line_length = 8,
             width = 280,
@@ -461,7 +461,7 @@ data:extend({
           }
         },
         {
-          filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-turret-mask.png",
+          filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-turret-mask.png",
           priority = "low",
           line_length = 8,
           width = 140,
@@ -472,7 +472,7 @@ data:extend({
           shift = util.by_pixel(0,0),
           hr_version =
           {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-turret-mask.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-turret-mask.png",
             priority = "low",
             line_length = 8,
             width = 280,
@@ -484,7 +484,7 @@ data:extend({
           }
         },
         {
-          filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-turret-shadow.png",
+          filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/lr-tank-turret-shadow.png",
           priority = "low",
           line_length = 8,
           width = 111,
@@ -495,7 +495,7 @@ data:extend({
           shift = util.by_pixel(0,0),
           hr_version =
           {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-turret-shadow.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/Teslatank/hr-tank-turret-shadow.png",
             priority = "low",
             line_length = 8,
             width = 221,

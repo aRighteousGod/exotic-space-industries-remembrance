@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: alien-system build, selection, and GUI click dispatch
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build, selected-area, and GUI click dispatch
+-- forwarded_events: apply_effects, check_init, enable_alien, entity_check, exit_confirm, get_button_sprite, get_button_tags, get_prerequisites, get_tier, get_total_height, get_unlocked_state, is_unlocked, make_confirm_gui, make_tiers, on_built_entity, on_gui_click, on_player_selected_area, repair_artifact, select_alien, set_unlocked, swap_gui, try_select_alien, update_informatron, update_tier_status
+-- storage_roots: storage.ei
+-- gui_ids: ei-alien-gui
+-- remote_interfaces: none
+-- rebuild_on: alien-system prototype changes
+--==============================================================================
 local ei_data = require("lib/data")
 local model = {}
 

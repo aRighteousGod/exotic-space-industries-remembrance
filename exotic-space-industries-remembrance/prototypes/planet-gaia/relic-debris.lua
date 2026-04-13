@@ -30,7 +30,7 @@ data:extend({
     {
         type = "item",
         name = "ei-gaia-relic-debris",
-        icon = "__exotic-space-industries-remembrance__/graphics/icons/gaia-relic-debris.png",
+        icon = "__exotic-space-industries-remembrance-graphics-3__/graphics/icons/gaia-relic-debris.png",
         icon_size = 64,
         icon_mipmaps = 4,
         subgroup = "raw-resource",
@@ -40,7 +40,7 @@ data:extend({
     {
         type = "resource",
         name = "ei-gaia-relic-debris",
-        icon = "__exotic-space-industries-remembrance__/graphics/icons/gaia-relic-debris.png",
+        icon = "__exotic-space-industries-remembrance-graphics-3__/graphics/icons/gaia-relic-debris.png",
         icon_size = 64,
         icon_mipmaps = 4,
         flags = {"placeable-neutral"},
@@ -60,7 +60,7 @@ data:extend({
         stage_counts = {15000, 9500, 5500, 2900, 1300, 400, 150, 80},
         stages = {
             sheet = {
-                filename = "__exotic-space-industries-remembrance__/graphics/entities/gaia-relic-debris.png",
+                filename = "__exotic-space-industries-remembrance-graphics-3__/graphics/entities/gaia-relic-debris.png",
                 priority = "extra-high",
                 size = 128,
                 frame_count = 8,
@@ -87,7 +87,7 @@ data:extend({
                 icon = "__quality__/graphics/icons/recycling.png"
             },
             {
-                icon = "__exotic-space-industries-remembrance__/graphics/icons/gaia-relic-debris.png",
+                icon = "__exotic-space-industries-remembrance-graphics-3__/graphics/icons/gaia-relic-debris.png",
                 icon_size = 64,
                 icon_mipmaps = 4,
                 scale = 0.4

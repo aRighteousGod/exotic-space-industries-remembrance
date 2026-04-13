@@ -15,7 +15,8 @@ local plasma_firing_sound_files = {
 
 local plasma_firing_sound_volumes = {0.9, 0.95, 0.95, 0.9, 0.95, 0.9}
 local plasma_splash_radius = 13.5
-local plasma_volley_buffer_capacity = "1.4GJ"
+local plasma_volley_energy_cost = "1.4GJ"
+local plasma_volley_buffer_capacity = "1.6GJ"
 local plasma_triangle_apex_offset = plasma_splash_radius * 0.06
 local plasma_triangle_half_width = plasma_splash_radius * 0.08
 local plasma_triangle_base_depth = plasma_splash_radius * 0.015
@@ -251,7 +252,7 @@ data:extend({
             ammo_type = {
                 type = "projectile",
                 category = "electric",
-                energy_consumption = plasma_volley_buffer_capacity,
+                energy_consumption = plasma_volley_energy_cost,
                 projectile = "ei-plasma-bullet",
                 speed = 10,
                 action = {

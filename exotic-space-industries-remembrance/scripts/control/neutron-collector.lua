@@ -1,4 +1,16 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: neutron collector and source runtime
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build/destroy, scheduled tick step 3, and configuration rebuild
+-- forwarded_events: add_connected_source, apply_collector_animation, calc_distance, calc_efficiency, calc_fusion_flux, check_global, clear_legacy_runtime_fields, connect_collector, dequeue_dirty_collector, disconnect_collector, ensure_runtime_ready, entity_check, find_neutron_source, get_connected_source_count, get_dirty_collector_count, get_dirty_queue, get_entity_recipe_name, get_looking_direction, get_or_create_source_entry, get_pending_work_count, get_source_entry, get_source_fusion_multiplier, get_state, is_output_empty, make_direction_animation, on_built_entity, on_destroyed_entity, parse_fusion_multiplier, poll_connected_sources, poll_source, process_dirty_collectors, queue_collectors_in_range, queue_dirty_collector, rebuild_runtime_state, refresh_collector, register_collector, remove_collector_from_source, remove_connected_source, remove_direction_animation, remove_direction_animation_by_unit, remove_source_entry, reset_runtime_storage, show_resolution_text, unregister_collector, update, update_neutron_collector, update_neutron_collectors_in_range
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, entity topology changes
+--==============================================================================
 local model = {}
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local NEUTRON_RUNTIME_VERSION = 1
 local NEUTRON_COLLECTOR_NAME = "ei-neutron-collector"
@@ -29,43 +41,11 @@ model.dist_buffs = {
 }
 
 local function make_dirty_queue()
-    return {
-        items = {},
-        head = 1,
-        tail = 0,
-    }
+    return ei_runtime_scheduler.ensure_queue(nil)
 end
 
 local function reset_dirty_queue(queue)
-    queue.items = {}
-    queue.head = 1
-    queue.tail = 0
-    return queue
-end
-
-local function compact_dirty_queue(queue)
-    if queue.head > queue.tail then
-        return reset_dirty_queue(queue)
-    end
-
-    if queue.head > 64 and queue.head > math.floor((queue.tail - queue.head + 1) / 2) then
-        local new_items = {}
-        local new_tail = 0
-
-        for index = queue.head, queue.tail do
-            local unit_number = queue.items[index]
-            if unit_number ~= nil then
-                new_tail = new_tail + 1
-                new_items[new_tail] = unit_number
-            end
-        end
-
-        queue.items = new_items
-        queue.head = 1
-        queue.tail = new_tail
-    end
-
-    return queue
+    return ei_runtime_scheduler.clear_queue(queue)
 end
 
 --UTIL
@@ -220,10 +200,8 @@ function model.get_dirty_queue(runtime)
         runtime.dirty_collector_queue = queue
     end
 
-    queue.items = queue.items or {}
-    queue.head = queue.head or 1
-    queue.tail = queue.tail or 0
-
+    queue = ei_runtime_scheduler.ensure_queue(queue)
+    runtime.dirty_collector_queue = queue
     return queue
 end
 
@@ -351,8 +329,7 @@ function model.queue_dirty_collector(runtime, collector_entry, exclude_source_un
     end
 
     local queue = model.get_dirty_queue(runtime)
-    queue.tail = queue.tail + 1
-    queue.items[queue.tail] = collector_entry.unit_number
+    ei_runtime_scheduler.queue_push(queue, collector_entry.unit_number)
     collector_entry.queued = true
     runtime.dirty_collector_count = (runtime.dirty_collector_count or 0) + 1
 
@@ -363,18 +340,16 @@ end
 function model.dequeue_dirty_collector(runtime)
     local queue = model.get_dirty_queue(runtime)
 
-    while queue.head <= queue.tail do
-        local unit_number = queue.items[queue.head]
-        queue.items[queue.head] = nil
-        queue.head = queue.head + 1
+    local unit_number = ei_runtime_scheduler.queue_pop_matching(queue, function(candidate_unit_number)
+        local collector_entry = runtime.collectors_by_unit[candidate_unit_number]
+        return collector_entry and collector_entry.queued == true
+    end)
 
+    if unit_number then
         local collector_entry = runtime.collectors_by_unit[unit_number]
-        if collector_entry and collector_entry.queued then
-            collector_entry.queued = false
-            runtime.dirty_collector_count = math.max(0, (runtime.dirty_collector_count or 0) - 1)
-            compact_dirty_queue(queue)
-            return collector_entry
-        end
+        collector_entry.queued = false
+        runtime.dirty_collector_count = math.max(0, (runtime.dirty_collector_count or 0) - 1)
+        return collector_entry
     end
 
     reset_dirty_queue(queue)

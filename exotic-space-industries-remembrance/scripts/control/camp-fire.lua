@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: camp-fire periodic fire spawning
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build/destroy and scheduled tick step 1
+-- forwarded_events: on_built_entity, on_destroyed_entity, updater
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, entity topology changes
+--==============================================================================
 -- campfire
 local model = {}
 ei_lib = require("lib/lib")

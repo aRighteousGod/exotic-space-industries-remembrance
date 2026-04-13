@@ -1,4 +1,4 @@
-﻿require ("teslas_legacy.config.research")
+require ("teslas_legacy.config.research")
 require ("teslas_legacy.config.settings")
 require ("teslas_legacy.lib.technology")
 
@@ -22,10 +22,10 @@ function get_name(name, index)
 end
 
 function get_icon(name) 
-  return "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/" .. name .. ".png" 
+  return "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/" .. name .. ".png" 
 end
 function get_modifier_icon(name) 
-  return "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/modifiers/" .. name .. "-modifier.png" 
+  return "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/modifiers/" .. name .. "-modifier.png" 
 end
 
 local function create_nothing_effect( name, formatted_modifier, current_bonus )

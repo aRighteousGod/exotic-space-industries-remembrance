@@ -87,7 +87,7 @@ data:extend({
     {
         name = "ei-ultra-express-loader",
         type = "item",
-        icon = ei_loaders_item_path.."ultra-express-loader.png",
+        icon = item_path.."ultra-express-loader.png",
         icon_size = 64,
         icon_mipmaps = 4,
         subgroup = "belt",

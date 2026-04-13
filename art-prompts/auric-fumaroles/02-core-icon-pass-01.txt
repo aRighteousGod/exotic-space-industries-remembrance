@@ -1,0 +1,13 @@
+Create a single square item icon source image on transparent background for a "carbide precipitation core".
+
+Requirements:
+- transparent background
+- centered object only
+- readable at 64x64
+- compact sacrificial industrial core made from tungsten carbide and slag-derived structure
+- dark carbide shell, steel-tungsten gray body, etched apertures, restrained dull-gold precipitate veins, tiny ember accent
+- severe choke-like geometry, ritual-industrial feel, not fantasy jewelry
+- no text, no frame, no hands, no background props
+
+Style target:
+Factorio item icon readability with a stark, black-sigil industrial mood.

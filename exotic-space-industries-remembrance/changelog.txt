@@ -1,4 +1,30 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.21
+Date: 4-13-2026
+  Info:
+    - Recipe Icons Improvement for Exotic Space Industries: Remembrance version <= 1.1.11 will be incompatible! This will last until an update removing the Flammable Oil dependency is released—a manual edit only involves opening the Recipe Icons mod zip and removing Flammable_Oils_QUICKFIX from the info.json file.
+  Features:
+    - Replaced the Flammable Oils dependency with an in-house event-driven rupture system: combustible fluid containers now erupt from final runtime fluid prototype data with oil, gas, and exotic rupture families, mixed stores blend secondary smoke and hazard traits into the dominant fluid's signature, tanks and large fluid machines stage bigger ceremonial bursts than pipe pops.
+    - Added a startup flammable rupture fidelity setting with Lean, Standard, Cinematic, and Unbounded modes, plus a dedicated Informatron page in all supported locales describing the rupture scheduler, outward ring propagation, and the real performance danger of removing the caps.
+    - Added Vulcanus-only auric precipitation fumaroles: finite outer-danger fissures can now seed on chunk generation, slowly awaken in explored danger chunks through a budgeted dormant scheduler, self-seal if left untouched, and leave permanent volcanic scars with a fading afterglow once they close.
+    - Added Crushed slag and upgrade variants for sulfuric, nitric, and morphium slag extraction recipes, plus productivity support for the extraction technologies.
+    - Added locale and InformaTron coverage for the auric fumarole system across all supported locales, including Vulcanus-only rescan feedback and precipitation-core lore.
+    - Required `doeworks-deer >= 0.3.0` and reworked rocket ordnance into a modular airframe/motor/warhead chain with new corrosive, cryo, atomic, and siege rocket varieties, plus bespoke explosion, smoke, and sticker FX families and a new InformaTron schema page in all supported locales.
+    - Added fine-grained particle-first EI death explosions across tanks, mechanicals, combustion rigs, steam hardware, electric logistics, signal machines, ballistic and chemical weapons, quantum tech, alien structures, cosmic displays, and fortified compat placeables, preserving bespoke deaths while replacing or materially enhancing generic stock blasts.
+    - Added shared runtime scheduler primitives, counters, and status exports across the queued V2 control-path modules while keeping `control.lua` as the single top-level dispatcher, making long benchmarks and parity audits far easier to trust.
+  Changes:
+    - Logistics 2 technology prerequisites: Additionally requires Electric age.
+    - Renamed the legacy-titled runtime module `powered-beacon.lua` to `fluid-safety.lua`, and updated the control/documentation references so the file now reflects its actual role.
+    - Reworked beacon overload runtime around cached per-machine weighted beacon counts and queued rebuild passes, reducing repeated local recount scans during beacon churn and making refresh recovery settle over time instead of spiking a single giant rebuild tick.
+    - Added remote compatibility hooks so mods can register beacon overload machine exclusions, beacon exclusions, and custom beacon weights without hardcoded runtime patches.
+    - Reworked invalid fluid pipe enforcement around queued segment audits, urgent pipe churn, and reserved repair/background service, cutting redundant large-save pipe reads and reducing the delay after pipe network changes.
+  Bugfixes:
+    - Beacon overload now repairs on any configuration change, including other mod changes and startup-setting changes, so existing saves resynchronize correctly after prototype or rules shifts.
+    - Beacon overload configuration-change rebuilds now enumerate generated chunks through a bounded background queue instead of scanning every eligible machine on a whole surface in one tick, avoiding load-time freezes on very large saves.
+    - Beacon overload now keeps suspect cleanup and disable-time release budgeted in the background, and retains opt-in stall logging controls plus an internal auto-arm fallback flag for catastrophic cases without forcing load/config-change logs by default.
+    - Krastorio2-spaced-out singularity beacons now consistently count as 2 toward overloads across build, teardown, and queued rebuild paths, and machines released from overload no longer get stranded disabled when the rules change or overload is turned off.
+    - Fixed EI silo storage tanks lacking a prototype death explosion.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.20
 Date: 4-10-2026
   Features:

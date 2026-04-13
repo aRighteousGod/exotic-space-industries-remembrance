@@ -1,10 +1,10 @@
-﻿
+
 data:extend({
   {
     type = "technology",
     name = "tl-advanced-tesla-coils-technology",
     icon_size = 64, icon_mipmaps = 4,
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/icons/soviet-tesla.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/icons/soviet-tesla.png",
     effects =
     {
       {

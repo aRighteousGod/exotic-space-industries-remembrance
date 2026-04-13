@@ -1,7 +1,20 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: root storage schema and scheduled runtime sanity
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init, configuration-changed, and scheduled tick step 1
+-- forwarded_events: check_init, init
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change
+--==============================================================================
 -- Init storage variables for Exotic Industries
 ei_lib = require("lib/lib")
 ei_echo_codex = require("lib/echo-codex")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local ei_global = {}
+local BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT = false
 
 local function new_steam_train_runtime()
     -- Steam trains maintain a full tracked set plus a smaller active queue for frequent wheel updates.
@@ -12,6 +25,64 @@ local function new_steam_train_runtime()
         active_units = {},
         active_index_by_unit = {},
         audit_cursor = 1
+    }
+end
+
+local function new_beacon_overload_runtime()
+    local function new_queue()
+        return ei_runtime_scheduler.ensure_queue(nil)
+    end
+
+    return {
+        tracked_machines = {},
+        machine_counts = {},
+        overloaded_units = {},
+        tracked_count = 0,
+        overloaded_count = 0,
+        mode = nil,
+        surface_queue = new_queue(),
+        chunk_queue = new_queue(),
+        machine_queue = new_queue(),
+        queued_units = {},
+        queued_chunk_keys = {},
+        processed_chunk_keys = {},
+        tracked_refresh_cursor = nil,
+        tracked_audit_cursor = nil,
+        icon_audit_cursor = nil,
+        release_cursor = nil,
+        last_reason = nil,
+        debug = {
+            enabled = false,
+            auto_arm = BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT,
+            last_heartbeat_tick = 0,
+            last_reason = nil,
+            last_status = {},
+        },
+        compat = {
+            machine_exclusions = {},
+            beacon_exclusions = {},
+            beacon_weights = {},
+        }
+    }
+end
+
+local function new_fluid_runtime()
+    return {
+        initialized = false,
+        entries_by_unit = {},
+        tracked_count = 0,
+        scan_units = {},
+        scan_index = 1,
+        urgent_units = {},
+        urgent_head = 1,
+        urgent_tail = 1,
+        urgent_pending = {},
+        segments = {},
+        dirty_segments = {},
+        dirty_head = 1,
+        dirty_tail = 1,
+        dirty_pending = {},
+        service_mode_cursor = 1,
     }
 end
 
@@ -30,6 +101,7 @@ function ei_global.init()
     storage.ei["tech_scaling"].techCount = 0
 
     storage.ei["overload_icons"] = {}
+    storage.ei.beacon_overload = new_beacon_overload_runtime()
     storage.ei["neutron_collector_animation"] = {}
     storage.ei.neutron_runtime = {}
     storage.ei["spawner_queue"] = {}
@@ -44,6 +116,8 @@ function ei_global.init()
     storage.ei["rocket_launch_pollution"].mode = "linear"
     storage.ei["rocket_launch_pollution"].cap = 10000
     storage.ei["rocket_launch_pollution"].launch_smoke = {}
+    storage.ei["rocket_launch_pollution"].pending_launches_by_silo = {}
+    storage.ei["rocket_launch_pollution"].pending_launch_cleanup_buckets = {}
     storage.ei.fulgora_day_length_variation = {}
     storage.ei.enemy_difficulty = "Tempered"
     storage.ei.nauvis_pressure = {}
@@ -51,14 +125,35 @@ function ei_global.init()
     storage.ei.nauvis_pressure.last_run_tick = 0
     --depreciated by NSB
     --storage.ei.spaced_updates = 0
+    storage.ei.fluid_runtime = new_fluid_runtime()
     storage.ei.fluid_entity = {}
     storage.ei.fluid_entity_count = 0
     storage.ei.arrival_waves = {}
+    storage.ei.pending_arrivals = {}
     storage.ei.alien = {}
     -- Initialize the indexed steam train runtime shape up front so new saves and migrated saves agree.
     storage.ei.locomotives = new_steam_train_runtime()
     storage.ei.campfire = {}
     storage.ei.campfire_last_run_tick = 0
+    storage.ei.beacon_overload.debug.auto_arm = BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT
+    storage.ei.vulcanus_fumaroles = {
+        backfill_bootstrapped = false,
+        processed_chunks = {},
+        history_chunks = {},
+        cooldown_chunks = {},
+        backfill_queue = ei_runtime_scheduler.ensure_queue(nil),
+        active = {},
+        active_chunk_buckets = {},
+        dormant_chunks = {},
+        dormant_delayed_buckets = {},
+        dormant_surface_queues = {},
+        dormant_surface_counts = {},
+        dormant_active_surfaces = {},
+        dormant_active_surface_positions = {},
+        dormant_active_surface_cursor = 0,
+        zero_active_since_tick = nil,
+        sound_proxies = {},
+    }
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
 end
@@ -70,6 +165,9 @@ function ei_global.check_init(event)
     end
     if not storage.ei.arrival_waves then
         storage.ei.arrival_waves = {}
+    end
+    if not storage.ei.pending_arrivals then
+        storage.ei.pending_arrivals = {}
     end
     if not storage.ei.campfire then
         storage.ei.campfire = {}
@@ -89,6 +187,12 @@ function ei_global.check_init(event)
     end
     if not storage.ei.rocket_launch_pollution.launch_smoke then
         storage.ei.rocket_launch_pollution.launch_smoke = {}
+    end
+    if not storage.ei.rocket_launch_pollution.pending_launches_by_silo then
+        storage.ei.rocket_launch_pollution.pending_launches_by_silo = {}
+    end
+    if not storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets then
+        storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets = {}
     end
     if not storage.ei.fulgora_day_length_variation then
         storage.ei.fulgora_day_length_variation = {}
@@ -125,6 +229,129 @@ function ei_global.check_init(event)
 
     if not storage.ei["overload_icons"] then
         storage.ei["overload_icons"] = {}
+    end
+    if not storage.ei.beacon_overload then
+        storage.ei.beacon_overload = new_beacon_overload_runtime()
+    end
+    if not storage.ei.beacon_overload.tracked_machines then
+        storage.ei.beacon_overload.tracked_machines = {}
+    end
+    if not storage.ei.beacon_overload.machine_counts then
+        storage.ei.beacon_overload.machine_counts = {}
+    end
+    if not storage.ei.beacon_overload.overloaded_units then
+        storage.ei.beacon_overload.overloaded_units = {}
+    end
+    if storage.ei.beacon_overload.tracked_count == nil then
+        storage.ei.beacon_overload.tracked_count = 0
+    end
+    if storage.ei.beacon_overload.overloaded_count == nil then
+        storage.ei.beacon_overload.overloaded_count = 0
+    end
+    if storage.ei.beacon_overload.tracked_refresh_cursor == nil then
+        storage.ei.beacon_overload.tracked_refresh_cursor = nil
+    end
+    if storage.ei.beacon_overload.tracked_audit_cursor == nil then
+        storage.ei.beacon_overload.tracked_audit_cursor = nil
+    end
+    if storage.ei.beacon_overload.icon_audit_cursor == nil then
+        storage.ei.beacon_overload.icon_audit_cursor = nil
+    end
+    if storage.ei.beacon_overload.release_cursor == nil then
+        storage.ei.beacon_overload.release_cursor = nil
+    end
+    if storage.ei.beacon_overload.last_reason == nil then
+        storage.ei.beacon_overload.last_reason = nil
+    end
+    storage.ei.beacon_overload.surface_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.beacon_overload.surface_queue) == "table" and storage.ei.beacon_overload.surface_queue or nil
+    )
+    storage.ei.beacon_overload.chunk_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.beacon_overload.chunk_queue) == "table" and storage.ei.beacon_overload.chunk_queue or nil
+    )
+    storage.ei.beacon_overload.machine_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.beacon_overload.machine_queue) == "table" and storage.ei.beacon_overload.machine_queue or nil
+    )
+    if not storage.ei.beacon_overload.queued_units then
+        storage.ei.beacon_overload.queued_units = {}
+    end
+    if not storage.ei.beacon_overload.queued_chunk_keys then
+        storage.ei.beacon_overload.queued_chunk_keys = {}
+    end
+    if not storage.ei.beacon_overload.processed_chunk_keys then
+        storage.ei.beacon_overload.processed_chunk_keys = {}
+    end
+    if not storage.ei.beacon_overload.debug or type(storage.ei.beacon_overload.debug) ~= "table" then
+        storage.ei.beacon_overload.debug = {
+            enabled = false,
+            auto_arm = BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT,
+            last_heartbeat_tick = 0,
+            last_reason = nil,
+            last_status = {},
+        }
+    end
+    if storage.ei.beacon_overload.debug.enabled == nil then
+        storage.ei.beacon_overload.debug.enabled = false
+    end
+    if storage.ei.beacon_overload.debug.auto_arm == nil then
+        storage.ei.beacon_overload.debug.auto_arm = BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT
+    end
+    if storage.ei.beacon_overload.debug.last_heartbeat_tick == nil then
+        storage.ei.beacon_overload.debug.last_heartbeat_tick = 0
+    end
+    if storage.ei.beacon_overload.debug.last_reason == nil then
+        storage.ei.beacon_overload.debug.last_reason = nil
+    end
+    if storage.ei.beacon_overload.debug.last_status == nil then
+        storage.ei.beacon_overload.debug.last_status = {}
+    end
+
+    -- Migrate the legacy refresh queue into the new chunked schema if an older save is loaded.
+    if storage.ei.beacon_overload.refresh and type(storage.ei.beacon_overload.refresh) == "table" then
+        local legacy = storage.ei.beacon_overload.refresh
+        if legacy.mode ~= nil and storage.ei.beacon_overload.mode == nil then
+            storage.ei.beacon_overload.mode = legacy.mode
+        end
+        if legacy.surfaces and (not storage.ei.beacon_overload.surface_queue.items or #storage.ei.beacon_overload.surface_queue.items == 0) then
+            storage.ei.beacon_overload.surface_queue = {
+                head = legacy.surface_head or 1,
+                items = legacy.surfaces,
+            }
+            storage.ei.beacon_overload.surface_queue = ei_runtime_scheduler.ensure_queue(storage.ei.beacon_overload.surface_queue)
+        end
+        if legacy.chunks and (not storage.ei.beacon_overload.chunk_queue.items or #storage.ei.beacon_overload.chunk_queue.items == 0) then
+            storage.ei.beacon_overload.chunk_queue = {
+                head = legacy.chunk_head or 1,
+                items = legacy.chunks,
+            }
+            storage.ei.beacon_overload.chunk_queue = ei_runtime_scheduler.ensure_queue(storage.ei.beacon_overload.chunk_queue)
+        end
+        if legacy.machines and (not storage.ei.beacon_overload.machine_queue.items or #storage.ei.beacon_overload.machine_queue.items == 0) then
+            storage.ei.beacon_overload.machine_queue = {
+                head = legacy.machine_head or 1,
+                items = legacy.machines,
+            }
+            storage.ei.beacon_overload.machine_queue = ei_runtime_scheduler.ensure_queue(storage.ei.beacon_overload.machine_queue)
+        end
+        if legacy.queued_units and next(storage.ei.beacon_overload.queued_units) == nil then
+            storage.ei.beacon_overload.queued_units = legacy.queued_units
+        end
+        storage.ei.beacon_overload.refresh = nil
+    end
+    if storage.ei.beacon_overload.debug.auto_arm == nil then
+        storage.ei.beacon_overload.debug.auto_arm = BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT
+    end
+    if not storage.ei.beacon_overload.compat then
+        storage.ei.beacon_overload.compat = {}
+    end
+    if not storage.ei.beacon_overload.compat.machine_exclusions then
+        storage.ei.beacon_overload.compat.machine_exclusions = {}
+    end
+    if not storage.ei.beacon_overload.compat.beacon_exclusions then
+        storage.ei.beacon_overload.compat.beacon_exclusions = {}
+    end
+    if not storage.ei.beacon_overload.compat.beacon_weights then
+        storage.ei.beacon_overload.compat.beacon_weights = {}
     end
 
     if not storage.ei["neutron_collector_animation"] then
@@ -166,35 +393,62 @@ function ei_global.check_init(event)
     if storage.ei.original_gaia_settings ~= nil then
         storage.ei.original_gaia_settings = nil
     end
-    --powered beacons
-    --depreciated by NSB
+    -- Legacy copper-beacon runtime fields, deprecated by the nonstandard-beacon path.
     --[[
     if not storage.ei.spaced_updates then
         storage.ei.spaced_updates = 0
     end
     ]]
-    --powered beacon and etc fluid handlers
+    -- Shared fluid-safety runtime state.
+    local needs_fluid_rebuild = false
+    if not storage.ei.fluid_runtime or not storage.ei.fluid_runtime.entries_by_unit then
+        storage.ei.fluid_runtime = new_fluid_runtime()
+        needs_fluid_rebuild = true
+    end
     if not storage.ei.fluid_entity then
         storage.ei.fluid_entity = {}
     end
     --int count of fluid handling entities
-    if not storage.ei.fluid_entity_count then
+    if storage.ei.fluid_entity_count == nil then
         storage.ei.fluid_entity_count = 0
-
-        --1.2.20 migration
-        for _,surface in pairs(game.surfaces) do
-            for _,entity in pairs(surface.find_entities()) do
-                if entity and entity.valid and entity.force and ei_powered_beacon.counts_for_fluid_handling(entity) then
-                    ei_register.register_fluid_entity(entity)
-                end
-            end
-        end
+    end
+    if ei_fluid_safety and ei_fluid_safety.ensure_fluid_runtime then
+        ei_fluid_safety.ensure_fluid_runtime()
+    end
+    if ei_fluid_safety
+    and ei_fluid_safety.rebuild_fluid_runtime
+    and (needs_fluid_rebuild or storage.ei.fluid_runtime.initialized == false) then
+        ei_fluid_safety.rebuild_fluid_runtime("global-check-init")
     end
 
     if not storage.ei.alien then
         storage.ei.alien = {}
         storage.ei.alien.state = {}
     end
+
+    if not storage.ei.vulcanus_fumaroles then
+        storage.ei.vulcanus_fumaroles = {
+            backfill_bootstrapped = false,
+            processed_chunks = {},
+            history_chunks = {},
+            cooldown_chunks = {},
+            backfill_queue = ei_runtime_scheduler.ensure_queue(nil),
+            active = {},
+            active_chunk_buckets = {},
+            dormant_chunks = {},
+            dormant_delayed_buckets = {},
+            dormant_surface_queues = {},
+            dormant_surface_counts = {},
+            dormant_active_surfaces = {},
+            dormant_active_surface_positions = {},
+            dormant_active_surface_cursor = 0,
+            zero_active_since_tick = nil,
+            sound_proxies = {},
+        }
+    end
+    storage.ei.vulcanus_fumaroles.backfill_queue = ei_runtime_scheduler.ensure_queue(
+        storage.ei.vulcanus_fumaroles.backfill_queue or ei_runtime_scheduler.ensure_queue(nil)
+    )
 
 end
 

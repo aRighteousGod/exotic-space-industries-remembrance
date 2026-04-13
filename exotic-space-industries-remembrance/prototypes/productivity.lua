@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: data-stage prototype aggregation for productivity
+-- loaded_by: exotic-space-industries-remembrance\data.lua
+-- cadence: data-stage load
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload, prototype cache rebuild
+--==============================================================================
 --===========================================================================================
 --Productivity technology
 local formula = "100 * (1 + 0.15 * L)" --1.5&L*500 fucklot
@@ -23,6 +34,21 @@ data:extend({
       {
         type = "change-recipe-productivity",
         recipe = "ei-slag-extraction-nitric",
+        change = 0.1
+      },
+      {
+        type = "change-recipe-productivity",
+        recipe = "ei-slag-extraction-morphium-crushed",
+        change = 0.1
+      },
+      {
+        type = "change-recipe-productivity",
+        recipe = "ei-slag-extraction-nitric-crushed",
+        change = 0.1
+      },
+      {
+        type = "change-recipe-productivity",
+        recipe = "ei-slag-extraction-sulfuric-crushed",
         change = 0.1
       },
     },

@@ -1,0 +1,24 @@
+{
+    "schema_version":  1,
+    "generated_at":  "2026-04-12T22:28:43.9915026-05:00",
+    "entries":  [
+                    {
+                        "id":  "fueler-smoke",
+                        "path":  ".factorio-qc\\fueler-smoke.zip",
+                        "kind":  "smoke-save",
+                        "purpose":  "Fueler runtime and preview smoke coverage",
+                        "tags":  [
+                                     "runtime",
+                                     "preview",
+                                     "smoke",
+                                     "fueler"
+                                 ],
+                        "preferred_for":  [
+                                              "qc-runtime",
+                                              "qc-preview"
+                                          ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Primary smoke save shipped in ignored QC artifact space."
+                    }
+                ]
+}

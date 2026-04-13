@@ -1,14 +1,15 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: spidertron logistic slot restriction
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: logistic slot change
+-- forwarded_events: on_entity_logistic_slot_changed, remove_nonfuel_requests
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: owner-specific behavior changes
+--==============================================================================
 local model = {}
-
-local function get_item_prototypes()
-    if prototypes and prototypes.item then
-        return prototypes.item
-    end
-
-    if game and game.item_prototypes then
-        return game.item_prototypes
-    end
-end
 
 local function get_requested_item_name(slot)
     if not slot or not slot.value then
@@ -36,7 +37,7 @@ local function is_allowed_spiderling_fuel(entity, item_name)
         return false
     end
 
-    local item_prototypes = get_item_prototypes()
+    local item_prototypes = ei_lib.get_item_prototypes()
     local item = item_prototypes and item_prototypes[item_name]
     local fuel_category = item and item.fuel_category
 

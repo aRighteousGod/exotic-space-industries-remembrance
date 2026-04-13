@@ -1,4 +1,15 @@
-﻿Add-Type -AssemblyName System.IO.Compression
+#==============================================================================
+# ESIR FILE MAP
+# owns: legacy pack deploy wrapper for exotic-space-industries-remembrance-soundtrack-2
+# loaded_by: manual invocation or scripts\invoke-esir-dev.ps1 -Task pack-deploy
+# cadence: manual packaging and deployment
+# forwarded_events: none
+# storage_roots: none
+# gui_ids: none
+# remote_interfaces: none
+# rebuild_on: pack version changes, packaging layout changes
+#==============================================================================
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 # --- CONFIGURATION ---
@@ -43,7 +54,7 @@ $zip.Dispose()
 # --- MOVE ZIP TO MODS FOLDER ---
 Move-Item -Force $zipPath (Join-Path $modsPath (Split-Path $zipPath -Leaf))
 
-Write-Host "✅ Minimal-motion, Factorio-correct, garbage-free ZIP created and deployed: $folderName.zip" -ForegroundColor Green
+Write-Host "Minimal-motion, Factorio-correct, garbage-free ZIP created and deployed: $folderName.zip" -ForegroundColor Green
 
 # --- VALIDATE ZIP CONTENTS ---
 function List-ZipContentsRecursively($folder, $prefix = "") {
@@ -61,21 +72,8 @@ function List-ZipContentsRecursively($folder, $prefix = "") {
 $shell = New-Object -ComObject Shell.Application
 $zip = $shell.NameSpace((Join-Path $modsPath "$folderName.zip"))
 
-Write-Host "`n📦 Full contents of $folderName.zip:" -ForegroundColor Cyan
+Write-Host "`nFull contents of $folderName.zip:" -ForegroundColor Cyan
 
 List-ZipContentsRecursively $zip
 
 $shell = $null
-
-# --- AUTO-CLOSE CONTROL ---
-#Write-Host "`nPress Enter to close, or wait 60 seconds..." -ForegroundColor Yellow
-
-#$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-
-#while ($stopwatch.Elapsed.TotalSeconds -lt 60) {
-#    if ([System.Console]::KeyAvailable) {
-#        [System.Console]::ReadKey($true) | Out-Null
-#        break
-#    }
-#    Start-Sleep -Milliseconds 200
-#}

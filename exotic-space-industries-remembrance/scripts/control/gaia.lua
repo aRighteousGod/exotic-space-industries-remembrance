@@ -1,4 +1,16 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: Gaia runtime, spawn command, build hooks, and reforge behavior
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: console command, build hooks, scheduled tick step 1, and every-tick Gaia updates
+-- forwarded_events: create_drop, create_gaia, degrade_building, destroy_building, ensure_surface, entity_check, migrate_gaia_surface, on_built_entity, reforge_gaia_surface, reforge_on_tick, register_entity, remove_search_tick, spawn_command, swap_entity, update, update_entity_lifetimes
+-- storage_roots: storage.ei, storage.gaia_surfaces
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: Gaia mapgen changes, Gaia prototype changes, configuration changes
+--==============================================================================
 local ei_lib = require("lib/lib")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local gaia_mapgen_data = require("scripts/control/gaia-mapgen-data")
 
@@ -43,6 +55,32 @@ model.hour = 60 * 60 * 60
 model.entity_damage_ticks = {
   
 }
+
+local function ensure_damage_tick_buckets(current_tick)
+    storage.ei = storage.ei or {}
+    storage.ei.damage_tick_buckets = ei_runtime_scheduler.ensure_delayed_buckets(storage.ei.damage_tick_buckets)
+
+    if storage.ei.damage_ticks and #storage.ei.damage_ticks > 0 then
+        for _, entry in ipairs(storage.ei.damage_ticks) do
+            local due_tick = entry.update_tick or current_tick
+            if due_tick < current_tick then
+                due_tick = current_tick
+            end
+            entry.update_tick = due_tick
+            ei_runtime_scheduler.delayed_schedule(storage.ei.damage_tick_buckets, due_tick, entry)
+        end
+        storage.ei.damage_ticks = {}
+    end
+
+    storage.ei.damage_tick_buckets_migrated = true
+    return storage.ei.damage_tick_buckets
+end
+
+local function schedule_damage_tick(entry, due_tick, current_tick)
+    local buckets = ensure_damage_tick_buckets(current_tick or (game and game.tick) or due_tick)
+    entry.update_tick = due_tick
+    ei_runtime_scheduler.delayed_schedule(buckets, due_tick, entry)
+end
 
 local function gaia_planet()
     return game.planets["gaia"] or nil
@@ -733,6 +771,11 @@ end
 
 function model.register_entity(entity, overload, event)
 
+    if type(overload) == "table" and overload.tick and event == nil then
+        event = overload
+        overload = false
+    end
+
     overload = overload or false
 
     if not model.entity_check(entity) then
@@ -746,31 +789,30 @@ function model.register_entity(entity, overload, event)
         end
     end
 
-    if not storage.ei.damage_ticks then
-        storage.ei.damage_ticks = {}
-    end
-
     if not model.entity_damage_ticks[entity.name] then
         return
     end
 
+    if not event or not event.tick then
+        return
+    end
+
     -- register the entity for lifetime
-    table.insert(storage.ei.damage_ticks, {
+    schedule_damage_tick({
         ["entity"] = entity,
-        ["update_tick"] = event.tick + model.entity_damage_ticks[entity.name],
         ["damage"] = 90
-    })
+    }, event.tick + model.entity_damage_ticks[entity.name], event.tick)
 
 end
 
 
 function model.update_entity_lifetimes(event)
 
-    if not storage.ei.damage_ticks then
+    local damage_ticks = ei_runtime_scheduler.delayed_take_due(ensure_damage_tick_buckets(event.tick), event.tick)
+    if #damage_ticks == 0 then
         return
     end
 
-    local damage_ticks = storage.ei.damage_ticks
     local new_update = {}
 
     -- apply damage to entities that are registered
@@ -820,14 +862,7 @@ function model.update_entity_lifetimes(event)
 
     -- add new entities to the update list
     for i,v in ipairs(new_update) do
-        table.insert(damage_ticks, v)
-    end
-    
-    -- remove old entities from the update list
-    while true do
-        if not model.remove_search_tick(storage.ei.damage_ticks, event.tick) then
-            break
-        end
+        schedule_damage_tick(v, v.update_tick, event.tick)
     end
 
 end
@@ -1029,6 +1064,23 @@ function model.update(event)
 
     model.update_entity_lifetimes(event)
 
+end
+
+function model.get_runtime_status()
+    storage.ei = storage.ei or {}
+    local buckets = ensure_damage_tick_buckets(game and game.tick or 0)
+    local status = {
+        delayed_bucket_count = ei_runtime_scheduler.delayed_bucket_count(buckets),
+        delayed_item_count = ei_runtime_scheduler.delayed_item_count(buckets),
+        legacy_list_count = #(storage.ei.damage_ticks or {}),
+        damage_ticks = #(storage.ei.damage_ticks or {}),
+        damage_tick_buckets = ei_runtime_scheduler.delayed_bucket_count(buckets),
+        damage_tick_items = ei_runtime_scheduler.delayed_item_count(buckets),
+        reforge_active = storage.ei.reforge_gaia ~= nil,
+    }
+
+    ei_runtime_scheduler.set_module_status("gaia", status)
+    return status
 end
 
 

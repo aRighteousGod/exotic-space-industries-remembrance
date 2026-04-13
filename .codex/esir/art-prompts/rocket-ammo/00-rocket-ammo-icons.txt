@@ -1,0 +1,22 @@
+Rocket ordnance icon set for Exotic Space Industries: Remembrance.
+
+Design clear Factorio-readable icons on transparent background. Keep silhouettes hard-edged and industrial, with mild VIREX // LAMENON pressure: devotional machinery, sealed shells, exposed fins, containment bands, and a sense of recursive assembly.
+
+Create separate icon directions for:
+- Rocket airframe
+- Basic rocket motor
+- High-energy rocket motor
+- Impact warhead
+- Explosive warhead
+- Siege warhead
+- Corrosive warhead
+- Cryo warhead
+- U-235 atomic warhead
+- Plutonium atomic warhead
+- Corrosive rocket
+- Cryo rocket
+- Doeworks siege round
+- Doeworks corrosive round
+- Doeworks cryo round
+
+Each icon should read instantly at small size. Use strong contrast, minimal clutter, and one dominant focal shape per icon. Avoid soft gradients and ornamental noise.

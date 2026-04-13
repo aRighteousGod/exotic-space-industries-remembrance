@@ -1,0 +1,13 @@
+Create a single square item icon source image on transparent background for "auric slag".
+
+Requirements:
+- transparent background
+- centered cluster only
+- readable at 64x64
+- black volcanic slag nodules with dull metallic-gold seams and slight sulfur staining
+- heavy, mineral, industrial, not treasure-like
+- high contrast edges and a compact silhouette
+- no text, no frame, no extra debris field
+
+Style target:
+Factorio item icon readability with harsh volcanic texture and restrained precious-metal hints.

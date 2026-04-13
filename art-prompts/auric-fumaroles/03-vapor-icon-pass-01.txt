@@ -1,0 +1,13 @@
+Create a single square fluid icon source image on transparent background for "auric vapor".
+
+Requirements:
+- transparent background
+- centered icon only
+- readable at 64x64
+- superheated gold-bearing vapor with a pale steam core, amber-gold shimmer, ash-gray mineral trace, and a sense of dangerous heat
+- should feel industrial and rare, not like generic smoke
+- no text, no frame, no scenery
+- keep the shape compact and icon-friendly
+
+Style target:
+Factorio fluid icon clarity with controlled heat, mineral contamination, and metallic-gold undertones.

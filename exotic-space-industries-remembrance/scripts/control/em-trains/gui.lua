@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: EM train GUI and dirty refresh
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: every-tick dirty refresh and GUI click dispatch
+-- forwarded_events: get_data, make_mod_button, mark_dirty, on_gui_click, open_mod_gui, update_mod_gui, updater
+-- storage_roots: storage.ei_emt
+-- gui_ids: ei_emt_button, ei_mod-gui, mod_gui
+-- remote_interfaces: none
+-- rebuild_on: GUI schema changes, EM train runtime changes
+--==============================================================================
 local mod_gui = require("mod-gui")
 local model = {}
 

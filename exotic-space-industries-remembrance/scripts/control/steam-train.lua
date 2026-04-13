@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: steam locomotive wheel and helper runtime
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init/config rebuild, build/destroy, train state changes, and every-tick runtime updates
+-- forwarded_events: addToGlobal, check_global, on_built_entity, on_destroyed_entity, on_train_changed_state, rebuild_runtime_state, updater
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, entity topology changes
+--==============================================================================
 local steam_train = {}
 
 local WheelControl = require("lib/handle-wheels.lua")

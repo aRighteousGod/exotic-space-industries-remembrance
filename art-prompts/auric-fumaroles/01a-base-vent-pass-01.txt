@@ -1,0 +1,18 @@
+Create a single Factorio-ready top-down entity sprite concept for the base vent body of an auric precipitation fumarole on Vulcanus.
+
+Requirements:
+- transparent background
+- one centered asset only
+- strict top-down or near-top-down game asset read
+- readable silhouette at Factorio gameplay scale
+- this is the basalt vent/crack only, with no steam, no smoke, no vapor plume, no atmospheric haze
+- volcanic black basalt fissure, ash-gray crust, sulfur-yellow mineral staining, muted gold precipitate seams, ember-orange heat visible only inside the crack or throat
+- narrow throat, cracked vent mouth, scorched rock ring, fractured crust, severe industrial-volcanic feel
+- feels finite, dangerous, ritualized, and geologically violent rather than like a fantasy portal
+- avoid purple bias, avoid cartoony shapes, avoid photoreal clutter, avoid large surrounding terrain
+
+Composition target:
+The asset should read as a reusable base layer that could later have a separate animated steam overlay placed above it. Prioritize the crack silhouette, the scorched ring, and the gold-bearing mineral seams around the mouth.
+
+Style target:
+Austere industrial occult geology. Clean alpha edges. Strong silhouette first, detail second.

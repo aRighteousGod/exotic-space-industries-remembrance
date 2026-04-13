@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: tech cost scaling
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init, configuration-changed, and research-finished
+-- forwarded_events: get_multiplier, init, on_research_finished
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: startup settings, prototype changes
+--==============================================================================
 -- Count visible, non-repeatable technologies with thematic weighting discounts applied to
 -- refinement-heavy branches, then use that total to set technology_price_multiplier.
 

@@ -1,4 +1,16 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: black hole GUI and runtime
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build, destroy, GUI dispatch, and every-tick runtime updates
+-- forwarded_events: apply_output, built_extractor_pylon, built_injector_pylon, change_stage, check_battery, check_init, close_gui, ensure_runtime_defaults, entity_check, get_data, get_extractor_pylons_in_range, get_injector_pylons_in_range, get_mass, get_power, get_relative_stage_progress, get_stage, get_stage_progress, get_transfer_inv, invoke_victory, make_energy, make_output, make_stage_picture, mark_nearby_black_holes_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_opened, open_gui, refresh_nearby_pylons, register_black_hole, set_stage_progress, transfer_valid, unregister_black_hole, update, update_battery, update_black_hole, update_black_holes, update_gui, update_mass, update_player_guis, update_stage
+-- storage_roots: storage.ei
+-- gui_ids: ei-black-hole-console
+-- remote_interfaces: none
+-- rebuild_on: entity schema changes, GUI schema changes
+--==============================================================================
 local model = {}
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local BLACK_HOLE_NAME = "ei-black-hole"
 local ENERGY_INJECTOR_NAME = "ei-energy-injector-pylon"
 local ENERGY_EXTRACTOR_NAME = "ei-energy-extractor-pylon"
@@ -9,6 +21,20 @@ local BLACK_HOLE_CACHE_REFRESH_TICKS = 300
 local BLACK_HOLE_GUI_REFRESH_TICKS = 30
 local INJECTOR_MIN_ENERGY = 10 * 1000 * 1000
 local GIGA = 1000 * 1000 * 1000
+
+local function is_dormant_black_hole(black_hole_data)
+    if not black_hole_data then
+        return false
+    end
+
+    return (black_hole_data.stage or 0) == 0
+        and (black_hole_data.stage_progress or 0) == 0
+        and (black_hole_data.mass or 0) <= 0
+        and (black_hole_data.energy or 0) <= 0
+        and not black_hole_data.cache_dirty
+        and not black_hole_data.extractor_state_dirty
+        and not black_hole_data.output_stage_active
+end
 
 --====================================================================================================
 --BLACK HOLE
@@ -58,38 +84,6 @@ function model.get_transfer_inv(transfer)
 end
 
 
-local function get_quality_name(item_like)
-    if not item_like then
-        return nil
-    end
-
-    local quality = item_like.quality
-    if quality and quality.name then
-        return quality.name
-    end
-
-    return quality
-end
-
-
-local function make_item_with_quality_id(item_like)
-    if not item_like or not item_like.name then
-        return nil
-    end
-
-    local item_with_quality = {
-        name = item_like.name
-    }
-
-    local quality = get_quality_name(item_like)
-    if quality then
-        item_with_quality.quality = quality
-    end
-
-    return item_with_quality
-end
-
-
 local function normalize_content_entry(item_key, item_value)
     if type(item_key) == "string" then
         return {
@@ -124,7 +118,7 @@ function model.transfer_valid(source, transfer)
     for item_key, item_value in pairs(source_contents) do
         local item = normalize_content_entry(item_key, item_value)
         if item then
-            local insertable_probe = make_item_with_quality_id(item) or item.name
+            local insertable_probe = ei_lib.make_item_with_quality_id(item) or item.name
             local ok, insertable_count = pcall(target_inv.get_insertable_count, insertable_probe)
 
             if not ok or insertable_count < item.count then
@@ -134,7 +128,7 @@ function model.transfer_valid(source, transfer)
     end
 
     -- check if the source itself can be inserted into the target
-    local source_stack = make_item_with_quality_id(source) or {name = source.name}
+    local source_stack = ei_lib.make_item_with_quality_id(source) or {name = source.name}
     source_stack.count = 1
     local ok, can_insert = pcall(target_inv.can_insert, source_stack)
 
@@ -390,8 +384,19 @@ function model.update_black_hole(unit, event)
         return
     end
 
-    -- Core simulation still runs every tick; only the expensive discovery work is cached.
+    -- Core simulation still runs every tick while the hole is active. Fully idle stage-0
+    -- holes only keep the cheap mass probe and the existing cache self-heal window alive.
     model.ensure_runtime_defaults(black_hole_data, event)
+    local tick = event and event.tick or 0
+    local cache_refresh_due = tick - (black_hole_data.last_cache_refresh or 0) >= BLACK_HOLE_CACHE_REFRESH_TICKS
+    if is_dormant_black_hole(black_hole_data) and not cache_refresh_due then
+        model.update_mass(black_hole_data, entity)
+        if is_dormant_black_hole(black_hole_data) then
+            ei_runtime_scheduler.bump_counter("black-hole", "dormant_skipped", 1)
+            return
+        end
+    end
+
     model.refresh_nearby_pylons(black_hole_data, entity, event)
 
     -- aborb all items in inventory and add them to mass count
@@ -1390,6 +1395,46 @@ end
 
 function model.on_gui_opened(event)
     model.open_gui(game.get_player(event.player_index))
+end
+
+function model.get_runtime_status()
+    model.check_init()
+
+    local black_hole_count = 0
+    local cache_dirty_count = 0
+    local extractor_state_dirty_count = 0
+    local output_stage_active_count = 0
+    local stage_two_count = 0
+
+    for _, black_hole_data in pairs(storage.ei.black_hole or {}) do
+        if black_hole_data then
+            black_hole_count = black_hole_count + 1
+            if black_hole_data.cache_dirty then
+                cache_dirty_count = cache_dirty_count + 1
+            end
+            if black_hole_data.extractor_state_dirty then
+                extractor_state_dirty_count = extractor_state_dirty_count + 1
+            end
+            if black_hole_data.output_stage_active then
+                output_stage_active_count = output_stage_active_count + 1
+            end
+            if black_hole_data.stage == 2 then
+                stage_two_count = stage_two_count + 1
+            end
+        end
+    end
+
+    local status = {
+        black_hole_count = black_hole_count,
+        cache_dirty_count = cache_dirty_count,
+        extractor_state_dirty_count = extractor_state_dirty_count,
+        output_stage_active_count = output_stage_active_count,
+        stage_two_count = stage_two_count,
+        entries = black_hole_count,
+    }
+
+    ei_runtime_scheduler.set_module_status("black-hole", status)
+    return status
 end
 
 return model

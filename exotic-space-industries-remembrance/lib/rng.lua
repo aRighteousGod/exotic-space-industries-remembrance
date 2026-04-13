@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: runtime module: rng
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: on-demand helper calls
+-- forwarded_events: float, int
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: owner-specific behavior changes
+--==============================================================================
 --linear congruential generator rng generator for use outside of events, or for high performance
 ei_rng = {}
 

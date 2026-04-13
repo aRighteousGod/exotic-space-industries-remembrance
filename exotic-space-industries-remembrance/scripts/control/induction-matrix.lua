@@ -1,4 +1,16 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: induction matrix GUI, runtime, and tile hooks
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build, destroy, tile changes, GUI dispatch, and every-tick runtime updates
+-- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_sorted_lookup_names, is_core, lookup_tile_for_entity, mark_dirty, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_gui_click, open_gui, queue_tile_render, rebuild_runtime_state, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
+-- storage_roots: storage.ei
+-- gui_ids: ei-induction-matrix-console
+-- remote_interfaces: none
+-- rebuild_on: tile topology changes, entity topology changes
+--==============================================================================
 local model = {}
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- induction-matrix.lua owns the runtime behavior of the matrix multistructure.
 --
 -- The high-level model is:
@@ -15,6 +27,21 @@ local SIGNAL_MATRIX_MAX_IO = {type = "virtual", name = "signal-M", quality = "no
 local MATRIX_WIRE_PROXY_NAME = "ei-induction-matrix-core-circuit-interface"
 local MATRIX_SIGNAL_LIMIT = 2147483647
 local MATRIX_WIRE_UPDATE_INTERVAL = 60
+
+local function get_matrix_wire_slot(matrix_id)
+    return matrix_id % MATRIX_WIRE_UPDATE_INTERVAL
+end
+
+local function get_stat_text_key(surface, pos)
+    local surface_index = surface and surface.index or 0
+    return table.concat({surface_index, pos.x, pos.y}, ":")
+end
+
+local function mark_wire_slots_dirty()
+    if storage and storage.ei and storage.ei.induction_matrix then
+        storage.ei.induction_matrix.wire_slots_rebuild_needed = true
+    end
+end
 
 --====================================================================================================
 --INDUCTION MATRIX
@@ -142,6 +169,11 @@ function model.check_global_init()
         storage.ei.induction_matrix.render_queue = {}
     end
 
+    storage.ei.induction_matrix.render_buckets = ei_runtime_scheduler.ensure_delayed_buckets(storage.ei.induction_matrix.render_buckets)
+    storage.ei.induction_matrix.stat_text_index = storage.ei.induction_matrix.stat_text_index or {}
+    storage.ei.induction_matrix.dirty_core_queue = ei_runtime_scheduler.ensure_queue(storage.ei.induction_matrix.dirty_core_queue)
+    storage.ei.induction_matrix.wire_update_slots = storage.ei.induction_matrix.wire_update_slots or {}
+
     if not storage.ei.induction_matrix.core then
         storage.ei.induction_matrix.core = { 
             stats = {
@@ -159,6 +191,53 @@ function model.check_global_init()
         storage.ei.induction_matrix.proxy = {}
     end
 
+    if storage.ei.induction_matrix.dirty_queue_backfilled == nil then
+        storage.ei.induction_matrix.dirty_queue_backfilled = false
+    end
+
+    if storage.ei.induction_matrix.wire_slots_rebuild_needed == nil then
+        storage.ei.induction_matrix.wire_slots_rebuild_needed = true
+    end
+
+end
+
+local function ensure_wire_update_slots()
+    local matrix_state = storage.ei.induction_matrix
+    if not matrix_state.wire_slots_rebuild_needed and matrix_state.wire_update_slots then
+        return matrix_state.wire_update_slots
+    end
+
+    local slots = {}
+    for matrix_id, matrix_data in pairs(matrix_state.core or {}) do
+        if type(matrix_id) == "number" and matrix_data then
+            local slot = get_matrix_wire_slot(matrix_id)
+            slots[slot] = slots[slot] or {}
+            slots[slot][matrix_id] = true
+        end
+    end
+
+    matrix_state.wire_update_slots = slots
+    matrix_state.wire_slots_rebuild_needed = false
+    return slots
+end
+
+local function backfill_dirty_core_queue()
+    local matrix_state = storage.ei.induction_matrix
+    if matrix_state.dirty_queue_backfilled then
+        return
+    end
+
+    matrix_state.dirty_queue_backfilled = true
+    for matrix_id, matrix_data in pairs(matrix_state.core or {}) do
+        if type(matrix_id) == "number" and matrix_data and matrix_data.dirty then
+            ei_runtime_scheduler.queue_push_unique(matrix_state.dirty_core_queue, matrix_id, matrix_id)
+        end
+    end
+end
+
+local function schedule_render_entry(entry)
+    local matrix_state = storage.ei.induction_matrix
+    matrix_state.render_buckets = ei_runtime_scheduler.delayed_schedule(matrix_state.render_buckets, entry.tick, entry)
 end
 
 
@@ -1068,6 +1147,8 @@ function model.mark_dirty(matrix_id)
     end
 
     storage.ei.induction_matrix.core[matrix_id].dirty = true
+    ei_runtime_scheduler.queue_push_unique(storage.ei.induction_matrix.dirty_core_queue, matrix_id, matrix_id)
+    ei_runtime_scheduler.bump_counter("induction-matrix", "dirty_marked", 1)
 
 end
 
@@ -1366,6 +1447,8 @@ function model.update_core(matrix_id, event)
     local new_id = model.apply_stats(matrix_id, old_stats, new_stats, core, state)
 
     storage.ei.induction_matrix.core[new_id].dirty = false
+    mark_wire_slots_dirty()
+    ei_runtime_scheduler.bump_counter("induction-matrix", "dirty_processed", 1)
 
 end
 
@@ -1379,14 +1462,18 @@ function model.update_dirty(event)
         return
     end
 
-    for matrix_id,_ in pairs(storage.ei.induction_matrix.core) do
+    backfill_dirty_core_queue()
 
-        if storage.ei.induction_matrix.core[matrix_id].dirty then
-
-            model.update_core(matrix_id, event)
-
+    while true do
+        local matrix_id = ei_runtime_scheduler.queue_pop(storage.ei.induction_matrix.dirty_core_queue)
+        if matrix_id == nil then
+            break
         end
 
+        local matrix_data = storage.ei.induction_matrix.core[matrix_id]
+        if matrix_data and matrix_data.dirty then
+            model.update_core(matrix_id, event)
+        end
     end
 
     model.remove_old_cores()
@@ -1410,11 +1497,18 @@ function model.update_wire_outputs(event)
         return
     end
 
-    for matrix_id, matrix_data in pairs(storage.ei.induction_matrix.core) do
-        if type(matrix_id) == "number"
-        and matrix_data
-        and tick % MATRIX_WIRE_UPDATE_INTERVAL == matrix_id % MATRIX_WIRE_UPDATE_INTERVAL then
+    local slots = ensure_wire_update_slots()
+    local active_slot = slots[tick % MATRIX_WIRE_UPDATE_INTERVAL]
+    if not active_slot then
+        return
+    end
+
+    for matrix_id in pairs(active_slot) do
+        local matrix_data = storage.ei.induction_matrix.core[matrix_id]
+        if type(matrix_id) == "number" and matrix_data then
             model.update_wire_proxy_signals(matrix_id)
+        else
+            active_slot[matrix_id] = nil
         end
     end
 
@@ -1443,7 +1537,7 @@ function model.queue_tile_render(surface, progress_list, color, event)
     for i, pos in ipairs(progress_list) do
 
         -- add tile to render queue
-        table.insert(storage.ei.induction_matrix.render_queue, {
+        schedule_render_entry({
             tick = tick + math.floor(i/speed),
             surface = surface,
             position = pos,
@@ -1452,7 +1546,7 @@ function model.queue_tile_render(surface, progress_list, color, event)
         })
 
         -- also add the "reflection"
-        table.insert(storage.ei.induction_matrix.render_queue, {
+        schedule_render_entry({
             tick = tick + Dt + math.floor((#progress_list - i)/speed),
             surface = surface,
             position = pos,
@@ -1471,10 +1565,28 @@ function model.update_render_queue(tick)
 
     model.check_global_init()
 
+    local due_entries = ei_runtime_scheduler.delayed_take_due(storage.ei.induction_matrix.render_buckets, tick)
+    for _, v in ipairs(due_entries) do
+        if v.rtype == "tile-box" then
+            model.render_tile_box(v)
+        elseif v.rtype == "stat-text" then
+            local stat_index = storage.ei.induction_matrix.stat_text_index
+            local active = stat_index and v.stat_key and stat_index[v.stat_key] or nil
+            if active and active.token == v.token then
+                model.remove_stat_text(active)
+                stat_index[v.stat_key] = nil
+            elseif v.capacity_text or v.IO_text then
+                model.remove_stat_text(v)
+            end
+        end
+    end
+
     if next(storage.ei.induction_matrix.render_queue) == nil then
         return
     end
 
+    -- Save compatibility: old saves may still have a flat render queue. It drains here,
+    -- while new entries use exact tick buckets above.
     for i = #storage.ei.induction_matrix.render_queue, 1, -1 do
         local v = storage.ei.induction_matrix.render_queue[i]
 
@@ -1523,37 +1635,19 @@ end
 
 
 function model.show_stats(surface, pos, stats, event)
-    -- Matrix stat popups are stored inside the render queue so repeated rebuilds can
-    -- replace/refresh the existing texts instead of stacking duplicates forever.
+    -- Matrix stat popups are indexed by position so repeated rebuilds can
+    -- replace/refresh the existing texts without scanning every pending render effect.
 
-    local capacity_text = nil
-    local IO_text = nil
-    local queue_index = false
+    local stat_index = storage.ei.induction_matrix.stat_text_index
+    local stat_key = get_stat_text_key(surface, pos)
+    local existing = stat_index[stat_key]
+    local token = (existing and existing.token or 0) + 1
 
-    for i,v in ipairs(storage.ei.induction_matrix.render_queue) do
-
-        if v.rtype == "stat-text" then
-
-            if v.pos.x == pos.x and v.pos.y == pos.y and v.surface == surface then
-                capacity_text = v.capacity_text
-                IO_text = v.IO_text
-                queue_index = i
-                break
-            end
-
-        end
-
+    if existing then
+        model.remove_stat_text(existing)
     end
 
-    if capacity_text then
-        capacity_text.destroy()
-    end
-
-    if IO_text then
-        IO_text.destroy()
-    end
-
-    capacity_text = rendering.draw_text{
+    local capacity_text = rendering.draw_text{
         text = "Capacity: " .. math.floor(stats.capacity) .. "MJ",
         surface = surface,
         target = {pos.x, pos.y - 1.5},
@@ -1564,7 +1658,7 @@ function model.show_stats(surface, pos, stats, event)
         scale_with_zoom = false,
     }
 
-    IO_text = rendering.draw_text{
+    local IO_text = rendering.draw_text{
         text = "Max IO: " .. math.floor(2^stats.max_IO) .. "MW",
         surface = surface,
         target = {pos.x, pos.y - 2.5},
@@ -1575,20 +1669,19 @@ function model.show_stats(surface, pos, stats, event)
         scale_with_zoom = false,
     }
 
-    if not queue_index then
-        table.insert(storage.ei.induction_matrix.render_queue, {
-            tick = event.tick + 120,
-            capacity_text = capacity_text,
-            IO_text = IO_text,
-            pos = pos,
-            surface = surface,
-            rtype = "stat-text",
-        })
-    else
-        storage.ei.induction_matrix.render_queue[queue_index].tick = event.tick + 120
-        storage.ei.induction_matrix.render_queue[queue_index].capacity_text = capacity_text
-        storage.ei.induction_matrix.render_queue[queue_index].IO_text = IO_text
-    end
+    local entry = {
+        tick = event.tick + 120,
+        capacity_text = capacity_text,
+        IO_text = IO_text,
+        pos = pos,
+        surface = surface,
+        stat_key = stat_key,
+        token = token,
+        rtype = "stat-text",
+    }
+
+    stat_index[stat_key] = entry
+    schedule_render_entry(entry)
 
 end
 
@@ -1596,8 +1689,17 @@ end
 function model.remove_stat_text(data)
     -- Cleanup companion for queued stat-text render entries.
 
-    data.capacity_text.destroy()
-    data.IO_text.destroy()
+    if data.capacity_text then
+        pcall(function()
+            data.capacity_text.destroy()
+        end)
+    end
+
+    if data.IO_text then
+        pcall(function()
+            data.IO_text.destroy()
+        end)
+    end
 
 end
 
@@ -1738,6 +1840,12 @@ function model.reset_runtime_storage()
     model.check_global_init()
 
     storage.ei.induction_matrix.render_queue = {}
+    storage.ei.induction_matrix.render_buckets = {}
+    storage.ei.induction_matrix.stat_text_index = {}
+    storage.ei.induction_matrix.dirty_core_queue = ei_runtime_scheduler.ensure_queue(nil)
+    storage.ei.induction_matrix.dirty_queue_backfilled = true
+    storage.ei.induction_matrix.wire_update_slots = {}
+    storage.ei.induction_matrix.wire_slots_rebuild_needed = true
     storage.ei.induction_matrix.core = {
         stats = {
             max_IO = 0,
@@ -2437,6 +2545,48 @@ function model.on_gui_click(event)
         model.force_visual_update(root.tags.matrix_id, event)
         model.update_gui(player)
     end
+end
+
+function model.get_runtime_status()
+    model.check_global_init()
+
+    local matrix_state = storage.ei.induction_matrix
+    local core_count = 0
+    local dirty_flag_count = 0
+    for matrix_id, matrix_data in pairs(matrix_state.core or {}) do
+        if type(matrix_id) == "number" then
+            core_count = core_count + 1
+            if matrix_data and matrix_data.dirty then
+                dirty_flag_count = dirty_flag_count + 1
+            end
+        end
+    end
+
+    local wire_slot_entries = 0
+    for _, slot in pairs(ensure_wire_update_slots()) do
+        wire_slot_entries = wire_slot_entries + ei_runtime_scheduler.table_count(slot)
+    end
+
+    local status = {
+        core_count = core_count,
+        dirty_flag_count = dirty_flag_count,
+        dirty_queue = ei_runtime_scheduler.queue_item_count(matrix_state.dirty_core_queue),
+        dirty_queue_audit = ei_runtime_scheduler.audit_queue(matrix_state.dirty_core_queue),
+        render_bucket_count = ei_runtime_scheduler.delayed_bucket_count(matrix_state.render_buckets),
+        render_item_count = ei_runtime_scheduler.delayed_item_count(matrix_state.render_buckets),
+        legacy_render_queue_count = #(matrix_state.render_queue or {}),
+        stat_text_count = ei_runtime_scheduler.table_count(matrix_state.stat_text_index),
+        wire_slot_entries = wire_slot_entries,
+        wire_slots_rebuild_needed = matrix_state.wire_slots_rebuild_needed == true,
+        dirty_cores = dirty_flag_count,
+        render_queue = #(matrix_state.render_queue or {}),
+        render_buckets = ei_runtime_scheduler.delayed_bucket_count(matrix_state.render_buckets),
+        render_bucket_items = ei_runtime_scheduler.delayed_item_count(matrix_state.render_buckets),
+        stat_texts = ei_runtime_scheduler.table_count(matrix_state.stat_text_index),
+    }
+
+    ei_runtime_scheduler.set_module_status("induction-matrix", status)
+    return status
 end
 
 commands.add_command("rescan_induction_matrix", "Rebuilds induction matrix runtime state, proxy mappings, and circuit output bookkeeping.", function(command)

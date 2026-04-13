@@ -1,0 +1,67 @@
+{
+    "schema_version":  1,
+    "generated_at":  "2026-04-11T21:25:35.5357179-05:00",
+    "queries":  [
+                    "recipe icons",
+                    "tesla",
+                    "fusion reactor",
+                    "orbital combinator",
+                    "gaia"
+                ],
+    "entries":  [
+                    {
+                        "mod_name":  "recipe-icons-improvement-for-esir",
+                        "portal_url":  "https://mods.factorio.com/mod/recipe-icons-improvement-for-esir",
+                        "license":  "GNU GPLv3",
+                        "source_url":  null,
+                        "repo_relation":  "new-to-repo",
+                        "fit_score":  65,
+                        "notes":  "source URL missing from portal metadata"
+                    },
+                    {
+                        "mod_name":  "sei-fusion-reactor",
+                        "portal_url":  "https://mods.factorio.com/mod/sei-fusion-reactor",
+                        "license":  "MIT",
+                        "source_url":  "https://github.com/xkyouchoux/sei-fusion-reactor",
+                        "repo_relation":  "new-to-repo",
+                        "fit_score":  60,
+                        "notes":  "Adds fusion reactor into space exploration."
+                    },
+                    {
+                        "mod_name":  "sei-tesla-turret",
+                        "portal_url":  "https://mods.factorio.com/mod/sei-tesla-turret",
+                        "license":  "MIT",
+                        "source_url":  "https://github.com/xkyouchoux/sei-tesla-turret",
+                        "repo_relation":  "new-to-repo",
+                        "fit_score":  60,
+                        "notes":  "Adds tesla turret into space exploration."
+                    },
+                    {
+                        "mod_name":  "exotic-space-industries",
+                        "portal_url":  "https://mods.factorio.com/mod/exotic-space-industries",
+                        "license":  "GNU LGPLv3",
+                        "source_url":  null,
+                        "repo_relation":  "new-to-repo",
+                        "fit_score":  55,
+                        "notes":  "source URL missing from portal metadata; lineage/reference candidate, not a drop-in integration target"
+                    },
+                    {
+                        "mod_name":  "icon-badges",
+                        "portal_url":  "https://mods.factorio.com/mod/icon-badges",
+                        "license":  "MIT",
+                        "source_url":  "https://github.com/Orion351/item-badges",
+                        "repo_relation":  "new-to-repo",
+                        "fit_score":  50,
+                        "notes":  "Designed to make icons and recipes easier to distinguish for those with various forms of colorblindness."
+                    },
+                    {
+                        "mod_name":  "orbital-request-combinator",
+                        "portal_url":  "https://mods.factorio.com/mod/orbital-request-combinator",
+                        "license":  "MIT",
+                        "source_url":  null,
+                        "repo_relation":  "new-to-repo",
+                        "fit_score":  35,
+                        "notes":  "source URL missing from portal metadata"
+                    }
+                ]
+}

@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.3.20",
+    "version": "1.3.21",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -26,7 +26,8 @@
         "PollutionCombinator-JamieFork",
         "ch-concentrated-solar",
         "extinguisher",
-        "Flammable_Oils_QUICKFIX",
+        "doeworks-deer >= 0.3.0",
+        "! Flammable_Oils_QUICKFIX",
         "Assembler-Reskin",
         "Accumulator-V2",
         "SolarMatrix",
@@ -97,7 +98,7 @@
 
         "exotic-space-industries-remembrance-graphics-1",
         "exotic-space-industries-remembrance-graphics-2",
-        "exotic-space-industries-remembrance-graphics-3 >= 1.0.3",
+        "exotic-space-industries-remembrance-graphics-3 >= 1.0.4",
         "exotic-space-industries-remembrance-soundtrack-1",
         "exotic-space-industries-remembrance-soundtrack-2"
     ]

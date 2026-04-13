@@ -1,0 +1,54 @@
+{
+    "schema_version":  1,
+    "generated_at":  "2026-04-12T22:28:43.9940047-05:00",
+    "wrapper":  {
+                    "path":  "scripts\\invoke-esir-dev.ps1",
+                    "library":  "scripts\\esir-dev-lib.ps1",
+                    "tasks":  [
+                                  "doctor",
+                                  "manifest-refresh",
+                                  "preflight",
+                                  "qc-fast",
+                                  "qc-runtime",
+                                  "runtime-benchmark",
+                                  "qc-preview",
+                                  "qc-assets",
+                                  "qc-package",
+                                  "qc-full",
+                                  "portal-scout",
+                                  "diff",
+                                  "art-start",
+                                  "art-collect",
+                                  "art-review",
+                                  "art-validate",
+                                  "pack-dryrun",
+                                  "pack-deploy",
+                                  "full"
+                              ]
+                },
+    "engines":  [
+                    {
+                        "name":  "factorio-mod-qc",
+                        "root":  "C:\\Users\\Theorun\\.codex\\skills\\factorio-mod-qc",
+                        "wrapper":  "C:\\Users\\Theorun\\.codex\\skills\\factorio-mod-qc\\scripts\\invoke-factorio-qc.ps1"
+                    },
+                    {
+                        "name":  "chatgpt-firefox-companion",
+                        "root":  "C:\\Users\\Theorun\\.codex\\skills\\chatgpt-firefox-companion",
+                        "wrapper":  "C:\\Users\\Theorun\\.codex\\skills\\chatgpt-firefox-companion\\scripts\\invoke-chatgpt-firefox-companion.ps1"
+                    }
+                ],
+    "legacy_scripts":  [
+                           "process.ps1",
+                           "graphics1_process.ps1",
+                           "graphics2_process.ps1",
+                           "graphics3_process.ps1",
+                           "soundtrack1_process.ps1",
+                           "soundtrack2_process.ps1"
+                       ],
+    "artifacts":  [
+                      ".factorio-qc",
+                      "output"
+                  ],
+    "global_shim":  "C:\\Users\\Theorun\\.codex\\skills\\esir-dev"
+}

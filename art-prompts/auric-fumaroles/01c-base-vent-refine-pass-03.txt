@@ -1,0 +1,31 @@
+Use the previously generated image "Volcanic fissure with glowing minerals" as the reference image and mutate it rather than replacing the composition from scratch.
+
+Goal:
+Keep the successful central fissure silhouette and dark Vulcanus-compatible basalt palette, but refine the perimeter so the sprite sits more naturally on top of volcanic tiles.
+
+Required changes:
+- reduce the total outer rock mass by roughly 10 to 20 percent
+- chip away the perimeter so the silhouette becomes more fractured, broken, and geologically uneven
+- make the outermost edge fade to transparency faster, especially around thin protrusions and the rock ring
+- keep the strongest visual emphasis in the fissure mouth and throat
+- keep the outer ring dark charcoal basalt and ash-gray
+- keep sulfur staining and gold-bearing mineral traces subtle and close to the fissure, not spread across the outer rim
+- preserve strict top-down or near-top-down Factorio readability
+- transparent background only
+- no steam, no smoke, no haze, no surrounding terrain plate, no text, no UI
+
+What to preserve:
+- the central crack layout
+- the embedded-in-Vulcanus feeling
+- the restrained ember heat inside the fissure
+- the austere industrial volcanic mood
+
+What to avoid:
+- replacing the composition with a new vent shape
+- making the vent smaller by losing the readable fissure
+- smooth circular borders
+- bright decorative sulfur on the perimeter
+- fantasy portal energy
+
+Style target:
+This should read like the same wound after a cleaner cut: less excess rock, softer outer falloff, stronger integration with volcanic terrain.

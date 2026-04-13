@@ -21,6 +21,7 @@ ei_lib = require("lib/lib")
 ei_data = require("lib/data")
 ei_rng = require("lib/rng")
 ei_echo_codex = require("lib/echo-codex")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 
 -- Update pacing is configurable so the mod can spread expensive entity work across a
@@ -36,7 +37,9 @@ local ei_tech_scaling = require("scripts/control/tech-scaling")
 local ei_global = require("scripts/control/global")
 ei_register = require("scripts/control/register-util")
 local ei_teslas_legacy = require("scripts/control/teslas-legacy")
-ei_powered_beacon = require("scripts/control/powered-beacon")
+local ei_flammable_fluids = require("scripts/control/flammable-fluids")
+local ei_flammable_rupture_scheduler = require("scripts/control/flammable-rupture-scheduler")
+ei_fluid_safety = require("scripts/control/fluid-safety")
 ei_beacon_overload = require("scripts/control/beacon-overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 
@@ -60,6 +63,7 @@ ei_loaders_lib = require("lib/loaders")
 ei_rocket_launch_pollution = require("scripts/control/rocket-launch-pollution")
 ei_fulgora_day_length_variation = require("scripts/control/fulgora-day-length-variation")
 ei_mining_scars = require("scripts/control/mining-scars")
+ei_vulcanus_fumaroles = require("scripts/control/vulcanus-fumaroles")
 local ei_nauvis_pressure_grace = require("scripts/control/nauvis-pressure-grace")
 
 ei_fueler = require("scripts/control/fueler/fueler")
@@ -72,6 +76,33 @@ em_trains_informatron = require("scripts/control/em-trains/informatron")
 ei_steam_train = require("scripts/control/steam-train")
 ei_camp_fire = require("scripts/control/camp-fire")
 orbital_combinator = require("scripts/control/orbital-combinator")
+
+local function refresh_runtime_telemetry_snapshot()
+    if not ei_runtime_scheduler.telemetry_enabled() then
+        return
+    end
+
+    local modules = {
+        ei_induction_matrix,
+        ei_gate,
+        ei_fueler,
+        ei_gaia,
+        ei_alien_spawner,
+        ei_rocket_launch_pollution,
+        ei_flammable_rupture_scheduler,
+        em_trains,
+        ei_black_hole,
+        ei_vulcanus_fumaroles,
+    }
+
+    for _, module_ref in ipairs(modules) do
+        if module_ref and module_ref.get_runtime_status then
+            pcall(module_ref.get_runtime_status)
+        end
+    end
+
+    ei_runtime_scheduler.write_telemetry("runtime-heartbeat", ei_runtime_scheduler.status_snapshot())
+end
 
 --====================================================================================================
 --EVENTS
@@ -107,6 +138,9 @@ script.on_init(function(event)
     -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
     ei_global.check_init(event)
+    ei_beacon_overload.check_global()
+    ei_flammable_rupture_scheduler.check_global()
+    ei_vulcanus_fumaroles.check_global()
     ei_teslas_legacy.on_init(event)
     ei_gate.on_init(event)
 
@@ -135,10 +169,11 @@ script.on_init(function(event)
     ei_matter_stabilizer.check_global()
     ei_matter_stabilizer.rebuild_runtime_state("init")
     ei_echo_codex.handle_global_settings(event)
+    ei_vulcanus_fumaroles.on_init(event)
     ei_lib.crystal_echo("☄ [Somnolent Awakening] — Gaia stirs from her dream-slumber; her shell begins to coalesce…")
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
-    ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…") 
-    ei_echo_codex.youHaveArrived(event)
+    ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…")
+    ei_echo_codex.queue_players(game.players)
 end)
 
 --ENTITY RELATED
@@ -161,10 +196,11 @@ script.on_event({
     defines.events.on_entity_died,
 	defines.events.on_pre_player_mined_item,
 	defines.events.on_robot_pre_mined,
-	defines.events.script_raised_destroy
+    defines.events.script_raised_destroy
     }, function(e)
     if e.name == defines.events.on_entity_died then
         ei_teslas_legacy.on_entity_died(e)
+        ei_flammable_fluids.on_entity_died(e)
     end
     on_destroyed_entity(e)
 end)
@@ -242,13 +278,12 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
     orbital_combinator.on_space_platform_changed_state(e)
 end)
 
-script.on_event(defines.events.on_rocket_launched, function(e)
-    -- Rocket pollution uses both "ordered" and "launched" so it can model the full launch flow.
-    ei_rocket_launch_pollution.on_rocket_launched(e)
-end)
-
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
     ei_rocket_launch_pollution.on_rocket_launch_ordered(e)
+end)
+
+script.on_event(defines.events.on_rocket_launched, function(e)
+    ei_rocket_launch_pollution.on_rocket_launched(e)
 end)
 
 --RESEARCH RELATED
@@ -266,9 +301,11 @@ end)
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_chunk_generated, function(e)
     ei_alien_spawner.on_chunk_generated(e)
+    ei_vulcanus_fumaroles.on_chunk_generated(e)
 end)
 
 script.on_event(defines.events.on_resource_depleted, function(e)
+    ei_vulcanus_fumaroles.on_resource_depleted(e)
     ei_mining_scars.on_resource_depleted(e)
 end)
 --[[
@@ -394,10 +431,20 @@ script.on_configuration_changed(function(e)
 
     if mod_changes_present or startup_settings_changed then
         ei_global.check_init(e) -- Crystal_echo and startup-setting mirrors expect these tables.
+        ei_flammable_rupture_scheduler.check_global()
+        ei_vulcanus_fumaroles.check_global()
+        if mod_changes_present and ei_fluid_safety and ei_fluid_safety.rebuild_fluid_runtime then
+            ei_fluid_safety.rebuild_fluid_runtime("configuration-changed")
+        end
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
         ei_teslas_legacy.on_configuration_changed(e)
     end
+
+    -- Beacon overload keeps its own runtime repair path so any configuration change can
+    -- re-seed its state and queue a refresh when prototype or startup settings moved.
+    ei_beacon_overload.check_global()
+    ei_beacon_overload.on_configuration_changed(e)
 
     if mod_changes_present then
         -- This is the mod's broad migration/repair pass. It re-validates globals,
@@ -441,13 +488,13 @@ script.on_configuration_changed(function(e)
         --em_trains.update_rail_counts()
         em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
         em_trains_gui.mark_dirty()
-        ei_beacon_overload.refresh_all_overloads()
         ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
         ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
         ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
         ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()
+        ei_vulcanus_fumaroles.on_configuration_changed(e)
     end
 
     -- `mod_changes` does not cover startup-setting-only changes, and tech scaling depends on
@@ -458,42 +505,39 @@ end)
 
 script.on_load(function()
     ei_teslas_legacy.on_load()
-    ei_echo_codex.youHaveArrived(event)
 end)
 
 script.on_event(
   {
+    defines.events.on_player_created,
+    defines.events.on_player_joined_game,
     defines.events.on_cutscene_cancelled,
     defines.events.on_cutscene_finished,
     defines.events.on_player_respawned
   },
     function(event)
-        -- Once the player is fully back inside the simulation, it is safe to replay the
-        -- arrival ritual visuals and messaging.
-        ei_echo_codex.youHaveArrived(event)
+        -- Route all player-entry paths through the pending queue so init, save-load joins,
+        -- reconnects, cutscene exits, and respawns can share one character-ready arrival ritual.
+        -- `on_player_joined_game` is the MP-safe load/reconnect path; avoid deriving gameplay
+        -- work from `on_load`, which also runs for peers connecting to a live session.
+        ei_echo_codex.queue_arrival(event.player_index)
     end
 )
+
+script.on_event(defines.events.on_singleplayer_init, function(_event)
+    -- Singleplayer save loads do not raise `on_player_joined_game`.
+    -- Use the dedicated SP-init hook to replay the queued arrival ritual without
+    -- deriving gameplay work from `on_load`.
+    ei_echo_codex.queue_players(game.connected_players)
+end)
 
 --====================================================================================================
 --HANDLERS
 --====================================================================================================
 
 --60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
--- ei_update_step is now computed from game.tick to ensure multiplayer determinism
--- The list is kept here mostly as documentation of the scheduled subsystems; the actual
--- updater uses an explicit branch per step because the branch-specific queue sizing and
--- guard conditions differ between systems.
-ei_update_functions = {
-    function() ei_powered_beacon.update() end, -- deprecated legacy beacon updater
-    function() ei_powered_beacon.update_fluid_storages() end, -- custom fluid entity queue
-    function() ei_neutron_collector.update() end, -- neutron source/collector queue
-    function() ei_matter_stabilizer.update() end, -- matter machine stabilization queue
-    function() orbital_combinator.update() end, -- orbital logistics mirroring
-    function() ei_fueler.updater() end, -- fueler task queue
-    function() ei_gate.update() end, -- gate queue / breakpoint walker
-    function() em_trains.train_updater() end, -- rolling stock logic
-    function() em_trains.charger_updater() end, -- charger logic
-}
+-- ei_update_step is computed from event.tick to ensure multiplayer determinism.
+-- Keep ei_update_functions_length in sync with the explicit scheduler branches below.
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
 function updater(event)
@@ -502,10 +546,12 @@ function updater(event)
   -- 2. a mandatory tier that still runs every tick for systems that depend on timers
   --    or fast global reactions
   --
-  -- game.tick decides which scheduled branch runs this tick. Because all peers compute
+  -- event.tick decides which scheduled branch runs this tick. Because all peers compute
   -- the same step from the same tick, this stays deterministic in multiplayer.
+  ei_echo_codex.flush_pending_arrivals(event)
+
   local updates_needed = 1
-  -- Compute update step from game tick to ensure multiplayer determinism
+  -- Compute update step from event.tick to keep the timing source explicit.
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
@@ -514,37 +560,21 @@ function updater(event)
            -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
            -- It ensures storage still has the expected tables before later steps run.
            ei_global.check_init(event)
+           ei_vulcanus_fumaroles.check_global()
            ei_nauvis_pressure_grace.updater(event)
            ei_camp_fire.updater(event)
            ei_gaia.reforge_on_tick(event)
-           --[[
-           --now handled by Nonstandard beacons
-           if storage.ei and storage.ei.spaced_updates and storage.ei.spaced_updates > 0 then
-               updates_needed = math.max(1,math.min(math.ceil(storage.ei.spaced_updates / divisor), ei_maxEntityUpdates))
-               end
-           for i = 1, updates_needed do
-               --Abort loop if the queue changes to avoid null reference
-               if storage.ei and storage.ei.spaced_updates and
-               math.max(1,math.min(math.ceil(storage.ei.spaced_updates / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                   goto skip
-                   end
-               if not ei_powered_beacon.update() then
-                goto skip
-               end
-            ]]
 
-       elseif ei_update_step == 2 then
-           -- Step 2 services the invalid fluid pipe logic
-           if storage.ei and storage.ei.fluid_entity and storage.ei.fluid_entity_count and storage.ei.fluid_entity_count > 0 then
-               updates_needed = math.max(1,math.min(math.ceil(storage.ei.fluid_entity_count / divisor), ei_maxEntityUpdates))
-               for i = 1, updates_needed do
-                    if storage.ei and storage.ei.fluid_entity and storage.ei.fluid_entity_count and
-                    math.max(1,math.min(math.ceil(storage.ei.fluid_entity_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                        goto skip
-                        end
-                    if not ei_powered_beacon.update_fluid_storages() then
-                        goto skip
-                    end
+        elseif ei_update_step == 2 then
+            -- Step 2 services the invalid fluid pipe runtime.
+            -- The current runtime strongly favors urgent wakeups, but still rotates
+            -- single-slot budgets and reserves a little multi-slot work for dirty-segment
+            -- repair plus background scans so they cannot starve under sustained churn.
+            if ei_fluid_safety and ei_fluid_safety.get_fluid_work_count and ei_fluid_safety.service_fluid_runtime then
+                local fluid_work_count = ei_fluid_safety.get_fluid_work_count()
+                if fluid_work_count > 0 then
+                    updates_needed = math.max(1, math.min(math.ceil(fluid_work_count / divisor), ei_maxEntityUpdates))
+                    ei_fluid_safety.service_fluid_runtime(updates_needed)
                 end
             end
 
@@ -637,7 +667,7 @@ function updater(event)
                 updates_needed = math.max(1,math.min(math.ceil(ei_lib.getn(storage.ei_emt.trains) / divisor), ei_maxEntityUpdates))
            end
            if updates_needed > 0 then
-               if not em_trains.train_updater(updates_needed) then
+               if not em_trains.train_updater(updates_needed, event.tick) then
                    goto skip
                end
            end
@@ -649,7 +679,7 @@ function updater(event)
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei_emt.chargers) / divisor), ei_maxEntityUpdates))
            end
            if updates_needed > 0 then
-               if not em_trains.charger_updater(updates_needed) then
+               if not em_trains.charger_updater(updates_needed, event.tick) then
                    goto skip
                end
            end
@@ -667,8 +697,17 @@ function updater(event)
     ei_black_hole.update(event)
     ei_steam_train.updater(event)
     ei_echo_codex.arrival_waves(event)
+    ei_beacon_overload.updater(event)
     ei_rocket_launch_pollution.updater(event)
+    ei_flammable_rupture_scheduler.updater(event)
     ei_fulgora_day_length_variation.updater(event)
+    ei_vulcanus_fumaroles.updater(event)
+    --[[
+    leave this disabled
+    if event.tick % 600 == 0 then
+        refresh_runtime_telemetry_snapshot()
+    end
+    ]]
    --======================================================================
 end
 
@@ -681,7 +720,7 @@ function on_built_entity(e)
     end
 
     -- Entities registered here participate in shared fluid handling managed by register-util.
-    if ei_powered_beacon.counts_for_fluid_handling(e["entity"]) then
+    if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
         ei_register.register_fluid_entity(e["entity"])
     -- Steam pumps receive a tiny priming amount so their startup state is less brittle.
     elseif e["entity"].name == "rp-steam-pump" then
@@ -696,7 +735,7 @@ function on_built_entity(e)
         end
         startsteam["amount"] = math.min(100,math.max(3,startsteam["amount"]*multi))
         e["entity"].set_fluid(2,startsteam)
-    --powered beacons
+    -- Legacy copper/iron beacon registration path kept only as historical reference.
     --[[
     elseif e["entity"].name == "ei-copper-beacon" then
         local master_unit, slave_entity = ei_register.setup_master_slave(
@@ -763,7 +802,7 @@ function on_destroyed_entity(e)
     -- they only need to know whether removed items should be handed back.
     local transfer = nil or e["robot"] or e["player_index"]
 
-    if ei_powered_beacon.counts_for_fluid_handling(e["entity"]) then
+    if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
         ei_register.deregister_fluid_entity(e["entity"])
     --[[
     elseif e["entity"].name == "ei-copper-beacon" or e["entity"].name == "ei-iron-beacon" then

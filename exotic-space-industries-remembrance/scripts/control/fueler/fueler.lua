@@ -1,4 +1,16 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: fueler towers, targets, player servicing, and console GUI
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init/config rebuild, build/destroy, scheduled tick step 6, and GUI open/close/click
+-- forwarded_events: add_active_surface, build_target_entry, build_tower_entry, cast_beam, check_global, clear_legacy_runtime_fields, close_gui, consume_tower_slice_budget, dequeue_ready_player, dequeue_surface_target, enqueue_ready_player, enqueue_ready_target, ensure_runtime_ready, entity_check, get_candidate_towers, get_equipment, get_normalized_quality_factor, get_quality_sort_level, get_ready_target_count, get_retry_delay, get_service_budget, get_surface_queue, get_target_type, get_tower_chunk_bucket, get_tower_slice_remaining, get_transfer_inv, index_tower, is_supported_runtime_target, on_built_entity, on_destroyed_entity, on_gui_click, open_gui, process_player_state, process_ready_player, process_ready_target, process_target_entry, rebuild_runtime_state, refuel_equipments, refuel_target, register_fueler, register_target, release_due_players, release_due_targets, remove_active_surface, remove_ready_player, remove_ready_target, remove_target_entry, remove_tower_entry, reset_runtime_storage, schedule_player, schedule_target, select_service_towers, set_equipment, set_target_type, sync_connected_players, tower_matches_target, transfer_ammo, transfer_fuel, transfer_valid, unindex_tower, unregister_fueler, unregister_player_by_index, unregister_target, unschedule_player, unschedule_target, update_gui, updater
+-- storage_roots: storage.ei
+-- gui_ids: ei-fueler-console
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, entity topology changes
+--==============================================================================
 local model = {}
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local FUELER_RUNTIME_VERSION = 1
 local FUELER_CHUNK_SIZE = 32
@@ -7,8 +19,6 @@ local SUCCESS_COOLDOWN_TICKS = 60
 local FAILED_ACTION_COOLDOWN_TICKS = 120
 local MOVING_RETRY_COOLDOWN_TICKS = 30
 local STATIC_RETRY_COOLDOWN_TICKS = 300
-
-local quality_level_bounds_cache = nil
 
 local runtime_target_types = {
     ["locomotive"] = true,
@@ -42,12 +52,7 @@ model.target_types = {
 }
 
 local function ensure_queue(queue)
-    queue = queue or {}
-    queue.items = queue.items or {}
-    queue.head = queue.head or 1
-    queue.tail = queue.tail or 0
-    queue.queued = queue.queued or {}
-    return queue
+    return ei_runtime_scheduler.ensure_queue(queue)
 end
 
 local function compact_queue(queue)
@@ -80,145 +85,8 @@ local function compact_queue(queue)
     return queue
 end
 
-local function get_quality_prototypes()
-    if prototypes and prototypes.quality then
-        return prototypes.quality
-    end
-
-    if game and game.quality_prototypes then
-        return game.quality_prototypes
-    end
-end
-
-local function get_quality_level_bounds()
-    if quality_level_bounds_cache then
-        return quality_level_bounds_cache.min_level, quality_level_bounds_cache.max_level
-    end
-
-    local min_level = 1
-    local max_level = 1
-    local found_level = false
-    local quality_prototypes = get_quality_prototypes()
-
-    if quality_prototypes then
-        for _, quality in pairs(quality_prototypes) do
-            local level = quality.level
-            if ei_lib.is_valid_number(level) then
-                if not found_level then
-                    min_level = level
-                    max_level = level
-                    found_level = true
-                else
-                    min_level = math.min(min_level, level)
-                    max_level = math.max(max_level, level)
-                end
-            end
-        end
-    end
-
-    quality_level_bounds_cache = {
-        min_level = min_level,
-        max_level = max_level
-    }
-
-    return min_level, max_level
-end
-
-local function get_chunk_coordinate(tile_coordinate)
-    return math.floor(tile_coordinate / FUELER_CHUNK_SIZE)
-end
-
-local function get_chunk_coordinates(position)
-    return get_chunk_coordinate(position.x), get_chunk_coordinate(position.y)
-end
-
-local function get_chunk_coverage(position, radius)
-    return get_chunk_coordinate(position.x - radius),
-        get_chunk_coordinate(position.x + radius),
-        get_chunk_coordinate(position.y - radius),
-        get_chunk_coordinate(position.y + radius)
-end
-
-local function is_within_range_squared(source, target, range_sqr)
-    local dx = source.x - target.x
-    local dy = source.y - target.y
-    return dx * dx + dy * dy <= range_sqr
-end
-
-local function get_surface_index(surface)
-    return surface and surface.index or nil
-end
-
 local function get_force_index(force)
     return force and force.index or nil
-end
-
-local function try_get_stack_field(item_stack, getter)
-    local ok, value = pcall(getter, item_stack)
-    if ok then
-        return value
-    end
-
-    return nil
-end
-
-local function copy_localised_string(value)
-    if type(value) == "table" then
-        return table.deepcopy(value)
-    end
-
-    return value
-end
-
-local function make_item_stack_definition(item_stack, count)
-    if not item_stack or not item_stack.valid_for_read then
-        return nil
-    end
-
-    local stack_definition = {
-        name = item_stack.name,
-        count = count or item_stack.count
-    }
-
-    local quality = try_get_stack_field(item_stack, function(stack)
-        local stack_quality = stack.quality
-        return stack_quality and stack_quality.name or nil
-    end)
-    if quality then
-        stack_definition.quality = quality
-    end
-
-    local health = try_get_stack_field(item_stack, function(stack) return stack.health end)
-    if health ~= nil then
-        stack_definition.health = health
-    end
-
-    local durability = try_get_stack_field(item_stack, function(stack) return stack.durability end)
-    if durability ~= nil then
-        stack_definition.durability = durability
-    end
-
-    local ammo = try_get_stack_field(item_stack, function(stack) return stack.ammo end)
-    if ammo ~= nil then
-        stack_definition.ammo = ammo
-    end
-
-    local spoil_percent = try_get_stack_field(item_stack, function(stack) return stack.spoil_percent end)
-    if spoil_percent ~= nil then
-        stack_definition.spoil_percent = spoil_percent
-    end
-
-    local tags = try_get_stack_field(item_stack, function(stack) return stack.tags end)
-    if tags ~= nil then
-        stack_definition.tags = table.deepcopy(tags)
-    end
-
-    local custom_description = try_get_stack_field(item_stack, function(stack) return stack.custom_description end)
-    if custom_description ~= nil then
-        stack_definition.custom_description = copy_localised_string(custom_description)
-    end
-
-    return stack_definition
 end
 
 local function get_runtime_tower_target_type(unit_number)
@@ -252,7 +120,7 @@ function model.get_normalized_quality_factor(entity)
         return 0
     end
 
-    local min_level, max_level = get_quality_level_bounds()
+    local min_level, max_level = ei_lib.get_quality_level_bounds()
     if not ei_lib.is_valid_number(min_level) or not ei_lib.is_valid_number(max_level) or max_level <= min_level then
         return 0
     end
@@ -324,6 +192,7 @@ function model.check_global()
     ensure_component("delayed_player_buckets", {})
     ensure_component("last_due_target_release_tick", -1)
     ensure_component("last_due_player_release_tick", -1)
+    ensure_component("last_housekeeping_tick", -1)
     ensure_component("runtime_rebuild_in_progress", false)
 
     runtime.player_queue = ensure_queue(runtime.player_queue)
@@ -361,6 +230,7 @@ function model.reset_runtime_storage(runtime)
     runtime.delayed_player_buckets = {}
     runtime.last_due_target_release_tick = -1
     runtime.last_due_player_release_tick = -1
+    runtime.last_housekeeping_tick = -1
     runtime.runtime_version = FUELER_RUNTIME_VERSION
     runtime.needs_rebuild = false
 
@@ -446,11 +316,11 @@ end
 
 function model.build_tower_entry(entity)
     local range = ei_lib.config("fueler_range")
-    local min_chunk_x, max_chunk_x, min_chunk_y, max_chunk_y = get_chunk_coverage(entity.position, range)
+    local min_chunk_x, max_chunk_x, min_chunk_y, max_chunk_y = ei_lib.get_chunk_coverage(entity.position, range, FUELER_CHUNK_SIZE)
 
     return {
         entity = entity,
-        surface_index = get_surface_index(entity.surface),
+        surface_index = ei_lib.get_surface_index(entity.surface),
         min_chunk_x = min_chunk_x,
         max_chunk_x = max_chunk_x,
         min_chunk_y = min_chunk_y,
@@ -584,7 +454,7 @@ local function clone_stack(itemstack, target_inv)
     end
 
     local original_count = itemstack.count
-    local stack_definition = make_item_stack_definition(itemstack, original_count)
+    local stack_definition = ei_lib.make_item_stack_definition(itemstack, original_count)
     if not stack_definition then
         return 0
     end
@@ -714,7 +584,8 @@ function model.remove_ready_target(runtime, target_entry)
 
     local queue = model.get_surface_queue(runtime, target_entry.ready_surface_index, false)
     if queue and queue.queued[target_entry.unit_number] then
-        queue.queued[target_entry.unit_number] = nil
+        ei_runtime_scheduler.queue_remove_value(queue, target_entry.unit_number)
+        compact_queue(queue)
         runtime.ready_target_count = math.max(0, (runtime.ready_target_count or 0) - 1)
 
         local surface_index = target_entry.ready_surface_index
@@ -747,9 +618,7 @@ function model.enqueue_ready_target(runtime, target_id, surface_index)
         return true
     end
 
-    queue.tail = queue.tail + 1
-    queue.items[queue.tail] = target_id
-    queue.queued[target_id] = true
+    ei_runtime_scheduler.queue_push_unique(queue, target_id)
 
     target_entry.ready_queued = true
     target_entry.ready_surface_index = surface_index
@@ -766,34 +635,27 @@ function model.dequeue_surface_target(runtime, surface_index)
         return nil
     end
 
-    while queue.head <= queue.tail do
-        local target_id = queue.items[queue.head]
-        queue.items[queue.head] = nil
-        queue.head = queue.head + 1
+    local target_id = ei_runtime_scheduler.queue_pop_queued(queue)
+    if target_id == nil then
+        compact_queue(queue)
+        return nil
+    end
 
-        if target_id ~= nil and queue.queued[target_id] then
-            queue.queued[target_id] = nil
-            runtime.ready_target_count = math.max(0, (runtime.ready_target_count or 0) - 1)
-            runtime.target_surface_counts[surface_index] = math.max(0, (runtime.target_surface_counts[surface_index] or 0) - 1)
-            if runtime.target_surface_counts[surface_index] == 0 then
-                runtime.target_surface_counts[surface_index] = nil
-                model.remove_active_surface(runtime, surface_index)
-            end
+    runtime.ready_target_count = math.max(0, (runtime.ready_target_count or 0) - 1)
+    runtime.target_surface_counts[surface_index] = math.max(0, (runtime.target_surface_counts[surface_index] or 0) - 1)
+    if runtime.target_surface_counts[surface_index] == 0 then
+        runtime.target_surface_counts[surface_index] = nil
+        model.remove_active_surface(runtime, surface_index)
+    end
 
-            compact_queue(queue)
-
-            local target_entry = runtime.targets[target_id]
-            if target_entry then
-                target_entry.ready_queued = false
-                target_entry.ready_surface_index = nil
-            end
-
-            return target_id
-        end
+    local target_entry = runtime.targets[target_id]
+    if target_entry then
+        target_entry.ready_queued = false
+        target_entry.ready_surface_index = nil
     end
 
     compact_queue(queue)
-    return nil
+    return target_id
 end
 
 function model.unschedule_target(runtime, target_entry)
@@ -841,7 +703,8 @@ function model.remove_ready_player(runtime, player_state)
         return
     end
 
-    queue.queued[player_state.player_index] = nil
+    ei_runtime_scheduler.queue_remove_value(queue, player_state.player_index)
+    compact_queue(queue)
     player_state.ready_queued = false
 end
 
@@ -857,35 +720,26 @@ function model.enqueue_ready_player(runtime, player_index)
         return true
     end
 
-    queue.tail = queue.tail + 1
-    queue.items[queue.tail] = player_index
-    queue.queued[player_index] = true
+    ei_runtime_scheduler.queue_push_unique(queue, player_index)
     player_state.ready_queued = true
     return true
 end
 
 function model.dequeue_ready_player(runtime)
     local queue = runtime.player_queue
-    while queue.head <= queue.tail do
-        local player_index = queue.items[queue.head]
-        queue.items[queue.head] = nil
-        queue.head = queue.head + 1
+    local player_index = ei_runtime_scheduler.queue_pop_queued(queue)
+    if player_index == nil then
+        compact_queue(queue)
+        return nil
+    end
 
-        if player_index ~= nil and queue.queued[player_index] then
-            queue.queued[player_index] = nil
-            compact_queue(queue)
-
-            local player_state = runtime.player_states[player_index]
-            if player_state then
-                player_state.ready_queued = false
-            end
-
-            return player_index
-        end
+    local player_state = runtime.player_states[player_index]
+    if player_state then
+        player_state.ready_queued = false
     end
 
     compact_queue(queue)
-    return nil
+    return player_index
 end
 
 function model.unschedule_player(runtime, player_state)
@@ -929,7 +783,7 @@ function model.build_target_entry(entity)
         unit_number = entity.unit_number,
         entity = entity,
         entity_type = entity.type,
-        surface_index = get_surface_index(entity.surface),
+        surface_index = ei_lib.get_surface_index(entity.surface),
         ready_queued = false,
         ready_surface_index = nil,
         next_ready_tick = nil
@@ -1028,7 +882,7 @@ function model.register_target(entity)
     if target_entry then
         target_entry.entity = entity
         target_entry.entity_type = entity.type
-        target_entry.surface_index = get_surface_index(entity.surface)
+        target_entry.surface_index = ei_lib.get_surface_index(entity.surface)
         model.unschedule_target(runtime, target_entry)
         if not target_entry.ready_queued then
             model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
@@ -1116,7 +970,7 @@ function model.release_due_targets(runtime, tick)
         if target_entry then
             target_entry.next_ready_tick = nil
             if model.entity_check(target_entry.entity) then
-                target_entry.surface_index = get_surface_index(target_entry.entity.surface)
+                target_entry.surface_index = ei_lib.get_surface_index(target_entry.entity.surface)
                 model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
             else
                 model.remove_target_entry(runtime, target_id, target_entry)
@@ -1160,8 +1014,8 @@ function model.get_candidate_towers(runtime, target)
         return {}
     end
 
-    local surface_index = get_surface_index(target.surface)
-    local chunk_x, chunk_y = get_chunk_coordinates(target.position)
+    local surface_index = ei_lib.get_surface_index(target.surface)
+    local chunk_x, chunk_y = ei_lib.get_chunk_coordinates(target.position, FUELER_CHUNK_SIZE)
     local bucket = model.get_tower_chunk_bucket(runtime, surface_index, chunk_x, chunk_y, false)
     if not bucket then
         return {}
@@ -1178,7 +1032,7 @@ function model.get_candidate_towers(runtime, target)
         if model.entity_check(tower)
             and tower_entry.surface_index == surface_index
             and target_force_index == get_force_index(tower.force)
-            and is_within_range_squared(target.position, tower.position, range_sqr) then
+            and ei_lib.is_within_range_squared(target.position, tower.position, range_sqr) then
             candidates[#candidates + 1] = tower_entry
         elseif tower_entry and not model.entity_check(tower) then
             model.remove_tower_entry(runtime, tower_id, tower_entry)
@@ -1263,7 +1117,7 @@ function model.process_target_entry(runtime, target_entry, event)
         return false
     end
 
-    target_entry.surface_index = get_surface_index(target.surface)
+    target_entry.surface_index = ei_lib.get_surface_index(target.surface)
 
     local desired_target_type = get_entity_target_type(target)
     local allow_vehicle_mode = target.type ~= "character"
@@ -1575,15 +1429,52 @@ function model.updater(event)
         return false
     end
 
-    model.sync_connected_players(runtime)
-    model.release_due_targets(runtime, event.tick)
-    model.release_due_players(runtime, event.tick)
+    if runtime.last_housekeeping_tick ~= event.tick then
+        runtime.last_housekeeping_tick = event.tick
+        model.sync_connected_players(runtime)
+        model.release_due_targets(runtime, event.tick)
+        model.release_due_players(runtime, event.tick)
+    end
 
     if model.process_ready_target(runtime, event) then
         return true
     end
 
     return model.process_ready_player(runtime, event)
+end
+
+function model.get_runtime_status()
+    local runtime = model.check_global()
+    local ready_surface_queue_items = 0
+
+    for _, queue in pairs(runtime.target_surface_queues or {}) do
+        ready_surface_queue_items = ready_surface_queue_items + ei_runtime_scheduler.queue_item_count(queue)
+    end
+
+    local status = {
+        tower_count = ei_runtime_scheduler.table_count(runtime.towers),
+        target_count = runtime.target_count or 0,
+        ready_target_count = runtime.ready_target_count or 0,
+        ready_surface_queue_items = ready_surface_queue_items,
+        active_surface_count = #(runtime.active_surfaces or {}),
+        player_state_count = ei_runtime_scheduler.table_count(runtime.player_states),
+        ready_player_queue = ei_runtime_scheduler.audit_queue(runtime.player_queue),
+        delayed_target_bucket_count = ei_runtime_scheduler.delayed_bucket_count(runtime.delayed_target_buckets),
+        delayed_target_item_count = ei_runtime_scheduler.delayed_item_count(runtime.delayed_target_buckets),
+        delayed_player_bucket_count = ei_runtime_scheduler.delayed_bucket_count(runtime.delayed_player_buckets),
+        delayed_player_item_count = ei_runtime_scheduler.delayed_item_count(runtime.delayed_player_buckets),
+        last_housekeeping_tick = runtime.last_housekeeping_tick or -1,
+        needs_rebuild = runtime.needs_rebuild == true,
+        targets = runtime.target_count or 0,
+        ready_targets = runtime.ready_target_count or 0,
+        active_surfaces = #(runtime.active_surfaces or {}),
+        delayed_target_buckets = ei_runtime_scheduler.delayed_bucket_count(runtime.delayed_target_buckets),
+        delayed_player_buckets = ei_runtime_scheduler.delayed_bucket_count(runtime.delayed_player_buckets),
+        player_queue = ei_runtime_scheduler.queue_item_count(runtime.player_queue),
+    }
+
+    ei_runtime_scheduler.set_module_status("fueler", status)
+    return status
 end
 
 commands.add_command("rescan_fuelers", "Rebuilds Fueler tower runtime queues, target indices, and player tracking state.", function(command)

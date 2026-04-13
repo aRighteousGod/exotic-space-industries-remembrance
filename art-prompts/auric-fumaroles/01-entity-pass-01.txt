@@ -1,0 +1,15 @@
+Create a single Factorio-ready top-down entity sprite concept for an auric precipitation fumarole on Vulcanus.
+
+Requirements:
+- transparent background
+- one centered asset only
+- strict top-down or near-top-down game asset read
+- readable silhouette at Factorio gameplay scale
+- no UI, no text, no frame, no horizon, no side-view environment
+- volcanic black basalt fissure, ash-gray crust, sulfur-yellow mineral staining, muted gold precipitate seams, ember-orange heat glow
+- feels finite, dangerous, industrial, ritualized, and severe rather than like a generic natural geyser
+- narrow throat, cracked vent mouth, scorched rock ring, restrained steam release
+- avoid purple bias, avoid cartoony shapes, avoid photoreal clutter, avoid giant background smoke plumes
+
+Style target:
+Austere industrial occult geology. Clean alpha edges. Strong silhouette first, detail second.

@@ -38,6 +38,7 @@ require("teslas_legacy.final_overlay_ei")
 --=======================================================================================
 
 require("scripts/data-final-updates/compatibility")
+require("scripts/data-final-updates/death-explosions")
 
 -- =======================================================================================
 

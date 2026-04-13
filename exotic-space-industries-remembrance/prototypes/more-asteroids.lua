@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: data-stage prototype aggregation for more-asteroids
+-- loaded_by: exotic-space-industries-remembrance\data.lua
+-- cadence: data-stage load
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload, prototype cache rebuild
+--==============================================================================
 --Imported from More Asteroids ESI fork
 --Tweaked for flavor and crunch profile
 --================================================================================================

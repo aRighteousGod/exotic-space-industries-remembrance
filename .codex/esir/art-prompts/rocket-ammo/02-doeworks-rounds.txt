@@ -1,0 +1,10 @@
+Doeworks rocket ammo art prompts for Exotic Space Industries: Remembrance.
+
+The Doeworks line should feel extremely potent inside a narrow niche. The art should reinforce weight, restraint, and brutal payoff. Fixed cone logic is part of the identity.
+
+Prompt goals:
+- Siege round: oversized, armored, blunt, built for breaching
+- Corrosive round: grim containment, acid-carrying shell, industrial hazard markings
+- Cryo round: insulated shell, cold conduit markings, frozen containment hardware
+
+Keep the forms readable from a top-down game camera. The visual language should feel heavier than the hand rockets, not just larger.

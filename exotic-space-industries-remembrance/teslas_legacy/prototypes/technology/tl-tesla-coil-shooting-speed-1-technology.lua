@@ -1,4 +1,4 @@
-﻿local level = 1
+local level = 1
 local base = 75
 local step = 15
 
@@ -7,7 +7,7 @@ data:extend({
     type = "technology",
     name = "tl-tesla-coil-shooting-speed-1",
     icon_size = 128, icon_mipmaps = 4,
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/tl-tesla-coil-shooting-speed-technology.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/tl-tesla-coil-shooting-speed-technology.png",
     effects =
     {
       {

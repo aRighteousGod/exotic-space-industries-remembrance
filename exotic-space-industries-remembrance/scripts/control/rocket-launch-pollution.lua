@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: rocket launch pollution queues and effects
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: launch ordered, launch completed, and every-tick updates
+-- forwarded_events: on_rocket_launch_ordered, on_rocket_launched, updater
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: startup setting changes, configuration changes
+--==============================================================================
 --[[
 Rocket launch pollution scaling (config-driven, multiple curve options)
 
@@ -17,7 +28,9 @@ Supported modes:
 Evolution factor is typically in [0, 1], but we clamp anyway for safety.
 ]]
 local ei_lib = require("lib/lib")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local model = {}
+local ROCKET_LAUNCH_CONFIRM_GRACE_TICKS = 120
 
 --====================================================================================================
 --GAIA
@@ -79,6 +92,86 @@ local rocket_pollution_config = {
     late_power = 2,
   }
 }
+
+local function ensure_launch_state(current_tick)
+  current_tick = current_tick or 0
+  storage.ei = storage.ei or {}
+  storage.ei.rocket_launch_pollution = storage.ei.rocket_launch_pollution or {}
+
+  local state = storage.ei.rocket_launch_pollution
+  state.launch_smoke = state.launch_smoke or {}
+  state.pending_launches_by_silo = state.pending_launches_by_silo or {}
+  state.pending_launch_cleanup_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.pending_launch_cleanup_buckets)
+
+  -- Older saves may still carry predicted liftoff queues from the pre-confirmation path.
+  -- Migrate them into pending launches so the actual `on_rocket_launched` event becomes
+  -- the sole authority for whether the pollution consequence fires.
+  if state.liftoff_queue and #state.liftoff_queue > 0 then
+    for _, job in ipairs(state.liftoff_queue) do
+      local expected_tick = job.tick or current_tick
+      if expected_tick < current_tick then
+        expected_tick = current_tick
+      end
+      if job.silo_unit_number then
+        job.tick = expected_tick
+        job.expected_tick = expected_tick
+        state.pending_launches_by_silo[job.silo_unit_number] = job
+        ei_runtime_scheduler.delayed_schedule(
+          state.pending_launch_cleanup_buckets,
+          expected_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS,
+          {silo_unit_number = job.silo_unit_number, expected_tick = expected_tick}
+        )
+      end
+    end
+    state.liftoff_queue = {}
+  end
+
+  if state.liftoff_buckets then
+    for due_tick, bucket in pairs(state.liftoff_buckets) do
+      for _, job in pairs(bucket) do
+        if type(job) == "table" and job.silo_unit_number then
+          local expected_tick = job.tick or due_tick or current_tick
+          if expected_tick < current_tick then
+            expected_tick = current_tick
+          end
+          job.tick = expected_tick
+          job.expected_tick = expected_tick
+          state.pending_launches_by_silo[job.silo_unit_number] = job
+          ei_runtime_scheduler.delayed_schedule(
+            state.pending_launch_cleanup_buckets,
+            expected_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS,
+            {silo_unit_number = job.silo_unit_number, expected_tick = expected_tick}
+          )
+        end
+      end
+    end
+    state.liftoff_buckets = {}
+  end
+
+  return state
+end
+
+local function queue_pending_launch(job, current_tick)
+  if not (job and job.silo_unit_number) then
+    return
+  end
+
+  local state = ensure_launch_state(current_tick)
+  local expected_tick = job.tick or current_tick
+  if expected_tick < current_tick then
+    expected_tick = current_tick
+  end
+
+  job.tick = expected_tick
+  job.expected_tick = expected_tick
+  state.pending_launches_by_silo[job.silo_unit_number] = job
+  ei_runtime_scheduler.delayed_schedule(
+    state.pending_launch_cleanup_buckets,
+    expected_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS,
+    {silo_unit_number = job.silo_unit_number, expected_tick = expected_tick}
+  )
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_ordered", 1)
+end
 
 -- Computes how much pollution a rocket launch should emit based on:
 -- - force evolution factor on the current surface
@@ -301,6 +394,19 @@ local function update_launch_smoke_spiral()
   end
 end
 
+local function apply_confirmed_launch(job)
+  local surface = job and job.surface_index and game.surfaces[job.surface_index] or nil
+  if not surface then
+    return false
+  end
+
+  surface.pollute(job.position, job.pollution)
+  spawn_launch_smoke_spiral(surface, job.position, job.pollution)
+  try_form_retaliation(surface, job.position, job.pollution)
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "liftoff_processed", 1)
+  return true
+end
+
 local function is_impossible_difficulty()
   return storage
     and storage.ei
@@ -446,35 +552,23 @@ local function try_form_retaliation(surface, position, pollution)
   return true
 end
 
-local function update_rocket_liftoff_queue(event)
-  local q = storage.ei
-    and storage.ei.rocket_launch_pollution
-    and storage.ei.rocket_launch_pollution.liftoff_queue
+local function cleanup_stale_pending_launches(current_tick)
+  local state = ensure_launch_state(current_tick)
+  local due_entries = ei_runtime_scheduler.delayed_take_due(state.pending_launch_cleanup_buckets, current_tick)
+  if #due_entries == 0 then return end
 
-  if not (q and #q > 0) then return end
-
-  local now = event.tick
-  for i = #q, 1, -1 do
-    local job = q[i]
-    if job.tick <= now then
-      local surface = game.surfaces[job.surface_index]
-      if surface then
-        -- Apply pollution at liftoff
-        surface.pollute(job.position, job.pollution)
-
-        -- Spiral smoke at liftoff
-        spawn_launch_smoke_spiral(surface, job.position, job.pollution)
-        try_form_retaliation(surface, job.position, job.pollution)
-      end
-
-      table.remove(q, i)
+  for _, entry in ipairs(due_entries) do
+    local pending = entry and entry.silo_unit_number and state.pending_launches_by_silo[entry.silo_unit_number] or nil
+    if pending and pending.expected_tick == entry.expected_tick then
+      state.pending_launches_by_silo[entry.silo_unit_number] = nil
+      ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_canceled", 1)
     end
   end
 end
 
 function model.updater(event)
   if not (storage.ei and storage.ei.rocket_launch_pollution) then return end
-  update_rocket_liftoff_queue(event)
+  cleanup_stale_pending_launches(event.tick)
   update_launch_smoke_spiral()
 end
 
@@ -488,15 +582,14 @@ local function queue_rocket_liftoff_wrath(silo, pollution, event)
 
   storage.ei = storage.ei or {}
   storage.ei.rocket_launch_pollution = storage.ei.rocket_launch_pollution or {}
-  storage.ei.rocket_launch_pollution.liftoff_queue = storage.ei.rocket_launch_pollution.liftoff_queue or {}
 
-  table.insert(storage.ei.rocket_launch_pollution.liftoff_queue, {
+  queue_pending_launch({
     tick = event.tick + delay,
     surface_index = surface.index,
     position = { x = pos.x, y = pos.y },
     silo_unit_number = silo.unit_number,
     pollution = pollution,
-  })
+  }, event.tick)
 end
 
 -- Event handler for rocket launches.
@@ -513,11 +606,60 @@ function model.on_rocket_launch_ordered(event)
   queue_rocket_liftoff_wrath(silo, pollution, event)
 end
 
--- Triggered whenever a rocket is launched from a silo.
 function model.on_rocket_launched(event)
-  -- Pollution, smoke, and Impossible retaliation are all synchronized through the
-  -- ordered-launch queue so they land at the actual liftoff moment.
-  return
+  local silo = event.rocket_silo
+  if not (silo and silo.valid) then
+    return
+  end
+
+  local surface = silo.surface
+  local force = silo.force
+  if not (surface and surface.valid and force and force.valid) then
+    return
+  end
+
+  local state = ensure_launch_state(event.tick)
+  local pending = silo.unit_number and state.pending_launches_by_silo[silo.unit_number] or nil
+  if pending then
+    state.pending_launches_by_silo[silo.unit_number] = nil
+    pending.surface_index = surface.index
+    pending.position = { x = silo.position.x, y = silo.position.y }
+    pending.tick = event.tick
+    apply_confirmed_launch(pending)
+    return
+  end
+
+  -- Fallback for migration edge cases or external runtime interference that loses the
+  -- ordered-launch record. Confirmed launches still get their pollution consequences.
+  local pollution = get_rocket_launch_pollution(force, surface)
+  apply_confirmed_launch({
+    tick = event.tick,
+    surface_index = surface.index,
+    position = { x = silo.position.x, y = silo.position.y },
+    silo_unit_number = silo.unit_number,
+    pollution = pollution,
+  })
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_untracked", 1)
+end
+
+function model.get_runtime_status()
+  storage.ei = storage.ei or {}
+  storage.ei.rocket_launch_pollution = storage.ei.rocket_launch_pollution or {}
+  local state = ensure_launch_state(game and game.tick or 0)
+  local status = {
+    pending_launch_count = ei_runtime_scheduler.table_count(state.pending_launches_by_silo),
+    pending_cleanup_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.pending_launch_cleanup_buckets),
+    pending_cleanup_item_count = ei_runtime_scheduler.delayed_item_count(state.pending_launch_cleanup_buckets),
+    legacy_liftoff_queue_count = #(storage.ei.rocket_launch_pollution.liftoff_queue or {}),
+    active_smoke_jobs = #(state.launch_smoke or {}),
+    pending_launches = ei_runtime_scheduler.table_count(state.pending_launches_by_silo),
+    pending_cleanup_buckets = ei_runtime_scheduler.delayed_bucket_count(state.pending_launch_cleanup_buckets),
+    pending_cleanup_items = ei_runtime_scheduler.delayed_item_count(state.pending_launch_cleanup_buckets),
+    launch_smoke = #(state.launch_smoke or {}),
+  }
+
+  ei_runtime_scheduler.set_module_status("rocket-launch-pollution", status)
+  return status
 end
 
 return model

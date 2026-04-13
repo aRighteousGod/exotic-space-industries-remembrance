@@ -1,0 +1,13 @@
+Rocket ordnance effects for Exotic Space Industries: Remembrance.
+
+Generate separate effect sheets for siege, corrosive, cryo, and atomic families. The language should feel industrial and severe, not glossy or cartoonish.
+
+Effect targets:
+- Siege explosion: heavy impact burst, dust ring, shrapnel punch, short-lived smoke
+- Corrosive explosion: acid spray, toxic vapor, dark green or yellow-brown mist, lingering corrosive smear
+- Cryo explosion: cold flash, frost vapor, pale shard burst, freezing haze
+- Atomic explosion: brutal containment failure, bright core, hot ring, heavy fallout bloom
+- Corrosive sticker: readable hazard stain, persistent and ugly
+- Cryo sticker: thin frost overlay, lingering control signal
+
+Keep motion readable in combat. Each family should look distinct from vanilla stock effects at a glance.

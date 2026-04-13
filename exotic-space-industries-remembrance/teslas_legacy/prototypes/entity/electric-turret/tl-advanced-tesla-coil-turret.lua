@@ -1,4 +1,4 @@
-﻿local sounds = require("__base__/prototypes/entity/sounds.lua")
+local sounds = require("__base__/prototypes/entity/sounds.lua")
 require("teslas_legacy.config.settings")
 local settings = get_settings()
 
@@ -25,13 +25,13 @@ end
 function pillar_animation(args)
 
   local high_res_anim = pillar_animation_core(args)
-  high_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-tesla-mask-1x1.png"
+  high_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-tesla-mask-1x1.png"
   high_res_anim.width = 222
   high_res_anim.height = 362
   high_res_anim.scale = 0.5
   
   local low_res_anim = pillar_animation_core(args)
-  low_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-tesla-mask-1x1.png"
+  low_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-tesla-mask-1x1.png"
   low_res_anim.width = 111
   low_res_anim.height = 181
   low_res_anim.hr_version = high_res_anim
@@ -62,13 +62,13 @@ end
 
 function get_shadow_animation(args)
   local high_res_anim = get_shadow_animation_core(args)
-  high_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-shadow-1x1.png"
+  high_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-shadow-1x1.png"
   high_res_anim.width = 444
   high_res_anim.height = 300
   high_res_anim.scale = 0.5
   
   local low_res_anim = get_shadow_animation_core(args)
-  low_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-shadow-1x1.png"
+  low_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-shadow-1x1.png"
   low_res_anim.width = 222
   low_res_anim.height= 150
   low_res_anim.hr_version = high_res_anim
@@ -92,13 +92,13 @@ end
 
 function get_idle_animation(args)
   local high_res_anim = get_idle_animation_core(args)
-  high_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-tesla-with-dirt-1x1.png"
+  high_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-tesla-with-dirt-1x1.png"
   high_res_anim.width = 222
   high_res_anim.height= 362
   high_res_anim.scale = 0.5
     
   local low_res_anim = get_idle_animation_core(args)
-  low_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-tesla-with-dirt-1x1.png"
+  low_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-tesla-with-dirt-1x1.png"
   low_res_anim.width = 111
   low_res_anim.height= 181
   low_res_anim.hr_version = high_res_anim
@@ -119,13 +119,13 @@ end
 
 function get_charging_animation(args)
   local high_res_anim = get_charging_animation_core(args)
-  high_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-charge-with-dirt-11x2.png"
+  high_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-charge-with-dirt-11x2.png"
   high_res_anim.width = 222
   high_res_anim.height= 362
   high_res_anim.scale = 0.5
   
   local low_res_anim = get_charging_animation_core(args)
-  low_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-charge-with-dirt-11x2.png"
+  low_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-charge-with-dirt-11x2.png"
   low_res_anim.width = 111
   low_res_anim.height= 181
   low_res_anim.hr_version = high_res_anim
@@ -135,18 +135,18 @@ end
 
 function get_charging_glow_animation(args)
   local anim = get_charging_animation(args)
-  anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-charge-glow2-11x2.png"
+  anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-charge-glow2-11x2.png"
   anim.draw_as_glow = true    
-  anim.hr_version.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-charge-glow2-11x2.png"
+  anim.hr_version.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-charge-glow2-11x2.png"
   anim.hr_version.draw_as_glow = true    
   return anim
 end
 
 function get_charging_light_animation(args)
   local anim = get_charging_animation(args)
-  anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-charge-light-11x2.png"
+  anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-tesla-charge-light-11x2.png"
   anim.draw_as_light = true    
-  anim.hr_version.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-charge-light-11x2.png"
+  anim.hr_version.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-tesla-charge-light-11x2.png"
   anim.hr_version.draw_as_light = true
   return anim
 end
@@ -165,13 +165,13 @@ end
 
 function get_sparking_animation(args)
   local high_res_anim = get_sparking_animation_core(args)
-  high_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-teslabase-8x4.png"
+  high_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-teslabase-8x4.png"
   high_res_anim.width = 222
   high_res_anim.height= 362          
   high_res_anim.scale = 0.5
       
   local low_res_anim = get_sparking_animation_core(args) 
-  low_res_anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-teslabase-8x4.png"
+  low_res_anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-teslabase-8x4.png"
   low_res_anim.width = 111
   low_res_anim.height= 181
   low_res_anim.hr_version = high_res_anim
@@ -181,18 +181,18 @@ end
 
 function get_sparking_glow_animation(args)
   local anim = get_sparking_animation(args)
-  anim.hr_version.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-spark-only-8x4.png"
+  anim.hr_version.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-spark-only-8x4.png"
   anim.hr_version.draw_as_glow = true
-  anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-spark-only-8x4.png" 
+  anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-spark-only-8x4.png" 
   anim.draw_as_glow = true
   return anim
 end
 
 function get_sparking_light_animation(args)
   local anim = get_sparking_animation(args)
-  anim.hr_version.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-spark-only-light-8x4.png" -- TODO MISSING
+  anim.hr_version.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/hr-soviet-spark-only-light-8x4.png" -- TODO MISSING
   anim.hr_version.draw_as_light = true
-  anim.filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-spark-only-light-8x4.png" 
+  anim.filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/entity/soviet-tesla/lr-soviet-spark-only-light-8x4.png" 
   anim.draw_as_light = true
   return anim
 end
@@ -239,7 +239,7 @@ function init_subtle_animations(electric_turret_object)
   
   electric_turret_object.starting_attack_sound = 
   {
-    filename = "__exotic-space-industries-remembrance__/teslas_legacy/sound/tl-advanced-tesla-coil-zap-subtle.wav",
+    filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-advanced-tesla-coil-zap-subtle.wav",
     volume = 0.7,
     speed = 1,
   }
@@ -312,7 +312,7 @@ function init_glowing_animations(electric_turret_object)
   }
   electric_turret_object.starting_attack_sound = 
   {
-    filename = "__exotic-space-industries-remembrance__/teslas_legacy/sound/chargeup-with-zap.wav",
+    filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/chargeup-with-zap.wav",
     volume = 0.7,
     speed = 1,
   }
@@ -426,7 +426,7 @@ function create_advanced_tesla_coil_turret()
     type = "electric-turret",
     name = "tl-advanced-tesla-coil",
     
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/advanced/icons/soviet-tesla.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/advanced/icons/soviet-tesla.png",
     icon_size = 64, icon_mipmaps = 4,
     minable = 
     {

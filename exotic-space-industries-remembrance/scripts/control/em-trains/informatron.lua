@@ -1,0 +1,11 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: EM train Informatron integration
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: load-time integration hooks
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: page/content changes
+--==============================================================================

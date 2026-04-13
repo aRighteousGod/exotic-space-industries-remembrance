@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: runtime loader snapping and loader helper functions
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build dispatch and on-demand helper use
+-- forwarded_events: addEnergyDraw, attempt_snap, flip_direction, flip_loader_type, get_positions, get_splitter_positions, make_loader, on_built_entity, poke_loader_at, snap_belt, snap_loader
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: loader prototype changes, loader layout changes
+--==============================================================================
 --[[
 
 ei_loaders_lib.lua

@@ -1,4 +1,4 @@
-﻿
+
 
 function get_animation_A_layers()
   local sequence = { 1, 1, 1, 1, 2, 2, 2,3, 3, 3,4, 4, 5, 6, 7, 7, 8, 9, 10, 11, 12, 13 }
@@ -6,7 +6,7 @@ function get_animation_A_layers()
   {
     {     
       animation_speed = 1,
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/sheet-a.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/sheet-a.png",
       priority = "extra-high",
       width = 200,
       height = 1280,
@@ -19,7 +19,7 @@ function get_animation_A_layers()
       frame_sequence = sequence,
     },
     {
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/sheet-a.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/sheet-a.png",
       priority = "extra-high",
       width = 200,
       height = 1280,
@@ -40,7 +40,7 @@ function get_animation_B_layers()
   {
     {     
       animation_speed = 0.5,
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/sheet-b.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/sheet-b.png",
       priority = "extra-high",
       width = 300,
       height = 720,
@@ -52,7 +52,7 @@ function get_animation_B_layers()
       draw_as_glow = true,
     },
     {
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/sheet-b.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/sheet-b.png",
       priority = "extra-high",
       width = 300,
       height = 720,
@@ -64,7 +64,7 @@ function get_animation_B_layers()
       draw_as_light = true,
     },
     { -- TODO the pop-in is a bit annoying
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/light.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/light.png",
       priority = "extra-high",
       width = 300,
       height = 720,
@@ -87,7 +87,7 @@ function get_animation_C_layers()
   {
     {     
       animation_speed = 0.75,
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/sheet-c.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/sheet-c.png",
       priority = "extra-high",
       width = 350,
       height = 565,
@@ -100,7 +100,7 @@ function get_animation_C_layers()
     },
     {     
       animation_speed = 0.5,
-      filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/sheet-c-light.png",
+      filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/sheet-c-light.png",
       priority = "extra-high",
       width = 350,
       height = 565,
@@ -139,22 +139,22 @@ data:extend({
     sound = 
     {
 	  {
-        filename = "__exotic-space-industries-remembrance__/teslas_legacy/sound/tl-tesla-tank-zap-1.wav",
+        filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-tesla-tank-zap-1.wav",
         volume = 6,
         speed = 1,
 	  },
 	  {
-        filename = "__exotic-space-industries-remembrance__/teslas_legacy/sound/tl-tesla-tank-zap-2.wav",
+        filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-tesla-tank-zap-2.wav",
         volume = 6,
         speed = 1,
 	  },
 	  {
-        filename = "__exotic-space-industries-remembrance__/teslas_legacy/sound/tl-tesla-tank-zap-3.wav",
+        filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-tesla-tank-zap-3.wav",
         volume = 4,
         speed = 1,
 	  },
 	  {
-        filename = "__exotic-space-industries-remembrance__/teslas_legacy/sound/tl-tesla-tank-zap-4.wav",
+        filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-tesla-tank-zap-4.wav",
         volume = 4,
         speed = 1,
 	  },

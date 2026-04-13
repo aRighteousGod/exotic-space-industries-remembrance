@@ -86,10 +86,10 @@ local DOCTRINE = {
 
 local TECH_ICON = {
   harmonics = "__space-age__/graphics/technology/tesla-weapons.png",
-  storm = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/tl-multi-zap-range-technology.png",
-  dielectric = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/tl-single-zap-damage-technology.png",
+  storm = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/tl-multi-zap-range-technology.png",
+  dielectric = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/tl-single-zap-damage-technology.png",
   bridge = "__space-age__/graphics/technology/tesla-weapons.png",
-  reactance = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/tl-volatility-modulation-technology.png",
+  reactance = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/tl-volatility-modulation-technology.png",
   exotic = "__space-age__/graphics/technology/tesla-weapons.png",
 }
 

@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: research-finished messaging
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: research-finished
+-- forwarded_events: notify, on_research_finished
+-- storage_roots: none
+-- gui_ids: exotic-industries.message-informatron
+-- remote_interfaces: none
+-- rebuild_on: progression text changes
+--==============================================================================
 local model = {}
 
 --====================================================================================================

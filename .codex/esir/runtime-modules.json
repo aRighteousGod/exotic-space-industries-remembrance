@@ -1,0 +1,1944 @@
+{
+    "schema_version":  1,
+    "generated_at":  "2026-04-12T22:28:41.9257288-05:00",
+    "repo_root":  "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance-2",
+    "entries":  [
+                    {
+                        "id":  "ei_compat",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\compat.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "compatibility init and configuration checks",
+                        "cadence":  "init and configuration-changed",
+                        "events":  [
+                                       "check_init",
+                                       "nth_tick"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.gaia_surfaces"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+                                                  "exotic-industries"
+                                              ],
+                        "rebuild_on":  [
+                                           "mod changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_debug",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\debug.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "debug console teleport command",
+                        "cadence":  "console command",
+                        "events":  [
+                                       "teleport_to"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.ei_emt"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_loaders_lib",
+                        "path":  "exotic-space-industries-remembrance\\lib\\loaders.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime loader snapping and loader helper functions",
+                        "cadence":  "build dispatch and on-demand helper use",
+                        "events":  [
+                                       "addEnergyDraw",
+                                       "attempt_snap",
+                                       "flip_direction",
+                                       "flip_loader_type",
+                                       "get_positions",
+                                       "get_splitter_positions",
+                                       "make_loader",
+                                       "on_built_entity",
+                                       "poke_loader_at",
+                                       "snap_belt",
+                                       "snap_loader"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "loader prototype changes",
+                                           "loader layout changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_fulgora_day_length_variation",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\fulgora-day-length-variation.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "Fulgora day-length variation",
+                        "cadence":  "every tick",
+                        "events":  [
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.fulgora_day_length_variation"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "startup setting changes",
+                                           "configuration changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_rocket_launch_pollution",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\rocket-launch-pollution.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "rocket launch pollution queues and effects",
+                        "cadence":  "launch ordered, launch completed, and every-tick updates",
+                        "events":  [
+                                       "get_runtime_status",
+                                       "on_rocket_launch_ordered",
+                                       "on_rocket_launched",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "startup setting changes",
+                                           "configuration changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_informatron_messager",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\informatron-messager.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "research-finished messaging",
+                        "cadence":  "research-finished",
+                        "events":  [
+                                       "notify",
+                                       "on_research_finished"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+                                        "exotic-industries.message-informatron"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "progression text changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_black_hole",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\black-hole.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "black hole GUI and runtime",
+                        "cadence":  "build, destroy, GUI dispatch, and every-tick runtime updates",
+                        "events":  [
+                                       "apply_output",
+                                       "built_extractor_pylon",
+                                       "built_injector_pylon",
+                                       "change_stage",
+                                       "check_battery",
+                                       "check_init",
+                                       "close_gui",
+                                       "ensure_runtime_defaults",
+                                       "entity_check",
+                                       "get_data",
+                                       "get_extractor_pylons_in_range",
+                                       "get_injector_pylons_in_range",
+                                       "get_mass",
+                                       "get_power",
+                                       "get_relative_stage_progress",
+                                       "get_runtime_status",
+                                       "get_stage",
+                                       "get_stage_progress",
+                                       "get_transfer_inv",
+                                       "invoke_victory",
+                                       "make_energy",
+                                       "make_output",
+                                       "make_stage_picture",
+                                       "mark_nearby_black_holes_dirty",
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "on_gui_click",
+                                       "on_gui_opened",
+                                       "open_gui",
+                                       "refresh_nearby_pylons",
+                                       "register_black_hole",
+                                       "set_stage_progress",
+                                       "transfer_valid",
+                                       "unregister_black_hole",
+                                       "update",
+                                       "update_battery",
+                                       "update_black_hole",
+                                       "update_black_holes",
+                                       "update_gui",
+                                       "update_mass",
+                                       "update_player_guis",
+                                       "update_stage"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+                                        "ei-black-hole-console"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "entity schema changes",
+                                           "GUI schema changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_gaia",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\gaia.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "Gaia runtime, spawn command, build hooks, and reforge behavior",
+                        "cadence":  "console command, build hooks, scheduled tick step 1, and every-tick Gaia updates",
+                        "events":  [
+                                       "create_drop",
+                                       "create_gaia",
+                                       "degrade_building",
+                                       "destroy_building",
+                                       "ensure_surface",
+                                       "entity_check",
+                                       "get_runtime_status",
+                                       "migrate_gaia_surface",
+                                       "on_built_entity",
+                                       "reforge_gaia_surface",
+                                       "reforge_on_tick",
+                                       "register_entity",
+                                       "remove_search_tick",
+                                       "spawn_command",
+                                       "swap_entity",
+                                       "update",
+                                       "update_entity_lifetimes"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.gaia_surfaces"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "Gaia mapgen changes",
+                                           "Gaia prototype changes",
+                                           "configuration changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_alien_system",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\alien-system.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "alien-system build, selection, and GUI click dispatch",
+                        "cadence":  "build, selected-area, and GUI click dispatch",
+                        "events":  [
+                                       "apply_effects",
+                                       "check_init",
+                                       "enable_alien",
+                                       "entity_check",
+                                       "exit_confirm",
+                                       "get_button_sprite",
+                                       "get_button_tags",
+                                       "get_prerequisites",
+                                       "get_tier",
+                                       "get_total_height",
+                                       "get_unlocked_state",
+                                       "is_unlocked",
+                                       "make_confirm_gui",
+                                       "make_tiers",
+                                       "on_built_entity",
+                                       "on_gui_click",
+                                       "on_player_selected_area",
+                                       "repair_artifact",
+                                       "select_alien",
+                                       "set_unlocked",
+                                       "swap_gui",
+                                       "try_select_alien",
+                                       "update_informatron",
+                                       "update_tier_status"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+                                        "ei-alien-gui"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "alien-system prototype changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_gate",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\gate.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "gate runtime, GUI, selector flow, and remote dispatch",
+                        "cadence":  "init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes",
+                        "events":  [
+                                       "apply_transfer_penalties",
+                                       "attach_wire_proxy_to_container",
+                                       "build_gui",
+                                       "can_gate_transport",
+                                       "can_pay_quote",
+                                       "change_permission",
+                                       "check_for_teleport",
+                                       "check_global_init",
+                                       "choose_position",
+                                       "cleanup_gate_remote_selection",
+                                       "cleanup_position_selection",
+                                       "close_gui",
+                                       "commit_quote",
+                                       "copy_exit",
+                                       "create_gate_user_permission_group",
+                                       "decay_gate_penalties",
+                                       "decay_receiver_penalties",
+                                       "destroy_gate",
+                                       "destroy_receiver",
+                                       "destroy_wire_proxy",
+                                       "distance_multiplier_to_span_ratio",
+                                       "emit_breach_residue",
+                                       "emit_stress_tendril",
+                                       "energy_from_burden",
+                                       "ensure_distance_cache",
+                                       "ensure_gate_defaults",
+                                       "ensure_receiver_defaults",
+                                       "ensure_wire_proxy",
+                                       "entity_check",
+                                       "find_container",
+                                       "find_container_entity",
+                                       "find_gate",
+                                       "gate_state",
+                                       "get_data",
+                                       "get_effective_receiver_data",
+                                       "get_gate_signal_value",
+                                       "get_gate_target_surface",
+                                       "get_gate_upkeep_watts",
+                                       "get_gui_elements",
+                                       "get_lowest_free_receiver_id",
+                                       "get_preview_exit",
+                                       "get_receiver_by_id",
+                                       "get_runtime_status",
+                                       "get_signal_value",
+                                       "get_span_band",
+                                       "get_surface_anchor",
+                                       "get_transfer_inv",
+                                       "is_gate_armed",
+                                       "is_receiver_saturated",
+                                       "is_wire_proxy_externally_wired",
+                                       "make_gate",
+                                       "make_item_stack_definition",
+                                       "make_item_with_quality_id",
+                                       "make_receiver_label",
+                                       "measure_transfer_burden",
+                                       "on_built_entity",
+                                       "on_configuration_changed",
+                                       "on_destroyed_entity",
+                                       "on_gui_click",
+                                       "on_gui_opened",
+                                       "on_gui_selection_state_changed",
+                                       "on_init",
+                                       "on_player_cursor_stack_changed",
+                                       "on_player_left_game",
+                                       "on_player_selected_area",
+                                       "open_gui",
+                                       "pay_energy",
+                                       "quote_transfer",
+                                       "rebuild_distance_cache",
+                                       "refresh_gate_live_state",
+                                       "refresh_receivers",
+                                       "register_gate",
+                                       "register_receiver",
+                                       "render_animation",
+                                       "render_exit",
+                                       "resolve_distance_quote",
+                                       "resolve_gate_target",
+                                       "resolve_manual_target",
+                                       "set_manual_receiver",
+                                       "should_lock_input",
+                                       "teleport_player",
+                                       "toggle_state",
+                                       "transfer",
+                                       "transfer_valid",
+                                       "update",
+                                       "update_distance_snapshot",
+                                       "update_energy",
+                                       "update_gui",
+                                       "update_input_lock",
+                                       "update_player_guis",
+                                       "update_player_permissions",
+                                       "update_receiver_selection",
+                                       "update_renders",
+                                       "update_wire_proxy_signals",
+                                       "used_remote"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+                                        "ei-gate-console"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "gate topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_mining_scars",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\mining-scars.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "depleted-resource scar behavior",
+                        "cadence":  "resource depletion",
+                        "events":  [
+                                       "on_resource_depleted"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "resource prototype changes",
+                                           "scar prototype changes"
+                                       ]
+                    },
+                    {
+                        "id":  "em_trains_informatron",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\informatron.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "EM train Informatron integration",
+                        "cadence":  "load-time integration hooks",
+                        "events":  [
+
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "page/content changes"
+                                       ]
+                    },
+                    {
+                        "id":  "em_trains_gui",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\gui.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "EM train GUI and dirty refresh",
+                        "cadence":  "every-tick dirty refresh and GUI click dispatch",
+                        "events":  [
+                                       "get_data",
+                                       "make_mod_button",
+                                       "mark_dirty",
+                                       "on_gui_click",
+                                       "open_mod_gui",
+                                       "update_mod_gui",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei_emt"
+                                          ],
+                        "gui_ids":  [
+                                        "ei_emt_button",
+                                        "ei_mod-gui",
+                                        "mod_gui"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "GUI schema changes",
+                                           "EM train runtime changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_steam_train",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\steam-train.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "steam locomotive wheel and helper runtime",
+                        "cadence":  "init/config rebuild, build/destroy, train state changes, and every-tick runtime updates",
+                        "events":  [
+                                       "addToGlobal",
+                                       "check_global",
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "on_train_changed_state",
+                                       "rebuild_runtime_state",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "entity topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "orbital_combinator",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\orbital-combinator.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "orbital combinator and platform bank mirroring",
+                        "cadence":  "init/config, build/destroy, logistic slot change, settings paste, platform state change, and scheduled tick step 5",
+                        "events":  [
+                                       "add",
+                                       "check_init",
+                                       "entity_check",
+                                       "get_bank_count",
+                                       "on_entity_logistic_slot_changed",
+                                       "on_entity_settings_pasted",
+                                       "on_space_platform_changed_state",
+                                       "rebuild_banks",
+                                       "rem",
+                                       "update",
+                                       "update_orbital_bank"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "platform topology changes",
+                                           "combinator topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_camp_fire",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\camp-fire.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "camp-fire periodic fire spawning",
+                        "cadence":  "build/destroy and scheduled tick step 1",
+                        "events":  [
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "entity topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_nauvis_pressure_grace",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\nauvis-pressure-grace.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "Nauvis pressure grace milestone and pollution/evolution pressure",
+                        "cadence":  "configuration changes, research-finished, and scheduled tick step 1",
+                        "events":  [
+                                       "on_configuration_changed",
+                                       "on_research_finished",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "startup settings",
+                                           "research progression",
+                                           "configuration changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_vulcanus_fumaroles",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\vulcanus-fumaroles.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "auric fumarole runtime generation, depletion, and afterglow cleanup",
+                        "cadence":  "init, configuration-changed, chunk generation, resource depletion, and every-tick cleanup",
+                        "events":  [
+                                       "check_global",
+                                       "get_runtime_status",
+                                       "is_vulcanus_surface",
+                                       "on_chunk_generated",
+                                       "on_configuration_changed",
+                                       "on_init",
+                                       "on_resource_depleted",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "Vulcanus resource prototype changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_fueler",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\fueler\\fueler.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "fueler towers, targets, player servicing, and console GUI",
+                        "cadence":  "init/config rebuild, build/destroy, scheduled tick step 6, and GUI open/close/click",
+                        "events":  [
+                                       "add_active_surface",
+                                       "build_target_entry",
+                                       "build_tower_entry",
+                                       "cast_beam",
+                                       "check_global",
+                                       "clear_legacy_runtime_fields",
+                                       "close_gui",
+                                       "consume_tower_slice_budget",
+                                       "dequeue_ready_player",
+                                       "dequeue_surface_target",
+                                       "enqueue_ready_player",
+                                       "enqueue_ready_target",
+                                       "ensure_runtime_ready",
+                                       "entity_check",
+                                       "get_candidate_towers",
+                                       "get_equipment",
+                                       "get_normalized_quality_factor",
+                                       "get_quality_sort_level",
+                                       "get_ready_target_count",
+                                       "get_retry_delay",
+                                       "get_runtime_status",
+                                       "get_service_budget",
+                                       "get_surface_queue",
+                                       "get_target_type",
+                                       "get_tower_chunk_bucket",
+                                       "get_tower_slice_remaining",
+                                       "get_transfer_inv",
+                                       "index_tower",
+                                       "is_supported_runtime_target",
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "on_gui_click",
+                                       "open_gui",
+                                       "process_player_state",
+                                       "process_ready_player",
+                                       "process_ready_target",
+                                       "process_target_entry",
+                                       "rebuild_runtime_state",
+                                       "refuel_equipments",
+                                       "refuel_target",
+                                       "register_fueler",
+                                       "register_target",
+                                       "release_due_players",
+                                       "release_due_targets",
+                                       "remove_active_surface",
+                                       "remove_ready_player",
+                                       "remove_ready_target",
+                                       "remove_target_entry",
+                                       "remove_tower_entry",
+                                       "reset_runtime_storage",
+                                       "schedule_player",
+                                       "schedule_target",
+                                       "select_service_towers",
+                                       "set_equipment",
+                                       "set_target_type",
+                                       "sync_connected_players",
+                                       "tower_matches_target",
+                                       "transfer_ammo",
+                                       "transfer_fuel",
+                                       "transfer_valid",
+                                       "unindex_tower",
+                                       "unregister_fueler",
+                                       "unregister_player_by_index",
+                                       "unregister_target",
+                                       "unschedule_player",
+                                       "unschedule_target",
+                                       "update_gui",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+                                        "ei-fueler-console"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "entity topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "em_trains",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\charger.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "EM train and charger runtime, buffs, rebuilds, and research hooks",
+                        "cadence":  "init/config rebuild, build/destroy, research-finished, and scheduled tick steps 8 and 9",
+                        "events":  [
+                                       "activate_surface",
+                                       "adjust_surface_count",
+                                       "allocate_surface_budgets",
+                                       "animate_range",
+                                       "apply_buffs",
+                                       "audit_charger_rail_counts",
+                                       "build_charger_entry",
+                                       "build_train_entry",
+                                       "cast_beam",
+                                       "charger_updater",
+                                       "check_buffs",
+                                       "check_global",
+                                       "clear_legacy_runtime_fields",
+                                       "compact_queue",
+                                       "deactivate_surface",
+                                       "dequeue_surface_unit",
+                                       "deregister_all_chargers",
+                                       "deregister_all_trains",
+                                       "enqueue_surface_unit",
+                                       "ensure_runtime_ready",
+                                       "ensure_surface_queue",
+                                       "ensure_train_grace_reserve",
+                                       "entity_check",
+                                       "find_charger",
+                                       "fix_toggle_range",
+                                       "get_charger_power_usage",
+                                       "get_charger_transfer_factor",
+                                       "get_charger_upkeep_factor",
+                                       "get_chunk_bucket",
+                                       "get_entity_name_list",
+                                       "get_existing_entity_name_list",
+                                       "get_item_fuel_value",
+                                       "get_locomotive_demand_factor",
+                                       "get_locomotive_grace_ticks",
+                                       "get_normalized_quality_factor",
+                                       "get_rail_count",
+                                       "get_runtime_status",
+                                       "get_selected_em_fuel_prototype",
+                                       "get_surface_charger_set",
+                                       "get_surface_scheduler_state",
+                                       "get_train_fuel_fraction",
+                                       "has_enough_energy",
+                                       "index_charger",
+                                       "invalidate_runtime_state",
+                                       "is_em_train",
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "on_research_finished",
+                                       "printBuffStatus",
+                                       "process_surface_quota",
+                                       "process_surface_scheduler",
+                                       "que_charger",
+                                       "que_train",
+                                       "rebuild_runtime_state",
+                                       "register_charger",
+                                       "register_que_charger",
+                                       "register_que_train",
+                                       "register_train",
+                                       "reinitialize_chargers",
+                                       "reinitialize_trains",
+                                       "remove_charger_entry",
+                                       "remove_train_entry",
+                                       "render_status_rings",
+                                       "requeue_surface_unit",
+                                       "reset_surface_scheduler",
+                                       "return_buffs",
+                                       "set_burner",
+                                       "toggle_range_highlight",
+                                       "train_updater",
+                                       "unindex_charger",
+                                       "unregister_charger",
+                                       "unregister_train",
+                                       "update_charger",
+                                       "update_charger_from_rail",
+                                       "update_chargers",
+                                       "update_rail_counts",
+                                       "update_train",
+                                       "update_trains"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.ei_emt"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "entity topology changes",
+                                           "research changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_fueler_informatron",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\fueler\\informatron.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "Fueler Informatron page",
+                        "cadence":  "load-time remote interface registration",
+                        "events":  [
+                                       "page_content"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+                                        "exotic-industries-fueler-informatron",
+                                        "exotic-industries-fueler-informatron.welcome",
+                                        "exotic-industries-fueler-informatron.welcome-text",
+                                        "exotic-industries-fueler-informatron.welcome-text-2"
+                                    ],
+                        "remote_interfaces":  [
+                                                  "exotic-industries-fueler-informatron"
+                                              ],
+                        "rebuild_on":  [
+                                           "page/content changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_induction_matrix",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\induction-matrix.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "induction matrix GUI, runtime, and tile hooks",
+                        "cadence":  "build, destroy, tile changes, GUI dispatch, and every-tick runtime updates",
+                        "events":  [
+                                       "apply_stats",
+                                       "buff_function",
+                                       "calculate_stats",
+                                       "check_connected_tiles",
+                                       "check_global_init",
+                                       "check_tile",
+                                       "close_gui",
+                                       "destroy_wire_proxy",
+                                       "ensure_wire_proxy",
+                                       "entity_check",
+                                       "find_existing_wire_proxy",
+                                       "force_visual_update",
+                                       "get_adjacent_tiles",
+                                       "get_connected_solenoid_count",
+                                       "get_core_entity",
+                                       "get_core_tier",
+                                       "get_gui",
+                                       "get_matrix_capacity",
+                                       "get_matrix_current_stored_power",
+                                       "get_matrix_id",
+                                       "get_matrix_max_IO",
+                                       "get_max_connected_tiles",
+                                       "get_real_circuit_connections",
+                                       "get_runtime_status",
+                                       "get_sorted_lookup_names",
+                                       "is_core",
+                                       "lookup_tile_for_entity",
+                                       "mark_dirty",
+                                       "on_built_entity",
+                                       "on_built_tile",
+                                       "on_destroyed_entity",
+                                       "on_destroyed_tile",
+                                       "on_gui_click",
+                                       "open_gui",
+                                       "queue_tile_render",
+                                       "rebuild_runtime_state",
+                                       "remove_old_cores",
+                                       "remove_stat_text",
+                                       "render_tile_box",
+                                       "reset_matrix_table",
+                                       "reset_runtime_storage",
+                                       "resolve_duplicate_cores",
+                                       "restore_circuit_connections",
+                                       "retag_matrix_guis",
+                                       "retag_wire_proxy",
+                                       "set_core_state",
+                                       "show_stats",
+                                       "swap_core",
+                                       "swap_global_table",
+                                       "table_concat",
+                                       "to_wire_signal_value",
+                                       "update",
+                                       "update_core",
+                                       "update_dirty",
+                                       "update_gui",
+                                       "update_player_guis",
+                                       "update_render_queue",
+                                       "update_wire_outputs",
+                                       "update_wire_proxy_signals",
+                                       "wire_proxy_has_connections"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+                                        "ei-induction-matrix-console"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "tile topology changes",
+                                           "entity topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_global",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\global.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "root storage schema and scheduled runtime sanity",
+                        "cadence":  "init, configuration-changed, and scheduled tick step 1",
+                        "events":  [
+                                       "check_init",
+                                       "init"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_tech_scaling",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\tech-scaling.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "tech cost scaling",
+                        "cadence":  "init, configuration-changed, and research-finished",
+                        "events":  [
+                                       "get_multiplier",
+                                       "init",
+                                       "on_research_finished"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "startup settings",
+                                           "prototype changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_register",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\register-util.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "shared entity registration helpers",
+                        "cadence":  "build/destroy helper dispatch",
+                        "events":  [
+                                       "add_spaced_update",
+                                       "deregister_collector_entity",
+                                       "deregister_fluid_entity",
+                                       "extend_beacon_table",
+                                       "init",
+                                       "init_beacon",
+                                       "link_slave",
+                                       "make_slave",
+                                       "register_collector_entity",
+                                       "register_fluid_entity",
+                                       "register_master_entity",
+                                       "setup_master_slave",
+                                       "subtract_spaced_update",
+                                       "teardown_master_slave",
+                                       "unregister_master_entity",
+                                       "unregister_slave_entity"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "entity rebuilds"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_flammable_fluids",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\flammable-fluids.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: flammable-fluids",
+                        "cadence":  "event-driven",
+                        "events":  [
+                                       "on_entity_died"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_teslas_legacy",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\teslas-legacy.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "hybrid Tesla legacy runtime",
+                        "cadence":  "init, load, configuration-changed, combat, research, build, destroy, and script triggers",
+                        "events":  [
+                                       "on_built_entity",
+                                       "on_configuration_changed",
+                                       "on_entity_damaged",
+                                       "on_entity_died",
+                                       "on_init",
+                                       "on_load",
+                                       "on_research_finished",
+                                       "on_script_trigger_effect"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.tl_entity_lookup",
+                                              "storage.tl_index"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "configuration change"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_data",
+                        "path":  "exotic-space-industries-remembrance\\lib\\data.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: data",
+                        "cadence":  "on-demand helper calls",
+                        "events":  [
+                                       "repair_tool_entity_filter"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+                                        "solar-panel-equipment"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_lib",
+                        "path":  "exotic-space-industries-remembrance\\lib\\lib.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: lib",
+                        "cadence":  "on-demand helper calls",
+                        "events":  [
+                                       "add_item_level",
+                                       "add_prerequisite",
+                                       "add_unlock_recipe",
+                                       "clamp",
+                                       "clean_nils",
+                                       "config",
+                                       "contains",
+                                       "convert_short_ingredients_to_full",
+                                       "copy_science_packs",
+                                       "crystal_echo",
+                                       "crystal_echo_floating",
+                                       "debug_crafting_categories",
+                                       "disable",
+                                       "do_fluid_merge",
+                                       "do_item_merge",
+                                       "empty_sprite",
+                                       "enable",
+                                       "enable_from_start",
+                                       "endswith",
+                                       "entity_icon_scaler",
+                                       "fix_recipe",
+                                       "format_echo",
+                                       "generate_crystal_gradient_stops",
+                                       "get_adjective_and_tint",
+                                       "get_box_area",
+                                       "get_entity_area",
+                                       "get_entity_area_change",
+                                       "get_event_tick",
+                                       "get_player_setting_value",
+                                       "get_random_different_value",
+                                       "getn",
+                                       "hex_to_rgb_normalized",
+                                       "hex_to_rgb_raw",
+                                       "is_valid_number",
+                                       "lerp_color",
+                                       "make_4way_animation_from_spritesheet",
+                                       "make_circuit_connector",
+                                       "merge_fluid",
+                                       "merge_item",
+                                       "modify_data_raw",
+                                       "notify_connected_players",
+                                       "overwrite_description",
+                                       "overwrite_entity_and_description",
+                                       "overwrite_entity_name",
+                                       "patch_nested_value",
+                                       "pick_gradient_stops",
+                                       "pick_tint_from_intent",
+                                       "player_allows_notification",
+                                       "recipe_add",
+                                       "recipe_hard_overwrite",
+                                       "recipe_new",
+                                       "recipe_output_add",
+                                       "recipe_remove",
+                                       "recipe_swap",
+                                       "recursive_copy",
+                                       "recursive_insert",
+                                       "remove_prerequisite",
+                                       "remove_tech",
+                                       "remove_tech_ingredient",
+                                       "remove_unlock_recipe",
+                                       "rgb_to_hex",
+                                       "sb",
+                                       "set_age_packs",
+                                       "set_prerequisites",
+                                       "set_properties",
+                                       "set_science_packs",
+                                       "starts_with",
+                                       "startswith",
+                                       "strike_lightning",
+                                       "switch_string",
+                                       "table_contains_value",
+                                       "table_to_string",
+                                       "unique_values_only"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_rng",
+                        "path":  "exotic-space-industries-remembrance\\lib\\rng.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: rng",
+                        "cadence":  "on-demand helper calls",
+                        "events":  [
+                                       "float",
+                                       "int"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_runtime_scheduler",
+                        "path":  "exotic-space-industries-remembrance\\lib\\runtime-scheduler.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: runtime-scheduler",
+                        "cadence":  "on-demand helper calls",
+                        "events":  [
+                                       "audit_queue",
+                                       "bump_counter",
+                                       "clear_queue",
+                                       "compact_queue",
+                                       "delayed_bucket_count",
+                                       "delayed_item_count",
+                                       "delayed_schedule",
+                                       "delayed_take_due",
+                                       "ensure_delayed_buckets",
+                                       "ensure_module_state",
+                                       "ensure_queue",
+                                       "ensure_root",
+                                       "get_module_status",
+                                       "log_snapshot",
+                                       "queue_item_count",
+                                       "queue_length",
+                                       "queue_pop",
+                                       "queue_push",
+                                       "queue_push_unique",
+                                       "queue_remove_value",
+                                       "set_module_status",
+                                       "status_snapshot",
+                                       "table_count",
+                                       "telemetry_enabled",
+                                       "write_telemetry"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_echo_codex",
+                        "path":  "exotic-space-industries-remembrance\\lib\\echo-codex.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "startup/configuration messaging, arrival-wave rendering, and visual settings mirrors",
+                        "cadence":  "init, configuration-changed, on_load, and every-tick arrival-wave cleanup",
+                        "events":  [
+                                       "on_init",
+                                       "on_configuration_changed",
+                                       "on_load",
+                                       "on_tick",
+                                       "on_cutscene_cancelled",
+                                       "on_cutscene_finished",
+                                       "on_player_respawned"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei.arrival_waves",
+                                              "storage.ei.lamp_removals",
+                                              "storage.ei.que_*",
+                                              "storage.ei.em_*_glow*",
+                                              "storage.ei.rocket_launch_pollution",
+                                              "storage.ei.fulgora_day_length_variation",
+                                              "storage.ei.nauvis_pressure"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "startup setting changes",
+                                           "init",
+                                           "configuration migration"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_flammable_rupture_scheduler",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\flammable-rupture-scheduler.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: flammable-rupture-scheduler",
+                        "cadence":  "scheduled updates",
+                        "events":  [
+                                       "begin_rupture",
+                                       "check_global",
+                                       "get_fidelity_profile",
+                                       "get_runtime_status",
+                                       "queue_rupture",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_milestone_preset",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\milestone-preset.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "Milestones integration preset",
+                        "cadence":  "load-time remote interface registration",
+                        "events":  [
+
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+                                        "ei-solar-panel-2",
+                                        "ei-solar-panel-3",
+                                        "solar-panel"
+                                    ],
+                        "remote_interfaces":  [
+                                                  "exotic-industries-milestones"
+                                              ],
+                        "rebuild_on":  [
+                                           "progression or milestone changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_informatron",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\informatron.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "main Informatron pages",
+                        "cadence":  "load-time remote interface registration",
+                        "events":  [
+                                       "ages_and_tech",
+                                       "artifacts",
+                                       "asteroid_variants",
+                                       "auric_fumarole",
+                                       "beacon_overhaul",
+                                       "black_hole",
+                                       "bots",
+                                       "cranes_and_belts",
+                                       "em_trains",
+                                       "enemy_difficulty",
+                                       "exotic_industries_informatron",
+                                       "exotic_stabilizer",
+                                       "fission",
+                                       "flammable_ruptures",
+                                       "fulgora_day_variation",
+                                       "fusion_power",
+                                       "game_related",
+                                       "gate",
+                                       "induction_matrix",
+                                       "knowledge",
+                                       "loaders",
+                                       "menu",
+                                       "mining_scars",
+                                       "nauvis_pressure_grace",
+                                       "new_logistics",
+                                       "new_mechanics",
+                                       "nuclear_fission_and_fusion",
+                                       "orbital_scanner",
+                                       "overall",
+                                       "page_content",
+                                       "repair",
+                                       "resources",
+                                       "rocket_launch_pollution",
+                                       "specialised_pipes",
+                                       "tech_scaling",
+                                       "teslas_legacy",
+                                       "train_progression",
+                                       "turrets",
+                                       "world_gen_related"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+                                        "exotic-industries-informatron",
+                                        "exotic-industries-informatron.",
+                                        "exotic-industries-informatron.ages-and-tech",
+                                        "exotic-industries-informatron.ages-and-tech-2",
+                                        "exotic-industries-informatron.ages-and-tech-text",
+                                        "exotic-industries-informatron.ages-and-tech-text-2",
+                                        "exotic-industries-informatron.artifacts",
+                                        "exotic-industries-informatron.artifacts-text",
+                                        "exotic-industries-informatron.asteroid-anomalies",
+                                        "exotic-industries-informatron.asteroid-anomalies-text",
+                                        "exotic-industries-informatron.asteroid-variants",
+                                        "exotic-industries-informatron.asteroid-variants-text",
+                                        "exotic-industries-informatron.auric-fumarole",
+                                        "exotic-industries-informatron.auric-fumarole-2",
+                                        "exotic-industries-informatron.auric-fumarole-text",
+                                        "exotic-industries-informatron.auric-fumarole-text-2",
+                                        "exotic-industries-informatron.beacon-overhaul",
+                                        "exotic-industries-informatron.beacon-overhaul-text",
+                                        "exotic-industries-informatron.biters",
+                                        "exotic-industries-informatron.biters-text",
+                                        "exotic-industries-informatron.black-hole",
+                                        "exotic-industries-informatron.black-hole-2",
+                                        "exotic-industries-informatron.black-hole-2-text",
+                                        "exotic-industries-informatron.black-hole-3",
+                                        "exotic-industries-informatron.black-hole-3-text",
+                                        "exotic-industries-informatron.black-hole-text",
+                                        "exotic-industries-informatron.bots",
+                                        "exotic-industries-informatron.bots-2",
+                                        "exotic-industries-informatron.bots-text",
+                                        "exotic-industries-informatron.bots-text-2",
+                                        "exotic-industries-informatron.chemical-asteroid",
+                                        "exotic-industries-informatron.chemical-asteroid-text",
+                                        "exotic-industries-informatron.chunk-grades",
+                                        "exotic-industries-informatron.chunk-grades-text",
+                                        "exotic-industries-informatron.chunk-refining",
+                                        "exotic-industries-informatron.chunk-refining-2",
+                                        "exotic-industries-informatron.chunk-refining-text",
+                                        "exotic-industries-informatron.chunk-refining-text-2",
+                                        "exotic-industries-informatron.cranes-and-belts",
+                                        "exotic-industries-informatron.cranes-and-belts-text",
+                                        "exotic-industries-informatron.em-trains",
+                                        "exotic-industries-informatron.em-trains-2",
+                                        "exotic-industries-informatron.em-trains-3",
+                                        "exotic-industries-informatron.em-trains-text",
+                                        "exotic-industries-informatron.em-trains-text-2",
+                                        "exotic-industries-informatron.em-trains-text-3",
+                                        "exotic-industries-informatron.exotic-stabilizers",
+                                        "exotic-industries-informatron.exotic-stabilizers-text",
+                                        "exotic-industries-informatron.fission-reactors",
+                                        "exotic-industries-informatron.fission-reactors-2",
+                                        "exotic-industries-informatron.fission-reactors-2-text",
+                                        "exotic-industries-informatron.fission-reactors-text",
+                                        "exotic-industries-informatron.flammable-ruptures",
+                                        "exotic-industries-informatron.flammable-ruptures-2",
+                                        "exotic-industries-informatron.flammable-ruptures-3",
+                                        "exotic-industries-informatron.flammable-ruptures-text",
+                                        "exotic-industries-informatron.flammable-ruptures-text-2",
+                                        "exotic-industries-informatron.flammable-ruptures-text-3",
+                                        "exotic-industries-informatron.fulgora-day-variation",
+                                        "exotic-industries-informatron.fulgora-day-variation-2",
+                                        "exotic-industries-informatron.fulgora-day-variation-text",
+                                        "exotic-industries-informatron.fulgora-day-variation-text-2",
+                                        "exotic-industries-informatron.fusion-power",
+                                        "exotic-industries-informatron.fusion-power-2",
+                                        "exotic-industries-informatron.fusion-power-2-text",
+                                        "exotic-industries-informatron.fusion-power-text",
+                                        "exotic-industries-informatron.game-related",
+                                        "exotic-industries-informatron.game-related-text",
+                                        "exotic-industries-informatron.induction-matrix",
+                                        "exotic-industries-informatron.induction-matrix-2",
+                                        "exotic-industries-informatron.induction-matrix-2-text",
+                                        "exotic-industries-informatron.induction-matrix-text",
+                                        "exotic-industries-informatron.loaders",
+                                        "exotic-industries-informatron.loaders-2",
+                                        "exotic-industries-informatron.loaders-3",
+                                        "exotic-industries-informatron.loaders-4",
+                                        "exotic-industries-informatron.loaders-5",
+                                        "exotic-industries-informatron.loaders-text",
+                                        "exotic-industries-informatron.loaders-text-2",
+                                        "exotic-industries-informatron.loaders-text-3",
+                                        "exotic-industries-informatron.loaders-text-4",
+                                        "exotic-industries-informatron.loaders-text-5",
+                                        "exotic-industries-informatron.mining-scars",
+                                        "exotic-industries-informatron.mining-scars-2",
+                                        "exotic-industries-informatron.mining-scars-text",
+                                        "exotic-industries-informatron.mining-scars-text-2",
+                                        "exotic-industries-informatron.nauvis-pressure-grace",
+                                        "exotic-industries-informatron.nauvis-pressure-grace-2",
+                                        "exotic-industries-informatron.nauvis-pressure-grace-text",
+                                        "exotic-industries-informatron.nauvis-pressure-grace-text-2",
+                                        "exotic-industries-informatron.new-logistics",
+                                        "exotic-industries-informatron.new-logistics-text",
+                                        "exotic-industries-informatron.new-mechanics",
+                                        "exotic-industries-informatron.new-mechanics-text",
+                                        "exotic-industries-informatron.nuclear-fission-and-fusion",
+                                        "exotic-industries-informatron.nuclear-fission-and-fusion-text",
+                                        "exotic-industries-informatron.orbital-scanner",
+                                        "exotic-industries-informatron.orbital-scanner-2",
+                                        "exotic-industries-informatron.orbital-scanner-3",
+                                        "exotic-industries-informatron.orbital-scanner-text",
+                                        "exotic-industries-informatron.orbital-scanner-text-2",
+                                        "exotic-industries-informatron.orbital-scanner-text-3",
+                                        "exotic-industries-informatron.organic-asteroid",
+                                        "exotic-industries-informatron.organic-asteroid-text",
+                                        "exotic-industries-informatron.overall",
+                                        "exotic-industries-informatron.overall-text",
+                                        "exotic-industries-informatron.petrified-asteroid",
+                                        "exotic-industries-informatron.petrified-asteroid-text",
+                                        "exotic-industries-informatron.repair",
+                                        "exotic-industries-informatron.repair-text",
+                                        "exotic-industries-informatron.resources",
+                                        "exotic-industries-informatron.resources-text",
+                                        "exotic-industries-informatron.rock-asteroid",
+                                        "exotic-industries-informatron.rock-asteroid-text",
+                                        "exotic-industries-informatron.rocket-launch-pollution",
+                                        "exotic-industries-informatron.rocket-launch-pollution-2",
+                                        "exotic-industries-informatron.rocket-launch-pollution-text",
+                                        "exotic-industries-informatron.rocket-launch-pollution-text-2",
+                                        "exotic-industries-informatron.scrap-asteroid",
+                                        "exotic-industries-informatron.scrap-asteroid-text",
+                                        "exotic-industries-informatron.specialised-pipes",
+                                        "exotic-industries-informatron.specialised-pipes-2",
+                                        "exotic-industries-informatron.specialised-pipes-3",
+                                        "exotic-industries-informatron.specialised-pipes-text",
+                                        "exotic-industries-informatron.specialised-pipes-text-2",
+                                        "exotic-industries-informatron.specialised-pipes-text-3",
+                                        "exotic-industries-informatron.spidertron",
+                                        "exotic-industries-informatron.spidertron-text",
+                                        "exotic-industries-informatron.steam-bots",
+                                        "exotic-industries-informatron.steam-bots-2",
+                                        "exotic-industries-informatron.steam-bots-text",
+                                        "exotic-industries-informatron.steam-bots-text-2",
+                                        "exotic-industries-informatron.surface-patches",
+                                        "exotic-industries-informatron.surface-patches-text",
+                                        "exotic-industries-informatron.tech",
+                                        "exotic-industries-informatron.tech-2",
+                                        "exotic-industries-informatron.tech-3",
+                                        "exotic-industries-informatron.tech-text",
+                                        "exotic-industries-informatron.tech-text-2",
+                                        "exotic-industries-informatron.tech-text-3",
+                                        "exotic-industries-informatron.teslas-legacy",
+                                        "exotic-industries-informatron.teslas-legacy-2",
+                                        "exotic-industries-informatron.teslas-legacy-3",
+                                        "exotic-industries-informatron.teslas-legacy-4",
+                                        "exotic-industries-informatron.teslas-legacy-5",
+                                        "exotic-industries-informatron.teslas-legacy-6",
+                                        "exotic-industries-informatron.teslas-legacy-7",
+                                        "exotic-industries-informatron.teslas-legacy-text",
+                                        "exotic-industries-informatron.teslas-legacy-text-2",
+                                        "exotic-industries-informatron.teslas-legacy-text-3",
+                                        "exotic-industries-informatron.teslas-legacy-text-4",
+                                        "exotic-industries-informatron.teslas-legacy-text-5",
+                                        "exotic-industries-informatron.teslas-legacy-text-6",
+                                        "exotic-industries-informatron.teslas-legacy-text-7",
+                                        "exotic-industries-informatron.train-progression",
+                                        "exotic-industries-informatron.train-progression-text-2",
+                                        "exotic-industries-informatron.turrets",
+                                        "exotic-industries-informatron.turrets-2",
+                                        "exotic-industries-informatron.turrets-3",
+                                        "exotic-industries-informatron.turrets-4",
+                                        "exotic-industries-informatron.turrets-5",
+                                        "exotic-industries-informatron.turrets-text",
+                                        "exotic-industries-informatron.turrets-text-2",
+                                        "exotic-industries-informatron.turrets-text-3",
+                                        "exotic-industries-informatron.turrets-text-4",
+                                        "exotic-industries-informatron.turrets-text-5",
+                                        "exotic-industries-informatron.uranium-asteroid",
+                                        "exotic-industries-informatron.uranium-asteroid-text",
+                                        "exotic-industries-informatron.veins",
+                                        "exotic-industries-informatron.veins-text",
+                                        "exotic-industries-informatron.welcome",
+                                        "exotic-industries-informatron.welcome-text",
+                                        "exotic-industries-informatron.welcome-text-2",
+                                        "exotic-industries-informatron.world-gen-related",
+                                        "exotic-industries-informatron.world-gen-related-text"
+                                    ],
+                        "remote_interfaces":  [
+                                                  "exotic-industries-informatron"
+                                              ],
+                        "rebuild_on":  [
+                                           "Informatron page/content changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_matter_stabilizer",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\matter-stabilizer.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "matter runtime, queues, and player rendering cleanup",
+                        "cadence":  "build/destroy, selection/cursor/player-left, scheduled tick step 4, and configuration rebuild",
+                        "events":  [
+                                       "add_machine_to_surface_queue",
+                                       "add_to_chunk_store",
+                                       "check_entity",
+                                       "check_global",
+                                       "clear_rendering",
+                                       "collect_machine_stabilizers",
+                                       "destroy_machine_fx",
+                                       "destroy_player_render_list",
+                                       "destroy_runtime_state",
+                                       "draw_connection",
+                                       "draw_stabilizer_range",
+                                       "draw_warning_text",
+                                       "ensure_machine_light",
+                                       "ensure_runtime_ready",
+                                       "ensure_surface_queue",
+                                       "get_machine_base_chance",
+                                       "get_player_render_list",
+                                       "get_risk_tier",
+                                       "get_stabilizer_weight",
+                                       "get_updates_per_entity",
+                                       "link_stabilizer_and_machine",
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "on_player_cursor_stack_changed",
+                                       "on_player_left_game",
+                                       "on_selected_entity_changed",
+                                       "query_nearby_machines",
+                                       "query_nearby_stabilizers",
+                                       "query_runtime_registry_in_range",
+                                       "rebuild_runtime_state",
+                                       "register_matter_machine",
+                                       "register_stabilizer",
+                                       "remove_from_chunk_store",
+                                       "remove_machine_from_surface_queue",
+                                       "remove_matter_machine_by_unit",
+                                       "remove_rendering",
+                                       "remove_rendering_by_unit",
+                                       "remove_stabilizer_by_unit",
+                                       "reset_machine_state",
+                                       "reset_runtime_storage",
+                                       "spawn_machine_arc",
+                                       "spawn_machine_crackle",
+                                       "stabilizer_on_cursor",
+                                       "stabilizer_selected",
+                                       "sync_active_surface",
+                                       "unregister_matter_machine",
+                                       "unregister_stabilizer",
+                                       "update",
+                                       "update_machine_presentation",
+                                       "update_matter_machine"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "entity topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_fusion_reactor",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\fusion-reactor.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "fusion reactor GUI and runtime hooks",
+                        "cadence":  "build and GUI open/close/click/value-change dispatch",
+                        "events":  [
+                                       "close_gui",
+                                       "entity_check",
+                                       "on_built_entity",
+                                       "on_gui_click",
+                                       "on_gui_opened",
+                                       "on_gui_value_changed",
+                                       "open_gui",
+                                       "update_gui",
+                                       "update_recipe"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+                                        "ei-fusion-reactor-console"
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "entity schema changes",
+                                           "GUI schema changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_neutron_collector",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\neutron-collector.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "neutron collector and source runtime",
+                        "cadence":  "build/destroy, scheduled tick step 3, and configuration rebuild",
+                        "events":  [
+                                       "add_connected_source",
+                                       "apply_collector_animation",
+                                       "calc_distance",
+                                       "calc_efficiency",
+                                       "calc_fusion_flux",
+                                       "check_global",
+                                       "clear_legacy_runtime_fields",
+                                       "connect_collector",
+                                       "dequeue_dirty_collector",
+                                       "disconnect_collector",
+                                       "ensure_runtime_ready",
+                                       "entity_check",
+                                       "find_neutron_source",
+                                       "get_connected_source_count",
+                                       "get_dirty_collector_count",
+                                       "get_dirty_queue",
+                                       "get_entity_recipe_name",
+                                       "get_looking_direction",
+                                       "get_or_create_source_entry",
+                                       "get_pending_work_count",
+                                       "get_source_entry",
+                                       "get_source_fusion_multiplier",
+                                       "get_state",
+                                       "is_output_empty",
+                                       "make_direction_animation",
+                                       "on_built_entity",
+                                       "on_destroyed_entity",
+                                       "parse_fusion_multiplier",
+                                       "poll_connected_sources",
+                                       "poll_source",
+                                       "process_dirty_collectors",
+                                       "queue_collectors_in_range",
+                                       "queue_dirty_collector",
+                                       "rebuild_runtime_state",
+                                       "refresh_collector",
+                                       "register_collector",
+                                       "remove_collector_from_source",
+                                       "remove_connected_source",
+                                       "remove_direction_animation",
+                                       "remove_direction_animation_by_unit",
+                                       "remove_source_entry",
+                                       "reset_runtime_storage",
+                                       "show_resolution_text",
+                                       "unregister_collector",
+                                       "update",
+                                       "update_neutron_collector",
+                                       "update_neutron_collectors_in_range"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change",
+                                           "entity topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_beacon_overload",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\beacon-overload.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "beacon overload effects and icons",
+                        "cadence":  "build, destroy, and configuration refresh",
+                        "events":  [
+                                       "add_overload_effect",
+                                       "add_overload_icon",
+                                       "allows_effects",
+                                       "check_global",
+                                       "count_beacons",
+                                       "counts_for_overload",
+                                       "entity_check",
+                                       "get_debug_status",
+                                       "on_built_entity",
+                                       "on_configuration_changed",
+                                       "on_destroyed_entity",
+                                       "refresh_all_overloads",
+                                       "refresh_tracked_overloads",
+                                       "remove_overload_icon",
+                                       "set_debug_auto_arm",
+                                       "set_debug_enabled",
+                                       "update_all_machines_in_range",
+                                       "update_overload",
+                                       "updater"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "configuration change",
+                                           "beacon-machine topology changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_fluid_safety",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\fluid-safety.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "runtime module: fluid-safety",
+                        "cadence":  "event-driven",
+                        "events":  [
+                                       "classify_entity",
+                                       "counts_for_fluid_handling",
+                                       "enqueue_dirty_segment",
+                                       "enqueue_urgent_entity",
+                                       "ensure_fluid_runtime",
+                                       "get_fluid_work_count",
+                                       "on_fluid_entity_deregistered",
+                                       "on_fluid_entity_registered",
+                                       "rebuild_fluid_runtime",
+                                       "service_fluid_runtime",
+                                       "touch_entity"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_spidertron_limiter",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\spidertron-limiter.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "spidertron logistic slot restriction",
+                        "cadence":  "logistic slot change",
+                        "events":  [
+                                       "on_entity_logistic_slot_changed",
+                                       "remove_nonfuel_requests"
+                                   ],
+                        "storage_roots":  [
+
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "runtime rebuild"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_alien_spawner",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\alien-spawner.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "Gaia alien spawning, queues, and selection tooling",
+                        "cadence":  "chunk generation, selected area, console command, destroy hooks, and every-tick queue update",
+                        "events":  [
+                                       "count_flowers",
+                                       "dump",
+                                       "entity_check",
+                                       "entity_select",
+                                       "gaia_tile_family",
+                                       "get_runtime_status",
+                                       "get_spawn_position",
+                                       "give_tool",
+                                       "is_gaia_surface",
+                                       "is_gaia_tree_name",
+                                       "on_chunk_generated",
+                                       "on_destroyed_entity",
+                                       "on_player_selected_area",
+                                       "prepare_entities",
+                                       "que_preset",
+                                       "resolve_gaia_tree_name",
+                                       "select_preset",
+                                       "spawn_entities",
+                                       "spawn_guardian",
+                                       "spawn_preset",
+                                       "spawn_tiles",
+                                       "tile_select",
+                                       "update"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei",
+                                              "storage.gaia_surfaces"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+
+                                              ],
+                        "rebuild_on":  [
+                                           "Gaia mapgen changes",
+                                           "Gaia content changes"
+                                       ]
+                    },
+                    {
+                        "id":  "ei_victory",
+                        "path":  "exotic-space-industries-remembrance\\scripts\\control\\victory-disabler.lua",
+                        "loaded_by":  "exotic-space-industries-remembrance\\control.lua",
+                        "owns":  "victory screen disabling and Better Victory Screen bridge",
+                        "cadence":  "init",
+                        "events":  [
+                                       "add_interface",
+                                       "check_init",
+                                       "count_value",
+                                       "init",
+                                       "return_value"
+                                   ],
+                        "storage_roots":  [
+                                              "storage.ei"
+                                          ],
+                        "gui_ids":  [
+
+                                    ],
+                        "remote_interfaces":  [
+                                                  "exotic-industries-bvs"
+                                              ],
+                        "rebuild_on":  [
+                                           "init",
+                                           "configuration change"
+                                       ]
+                    }
+                ]
+}

@@ -1,6 +1,18 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: Gaia alien spawning, queues, and selection tooling
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: chunk generation, selected area, console command, destroy hooks, and every-tick queue update
+-- forwarded_events: count_flowers, dump, entity_check, entity_select, gaia_tile_family, get_spawn_position, give_tool, is_gaia_surface, is_gaia_tree_name, on_chunk_generated, on_destroyed_entity, on_player_selected_area, prepare_entities, que_preset, resolve_gaia_tree_name, select_preset, spawn_entities, spawn_guardian, spawn_preset, spawn_tiles, tile_select, update
+-- storage_roots: storage.ei, storage.gaia_surfaces
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: Gaia mapgen changes, Gaia content changes
+--==============================================================================
 
 local model = {}
 ei_rng = require("lib/rng")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local presets = require("lib/spawner-presets")
 local gaia_biomes = require("prototypes/planet-gaia/biomes")
 
@@ -52,6 +64,31 @@ model.flower_counter_warnings = {
     [7] = {"exotic-industries.flower-count-7"},
     [10] = {"exotic-industries.flower-count-10"},
 }
+
+local function ensure_spawner_buckets(current_tick)
+    storage.ei = storage.ei or {}
+    storage.ei.spawner_buckets = ei_runtime_scheduler.ensure_delayed_buckets(storage.ei.spawner_buckets)
+
+    if storage.ei.spawner_queue and #storage.ei.spawner_queue > 0 then
+        for _, spawner in ipairs(storage.ei.spawner_queue) do
+            local due_tick = spawner.tick or current_tick
+            if due_tick < current_tick then
+                due_tick = current_tick
+            end
+            spawner.tick = due_tick
+            ei_runtime_scheduler.delayed_schedule(storage.ei.spawner_buckets, due_tick, spawner)
+        end
+        storage.ei.spawner_queue = {}
+    end
+
+    return storage.ei.spawner_buckets
+end
+
+local function queue_spawner_job(job, current_tick)
+    local buckets = ensure_spawner_buckets(current_tick)
+    ei_runtime_scheduler.delayed_schedule(buckets, job.tick, job)
+    ei_runtime_scheduler.bump_counter("alien-spawner", "queued", 1)
+end
 
 --FLOWER GUARDIAN
 ------------------------------------------------------------------------------------------------------
@@ -516,21 +553,25 @@ function model.spawn_preset(preset, surface, pos, tiles, tick, old_index)
             model.spawn_tiles(presets.entity_presets[preset], surface, pos)
 
             -- remove the spawner from the queue
-            table.remove(storage.ei.spawner_queue, old_index)
+            if old_index and storage.ei.spawner_queue then
+                table.remove(storage.ei.spawner_queue, old_index)
+            end
 
             -- and que the entity spawn
-            table.insert(storage.ei.spawner_queue, {
+            queue_spawner_job({
                 ["tick"] = tick+1,
                 ["preset"] = preset,
                 ["pos"] = pos,
                 ["surface"] = surface,
                 ["tiles"] = false 
-            })
+            }, tick)
         else
             model.spawn_entities(presets.entity_presets[preset], surface, pos)
 
             -- remove the spawner from the queue
-            table.remove(storage.ei.spawner_queue, old_index)
+            if old_index and storage.ei.spawner_queue then
+                table.remove(storage.ei.spawner_queue, old_index)
+            end
         end
     end
 
@@ -591,10 +632,6 @@ function model.que_preset(pos, surface, tick)
         preset = model.select_preset("legendary")
     end
 
-    if not storage.ei.spawner_queue then
-        storage.ei.spawner_queue = {}
-    end
-
     if preset == nil then
         return
     end
@@ -611,13 +648,13 @@ function model.que_preset(pos, surface, tick)
     end
 
     -- que the preset to spawn
-    table.insert(storage.ei.spawner_queue, {
+    queue_spawner_job({
         ["tick"] = tick,
         ["preset"] = preset,
         ["pos"] = pos,
         ["surface"] = surface,
         ["tiles"] = true 
-    })
+    }, tick)
 
 end
 
@@ -817,30 +854,43 @@ end
 function model.update(event)
 
     local tick = event.tick
+    local spawner_buckets = ensure_spawner_buckets(tick)
+    local due_spawners = ei_runtime_scheduler.delayed_take_due(spawner_buckets, tick)
 
-    if not storage.ei.spawner_queue then
+    if #due_spawners == 0 then
         return
     end
 
-    for i, spawner in ipairs(storage.ei.spawner_queue) do
-        if tick >= spawner.tick then
-            -- spawn the preset
-            model.spawn_preset(spawner.preset, spawner.surface, spawner.pos, spawner.tiles, tick, i)
+    for _, spawner in ipairs(due_spawners) do
+        if tick - spawner.tick <= 10 then
+            model.spawn_preset(spawner.preset, spawner.surface, spawner.pos, spawner.tiles, tick)
+            ei_runtime_scheduler.bump_counter("alien-spawner", "processed", 1)
 
-            -- if the preset is legendary, mark it as spawned
-            if presets.entity_presets[spawner.preset].rarity == "legendary" then
-                if spawner.tiles == false then
-                    storage.ei.legendary_spawns[spawner.preset] = true
-                end
+            local preset_data = presets.entity_presets[spawner.preset]
+            if preset_data and preset_data.rarity == "legendary" and spawner.tiles == false then
+                storage.ei.legendary_spawns = storage.ei.legendary_spawns or {}
+                storage.ei.legendary_spawns[spawner.preset] = true
             end
-        end
-
-        -- remove all spawners that are older than 10 ticks
-        if tick - spawner.tick > 10 then
-            table.remove(storage.ei.spawner_queue, i)
         end
     end
 
+end
+
+function model.get_runtime_status()
+    storage.ei = storage.ei or {}
+    local buckets = ensure_spawner_buckets(game and game.tick or 0)
+    local status = {
+        delayed_bucket_count = ei_runtime_scheduler.delayed_bucket_count(buckets),
+        delayed_item_count = ei_runtime_scheduler.delayed_item_count(buckets),
+        legacy_queue_count = #(storage.ei.spawner_queue or {}),
+        legendary_spawn_count = ei_runtime_scheduler.table_count(storage.ei.legendary_spawns),
+        delayed_buckets = ei_runtime_scheduler.delayed_bucket_count(buckets),
+        delayed_items = ei_runtime_scheduler.delayed_item_count(buckets),
+        legacy_queue = #(storage.ei.spawner_queue or {}),
+    }
+
+    ei_runtime_scheduler.set_module_status("alien-spawner", status)
+    return status
 end
 
 

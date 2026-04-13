@@ -1,8 +1,8 @@
-﻿data:extend({
+data:extend({
   {
     type = "technology",
     name = "tl-basic-tesla-coils-technology",
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/basic/technology/tesla-turret.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/basic/technology/tesla-turret.png",
     icon_size = 256, icon_mipmaps = 4,
     effects =
     {

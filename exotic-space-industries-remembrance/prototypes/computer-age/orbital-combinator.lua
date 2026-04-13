@@ -9,7 +9,7 @@ local remnants =
     type = "corpse",
     se_allow_in_space = true,
     name = "ei-orbital-combinator-remnants",
-    icon = ei_path.."graphics/icons/orbital-request-combinator.png",
+    icon = ei_graphics_3_path.."graphics/icons/orbital-request-combinator.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = {"placeable-neutral", "not-on-map"},
     subgroup = "circuit-network-remnants",
@@ -23,7 +23,7 @@ local remnants =
     remove_on_tile_placement = false,
     animation = make_rotated_animation_variations_from_sheet (1,
     {
-      filename = ei_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator-remnants.png",
+      filename = ei_graphics_3_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator-remnants.png",
       line_length = 1,
       width = 118,
       height = 112,
@@ -55,7 +55,7 @@ function OrbitalCombinator(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = ei_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator.png",
+          filename = ei_graphics_3_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator.png",
           width = 114,
           height = 102,
           frame_count = 1,
@@ -63,7 +63,7 @@ function OrbitalCombinator(combinator)
           scale = 0.5,
         },
         {
-          filename = ei_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator-shadow.png",
+          filename = ei_graphics_3_path.."graphics/entities/orbital-request-combinator/orbital-request-combinator-shadow.png",
           width = 98,
           height = 66,
           frame_count = 1,
@@ -178,7 +178,7 @@ data:extend
     type = "constant-combinator",
     se_allow_in_space = true,
     name = "ei-orbital-combinator",
-    icon = ei_path.."graphics/icons/orbital-request-combinator.png",
+    icon = ei_graphics_3_path.."graphics/icons/orbital-request-combinator.png",
     icon_size = 64, icon_mipmaps = 4,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 0.1, result = "ei-orbital-combinator"},
@@ -218,7 +218,7 @@ data:extend
     name = "ei-orbital-overflow",
     icons = {
       {
-        icon = ei_path.."graphics/icons/orbital-request-combinator.png",
+        icon = ei_graphics_3_path.."graphics/icons/orbital-request-combinator.png",
         icon_size = 64,
       },
       {
@@ -238,7 +238,7 @@ data:extend
     type = "item",
     se_allow_in_space = true,
     name = "ei-orbital-combinator",
-    icon = ei_path.."graphics/icons/orbital-request-combinator.png",
+    icon = ei_graphics_3_path.."graphics/icons/orbital-request-combinator.png",
     icon_size = 64, icon_mipmaps = 4,
     subgroup = "circuit-network",
     place_result="ei-orbital-combinator",

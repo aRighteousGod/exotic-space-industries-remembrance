@@ -1,0 +1,13 @@
+Create a transparent-background top-down decal or effect sprite concept for the temporary afterglow left by a sealed auric fumarole.
+
+Requirements:
+- transparent background
+- one centered effect only
+- top-down read suitable for a Factorio-style ground effect
+- scorched fissure halo, ember-orange heat memory, ash-gray smoke stain, faint gold mineral glint, restrained steam traces
+- should read as a short-lived industrial heat scar, not a fantasy magic circle
+- keep the silhouette clear enough to be adapted into an animation or effect sheet
+- no UI, no scene, no horizon, no side-view plume
+
+Style target:
+Severe volcanic afterimage with subtle ritual-industrial character and strong gameplay readability.

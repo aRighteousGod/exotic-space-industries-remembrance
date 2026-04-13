@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: orbital combinator and platform bank mirroring
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init/config, build/destroy, logistic slot change, settings paste, platform state change, and scheduled tick step 5
+-- forwarded_events: add, check_init, entity_check, get_bank_count, on_entity_logistic_slot_changed, on_entity_settings_pasted, on_space_platform_changed_state, rebuild_banks, rem, update, update_orbital_bank
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, platform topology changes, combinator topology changes
+--==============================================================================
 local model = {}
 
 local ORBITAL_COMBINATOR_NAME = "ei-orbital-combinator"

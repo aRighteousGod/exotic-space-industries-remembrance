@@ -187,6 +187,7 @@ ei_lib.set_prerequisites("explosives",{"sulfur-processing","ei-advanced-coke-pro
 
 ei_lib.set_prerequisites("electric-engine",{"lubricant","electronics","engine"})
 ei_lib.set_prerequisites("ei-electricity-age",{"ei-steam-inserter","logistics","ei-steam-assembler","ei-tank-silo","ei-steam-advanced-train","rp-steam-logistics-chests","ei-fluid-boiler","ei-lube-destilation","electric-engine","ei-deep-mining","plastics"})
+ei_lib.set_prerequisites("logistics-2",{"plastics","ei-electricity-age"})
 ei_lib.set_prerequisites("explosive-rocketry",{"rocketry"})
 
 ei_lib.set_prerequisites("oil-processing",{"ei-electricity-power"})

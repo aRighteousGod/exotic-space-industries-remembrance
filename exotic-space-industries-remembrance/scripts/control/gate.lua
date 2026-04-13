@@ -1,6 +1,18 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: gate runtime, GUI, selector flow, and remote dispatch
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, is_gate_armed, is_receiver_saturated, is_wire_proxy_externally_wired, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- storage_roots: storage.ei
+-- gui_ids: ei-gate-console
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, gate topology changes
+--==============================================================================
 local model = {}
 ei_rng = require("lib/rng")
 local ei_lib = require("lib/lib")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local LOW_POWER_J = 100 * 1e9
 local SIGNAL_GATE_DESTINATION = {type = "virtual", name = "signal-D", quality = "normal"}
@@ -892,16 +904,6 @@ function model.check_global_init()
 end
 
 
-local function clamp(value, minimum, maximum)
-    if value < minimum then
-        return minimum
-    end
-    if value > maximum then
-        return maximum
-    end
-    return value
-end
-
 function model.get_transfer_inv(transfer)
     -- transfer is either a player index, a robot, or nil
     -- needed to prevent unregistration when the transferer cant mine due to full inv
@@ -971,25 +973,6 @@ function model.copy_exit(exit)
         y = exit.y
     }
 
-end
-
-
-local function try_get_stack_field(item_stack, getter)
-    local ok, value = pcall(getter, item_stack)
-    if ok then
-        return value
-    end
-
-    return nil
-end
-
-
-local function copy_localised_string(value)
-    if type(value) == "table" then
-        return table.deepcopy(value)
-    end
-
-    return value
 end
 
 
@@ -1343,21 +1326,8 @@ end
 
 
 local function get_tendril_damage_amount(stress)
-    local normalized = clamp((stress - GATE_TENDRIL_STRESS_FLOOR) / (MAX_GATE_STRESS - GATE_TENDRIL_STRESS_FLOOR), 0, 1)
+    local normalized = ei_lib.clamp((stress - GATE_TENDRIL_STRESS_FLOOR) / (MAX_GATE_STRESS - GATE_TENDRIL_STRESS_FLOOR), 0, 1)
     return lerp(GATE_TENDRIL_DAMAGE_MIN, GATE_TENDRIL_DAMAGE_MAX, normalized)
-end
-
-
-local function entity_can_take_health_damage(entity)
-    if not entity or not entity.valid then
-        return false
-    end
-
-    local ok, health = pcall(function()
-        return entity.health
-    end)
-
-    return ok and health ~= nil
 end
 
 
@@ -1429,7 +1399,7 @@ function model.emit_stress_tendril(gate, gate_data, event)
         and victim ~= gate_data.container
         and victim ~= gate_data.wire_proxy
         and victim.name ~= "ei-gate-receiver"
-        and entity_can_take_health_damage(victim) then
+        and ei_lib.entity_can_take_health_damage(victim) then
             victim.damage(damage_amount, game.forces.neutral, "electric")
         end
     end
@@ -1439,72 +1409,12 @@ end
 
 
 function model.make_item_with_quality_id(item_stack)
-    if not item_stack or not item_stack.valid_for_read then
-        return nil
-    end
-
-    local item_with_quality = {
-        name = item_stack.name
-    }
-
-    local quality = try_get_stack_field(item_stack, function(stack)
-        local stack_quality = stack.quality
-        return stack_quality and stack_quality.name or nil
-    end)
-    if quality then
-        item_with_quality.quality = quality
-    end
-
-    return item_with_quality
+    return ei_lib.make_item_with_quality_id(item_stack)
 end
 
 
 function model.make_item_stack_definition(item_stack, count)
-    if not item_stack or not item_stack.valid_for_read then
-        return nil
-    end
-
-    local stack_definition = {
-        name = item_stack.name,
-        count = count or item_stack.count
-    }
-
-    local quality = item_stack.quality
-    if quality and quality.name then
-        stack_definition.quality = quality.name
-    end
-
-    local health = try_get_stack_field(item_stack, function(stack) return stack.health end)
-    if health ~= nil then
-        stack_definition.health = health
-    end
-
-    local durability = try_get_stack_field(item_stack, function(stack) return stack.durability end)
-    if durability ~= nil then
-        stack_definition.durability = durability
-    end
-
-    local ammo = try_get_stack_field(item_stack, function(stack) return stack.ammo end)
-    if ammo ~= nil then
-        stack_definition.ammo = ammo
-    end
-
-    local spoil_percent = try_get_stack_field(item_stack, function(stack) return stack.spoil_percent end)
-    if spoil_percent ~= nil then
-        stack_definition.spoil_percent = spoil_percent
-    end
-
-    local tags = try_get_stack_field(item_stack, function(stack) return stack.tags end)
-    if tags ~= nil then
-        stack_definition.tags = table.deepcopy(tags)
-    end
-
-    local custom_description = try_get_stack_field(item_stack, function(stack) return stack.custom_description end)
-    if custom_description ~= nil then
-        stack_definition.custom_description = copy_localised_string(custom_description)
-    end
-
-    return stack_definition
+    return ei_lib.make_item_stack_definition(item_stack, count)
 end
 
 
@@ -4067,18 +3977,24 @@ function model.update(event)
         return false
     end
 
-    model.refresh_receivers(event)
-    if storage.ei.gate.receiver_registry_dirty then
-        for gate_unit, gate_data in pairs(storage.ei.gate.gate) do
-            local gate = gate_data.gate
-            if model.entity_check(gate) then
-                model.ensure_gate_defaults(gate_unit, event)
-                model.refresh_gate_live_state(gate, event)
+    local tick = event and event.tick or game.tick
+    if storage.ei.gate.last_housekeeping_tick ~= tick then
+        storage.ei.gate.last_housekeeping_tick = tick
+
+        model.refresh_receivers(event)
+        if storage.ei.gate.receiver_registry_dirty then
+            for gate_unit, gate_data in pairs(storage.ei.gate.gate) do
+                local gate = gate_data.gate
+                if model.entity_check(gate) then
+                    model.ensure_gate_defaults(gate_unit, event)
+                    model.refresh_gate_live_state(gate, event)
+                end
             end
+            storage.ei.gate.receiver_registry_dirty = false
         end
-        storage.ei.gate.receiver_registry_dirty = false
+
+        model.update_player_guis(event)
     end
-    model.update_player_guis(event)
 
     if not storage.ei.gate.gate_break_point and next(storage.ei.gate.gate) then
        storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate)
@@ -4119,6 +4035,24 @@ function model.update(event)
        return false
     end
 
+end
+
+function model.get_runtime_status()
+    model.check_global_init()
+
+    local status = {
+        gate_count = ei_runtime_scheduler.table_count(storage.ei.gate.gate),
+        receiver_count = ei_runtime_scheduler.table_count(storage.ei.gate.receiver),
+        receiver_force_count = ei_runtime_scheduler.table_count(storage.ei.gate.receiver_by_force),
+        receiver_registry_dirty = storage.ei.gate.receiver_registry_dirty == true,
+        gate_break_point = storage.ei.gate.gate_break_point,
+        last_housekeeping_tick = storage.ei.gate.last_housekeeping_tick or -1,
+        gates = ei_runtime_scheduler.table_count(storage.ei.gate.gate),
+        breakpoint = storage.ei.gate.gate_break_point,
+    }
+
+    ei_runtime_scheduler.set_module_status("gate", status)
+    return status
 end
 
 function model.used_remote(event)

@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: main Informatron pages
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: load-time remote interface registration
+-- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, beacon_overhaul, black_hole, bots, cranes_and_belts, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, repair, resources, rocket_launch_pollution, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
+-- storage_roots: none
+-- gui_ids: exotic-industries-informatron, exotic-industries-informatron., exotic-industries-informatron.ages-and-tech, exotic-industries-informatron.ages-and-tech-2, exotic-industries-informatron.ages-and-tech-text, exotic-industries-informatron.ages-and-tech-text-2, exotic-industries-informatron.artifacts, exotic-industries-informatron.artifacts-text, exotic-industries-informatron.asteroid-anomalies, exotic-industries-informatron.asteroid-anomalies-text, exotic-industries-informatron.asteroid-variants, exotic-industries-informatron.asteroid-variants-text, exotic-industries-informatron.auric-fumarole, exotic-industries-informatron.auric-fumarole-2, exotic-industries-informatron.auric-fumarole-text, exotic-industries-informatron.auric-fumarole-text-2, exotic-industries-informatron.beacon-overhaul, exotic-industries-informatron.beacon-overhaul-text, exotic-industries-informatron.biters, exotic-industries-informatron.biters-text, exotic-industries-informatron.black-hole, exotic-industries-informatron.black-hole-2, exotic-industries-informatron.black-hole-2-text, exotic-industries-informatron.black-hole-3, exotic-industries-informatron.black-hole-3-text, exotic-industries-informatron.black-hole-text, exotic-industries-informatron.bots, exotic-industries-informatron.bots-2, exotic-industries-informatron.bots-text, exotic-industries-informatron.bots-text-2, exotic-industries-informatron.chemical-asteroid, exotic-industries-informatron.chemical-asteroid-text, exotic-industries-informatron.chunk-grades, exotic-industries-informatron.chunk-grades-text, exotic-industries-informatron.chunk-refining, exotic-industries-informatron.chunk-refining-2, exotic-industries-informatron.chunk-refining-text, exotic-industries-informatron.chunk-refining-text-2, exotic-industries-informatron.cranes-and-belts, exotic-industries-informatron.cranes-and-belts-text, exotic-industries-informatron.em-trains, exotic-industries-informatron.em-trains-2, exotic-industries-informatron.em-trains-3, exotic-industries-informatron.em-trains-text, exotic-industries-informatron.em-trains-text-2, exotic-industries-informatron.em-trains-text-3, exotic-industries-informatron.exotic-stabilizers, exotic-industries-informatron.exotic-stabilizers-text, exotic-industries-informatron.fission-reactors, exotic-industries-informatron.fission-reactors-2, exotic-industries-informatron.fission-reactors-2-text, exotic-industries-informatron.fission-reactors-text, exotic-industries-informatron.fulgora-day-variation, exotic-industries-informatron.fulgora-day-variation-2, exotic-industries-informatron.fulgora-day-variation-text, exotic-industries-informatron.fulgora-day-variation-text-2, exotic-industries-informatron.fusion-power, exotic-industries-informatron.fusion-power-2, exotic-industries-informatron.fusion-power-2-text, exotic-industries-informatron.fusion-power-text, exotic-industries-informatron.game-related, exotic-industries-informatron.game-related-text, exotic-industries-informatron.induction-matrix, exotic-industries-informatron.induction-matrix-2, exotic-industries-informatron.induction-matrix-2-text, exotic-industries-informatron.induction-matrix-text, exotic-industries-informatron.loaders, exotic-industries-informatron.loaders-2, exotic-industries-informatron.loaders-3, exotic-industries-informatron.loaders-4, exotic-industries-informatron.loaders-5, exotic-industries-informatron.loaders-text, exotic-industries-informatron.loaders-text-2, exotic-industries-informatron.loaders-text-3, exotic-industries-informatron.loaders-text-4, exotic-industries-informatron.loaders-text-5, exotic-industries-informatron.mining-scars, exotic-industries-informatron.mining-scars-2, exotic-industries-informatron.mining-scars-text, exotic-industries-informatron.mining-scars-text-2, exotic-industries-informatron.nauvis-pressure-grace, exotic-industries-informatron.nauvis-pressure-grace-2, exotic-industries-informatron.nauvis-pressure-grace-text, exotic-industries-informatron.nauvis-pressure-grace-text-2, exotic-industries-informatron.new-logistics, exotic-industries-informatron.new-logistics-text, exotic-industries-informatron.new-mechanics, exotic-industries-informatron.new-mechanics-text, exotic-industries-informatron.nuclear-fission-and-fusion, exotic-industries-informatron.nuclear-fission-and-fusion-text, exotic-industries-informatron.orbital-scanner, exotic-industries-informatron.orbital-scanner-2, exotic-industries-informatron.orbital-scanner-3, exotic-industries-informatron.orbital-scanner-text, exotic-industries-informatron.orbital-scanner-text-2, exotic-industries-informatron.orbital-scanner-text-3, exotic-industries-informatron.organic-asteroid, exotic-industries-informatron.organic-asteroid-text, exotic-industries-informatron.overall, exotic-industries-informatron.overall-text, exotic-industries-informatron.petrified-asteroid, exotic-industries-informatron.petrified-asteroid-text, exotic-industries-informatron.repair, exotic-industries-informatron.repair-text, exotic-industries-informatron.resources, exotic-industries-informatron.resources-text, exotic-industries-informatron.rock-asteroid, exotic-industries-informatron.rock-asteroid-text, exotic-industries-informatron.rocket-launch-pollution, exotic-industries-informatron.rocket-launch-pollution-2, exotic-industries-informatron.rocket-launch-pollution-text, exotic-industries-informatron.rocket-launch-pollution-text-2, exotic-industries-informatron.scrap-asteroid, exotic-industries-informatron.scrap-asteroid-text, exotic-industries-informatron.specialised-pipes, exotic-industries-informatron.specialised-pipes-2, exotic-industries-informatron.specialised-pipes-3, exotic-industries-informatron.specialised-pipes-text, exotic-industries-informatron.specialised-pipes-text-2, exotic-industries-informatron.specialised-pipes-text-3, exotic-industries-informatron.spidertron, exotic-industries-informatron.spidertron-text, exotic-industries-informatron.steam-bots, exotic-industries-informatron.steam-bots-2, exotic-industries-informatron.steam-bots-text, exotic-industries-informatron.steam-bots-text-2, exotic-industries-informatron.surface-patches, exotic-industries-informatron.surface-patches-text, exotic-industries-informatron.tech, exotic-industries-informatron.tech-2, exotic-industries-informatron.tech-3, exotic-industries-informatron.tech-text, exotic-industries-informatron.tech-text-2, exotic-industries-informatron.tech-text-3, exotic-industries-informatron.teslas-legacy, exotic-industries-informatron.teslas-legacy-2, exotic-industries-informatron.teslas-legacy-3, exotic-industries-informatron.teslas-legacy-4, exotic-industries-informatron.teslas-legacy-5, exotic-industries-informatron.teslas-legacy-6, exotic-industries-informatron.teslas-legacy-7, exotic-industries-informatron.teslas-legacy-text, exotic-industries-informatron.teslas-legacy-text-2, exotic-industries-informatron.teslas-legacy-text-3, exotic-industries-informatron.teslas-legacy-text-4, exotic-industries-informatron.teslas-legacy-text-5, exotic-industries-informatron.teslas-legacy-text-6, exotic-industries-informatron.teslas-legacy-text-7, exotic-industries-informatron.train-progression, exotic-industries-informatron.train-progression-text-2, exotic-industries-informatron.turrets, exotic-industries-informatron.turrets-2, exotic-industries-informatron.turrets-3, exotic-industries-informatron.turrets-4, exotic-industries-informatron.turrets-5, exotic-industries-informatron.turrets-text, exotic-industries-informatron.turrets-text-2, exotic-industries-informatron.turrets-text-3, exotic-industries-informatron.turrets-text-4, exotic-industries-informatron.turrets-text-5, exotic-industries-informatron.uranium-asteroid, exotic-industries-informatron.uranium-asteroid-text, exotic-industries-informatron.veins, exotic-industries-informatron.veins-text, exotic-industries-informatron.welcome, exotic-industries-informatron.welcome-text, exotic-industries-informatron.welcome-text-2, exotic-industries-informatron.world-gen-related, exotic-industries-informatron.world-gen-related-text
+-- remote_interfaces: exotic-industries-informatron
+-- rebuild_on: Informatron page/content changes
+--==============================================================================
 local model = {}
 
 local function add_centered_sprite_row(element, sprites)
@@ -302,10 +313,13 @@ function model.menu(player_index)
             enemy_difficulty = 1,
             nauvis_pressure_grace = 1,
             rocket_launch_pollution = 1,
+            rocket_ammo_schema = 1,
+            flammable_ruptures = 1,
             turrets = 1,
         },
         world_gen_related = {
             resources = 1,
+            auric_fumarole = 1,
             mining_scars = 1,
             asteroid_variants = 1,
             fulgora_day_variation = 1,
@@ -510,6 +524,49 @@ function model.rocket_launch_pollution(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.rocket-launch-pollution-text-2"}}
 end
 
+function model.rocket_ammo_schema(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-text"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-text-2"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-text-3"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-4"}, style = "heading_1_label"}
+    add_centered_sprite_row(element, {
+        "item/dw-deer-ammo-atomic-u235",
+        "item/dw-deer-ammo-atomic-u235-crate",
+        "item/dw-deer-ammo-atomic-plutonium",
+        "item/dw-deer-ammo-atomic-plutonium-crate",
+    })
+    element.add{type = "label", caption = {"exotic-industries-informatron.rocket-ammo-schema-text-4"}}
+end
+
+function model.flammable_ruptures(player_index, element)
+    local fidelity_mode = "standard"
+    if settings and settings.startup and settings.startup["ei-flammable-rupture-fidelity"] then
+        fidelity_mode = settings.startup["ei-flammable-rupture-fidelity"].value or fidelity_mode
+    end
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/storage-tank",
+        "item/pipe-to-ground",
+        "fluid/crude-oil",
+        "fluid/steam",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text-2", {"string-mod-setting.ei-flammable-rupture-fidelity-" .. fidelity_mode}}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-3"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text-3"}}
+end
+
 function model.turrets(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.turrets"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text"}}
@@ -612,6 +669,22 @@ function model.resources(player_index, element)
         "fluid/ei-molten-copper",
         "item/ei-plasma-heater",
     })
+end
+
+function model.auric_fumarole(player_index, element)
+    element.add{type = "label", caption = {"exotic-industries-informatron.auric-fumarole"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.auric-fumarole-text"}}
+
+    add_centered_sprite_row(element, {
+        "item/ei-carbide-precipitation-core",
+        "item/tungsten-carbide",
+        "fluid/steam",
+        "fluid/ei-auric-vapor",
+        "item/ei-gold-chunk",
+    })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.auric-fumarole-2"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.auric-fumarole-text-2"}}
 end
 
 function model.mining_scars(player_index, element)
@@ -1018,6 +1091,14 @@ function model.page_content(page_name, player_index, element)
         model.rocket_launch_pollution(player_index, element)
     end
 
+    if page_name == "rocket_ammo_schema" then
+        model.rocket_ammo_schema(player_index, element)
+    end
+
+    if page_name == "flammable_ruptures" then
+        model.flammable_ruptures(player_index, element)
+    end
+
     if page_name == "turrets" then
         model.turrets(player_index, element)
     end
@@ -1029,6 +1110,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "resources" then
         model.resources(player_index, element)
+    end
+
+    if page_name == "auric_fumarole" then
+        model.auric_fumarole(player_index, element)
     end
 
     if page_name == "mining_scars" then

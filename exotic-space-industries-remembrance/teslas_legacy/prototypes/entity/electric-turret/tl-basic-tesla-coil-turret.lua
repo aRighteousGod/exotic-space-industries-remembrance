@@ -1,4 +1,4 @@
-﻿require("teslas_legacy.config.settings")
+require("teslas_legacy.config.settings")
 local sounds = require("__base__/prototypes/entity/sounds")
 
 local settings = get_settings()
@@ -7,7 +7,7 @@ data:extend({
   {  
     type = "electric-turret",
     name = "tl-basic-tesla-coil",
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/basic/icons/tesla-turret.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/basic/icons/tesla-turret.png",
     icon_size = 64, 
     icon_mipmaps = 4,
     flags = 
@@ -52,7 +52,7 @@ data:extend({
         layers =
         {
           {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/basic/entity/tesla-turret/tesla-turret.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/basic/entity/tesla-turret/tesla-turret.png",
             priority = "low",
             line_length = 1,
             width = 150,
@@ -64,7 +64,7 @@ data:extend({
             scale = 0.5
           },
           {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/basic/entity/tesla-turret/tesla-turret-mask.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/basic/entity/tesla-turret/tesla-turret-mask.png",
             priority = "low",
             line_length = 1,
             width = 150,
@@ -76,7 +76,7 @@ data:extend({
             scale = 0.5
           },
           {
-            filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/basic/entity/tesla-turret/tesla-turret-shadow.png",
+            filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/basic/entity/tesla-turret/tesla-turret-shadow.png",
             priority = "low",
             line_length = 1,
             width = 89,

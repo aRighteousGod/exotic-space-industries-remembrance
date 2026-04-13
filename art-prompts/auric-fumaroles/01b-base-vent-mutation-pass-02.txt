@@ -1,0 +1,27 @@
+Use the previously generated auric fumarole base-vent image as the reference image and mutate it rather than replacing the composition from scratch.
+
+Goal:
+Keep the strongest central fissure and vent silhouette, but make the outer rock integrate more naturally with Vulcanus terrain.
+
+Required changes:
+- darken the outer rock ring toward charcoal basalt and ash-gray
+- reduce sulfur-yellow on the perimeter; keep sulfur staining mostly close to the throat and in narrow mineral seams
+- keep the gold-bearing precipitate subtle and concentrated near the crack mouth, not spread broadly across the outer rock
+- avoid a neat circular rim; the perimeter should be broken, irregular, fractured, and partially eroded
+- make the outermost edges fall off to transparency quickly so the terrain can show through around the sprite
+- keep ember-orange heat mostly inside the fissure and inner throat
+- no steam, no smoke, no vapor plume, no atmospheric haze
+- no large surrounding terrain plate, no painted background, no horizon, no UI, no text
+- transparent background
+- strict top-down or near-top-down Factorio asset read
+- preserve strong readability at gameplay scale
+
+What to avoid:
+- bright yellow sulfur splashed across the whole ring
+- smooth symmetrical circles
+- clean fantasy portal shapes
+- purple or magenta heat
+- photoreal rubble clutter on the outer silhouette
+
+Style target:
+Austere industrial occult geology. The vent should feel embedded in Vulcanus, as if the tile scar and the entity belong to the same wound.

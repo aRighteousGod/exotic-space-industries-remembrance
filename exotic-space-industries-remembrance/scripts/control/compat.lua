@@ -1,8 +1,60 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: compatibility init and configuration checks
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init and configuration-changed
+-- forwarded_events: check_init, nth_tick
+-- storage_roots: storage.gaia_surfaces
+-- gui_ids: none
+-- remote_interfaces: exotic-industries
+-- rebuild_on: mod changes
+--==============================================================================
 local model = {}
 
 --====================================================================================================
 --MOD COMPATIBILITY
 --====================================================================================================
+
+local function ensure_beacon_overload_state()
+    storage.ei = storage.ei or {}
+    storage.ei.beacon_overload = storage.ei.beacon_overload or {}
+    storage.ei.beacon_overload.compat = storage.ei.beacon_overload.compat or {}
+
+    local compat = storage.ei.beacon_overload.compat
+    compat.machine_exclusions = compat.machine_exclusions or {}
+    compat.beacon_exclusions = compat.beacon_exclusions or {}
+    compat.beacon_weights = compat.beacon_weights or {}
+
+    return compat
+end
+
+local function queue_beacon_overload_refresh()
+    if ei_beacon_overload and ei_beacon_overload.refresh_tracked_overloads then
+        ei_beacon_overload.refresh_tracked_overloads()
+    elseif ei_beacon_overload and ei_beacon_overload.refresh_all_overloads then
+        ei_beacon_overload.refresh_all_overloads()
+    end
+end
+
+local function normalize_weight(weight)
+    local numeric_weight = tonumber(weight)
+    if not numeric_weight then
+        return nil
+    end
+
+    numeric_weight = math.floor(numeric_weight)
+    if numeric_weight < 1 then
+        return nil
+    end
+
+    return numeric_weight
+end
+
+local function clear_table(table_value)
+    for key in pairs(table_value) do
+        table_value[key] = nil
+    end
+end
 
 function model.check_init(event)
     -- K2
@@ -58,6 +110,51 @@ remote.add_interface("exotic-industries", {
     end,
     clear_gaia_surfaces = function()
         storage.gaia_surfaces = nil
+    end,
+    add_beacon_overload_machine_exclusion = function(entity_name)
+        if type(entity_name) ~= "string" or entity_name == "" then
+            return false
+        end
+
+        local compat = ensure_beacon_overload_state()
+        compat.machine_exclusions[entity_name] = true
+        queue_beacon_overload_refresh()
+        return true
+    end,
+    add_beacon_overload_beacon_exclusion = function(entity_name)
+        if type(entity_name) ~= "string" or entity_name == "" then
+            return false
+        end
+
+        local compat = ensure_beacon_overload_state()
+        compat.beacon_exclusions[entity_name] = true
+        compat.beacon_weights[entity_name] = nil
+        queue_beacon_overload_refresh()
+        return true
+    end,
+    set_beacon_overload_beacon_weight = function(entity_name, weight)
+        if type(entity_name) ~= "string" or entity_name == "" then
+            return false
+        end
+
+        local normalized_weight = normalize_weight(weight)
+        if not normalized_weight then
+            return false
+        end
+
+        local compat = ensure_beacon_overload_state()
+        compat.beacon_weights[entity_name] = normalized_weight
+        compat.beacon_exclusions[entity_name] = nil
+        queue_beacon_overload_refresh()
+        return true
+    end,
+    clear_beacon_overload_overrides = function()
+        local compat = ensure_beacon_overload_state()
+        clear_table(compat.machine_exclusions)
+        clear_table(compat.beacon_exclusions)
+        clear_table(compat.beacon_weights)
+        queue_beacon_overload_refresh()
+        return true
     end
 })
 

@@ -1,13 +1,32 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: runtime module: lib
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: on-demand helper calls
+-- forwarded_events: add_item_level, add_prerequisite, add_unlock_recipe, clamp, clean_nils, config, contains, convert_short_ingredients_to_full, copy_science_packs, crystal_echo, crystal_echo_floating, debug_crafting_categories, disable, do_fluid_merge, do_item_merge, empty_sprite, enable, enable_from_start, endswith, entity_icon_scaler, fix_recipe, format_echo, generate_crystal_gradient_stops, get_adjective_and_tint, get_box_area, get_entity_area, get_entity_area_change, get_event_tick, get_player_setting_value, get_random_different_value, getn, hex_to_rgb_normalized, hex_to_rgb_raw, is_valid_number, lerp_color, make_4way_animation_from_spritesheet, make_circuit_connector, merge_fluid, merge_item, modify_data_raw, notify_connected_players, overwrite_description, overwrite_entity_and_description, overwrite_entity_name, patch_nested_value, pick_gradient_stops, pick_tint_from_intent, player_allows_notification, recipe_add, recipe_hard_overwrite, recipe_new, recipe_output_add, recipe_remove, recipe_swap, recursive_copy, recursive_insert, remove_prerequisite, remove_tech, remove_tech_ingredient, remove_unlock_recipe, rgb_to_hex, sb, set_age_packs, set_prerequisites, set_properties, set_science_packs, starts_with, startswith, strike_lightning, switch_string, table_contains_value, table_to_string, unique_values_only
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: owner-specific behavior changes
+--==============================================================================
 -- commonly used functions for the mod
 
 local ei_lib = {}
+local quality_level_bounds_cache = nil
 
 --====================================================================================================
 --FUNCTIONS
 --====================================================================================================
 
 function ei_lib.endswith(str,suf) return str:sub(-string.len(suf)) == suf end
-function ei_lib.startswith(text, prefix) return text:find(prefix, 1, true) == 1 end
+function ei_lib.startswith(text, prefix)
+    if type(prefix) ~= "string" then
+        return false
+    end
+
+    return string.find(text or "", prefix, 1, true) == 1
+end
+ei_lib.starts_with = ei_lib.startswith
 function ei_lib.contains(s, word) return tostring(s):find(word, 1, true) ~= nil end
 function ei_lib.sb(s) error(serpent.block(s)) end
 
@@ -175,10 +194,227 @@ function ei_lib.getn(table_in)
     return count
 end
 
----@param inputstr string
----@param start string
-function ei_lib.starts_with(inputstr, start) 
-    return inputstr:sub(1, #start) == start 
+function ei_lib.count_sequence(tbl, sparse_fallback)
+    if type(tbl) ~= "table" then
+        return 0
+    end
+
+    if #tbl > 0 or not sparse_fallback then
+        return #tbl
+    end
+
+    return ei_lib.getn(tbl)
+end
+
+function ei_lib.get_surface_index(surface)
+    return surface and surface.index or nil
+end
+
+function ei_lib.get_chunk_coordinate(tile_coordinate, chunk_size)
+    if not ei_lib.is_valid_number(chunk_size) or chunk_size == 0 then
+        return nil
+    end
+
+    return math.floor(tile_coordinate / chunk_size)
+end
+
+function ei_lib.get_chunk_coordinates(position, chunk_size)
+    if not position then
+        return nil, nil
+    end
+
+    return ei_lib.get_chunk_coordinate(position.x, chunk_size), ei_lib.get_chunk_coordinate(position.y, chunk_size)
+end
+
+function ei_lib.get_chunk_coverage(position, radius, chunk_size)
+    if not position then
+        return nil, nil, nil, nil
+    end
+
+    radius = radius or 0
+    return ei_lib.get_chunk_coordinate(position.x - radius, chunk_size),
+        ei_lib.get_chunk_coordinate(position.x + radius, chunk_size),
+        ei_lib.get_chunk_coordinate(position.y - radius, chunk_size),
+        ei_lib.get_chunk_coordinate(position.y + radius, chunk_size)
+end
+
+function ei_lib.is_within_range_squared(source_position, target_position, max_range_sqr)
+    if not source_position or not target_position then
+        return false
+    end
+
+    local delta_x = source_position.x - target_position.x
+    local delta_y = source_position.y - target_position.y
+    return (delta_x * delta_x + delta_y * delta_y) <= max_range_sqr
+end
+
+function ei_lib.get_item_prototypes()
+    if prototypes and prototypes.item then
+        return prototypes.item
+    end
+
+    if game and game.item_prototypes then
+        return game.item_prototypes
+    end
+end
+
+function ei_lib.get_quality_prototypes()
+    if prototypes and prototypes.quality then
+        return prototypes.quality
+    end
+
+    if game and game.quality_prototypes then
+        return game.quality_prototypes
+    end
+end
+
+function ei_lib.get_quality_level_bounds(force_refresh)
+    if not force_refresh and quality_level_bounds_cache then
+        return quality_level_bounds_cache.min_level, quality_level_bounds_cache.max_level
+    end
+
+    local min_level = 1
+    local max_level = 1
+    local found_level = false
+    local quality_prototypes = ei_lib.get_quality_prototypes()
+
+    if quality_prototypes then
+        for _, quality in pairs(quality_prototypes) do
+            local level = quality.level
+            if ei_lib.is_valid_number(level) then
+                if not found_level then
+                    min_level = level
+                    max_level = level
+                    found_level = true
+                else
+                    min_level = math.min(min_level, level)
+                    max_level = math.max(max_level, level)
+                end
+            end
+        end
+    end
+
+    quality_level_bounds_cache = {
+        min_level = min_level,
+        max_level = max_level
+    }
+
+    return min_level, max_level
+end
+
+function ei_lib.try_get_stack_field(item_stack, getter)
+    local ok, value = pcall(getter, item_stack)
+    if ok then
+        return value
+    end
+
+    return nil
+end
+
+function ei_lib.copy_localised_string(value)
+    if type(value) == "table" then
+        return table.deepcopy(value)
+    end
+
+    return value
+end
+
+function ei_lib.get_quality_name(item_like, default_quality)
+    if not item_like then
+        return default_quality
+    end
+
+    local quality = ei_lib.try_get_stack_field(item_like, function(stack)
+        local stack_quality = stack.quality
+        if type(stack_quality) == "table" and stack_quality.name then
+            return stack_quality.name
+        end
+        return stack_quality
+    end)
+
+    if quality ~= nil then
+        return quality
+    end
+
+    return default_quality
+end
+
+function ei_lib.make_item_with_quality_id(item_like, default_quality)
+    if not item_like then
+        return nil
+    end
+
+    if item_like.valid_for_read ~= nil and not item_like.valid_for_read then
+        return nil
+    end
+
+    if not item_like.name then
+        return nil
+    end
+
+    local item_with_quality = {
+        name = item_like.name
+    }
+
+    local quality = ei_lib.get_quality_name(item_like, default_quality)
+    if quality then
+        item_with_quality.quality = quality
+    end
+
+    return item_with_quality
+end
+
+function ei_lib.make_item_stack_definition(item_stack, count)
+    if not item_stack or not item_stack.valid_for_read then
+        return nil
+    end
+
+    local stack_definition = ei_lib.make_item_with_quality_id(item_stack) or {name = item_stack.name}
+    stack_definition.count = count or item_stack.count
+
+    local health = ei_lib.try_get_stack_field(item_stack, function(stack) return stack.health end)
+    if health ~= nil then
+        stack_definition.health = health
+    end
+
+    local durability = ei_lib.try_get_stack_field(item_stack, function(stack) return stack.durability end)
+    if durability ~= nil then
+        stack_definition.durability = durability
+    end
+
+    local ammo = ei_lib.try_get_stack_field(item_stack, function(stack) return stack.ammo end)
+    if ammo ~= nil then
+        stack_definition.ammo = ammo
+    end
+
+    local spoil_percent = ei_lib.try_get_stack_field(item_stack, function(stack) return stack.spoil_percent end)
+    if spoil_percent ~= nil then
+        stack_definition.spoil_percent = spoil_percent
+    end
+
+    local tags = ei_lib.try_get_stack_field(item_stack, function(stack) return stack.tags end)
+    if tags ~= nil then
+        stack_definition.tags = table.deepcopy(tags)
+    end
+
+    local custom_description = ei_lib.try_get_stack_field(item_stack, function(stack) return stack.custom_description end)
+    if custom_description ~= nil then
+        stack_definition.custom_description = ei_lib.copy_localised_string(custom_description)
+    end
+
+    return stack_definition
+end
+
+function ei_lib.entity_can_take_health_damage(entity)
+    if not entity or not entity.valid then
+        return false
+    end
+
+    local ok, health = pcall(function()
+        return entity.health
+    end)
+
+    return ok and health ~= nil
 end
 -- Use ei_lib.raw to access this
 --- Modifies a prototype in `data.raw` using one of three modes:
@@ -1634,18 +1870,6 @@ local intent_tint_map = {
       "beam"
     }
   }
-function ei_lib.lerp_color(c1, c2, t)
-    return {
-      math.floor(c1[1] + (c2[1] - c1[1]) * t + 0.5),
-      math.floor(c1[2] + (c2[2] - c1[2]) * t + 0.5),
-      math.floor(c1[3] + (c2[3] - c1[3]) * t + 0.5)
-    }
-  end
-
-function ei_lib.rgb_to_hex(rgb)
-    return string.format("%02x%02x%02x", rgb[1], rgb[2], rgb[3])
-  end
-
 local crystal_colors = {
     {112, 48, 160},   -- Royal purple
     {0, 123, 167},    -- Cerulean

@@ -1,0 +1,21 @@
+Create a single Factorio-ready top-down effect sprite concept for the steam overlay of an auric precipitation fumarole on Vulcanus.
+
+This asset is the vapor layer only. It will sit above a separate basalt vent/crack base sprite.
+
+Requirements:
+- transparent background
+- one centered asset only
+- strict top-down or near-top-down game asset read
+- readable silhouette at Factorio gameplay scale
+- no rock, no ground plate, no crater rim, no surrounding terrain, no UI, no text
+- the plume should emerge from a narrow central throat area and stay spatially compact
+- pale superheated steam outer body, ash-gray contamination, faint muted auric-gold inner shimmer near the throat
+- feels pressurized, dangerous, mineral-bearing, and volcanic rather than like soft fantasy mist
+- irregular, broken plume shape with a few strong directional curls rather than a big round cloud
+- avoid giant smoke billows, avoid photoreal fog, avoid purple or blue energy, avoid clean magical swirls
+
+Composition target:
+Think of this as a reusable overlay that could be animated later. The center should be strongest, while the outer wisps should thin quickly so the base vent and Vulcanus tiles remain readable.
+
+Style target:
+Austere industrial occult geology. Harsh hot breath, not decorative steam.

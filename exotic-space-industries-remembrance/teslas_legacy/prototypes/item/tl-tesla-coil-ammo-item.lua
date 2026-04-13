@@ -1,4 +1,4 @@
-﻿require("teslas_legacy.config.settings")
+require("teslas_legacy.config.settings")
 
 local settings = get_settings()
 
@@ -60,7 +60,7 @@ data:extend({
   {
     type = "ammo",
     name = "tl-tesla-coil-ammo",
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/icons/Teslacharge.png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/icons/Teslacharge.png",
     icon_size = 64,
     icon_mipmaps = 1,
     ammo_category = "tl-tesla-coil-ammo-category",

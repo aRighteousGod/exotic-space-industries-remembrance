@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: fusion reactor GUI and runtime hooks
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build and GUI open/close/click/value-change dispatch
+-- forwarded_events: close_gui, entity_check, on_built_entity, on_gui_click, on_gui_opened, on_gui_value_changed, open_gui, update_gui, update_recipe
+-- storage_roots: none
+-- gui_ids: ei-fusion-reactor-console
+-- remote_interfaces: none
+-- rebuild_on: entity schema changes, GUI schema changes
+--==============================================================================
 
 local model = {
   slider_array = {"low", "medium", "high"},

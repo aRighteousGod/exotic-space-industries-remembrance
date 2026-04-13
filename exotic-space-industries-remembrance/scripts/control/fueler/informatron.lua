@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: Fueler Informatron page
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: load-time remote interface registration
+-- forwarded_events: page_content
+-- storage_roots: none
+-- gui_ids: exotic-industries-fueler-informatron, exotic-industries-fueler-informatron.welcome, exotic-industries-fueler-informatron.welcome-text, exotic-industries-fueler-informatron.welcome-text-2
+-- remote_interfaces: exotic-industries-fueler-informatron
+-- rebuild_on: page/content changes
+--==============================================================================
 local model = {}
 
 --====================================================================================================

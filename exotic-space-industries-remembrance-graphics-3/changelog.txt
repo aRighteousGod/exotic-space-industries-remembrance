@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+Date: 2026-4-11
+  Changes:
+    - Imported graphics and sounds living in the main mod file.
+    - Moved the Tesla's Legacy graphics and sound payload into Graphics 3.
+    - Added Gaia relic debris, orbital request combinator, and tech-weight marker assets to Graphics 3.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.3
 Date: 2026-3-29
   Changes:

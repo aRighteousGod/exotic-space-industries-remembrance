@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: Fulgora day-length variation
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: every tick
+-- forwarded_events: updater
+-- storage_roots: storage.ei, storage.fulgora_day_length_variation
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: startup setting changes, configuration changes
+--==============================================================================
 --originally from Tougher Lightning Storms by thesixthroc
 --now modified to add smooth variation in Fulgora's day length each cycle, with checks to avoid abrupt changes during dark or unstable-light conditions
 

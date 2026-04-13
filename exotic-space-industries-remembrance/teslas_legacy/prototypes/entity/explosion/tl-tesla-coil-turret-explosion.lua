@@ -1,4 +1,4 @@
-﻿data:extend({  
+data:extend({  
   {
     type = "explosion",
     name = "tl-tesla-coil-turret-explosion",
@@ -21,7 +21,7 @@
       layers = 
 	  {
         {
-          filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/hr-beam-body.png",
+          filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/hr-beam-body.png",
           priority = "extra-high", 
           blend_mode = "additive-soft",
           width = 100,
@@ -31,7 +31,7 @@
           scale = 1,
         },
         {
-          filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/entity/beam/hr-beam-body-light-2.png",
+          filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/entity/beam/hr-beam-body-light-2.png",
           priority = "extra-high",
           flags = { "light" },          
           draw_as_light = true,

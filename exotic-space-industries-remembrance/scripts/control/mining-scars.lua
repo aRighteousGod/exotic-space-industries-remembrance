@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: depleted-resource scar behavior
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: resource depletion
+-- forwarded_events: on_resource_depleted
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: resource prototype changes, scar prototype changes
+--==============================================================================
 --====================================================================================================
 -- MINING SCARS MODULE
 -- originally from Mining scars by Mylon

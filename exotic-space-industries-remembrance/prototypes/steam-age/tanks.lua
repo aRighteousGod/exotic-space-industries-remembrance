@@ -307,6 +307,7 @@ data:extend({
           { type = "impact",   percent = 70 },
         },
         corpse = "big-remnants",
+        dying_explosion = "storage-tank-explosion",
         collision_box = {{-4.253, -4.253}, {4.253, 4.253}},
         selection_box = {{-4.285, -4.285}, {4.285, 4.285}},
         circuit_wire_connection_points = circuit_connector_definitions["storage-tank"].points,

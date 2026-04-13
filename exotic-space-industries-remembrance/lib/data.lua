@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: runtime module: data
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: on-demand helper calls
+-- forwarded_events: repair_tool_entity_filter
+-- storage_roots: none
+-- gui_ids: solar-panel-equipment
+-- remote_interfaces: none
+-- rebuild_on: owner-specific behavior changes
+--==============================================================================
 -- store data like switch tables and other constants/parameters here
 -- excluding global table stuff
 -- can be used in data stage AND in control

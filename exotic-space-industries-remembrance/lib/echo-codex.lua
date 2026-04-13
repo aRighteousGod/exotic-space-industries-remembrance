@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: startup/configuration messaging, arrival-wave rendering, and visual settings mirrors
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init, configuration-changed, on_load, and every-tick arrival-wave cleanup
+-- forwarded_events: on_init, on_configuration_changed, on_load, on_tick, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned
+-- storage_roots: storage.ei.arrival_waves, storage.ei.pending_arrivals, storage.ei.lamp_removals, storage.ei.que_*, storage.ei.em_*_glow*, storage.ei.rocket_launch_pollution, storage.ei.fulgora_day_length_variation, storage.ei.nauvis_pressure
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: startup setting changes, init, configuration migration
+--==============================================================================
 -- Echo Codex Generator: A ritual system of dynamic proclamation
 ei_lib = require("lib/lib")
 echo_codex = {}
@@ -420,8 +431,72 @@ function echo_codex.handle_global_settings(event)
 	storage.ei.nauvis_pressure.enabled = nauvis_pressure_grace and enemy_difficulty ~= "Impossible"
 end
 
+local function ensure_pending_arrivals()
+	if not storage.ei then
+		storage.ei = {}
+	end
+	if not storage.ei.pending_arrivals then
+		storage.ei.pending_arrivals = {}
+	end
+	return storage.ei.pending_arrivals
+end
+
+function echo_codex.queue_arrival(player_index)
+	if not player_index then
+		return
+	end
+	local pending = ensure_pending_arrivals()
+	pending[player_index] = true
+end
+
+function echo_codex.queue_players(players)
+	if not players then
+		return
+	end
+	for _, player in pairs(players) do
+		if player and player.valid then
+			echo_codex.queue_arrival(player.index)
+		end
+	end
+end
+
+function echo_codex.flush_pending_arrivals(event)
+	if not event or not event.tick or not storage.ei or not storage.ei.pending_arrivals then
+		return
+	end
+
+	local pending = storage.ei.pending_arrivals
+	if next(pending) == nil then
+		return
+	end
+
+	local ready_players = {}
+	local stale_players = {}
+
+	for player_index, _ in pairs(pending) do
+		local player = game.get_player(player_index)
+		if not (player and player.valid) then
+			table.insert(stale_players, player_index)
+		elseif player.character then
+			table.insert(ready_players, player_index)
+		end
+	end
+
+	for _, player_index in pairs(stale_players) do
+		pending[player_index] = nil
+	end
+
+	for _, player_index in pairs(ready_players) do
+		echo_codex.youHaveArrived({
+			player_index = player_index,
+			tick = event.tick,
+		})
+		pending[player_index] = nil
+	end
+end
+
 function echo_codex.youHaveArrived(event)
-	if not event or not event.tick or not event.player_index then --SP load? Maybe call this from updater, save warped-in players to a global list, reset it on load so updater calls it again? get access to event.tick that way
+	if not event or not event.tick or not event.player_index then
 		return
 	end
 	local player = game.get_player(event.player_index)

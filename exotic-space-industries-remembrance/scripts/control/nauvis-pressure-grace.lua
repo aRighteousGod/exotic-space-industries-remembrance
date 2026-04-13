@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: Nauvis pressure grace milestone and pollution/evolution pressure
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: configuration changes, research-finished, and scheduled tick step 1
+-- forwarded_events: on_configuration_changed, on_research_finished, updater
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: startup settings, research progression, configuration changes
+--==============================================================================
 local model = {}
 
 local CHECK_INTERVAL = 18000

@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: matter runtime, queues, and player rendering cleanup
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: build/destroy, selection/cursor/player-left, scheduled tick step 4, and configuration rebuild
+-- forwarded_events: add_machine_to_surface_queue, add_to_chunk_store, check_entity, check_global, clear_rendering, collect_machine_stabilizers, destroy_machine_fx, destroy_player_render_list, destroy_runtime_state, draw_connection, draw_stabilizer_range, draw_warning_text, ensure_machine_light, ensure_runtime_ready, ensure_surface_queue, get_machine_base_chance, get_player_render_list, get_risk_tier, get_stabilizer_weight, get_updates_per_entity, link_stabilizer_and_machine, on_built_entity, on_destroyed_entity, on_player_cursor_stack_changed, on_player_left_game, on_selected_entity_changed, query_nearby_machines, query_nearby_stabilizers, query_runtime_registry_in_range, rebuild_runtime_state, register_matter_machine, register_stabilizer, remove_from_chunk_store, remove_machine_from_surface_queue, remove_matter_machine_by_unit, remove_rendering, remove_rendering_by_unit, remove_stabilizer_by_unit, reset_machine_state, reset_runtime_storage, spawn_machine_arc, spawn_machine_crackle, stabilizer_on_cursor, stabilizer_selected, sync_active_surface, unregister_matter_machine, unregister_stabilizer, update, update_machine_presentation, update_matter_machine
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, entity topology changes
+--==============================================================================
 local model = {}
 ei_lib = require("lib/lib")
 
@@ -83,40 +94,9 @@ local function destroy_render_object(render_object)
 end
 
 
-local function get_surface_index(surface)
-    return surface and surface.index or nil
-end
-
-
-local function get_chunk_coordinate(tile_coordinate)
-    return math.floor(tile_coordinate / MATTER_CHUNK_SIZE)
-end
-
-
 local function get_chunk_key(chunk_x, chunk_y)
     return chunk_x .. "," .. chunk_y
 end
-
-
-local function get_chunk_coordinates(position)
-    return get_chunk_coordinate(position.x), get_chunk_coordinate(position.y)
-end
-
-
-local function get_chunk_coverage(position, radius)
-    return get_chunk_coordinate(position.x - radius),
-        get_chunk_coordinate(position.x + radius),
-        get_chunk_coordinate(position.y - radius),
-        get_chunk_coordinate(position.y + radius)
-end
-
-
-local function is_within_range_squared(source_position, target_position, max_range_sqr)
-    local delta_x = source_position.x - target_position.x
-    local delta_y = source_position.y - target_position.y
-    return (delta_x * delta_x + delta_y * delta_y) <= max_range_sqr
-end
-
 
 local function get_surface_chunk_store(chunk_store, surface_index, create)
     local surface_store = chunk_store[surface_index]
@@ -541,7 +521,7 @@ end
 
 function model.query_runtime_registry_in_range(runtime, registry, chunk_store, surface, position, range)
     local results = {}
-    local surface_index = get_surface_index(surface)
+    local surface_index = ei_lib.get_surface_index(surface)
     if not surface_index then
         return results
     end
@@ -551,7 +531,7 @@ function model.query_runtime_registry_in_range(runtime, registry, chunk_store, s
         return results
     end
 
-    local min_chunk_x, max_chunk_x, min_chunk_y, max_chunk_y = get_chunk_coverage(position, range)
+    local min_chunk_x, max_chunk_x, min_chunk_y, max_chunk_y = ei_lib.get_chunk_coverage(position, range, MATTER_CHUNK_SIZE)
     local max_range_sqr = range * range
 
     for chunk_x = min_chunk_x, max_chunk_x do
@@ -562,7 +542,7 @@ function model.query_runtime_registry_in_range(runtime, registry, chunk_store, s
                     local data = registry[unit_number]
                     local entity = data and data.entity
                     if model.check_entity(entity)
-                        and is_within_range_squared(entity.position, position, max_range_sqr) then
+                        and ei_lib.is_within_range_squared(entity.position, position, max_range_sqr) then
                         table.insert(results, data)
                     end
                 end
@@ -658,7 +638,7 @@ function model.register_stabilizer(entity)
         model.remove_stabilizer_by_unit(runtime, entity.unit_number)
     end
 
-    local chunk_x, chunk_y = get_chunk_coordinates(entity.position)
+    local chunk_x, chunk_y = ei_lib.get_chunk_coordinates(entity.position, MATTER_CHUNK_SIZE)
     local stabilizer_data = {
         unit_number = entity.unit_number,
         entity = entity,
@@ -699,7 +679,7 @@ function model.register_matter_machine(entity)
         model.remove_matter_machine_by_unit(runtime, entity.unit_number)
     end
 
-    local chunk_x, chunk_y = get_chunk_coordinates(entity.position)
+    local chunk_x, chunk_y = ei_lib.get_chunk_coordinates(entity.position, MATTER_CHUNK_SIZE)
     local machine_data = {
         unit_number = entity.unit_number,
         entity = entity,
@@ -1077,7 +1057,7 @@ function model.collect_machine_stabilizers(runtime, machine_data)
 
         if not model.check_entity(stabilizer) then
             table.insert(stale_stabilizers, stabilizer_unit_number)
-        elseif is_within_range_squared(stabilizer.position, machine_data.entity.position, MATTER_RANGE_SQR) then
+        elseif ei_lib.is_within_range_squared(stabilizer.position, machine_data.entity.position, MATTER_RANGE_SQR) then
             if not stabilizer.disabled_by_control_behavior then
                 stabilizer_weight = stabilizer_weight + (stabilizer_data.weight or 1)
                 table.insert(active_stabilizers, stabilizer_data)

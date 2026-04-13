@@ -257,7 +257,7 @@ function create_technology(args)
     name = technology_name,
     icon_size = args.icon_size or 128,
     icon_mipmaps = args.icon_mipmaps or 4,
-    icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/" .. args.name .. ".png",
+    icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/" .. args.name .. ".png",
     effects = args.effects or {},
     prerequisites = args.prerequisites or {},
     unit = {

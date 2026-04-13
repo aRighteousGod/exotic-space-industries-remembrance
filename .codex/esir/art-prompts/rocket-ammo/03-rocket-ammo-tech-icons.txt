@@ -1,0 +1,10 @@
+Rocket ordnance technology icon prompts for Exotic Space Industries: Remembrance.
+
+Create compact technology icons for the modular ordnance line. These should feel like research seals, not item icons.
+
+Target technologies:
+- Corrosive rocketry
+- Cryo rocketry
+- Plutonium warheads
+
+Use the same industrial, uncanny visual language as the rest of the mod. Favor containment rings, layered shells, hazard sigils, cold glyphs, and fracture motifs. Keep the icons high contrast and easy to read on the tech tree.

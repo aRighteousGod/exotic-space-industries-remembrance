@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: hybrid Tesla legacy runtime
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init, load, configuration-changed, combat, research, build, destroy, and script triggers
+-- forwarded_events: on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect
+-- storage_roots: storage.ei, storage.tl_entity_lookup, storage.tl_index
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: configuration change
+--==============================================================================
 -- Tesla's Legacy runtime for EI.
 --
 -- This module owns all live Tesla scripting after the internalization work. The vendored
@@ -117,10 +128,6 @@ local DAMAGE_TEXT_COLOR = {
     purple = {r = 0.70, g = 0, b = 0.70, a = 1},
     green = {r = 0, g = 0.60, b = 0.20, a = 1},
 }
-
-local function starts_with(value, prefix)
-    return string.find(value or "", prefix, 1, true) == 1
-end
 
 local function get_multi_zap_name(index)
     return "tl-basic-tesla-coil-multi-zap-"
@@ -815,7 +822,7 @@ local function is_legacy_location_free(surface, position)
     })
 
     for _, entity in pairs(entities) do
-        if entity.valid and starts_with(entity.name, "tl-basic-tesla-coil-timer") then
+        if entity.valid and ei_lib.startswith(entity.name, "tl-basic-tesla-coil-timer") then
             return false
         end
     end
@@ -1749,9 +1756,9 @@ local function run_exact_legacy_basic_hit(state, event, force, cache)
     end
 
     if event.cause
-        and starts_with(event.cause.name, "tl-basic-tesla-coil")
-        and not starts_with(event.cause.name, "tl-basic-tesla-coil-multi-zap")
-        and not starts_with(event.cause.name, "tl-basic-tesla-coil-single-zap")
+        and ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil")
+        and not ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil-multi-zap")
+        and not ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil-single-zap")
     then
         maybe_spawn_fidelity_basic_overlay(state, {
             target_entity = target,
@@ -2200,11 +2207,11 @@ function model.on_research_finished(event)
 
     local state = ensure_state()
     sync_force_cache(state, event.research.force)
-    if starts_with(event.research.name, "ei-waveform-harmonics-")
-        or starts_with(event.research.name, "ei-storm-lattice-")
-        or starts_with(event.research.name, "ei-dielectric-rupture-")
-        or starts_with(event.research.name, "ei-bridge-coupling-")
-        or starts_with(event.research.name, "ei-reactance-overdrive-")
+    if ei_lib.startswith(event.research.name, "ei-waveform-harmonics-")
+        or ei_lib.startswith(event.research.name, "ei-storm-lattice-")
+        or ei_lib.startswith(event.research.name, "ei-dielectric-rupture-")
+        or ei_lib.startswith(event.research.name, "ei-bridge-coupling-")
+        or ei_lib.startswith(event.research.name, "ei-reactance-overdrive-")
         or event.research.name == "ei-exotic-waveform-convergence"
     then
         sync_force_variants(state, event.research.force)
@@ -2239,7 +2246,7 @@ function model.on_entity_died(event)
         and event.cause.valid
         and event.damage_type
         and event.damage_type.name == "electric"
-        and starts_with(event.cause.name, "tl-advanced-tesla-coil")
+        and ei_lib.startswith(event.cause.name, "tl-advanced-tesla-coil")
     then
         local force = event.cause.force
         local cache = get_force_cache(state, force)
@@ -2287,18 +2294,18 @@ function model.on_entity_damaged(event)
     end
 
     if BEHAVIOR_MODE == "legacy-fidelity" then
-        if starts_with(event.cause.name, "tl-basic-tesla-coil-single-zap") then
+        if ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil-single-zap") then
             run_exact_legacy_single_zap_hit(event, force, cache)
             return
-        elseif starts_with(event.cause.name, "tl-advanced-tesla-coil") then
+        elseif ei_lib.startswith(event.cause.name, "tl-advanced-tesla-coil") then
             run_exact_legacy_advanced_hit(state, event, force, cache)
             return
-        elseif starts_with(event.cause.name, "tl-basic-tesla-coil-multi-zap")
-            or starts_with(event.cause.name, "tl-basic-tesla-coil")
+        elseif ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil-multi-zap")
+            or ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil")
         then
             run_exact_legacy_basic_hit(state, event, force, cache)
             return
-        elseif starts_with(event.cause.name, "tl-tesla-tank") then
+        elseif ei_lib.startswith(event.cause.name, "tl-tesla-tank") then
             run_exact_legacy_tank_hit(state, event, force, cache)
             return
         end

@@ -1,7 +1,7 @@
-﻿function get_empty_picture()
+function get_empty_picture()
   return 
   {
-    filename = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/invisible.png",
+    filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/invisible.png",
     priority = "high",
     width = 20,
     height = 20,

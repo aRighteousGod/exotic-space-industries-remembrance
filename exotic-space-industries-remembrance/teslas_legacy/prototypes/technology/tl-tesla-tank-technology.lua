@@ -1,10 +1,10 @@
-﻿data:extend({
+data:extend({
   
 {
   type = "technology",
   name = "tl-tesla-tank-technology",
   icon_size = 64, icon_mipmaps = 4,
-  icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/tank/icons/Teslatank.png",
+  icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/tank/icons/Teslatank.png",
   effects =
   {
     {

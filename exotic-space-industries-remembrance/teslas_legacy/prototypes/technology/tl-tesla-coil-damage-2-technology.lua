@@ -1,11 +1,11 @@
-﻿
+
 data:extend({
   
 {
   type = "technology",
   name = "tl-tesla-coil-damage-technology-2",
   icon_size = 128,
-  icon = "__exotic-space-industries-remembrance__/teslas_legacy/graphics/technology/icons/tl-tesla-coil-damage-technology.png",
+  icon = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/graphics/technology/icons/tl-tesla-coil-damage-technology.png",
   effects =
   {
     {

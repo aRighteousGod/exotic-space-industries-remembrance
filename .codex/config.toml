@@ -1,0 +1,6 @@
+project_doc_max_bytes = 65536
+project_root_markers = [".git", ".github", ".codex"]
+
+[tools.web_search]
+context_size = "high"
+location = { country = "US", region = "Illinois", city = "Chicago", timezone = "America/Chicago" }

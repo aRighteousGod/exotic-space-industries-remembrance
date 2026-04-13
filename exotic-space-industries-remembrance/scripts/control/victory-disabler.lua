@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: victory screen disabling and Better Victory Screen bridge
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: init
+-- forwarded_events: add_interface, check_init, count_value, init, return_value
+-- storage_roots: storage.ei
+-- gui_ids: none
+-- remote_interfaces: exotic-industries-bvs
+-- rebuild_on: init, configuration change
+--==============================================================================
 -- disable vanilla victory condition by rocket launch
 
 local victory_disabler = {}

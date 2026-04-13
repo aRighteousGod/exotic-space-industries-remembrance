@@ -1,0 +1,16 @@
+{
+    "schema_version":  1,
+    "generated_at":  "2026-04-11T21:25:56.2535016-05:00",
+    "entries":  [
+                    {
+                        "asset_id":  "esir-test-1x1.png",
+                        "source_session":  ".factorio-qc\\chatgpt-firefox\\20260411-212546-esir-platform-dry-run",
+                        "source_file":  ".factorio-qc\\chatgpt-firefox\\20260411-212546-esir-platform-dry-run\\downloads\\esir-test-1x1.png",
+                        "target_pack":  "exotic-space-industries-remembrance-graphics-3",
+                        "target_path":  null,
+                        "role":  "icon-role",
+                        "status":  "candidate",
+                        "notes":  "Review and choose import target before copying into a pack."
+                    }
+                ]
+}

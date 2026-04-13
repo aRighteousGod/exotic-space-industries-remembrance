@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: Milestones integration preset
+-- loaded_by: exotic-space-industries-remembrance\control.lua
+-- cadence: load-time remote interface registration
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: ei-solar-panel-2, ei-solar-panel-3, solar-panel
+-- remote_interfaces: exotic-industries-milestones
+-- rebuild_on: progression or milestone changes
+--==============================================================================
 --====================================================================================================
 --PRESET FOR MILESTONE MOD
 --====================================================================================================

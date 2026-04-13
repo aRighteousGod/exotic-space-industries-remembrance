@@ -70,7 +70,7 @@ data:extend({
 -- add entities
 
 local turbo_belt = data.raw["transport-belt"]["turbo-transport-belt"]
-ei_loaders_lib.make_loader("fplus-turbo", nil, turbo_belt.belt_animation_set, turbo_belt.speed)
+ei_loaders_lib.make_loader("fplus-turbo", nil, turbo_belt.belt_animation_set, turbo_belt.speed,item_path,entity_path)
 
 -- set next replacable for express loader
 data.raw["loader-1x1"]["ei-express-loader"].next_upgrade = "ei-fplus-turbo-loader"

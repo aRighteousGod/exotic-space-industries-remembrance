@@ -169,6 +169,14 @@ data:extend({
       order  = "a7b",
   },
   {
+      name = "ei-flammable-rupture-fidelity",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "standard",
+      allowed_values = {"lean", "standard", "cinematic", "unbounded"},
+      order  = "a7ba",
+  },
+  {
       name = "ei-fulgora-day-length-variation-max-multiplier",
       type = "double-setting",
       setting_type = "startup",
