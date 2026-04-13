@@ -11,6 +11,7 @@
 --==============================================================================
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 
 local FUELER_RUNTIME_VERSION = 1
 local FUELER_CHUNK_SIZE = 32
@@ -112,7 +113,7 @@ local function is_vehicle_target_type(target_type)
 end
 
 function model.entity_check(entity)
-    return entity ~= nil and entity.valid == true
+    return ei_lib.entity_check(entity)
 end
 
 function model.get_normalized_quality_factor(entity)
@@ -407,10 +408,10 @@ function model.get_transfer_inv(transfer)
 
     if type(transfer) == "number" then
         local player = game.get_player(transfer)
-        return player and player.get_main_inventory() or nil
+        return player and player.valid and player.get_main_inventory() or nil
     end
 
-    if transfer.valid then
+    if transfer and transfer.valid then
         return transfer.get_inventory(defines.inventory.robot_cargo)
     end
 
@@ -779,8 +780,13 @@ function model.schedule_player(runtime, player_state, current_tick, delay)
 end
 
 function model.build_target_entry(entity)
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
+        return nil
+    end
+
     return {
-        unit_number = entity.unit_number,
+        unit_number = unit_number,
         entity = entity,
         entity_type = entity.type,
         surface_index = ei_lib.get_surface_index(entity.surface),
@@ -828,7 +834,7 @@ end
 
 function model.register_fueler(entity)
     local runtime = model.check_global()
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     if not unit_number then
         return
     end
@@ -854,7 +860,7 @@ function model.unregister_fueler(entity, transfer)
     end
 
     local runtime = model.check_global()
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     if not unit_number then
         return
     end
@@ -864,8 +870,8 @@ function model.unregister_fueler(entity, transfer)
 end
 
 function model.is_supported_runtime_target(entity)
-    return entity
-        and entity.unit_number ~= nil
+    return model.entity_check(entity)
+        and get_entity_unit_number(entity) ~= nil
         and entity.type ~= nil
         and runtime_target_types[entity.type] == true
 end
@@ -876,7 +882,11 @@ function model.register_target(entity)
     end
 
     local runtime = model.check_global()
-    local target_id = entity.unit_number
+    local target_id = get_entity_unit_number(entity)
+    if not target_id then
+        return
+    end
+
     local target_entry = runtime.targets[target_id]
 
     if target_entry then
@@ -897,12 +907,13 @@ function model.register_target(entity)
 end
 
 function model.unregister_target(entity)
-    if not entity or entity.unit_number == nil then
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
         return
     end
 
     local runtime = model.check_global()
-    model.remove_target_entry(runtime, entity.unit_number)
+    model.remove_target_entry(runtime, unit_number)
 end
 
 function model.sync_connected_players(runtime)
@@ -1047,7 +1058,7 @@ function model.get_candidate_towers(runtime, target)
             return left_quality > right_quality
         end
 
-        return left.entity.unit_number < right.entity.unit_number
+        return (get_entity_unit_number(left.entity) or 0) < (get_entity_unit_number(right.entity) or 0)
     end)
 
     return candidates
@@ -1058,7 +1069,7 @@ function model.tower_matches_target(tower_entry, desired_target_type, equipment_
         return false
     end
 
-    local unit_number = tower_entry.entity.unit_number
+    local unit_number = get_entity_unit_number(tower_entry.entity)
     if unit_number == nil then
         return false
     end
@@ -1328,7 +1339,10 @@ function model.rebuild_runtime_state(reason)
         for _, fueler in pairs(fuelers) do
             if model.entity_check(fueler) then
                 model.register_fueler(fueler)
-                seen_fuelers[fueler.unit_number] = true
+                local unit_number = get_entity_unit_number(fueler)
+                if unit_number then
+                    seen_fuelers[unit_number] = true
+                end
             end
         end
     end
@@ -1627,6 +1641,15 @@ function model.open_gui(player)
     model.update_gui(player)
 end
 
+local function get_opened_fueler_unit(player)
+    local opened = player and player.opened or nil
+    if not model.entity_check(opened) or opened.name ~= "ei-fueler" then
+        return nil
+    end
+
+    return get_entity_unit_number(opened)
+end
+
 function model.update_gui(player)
     local root = player.gui.relative["ei-fueler-console"]
     if not root then
@@ -1636,7 +1659,12 @@ function model.update_gui(player)
     local control = root["main-container"]["control-flow"]
     local target_frame = control["target-frame"]
 
-    local fueler_unit = player.opened.unit_number
+    local fueler_unit = get_opened_fueler_unit(player)
+    if not fueler_unit then
+        model.close_gui(player)
+        return
+    end
+
     local target = model.get_target_type(fueler_unit)
     local equipment = model.get_equipment(fueler_unit)
 
@@ -1668,7 +1696,12 @@ function model.on_gui_click(event)
             return
         end
 
-        local fueler_unit = player.opened.unit_number
+        local fueler_unit = get_opened_fueler_unit(player)
+        if not fueler_unit then
+            model.close_gui(player)
+            return
+        end
+
         local target = event.element.tags.target_type
 
         model.set_target_type(fueler_unit, target)
@@ -1687,7 +1720,12 @@ function model.on_gui_click(event)
             return
         end
 
-        local fueler_unit = player.opened.unit_number
+        local fueler_unit = get_opened_fueler_unit(player)
+        if not fueler_unit then
+            model.close_gui(player)
+            return
+        end
+
         local equipment_type = event.element.tags.equipment_type
 
         if equipment_type == false and model.get_target_type(fueler_unit) == "character" then

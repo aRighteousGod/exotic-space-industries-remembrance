@@ -16,6 +16,15 @@ Use this when editing queued runtime modules under `exotic-space-industries-reme
 - Use `game.tick` only in contexts that do not have an event object, such as status helpers, load-time repair helpers, or utility functions called outside an event callback.
 - If you feel tempted to add `get_event_tick()` or another "current tick" helper in a feature module, stop and justify why `event.tick` or the shared scheduler state is not enough.
 
+## Runtime Entity Safety
+
+- `lib/runtime-scheduler.lua` is payload-agnostic. Queue helpers, delayed buckets, counters, and telemetry helpers do not validate `LuaEntity` values for you.
+- Use `ei_lib.entity_check(entity)` before reading entity fields or calling methods on a runtime handle.
+- Use `ei_lib.get_valid_entity(entity)` when normalizing an uncertain runtime entity input into `entity-or-nil`.
+- Use `ei_lib.get_entity_unit_number(entity)` only for a safe `.unit_number` read. Treat it as key extraction, not as proof of validity.
+- For queued, delayed, stored, or cross-event entity references, validate at enqueue time if that helps local semantics, and validate again at dequeue time before dereferencing because the entity may have died while waiting.
+- Raw `entity.unit_number` is still fine when validity and unit expectations are established immediately in the same scope, especially in tight event-local paths. Avoid it in generic helpers and long-lived runtime state bridges.
+
 ## Queue Primitives
 
 Prefer these shared helpers before inventing local queue code:

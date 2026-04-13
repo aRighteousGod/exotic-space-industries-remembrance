@@ -243,16 +243,7 @@ end
 ------------------------------------------------------------------------------------------------------
 
 function model.entity_check(entity)
-
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return ei_lib.entity_check(entity)
 
 end
 

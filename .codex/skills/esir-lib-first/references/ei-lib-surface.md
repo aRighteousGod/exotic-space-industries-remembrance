@@ -14,6 +14,8 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 
 - General utility:
   `endswith`, `startswith`, `contains`, `is_valid_number`, `clean_nils`, `clamp`, `unique_values_only`, `table_contains_value`, `patch_nested_value`, `get_random_different_value`, `table_to_string`, `switch_string`, `get_event_tick`, `config`, `getn`
+- Runtime entity safety:
+  `entity_check`, `get_valid_entity`, `get_entity_unit_number`
 - Prototype and raw access:
   `modify_data_raw`, `raw`, `recursive_copy`, `recursive_insert`, `set_properties`
 - Localization and prototype text:
@@ -32,3 +34,4 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - Prefer `ei_lib.raw` or `ei_lib.modify_data_raw` before open-coded `data.raw` mutation when the operation is a shared mutation pattern rather than a one-off prototype tweak.
 - If a helper is almost right, favor a backward-compatible improvement over a sibling helper with a near-identical name.
 - `ei_lib.get_event_tick` and `ei_lib.config` are general runtime utilities, not the runtime scheduling abstraction. For queues, delayed buckets, telemetry gates, counters, cadence, and status snapshots, check `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` first.
+- `ei_lib.get_entity_unit_number` is a safe `.unit_number` read, not a validity check. When later code needs the entity itself, pair it with `entity_check` or `get_valid_entity`.

@@ -272,11 +272,11 @@ local function get_surface_from_index(surface_index)
 end
 
 local function get_valid_entity(entity)
-    if entity and entity.valid then
-        return entity
-    end
+    return ei_lib.get_valid_entity(entity)
+end
 
-    return nil
+local function get_entity_unit_number(entity)
+    return ei_lib.get_entity_unit_number(entity)
 end
 
 local function get_origin_cause(subject)
@@ -454,7 +454,7 @@ local function bridge_has_other_enemy_in_range(surface, position, distance, forc
         return false
     end
 
-    local excluded_unit_number = excluded_entity and excluded_entity.unit_number or nil
+    local excluded_unit_number = get_entity_unit_number(excluded_entity)
     local entities = surface.find_entities_filtered({
         area = {
             left_top = {
@@ -976,9 +976,10 @@ local function remember_recent_hit(state, event, hit_kind, force, ttl)
         ttl = ttl or RECENT_HIT_TTL,
     }
 
-    if target and target.unit_number then
-        record.unit_number = target.unit_number
-        state.recent_hits_by_unit[target.unit_number] = record
+    local target_unit_number = get_entity_unit_number(target)
+    if target_unit_number then
+        record.unit_number = target_unit_number
+        state.recent_hits_by_unit[target_unit_number] = record
     end
 
     local position_key = make_position_key(surface.index, position)
@@ -1010,7 +1011,7 @@ local function take_recent_hit(state, entity, expected_hit_kind, allow_position_
     end
 
     local tick = game.tick
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     local position_key = make_position_key(entity.surface.index, entity.position)
     local record = unit_number and state.recent_hits_by_unit[unit_number] or nil
 
@@ -1078,7 +1079,7 @@ local function maybe_spawn_fire_and_explosion(event, force, cache, salt)
     end
 
     local target = get_effect_target(event)
-    local target_unit = target and target.unit_number or 0
+    local target_unit = get_entity_unit_number(target) or 0
     local roll = random_unit(game.tick, surface.index, target_unit, salt)
 
     if roll < cache.research.flames.probability then
@@ -1110,7 +1111,7 @@ local function maybe_spawn_multi_zap(state, event, force, cache, gate_kind)
     end
 
     local target = get_effect_target(event)
-    local target_unit = target and target.unit_number or 0
+    local target_unit = get_entity_unit_number(target) or 0
     if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, gate_kind) then
         return
     end
@@ -1145,7 +1146,7 @@ local function maybe_spawn_bridge_burst(state, event, force, cache, bridge_kind)
         return
     end
 
-    local target_unit = target.unit_number or 0
+    local target_unit = get_entity_unit_number(target) or 0
     if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, gate_kind) then
         return
     end
@@ -1170,7 +1171,7 @@ local function maybe_spawn_single_zap_fire(event, force, cache, salt)
     end
 
     local target = get_effect_target(event)
-    local target_unit = target and target.unit_number or 0
+    local target_unit = get_entity_unit_number(target) or 0
     if not passes_roll(cache.research.flames.probability / 2, game.tick, surface.index, target_unit, salt) then
         return
     end
@@ -1203,7 +1204,7 @@ local function maybe_spawn_basic_chain_burst(state, event, force, cache)
     end
 
     local target = get_effect_target(event)
-    local target_unit = target and target.unit_number or 0
+    local target_unit = get_entity_unit_number(target) or 0
     if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, salt) then
         return
     end
@@ -1261,7 +1262,7 @@ local function maybe_spawn_tank_chain_burst(state, event, force, cache)
     end
 
     local target = get_effect_target(event)
-    local target_unit = target and target.unit_number or 0
+    local target_unit = get_entity_unit_number(target) or 0
     if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, salt) then
         return
     end
@@ -1332,7 +1333,7 @@ local function apply_damage_modulation(event, target, force, cache, salt)
         return 0
     end
 
-    local roll = random_unit(game.tick, target.unit_number or 0, target.health, salt)
+    local roll = random_unit(game.tick, get_entity_unit_number(target) or 0, target.health, salt)
     local overdrive_scale = 1 + (0.15 * cache.levels.reactance_overdrive)
     local min_multiplier = math.max(0.1, 1 - ((1 - modulation.minimal) * overdrive_scale))
     local max_multiplier = 1 + ((modulation.maximal - 1) * overdrive_scale)
@@ -1365,7 +1366,7 @@ local function apply_vaporization(event, target, force, cache, salt)
         return false
     end
 
-    if not passes_roll(cache.research.volatility.probability, game.tick, target.unit_number or 0, salt) then
+    if not passes_roll(cache.research.volatility.probability, game.tick, get_entity_unit_number(target) or 0, salt) then
         return false
     end
 
@@ -1510,7 +1511,7 @@ local function handle_legacy_aftershock(state, dead_entity, record)
         return
     end
 
-    if not passes_roll(cache.research.single_zap.probability, game.tick, dead_entity.unit_number or 0, "legacy-aftershock") then
+    if not passes_roll(cache.research.single_zap.probability, game.tick, get_entity_unit_number(dead_entity) or 0, "legacy-aftershock") then
         return
     end
 
@@ -1566,7 +1567,7 @@ local function handle_bridge_turret_aftershock(state, dead_entity, record)
         return
     end
 
-    if not passes_roll(cache.research.single_zap.probability, game.tick, dead_entity.unit_number or 0, "bridge-aftershock") then
+    if not passes_roll(cache.research.single_zap.probability, game.tick, get_entity_unit_number(dead_entity) or 0, "bridge-aftershock") then
         return
     end
 

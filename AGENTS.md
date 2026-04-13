@@ -40,5 +40,6 @@
 ## Lua Helper Guidance
 - Before adding a new local helper in ESIR Lua, inspect `exotic-space-industries-remembrance/lib/lib.lua`.
 - Prefer `ei_lib` for shared string or table helpers, prototype mutation, recipe or technology mutation, graphics helpers, notifications, and formatting.
+- For runtime entity safety, use `ei_lib.entity_check` as the dereference guard, `ei_lib.get_valid_entity` to normalize uncertain entity inputs into `entity-or-nil`, and `ei_lib.get_entity_unit_number` only for safe key extraction. A unit number is not proof that the entity is still valid.
 - If `ei_lib` is close but lacking a guard, default, or small behavior extension, update it compatibly before creating another helper with overlapping purpose.
 - Keep file-local helpers only when the behavior is truly module-specific or depends on local closures, event wiring, or state that would make a shared helper misleading.

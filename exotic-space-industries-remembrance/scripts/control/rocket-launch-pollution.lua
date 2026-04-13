@@ -31,6 +31,7 @@ local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local model = {}
 local ROCKET_LAUNCH_CONFIRM_GRACE_TICKS = 120
+local try_form_retaliation
 
 --====================================================================================================
 --GAIA
@@ -445,7 +446,7 @@ local function has_apex_launch_pressure(evo, pollution)
   return evo >= 0.9 and pollution >= cap * 0.9
 end
 
-local function try_form_retaliation(surface, position, pollution)
+try_form_retaliation = function(surface, position, pollution)
   if not is_impossible_difficulty() then
     return false
   end

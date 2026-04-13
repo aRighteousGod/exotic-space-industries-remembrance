@@ -46,6 +46,15 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 - Prefer `ei_lib` reuse for general string or table helpers, `data.raw` mutation, recipe or technology mutation, echo or notification formatting, tint helpers, and other cross-module utility behavior.
 - If an existing `ei_lib` function is close but missing a guard, default, or narrow capability, extend it compatibly before adding a parallel local helper with overlapping behavior. For runtime queue, delayed-bucket, telemetry-gate, counter, cadence, or status-snapshot plumbing, the `Runtime Scheduler Rules` section below wins.
 
+## Runtime Entity Safety
+
+- Keep generic entity safety in `ei_lib`, not in `runtime-scheduler.lua`.
+- Use `ei_lib.entity_check(entity)` when code is about to read LuaEntity fields or call LuaEntity methods.
+- Use `ei_lib.get_valid_entity(entity)` when normalizing an uncertain optional or stale entity input into `entity-or-nil`.
+- Use `ei_lib.get_entity_unit_number(entity)` only for a safe `.unit_number` read. It does not prove the entity is valid.
+- Raw `entity.unit_number` is acceptable only when validity and unit-number expectations are established immediately in the same scope, especially in tight event-local code.
+- For stored, queued, delayed, generic, or cross-event entity references, separate identity from validity: extract the unit number safely, and validate the entity again before dereferencing it later.
+
 ## Runtime Scheduler Rules
 
 When touching queued runtime/control code, treat [`exotic-space-industries-remembrance/lib/runtime-scheduler.lua`](../../../exotic-space-industries-remembrance/lib/runtime-scheduler.lua) as the default shared helper layer instead of building one-off queue math in a feature module.
@@ -63,6 +72,7 @@ See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-
 - Heartbeat telemetry is default-off for release. Any periodic status polling must be gated so disabled telemetry is truly cheap.
 - Use `write_telemetry` only behind a cheap gate, and keep `log_snapshot` for deliberate debug/QC paths rather than routine tick work.
 - A new helper should only be added when `runtime-scheduler.lua` cannot express the behavior cleanly. Duplicating tick code or queue code is a design smell in this repo now.
+- `runtime-scheduler.lua` stays entity-agnostic. If queued or delayed work carries `LuaEntity` payloads, modules must validate those payloads on dequeue, not just when they are enqueued.
 - When adding or changing a shared scheduler helper, update this section and `references/runtime-scheduler-guidelines.md` in the same patch so future Codex runs inherit the new helper list and semantic caveats.
 
 ## Save Resolution

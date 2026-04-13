@@ -1,6 +1,6 @@
 local tech_weighting = require("lib/tech-weighting")
 
-local MARKER_ICON_ROOT = "__exotic-space-industries-remembrance-graphics-3__/graphics/icons/"
+local MARKER_ICON_ROOT = ei_graphics_3_path.."graphics/icons/"
 local MARKER_ICON_BY_LEVEL = {
   [1] = MARKER_ICON_ROOT .. "weight-marker-1.png",
   [2] = MARKER_ICON_ROOT .. "weight-marker-2.png",

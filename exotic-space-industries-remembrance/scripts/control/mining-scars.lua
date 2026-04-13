@@ -266,20 +266,20 @@ local DECORATIVE_EXCEPTION = "desert"
 -- Create scars at the depleted resource location
 --====================================================================================================
 function mining_scars.on_resource_depleted(event)
-	-- Validate that we have an entity
-	if not (event.entity and not event.entity.prototype.infinite_resource) then return end
+	local entity = ei_lib.get_valid_entity(event and event.entity)
+	if not entity or entity.prototype.infinite_resource then return end
 
 	-- Filter to enabled drill types only
-	if not ENABLED_DRILL_TYPES[event.entity.name] then return end
+	if not ENABLED_DRILL_TYPES[entity.name] then return end
 
-	local surface = event.entity.surface
+	local surface = entity.surface
 	
 	-- Pick an epicenter of the effect using double-dice roll for weighted distribution
 	local radius = SCAR_RADIUS * (math.random() + math.random() - 1)
 	local angle = math.random() * math.pi
 	local position = {
-		x = event.entity.position.x + math.sin(angle) * radius,
-		y = event.entity.position.y + math.cos(angle) * radius
+		x = entity.position.x + math.sin(angle) * radius,
+		y = entity.position.y + math.cos(angle) * radius
 	}
 	
 	-- Identify candidate scar positions

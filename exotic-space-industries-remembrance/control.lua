@@ -305,8 +305,8 @@ script.on_event(defines.events.on_chunk_generated, function(e)
 end)
 
 script.on_event(defines.events.on_resource_depleted, function(e)
-    ei_vulcanus_fumaroles.on_resource_depleted(e)
     ei_mining_scars.on_resource_depleted(e)
+    ei_vulcanus_fumaroles.on_resource_depleted(e)
 end)
 --[[
 script.on_event(defines.events.on_player_respawned, function(event)
@@ -320,10 +320,24 @@ end)
 --GUI RELATED
 -----------------------------------------------------------------------------------------------------
 
+local function get_valid_gui_entity(event)
+    return ei_lib.get_valid_entity(event and event.entity)
+end
+
+local function get_valid_gui_element(event)
+    local element = event and event.element or nil
+    if element and element.valid then
+        return element
+    end
+
+    return nil
+end
+
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
-    local name = event.entity and event.entity.name
+    local entity = get_valid_gui_entity(event)
+    local name = entity and entity.name or nil
 
     if not name then
       return
@@ -343,8 +357,10 @@ end)
 script.on_event(defines.events.on_gui_closed, function(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
     -- entity because the custom screen may have replaced the player's opened target.
-    local name = event.entity and event.entity.name
-    local element_name = event.element and event.element.name
+    local entity = get_valid_gui_entity(event)
+    local element = get_valid_gui_element(event)
+    local name = entity and entity.name or nil
+    local element_name = element and element.name or nil
 
     if name == "ei-fusion-reactor" then
        ei_fusion_reactor.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
@@ -362,7 +378,10 @@ end)
 script.on_event(defines.events.on_gui_click, function(event)
     -- Button clicks are dispatched by the parent GUI tag, which keeps the actual button
     -- names free to stay local to each feature's UI code.
-    local parent_gui = event.element.tags.parent_gui
+    local element = get_valid_gui_element(event)
+    if not element then return end
+
+    local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
     if parent_gui == "ei-fusion-reactor-console" then
@@ -389,7 +408,10 @@ end)
 
 script.on_event(defines.events.on_gui_value_changed, function(event)
     -- Only a subset of custom UIs use sliders/value widgets, so this stays narrow.
-    local parent_gui = event.element.tags.parent_gui
+    local element = get_valid_gui_element(event)
+    if not element then return end
+
+    local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
     if parent_gui == "ei-fusion-reactor-console" then
@@ -399,7 +421,10 @@ end)
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
     -- Selection-state changes are currently only meaningful for the gate console dropdowns.
-    local parent_gui = event.element.tags.parent_gui
+    local element = get_valid_gui_element(event)
+    if not element then return end
+
+    local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
     if parent_gui == "ei-gate-console" then

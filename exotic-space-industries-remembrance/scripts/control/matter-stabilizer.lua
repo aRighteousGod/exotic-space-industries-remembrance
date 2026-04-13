@@ -127,17 +127,7 @@ end
 
 
 function model.check_entity(entity)
-
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
-
+    return ei_lib.entity_check(entity)
 end
 
 
@@ -630,17 +620,18 @@ end
 
 function model.register_stabilizer(entity)
     local runtime = model.check_global()
-    if not model.check_entity(entity) or not entity.unit_number then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not model.check_entity(entity) or not unit_number then
         return
     end
 
-    if runtime.stabilizers[entity.unit_number] then
-        model.remove_stabilizer_by_unit(runtime, entity.unit_number)
+    if runtime.stabilizers[unit_number] then
+        model.remove_stabilizer_by_unit(runtime, unit_number)
     end
 
     local chunk_x, chunk_y = ei_lib.get_chunk_coordinates(entity.position, MATTER_CHUNK_SIZE)
     local stabilizer_data = {
-        unit_number = entity.unit_number,
+        unit_number = unit_number,
         entity = entity,
         surface_index = entity.surface.index,
         chunk_x = chunk_x,
@@ -649,9 +640,9 @@ function model.register_stabilizer(entity)
         linked_machines = {}
     }
 
-    runtime.stabilizers[entity.unit_number] = stabilizer_data
+    runtime.stabilizers[unit_number] = stabilizer_data
     runtime.stabilizer_count = runtime.stabilizer_count + 1
-    storage.ei.matter_stabilizers[entity.unit_number] = entity
+    storage.ei.matter_stabilizers[unit_number] = entity
     storage.ei.matter_stabilizers_count = runtime.stabilizer_count
 
     model.add_to_chunk_store(
@@ -659,7 +650,7 @@ function model.register_stabilizer(entity)
         stabilizer_data.surface_index,
         chunk_x,
         chunk_y,
-        entity.unit_number
+        unit_number
     )
 
     local nearby_machines = model.query_nearby_machines(runtime, entity.surface, entity.position, MATTER_RANGE)
@@ -671,17 +662,18 @@ end
 
 function model.register_matter_machine(entity)
     local runtime = model.check_global()
-    if not model.check_entity(entity) or not entity.unit_number then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not model.check_entity(entity) or not unit_number then
         return
     end
 
-    if runtime.machines[entity.unit_number] then
-        model.remove_matter_machine_by_unit(runtime, entity.unit_number)
+    if runtime.machines[unit_number] then
+        model.remove_matter_machine_by_unit(runtime, unit_number)
     end
 
     local chunk_x, chunk_y = ei_lib.get_chunk_coordinates(entity.position, MATTER_CHUNK_SIZE)
     local machine_data = {
-        unit_number = entity.unit_number,
+        unit_number = unit_number,
         entity = entity,
         surface_index = entity.surface.index,
         chunk_x = chunk_x,
@@ -693,12 +685,12 @@ function model.register_matter_machine(entity)
         last_imminent_warning_tick = 0,
         last_crackle_tick = 0,
         last_arc_tick = 0,
-        pulse_seed = entity.unit_number % 360
+        pulse_seed = unit_number % 360
     }
 
-    runtime.machines[entity.unit_number] = machine_data
+    runtime.machines[unit_number] = machine_data
     runtime.machine_count = runtime.machine_count + 1
-    storage.ei.matter_machines[entity.unit_number] = entity
+    storage.ei.matter_machines[unit_number] = entity
     storage.ei.matter_machines_count = runtime.machine_count
 
     model.add_to_chunk_store(
@@ -706,7 +698,7 @@ function model.register_matter_machine(entity)
         machine_data.surface_index,
         chunk_x,
         chunk_y,
-        entity.unit_number
+        unit_number
     )
     model.add_machine_to_surface_queue(runtime, machine_data)
 
@@ -719,21 +711,23 @@ end
 
 function model.unregister_stabilizer(entity)
     local runtime = model.check_global()
-    if not entity or not entity.unit_number then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not unit_number then
         return
     end
 
-    model.remove_stabilizer_by_unit(runtime, entity.unit_number)
+    model.remove_stabilizer_by_unit(runtime, unit_number)
 end
 
 
 function model.unregister_matter_machine(entity)
     local runtime = model.check_global()
-    if not entity or not entity.unit_number then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not unit_number then
         return
     end
 
-    model.remove_matter_machine_by_unit(runtime, entity.unit_number)
+    model.remove_matter_machine_by_unit(runtime, unit_number)
 end
 
 
@@ -1189,11 +1183,17 @@ function model.draw_connection(source, target, player)
         return
     end
 
+    local source_unit = ei_lib.get_entity_unit_number(source)
+    local target_unit = ei_lib.get_entity_unit_number(target)
+    if not source_unit or not target_unit then
+        return
+    end
+
     local render_list = model.get_player_render_list(player.index, true)
     for _, render_entry in pairs(render_list) do
         if render_entry.type == "connection"
-            and render_entry.source_unit == source.unit_number
-            and render_entry.target_unit == target.unit_number then
+            and render_entry.source_unit == source_unit
+            and render_entry.target_unit == target_unit then
             return
         end
     end
@@ -1211,8 +1211,8 @@ function model.draw_connection(source, target, player)
 
     table.insert(render_list, {
         render = render_object,
-        source_unit = source.unit_number,
-        target_unit = target.unit_number,
+        source_unit = source_unit,
+        target_unit = target_unit,
         type = "connection"
     })
 end
@@ -1224,9 +1224,14 @@ function model.draw_stabilizer_range(entity, player)
         return
     end
 
+    local entity_unit = ei_lib.get_entity_unit_number(entity)
+    if not entity_unit then
+        return
+    end
+
     local render_list = model.get_player_render_list(player.index, true)
     for _, render_entry in pairs(render_list) do
-        if render_entry.type == "range" and render_entry.source_unit == entity.unit_number then
+        if render_entry.type == "range" and render_entry.source_unit == entity_unit then
             return
         end
     end
@@ -1247,18 +1252,19 @@ function model.draw_stabilizer_range(entity, player)
 
     table.insert(render_list, {
         render = render_object,
-        source_unit = entity.unit_number,
+        source_unit = entity_unit,
         type = "range"
     })
 end
 
 
 function model.remove_rendering(entity)
-    if not entity or not entity.unit_number then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not unit_number then
         return
     end
 
-    model.remove_rendering_by_unit(entity.unit_number)
+    model.remove_rendering_by_unit(unit_number)
 end
 
 

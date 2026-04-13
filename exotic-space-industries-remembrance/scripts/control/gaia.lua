@@ -119,15 +119,7 @@ function model.entity_check(entity)
       storage.gaia_surfaces["Gaia"] = true
     end
 
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return ei_lib.entity_check(entity)
 end
 
 --====================================================================================================

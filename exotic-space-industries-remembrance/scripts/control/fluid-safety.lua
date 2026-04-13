@@ -14,6 +14,7 @@ local model = {}
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 
 local FLUID_CLASS_NORMAL = "normal"
 local FLUID_CLASS_DATA = "data"
@@ -292,8 +293,9 @@ local function get_runtime_entry(runtime, unit_or_entity)
         return runtime.entries_by_unit[unit_or_entity]
     end
 
-    if unit_or_entity.unit_number then
-        return runtime.entries_by_unit[unit_or_entity.unit_number]
+    local unit_number = get_entity_unit_number(unit_or_entity)
+    if unit_number then
+        return runtime.entries_by_unit[unit_number]
     end
 
     return nil
@@ -988,11 +990,12 @@ end
 
 function model.on_fluid_entity_deregistered(entity)
     local runtime = model.ensure_fluid_runtime()
-    if not (entity and entity.unit_number) then
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
         return false
     end
 
-    local entry = runtime.entries_by_unit[entity.unit_number]
+    local entry = runtime.entries_by_unit[unit_number]
     if not entry then
         return false
     end
@@ -1002,7 +1005,7 @@ function model.on_fluid_entity_deregistered(entity)
         model.enqueue_dirty_segment(entry.last_segment_id)
     end
 
-    return prune_runtime_entry(runtime, entity.unit_number)
+    return prune_runtime_entry(runtime, unit_number)
 end
 
 function model.rebuild_fluid_runtime(reason)

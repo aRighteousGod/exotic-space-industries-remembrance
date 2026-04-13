@@ -31,8 +31,8 @@ storage.ei.portal.slave[3].entity = slave_entity
 
 --]]
 
---adds storage table entry for given table with keys 
 local model = {}
+local ei_lib = require("lib/lib")
 
 ---------------------------------------------------------------------
 -- Initialization Utilities
@@ -53,7 +53,11 @@ local function ensure_subtables(key, ...)
 end
 
 local function get_unit_number(input)
-    return type(input) == "number" and input or input.unit_number
+    if type(input) == "number" then
+        return input
+    end
+
+    return ei_lib.get_entity_unit_number(input)
 end
 
 ---------------------------------------------------------------------
@@ -83,7 +87,8 @@ end
 
 function model.register_fluid_entity(entity)
     ensure_subtables("fluid_entity")
-    if not (entity and entity.valid and entity.unit_number) then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not ei_lib.entity_check(entity) or not unit_number then
         return false
     end
 
@@ -91,19 +96,20 @@ function model.register_fluid_entity(entity)
         return ei_fluid_safety.on_fluid_entity_registered(entity)
     end
 
-    if storage.ei.fluid_entity[entity.unit_number] then
-        storage.ei.fluid_entity[entity.unit_number] = entity
+    if storage.ei.fluid_entity[unit_number] then
+        storage.ei.fluid_entity[unit_number] = entity
         return false
     end
 
     storage.ei.fluid_entity_count = (storage.ei.fluid_entity_count or 0) + 1
-    storage.ei.fluid_entity[entity.unit_number] = entity
+    storage.ei.fluid_entity[unit_number] = entity
     return true
 end
 
 function model.deregister_fluid_entity(entity)
     ensure_subtables("fluid_entity")
-    if not entity then
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not unit_number then
         return false
     end
 
@@ -111,12 +117,12 @@ function model.deregister_fluid_entity(entity)
         return ei_fluid_safety.on_fluid_entity_deregistered(entity)
     end
 
-    if not storage.ei.fluid_entity[entity.unit_number] then
+    if not storage.ei.fluid_entity[unit_number] then
         return false
     end
 
     storage.ei.fluid_entity_count = math.max(0, (storage.ei.fluid_entity_count or 0) - 1)
-    storage.ei.fluid_entity[entity.unit_number] = nil
+    storage.ei.fluid_entity[unit_number] = nil
     return true
 end
 
@@ -127,7 +133,11 @@ end
 function model.register_master_entity(key, entity, extra_data)
     ensure_subtables(key, "master")
 
-    local unit = entity.unit_number
+    local unit = get_unit_number(entity)
+    if not unit then
+        return nil
+    end
+
     local master_entry = {
         entity = entity,
         slaves = {}
@@ -146,6 +156,9 @@ end
 function model.unregister_master_entity(key, master)
     ensure_subtables(key, "master")
     local unit = get_unit_number(master)
+    if not unit then
+        return false
+    end
 
     if not storage.ei[key].master[unit] then return false end
     storage.ei[key].master[unit] = nil
@@ -160,22 +173,29 @@ function model.unregister_slave_entity(key, slave, master, should_destroy)
     ensure_subtables(key, "slave", "master")
 
     local unit = get_unit_number(slave)
+    if not unit then
+        return false
+    end
+
     local slave_entry = storage.ei[key].slave[unit]
     if not slave_entry then return false end
 
     local slave_entity = type(slave) == "number" and slave_entry.entity or slave
-    local master_unit = slave_entry.master
+    local master_unit = slave_entry.master or get_unit_number(master)
+    local master_entry = master_unit and storage.ei[key].master[master_unit] or nil
 
     -- Unlink from master
-    for k, v in pairs(storage.ei[key].master[master_unit].slaves) do
-        if v == unit then
-            storage.ei[key].master[master_unit].slaves[k] = nil
+    if master_entry and master_entry.slaves then
+        for k, v in pairs(master_entry.slaves) do
+            if v == unit then
+                master_entry.slaves[k] = nil
+            end
         end
     end
 
     storage.ei[key].slave[unit] = nil
 
-    if should_destroy and slave_entity and slave_entity.valid then
+    if should_destroy and ei_lib.entity_check(slave_entity) then
         slave_entity.destroy()
     end
 
@@ -186,7 +206,15 @@ function model.make_slave(key, master, name, offset)
     ensure_subtables(key, "master", "slave")
 
     local unit = get_unit_number(master)
-    local master_entity = storage.ei[key].master[unit].entity
+    if not unit then
+        return nil
+    end
+
+    local master_entry = storage.ei[key].master[unit]
+    local master_entity = master_entry and master_entry.entity or nil
+    if not ei_lib.entity_check(master_entity) then
+        return nil
+    end
 
     local slave = master_entity.surface.create_entity {
         name = name,
@@ -206,8 +234,12 @@ function model.link_slave(key, master, slave, name)
 
     local master_unit = get_unit_number(master)
     local slave_unit = get_unit_number(slave)
+    local master_entry = master_unit and storage.ei[key].master[master_unit] or nil
+    if not master_unit or not slave_unit or not master_entry then
+        return false
+    end
 
-    storage.ei[key].master[master_unit].slaves[name] = slave_unit
+    master_entry.slaves[name] = slave_unit
     storage.ei[key].slave[slave_unit] = {
         master = master_unit,
         entity = type(slave) ~= "number" and slave or nil
@@ -223,14 +255,21 @@ end
 function model.extend_beacon_table(key, master)
     ensure_subtables(key, "master")
     local unit = get_unit_number(master)
-    storage.ei[key].master[unit].status = false
+    local master_entry = unit and storage.ei[key].master[unit] or nil
+    if not master_entry then
+        return false
+    end
+
+    master_entry.status = false
+    return true
 end
 
 function model.init_beacon(key, master)
     ensure_subtables(key, "master")
     local unit = get_unit_number(master)
-    local entity = storage.ei[key].master[unit].entity
-    if entity then
+    local master_entry = unit and storage.ei[key].master[unit] or nil
+    local entity = master_entry and master_entry.entity or nil
+    if ei_lib.entity_check(entity) then
         entity.active = false
     end
 end
@@ -254,8 +293,23 @@ function model.setup_master_slave(key, entity, slave_entity_name, slave_name, of
     offset = offset or {x = 0, y = 0}
 
     local master_unit = model.register_master_entity(key, entity)
+    if not master_unit then
+        return
+    end
+
     local slave_entity = model.make_slave(key, master_unit, slave_entity_name, offset)
-    model.link_slave(key, master_unit, slave_entity, slave_name)
+    if not slave_entity then
+        model.unregister_master_entity(key, master_unit)
+        return
+    end
+
+    if not model.link_slave(key, master_unit, slave_entity, slave_name) then
+        if ei_lib.entity_check(slave_entity) then
+            slave_entity.destroy()
+        end
+        model.unregister_master_entity(key, master_unit)
+        return
+    end
 
     -- Safely try to initialize beacon state (if relevant)
     pcall(function()
@@ -274,7 +328,11 @@ end
 --   - Decrements spaced update counter
 ---------------------------------------------------------------------
 function model.teardown_master_slave(key, entity, slave_name)
-    local master_unit = entity.unit_number
+    local master_unit = get_unit_number(entity)
+    if not master_unit then
+        return false
+    end
+
     local master_data = storage.ei[key] and storage.ei[key].master and storage.ei[key].master[master_unit]
 
     if not master_data then return false end

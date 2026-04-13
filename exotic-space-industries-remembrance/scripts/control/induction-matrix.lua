@@ -11,6 +11,7 @@
 --==============================================================================
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 -- induction-matrix.lua owns the runtime behavior of the matrix multistructure.
 --
 -- The high-level model is:
@@ -243,16 +244,7 @@ end
 
 function model.entity_check(entity)
     -- This helper is intentionally tiny because it is called in many hot paths.
-
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return ei_lib.entity_check(entity)
 end
 
 
@@ -448,11 +440,15 @@ function model.lookup_tile_for_entity(pos, surface, matrix_id)
             goto contin
         end
 
-        if not entity.valid then
+        if model.entity_check(entity) == false then
             goto contin
         end
 
-        local unit = entity.unit_number
+        local unit = get_entity_unit_number(entity)
+        if not unit then
+            goto contin
+        end
+
         -- check for every entity if it is already known, if not add it
 
         if model.coils[entity.name] then
@@ -656,12 +652,13 @@ function model.get_matrix_id(entity)
     end
 
     if model.core[entity.name] then
-        return entity.unit_number
+        return get_entity_unit_number(entity)
     end
 
     if model.proxy[entity.name] then
         model.check_global_init()
-        return storage.ei.induction_matrix.proxy[entity.unit_number]
+        local unit_number = get_entity_unit_number(entity)
+        return unit_number and storage.ei.induction_matrix.proxy[unit_number] or nil
     end
 
     return nil
@@ -754,7 +751,12 @@ function model.retag_wire_proxy(proxy, matrix_id)
         return
     end
 
-    storage.ei.induction_matrix.proxy[proxy.unit_number] = matrix_id
+    local proxy_unit = get_entity_unit_number(proxy)
+    if not proxy_unit then
+        return
+    end
+
+    storage.ei.induction_matrix.proxy[proxy_unit] = matrix_id
 
 end
 
@@ -772,7 +774,10 @@ function model.destroy_wire_proxy(matrix_id)
 
     local proxy = matrix.wire_proxy
     if model.entity_check(proxy) then
-        storage.ei.induction_matrix.proxy[proxy.unit_number] = nil
+        local proxy_unit = get_entity_unit_number(proxy)
+        if proxy_unit then
+            storage.ei.induction_matrix.proxy[proxy_unit] = nil
+        end
         proxy.destroy({raise_destroy=false})
     end
 
@@ -991,6 +996,14 @@ function model.swap_core(old_id, core, max_IO)
         create_build_effect_smoke = false,
         raise_built = false,
     }
+    if model.entity_check(new_core) == false then
+        return old_id
+    end
+
+    local new_core_unit = get_entity_unit_number(new_core)
+    if not new_core_unit then
+        return old_id
+    end
 
     pcall(function()
         new_core.copy_settings(core)
@@ -999,11 +1012,11 @@ function model.swap_core(old_id, core, max_IO)
     model.restore_circuit_connections(new_core, saved_connections)
 
     storage.ei.induction_matrix.core[old_id].core = {}
-    storage.ei.induction_matrix.core[old_id].core[new_core.unit_number] = new_core
+    storage.ei.induction_matrix.core[old_id].core[new_core_unit] = new_core
 
-    model.retag_matrix_guis(old_id, new_core.unit_number)
+    model.retag_matrix_guis(old_id, new_core_unit)
 
-    return new_core.unit_number
+    return new_core_unit
 
 end
 
@@ -1126,8 +1139,8 @@ function model.is_core(pos, surface)
     })
 
     for _, entity in ipairs(entities) do
-        if model.core[entity.name] then
-            return entity.unit_number
+        if model.entity_check(entity) and model.core[entity.name] then
+            return get_entity_unit_number(entity)
         end
     end
 
@@ -1880,7 +1893,12 @@ function model.rebuild_runtime_state(reason)
                 goto continue
             end
 
-            local dict = model.check_connected_tiles(core.position, core.surface, false, core.unit_number, core.force)
+            local core_unit = get_entity_unit_number(core)
+            if not core_unit then
+                goto continue
+            end
+
+            local dict = model.check_connected_tiles(core.position, core.surface, false, core_unit, core.force)
             if dict == false then
                 goto continue
             end
@@ -1929,8 +1947,9 @@ function model.rebuild_runtime_state(reason)
         }
 
         for _, proxy in ipairs(proxies) do
+            local proxy_unit = get_entity_unit_number(proxy)
             if model.entity_check(proxy)
-            and not storage.ei.induction_matrix.proxy[proxy.unit_number] then
+            and (not proxy_unit or not storage.ei.induction_matrix.proxy[proxy_unit]) then
                 proxy.destroy({raise_destroy=false})
                 removed_orphan_proxies = removed_orphan_proxies + 1
             end
@@ -1970,15 +1989,19 @@ function model.on_built_entity(event)
     end
 
     if model.core[entity.name] then
+        local entity_unit = get_entity_unit_number(entity)
+        if not entity_unit then
+            return
+        end
 
-        local dict = model.check_connected_tiles(entity.position, entity.surface, true, entity.unit_number, entity.force,event)
+        local dict = model.check_connected_tiles(entity.position, entity.surface, true, entity_unit, entity.force,event)
 
         model.set_core_state(dict.matrix_id, dict.state)
 
         model.mark_dirty(dict.matrix_id)
 
         if model.entity_check(entity) then
-            model.ensure_wire_proxy(entity.unit_number)
+            model.ensure_wire_proxy(entity_unit)
         end
 
     end
@@ -2012,8 +2035,13 @@ function model.on_destroyed_entity(event)
     end
 
     if model.proxy[entity.name] then
-        local matrix_id = storage.ei.induction_matrix.proxy[entity.unit_number]
-        storage.ei.induction_matrix.proxy[entity.unit_number] = nil
+        local proxy_unit = get_entity_unit_number(entity)
+        if not proxy_unit then
+            return
+        end
+
+        local matrix_id = storage.ei.induction_matrix.proxy[proxy_unit]
+        storage.ei.induction_matrix.proxy[proxy_unit] = nil
 
         if not matrix_id or not storage.ei.induction_matrix.core[matrix_id] then
             return
@@ -2036,11 +2064,16 @@ function model.on_destroyed_entity(event)
     end
 
     if model.core[entity.name] then
-        model.destroy_wire_proxy(entity.unit_number)
+        local entity_unit = get_entity_unit_number(entity)
+        if not entity_unit then
+            return
+        end
+
+        model.destroy_wire_proxy(entity_unit)
 
         -- remove core from storage
-        if storage.ei.induction_matrix.core[entity.unit_number] then
-            storage.ei.induction_matrix.core[entity.unit_number] = nil
+        if storage.ei.induction_matrix.core[entity_unit] then
+            storage.ei.induction_matrix.core[entity_unit] = nil
         end
 
     end
@@ -2142,14 +2175,18 @@ function model.on_destroyed_tile(event)
 
         for _, entity in ipairs(core) do
 
-            if model.core[entity.name] then
-
-                -- remove core from storage
-                if storage.ei.induction_matrix.core[entity.unit_number] then
-                    table.insert(storage.ei.induction_matrix.to_remove, entity.unit_number)
+            if model.entity_check(entity) and model.core[entity.name] then
+                local entity_unit = get_entity_unit_number(entity)
+                if not entity_unit then
+                    goto continue
                 end
 
-                model.destroy_wire_proxy(entity.unit_number)
+                -- remove core from storage
+                if storage.ei.induction_matrix.core[entity_unit] then
+                    table.insert(storage.ei.induction_matrix.to_remove, entity_unit)
+                end
+
+                model.destroy_wire_proxy(entity_unit)
 
                 -- spill core
                 entity.surface.spill_item_stack{position=entity.position, stack={name = "ei-induction-matrix-core", count = 1}, enable_looted=true}
@@ -2158,6 +2195,8 @@ function model.on_destroyed_tile(event)
                 entity.destroy()
 
             end
+
+            ::continue::
 
         end
 
@@ -2170,7 +2209,7 @@ function model.on_destroyed_tile(event)
 
         for _, entity in ipairs(core) do
 
-            if model.core[entity.name] then
+            if model.entity_check(entity) and model.core[entity.name] then
 
                 -- get the 4 positions of tiles under the core
                 -- if one of them matches the destroyed tile then
@@ -2187,21 +2226,27 @@ function model.on_destroyed_tile(event)
                 local core_tile_pos = {x = core_pos.x, y = core_pos.y}
 
                 if (north_pos.x == pos.x and north_pos.y == pos.y) or (north_west_pos.x == pos.x and north_west_pos.y == pos.y) or (west_pos.x == pos.x and west_pos.y == pos.y) or (core_tile_pos.x == pos.x and core_tile_pos.y == pos.y) then
+                    local entity_unit = get_entity_unit_number(entity)
+                    if not entity_unit then
+                        goto continue_second
+                    end
                 
                     -- remove core from storage
-                    if storage.ei.induction_matrix.core[entity.unit_number] then
-                        table.insert(storage.ei.induction_matrix.to_remove, entity.unit_number)
+                    if storage.ei.induction_matrix.core[entity_unit] then
+                        table.insert(storage.ei.induction_matrix.to_remove, entity_unit)
                     end
 
-                    model.destroy_wire_proxy(entity.unit_number)
+                    model.destroy_wire_proxy(entity_unit)
 
                     -- spill core
                     entity.surface.spill_item_stack{position=entity.position, stack={name = "ei-induction-matrix-core", count = 1}, enable_looted=true}
 
                     -- destroy core
                     entity.destroy()
-                    
+
                 end
+
+                ::continue_second::
 
             end
 

@@ -3,7 +3,7 @@
 -- owns: runtime module: lib
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: on-demand helper calls
--- forwarded_events: add_item_level, add_prerequisite, add_unlock_recipe, clamp, clean_nils, config, contains, convert_short_ingredients_to_full, copy_science_packs, crystal_echo, crystal_echo_floating, debug_crafting_categories, disable, do_fluid_merge, do_item_merge, empty_sprite, enable, enable_from_start, endswith, entity_icon_scaler, fix_recipe, format_echo, generate_crystal_gradient_stops, get_adjective_and_tint, get_box_area, get_entity_area, get_entity_area_change, get_event_tick, get_player_setting_value, get_random_different_value, getn, hex_to_rgb_normalized, hex_to_rgb_raw, is_valid_number, lerp_color, make_4way_animation_from_spritesheet, make_circuit_connector, merge_fluid, merge_item, modify_data_raw, notify_connected_players, overwrite_description, overwrite_entity_and_description, overwrite_entity_name, patch_nested_value, pick_gradient_stops, pick_tint_from_intent, player_allows_notification, recipe_add, recipe_hard_overwrite, recipe_new, recipe_output_add, recipe_remove, recipe_swap, recursive_copy, recursive_insert, remove_prerequisite, remove_tech, remove_tech_ingredient, remove_unlock_recipe, rgb_to_hex, sb, set_age_packs, set_prerequisites, set_properties, set_science_packs, starts_with, startswith, strike_lightning, switch_string, table_contains_value, table_to_string, unique_values_only
+-- forwarded_events: add_item_level, add_prerequisite, add_unlock_recipe, clamp, clean_nils, config, contains, convert_short_ingredients_to_full, copy_science_packs, crystal_echo, crystal_echo_floating, debug_crafting_categories, disable, do_fluid_merge, do_item_merge, empty_sprite, enable, enable_from_start, endswith, entity_check, entity_icon_scaler, fix_recipe, format_echo, generate_crystal_gradient_stops, get_adjective_and_tint, get_box_area, get_entity_area, get_entity_area_change, get_entity_unit_number, get_event_tick, get_player_setting_value, get_random_different_value, get_valid_entity, getn, hex_to_rgb_normalized, hex_to_rgb_raw, is_valid_number, lerp_color, make_4way_animation_from_spritesheet, make_circuit_connector, merge_fluid, merge_item, modify_data_raw, notify_connected_players, overwrite_description, overwrite_entity_and_description, overwrite_entity_name, patch_nested_value, pick_gradient_stops, pick_tint_from_intent, player_allows_notification, recipe_add, recipe_hard_overwrite, recipe_new, recipe_output_add, recipe_remove, recipe_swap, recursive_copy, recursive_insert, remove_prerequisite, remove_tech, remove_tech_ingredient, remove_unlock_recipe, rgb_to_hex, sb, set_age_packs, set_prerequisites, set_properties, set_science_packs, starts_with, startswith, strike_lightning, switch_string, table_contains_value, table_to_string, unique_values_only
 -- storage_roots: none
 -- gui_ids: none
 -- remote_interfaces: none
@@ -47,6 +47,33 @@ function ei_lib.clamp(x, lo, hi)
   if x < lo then return lo end
   if x > hi then return hi end
   return x
+end
+
+function ei_lib.entity_check(entity)
+    return entity ~= nil and entity.valid == true
+end
+
+function ei_lib.get_valid_entity(entity)
+    if ei_lib.entity_check(entity) then
+        return entity
+    end
+
+    return nil
+end
+
+function ei_lib.get_entity_unit_number(entity)
+    if entity == nil then
+        return nil
+    end
+
+    local ok, unit_number = pcall(function()
+        return entity.unit_number
+    end)
+    if not ok then
+        return nil
+    end
+
+    return unit_number
 end
 
 --returns input tbl minus duplicates

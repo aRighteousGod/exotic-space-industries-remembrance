@@ -11,6 +11,7 @@
 --==============================================================================
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 
 local NEUTRON_RUNTIME_VERSION = 1
 local NEUTRON_COLLECTOR_NAME = "ei-neutron-collector"
@@ -82,7 +83,7 @@ end
 
 
 function model.entity_check(entity)
-    return entity ~= nil and entity.valid == true
+    return ei_lib.entity_check(entity)
 end
 
 
@@ -246,7 +247,7 @@ end
 
 
 function model.get_source_entry(runtime, source)
-    local unit_number = source and source.unit_number or nil
+    local unit_number = get_entity_unit_number(source)
     if not unit_number then
         return nil
     end
@@ -265,14 +266,15 @@ function model.get_or_create_source_entry(runtime, source)
         return nil
     end
 
-    if model.neutron_sources[source.name] == nil or not source.unit_number then
+    local unit_number = get_entity_unit_number(source)
+    if model.neutron_sources[source.name] == nil or not unit_number then
         return nil
     end
 
-    local entry = runtime.sources_by_unit[source.unit_number]
+    local entry = runtime.sources_by_unit[unit_number]
     if not entry then
         entry = {
-            unit_number = source.unit_number,
+            unit_number = unit_number,
             entity = source,
             collectors = {},
             collector_count = 0,
@@ -280,7 +282,7 @@ function model.get_or_create_source_entry(runtime, source)
             last_recipe_name = nil,
             fusion_multiplier = nil,
         }
-        runtime.sources_by_unit[source.unit_number] = entry
+        runtime.sources_by_unit[unit_number] = entry
     else
         entry.entity = source
     end
@@ -290,14 +292,15 @@ end
 
 
 function model.register_collector(runtime, entity)
-    if not model.entity_check(entity) or entity.name ~= NEUTRON_COLLECTOR_NAME or not entity.unit_number then
+    local unit_number = get_entity_unit_number(entity)
+    if not model.entity_check(entity) or entity.name ~= NEUTRON_COLLECTOR_NAME or not unit_number then
         return nil
     end
 
-    local entry = runtime.collectors_by_unit[entity.unit_number]
+    local entry = runtime.collectors_by_unit[unit_number]
     if not entry then
         entry = {
-            unit_number = entity.unit_number,
+            unit_number = unit_number,
             entity = entity,
             source_unit = nil,
             queued = false,
@@ -306,7 +309,7 @@ function model.register_collector(runtime, entity)
             last_direction = nil,
             last_efficiency = 0,
         }
-        runtime.collectors_by_unit[entity.unit_number] = entry
+        runtime.collectors_by_unit[unit_number] = entry
     else
         entry.entity = entity
     end
@@ -431,7 +434,7 @@ end
 
 
 function model.unregister_collector(runtime, collector)
-    local unit_number = collector and collector.unit_number or nil
+    local unit_number = get_entity_unit_number(collector)
     local collector_entry = unit_number and runtime.collectors_by_unit[unit_number] or nil
 
     if not collector_entry and type(collector) == "table" and collector.entity ~= nil then
@@ -502,7 +505,7 @@ end
 
 
 function model.find_neutron_source(runtime, entity, exclude)
-    local exclude_unit = type(exclude) == "number" and exclude or (exclude and exclude.unit_number)
+    local exclude_unit = type(exclude) == "number" and exclude or get_entity_unit_number(exclude)
     local entities = entity.surface.find_entities_filtered{
         name = model.neutron_source_names,
         position = entity.position,
@@ -523,13 +526,14 @@ function model.find_neutron_source(runtime, entity, exclude)
 
     for _, source in ipairs(entities) do
         if model.entity_check(source) and model.neutron_sources[source.name] ~= nil then
-            if exclude_unit ~= nil and source.unit_number == exclude_unit then
+            local source_unit = get_entity_unit_number(source)
+            if exclude_unit ~= nil and source_unit == exclude_unit then
                 goto continue
             end
 
             had_source = true
 
-            local source_entry = runtime.sources_by_unit[source.unit_number]
+            local source_entry = source_unit and runtime.sources_by_unit[source_unit] or nil
             local efficiency = model.calc_efficiency(entity, source, source_entry)
 
             if best_source == nil or efficiency > best_efficiency then
@@ -763,7 +767,7 @@ function model.queue_collectors_in_range(runtime, neutron_source, exclude)
         return
     end
 
-    local exclude_source_unit = type(exclude) == "number" and exclude or (exclude and exclude.unit_number)
+    local exclude_source_unit = type(exclude) == "number" and exclude or get_entity_unit_number(exclude)
     local entities = neutron_source.surface.find_entities_filtered{
         name = NEUTRON_COLLECTOR_NAME,
         position = neutron_source.position,
@@ -1068,16 +1072,20 @@ function model.make_direction_animation(entity, direction_count)
         y_scale = 1,
     })
 
-    storage.ei["neutron_collector_animation"][entity.unit_number] = animation
+    local unit_number = get_entity_unit_number(entity)
+    if unit_number then
+        storage.ei["neutron_collector_animation"][unit_number] = animation
+    end
 end
 
 
 function model.remove_direction_animation(entity)
-    if not entity or not entity.unit_number then
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
         return
     end
 
-    model.remove_direction_animation_by_unit(entity.unit_number)
+    model.remove_direction_animation_by_unit(unit_number)
 end
 
 --HANDLERS
@@ -1113,8 +1121,9 @@ function model.on_destroyed_entity(entity, destroy_type)
 
     if model.neutron_sources[entity.name] then
         model.update_neutron_collectors_in_range(entity, entity)
-        if entity.unit_number then
-            model.remove_source_entry(runtime, entity.unit_number, false)
+        local unit_number = get_entity_unit_number(entity)
+        if unit_number then
+            model.remove_source_entry(runtime, unit_number, false)
         end
     end
 end

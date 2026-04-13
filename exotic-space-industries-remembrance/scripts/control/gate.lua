@@ -13,6 +13,17 @@ local model = {}
 ei_rng = require("lib/rng")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local clamp = ei_lib.clamp
+local get_entity_unit_number = ei_lib.get_entity_unit_number
+
+local function get_gate_storage_entry(gate)
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit or not storage.ei or not storage.ei.gate or not storage.ei.gate.gate then
+        return nil, gate_unit
+    end
+
+    return storage.ei.gate.gate[gate_unit], gate_unit
+end
 
 local LOW_POWER_J = 100 * 1e9
 local SIGNAL_GATE_DESTINATION = {type = "virtual", name = "signal-D", quality = "normal"}
@@ -858,16 +869,7 @@ model.mass_weights = {
 -----------------------------------------------------------------------------------------------------
 
 function model.entity_check(entity)
-
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return ei_lib.entity_check(entity)
 end
 
 
@@ -915,7 +917,7 @@ function model.get_transfer_inv(transfer)
     if type(transfer) == "number" then
         -- player index
         local player = game.get_player(transfer)
-        return player.get_main_inventory()
+        return player and player.valid and player.get_main_inventory() or nil
     end
 
     if transfer.valid then
@@ -1567,7 +1569,7 @@ function model.register_receiver(receiver, event)
 
     model.check_global_init()
 
-    local unit = receiver and receiver.unit_number
+    local unit = get_entity_unit_number(receiver)
     if not unit then
         return
     end
@@ -1584,7 +1586,7 @@ function model.destroy_receiver(receiver, event)
 
     model.check_global_init()
 
-    local unit = receiver and receiver.unit_number
+    local unit = get_entity_unit_number(receiver)
     if not unit then
         return
     end
@@ -1821,12 +1823,17 @@ function model.get_effective_receiver_data(gate_data, event)
         return nil
     end
 
-    local receiver_data = storage.ei.gate.receiver[receiver.unit_number]
+    local receiver_unit = get_entity_unit_number(receiver)
+    if not receiver_unit then
+        return nil
+    end
+
+    local receiver_data = storage.ei.gate.receiver[receiver_unit]
     if not receiver_data then
         return nil
     end
 
-    return model.ensure_receiver_defaults(receiver.unit_number, event)
+    return model.ensure_receiver_defaults(receiver_unit, event)
 end
 
 
@@ -1838,7 +1845,8 @@ end
 -- "Armed" is the state exposed to circuits. The gate must be manually/circuit enabled, have a
 -- resolved destination, and sit above the low-power floor before it should accept work.
 function model.is_gate_armed(gate, gate_data)
-    gate_data = gate_data or (gate and storage.ei.gate.gate[gate.unit_number])
+    local gate_unit = get_entity_unit_number(gate)
+    gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
 
     if not model.entity_check(gate) or not gate_data then
         return false
@@ -1863,7 +1871,8 @@ end
 -- This is stricter than "armed": cooldown and receiver saturation both pause transport, but they
 -- do not necessarily mean the gate should reject further insertion or report itself as unpowered.
 function model.can_gate_transport(gate, gate_data, receiver_data, event)
-    gate_data = gate_data or (gate and storage.ei.gate.gate[gate.unit_number])
+    local gate_unit = get_entity_unit_number(gate)
+    gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
     receiver_data = receiver_data or model.get_effective_receiver_data(gate_data, event)
 
     if not model.is_gate_armed(gate, gate_data) then
@@ -1885,7 +1894,8 @@ end
 -- Input locking is reserved for truly inactive states where buffering more cargo is misleading:
 -- disabled, unresolved, or below the minimum operating energy floor.
 function model.should_lock_input(gate, gate_data)
-    gate_data = gate_data or (gate and storage.ei.gate.gate[gate.unit_number])
+    local gate_unit = get_entity_unit_number(gate)
+    gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
 
     if not model.entity_check(gate) or not gate_data then
         return true
@@ -1962,7 +1972,8 @@ end
 
 
 function model.update_input_lock(gate, gate_data)
-    gate_data = gate_data or (gate and storage.ei.gate.gate[gate.unit_number])
+    local gate_unit = get_entity_unit_number(gate)
+    gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
     if not gate_data or not model.entity_check(gate_data.container) then
         return
     end
@@ -2220,12 +2231,13 @@ end
 -- The wire proxy mirrors only a tiny summary of the gate state so circuit logic can react without
 -- poking at internal storage: armed flag, stored MJ, and stress.
 function model.update_wire_proxy_signals(gate, gate_data, event)
-    gate_data = gate_data or (gate and storage.ei.gate.gate[gate.unit_number])
+    local gate_unit = get_entity_unit_number(gate)
+    gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
     if not model.entity_check(gate) or not gate_data then
         return
     end
 
-    local proxy = model.ensure_wire_proxy(gate.unit_number)
+    local proxy = model.ensure_wire_proxy(gate_unit)
     if model.entity_check(proxy) == false then
         return
     end
@@ -2312,7 +2324,8 @@ end
 -- Scripted upkeep replaces the old always-on EEI drain. Dormant or invalid gates are free, while
 -- armed, cooling, and stressed gates pay progressively more to stay ready.
 function model.get_gate_upkeep_watts(gate, gate_data, event)
-    gate_data = gate_data or (gate and storage.ei.gate.gate[gate.unit_number])
+    local gate_unit = get_entity_unit_number(gate)
+    gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
     if not gate_data then
         return 0
     end
@@ -2347,7 +2360,12 @@ function model.refresh_gate_live_state(gate, event)
         return
     end
 
-    local gate_data = model.ensure_gate_defaults(gate.unit_number, event)
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return
+    end
+
+    local gate_data = model.ensure_gate_defaults(gate_unit, event)
     if not gate_data then
         return
     end
@@ -2599,8 +2617,16 @@ end
 -- Resolve the gate state once and cache it onto gate_data. This keeps GUI, transport, upkeep, and
 -- circuit telemetry consistent even when the destination is being overridden live by circuits.
 function model.resolve_gate_target(gate, event)
+    if not model.entity_check(gate) then
+        return nil
+    end
 
-    local gate_data = model.ensure_gate_defaults(gate.unit_number, event)
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return nil
+    end
+
+    local gate_data = model.ensure_gate_defaults(gate_unit, event)
     if not gate_data then
         return nil
     end
@@ -2699,9 +2725,14 @@ end
 function model.register_gate(gate, container, event)
 
     model.check_global_init()
-    
-    local gate_unit = gate.unit_number
-    if storage.ei.gate.gate[gate_unit] or not gate or not gate.valid or not container or not container.valid then
+
+    if not model.entity_check(gate) or not model.entity_check(container) then
+        log("ei register_gate returned early due to pre-existing gate_unit or non-existent gate or non-existent container")
+        return
+    end
+
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit or storage.ei.gate.gate[gate_unit] then
         log("ei register_gate returned early due to pre-existing gate_unit or non-existent gate or non-existent container")
         return
     end
@@ -2788,7 +2819,11 @@ function model.destroy_gate(gate, container, event)
         return
     end
 
-    local gate_unit = gate.unit_number
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return
+    end
+
     model.cleanup_gate_remote_selection(gate_unit)
     model.destroy_wire_proxy(gate_unit)
 
@@ -2894,7 +2929,14 @@ end
 function model.find_container(gate, surface, position, print_out, event)
 
     print_out = print_out or false
-    local unit = gate.unit_number
+    if not model.entity_check(gate) then
+        return false
+    end
+
+    local unit = get_entity_unit_number(gate)
+    if not unit then
+        return false
+    end
 
     local gate_data = model.ensure_gate_defaults(unit, event)
     local container = model.find_container_entity(surface, position)
@@ -2944,7 +2986,7 @@ end
 
 
 function model.gate_state(gate)
-    local gate_data = gate and storage.ei.gate.gate[gate.unit_number]
+    local gate_data = select(1, get_gate_storage_entry(gate))
     return model.is_gate_armed(gate, gate_data)
 end
 
@@ -2952,7 +2994,7 @@ end
 -- relies on the static mass table and the quote helpers above so energy, stress, and residue all
 -- derive from the same measured transfer.
 function model.pay_energy(gate, tablein, actuallypay)
-    local gate_data = gate and storage.ei.gate.gate[gate.unit_number]
+    local gate_data = select(1, get_gate_storage_entry(gate))
     local target_surface = gate_data and model.get_gate_target_surface(gate_data) or nil
     local quote = model.quote_transfer(tablein, gate and gate.surface or nil, target_surface)
 
@@ -2971,7 +3013,8 @@ function model.teleport_player(character, gate)
         return
     end
 
-    local exit = storage.ei.gate.gate[gate.unit_number].effective_exit
+    local gate_data = select(1, get_gate_storage_entry(gate))
+    local exit = gate_data and gate_data.effective_exit or nil
     if not exit then
         return
     end
@@ -3066,12 +3109,16 @@ end
 -----------------------------------------------------------------------------------------------------
 
 function model.render_exit(gate, box)
-    if not gate or not box then
+    if not box or not model.entity_check(gate) then
         return
     end
 
-    local gate_unit = gate.unit_number
-    local exit = storage.ei.gate.gate[gate_unit].effective_exit
+    local gate_data, gate_unit = get_gate_storage_entry(gate)
+    if not gate_data or not gate_unit then
+        return
+    end
+
+    local exit = gate_data.effective_exit
     if not exit then
         return
     end
@@ -3130,7 +3177,11 @@ end
 
 
 function model.render_animation(gate, event)
-    local gate_unit = gate.unit_number
+    local gate_data, gate_unit = get_gate_storage_entry(gate)
+    if not gate_data or not gate_unit then
+        return
+    end
+
     local pick = math.random(1,4) --ei_rng.int("gate_light", 1, 4, gate_unit, event.tick)
 
     local colors = {
@@ -3162,7 +3213,7 @@ function model.render_animation(gate, event)
         --storage.ei.gate.gate[gate_unit].light = light
     --end
 
-    if storage.ei.gate.gate[gate_unit].animation then return end
+    if gate_data.animation then return end
 
     local animation = rendering.draw_animation{
         animation = "ei-gate-running",
@@ -3173,7 +3224,7 @@ function model.render_animation(gate, event)
         y_scale = 1
     }
 
-    storage.ei.gate.gate[gate_unit].animation = animation
+    gate_data.animation = animation
 
 end
 
@@ -3292,7 +3343,10 @@ function model.build_gui(player, gate)
         model.close_gui(player)
     end
 
-    local gate_unit = gate.unit_number
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return nil
+    end
 
     local root = player.gui.relative.add{
         type = "frame",
@@ -3555,7 +3609,7 @@ function model.update_gui(player, data, ontick, gate)
         parent_gui = "ei-gate-console",
         action = "set-receiver",
         receiver_ids = data.receiver_ids,
-        gate_unit = gate and gate.unit_number or (dropdown.tags and dropdown.tags.gate_unit)
+        gate_unit = get_entity_unit_number(gate) or (dropdown.tags and dropdown.tags.gate_unit)
     }
 
     legacy_status.caption = data.legacy_status
@@ -3716,9 +3770,14 @@ end
 
 function model.get_data(gate, event)
 
-    if not gate then return end
+    if not model.entity_check(gate) then return end
 
-    local gate_data = model.ensure_gate_defaults(gate.unit_number, event)
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return nil
+    end
+
+    local gate_data = model.ensure_gate_defaults(gate_unit, event)
     if not gate_data then
         return nil
     end
@@ -4209,7 +4268,8 @@ function model.on_gui_opened(event)
 
     local entity = event.entity
     if model.entity_check(entity) and entity.name == "ei-gate" then
-        local gate_data = storage.ei.gate.gate and storage.ei.gate.gate[entity.unit_number]
+        local gate_unit = get_entity_unit_number(entity)
+        local gate_data = gate_unit and storage.ei.gate.gate and storage.ei.gate.gate[gate_unit] or nil
         if gate_data and model.entity_check(gate_data.container) then
             storage.ei.gate.open_redirect[event.player_index] = true
             player.opened = gate_data.container

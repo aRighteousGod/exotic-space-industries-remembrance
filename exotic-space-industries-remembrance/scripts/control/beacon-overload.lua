@@ -26,6 +26,7 @@ local DEBUG_HEARTBEAT_TICKS = 300
 local DEBUG_SLOW_PHASE_MS = 5
 local DEBUG_PREFIX = "[ESIR beacon-overload]"
 local DEBUG_AUTO_ARM_DEFAULT = false
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 
 local ELIGIBLE_MACHINE_TYPES = {
     ["assembling-machine"] = true,
@@ -314,13 +315,13 @@ local function queue_machine_for_refresh(state, entity)
         return
     end
 
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     if not unit_number or state.queued_units[unit_number] then
         return
     end
 
     state.queued_units[unit_number] = true
-    queue_push(state.machine_queue, entity)
+    queue_push(state.machine_queue, unit_number)
 end
 
 local function clear_overloaded_flag(state, unit_number)
@@ -336,12 +337,24 @@ local function clear_overloaded_flag(state, unit_number)
     state.overloaded_count = math.max(0, (state.overloaded_count or 0) - 1)
 end
 
+local function set_entity_active_safely(entity, active)
+    if not model.entity_check(entity) then
+        return false
+    end
+
+    local ok = pcall(function()
+        entity.active = active
+    end)
+
+    return ok
+end
+
 local function track_machine(state, entity)
     if not model.entity_check(entity) then
         return false
     end
 
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     if not unit_number then
         return false
     end
@@ -354,14 +367,14 @@ local function track_machine(state, entity)
     return true
 end
 
-local function remove_machine_tracking(state, entity, reactivate)
-    local unit_number = entity and entity.unit_number or nil
+local function remove_machine_tracking_by_unit(state, unit_number, entity, reactivate)
     if not unit_number then
         return
     end
 
-    if reactivate and state.overloaded_units[unit_number] and model.entity_check(entity) then
-        entity.active = true
+    local tracked_entity = model.entity_check(entity) and entity or state.tracked_machines[unit_number]
+    if reactivate and state.overloaded_units[unit_number] and tracked_entity then
+        set_entity_active_safely(tracked_entity, true)
     end
 
     if state.tracked_machines[unit_number] ~= nil then
@@ -380,6 +393,10 @@ local function remove_machine_tracking(state, entity, reactivate)
     state.queued_units[unit_number] = nil
     clear_overloaded_flag(state, unit_number)
     cleanup_icon_by_unit(unit_number)
+end
+
+local function remove_machine_tracking(state, entity, reactivate)
+    remove_machine_tracking_by_unit(state, get_entity_unit_number(entity), entity, reactivate)
 end
 
 local function value_to_string(value)
@@ -669,8 +686,10 @@ local function cleanup_invalid_tracked_machines(state, budget)
             break
         end
 
-        if not model.entity_check(entity) or not model.counts_for_overload(entity) then
-            remove_machine_tracking(state, entity, true)
+        if not model.entity_check(entity) then
+            remove_machine_tracking_by_unit(state, unit_number, entity, false)
+        elseif not model.counts_for_overload(entity) then
+            remove_machine_tracking_by_unit(state, unit_number, entity, true)
         end
 
         cursor = next_key
@@ -693,9 +712,9 @@ local function process_tracked_refresh_queue(state)
         end
 
         if not model.entity_check(entity) then
-            remove_machine_tracking(state, entity, false)
+            remove_machine_tracking_by_unit(state, unit_number, entity, false)
         elseif not model.counts_for_overload(entity) then
-            remove_machine_tracking(state, entity, true)
+            remove_machine_tracking_by_unit(state, unit_number, entity, true)
         else
             queue_machine_for_refresh(state, entity)
         end
@@ -720,10 +739,15 @@ local function process_release_queue(state)
 
         local entity = state.tracked_machines[unit_number]
         if model.entity_check(entity) then
-            entity.active = true
+            if not set_entity_active_safely(entity, true) then
+                remove_machine_tracking_by_unit(state, unit_number, entity, false)
+                entity = nil
+            end
         end
-        cleanup_icon_by_unit(unit_number)
-        clear_overloaded_flag(state, unit_number)
+        if entity then
+            cleanup_icon_by_unit(unit_number)
+            clear_overloaded_flag(state, unit_number)
+        end
 
         state.release_cursor = next_key
         processed = processed + 1
@@ -874,14 +898,17 @@ local function update_machine_state(state, entity, should_overload)
         return
     end
 
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     if not unit_number then
         return
     end
 
     local was_overloaded = state.overloaded_units[unit_number] and true or false
     if should_overload then
-        entity.active = false
+        if not set_entity_active_safely(entity, false) then
+            remove_machine_tracking_by_unit(state, unit_number, entity, false)
+            return
+        end
         if not was_overloaded then
             model.add_overload_effect(entity)
             if ei_victory and ei_victory.count_value then
@@ -897,7 +924,10 @@ local function update_machine_state(state, entity, should_overload)
     local icons = storage.ei and storage.ei.overload_icons or nil
     local has_icon = icons and icons[unit_number] ~= nil or false
     if was_overloaded then
-        entity.active = true
+        if not set_entity_active_safely(entity, true) then
+            remove_machine_tracking_by_unit(state, unit_number, entity, false)
+            return
+        end
         clear_overloaded_flag(state, unit_number)
     end
 
@@ -945,7 +975,7 @@ local function process_machine_refresh(state, entity)
         return
     end
 
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     local count = recount_machine(state, entity)
     state.machine_counts[unit_number] = count
     update_machine_state(state, entity, count > OVERLOAD_THRESHOLD)
@@ -965,7 +995,7 @@ local function apply_beacon_delta_to_machine(state, entity, delta, destroy_type)
         return
     end
 
-    local unit_number = entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
     local current_count = state.machine_counts[unit_number]
     if current_count == nil then
         current_count = recount_machine(state, entity)
@@ -1029,17 +1059,34 @@ local function process_machine_queue(state)
     local budget = get_refresh_budget()
     local processed = 0
     while budget > 0 do
-        local entity = queue_pop(state.machine_queue)
-        if not entity then
+        local entry = queue_pop(state.machine_queue)
+        if not entry then
             break
         end
 
-        if entity and entity.unit_number then
-            state.queued_units[entity.unit_number] = nil
+        local unit_number = nil
+        local entity = nil
+
+        if type(entry) == "number" then
+            unit_number = entry
+            entity = state.tracked_machines[unit_number]
+        else
+            entity = entry
+            if model.entity_check(entity) then
+                unit_number = get_entity_unit_number(entity)
+            else
+                unit_number = get_entity_unit_number(entity)
+            end
+        end
+
+        if unit_number then
+            state.queued_units[unit_number] = nil
         end
 
         if model.entity_check(entity) then
             process_machine_refresh(state, entity)
+        elseif unit_number then
+            remove_machine_tracking_by_unit(state, unit_number, entity, false)
         end
 
         processed = processed + 1
@@ -1067,7 +1114,7 @@ local function enqueue_world_rebuild(state, reason)
 end
 
 function model.entity_check(entity)
-    return entity ~= nil and entity.valid == true
+    return ei_lib.entity_check(entity)
 end
 
 function model.check_global()
@@ -1187,7 +1234,7 @@ function model.update_overload(entity)
 
     local state = ensure_state()
     if not is_overload_enabled() then
-        local unit_number = entity.unit_number
+        local unit_number = get_entity_unit_number(entity)
         if unit_number and state.overloaded_units[unit_number] then
             update_machine_state(state, entity, false)
         end
@@ -1225,22 +1272,23 @@ function model.update_all_machines_in_range(entity, destroy_type, beacon_value)
 end
 
 function model.add_overload_icon(entity)
-    if not model.entity_check(entity) or not entity.unit_number then
+    local unit_number = get_entity_unit_number(entity)
+    if not model.entity_check(entity) or not unit_number then
         return
     end
 
     ensure_state()
     local icons = storage.ei.overload_icons
-    local existing = icons[entity.unit_number]
+    local existing = icons[unit_number]
     if get_render_object(existing) then
         return
     end
 
     if existing and not get_render_object(existing) then
-        icons[entity.unit_number] = nil
+        icons[unit_number] = nil
     end
 
-    icons[entity.unit_number] = rendering.draw_sprite {
+    icons[unit_number] = rendering.draw_sprite {
         sprite = "ei-overload-icon",
         target = entity,
         x_scale = 0.75,
@@ -1251,21 +1299,23 @@ function model.add_overload_icon(entity)
 end
 
 function model.remove_overload_icon(entity)
-    if not entity or not entity.unit_number then
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
         return
     end
 
     ensure_state()
-    cleanup_icon_by_unit(entity.unit_number)
+    cleanup_icon_by_unit(unit_number)
 end
 
 function model.add_overload_effect(entity)
-    if not model.entity_check(entity) or not entity.unit_number then
+    local unit_number = get_entity_unit_number(entity)
+    if not model.entity_check(entity) or not unit_number then
         return
     end
 
     ensure_state()
-    local current_icon = storage.ei.overload_icons[entity.unit_number]
+    local current_icon = storage.ei.overload_icons[unit_number]
     if get_render_object(current_icon) then
         return
     end
@@ -1433,11 +1483,12 @@ function model.on_destroyed_entity(entity, destroy_type)
     end
 
     local state = ensure_state()
-    if entity.unit_number and state.tracked_machines[entity.unit_number] then
+    local unit_number = get_entity_unit_number(entity)
+    if unit_number and state.tracked_machines[unit_number] then
         remove_machine_tracking(state, entity, false)
-    elseif entity.unit_number and state.overloaded_units[entity.unit_number] then
-        clear_overloaded_flag(state, entity.unit_number)
-        cleanup_icon_by_unit(entity.unit_number)
+    elseif unit_number and state.overloaded_units[unit_number] then
+        clear_overloaded_flag(state, unit_number)
+        cleanup_icon_by_unit(unit_number)
     end
 
     if not is_overload_enabled() then

@@ -11,6 +11,8 @@
 --==============================================================================
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local get_valid_entity = ei_lib.get_valid_entity
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 local BLACK_HOLE_NAME = "ei-black-hole"
 local ENERGY_INJECTOR_NAME = "ei-energy-injector-pylon"
 local ENERGY_EXTRACTOR_NAME = "ei-energy-extractor-pylon"
@@ -70,10 +72,10 @@ function model.get_transfer_inv(transfer)
     if type(transfer) == "number" then
         -- player index
         local player = game.get_player(transfer)
-        return player.get_main_inventory()
+        return player and player.valid and player.get_main_inventory() or nil
     end
 
-    if transfer.valid then
+    if transfer and transfer.valid then
         -- robot
         local robot = transfer
         return robot.get_inventory(defines.inventory.robot_cargo)
@@ -152,16 +154,7 @@ end
 
 
 function model.entity_check(entity)
-
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return ei_lib.entity_check(entity)
 
 end
 
@@ -190,8 +183,9 @@ local function get_entity_ref_id(entity)
         return nil
     end
 
-    if entity.unit_number then
-        return entity.unit_number
+    local unit_number = get_entity_unit_number(entity)
+    if unit_number then
+        return unit_number
     end
 
     return table.concat({
@@ -343,8 +337,8 @@ function model.mark_nearby_black_holes_dirty(entity)
     }
 
     for _, black_hole in ipairs(black_holes) do
-        local unit = black_hole.unit_number
-        if black_hole.valid and unit and storage.ei.black_hole[unit] then
+        local unit = get_entity_unit_number(black_hole)
+        if model.entity_check(black_hole) and unit and storage.ei.black_hole[unit] then
             local black_hole_data = storage.ei.black_hole[unit]
             black_hole_data.cache_dirty = true
             if entity.name == ENERGY_EXTRACTOR_NAME then
@@ -804,15 +798,19 @@ end
 ------------------------------------------------------------------------------------------------------
 
 function model.register_black_hole(entity, event)
-
-    if entity.name ~= BLACK_HOLE_NAME then
+    if model.entity_check(entity) == false or entity.name ~= BLACK_HOLE_NAME then
         return
     end
 
-    model.check_init(entity.unit_number)
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
+        return
+    end
+
+    model.check_init(unit_number)
 
     -- register this black hole
-    local black_hole_data = storage.ei.black_hole[entity.unit_number]
+    local black_hole_data = storage.ei.black_hole[unit_number]
     black_hole_data.entity = entity
     black_hole_data.mass = 0
     black_hole_data.battery = 0       -- energy for containement field (multiple of 5GW)
@@ -845,8 +843,7 @@ end
 
 
 function model.unregister_black_hole(entity, transfer)
-
-    if entity.name ~= BLACK_HOLE_NAME then
+    if model.entity_check(entity) == false or entity.name ~= BLACK_HOLE_NAME then
         return
     end
 
@@ -857,7 +854,10 @@ function model.unregister_black_hole(entity, transfer)
     model.check_init()
 
     -- unregister this black hole
-    storage.ei.black_hole[entity.unit_number] = nil
+    local unit_number = get_entity_unit_number(entity)
+    if unit_number then
+        storage.ei.black_hole[unit_number] = nil
+    end
 
 end
 
@@ -1189,14 +1189,18 @@ function model.update_player_guis()
 
     for _, player in pairs(game.connected_players) do
         if player.gui.relative["ei-black-hole-console"] then
-            if not player.opened then
+            local entity = get_valid_entity(player.opened)
+            if not entity or entity.name ~= BLACK_HOLE_NAME then
                 model.close_gui(player)
-                return
+            else
+                local unit = get_entity_unit_number(entity)
+                if not unit then
+                    model.close_gui(player)
+                else
+                    local data = model.get_data(unit)
+                    model.update_gui(player, data)
+                end
             end
-
-            local unit = player.opened.unit_number
-            local data = model.get_data(unit)
-            model.update_gui(player, data)
         end
     end
 
@@ -1360,13 +1364,15 @@ end
 
 function model.change_stage(player)
 
-    local entity = player.opened
-
-    if entity.name ~= "ei-black-hole" then
+    local entity = get_valid_entity(player and player.opened)
+    if not entity or entity.name ~= BLACK_HOLE_NAME then
         return
     end
 
-    local unit = entity.unit_number
+    local unit = get_entity_unit_number(entity)
+    if not unit then
+        return
+    end
 
     -- if stage progress > 0, do nothing
     if model.get_stage_progress(unit) > 0 then

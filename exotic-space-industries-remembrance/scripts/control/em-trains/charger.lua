@@ -12,6 +12,7 @@
 local model = {}
 ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local get_entity_unit_number = ei_lib.get_entity_unit_number
 --ei_rng = require("lib/rng")
 -- DOC
 
@@ -85,16 +86,7 @@ function model.is_em_train(name)
 end
 
 function model.entity_check(entity)
-
-    if entity == nil then
-        return false
-    end
-
-    if not entity.valid then
-        return false
-    end
-
-    return true
+    return ei_lib.entity_check(entity)
 end
 
 
@@ -1780,10 +1772,9 @@ end
 ------------------------------------------------------------------------------------------------------
 
 function model.register_charger(entity)
-    if not entity or not entity.unit_number then return end
+    local charger_id = get_entity_unit_number(entity)
+    if not charger_id then return end
     model.check_global()
-
-    local charger_id = entity.unit_number
     local existing_entry = storage.ei_emt.chargers[charger_id]
     if existing_entry then
         model.remove_charger_entry(charger_id, existing_entry)
@@ -1809,8 +1800,8 @@ end
 function model.unregister_charger(entity)
 
     model.check_global()
-    if entity and entity.unit_number then
-        local charger_id = entity.unit_number
+    local charger_id = get_entity_unit_number(entity)
+    if charger_id then
         model.remove_charger_entry(charger_id)
     else
         log("unregister_charger passed nil entity")
@@ -1822,7 +1813,10 @@ function model.register_train(entity)
 
     model.check_global()
 
-    local train_id = entity.unit_number
+    local train_id = get_entity_unit_number(entity)
+    if not train_id then
+        return
+    end
     local existing_entry = storage.ei_emt.trains[train_id]
     if existing_entry then
         model.remove_train_entry(train_id, existing_entry)
@@ -1841,7 +1835,10 @@ function model.unregister_train(entity)
 
     model.check_global()
 
-    local train_id = entity.unit_number
+    local train_id = get_entity_unit_number(entity)
+    if not train_id then
+        return
+    end
     model.remove_train_entry(train_id)
     --em_trails.remove_active_train(entity)
 end

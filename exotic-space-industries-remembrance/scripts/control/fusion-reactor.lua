@@ -24,11 +24,7 @@ local model = {
 ------------------------------------------------------------------------------------------------------
 
 function model.entity_check(entity)
-  if entity == nil then
-      return false
-  end
-
-  if not entity.valid then
+  if not ei_lib.entity_check(entity) then
       return false
   end
 
@@ -223,7 +219,13 @@ function model.open_gui(player)
       style = "ei_relative_gui_slider"
   }
 
-  local recipe = player.opened.get_recipe()
+  local entity = ei_lib.get_valid_entity(player and player.opened)
+  if not model.entity_check(entity) then
+      model.close_gui(player)
+      return
+  end
+
+  local recipe = entity.get_recipe and entity.get_recipe() or nil
   if recipe then
       local recipe_name = recipe.name
       model.update_gui(player, {
@@ -301,9 +303,9 @@ end
 ---Updates the open entity's current recipe with information gleaned from the GUI.
 ---@param player LuaPlayer Player
 function model.update_recipe(player)
-  local entity = player.opened
+  local entity = ei_lib.get_valid_entity(player and player.opened)
   local root = player.gui.relative["ei-fusion-reactor-console"]
-  if not root or not entity then return end
+  if not root or not model.entity_check(entity) then return end
 
   local control = root["main-container"]["control-flow"] --[[@as LuaGuiElement]]
   local fuel_1_frame = control["fuels-frame-1"] --[[@as LuaGuiElement]]
