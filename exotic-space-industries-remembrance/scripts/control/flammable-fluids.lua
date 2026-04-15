@@ -84,8 +84,10 @@ local EXOTIC_FAMILY_HINTS = {
 
 local RUPTURE_FAMILIES = {
     oil = {
+        family = "oil",
         damage_type = "fire",
         fire_name = "ei-oil-fire-flame",
+        platform_fire_name = "ei-oil-platform-fire-flame",
         smoke_name = "ei-oil-rupture-smoke",
         pair_explosion_name = "explosion",
         explosion_bias = 0.85,
@@ -98,8 +100,10 @@ local RUPTURE_FAMILIES = {
         secondary_bias = 0.85,
     },
     gas = {
+        family = "gas",
         damage_type = "explosion",
         fire_name = "ei-gas-fire-flame",
+        platform_fire_name = "ei-gas-platform-fire-flame",
         smoke_name = "ei-gas-rupture-smoke",
         pair_explosion_name = "medium-explosion",
         explosion_bias = 1.45,
@@ -112,8 +116,10 @@ local RUPTURE_FAMILIES = {
         secondary_bias = 1.15,
     },
     exotic = {
+        family = "exotic",
         damage_type = "fire",
         fire_name = "ei-exotic-fire-flame",
+        platform_fire_name = "ei-exotic-platform-fire-flame",
         smoke_name = "ei-exotic-rupture-smoke",
         pair_explosion_name = "medium-explosion",
         explosion_bias = 1.10,
@@ -150,6 +156,24 @@ local DIRECT_PIPELINE_FIRE_RADIUS_MAX = 18
 local PIPELINE_TRAVERSAL_VISIT_MULT = 4
 local PIPELINE_TRAVERSAL_MIN_VISITS = 64
 local PIPELINE_TRAVERSAL_UNBOUNDED_VISITS = 512
+local PLATFORM_VISUAL_RADIUS_MULT = 0.72
+local PLATFORM_EXPLOSION_COUNT_MULT = 0.82
+local PLATFORM_SMOKE_COUNT_MULT = 0.55
+local PLATFORM_SECONDARY_SMOKE_MULT = 0.45
+local PLATFORM_SECONDARY_EFFECT_MULT = 0.60
+local PLATFORM_EFFECT_RADIUS_MULT = 0.76
+local PLATFORM_MASSIVE_CAP = 1
+local PLATFORM_SOURCE_TILE_DAMAGE_DIVISOR = 600
+local PLATFORM_SOURCE_TILE_DAMAGE_MIN = 1.00
+local PLATFORM_SOURCE_TILE_DAMAGE_MAX = 4.00
+local PLATFORM_PIPE_TILE_DAMAGE_MULT = 0.55
+local PLATFORM_PIPE_TILE_DAMAGE_MIN = 0.50
+local PLATFORM_PIPE_TILE_DAMAGE_MAX = 2.00
+local PLATFORM_TILE_DAMAGE_FAMILY_MULT = {
+    oil = 1.00,
+    gas = 1.18,
+    exotic = 1.08,
+}
 
 local function get_damage_type_name(event)
     if event and event.damage_type and event.damage_type.name then
@@ -405,6 +429,84 @@ local function apply_cap(entries, cap)
     end
 end
 
+local function scale_entry_counts(entries, scale)
+    if scale == nil or scale == 1 then
+        return
+    end
+
+    for _, entry in ipairs(entries or {}) do
+        local count = math.max(0, entry.count or 0)
+        if count > 0 then
+            entry.count = math.max(0, math.floor((count * scale) + 0.5))
+        end
+    end
+end
+
+local function get_surface_context(surface)
+    local platform = surface and surface.valid and surface.platform or nil
+    return {
+        is_platform = platform ~= nil,
+        has_pollutant = surface and surface.valid and surface.pollutant_type ~= nil or false,
+    }
+end
+
+local function get_platform_fire_name(style, surface_context)
+    if surface_context and surface_context.is_platform and style.platform_fire_name then
+        return style.platform_fire_name
+    end
+    return style.fire_name
+end
+
+local function get_platform_tile_damage(style, explosion_damage, is_pipeline)
+    local family_mult = PLATFORM_TILE_DAMAGE_FAMILY_MULT[style.family] or 1
+    local scaled = (explosion_damage / PLATFORM_SOURCE_TILE_DAMAGE_DIVISOR) * family_mult
+    if is_pipeline then
+        return ei_lib.clamp(scaled * PLATFORM_PIPE_TILE_DAMAGE_MULT, PLATFORM_PIPE_TILE_DAMAGE_MIN, PLATFORM_PIPE_TILE_DAMAGE_MAX)
+    end
+    return ei_lib.clamp(scaled, PLATFORM_SOURCE_TILE_DAMAGE_MIN, PLATFORM_SOURCE_TILE_DAMAGE_MAX)
+end
+
+local function get_tile_key(position)
+    local tile_x = math.floor(position.x)
+    local tile_y = math.floor(position.y)
+    return string.format("%d,%d", tile_x, tile_y), tile_x, tile_y
+end
+
+local function add_platform_tile_damage(ring, seen_tiles, position, damage)
+    if not (ring and position and damage and damage > 0) then
+        return
+    end
+
+    local key, tile_x, tile_y = get_tile_key(position)
+    if seen_tiles[key] then
+        return
+    end
+
+    seen_tiles[key] = true
+    ring.platform_tile_damage[#ring.platform_tile_damage + 1] = {
+        position = {x = tile_x, y = tile_y},
+        damage = damage,
+    }
+end
+
+local function add_entity_platform_tile_damage(ring, seen_tiles, entity, damage)
+    local box = entity and entity.bounding_box
+    if not box then
+        return
+    end
+
+    local left = math.floor(box.left_top.x)
+    local right = math.ceil(box.right_bottom.x) - 1
+    local top = math.floor(box.left_top.y)
+    local bottom = math.ceil(box.right_bottom.y) - 1
+
+    for tile_x = left, right do
+        for tile_y = top, bottom do
+            add_platform_tile_damage(ring, seen_tiles, {x = tile_x + 0.5, y = tile_y + 0.5}, damage)
+        end
+    end
+end
+
 local function distribute_count(total, weights)
     local distribution, weight_total = {}, 0
     for _, weight in ipairs(weights or {}) do
@@ -442,7 +544,15 @@ local function build_ring_weights(ring_count)
 end
 
 local function new_ring()
-    return {center_entities = {}, entity_layers = {}, smoke_layers = {}, fire_layers = {}, scorch_layers = {}, damage_victims = {}}
+    return {
+        center_entities = {},
+        entity_layers = {},
+        smoke_layers = {},
+        fire_layers = {},
+        scorch_layers = {},
+        damage_victims = {},
+        platform_tile_damage = {},
+    }
 end
 
 local function add_layer(ring, field_name, layer)
@@ -650,8 +760,9 @@ local function collect_pipeline_fire_targets(entity, fire_radius, profile)
     return targets
 end
 
-local function add_pipeline_fire_layers(rings, entity, style, profile, explosion_radius, search_radius, entity_radius)
-    if not style.fire_name or #rings == 0 then
+local function add_pipeline_fire_layers(rings, entity, style, profile, surface_context, explosion_radius, search_radius, entity_radius, seen_platform_tiles, platform_pipe_tile_damage)
+    local fire_name = get_platform_fire_name(style, surface_context)
+    if not fire_name or #rings == 0 then
         return
     end
 
@@ -666,7 +777,7 @@ local function add_pipeline_fire_layers(rings, entity, style, profile, explosion
     for _, target in ipairs(targets) do
         local ring_index = math.max(1, math.min(ring_count, math.ceil((target.distance / divisor) * ring_count)))
         add_layer(rings[ring_index], "fire_layers", {
-            name = style.fire_name,
+            name = fire_name,
             count = 1,
             emitter = "center",
             inner_radius = 0,
@@ -674,6 +785,10 @@ local function add_pipeline_fire_layers(rings, entity, style, profile, explosion
             force_name = "neutral",
             position = target.position,
         })
+
+        if surface_context.is_platform then
+            add_platform_tile_damage(rings[ring_index], seen_platform_tiles, target.position, platform_pipe_tile_damage)
+        end
     end
 end
 
@@ -723,7 +838,7 @@ local function build_damage_rings(entity, ring_count, search_radius, explosion_r
     return damage_rings
 end
 
-local function build_pair_child_jobs(entity, style, explosion_damage, mode)
+local function build_pair_child_jobs(entity, style, explosion_damage, mode, surface_context)
     if entity.type ~= "pipe-to-ground" or not entity.neighbours then
         return {}
     end
@@ -736,22 +851,38 @@ local function build_pair_child_jobs(entity, style, explosion_damage, mode)
         if type(neighbour_group) == "table" then
             for _, neighbour in pairs(neighbour_group) do
                 if neighbour and neighbour.valid and neighbour.type == "pipe-to-ground" then
+                    local ring = {
+                        center_entities = {{name = style.pair_explosion_name}},
+                        entity_layers = {},
+                        smoke_layers = {{name = style.smoke_name, count = 1, emitter = "center", inner_radius = 0, outer_radius = 0}},
+                        fire_layers = {{
+                            name = get_platform_fire_name(style, surface_context),
+                            count = 1,
+                            emitter = "center",
+                            inner_radius = 0,
+                            outer_radius = 0,
+                            force_name = "neutral",
+                        }},
+                        scorch_layers = {},
+                        damage_victims = {{entity = neighbour, damage = explosion_damage}},
+                        platform_tile_damage = {},
+                    }
+
+                    if surface_context.is_platform then
+                        local seen_tiles = {}
+                        add_platform_tile_damage(ring, seen_tiles, neighbour.position, get_platform_tile_damage(style, explosion_damage, true))
+                    end
+
                     return {{
                         mode = mode,
                         damage_type = style.damage_type,
                         source_force_name = entity.force and entity.force.name or "neutral",
                         surface_index = entity.surface.index,
+                        surface_kind = surface_context.is_platform and "platform" or "planetary",
                         position = {x = neighbour.position.x, y = neighbour.position.y},
                         ring_count = 1,
                         initial_delay = 1,
-                        rings = {{
-                            center_entities = {{name = style.pair_explosion_name}},
-                            entity_layers = {},
-                            smoke_layers = {{name = style.smoke_name, count = 1, emitter = "center", inner_radius = 0, outer_radius = 0}},
-                            fire_layers = {{name = style.fire_name, count = 1, emitter = "center", inner_radius = 0, outer_radius = 0, force_name = "neutral"}},
-                            scorch_layers = {},
-                            damage_victims = {{entity = neighbour, damage = explosion_damage}},
-                        }},
+                        rings = {ring},
                     }}
                 end
             end
@@ -761,14 +892,16 @@ local function build_pair_child_jobs(entity, style, explosion_damage, mode)
     return {}
 end
 
-local function build_primary_layers(rings, profile, rupture, style, class_bias, visual_radius)
+local function build_primary_layers(rings, profile, rupture, style, class_bias, visual_radius, surface_context)
     local total_energy_mj = rupture.total_energy_mj
     local gas_share = rupture.family_share.gas or 0
     local energy_root = math.sqrt(total_energy_mj)
     local weights = build_ring_weights(#rings)
-    local outer_radius = math.max(visual_radius * (1.05 + (0.08 * class_bias.shockwave_scale)), 0.8)
+    local effect_visual_radius = surface_context.is_platform and math.max(visual_radius * PLATFORM_VISUAL_RADIUS_MULT, 0.45) or visual_radius
+    local outer_radius = math.max(effect_visual_radius * (1.05 + (0.08 * class_bias.shockwave_scale)), 0.8)
     local shock_base = math.max(1, math.ceil((visual_radius + (energy_root * 0.055)) * style.ring_bias * class_bias.stage_scale))
     local shock_extra = total_energy_mj >= 220 or class_bias.stage_scale >= 1.35
+    local fire_name = get_platform_fire_name(style, surface_context)
 
     local explosion_entries = {
         {key = "cluster_medium", count = math.max(1, math.ceil((visual_radius + (energy_root * 0.045)) * style.explosion_bias * class_bias.stage_scale))},
@@ -792,83 +925,152 @@ local function build_primary_layers(rings, profile, rupture, style, class_bias, 
         {key = "rim", count = visual_radius >= 1.2 and math.max(1, math.floor(math.max(1, math.ceil(((visual_radius * 1.2) + (energy_root * 0.05)) * style.scorch_bias * class_bias.scorch_scale)) * 0.5)) or 0},
     } or {}
 
+    if surface_context.is_platform then
+        scale_entry_counts(explosion_entries, PLATFORM_EXPLOSION_COUNT_MULT)
+        scale_entry_counts(smoke_entries, PLATFORM_SMOKE_COUNT_MULT)
+        fire_entries = {}
+        scorch_entries = {}
+    end
+
     apply_cap(explosion_entries, profile.explosion_cap)
     apply_cap(fire_entries, profile.fire_cap)
     apply_cap(smoke_entries, profile.smoke_cap)
     apply_cap(scorch_entries, profile.scorch_cap)
 
     local massive_count = math.max(0, math.floor(math.sqrt(total_energy_mj / 1000) * style.massive_bias * class_bias.shockwave_scale))
+    if surface_context.is_platform then
+        massive_count = math.min(massive_count, PLATFORM_MASSIVE_CAP)
+    end
     if profile.massive_cap ~= nil then
         massive_count = math.min(massive_count, profile.massive_cap)
     end
 
-    rings[1].center_entities[#rings[1].center_entities + 1] = {name = visual_radius <= 1 and "explosion" or "medium-explosion"}
-    add_distributed_layers(rings, get_entry_count(explosion_entries, "cluster_medium"), weights.cluster, "entity_layers", "medium-explosion", "vogel", math.max(visual_radius, 0.5))
-    add_distributed_layers(rings, get_entry_count(explosion_entries, "cluster_big"), weights.cluster, "entity_layers", "big-explosion", "rim", math.max(visual_radius * 0.88, 0.5))
+    rings[1].center_entities[#rings[1].center_entities + 1] = {name = effect_visual_radius <= 1 and "explosion" or "medium-explosion"}
+    add_distributed_layers(rings, get_entry_count(explosion_entries, "cluster_medium"), weights.cluster, "entity_layers", "medium-explosion", "vogel", math.max(effect_visual_radius, 0.5))
+    add_distributed_layers(
+        rings,
+        get_entry_count(explosion_entries, "cluster_big"),
+        weights.cluster,
+        "entity_layers",
+        "big-explosion",
+        "rim",
+        math.max(effect_visual_radius * (surface_context.is_platform and PLATFORM_EFFECT_RADIUS_MULT or 0.88), 0.5)
+    )
     add_distributed_layers(rings, get_entry_count(explosion_entries, "shock_big"), weights.shock, "entity_layers", "big-explosion", "rim", outer_radius)
     add_distributed_layers(rings, get_entry_count(explosion_entries, "shock_medium"), weights.shock, "entity_layers", "medium-explosion", "rim", outer_radius * 1.18)
-    add_distributed_layers(rings, massive_count, weights.shock, "entity_layers", "massive-explosion", "rim", math.max(visual_radius * 0.68, 0.5))
+    add_distributed_layers(rings, massive_count, weights.shock, "entity_layers", "massive-explosion", "rim", math.max(effect_visual_radius * 0.68, 0.5))
 
-    add_distributed_layers(rings, get_entry_count(fire_entries, "core"), weights.fire, "fire_layers", style.fire_name, "vogel", math.max(visual_radius * 0.92, 0.5), "neutral")
-    add_distributed_layers(rings, get_entry_count(fire_entries, "rim"), weights.fire, "fire_layers", style.fire_name, "rim", math.max(visual_radius * 1.08, 0.75), "neutral")
-    add_distributed_layers(rings, get_entry_count(smoke_entries, "core"), weights.smoke, "smoke_layers", style.smoke_name, "vogel", math.max(visual_radius * 1.12, 0.6))
-    add_distributed_layers(rings, get_entry_count(smoke_entries, "rim"), weights.smoke, "smoke_layers", style.smoke_name, "rim", math.max(visual_radius * 1.12, 0.8))
+    add_distributed_layers(rings, get_entry_count(fire_entries, "core"), weights.fire, "fire_layers", fire_name, "vogel", math.max(effect_visual_radius * 0.92, 0.5), "neutral")
+    add_distributed_layers(rings, get_entry_count(fire_entries, "rim"), weights.fire, "fire_layers", fire_name, "rim", math.max(effect_visual_radius * 1.08, 0.75), "neutral")
+    add_distributed_layers(rings, get_entry_count(smoke_entries, "core"), weights.smoke, "smoke_layers", style.smoke_name, "vogel", math.max(effect_visual_radius * 1.12, 0.6))
+    add_distributed_layers(rings, get_entry_count(smoke_entries, "rim"), weights.smoke, "smoke_layers", style.smoke_name, "rim", math.max(effect_visual_radius * 1.12, 0.8))
     add_distributed_layers(rings, get_entry_count(smoke_entries, "shock"), weights.shock, "smoke_layers", style.smoke_name, "rim", outer_radius * 1.04)
     add_distributed_layers(rings, get_entry_count(smoke_entries, "shock_extra"), weights.shock, "smoke_layers", style.smoke_name, "rim", outer_radius * 1.22)
-    add_distributed_layers(rings, get_entry_count(scorch_entries, "core"), weights.scorch, "scorch_layers", "small-scorchmark", "vogel", math.max(visual_radius * math.max(0.8, style.scorch_bias) * 0.82, 0.4))
-    add_distributed_layers(rings, get_entry_count(scorch_entries, "rim"), weights.scorch, "scorch_layers", "small-scorchmark", "rim", math.max(visual_radius * math.max(0.8, style.scorch_bias) * 1.05, 0.5))
+    add_distributed_layers(rings, get_entry_count(scorch_entries, "core"), weights.scorch, "scorch_layers", "small-scorchmark", "vogel", math.max(effect_visual_radius * math.max(0.8, style.scorch_bias) * 0.82, 0.4))
+    add_distributed_layers(rings, get_entry_count(scorch_entries, "rim"), weights.scorch, "scorch_layers", "small-scorchmark", "rim", math.max(effect_visual_radius * math.max(0.8, style.scorch_bias) * 1.05, 0.5))
 
     return weights
 end
 
-local function build_secondary_layers(rings, profile, rupture, primary_family, class_bias, visual_radius, weights)
+local function build_secondary_layers(rings, profile, rupture, primary_family, class_bias, visual_radius, weights, surface_context)
     for _, mix in ipairs(select_secondary_mix(rupture, primary_family, profile)) do
         local secondary_style = RUPTURE_FAMILIES[mix.family]
         local scaled_energy = rupture.total_energy_mj * mix.share
         local scaled_radius = math.max(visual_radius * (0.55 + (mix.share * 0.65)), 0.45)
         local energy_root = math.sqrt(scaled_energy)
         local smoke_total = math.max(1, math.ceil(((scaled_radius * 1.8) + (energy_root * 0.11)) * secondary_style.smoke_bias * class_bias.smoke_scale * secondary_style.secondary_bias))
+        local fire_name = get_platform_fire_name(secondary_style, surface_context)
+
+        if surface_context.is_platform then
+            scaled_radius = math.max(scaled_radius * PLATFORM_EFFECT_RADIUS_MULT, 0.4)
+            smoke_total = math.max(1, math.floor((smoke_total * PLATFORM_SECONDARY_SMOKE_MULT) + 0.5))
+        end
 
         add_distributed_layers(rings, smoke_total, weights.accent, "smoke_layers", secondary_style.smoke_name, "vogel", math.max(scaled_radius, 0.5))
         add_distributed_layers(rings, math.max(1, math.ceil(smoke_total * 0.45)), weights.accent, "smoke_layers", secondary_style.smoke_name, "rim", math.max(scaled_radius * 1.12, 0.6))
 
         if mix.family == "gas" then
-            add_distributed_layers(rings, math.max(1, math.ceil((scaled_radius + (energy_root * 0.04)) * secondary_style.secondary_bias)), weights.accent, "entity_layers", "big-explosion", "rim", math.max(scaled_radius * 0.92, 0.5))
-        else
+            local accent_count = math.max(1, math.ceil((scaled_radius + (energy_root * 0.04)) * secondary_style.secondary_bias))
+            if surface_context.is_platform then
+                accent_count = math.max(1, math.floor((accent_count * PLATFORM_SECONDARY_EFFECT_MULT) + 0.5))
+            end
+            add_distributed_layers(rings, accent_count, weights.accent, "entity_layers", "big-explosion", "rim", math.max(scaled_radius * 0.92, 0.5))
+        elseif not surface_context.is_platform then
             local fire_scale = secondary_style.fire_bias * 0.45 * class_bias.visual_scale
             local fire_radius = math.max(scaled_radius * 0.72, 0.35)
             local fire_core = math.max(1, math.ceil(((fire_radius * fire_radius) + math.sqrt(scaled_energy * 0.32)) * fire_scale))
             local fire_rim = math.max(1, math.ceil(((fire_radius * 2) + math.sqrt((scaled_energy * 0.32) * 0.5)) * fire_scale * 0.75))
-            add_distributed_layers(rings, fire_core, weights.accent, "fire_layers", secondary_style.fire_name, "vogel", fire_radius, "neutral")
-            add_distributed_layers(rings, fire_rim, weights.accent, "fire_layers", secondary_style.fire_name, "rim", math.max(fire_radius * 1.08, 0.45), "neutral")
+            add_distributed_layers(rings, fire_core, weights.accent, "fire_layers", fire_name, "vogel", fire_radius, "neutral")
+            add_distributed_layers(rings, fire_rim, weights.accent, "fire_layers", fire_name, "rim", math.max(fire_radius * 1.08, 0.45), "neutral")
         end
     end
 end
 
-local function build_rupture_job(entity, rupture, style, class_bias, explosion_radius, explosion_damage, visual_radius, search_radius)
+local function build_rupture_job(entity, rupture, style, class_bias, surface_context, explosion_radius, explosion_damage, visual_radius, search_radius)
     local profile = rupture_scheduler.get_fidelity_profile(visual_radius)
     local rings = {}
     for index = 1, profile.ring_count do rings[index] = new_ring() end
 
-    local weights = build_primary_layers(rings, profile, rupture, style, class_bias, visual_radius)
-    build_secondary_layers(rings, profile, rupture, rupture.dominant.family, class_bias, visual_radius, weights)
+    local weights = build_primary_layers(rings, profile, rupture, style, class_bias, visual_radius, surface_context)
+    build_secondary_layers(rings, profile, rupture, rupture.dominant.family, class_bias, visual_radius, weights, surface_context)
 
     local damage_rings = build_damage_rings(entity, profile.ring_count, search_radius, explosion_radius, explosion_damage)
     for index = 1, profile.ring_count do
         rings[index].damage_victims = damage_rings[index]
     end
-    add_pipeline_fire_layers(rings, entity, style, profile, explosion_radius, search_radius, get_entity_radius(entity))
+
+    local seen_platform_tiles = {}
+    if surface_context.is_platform then
+        add_entity_platform_tile_damage(rings[1], seen_platform_tiles, entity, get_platform_tile_damage(style, explosion_damage, false))
+        if not is_pipeline_entity(entity) then
+            add_layer(rings[1], "fire_layers", {
+                name = get_platform_fire_name(style, surface_context),
+                count = math.max(1, math.min(3, math.ceil(get_entity_radius(entity) * 0.75))),
+                emitter = "vogel",
+                inner_radius = 0,
+                outer_radius = math.max(0.35, math.min(get_entity_radius(entity), 1.1)),
+                force_name = "neutral",
+            })
+        end
+    end
+
+    add_pipeline_fire_layers(
+        rings,
+        entity,
+        style,
+        profile,
+        surface_context,
+        explosion_radius,
+        search_radius,
+        get_entity_radius(entity),
+        seen_platform_tiles,
+        get_platform_tile_damage(style, explosion_damage, true)
+    )
 
     return {
         mode = profile.mode,
         damage_type = style.damage_type,
         source_force_name = entity.force and entity.force.name or "neutral",
         surface_index = entity.surface.index,
+        surface_kind = surface_context.is_platform and "platform" or "planetary",
+        pollution_enabled = surface_context.has_pollutant,
         position = {x = entity.position.x, y = entity.position.y},
         ring_count = profile.ring_count,
         rings = rings,
-        child_jobs = build_pair_child_jobs(entity, style, explosion_damage, profile.mode),
+        child_jobs = build_pair_child_jobs(entity, style, explosion_damage, profile.mode, surface_context),
     }
+end
+
+local function apply_rupture_pollution(surface, position, amount)
+    if not (surface and surface.valid and amount and amount > 0) then
+        return
+    end
+
+    if surface.pollutant_type == nil then
+        return
+    end
+
+    surface.pollute(position, amount)
 end
 
 function model.on_entity_died(event)
@@ -887,13 +1089,14 @@ function model.on_entity_died(event)
 
     local style = RUPTURE_FAMILIES[rupture.dominant.family] or RUPTURE_FAMILIES.oil
     local class_bias = get_entity_class_bias(entity)
+    local surface_context = get_surface_context(entity.surface)
     local explosion_radius, explosion_damage = get_explosion_metrics(rupture.total_energy_mj)
     local entity_radius = get_entity_radius(entity)
     local visual_radius = math.max(explosion_radius, entity_radius) * class_bias.visual_scale
     local search_radius = explosion_radius + entity_radius + DAMAGE_SEARCH_PADDING
-    local rupture_job = build_rupture_job(entity, rupture, style, class_bias, explosion_radius, explosion_damage, visual_radius, search_radius)
+    local rupture_job = build_rupture_job(entity, rupture, style, class_bias, surface_context, explosion_radius, explosion_damage, visual_radius, search_radius)
 
-    entity.surface.pollute(entity.position, rupture.total_pollution / 10)
+    apply_rupture_pollution(entity.surface, entity.position, rupture.total_pollution / 10)
     rupture_scheduler.begin_rupture(rupture_job, event.tick or (game and game.tick) or 0)
 end
 

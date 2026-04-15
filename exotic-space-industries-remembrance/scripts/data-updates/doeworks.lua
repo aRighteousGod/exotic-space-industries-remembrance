@@ -7,17 +7,47 @@ if not mods["doeworks-deer"] then
 end
 
 local ei_lib = require("lib/lib")
+local artillery_shell_icon = "__base__/graphics/icons/artillery-shell.png"
 local nitric_acid_icon = ei_graphics_fluid_path .. "nitric-acid.png"
 local cryodust_icon = ei_graphics_item_2_path .. "cryodust.png"
 local uranium_235_icon = "__base__/graphics/icons/uranium-235.png"
 local plutonium_icon = ei_graphics_item_path .. "plutonium-239.png"
 local deer_ammo_icon = "__doeworks-deer__/graphics-smol/icons/deer-ammo-basic-icon.png"
 local deer_crate_icon = "__doeworks-deer__/graphics-smol/icons/deer-crate-basic-icon.png"
+local rocket_items_path = ei_temporary_rocket_item_path
+local rocket_techs_path = ei_temporary_rocket_tech_path
+local deer_ammo_basic_direct_icon = rocket_items_path .. "dw-deer-ammo-basic.png"
+local deer_ammo_corrosive_direct_icon = rocket_items_path .. "dw-deer-ammo-corrosive.png"
+local deer_ammo_cryo_direct_icon = rocket_items_path .. "dw-deer-ammo-cryo.png"
+local deer_ammo_atomic_u235_direct_icon = rocket_items_path .. "dw-deer-ammo-atomic-u235.png"
+local deer_ammo_atomic_plutonium_direct_icon = rocket_items_path .. "dw-deer-ammo-atomic-plutonium.png"
+local deer_tech_icon = rocket_techs_path .. "dw-deer-tech.png"
 local atomic_rocket_action = data.raw.projectile["atomic-rocket"] and data.raw.projectile["atomic-rocket"].action
+local atomic_rocket_u235_action
 
-local function add_unlock_if_present(tech_name, recipe_name)
-    if data.raw.technology[tech_name] and data.raw.recipe[recipe_name] then
-        ei_lib.add_unlock_recipe(tech_name, recipe_name)
+local function mirror_gun_speed_bonus(tech_name, source_ammo_category, target_ammo_category)
+    local technology = data.raw.technology[tech_name]
+    if not technology or type(technology.effects) ~= "table" then
+        return
+    end
+
+    local existing_modifier
+    for _, effect in ipairs(technology.effects) do
+        if effect.type == "gun-speed" and effect.ammo_category == target_ammo_category then
+            return
+        end
+
+        if effect.type == "gun-speed" and effect.ammo_category == source_ammo_category then
+            existing_modifier = effect.modifier
+        end
+    end
+
+    if existing_modifier then
+        technology.effects[#technology.effects + 1] = {
+            type = "gun-speed",
+            ammo_category = target_ammo_category,
+            modifier = existing_modifier,
+        }
     end
 end
 
@@ -34,6 +64,23 @@ local function visit_tables(root, callback)
         end
     end
 end
+
+local function clone_atomic_action_with_center(action, center_name)
+    if type(action) ~= "table" then
+        return nil
+    end
+
+    local cloned = table.deepcopy(action)
+    visit_tables(cloned, function(node)
+        if node.type == "create-entity" and node.entity_name == "nuke-explosion" then
+            node.entity_name = center_name
+        end
+    end)
+
+    return cloned
+end
+
+atomic_rocket_u235_action = clone_atomic_action_with_center(atomic_rocket_action, "ei-atomic-u235-center-explosion")
 
 local function patch_stream_damage(stream_name, damage_updates)
     local stream = data.raw.stream and data.raw.stream[stream_name]
@@ -53,6 +100,24 @@ local function patch_stream_damage(stream_name, damage_updates)
     end)
 end
 
+local function retag_stream_damage(stream_name, from_type, to_type)
+    local stream = data.raw.stream and data.raw.stream[stream_name]
+    if not stream then
+        return
+    end
+
+    visit_tables(stream, function(node)
+        local damage = node.damage
+        if type(damage) ~= "table" then
+            return
+        end
+
+        if damage.type == from_type then
+            damage.type = to_type
+        end
+    end)
+end
+
 local function rewrite_streams(root, stream_map)
     if type(stream_map) ~= "table" then
         return
@@ -63,33 +128,6 @@ local function rewrite_streams(root, stream_map)
             node.stream = stream_map[node.stream]
         end
     end)
-end
-
-local function set_recipe_ingredients(recipe_name, ingredients)
-    local recipe = data.raw.recipe[recipe_name]
-    if not recipe then
-        return
-    end
-
-    recipe.normal = nil
-    recipe.expensive = nil
-    recipe.ingredients = ingredients
-    recipe.enabled = false
-end
-
-local function make_icons(base_icon, overlay_icon)
-    return {
-        {
-            icon = base_icon,
-            icon_size = 64,
-        },
-        {
-            icon = overlay_icon,
-            icon_size = 64,
-            scale = 0.45,
-            shift = {8, 8},
-        },
-    }
 end
 
 local function clone_recipe(source_name, new_name, order, icons, ingredients, results)
@@ -103,6 +141,7 @@ local function clone_recipe(source_name, new_name, order, icons, ingredients, re
     recipe.order = order
     recipe.icon = nil
     recipe.icon_size = nil
+    recipe.icon_mipmaps = nil
     recipe.icons = icons
     recipe.normal = nil
     recipe.expensive = nil
@@ -124,9 +163,58 @@ local function clone_ammo(source_name, new_name, order, icons, stream_map)
     ammo.order = order
     ammo.icon = nil
     ammo.icon_size = nil
+    ammo.icon_mipmaps = nil
     ammo.icons = icons
     rewrite_streams(ammo.ammo_type.action, stream_map)
     return ammo
+end
+
+local function set_direct_icon(prototype, icon_path, icon_size, icon_mipmaps)
+    if not prototype then
+        return
+    end
+
+    prototype.icon = icon_path
+    prototype.icon_size = icon_size or 512
+    prototype.icon_mipmaps = icon_mipmaps or 5
+    prototype.icons = nil
+end
+
+local function set_composite_icons(prototype, icons)
+    if not prototype then
+        return
+    end
+
+    prototype.icon = nil
+    prototype.icon_size = nil
+    prototype.icon_mipmaps = nil
+    prototype.icons = icons
+end
+
+local function make_imported_recipe_icons(base_icon, overlay_icon, overlay_scale, overlay_shift)
+    return ei_lib.make_icons(
+        base_icon,
+        512,
+        overlay_icon,
+        64,
+        overlay_scale or 0.45,
+        overlay_shift or {8, 8},
+        nil,
+        {base_mipmaps = 5, base_scale = 1.2}
+    )
+end
+
+local function make_imported_tech_icons(base_icon, overlay_icon, overlay_scale, overlay_shift)
+    return ei_lib.make_icons(
+        base_icon,
+        256,
+        overlay_icon,
+        64,
+        overlay_scale or 0.4,
+        overlay_shift or {8, 8},
+        nil,
+        {base_mipmaps = 4}
+    )
 end
 
 local function clone_stream(source_name, new_name)
@@ -159,6 +247,15 @@ local function overwrite_stream(target_name, source_name)
     end
 
     return target
+end
+
+local function set_stream_speed(stream_name, horizontal_speed)
+    local stream = data.raw.stream and data.raw.stream[stream_name]
+    if not stream then
+        return
+    end
+
+    stream.particle_horizontal_speed = horizontal_speed
 end
 
 local function append_stream_visual_effects(stream_name, effects)
@@ -210,19 +307,51 @@ if data.raw.technology["dw-deer-tech"] then
     data.raw.technology["dw-deer-tech"].age = "computer-age"
 end
 
-set_recipe_ingredients("dw-deer-turret", {
+ei_lib.recipe_new("dw-deer-turret", {
     {type = "item", name = "steel-plate", amount = 20},
     {type = "item", name = "engine-unit", amount = 20},
     {type = "item", name = "ei-steel-mechanical-parts", amount = 20},
     {type = "item", name = "ei-advanced-motor", amount = 6},
     {type = "item", name = "processing-unit", amount = 6},
+}, {
+    clear_difficulty_variants = true,
+    enabled = false,
 })
 
-set_recipe_ingredients("dw-deer-ammo-basic", {
+ei_lib.recipe_new("dw-deer-ammo-basic", {
     {type = "item", name = "ei-rocket-airframe", amount = 1},
     {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
     {type = "item", name = "ei-rocket-warhead-siege", amount = 1},
+}, {
+    clear_difficulty_variants = true,
+    enabled = false,
 })
+
+set_direct_icon(data.raw.ammo["dw-deer-ammo-basic"], deer_ammo_basic_direct_icon)
+set_composite_icons(
+    data.raw.recipe["dw-deer-ammo-basic"],
+    make_imported_recipe_icons(deer_ammo_basic_direct_icon, artillery_shell_icon, 0.4, {8, 8})
+)
+set_composite_icons(
+    data.raw.recipe["dw-deer-crating-basic"],
+    ei_lib.make_icons(deer_crate_icon, 64, artillery_shell_icon, 64, 0.4, {8, 8})
+)
+set_composite_icons(
+    data.raw.recipe["dw-deer-uncrating-basic"],
+    make_imported_recipe_icons(deer_ammo_basic_direct_icon, artillery_shell_icon, 0.4, {8, 8})
+)
+set_composite_icons(
+    data.raw.technology["dw-deer-tech"],
+    make_imported_tech_icons(deer_tech_icon, artillery_shell_icon, 0.4, {8, 8})
+)
+
+local deer_turret = data.raw["ammo-turret"] and data.raw["ammo-turret"]["dw-deer-turret"]
+if deer_turret and deer_turret.attack_parameters then
+    deer_turret.attack_parameters.range = 115
+    deer_turret.attack_parameters.prepare_range = 116
+    deer_turret.attack_parameters.min_range = 35
+    deer_turret.attack_parameters.lead_target_for_projectile_speed = 0.5
+end
 
 local doeworks_prototypes = {}
 
@@ -256,12 +385,13 @@ local corrosive_ammo = clone_ammo(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-corrosive",
     "d[cannon-shell]-d551[doeworks]-a[deer]-b[corrosive]",
-    make_icons(deer_ammo_icon, nitric_acid_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-stream"] = "ei-dw-deer-corrosive-stream",
     }
 )
 if corrosive_ammo then
+    set_direct_icon(corrosive_ammo, deer_ammo_corrosive_direct_icon)
     doeworks_prototypes[#doeworks_prototypes + 1] = corrosive_ammo
 end
 
@@ -269,7 +399,7 @@ local corrosive_crate = clone_ammo(
     "dw-deer-ammo-basic-crate",
     "dw-deer-ammo-corrosive-crate",
     "d[cannon-shell]-d551[doeworks]-a[deer]-b[corrosive]-a[crate]",
-    make_icons(deer_crate_icon, nitric_acid_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-cratestream"] = "ei-dw-deer-corrosive-cratestream",
         ["dw-deer-basic-cratestreambad"] = "ei-dw-deer-corrosive-cratestreambad",
@@ -284,12 +414,13 @@ local cryo_ammo = clone_ammo(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-cryo",
     "d[cannon-shell]-d551[doeworks]-a[deer]-c[cryo]",
-    make_icons(deer_ammo_icon, cryodust_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-stream"] = "ei-dw-deer-cryo-stream",
     }
 )
 if cryo_ammo then
+    set_direct_icon(cryo_ammo, deer_ammo_cryo_direct_icon)
     doeworks_prototypes[#doeworks_prototypes + 1] = cryo_ammo
 end
 
@@ -297,13 +428,14 @@ local atomic_u235_ammo = clone_ammo(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-atomic-u235",
     "d[cannon-shell]-d551[doeworks]-a[deer]-d[atomic-u235]",
-    make_icons(deer_ammo_icon, uranium_235_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-stream"] = "ei-dw-deer-atomic-u235-stream",
     }
 )
 if atomic_u235_ammo then
     atomic_u235_ammo.stack_size = 5
+    set_direct_icon(atomic_u235_ammo, deer_ammo_atomic_u235_direct_icon)
     doeworks_prototypes[#doeworks_prototypes + 1] = atomic_u235_ammo
 end
 
@@ -311,13 +443,14 @@ local atomic_plutonium_ammo = clone_ammo(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-atomic-plutonium",
     "d[cannon-shell]-d551[doeworks]-a[deer]-e[atomic-plutonium]",
-    make_icons(deer_ammo_icon, plutonium_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-stream"] = "ei-dw-deer-atomic-plutonium-stream",
     }
 )
 if atomic_plutonium_ammo then
     atomic_plutonium_ammo.stack_size = 5
+    set_direct_icon(atomic_plutonium_ammo, deer_ammo_atomic_plutonium_direct_icon)
     doeworks_prototypes[#doeworks_prototypes + 1] = atomic_plutonium_ammo
 end
 
@@ -325,7 +458,7 @@ local atomic_u235_crate = clone_ammo(
     "dw-deer-ammo-basic-crate",
     "dw-deer-ammo-atomic-u235-crate",
     "d[cannon-shell]-d551[doeworks]-a[deer]-d[atomic-u235]-a[crate]",
-    make_icons(deer_crate_icon, uranium_235_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-cratestream"] = "ei-dw-deer-atomic-u235-cratestream",
         ["dw-deer-basic-cratestreambad"] = "ei-dw-deer-atomic-u235-cratestreambad",
@@ -341,7 +474,7 @@ local atomic_plutonium_crate = clone_ammo(
     "dw-deer-ammo-basic-crate",
     "dw-deer-ammo-atomic-plutonium-crate",
     "d[cannon-shell]-d551[doeworks]-a[deer]-e[atomic-plutonium]-a[crate]",
-    make_icons(deer_crate_icon, plutonium_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-cratestream"] = "ei-dw-deer-atomic-plutonium-cratestream",
         ["dw-deer-basic-cratestreambad"] = "ei-dw-deer-atomic-plutonium-cratestreambad",
@@ -357,7 +490,7 @@ local cryo_crate = clone_ammo(
     "dw-deer-ammo-basic-crate",
     "dw-deer-ammo-cryo-crate",
     "d[cannon-shell]-d551[doeworks]-a[deer]-c[cryo]-a[crate]",
-    make_icons(deer_crate_icon, cryodust_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
     {
         ["dw-deer-basic-cratestream"] = "ei-dw-deer-cryo-cratestream",
         ["dw-deer-basic-cratestreambad"] = "ei-dw-deer-cryo-cratestreambad",
@@ -372,7 +505,7 @@ local corrosive_recipe = clone_recipe(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-corrosive",
     "d[cannon-shell]-d551[doeworks]-a[deer]-b[corrosive]",
-    make_icons(deer_ammo_icon, nitric_acid_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "ei-rocket-airframe", amount = 1},
         {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
@@ -383,6 +516,7 @@ local corrosive_recipe = clone_recipe(
     }
 )
 if corrosive_recipe then
+    set_composite_icons(corrosive_recipe, make_imported_recipe_icons(deer_ammo_corrosive_direct_icon, nitric_acid_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = corrosive_recipe
 end
 
@@ -390,7 +524,7 @@ local corrosive_crating = clone_recipe(
     "dw-deer-crating-basic",
     "dw-deer-crating-corrosive",
     "d[cannon-shell]-d551[doeworks]-a[deer]-b[corrosive]-a[crate]",
-    make_icons(deer_crate_icon, nitric_acid_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-corrosive", amount = 12},
         {type = "item", name = "steel-plate", amount = 1},
@@ -407,7 +541,7 @@ local corrosive_uncrating = clone_recipe(
     "dw-deer-uncrating-basic",
     "dw-deer-uncrating-corrosive",
     "d[cannon-shell]-d551[doeworks]-a[deer]-b[corrosive]-b[uncrate]",
-    make_icons(deer_ammo_icon, nitric_acid_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-corrosive-crate", amount = 1},
     },
@@ -416,6 +550,7 @@ local corrosive_uncrating = clone_recipe(
     }
 )
 if corrosive_uncrating then
+    set_composite_icons(corrosive_uncrating, make_imported_recipe_icons(deer_ammo_corrosive_direct_icon, nitric_acid_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = corrosive_uncrating
 end
 
@@ -423,7 +558,7 @@ local cryo_recipe = clone_recipe(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-cryo",
     "d[cannon-shell]-d551[doeworks]-a[deer]-c[cryo]",
-    make_icons(deer_ammo_icon, cryodust_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "ei-rocket-airframe", amount = 1},
         {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
@@ -434,6 +569,7 @@ local cryo_recipe = clone_recipe(
     }
 )
 if cryo_recipe then
+    set_composite_icons(cryo_recipe, make_imported_recipe_icons(deer_ammo_cryo_direct_icon, cryodust_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = cryo_recipe
 end
 
@@ -441,7 +577,7 @@ local atomic_u235_recipe = clone_recipe(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-atomic-u235",
     "d[cannon-shell]-d551[doeworks]-a[deer]-d[atomic-u235]",
-    make_icons(deer_ammo_icon, uranium_235_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "ei-rocket-airframe", amount = 1},
         {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
@@ -453,6 +589,7 @@ local atomic_u235_recipe = clone_recipe(
 )
 if atomic_u235_recipe then
     atomic_u235_recipe.allow_productivity = false
+    set_composite_icons(atomic_u235_recipe, make_imported_recipe_icons(deer_ammo_atomic_u235_direct_icon, uranium_235_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = atomic_u235_recipe
 end
 
@@ -460,7 +597,7 @@ local atomic_plutonium_recipe = clone_recipe(
     "dw-deer-ammo-basic",
     "dw-deer-ammo-atomic-plutonium",
     "d[cannon-shell]-d551[doeworks]-a[deer]-e[atomic-plutonium]",
-    make_icons(deer_ammo_icon, plutonium_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "ei-rocket-airframe", amount = 1},
         {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
@@ -472,6 +609,7 @@ local atomic_plutonium_recipe = clone_recipe(
 )
 if atomic_plutonium_recipe then
     atomic_plutonium_recipe.allow_productivity = false
+    set_composite_icons(atomic_plutonium_recipe, make_imported_recipe_icons(deer_ammo_atomic_plutonium_direct_icon, plutonium_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = atomic_plutonium_recipe
 end
 
@@ -479,7 +617,7 @@ local atomic_u235_crating = clone_recipe(
     "dw-deer-crating-basic",
     "dw-deer-crating-atomic-u235",
     "d[cannon-shell]-d551[doeworks]-a[deer]-d[atomic-u235]-a[crate]",
-    make_icons(deer_crate_icon, uranium_235_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-atomic-u235", amount = 12},
         {type = "item", name = "steel-plate", amount = 1},
@@ -497,7 +635,7 @@ local atomic_u235_uncrating = clone_recipe(
     "dw-deer-uncrating-basic",
     "dw-deer-uncrating-atomic-u235",
     "d[cannon-shell]-d551[doeworks]-a[deer]-d[atomic-u235]-b[uncrate]",
-    make_icons(deer_ammo_icon, uranium_235_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-atomic-u235-crate", amount = 1},
     },
@@ -507,6 +645,7 @@ local atomic_u235_uncrating = clone_recipe(
 )
 if atomic_u235_uncrating then
     atomic_u235_uncrating.allow_productivity = false
+    set_composite_icons(atomic_u235_uncrating, make_imported_recipe_icons(deer_ammo_atomic_u235_direct_icon, uranium_235_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = atomic_u235_uncrating
 end
 
@@ -514,7 +653,7 @@ local atomic_plutonium_crating = clone_recipe(
     "dw-deer-crating-basic",
     "dw-deer-crating-atomic-plutonium",
     "d[cannon-shell]-d551[doeworks]-a[deer]-e[atomic-plutonium]-a[crate]",
-    make_icons(deer_crate_icon, plutonium_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-atomic-plutonium", amount = 12},
         {type = "item", name = "steel-plate", amount = 1},
@@ -532,7 +671,7 @@ local atomic_plutonium_uncrating = clone_recipe(
     "dw-deer-uncrating-basic",
     "dw-deer-uncrating-atomic-plutonium",
     "d[cannon-shell]-d551[doeworks]-a[deer]-e[atomic-plutonium]-b[uncrate]",
-    make_icons(deer_ammo_icon, plutonium_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-atomic-plutonium-crate", amount = 1},
     },
@@ -542,6 +681,7 @@ local atomic_plutonium_uncrating = clone_recipe(
 )
 if atomic_plutonium_uncrating then
     atomic_plutonium_uncrating.allow_productivity = false
+    set_composite_icons(atomic_plutonium_uncrating, make_imported_recipe_icons(deer_ammo_atomic_plutonium_direct_icon, plutonium_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = atomic_plutonium_uncrating
 end
 
@@ -549,7 +689,7 @@ local cryo_crating = clone_recipe(
     "dw-deer-crating-basic",
     "dw-deer-crating-cryo",
     "d[cannon-shell]-d551[doeworks]-a[deer]-c[cryo]-a[crate]",
-    make_icons(deer_crate_icon, cryodust_icon),
+    ei_lib.make_icons(deer_crate_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-cryo", amount = 12},
         {type = "item", name = "steel-plate", amount = 1},
@@ -566,7 +706,7 @@ local cryo_uncrating = clone_recipe(
     "dw-deer-uncrating-basic",
     "dw-deer-uncrating-cryo",
     "d[cannon-shell]-d551[doeworks]-a[deer]-c[cryo]-b[uncrate]",
-    make_icons(deer_ammo_icon, cryodust_icon),
+    ei_lib.make_icons(deer_ammo_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
     {
         {type = "item", name = "dw-deer-ammo-cryo-crate", amount = 1},
     },
@@ -575,6 +715,7 @@ local cryo_uncrating = clone_recipe(
     }
 )
 if cryo_uncrating then
+    set_composite_icons(cryo_uncrating, make_imported_recipe_icons(deer_ammo_cryo_direct_icon, cryodust_icon))
     doeworks_prototypes[#doeworks_prototypes + 1] = cryo_uncrating
 end
 
@@ -594,6 +735,33 @@ local corrosive_visual_effects = {
         type = "create-entity",
         entity_name = "ei-corrosive-rocket-explosion",
     },
+    {
+        type = "create-entity",
+        entity_name = "ei-corrosive-rocket-cloud",
+        trigger_created_entity = true,
+    },
+}
+
+local corrosive_sticker_effects = {
+    {
+        type = "create-sticker",
+        sticker = "ei-corrosive-rocket-sticker",
+        show_in_tooltip = true,
+    },
+}
+
+if data.raw.sticker["ei-corrosive-rocket-toxic-sticker"] then
+    corrosive_sticker_effects[#corrosive_sticker_effects + 1] = {
+        type = "create-sticker",
+        sticker = "ei-corrosive-rocket-toxic-sticker",
+        show_in_tooltip = false,
+    }
+end
+
+corrosive_sticker_effects[#corrosive_sticker_effects + 1] = {
+    type = "damage",
+    damage = {amount = 48, type = "acid"},
+    apply_damage_to_trees = false,
 }
 
 local cryo_visual_effects = {
@@ -609,18 +777,7 @@ local corrosive_payload_action = {
     show_in_tooltip = false,
     action_delivery = {
         type = "instant",
-        target_effects = {
-            {
-                type = "create-sticker",
-                sticker = "ei-corrosive-rocket-sticker",
-                show_in_tooltip = true,
-            },
-            {
-                type = "damage",
-                damage = {amount = 18, type = "acid"},
-                apply_damage_to_trees = false,
-            },
-        },
+        target_effects = corrosive_sticker_effects,
     },
 }
 
@@ -638,7 +795,7 @@ local cryo_payload_action = {
             },
             {
                 type = "damage",
-                damage = {amount = 11, type = "cold"},
+                damage = {amount = 24, type = "cold"},
                 apply_damage_to_trees = false,
             },
         },
@@ -680,49 +837,119 @@ for _, stream_name in ipairs(cryo_streams) do
     add_stream_payload_action(stream_name, cryo_payload_action)
 end
 
-local atomic_streams = {
+local atomic_u235_streams = {
     "ei-dw-deer-atomic-u235-stream",
     "ei-dw-deer-atomic-u235-cratestream",
     "ei-dw-deer-atomic-u235-cratestreambad",
     "ei-dw-deer-atomic-u235-cratestreamworse",
+}
+
+local atomic_plutonium_streams = {
     "ei-dw-deer-atomic-plutonium-stream",
     "ei-dw-deer-atomic-plutonium-cratestream",
     "ei-dw-deer-atomic-plutonium-cratestreambad",
     "ei-dw-deer-atomic-plutonium-cratestreamworse",
 }
 
+if atomic_rocket_u235_action then
+    for _, stream_name in ipairs(atomic_u235_streams) do
+        add_stream_payload_action(stream_name, atomic_rocket_u235_action)
+    end
+end
+
 if atomic_rocket_action then
-    for _, stream_name in ipairs(atomic_streams) do
+    for _, stream_name in ipairs(atomic_plutonium_streams) do
         add_stream_payload_action(stream_name, atomic_rocket_action)
     end
 end
 
-add_unlock_if_present("dw-deer-tech", "dw-deer-ammo-basic")
-add_unlock_if_present("dw-deer-tech", "dw-deer-crating-basic")
-add_unlock_if_present("dw-deer-tech", "dw-deer-uncrating-basic")
-add_unlock_if_present("dw-deer-tech", "ei-rocket-warhead-siege")
+ei_lib.add_unlock_recipe("dw-deer-tech", "dw-deer-ammo-basic")
+ei_lib.add_unlock_recipe("dw-deer-tech", "dw-deer-crating-basic")
+ei_lib.add_unlock_recipe("dw-deer-tech", "dw-deer-uncrating-basic")
+ei_lib.add_unlock_recipe("dw-deer-tech", "ei-rocket-warhead-siege")
 
-add_unlock_if_present("ei-corrosive-rocketry", "ei-rocket-warhead-corrosive")
-add_unlock_if_present("ei-corrosive-rocketry", "dw-deer-ammo-corrosive")
-add_unlock_if_present("ei-corrosive-rocketry", "dw-deer-crating-corrosive")
-add_unlock_if_present("ei-corrosive-rocketry", "dw-deer-uncrating-corrosive")
+ei_lib.add_unlock_recipe("ei-corrosive-rocketry", "ei-rocket-warhead-corrosive")
+ei_lib.add_unlock_recipe("ei-corrosive-rocketry", "dw-deer-ammo-corrosive")
+ei_lib.add_unlock_recipe("ei-corrosive-rocketry", "dw-deer-crating-corrosive")
+ei_lib.add_unlock_recipe("ei-corrosive-rocketry", "dw-deer-uncrating-corrosive")
 
-add_unlock_if_present("ei-cryo-rocketry", "ei-rocket-warhead-cryo")
-add_unlock_if_present("ei-cryo-rocketry", "dw-deer-ammo-cryo")
-add_unlock_if_present("ei-cryo-rocketry", "dw-deer-crating-cryo")
-add_unlock_if_present("ei-cryo-rocketry", "dw-deer-uncrating-cryo")
+ei_lib.add_unlock_recipe("ei-cryo-rocketry", "ei-rocket-warhead-cryo")
+ei_lib.add_unlock_recipe("ei-cryo-rocketry", "dw-deer-ammo-cryo")
+ei_lib.add_unlock_recipe("ei-cryo-rocketry", "dw-deer-crating-cryo")
+ei_lib.add_unlock_recipe("ei-cryo-rocketry", "dw-deer-uncrating-cryo")
 
-add_unlock_if_present("atomic-bomb", "dw-deer-ammo-atomic-u235")
-add_unlock_if_present("atomic-bomb", "dw-deer-crating-atomic-u235")
-add_unlock_if_present("atomic-bomb", "dw-deer-uncrating-atomic-u235")
-add_unlock_if_present("ei-plutonium-warheads", "dw-deer-ammo-atomic-plutonium")
-add_unlock_if_present("ei-plutonium-warheads", "dw-deer-crating-atomic-plutonium")
-add_unlock_if_present("ei-plutonium-warheads", "dw-deer-uncrating-atomic-plutonium")
+ei_lib.add_unlock_recipe("atomic-bomb", "dw-deer-ammo-atomic-u235")
+ei_lib.add_unlock_recipe("atomic-bomb", "dw-deer-crating-atomic-u235")
+ei_lib.add_unlock_recipe("atomic-bomb", "dw-deer-uncrating-atomic-u235")
+ei_lib.add_unlock_recipe("ei-plutonium-warheads", "dw-deer-ammo-atomic-plutonium")
+ei_lib.add_unlock_recipe("ei-plutonium-warheads", "dw-deer-crating-atomic-plutonium")
+ei_lib.add_unlock_recipe("ei-plutonium-warheads", "dw-deer-uncrating-atomic-plutonium")
 
-patch_stream_damage("dw-deer-basic-stream", {physical = 90, explosion = 300})
-patch_stream_damage("dw-deer-basic-cratestream", {physical = 450})
-patch_stream_damage("dw-deer-basic-cratestreambad", {physical = 90, explosion = 300})
-patch_stream_damage("dw-deer-basic-cratestreamworse", {physical = 90, explosion = 300})
+for _, tech_name in ipairs({
+    "weapon-shooting-speed-3",
+    "weapon-shooting-speed-4",
+    "weapon-shooting-speed-5",
+    "weapon-shooting-speed-6",
+    "weapon-shooting-speed-7",
+}) do
+    mirror_gun_speed_bonus(tech_name, "rocket", "dw-deer-ammo")
+end
+
+for _, stream_name in ipairs({
+    "dw-deer-basic-stream",
+    "dw-deer-basic-cratestream",
+    "ei-dw-deer-corrosive-stream",
+    "ei-dw-deer-corrosive-cratestream",
+    "ei-dw-deer-cryo-stream",
+    "ei-dw-deer-cryo-cratestream",
+    "ei-dw-deer-atomic-u235-stream",
+    "ei-dw-deer-atomic-u235-cratestream",
+    "ei-dw-deer-atomic-plutonium-stream",
+    "ei-dw-deer-atomic-plutonium-cratestream",
+}) do
+    set_stream_speed(stream_name, 0.9)
+end
+
+for _, stream_name in ipairs({
+    "dw-deer-basic-cratestreambad",
+    "ei-dw-deer-corrosive-cratestreambad",
+    "ei-dw-deer-cryo-cratestreambad",
+    "ei-dw-deer-atomic-u235-cratestreambad",
+    "ei-dw-deer-atomic-plutonium-cratestreambad",
+}) do
+    set_stream_speed(stream_name, 0.45)
+end
+
+for _, stream_name in ipairs({
+    "dw-deer-basic-cratestreamworse",
+    "ei-dw-deer-corrosive-cratestreamworse",
+    "ei-dw-deer-cryo-cratestreamworse",
+    "ei-dw-deer-atomic-u235-cratestreamworse",
+    "ei-dw-deer-atomic-plutonium-cratestreamworse",
+}) do
+    set_stream_speed(stream_name, 0.6)
+end
+
+patch_stream_damage("dw-deer-basic-stream", {physical = 210, explosion = 640})
+patch_stream_damage("dw-deer-basic-cratestream", {physical = 1000})
+patch_stream_damage("dw-deer-basic-cratestreambad", {physical = 210, explosion = 640})
+patch_stream_damage("dw-deer-basic-cratestreamworse", {physical = 210, explosion = 640})
+patch_stream_damage("ei-dw-deer-corrosive-stream", {physical = 150, explosion = 450})
+patch_stream_damage("ei-dw-deer-corrosive-cratestream", {physical = 700})
+patch_stream_damage("ei-dw-deer-corrosive-cratestreambad", {physical = 150, explosion = 450})
+patch_stream_damage("ei-dw-deer-corrosive-cratestreamworse", {physical = 150, explosion = 450})
+retag_stream_damage("ei-dw-deer-corrosive-stream", "explosion", "acid")
+retag_stream_damage("ei-dw-deer-corrosive-cratestream", "explosion", "acid")
+retag_stream_damage("ei-dw-deer-corrosive-cratestreambad", "explosion", "acid")
+retag_stream_damage("ei-dw-deer-corrosive-cratestreamworse", "explosion", "acid")
+patch_stream_damage("ei-dw-deer-cryo-stream", {physical = 150, explosion = 450})
+patch_stream_damage("ei-dw-deer-cryo-cratestream", {physical = 700})
+patch_stream_damage("ei-dw-deer-cryo-cratestreambad", {physical = 150, explosion = 450})
+patch_stream_damage("ei-dw-deer-cryo-cratestreamworse", {physical = 150, explosion = 450})
+retag_stream_damage("ei-dw-deer-cryo-stream", "explosion", "cold")
+retag_stream_damage("ei-dw-deer-cryo-cratestream", "explosion", "cold")
+retag_stream_damage("ei-dw-deer-cryo-cratestreambad", "explosion", "cold")
+retag_stream_damage("ei-dw-deer-cryo-cratestreamworse", "explosion", "cold")
 patch_stream_damage("ei-dw-deer-atomic-u235-stream", {physical = 90, explosion = 300})
 patch_stream_damage("ei-dw-deer-atomic-u235-cratestream", {physical = 450})
 patch_stream_damage("ei-dw-deer-atomic-u235-cratestreambad", {physical = 90, explosion = 300})

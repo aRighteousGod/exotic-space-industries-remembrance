@@ -39,6 +39,12 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Encoding detection is part of `preflight` and the `qc-*` wrapper surface. Pass `-FixEncoding` when you want the harness to rewrite non-UTF-8 or repaired mojibake sources as UTF-8.
 - When a shared helper surface changes in a way future Codex runs should follow, update the matching skill/reference guidance in the same patch.
 
+## ESIR QC Helpers
+
+- Keep reusable ESIR-only QC companion mods in this skill's `assets/` folder instead of leaving them only in `.factorio-qc`.
+- The Vulcanus auric fumarole benchmark helper lives at [`assets/zzz-auric-fumarole-qc_0.0.1`](./assets/zzz-auric-fumarole-qc_0.0.1). Use [`references/auric-fumarole-qc-helper.md`](./references/auric-fumarole-qc-helper.md) when a run needs radial-band, off-center-placement, or non-Vulcanus-isolation telemetry.
+- Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
+
 ## Shared Lua Helpers
 
 When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule set: inspect [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-industries-remembrance/lib/lib.lua) before adding new local helpers.

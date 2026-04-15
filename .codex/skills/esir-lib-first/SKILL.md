@@ -13,6 +13,9 @@ Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-i
 
 - Reuse an existing `ei_lib` function when it already covers the need.
 - If the gap is small and the behavior is broadly useful, extend or harden `ei_lib` instead of adding another file-local helper.
+- Do not add `*_if_present` wrappers around `ei_lib.add_unlock_recipe`; it already nil-guards missing techs and recipes and leaves the caller cleaner when used directly.
+- When a patch needs to replace recipe ingredients and also clear legacy `normal`/`expensive` variants or force `enabled`, prefer `ei_lib.recipe_new(..., opts)` over a file-local `set_recipe_ingredients` helper.
+- When multiple files need the same layered icon composition, prefer `ei_lib.make_icons(...)` over cloning another local `make_icons` helper.
 - For runtime queue, delayed-bucket, telemetry-gate, counter, cadence, or status-snapshot plumbing, inspect `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` before adding or extending `ei_lib`.
 - For runtime entity safety, prefer `ei_lib.entity_check`, `ei_lib.get_valid_entity`, and `ei_lib.get_entity_unit_number` over reviving file-local `entity ~= nil and entity.valid` clones. `get_entity_unit_number` is only safe key extraction, not proof the entity can be dereferenced.
 - If a runtime module relies on tombstoned queue entries, live-set tracking, or other queue semantics that the shared scheduler almost covers, extend `runtime-scheduler.lua` compatibly before reviving a private dequeue helper.

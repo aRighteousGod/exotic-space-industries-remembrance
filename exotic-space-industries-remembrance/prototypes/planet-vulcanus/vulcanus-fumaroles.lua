@@ -77,37 +77,44 @@ auric_fumarole.icon = auric_vapor_icons.icons[1].icon
 auric_fumarole.icon_size = auric_vapor_icons.icon_size
 auric_fumarole.icons = auric_vapor_icons.icons
 
-local auric_sound_proxy = {
-    type = "electric-energy-interface",
-    name = "ei-auric-fumarole-sound-proxy",
-    icon = auric_vapor_icons.icons[1].icon,
-    icon_size = auric_vapor_icons.icon_size,
-    flags = {"not-blueprintable", "not-deconstructable", "not-on-map", "not-flammable", "not-repairable", "not-upgradable", "hide-alt-info"},
-    hidden = true,
-    hidden_in_factoriopedia = true,
-    selectable_in_game = false,
-    gui_mode = "none",
-    allow_copy_paste = false,
-    collision_box = {{0, 0}, {0, 0}},
-    selection_box = {{0, 0}, {0, 0}},
-    picture = util.empty_sprite(),
-    energy_source = {
-        type = "electric",
-        buffer_capacity = "1kJ",
-        usage_priority = "secondary-input",
-        input_flow_limit = "0W",
-        output_flow_limit = "0W",
-    },
-    energy_usage = "0W",
-    working_sound = {
-        sound = {
-            filename = "__base__/sound/chemical-plant-3.ogg",
-            volume = 0.18,
-            audible_distance_modifier = 0.4,
+-- Sulfuric geyser ambience already works directly on the resource prototype, so the auric clone
+-- follows the same path instead of depending on a hidden helper entity with its own live state.
+auric_fumarole.working_sound = {
+    sound = {
+        category = "world-ambient",
+        variations = {
+            {
+                filename = ei_path.."sounds/auric-fumarole.ogg",
+                volume = 0.3,
+            },
         },
-        max_sounds_per_prototype = 2,
+        advanced_volume_control = {
+            fades = {
+                fade_in = {
+                    curve_type = "S-curve",
+                    from = {control = 0.3, volume_percentage = 0.0},
+                    to = {2.0, 100.0},
+                },
+            },
+        },
+        audible_distance_modifier = 0.3,
     },
+    max_sounds_per_prototype = 3,
 }
+
+-- The art stays sulfuric-derived on purpose, but the copied vapor and rock are warmed toward
+-- auric steam and gold-bearing condensate so players can read the chemistry at a glance.
+if auric_fumarole.stages and auric_fumarole.stages.layers and auric_fumarole.stages.layers[1] then
+    auric_fumarole.stages.layers[1].tint = {r = 1.0, g = 0.88, b = 0.70, a = 0.22}
+end
+if auric_fumarole.stateless_visualisation then
+    if auric_fumarole.stateless_visualisation[1] and auric_fumarole.stateless_visualisation[1].animation then
+        auric_fumarole.stateless_visualisation[1].animation.tint = util.multiply_color({r = 0.96, g = 0.86, b = 0.55}, 0.28)
+    end
+    if auric_fumarole.stateless_visualisation[2] and auric_fumarole.stateless_visualisation[2].animation then
+        auric_fumarole.stateless_visualisation[2].animation.tint = util.multiply_color({r = 1.0, g = 0.92, b = 0.68}, 0.55)
+    end
+end
 
 local auric_afterglow = {
     type = "animation",
@@ -167,7 +174,6 @@ data:extend({
         subgroup = "intermediate-product",
         order = "z[carbide-precipitation-core]",
     },
-    auric_sound_proxy,
     auric_afterglow,
     {
         type = "recipe",
@@ -178,7 +184,7 @@ data:extend({
             {type = "item", name = "ei-slag", amount = 5},
         },
         results = {
-            {type = "item", name = "ei-crushed-slag", amount = 5},
+            {type = "item", name = "ei-crushed-slag", amount = 10},
         },
         always_show_made_in = true,
         enabled = false,
@@ -187,11 +193,11 @@ data:extend({
     {
         type = "recipe",
         name = "ei-carbide-precipitation-core",
-        category = "ei-crushing",
+        category = "crafting",
         energy_required = 6,
         ingredients = {
             {type = "item", name = "tungsten-carbide", amount = 2},
-            {type = "item", name = "ei-crushed-slag", amount = 4},
+            {type = "item", name = "ei-crushed-slag", amount = 8},
             {type = "item", name = "calcite", amount = 1},
         },
         results = {
@@ -257,7 +263,7 @@ data:extend({
         energy_required = 10,
         ingredients = {
             {type = "fluid", name = "sulfuric-acid", amount = 100},
-            {type = "item", name = "ei-crushed-slag", amount = 100},
+            {type = "item", name = "ei-crushed-slag", amount = 200},
         },
         results = {
             fluid_result("ei-acidic-water", 15, 45, 45),
@@ -283,7 +289,7 @@ data:extend({
         energy_required = 8,
         ingredients = {
             {type = "fluid", name = "ei-nitric-acid", amount = 33},
-            {type = "item", name = "ei-crushed-slag", amount = 100},
+            {type = "item", name = "ei-crushed-slag", amount = 200},
         },
         results = {
             fluid_result("ei-acidic-water", 5, 15, 15),
@@ -310,7 +316,7 @@ data:extend({
         ingredients = {
             {type = "fluid", name = "ei-morphium", amount = 10},
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
-            {type = "item", name = "ei-crushed-slag", amount = 100},
+            {type = "item", name = "ei-crushed-slag", amount = 200},
         },
         results = {
             fluid_result("ei-bio-sludge", 1, 2, 2),

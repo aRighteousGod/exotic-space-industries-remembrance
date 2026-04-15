@@ -1,30 +1,39 @@
 local ei_lib = require("lib/lib")
 
-local function set_recipe_ingredients(recipe_name, ingredients)
-    local recipe = data.raw.recipe[recipe_name]
-    if not recipe then
-        return
-    end
-
-    recipe.normal = nil
-    recipe.expensive = nil
-    recipe.ingredients = ingredients
-    recipe.enabled = false
-end
-
-set_recipe_ingredients("rocket", {
+ei_lib.recipe_new("rocket", {
     {type = "item", name = "ei-rocket-airframe", amount = 1},
     {type = "item", name = "ei-rocket-motor-basic", amount = 1},
     {type = "item", name = "ei-rocket-warhead-impact", amount = 1},
+}, {
+    clear_difficulty_variants = true,
+    enabled = false,
 })
 
-set_recipe_ingredients("explosive-rocket", {
+ei_lib.recipe_new("explosive-rocket", {
     {type = "item", name = "ei-rocket-airframe", amount = 1},
     {type = "item", name = "ei-rocket-motor-basic", amount = 1},
     {type = "item", name = "ei-rocket-warhead-explosive", amount = 1},
+}, {
+    clear_difficulty_variants = true,
+    enabled = false,
 })
 
 ei_lib.recipe_swap("rocket-turret", "processing-unit", "ei-electronic-parts", 20)
+
+local rocket_turret = data.raw["ammo-turret"] and data.raw["ammo-turret"]["rocket-turret"]
+if rocket_turret and rocket_turret.attack_parameters then
+    if rocket_turret.attack_parameters.range and rocket_turret.attack_parameters.range < 40 then
+        rocket_turret.attack_parameters.range = 40
+    end
+
+    rocket_turret.attack_parameters.health_penalty = -1
+end
+
+local rocket_launcher = data.raw.gun and data.raw.gun["rocket-launcher"]
+if rocket_launcher and rocket_launcher.attack_parameters and rocket_launcher.attack_parameters.range
+    and rocket_launcher.attack_parameters.range < 40 then
+    rocket_launcher.attack_parameters.range = 40
+end
 
 ei_lib.add_unlock_recipe("rocketry", "ei-rocket-airframe")
 ei_lib.add_unlock_recipe("rocketry", "ei-rocket-motor-basic")

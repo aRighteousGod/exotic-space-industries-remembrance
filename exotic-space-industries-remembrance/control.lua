@@ -77,6 +77,13 @@ ei_steam_train = require("scripts/control/steam-train")
 ei_camp_fire = require("scripts/control/camp-fire")
 orbital_combinator = require("scripts/control/orbital-combinator")
 
+local function forward_orbital_combinator_event(handler_name, event)
+    local handler = orbital_combinator and orbital_combinator[handler_name]
+    if handler then
+        handler(event)
+    end
+end
+
 local function refresh_runtime_telemetry_snapshot()
     if not ei_runtime_scheduler.telemetry_enabled() then
         return
@@ -202,6 +209,11 @@ script.on_event({
         ei_teslas_legacy.on_entity_died(e)
         ei_flammable_fluids.on_entity_died(e)
     end
+    if e.name == defines.events.on_entity_died or e.name == defines.events.script_raised_destroy then
+        -- Orbital cargo tracking only cares about already-tracked objects here, so the
+        -- runtime can early-out by unit number without broad entity cleanup work.
+        forward_orbital_combinator_event("on_destroyed_entity", e)
+    end
     on_destroyed_entity(e)
 end)
 
@@ -278,7 +290,24 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
     orbital_combinator.on_space_platform_changed_state(e)
 end)
 
+script.on_event(defines.events.on_cargo_pod_finished_ascending, function(e)
+    forward_orbital_combinator_event("on_cargo_pod_finished_ascending", e)
+end)
+
+script.on_event(defines.events.on_cargo_pod_started_ascending, function(e)
+    forward_orbital_combinator_event("on_cargo_pod_started_ascending", e)
+end)
+
+script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
+    forward_orbital_combinator_event("on_cargo_pod_delivered_cargo", e)
+end)
+
+script.on_event(defines.events.on_object_destroyed, function(e)
+    forward_orbital_combinator_event("on_object_destroyed", e)
+end)
+
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
+    forward_orbital_combinator_event("on_rocket_launch_ordered", e)
     ei_rocket_launch_pollution.on_rocket_launch_ordered(e)
 end)
 
@@ -349,6 +378,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
         ei_black_hole.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-gate" or name == "ei-gate-container" then
         ei_gate.on_gui_opened(event)
+    elseif name == "ei-orbital-combinator" then
+        forward_orbital_combinator_event("on_gui_opened", event)
     elseif name == "ei-fueler" then
         ei_fueler.open_gui(game.get_player(event.player_index))
     end
@@ -370,6 +401,8 @@ script.on_event(defines.events.on_gui_closed, function(event)
         ei_black_hole.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-gate-container" then
         ei_gate.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
+    elseif name == "ei-orbital-combinator" or element_name == "ei-orbital-combinator-console" then
+        forward_orbital_combinator_event("on_gui_closed", event)
     elseif name == "ei-fueler" then
         ei_fueler.close_gui(game.get_player(event.player_index))
     end
@@ -394,6 +427,8 @@ script.on_event(defines.events.on_gui_click, function(event)
         ei_gate.on_gui_click(event)
     elseif parent_gui == "ei-alien-gui" then
         ei_alien_system.on_gui_click(event)
+    elseif parent_gui == "ei-orbital-combinator-console" then
+        forward_orbital_combinator_event("on_gui_click", event)
     elseif parent_gui == "ei-fueler-console" then
         ei_fueler.on_gui_click(event)
     elseif parent_gui == "mod_gui" then
@@ -634,19 +669,27 @@ function updater(event)
 
        if ei_update_step == 5 then
            -- Step 5 mirrors logistic/platform state into orbital combinators.
-           local bank_count = 0
-           if storage.ei and storage.ei.orbital_combinator_bank_count and storage.ei.orbital_combinator_bank_count > 0 then
-                bank_count = storage.ei.orbital_combinator_bank_count
-                updates_needed = math.max(1,math.min(math.ceil(bank_count / divisor), ei_maxEntityUpdates))
-                 end
-            if bank_count > 0 then
+           local pending_work_count = 0
+           if orbital_combinator then
+               if orbital_combinator.get_pending_work_count then
+                   pending_work_count = orbital_combinator.get_pending_work_count() or 0
+               elseif orbital_combinator.get_bank_count then
+                   pending_work_count = orbital_combinator.get_bank_count() or 0
+               end
+           end
+           if pending_work_count > 0 then
+                updates_needed = math.max(1,math.min(math.ceil(pending_work_count / divisor), ei_maxEntityUpdates))
                 for i = 1, updates_needed do
-                    local current_bank_count = 0
-                    if storage.ei and storage.ei.orbital_combinator_bank_count and storage.ei.orbital_combinator_bank_count > 0 then
-                        current_bank_count = storage.ei.orbital_combinator_bank_count
+                    local current_pending_work_count = 0
+                    if orbital_combinator then
+                        if orbital_combinator.get_pending_work_count then
+                            current_pending_work_count = orbital_combinator.get_pending_work_count() or 0
+                        elseif orbital_combinator.get_bank_count then
+                            current_pending_work_count = orbital_combinator.get_bank_count() or 0
+                        end
                     end
-                    if current_bank_count == 0
-                    or math.max(1,math.min(math.ceil(current_bank_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                    if current_pending_work_count == 0
+                    or math.max(1,math.min(math.ceil(current_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                         goto skip
                     end
                     if not orbital_combinator.update() then

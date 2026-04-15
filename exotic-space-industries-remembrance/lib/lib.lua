@@ -848,7 +848,17 @@ function ei_lib.recipe_remove(recipe, ingredient)
 end
 
 -- set a completly new set of ingredients for recipe
-function ei_lib.recipe_new(recipe, table_in, category)
+-- opts supports:
+--   clear_difficulty_variants = true -> clears legacy normal/expensive tables
+--   enabled = boolean -> explicitly sets recipe.enabled
+function ei_lib.recipe_new(recipe, table_in, category, opts)
+    if type(category) == "table" and opts == nil then
+        opts = category
+        category = nil
+    end
+
+    opts = opts or {}
+
     -- test if recipe exists in data.raw.recipe
     if not data.raw.recipe[recipe] then
         log("recipe "..recipe.." does not exist in data.raw.recipe")
@@ -857,12 +867,56 @@ function ei_lib.recipe_new(recipe, table_in, category)
     if category then
       if data.raw.recipe[recipe].category then
         data.raw.recipe[recipe].category = category
-      else
+        else
         log("recipe "..recipe.." does not have a category field, cannot set category to "..category)
       end
     end
+    if opts.clear_difficulty_variants then
+      data.raw.recipe[recipe].normal = nil
+      data.raw.recipe[recipe].expensive = nil
+    end
     -- set ingredients
     data.raw.recipe[recipe].ingredients = table_in
+    if opts.enabled ~= nil then
+      data.raw.recipe[recipe].enabled = opts.enabled
+    end
+end
+
+function ei_lib.make_icons(base_icon, base_size, overlay_icon, overlay_size, overlay_scale, overlay_shift, overlay_tint, options)
+    local base_mipmaps
+    local overlay_mipmaps
+    local base_scale
+    local base_shift
+
+    if type(options) == "table" then
+        base_mipmaps = options.base_mipmaps or options.icon_mipmaps or options.base_icon_mipmaps
+        overlay_mipmaps = options.overlay_mipmaps or options.overlay_icon_mipmaps
+        base_scale = options.base_scale
+        base_shift = options.base_shift
+    end
+
+    local icons = {
+        {
+            icon = base_icon,
+            icon_size = base_size or 64,
+            icon_mipmaps = base_mipmaps,
+            scale = base_scale,
+            shift = base_shift,
+        },
+    }
+
+    if overlay_icon then
+        icons[#icons + 1] = {
+            icon = overlay_icon,
+            icon_size = overlay_size or 64,
+            icon_mipmaps = overlay_mipmaps,
+            scale = overlay_scale or 0.45,
+            shift = overlay_shift or {8, 8},
+            tint = overlay_tint,
+        }
+    end
+
+    return icons
 end
 
 function ei_lib.recipe_hard_overwrite(recipe, ingredients)

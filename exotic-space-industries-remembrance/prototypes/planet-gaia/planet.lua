@@ -116,6 +116,7 @@ data:extend({
     subgroup = "planets",
     map_gen_settings = planet_map_gen.gaia(),
     solar_power_in_space = 160,
+    pollutant_type = "pollution",
     platform_procession_set = gaia_platform_procession_set,
     planet_procession_set = gaia_planet_procession_set,
     procession_graphic_catalogue = gaia_procession_catalogue,

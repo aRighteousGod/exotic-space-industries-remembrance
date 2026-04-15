@@ -14,6 +14,7 @@ local smoke_glow_sheet = "__base__/graphics/entity/fire-smoke/fire-smoke-glow.pn
 local stream_spine_sheet = "__base__/graphics/entity/flamethrower-fire-stream/flamethrower-fire-stream-spine.png"
 local stream_particle_sheet = "__base__/graphics/entity/flamethrower-fire-stream/flamethrower-explosion.png"
 local stream_shadow_sheet = "__base__/graphics/entity/acid-projectile/projectile-shadow.png"
+local toxic_biters_enabled = mods["Toxic_biters"]
 
 local function sound_variations(volume_scale)
     local files = {
@@ -101,6 +102,93 @@ local function make_explosion(name, opts)
     }
 end
 
+local function apply_animation_overrides(root, opts)
+    if type(root) ~= "table" then
+        return
+    end
+
+    if root.filename or root.filenames or root.stripes then
+        if opts.scale ~= nil then
+            root.scale = opts.scale
+        end
+        if opts.shift ~= nil then
+            root.shift = opts.shift
+        end
+        if opts.tint ~= nil then
+            root.tint = opts.tint
+        end
+        if opts.animation_speed ~= nil then
+            root.animation_speed = opts.animation_speed
+        end
+        if opts.draw_as_glow ~= nil then
+            root.draw_as_glow = opts.draw_as_glow
+        end
+    end
+
+    for _, value in pairs(root) do
+        if type(value) == "table" then
+            apply_animation_overrides(value, opts)
+        end
+    end
+end
+
+local function clone_explosion(name, source_name, opts)
+    opts = opts or {}
+
+    local source = data.raw.explosion[source_name]
+    if not source then
+        return make_explosion(name, opts.fallback)
+    end
+
+    local explosion = table.deepcopy(source)
+    explosion.name = name
+    explosion.flags = {"not-on-map"}
+    explosion.subgroup = "explosions"
+    explosion.order = opts.order or explosion.order or "c-a-a"
+
+    if opts.smoke ~= nil then
+        explosion.smoke = opts.smoke
+    end
+    if opts.smoke_count ~= nil then
+        explosion.smoke_count = opts.smoke_count
+    end
+    if opts.smoke_slow_down_factor ~= nil then
+        explosion.smoke_slow_down_factor = opts.smoke_slow_down_factor
+    end
+    if opts.sound ~= nil then
+        explosion.sound = opts.sound
+    end
+    if opts.light ~= nil then
+        explosion.light = opts.light
+    end
+    if opts.remove_created_effect then
+        explosion.created_effect = nil
+    elseif opts.created_effect ~= nil then
+        explosion.created_effect = opts.created_effect
+    end
+    if opts.scale_out_duration ~= nil then
+        explosion.scale_out_duration = opts.scale_out_duration
+    end
+    if opts.scale_end ~= nil then
+        explosion.scale_end = opts.scale_end
+    end
+    if opts.light_intensity_peak_end_progress ~= nil then
+        explosion.light_intensity_peak_end_progress = opts.light_intensity_peak_end_progress
+    end
+    if opts.light_size_peak_start_progress ~= nil then
+        explosion.light_size_peak_start_progress = opts.light_size_peak_start_progress
+    end
+    if opts.light_size_peak_end_progress ~= nil then
+        explosion.light_size_peak_end_progress = opts.light_size_peak_end_progress
+    end
+    if opts.scale_animation_speed ~= nil then
+        explosion.scale_animation_speed = opts.scale_animation_speed
+    end
+
+    apply_animation_overrides(explosion.animations, opts)
+    return explosion
+end
+
 local function make_smoke(name, opts)
     opts = opts or {}
 
@@ -175,6 +263,37 @@ local function make_sticker(name, opts)
     }
 end
 
+local function make_optional_corrosive_toxic_sticker(name)
+    if not toxic_biters_enabled then
+        return nil
+    end
+
+    local source = data.raw.sticker["tb-fire-sticker"]
+        or data.raw.sticker["tb-poison-sticker"]
+        or data.raw.sticker["tb_poison_sticker"]
+        or data.raw.sticker["ei-poison-sticker"]
+    if not source then
+        return nil
+    end
+
+    local sticker = table.deepcopy(source)
+    sticker.name = name or "ei-corrosive-rocket-toxic-sticker"
+    sticker.flags = {"not-on-map"}
+    sticker.duration_in_ticks = 5 * 60
+    sticker.damage_per_tick = {
+        amount = 3 / 60,
+        type = "poison",
+    }
+
+    if sticker.animation then
+        sticker.animation = table.deepcopy(sticker.animation)
+        sticker.animation.tint = {r = 0.72, g = 0.3, b = 0.9, a = 0.72}
+        sticker.animation.scale = sticker.animation.scale or 0.5
+    end
+
+    return sticker
+end
+
 local function stream_sprites(tint)
     return {
         spine_animation = util.draw_as_glow {
@@ -241,6 +360,167 @@ local function make_stream(name, opts)
     }
 end
 
+local function make_corrosive_cloud_visual()
+    local source = data.raw["smoke-with-trigger"]["tb_poison-cloud-visual-dummy"]
+        or data.raw["smoke-with-trigger"]["poison-cloud-visual-dummy"]
+
+    local visual = source and table.deepcopy(source) or {
+        type = "smoke-with-trigger",
+        name = "ei-corrosive-rocket-cloud-visual",
+        flags = {"not-on-map"},
+        show_when_smoke_off = true,
+        particle_count = 8,
+        particle_spread = {3.2, 2.0},
+        particle_distance_scale_factor = 0.1,
+        particle_duration_variance = 60,
+        wave_distance = {0.3, 0.2},
+        wave_speed = {0.012, 0.014},
+        duration = 8 * 60,
+        fade_away_duration = 2 * 60,
+        spread_duration = 6 * 60,
+        color = {r = 0.22, g = 0.85, b = 0.3, a = 0.35},
+        animation = {
+            width = 152,
+            height = 120,
+            line_length = 5,
+            frame_count = 60,
+            shift = {-0.53125, -0.4375},
+            priority = "high",
+            animation_speed = 0.25,
+            filename = "__base__/graphics/entity/smoke/smoke.png",
+            flags = {"compressed"},
+        },
+        affected_by_wind = false,
+        cyclic = true,
+    }
+
+    visual.name = "ei-corrosive-rocket-cloud-visual"
+    visual.flags = {"not-on-map"}
+    visual.show_when_smoke_off = true
+    visual.duration = 8 * 60
+    visual.fade_away_duration = 2 * 60
+    visual.spread_duration = 6 * 60
+    visual.color = {r = 0.22, g = 0.85, b = 0.3, a = 0.35}
+    visual.affected_by_wind = false
+    visual.cyclic = true
+
+    if visual.animation then
+        visual.animation = table.deepcopy(visual.animation)
+        visual.animation.tint = {r = 0.45, g = 1.0, b = 0.42, a = 0.75}
+    end
+
+    return visual
+end
+
+local function make_corrosive_cloud(name, pulse_damage)
+    local source = data.raw["smoke-with-trigger"]["tb_poison_cloud_1"]
+        or data.raw["smoke-with-trigger"]["poison-cloud"]
+
+    local cloud = source and table.deepcopy(source) or {
+        type = "smoke-with-trigger",
+        name = name or "ei-corrosive-rocket-cloud",
+        flags = {"not-on-map"},
+        show_when_smoke_off = true,
+        particle_count = 8,
+        particle_spread = {3.8, 2.2},
+        particle_distance_scale_factor = 0.1,
+        wave_distance = {0.3, 0.2},
+        wave_speed = {0.012, 0.014},
+        duration = 8 * 60,
+        fade_away_duration = 2 * 60,
+        spread_duration = 6 * 60,
+        color = {r = 0.14, g = 0.6, b = 0.2, a = 0.4},
+        animation = {
+            width = 152,
+            height = 120,
+            line_length = 5,
+            frame_count = 60,
+            shift = {-0.53125, -0.4375},
+            priority = "high",
+            animation_speed = 0.25,
+            filename = "__base__/graphics/entity/smoke/smoke.png",
+            flags = {"compressed"},
+        },
+        affected_by_wind = false,
+        cyclic = true,
+    }
+
+    cloud.name = name or "ei-corrosive-rocket-cloud"
+    cloud.flags = {"not-on-map"}
+    cloud.show_when_smoke_off = true
+    cloud.duration = 8 * 60
+    cloud.fade_away_duration = 2 * 60
+    cloud.spread_duration = 6 * 60
+    cloud.action_cooldown = 30
+    cloud.color = {r = 0.14, g = 0.6, b = 0.2, a = 0.4}
+    cloud.affected_by_wind = false
+    cloud.cyclic = true
+
+    if cloud.animation then
+        cloud.animation = table.deepcopy(cloud.animation)
+        cloud.animation.tint = {r = 0.28, g = 0.95, b = 0.32, a = 0.8}
+    end
+
+    cloud.created_effect = {
+        {
+            type = "cluster",
+            cluster_count = 6,
+            distance = 2.5,
+            distance_deviation = 2,
+            action_delivery = {
+                type = "instant",
+                target_effects = {
+                    {
+                        type = "create-smoke",
+                        entity_name = "ei-corrosive-rocket-cloud-visual",
+                        show_in_tooltip = false,
+                        initial_height = 0,
+                    },
+                },
+            },
+        },
+    }
+    cloud.action = {
+        type = "direct",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "nested-result",
+                    action = {
+                        type = "area",
+                        radius = 4.5,
+                        force = "enemy",
+                        action_delivery = {
+                            type = "instant",
+                            target_effects = {
+                                {
+                                    type = "damage",
+                                    damage = {amount = pulse_damage or 3, type = "acid"},
+                                    apply_damage_to_trees = false,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }
+
+    return cloud
+end
+
+local optional_stickers = {}
+local corrosive_toxic_overlay_sticker = make_optional_corrosive_toxic_sticker()
+if corrosive_toxic_overlay_sticker then
+    optional_stickers[#optional_stickers + 1] = corrosive_toxic_overlay_sticker
+end
+
+local dw_toxic_overlay_sticker = make_optional_corrosive_toxic_sticker("ei-dw-corrosive-rocket-toxic-sticker")
+if dw_toxic_overlay_sticker then
+    optional_stickers[#optional_stickers + 1] = dw_toxic_overlay_sticker
+end
+
 data:extend({
     make_smoke("ei-siege-rocket-smoke", {
         color = {r = 0.65, g = 0.6, b = 0.5, a = 0.3},
@@ -286,48 +566,62 @@ data:extend({
         tint = {r = 1.0, g = 0.9, b = 0.55, a = 0.8},
         glow_tint = {r = 1.0, g = 0.75, b = 0.35, a = 0.9},
     }),
+    make_corrosive_cloud_visual(),
+    make_corrosive_cloud("ei-corrosive-rocket-cloud", 12.5),
+    make_corrosive_cloud("ei-dw-corrosive-rocket-cloud", 12.5),
 
     make_sticker("ei-corrosive-rocket-sticker", {
-        tint = {r = 0.45, g = 0.95, b = 0.4, a = 0.95},
-        duration_in_ticks = 7 * 60,
-        target_movement_modifier = 0.5,
+        tint = {r = 0.45, g = 1.0, b = 0.42, a = 0.98},
+        duration_in_ticks = 8 * 60,
+        target_movement_modifier = 0.45,
         damage_per_tick = {
-            amount = 6 / 60,
+            amount = 12.5 / 60,
+            type = "acid",
+        },
+    }),
+    make_sticker("ei-dw-corrosive-rocket-sticker", {
+        tint = {r = 0.45, g = 1.0, b = 0.42, a = 0.98},
+        duration_in_ticks = 8 * 60,
+        target_movement_modifier = 0.45,
+        damage_per_tick = {
+            amount = 12.5 / 60,
             type = "acid",
         },
     }),
     make_sticker("ei-cryo-rocket-sticker", {
         tint = {r = 0.7, g = 0.95, b = 1.0, a = 0.95},
-        duration_in_ticks = 6 * 60,
+        duration_in_ticks = 8 * 60,
         target_movement_modifier = 0.25,
         damage_per_tick = {
-            amount = 2 / 60,
+            amount = 3 / 60,
             type = "cold",
         },
     }),
 
-    make_explosion("ei-siege-rocket-explosion", {
-        tint = {r = 0.95, g = 0.72, b = 0.35, a = 0.95},
+    clone_explosion("ei-siege-rocket-explosion", "big-explosion", {
+        tint = {r = 0.95, g = 0.82, b = 0.48, a = 0.92},
+        scale = 1.35,
         light = {
-            intensity = 0.95,
+            intensity = 0.72,
             blend_mode = "multiplicative",
             draw_as_glow = true,
             color = {r = 1.0, g = 0.72, b = 0.35},
-            size = 120,
+            size = 20,
         },
         smoke = "ei-siege-rocket-smoke",
         smoke_count = 3,
         sound = sound_variations(0.95),
         order = "c-a-b",
     }),
-    make_explosion("ei-corrosive-rocket-explosion", {
+    clone_explosion("ei-corrosive-rocket-explosion", "big-explosion", {
         tint = {r = 0.4, g = 1.0, b = 0.35, a = 0.9},
+        scale = 1.2,
         light = {
-            intensity = 0.8,
+            intensity = 0.62,
             blend_mode = "multiplicative",
             draw_as_glow = true,
             color = {r = 0.35, g = 1.0, b = 0.35},
-            size = 108,
+            size = 19,
         },
         smoke = "ei-corrosive-rocket-smoke",
         smoke_count = 3,
@@ -335,20 +629,43 @@ data:extend({
         sound = sound_variations(0.85),
         order = "c-a-c",
     }),
-    make_explosion("ei-cryo-rocket-explosion", {
-        tint = {r = 0.75, g = 0.95, b = 1.0, a = 0.95},
+    clone_explosion("ei-cryo-rocket-explosion", "big-cold-explosion", {
         light = {
-            intensity = 0.8,
+            intensity = 0.6,
             blend_mode = "multiplicative",
             draw_as_glow = true,
             color = {r = 0.75, g = 0.95, b = 1.0},
-            size = 108,
+            size = 17,
         },
         smoke = "ei-cryo-rocket-smoke",
         smoke_count = 3,
         smoke_slow_down_factor = 0.95,
-        sound = sound_variations(0.8),
         order = "c-a-d",
+    }),
+    clone_explosion("ei-hand-explosive-rocket-explosion", "big-explosion", {
+        light = {
+            intensity = 0.6,
+            color = {r = 1.0, g = 0.85, b = 0.7},
+            size = 20,
+        },
+        order = "c-a-b",
+    }),
+    clone_explosion("ei-atomic-u235-center-explosion", "nuke-explosion", {
+        scale = 0.8,
+        shift = {0.015625, -3.828125},
+        light = {
+            intensity = 0.95,
+            blend_mode = "multiplicative",
+            draw_as_glow = true,
+            color = {r = 1.0, g = 0.92, b = 0.6},
+            size = 120,
+        },
+        smoke = "ei-atomic-rocket-smoke",
+        smoke_count = 4,
+        remove_created_effect = true,
+        scale_out_duration = 50,
+        scale_end = 0.9,
+        order = "c-a-e",
     }),
     make_explosion("ei-atomic-rocket-explosion", {
         tint = {r = 1.0, g = 0.96, b = 0.65, a = 0.98},
@@ -490,3 +807,7 @@ data:extend({
         },
     }),
 })
+
+if #optional_stickers > 0 then
+    data:extend(optional_stickers)
+end

@@ -1,4 +1,78 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.25
+Date: 4-13-2026
+  Features:
+    - Added custom sound for Auric fumarole ambience.
+    - Expanded the Orbital Logistics Scanner with On The Way and Need modes, a side-panel mode selector, smarter hot/cold UPS gating, and updated Informatron plus locale coverage across all supported languages.
+  Changes:
+    - The Auric fumarole graphic now has a mild warm tint.
+    - `/rescan_auric_fumaroles` command now rebuilds the pending Vulcanus origin-distance eligibility queue in a deterministic interleaved order, so force-refresh backfill no longer inherits raw generated-chunk iterator sweep bias.
+    - Updated auric fumarole Informatron and locale text in all supported languages so the live 3-chunk inner dead zone and rebuilt rescan behavior are stated plainly.
+    - Reworked auric fumarole long-run density around generated-area soft band quotas: fresh outer chunks seed lightly, distance bands regulate dormant recovery pressure, overfull bands cool off, underfilled bands recover harder, and rescan now rebuilds dormant eligibility instead of causing another immediate vent flood.
+    - Auric fumaroles now self-seal on a deterministic 35-65 minute window when left untouched, and Vulcanus begins low-active recovery if a surface stays below 2 active vents for 5 minutes.
+    - Gaia now uses the standard `pollution` airborne pollutant type, so flame rupture pollution no longer skips it.
+    - Flammable ruptures now switch to a platform-safe vacuum hybrid on space platforms: pollution is skipped where the surface has no pollutant, deck-wide scorch/fire rings are suppressed, short local rupture flames stay confined to the source and ignited pipe chain, and breach damage is applied only under the actual source plus connected pipeline path.
+    - Carbide precipitation core crafting category: Crushing -> Crafting.
+    - Slag crushing recipe outputs: Crushed slag 1 -> 2.
+    - Carbide precipitation core recipe inputs: Crushed slag 4 -> 8.
+    - Crushed slag extraction with Sulfuric, Nitric, Morphium recipe inputs: Crushed slag 100 -> 200.
+    - Rocket artillery firing rate is now affected by Weapon shooting speed research from 3+.
+    - Increased acceleration of all rockets.
+    - Rocket artillery range: 90 -> 115.
+    - Rocket turret range: 36 -> 40.
+    - Rocket launcher range: 36 -> 40.
+    - Reduced siege, corrosive, and cryo rocket detonation glow to read closer to their actual blast footprint.
+    - Rocket direct explosion damage: 300 -> 700.
+    - Explosive rocket direct explosion damage: 120 -> 280.
+    - Explosive rocket splash explosion damage: 220 -> 500.
+    - Siege artillery rocket physical damage: 150 -> 210.
+    - Siege artillery rocket explosion damage: 450 -> 640.
+    - Corrosive artillery rocket physical damage: 90 -> 150.
+    - Corrosive artillery rocket main payload damage: 300 Explosive -> 450 Acid.
+    - Corrosive rockets lingering sticker now applies damage over time.
+    - Corrosive rockets explosion now applies a per entity sticker which applies damage over time.
+    - Cryo artillery rocket physical damage: 90 -> 150.
+    - Cryo artillery rocket main payload damage: 300 Explosive -> 450 Cold.
+    - Cryo rocket cold damage: 120 -> 450.
+    - Corrosive rocket acid damage: 240 -> 450.
+    - Cryo rocket secondary cold burst damage: 0 -> 24.
+    - Cryo rocket movement modifier duration: 6 -> 8s.
+    - Rocket turret targeting now moderately favors higher-health targets.
+    - Moved the temporary rocket-family item and technology art into the main mod while the new icon set remains under active revision.
+  Bugfixes:
+    - Fixed that u-235 rocket didn't have an item locale entry.
+    - Auric fumarole force-refresh backfill now preserves already-dormant chunks instead of resetting their pending dormant timers during a rescan or eligibility refresh.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.24
+Date: 4-13-2026
+  Changes:
+    - Reworked Vulcanus auric fumaroles around a Vulcanus-only radial weight instead of the old outer-danger gate: chunks within 3 chunks of origin can no longer host vents, spawn weight ramps smoothly and reaches full strength by 32 chunks distance from spawn, eligible chunks stay in the dormant cycle, and the keepalive path now favors the strongest outer candidates.
+    - Auric fumarole placement now probes many positions inside each chunk instead of requiring exact-center placement, so vents can land off-center while still respecting auric spacing and only treating sulfuric geysers as a hard exclusion at very close range.
+    - Reworked dormant auric local suppression into a distance-based proximity aura: nearby active fumaroles now reduce dormant eruption chance by how close they are instead of hard-stopping at a small count, so far-out Vulcanus regions keep breathing while local clusters still cool themselves down.
+    - Updated auric fumarole Informatron and locale text in all supported languages so the actual spawn rules, dormant cadence, keepalive rule, return-after-closure behavior, and `/ei-auric-fumarole-rescan` purpose are explicit.
+    - Reworked the rocket ordnance docs for the atomic split, the shared corrosive chemistry package, Frost Biter cryo visuals, and the shared cryo control duration so the schema now matches the rebuilt modular payload chain.
+    - Rocket direct explosion damage: 200 -> 300
+    - Explosive rocket direct explosion damage: 50 -> 120
+    - Explosive rocket splash explosion damage: 100 -> 220
+    - Corrosive rocket explosive damage: 180 -> 240
+    - Corrosive rocket sticker acid damage: 6/60 -> 12.5/60
+    - Corrosive rocket secondary acid burst damage: 0 -> 48
+    - Cryo rocket cold damage: 55 -> 120
+    - Cryo rocket sticker cold damage: 2/60 -> 3/60
+    - Siege artillery rocket physical damage: 90 -> 150
+    - Siege artillery rocket explosion damage: 300 -> 450
+    - Artillery corrosive rocket added acid burst damage: 18 -> 48
+    - Artillery cryo rocket added cold burst damage: 11 -> 24
+    - Doeworks Deer firing range / prepare range: 90 / unset -> 115 / 116.
+    - Rocket projectile acceleration: 0.01 -> 0.0125.
+    - Atomic rocket projectile acceleration (plutonium + U-235): 0.005 -> 0.00625.
+    - Doeworks rocket travel speed by tier: standard and premium 0.6 -> 0.9, bad crate 0.3 -> 0.45, worse crate 0.4 -> 0.6.
+    - Doeworks cryo main payload damage type: Explosion -> Cold.
+    - Doeworks corrosive, cryo, and split atomic crates now release their matching branch payload effects instead of generic shell splashes.
+    - Plasma turret wide area damage type: Explosive -> Plasma.
+  Bugfixes:
+    - Fixed a Vulcanus auric fumarole runtime crash where backfill could adopt an existing fumarole before Lua had bound the local dormant-clear helper, making `clear_dormant_chunk` resolve as nil during live chunk processing.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.23
 Date: 4-13-2026
   Bugfixes:
@@ -46,7 +120,7 @@ Date: 4-10-2026
   Changes:
     - Plasma turret firing energy: 900MJ -> 1.4 GJ.
     - Plasma turret now fires a sequential three-bolt procession with delayed follow-up releases so the fortress gun finally feels like a relic verdict instead of a single over-deliberate orb.
-    - Orbital request combinators now cache platform request state, reuse same-surface page materialization across scanner banks, diff section writes slot-by-slot, and invalidate from hub edits plus platform state changes, cutting scanner UPS overhead on large saves without changing visible output.
+    - Orbital request combinators are now the Orbital Logistics Scanner: they mirror same-surface platform logistics in Requests, On The Way, and Need modes, reuse adjacent bank page materialization, diff section writes slot-by-slot, hot/cold gate service for UPS, invalidate from hub edits plus platform state changes, and refresh the scanner-facing locale and Informatron docs across all supported languages.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.19
 Date: 4-9-2026

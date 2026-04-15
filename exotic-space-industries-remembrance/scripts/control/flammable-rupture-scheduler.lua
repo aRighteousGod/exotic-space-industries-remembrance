@@ -259,6 +259,46 @@ local function apply_ring_damage(job, ring)
     end
 end
 
+local function apply_platform_tile_damage(job, surface, ring)
+    if not (job and job.surface_kind == "platform" and surface and surface.valid and ring and ring.platform_tile_damage) then
+        return
+    end
+
+    local platform = surface.platform
+    if not (platform and platform.valid) then
+        return
+    end
+
+    local damaged = 0
+    for _, tile_damage in ipairs(ring.platform_tile_damage) do
+        if tile_damage.position and tile_damage.damage and tile_damage.damage > 0 then
+            local ok = pcall(function()
+                platform.damage_tile{
+                    position = tile_damage.position,
+                    damage = tile_damage.damage,
+                }
+            end)
+
+            if not ok then
+                ok = pcall(function()
+                    platform.damage_tile{
+                        position = tile_damage.position,
+                        amount = tile_damage.damage,
+                    }
+                end)
+            end
+
+            if ok then
+                damaged = damaged + 1
+            end
+        end
+    end
+
+    if damaged > 0 then
+        ei_runtime_scheduler.bump_counter(MODULE_NAME, "platform_tiles_damaged", damaged)
+    end
+end
+
 local function execute_ring(job, ring_index)
     local ring = job.rings and job.rings[ring_index]
     if not ring then
@@ -289,6 +329,7 @@ local function execute_ring(job, ring_index)
     spawn_smoke_layers(surface, job.position, ring.smoke_layers)
     spawn_entity_layers(surface, job.position, ring.fire_layers)
     spawn_entity_layers(surface, job.position, ring.scorch_layers)
+    apply_platform_tile_damage(job, surface, ring)
     apply_ring_damage(job, ring)
 
     ei_runtime_scheduler.bump_counter(MODULE_NAME, "rings_processed", 1)

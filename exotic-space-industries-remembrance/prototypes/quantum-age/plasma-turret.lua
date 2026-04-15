@@ -312,7 +312,7 @@ data:extend({
                             action_delivery = {
                                 target_effects = {
                                     {
-                                        damage = {amount = 1250,type = "explosion"},
+                                        damage = {amount = 1250,type = "ei-plasma"},
                                         force = "not-same",
                                         type = "damage"
                                     },

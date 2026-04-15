@@ -1,0 +1,13 @@
+{
+  "name": "zzz-auric-fumarole-qc",
+  "version": "0.0.2",
+  "title": "Auric Fumarole QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "Benchmark helper that records Vulcanus auric fumarole radial distribution and placement diagnostics."
+}

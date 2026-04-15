@@ -23,7 +23,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - Recipe and technology mutation:
   `recipe_swap`, `fix_recipe`, `recipe_output_add`, `recipe_add`, `recipe_remove`, `recipe_new`, `recipe_hard_overwrite`, `set_prerequisites`, `add_prerequisite`, `remove_prerequisite`, `remove_tech_ingredient`, `remove_unlock_recipe`, `add_unlock_recipe`, `convert_short_ingredients_to_full`, `set_science_packs`, `set_age_packs`, `copy_science_packs`, `remove_tech`, `disable`, `enable`, `enable_from_start`
 - Graphics and entity helpers:
-  `empty_sprite`, `make_4way_animation_from_spritesheet`, `make_circuit_connector`, `entity_icon_scaler`, `get_entity_area`, `get_box_area`, `get_entity_area_change`, `add_item_level`, `merge_fluid`, `do_fluid_merge`, `merge_item`, `do_item_merge`, `debug_crafting_categories`, `strike_lightning`
+  `empty_sprite`, `make_icons`, `make_4way_animation_from_spritesheet`, `make_circuit_connector`, `entity_icon_scaler`, `get_entity_area`, `get_box_area`, `get_entity_area_change`, `add_item_level`, `merge_fluid`, `do_fluid_merge`, `merge_item`, `do_item_merge`, `debug_crafting_categories`, `strike_lightning`
 - Echo, color, and notification helpers:
   `format_echo`, `lerp_color`, `rgb_to_hex`, `hex_to_rgb_normalized`, `hex_to_rgb_raw`, `get_adjective_and_tint`, `pick_tint_from_intent`, `generate_crystal_gradient_stops`, `pick_gradient_stops`, `crystal_echo`, `crystal_echo_floating`, `get_player_setting_value`, `player_allows_notification`, `notify_connected_players`
 
@@ -33,5 +33,8 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - `lerp_color` and `rgb_to_hex` are each defined twice later in the file. If you touch them, update carefully and confirm which definition wins.
 - Prefer `ei_lib.raw` or `ei_lib.modify_data_raw` before open-coded `data.raw` mutation when the operation is a shared mutation pattern rather than a one-off prototype tweak.
 - If a helper is almost right, favor a backward-compatible improvement over a sibling helper with a near-identical name.
+- `ei_lib.add_unlock_recipe` already guards missing techs and recipes, so avoid file-local `add_unlock_if_present` wrappers around it.
+- `ei_lib.recipe_new` accepts an optional `opts` table for ingredient replacement patches that also need `clear_difficulty_variants` and/or explicit `enabled` control.
+- `ei_lib.make_icons` is the shared layered-icon helper when a base icon needs one optional overlay with shared scale/shift defaults.
 - `ei_lib.get_event_tick` and `ei_lib.config` are general runtime utilities, not the runtime scheduling abstraction. For queues, delayed buckets, telemetry gates, counters, cadence, and status snapshots, check `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` first.
 - `ei_lib.get_entity_unit_number` is a safe `.unit_number` read, not a validity check. When later code needs the entity itself, pair it with `entity_check` or `get_valid_entity`.

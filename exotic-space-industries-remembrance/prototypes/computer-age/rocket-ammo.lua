@@ -1,3 +1,4 @@
+local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
 
 require("rocket-ammo-effects")
@@ -16,28 +17,28 @@ local nitric_acid_icon = ei_graphics_fluid_path .. "nitric-acid.png"
 local advanced_rocket_fuel_icon = ei_graphics_item_path .. "advanced-rocket-fuel.png"
 local cryodust_icon = ei_graphics_item_2_path .. "cryodust.png"
 local plutonium_icon = ei_graphics_item_path .. "plutonium-239.png"
-local rocket_parts_icon = ei_graphics_3_path .. "graphics/items/rocket-parts.png"
+local rocket_items_path = ei_temporary_rocket_item_path
+local rocket_techs_path = ei_temporary_rocket_tech_path
 
-local function make_icons(base_icon, base_size, overlay_icon, overlay_size, overlay_scale, overlay_shift, overlay_tint)
-    local icons = {
-        {
-            icon = base_icon,
-            icon_size = base_size,
-        },
-    }
+local rocket_airframe_icon = rocket_items_path .. "ei-rocket-airframe.png"
+local rocket_motor_basic_icon = rocket_items_path .. "ei-rocket-motor-basic.png"
+local rocket_motor_high_energy_icon = rocket_items_path .. "ei-rocket-motor-high-energy.png"
+local rocket_warhead_impact_icon = rocket_items_path .. "ei-rocket-warhead-impact.png"
+local rocket_warhead_explosive_icon = rocket_items_path .. "ei-rocket-warhead-explosive.png"
+local rocket_warhead_siege_icon = rocket_items_path .. "ei-rocket-warhead-siege.png"
+local rocket_warhead_corrosive_icon = rocket_items_path .. "ei-rocket-warhead-corrosive.png"
+local rocket_warhead_cryo_icon = rocket_items_path .. "ei-rocket-warhead-cryo.png"
+local rocket_warhead_atomic_u235_icon = rocket_items_path .. "ei-rocket-warhead-atomic-u235.png"
+local rocket_warhead_atomic_plutonium_icon = rocket_items_path .. "ei-rocket-warhead-atomic-plutonium.png"
+local corrosive_rocket_icon = rocket_items_path .. "ei-corrosive-rocket.png"
+local cryo_rocket_icon = rocket_items_path .. "ei-cryo-rocket.png"
+local atomic_bomb_u235_icon = rocket_items_path .. "ei-atomic-bomb-u235.png"
+local atomic_bomb_plutonium_icon = rocket_items_path .. "ei-atomic-bomb-plutonium.png"
 
-    if overlay_icon then
-        icons[#icons + 1] = {
-            icon = overlay_icon,
-            icon_size = overlay_size or 64,
-            scale = overlay_scale or 0.45,
-            shift = overlay_shift or {8, 8},
-            tint = overlay_tint,
-        }
-    end
-
-    return icons
-end
+local corrosive_rocketry_tech_icon = rocket_techs_path .. "ei-corrosive-rocketry.png"
+local cryo_rocketry_tech_icon = rocket_techs_path .. "ei-cryo-rocketry.png"
+local atomic_bomb_tech_icon = rocket_techs_path .. "atomic-bomb.png"
+local plutonium_warheads_tech_icon = rocket_techs_path .. "ei-plutonium-warheads.png"
 
 local function make_recipe(name, energy_required, ingredients, results, extra)
     local recipe = {
@@ -61,7 +62,78 @@ local function make_recipe(name, energy_required, ingredients, results, extra)
     return recipe
 end
 
-local function make_rocket_projectile(name, source_name, explosion_name, smoke_name, radius, damage_type, damage_amount, sticker_name)
+local function make_tech_icons(base_icon, overlay_icon)
+    return ei_lib.make_icons(base_icon, 256, overlay_icon, 64, 0.4, {8, 8}, nil, {base_mipmaps = 4})
+end
+
+local function append_list(target, entries)
+    if type(entries) ~= "table" then
+        return
+    end
+
+    for _, entry in ipairs(entries) do
+        target[#target + 1] = table.deepcopy(entry)
+    end
+end
+
+local function visit_tables(root, callback)
+    if type(root) ~= "table" then
+        return
+    end
+
+    callback(root)
+
+    for _, value in pairs(root) do
+        if type(value) == "table" then
+            visit_tables(value, callback)
+        end
+    end
+end
+
+local function replace_damage_amount(root, damage_type, old_amount, new_amount, limit)
+    local replaced = 0
+
+    visit_tables(root, function(node)
+        if replaced >= (limit or math.huge) then
+            return
+        end
+
+        local damage = node.damage
+        if type(damage) == "table" and damage.type == damage_type and damage.amount == old_amount then
+            damage.amount = new_amount
+            replaced = replaced + 1
+        end
+    end)
+
+    return replaced
+end
+
+local function replace_atomic_center_explosion(root, replacement_name)
+    visit_tables(root, function(node)
+        if node.type == "create-entity" and node.entity_name == "nuke-explosion" then
+            node.entity_name = replacement_name
+        end
+    end)
+end
+
+local function replace_created_entity_name(root, source_name, replacement_name, limit)
+    local replaced = 0
+
+    visit_tables(root, function(node)
+        if replaced >= (limit or math.huge) then
+            return
+        end
+
+        if node.type == "create-entity" and node.entity_name == source_name then
+            node.entity_name = replacement_name
+            replaced = replaced + 1
+        end
+    end)
+
+    return replaced
+end
+
+local function make_rocket_projectile(name, source_name, explosion_name, smoke_name, radius, damage_type, damage_amount, sticker_name, extra_actions)
     local projectile = table.deepcopy(data.raw.projectile[source_name])
     local area_effects = {
         {
@@ -92,7 +164,7 @@ local function make_rocket_projectile(name, source_name, explosion_name, smoke_n
     end
 
     projectile.name = name
-    projectile.action = {
+    local projectile_actions = {
         {
             type = "direct",
             action_delivery = {
@@ -128,24 +200,73 @@ local function make_rocket_projectile(name, source_name, explosion_name, smoke_n
         },
     }
 
+    append_list(projectile_actions, extra_actions)
+    projectile.action = projectile_actions
+
     return projectile
+end
+
+replace_damage_amount(data.raw.projectile["rocket"] and data.raw.projectile["rocket"].action, "explosion", 200, 700, 1)
+replace_damage_amount(data.raw.projectile["explosive-rocket"] and data.raw.projectile["explosive-rocket"].action, "explosion", 50, 280, 1)
+replace_damage_amount(data.raw.projectile["explosive-rocket"] and data.raw.projectile["explosive-rocket"].action, "explosion", 100, 500, 1)
+replace_created_entity_name(
+    data.raw.projectile["explosive-rocket"] and data.raw.projectile["explosive-rocket"].action,
+    "big-explosion",
+    "ei-hand-explosive-rocket-explosion",
+    1
+)
+if data.raw.projectile["rocket"] then
+    data.raw.projectile["rocket"].acceleration = 0.0125
+end
+if data.raw.projectile["explosive-rocket"] then
+    data.raw.projectile["explosive-rocket"].acceleration = 0.0125
+end
+if data.raw.projectile["atomic-rocket"] then
+    data.raw.projectile["atomic-rocket"].acceleration = 0.00625
 end
 
 local corrosive_rocket = table.deepcopy(data.raw.ammo["rocket"])
 corrosive_rocket.name = "ei-corrosive-rocket"
-corrosive_rocket.icon = nil
-corrosive_rocket.icon_size = nil
-corrosive_rocket.icons = make_icons(rocket_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8})
+corrosive_rocket.icon = corrosive_rocket_icon
+corrosive_rocket.icon_size = 512
+corrosive_rocket.icon_mipmaps = 5
+corrosive_rocket.icons = nil
 corrosive_rocket.order = "d[rocket-launcher]-c[ei-corrosive-rocket]"
 corrosive_rocket.ammo_type.action.action_delivery.projectile = "ei-corrosive-rocket-projectile"
 
 local cryo_rocket = table.deepcopy(data.raw.ammo["rocket"])
 cryo_rocket.name = "ei-cryo-rocket"
-cryo_rocket.icon = nil
-cryo_rocket.icon_size = nil
-cryo_rocket.icons = make_icons(rocket_icon, 64, cryodust_icon, 64, 0.45, {8, 8})
+cryo_rocket.icon = cryo_rocket_icon
+cryo_rocket.icon_size = 512
+cryo_rocket.icon_mipmaps = 5
+cryo_rocket.icons = nil
 cryo_rocket.order = "d[rocket-launcher]-d[ei-cryo-rocket]"
 cryo_rocket.ammo_type.action.action_delivery.projectile = "ei-cryo-rocket-projectile"
+
+local corrosive_secondary_effects = {
+    {
+        type = "create-sticker",
+        sticker = "ei-corrosive-rocket-sticker",
+        show_in_tooltip = true,
+    },
+}
+
+if data.raw.sticker["ei-corrosive-rocket-toxic-sticker"] then
+    corrosive_secondary_effects[#corrosive_secondary_effects + 1] = {
+        type = "create-sticker",
+        sticker = "ei-corrosive-rocket-toxic-sticker",
+        show_in_tooltip = false,
+    }
+end
+
+corrosive_secondary_effects[#corrosive_secondary_effects + 1] = {
+    type = "damage",
+    damage = {
+        amount = 48,
+        type = "acid",
+    },
+    apply_damage_to_trees = false,
+}
 
 local corrosive_projectile = make_rocket_projectile(
     "ei-corrosive-rocket-projectile",
@@ -154,9 +275,45 @@ local corrosive_projectile = make_rocket_projectile(
     "ei-corrosive-rocket-smoke",
     6.5,
     "acid",
-    180,
-    "ei-corrosive-rocket-sticker"
+    450,
+    nil,
+    {
+        {
+            type = "direct",
+            action_delivery = {
+                type = "instant",
+                target_effects = {
+                    {
+                        type = "create-entity",
+                        entity_name = "ei-corrosive-rocket-cloud",
+                        trigger_created_entity = true,
+                    },
+                },
+            },
+        },
+        {
+            type = "area",
+            radius = 3.75,
+            force = "enemy",
+            show_in_tooltip = false,
+            action_delivery = {
+                type = "instant",
+                target_effects = corrosive_secondary_effects,
+            },
+        },
+    }
 )
+
+local cryo_secondary_effects = {
+    {
+        type = "damage",
+        damage = {
+            amount = 24,
+            type = "cold",
+        },
+        apply_damage_to_trees = false,
+    },
+}
 
 local cryo_projectile = make_rocket_projectile(
     "ei-cryo-rocket-projectile",
@@ -165,15 +322,60 @@ local cryo_projectile = make_rocket_projectile(
     "ei-cryo-rocket-smoke",
     5.5,
     "cold",
-    55,
-    "ei-cryo-rocket-sticker"
+    450,
+    "ei-cryo-rocket-sticker",
+    {
+        {
+            type = "area",
+            radius = 3.75,
+            force = "enemy",
+            show_in_tooltip = false,
+            action_delivery = {
+                type = "instant",
+                target_effects = cryo_secondary_effects,
+            },
+        },
+    }
 )
+
+local atomic_bomb_u235
+local atomic_rocket_u235
+
+if data.raw.ammo["atomic-bomb"] and data.raw.projectile["atomic-rocket"] then
+    data.raw.ammo["atomic-bomb"].localised_name = {"item-name.ei-atomic-bomb-plutonium"}
+    data.raw.ammo["atomic-bomb"].icon = atomic_bomb_plutonium_icon
+    data.raw.ammo["atomic-bomb"].icon_size = 512
+    data.raw.ammo["atomic-bomb"].icon_mipmaps = 5
+    data.raw.ammo["atomic-bomb"].icons = nil
+
+    atomic_bomb_u235 = table.deepcopy(data.raw.ammo["atomic-bomb"])
+    atomic_bomb_u235.name = "ei-atomic-bomb-u235"
+    atomic_bomb_u235.icon = atomic_bomb_u235_icon
+    atomic_bomb_u235.icon_size = 512
+    atomic_bomb_u235.icon_mipmaps = 5
+    atomic_bomb_u235.icons = nil
+    atomic_bomb_u235.localised_name = {"item-name.ei-atomic-bomb-u235"}
+    atomic_bomb_u235.order = "d[rocket-launcher]-e[ei-atomic-bomb-u235]"
+    atomic_bomb_u235.ammo_type.action.action_delivery.projectile = "ei-atomic-rocket-u235"
+
+    atomic_rocket_u235 = table.deepcopy(data.raw.projectile["atomic-rocket"])
+    atomic_rocket_u235.name = "ei-atomic-rocket-u235"
+    atomic_rocket_u235.acceleration = 0.00625
+    replace_atomic_center_explosion(atomic_rocket_u235.action, "ei-atomic-u235-center-explosion")
+end
+
+if atomic_rocket_u235 and atomic_bomb_u235 then
+    data:extend({
+        atomic_rocket_u235,
+        atomic_bomb_u235,
+    })
+end
 
 data:extend({
     {
         type = "item",
         name = "ei-rocket-airframe",
-        icon = rocket_parts_icon,
+        icon = rocket_airframe_icon,
         icon_size = 512,
         icon_mipmaps = 5,
         subgroup = "intermediate-product",
@@ -183,7 +385,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-motor-basic",
-        icons = make_icons(engine_icon, 64, rocket_icon, 64, 0.4, {8, 8}),
+        icon = rocket_motor_basic_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-d[ei-rocket-motor-basic]",
         stack_size = 100,
@@ -191,7 +395,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-motor-high-energy",
-        icons = make_icons(engine_icon, 64, advanced_rocket_fuel_icon, 64, 0.45, {8, 8}),
+        icon = rocket_motor_high_energy_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-e[ei-rocket-motor-high-energy]",
         stack_size = 100,
@@ -199,7 +405,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-impact",
-        icons = make_icons(rocket_icon, 64, explosives_icon, 64, 0.4, {8, 8}),
+        icon = rocket_warhead_impact_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-f[ei-rocket-warhead-impact]",
         stack_size = 100,
@@ -207,8 +415,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-explosive",
-        icon = explosive_rocket_icon,
-        icon_size = 64,
+        icon = rocket_warhead_explosive_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-g[ei-rocket-warhead-explosive]",
         stack_size = 100,
@@ -216,7 +425,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-siege",
-        icons = make_icons(explosive_rocket_icon, 64, artillery_shell_icon, 64, 0.4, {8, 8}),
+        icon = rocket_warhead_siege_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-h[ei-rocket-warhead-siege]",
         stack_size = 100,
@@ -224,7 +435,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-corrosive",
-        icons = make_icons(rocket_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
+        icon = rocket_warhead_corrosive_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-i[ei-rocket-warhead-corrosive]",
         stack_size = 100,
@@ -232,7 +445,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-cryo",
-        icons = make_icons(rocket_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
+        icon = rocket_warhead_cryo_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-j[ei-rocket-warhead-cryo]",
         stack_size = 100,
@@ -240,7 +455,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-atomic-u235",
-        icons = make_icons(atomic_bomb_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
+        icon = rocket_warhead_atomic_u235_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-k[ei-rocket-warhead-atomic-u235]",
         stack_size = 20,
@@ -248,7 +465,9 @@ data:extend({
     {
         type = "item",
         name = "ei-rocket-warhead-atomic-plutonium",
-        icons = make_icons(atomic_bomb_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
+        icon = rocket_warhead_atomic_plutonium_icon,
+        icon_size = 512,
+        icon_mipmaps = 5,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-l[ei-rocket-warhead-atomic-plutonium]",
         stack_size = 20,
@@ -266,7 +485,7 @@ data:extend({
             {type = "item", name = "ei-rocket-airframe", amount = 1},
         },
         {
-            icons = make_icons(rocket_parts_icon, 512, low_density_structure_icon, 64, 0.36, {8, 8}),
+            icons = ei_lib.make_icons(rocket_airframe_icon, 512, low_density_structure_icon, 64, 0.36, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -279,6 +498,9 @@ data:extend({
         },
         {
             {type = "item", name = "ei-rocket-motor-basic", amount = 1},
+        },
+        {
+            icons = ei_lib.make_icons(rocket_motor_basic_icon, 512, engine_icon, 64, 0.4, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -292,6 +514,9 @@ data:extend({
         },
         {
             {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
+        },
+        {
+            icons = ei_lib.make_icons(rocket_motor_high_energy_icon, 512, advanced_rocket_fuel_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -304,6 +529,9 @@ data:extend({
         },
         {
             {type = "item", name = "ei-rocket-warhead-impact", amount = 1},
+        },
+        {
+            icons = ei_lib.make_icons(rocket_warhead_impact_icon, 512, explosives_icon, 64, 0.4, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -316,6 +544,9 @@ data:extend({
         },
         {
             {type = "item", name = "ei-rocket-warhead-explosive", amount = 1},
+        },
+        {
+            icons = ei_lib.make_icons(rocket_warhead_explosive_icon, 512, explosives_icon, 64, 0.4, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -329,6 +560,9 @@ data:extend({
         },
         {
             {type = "item", name = "ei-rocket-warhead-siege", amount = 1},
+        },
+        {
+            icons = ei_lib.make_icons(rocket_warhead_siege_icon, 512, artillery_shell_icon, 64, 0.4, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -352,6 +586,7 @@ data:extend({
                 tertiary = {r = 0.6, g = 0.9, b = 0.25, a = 1},
                 quaternary = {r = 0.14, g = 0.3, b = 0.08, a = 1},
             },
+            icons = ei_lib.make_icons(rocket_warhead_corrosive_icon, 512, nitric_acid_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -365,6 +600,9 @@ data:extend({
         },
         {
             {type = "item", name = "ei-rocket-warhead-cryo", amount = 1},
+        },
+        {
+            icons = ei_lib.make_icons(rocket_warhead_cryo_icon, 512, cryodust_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -382,7 +620,7 @@ data:extend({
         },
         {
             allow_productivity = false,
-            icons = make_icons(atomic_bomb_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
+            icons = ei_lib.make_icons(rocket_warhead_atomic_u235_icon, 512, uranium_235_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -401,7 +639,7 @@ data:extend({
         },
         {
             allow_productivity = false,
-            icons = make_icons(atomic_bomb_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
+            icons = ei_lib.make_icons(rocket_warhead_atomic_plutonium_icon, 512, plutonium_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -416,7 +654,7 @@ data:extend({
             {type = "item", name = "ei-corrosive-rocket", amount = 1},
         },
         {
-            icons = make_icons(rocket_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
+            icons = ei_lib.make_icons(corrosive_rocket_icon, 512, nitric_acid_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -431,7 +669,7 @@ data:extend({
             {type = "item", name = "ei-cryo-rocket", amount = 1},
         },
         {
-            icons = make_icons(rocket_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
+            icons = ei_lib.make_icons(cryo_rocket_icon, 512, cryodust_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -443,11 +681,11 @@ data:extend({
             {type = "item", name = "ei-rocket-warhead-atomic-u235", amount = 1},
         },
         {
-            {type = "item", name = "atomic-bomb", amount = 1},
+            {type = "item", name = "ei-atomic-bomb-u235", amount = 1},
         },
         {
             allow_productivity = false,
-            icons = make_icons(atomic_bomb_icon, 64, uranium_235_icon, 64, 0.45, {8, 8}),
+            icons = ei_lib.make_icons(atomic_bomb_u235_icon, 512, uranium_235_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
     make_recipe(
@@ -463,7 +701,7 @@ data:extend({
         },
         {
             allow_productivity = false,
-            icons = make_icons(atomic_bomb_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
+            icons = ei_lib.make_icons(atomic_bomb_plutonium_icon, 512, plutonium_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),
         }
     ),
 
@@ -475,7 +713,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-corrosive-rocketry",
-        icons = make_icons(rocket_icon, 64, nitric_acid_icon, 64, 0.45, {8, 8}),
+        icons = make_tech_icons(corrosive_rocketry_tech_icon, nitric_acid_icon),
         prerequisites = {
             "explosive-rocketry",
             "ei-acidthrower-turret",
@@ -505,7 +743,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-cryo-rocketry",
-        icons = make_icons(rocket_icon, 64, cryodust_icon, 64, 0.45, {8, 8}),
+        icons = make_tech_icons(cryo_rocketry_tech_icon, cryodust_icon),
         prerequisites = {
             "explosive-rocketry",
             "ei-cryodust",
@@ -533,7 +771,7 @@ data:extend({
     {
         type = "technology",
         name = "ei-plutonium-warheads",
-        icons = make_icons(atomic_bomb_icon, 64, plutonium_icon, 64, 0.45, {8, 8}),
+        icons = make_tech_icons(plutonium_warheads_tech_icon, plutonium_icon),
         prerequisites = {
             "atomic-bomb",
             "ei-plutonium-239-recycling",
@@ -594,4 +832,11 @@ if atomic_rocket then
     end
 
     inject_atomic_fx(atomic_rocket.action)
+end
+
+if data.raw.technology["atomic-bomb"] then
+    data.raw.technology["atomic-bomb"].icon = nil
+    data.raw.technology["atomic-bomb"].icon_size = nil
+    data.raw.technology["atomic-bomb"].icon_mipmaps = nil
+    data.raw.technology["atomic-bomb"].icons = make_tech_icons(atomic_bomb_tech_icon, uranium_235_icon)
 end

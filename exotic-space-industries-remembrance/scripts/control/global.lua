@@ -86,6 +86,57 @@ local function new_fluid_runtime()
     }
 end
 
+local function new_orbital_combinator_reconcile_state()
+    return {
+        next_due_tick = 0,
+        cycle = 0,
+        force_cursor = nil,
+        platform_cursor = nil,
+        cache_cursor = nil,
+        cleanup_phase = false,
+        in_progress = false,
+    }
+end
+
+local function new_orbital_combinator_surface_generations()
+    return {
+        requests = {},
+        on_the_way = {},
+        need = {},
+    }
+end
+
+local function new_orbital_combinator_runtime_state()
+    return {
+        banks = {},
+        bank_by_unit = {},
+        bank_count = 0,
+        mode_by_unit = {},
+        open_gui_by_player = {},
+        platform_cache = {},
+        platform_by_hub = {},
+        object_registration = {},
+        snapshot_cache = {},
+        incoming_pods = {},
+        surface_platform_index = {},
+        surface_bank_index = {},
+        surface_state = {},
+        work_service = {},
+        dirty_bank_queue = ei_runtime_scheduler.ensure_queue(nil),
+        bank_audit_queue = ei_runtime_scheduler.ensure_queue(nil),
+        hot_surface_queue = ei_runtime_scheduler.ensure_queue(nil),
+        cold_surface_queue = ei_runtime_scheduler.ensure_queue(nil),
+        hot_surface_break_point = nil,
+        cold_surface_break_point = nil,
+        connection_audit_break_point = nil,
+        reconcile_state = new_orbital_combinator_reconcile_state(),
+        surface_generations = new_orbital_combinator_surface_generations(),
+        generation_epoch = 0,
+        platform_reconcile_tick = 0,
+        runtime_state_version = 0,
+    }
+end
+
 
 --====================================================================================================
 --GLOBAL VARIABLES
@@ -106,12 +157,35 @@ function ei_global.init()
     storage.ei.neutron_runtime = {}
     storage.ei["spawner_queue"] = {}
     storage.ei["orbital_combinators"] = {}
-    storage.ei.orbital_combinator_banks = {}
-    storage.ei.orbital_combinator_bank_by_unit = {}
-    storage.ei.orbital_combinator_bank_count = 0
-    storage.ei.orbital_combinator_platform_cache = {}
-    storage.ei.orbital_combinator_platform_by_hub = {}
-    storage.ei.orbital_combinator_platform_reconcile_tick = 0
+    storage.ei.orbital_combinators_break_point = nil
+    local orbital_runtime = new_orbital_combinator_runtime_state()
+    storage.ei.orbital_combinator_banks = orbital_runtime.banks
+    storage.ei.orbital_combinator_bank_by_unit = orbital_runtime.bank_by_unit
+    storage.ei.orbital_combinator_banks_break_point = nil
+    storage.ei.orbital_combinator_bank_count = orbital_runtime.bank_count
+    storage.ei.orbital_combinator_mode_by_unit = orbital_runtime.mode_by_unit
+    storage.ei.orbital_combinator_open_gui_by_player = orbital_runtime.open_gui_by_player
+    storage.ei.orbital_combinator_platform_cache = orbital_runtime.platform_cache
+    storage.ei.orbital_combinator_platform_by_hub = orbital_runtime.platform_by_hub
+    storage.ei.orbital_combinator_incoming_pods = orbital_runtime.incoming_pods
+    storage.ei.orbital_combinator_object_registration = orbital_runtime.object_registration
+    storage.ei.orbital_combinator_snapshot_cache = orbital_runtime.snapshot_cache
+    storage.ei.orbital_combinator_surface_platform_index = orbital_runtime.surface_platform_index
+    storage.ei.orbital_combinator_surface_bank_index = orbital_runtime.surface_bank_index
+    storage.ei.orbital_combinator_surface_state = orbital_runtime.surface_state
+    storage.ei.orbital_combinator_work_service = orbital_runtime.work_service
+    storage.ei.orbital_combinator_dirty_bank_queue = orbital_runtime.dirty_bank_queue
+    storage.ei.orbital_combinator_bank_audit_queue = orbital_runtime.bank_audit_queue
+    storage.ei.orbital_combinator_hot_surface_queue = orbital_runtime.hot_surface_queue
+    storage.ei.orbital_combinator_cold_surface_queue = orbital_runtime.cold_surface_queue
+    storage.ei.orbital_combinator_hot_surface_break_point = orbital_runtime.hot_surface_break_point
+    storage.ei.orbital_combinator_cold_surface_break_point = orbital_runtime.cold_surface_break_point
+    storage.ei.orbital_combinator_connection_audit_break_point = orbital_runtime.connection_audit_break_point
+    storage.ei.orbital_combinator_reconcile_state = orbital_runtime.reconcile_state
+    storage.ei.orbital_combinator_surface_generations = orbital_runtime.surface_generations
+    storage.ei.orbital_combinator_generation_epoch = orbital_runtime.generation_epoch
+    storage.ei.orbital_combinator_platform_reconcile_tick = orbital_runtime.platform_reconcile_tick
+    storage.ei.orbital_combinator_runtime_state_version = orbital_runtime.runtime_state_version
     storage.ei["rocket_launch_pollution"] = {}
     storage.ei["rocket_launch_pollution"].mode = "linear"
     storage.ei["rocket_launch_pollution"].cap = 10000
@@ -152,7 +226,6 @@ function ei_global.init()
         dormant_active_surface_positions = {},
         dormant_active_surface_cursor = 0,
         zero_active_since_tick = nil,
-        sound_proxies = {},
     }
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")
     ei_lib.crystal_echo(">> Integrating chronometric lattices... Binding entropy to mass... Stand by.","default-semibold")
@@ -369,14 +442,26 @@ function ei_global.check_init(event)
     if not storage.ei["orbital_combinators"] then
         storage.ei["orbital_combinators"] = {}
     end
+    if storage.ei.orbital_combinators_break_point == nil then
+        storage.ei.orbital_combinators_break_point = nil
+    end
     if not storage.ei.orbital_combinator_banks then
         storage.ei.orbital_combinator_banks = {}
     end
     if not storage.ei.orbital_combinator_bank_by_unit then
         storage.ei.orbital_combinator_bank_by_unit = {}
     end
+    if storage.ei.orbital_combinator_banks_break_point == nil then
+        storage.ei.orbital_combinator_banks_break_point = nil
+    end
     if storage.ei.orbital_combinator_bank_count == nil then
         storage.ei.orbital_combinator_bank_count = 0
+    end
+    if not storage.ei.orbital_combinator_mode_by_unit then
+        storage.ei.orbital_combinator_mode_by_unit = {}
+    end
+    if not storage.ei.orbital_combinator_open_gui_by_player then
+        storage.ei.orbital_combinator_open_gui_by_player = {}
     end
     if not storage.ei.orbital_combinator_platform_cache then
         storage.ei.orbital_combinator_platform_cache = {}
@@ -384,8 +469,92 @@ function ei_global.check_init(event)
     if not storage.ei.orbital_combinator_platform_by_hub then
         storage.ei.orbital_combinator_platform_by_hub = {}
     end
+    if not storage.ei.orbital_combinator_snapshot_cache then
+        storage.ei.orbital_combinator_snapshot_cache = {}
+    end
+    if not storage.ei.orbital_combinator_surface_platform_index then
+        storage.ei.orbital_combinator_surface_platform_index = {}
+    end
+    if not storage.ei.orbital_combinator_surface_bank_index then
+        storage.ei.orbital_combinator_surface_bank_index = {}
+    end
+    if not storage.ei.orbital_combinator_surface_state then
+        storage.ei.orbital_combinator_surface_state = {}
+    end
+    if not storage.ei.orbital_combinator_work_service then
+        storage.ei.orbital_combinator_work_service = {}
+    end
+    if storage.ei.orbital_combinator_hot_surface_break_point == nil then
+        storage.ei.orbital_combinator_hot_surface_break_point = nil
+    end
+    if storage.ei.orbital_combinator_cold_surface_break_point == nil then
+        storage.ei.orbital_combinator_cold_surface_break_point = nil
+    end
+    if storage.ei.orbital_combinator_connection_audit_break_point == nil then
+        storage.ei.orbital_combinator_connection_audit_break_point = nil
+    end
+    storage.ei.orbital_combinator_dirty_bank_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.orbital_combinator_dirty_bank_queue) == "table" and storage.ei.orbital_combinator_dirty_bank_queue or nil
+    )
+    storage.ei.orbital_combinator_bank_audit_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.orbital_combinator_bank_audit_queue) == "table" and storage.ei.orbital_combinator_bank_audit_queue or nil
+    )
+    storage.ei.orbital_combinator_hot_surface_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.orbital_combinator_hot_surface_queue) == "table" and storage.ei.orbital_combinator_hot_surface_queue or nil
+    )
+    storage.ei.orbital_combinator_cold_surface_queue = ei_runtime_scheduler.ensure_queue(
+        type(storage.ei.orbital_combinator_cold_surface_queue) == "table" and storage.ei.orbital_combinator_cold_surface_queue or nil
+    )
+    if not storage.ei.orbital_combinator_reconcile_state then
+        storage.ei.orbital_combinator_reconcile_state = new_orbital_combinator_reconcile_state()
+    end
+    if storage.ei.orbital_combinator_reconcile_state.next_due_tick == nil then
+        storage.ei.orbital_combinator_reconcile_state.next_due_tick = 0
+    end
+    if storage.ei.orbital_combinator_reconcile_state.cycle == nil then
+        storage.ei.orbital_combinator_reconcile_state.cycle = 0
+    end
+    if storage.ei.orbital_combinator_reconcile_state.force_cursor == nil then
+        storage.ei.orbital_combinator_reconcile_state.force_cursor = nil
+    end
+    if storage.ei.orbital_combinator_reconcile_state.platform_cursor == nil then
+        storage.ei.orbital_combinator_reconcile_state.platform_cursor = nil
+    end
+    if storage.ei.orbital_combinator_reconcile_state.cache_cursor == nil then
+        storage.ei.orbital_combinator_reconcile_state.cache_cursor = nil
+    end
+    if storage.ei.orbital_combinator_reconcile_state.cleanup_phase == nil then
+        storage.ei.orbital_combinator_reconcile_state.cleanup_phase = false
+    end
+    if storage.ei.orbital_combinator_reconcile_state.in_progress == nil then
+        storage.ei.orbital_combinator_reconcile_state.in_progress = false
+    end
+    if not storage.ei.orbital_combinator_incoming_pods then
+        storage.ei.orbital_combinator_incoming_pods = {}
+    end
+    if not storage.ei.orbital_combinator_object_registration then
+        storage.ei.orbital_combinator_object_registration = {}
+    end
+    if not storage.ei.orbital_combinator_surface_generations then
+        storage.ei.orbital_combinator_surface_generations = new_orbital_combinator_surface_generations()
+    end
+    if not storage.ei.orbital_combinator_surface_generations.requests then
+        storage.ei.orbital_combinator_surface_generations.requests = {}
+    end
+    if not storage.ei.orbital_combinator_surface_generations.on_the_way then
+        storage.ei.orbital_combinator_surface_generations.on_the_way = {}
+    end
+    if not storage.ei.orbital_combinator_surface_generations.need then
+        storage.ei.orbital_combinator_surface_generations.need = {}
+    end
+    if storage.ei.orbital_combinator_generation_epoch == nil then
+        storage.ei.orbital_combinator_generation_epoch = 0
+    end
     if storage.ei.orbital_combinator_platform_reconcile_tick == nil then
         storage.ei.orbital_combinator_platform_reconcile_tick = 0
+    end
+    if storage.ei.orbital_combinator_runtime_state_version == nil then
+        storage.ei.orbital_combinator_runtime_state_version = 0
     end
     if storage.ei.gaia_reforged ~= nil then
         storage.ei.gaia_reforged = nil
@@ -428,6 +597,11 @@ function ei_global.check_init(event)
 
     if not storage.ei.vulcanus_fumaroles then
         storage.ei.vulcanus_fumaroles = {
+            -- Seed the runtime sentinel low so the fumarole module can force its current queue rebuild.
+            runtime_version = 0,
+            -- Seed the pre-refresh sentinel so the runtime module can force its current eligibility rebuild.
+            eligibility_version = 2,
+            pending_eligibility_refresh = false,
             backfill_bootstrapped = false,
             processed_chunks = {},
             history_chunks = {},
@@ -443,8 +617,16 @@ function ei_global.check_init(event)
             dormant_active_surface_positions = {},
             dormant_active_surface_cursor = 0,
             zero_active_since_tick = nil,
-            sound_proxies = {},
         }
+    end
+    if storage.ei.vulcanus_fumaroles.runtime_version == nil then
+        storage.ei.vulcanus_fumaroles.runtime_version = 0
+    end
+    if storage.ei.vulcanus_fumaroles.eligibility_version == nil then
+        storage.ei.vulcanus_fumaroles.eligibility_version = 2
+    end
+    if storage.ei.vulcanus_fumaroles.pending_eligibility_refresh == nil then
+        storage.ei.vulcanus_fumaroles.pending_eligibility_refresh = false
     end
     storage.ei.vulcanus_fumaroles.backfill_queue = ei_runtime_scheduler.ensure_queue(
         storage.ei.vulcanus_fumaroles.backfill_queue or ei_runtime_scheduler.ensure_queue(nil)

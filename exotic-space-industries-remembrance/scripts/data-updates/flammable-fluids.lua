@@ -16,14 +16,27 @@ local function deepcopy_light(light, color, size_multiplier)
     return copied
 end
 
-local function make_rupture_fire(name, lifetime, damage, light_color, light_size_multiplier)
+local function make_rupture_fire(name, lifetime, damage, light_color, light_size_multiplier, options)
+    options = options or {}
+
     local fire = util.table.deepcopy(data.raw.fire["fire-flame"])
     fire.name = name
     fire.initial_lifetime = lifetime
     fire.damage_per_tick = damage
     fire.light = deepcopy_light(fire.light, light_color, light_size_multiplier)
 
-    if data.raw.fire["fire-flame-on-tree"] then
+    if options.platform_safe then
+        fire.tree_dying_factor = nil
+        fire.spawn_entity = nil
+        fire.maximum_spread_count = 0
+        fire.spread_delay = options.spread_delay or (60 * 60)
+        fire.spread_delay_deviation = 0
+        fire.lifetime_increase_by = 0
+        fire.lifetime_increase_cooldown = 1
+        fire.maximum_lifetime = options.maximum_lifetime or lifetime
+        fire.burnt_patch_lifetime = 0
+        fire.emissions_per_second = nil
+    elseif data.raw.fire["fire-flame-on-tree"] then
         fire.tree_dying_factor = data.raw.fire["fire-flame-on-tree"].tree_dying_factor
     end
 
@@ -99,6 +112,30 @@ data:extend({
         {amount = 0.75, type = "acid"},
         {r = 0.72, g = 0.34, b = 1.0},
         1.25
+    ),
+    make_rupture_fire(
+        "ei-oil-platform-fire-flame",
+        420,
+        {amount = 1, type = "fire"},
+        {r = 1.0, g = 0.55, b = 0.20},
+        1.05,
+        {platform_safe = true, maximum_lifetime = 420}
+    ),
+    make_rupture_fire(
+        "ei-gas-platform-fire-flame",
+        180,
+        {amount = 0.55, type = "fire"},
+        {r = 1.0, g = 0.82, b = 0.42},
+        1.15,
+        {platform_safe = true, maximum_lifetime = 180}
+    ),
+    make_rupture_fire(
+        "ei-exotic-platform-fire-flame",
+        300,
+        {amount = 0.75, type = "acid"},
+        {r = 0.72, g = 0.34, b = 1.0},
+        1.05,
+        {platform_safe = true, maximum_lifetime = 300}
     ),
     make_rupture_smoke(
         "ei-oil-rupture-smoke",
