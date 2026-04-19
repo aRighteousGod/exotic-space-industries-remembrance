@@ -1,0 +1,13 @@
+{
+  "name": "zzz-scripted-research-qc",
+  "version": "0.0.1",
+  "title": "Scripted Research QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "QC-only helper that builds a deterministic Tesla and EM runtime world, then triggers a scripted research_all_technologies burst after load."
+}

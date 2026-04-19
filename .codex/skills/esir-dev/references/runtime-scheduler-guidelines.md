@@ -11,8 +11,9 @@ Use this when editing queued runtime modules under `exotic-space-industries-reme
 
 ## Tick Source
 
+- Runtime scripts should strive to use `event.tick` over `game.tick` wherever possible.
 - In event handlers, prefer `event.tick`.
-- In `on_tick`, use the incoming tick from the callback instead of reading `game.tick` again.
+- In `on_tick`, use the incoming tick from the callback and pass it through downstream helpers instead of reading `game.tick` again.
 - Use `game.tick` only in contexts that do not have an event object, such as status helpers, load-time repair helpers, or utility functions called outside an event callback.
 - If you feel tempted to add `get_event_tick()` or another "current tick" helper in a feature module, stop and justify why `event.tick` or the shared scheduler state is not enough.
 
@@ -52,6 +53,8 @@ If a module keeps stale or unscheduled values in `queue.items` and relies on `qu
 If a module keeps queue liveness in module-owned state such as `entry.queued`, prefer `queue_pop_matching` before rebuilding another local dequeue loop.
 
 Dense-set schedulers with swap-remove indexes, fairness cursors, or membership-position tables are not failed scheduler migrations. Keep those local unless the shared helper surface grows to express that shape cleanly.
+
+If a migration intentionally stops short, record the file, reason, and next safe move in `.codex/esir/REVISIT_NOTES.md` so the partial state is discoverable later.
 
 ## Delayed Work
 

@@ -21,6 +21,18 @@ local function add_centered_sprite_row(element, sprites)
     end
 end
 
+local function get_startup_string_setting_value(setting_name, default_value)
+    if settings and settings.startup and settings.startup[setting_name] then
+        return settings.startup[setting_name].value or default_value
+    end
+
+    return default_value
+end
+
+local function get_localized_startup_string_setting_value(setting_name, default_value)
+    return {"string-mod-setting." .. setting_name .. "-" .. get_startup_string_setting_value(setting_name, default_value)}
+end
+
 local enemy_difficulty_doc_profiles = {
     Merciful = {
         unit_health = 0.55,
@@ -545,10 +557,7 @@ function model.rocket_ammo_schema(player_index, element)
 end
 
 function model.flammable_ruptures(player_index, element)
-    local fidelity_mode = "standard"
-    if settings and settings.startup and settings.startup["ei-flammable-rupture-fidelity"] then
-        fidelity_mode = settings.startup["ei-flammable-rupture-fidelity"].value or fidelity_mode
-    end
+    local fidelity_label = get_localized_startup_string_setting_value("ei-flammable-rupture-fidelity", "standard")
 
     element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text"}}
@@ -561,10 +570,13 @@ function model.flammable_ruptures(player_index, element)
     })
 
     element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-2"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text-2", {"string-mod-setting.ei-flammable-rupture-fidelity-" .. fidelity_mode}}}
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text-2", fidelity_label}}
 
     element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-3"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text-3"}}
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-4"}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron.flammable-ruptures-text-4"}}
 end
 
 function model.turrets(player_index, element)
@@ -960,10 +972,7 @@ function model.induction_matrix(player_index, element)
 end
 
 function model.teslas_legacy(player_index, element)
-    local behavior_mode = "legacy-fidelity"
-    if settings and settings.startup and settings.startup["ei-tl-behavior-mode"] then
-        behavior_mode = settings.startup["ei-tl-behavior-mode"].value or behavior_mode
-    end
+    local behavior_mode_label = get_localized_startup_string_setting_value("ei-tl-behavior-mode", "legacy-fidelity")
 
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text"}}
@@ -975,7 +984,7 @@ function model.teslas_legacy(player_index, element)
     })
 
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-2"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-2", {"string-mod-setting.ei-tl-behavior-mode-" .. behavior_mode}}}
+    element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-2", behavior_mode_label}}
 
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-3"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.teslas-legacy-text-3"}}

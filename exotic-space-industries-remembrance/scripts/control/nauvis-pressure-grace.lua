@@ -3,7 +3,7 @@
 -- owns: Nauvis pressure grace milestone and pollution/evolution pressure
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: configuration changes, research-finished, and scheduled tick step 1
--- forwarded_events: on_configuration_changed, on_research_finished, updater
+-- forwarded_events: on_configuration_changed, on_research_finished, on_scripted_research_burst, updater
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -15,6 +15,30 @@ local CHECK_INTERVAL = 18000
 local PRE_STEAM_TARGET = 0.25
 local PRE_ELECTRICITY_TARGET = 0.5
 local MAX_REDUCTION_PER_PASS = 0.005
+
+local function refresh_player_force_milestone()
+    local player_force = game and game.forces and game.forces.player
+    if not player_force then
+        return false
+    end
+
+    local technologies = player_force.technologies
+    if not technologies then
+        return false
+    end
+
+    local electricity_age = technologies["ei-electricity-age"]
+    local steam_age = technologies["ei-steam-age"]
+    if electricity_age and electricity_age.researched then
+        storage.ei.nauvis_pressure.milestone = 2
+    elseif steam_age and steam_age.researched then
+        storage.ei.nauvis_pressure.milestone = 1
+    else
+        storage.ei.nauvis_pressure.milestone = 0
+    end
+
+    return true
+end
 
 local function get_evolution_target()
     if storage.ei.nauvis_pressure.milestone then
@@ -32,23 +56,7 @@ local function get_evolution_target()
 end
 
 function model.on_configuration_changed(event)
-    local player_force = game and game.forces and game.forces.player
-    if not player_force then
-         return
-        end
-    local technologies = player_force.technologies
-    if not technologies then
-        return
-    end
-    local electricity_age = technologies["ei-electricity-age"]
-    local steam_age = technologies["ei-steam-age"]
-    if electricity_age and electricity_age.researched then
-        storage.ei.nauvis_pressure.milestone = 2
-    elseif steam_age and steam_age.researched then
-        storage.ei.nauvis_pressure.milestone = 1
-    else
-        storage.ei.nauvis_pressure.milestone = 0
-    end
+    refresh_player_force_milestone()
 end
 
 function model.on_research_finished(event)
@@ -67,6 +75,15 @@ function model.on_research_finished(event)
      elseif research_name == "ei-electricity-age" then
         storage.ei.nauvis_pressure.milestone = 2
      end
+end
+
+function model.on_scripted_research_burst(force)
+    local player_force = game and game.forces and game.forces.player or nil
+    if force and player_force and force.index ~= player_force.index then
+        return false
+    end
+
+    return refresh_player_force_milestone()
 end
 
 function model.updater(event)

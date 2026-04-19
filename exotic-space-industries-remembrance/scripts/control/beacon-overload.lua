@@ -69,6 +69,19 @@ local function new_queue_section()
     return ei_runtime_scheduler.ensure_queue(nil)
 end
 
+local function read_overload_enabled_config()
+    return ei_lib.config("beacon-overload") == true
+end
+
+local function set_overload_enabled_cache(state, enabled)
+    state.enabled = enabled == true
+    return state.enabled
+end
+
+local function sync_overload_enabled_cache(state)
+    return set_overload_enabled_cache(state, read_overload_enabled_config())
+end
+
 local function ensure_state()
     storage.ei = storage.ei or {}
     storage.ei.overload_icons = storage.ei.overload_icons or {}
@@ -132,14 +145,15 @@ local function ensure_state()
     end
 
     if state.enabled == nil then
-        state.enabled = settings.startup["ei-beacon-overload"].value
+        sync_overload_enabled_cache(state)
     end
 
     return state
 end
 
-local function is_overload_enabled()
-    return settings.startup["ei-beacon-overload"].value == true
+local function is_overload_enabled(state)
+    state = state or ensure_state()
+    return state.enabled == true
 end
 
 local function get_refresh_budget()
@@ -688,7 +702,7 @@ local function cleanup_invalid_tracked_machines(state, budget)
 
         if not model.entity_check(entity) then
             remove_machine_tracking_by_unit(state, unit_number, entity, false)
-        elseif not model.counts_for_overload(entity) then
+        elseif not model.counts_for_overload(entity, state) then
             remove_machine_tracking_by_unit(state, unit_number, entity, true)
         end
 
@@ -713,7 +727,7 @@ local function process_tracked_refresh_queue(state)
 
         if not model.entity_check(entity) then
             remove_machine_tracking_by_unit(state, unit_number, entity, false)
-        elseif not model.counts_for_overload(entity) then
+        elseif not model.counts_for_overload(entity, state) then
             remove_machine_tracking_by_unit(state, unit_number, entity, true)
         else
             queue_machine_for_refresh(state, entity)
@@ -966,7 +980,7 @@ local function process_machine_refresh(state, entity)
         return
     end
 
-    if not model.counts_for_overload(entity) then
+    if not model.counts_for_overload(entity, state) then
         remove_machine_tracking(state, entity, true)
         return
     end
@@ -986,7 +1000,7 @@ local function apply_beacon_delta_to_machine(state, entity, delta, destroy_type)
         return
     end
 
-    if not model.counts_for_overload(entity) then
+    if not model.counts_for_overload(entity, state) then
         remove_machine_tracking(state, entity, true)
         return
     end
@@ -1031,7 +1045,7 @@ local function process_chunk_scan(state, chunk_entry)
     }
 
     for _, machine in ipairs(machines) do
-        if model.counts_for_overload(machine) then
+        if model.counts_for_overload(machine, state) then
             track_machine(state, machine)
             queue_machine_for_refresh(state, machine)
         end
@@ -1165,7 +1179,7 @@ function model.allows_effects(entity)
     return false
 end
 
-function model.counts_for_overload(entity)
+function model.counts_for_overload(entity, state)
     if not model.entity_check(entity) then
         return false
     end
@@ -1174,7 +1188,7 @@ function model.counts_for_overload(entity)
         return false
     end
 
-    local state = ensure_state()
+    state = state or ensure_state()
     if is_machine_name_excluded(state, entity.name) then
         return false
     end
@@ -1193,8 +1207,7 @@ function model.refresh_all_overloads(reason)
     maybe_auto_arm_debug(state, reason, true)
     log_debug_status(state, "refresh-all-entry", state.last_reason, nil)
 
-    if not is_overload_enabled() then
-        state.enabled = false
+    if not is_overload_enabled(state) then
         if next(state.overloaded_units) ~= nil then
             release_owned_overloads(state, reason .. "-disabled")
         else
@@ -1203,7 +1216,6 @@ function model.refresh_all_overloads(reason)
         return
     end
 
-    state.enabled = true
     enqueue_world_rebuild(state, reason)
 end
 
@@ -1213,8 +1225,7 @@ function model.refresh_tracked_overloads(reason)
     maybe_auto_arm_debug(state, reason, false)
     log_debug_status(state, "tracked-refresh-entry", state.last_reason, nil)
 
-    if not is_overload_enabled() then
-        state.enabled = false
+    if not is_overload_enabled(state) then
         if next(state.overloaded_units) ~= nil then
             release_owned_overloads(state, reason .. "-disabled")
         else
@@ -1223,17 +1234,16 @@ function model.refresh_tracked_overloads(reason)
         return
     end
 
-    state.enabled = true
     enqueue_tracked_refresh(state, reason)
 end
 
-function model.update_overload(entity)
+function model.update_overload(entity, state)
     if not model.entity_check(entity) then
         return
     end
 
-    local state = ensure_state()
-    if not is_overload_enabled() then
+    state = state or ensure_state()
+    if not is_overload_enabled(state) then
         local unit_number = get_entity_unit_number(entity)
         if unit_number and state.overloaded_units[unit_number] then
             update_machine_state(state, entity, false)
@@ -1244,12 +1254,12 @@ function model.update_overload(entity)
     process_machine_refresh(state, entity)
 end
 
-function model.update_all_machines_in_range(entity, destroy_type, beacon_value)
+function model.update_all_machines_in_range(entity, destroy_type, beacon_value, state)
     if not model.entity_check(entity) then
         return
     end
 
-    local state = ensure_state()
+    state = state or ensure_state()
     local _, range = beacon_counts_for_overload(state, entity)
     if range <= 0 then
         return
@@ -1369,12 +1379,10 @@ function model.on_configuration_changed(e)
     log_debug_status(state, "config-change-entry", reason, nil)
 
     with_profiled_phase(state, "config-change", reason, function()
-        local enabled = is_overload_enabled()
-        local previous_enabled = state.enabled
+        local previous_enabled = state.enabled == true
+        local enabled = sync_overload_enabled_cache(state)
         local mod_changes_present = e and next(e.mod_changes or {}) ~= nil or false
         local startup_settings_changed = e and e.mod_startup_settings_changed or false
-
-        state.enabled = enabled
 
         if not enabled then
             if next(state.overloaded_units) ~= nil then
@@ -1396,8 +1404,7 @@ end
 function model.updater(event)
     local state = ensure_state()
     local tick = (event and event.tick) or game.tick
-    local enabled = is_overload_enabled()
-    state.enabled = enabled
+    local enabled = is_overload_enabled(state)
 
     if not enabled then
         if state.mode ~= "release" and next(state.overloaded_units) ~= nil then
@@ -1458,22 +1465,30 @@ function model.on_built_entity(entity)
         return
     end
 
+    local entity_type = entity.type
+    local maybe_machine = ELIGIBLE_MACHINE_TYPES[entity_type] == true
+    local is_beacon = entity_type == "beacon"
+    if not maybe_machine and not is_beacon then
+        return
+    end
+
     local state = ensure_state()
-    if model.counts_for_overload(entity) then
-        if is_overload_enabled() then
+    local enabled = is_overload_enabled(state)
+    if maybe_machine and model.counts_for_overload(entity, state) then
+        if enabled then
             process_machine_refresh(state, entity)
         else
             track_machine(state, entity)
         end
     end
 
-    if not is_overload_enabled() then
+    if not is_beacon or not enabled then
         return
     end
 
     local weight = beacon_counts_for_overload(state, entity)
     if weight then
-        model.update_all_machines_in_range(entity, nil, weight)
+        model.update_all_machines_in_range(entity, nil, weight, state)
     end
 end
 
@@ -1482,22 +1497,29 @@ function model.on_destroyed_entity(entity, destroy_type)
         return
     end
 
+    local entity_type = entity.type
+    local maybe_machine = ELIGIBLE_MACHINE_TYPES[entity_type] == true
+    local is_beacon = entity_type == "beacon"
+    if not maybe_machine and not is_beacon then
+        return
+    end
+
     local state = ensure_state()
     local unit_number = get_entity_unit_number(entity)
-    if unit_number and state.tracked_machines[unit_number] then
+    if maybe_machine and unit_number and state.tracked_machines[unit_number] then
         remove_machine_tracking(state, entity, false)
-    elseif unit_number and state.overloaded_units[unit_number] then
+    elseif maybe_machine and unit_number and state.overloaded_units[unit_number] then
         clear_overloaded_flag(state, unit_number)
         cleanup_icon_by_unit(unit_number)
     end
 
-    if not is_overload_enabled() then
+    if not is_beacon or not is_overload_enabled(state) then
         return
     end
 
     local weight = entity.valid and beacon_counts_for_overload(state, entity) or nil
     if weight then
-        model.update_all_machines_in_range(entity, destroy_type, -weight)
+        model.update_all_machines_in_range(entity, destroy_type, -weight, state)
     end
 end
 

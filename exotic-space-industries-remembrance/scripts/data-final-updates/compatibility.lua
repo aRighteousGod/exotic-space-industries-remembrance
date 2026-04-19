@@ -20,4 +20,3 @@ end
 if mods["elevated-pipes"] then
    ei_lib.remove_unlock_recipe("elevated-pipe","iron-stick")
 end
-require("compatibility-lignumis")

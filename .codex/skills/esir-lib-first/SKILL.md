@@ -20,6 +20,7 @@ Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-i
 - For runtime entity safety, prefer `ei_lib.entity_check`, `ei_lib.get_valid_entity`, and `ei_lib.get_entity_unit_number` over reviving file-local `entity ~= nil and entity.valid` clones. `get_entity_unit_number` is only safe key extraction, not proof the entity can be dereferenced.
 - If a runtime module relies on tombstoned queue entries, live-set tracking, or other queue semantics that the shared scheduler almost covers, extend `runtime-scheduler.lua` compatibly before reviving a private dequeue helper.
 - When shared helper behavior moves between local code, `ei_lib`, and `runtime-scheduler.lua`, update the associated skill/reference wording in the same patch.
+- If helper consolidation intentionally stops short because semantics still differ, add a follow-up note to [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) in the same patch.
 - Keep new local helpers only for behavior that is genuinely module-specific, closure-bound, or tied to local state or event wiring in a way that would make `ei_lib` awkward.
 - Preserve compatibility when upgrading `ei_lib`. Prefer optional parameters, nil-safe guards, and broadened behavior over signature churn.
 - Before adding a new helper name, scan the existing surface with:

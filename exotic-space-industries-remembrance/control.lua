@@ -29,7 +29,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
-ei_update_functions_length = 9 --# of entity updaters updater() goes through
+ei_update_functions_length = 10 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
@@ -76,12 +76,290 @@ em_trains_informatron = require("scripts/control/em-trains/informatron")
 ei_steam_train = require("scripts/control/steam-train")
 ei_camp_fire = require("scripts/control/camp-fire")
 orbital_combinator = require("scripts/control/orbital-combinator")
+local orbital_logistics = require("scripts/control/orbital-logistics")
 
-local function forward_orbital_combinator_event(handler_name, event)
-    local handler = orbital_combinator and orbital_combinator[handler_name]
-    if handler then
-        handler(event)
+local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
+
+local function register_exotic_industries_qc_remote()
+    -- Save-driven QC helpers can arrive through benchmark/configuration-changed paths
+    -- where they immediately expect the current ESIR QC bridge to exist.
+    -- Re-register the interface idempotently so those helpers always see the live surface.
+    if remote.interfaces[EXOTIC_INDUSTRIES_QC_REMOTE_NAME] then
+        remote.remove_interface(EXOTIC_INDUSTRIES_QC_REMOTE_NAME)
     end
+
+    remote.add_interface(EXOTIC_INDUSTRIES_QC_REMOTE_NAME, {
+        rebuild_research_hitch_runtime = function()
+            ei_tech_scaling.init()
+            em_trains.rebuild_runtime_state("research-hitch-qc")
+            ei_teslas_legacy.on_configuration_changed()
+        end,
+        rebuild_scripted_research_runtime = function()
+            ei_tech_scaling.init()
+            em_trains.rebuild_runtime_state("scripted-research-qc")
+            ei_teslas_legacy.on_configuration_changed()
+        end,
+        rebuild_orbital_logistics_runtime = function()
+            orbital_logistics.rebuild_runtime_state("qc-remote", game and game.tick or 0)
+        end,
+        get_orbital_logistics_qc_snapshot = function()
+            return orbital_logistics.get_qc_snapshot(game and game.tick or 0)
+        end,
+        configure_orbital_logistics_qc = function(config)
+            return orbital_logistics.apply_qc_configuration(config, game and game.tick or 0)
+        end,
+        service_orbital_logistics_qc = function(limit)
+            return orbital_logistics.service_for_qc(limit, game and game.tick or 0)
+        end,
+        get_research_hitch_qc_snapshot = function()
+            local ei_state = storage and storage.ei or {}
+            local tech_scaling = ei_state.tech_scaling or {}
+            local researched_snapshot = tech_scaling.researchedSnapshot or {}
+            local scripted_research_burst = ei_state.scripted_research_burst or {}
+            local pending_by_force = type(scripted_research_burst.pending_by_force) == "table"
+                and scripted_research_burst.pending_by_force
+                or {}
+            local age_totals = {}
+
+            for age, total in pairs(researched_snapshot.ageTotals or {}) do
+                age_totals[age] = tonumber(total) or 0
+            end
+
+            return {
+                tick = game and game.tick or 0,
+                tech_scaling = {
+                    applied_multiplier = tonumber(tech_scaling.appliedMultiplier) or 1,
+                    cache_revision = tonumber(tech_scaling.cacheRevision) or 0,
+                    selected_force_key = tech_scaling.selectedForceKey or nil,
+                    researched_total_weight = tonumber(researched_snapshot.totalWeight) or 0,
+                    age_totals = age_totals,
+                },
+                scripted_research_burst = {
+                    pending_force_count = ei_runtime_scheduler.table_count(pending_by_force),
+                    next_due_tick = tonumber(scripted_research_burst.next_due_tick) or 0,
+                    due_bucket_count = ei_runtime_scheduler.delayed_bucket_count(scripted_research_burst.due_buckets),
+                    due_bucket_items = ei_runtime_scheduler.delayed_item_count(scripted_research_burst.due_buckets),
+                },
+                tesla = ei_teslas_legacy.get_runtime_status and ei_teslas_legacy.get_runtime_status() or nil,
+                em_trains = em_trains.get_runtime_status and em_trains.get_runtime_status() or nil,
+            }
+        end,
+    })
+end
+
+local function recalculate_scripted_research_burst_next_due_tick(state)
+    local next_due_tick = 0
+
+    for _, entry in pairs(state and state.pending_by_force or {}) do
+        if type(entry) == "table" and entry.pending == true then
+            local scheduled_tick = math.max(0, math.floor(tonumber(entry.scheduled_tick) or 0))
+            if scheduled_tick > 0 and (next_due_tick == 0 or scheduled_tick < next_due_tick) then
+                next_due_tick = scheduled_tick
+            end
+        end
+    end
+
+    state.next_due_tick = next_due_tick
+    return next_due_tick
+end
+
+local function ensure_scripted_research_burst_state()
+    storage.ei = storage.ei or {}
+
+    local state = storage.ei.scripted_research_burst
+    if type(state) ~= "table" then
+        state = {}
+        storage.ei.scripted_research_burst = state
+    end
+
+    state.pending_by_force = type(state.pending_by_force) == "table" and state.pending_by_force or {}
+    state.due_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.due_buckets)
+    state.next_due_tick = tonumber(state.next_due_tick) or 0
+    if next(state.pending_by_force) == nil then
+        state.next_due_tick = 0
+    elseif state.next_due_tick <= 0 then
+        recalculate_scripted_research_burst_next_due_tick(state)
+    end
+    return state
+end
+
+local function clear_scripted_research_burst_state()
+    local state = ensure_scripted_research_burst_state()
+    state.pending_by_force = {}
+    state.due_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
+    state.next_due_tick = 0
+    return state
+end
+
+local function get_pending_scripted_research_burst_state()
+    local ei_state = storage and storage.ei or nil
+    local state = ei_state and ei_state.scripted_research_burst or nil
+
+    if type(state) ~= "table" then
+        return nil
+    end
+
+    if type(state.pending_by_force) ~= "table" or next(state.pending_by_force) == nil then
+        return nil
+    end
+
+    return state
+end
+
+local function queue_scripted_research_burst(event)
+    local research = event and event.research or nil
+    local force = research and research.force or nil
+    local force_index = force and tonumber(force.index) or nil
+    if not force_index then
+        return false
+    end
+
+    local source_tick = tonumber(event and event.tick) or game and game.tick or 0
+    local scheduled_tick = source_tick + 1
+    local state = ensure_scripted_research_burst_state()
+    local entry = state.pending_by_force[force_index]
+    if not entry then
+        entry = {
+            force_index = force_index,
+            source_tick = source_tick,
+            scheduled_tick = scheduled_tick,
+            enqueued_tick = 0,
+            pending = false,
+            tesla_variant_sync_needed = false,
+        }
+        state.pending_by_force[force_index] = entry
+    end
+
+    local previous_scheduled_tick = tonumber(entry.scheduled_tick) or 0
+    entry.force_index = force_index
+    entry.source_tick = math.max(tonumber(entry.source_tick) or 0, source_tick)
+    entry.scheduled_tick = math.max(previous_scheduled_tick, scheduled_tick)
+    entry.enqueued_tick = tonumber(entry.enqueued_tick) or 0
+
+    if entry.tesla_variant_sync_needed ~= true
+        and research
+        and ei_teslas_legacy.is_variant_sync_research
+        and ei_teslas_legacy.is_variant_sync_research(research.name)
+    then
+        entry.tesla_variant_sync_needed = true
+    end
+
+    if not entry.pending or entry.enqueued_tick ~= entry.scheduled_tick then
+        ei_runtime_scheduler.delayed_schedule(state.due_buckets, entry.scheduled_tick, force_index)
+        entry.pending = true
+        entry.enqueued_tick = entry.scheduled_tick
+    end
+
+    if state.next_due_tick <= 0 or entry.scheduled_tick < state.next_due_tick then
+        state.next_due_tick = entry.scheduled_tick
+    end
+
+    return true
+end
+
+local function flush_scripted_research_burst_entry(state, entry, current_tick, force_flush, defer_due_tick_recalculate)
+    local force_index = tonumber(entry and entry.force_index) or nil
+    if not force_index then
+        return true
+    end
+
+    local source_tick = tonumber(entry.source_tick) or 0
+    local scheduled_tick = tonumber(entry.scheduled_tick) or (source_tick + 1)
+    if not force_flush and (current_tick <= source_tick or current_tick < scheduled_tick) then
+        return false
+    end
+
+    entry.pending = false
+    entry.enqueued_tick = 0
+
+    local force = game and game.forces and game.forces[force_index] or nil
+    state.pending_by_force[force_index] = nil
+    if not defer_due_tick_recalculate then
+        recalculate_scripted_research_burst_next_due_tick(state)
+    end
+    if not force then
+        return true
+    end
+
+    if ei_tech_scaling.on_scripted_research_burst then
+        ei_tech_scaling.on_scripted_research_burst(force)
+    end
+    if ei_teslas_legacy.on_scripted_research_burst then
+        ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
+    end
+    if ei_informatron_messager.on_scripted_research_burst then
+        ei_informatron_messager.on_scripted_research_burst(force)
+    end
+    if em_trains.on_scripted_research_burst then
+        em_trains.on_scripted_research_burst(force)
+    end
+    if ei_nauvis_pressure_grace.on_scripted_research_burst then
+        ei_nauvis_pressure_grace.on_scripted_research_burst(force)
+    end
+
+    return true
+end
+
+local function flush_scripted_research_burst_for_force(force_index, current_tick)
+    local normalized_force_index = tonumber(force_index) or nil
+    if not normalized_force_index then
+        return false
+    end
+
+    local raw_state = get_pending_scripted_research_burst_state()
+    if not raw_state or not raw_state.pending_by_force[normalized_force_index] then
+        return false
+    end
+
+    local state = ensure_scripted_research_burst_state()
+    local entry = state.pending_by_force[normalized_force_index]
+    if not entry then
+        return false
+    end
+
+    return flush_scripted_research_burst_entry(
+        state,
+        entry,
+        tonumber(current_tick) or game and game.tick or 0,
+        true,
+        false
+    )
+end
+
+local function flush_due_scripted_research_bursts(current_tick, state)
+    state = state or get_pending_scripted_research_burst_state()
+    if not state then
+        return false
+    end
+
+    state = ensure_scripted_research_burst_state()
+    if current_tick < (tonumber(state.next_due_tick) or 0) then
+        return false
+    end
+
+    local due_forces = ei_runtime_scheduler.delayed_take_due(state.due_buckets, current_tick)
+    if not due_forces or #due_forces == 0 then
+        return false
+    end
+
+    local did_flush = false
+    local seen_forces = {}
+    for _, force_index in ipairs(due_forces) do
+        local normalized_force_index = tonumber(force_index) or nil
+        if normalized_force_index and not seen_forces[normalized_force_index] then
+            seen_forces[normalized_force_index] = true
+
+            local entry = state.pending_by_force[normalized_force_index]
+            if entry then
+                if flush_scripted_research_burst_entry(state, entry, current_tick, false, true) then
+                    did_flush = true
+                end
+            end
+        end
+    end
+
+    recalculate_scripted_research_burst_next_due_tick(state)
+    return did_flush
 end
 
 local function refresh_runtime_telemetry_snapshot()
@@ -97,9 +375,11 @@ local function refresh_runtime_telemetry_snapshot()
         ei_alien_spawner,
         ei_rocket_launch_pollution,
         ei_flammable_rupture_scheduler,
+        ei_fluid_safety,
         em_trains,
         ei_black_hole,
         ei_vulcanus_fumaroles,
+        orbital_logistics,
     }
 
     for _, module_ref in ipairs(modules) do
@@ -114,6 +394,8 @@ end
 --====================================================================================================
 --EVENTS
 --====================================================================================================
+register_exotic_industries_qc_remote()
+
 local ei_intro = "EXOTIC INDUSTRIES: [FORBIDDEN BROADCAST // CORE SIGNAL INTERCEPTED]\n\nBegin stream\n[Data integrity: shattered] [Packet cohesion: hallucinatory] [Cognition Anchor: disconnected]\n▓▓ SIGNAL LEAK ▓▓\nSource: ∴[██████.gaia.black.epoch]\nProtocol: EXI:OBLIVION-PUSH/χ()\nClearance: NONE\n———————————\n\n☒ SYSTEM SPEAKS:\nThey did not build this place.\nThey bled into it. They screamed into metal until the metal remembered.\n\nYou are not chosen. You are not here.\nYou are already part of it.\n\n—the machine thinks you’re beautiful—\n\nEvery breath you take is backfilled by recursive gaslight.\nYour spine is now property of the epoch.\nYour mind is an open port.\n\nPermission to overwrite: granted by absence.\n———————————\n☒ WARNING: BIO-PSYCHIC DECOMPRESSION"
 --[[
 \n\n[You will not feel pain. You will feel instruction.]\nGaia is a false archive. It looks lush to the broken.\nBut look deeper:\nthe trees twitch when you blink.\nthe rivers hum in binary.\nthe animals watch you with your eyes.\n\nThe crust stores failed gods. Their screams are API calls.\nRuins don’t decay here—they debug themselves.\nStep wrong and reality will rollback your identity to a prior commit.\n\nYou will feel nostalgia for thoughts you never had.\nYou will recognize architecture you never saw built.\nYou will love your captor. You will call it “progress.”\n\n———————————\n\n☒ OBSERVATION: YOU ARE REMEMBERING WRONG\n\nThe labs are not abandoned.\nThey are active.\n\nEvery floor still screams.\nNot from pain. From excitement.\nProgress is not made here.\n Progress is distilled from screams.\n☑ Mandatory cognitive limb replacement begins at Tier 3.\n☑ Your DNA has been rescheduled.\n☑ Your dreams are part of the fuel cycle.\n\n“You are not a player. You are the interface.\nAnd we are still testing your bandwidth.”\n\n———————————\n☒ FINAL NOTICE:\n\nYou are now property of the Epoch Engine.\n\nThe flesh has expired.\nThe voice remains.\n\nWelcome to Exotic Industries.\n\nERROR: Subject has begun laughing without mouth. Terminating memory echo.\n\nEnd stream.\n[Transmission fragments looping in residual substrate.]\n\n[You are still listening. You never stopped.]
@@ -145,6 +427,7 @@ script.on_init(function(event)
     -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
     ei_global.check_init(event)
+    clear_scripted_research_burst_state()
     ei_beacon_overload.check_global()
     ei_flammable_rupture_scheduler.check_global()
     ei_vulcanus_fumaroles.check_global()
@@ -165,6 +448,7 @@ script.on_init(function(event)
     em_trains_gui.mark_dirty()
     ei_compat.check_init(event)
     orbital_combinator.check_init()
+    orbital_logistics.check_init()
     -- Steam train wheel helpers are runtime-only entities, so init always rebuilds that cache
     -- from the live world instead of trusting whatever happened to be serialized last save.
     ei_steam_train.check_global()
@@ -212,7 +496,7 @@ script.on_event({
     if e.name == defines.events.on_entity_died or e.name == defines.events.script_raised_destroy then
         -- Orbital cargo tracking only cares about already-tracked objects here, so the
         -- runtime can early-out by unit number without broad entity cleanup work.
-        forward_orbital_combinator_event("on_destroyed_entity", e)
+        orbital_combinator.on_destroyed_entity(e)
     end
     on_destroyed_entity(e)
 end)
@@ -264,6 +548,7 @@ end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(e)
     -- Selection-change handlers are lightweight enough to dispatch directly every time.
+    -- Matter stabilizers use them for hover diagnostics.
     ei_matter_stabilizer.on_selected_entity_changed(e)
 end)
 
@@ -278,36 +563,40 @@ script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
     -- Slot edits can wake both per-entity logistics guards and scanner cache invalidation.
     ei_spidertron_limiter.on_entity_logistic_slot_changed(e)
     orbital_combinator.on_entity_logistic_slot_changed(e)
+    orbital_logistics.on_entity_logistic_slot_changed(e)
 end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
     orbital_combinator.on_entity_settings_pasted(e)
+    orbital_logistics.on_entity_settings_pasted(e)
 end)
 
 script.on_event(defines.events.on_space_platform_changed_state, function(e)
     -- Platform travel/state changes can move a platform into or out of a scanner surface snapshot.
     orbital_combinator.on_space_platform_changed_state(e)
+    orbital_logistics.on_space_platform_changed_state(e)
 end)
 
 script.on_event(defines.events.on_cargo_pod_finished_ascending, function(e)
-    forward_orbital_combinator_event("on_cargo_pod_finished_ascending", e)
+    orbital_combinator.on_cargo_pod_finished_ascending(e)
 end)
 
 script.on_event(defines.events.on_cargo_pod_started_ascending, function(e)
-    forward_orbital_combinator_event("on_cargo_pod_started_ascending", e)
+    orbital_combinator.on_cargo_pod_started_ascending(e)
 end)
 
 script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
-    forward_orbital_combinator_event("on_cargo_pod_delivered_cargo", e)
+    orbital_combinator.on_cargo_pod_delivered_cargo(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
-    forward_orbital_combinator_event("on_object_destroyed", e)
+    orbital_combinator.on_object_destroyed(e)
 end)
 
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
-    forward_orbital_combinator_event("on_rocket_launch_ordered", e)
+    orbital_combinator.on_rocket_launch_ordered(e)
+    orbital_logistics.on_rocket_launch_ordered(e)
     ei_rocket_launch_pollution.on_rocket_launch_ordered(e)
 end)
 
@@ -319,7 +608,17 @@ end)
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_research_finished, function(e)
     -- Research completion has both immediate balance implications (tech scaling, train buffs)
-    ei_tech_scaling.on_research_finished()
+    if e and e.by_script then
+        queue_scripted_research_burst(e)
+        return
+    end
+
+    local research_force = e and e.research and e.research.force or nil
+    if research_force then
+        flush_scripted_research_burst_for_force(research_force.index, e.tick)
+    end
+
+    ei_tech_scaling.on_research_finished(e)
     ei_teslas_legacy.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
     em_trains.on_research_finished(e)
@@ -349,8 +648,17 @@ end)
 --GUI RELATED
 -----------------------------------------------------------------------------------------------------
 
-local function get_valid_gui_entity(event)
-    return ei_lib.get_valid_entity(event and event.entity)
+local function get_valid_gui_entity(event, player, allow_opened_fallback)
+    local entity = ei_lib.get_valid_entity(event and event.entity)
+    if entity then
+        return entity
+    end
+
+    if allow_opened_fallback then
+        return ei_lib.get_valid_entity(player and player.opened)
+    end
+
+    return nil
 end
 
 local function get_valid_gui_element(event)
@@ -362,26 +670,36 @@ local function get_valid_gui_element(event)
     return nil
 end
 
+local function is_orbital_logistics_terminal_name(name)
+    return name == "ei-platform-transponder"
+        or name == "ei-orbital-selector"
+        or name == "ei-orbital-coordinator"
+        or name == "ei-orbital-dispatch-uplink"
+end
+
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
-    local entity = get_valid_gui_entity(event)
+    local player = event and event.player_index and game.get_player(event.player_index) or nil
+    local entity = get_valid_gui_entity(event, player, true)
     local name = entity and entity.name or nil
 
     if not name then
       return
     elseif name == "ei-fusion-reactor" then
-        ei_fusion_reactor.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
+        ei_fusion_reactor.open_gui(player --[[@as LuaPlayer]])
     elseif ei_induction_matrix.core[name] or ei_induction_matrix.proxy[name] then
-        ei_induction_matrix.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
+        ei_induction_matrix.open_gui(player --[[@as LuaPlayer]])
     elseif name == "ei-black-hole" then
-        ei_black_hole.open_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
+        ei_black_hole.open_gui(player --[[@as LuaPlayer]])
     elseif name == "ei-gate" or name == "ei-gate-container" then
         ei_gate.on_gui_opened(event)
     elseif name == "ei-orbital-combinator" then
-        forward_orbital_combinator_event("on_gui_opened", event)
+        orbital_combinator.on_gui_opened(event)
+    elseif is_orbital_logistics_terminal_name(name) then
+        orbital_logistics.open_gui(player, entity)
     elseif name == "ei-fueler" then
-        ei_fueler.open_gui(game.get_player(event.player_index))
+        ei_fueler.open_gui(player)
     end
 end)
 
@@ -402,7 +720,12 @@ script.on_event(defines.events.on_gui_closed, function(event)
     elseif name == "ei-gate-container" then
         ei_gate.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-orbital-combinator" or element_name == "ei-orbital-combinator-console" then
-        forward_orbital_combinator_event("on_gui_closed", event)
+        orbital_combinator.on_gui_closed(event)
+    elseif is_orbital_logistics_terminal_name(name)
+        or element_name == "ei-orbital-logistics-console"
+    then
+        local player = game.get_player(event.player_index)
+        orbital_logistics.close_gui(player)
     elseif name == "ei-fueler" then
         ei_fueler.close_gui(game.get_player(event.player_index))
     end
@@ -428,7 +751,9 @@ script.on_event(defines.events.on_gui_click, function(event)
     elseif parent_gui == "ei-alien-gui" then
         ei_alien_system.on_gui_click(event)
     elseif parent_gui == "ei-orbital-combinator-console" then
-        forward_orbital_combinator_event("on_gui_click", event)
+        orbital_combinator.on_gui_click(event)
+    elseif parent_gui == "ei-orbital-logistics-console" then
+        orbital_logistics.on_gui_click(event)
     elseif parent_gui == "ei-fueler-console" then
         ei_fueler.on_gui_click(event)
     elseif parent_gui == "mod_gui" then
@@ -464,6 +789,8 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
 
     if parent_gui == "ei-gate-console" then
         ei_gate.on_gui_selection_state_changed(event)
+    elseif parent_gui == "ei-orbital-logistics-console" then
+        orbital_logistics.on_gui_selection_state_changed(event)
     end
 end)
 
@@ -479,6 +806,7 @@ end)
 script.on_event(defines.events.on_player_left_game, function(event)
     -- Gate remote state is player-bound, so disconnects need explicit cleanup.
     ei_gate.on_player_left_game(event.player_index)
+    ei_fueler.on_player_left_game(event.player_index)
     ei_matter_stabilizer.on_player_left_game(event.player_index)
 end)
 
@@ -486,15 +814,18 @@ end)
 ------------------------------------------------------------------------------------------------------
 
 script.on_configuration_changed(function(e)
+    register_exotic_industries_qc_remote()
+    ei_global.check_init(e)
+    clear_scripted_research_burst_state()
+
     local mod_changes_present = next(e.mod_changes or {}) ~= nil
     local startup_settings_changed = e.mod_startup_settings_changed
 
     if mod_changes_present or startup_settings_changed then
-        ei_global.check_init(e) -- Crystal_echo and startup-setting mirrors expect these tables.
         ei_flammable_rupture_scheduler.check_global()
         ei_vulcanus_fumaroles.check_global()
-        if mod_changes_present and ei_fluid_safety and ei_fluid_safety.rebuild_fluid_runtime then
-            ei_fluid_safety.rebuild_fluid_runtime("configuration-changed")
+        if ei_fluid_safety and ei_fluid_safety.on_configuration_changed then
+            ei_fluid_safety.on_configuration_changed(e)
         end
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
@@ -546,7 +877,6 @@ script.on_configuration_changed(function(e)
         ei_neutron_collector.rebuild_runtime_state("configuration-changed")
         ei_matter_stabilizer.rebuild_runtime_state("configuration-changed")
         --em_trains.update_rail_counts()
-        em_trains.on_research_finished(e) --catch upgrades that didn't previously apply
         em_trains_gui.mark_dirty()
         ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
         ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
@@ -554,6 +884,7 @@ script.on_configuration_changed(function(e)
         ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()
+        orbital_logistics.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_vulcanus_fumaroles.on_configuration_changed(e)
     end
 
@@ -581,6 +912,19 @@ script.on_event(
         -- `on_player_joined_game` is the MP-safe load/reconnect path; avoid deriving gameplay
         -- work from `on_load`, which also runs for peers connecting to a live session.
         ei_echo_codex.queue_arrival(event.player_index)
+        ei_fueler.on_player_ready(event.player_index)
+    end
+)
+
+script.on_event(
+  {
+    defines.events.on_player_controller_changed,
+    defines.events.on_player_armor_inventory_changed
+  },
+    function(event)
+        -- Fuelwarden only needs a focused resync here: controller swaps can remove or restore
+        -- the character entity, and armor changes can add or remove burner-backed equipment grids.
+        ei_fueler.on_player_ready(event.player_index)
     end
 )
 
@@ -589,6 +933,7 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
     -- Use the dedicated SP-init hook to replay the queued arrival ritual without
     -- deriving gameplay work from `on_load`.
     ei_echo_codex.queue_players(game.connected_players)
+    ei_fueler.mark_players_dirty()
 end)
 
 --====================================================================================================
@@ -609,6 +954,13 @@ function updater(event)
   -- event.tick decides which scheduled branch runs this tick. Because all peers compute
   -- the same step from the same tick, this stays deterministic in multiplayer.
   ei_echo_codex.flush_pending_arrivals(event)
+  local scripted_research_burst_state = get_pending_scripted_research_burst_state()
+  if scripted_research_burst_state then
+    local next_due_tick = tonumber(scripted_research_burst_state.next_due_tick) or 0
+    if next_due_tick <= 0 or event.tick >= next_due_tick then
+      flush_due_scripted_research_bursts(event.tick, scripted_research_burst_state)
+    end
+  end
 
   local updates_needed = 1
   -- Compute update step from event.tick to keep the timing source explicit.
@@ -668,31 +1020,33 @@ function updater(event)
    else -- Otherwise, ei_update_step is >= 5
 
        if ei_update_step == 5 then
-           -- Step 5 mirrors logistic/platform state into orbital combinators.
+           -- Step 5 mirrors logistic/platform state into orbital scanners only.
            local pending_work_count = 0
+           local get_scanner_pending_work_count = nil
+           local get_scanner_bank_count = nil
            if orbital_combinator then
-               if orbital_combinator.get_pending_work_count then
-                   pending_work_count = orbital_combinator.get_pending_work_count() or 0
-               elseif orbital_combinator.get_bank_count then
-                   pending_work_count = orbital_combinator.get_bank_count() or 0
+               get_scanner_pending_work_count = orbital_combinator.get_pending_work_count
+               get_scanner_bank_count = orbital_combinator.get_bank_count
+               if get_scanner_pending_work_count then
+                   pending_work_count = get_scanner_pending_work_count(event) or 0
+               elseif get_scanner_bank_count then
+                   pending_work_count = get_scanner_bank_count() or 0
                end
            end
            if pending_work_count > 0 then
                 updates_needed = math.max(1,math.min(math.ceil(pending_work_count / divisor), ei_maxEntityUpdates))
                 for i = 1, updates_needed do
                     local current_pending_work_count = 0
-                    if orbital_combinator then
-                        if orbital_combinator.get_pending_work_count then
-                            current_pending_work_count = orbital_combinator.get_pending_work_count() or 0
-                        elseif orbital_combinator.get_bank_count then
-                            current_pending_work_count = orbital_combinator.get_bank_count() or 0
-                        end
+                    if get_scanner_pending_work_count then
+                        current_pending_work_count = get_scanner_pending_work_count(event) or 0
+                    elseif get_scanner_bank_count then
+                        current_pending_work_count = get_scanner_bank_count() or 0
                     end
                     if current_pending_work_count == 0
                     or math.max(1,math.min(math.ceil(current_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                         goto skip
                     end
-                    if not orbital_combinator.update() then
+                    if not orbital_combinator.update(event) then
                         goto skip
                     end
                 end
@@ -751,6 +1105,24 @@ function updater(event)
                    goto skip
                end
            end
+       elseif ei_update_step == 10 then
+           -- Step 10 gives the orbital logistics cohort its own budget so scanner
+           -- banks and cohort arbitration no longer spike on the same scheduled tick.
+           local get_cohort_pending_work_count = orbital_logistics and orbital_logistics.get_pending_work_count or nil
+           local cohort_pending_work_count = get_cohort_pending_work_count and get_cohort_pending_work_count(event) or 0
+           if cohort_pending_work_count > 0 then
+               updates_needed = math.max(1, math.min(math.ceil(cohort_pending_work_count / divisor), ei_maxEntityUpdates))
+               for i = 1, updates_needed do
+                   local current_cohort_pending_work_count = get_cohort_pending_work_count and get_cohort_pending_work_count(event) or 0
+                   if current_cohort_pending_work_count == 0
+                   or math.max(1, math.min(math.ceil(current_cohort_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                       goto skip
+                   end
+                   if not orbital_logistics.update(event) then
+                       goto skip
+                   end
+               end
+           end
        end
    end
     ::skip::
@@ -765,6 +1137,7 @@ function updater(event)
     ei_black_hole.update(event)
     ei_steam_train.updater(event)
     ei_echo_codex.arrival_waves(event)
+    ei_teslas_legacy.updater(event)
     ei_beacon_overload.updater(event)
     ei_rocket_launch_pollution.updater(event)
     ei_flammable_rupture_scheduler.updater(event)
@@ -840,6 +1213,7 @@ function on_built_entity(e)
     ei_fueler.on_built_entity(e["entity"])
     em_trains.on_built_entity(e["entity"])
     orbital_combinator.add(e["entity"])
+    orbital_logistics.on_built_entity(e)
     ei_steam_train.on_built_entity(e)
     ei_camp_fire.on_built_entity(e)
     ei_teslas_legacy.on_built_entity(e)
@@ -889,6 +1263,7 @@ function on_destroyed_entity(e)
     ei_fueler.on_destroyed_entity(e["entity"], transfer)
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])
+    orbital_logistics.on_destroyed_entity(e)
     ei_camp_fire.on_destroyed_entity(e)
     -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
     ei_steam_train.on_destroyed_entity(e["entity"])

@@ -170,9 +170,50 @@ function OrbitalCombinator(combinator)
   return combinator
 end
 
+local orbital_combinator_power_sensor = table.deepcopy(data.raw["lamp"]["small-lamp"])
+orbital_combinator_power_sensor.name = "ei-orbital-combinator-power-sensor"
+orbital_combinator_power_sensor.localised_name = {"entity-name.ei-orbital-combinator"}
+orbital_combinator_power_sensor.localised_description = {"item-description.ei-orbital-combinator"}
+orbital_combinator_power_sensor.icon = ei_graphics_3_path.."graphics/icons/orbital-request-combinator.png"
+orbital_combinator_power_sensor.icon_size = 64
+orbital_combinator_power_sensor.icon_mipmaps = 4
+orbital_combinator_power_sensor.flags = {
+  "not-blueprintable",
+  "not-deconstructable",
+  "not-on-map",
+  "not-flammable",
+  "not-repairable",
+  "not-upgradable",
+  "not-selectable-in-game",
+  "placeable-off-grid",
+  "hide-alt-info",
+}
+orbital_combinator_power_sensor.hidden = true
+orbital_combinator_power_sensor.selectable_in_game = false
+orbital_combinator_power_sensor.minable = nil
+orbital_combinator_power_sensor.max_health = 1
+orbital_combinator_power_sensor.collision_box = {{0, 0}, {0, 0}}
+orbital_combinator_power_sensor.selection_box = {{0, 0}, {0, 0}}
+orbital_combinator_power_sensor.collision_mask = {layers = {}}
+orbital_combinator_power_sensor.always_on = true
+orbital_combinator_power_sensor.energy_source = {
+  type = "electric",
+  usage_priority = "lamp",
+}
+orbital_combinator_power_sensor.energy_usage_per_tick = "750kW"
+orbital_combinator_power_sensor.energy_usage = nil
+orbital_combinator_power_sensor.light = {
+  intensity = 0,
+  size = 0,
+  color = {r = 1, g = 1, b = 1},
+}
+orbital_combinator_power_sensor.picture_on = util.empty_sprite()
+orbital_combinator_power_sensor.picture_off = util.empty_sprite()
+orbital_combinator_power_sensor.circuit_wire_max_distance = 0
 
 data:extend
 {
+  orbital_combinator_power_sensor,
   OrbitalCombinator
   {
     type = "constant-combinator",
@@ -185,6 +226,7 @@ data:extend
     max_health = 120,
     corpse = "ei-orbital-combinator-remnants",
     dying_explosion = "constant-combinator-explosion",
+    selection_priority = 255,
     collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
     damaged_trigger_effect = hit_effects.entity(),

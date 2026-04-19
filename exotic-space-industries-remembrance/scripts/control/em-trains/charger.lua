@@ -3,7 +3,7 @@
 -- owns: EM train and charger runtime, buffs, rebuilds, and research hooks
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init/config rebuild, build/destroy, research-finished, and scheduled tick steps 8 and 9
--- forwarded_events: activate_surface, adjust_surface_count, allocate_surface_budgets, animate_range, apply_buffs, build_charger_entry, build_train_entry, cast_beam, charger_updater, check_buffs, check_global, clear_legacy_runtime_fields, compact_queue, deactivate_surface, dequeue_surface_unit, deregister_all_chargers, deregister_all_trains, enqueue_surface_unit, ensure_runtime_ready, ensure_surface_queue, ensure_train_grace_reserve, entity_check, find_charger, fix_toggle_range, get_charger_power_usage, get_charger_transfer_factor, get_charger_upkeep_factor, get_chunk_bucket, get_entity_name_list, get_existing_entity_name_list, get_item_fuel_value, get_locomotive_demand_factor, get_locomotive_grace_ticks, get_normalized_quality_factor, get_rail_count, get_selected_em_fuel_prototype, get_surface_charger_set, get_surface_scheduler_state, get_train_fuel_fraction, has_enough_energy, index_charger, invalidate_runtime_state, is_em_train, on_built_entity, on_destroyed_entity, on_research_finished, printBuffStatus, process_surface_quota, process_surface_scheduler, que_charger, que_train, rebuild_runtime_state, register_charger, register_que_charger, register_que_train, register_train, reinitialize_chargers, reinitialize_trains, remove_charger_entry, remove_train_entry, render_status_rings, requeue_surface_unit, reset_surface_scheduler, return_buffs, set_burner, toggle_range_highlight, train_updater, unindex_charger, unregister_charger, unregister_train, update_charger, update_charger_from_rail, update_chargers, update_rail_counts, update_train, update_trains
+-- forwarded_events: activate_surface, adjust_surface_count, allocate_surface_budgets, animate_range, apply_buffs, build_charger_entry, build_train_entry, cast_beam, charger_updater, check_buffs, check_global, clear_legacy_runtime_fields, compact_queue, deactivate_surface, dequeue_surface_unit, deregister_all_chargers, deregister_all_trains, enqueue_surface_unit, ensure_runtime_ready, ensure_surface_queue, ensure_train_grace_reserve, entity_check, find_charger, fix_toggle_range, get_charger_power_usage, get_charger_transfer_factor, get_charger_upkeep_factor, get_chunk_bucket, get_entity_name_list, get_existing_entity_name_list, get_item_fuel_value, get_locomotive_demand_factor, get_locomotive_grace_ticks, get_normalized_quality_factor, get_rail_count, get_selected_em_fuel_prototype, get_surface_charger_set, get_surface_scheduler_state, get_train_fuel_fraction, has_enough_energy, index_charger, invalidate_runtime_state, is_em_train, on_built_entity, on_destroyed_entity, on_research_finished, on_scripted_research_burst, printBuffStatus, process_surface_quota, process_surface_scheduler, que_charger, que_train, rebuild_runtime_state, register_charger, register_que_charger, register_que_train, register_train, reinitialize_chargers, reinitialize_trains, remove_charger_entry, remove_train_entry, render_status_rings, requeue_surface_unit, reset_surface_scheduler, return_buffs, set_burner, toggle_range_highlight, train_updater, unindex_charger, unregister_charger, unregister_train, update_charger, update_charger_from_rail, update_chargers, update_rail_counts, update_train, update_trains
 -- storage_roots: storage.ei, storage.ei_emt
 -- gui_ids: none
 -- remote_interfaces: none
@@ -67,6 +67,7 @@ model.techs = {
 }
 
 local EM_CHUNK_SIZE = 32
+local EM_RESEARCH_ROLLOUT_BONUS_BUDGET = 16
 local EM_RUNTIME_VERSION = 1
 local EM_TICKS_PER_SECOND = 60
 local EM_LOCO_GRACE_DRAIN_WATTS = 1000000
@@ -78,6 +79,37 @@ local EM_CHARGER_RAIL_AUDIT_TICKS = 3600
 local EM_CHARGER_RAIL_AUDIT_BUDGET = 4
 --UTIL
 ------------------------------------------------------------------------------------------------------
+
+local function normalize_research_rollout_state(research_rollout_state)
+    research_rollout_state = type(research_rollout_state) == "table" and research_rollout_state or {}
+
+    for _, kind in ipairs({"charger", "train"}) do
+        local rollout_state = research_rollout_state[kind]
+        if type(rollout_state) ~= "table" then
+            rollout_state = {}
+            research_rollout_state[kind] = rollout_state
+        end
+
+        if rollout_state.rescan_pending == nil then
+            rollout_state.rescan_pending = false
+        end
+
+        rollout_state.target_generation = math.max(
+            0,
+            math.floor(tonumber(rollout_state.target_generation) or 0)
+        )
+    end
+
+    return research_rollout_state
+end
+
+local function get_research_rollout_entry_generation(entry)
+    return math.max(0, math.floor(tonumber(entry and entry.research_rollout_generation) or 0))
+end
+
+local function entry_needs_research_rollout(entry, target_generation)
+    return get_research_rollout_entry_generation(entry) < math.max(0, tonumber(target_generation) or 0)
+end
 
 -- checks if the given name is an em loco
 -- might be good to detect if non-standard qualities are in use and use this, or maybe build a list at startup
@@ -179,6 +211,18 @@ function model.check_global()
         storage.ei_emt.train_active_surface_cursor = 1
         runtime_components_missing = true
     end
+
+    if not storage.ei_emt.research_rollout_chargers then
+        storage.ei_emt.research_rollout_chargers = {}
+    end
+
+    if not storage.ei_emt.research_rollout_trains then
+        storage.ei_emt.research_rollout_trains = {}
+    end
+
+    storage.ei_emt.research_rollout_state = normalize_research_rollout_state(
+        storage.ei_emt.research_rollout_state
+    )
 
     if not storage.ei_emt.gui then
         storage.ei_emt.gui = {}
@@ -707,7 +751,8 @@ function model.build_charger_entry(entity)
         coverage_min_chunk_x = coverage_min_chunk_x,
         coverage_max_chunk_x = coverage_max_chunk_x,
         coverage_min_chunk_y = coverage_min_chunk_y,
-        coverage_max_chunk_y = coverage_max_chunk_y
+        coverage_max_chunk_y = coverage_max_chunk_y,
+        research_rollout_generation = 0,
     }
 end
 
@@ -718,7 +763,8 @@ function model.build_train_entry(entity)
         surface_index = ei_lib.get_surface_index(entity.surface),
         -- Explicit grace state lets quality locomotives bridge short coverage gaps
         -- without changing the broader EM fuel/progression system.
-        grace_until_tick = 0
+        grace_until_tick = 0,
+        research_rollout_generation = 0,
     }
 end
 
@@ -787,6 +833,10 @@ function model.remove_charger_entry(charger_id, charger_entry)
         return false
     end
 
+    if storage.ei_emt.research_rollout_chargers then
+        ei_runtime_scheduler.queue_remove_value(storage.ei_emt.research_rollout_chargers, charger_id)
+    end
+
     model.unindex_charger(charger_id, charger_entry)
     model.adjust_surface_count("charger", charger_entry.surface_index, -1)
     storage.ei_emt.chargers[charger_id] = nil
@@ -797,6 +847,10 @@ function model.remove_train_entry(train_id, train_entry)
     train_entry = train_entry or storage.ei_emt.trains[train_id]
     if not train_entry then
         return false
+    end
+
+    if storage.ei_emt.research_rollout_trains then
+        ei_runtime_scheduler.queue_remove_value(storage.ei_emt.research_rollout_trains, train_id)
     end
 
     model.adjust_surface_count("train", train_entry.surface_index, -1)
@@ -915,11 +969,15 @@ end
 
 
 --finds a technologies list to check for buffs
-function model.check_buffs(event)
+function model.check_buffs(event, force)
     local technologies
     local player
     local output
-    if game.players and game.players[1] then
+    if force and force.technologies then
+        technologies = force.technologies
+        output = model.return_buffs(technologies)
+    end
+    if not output and game.players and game.players[1] then
         player = game.players[1]
         if player and player.force and player.force.technologies then
             technologies = game.players[1].force.technologies
@@ -940,6 +998,282 @@ function model.check_buffs(event)
     else
         return false
     end
+end
+
+function model.refresh_research_buffs(event, queue_rollout, force)
+    model.check_global()
+
+    local buffs = model.check_buffs(event, force)
+    if not buffs then
+        return false
+    end
+
+    local print = false
+    local train_rollout = false
+    local charger_rollout = false
+    queue_rollout = queue_rollout ~= false
+
+    local acceleration_level = buffs["acceleration"] or 0
+    if acceleration_level ~= storage.ei_emt.buffs.acc_level then
+        storage.ei_emt.buffs.acc_level = acceleration_level
+        train_rollout = true
+        print = true
+    end
+
+    local efficiency_tier = buffs["efficiency"] or 0
+    local efficiency_level = model.effBuffMultipliers[efficiency_tier] or 0
+    if efficiency_level ~= storage.ei_emt.buffs.charger_efficiency then
+        storage.ei_emt.buffs.charger_efficiency = efficiency_level
+        charger_rollout = true
+        print = true
+    end
+
+    local speed_level = buffs["speed"] or 0
+    if speed_level ~= storage.ei_emt.buffs.speed_level then
+        storage.ei_emt.buffs.speed_level = speed_level
+        train_rollout = true
+        print = true
+    end
+
+    if print then
+        model.printBuffStatus()
+    end
+
+    if train_rollout and queue_rollout then
+        model.request_research_rollout("train")
+    end
+
+    if charger_rollout then
+        storage.ei_emt.charger_rail_audit_requested = true
+        if queue_rollout then
+            model.request_research_rollout("charger")
+        end
+    end
+
+    return train_rollout or charger_rollout
+end
+
+function model.ensure_research_rollout_queue(kind)
+    model.check_global()
+
+    local field_name
+    if kind == "charger" then
+        field_name = "research_rollout_chargers"
+    elseif kind == "train" then
+        field_name = "research_rollout_trains"
+    else
+        return nil
+    end
+
+    local queue = storage.ei_emt[field_name]
+    queue = ei_runtime_scheduler.ensure_queue(queue)
+    storage.ei_emt[field_name] = queue
+    return queue
+end
+
+function model.clear_research_rollout_queue(kind)
+    local queue = model.ensure_research_rollout_queue(kind)
+    if queue then
+        ei_runtime_scheduler.clear_queue(queue)
+    end
+
+    local rollout_state = model.ensure_research_rollout_state(kind)
+    if rollout_state then
+        rollout_state.rescan_pending = false
+        rollout_state.target_generation = 0
+    end
+end
+
+function model.get_research_rollout_live_count(kind)
+    local counts
+    local registry
+
+    if kind == "charger" then
+        counts = storage.ei_emt.charger_surface_counts
+        registry = storage.ei_emt.chargers
+    elseif kind == "train" then
+        counts = storage.ei_emt.train_surface_counts
+        registry = storage.ei_emt.trains
+    else
+        return 0
+    end
+
+    local total = 0
+    if type(counts) == "table" then
+        for _, count in pairs(counts) do
+            total = total + math.max(0, math.floor(tonumber(count) or 0))
+        end
+    end
+
+    if total > 0 then
+        return total
+    end
+
+    total = 0
+    for _, entry in pairs(registry or {}) do
+        local entity = entry and entry.entity or nil
+        if model.entity_check(entity) then
+            total = total + 1
+        end
+    end
+
+    return total
+end
+
+local function research_rollout_queue_has_pending_items(queue)
+    return queue
+        and type(queue.queued) == "table"
+        and next(queue.queued) ~= nil
+end
+
+local function research_rollout_rescan_should_run(kind)
+    local emt = storage and storage.ei_emt or nil
+    if not emt then
+        return false
+    end
+
+    local rollout_state = emt.research_rollout_state and emt.research_rollout_state[kind] or nil
+    if not rollout_state or rollout_state.rescan_pending ~= true then
+        return false
+    end
+
+    local queue
+    if kind == "charger" then
+        queue = emt.research_rollout_chargers
+    elseif kind == "train" then
+        queue = emt.research_rollout_trains
+    end
+
+    return not research_rollout_queue_has_pending_items(queue)
+end
+
+function model.queue_research_rollout(kind)
+    local registry_name
+    if kind == "charger" then
+        registry_name = "chargers"
+    elseif kind == "train" then
+        registry_name = "trains"
+    else
+        return 0
+    end
+
+    local queue = model.ensure_research_rollout_queue(kind)
+    local rollout_state = model.ensure_research_rollout_state(kind)
+    local target_generation = rollout_state and rollout_state.target_generation or 0
+    local live_count = model.get_research_rollout_live_count(kind)
+    if live_count <= 0 or target_generation <= 0 then
+        return 0
+    end
+
+    if research_rollout_queue_has_pending_items(queue) then
+        return 0
+    end
+
+    local registry = storage.ei_emt[registry_name] or {}
+    local queued = 0
+    for unit_number, entry in pairs(registry) do
+        local entity = entry and entry.entity or nil
+        if model.entity_check(entity) and entry_needs_research_rollout(entry, target_generation) then
+            local added = ei_runtime_scheduler.queue_push_unique(queue, unit_number)
+            if added then
+                queued = queued + 1
+            end
+        end
+    end
+    return queued
+end
+
+function model.ensure_research_rollout_state(kind)
+    model.check_global()
+    storage.ei_emt.research_rollout_state = normalize_research_rollout_state(
+        storage.ei_emt.research_rollout_state
+    )
+
+    if kind == nil then
+        return storage.ei_emt.research_rollout_state
+    end
+
+    return storage.ei_emt.research_rollout_state[kind]
+end
+
+function model.request_research_rollout(kind)
+    local queue = model.ensure_research_rollout_queue(kind)
+    local rollout_state = model.ensure_research_rollout_state(kind)
+    if not queue or not rollout_state then
+        return 0
+    end
+
+    rollout_state.target_generation = math.max(
+        0,
+        math.floor(tonumber(rollout_state.target_generation) or 0)
+    ) + 1
+
+    if research_rollout_queue_has_pending_items(queue) then
+        rollout_state.rescan_pending = true
+        return 0
+    end
+
+    rollout_state.rescan_pending = false
+    return model.queue_research_rollout(kind)
+end
+
+function model.service_research_rollout_rescan(kind)
+    local queue = model.ensure_research_rollout_queue(kind)
+    local rollout_state = model.ensure_research_rollout_state(kind)
+    if not queue or not rollout_state or rollout_state.rescan_pending ~= true then
+        return 0
+    end
+
+    if research_rollout_queue_has_pending_items(queue) then
+        return 0
+    end
+
+    rollout_state.rescan_pending = false
+    return model.queue_research_rollout(kind)
+end
+
+function model.process_research_rollout_queue(kind, budget, update_entity, remove_entry, current_tick)
+    local registry_name
+    if kind == "charger" then
+        registry_name = "chargers"
+    elseif kind == "train" then
+        registry_name = "trains"
+    else
+        return false
+    end
+
+    local queue = model.ensure_research_rollout_queue(kind)
+    local rollout_state = model.ensure_research_rollout_state(kind)
+    budget = math.max(0, math.floor(tonumber(budget) or 0))
+    if budget <= 0 then
+        return false
+    end
+
+    current_tick = resolve_runtime_tick(current_tick)
+    local target_generation = rollout_state and rollout_state.target_generation or 0
+    local processed = 0
+    for _ = 1, budget do
+        local unit_number = ei_runtime_scheduler.queue_pop_queued(queue)
+        if not unit_number then
+            break
+        end
+
+        local registry = storage.ei_emt[registry_name]
+        local entry = registry and registry[unit_number] or nil
+        local entity = entry and entry.entity or nil
+        if entry and model.entity_check(entity) then
+            update_entity(entity, current_tick)
+            if registry and registry[unit_number] then
+                registry[unit_number].research_rollout_tick = current_tick
+                registry[unit_number].research_rollout_generation = target_generation
+            end
+            processed = processed + 1
+        elseif entry then
+            remove_entry(unit_number, entry)
+        end
+    end
+
+    return processed > 0
 end
 
 --UPDATE
@@ -974,29 +1308,9 @@ function model.apply_buffs(buff, level, single, entity)
         end
     elseif not single then
        if buff == "eff" then
-            for i,v in pairs(storage.ei_emt.chargers) do
-
-            --model.make_rings(v.entity, storage.ei_emt.buffs.charger_range, 0.5)
-            if model.entity_check(v.entity) then
-                target = v.entity
-                model.update_charger(target)
-            end
-            model.render_status_rings(target,status,radius,ei_ticksPerFullUpdate,override)
-            end
-        elseif buff == "acc" then
-            for i,v in pairs(storage.ei_emt.trains) do
-                radius = 8
-                target = v.entity
-                model.render_status_rings(target,status,radius+level,ei_ticksPerFullUpdate,override)
-                --model.make_rings(v.entity, 1+level, 0.75)
-            end
-        elseif buff == "spd" then
-            for i,v in pairs(storage.ei_emt.trains) do
-                --model.make_rings(v.entity, 1+level, 0.75)
-                radius = 8
-                target = v.entity
-                model.render_status_rings(target,status,radius+level,ei_ticksPerFullUpdate,override)
-            end
+            model.request_research_rollout("charger")
+        elseif buff == "acc" or buff == "spd" then
+            model.request_research_rollout("train")
         end
     end
 end
@@ -1042,6 +1356,7 @@ end
 function model.deregister_all_trains()
     model.check_global()
     storage.ei_emt.trains = {}
+    model.clear_research_rollout_queue("train")
     model.reset_surface_scheduler("train")
     model.clear_legacy_runtime_fields()
 end
@@ -1049,6 +1364,7 @@ end
 function model.deregister_all_chargers()
     model.check_global()
     storage.ei_emt.chargers = {}
+    model.clear_research_rollout_queue("charger")
     storage.ei_emt.charger_surfaces = {}
     storage.ei_emt.charger_chunks = {}
     storage.ei_emt.charger_rail_audit_cursor = nil
@@ -1111,6 +1427,7 @@ function model.rebuild_runtime_state(reason)
     end
 
     storage.ei_emt.runtime_rebuild_in_progress = true
+    model.refresh_research_buffs(nil, false)
 
     model.reinitialize_chargers()
     model.reinitialize_trains()
@@ -1125,12 +1442,22 @@ end
 
 function model.update_chargers(budget, current_tick)
     model.ensure_runtime_ready()
+    local did_rollout = model.process_research_rollout_queue(
+        "charger",
+        EM_RESEARCH_ROLLOUT_BONUS_BUDGET,
+        model.update_charger,
+        model.remove_charger_entry,
+        current_tick
+    )
+    local queued_rescan = research_rollout_rescan_should_run("charger")
+        and model.service_research_rollout_rescan("charger") > 0
     if next(storage.ei_emt.chargers) == nil then
-        return false
+        return did_rollout or queued_rescan
     end
 
     budget = math.max(1, math.floor(tonumber(budget) or 1))
-    return model.process_surface_scheduler("charger", "chargers", budget, model.update_charger, model.remove_charger_entry, current_tick)
+    local did_update = model.process_surface_scheduler("charger", "chargers", budget, model.update_charger, model.remove_charger_entry, current_tick)
+    return did_rollout or queued_rescan or did_update
 end
 
 function model.update_trains(budget, current_tick)
@@ -1140,12 +1467,22 @@ function model.update_trains(budget, current_tick)
     -- but out-of-range shutdown is controlled by the script update path.
 
     model.ensure_runtime_ready()
+    local did_rollout = model.process_research_rollout_queue(
+        "train",
+        EM_RESEARCH_ROLLOUT_BONUS_BUDGET,
+        model.update_train,
+        model.remove_train_entry,
+        current_tick
+    )
+    local queued_rescan = research_rollout_rescan_should_run("train")
+        and model.service_research_rollout_rescan("train") > 0
     if next(storage.ei_emt.trains) == nil then
-        return false
+        return did_rollout or queued_rescan
     end
 
     budget = math.max(1, math.floor(tonumber(budget) or 1))
-    return model.process_surface_scheduler("train", "trains", budget, model.update_train, model.remove_train_entry, current_tick)
+    local did_update = model.process_surface_scheduler("train", "trains", budget, model.update_train, model.remove_train_entry, current_tick)
+    return did_rollout or queued_rescan or did_update
 end
 
 function model.update_train(train, current_tick)
@@ -1163,6 +1500,14 @@ function model.update_train(train, current_tick)
 
     if not ei_lib.is_valid_number(train_entry.grace_until_tick) then
         train_entry.grace_until_tick = 0
+    end
+
+    if train_entry.research_rollout_tick ~= nil then
+        if train_entry.research_rollout_tick == current_tick then
+            train_entry.research_rollout_tick = nil
+            return true
+        end
+        train_entry.research_rollout_tick = nil
     end
 
     local state = model.find_charger(train)
@@ -1695,14 +2040,24 @@ function model.get_rail_count(charger)
     return rail_count
     end
 
-function model.update_charger(charger)
+function model.update_charger(charger, current_tick)
     -- charger stil exists/vaild?
     if not model.entity_check(charger) then return false end
+
+    current_tick = resolve_runtime_tick(current_tick)
 
     local charger_id = charger.unit_number
     local charger_entry = storage.ei_emt.chargers[charger_id]
     if not charger_entry then
         return false
+    end
+
+    if charger_entry.research_rollout_tick ~= nil then
+        if charger_entry.research_rollout_tick == current_tick then
+            charger_entry.research_rollout_tick = nil
+            return true
+        end
+        charger_entry.research_rollout_tick = nil
     end
 
     if not ei_lib.is_valid_number(charger_entry.rail_count) then
@@ -1903,37 +2258,17 @@ function model.charger_updater(budget, current_tick)
 end
 
 function model.on_research_finished(event)
-    --if you use the research all techs cheat this has a ups penalty
-    --but otherwise negligible ups effect
-    local buffs = model.check_buffs(event)
-    if buffs then
-        local print = false
-        if buffs["acceleration"] then
-            if buffs["acceleration"] > storage.ei_emt.buffs.acc_level then
-                storage.ei_emt.buffs.acc_level = buffs["acceleration"]
-                model.apply_buffs("acc", buffs["acceleration"])
-                print = true
-            end
-        end
-        if buffs["efficiency"] then
-            local actual = model.effBuffMultipliers[buffs["efficiency"]] or 0
-            if actual > storage.ei_emt.buffs.charger_efficiency then
-                storage.ei_emt.buffs.charger_efficiency = actual
-                model.apply_buffs("eff", buffs["efficiency"])
-                print = true
-            end
-        end
-        if buffs["speed"] then
-            if buffs["speed"] > storage.ei_emt.buffs.speed_level then
-                storage.ei_emt.buffs.speed_level = buffs["speed"]
-                model.apply_buffs("spd", buffs["speed"])
-                print = true
-            end
-        end
-        if print then
-            model.printBuffStatus()
-        end
+    local force = event and event.research and event.research.force or nil
+    model.refresh_research_buffs(event, true, force)
+end
+
+function model.on_scripted_research_burst(force)
+    local player_force = game and game.forces and game.forces.player or nil
+    if force and player_force and force.index ~= player_force.index then
+        return false
     end
+
+    return model.refresh_research_buffs(nil, true, force)
 end
 --this deprecated method of singularly checking the completed research
 --is more efficient but inexplicably would fail to fire at times
@@ -2048,6 +2383,10 @@ function model.get_runtime_status()
         train_surface_queue_items = train_surface_queue_items + ei_runtime_scheduler.queue_item_count(queue)
     end
 
+    local research_rollout_charger_queue_items = ei_runtime_scheduler.queue_item_count(storage.ei_emt.research_rollout_chargers)
+    local research_rollout_train_queue_items = ei_runtime_scheduler.queue_item_count(storage.ei_emt.research_rollout_trains)
+    local research_rollout_state = model.ensure_research_rollout_state()
+
     local status = {
         charger_count = ei_runtime_scheduler.table_count(storage.ei_emt.chargers),
         train_count = ei_runtime_scheduler.table_count(storage.ei_emt.trains),
@@ -2055,6 +2394,12 @@ function model.get_runtime_status()
         train_active_surface_count = #(storage.ei_emt.train_active_surfaces or {}),
         charger_surface_queue_items = charger_surface_queue_items,
         train_surface_queue_items = train_surface_queue_items,
+        research_rollout_charger_queue_items = research_rollout_charger_queue_items,
+        research_rollout_train_queue_items = research_rollout_train_queue_items,
+        research_rollout_charger_rescan_pending = research_rollout_state.charger.rescan_pending == true,
+        research_rollout_train_rescan_pending = research_rollout_state.train.rescan_pending == true,
+        research_rollout_charger_target_generation = research_rollout_state.charger.target_generation or 0,
+        research_rollout_train_target_generation = research_rollout_state.train.target_generation or 0,
         needs_runtime_rebuild = storage.ei_emt.needs_runtime_rebuild == true,
         chargers = ei_runtime_scheduler.table_count(storage.ei_emt.chargers),
         trains = ei_runtime_scheduler.table_count(storage.ei_emt.trains),

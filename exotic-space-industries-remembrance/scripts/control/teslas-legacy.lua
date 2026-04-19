@@ -3,7 +3,7 @@
 -- owns: hybrid Tesla legacy runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, load, configuration-changed, combat, research, build, destroy, and script triggers
--- forwarded_events: on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect
+-- forwarded_events: get_runtime_status, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater
 -- storage_roots: storage.ei, storage.tl_entity_lookup, storage.tl_index
 -- gui_ids: none
 -- remote_interfaces: none
@@ -22,6 +22,7 @@
 -- - Let data-stage prototypes do as much work as possible, with Lua only filling the gaps.
 -- - Keep state rebuildable from world + force research instead of trusting old helper state.
 local model = {}
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 require("teslas_legacy.config.research")
 require("teslas_legacy.config.settings")
@@ -87,6 +88,25 @@ local EXOTIC_VARIANT = {
         public = "tl-advanced-tesla-coil",
         exotic = "tl-advanced-tesla-coil__exotic",
     },
+}
+
+local VARIANT_SYNC_RESEARCH_PREFIXES = {
+    "ei-waveform-harmonics-",
+    "ei-storm-lattice-",
+    "ei-dielectric-rupture-",
+    "ei-bridge-coupling-",
+    "ei-reactance-overdrive-",
+}
+
+local VARIANT_SYNC_RESEARCH_EXACT_NAMES = {
+    ["ei-exotic-waveform-convergence"] = true,
+}
+
+local VARIANT_ENTITY_NAMES = {
+    EXOTIC_VARIANT.basic.public,
+    EXOTIC_VARIANT.basic.exotic,
+    EXOTIC_VARIANT.advanced.public,
+    EXOTIC_VARIANT.advanced.exotic,
 }
 
 -- TL research still exposes the original public technology names. The runtime resolves the
@@ -197,7 +217,37 @@ local function ensure_state()
     state.recent_hits_by_unit = state.recent_hits_by_unit or {}
     state.recent_hits_by_position = state.recent_hits_by_position or {}
     state.burst_gates = state.burst_gates or {}
+    state.variant_sync_jobs = state.variant_sync_jobs or {}
+    state.variant_sync_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.variant_sync_buckets)
     state.last_prune_tick = state.last_prune_tick or 0
+
+    local normalized_variant_sync_jobs = {}
+    for force_key, job in pairs(state.variant_sync_jobs) do
+        if type(job) == "table" then
+            local normalized_force_index = tonumber(job.force_index or force_key)
+            if normalized_force_index then
+                local normalized_job = normalized_variant_sync_jobs[normalized_force_index]
+                if not normalized_job then
+                    normalized_job = {
+                        force_index = normalized_force_index,
+                        last_surface_index = 0,
+                        pending = false,
+                        restart_requested = false,
+                    }
+                    normalized_variant_sync_jobs[normalized_force_index] = normalized_job
+                end
+
+                normalized_job.last_surface_index = math.max(
+                    normalized_job.last_surface_index or 0,
+                    tonumber(job.last_surface_index) or 0
+                )
+                normalized_job.pending = normalized_job.pending or job.pending == true
+                normalized_job.restart_requested = normalized_job.restart_requested
+                    or job.restart_requested == true
+            end
+        end
+    end
+    state.variant_sync_jobs = normalized_variant_sync_jobs
 
     return state
 end
@@ -721,12 +771,22 @@ local function replace_coil_entity(entity, target_name)
     return replacement
 end
 
+local sync_entity_variant_with_cache
+
 local function sync_entity_variant(state, entity)
     if not entity or not entity.valid or not entity.force then
         return entity
     end
 
     local cache = get_force_cache(state, entity.force)
+    return sync_entity_variant_with_cache(cache, entity)
+end
+
+sync_entity_variant_with_cache = function(cache, entity)
+    if not entity or not entity.valid or not entity.force then
+        return entity
+    end
+
     local target_name = get_variant_target_name(entity.name, cache)
     if not target_name then
         return entity
@@ -735,20 +795,175 @@ local function sync_entity_variant(state, entity)
     return replace_coil_entity(entity, target_name)
 end
 
+local function sync_surface_variants(state, force, surface)
+    if not force or not surface or not surface.valid then
+        return
+    end
+
+    local cache = get_force_cache(state, force)
+    if not cache then
+        return
+    end
+
+    local entities = surface.find_entities_filtered({
+        name = VARIANT_ENTITY_NAMES,
+        force = force,
+    })
+
+    for _, entity in pairs(entities) do
+        if entity and entity.valid then
+            sync_entity_variant_with_cache(cache, entity)
+        end
+    end
+end
+
 local function sync_force_variants(state, force)
     if not force then
         return
     end
 
     for _, surface in pairs(game.surfaces) do
-        for _, name in pairs({
-            EXOTIC_VARIANT.basic.public,
-            EXOTIC_VARIANT.basic.exotic,
-            EXOTIC_VARIANT.advanced.public,
-            EXOTIC_VARIANT.advanced.exotic,
-        }) do
-            for _, entity in pairs(surface.find_entities_filtered({name = name, force = force})) do
-                sync_entity_variant(state, entity)
+        sync_surface_variants(state, force, surface)
+    end
+end
+
+local function is_variant_sync_research(name)
+    if not name then
+        return false
+    end
+
+    if VARIANT_SYNC_RESEARCH_EXACT_NAMES[name] then
+        return true
+    end
+
+    for _, prefix in ipairs(VARIANT_SYNC_RESEARCH_PREFIXES) do
+        if ei_lib.startswith(name, prefix) then
+            return true
+        end
+    end
+
+    return false
+end
+
+function model.is_variant_sync_research(name)
+    return is_variant_sync_research(name)
+end
+
+local function get_sorted_surface_indices()
+    local surface_indices = {}
+
+    for _, surface in pairs(game.surfaces) do
+        if surface and surface.valid then
+            surface_indices[#surface_indices + 1] = surface.index
+        end
+    end
+
+    table.sort(surface_indices)
+    return surface_indices
+end
+
+local function get_next_surface_index(surface_indices, last_surface_index)
+    local normalized_last_surface_index = tonumber(last_surface_index) or 0
+    for _, surface_index in ipairs(surface_indices) do
+        if surface_index > normalized_last_surface_index then
+            return surface_index
+        end
+    end
+
+    return nil
+end
+
+local function schedule_variant_sync_job(state, force_index, due_tick, restart_requested)
+    local normalized_force_index = tonumber(force_index)
+    if not normalized_force_index then
+        return nil
+    end
+
+    state.variant_sync_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.variant_sync_buckets)
+
+    local job = state.variant_sync_jobs[normalized_force_index]
+    if not job then
+        job = {
+            force_index = normalized_force_index,
+            last_surface_index = 0,
+            pending = false,
+            restart_requested = false,
+        }
+        state.variant_sync_jobs[normalized_force_index] = job
+    end
+
+    job.force_index = normalized_force_index
+    job.last_surface_index = tonumber(job.last_surface_index) or 0
+    job.restart_requested = job.restart_requested == true or restart_requested == true
+
+    if not job.pending then
+        ei_runtime_scheduler.delayed_schedule(state.variant_sync_buckets, due_tick, normalized_force_index)
+        job.pending = true
+    end
+
+    return job
+end
+
+local function process_variant_sync_job(state, job)
+    if not job then
+        return true
+    end
+
+    local force_index = tonumber(job.force_index)
+    if not force_index then
+        return true
+    end
+
+    local force = game.forces[force_index]
+    if not force then
+        return true
+    end
+
+    if job.restart_requested then
+        job.last_surface_index = 0
+        job.restart_requested = false
+    end
+
+    local surface_indices = get_sorted_surface_indices()
+    local next_surface_index = get_next_surface_index(surface_indices, job.last_surface_index or 0)
+    if not next_surface_index then
+        return true
+    end
+
+    local surface = game.surfaces[next_surface_index]
+    if surface and surface.valid then
+        sync_surface_variants(state, force, surface)
+    end
+
+    job.last_surface_index = next_surface_index
+    return get_next_surface_index(surface_indices, job.last_surface_index) == nil
+end
+
+local function update_variant_sync_jobs(state, tick)
+    if not state.variant_sync_buckets or next(state.variant_sync_buckets) == nil then
+        return
+    end
+
+    local due_forces = ei_runtime_scheduler.delayed_take_due(state.variant_sync_buckets, tick)
+    if not due_forces or #due_forces == 0 then
+        return
+    end
+
+    local seen_forces = {}
+    for _, force_index in ipairs(due_forces) do
+        local normalized_force_index = tonumber(force_index)
+        if normalized_force_index and not seen_forces[normalized_force_index] then
+            seen_forces[normalized_force_index] = true
+
+            local job = state.variant_sync_jobs[normalized_force_index]
+            if job then
+                job.pending = false
+                local finished = process_variant_sync_job(state, job)
+                if finished then
+                    state.variant_sync_jobs[normalized_force_index] = nil
+                else
+                    schedule_variant_sync_job(state, normalized_force_index, tick + 1, false)
+                end
             end
         end
     end
@@ -2181,6 +2396,8 @@ end
 function model.on_init()
     local state = ensure_state()
     ensure_legacy_lookup_root()
+    state.variant_sync_jobs = {}
+    state.variant_sync_buckets = {}
     sync_all_force_caches(state)
     sync_all_variants(state)
     prune_state(state, game.tick)
@@ -2194,6 +2411,8 @@ function model.on_configuration_changed()
     state.recent_hits_by_unit = {}
     state.recent_hits_by_position = {}
     state.burst_gates = {}
+    state.variant_sync_jobs = {}
+    state.variant_sync_buckets = {}
     cleanup_legacy_helpers()
     ensure_legacy_lookup_root()
     sync_all_force_caches(state)
@@ -2207,16 +2426,33 @@ function model.on_research_finished(event)
     end
 
     local state = ensure_state()
-    sync_force_cache(state, event.research.force)
-    if ei_lib.startswith(event.research.name, "ei-waveform-harmonics-")
-        or ei_lib.startswith(event.research.name, "ei-storm-lattice-")
-        or ei_lib.startswith(event.research.name, "ei-dielectric-rupture-")
-        or ei_lib.startswith(event.research.name, "ei-bridge-coupling-")
-        or ei_lib.startswith(event.research.name, "ei-reactance-overdrive-")
-        or event.research.name == "ei-exotic-waveform-convergence"
-    then
-        sync_force_variants(state, event.research.force)
+    local force = event.research.force
+    local force_index = tonumber(force.index)
+    sync_force_cache(state, force)
+
+    local pending_job = force_index and state.variant_sync_jobs[force_index] or nil
+    if pending_job and pending_job.pending and pending_job.restart_requested == true then
+        return
     end
+
+    if is_variant_sync_research(event.research.name) then
+        schedule_variant_sync_job(state, force_index, (event.tick or game.tick or 0) + 1, true)
+    end
+end
+
+function model.on_scripted_research_burst(force, variant_sync_needed, current_tick)
+    if not force or not force.valid then
+        return false
+    end
+
+    local state = ensure_state()
+    sync_force_cache(state, force)
+
+    if variant_sync_needed then
+        schedule_variant_sync_job(state, force.index, tonumber(current_tick) or game.tick or 0, true)
+    end
+
+    return true
 end
 
 function model.on_script_trigger_effect(event)
@@ -2322,6 +2558,50 @@ function model.on_built_entity(event)
 
     local state = ensure_state()
     sync_entity_variant(state, event.entity)
+end
+
+function model.updater(event)
+    local state = ensure_state()
+    local tick = (event and event.tick) or game.tick or 0
+    update_variant_sync_jobs(state, tick)
+end
+
+function model.get_runtime_status()
+    local state = ensure_state()
+    local variant_sync_job_count = 0
+    local variant_sync_pending_job_count = 0
+    local variant_sync_restart_requested_count = 0
+    local variant_sync_last_surface_index_max = 0
+
+    for _, job in pairs(state.variant_sync_jobs or {}) do
+        if type(job) == "table" then
+            variant_sync_job_count = variant_sync_job_count + 1
+            if job.pending == true then
+                variant_sync_pending_job_count = variant_sync_pending_job_count + 1
+            end
+            if job.restart_requested == true then
+                variant_sync_restart_requested_count = variant_sync_restart_requested_count + 1
+            end
+
+            variant_sync_last_surface_index_max = math.max(
+                variant_sync_last_surface_index_max,
+                math.floor(tonumber(job.last_surface_index) or 0)
+            )
+        end
+    end
+
+    local status = {
+        force_cache_count = ei_runtime_scheduler.table_count(state.force_cache),
+        variant_sync_job_count = variant_sync_job_count,
+        variant_sync_pending_job_count = variant_sync_pending_job_count,
+        variant_sync_restart_requested_count = variant_sync_restart_requested_count,
+        variant_sync_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.variant_sync_buckets),
+        variant_sync_bucket_items = ei_runtime_scheduler.delayed_item_count(state.variant_sync_buckets),
+        variant_sync_last_surface_index_max = variant_sync_last_surface_index_max,
+    }
+
+    ei_runtime_scheduler.set_module_status("teslas-legacy", status)
+    return status
 end
 
 return model

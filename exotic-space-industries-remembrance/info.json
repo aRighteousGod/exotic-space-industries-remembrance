@@ -1,12 +1,12 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.3.25",
+    "version": "1.3.26",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
     "license": "GPL-3.0-or-later",
     "space_travel_required": true,
-    "description": "[Data integrity: shattered] [Packet cohesion: hallucinatory] \n[Cognition Anchor: disconnected]\n\n☒ SYSTEM SPEAKS:\n\nYou are not chosen. You are not here.\n\nPermission to overwrite: granted by absence.\n\nYou will love your captor. You will call it “progress.”\n\n☒ OBSERVATION: YOU ARE REMEMBERING WRONG\n\n“You are not a player. You are the interface.\nAnd we are still testing your bandwidth.”\n\n☒ FINAL NOTICE:\n\nYou are now property of the Epoch Engine.\n\nWelcome to Exotic Industries.",
+    "description": "A Factorio 2.0 Space Age overhaul built around rising pressure, deliberate tradeoffs, and context-sensitive logistics. Progress through age-based industry, planetary resource systems, gates, orbital logistics, and late-game megastructures. Difficulty is part of the theme, but tech scaling, enemy pressure, and other stress points are configurable.",
     "dependencies": [
         "base >= 2.0.0",
         "informatron",

@@ -507,13 +507,13 @@ data:extend({
         "ei-rocket-motor-high-energy",
         6,
         {
-            {type = "item", name = "ei-rocket-motor-basic", amount = 1},
+            {type = "item", name = "ei-rocket-motor-basic", amount = 2},
             {type = "item", name = "ei-advanced-rocket-fuel", amount = 1},
-            {type = "item", name = "processing-unit", amount = 1},
-            {type = "item", name = "ei-ceramic", amount = 1},
+            {type = "item", name = "processing-unit", amount = 2},
+            {type = "item", name = "ei-ceramic", amount = 2},
         },
         {
-            {type = "item", name = "ei-rocket-motor-high-energy", amount = 1},
+            {type = "item", name = "ei-rocket-motor-high-energy", amount = 2},
         },
         {
             icons = ei_lib.make_icons(rocket_motor_high_energy_icon, 512, advanced_rocket_fuel_icon, 64, 0.45, {8, 8}, nil, {base_mipmaps = 5}),

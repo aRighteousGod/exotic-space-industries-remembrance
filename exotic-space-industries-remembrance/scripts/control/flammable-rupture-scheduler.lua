@@ -102,7 +102,26 @@ local function new_state()
         next_job_id = 1,
         jobs = {},
         ring_buckets = {},
+        active_job_count = 0,
+        pending_ring_count = 0,
+        scheduled_ring_count = 0,
+        scheduled_bucket_count = 0,
     }
+end
+
+local function count_pending_rings(state)
+    local total = 0
+    for _, job in pairs(state.jobs or {}) do
+        total = total + math.max(0, (job.ring_count or 0) - ((job.next_ring or 1) - 1))
+    end
+    return total
+end
+
+local function refresh_cached_counts(state)
+    state.active_job_count = ei_runtime_scheduler.table_count(state.jobs)
+    state.pending_ring_count = count_pending_rings(state)
+    state.scheduled_ring_count = ei_runtime_scheduler.delayed_item_count(state.ring_buckets)
+    state.scheduled_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.ring_buckets)
 end
 
 function model.check_global()
@@ -113,6 +132,12 @@ function model.check_global()
     state.next_job_id = state.next_job_id or 1
     state.jobs = state.jobs or {}
     state.ring_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.ring_buckets)
+    if state.active_job_count == nil
+        or state.pending_ring_count == nil
+        or state.scheduled_ring_count == nil
+        or state.scheduled_bucket_count == nil then
+        refresh_cached_counts(state)
+    end
     return state
 end
 
@@ -129,18 +154,31 @@ local function register_job(state, job)
     job.next_ring = job.next_ring or 1
     job.ring_count = job.ring_count or #(job.rings or {})
     state.jobs[job_id] = job
+    state.active_job_count = math.max(0, tonumber(state.active_job_count) or 0) + 1
+    state.pending_ring_count = math.max(0, tonumber(state.pending_ring_count) or 0) + math.max(0, job.ring_count or 0)
     return job_id
 end
 
 local function finish_job(state, job_id)
-    if state.jobs[job_id] then
+    local job = state.jobs[job_id]
+    if job then
+        state.pending_ring_count = math.max(
+            0,
+            (tonumber(state.pending_ring_count) or 0) - math.max(0, (job.ring_count or 0) - ((job.next_ring or 1) - 1))
+        )
+        state.active_job_count = math.max(0, (tonumber(state.active_job_count) or 0) - 1)
         state.jobs[job_id] = nil
         ei_runtime_scheduler.bump_counter(MODULE_NAME, "jobs_completed", 1)
     end
 end
 
 local function schedule_job_ring(state, job_id, due_tick)
+    local created_bucket = state.ring_buckets[due_tick] == nil
     ei_runtime_scheduler.delayed_schedule(state.ring_buckets, due_tick, job_id)
+    state.scheduled_ring_count = math.max(0, tonumber(state.scheduled_ring_count) or 0) + 1
+    if created_bucket then
+        state.scheduled_bucket_count = math.max(0, tonumber(state.scheduled_bucket_count) or 0) + 1
+    end
     ei_runtime_scheduler.bump_counter(MODULE_NAME, "rings_queued", 1)
 end
 
@@ -299,7 +337,7 @@ local function apply_platform_tile_damage(job, surface, ring)
     end
 end
 
-local function execute_ring(job, ring_index)
+local function execute_ring(state, job, ring_index)
     local ring = job.rings and job.rings[ring_index]
     if not ring then
         return false
@@ -332,6 +370,7 @@ local function execute_ring(job, ring_index)
     apply_platform_tile_damage(job, surface, ring)
     apply_ring_damage(job, ring)
 
+    state.pending_ring_count = math.max(0, (tonumber(state.pending_ring_count) or 0) - 1)
     ei_runtime_scheduler.bump_counter(MODULE_NAME, "rings_processed", 1)
     return true
 end
@@ -340,7 +379,7 @@ local function process_job(state, job, current_tick, allow_aggressive_drain)
     local processed = 0
 
     while job.next_ring <= job.ring_count do
-        if not execute_ring(job, job.next_ring) then
+        if not execute_ring(state, job, job.next_ring) then
             finish_job(state, job.id)
             return
         end
@@ -403,10 +442,20 @@ function model.updater(event)
         return
     end
 
+    if state.active_job_count == nil
+        or state.pending_ring_count == nil
+        or state.scheduled_ring_count == nil
+        or state.scheduled_bucket_count == nil then
+        refresh_cached_counts(state)
+    end
+
     local due_job_ids = ei_runtime_scheduler.delayed_take_due(state.ring_buckets, event.tick)
     if #due_job_ids <= 0 then
         return
     end
+
+    state.scheduled_ring_count = math.max(0, (tonumber(state.scheduled_ring_count) or 0) - #due_job_ids)
+    state.scheduled_bucket_count = math.max(0, (tonumber(state.scheduled_bucket_count) or 0) - 1)
 
     for _, job_id in ipairs(due_job_ids) do
         local job = state.jobs[job_id]
@@ -414,14 +463,6 @@ function model.updater(event)
             process_job(state, job, event.tick, true)
         end
     end
-end
-
-local function count_pending_rings(state)
-    local total = 0
-    for _, job in pairs(state.jobs or {}) do
-        total = total + math.max(0, (job.ring_count or 0) - ((job.next_ring or 1) - 1))
-    end
-    return total
 end
 
 local function count_overdue(state, current_tick)
@@ -442,13 +483,17 @@ function model.get_runtime_status()
     local state = get_state()
     local tick = now_tick()
     local overdue_buckets, overdue_items = count_overdue(state, tick)
+    local active_job_count = math.max(0, tonumber(state.active_job_count) or 0)
+    local pending_ring_count = math.max(0, tonumber(state.pending_ring_count) or 0)
+    local scheduled_bucket_count = math.max(0, tonumber(state.scheduled_bucket_count) or 0)
+    local scheduled_ring_count = math.max(0, tonumber(state.scheduled_ring_count) or 0)
     local status = {
         fidelity_mode = get_mode(),
-        active_jobs = ei_lib.getn(state.jobs),
-        pending_rings = count_pending_rings(state),
-        ring_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.ring_buckets),
-        ring_bucket_items = ei_runtime_scheduler.delayed_item_count(state.ring_buckets),
-        ring_buckets = ei_runtime_scheduler.delayed_bucket_count(state.ring_buckets),
+        active_jobs = active_job_count,
+        pending_rings = pending_ring_count,
+        ring_bucket_count = scheduled_bucket_count,
+        ring_bucket_items = scheduled_ring_count,
+        ring_buckets = scheduled_bucket_count,
         overdue_bucket_count = overdue_buckets,
         overdue_item_count = overdue_items,
     }

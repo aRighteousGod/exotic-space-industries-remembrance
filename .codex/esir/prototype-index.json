@@ -1,8 +1,26 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-12T22:28:43.9114334-05:00",
+    "generated_at":  "2026-04-16T20:13:58.0785702-05:00",
     "repo_root":  "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance-2",
     "direct_requires":  [
+                            {
+                                "id":  "exotic-age",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-age.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\black-hole.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-prototypes.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\holo.lua"
+                                             ]
+                            },
+                            {
+                                "id":  "robots",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\robots.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+
+                                             ]
+                            },
                             {
                                 "id":  "gaia",
                                 "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\gaia.lua",
@@ -18,13 +36,30 @@
                                              ]
                             },
                             {
-                                "id":  "exotic-age",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-age.lua",
+                                "id":  "quantum-age",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-age.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\black-hole.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-prototypes.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\holo.lua"
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\accelerator.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\advanced-crusher.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\em-trains\\charger.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\em-trains\\sprites.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\em-trains\\trains.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\exotic-assembler.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\fusion-reactor.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\iron-beacon.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\kirazy-semi-classic-mining-drill\\superior-electric-mining-drill.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\matter-stabilizer.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\nano-factory.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neo-assembler.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neo-belts.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neutron-activator.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neutron-collector.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\plasma-heater.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\plasma-turret.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-computer.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-prototypes.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\solar-panel-3.lua"
                                              ]
                             },
                             {
@@ -38,6 +73,54 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\alien-system\\crystal-accumulator.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\alien-system\\farstation.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\alien-system\\gate.lua"
+                                             ]
+                            },
+                            {
+                                "id":  "gleba",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\gleba.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\bio-oil.lua"
+                                             ]
+                            },
+                            {
+                                "id":  "productivity",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\productivity.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+
+                                             ]
+                            },
+                            {
+                                "id":  "data",
+                                "path":  "exotic-space-industries-remembrance\\teslas_legacy\\data.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+
+                                             ]
+                            },
+                            {
+                                "id":  "more-asteroids",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\more-asteroids.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+
+                                             ]
+                            },
+                            {
+                                "id":  "vulcanus",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-vulcanus\\vulcanus.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-vulcanus\\vulcanus-fumaroles.lua"
+                                             ]
+                            },
+                            {
+                                "id":  "loaders",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\loaders.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+
                                              ]
                             },
                             {
@@ -70,83 +153,8 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\vulcanus-fumaroles.lua"
-                                             ]
-                            },
-                            {
-                                "id":  "quantum-age",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-age.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\accelerator.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\advanced-crusher.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\em-trains\\charger.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\em-trains\\sprites.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\em-trains\\trains.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\exotic-assembler.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\fusion-reactor.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\iron-beacon.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\kirazy-semi-classic-mining-drill\\superior-electric-mining-drill.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\matter-stabilizer.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\nano-factory.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neo-assembler.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neo-belts.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neutron-activator.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\neutron-collector.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\plasma-heater.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\plasma-turret.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-computer.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-prototypes.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\quantum-age\\solar-panel-3.lua"
-                                             ]
-                            },
-                            {
-                                "id":  "robots",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\robots.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-
-                                             ]
-                            },
-                            {
-                                "id":  "productivity",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\productivity.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-
-                                             ]
-                            },
-                            {
-                                "id":  "data",
-                                "path":  "exotic-space-industries-remembrance\\teslas_legacy\\data.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-
-                                             ]
-                            },
-                            {
-                                "id":  "more-asteroids",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\more-asteroids.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-
-                                             ]
-                            },
-                            {
-                                "id":  "gleba",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\gleba.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\bio-oil.lua"
-                                             ]
-                            },
-                            {
-                                "id":  "loaders",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\loaders.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua"
                                              ]
                             },
                             {
@@ -323,8 +331,9 @@
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo-effects.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua",
-                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\vulcanus-fumaroles.lua",
                             "exotic-space-industries-remembrance\\prototypes\\containers.lua",
                             "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-assembler.lua",
                             "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-quarry.lua",
@@ -381,6 +390,8 @@
                             "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\trees.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\bio-oil.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\gleba.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\planet-vulcanus\\vulcanus.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\planet-vulcanus\\vulcanus-fumaroles.lua",
                             "exotic-space-industries-remembrance\\prototypes\\productivity.lua",
                             "exotic-space-industries-remembrance\\prototypes\\quantum-age\\accelerator.lua",
                             "exotic-space-industries-remembrance\\prototypes\\quantum-age\\advanced-crusher.lua",

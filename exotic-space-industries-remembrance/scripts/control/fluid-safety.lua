@@ -3,7 +3,7 @@
 -- owns: queued invalid-fluid auditing and fluid safety enforcement
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: scheduled tick step 2 plus build/destroy checks
--- forwarded_events: classify_entity, counts_for_fluid_handling, ensure_fluid_runtime, enqueue_dirty_segment, enqueue_urgent_entity, get_fluid_work_count, on_fluid_entity_deregistered, on_fluid_entity_registered, rebuild_fluid_runtime, service_fluid_runtime, touch_entity
+-- forwarded_events: classify_entity, counts_for_fluid_handling, ensure_fluid_runtime, enqueue_dirty_segment, enqueue_urgent_entity, get_fluid_work_count, get_runtime_status, on_configuration_changed, on_fluid_entity_deregistered, on_fluid_entity_registered, rebuild_fluid_runtime, service_fluid_runtime, touch_entity
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -15,6 +15,7 @@ local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
+local MODULE_NAME = "fluid-safety"
 
 local FLUID_CLASS_NORMAL = "normal"
 local FLUID_CLASS_DATA = "data"
@@ -29,6 +30,8 @@ local FLUID_STATUS_NEEDS_INSULATED = "needs_insulated"
 
 local SEGMENT_MEMBER_ACTION_BUDGET = 32
 local FLUID_SERVICE_ROTATION = {"urgent", "urgent", "dirty", "urgent", "scan"}
+local FLUID_RUNTIME_REBUILD_TYPES = {"pipe", "storage-tank", "pipe-to-ground"}
+local FLUID_RUNTIME_REBUILD_NAMES = {"elevated-pipe"}
 
 local computing_fluid_lookup = {}
 for _, fluid_name in ipairs(ei_data.computing_types or {}) do
@@ -69,11 +72,13 @@ local function new_fluid_runtime()
         urgent_head = 1,
         urgent_tail = 1,
         urgent_pending = {},
+        urgent_count = 0,
         segments = {},
         dirty_segments = ei_runtime_scheduler.ensure_queue(nil),
         dirty_head = 1,
         dirty_tail = 1,
         dirty_pending = {},
+        dirty_count = 0,
         service_mode_cursor = 1,
     }
 end
@@ -188,20 +193,33 @@ local function ensure_runtime_queue(state, queue_key, head_key, tail_key)
     return sync_queue_cursor_fields(state, queue, head_key, tail_key)
 end
 
-local function queue_push(state, queue, head_key, tail_key, value)
+local function queue_push(state, queue, head_key, tail_key, count_key, value)
     ei_runtime_scheduler.queue_push(queue, value)
+    if value ~= nil then
+        state[count_key] = math.max(0, tonumber(state[count_key]) or 0) + 1
+    end
     sync_queue_cursor_fields(state, queue, head_key, tail_key)
 end
 
-local function queue_pop(state, queue, head_key, tail_key)
+local function queue_pop(state, queue, head_key, tail_key, count_key)
     local value = ei_runtime_scheduler.queue_pop(queue)
+    if value ~= nil then
+        state[count_key] = math.max(0, (tonumber(state[count_key]) or 0) - 1)
+    end
     sync_queue_cursor_fields(state, queue, head_key, tail_key)
     return value
 end
 
-local function queue_depth(state, queue_key, head_key, tail_key)
+local function queue_depth(state, queue_key, head_key, tail_key, count_key)
     local queue = ensure_runtime_queue(state, queue_key, head_key, tail_key)
-    return ei_runtime_scheduler.queue_item_count(queue)
+    local count = tonumber(state[count_key])
+    if count ~= nil then
+        return math.max(0, count)
+    end
+
+    count = ei_runtime_scheduler.queue_item_count(queue)
+    state[count_key] = count
+    return count
 end
 
 local function entity_has_fluidbox(entity)
@@ -890,9 +908,11 @@ function model.ensure_fluid_runtime()
     runtime.scan_index = math.max(1, runtime.scan_index or 1)
     runtime.urgent_units = ensure_runtime_queue(runtime, "urgent_units", "urgent_head", "urgent_tail")
     runtime.urgent_pending = runtime.urgent_pending or {}
+    runtime.urgent_count = math.max(0, tonumber(runtime.urgent_count) or ei_runtime_scheduler.queue_item_count(runtime.urgent_units))
     runtime.segments = runtime.segments or {}
     runtime.dirty_segments = ensure_runtime_queue(runtime, "dirty_segments", "dirty_head", "dirty_tail")
     runtime.dirty_pending = runtime.dirty_pending or {}
+    runtime.dirty_count = math.max(0, tonumber(runtime.dirty_count) or ei_runtime_scheduler.queue_item_count(runtime.dirty_segments))
     runtime.service_mode_cursor = math.max(1, runtime.service_mode_cursor or 1)
     runtime.initialized = runtime.initialized == true
 
@@ -929,13 +949,29 @@ function model.counts_for_fluid_handling(entity)
     return false
 end
 
+local function rebuild_runtime_entry(runtime, entity)
+    if not (entity and entity.valid and entity.force and model.counts_for_fluid_handling(entity)) then
+        return false
+    end
+
+    local entry = add_runtime_entry(runtime, entity)
+    if not entry then
+        return false
+    end
+
+    entry.class = model.classify_entity(entity)
+    local segment_id = current_entity_segment_id(entry)
+    set_entry_segment(runtime, entry, segment_id, false)
+    return true
+end
+
 function model.enqueue_urgent_entity(unit_number)
     local runtime = model.ensure_fluid_runtime()
     if not unit_number or runtime.urgent_pending[unit_number] then
         return false
     end
 
-    queue_push(runtime, runtime.urgent_units, "urgent_head", "urgent_tail", unit_number)
+    queue_push(runtime, runtime.urgent_units, "urgent_head", "urgent_tail", "urgent_count", unit_number)
     runtime.urgent_pending[unit_number] = true
     return true
 end
@@ -946,7 +982,7 @@ function model.enqueue_dirty_segment(segment_id)
         return false
     end
 
-    queue_push(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail", segment_id)
+    queue_push(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail", "dirty_count", segment_id)
     runtime.dirty_pending[segment_id] = true
     return true
 end
@@ -1027,23 +1063,22 @@ function model.rebuild_fluid_runtime(reason)
     )
 
     for _, surface in pairs(game.surfaces) do
-        for _, entity in pairs(surface.find_entities()) do
-            if entity and entity.valid and entity.force and model.counts_for_fluid_handling(entity) then
-                local entry = add_runtime_entry(runtime, entity)
-                if entry then
-                    entry.class = model.classify_entity(entity)
-                    local segment_id = current_entity_segment_id(entry)
-                    set_entry_segment(runtime, entry, segment_id, false)
-                end
-            end
+        for _, entity in pairs(surface.find_entities_filtered{type = FLUID_RUNTIME_REBUILD_TYPES}) do
+            rebuild_runtime_entry(runtime, entity)
+        end
+
+        for _, entity in pairs(surface.find_entities_filtered{name = FLUID_RUNTIME_REBUILD_NAMES}) do
+            rebuild_runtime_entry(runtime, entity)
         end
     end
 
     runtime.scan_index = 1
     runtime.urgent_units = ei_runtime_scheduler.clear_queue(runtime.urgent_units)
     sync_queue_cursor_fields(runtime, runtime.urgent_units, "urgent_head", "urgent_tail")
+    runtime.urgent_count = 0
     runtime.dirty_segments = ei_runtime_scheduler.clear_queue(runtime.dirty_segments)
     sync_queue_cursor_fields(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail")
+    runtime.dirty_count = 0
     runtime.service_mode_cursor = 1
     runtime.initialized = true
 
@@ -1064,21 +1099,47 @@ function model.rebuild_fluid_runtime(reason)
     return runtime
 end
 
+function model.on_configuration_changed(event)
+    local mod_changes_present = event and next(event.mod_changes or {}) ~= nil or false
+    if not mod_changes_present then
+        return false
+    end
+
+    model.rebuild_fluid_runtime("configuration-changed")
+    return true
+end
+
 function model.get_fluid_work_count()
     local runtime = model.ensure_fluid_runtime()
     return runtime.tracked_count or 0
 end
 
-local function get_fluid_queue_snapshot(runtime)
-    return {
-        urgent = queue_depth(runtime, "urgent_units", "urgent_head", "urgent_tail"),
-        dirty = queue_depth(runtime, "dirty_segments", "dirty_head", "dirty_tail"),
-        scan = #runtime.scan_units,
+function model.get_runtime_status()
+    local runtime = model.ensure_fluid_runtime()
+    local status = {
+        initialized = runtime.initialized == true,
+        tracked_entities = runtime.tracked_count or 0,
+        segments = count_present_keys(runtime.segments),
+        urgent_queue = queue_depth(runtime, "urgent_units", "urgent_head", "urgent_tail", "urgent_count"),
+        dirty_queue = queue_depth(runtime, "dirty_segments", "dirty_head", "dirty_tail", "dirty_count"),
+        scan_units = #runtime.scan_units,
+        service_mode_cursor = runtime.service_mode_cursor or 1,
     }
+
+    ei_runtime_scheduler.set_module_status(MODULE_NAME, status)
+    return status
+end
+
+local function get_fluid_queue_snapshot(runtime, snapshot)
+    snapshot = snapshot or {}
+    snapshot.urgent = queue_depth(runtime, "urgent_units", "urgent_head", "urgent_tail", "urgent_count")
+    snapshot.dirty = queue_depth(runtime, "dirty_segments", "dirty_head", "dirty_tail", "dirty_count")
+    snapshot.scan = #runtime.scan_units
+    return snapshot
 end
 
 local function process_one_urgent(runtime)
-    local unit_number = queue_pop(runtime, runtime.urgent_units, "urgent_head", "urgent_tail")
+    local unit_number = queue_pop(runtime, runtime.urgent_units, "urgent_head", "urgent_tail", "urgent_count")
     while unit_number do
         runtime.urgent_pending[unit_number] = nil
         local entry = runtime.entries_by_unit[unit_number]
@@ -1100,27 +1161,27 @@ local function process_one_urgent(runtime)
             end
         end
 
-        unit_number = queue_pop(runtime, runtime.urgent_units, "urgent_head", "urgent_tail")
+        unit_number = queue_pop(runtime, runtime.urgent_units, "urgent_head", "urgent_tail", "urgent_count")
     end
 
     return false
 end
 
 local function process_one_dirty(runtime)
-    local segment_id = queue_pop(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail")
+    local segment_id = queue_pop(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail", "dirty_count")
     while segment_id do
         runtime.dirty_pending[segment_id] = nil
         if runtime.segments[segment_id] then
             audit_segment(runtime, segment_id)
             return true
         end
-        segment_id = queue_pop(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail")
+        segment_id = queue_pop(runtime, runtime.dirty_segments, "dirty_head", "dirty_tail", "dirty_count")
     end
 
     return false
 end
 
-local function process_one_scan(runtime)
+local function process_one_scan(runtime, full_update_ticks)
     local tracked_count = #runtime.scan_units
     if tracked_count == 0 then
         runtime.scan_index = 1
@@ -1152,7 +1213,7 @@ local function process_one_scan(runtime)
 
     if entry.last_segment_id then
         local segment = runtime.segments[entry.last_segment_id]
-        local full_update_ticks = math.max(1, tonumber(ei_ticksPerFullUpdate) or 60)
+        full_update_ticks = math.max(1, tonumber(full_update_ticks) or math.max(1, tonumber(ei_ticksPerFullUpdate) or 60))
         if segment and (previous_segment_id ~= entry.last_segment_id
             or not segment.last_scan_enqueued_tick
             or (game.tick - segment.last_scan_enqueued_tick) >= full_update_ticks) then
@@ -1166,7 +1227,7 @@ local function process_one_scan(runtime)
     return true
 end
 
-local function process_one_mode(runtime, mode)
+local function process_one_mode(runtime, mode, full_update_ticks)
     if mode == "urgent" then
         return process_one_urgent(runtime)
     end
@@ -1176,14 +1237,14 @@ local function process_one_mode(runtime, mode)
     end
 
     if mode == "scan" then
-        return process_one_scan(runtime)
+        return process_one_scan(runtime, full_update_ticks)
     end
 
     return false
 end
 
-local function pick_weighted_service_mode(runtime)
-    local snapshot = get_fluid_queue_snapshot(runtime)
+local function pick_weighted_service_mode(runtime, snapshot)
+    snapshot = get_fluid_queue_snapshot(runtime, snapshot)
     if snapshot.urgent <= 0 and snapshot.dirty <= 0 and snapshot.scan <= 0 then
         runtime.service_mode_cursor = 1
         return nil
@@ -1212,13 +1273,14 @@ function model.service_fluid_runtime(budget)
 
     budget = math.max(1, math.floor(tonumber(budget) or 1))
     local performed = 0
+    local full_update_ticks = math.max(1, tonumber(ei_ticksPerFullUpdate) or 60)
     local snapshot = get_fluid_queue_snapshot(runtime)
 
     -- Single-slot budgets follow the weighted rotation directly so sustained urgent churn
     -- cannot pin the runtime forever when step 2 only has one unit of work to spend.
     if budget == 1 then
-        local mode = pick_weighted_service_mode(runtime)
-        if mode and process_one_mode(runtime, mode) then
+        local mode = pick_weighted_service_mode(runtime, snapshot)
+        if mode and process_one_mode(runtime, mode, full_update_ticks) then
             return 1
         end
 
@@ -1228,6 +1290,7 @@ function model.service_fluid_runtime(budget)
     -- Reserve one immediate urgent slot so freshly touched entities still react quickly.
     if snapshot.urgent > 0 and process_one_urgent(runtime) then
         performed = performed + 1
+        get_fluid_queue_snapshot(runtime, snapshot)
     end
 
     -- Reserve a little room for repair and background validation so a constant stream of
@@ -1235,22 +1298,25 @@ function model.service_fluid_runtime(budget)
     if performed < budget and snapshot.dirty > 0 and budget >= 2 then
         if process_one_dirty(runtime) then
             performed = performed + 1
+            get_fluid_queue_snapshot(runtime, snapshot)
         end
     end
 
     if performed < budget and snapshot.scan > 0 and budget >= 3 then
-        if process_one_scan(runtime) then
+        if process_one_scan(runtime, full_update_ticks) then
             performed = performed + 1
+            get_fluid_queue_snapshot(runtime, snapshot)
         end
     end
 
     while performed < budget do
-        local mode = pick_weighted_service_mode(runtime)
-        if not mode or not process_one_mode(runtime, mode) then
+        local mode = pick_weighted_service_mode(runtime, snapshot)
+        if not mode or not process_one_mode(runtime, mode, full_update_ticks) then
             break
         end
 
         performed = performed + 1
+        get_fluid_queue_snapshot(runtime, snapshot)
     end
 
     return performed

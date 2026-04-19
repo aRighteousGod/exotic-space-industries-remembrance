@@ -1,7 +1,24 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-12T22:28:43.9915026-05:00",
+    "generated_at":  "2026-04-16T20:13:58.1595749-05:00",
     "entries":  [
+                    {
+                        "id":  "research-hitch",
+                        "path":  ".factorio-qc\\research-hitch.zip",
+                        "kind":  "stress-save",
+                        "purpose":  "Late-game research completion hitch coverage for tech scaling, Tesla sync, and EM rollout queues",
+                        "tags":  [
+                                     "runtime",
+                                     "benchmark",
+                                     "research",
+                                     "stress"
+                                 ],
+                        "preferred_for":  [
+                                              "runtime-benchmark"
+                                          ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for generation and runtime benchmark playback."
+                    },
                     {
                         "id":  "fueler-smoke",
                         "path":  ".factorio-qc\\fueler-smoke.zip",
@@ -19,6 +36,23 @@
                                           ],
                         "mods_source":  "live-repo-via-qc-sync",
                         "notes":  "Primary smoke save shipped in ignored QC artifact space."
+                    },
+                    {
+                        "id":  "orbital-cohort",
+                        "path":  ".factorio-qc\\orbital-cohort.zip",
+                        "kind":  "scenario-save",
+                        "purpose":  "Save-driven orbital logistics cohort coverage for selectors, coordinators, uplinks, transponder IDs, and dispatch leases",
+                        "tags":  [
+                                     "runtime",
+                                     "scenario",
+                                     "orbital",
+                                     "qc"
+                                 ],
+                        "preferred_for":  [
+                                              "qc-runtime"
+                                          ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback."
                     }
                 ]
 }

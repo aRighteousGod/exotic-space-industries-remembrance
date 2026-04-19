@@ -615,6 +615,14 @@ local function copy_position(position)
     return {x = position.x, y = position.y}
 end
 
+local function collect_nearby_entities(entity, radius)
+    if not (entity and entity.valid and radius and radius > 0) then
+        return {}
+    end
+
+    return entity.surface.find_entities_filtered{position = entity.position, radius = radius}
+end
+
 local function get_connection_step_distance(source, target)
     local dx = target.position.x - source.position.x
     local dy = target.position.y - source.position.y
@@ -661,10 +669,23 @@ local function get_pipeline_traversal_visit_cap(profile, fire_cap)
     return PIPELINE_TRAVERSAL_MIN_VISITS
 end
 
-local function collect_local_pipeline_fire_targets(entity, fire_radius, profile)
+local function trim_targets_by_fire_cap(targets, fire_cap)
+    if fire_cap and #targets > fire_cap then
+        table.sort(targets, function(left, right) return left.distance < right.distance end)
+        while #targets > fire_cap do
+            targets[#targets] = nil
+        end
+    end
+
+    return targets
+end
+
+local function collect_local_pipeline_fire_targets(entity, nearby_entities, fire_radius, profile)
     local targets = {}
     local seen = {}
     local fire_cap = get_pipeline_fire_cap(profile.mode)
+    local source_position = entity and entity.position or nil
+    local fire_radius_sq = fire_radius * fire_radius
 
     local function add_target(target, distance)
         local key = get_entity_visit_key(target)
@@ -683,25 +704,21 @@ local function collect_local_pipeline_fire_targets(entity, fire_radius, profile)
         add_target(entity, 0)
     end
 
-    for _, target in ipairs(entity.surface.find_entities_filtered{position = entity.position, radius = fire_radius}) do
-        if target ~= entity and is_pipeline_entity(target) then
-            local distance = get_connection_step_distance(entity, target)
-            if distance <= fire_radius then
-                add_target(target, distance)
+    for _, target in ipairs(nearby_entities or {}) do
+        if target ~= entity and target.valid and is_pipeline_entity(target) then
+            local delta_x = source_position.x - target.position.x
+            local delta_y = source_position.y - target.position.y
+            local distance_sq = (delta_x * delta_x) + (delta_y * delta_y)
+            if distance_sq <= fire_radius_sq then
+                add_target(target, math.sqrt(distance_sq))
             end
         end
     end
 
-    table.sort(targets, function(left, right) return left.distance < right.distance end)
-
-    while fire_cap and #targets > fire_cap do
-        targets[#targets] = nil
-    end
-
-    return targets
+    return trim_targets_by_fire_cap(targets, fire_cap)
 end
 
-local function collect_pipeline_fire_targets(entity, fire_radius, profile)
+local function collect_pipeline_fire_targets(entity, nearby_entities, fire_radius, profile)
     local targets = {}
     local fire_cap = get_pipeline_fire_cap(profile.mode)
     local visit_cap = get_pipeline_traversal_visit_cap(profile, fire_cap)
@@ -747,21 +764,16 @@ local function collect_pipeline_fire_targets(entity, fire_radius, profile)
         end
     end
 
-    table.sort(targets, function(left, right) return left.distance < right.distance end)
-
-    while fire_cap and #targets > fire_cap do
-        targets[#targets] = nil
-    end
+    trim_targets_by_fire_cap(targets, fire_cap)
 
     if #targets == 0 then
-        return collect_local_pipeline_fire_targets(entity, fire_radius, profile)
+        return collect_local_pipeline_fire_targets(entity, nearby_entities, fire_radius, profile)
     end
 
     return targets
 end
 
-local function add_pipeline_fire_layers(rings, entity, style, profile, surface_context, explosion_radius, search_radius, entity_radius, seen_platform_tiles, platform_pipe_tile_damage)
-    local fire_name = get_platform_fire_name(style, surface_context)
+local function add_pipeline_fire_layers(rings, entity, nearby_entities, fire_name, profile, surface_context, explosion_radius, search_radius, entity_radius, seen_platform_tiles, platform_pipe_tile_damage)
     if not fire_name or #rings == 0 then
         return
     end
@@ -771,7 +783,7 @@ local function add_pipeline_fire_layers(rings, entity, style, profile, surface_c
         return
     end
 
-    local targets = collect_pipeline_fire_targets(entity, fire_radius, profile)
+    local targets = collect_pipeline_fire_targets(entity, nearby_entities, fire_radius, profile)
     local divisor = math.max(fire_radius, 0.001)
     local ring_count = #rings
     for _, target in ipairs(targets) do
@@ -810,20 +822,22 @@ local function select_secondary_mix(rupture, primary_family, profile)
     return selected
 end
 
-local function build_damage_rings(entity, ring_count, search_radius, explosion_radius, explosion_damage)
+local function build_damage_rings(entity, nearby_entities, ring_count, explosion_radius, explosion_damage)
     local damage_rings = {}
+    local source_position = entity and entity.position or nil
     for index = 1, ring_count do damage_rings[index] = {} end
     if explosion_radius <= 0 or explosion_damage <= 0 then return damage_rings end
 
-    for _, victim in ipairs(entity.surface.find_entities_filtered{position = entity.position, radius = search_radius}) do
+    for _, victim in ipairs(nearby_entities or {}) do
         if victim ~= entity and victim.valid and ei_lib.entity_can_take_health_damage(victim) then
-            local dx = victim.position.x - entity.position.x
-            local dy = victim.position.y - entity.position.y
+            local dx = victim.position.x - source_position.x
+            local dy = victim.position.y - source_position.y
             local distance_sq = (dx * dx) + (dy * dy)
-            local distance = math.sqrt(distance_sq)
             local victim_radius = get_entity_radius(victim)
-            local effective_distance = math.max(0, distance - victim_radius)
-            if effective_distance <= explosion_radius then
+            local max_distance = explosion_radius + victim_radius
+            if distance_sq <= (max_distance * max_distance) then
+                local distance = math.sqrt(distance_sq)
+                local effective_distance = math.max(0, distance - victim_radius)
                 local distance_ratio = math.min(1, effective_distance / explosion_radius)
                 local amount = math.max(0, explosion_damage * (1 - math.pow(distance_ratio, DAMAGE_FALLOFF_POWER)))
                 if amount > 0 then
@@ -838,7 +852,7 @@ local function build_damage_rings(entity, ring_count, search_radius, explosion_r
     return damage_rings
 end
 
-local function build_pair_child_jobs(entity, style, explosion_damage, mode, surface_context)
+local function build_pair_child_jobs(entity, style, source_force_name, pair_fire_name, platform_pipe_tile_damage, explosion_damage, mode, surface_context)
     if entity.type ~= "pipe-to-ground" or not entity.neighbours then
         return {}
     end
@@ -856,7 +870,7 @@ local function build_pair_child_jobs(entity, style, explosion_damage, mode, surf
                         entity_layers = {},
                         smoke_layers = {{name = style.smoke_name, count = 1, emitter = "center", inner_radius = 0, outer_radius = 0}},
                         fire_layers = {{
-                            name = get_platform_fire_name(style, surface_context),
+                            name = pair_fire_name,
                             count = 1,
                             emitter = "center",
                             inner_radius = 0,
@@ -870,13 +884,13 @@ local function build_pair_child_jobs(entity, style, explosion_damage, mode, surf
 
                     if surface_context.is_platform then
                         local seen_tiles = {}
-                        add_platform_tile_damage(ring, seen_tiles, neighbour.position, get_platform_tile_damage(style, explosion_damage, true))
+                        add_platform_tile_damage(ring, seen_tiles, neighbour.position, platform_pipe_tile_damage)
                     end
 
                     return {{
                         mode = mode,
                         damage_type = style.damage_type,
-                        source_force_name = entity.force and entity.force.name or "neutral",
+                        source_force_name = source_force_name,
                         surface_index = entity.surface.index,
                         surface_kind = surface_context.is_platform and "platform" or "planetary",
                         position = {x = neighbour.position.x, y = neighbour.position.y},
@@ -892,7 +906,7 @@ local function build_pair_child_jobs(entity, style, explosion_damage, mode, surf
     return {}
 end
 
-local function build_primary_layers(rings, profile, rupture, style, class_bias, visual_radius, surface_context)
+local function build_primary_layers(rings, profile, rupture, style, fire_name, class_bias, visual_radius, surface_context)
     local total_energy_mj = rupture.total_energy_mj
     local gas_share = rupture.family_share.gas or 0
     local energy_root = math.sqrt(total_energy_mj)
@@ -901,7 +915,6 @@ local function build_primary_layers(rings, profile, rupture, style, class_bias, 
     local outer_radius = math.max(effect_visual_radius * (1.05 + (0.08 * class_bias.shockwave_scale)), 0.8)
     local shock_base = math.max(1, math.ceil((visual_radius + (energy_root * 0.055)) * style.ring_bias * class_bias.stage_scale))
     local shock_extra = total_energy_mj >= 220 or class_bias.stage_scale >= 1.35
-    local fire_name = get_platform_fire_name(style, surface_context)
 
     local explosion_entries = {
         {key = "cluster_medium", count = math.max(1, math.ceil((visual_radius + (energy_root * 0.045)) * style.explosion_bias * class_bias.stage_scale))},
@@ -1006,29 +1019,34 @@ local function build_secondary_layers(rings, profile, rupture, primary_family, c
     end
 end
 
-local function build_rupture_job(entity, rupture, style, class_bias, surface_context, explosion_radius, explosion_damage, visual_radius, search_radius)
+local function build_rupture_job(entity, rupture, style, class_bias, surface_context, entity_radius, explosion_radius, explosion_damage, visual_radius, search_radius)
     local profile = rupture_scheduler.get_fidelity_profile(visual_radius)
+    local source_force_name = entity.force and entity.force.name or "neutral"
+    local fire_name = get_platform_fire_name(style, surface_context)
+    local platform_source_tile_damage = surface_context.is_platform and get_platform_tile_damage(style, explosion_damage, false) or 0
+    local platform_pipe_tile_damage = surface_context.is_platform and get_platform_tile_damage(style, explosion_damage, true) or 0
+    local nearby_entities = collect_nearby_entities(entity, search_radius)
     local rings = {}
     for index = 1, profile.ring_count do rings[index] = new_ring() end
 
-    local weights = build_primary_layers(rings, profile, rupture, style, class_bias, visual_radius, surface_context)
+    local weights = build_primary_layers(rings, profile, rupture, style, fire_name, class_bias, visual_radius, surface_context)
     build_secondary_layers(rings, profile, rupture, rupture.dominant.family, class_bias, visual_radius, weights, surface_context)
 
-    local damage_rings = build_damage_rings(entity, profile.ring_count, search_radius, explosion_radius, explosion_damage)
+    local damage_rings = build_damage_rings(entity, nearby_entities, profile.ring_count, explosion_radius, explosion_damage)
     for index = 1, profile.ring_count do
         rings[index].damage_victims = damage_rings[index]
     end
 
     local seen_platform_tiles = {}
     if surface_context.is_platform then
-        add_entity_platform_tile_damage(rings[1], seen_platform_tiles, entity, get_platform_tile_damage(style, explosion_damage, false))
+        add_entity_platform_tile_damage(rings[1], seen_platform_tiles, entity, platform_source_tile_damage)
         if not is_pipeline_entity(entity) then
             add_layer(rings[1], "fire_layers", {
-                name = get_platform_fire_name(style, surface_context),
-                count = math.max(1, math.min(3, math.ceil(get_entity_radius(entity) * 0.75))),
+                name = fire_name,
+                count = math.max(1, math.min(3, math.ceil(entity_radius * 0.75))),
                 emitter = "vogel",
                 inner_radius = 0,
-                outer_radius = math.max(0.35, math.min(get_entity_radius(entity), 1.1)),
+                outer_radius = math.max(0.35, math.min(entity_radius, 1.1)),
                 force_name = "neutral",
             })
         end
@@ -1037,27 +1055,28 @@ local function build_rupture_job(entity, rupture, style, class_bias, surface_con
     add_pipeline_fire_layers(
         rings,
         entity,
-        style,
+        nearby_entities,
+        fire_name,
         profile,
         surface_context,
         explosion_radius,
         search_radius,
-        get_entity_radius(entity),
+        entity_radius,
         seen_platform_tiles,
-        get_platform_tile_damage(style, explosion_damage, true)
+        platform_pipe_tile_damage
     )
 
     return {
         mode = profile.mode,
         damage_type = style.damage_type,
-        source_force_name = entity.force and entity.force.name or "neutral",
+        source_force_name = source_force_name,
         surface_index = entity.surface.index,
         surface_kind = surface_context.is_platform and "platform" or "planetary",
         pollution_enabled = surface_context.has_pollutant,
         position = {x = entity.position.x, y = entity.position.y},
         ring_count = profile.ring_count,
         rings = rings,
-        child_jobs = build_pair_child_jobs(entity, style, explosion_damage, profile.mode, surface_context),
+        child_jobs = build_pair_child_jobs(entity, style, source_force_name, fire_name, platform_pipe_tile_damage, explosion_damage, profile.mode, surface_context),
     }
 end
 
@@ -1094,7 +1113,7 @@ function model.on_entity_died(event)
     local entity_radius = get_entity_radius(entity)
     local visual_radius = math.max(explosion_radius, entity_radius) * class_bias.visual_scale
     local search_radius = explosion_radius + entity_radius + DAMAGE_SEARCH_PADDING
-    local rupture_job = build_rupture_job(entity, rupture, style, class_bias, surface_context, explosion_radius, explosion_damage, visual_radius, search_radius)
+    local rupture_job = build_rupture_job(entity, rupture, style, class_bias, surface_context, entity_radius, explosion_radius, explosion_damage, visual_radius, search_radius)
 
     apply_rupture_pollution(entity.surface, entity.position, rupture.total_pollution / 10)
     rupture_scheduler.begin_rupture(rupture_job, event.tick or (game and game.tick) or 0)

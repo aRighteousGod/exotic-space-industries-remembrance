@@ -5,7 +5,7 @@
 -- cadence: load-time remote interface registration
 -- forwarded_events: page_content
 -- storage_roots: none
--- gui_ids: exotic-industries-fueler-informatron, exotic-industries-fueler-informatron.welcome, exotic-industries-fueler-informatron.welcome-text, exotic-industries-fueler-informatron.welcome-text-2
+-- gui_ids: exotic-industries-fueler-informatron, exotic-industries-fueler-informatron.welcome, exotic-industries-fueler-informatron.welcome-text, exotic-industries-fueler-informatron.welcome-text-2, exotic-industries-fueler-informatron.welcome-text-3
 -- remote_interfaces: exotic-industries-fueler-informatron
 -- rebuild_on: page/content changes
 --==============================================================================
@@ -38,5 +38,6 @@ function model.page_content(page_name, player_index, element)
     image_container.add{type = "sprite", sprite = "ei-fueler-sprite"}
 
     element.add{type = "label", caption = {"exotic-industries-fueler-informatron.welcome-text-2"}}
+    element.add{type = "label", caption = {"exotic-industries-fueler-informatron.welcome-text-3"}}
   end
 end

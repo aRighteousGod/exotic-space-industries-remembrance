@@ -40,8 +40,8 @@ data:extend({
       name = "ei-tech-scaling-curveForm",
       type = "string-setting",
       setting_type = "startup",
-      default_value = "linear",
-      allowed_values = {"linear", "quadratic", "exponential"},
+      default_value = "age-ramp",
+      allowed_values = {"linear", "quadratic", "exponential", "age-ramp"},
       order  = "a3",
   },
   {

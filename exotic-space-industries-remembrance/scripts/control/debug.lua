@@ -12,7 +12,11 @@
 local model = {}
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local ei_fluid_safety = require("scripts/control/fluid-safety")
 local ei_flammable_rupture_scheduler = require("scripts/control/flammable-rupture-scheduler")
+local ORBITAL_SCANNER_NAME = "ei-orbital-combinator"
+local ORBITAL_SCANNER_PROBE_FILE = "ei-orbital-scanner-probe.jsonl"
+local ORBITAL_SCANNER_PROBE_DEFAULT_TICKS = 600
 
 local function get_beacon_overload_helper(name)
     if not ei_beacon_overload then
@@ -201,6 +205,7 @@ local function get_runtime_status_snapshot()
     local matrix = ei_state.induction_matrix or {}
     local gate = ei_state.gate or {}
     local rocket_pollution = ei_state.rocket_launch_pollution or {}
+    local fluid_runtime = ei_state.fluid_runtime or {}
     local flammable_ruptures = ei_state.flammable_ruptures or {}
     local emt = storage and storage.ei_emt or {}
     local vulcanus = ei_state.vulcanus_fumaroles or {}
@@ -256,10 +261,20 @@ local function get_runtime_status_snapshot()
             pending_cleanup_items = ei_runtime_scheduler.delayed_item_count(rocket_pollution.pending_launch_cleanup_buckets),
             launch_smoke = ei_lib.count_sequence(rocket_pollution.launch_smoke),
         }),
+        fluid_safety = capture_runtime_module_status("fluid-safety", ei_fluid_safety, {
+            tracked_entities = fluid_runtime.tracked_count or 0,
+            segments = ei_runtime_scheduler.table_count(fluid_runtime.segments),
+            urgent_queue = fluid_runtime.urgent_count or 0,
+            dirty_queue = fluid_runtime.dirty_count or 0,
+            scan_units = ei_lib.count_sequence(fluid_runtime.scan_units),
+            service_mode_cursor = fluid_runtime.service_mode_cursor or 1,
+        }),
         flammable_ruptures = capture_runtime_module_status("flammable-ruptures", ei_flammable_rupture_scheduler, {
-            active_jobs = ei_lib.getn(flammable_ruptures.jobs),
-            ring_buckets = ei_runtime_scheduler.delayed_bucket_count(flammable_ruptures.ring_buckets),
-            ring_bucket_items = ei_runtime_scheduler.delayed_item_count(flammable_ruptures.ring_buckets),
+            fidelity_mode = flammable_ruptures.fidelity_mode,
+            active_jobs = flammable_ruptures.active_job_count or ei_lib.getn(flammable_ruptures.jobs),
+            pending_rings = flammable_ruptures.pending_ring_count or 0,
+            ring_buckets = flammable_ruptures.scheduled_bucket_count or ei_runtime_scheduler.delayed_bucket_count(flammable_ruptures.ring_buckets),
+            ring_bucket_items = flammable_ruptures.scheduled_ring_count or ei_runtime_scheduler.delayed_item_count(flammable_ruptures.ring_buckets),
         }),
         em_trains = capture_runtime_module_status("em-trains", em_trains, {
             chargers = ei_lib.getn(emt.chargers),
@@ -273,6 +288,23 @@ local function get_runtime_status_snapshot()
             entries = ei_lib.getn(ei_state.black_hole),
             active_queue = ei_runtime_scheduler.queue_length(ei_state.black_hole_active_queue),
             dormant_audit_queue = ei_runtime_scheduler.queue_length(ei_state.black_hole_dormant_audit_queue),
+        }),
+        orbital_scanner = capture_runtime_module_status("orbital-combinator", orbital_combinator, {
+            banks = ei_state.orbital_combinator_bank_count or 0,
+            dirty_banks = ei_runtime_scheduler.queue_length(ei_state.orbital_combinator_dirty_bank_queue),
+            hot_surfaces = ei_runtime_scheduler.queue_length(ei_state.orbital_combinator_hot_surface_queue),
+            cold_surfaces = ei_runtime_scheduler.queue_length(ei_state.orbital_combinator_cold_surface_queue),
+            bank_audits = ei_runtime_scheduler.queue_length(ei_state.orbital_combinator_bank_audit_queue),
+        }),
+        orbital_logistics = capture_runtime_module_status("orbital-logistics", package.loaded["scripts/control/orbital-logistics"] or rawget(_G, "orbital_logistics"), {
+            cohorts = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.cohorts),
+            transponders = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.transponders_by_unit),
+            selectors = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.selectors_by_unit),
+            coordinators = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.coordinators_by_unit),
+            uplinks = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.uplinks_by_unit),
+            leases = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.lease_by_job_id),
+            open_gui_count = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.open_gui_by_player),
+            dirty = ei_runtime_scheduler.queue_length(ei_state.orbital_logistics and ei_state.orbital_logistics.dirty_cohort_queue),
         }),
         vulcanus = capture_runtime_module_status("vulcanus-fumaroles", ei_vulcanus_fumaroles, {
             active = ei_lib.getn(vulcanus.active),
@@ -292,9 +324,12 @@ local function format_runtime_status_summary(snapshot)
     local gaia = extra.gaia or {}
     local alien_spawner = extra.alien_spawner or {}
     local rocket = extra.rocket_launch_pollution or {}
+    local fluid = extra.fluid_safety or {}
     local ruptures = extra.flammable_ruptures or {}
     local emt = extra.em_trains or {}
     local black_hole = extra.black_hole or {}
+    local orbital = extra.orbital_scanner or {}
+    local orbital_logistics = extra.orbital_logistics or {}
     local vulcanus = extra.vulcanus or {}
 
     return table.concat({
@@ -306,11 +341,233 @@ local function format_runtime_status_summary(snapshot)
         "gaia(delay)=" .. tostring(gaia.damage_tick_buckets or 0),
         "alien(delay)=" .. tostring(alien_spawner.delayed_buckets or 0),
         "rocket(pending/smoke)=" .. tostring(rocket.pending_launches or 0) .. "/" .. tostring(rocket.launch_smoke or 0),
-        "rupture(active/delay)=" .. tostring(ruptures.active_jobs or 0) .. "/" .. tostring(ruptures.ring_buckets or 0),
+        "fluid(t/u/d/s/m)=" .. tostring(fluid.tracked_entities or 0) .. "/" .. tostring(fluid.urgent_queue or 0) .. "/" .. tostring(fluid.dirty_queue or 0) .. "/" .. tostring(fluid.scan_units or 0) .. "/" .. tostring(fluid.service_mode_cursor or 1),
+        "rupture(mode/a/p/d)=" .. tostring(ruptures.fidelity_mode or "?") .. "/" .. tostring(ruptures.active_jobs or 0) .. "/" .. tostring(ruptures.pending_rings or 0) .. "/" .. tostring(ruptures.ring_buckets or 0),
         "em(chargers/trains)=" .. tostring(emt.chargers or 0) .. "/" .. tostring(emt.trains or 0),
         "blackhole=" .. tostring(black_hole.entries or 0),
+        "orbital(banks/dirty/probe)=" .. tostring(orbital.banks or orbital.bank_count or 0) .. "/" .. tostring(orbital.dirty_banks or 0) .. "/" .. tostring(orbital.probe_enabled == true or (orbital.probe and orbital.probe.enabled == true)),
+        "cohort(c/l/u/gui)=" .. tostring(orbital_logistics.cohorts or orbital_logistics.cohort_count or 0) .. "/" .. tostring(orbital_logistics.leases or orbital_logistics.lease_count or 0) .. "/" .. tostring(orbital_logistics.uplinks or orbital_logistics.uplink_count or 0) .. "/" .. tostring(orbital_logistics.open_gui_count or 0),
         "vulcanus(active/dormant)=" .. tostring(vulcanus.active or 0) .. "/" .. tostring(vulcanus.dormant or 0),
     }, " ")
+end
+
+local function is_orbital_scanner_entity(entity)
+    return entity and entity.valid and entity.name == ORBITAL_SCANNER_NAME
+end
+
+local function get_orbital_probe_runtime()
+    if orbital_combinator then
+        return orbital_combinator
+    end
+
+    return nil
+end
+
+local function get_probe_target_scanner(player)
+    if not (player and player.valid) then
+        return nil
+    end
+
+    if is_orbital_scanner_entity(player.opened) then
+        return player.opened
+    end
+
+    if is_orbital_scanner_entity(player.selected) then
+        return player.selected
+    end
+
+    return nil
+end
+
+local function encode_probe_record(record)
+    if helpers and helpers.table_to_json then
+        local ok, encoded = pcall(helpers.table_to_json, record)
+        if ok and encoded then
+            return encoded
+        end
+    end
+
+    if game and game.table_to_json then
+        local ok, encoded = pcall(game.table_to_json, record)
+        if ok and encoded then
+            return encoded
+        end
+    end
+
+    if serpent and serpent.line then
+        return serpent.line(record, {sortkeys = true})
+    end
+
+    return nil
+end
+
+local function write_probe_file(path, content, append)
+    if helpers and helpers.write_file then
+        local ok = pcall(helpers.write_file, path, content, append)
+        return ok
+    end
+
+    return false
+end
+
+local function write_orbital_probe_dump(records)
+    if type(records) ~= "table" or #records == 0 then
+        return 0, nil
+    end
+
+    if write_probe_file(ORBITAL_SCANNER_PROBE_FILE, "", false) then
+        local written = 0
+        for _, record in ipairs(records) do
+            local encoded = encode_probe_record(record)
+            if encoded and write_probe_file(ORBITAL_SCANNER_PROBE_FILE, encoded .. "\n", true) then
+                written = written + 1
+            end
+        end
+
+        return written, ORBITAL_SCANNER_PROBE_FILE
+    end
+
+    local written = 0
+    for _, record in ipairs(records) do
+        if ei_runtime_scheduler.write_telemetry("orbital-scanner-probe-dump", record, true) then
+            written = written + 1
+        end
+    end
+
+    if written > 0 then
+        local runtime_state = ei_runtime_scheduler.ensure_root()
+        local telemetry_file = runtime_state and runtime_state.telemetry and runtime_state.telemetry.file or "ei-runtime-scheduler.jsonl"
+        return written, telemetry_file
+    end
+
+    return 0, nil
+end
+
+local function format_orbital_probe_counters(counters)
+    counters = counters or {}
+    return table.concat({
+        "empty-req=" .. tostring(counters.request_overwrite_empty or 0),
+        "empty-way=" .. tostring(counters.on_the_way_overwrite_empty or 0),
+        "need=" .. tostring(counters.need_inventory_changed or 0),
+        "prune=" .. tostring(counters.platform_pruned_from_surface_index or 0),
+        "lost-members=" .. tostring(counters.bank_lost_active_members or 0),
+        "blank-layout=" .. tostring(counters.layout_became_zero_or_blank or 0),
+    }, " ")
+end
+
+local function get_orbital_probe_counters(snapshot)
+    if not snapshot then
+        return {}
+    end
+
+    return snapshot.counters or snapshot.cause_counts or {}
+end
+
+local function print_orbital_probe_usage(player)
+    player.print("Usage: /ei_orbital_scanner_probe arm [ticks]|status|dump|clear")
+end
+
+local function handle_orbital_scanner_probe_command(cmd)
+    local player = require_admin(cmd)
+    if not player then
+        return
+    end
+
+    local runtime = get_orbital_probe_runtime()
+    if not runtime then
+        player.print("Orbital scanner runtime unavailable.")
+        return
+    end
+
+    local parameter = (cmd.parameter or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if parameter == "" then
+        print_orbital_probe_usage(player)
+        return
+    end
+
+    local action, remainder = parameter:match("^(%S+)%s*(.-)$")
+    action = string.lower(action or "")
+
+    if action == "arm" then
+        if not runtime.arm_probe then
+            player.print("Orbital scanner probe helpers unavailable.")
+            return
+        end
+
+        local scanner = get_probe_target_scanner(player)
+        if not scanner then
+            player.print("Open or select an orbital scanner before arming the probe.")
+            return
+        end
+
+        local ticks = tonumber(remainder)
+        ticks = math.floor(ticks or ORBITAL_SCANNER_PROBE_DEFAULT_TICKS)
+        if ticks < 1 then
+            ticks = ORBITAL_SCANNER_PROBE_DEFAULT_TICKS
+        end
+
+        local status = runtime.arm_probe(scanner, game.tick + ticks, game.tick)
+        if status then
+            player.print("Orbital scanner probe armed for " .. tostring(ticks) .. " ticks on scanner " .. tostring(scanner.unit_number) .. ".")
+            player.print("Probe status: " .. format_orbital_probe_counters(get_orbital_probe_counters(status)))
+        else
+            player.print("Failed to arm orbital scanner probe.")
+        end
+        return
+    end
+
+    if action == "status" then
+        if not runtime.get_probe_status then
+            player.print("Orbital scanner probe helpers unavailable.")
+            return
+        end
+
+        local status = runtime.get_probe_status(game.tick)
+        player.print(table.concat({
+            "Orbital scanner probe",
+            "enabled=" .. tostring(status and status.enabled == true),
+            "target=" .. tostring(status and status.target_unit_number or "nil"),
+            "reason=" .. tostring(status and status.arm_reason or "nil"),
+            "expires=" .. tostring(status and status.expire_tick or 0),
+            "records=" .. tostring(status and status.record_count or 0),
+            format_orbital_probe_counters(get_orbital_probe_counters(status)),
+        }, " "))
+        return
+    end
+
+    if action == "dump" then
+        local dump_helper = runtime.dump_probe or runtime.get_probe_dump or runtime.probe_dump
+        if not dump_helper then
+            player.print("Orbital scanner probe helpers unavailable.")
+            return
+        end
+
+        local dump = dump_helper(game.tick)
+        local records = dump and dump.records or {}
+        local written, output_file = write_orbital_probe_dump(records)
+        player.print(table.concat({
+            "Orbital scanner probe dump",
+            "records=" .. tostring(#records),
+            "written=" .. tostring(written),
+            "file=" .. tostring(output_file or "unavailable"),
+            "reason=" .. tostring(dump and dump.status and dump.status.arm_reason or "nil"),
+            format_orbital_probe_counters(get_orbital_probe_counters(dump and dump.status or dump)),
+        }, " "))
+        return
+    end
+
+    if action == "clear" then
+        if not runtime.clear_probe then
+            player.print("Orbital scanner probe helpers unavailable.")
+            return
+        end
+
+        runtime.clear_probe()
+        player.print("Orbital scanner probe cleared.")
+        return
+    end
+
+    print_orbital_probe_usage(player)
 end
 
 local function handle_runtime_status_command(cmd)
@@ -395,6 +652,29 @@ commands.add_command("beacon_overload_status", "Reports beacon overload debug st
 end)
 commands.add_command("ei_runtime_status", "Reports shared runtime scheduler queues and controls default-off heartbeat telemetry.", function(cmd)
     handle_runtime_status_command(cmd)
+end)
+commands.add_command("ei_orbital_scanner_probe", "Arms, inspects, dumps, or clears the orbital scanner diagnostic probe.", function(cmd)
+    handle_orbital_scanner_probe_command(cmd)
+end)
+commands.add_command("rescan_orbital_logistics", "Queues an orbital logistics cohort runtime rescan from the live world.", function(cmd)
+    local player = game.get_player(cmd.player_index)
+    if not player or not player.admin then return end
+    local runtime = package.loaded["scripts/control/orbital-logistics"] or rawget(_G, "orbital_logistics")
+    if not runtime then
+        player.print("Orbital logistics runtime unavailable.")
+        return
+    end
+    if runtime.request_runtime_rescan then
+        runtime.request_runtime_rescan("admin-command", game and game.tick or 0)
+        player.print("Orbital logistics runtime rescan queued.")
+        return
+    end
+    if runtime.rebuild_runtime_state then
+        runtime.rebuild_runtime_state("admin-command", game and game.tick or 0)
+        player.print("Orbital logistics runtime rebuilt.")
+        return
+    end
+    player.print("Orbital logistics runtime unavailable.")
 end)
 commands.add_command("reforge_gaia", "Destroy and recreate Gaia's surface from the current planet prototype.", function(cmd)
     local player = game.get_player(cmd.player_index)

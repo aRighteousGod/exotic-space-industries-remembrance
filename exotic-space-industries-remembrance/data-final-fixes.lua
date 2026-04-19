@@ -32,12 +32,14 @@ require("scripts/data-final-updates/labs")
 require("scripts/data-final-updates/recycling")
 require("scripts/data-final-updates/items")
 require("scripts/data-final-updates/krastorio-patches")
-require("teslas_legacy.final_overlay_ei")
+require("teslas_legacy/final_overlay_ei")
 
 
 --=======================================================================================
 
 require("scripts/data-final-updates/compatibility")
+require("scripts/data-final-updates/compatibility-lignumis")
+require("scripts/data-final-updates/compatibility-muluna")
 require("scripts/data-final-updates/death-explosions")
 
 -- =======================================================================================

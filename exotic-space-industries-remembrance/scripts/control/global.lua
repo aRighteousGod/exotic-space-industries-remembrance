@@ -34,6 +34,7 @@ local function new_beacon_overload_runtime()
     end
 
     return {
+        enabled = ei_lib.config("beacon-overload") == true,
         tracked_machines = {},
         machine_counts = {},
         overloaded_units = {},
@@ -137,6 +138,206 @@ local function new_orbital_combinator_runtime_state()
     }
 end
 
+local TECH_SCALING_AGES = {
+    "dark-age",
+    "steam-age",
+    "electricity-age",
+    "computer-age",
+    "quantum-age",
+    "exotic-age",
+}
+
+local function new_tech_scaling_age_totals()
+    local totals = {}
+
+    for _, age in ipairs(TECH_SCALING_AGES) do
+        totals[age] = 0
+    end
+
+    return totals
+end
+
+local function new_tech_scaling_researched_snapshot(force_key)
+    return {
+        forceKey = force_key,
+        totalWeight = 0,
+        ageTotals = new_tech_scaling_age_totals(),
+        researchedByName = {},
+    }
+end
+
+local function new_tech_scaling_runtime()
+    return {
+        maxCost = 0,
+        startPrice = 0,
+        baseStartPrice = 0,
+        techCount = 0,
+        appliedMultiplier = 1,
+        disabled = false,
+        ageTotals = new_tech_scaling_age_totals(),
+        techMetaByName = {},
+        researchedSnapshot = new_tech_scaling_researched_snapshot(nil),
+        selectedForceKey = nil,
+        cacheRevision = 0,
+        unknownAgeLogged = false,
+    }
+end
+
+local function new_scripted_research_burst_runtime()
+    return {
+        pending_by_force = {},
+        due_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil),
+        next_due_tick = 0,
+    }
+end
+
+local function get_scripted_research_burst_next_due_tick(pending_by_force)
+    local next_due_tick = 0
+
+    for _, entry in pairs(pending_by_force or {}) do
+        if type(entry) == "table" and entry.pending == true then
+            local scheduled_tick = math.max(0, math.floor(tonumber(entry.scheduled_tick) or 0))
+            if scheduled_tick > 0 and (next_due_tick == 0 or scheduled_tick < next_due_tick) then
+                next_due_tick = scheduled_tick
+            end
+        end
+    end
+
+    return next_due_tick
+end
+
+local function ensure_scripted_research_burst_runtime()
+    if type(storage.ei.scripted_research_burst) ~= "table" then
+        storage.ei.scripted_research_burst = new_scripted_research_burst_runtime()
+        return
+    end
+
+    local runtime = storage.ei.scripted_research_burst
+    runtime.pending_by_force = type(runtime.pending_by_force) == "table" and runtime.pending_by_force or {}
+    runtime.due_buckets = ei_runtime_scheduler.ensure_delayed_buckets(runtime.due_buckets)
+
+    local normalized_pending_by_force = {}
+    for force_key, entry in pairs(runtime.pending_by_force) do
+        if type(entry) == "table" then
+            local normalized_force_index = tonumber(entry.force_index or force_key)
+            if normalized_force_index then
+                local normalized_entry = normalized_pending_by_force[normalized_force_index]
+                if not normalized_entry then
+                    normalized_entry = {
+                        force_index = normalized_force_index,
+                        source_tick = 0,
+                        scheduled_tick = 0,
+                        enqueued_tick = 0,
+                        pending = false,
+                        tesla_variant_sync_needed = false,
+                    }
+                    normalized_pending_by_force[normalized_force_index] = normalized_entry
+                end
+
+                normalized_entry.source_tick = math.max(
+                    tonumber(normalized_entry.source_tick) or 0,
+                    tonumber(entry.source_tick) or 0
+                )
+                normalized_entry.scheduled_tick = math.max(
+                    tonumber(normalized_entry.scheduled_tick) or 0,
+                    tonumber(entry.scheduled_tick) or 0
+                )
+                normalized_entry.enqueued_tick = math.max(
+                    tonumber(normalized_entry.enqueued_tick) or 0,
+                    tonumber(entry.enqueued_tick) or 0
+                )
+                normalized_entry.pending = normalized_entry.pending or entry.pending == true
+                normalized_entry.tesla_variant_sync_needed = normalized_entry.tesla_variant_sync_needed
+                    or entry.tesla_variant_sync_needed == true
+            end
+        end
+    end
+
+    runtime.pending_by_force = normalized_pending_by_force
+    runtime.next_due_tick = get_scripted_research_burst_next_due_tick(runtime.pending_by_force)
+end
+
+local function ensure_tech_scaling_runtime()
+    if type(storage.ei["tech_scaling"]) ~= "table" then
+        storage.ei["tech_scaling"] = new_tech_scaling_runtime()
+        return
+    end
+
+    local tech_scaling = storage.ei["tech_scaling"]
+
+    if not tech_scaling.ageTotals then
+        tech_scaling.ageTotals = new_tech_scaling_age_totals()
+    else
+        for _, age in ipairs(TECH_SCALING_AGES) do
+            if tech_scaling.ageTotals[age] == nil then
+                tech_scaling.ageTotals[age] = 0
+            end
+        end
+    end
+
+    if tech_scaling.maxCost == nil then
+        tech_scaling.maxCost = 0
+    end
+
+    if tech_scaling.startPrice == nil then
+        tech_scaling.startPrice = 0
+    end
+
+    if tech_scaling.baseStartPrice == nil then
+        tech_scaling.baseStartPrice = 0
+    end
+
+    if tech_scaling.techCount == nil then
+        tech_scaling.techCount = 0
+    end
+
+    if tech_scaling.appliedMultiplier == nil then
+        tech_scaling.appliedMultiplier = 1
+    else
+        tech_scaling.appliedMultiplier = tonumber(tech_scaling.appliedMultiplier) or 1
+    end
+
+    tech_scaling.disabled = tech_scaling.disabled == true
+
+    if type(tech_scaling.techMetaByName) ~= "table" then
+        tech_scaling.techMetaByName = {}
+    end
+
+    if type(tech_scaling.researchedSnapshot) ~= "table" then
+        tech_scaling.researchedSnapshot = new_tech_scaling_researched_snapshot(nil)
+    else
+        local snapshot = tech_scaling.researchedSnapshot
+        snapshot.forceKey = snapshot.forceKey or nil
+        snapshot.totalWeight = tonumber(snapshot.totalWeight) or 0
+        if type(snapshot.ageTotals) ~= "table" then
+            snapshot.ageTotals = new_tech_scaling_age_totals()
+        else
+            for _, age in ipairs(TECH_SCALING_AGES) do
+                if snapshot.ageTotals[age] == nil then
+                    snapshot.ageTotals[age] = 0
+                end
+            end
+        end
+        if type(snapshot.researchedByName) ~= "table" then
+            snapshot.researchedByName = {}
+        end
+    end
+
+    if tech_scaling.selectedForceKey ~= nil and type(tech_scaling.selectedForceKey) ~= "string" then
+        tech_scaling.selectedForceKey = tostring(tech_scaling.selectedForceKey)
+    end
+
+    if tech_scaling.cacheRevision == nil then
+        tech_scaling.cacheRevision = 0
+    else
+        tech_scaling.cacheRevision = tonumber(tech_scaling.cacheRevision) or 0
+    end
+
+    if tech_scaling.unknownAgeLogged == nil then
+        tech_scaling.unknownAgeLogged = false
+    end
+end
+
 
 --====================================================================================================
 --GLOBAL VARIABLES
@@ -145,11 +346,8 @@ end
 function ei_global.init()
     storage.ei = {}
 
-    storage.ei["tech_scaling"] = {}
-    storage.ei["tech_scaling"].maxCost = 0
-    storage.ei["tech_scaling"].startPrice = 0
-    storage.ei["tech_scaling"].baseStartPrice = 0
-    storage.ei["tech_scaling"].techCount = 0
+    storage.ei["tech_scaling"] = new_tech_scaling_runtime()
+    storage.ei.scripted_research_burst = new_scripted_research_burst_runtime()
 
     storage.ei["overload_icons"] = {}
     storage.ei.beacon_overload = new_beacon_overload_runtime()
@@ -280,31 +478,19 @@ function ei_global.check_init(event)
     if not storage.ei.nauvis_pressure.last_run_tick then
         storage.ei.nauvis_pressure.last_run_tick = 0
     end
-    if not storage.ei["tech_scaling"] then
-        storage.ei["tech_scaling"] = {}
-    end
-
-    if not storage.ei["tech_scaling"].maxCost then
-        storage.ei["tech_scaling"].maxCost = 0
-    end
-
-    if not storage.ei["tech_scaling"].startPrice then
-        storage.ei["tech_scaling"].startPrice = 0
-    end
-
-    if not storage.ei["tech_scaling"].baseStartPrice then
-        storage.ei["tech_scaling"].baseStartPrice = 0
-    end
-
-    if not storage.ei["tech_scaling"].techCount then
-        storage.ei["tech_scaling"].techCount = 0
-    end
+    ensure_tech_scaling_runtime()
+    ensure_scripted_research_burst_runtime()
 
     if not storage.ei["overload_icons"] then
         storage.ei["overload_icons"] = {}
     end
     if not storage.ei.beacon_overload then
         storage.ei.beacon_overload = new_beacon_overload_runtime()
+    end
+    if storage.ei.beacon_overload.enabled == nil then
+        storage.ei.beacon_overload.enabled = ei_lib.config("beacon-overload") == true
+    else
+        storage.ei.beacon_overload.enabled = storage.ei.beacon_overload.enabled == true
     end
     if not storage.ei.beacon_overload.tracked_machines then
         storage.ei.beacon_overload.tracked_machines = {}

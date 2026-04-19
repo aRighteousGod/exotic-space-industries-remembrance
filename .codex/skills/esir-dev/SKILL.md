@@ -37,12 +37,18 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Keep raw caches in `.factorio-qc` or `output`; stable manifests stay checked in.
 - `pack-deploy` is intentionally mutating. Prefer `pack-dryrun` unless the user explicitly wants `%APPDATA%\Factorio\mods` updated.
 - Encoding detection is part of `preflight` and the `qc-*` wrapper surface. Pass `-FixEncoding` when you want the harness to rewrite non-UTF-8 or repaired mojibake sources as UTF-8.
+- Keep commentary current during ESIR work. As context changes, say what you are inspecting, what you are changing next, and what you verified; do not go quiet through long repo-specific work.
 - When a shared helper surface changes in a way future Codex runs should follow, update the matching skill/reference guidance in the same patch.
+- When a patch leaves deferred implementation work, migration debt, upgrade hooks, or intentionally local behavior worth revisiting, add or update a short note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) in the same patch. Remove or close the note when the follow-up is done.
+- Runtime scripts should strive to use `event.tick` over `game.tick` wherever an event context already provides the tick.
+- When editing non-English locale files, write bespoke idiomatic translations for the target language instead of mechanically mirroring the English text.
 
 ## ESIR QC Helpers
 
 - Keep reusable ESIR-only QC companion mods in this skill's `assets/` folder instead of leaving them only in `.factorio-qc`.
 - The Vulcanus auric fumarole benchmark helper lives at [`assets/zzz-auric-fumarole-qc_0.0.1`](./assets/zzz-auric-fumarole-qc_0.0.1). Use [`references/auric-fumarole-qc-helper.md`](./references/auric-fumarole-qc-helper.md) when a run needs radial-band, off-center-placement, or non-Vulcanus-isolation telemetry.
+- The orbital logistics cohort helper lives at [`assets/zzz-orbital-logistics-qc_0.0.1`](./assets/zzz-orbital-logistics-qc_0.0.1). Use [`references/orbital-logistics-qc-helper.md`](./references/orbital-logistics-qc-helper.md) when a run needs a save-driven cohort with live platform IDs, selector setup, coordinator arbitration, uplink leases, and structured orbital QC snapshots.
+- The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
 - Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
 
 ## Shared Lua Helpers
@@ -51,6 +57,13 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 
 - Prefer `ei_lib` reuse for general string or table helpers, `data.raw` mutation, recipe or technology mutation, echo or notification formatting, tint helpers, and other cross-module utility behavior.
 - If an existing `ei_lib` function is close but missing a guard, default, or narrow capability, extend it compatibly before adding a parallel local helper with overlapping behavior. For runtime queue, delayed-bucket, telemetry-gate, counter, cadence, or status-snapshot plumbing, the `Runtime Scheduler Rules` section below wins.
+
+## Locale Rules
+
+- English locale remains the anchor for keys and gameplay meaning, but non-English locale edits should read as native, idiomatic game text in the target language rather than literal English calques.
+- Preserve gameplay meaning, tone, and Factorio-relevant terminology while allowing sentence structure, emphasis, and phrasing to change per language.
+- Do not use English placeholder text in non-English locale files unless the user explicitly asks for a temporary fallback.
+- If a locale update cannot be finished confidently in the target language, say so and leave a follow-up note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) instead of shipping an obviously awkward literal translation.
 
 ## Runtime Entity Safety
 
@@ -67,7 +80,9 @@ When touching queued runtime/control code, treat [`exotic-space-industries-remem
 
 See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-guidelines.md) for the repo-specific scheduler conventions Codex should check before adding new runtime queue logic.
 
-- Prefer `event.tick` inside `on_tick` or other event callbacks. Only fall back to `game.tick` when there is no event context.
+- Runtime scripts should strive to use `event.tick` over `game.tick` wherever possible.
+- In `on_tick` and other event callbacks, prefer `event.tick` and pass it through call chains instead of re-reading `game.tick`.
+- Only fall back to `game.tick` when there is no event context, such as status helpers, load-time repair helpers, or utility functions called outside an event callback.
 - Do not add duplicate local tick helpers, queue-length helpers, delayed-bucket walkers, telemetry gates, or status-snapshot plumbing if `runtime-scheduler.lua` already covers the need.
 - Prefer `ensure_queue`, `queue_peek`, `queue_push`, `queue_push_unique`, `queue_pop`, `queue_pop_matching`, `queue_pop_queued`, `queue_remove_value`, `clear_queue`, `queue_length`, `queue_item_count`, `audit_queue`, and `compact_queue` over ad hoc `head/tail/items` logic.
 - If a module intentionally leaves tombstoned values in `queue.items` and treats `queue.queued` as the live-set, do not swap in plain `queue_pop` blindly. Prefer `queue_pop_queued` or another compatible shared helper.
@@ -80,6 +95,7 @@ See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-
 - A new helper should only be added when `runtime-scheduler.lua` cannot express the behavior cleanly. Duplicating tick code or queue code is a design smell in this repo now.
 - `runtime-scheduler.lua` stays entity-agnostic. If queued or delayed work carries `LuaEntity` payloads, modules must validate those payloads on dequeue, not just when they are enqueued.
 - When adding or changing a shared scheduler helper, update this section and `references/runtime-scheduler-guidelines.md` in the same patch so future Codex runs inherit the new helper list and semantic caveats.
+- If a scheduler migration intentionally stops short because module semantics stay local, record the reason and next safe move in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md).
 
 ## Save Resolution
 

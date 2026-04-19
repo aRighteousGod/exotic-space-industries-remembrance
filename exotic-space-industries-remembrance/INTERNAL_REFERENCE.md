@@ -329,7 +329,7 @@ The rest of this section follows the actual `control.lua` load surface.
 
 - `scripts/control/black-hole.lua`: Owns black hole generator staging, mass absorption, pylon refresh, battery and power math, residue/output handling, and the player GUI for stage control. It is an every-tick runtime and also participates in build/destroy routing.
 
-- `scripts/control/informatron-messager.lua`: Small notification bridge meant to push players toward relevant Informatron pages after research or major unlocks. At the moment it is intentionally light and mostly acts as a stub for future messaging expansion.
+- `scripts/control/informatron-messager.lua`: Small notification bridge that nudges forces toward relevant Informatron pages after research or scripted unlock bursts. It currently handles flammable rupture, specialised pipes, and black hole page notifications while keeping the messaging surface intentionally narrow.
 
 - `scripts/control/gaia.lua`: Owns Gaia as a surface and as a ruleset. It can create or migrate the surface, run a slower reforge workflow, maintain Gaia surface registry state, degrade or swap unsupported entities, and expose dev commands for Gaia operations. `control.lua` routes build events here and runs both `reforge_on_tick()` on step 1 and the main Gaia update every tick.
 
@@ -433,6 +433,8 @@ Minimum rule for content work:
 - new settings, item names, recipe names, technology names, entity names, and player-facing messages should land in English locale at the same time as the feature
 - if the change touches an already-translated key, preserve key stability unless a rename is unavoidable
 - broad translation updates can follow, but breaking keys casually creates hidden regressions
+- when editing non-English locale files, prefer bespoke idiomatic phrasing in the target language over literal English-mirror translation
+- preserve gameplay meaning and tone, but let sentence structure and wording shift so the result reads like native game text instead of a calque
 
 ## 10. Dependency And Compatibility Profile
 

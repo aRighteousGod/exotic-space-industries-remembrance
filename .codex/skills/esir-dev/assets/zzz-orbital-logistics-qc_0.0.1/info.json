@@ -1,0 +1,13 @@
+{
+  "name": "zzz-orbital-logistics-qc",
+  "version": "0.0.1",
+  "title": "Orbital Logistics QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "QC-only helper that builds a deterministic orbital logistics cohort scene, triggers rebuilds, and records runtime snapshots."
+}

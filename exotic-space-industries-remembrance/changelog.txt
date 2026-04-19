@@ -1,7 +1,28 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.26
+Date: 4-18-2026
+  Features:
+    - Added Age ramp as a new technology cost scaling curve. Dark and steam ages stay gentle, electricity starts the climb, and computer, quantum, and exotic ages carry most of the pressure.
+    - Orbital Logistics Scanner now draws 750kW, shows powered / low-power / unpowered state on its GUI and status light, blanks output while unpowered, and documents sparse unwired refresh behavior in Informatron.
+    - Added Orbital Logistics Cohort around the scanner: platform transponders, orbital selectors, orbital coordinator, silo dispatch uplinks with mixed-manifest leases, expanded orbit handbook coverage in all supported languages, and shipped orbital rebuild/QC surfaces for development.
+  Changes:
+    - Set Age ramp as the default technology cost scaling mode for new startup-setting profiles.
+    - Refreshed the technology cost scaling setting text and Informatron page text in all supported languages so the new mode is explained clearly and the existing curve forms remain documented.
+    - Optimized research-finished behavior preventing UPS drops: technology cost scaling now updates from incremental cached progress, while Tesla variant sync and EM-train rollout settle through bounded deferred passes instead of spiking the completion tick.
+    - Script-driven research floods now coalesce: cheat-mode or helper-triggered `research_all_technologies()` bursts settle through one scheduled pass instead of re-running the full research-finished handler chain for every same-tick completion.
+    - Refined Fuelwarden tower scheduling so target selection now picks the best in-range tower in one pass, reuses cached range and tower preference data, and skips unrelated build/destroy events earlier.
+    - Fuelwarden player-equipment support now refreshes primarily from player lifecycle, controller, and armor events with a much slower fallback sweep instead of repeatedly rescanning all connected players.
+    - Fuelwarden now runs a rare ready-queue integrity audit so stale per-surface counters and queues can heal themselves without needing an immediate `/rescan_fuelers`.
+    - Refreshed the English Fuelwarden tower descriptions and Informatron copy to explain vehicle vs equipment modes, the throughput-only quality bonus, burner-backed reactor support, and the `/rescan_fuelers` admin repair command more clearly.
+    - High energy rocket motor recipe outputs: High energy rocket motor 1 -> 2.
+    - High energy rocket motor recipe inputs: Processing unit 1 -> 2, Ceramic 1 -> 2, Rocket motor 1 -> 2.
+  Bugfixes:
+    - Restored Muluna's trigger-based interstellar science unlock after ESIR final tech rewrites, so Aquilo discovery no longer deadlocks behind cryogenic science when planet-muluna is active.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.25
 Date: 4-13-2026
   Features:
+    - Added custom icons for new rockets and rocket intermediates.
     - Added custom sound for Auric fumarole ambience.
     - Expanded the Orbital Logistics Scanner with On The Way and Need modes, a side-panel mode selector, smarter hot/cold UPS gating, and updated Informatron plus locale coverage across all supported languages.
   Changes:
