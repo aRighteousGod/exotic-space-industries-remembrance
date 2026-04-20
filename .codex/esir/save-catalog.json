@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-16T20:13:58.1595749-05:00",
+    "generated_at":  "2026-04-19T21:19:24.4776551-05:00",
     "entries":  [
                     {
                         "id":  "research-hitch",
@@ -20,6 +20,23 @@
                         "notes":  "Requires the staged zzz-research-hitch-qc helper mod for generation and runtime benchmark playback."
                     },
                     {
+                        "id":  "orbital-cohort",
+                        "path":  ".factorio-qc\\orbital-cohort.zip",
+                        "kind":  "scenario-save",
+                        "purpose":  "Save-driven orbital logistics cohort coverage for selectors, coordinators, uplinks, transponder IDs, and dispatch leases",
+                        "tags":  [
+                                     "runtime",
+                                     "scenario",
+                                     "orbital",
+                                     "qc"
+                                 ],
+                        "preferred_for":  [
+                                              "qc-runtime"
+                                          ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback."
+                    },
+                    {
                         "id":  "fueler-smoke",
                         "path":  ".factorio-qc\\fueler-smoke.zip",
                         "kind":  "smoke-save",
@@ -36,23 +53,6 @@
                                           ],
                         "mods_source":  "live-repo-via-qc-sync",
                         "notes":  "Primary smoke save shipped in ignored QC artifact space."
-                    },
-                    {
-                        "id":  "orbital-cohort",
-                        "path":  ".factorio-qc\\orbital-cohort.zip",
-                        "kind":  "scenario-save",
-                        "purpose":  "Save-driven orbital logistics cohort coverage for selectors, coordinators, uplinks, transponder IDs, and dispatch leases",
-                        "tags":  [
-                                     "runtime",
-                                     "scenario",
-                                     "orbital",
-                                     "qc"
-                                 ],
-                        "preferred_for":  [
-                                              "qc-runtime"
-                                          ],
-                        "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback."
                     }
                 ]
 }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Dependency Intel"
+  short_description: "Query ESIR dependency declarations, touchpoints, and optional local mod presence"
+  default_prompt: "Use $esir-dependency-intel first for ESIR dependency questions, cross-mod touchpoints, remote-interface mapping, planet/content compatibility scans, or optional installed-mod enrichment."

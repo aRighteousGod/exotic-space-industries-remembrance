@@ -1,39 +1,300 @@
 --====================================================================================================
 -- -- CHECK FOR MOD
 --====================================================================================================
---at this point an import from the "messy 2.0" EI port has been done and most variables renamed to point in the right direction
---however there are still tech loops and 0 testing has been done, so will continue to skip loading until someone that cares/plays k2 looks through it
 if not mods["Krastorio2-spaced-out"] then
     return
 end
+
+if not (settings and settings.startup and settings.startup["ei-enable-preliminary-k2so-patch"] and settings.startup["ei-enable-preliminary-k2so-patch"].value) then
+    return
+end
+
 local ei_lib = require("lib.lib")
 local ei_data = require("lib.data")
-local tech_scaling_common = require("lib/tech-scaling-common")
-local base_start_price = tech_scaling_common.get_effective_base_start_price(
-    ei_lib.config("tech-scaling-startPrice"),
-    ei_lib.switch_string(ei_data.tech_scaling.switch_table, ei_lib.config("tech-scaling-maxCost")),
-    ei_lib.config("tech-scaling-additionalMultiplier")
-)
-local containers = {
-["warehouse"] = 48,
-["active-provider-warehouse"] = 48,
-["buffer-warehouse"] = 48,
-["passive-provider-warehouse"] = 48,
-["requester-warehouse"] = 48,
-["storage-warehouse"] = 48,
-["strongbox"] = 24,
-["active-provider-strongbox"] = 24,
-["buffer-strongbox"] = 24,
-["passive-provider-strongbox"] = 24,
-["requester-strongbox"] = 24,
-["storage-strongbox"] = 24,
-}
-for entity,size in pairs(containers) do
-    local target = ei_lib.raw.container.entity
-    if target then
-        target.inventory_size = size
+local function k2so_startup_enabled(setting_name)
+    return settings
+        and settings.startup
+        and settings.startup[setting_name]
+        and settings.startup[setting_name].value
+end
+
+local function remap_prerequisites(prerequisites)
+    local mapped = {}
+    local seen = {}
+
+    for _, prerequisite in ipairs(prerequisites) do
+        local mapped_name = ei_data.tech_swap_dict[prerequisite] or prerequisite
+
+        if data.raw.technology[mapped_name] and not seen[mapped_name] then
+            seen[mapped_name] = true
+            table.insert(mapped, mapped_name)
+        elseif not data.raw.technology[mapped_name] then
+            log("K2SO compat: prerequisite '" .. mapped_name .. "' missing while restoring tech shape")
+        end
+    end
+
+    return mapped
+end
+
+local function remap_unit_ingredients(ingredients)
+    local mapped = {}
+    local seen = {}
+
+    for _, ingredient in ipairs(ingredients) do
+        local name = ingredient
+        local amount = 1
+
+        if type(ingredient) == "table" then
+            name = ingredient.name or ingredient[1]
+            amount = ingredient.amount or ingredient[2] or 1
+        end
+
+        local mapped_name = ei_data.science_dict[name] or name
+        if not seen[mapped_name] then
+            seen[mapped_name] = true
+            table.insert(mapped, {mapped_name, amount})
+        end
+    end
+
+    return mapped
+end
+
+local function restore_tech_shape(tech_name, shape)
+    local tech = data.raw.technology[tech_name]
+    if not tech then
+        log("K2SO compat: tech '" .. tech_name .. "' missing while restoring tech shape")
+        return
+    end
+
+    if shape.prerequisites then
+        tech.prerequisites = remap_prerequisites(shape.prerequisites)
+    end
+
+    if shape.unit then
+        tech.research_trigger = nil
+        tech.unit = tech.unit or {}
+        tech.unit.count = shape.unit.count
+        tech.unit.count_formula = nil
+        tech.unit.time = shape.unit.time
+        tech.unit.ingredients = remap_unit_ingredients(shape.unit.ingredients)
+    elseif shape.research_trigger then
+        tech.unit = nil
+    end
+
+    if shape.research_trigger then
+        tech.research_trigger = table.deepcopy(shape.research_trigger)
     end
 end
+
+local function k2so_merge_prototype_fields(target, source)
+    for key, value in pairs(source) do
+        if key ~= "type" and key ~= "name" then
+            target[key] = table.deepcopy(value)
+        end
+    end
+end
+
+local function k2so_upsert_prototype(prototype)
+    if not prototype or type(prototype) ~= "table" then
+        return
+    end
+
+    local prototype_type = prototype.type
+    local prototype_name = prototype.name
+    local prototype_bucket = prototype_type and data.raw[prototype_type]
+
+    if prototype_bucket and prototype_bucket[prototype_name] then
+        k2so_merge_prototype_fields(prototype_bucket[prototype_name], prototype)
+        return prototype_bucket[prototype_name]
+    end
+
+    data:extend({prototype})
+    return prototype
+end
+
+local function k2so_upsert_prototypes(prototypes)
+    local to_extend = {}
+
+    for _, prototype in ipairs(prototypes) do
+        local prototype_type = prototype.type
+        local prototype_name = prototype.name
+        local prototype_bucket = prototype_type and data.raw[prototype_type]
+
+        if prototype_bucket and prototype_bucket[prototype_name] then
+            k2so_merge_prototype_fields(prototype_bucket[prototype_name], prototype)
+        else
+            table.insert(to_extend, prototype)
+        end
+    end
+
+    if #to_extend > 0 then
+        data:extend(to_extend)
+    end
+end
+
+if k2so_startup_enabled("kr-containers") then
+    local container_sizes = {
+        ["container"] = {
+            ["kr-strongbox"] = 24,
+            ["kr-warehouse"] = 48,
+        },
+        ["logistic-container"] = {
+            ["kr-active-provider-strongbox"] = 24,
+            ["kr-buffer-strongbox"] = 24,
+            ["kr-passive-provider-strongbox"] = 24,
+            ["kr-requester-strongbox"] = 24,
+            ["kr-storage-strongbox"] = 24,
+            ["kr-active-provider-warehouse"] = 48,
+            ["kr-buffer-warehouse"] = 48,
+            ["kr-passive-provider-warehouse"] = 48,
+            ["kr-requester-warehouse"] = 48,
+            ["kr-storage-warehouse"] = 48,
+        },
+    }
+
+    for prototype_type, prototype_sizes in pairs(container_sizes) do
+        local prototype_bucket = data.raw[prototype_type]
+        if prototype_bucket then
+            for prototype_name, size in pairs(prototype_sizes) do
+                local prototype = prototype_bucket[prototype_name]
+                if prototype then
+                    prototype.inventory_size = size
+                end
+            end
+        end
+    end
+end
+
+local k2so_tech_restores = {
+    ["kr-quarry-minerals-extraction"] = {
+        prerequisites = {"electric-engine", "kr-advanced-chemistry", "processing-unit", "production-science-pack"},
+        unit = {
+            count = 350,
+            time = 60,
+            ingredients = {
+                "automation-science-pack",
+                "logistic-science-pack",
+                "chemical-science-pack",
+                "production-science-pack",
+            },
+        },
+    },
+    ["kr-imersium-processing"] = {
+        prerequisites = {"kr-quarry-minerals-extraction"},
+        unit = {
+            count = 500,
+            time = 60,
+            ingredients = {
+                "production-science-pack",
+                "utility-science-pack",
+            },
+        },
+    },
+    ["kr-advanced-tech-card"] = {
+        prerequisites = {"kr-imersium-processing", "utility-science-pack", "kr-lithium-sulfur-battery"},
+        unit = {
+            count = 1000,
+            time = 45,
+            ingredients = {
+                "production-science-pack",
+                "utility-science-pack",
+            },
+        },
+    },
+    ["kr-energy-control-unit"] = {
+        prerequisites = {"kr-advanced-tech-card"},
+        unit = {
+            count = 350,
+            time = 30,
+            ingredients = {
+                "production-science-pack",
+                "utility-science-pack",
+                "kr-advanced-tech-card",
+            },
+        },
+    },
+    ["kr-ai-core"] = {
+        prerequisites = {"kr-quarry-minerals-extraction", "utility-science-pack"},
+        unit = {
+            count = 500,
+            time = 60,
+            ingredients = {
+                "automation-science-pack",
+                "logistic-science-pack",
+                "chemical-science-pack",
+                "production-science-pack",
+                "utility-science-pack",
+            },
+        },
+    },
+    ["kr-fusion-energy"] = {
+        prerequisites = {"kovarex-enrichment-process", "kr-lithium-processing", "nuclear-power", "utility-science-pack"},
+        unit = {
+            count = 1500,
+            time = 60,
+            ingredients = {
+                "automation-science-pack",
+                "logistic-science-pack",
+                "chemical-science-pack",
+                "production-science-pack",
+                "utility-science-pack",
+            },
+        },
+    },
+    ["kr-matter-tech-card"] = {
+        prerequisites = {"cryogenic-plant", "kr-lithium-processing"},
+        research_trigger = {
+            type = "craft-item",
+            item = "cryogenic-plant",
+        },
+    },
+    ["planet-discovery-aquilo"] = {
+        prerequisites = {"rocket-turret", "advanced-asteroid-processing", "heating-tower", "asteroid-reprocessing", "electromagnetic-science-pack", "kr-advanced-tech-card"},
+        unit = {
+            count = 3000,
+            time = 60,
+            ingredients = {
+                "automation-science-pack",
+                "logistic-science-pack",
+                "chemical-science-pack",
+                "production-science-pack",
+                "utility-science-pack",
+                "space-science-pack",
+                "metallurgic-science-pack",
+                "agricultural-science-pack",
+                "electromagnetic-science-pack",
+                "kr-advanced-tech-card",
+            },
+        },
+    },
+    ["promethium-science-pack"] = {
+        prerequisites = {"biter-egg-handling", "fusion-reactor", "kr-singularity-tech-card"},
+        unit = {
+            count = 10000,
+            time = 60,
+            ingredients = {
+                "automation-science-pack",
+                "logistic-science-pack",
+                "chemical-science-pack",
+                "production-science-pack",
+                "utility-science-pack",
+                "space-science-pack",
+                "metallurgic-science-pack",
+                "agricultural-science-pack",
+                "electromagnetic-science-pack",
+                "cryogenic-science-pack",
+                "kr-advanced-tech-card",
+                "kr-matter-tech-card",
+                "kr-singularity-tech-card",
+            },
+        },
+    },
+}
+
+for tech_name, shape in pairs(k2so_tech_restores) do
+    restore_tech_shape(tech_name, shape)
+end
+
 goto do_not_load
 -- changes to K2 mod
 
@@ -53,7 +314,7 @@ local function convertTypePrototype(name, old_type, new_type)
         local new_prototype = table.deepcopy(data.raw[old_type][name])
         new_prototype.type = new_type
         data.raw[old_type][name] = nil
-        data:extend({ new_prototype })
+        k2so_upsert_prototype(new_prototype)
     end
 end
 
@@ -241,14 +502,14 @@ for _, matter_args in pairs(K2_MATTER) do
             },
         }
         -- krastorio.icons.addOverlayIcons(tech, krastorio.icons.getIconsForOverlay(item), 64, 2, {0, 0})
-        data:extend({ tech })
+        k2so_upsert_prototype(tech)
     end
     matter.make_recipes(matter_args)
 end
 
 --CATEGORIES, GROUPS, SUBGROUPS
 ------------------------------------------------------------------------------------------------------
-data:extend({
+k2so_upsert_prototypes({
     {
         name = "ei-science-data",
         type = "item-subgroup",
@@ -712,7 +973,7 @@ end
 --TECH FIXES
 --====================================================================================================
 
-data:extend({
+k2so_upsert_prototypes({
     {
         name = "ei-matter-quantum-age-tech",
         type = "tool",
@@ -1587,7 +1848,7 @@ data.raw.recipe["kr-rare-metals"].enabled = false
 ei_lib.add_unlock_recipe("kr-fluids-chemistry", "kr-rare-metals")
 
 
-data:extend({
+k2so_upsert_prototypes({
     {
         name = "kr-enriched-iron",
         type = "recipe",
@@ -1835,7 +2096,7 @@ data.raw["item"]["ei-neo-splitter"].subgroup = "splitter-belt"
 --data.raw.recipe["automation-science-pack"].enabled = true
 data.raw.recipe["kr-blank-tech-card"].enabled = true
 
-data:extend({
+k2so_upsert_prototypes({
     {
         name = "ei-blank-tech-card",
         type = "recipe",
@@ -1982,11 +2243,6 @@ ei_lib.recipe_add("kr-empty-antimatter-fuel-cell", "ei-empty-cryo-container", 1,
 ei_lib.recipe_add("kr-empty-antimatter-fuel-cell", "ei-clean-plating", 10, false)
 
 ei_lib.recipe_add("heat-pipe", "kr-quartz", 4, false)
-ei_lib.recipe_add("solar-panel", "kr-quartz", 8, false)
-ei_lib.recipe_add("electronic-circuit", "wood", 1, false)
-ei_lib.recipe_add("ei-green-circuit-waver", "wood", 4, false)
-ei_lib.recipe_add("ei-advanced-motor", "kr-rare-metals", 2, false)
-ei_lib.recipe_add("ei-module-part", "kr-rare-metals", 4, false)
 ei_lib.recipe_add("processing-unit", "kr-rare-metals", 6, false)
 
 ei_lib.recipe_add("advanced-circuit", "kr-silicon", 1)
@@ -2030,8 +2286,6 @@ data.raw.technology["kr-automation"].effects = {
     { type = "unlock-recipe", recipe = "kr-advanced-assembling-machine" },
 }
 
-ei_lib.recipe_add("ei-sus-plating", "kr-rare-metals", 1)
-
 -- chemistry changes
 -------------------------------------------------------------------------------
 ei_lib.add_unlock_recipe("kr-fluids-chemistry", "kr-water-separation")
@@ -2049,54 +2303,39 @@ ei_lib.add_unlock_recipe("oil-processing", "chemical-plant")
 ei_lib.remove_unlock_recipe("kr-fluids-chemistry", "kr-filtration-plant")
 ei_lib.remove_unlock_recipe("kr-fluids-chemistry", "chemical-plant")
 
-ei_lib.add_prerequisite("speed-module", "kr-mineral-water-gathering")
-ei_lib.add_prerequisite("productivity-module", "kr-mineral-water-gathering")
-ei_lib.add_prerequisite("efficiency-module", "kr-mineral-water-gathering")
-
---[[
-data.raw.recipe["ei-module-base"].recipe_category = "crafting-with-fluid"
-ei_lib.recipe_add("ei-module-base", "kr-mineral-water", 50, true)
-]]
-data:extend({
-    {
-        name = "ei-module-base",
-        type = "recipe",
-        category = "crafting-with-fluid",
-        energy_required = 4,
-        ingredients =
-        {
-            {type="item", name="ei-module-part", amount=1},
-            {type="item", name="ei-energy-crystal", amount=1},
-            {type="item", name="ei-glass", amount=2},
-            {type = "fluid", name = "kr-mineral-water", amount = 50},
-        },
-        results = {{type="item", name="ei-module-base", amount=1}},
-        enabled = false,
-        always_show_made_in = true,
-        main_product = "ei-module-base",
-    },
-})
-
-ei_lib.recipe_add("ei-neodym-ingot", "kr-mineral-water", 25, true)
-ei_lib.recipe_add("ei-cast-neodym-ingot", "kr-rare-metals", 1)
-
 -- fuel and vehicles
 -------------------------------------------------------------------------------
-data.raw["locomotive"]["ei-steam-advanced-locomotive"].energy_source.fuel_categories = {
-    "chemical",
-    "kr-vehicle-fuel"
-}
+ei_lib.modify_data_raw("locomotive", "ei-steam-advanced-locomotive", {
+    force_insert = true,
+    energy_source = {
+        fuel_categories = {
+            "chemical",
+            "kr-vehicle-fuel"
+        }
+    }
+})
 
-data.raw["locomotive"]["locomotive"].energy_source.fuel_categories = {
-    "ei-diesel-fuel",
-    "ei-rocket-fuel"
-}
+ei_lib.modify_data_raw("locomotive", "locomotive", {
+    force_insert = true,
+    energy_source = {
+        fuel_categories = {
+            "ei-diesel-fuel",
+            "ei-rocket-fuel"
+        }
+    }
+})
 
-data.raw["locomotive"]["kr-nuclear-locomotive"].energy_source.fuel_categories = {
-    "ei-nuclear-fuel",
-    "ei-fusion-fuel"
-}
+ei_lib.modify_data_raw("locomotive", "kr-nuclear-locomotive", {
+    force_insert = true,
+    energy_source = {
+        fuel_categories = {
+            "ei-nuclear-fuel",
+            "ei-fusion-fuel"
+        }
+    }
+})
 
+--[[
 for _, spider in pairs(data.raw["spider-vehicle"]) do
     spider.energy_source = {
         type = "burner",
@@ -2107,8 +2346,7 @@ for _, spider in pairs(data.raw["spider-vehicle"]) do
     }
     spider.movement_energy_consumption = "1.0MW"
 end
-
-ei_lib.recipe_add("ei-diesel-fuel-unit", "kr-fuel", 1)
+]]
 
 --[[
 -- nuclear and steam reset
@@ -2188,7 +2426,7 @@ local function add_htr(fuel, fuel_value, steam_heat_capacity, steam_temp)
     recipe.results[2].amount = total_steam
     recipe.results[2].temperature = steam_temp
 
-    data:extend({recipe})
+    k2so_upsert_prototype(recipe)
 
 end
 
@@ -2219,7 +2457,7 @@ data.raw["capsule"]["raw-fish"].rocket_launch_products = nil
 ]]
 -- starting machinery
 -------------------------------------------------------------------------------
-data:extend({
+k2so_upsert_prototypes({
     {
         type = "recipe",
         name = "ei-basic-power-pole",

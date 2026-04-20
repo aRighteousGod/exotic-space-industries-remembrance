@@ -101,6 +101,8 @@ local CHECKPOINTS = {
   300,
   330,
   420,
+  450,
+  480,
 }
 
 -- The helper should do more than assemble a pretty still life. These timed
@@ -122,6 +124,8 @@ local ACTIONS = {
   {tick = 360, name = "rebind-fairness-lane-first"},
   {tick = 375, name = "clear-fairness-lane-again"},
   {tick = 390, name = "rebind-fairness-lane-second"},
+  {tick = 405, name = "create-transponder-conflict"},
+  {tick = 435, name = "restore-transponder-ids"},
 }
 
 local CONFIGURE_RETRY_INTERVAL = 30
@@ -583,13 +587,15 @@ local function place_transponder_for_platform(platform, force, state)
     raise_built = true,
   })
 
-  state.platforms[platform.index] = {
+  local platform_state = {
     index = platform.index,
     name = platform.name,
     surface_name = platform.surface.name,
     hub_unit_number = platform.hub.unit_number,
     transponder_unit_number = entity and entity.valid and entity.unit_number or nil,
   }
+  state.platforms[platform.index] = platform_state
+  state.platforms[platform.name] = platform_state
 
   return entity
 end
@@ -644,13 +650,15 @@ local function prime_platforms(force, state)
       result.requester_error = request_error
       result.requester_source = request_source
       result.transponder_unit_number = transponder and transponder.valid and transponder.unit_number or nil
-      state.platforms[platform.index] = {
+      local platform_state = {
         index = platform.index,
         name = platform.name,
         surface_name = platform.surface.name,
         hub_unit_number = platform.hub.unit_number,
         transponder_unit_number = result.transponder_unit_number,
       }
+      state.platforms[platform.index] = platform_state
+      state.platforms[platform.name] = platform_state
 
       if not assigned_requests or not result.transponder_unit_number then
         all_ready = false
@@ -988,6 +996,16 @@ local function get_snapshot_uplink(snapshot, unit_number)
   return nil
 end
 
+local function get_snapshot_transponder(snapshot, force_index, platform_name)
+  for _, transponder in ipairs(snapshot and snapshot.transponders or {}) do
+    if transponder.force_index == force_index and transponder.platform_name == platform_name then
+      return transponder
+    end
+  end
+
+  return nil
+end
+
 local function get_snapshot_active_coordinator_unit_number(snapshot, force_index, surface_name)
   local cohort = get_snapshot_cohort(snapshot, force_index, surface_name)
   return cohort and cohort.active_coordinator_unit_number or nil
@@ -1042,6 +1060,12 @@ local function validate_snapshot_baseline(snapshot, state)
       uplink_count = 0,
       dirty_queue_length = snapshot and snapshot.runtime and snapshot.runtime.queues and snapshot.runtime.queues.dirty and snapshot.runtime.queues.dirty.length or nil,
       rescan_queue_length = snapshot and snapshot.runtime and snapshot.runtime.queues and snapshot.runtime.queues.rescan and snapshot.runtime.queues.rescan.length or nil,
+      transponder_force_bucket_count = snapshot and snapshot.runtime and snapshot.runtime.indexes and snapshot.runtime.indexes.transponder_force_bucket_count or nil,
+      transponder_force_member_count = snapshot and snapshot.runtime and snapshot.runtime.indexes and snapshot.runtime.indexes.transponder_force_member_count or nil,
+      transponder_platform_bucket_count = snapshot and snapshot.runtime and snapshot.runtime.indexes and snapshot.runtime.indexes.transponder_platform_bucket_count or nil,
+      transponder_platform_member_count = snapshot and snapshot.runtime and snapshot.runtime.indexes and snapshot.runtime.indexes.transponder_platform_member_count or nil,
+      transponder_dispatch_bucket_count = snapshot and snapshot.runtime and snapshot.runtime.indexes and snapshot.runtime.indexes.transponder_dispatch_surface_bucket_count or nil,
+      transponder_dispatch_member_count = snapshot and snapshot.runtime and snapshot.runtime.indexes and snapshot.runtime.indexes.transponder_dispatch_surface_member_count or nil,
     },
   }
 
@@ -1114,6 +1138,25 @@ local function validate_snapshot_baseline(snapshot, state)
   end
   if validation.summary.uplink_count ~= 2 then
     push_validation_error(validation, "uplink-count:" .. tostring(validation.summary.uplink_count) .. "/2")
+  end
+
+  if validation.summary.transponder_force_bucket_count ~= 1 then
+    push_validation_error(validation, "transponder-force-buckets:" .. tostring(validation.summary.transponder_force_bucket_count) .. "/1")
+  end
+  if validation.summary.transponder_force_member_count ~= expected_platform_count then
+    push_validation_error(validation, "transponder-force-members:" .. tostring(validation.summary.transponder_force_member_count) .. "/" .. tostring(expected_platform_count))
+  end
+  if validation.summary.transponder_platform_bucket_count ~= expected_platform_count then
+    push_validation_error(validation, "transponder-platform-buckets:" .. tostring(validation.summary.transponder_platform_bucket_count) .. "/" .. tostring(expected_platform_count))
+  end
+  if validation.summary.transponder_platform_member_count ~= expected_platform_count then
+    push_validation_error(validation, "transponder-platform-members:" .. tostring(validation.summary.transponder_platform_member_count) .. "/" .. tostring(expected_platform_count))
+  end
+  if validation.summary.transponder_dispatch_bucket_count ~= 1 then
+    push_validation_error(validation, "transponder-dispatch-buckets:" .. tostring(validation.summary.transponder_dispatch_bucket_count) .. "/1")
+  end
+  if validation.summary.transponder_dispatch_member_count ~= expected_platform_count then
+    push_validation_error(validation, "transponder-dispatch-members:" .. tostring(validation.summary.transponder_dispatch_member_count) .. "/" .. tostring(expected_platform_count))
   end
 
   if validation.summary.dirty_queue_length ~= 0 then
@@ -1243,6 +1286,28 @@ local function summarize_action_expectation(action_name, snapshot, state)
     summary.ok = summary.binding_silo_unit_number == state.entity_units.silo_b
       and summary.bound_silo_found == true
       and summary.uplink_b_target == state.platform_ids["QC Beta"]
+  elseif action_name == "create-transponder-conflict" then
+    local alpha = get_snapshot_transponder(snapshot, force_index, "QC Alpha")
+    local beta = get_snapshot_transponder(snapshot, force_index, "QC Beta")
+    summary.alpha_platform_id = alpha and alpha.platform_id or nil
+    summary.beta_platform_id = beta and beta.platform_id or nil
+    summary.alpha_conflict = alpha and alpha.conflict or false
+    summary.beta_conflict = beta and beta.conflict or false
+    summary.ok = summary.alpha_platform_id ~= nil
+      and summary.alpha_platform_id == summary.beta_platform_id
+      and summary.alpha_conflict == true
+      and summary.beta_conflict == true
+  elseif action_name == "restore-transponder-ids" then
+    local alpha = get_snapshot_transponder(snapshot, force_index, "QC Alpha")
+    local beta = get_snapshot_transponder(snapshot, force_index, "QC Beta")
+    summary.alpha_platform_id = alpha and alpha.platform_id or nil
+    summary.beta_platform_id = beta and beta.platform_id or nil
+    summary.alpha_conflict = alpha and alpha.conflict or false
+    summary.beta_conflict = beta and beta.conflict or false
+    summary.ok = summary.alpha_platform_id == state.platform_ids["QC Alpha"]
+      and summary.beta_platform_id == state.platform_ids["QC Beta"]
+      and summary.alpha_conflict == false
+      and summary.beta_conflict == false
   end
 
   return summary
@@ -1408,6 +1473,46 @@ local function build_action_configuration(action_name, state)
           unit_number = state.entity_units.uplink_b,
           binding_silo_unit_number = state.entity_units.silo_b,
           binding_source = "qc",
+        },
+      },
+    }
+  end
+
+  if action_name == "create-transponder-conflict" then
+    local alpha_platform = state.platforms and state.platforms["QC Alpha"] or nil
+    local beta_platform = state.platforms and state.platforms["QC Beta"] or nil
+    if not alpha_platform or not beta_platform or not platform_ids["QC Alpha"] then
+      return nil, "missing-platform-state:transponder-conflict"
+    end
+    return {
+      transponders = {
+        {
+          unit_number = alpha_platform.transponder_unit_number,
+          platform_id = platform_ids["QC Alpha"],
+        },
+        {
+          unit_number = beta_platform.transponder_unit_number,
+          platform_id = platform_ids["QC Alpha"],
+        },
+      },
+    }
+  end
+
+  if action_name == "restore-transponder-ids" then
+    local alpha_platform = state.platforms and state.platforms["QC Alpha"] or nil
+    local beta_platform = state.platforms and state.platforms["QC Beta"] or nil
+    if not alpha_platform or not beta_platform or not platform_ids["QC Alpha"] or not platform_ids["QC Beta"] then
+      return nil, "missing-platform-state:transponder-restore"
+    end
+    return {
+      transponders = {
+        {
+          unit_number = alpha_platform.transponder_unit_number,
+          platform_id = platform_ids["QC Alpha"],
+        },
+        {
+          unit_number = beta_platform.transponder_unit_number,
+          platform_id = platform_ids["QC Beta"],
         },
       },
     }

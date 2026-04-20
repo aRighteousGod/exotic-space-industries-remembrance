@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.3.26",
+    "version": "1.3.27",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -35,6 +35,7 @@
         "AspctTrainPatch",
         "SteampunkLamp",
         "~ zzz-nonstandard-beacons",
+        "! Railguns-Require-Fluoroketone",
 
         "? distant-misfires",
         "? fire-lights",

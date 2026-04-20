@@ -5242,11 +5242,10 @@ function model.on_gui_opened(event)
 end
 
 
-function model.on_gui_closed(event)
+function model.on_gui_closed(player)
   model.check_init(false)
 
-  local player = game.get_player(event.player_index)
-  if not player then
+  if not (player and player.valid) then
     return
   end
 

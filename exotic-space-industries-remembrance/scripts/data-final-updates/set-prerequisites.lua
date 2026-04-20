@@ -177,9 +177,11 @@ ei_lib.set_prerequisites("electric-energy-distribution-2",{"electric-energy-dist
 
 ei_lib.set_prerequisites("battery",{"ei-electricity-power"})
 
-ei_lib.set_prerequisites("kr-ai-core",{"ei-advanced-computer-age-tech"})
+if not mods["Krastorio2-spaced-out"] then
+    ei_lib.set_prerequisites("kr-ai-core",{"ei-advanced-computer-age-tech"})
+    ei_lib.set_prerequisites("kr-fusion-energy",{"lithium-processing","nuclear-power"})
+end
 
-ei_lib.set_prerequisites("kr-fusion-energy",{"lithium-processing","nuclear-power"})
 ei_lib.set_prerequisites("captive-biter-spawner",{"cryogenic-science-pack","biter-egg-handling"})
 ei_lib.set_prerequisites("lubricant",{"ei-destill-tower"})
 ei_lib.set_prerequisites("sulfur-processing",{"ei-steam-oil-processing"})

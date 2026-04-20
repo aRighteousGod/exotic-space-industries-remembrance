@@ -202,6 +202,8 @@ end
 local function get_runtime_status_snapshot()
     local ei_state = storage and storage.ei or {}
     local fueler = storage and storage.ei and storage.ei.fueler_rt or {}
+    local matter_runtime = ei_state.matter_runtime or {}
+    local matter_gui = ei_state.matter_stabilizer_gui or {}
     local matrix = ei_state.induction_matrix or {}
     local gate = ei_state.gate or {}
     local rocket_pollution = ei_state.rocket_launch_pollution or {}
@@ -209,6 +211,20 @@ local function get_runtime_status_snapshot()
     local flammable_ruptures = ei_state.flammable_ruptures or {}
     local emt = storage and storage.ei_emt or {}
     local vulcanus = ei_state.vulcanus_fumaroles or {}
+    local matter_tier_counts = {
+        stable = 0,
+        strained = 0,
+        critical = 0,
+    }
+
+    if matter_runtime.machines then
+        for _, machine_data in pairs(matter_runtime.machines) do
+            local warning_state = machine_data and machine_data.warning_state or "stable"
+            if matter_tier_counts[warning_state] ~= nil then
+                matter_tier_counts[warning_state] = matter_tier_counts[warning_state] + 1
+            end
+        end
+    end
 
     local dirty_core_count = 0
     if matrix.core then
@@ -269,6 +285,16 @@ local function get_runtime_status_snapshot()
             scan_units = ei_lib.count_sequence(fluid_runtime.scan_units),
             service_mode_cursor = fluid_runtime.service_mode_cursor or 1,
         }),
+        matter_stabilizer = capture_runtime_module_status("matter-stabilizer", ei_matter_stabilizer, {
+            machines = matter_runtime.machine_count or ei_lib.getn(ei_state.matter_machines),
+            stabilizers = matter_runtime.stabilizer_count or ei_lib.getn(ei_state.matter_stabilizers),
+            open_gui_count = ei_runtime_scheduler.table_count(matter_gui.open_by_player),
+            pending_refresh_buckets = ei_runtime_scheduler.delayed_bucket_count(matter_gui.refresh_buckets),
+            pending_refresh_items = ei_runtime_scheduler.delayed_item_count(matter_gui.refresh_buckets),
+            stable = matter_tier_counts.stable,
+            strained = matter_tier_counts.strained,
+            critical = matter_tier_counts.critical,
+        }),
         flammable_ruptures = capture_runtime_module_status("flammable-ruptures", ei_flammable_rupture_scheduler, {
             fidelity_mode = flammable_ruptures.fidelity_mode,
             active_jobs = flammable_ruptures.active_job_count or ei_lib.getn(flammable_ruptures.jobs),
@@ -306,6 +332,13 @@ local function get_runtime_status_snapshot()
             open_gui_count = ei_lib.getn(ei_state.orbital_logistics and ei_state.orbital_logistics.open_gui_by_player),
             dirty = ei_runtime_scheduler.queue_length(ei_state.orbital_logistics and ei_state.orbital_logistics.dirty_cohort_queue),
         }),
+        railgun_cooling = capture_runtime_module_status("railgun-cooling", package.loaded["scripts/control/railgun-cooling"], {
+            tracked_railguns = ei_lib.getn(ei_state.railgun_cooling and ei_state.railgun_cooling.turrets_by_unit),
+            open_gui_count = ei_lib.getn(ei_state.railgun_cooling and ei_state.railgun_cooling.open_by_player),
+            recovery_queue = ei_runtime_scheduler.queue_length(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_queue),
+            recovery_buckets = ei_runtime_scheduler.delayed_bucket_count(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_buckets),
+            recovery_bucket_items = ei_runtime_scheduler.delayed_item_count(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_buckets),
+        }),
         vulcanus = capture_runtime_module_status("vulcanus-fumaroles", ei_vulcanus_fumaroles, {
             active = ei_lib.getn(vulcanus.active),
             dormant = ei_lib.getn(vulcanus.dormant_chunks),
@@ -330,6 +363,7 @@ local function format_runtime_status_summary(snapshot)
     local black_hole = extra.black_hole or {}
     local orbital = extra.orbital_scanner or {}
     local orbital_logistics = extra.orbital_logistics or {}
+    local railgun = extra.railgun_cooling or {}
     local vulcanus = extra.vulcanus or {}
 
     return table.concat({
@@ -347,6 +381,7 @@ local function format_runtime_status_summary(snapshot)
         "blackhole=" .. tostring(black_hole.entries or 0),
         "orbital(banks/dirty/probe)=" .. tostring(orbital.banks or orbital.bank_count or 0) .. "/" .. tostring(orbital.dirty_banks or 0) .. "/" .. tostring(orbital.probe_enabled == true or (orbital.probe and orbital.probe.enabled == true)),
         "cohort(c/l/u/gui)=" .. tostring(orbital_logistics.cohorts or orbital_logistics.cohort_count or 0) .. "/" .. tostring(orbital_logistics.leases or orbital_logistics.lease_count or 0) .. "/" .. tostring(orbital_logistics.uplinks or orbital_logistics.uplink_count or 0) .. "/" .. tostring(orbital_logistics.open_gui_count or 0),
+        "railgun(track/block/recover)=" .. tostring(railgun.tracked_railguns or 0) .. "/" .. tostring(railgun.blocked_count or 0) .. "/" .. tostring(railgun.recovering_count or 0),
         "vulcanus(active/dormant)=" .. tostring(vulcanus.active or 0) .. "/" .. tostring(vulcanus.dormant or 0),
     }, " ")
 end

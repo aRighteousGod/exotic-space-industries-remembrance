@@ -207,6 +207,81 @@ local selector_icon = ei_graphics_item_path .. "alien-console.png"
 local coordinator_icon = ei_graphics_item_path .. "computer-core.png"
 local uplink_icon = ei_fueler_graphics_path .. "fueler_icon.png"
 
+local function make_hidden_power_sensor(params)
+    local sensor = table.deepcopy(data.raw["lamp"]["small-lamp"])
+    sensor.name = params.name
+    sensor.localised_name = {"entity-name." .. params.entity_name}
+    sensor.localised_description = {"item-description." .. params.entity_name}
+    sensor.icon = params.icon
+    sensor.icons = make_orbital_icon(params.icon, params.tint)
+    sensor.icon_size = 64
+    sensor.flags = {
+        "not-blueprintable",
+        "not-deconstructable",
+        "not-on-map",
+        "not-flammable",
+        "not-repairable",
+        "not-upgradable",
+        "not-selectable-in-game",
+        "placeable-off-grid",
+        "hide-alt-info",
+    }
+    sensor.hidden = true
+    sensor.selectable_in_game = false
+    sensor.minable = nil
+    sensor.max_health = 1
+    sensor.collision_box = {{0, 0}, {0, 0}}
+    sensor.selection_box = {{0, 0}, {0, 0}}
+    sensor.collision_mask = {layers = {}}
+    sensor.always_on = true
+    sensor.energy_source = {
+        type = "electric",
+        usage_priority = "lamp",
+    }
+    sensor.energy_usage_per_tick = params.energy_usage_per_tick
+    sensor.energy_usage = nil
+    sensor.light = {
+        intensity = 0,
+        size = 0,
+        color = {r = 1, g = 1, b = 1},
+    }
+    sensor.picture_on = util.empty_sprite()
+    sensor.picture_off = util.empty_sprite()
+    sensor.circuit_wire_max_distance = 0
+    return sensor
+end
+
+local orbital_power_sensors = {
+    make_hidden_power_sensor{
+        name = "ei-platform-transponder-power-sensor",
+        entity_name = "ei-platform-transponder",
+        icon = transponder_icon,
+        tint = {r = 0.55, g = 0.95, b = 1.0, a = 0.95},
+        energy_usage_per_tick = "100kW",
+    },
+    make_hidden_power_sensor{
+        name = "ei-orbital-selector-power-sensor",
+        entity_name = "ei-orbital-selector",
+        icon = selector_icon,
+        tint = {r = 0.95, g = 0.75, b = 0.20, a = 0.95},
+        energy_usage_per_tick = "250kW",
+    },
+    make_hidden_power_sensor{
+        name = "ei-orbital-coordinator-power-sensor",
+        entity_name = "ei-orbital-coordinator",
+        icon = coordinator_icon,
+        tint = {r = 1.0, g = 0.40, b = 0.18, a = 0.95},
+        energy_usage_per_tick = "500kW",
+    },
+    make_hidden_power_sensor{
+        name = "ei-orbital-dispatch-uplink-power-sensor",
+        entity_name = "ei-orbital-dispatch-uplink",
+        icon = uplink_icon,
+        tint = {r = 1.0, g = 0.62, b = 0.15, a = 0.95},
+        energy_usage_per_tick = "350kW",
+    },
+}
+
 local orbital_entities = {
     make_constant_terminal(base_combinator, {
         name = "ei-platform-transponder",
@@ -442,6 +517,7 @@ local orbital_signals = {
     },
 }
 
+data:extend(orbital_power_sensors)
 data:extend(orbital_entities)
 data:extend(orbital_items)
 data:extend(orbital_recipes)

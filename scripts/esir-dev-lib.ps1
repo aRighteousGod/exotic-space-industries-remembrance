@@ -15,6 +15,11 @@ if (Test-Path -LiteralPath $script:EsirFactorioLibDefault) {
     $script:EsirFactorioQcLoaded = $true
 }
 
+$dependencyLibPath = Join-Path $PSScriptRoot 'esir-dependency-lib.ps1'
+if (Test-Path -LiteralPath $dependencyLibPath) {
+    . $dependencyLibPath
+}
+
 function ConvertTo-EsirArray {
     param($Value)
 
@@ -68,6 +73,7 @@ function Get-EsirPaths {
         manifest_root          = $manifestRoot
         artifact_root          = $artifactRoot
         repo_skill_root        = $repoSkillRoot
+        dependency_skill_root  = Join-Path $resolvedRepoRoot '.codex\skills\esir-dependency-intel'
         factorio_skill_root    = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc'
         factorio_invoke_script = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc\scripts\invoke-factorio-qc.ps1'
         factorio_lib_script    = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc\scripts\factorio-qc-lib.ps1'
@@ -75,6 +81,8 @@ function Get-EsirPaths {
         firefox_skill_root     = 'C:\Users\Theorun\.codex\skills\chatgpt-firefox-companion'
         firefox_invoke_script  = 'C:\Users\Theorun\.codex\skills\chatgpt-firefox-companion\scripts\invoke-chatgpt-firefox-companion.ps1'
         global_shim_root       = 'C:\Users\Theorun\.codex\skills\esir-dev'
+        dependency_invoke_script = Join-Path $resolvedRepoRoot 'scripts\invoke-esir-dependency-intel.ps1'
+        dependency_lib_script    = Join-Path $resolvedRepoRoot 'scripts\esir-dependency-lib.ps1'
         runtime_manifest_path  = Join-Path $manifestRoot 'runtime-modules.json'
         prototype_index_path   = Join-Path $manifestRoot 'prototype-index.json'
         pack_manifest_path     = Join-Path $manifestRoot 'pack-manifest.json'
@@ -82,6 +90,7 @@ function Get-EsirPaths {
         tool_manifest_path     = Join-Path $manifestRoot 'tool-manifest.json'
         portal_shortlist_path  = Join-Path $manifestRoot 'portal-shortlist.json'
         asset_import_plan_path = Join-Path $manifestRoot 'asset-import-plan.json'
+        dependency_catalog_path = Join-Path $manifestRoot 'dependency-catalog.json'
     }
 }
 
@@ -1444,11 +1453,36 @@ function Get-EsirToolManifestData {
         wrapper        = [ordered]@{
             path    = 'scripts\invoke-esir-dev.ps1'
             library = 'scripts\esir-dev-lib.ps1'
-            tasks   = @('doctor', 'manifest-refresh', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
+            tasks   = @('doctor', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
+        }
+        dependency_wrapper = [ordered]@{
+            path    = 'scripts\invoke-esir-dependency-intel.ps1'
+            library = 'scripts\esir-dependency-lib.ps1'
+            tasks   = @('refresh', 'query', 'diff')
+        }
+        factorio_lua_docs_wrapper = [ordered]@{
+            path    = 'scripts\invoke-factorio-lua-docs.ps1'
+            library = 'scripts\factorio-lua-docs-lib.ps1'
+            tasks   = @('refresh', 'query')
         }
         engines        = @(
             [ordered]@{ name = 'factorio-mod-qc'; root = $Paths.factorio_skill_root; wrapper = $Paths.factorio_invoke_script },
             [ordered]@{ name = 'chatgpt-firefox-companion'; root = $Paths.firefox_skill_root; wrapper = $Paths.firefox_invoke_script }
+        )
+        repo_skills    = @(
+            [ordered]@{ name = 'esir-dev'; root = '.codex\skills\esir-dev'; wrapper = 'scripts\invoke-esir-dev.ps1' },
+            [ordered]@{ name = 'esir-dependency-intel'; root = '.codex\skills\esir-dependency-intel'; wrapper = 'scripts\invoke-esir-dependency-intel.ps1' },
+            [ordered]@{ name = 'factorio-lua-docs'; root = '.codex\skills\factorio-lua-docs'; wrapper = 'scripts\invoke-factorio-lua-docs.ps1' }
+        )
+        manifests      = @(
+            '.codex\esir\runtime-modules.json',
+            '.codex\esir\prototype-index.json',
+            '.codex\esir\pack-manifest.json',
+            '.codex\esir\save-catalog.json',
+            '.codex\esir\tool-manifest.json',
+            '.codex\esir\portal-shortlist.json',
+            '.codex\esir\asset-import-plan.json',
+            '.codex\esir\dependency-catalog.json'
         )
         legacy_scripts = @('process.ps1', 'graphics1_process.ps1', 'graphics2_process.ps1', 'graphics3_process.ps1', 'soundtrack1_process.ps1', 'soundtrack2_process.ps1')
         artifacts      = @('.factorio-qc', 'output')
@@ -1474,6 +1508,9 @@ function Invoke-EsirManifestRefresh {
     Write-EsirJson -Path $Paths.prototype_index_path -Data (Get-EsirPrototypeIndexData -Paths $Paths)
     Write-EsirJson -Path $Paths.pack_manifest_path -Data (Get-EsirPackManifestData -Paths $Paths)
     Write-EsirJson -Path $Paths.save_catalog_path -Data (Get-EsirSaveCatalogData -Paths $Paths)
+    if (Get-Command -Name Get-EsirDependencyCatalogData -ErrorAction SilentlyContinue) {
+        Write-EsirJson -Path $Paths.dependency_catalog_path -Data (Get-EsirDependencyCatalogData -Paths $Paths)
+    }
     Write-EsirJson -Path $Paths.tool_manifest_path -Data (Get-EsirToolManifestData -Paths $Paths)
     Initialize-EsirStableFiles -Paths $Paths
 
@@ -1485,6 +1522,7 @@ function Invoke-EsirManifestRefresh {
             (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.prototype_index_path)
             (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.pack_manifest_path)
             (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.save_catalog_path)
+            (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.dependency_catalog_path)
             (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.tool_manifest_path)
             (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.portal_shortlist_path)
             Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.asset_import_plan_path
@@ -2456,6 +2494,8 @@ function Invoke-EsirDoctor {
         factorio_skill_root    = $Paths.factorio_skill_root
         firefox_skill_root     = $Paths.firefox_skill_root
         repo_skill_root        = $Paths.repo_skill_root
+        dependency_skill_root  = $Paths.dependency_skill_root
+        dependency_wrapper     = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $Paths.dependency_invoke_script
         manifest_root          = $Paths.manifest_root
         artifact_root          = $Paths.artifact_root
         run_mod_directory      = $context.run_mod_directory
@@ -2476,12 +2516,17 @@ function Invoke-EsirTask {
         [Nullable[int]]$Seed,
         [string]$Planet,
         [string]$Pack,
+        [string]$DependencyScope,
+        [string]$DependencyCategory,
+        [string]$ModName,
+        [string]$TargetPath,
         [string]$PromptText,
         [string]$PromptFile,
         [string]$SessionName,
         [string]$DownloadsPath,
         [string]$FactorioPath,
         [switch]$Strict,
+        [switch]$ResolveInstalled,
         [switch]$FixEncoding,
         [switch]$SkipBrowser,
         [switch]$SkipClipboard
@@ -2490,6 +2535,9 @@ function Invoke-EsirTask {
     switch ($Task) {
         'doctor' { return Invoke-EsirDoctor -Paths $Paths -FactorioPath $FactorioPath }
         'manifest-refresh' { return Invoke-EsirManifestRefresh -Paths $Paths }
+        'dependency-refresh' { return Invoke-EsirDependencyRefresh -Paths $Paths }
+        'dependency-query' { return Invoke-EsirDependencyQuery -Paths $Paths -Scope $DependencyScope -Category $DependencyCategory -ModName $ModName -Pack $Pack -PathFilter $TargetPath -ResolveInstalled:$ResolveInstalled }
+        'dependency-diff' { return Invoke-EsirDependencyDiff -Paths $Paths -Strict:$Strict }
         'preflight' { return Invoke-EsirPreflight -Paths $Paths -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-fast' { return Invoke-EsirQcMode -Paths $Paths -Mode 'fast' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-runtime' { return Invoke-EsirQcMode -Paths $Paths -Mode 'runtime' -SaveId $SaveId -SavePath $SavePath -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }

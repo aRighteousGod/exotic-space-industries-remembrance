@@ -1364,6 +1364,30 @@ ei_lib.raw["trivial-smoke"]["train-smoke"] = {
 
 -- make locomotive use diesel
 -- add burnt fuel slot
+local locomotive_energy_source = {
+    emissions_per_minute = { pollution = 2.5 },
+    fuel_inventory_size = 3,
+    burnt_inventory_size = 3,
+    smoke = {
+        {
+            name = "train-smoke",
+            deviation = {0.45, 0.45},
+            frequency = 175,
+            position = {0, 0},
+            starting_frame = 0,
+            starting_frame_deviation = 60,
+            height = 2,
+            height_deviation = 0.5,
+            starting_vertical_speed = 0.08,
+            starting_vertical_speed_deviation = 0.1
+        }
+  },
+}
+
+if not mods["Krastorio2-spaced-out"] then
+    locomotive_energy_source.fuel_categories = {"ei-diesel-fuel"}
+end
+
 ei_lib.raw.locomotive.locomotive = {
     localised_name = {"entity-name.ei-locomotive"},
 
@@ -1371,27 +1395,17 @@ ei_lib.raw.locomotive.locomotive = {
 
     weight = 2500,
 
-    energy_source = {
-        emissions_per_minute = { pollution = 2.5 },
-        fuel_categories = {"ei-diesel-fuel"},
-        fuel_inventory_size = 3,
-        burnt_inventory_size = 3,
-        smoke = {
-            {
-                name = "train-smoke",
-                deviation = {0.45, 0.45},
-                frequency = 175,
-                position = {0, 0},
-                starting_frame = 0,
-                starting_frame_deviation = 60,
-                height = 2,
-                height_deviation = 0.5,
-                starting_vertical_speed = 0.08,
-                starting_vertical_speed_deviation = 0.1
-            }
-      },
-    }
+    energy_source = locomotive_energy_source
 }
+
+if mods["Krastorio2-spaced-out"] then
+    ei_lib.modify_data_raw("locomotive", "locomotive", {
+        force_insert = true,
+        energy_source = {
+            fuel_categories = {"ei-diesel-fuel"},
+        }
+    })
+end
 
 -- let car and tank use alternative fuels
 -- this is duplicated in teslas_legacy.lua to cover tesla mod vehicles
@@ -1410,7 +1424,9 @@ for _,ent in pairs(t) do
     local target = data.raw.car[ent]
     if target and target.energy_source and target.energy_source.fuel_categories then
         for _,f in pairs(t_extra_fuels) do
-            table.insert(target.energy_source.fuel_categories,f)
+            if not ei_lib.table_contains_value(target.energy_source.fuel_categories, f) then
+                table.insert(target.energy_source.fuel_categories, f)
+            end
         end 
     end
 end
@@ -1793,16 +1809,31 @@ ei_lib.raw.radar.radar.energy_usage = "1.2MW" --default 300kW
 
 -- increase power output of fission reactor equipment
 
+local fission_reactor_burner = {
+    type = "burner",
+    effectivity = 1.0,
+    fuel_inventory_size = 9,
+    burnt_inventory_size = 9,
+}
+
+if not mods["Krastorio2-spaced-out"] then
+    fission_reactor_burner.fuel_categories = {"ei-nuclear-fuel","ei-nuclear-fuel-cell",}
+end
+
 ei_lib.raw["generator-equipment"]["fission-reactor-equipment"] = {
     power = "1MW",
-    burner = {
-        type = "burner",
-        fuel_categories = {"ei-nuclear-fuel","ei-nuclear-fuel-cell",},
-        effectivity = 1.0,
-        fuel_inventory_size = 9,
-        burnt_inventory_size = 9,
-    }
+    burner = fission_reactor_burner
 }
+
+if mods["Krastorio2-spaced-out"] then
+    ei_lib.modify_data_raw("generator-equipment", "fission-reactor-equipment", {
+        force_insert = true,
+        burner = {
+            fuel_categories = {"ei-nuclear-fuel","ei-nuclear-fuel-cell",},
+        }
+    })
+end
+
 ei_lib.raw["generator-equipment"]["fission-reactor-equipment"].energy_source.usage_priority = "secondary-output"
 ei_lib.raw["item"]["fission-reactor-equipment"].order = "a[energy-source]-g[fission-reactor-equipment]"
 

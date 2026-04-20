@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('doctor', 'manifest-refresh', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
+    [ValidateSet('doctor', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [string]$SaveId,
@@ -12,12 +12,19 @@ param(
     [Nullable[int]]$Seed,
     [string]$Planet,
     [string]$Pack,
+    [ValidateSet('declared', 'touchpoints', 'all')]
+    [string]$Scope = 'all',
+    [ValidateSet('runtime', 'prototype', 'planet', 'remote', 'media', 'all')]
+    [string]$Category = 'all',
+    [string]$ModName,
+    [string]$Path,
     [string]$PromptText,
     [string]$PromptFile,
     [string]$SessionName,
     [string]$DownloadsPath,
     [string]$FactorioPath,
     [switch]$Strict,
+    [switch]$ResolveInstalled,
     [switch]$FixEncoding,
     [switch]$AsJson,
     [switch]$SkipBrowser,
@@ -30,7 +37,7 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'esir-dev-lib.ps1')
 
 $paths = Get-EsirPaths -RepoRoot $RepoRoot
-$result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Planet $Planet -Pack $Pack -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard
+$result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Planet $Planet -Pack $Pack -DependencyScope $Scope -DependencyCategory $Category -ModName $ModName -TargetPath $Path -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -ResolveInstalled:$ResolveInstalled -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard
 
 if ($AsJson) {
     $result | ConvertTo-Json -Depth 16

@@ -263,10 +263,6 @@ data:extend({
                 type = "unlock-recipe",
                 recipe = "ei-slag-extraction-sulfuric"
             },
-            {
-                type = "unlock-recipe",
-                recipe = "ei-slag-extraction-nitric"
-            },
         },
         unit = {
             count = 100,

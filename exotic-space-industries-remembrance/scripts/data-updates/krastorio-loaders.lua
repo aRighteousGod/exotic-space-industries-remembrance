@@ -92,4 +92,4 @@ ei_loaders_lib.make_loader("kr-superior", nil, krsuperior_belt.belt_animation_se
 --data.raw['loader']['ei_kr-superior-loader'].resistances = data.raw["transport-belt"]["kr-superior-transport-belt"].resistances
 --data.raw['loader']['ei_kr-superior-loader'].max_health = data.raw["transport-belt"]["kr-superior-transport-belt"].max_health
 
-ei_lib.add_unlock_recipe("kr-logistics-5","ei-kr-superior-loader")
+ei_lib.add_unlock_recipe("kr-logistic-5","ei-kr-superior-loader")

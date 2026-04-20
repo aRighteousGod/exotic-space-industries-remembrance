@@ -1,25 +1,30 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: matter runtime, queues, and player rendering cleanup
+-- owns: matter runtime, queues, player rendering cleanup, and exotic assembler GUI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, selection/cursor/player-left, scheduled tick step 4, and configuration rebuild
--- forwarded_events: add_machine_to_surface_queue, add_to_chunk_store, check_entity, check_global, clear_rendering, collect_machine_stabilizers, destroy_machine_fx, destroy_player_render_list, destroy_runtime_state, draw_connection, draw_stabilizer_range, draw_warning_text, ensure_machine_light, ensure_runtime_ready, ensure_surface_queue, get_machine_base_chance, get_player_render_list, get_risk_tier, get_stabilizer_weight, get_updates_per_entity, link_stabilizer_and_machine, on_built_entity, on_destroyed_entity, on_player_cursor_stack_changed, on_player_left_game, on_selected_entity_changed, query_nearby_machines, query_nearby_stabilizers, query_runtime_registry_in_range, rebuild_runtime_state, register_matter_machine, register_stabilizer, remove_from_chunk_store, remove_machine_from_surface_queue, remove_matter_machine_by_unit, remove_rendering, remove_rendering_by_unit, remove_stabilizer_by_unit, reset_machine_state, reset_runtime_storage, spawn_machine_arc, spawn_machine_crackle, stabilizer_on_cursor, stabilizer_selected, sync_active_surface, unregister_matter_machine, unregister_stabilizer, update, update_machine_presentation, update_matter_machine
+-- forwarded_events: add_machine_to_surface_queue, add_to_chunk_store, check_entity, check_global, clear_rendering, close_gui, collect_machine_stabilizers, destroy_machine_fx, destroy_player_render_list, destroy_runtime_state, draw_connection, draw_stabilizer_range, draw_warning_text, ensure_machine_light, ensure_runtime_ready, ensure_surface_queue, get_machine_base_chance, get_player_render_list, get_risk_tier, get_runtime_status, get_stabilizer_weight, get_updates_per_entity, link_stabilizer_and_machine, on_built_entity, on_destroyed_entity, on_gui_click, on_player_cursor_stack_changed, on_player_left_game, on_selected_entity_changed, open_gui, query_nearby_machines, query_nearby_stabilizers, query_runtime_registry_in_range, rebuild_runtime_state, register_matter_machine, register_stabilizer, remove_from_chunk_store, remove_machine_from_surface_queue, remove_matter_machine_by_unit, remove_rendering, remove_rendering_by_unit, remove_stabilizer_by_unit, reset_machine_state, reset_runtime_storage, spawn_machine_arc, spawn_machine_crackle, stabilizer_on_cursor, stabilizer_selected, sync_active_surface, unregister_matter_machine, unregister_stabilizer, update, update_machine_presentation, update_matter_machine, update_gui
 -- storage_roots: storage.ei
--- gui_ids: none
+-- gui_ids: ei-exotic-assembler-console
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, entity topology changes
 --==============================================================================
 local model = {}
 ei_lib = require("lib/lib")
+local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 --====================================================================================================
 --MATTER STABILIZER
 --====================================================================================================
 
-local MATTER_RUNTIME_VERSION = 2
+local MATTER_RUNTIME_VERSION = 3
 local MATTER_CHUNK_SIZE = 32
 local MATTER_RANGE = ei_data.matter_stabilizer.matter_range
 local MATTER_RANGE_SQR = MATTER_RANGE * MATTER_RANGE
+local MATTER_RISK_DECAY = 2.43
+local MODULE_NAME = "matter-stabilizer"
+local GUI_NAME = "ei-exotic-assembler-console"
+local GUI_SUPPORT_MAX_WEIGHT = 5
 
 local RISK_STRAINED_THRESHOLD = 0.02
 local RISK_CRITICAL_THRESHOLD = 0.06
@@ -123,6 +128,98 @@ local function get_chunk_bucket(chunk_store, surface_index, chunk_x, chunk_y, cr
     end
 
     return bucket, key, surface_store
+end
+
+
+local function now_tick(event_tick)
+    return event_tick or (game and game.tick) or 0
+end
+
+
+local function clamp_01(value)
+    return math.max(0, math.min(1, tonumber(value) or 0))
+end
+
+
+local function format_percent(value)
+    return string.format("%.2f", (tonumber(value) or 0) * 100)
+end
+
+
+local function format_multiplier(value)
+    return string.format("%.2f", tonumber(value) or 0)
+end
+
+
+local function format_snapshot_seconds(snapshot_tick)
+    local seconds = math.max(0, (tonumber(snapshot_tick) or 0) / 60)
+    if seconds >= 100 then
+        return string.format("%.0f", seconds)
+    end
+
+    return string.format("%.1f", seconds)
+end
+
+
+local function required_weight_for_target_risk(base_chance, progress_multiplier, target_risk_per_second)
+    if target_risk_per_second <= 0 then
+        return 0
+    end
+
+    local weighted_base = math.max(0, (tonumber(base_chance) or 0) * (tonumber(progress_multiplier) or 0))
+    if weighted_base <= target_risk_per_second then
+        return 0
+    end
+
+    return math.max(0, (weighted_base / target_risk_per_second) ^ (1 / MATTER_RISK_DECAY) - 1)
+end
+
+
+local function get_gui_root(player)
+    if not (player and player.valid and player.gui and player.gui.relative) then
+        return nil
+    end
+
+    local root = player.gui.relative[GUI_NAME]
+    if root and root.valid then
+        return root
+    end
+
+    return nil
+end
+
+
+local function set_progressbar_style(element, style_name)
+    if element and element.valid and element.style.name ~= style_name then
+        element.style = style_name
+    end
+end
+
+
+local function add_status_row(parent, row_name, title_locale_key, bar_style)
+    local row = parent.add{
+        type = "flow",
+        name = row_name .. "-row",
+        direction = "vertical",
+    }
+    row.style.horizontally_stretchable = true
+    row.style.vertical_spacing = 4
+
+    local title = row.add{
+        type = "label",
+        name = "title",
+        caption = {"exotic-industries." .. title_locale_key},
+    }
+    title.style.horizontally_stretchable = true
+
+    local bar = row.add{
+        type = "progressbar",
+        name = "bar",
+        style = bar_style,
+    }
+    bar.style.horizontally_stretchable = true
+
+    return row
 end
 
 
@@ -236,6 +333,12 @@ function model.reset_runtime_storage(runtime)
     storage.ei.matter_machines = {}
     storage.ei.matter_machines_count = 0
     storage.ei.stabilizer_break_point = nil
+    storage.ei.matter_stabilizer_gui = {
+        open_by_player = {},
+        watchers_by_unit = {},
+        refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil),
+        last_gui_service_tick = 0,
+    }
 end
 
 
@@ -334,6 +437,20 @@ function model.check_global()
     if storage.ei.matter_machines_count == nil then
         storage.ei.matter_machines_count = 0
     end
+    local gui_state = storage.ei.matter_stabilizer_gui
+    if type(gui_state) ~= "table" then
+        storage.ei.matter_stabilizer_gui = {
+            open_by_player = {},
+            watchers_by_unit = {},
+            refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil),
+            last_gui_service_tick = 0,
+        }
+    else
+        gui_state.open_by_player = type(gui_state.open_by_player) == "table" and gui_state.open_by_player or {}
+        gui_state.watchers_by_unit = type(gui_state.watchers_by_unit) == "table" and gui_state.watchers_by_unit or {}
+        gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(gui_state.refresh_buckets)
+        gui_state.last_gui_service_tick = tonumber(gui_state.last_gui_service_tick) or 0
+    end
 
     if needs_rebuild then
         runtime.needs_rebuild = true
@@ -341,6 +458,12 @@ function model.check_global()
 
     runtime.version = MATTER_RUNTIME_VERSION
     return runtime
+end
+
+
+function model.get_gui_state()
+    model.check_global()
+    return storage.ei.matter_stabilizer_gui
 end
 
 
@@ -352,6 +475,765 @@ function model.ensure_runtime_ready()
     end
 
     return storage.ei.matter_runtime
+end
+
+
+function model.get_open_matter_machine(player)
+    local entity = ei_lib.get_valid_entity(player and player.opened)
+    if entity and entity.name == "ei-exotic-assembler" then
+        return entity
+    end
+
+    return nil
+end
+
+
+function model.machine_has_watchers(unit_number)
+    local gui_state = model.get_gui_state()
+    local watchers = gui_state.watchers_by_unit[unit_number]
+    return watchers ~= nil and next(watchers) ~= nil
+end
+
+
+function model.destroy_gui_root(player)
+    local root = get_gui_root(player)
+    if root then
+        root.destroy()
+    end
+end
+
+
+function model.clear_gui_session(player_index, destroy_gui, counter_name)
+    local gui_state = model.get_gui_state()
+    local session = gui_state.open_by_player[player_index]
+    local had_session = session ~= nil
+    if session then
+        local watchers = gui_state.watchers_by_unit[session.unit_number]
+        if watchers then
+            watchers[player_index] = nil
+            if next(watchers) == nil then
+                gui_state.watchers_by_unit[session.unit_number] = nil
+            end
+        end
+
+        gui_state.open_by_player[player_index] = nil
+    end
+
+    if destroy_gui and game then
+        local player = game.get_player(player_index)
+        if player then
+            model.destroy_gui_root(player)
+        end
+    end
+
+    if counter_name and had_session then
+        ei_runtime_scheduler.bump_counter(MODULE_NAME, counter_name, 1)
+    end
+end
+
+
+function model.clear_all_gui_sessions()
+    local gui_state = model.get_gui_state()
+    local player_indices = {}
+    for player_index, _ in pairs(gui_state.open_by_player) do
+        player_indices[#player_indices + 1] = player_index
+    end
+
+    for _, player_index in pairs(player_indices) do
+        model.clear_gui_session(player_index, true, nil)
+    end
+
+    gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
+    gui_state.last_gui_service_tick = 0
+end
+
+
+function model.close_sessions_for_unit(unit_number, destroy_gui, counter_name)
+    local gui_state = model.get_gui_state()
+    local watchers = gui_state.watchers_by_unit[unit_number]
+    if not watchers then
+        return
+    end
+
+    local player_indices = {}
+    for player_index, _ in pairs(watchers) do
+        player_indices[#player_indices + 1] = player_index
+    end
+
+    for _, player_index in pairs(player_indices) do
+        model.clear_gui_session(player_index, destroy_gui, counter_name)
+    end
+end
+
+
+function model.ensure_gui_session(player_index, unit_number)
+    local gui_state = model.get_gui_state()
+    local existing = gui_state.open_by_player[player_index]
+    if existing and existing.unit_number ~= unit_number then
+        model.clear_gui_session(player_index, false, "gui_closed")
+        existing = nil
+    end
+
+    if not existing then
+        existing = {
+            unit_number = unit_number,
+            last_signature = nil,
+            pending_tick = nil,
+        }
+        gui_state.open_by_player[player_index] = existing
+        ei_runtime_scheduler.bump_counter(MODULE_NAME, "gui_opened", 1)
+    else
+        existing.unit_number = unit_number
+        existing.last_signature = nil
+        existing.pending_tick = nil
+    end
+
+    local watchers = gui_state.watchers_by_unit[unit_number]
+    if not watchers then
+        watchers = {}
+        gui_state.watchers_by_unit[unit_number] = watchers
+    end
+    watchers[player_index] = true
+
+    return existing
+end
+
+
+function model.queue_gui_refresh_for_player(player_index, refresh_tick)
+    local gui_state = model.get_gui_state()
+    local session = gui_state.open_by_player[player_index]
+    if not session then
+        return
+    end
+
+    refresh_tick = now_tick(refresh_tick)
+    if session.pending_tick and session.pending_tick <= refresh_tick then
+        return
+    end
+
+    session.pending_tick = refresh_tick
+    ei_runtime_scheduler.delayed_schedule(gui_state.refresh_buckets, refresh_tick, player_index)
+    ei_runtime_scheduler.bump_counter(MODULE_NAME, "gui_refresh_queued", 1)
+end
+
+
+function model.queue_gui_refresh_for_unit(unit_number, refresh_tick)
+    local gui_state = model.get_gui_state()
+    local watchers = gui_state.watchers_by_unit[unit_number]
+    if not watchers then
+        return
+    end
+
+    for player_index, _ in pairs(watchers) do
+        model.queue_gui_refresh_for_player(player_index, refresh_tick)
+    end
+end
+
+
+function model.make_machine_snapshot(runtime, machine_data, stabilizer_weight, active_stabilizers, snapshot_tick, is_crafting, progress)
+    local entity = machine_data.entity
+    local base_chance = model.get_machine_base_chance(entity)
+    local updates_per_entity = model.get_updates_per_entity(runtime.machine_count)
+    local base_risk_per_second = base_chance / ((stabilizer_weight + 1) ^ MATTER_RISK_DECAY)
+    local current_progress_multiplier = is_crafting and ((1 + progress) ^ 3) or 0
+    local current_risk_per_second = is_crafting and (base_risk_per_second * current_progress_multiplier) or 0
+    local current_per_update_chance = current_risk_per_second / updates_per_entity
+    local current_tier = is_crafting and model.get_risk_tier(current_risk_per_second) or "dormant"
+    local forecast_progress = 1
+    local forecast_progress_multiplier = (1 + forecast_progress) ^ 3
+    local forecast_risk_per_second = base_risk_per_second * forecast_progress_multiplier
+    local forecast_tier = model.get_risk_tier(forecast_risk_per_second)
+    local active_stabilizer_count = active_stabilizers and #active_stabilizers or 0
+    local current_hold_weight_required = is_crafting
+        and required_weight_for_target_risk(base_chance, current_progress_multiplier, RISK_STRAINED_THRESHOLD)
+        or 0
+    local forecast_hold_weight_required = required_weight_for_target_risk(
+        base_chance,
+        forecast_progress_multiplier,
+        RISK_STRAINED_THRESHOLD
+    )
+    local forecast_buffer_weight_required = required_weight_for_target_risk(
+        base_chance,
+        forecast_progress_multiplier,
+        RISK_CRITICAL_THRESHOLD
+    )
+    local projection_signature = string.format(
+        "%s|%.3f|%.4f|%.4f|%d|%d",
+        current_tier,
+        progress,
+        current_risk_per_second,
+        forecast_risk_per_second,
+        stabilizer_weight,
+        active_stabilizer_count
+    )
+
+    return {
+        active_stabilizer_count = active_stabilizer_count,
+        stabilizer_weight = stabilizer_weight,
+        base_chance = base_chance,
+        current_progress = progress,
+        current_progress_multiplier = current_progress_multiplier,
+        current_risk_per_second = current_risk_per_second,
+        current_per_update_chance = current_per_update_chance,
+        current_tier = current_tier,
+        current_hold_weight_required = current_hold_weight_required,
+        forecast_progress = forecast_progress,
+        forecast_progress_multiplier = forecast_progress_multiplier,
+        forecast_risk_per_second = forecast_risk_per_second,
+        forecast_tier = forecast_tier,
+        forecast_hold_weight_required = forecast_hold_weight_required,
+        forecast_buffer_weight_required = forecast_buffer_weight_required,
+        projection_signature = projection_signature,
+        snapshot_tick = snapshot_tick,
+    }
+end
+
+
+function model.refresh_machine_snapshot(runtime, machine_data, snapshot_tick)
+    local entity = machine_data.entity
+    if not model.check_entity(entity) then
+        machine_data.volatility_snapshot = nil
+        return nil, {}
+    end
+
+    local stabilizer_weight, active_stabilizers = model.collect_machine_stabilizers(runtime, machine_data)
+    local is_crafting = entity.is_crafting()
+    local progress = is_crafting and (entity.crafting_progress or 0) or 0
+    local snapshot = model.make_machine_snapshot(
+        runtime,
+        machine_data,
+        stabilizer_weight,
+        active_stabilizers,
+        snapshot_tick,
+        is_crafting,
+        progress
+    )
+
+    machine_data.volatility_snapshot = snapshot
+    return snapshot, active_stabilizers
+end
+
+
+function model.get_containment_display(snapshot)
+    if snapshot.current_tier == "dormant" then
+        return {
+            style = "ei_status_progressbar_grey",
+            value = 0,
+            band = {"exotic-industries.exotic-assembler-gui-band-dormant"},
+        }
+    end
+
+    if snapshot.current_tier == "critical" then
+        return {
+            style = "ei_status_progressbar_red",
+            value = clamp_01(snapshot.current_risk_per_second / RISK_CRITICAL_THRESHOLD),
+            band = {"exotic-industries.exotic-assembler-gui-band-cascade-imminent"},
+        }
+    end
+
+    if snapshot.current_tier == "strained" then
+        return {
+            style = "ei_status_progressbar_purple",
+            value = clamp_01(snapshot.current_risk_per_second / RISK_CRITICAL_THRESHOLD),
+            band = {"exotic-industries.exotic-assembler-gui-band-strained"},
+        }
+    end
+
+    return {
+        style = "ei_status_progressbar_cyan",
+        value = clamp_01(snapshot.current_risk_per_second / RISK_STRAINED_THRESHOLD),
+        band = {"exotic-industries.exotic-assembler-gui-band-holding"},
+    }
+end
+
+
+function model.get_cycle_pressure_display(snapshot)
+    local progress = snapshot.current_progress or 0
+    if progress <= 0 then
+        return {
+            style = "ei_status_progressbar_grey",
+            value = 0,
+            band = {"exotic-industries.exotic-assembler-gui-cycle-band-dormant"},
+        }
+    end
+
+    if progress < 0.34 then
+        return {
+            style = "ei_status_progressbar_grey",
+            value = clamp_01(progress),
+            band = {"exotic-industries.exotic-assembler-gui-cycle-band-initial"},
+        }
+    end
+
+    if progress < 0.75 then
+        return {
+            style = "ei_status_progressbar_purple",
+            value = clamp_01(progress),
+            band = {"exotic-industries.exotic-assembler-gui-cycle-band-rising"},
+        }
+    end
+
+    return {
+        style = "ei_status_progressbar_red",
+        value = clamp_01(progress),
+        band = {"exotic-industries.exotic-assembler-gui-cycle-band-terminal"},
+    }
+end
+
+
+function model.get_support_display(snapshot)
+    local weight = snapshot.stabilizer_weight or 0
+    local hold_required = snapshot.forecast_hold_weight_required or 0
+    local buffer_required = snapshot.forecast_buffer_weight_required or 0
+    if weight <= 0 then
+        return {
+            style = "ei_status_progressbar_grey",
+            value = 0,
+            band = {"exotic-industries.exotic-assembler-gui-support-band-absent"},
+        }
+    end
+
+    if hold_required <= 0 or weight >= hold_required then
+        return {
+            style = "ei_status_progressbar_cyan",
+            value = clamp_01(weight / math.max(1, hold_required)),
+            band = {"exotic-industries.exotic-assembler-gui-support-band-anchored"},
+        }
+    end
+
+    if buffer_required > 0 and weight >= buffer_required then
+        return {
+            style = "ei_status_progressbar_grey",
+            value = clamp_01(weight / math.max(1, hold_required)),
+            band = {"exotic-industries.exotic-assembler-gui-support-band-buffered"},
+        }
+    end
+
+    return {
+        style = "ei_status_progressbar_purple",
+        value = clamp_01(weight / math.max(1, math.max(buffer_required, GUI_SUPPORT_MAX_WEIGHT))),
+        band = {"exotic-industries.exotic-assembler-gui-support-band-thin"},
+    }
+end
+
+
+function model.get_forecast_display(snapshot)
+    if snapshot.forecast_tier == "critical" then
+        return {
+            style = "ei_status_progressbar_red",
+            value = clamp_01(snapshot.forecast_risk_per_second / RISK_CRITICAL_THRESHOLD),
+            band = {"exotic-industries.exotic-assembler-gui-forecast-band-cascade"},
+        }
+    end
+
+    if snapshot.forecast_tier == "strained" then
+        return {
+            style = "ei_status_progressbar_purple",
+            value = clamp_01(snapshot.forecast_risk_per_second / RISK_CRITICAL_THRESHOLD),
+            band = {"exotic-industries.exotic-assembler-gui-forecast-band-strain"},
+        }
+    end
+
+    return {
+        style = "ei_status_progressbar_cyan",
+        value = clamp_01(snapshot.forecast_risk_per_second / RISK_STRAINED_THRESHOLD),
+        band = {"exotic-industries.exotic-assembler-gui-forecast-band-hold"},
+    }
+end
+
+
+function model.build_gui(player)
+    if not (player and player.valid and player.gui and player.gui.relative) then
+        return nil
+    end
+
+    local root = player.gui.relative.add{
+        type = "frame",
+        name = GUI_NAME,
+        anchor = {
+            gui = defines.relative_gui_type.assembling_machine_gui,
+            name = "ei-exotic-assembler",
+            position = defines.relative_gui_position.right,
+        },
+        direction = "vertical",
+    }
+    root.style.minimal_width = 320
+
+    local titlebar = root.add{type = "flow", direction = "horizontal"}
+    titlebar.add{
+        type = "label",
+        caption = {"exotic-industries.exotic-assembler-gui-title"},
+        style = "frame_title",
+    }
+    titlebar.add{
+        type = "empty-widget",
+        style = "ei_titlebar_nondraggable_spacer",
+        ignored_by_interaction = true,
+    }
+    titlebar.add{
+        type = "sprite-button",
+        sprite = "virtual-signal/informatron",
+        tooltip = {"exotic-industries.gui-open-informatron"},
+        style = "frame_action_button",
+        tags = {
+            parent_gui = GUI_NAME,
+            action = "goto-informatron",
+            page = "exotic_stabilizer",
+        },
+    }
+
+    local main_container = root.add{
+        type = "frame",
+        name = "main-container",
+        direction = "vertical",
+        style = "inside_shallow_frame",
+    }
+    main_container.style.minimal_width = 320
+    main_container.style.horizontally_stretchable = true
+
+    main_container.add{
+        type = "frame",
+        style = "ei_subheader_frame",
+    }.add{
+        type = "label",
+        caption = {"exotic-industries.exotic-assembler-gui-status-title"},
+        style = "subheader_caption_label",
+    }
+
+    local status_flow = main_container.add{
+        type = "flow",
+        name = "status-flow",
+        direction = "vertical",
+        style = "ei_inner_content_flow",
+    }
+    status_flow.style.horizontally_stretchable = true
+    status_flow.style.vertical_spacing = 8
+
+    add_status_row(status_flow, "containment-state", "exotic-assembler-gui-containment-state-title", "ei_status_progressbar_grey")
+    add_status_row(status_flow, "cycle-pressure", "exotic-assembler-gui-cycle-pressure-title", "ei_status_progressbar_purple")
+    add_status_row(status_flow, "lattice-support", "exotic-assembler-gui-lattice-support-title", "ei_status_progressbar_cyan")
+    add_status_row(status_flow, "peak-forecast", "exotic-assembler-gui-peak-forecast-title", "ei_status_progressbar_grey")
+
+    return root
+end
+
+
+function model.update_gui(player, snapshot)
+    if not (player and player.valid and snapshot) then
+        return
+    end
+
+    local root = get_gui_root(player)
+    if not root then
+        root = model.build_gui(player)
+    end
+    if not root then
+        return
+    end
+
+    local status_flow = root["main-container"] and root["main-container"]["status-flow"]
+    if not (status_flow and status_flow.valid) then
+        return
+    end
+
+    local containment_row = status_flow["containment-state-row"]
+    local cycle_row = status_flow["cycle-pressure-row"]
+    local support_row = status_flow["lattice-support-row"]
+    local forecast_row = status_flow["peak-forecast-row"]
+    if not (containment_row and cycle_row and support_row and forecast_row) then
+        return
+    end
+
+    local containment_title = containment_row["title"]
+    local containment_bar = containment_row["bar"]
+    local cycle_title = cycle_row["title"]
+    local cycle_bar = cycle_row["bar"]
+    local support_title = support_row["title"]
+    local support_bar = support_row["bar"]
+    local forecast_title = forecast_row["title"]
+    local forecast_bar = forecast_row["bar"]
+    if not (
+        containment_title and containment_bar
+        and cycle_title and cycle_bar
+        and support_title and support_bar
+        and forecast_title and forecast_bar
+    ) then
+        return
+    end
+
+    local containment = model.get_containment_display(snapshot)
+    local cycle_pressure = model.get_cycle_pressure_display(snapshot)
+    local support = model.get_support_display(snapshot)
+    local forecast = model.get_forecast_display(snapshot)
+    local snapshot_tick = snapshot.snapshot_tick or 0
+    local snapshot_seconds = format_snapshot_seconds(snapshot_tick)
+    local containment_tooltip = {
+        "exotic-industries.exotic-assembler-gui-containment-state-tooltip",
+        snapshot_seconds,
+        format_percent(snapshot.base_chance),
+        format_percent(snapshot.current_risk_per_second),
+        format_percent(snapshot.current_per_update_chance),
+        format_multiplier(snapshot.current_progress_multiplier),
+    }
+    local cycle_tooltip = {
+        "exotic-industries.exotic-assembler-gui-cycle-pressure-tooltip",
+        snapshot_seconds,
+        format_percent(snapshot.current_progress),
+        format_multiplier(snapshot.current_progress_multiplier),
+    }
+    local support_tooltip = {
+        "exotic-industries.exotic-assembler-gui-lattice-support-tooltip",
+        snapshot_seconds,
+        snapshot.active_stabilizer_count or 0,
+        snapshot.stabilizer_weight or 0,
+    }
+    local forecast_tooltip = {
+        "exotic-industries.exotic-assembler-gui-peak-forecast-tooltip",
+        snapshot_seconds,
+        format_percent(snapshot.forecast_risk_per_second),
+        forecast.band,
+    }
+
+    set_progressbar_style(containment_bar, containment.style)
+    containment_bar.value = containment.value
+    containment_bar.caption = containment.band
+    containment_bar.tooltip = containment_tooltip
+    containment_title.tooltip = containment_tooltip
+
+    set_progressbar_style(cycle_bar, cycle_pressure.style)
+    cycle_bar.value = cycle_pressure.value
+    cycle_bar.caption = cycle_pressure.band
+    cycle_bar.tooltip = cycle_tooltip
+    cycle_title.tooltip = cycle_tooltip
+
+    set_progressbar_style(support_bar, support.style)
+    support_bar.value = support.value
+    support_bar.caption = support.band
+    support_bar.tooltip = support_tooltip
+    support_title.tooltip = support_tooltip
+
+    set_progressbar_style(forecast_bar, forecast.style)
+    forecast_bar.value = forecast.value
+    forecast_bar.caption = forecast.band
+    forecast_bar.tooltip = forecast_tooltip
+    forecast_title.tooltip = forecast_tooltip
+
+    local gui_state = model.get_gui_state()
+    local session = gui_state.open_by_player[player.index]
+    if session then
+        session.last_signature = snapshot.projection_signature
+    end
+end
+
+
+function model.open_gui(player, event)
+    if not (player and player.valid) then
+        return
+    end
+
+    local entity = model.get_open_matter_machine(player)
+    if not model.check_entity(entity) then
+        model.close_gui(player)
+        return
+    end
+
+    local runtime = model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
+        return
+    end
+
+    local unit_number = ei_lib.get_entity_unit_number(entity)
+    if not unit_number then
+        model.close_gui(player)
+        return
+    end
+
+    local machine_data = runtime.machines[unit_number]
+    if not machine_data then
+        model.register_matter_machine(entity)
+        runtime = storage.ei.matter_runtime
+        machine_data = runtime and runtime.machines[unit_number]
+    end
+    if not machine_data then
+        model.close_gui(player)
+        return
+    end
+
+    model.ensure_gui_session(player.index, unit_number)
+
+    local tick = now_tick(event and event.tick)
+    local snapshot = model.refresh_machine_snapshot(runtime, machine_data, tick)
+    if snapshot then
+        model.update_gui(player, snapshot)
+    else
+        model.close_gui(player)
+    end
+end
+
+
+function model.close_gui(player)
+    if not player then
+        return
+    end
+
+    model.clear_gui_session(player.index, true, "gui_closed")
+end
+
+
+function model.on_gui_click(event)
+    local element = event and event.element
+    if not (element and element.valid and element.tags) then
+        return
+    end
+
+    if element.tags.action == "goto-informatron" then
+        remote.call("informatron", "informatron_open_to_page", {
+            player_index = event.player_index,
+            interface = "exotic-industries-informatron",
+            page_name = element.tags.page or "exotic_stabilizer",
+        })
+    end
+end
+
+
+function model.service_due_gui_refreshes(event_tick)
+    local gui_state = model.get_gui_state()
+    local tick = now_tick(event_tick)
+    if gui_state.last_gui_service_tick == tick then
+        return
+    end
+
+    gui_state.last_gui_service_tick = tick
+
+    if next(gui_state.open_by_player) == nil then
+        gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
+        return
+    end
+
+    local due_ticks = {}
+    for bucket_tick, _ in pairs(gui_state.refresh_buckets) do
+        local numeric_tick = tonumber(bucket_tick)
+        if numeric_tick and numeric_tick <= tick then
+            due_ticks[#due_ticks + 1] = numeric_tick
+        end
+    end
+
+    if #due_ticks == 0 then
+        return
+    end
+
+    table.sort(due_ticks)
+
+    local due_players = {}
+    for _, due_tick in pairs(due_ticks) do
+        local bucket = ei_runtime_scheduler.delayed_take_due(gui_state.refresh_buckets, due_tick)
+        for _, player_index in pairs(bucket) do
+            due_players[player_index] = true
+        end
+    end
+
+    local runtime = model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
+        return
+    end
+
+    local player_groups = {}
+    for player_index, _ in pairs(due_players) do
+        local session = gui_state.open_by_player[player_index]
+        if session and session.pending_tick and session.pending_tick <= tick then
+            local player = game and game.get_player(player_index)
+            local opened_entity = model.get_open_matter_machine(player)
+            local opened_unit_number = ei_lib.get_entity_unit_number(opened_entity)
+
+            if not (player and player.valid)
+                or opened_unit_number ~= session.unit_number
+            then
+                model.clear_gui_session(player_index, true, "gui_stale_cleaned")
+            else
+                local group = player_groups[session.unit_number]
+                if not group then
+                    group = {}
+                    player_groups[session.unit_number] = group
+                end
+
+                group[#group + 1] = {
+                    player = player,
+                    player_index = player_index,
+                    session = session,
+                }
+            end
+        end
+    end
+
+    for unit_number, group in pairs(player_groups) do
+        local machine_data = runtime.machines[unit_number]
+        if not machine_data or not model.check_entity(machine_data.entity) then
+            for _, entry in pairs(group) do
+                model.clear_gui_session(entry.player_index, true, "gui_stale_cleaned")
+            end
+        else
+            local snapshot = model.refresh_machine_snapshot(runtime, machine_data, tick)
+            if not snapshot then
+                for _, entry in pairs(group) do
+                    model.clear_gui_session(entry.player_index, true, "gui_stale_cleaned")
+                end
+            else
+                for _, entry in pairs(group) do
+                    entry.session.pending_tick = nil
+                    if entry.session.last_signature ~= snapshot.projection_signature or not get_gui_root(entry.player) then
+                        model.update_gui(entry.player, snapshot)
+                    end
+                end
+            end
+        end
+    end
+end
+
+
+function model.get_runtime_status()
+    local runtime = model.ensure_runtime_ready()
+    local gui_state = model.get_gui_state()
+    local tier_counts = {
+        dormant = 0,
+        stable = 0,
+        strained = 0,
+        critical = 0,
+        unsampled = 0,
+    }
+
+    for _, machine_data in pairs(runtime and runtime.machines or {}) do
+        local entity = machine_data and machine_data.entity
+        if model.check_entity(entity) then
+            local snapshot = machine_data.volatility_snapshot
+            local tier = entity.is_crafting()
+                and ((snapshot and snapshot.current_tier) or machine_data.warning_state or "unsampled")
+                or "dormant"
+            tier_counts[tier] = (tier_counts[tier] or 0) + 1
+        else
+            tier_counts.unsampled = tier_counts.unsampled + 1
+        end
+    end
+
+    local status = {
+        machine_count = runtime and runtime.machine_count or 0,
+        stabilizer_count = runtime and runtime.stabilizer_count or 0,
+        active_surface_count = runtime and #(runtime.active_surfaces or {}) or 0,
+        open_gui_count = ei_runtime_scheduler.table_count(gui_state.open_by_player),
+        watched_machine_count = ei_runtime_scheduler.table_count(gui_state.watchers_by_unit),
+        pending_refresh_bucket_count = ei_runtime_scheduler.delayed_bucket_count(gui_state.refresh_buckets),
+        pending_refresh_item_count = ei_runtime_scheduler.delayed_item_count(gui_state.refresh_buckets),
+        last_gui_service_tick = gui_state.last_gui_service_tick or 0,
+        dormant_count = tier_counts.dormant,
+        stable_count = tier_counts.stable,
+        strained_count = tier_counts.strained,
+        critical_count = tier_counts.critical,
+        unsampled_count = tier_counts.unsampled,
+        tier_counts = tier_counts,
+        entries = runtime and runtime.machine_count or 0,
+    }
+
+    ei_runtime_scheduler.set_module_status(MODULE_NAME, status)
+    return status
 end
 
 
@@ -566,6 +1448,7 @@ function model.remove_stabilizer_by_unit(runtime, unit_number)
         if machine_data then
             machine_data.nearby_stabilizers[unit_number] = nil
         end
+        model.queue_gui_refresh_for_unit(machine_unit_number, now_tick())
     end
 
     model.remove_from_chunk_store(
@@ -588,9 +1471,12 @@ end
 function model.remove_matter_machine_by_unit(runtime, unit_number)
     local machine_data = runtime.machines[unit_number]
     if not machine_data then
+        model.close_sessions_for_unit(unit_number, true, "gui_stale_cleaned")
         storage.ei.matter_machines[unit_number] = nil
         return
     end
+
+    model.close_sessions_for_unit(unit_number, true, "gui_stale_cleaned")
 
     for stabilizer_unit_number, _ in pairs(machine_data.nearby_stabilizers) do
         local stabilizer_data = runtime.stabilizers[stabilizer_unit_number]
@@ -656,6 +1542,7 @@ function model.register_stabilizer(entity)
     local nearby_machines = model.query_nearby_machines(runtime, entity.surface, entity.position, MATTER_RANGE)
     for _, machine_data in pairs(nearby_machines) do
         model.link_stabilizer_and_machine(stabilizer_data, machine_data)
+        model.queue_gui_refresh_for_unit(machine_data.unit_number, now_tick())
     end
 end
 
@@ -685,7 +1572,8 @@ function model.register_matter_machine(entity)
         last_imminent_warning_tick = 0,
         last_crackle_tick = 0,
         last_arc_tick = 0,
-        pulse_seed = unit_number % 360
+        pulse_seed = unit_number % 360,
+        volatility_snapshot = nil,
     }
 
     runtime.machines[unit_number] = machine_data
@@ -905,7 +1793,7 @@ function model.spawn_machine_arc(machine_data, active_stabilizers)
 end
 
 
-function model.update_machine_presentation(runtime, machine_data, risk_tier, risk_per_second_estimate, active_stabilizers)
+function model.update_machine_presentation(runtime, machine_data, risk_tier, risk_per_second_estimate, active_stabilizers, current_tick)
     local entity = machine_data.entity
     if not model.check_entity(entity) then
         return
@@ -915,7 +1803,7 @@ function model.update_machine_presentation(runtime, machine_data, risk_tier, ris
     local light = fx_state.light
     local halo = fx_state.halo
     local outer_aura = fx_state.outer_aura
-    local tick = game.tick
+    local tick = now_tick(current_tick)
     local pulse_period = 16
     local scale_base = 1.38
     local scale_delta = 0.22
@@ -1075,11 +1963,13 @@ function model.reset_machine_state(machine_data)
 end
 
 
-function model.update_matter_machine(machine_data)
+function model.update_matter_machine(machine_data, event_tick)
     local runtime = model.check_global()
     if not machine_data then
         return false
     end
+
+    local tick = now_tick(event_tick)
 
     local entity = machine_data.entity
     if not model.check_entity(entity) then
@@ -1088,23 +1978,43 @@ function model.update_matter_machine(machine_data)
     end
 
     if not entity.is_crafting() then
+        local previous_signature = machine_data.volatility_snapshot and machine_data.volatility_snapshot.projection_signature or nil
         model.reset_machine_state(machine_data)
         model.destroy_machine_fx(runtime, machine_data.unit_number)
+
+        if model.machine_has_watchers(machine_data.unit_number) then
+            local snapshot = model.refresh_machine_snapshot(runtime, machine_data, tick)
+            if snapshot and snapshot.projection_signature ~= previous_signature then
+                model.queue_gui_refresh_for_unit(machine_data.unit_number, tick)
+            end
+        else
+            machine_data.volatility_snapshot = nil
+        end
+
         return true
     end
 
-    local stabilizer_weight, active_stabilizers = model.collect_machine_stabilizers(runtime, machine_data)
-    local progress = entity.crafting_progress or 0
-    local base_chance = model.get_machine_base_chance(entity)
-    local decay = 2.43
-    local updates_per_entity = model.get_updates_per_entity(runtime.machine_count)
-    local risk_per_second_estimate = base_chance / ((stabilizer_weight + 1) ^ decay)
-    risk_per_second_estimate = risk_per_second_estimate * (1 + progress) ^ 3
+    local previous_signature = machine_data.volatility_snapshot and machine_data.volatility_snapshot.projection_signature or nil
+    local snapshot, active_stabilizers = model.refresh_machine_snapshot(runtime, machine_data, tick)
+    if not snapshot then
+        return false
+    end
 
-    local chance = risk_per_second_estimate / updates_per_entity
-    local risk_tier = model.get_risk_tier(risk_per_second_estimate)
+    local chance = snapshot.current_per_update_chance
+    local risk_tier = snapshot.current_tier
 
-    model.update_machine_presentation(runtime, machine_data, risk_tier, risk_per_second_estimate, active_stabilizers)
+    model.update_machine_presentation(
+        runtime,
+        machine_data,
+        risk_tier,
+        snapshot.current_risk_per_second,
+        active_stabilizers,
+        tick
+    )
+
+    if snapshot.projection_signature ~= previous_signature then
+        model.queue_gui_refresh_for_unit(machine_data.unit_number, tick)
+    end
 
     if math.random() < chance then
         ei_lib.notify_connected_players(
@@ -1133,6 +2043,7 @@ function model.rebuild_runtime_state(reason)
 
     runtime.runtime_rebuild_in_progress = true
 
+    model.clear_all_gui_sessions()
     model.destroy_runtime_state(runtime)
     model.reset_runtime_storage(runtime)
 
@@ -1333,12 +2244,12 @@ end
 function model.on_player_left_game(player_index)
     local runtime = model.check_global()
     local render_list = runtime.selected_render[player_index]
-    if not render_list then
-        return
+    if render_list then
+        model.destroy_player_render_list(render_list)
+        runtime.selected_render[player_index] = nil
     end
 
-    model.destroy_player_render_list(render_list)
-    runtime.selected_render[player_index] = nil
+    model.clear_gui_session(player_index, false, "gui_closed")
 end
 
 
@@ -1414,7 +2325,8 @@ function model.on_player_cursor_stack_changed(event)
 end
 
 
-function model.update()
+function model.update(event)
+    local tick = now_tick(event and event.tick)
     local runtime = model.ensure_runtime_ready()
     if not runtime or runtime.runtime_rebuild_in_progress then
         return false
@@ -1422,6 +2334,7 @@ function model.update()
 
     local active_surface_count = #runtime.active_surfaces
     if active_surface_count == 0 then
+        model.service_due_gui_refreshes(tick)
         return false
     end
 
@@ -1453,7 +2366,8 @@ function model.update()
 
                 local machine_data = unit_number and runtime.machines[unit_number]
                 if machine_data then
-                    model.update_matter_machine(machine_data)
+                    model.update_matter_machine(machine_data, tick)
+                    model.service_due_gui_refreshes(tick)
                     return true
                 end
 
@@ -1464,6 +2378,7 @@ function model.update()
         surface_attempts = surface_attempts - 1
     end
 
+    model.service_due_gui_refreshes(tick)
     return false
 end
 

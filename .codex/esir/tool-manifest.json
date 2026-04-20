@@ -1,12 +1,15 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-16T20:13:58.1615752-05:00",
+    "generated_at":  "2026-04-19T21:19:26.3791525-05:00",
     "wrapper":  {
                     "path":  "scripts\\invoke-esir-dev.ps1",
                     "library":  "scripts\\esir-dev-lib.ps1",
                     "tasks":  [
                                   "doctor",
                                   "manifest-refresh",
+                                  "dependency-refresh",
+                                  "dependency-query",
+                                  "dependency-diff",
                                   "preflight",
                                   "qc-fast",
                                   "qc-runtime",
@@ -26,6 +29,23 @@
                                   "full"
                               ]
                 },
+    "dependency_wrapper":  {
+                               "path":  "scripts\\invoke-esir-dependency-intel.ps1",
+                               "library":  "scripts\\esir-dependency-lib.ps1",
+                               "tasks":  [
+                                             "refresh",
+                                             "query",
+                                             "diff"
+                                         ]
+                           },
+    "factorio_lua_docs_wrapper":  {
+                                      "path":  "scripts\\invoke-factorio-lua-docs.ps1",
+                                      "library":  "scripts\\factorio-lua-docs-lib.ps1",
+                                      "tasks":  [
+                                                    "refresh",
+                                                    "query"
+                                                ]
+                                  },
     "engines":  [
                     {
                         "name":  "factorio-mod-qc",
@@ -38,6 +58,33 @@
                         "wrapper":  "C:\\Users\\Theorun\\.codex\\skills\\chatgpt-firefox-companion\\scripts\\invoke-chatgpt-firefox-companion.ps1"
                     }
                 ],
+    "repo_skills":  [
+                        {
+                            "name":  "esir-dev",
+                            "root":  ".codex\\skills\\esir-dev",
+                            "wrapper":  "scripts\\invoke-esir-dev.ps1"
+                        },
+                        {
+                            "name":  "esir-dependency-intel",
+                            "root":  ".codex\\skills\\esir-dependency-intel",
+                            "wrapper":  "scripts\\invoke-esir-dependency-intel.ps1"
+                        },
+                        {
+                            "name":  "factorio-lua-docs",
+                            "root":  ".codex\\skills\\factorio-lua-docs",
+                            "wrapper":  "scripts\\invoke-factorio-lua-docs.ps1"
+                        }
+                    ],
+    "manifests":  [
+                      ".codex\\esir\\runtime-modules.json",
+                      ".codex\\esir\\prototype-index.json",
+                      ".codex\\esir\\pack-manifest.json",
+                      ".codex\\esir\\save-catalog.json",
+                      ".codex\\esir\\tool-manifest.json",
+                      ".codex\\esir\\portal-shortlist.json",
+                      ".codex\\esir\\asset-import-plan.json",
+                      ".codex\\esir\\dependency-catalog.json"
+                  ],
     "legacy_scripts":  [
                            "process.ps1",
                            "graphics1_process.ps1",

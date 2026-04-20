@@ -29,7 +29,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
-ei_update_functions_length = 10 --# of entity updaters updater() goes through
+ei_update_functions_length = 11 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
@@ -77,6 +77,7 @@ ei_steam_train = require("scripts/control/steam-train")
 ei_camp_fire = require("scripts/control/camp-fire")
 orbital_combinator = require("scripts/control/orbital-combinator")
 local orbital_logistics = require("scripts/control/orbital-logistics")
+local ei_railgun_cooling = require("scripts/control/railgun-cooling")
 
 local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
 
@@ -110,6 +111,12 @@ local function register_exotic_industries_qc_remote()
         end,
         service_orbital_logistics_qc = function(limit)
             return orbital_logistics.service_for_qc(limit, game and game.tick or 0)
+        end,
+        rebuild_railgun_cooling_runtime = function()
+            ei_railgun_cooling.rebuild_runtime_state("qc-remote", game and game.tick or 0)
+        end,
+        get_railgun_cooling_qc_snapshot = function()
+            return ei_railgun_cooling.get_qc_snapshot(game and game.tick or 0)
         end,
         get_research_hitch_qc_snapshot = function()
             local ei_state = storage and storage.ei or {}
@@ -376,10 +383,12 @@ local function refresh_runtime_telemetry_snapshot()
         ei_rocket_launch_pollution,
         ei_flammable_rupture_scheduler,
         ei_fluid_safety,
+        ei_matter_stabilizer,
         em_trains,
         ei_black_hole,
         ei_vulcanus_fumaroles,
         orbital_logistics,
+        ei_railgun_cooling,
     }
 
     for _, module_ref in ipairs(modules) do
@@ -449,6 +458,8 @@ script.on_init(function(event)
     ei_compat.check_init(event)
     orbital_combinator.check_init()
     orbital_logistics.check_init()
+    ei_railgun_cooling.check_global()
+    ei_railgun_cooling.rebuild_runtime_state("init", event and event.tick or 0)
     -- Steam train wheel helpers are runtime-only entities, so init always rebuilds that cache
     -- from the live world instead of trusting whatever happened to be serialized last save.
     ei_steam_train.check_global()
@@ -568,6 +579,7 @@ end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
+    ei_neutron_collector.on_entity_settings_pasted(e)
     orbital_combinator.on_entity_settings_pasted(e)
     orbital_logistics.on_entity_settings_pasted(e)
 end)
@@ -576,6 +588,11 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
     -- Platform travel/state changes can move a platform into or out of a scanner surface snapshot.
     orbital_combinator.on_space_platform_changed_state(e)
     orbital_logistics.on_space_platform_changed_state(e)
+    ei_railgun_cooling.on_space_platform_changed_state(e)
+end)
+
+script.on_event(defines.events.on_player_rotated_entity, function(e)
+    ei_railgun_cooling.on_player_rotated_entity(e)
 end)
 
 script.on_event(defines.events.on_cargo_pod_finished_ascending, function(e)
@@ -592,6 +609,7 @@ end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
     orbital_combinator.on_object_destroyed(e)
+    ei_railgun_cooling.on_object_destroyed(e)
 end)
 
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
@@ -650,12 +668,15 @@ end)
 
 local function get_valid_gui_entity(event, player, allow_opened_fallback)
     local entity = ei_lib.get_valid_entity(event and event.entity)
-    if entity then
+    if entity and entity.object_name == "LuaEntity" then
         return entity
     end
 
     if allow_opened_fallback then
-        return ei_lib.get_valid_entity(player and player.opened)
+        entity = ei_lib.get_valid_entity(player and player.opened)
+        if entity and entity.object_name == "LuaEntity" then
+            return entity
+        end
     end
 
     return nil
@@ -686,6 +707,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
 
     if not name then
       return
+    elseif name == "ei-neutron-collector" then
+        ei_neutron_collector.on_gui_opened(event)
     elseif name == "ei-fusion-reactor" then
         ei_fusion_reactor.open_gui(player --[[@as LuaPlayer]])
     elseif ei_induction_matrix.core[name] or ei_induction_matrix.proxy[name] then
@@ -698,8 +721,14 @@ script.on_event(defines.events.on_gui_opened, function(event)
         orbital_combinator.on_gui_opened(event)
     elseif is_orbital_logistics_terminal_name(name) then
         orbital_logistics.open_gui(player, entity)
+    elseif name == "railgun-turret" then
+        ei_railgun_cooling.open_gui(player, entity)
     elseif name == "ei-fueler" then
         ei_fueler.open_gui(player)
+    elseif name == "ei-exotic-assembler" then
+        if ei_matter_stabilizer and ei_matter_stabilizer.open_gui then
+            ei_matter_stabilizer.open_gui(player --[[@as LuaPlayer]], event)
+        end
     end
 end)
 
@@ -711,7 +740,9 @@ script.on_event(defines.events.on_gui_closed, function(event)
     local name = entity and entity.name or nil
     local element_name = element and element.name or nil
 
-    if name == "ei-fusion-reactor" then
+    if name == "ei-neutron-collector" or element_name == "ei-neutron-collector-console" then
+        ei_neutron_collector.close_gui(game.get_player(event.player_index))
+    elseif name == "ei-fusion-reactor" then
        ei_fusion_reactor.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif element_name == "ei-induction-matrix-console" then
         ei_induction_matrix.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
@@ -720,14 +751,19 @@ script.on_event(defines.events.on_gui_closed, function(event)
     elseif name == "ei-gate-container" then
         ei_gate.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-orbital-combinator" or element_name == "ei-orbital-combinator-console" then
-        orbital_combinator.on_gui_closed(event)
+        orbital_combinator.on_gui_closed(game.get_player(event.player_index))
     elseif is_orbital_logistics_terminal_name(name)
         or element_name == "ei-orbital-logistics-console"
     then
-        local player = game.get_player(event.player_index)
-        orbital_logistics.close_gui(player)
+        orbital_logistics.close_gui(game.get_player(event.player_index))
+    elseif name == "railgun-turret" or element_name == "ei-railgun-cooling-console" then
+        ei_railgun_cooling.close_gui(game.get_player(event.player_index))
     elseif name == "ei-fueler" then
         ei_fueler.close_gui(game.get_player(event.player_index))
+    elseif name == "ei-exotic-assembler" or element_name == "ei-exotic-assembler-console" then
+        if ei_matter_stabilizer and ei_matter_stabilizer.close_gui then
+            ei_matter_stabilizer.close_gui(game.get_player(event.player_index))
+        end
     end
 end)
 
@@ -740,7 +776,9 @@ script.on_event(defines.events.on_gui_click, function(event)
     local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
-    if parent_gui == "ei-fusion-reactor-console" then
+    if parent_gui == "ei-neutron-collector-console" then
+        ei_neutron_collector.on_gui_click(event)
+    elseif parent_gui == "ei-fusion-reactor-console" then
         ei_fusion_reactor.on_gui_click(event)
     elseif parent_gui == "ei-induction-matrix-console" then
         ei_induction_matrix.on_gui_click(event)
@@ -754,8 +792,14 @@ script.on_event(defines.events.on_gui_click, function(event)
         orbital_combinator.on_gui_click(event)
     elseif parent_gui == "ei-orbital-logistics-console" then
         orbital_logistics.on_gui_click(event)
+    elseif parent_gui == "ei-railgun-cooling-console" then
+        ei_railgun_cooling.on_gui_click(event)
     elseif parent_gui == "ei-fueler-console" then
         ei_fueler.on_gui_click(event)
+    elseif parent_gui == "ei-exotic-assembler-console" then
+        if ei_matter_stabilizer and ei_matter_stabilizer.on_gui_click then
+            ei_matter_stabilizer.on_gui_click(event)
+        end
     elseif parent_gui == "mod_gui" then
       em_trains_gui.on_gui_click(event)
     elseif parent_gui == "em_trains_mod-gui" then
@@ -779,8 +823,21 @@ script.on_event(defines.events.on_gui_value_changed, function(event)
     end
 end)
 
+script.on_event(defines.events.on_gui_text_changed, function(event)
+    -- Text-entry side panels opt into this explicitly so draft typing stays local.
+    local element = get_valid_gui_element(event)
+    if not element then return end
+
+    local parent_gui = element.tags and element.tags.parent_gui
+    if not parent_gui then return end
+
+    if parent_gui == "ei-orbital-logistics-console" then
+        orbital_logistics.on_gui_text_changed(event)
+    end
+end)
+
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
-    -- Selection-state changes are currently only meaningful for the gate console dropdowns.
+    -- Selection-state changes are currently only meaningful for gate dropdowns and the orbital silo picker.
     local element = get_valid_gui_element(event)
     if not element then return end
 
@@ -798,6 +855,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
     -- Script trigger effects are used for capsule/remote actions that originate from data-stage
     -- prototypes but need runtime behavior.
     ei_teslas_legacy.on_script_trigger_effect(event)
+    ei_railgun_cooling.on_script_trigger_effect(event)
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
@@ -805,9 +863,12 @@ end)
 
 script.on_event(defines.events.on_player_left_game, function(event)
     -- Gate remote state is player-bound, so disconnects need explicit cleanup.
+    ei_neutron_collector.on_player_left_game(event.player_index)
     ei_gate.on_player_left_game(event.player_index)
     ei_fueler.on_player_left_game(event.player_index)
     ei_matter_stabilizer.on_player_left_game(event.player_index)
+    orbital_logistics.on_player_left_game(event.player_index)
+    ei_railgun_cooling.on_player_left_game(event.player_index)
 end)
 
 --OTHER
@@ -824,6 +885,7 @@ script.on_configuration_changed(function(e)
     if mod_changes_present or startup_settings_changed then
         ei_flammable_rupture_scheduler.check_global()
         ei_vulcanus_fumaroles.check_global()
+        ei_railgun_cooling.check_global()
         if ei_fluid_safety and ei_fluid_safety.on_configuration_changed then
             ei_fluid_safety.on_configuration_changed(e)
         end
@@ -885,6 +947,7 @@ script.on_configuration_changed(function(e)
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()
         orbital_logistics.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+        ei_railgun_cooling.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_vulcanus_fumaroles.on_configuration_changed(e)
     end
 
@@ -1011,7 +1074,7 @@ function updater(event)
                if math.max(1,math.min(math.ceil(live_machine_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                    goto skip
                    end
-               if not ei_matter_stabilizer.update() then
+               if not ei_matter_stabilizer.update(event) then
                 goto skip
                end
            end
@@ -1123,6 +1186,22 @@ function updater(event)
                    end
                end
            end
+       elseif ei_update_step == 11 then
+           -- Step 11 services overheated railguns only. Healthy railguns stay fully event-driven.
+           local railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
+           if railgun_pending_work_count > 0 then
+               updates_needed = math.max(1, math.min(math.ceil(railgun_pending_work_count / divisor), ei_maxEntityUpdates))
+               for i = 1, updates_needed do
+                   local current_railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
+                   if current_railgun_pending_work_count == 0
+                   or math.max(1, math.min(math.ceil(current_railgun_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                       goto skip
+                   end
+                   if not ei_railgun_cooling.update(event) then
+                       goto skip
+                   end
+               end
+           end
        end
    end
     ::skip::
@@ -1214,6 +1293,7 @@ function on_built_entity(e)
     em_trains.on_built_entity(e["entity"])
     orbital_combinator.add(e["entity"])
     orbital_logistics.on_built_entity(e)
+    ei_railgun_cooling.on_built_entity(e)
     ei_steam_train.on_built_entity(e)
     ei_camp_fire.on_built_entity(e)
     ei_teslas_legacy.on_built_entity(e)
@@ -1264,6 +1344,7 @@ function on_destroyed_entity(e)
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])
     orbital_logistics.on_destroyed_entity(e)
+    ei_railgun_cooling.on_destroyed_entity(e)
     ei_camp_fire.on_destroyed_entity(e)
     -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
     ei_steam_train.on_destroyed_entity(e["entity"])

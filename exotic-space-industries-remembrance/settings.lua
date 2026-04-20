@@ -423,6 +423,13 @@ data:extend({
       order  = "c1g5b",
   },
   {
+      name = "ei-enable-preliminary-k2so-patch",
+      type = "bool-setting",
+      setting_type = "startup",
+      default_value = false,
+      order  = "zzzz-k2so",
+  },
+  {
       name = "ei-gate-notifications",
       type = "bool-setting",
       setting_type = "runtime-per-user",

@@ -1,4 +1,5 @@
 /.factorio-qc
+/.factorio-lua-docs-cache
 /.tmp_inspect
 /output
 /tmp

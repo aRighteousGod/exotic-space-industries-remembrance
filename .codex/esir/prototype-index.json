@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-16T20:13:58.0785702-05:00",
+    "generated_at":  "2026-04-19T21:19:24.3936564-05:00",
     "repo_root":  "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance-2",
     "direct_requires":  [
                             {
@@ -153,6 +153,7 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-logistics-cohort.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua"
                                              ]
@@ -331,6 +332,7 @@
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-logistics-cohort.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo-effects.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua",

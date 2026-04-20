@@ -1,0 +1,4 @@
+interface:
+  display_name: "Factorio Lua Docs"
+  short_description: "Query the official Factorio Lua runtime, prototype, auxiliary, and wiki docs"
+  default_prompt: "Use $factorio-lua-docs first for official Factorio API, prototype, event, GUI, migration, localisation, or scripting documentation questions before relying on memory."

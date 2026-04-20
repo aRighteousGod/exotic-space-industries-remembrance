@@ -190,7 +190,15 @@ function ei_lib.switch_string(switch_table, string)
 end
 
 function ei_lib.get_event_tick(event)
-    return event and event.tick or 0
+    if type(event) == "number" then
+        return event
+    end
+
+    if type(event) == "table" then
+        return event.tick or 0
+    end
+
+    return 0
 end
 
 -- quick access to startup settings

@@ -20,6 +20,10 @@ local PAGE_RESEARCH = {
         page = "specialised_pipes",
         caption = {"exotic-industries-informatron.title_specialised_pipes"},
     }},
+    ["railgun"] = {{
+        page = "railgun_cooling",
+        caption = {"exotic-industries-informatron.title_railgun_cooling"},
+    }},
     ["ei-tank"] = {{
         page = "flammable_ruptures",
         caption = {"exotic-industries-informatron.title_flammable_ruptures"},

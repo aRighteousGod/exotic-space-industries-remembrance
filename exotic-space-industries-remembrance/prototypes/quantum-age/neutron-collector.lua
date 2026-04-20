@@ -97,6 +97,7 @@ data:extend({
         collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         map_color = ei_data.colors.assembler,
+        gui_mode = "all",
         crafting_categories = {"ei-neutron-collector"},
         crafting_speed = 1,
         heating_energy = "100kW",
@@ -182,6 +183,101 @@ data:extend({
     },
 })
 
+local function make_neutron_signal_icons(base_icon, overlay_name, tint)
+    return {
+        {
+            icon = base_icon,
+            icon_size = 64,
+        },
+        {
+            icon = ei_graphics_other_path..overlay_name,
+            icon_size = 64,
+            tint = tint,
+        },
+    }
+end
+
+local neutron_wire_proxy = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+neutron_wire_proxy.name = "ei-neutron-collector-circuit-interface"
+neutron_wire_proxy.icon = ei_graphics_other_path.."64_empty.png"
+neutron_wire_proxy.flags = {"not-blueprintable", "not-deconstructable", "not-on-map", "not-flammable", "not-repairable", "not-upgradable", "hide-alt-info"}
+neutron_wire_proxy.hidden = true
+neutron_wire_proxy.gui_mode = "none"
+neutron_wire_proxy.selectable_in_game = false
+neutron_wire_proxy.minable = nil
+neutron_wire_proxy.max_health = 300
+neutron_wire_proxy.collision_box = {{0, 0}, {0, 0}}
+neutron_wire_proxy.selection_box = {{0, 0}, {0, 0}}
+neutron_wire_proxy.item_slot_count = 5
+neutron_wire_proxy.activity_led_light = {intensity = 0, size = 0, color = {r = 1, g = 1, b = 1}}
+neutron_wire_proxy.activity_led_sprites = {
+    north = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    east = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    south = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    west = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+}
+neutron_wire_proxy.sprites = {
+    north = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    east = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    south = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    west = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+}
+neutron_wire_proxy.circuit_wire_max_distance = default_circuit_wire_max_distance
+
+data:extend({
+    neutron_wire_proxy,
+    {
+        type = "virtual-signal",
+        name = "ei-neutron-efficiency",
+        icons = make_neutron_signal_icons(
+            ei_graphics_item_path.."charged-neutron-container.png",
+            "overlay_1.png",
+            {r = 0.25, g = 0.92, b = 1, a = 0.95}
+        ),
+        order = "ei-neutron-a",
+    },
+    {
+        type = "virtual-signal",
+        name = "ei-neutron-distance",
+        icons = make_neutron_signal_icons(
+            ei_graphics_item_path.."neutron-collector.png",
+            "overlay_2.png",
+            {r = 1, g = 0.75, b = 0.2, a = 0.95}
+        ),
+        order = "ei-neutron-b",
+    },
+    {
+        type = "virtual-signal",
+        name = "ei-neutron-collector-agent",
+        icons = make_neutron_signal_icons(
+            ei_graphics_item_path.."neutron-collector.png",
+            "overlay_3.png",
+            {r = 0.2, g = 0.95, b = 0.4, a = 0.95}
+        ),
+        order = "ei-neutron-c",
+    },
+    {
+        type = "virtual-signal",
+        name = "ei-neutron-source-agent",
+        icons = make_neutron_signal_icons(
+            ei_graphics_item_path.."fusion-reactor.png",
+            "overlay_1.png",
+            {r = 0.35, g = 0.62, b = 1, a = 0.95}
+        ),
+        order = "ei-neutron-d",
+    },
+    {
+        type = "virtual-signal",
+        name = "ei-neutron-scan-agent",
+        icons = make_neutron_signal_icons(
+            ei_graphics_item_path.."neutron-container.png",
+            "overlay_3.png",
+            {r = 0.9, g = 0.35, b = 1, a = 0.95}
+        ),
+        order = "ei-neutron-e",
+    },
+})
+
 --RECIPES FOR CHARGED NEUTRON CONTAINER
 ------------------------------------------------------------------------------------------------------
 
@@ -200,6 +296,18 @@ local base_recipe = {
     hidden = true,
     main_product = "ei-charged-neutron-container",
 }
+
+local idle_recipe = util.table.deepcopy(base_recipe)
+idle_recipe.name = "ei-neutron-collector-idle"
+idle_recipe.ingredients = {
+    {type = "item", name = "ei-neutron-container", amount = 1},
+}
+idle_recipe.results = {
+    {type = "item", name = "ei-neutron-container", amount = 1},
+}
+idle_recipe.energy_required = 1
+idle_recipe.main_product = "ei-neutron-container"
+data:extend({idle_recipe})
 
 -- make recipes for 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 .. 200 percent efficiency
 for i = 10, 300, 10 do

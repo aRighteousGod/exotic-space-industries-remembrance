@@ -355,8 +355,11 @@ if not mods["castra"] then
   remove_entry(family_assignments["electric-logistics"], "ei-military-loader")
 end
 
-if not (mods["Krastorio2"] or mods["Krastorio2-spaced-out"]) then
+if not mods["Krastorio2"] then
   remove_entry(family_assignments["electric-logistics"], "ei-kr-advanced-loader")
+end
+
+if not (mods["Krastorio2"] or mods["Krastorio2-spaced-out"]) then
   remove_entry(family_assignments["quantum"], "ei-kr-superior-loader")
 end
 

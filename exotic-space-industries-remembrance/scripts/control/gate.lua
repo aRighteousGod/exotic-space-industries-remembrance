@@ -34,6 +34,7 @@ local SIGNAL_GATE_ENERGY = {type = "virtual", name = "ei-gate-energy", quality =
 local SIGNAL_GATE_STRESS = {type = "virtual", name = "ei-gate-stress", quality = "normal"}
 local GATE_WIRE_PROXY_NAME = "ei-gate-circuit-interface"
 local GATE_WIRE_PROXY_OFFSET = {x = 0, y = 0.75}
+local GATE_WIRE_SCAN_INTERVAL_TICKS = 60
 local MAX_GATE_STRESS = 100
 local MAX_RECEIVER_SATURATION = 100
 local RESIDUE_THRESHOLD = 250
@@ -66,6 +67,66 @@ local GATE_TENDRIL_SOURCE_OFFSETS = {
     {x = 4.15, y = -0.85},
     {x = 3.55, y = 1.25},
 }
+local GATE_ANIMATION_LIGHT_COLORS = {
+    {r = 0, g = 0.4, b = 1.0},
+    {r = 0.4, g = 0.2, b = 1.0},
+    {r = 0.2, g = 0.2, b = 1.0},
+    {r = 0.4, g = 0.1, b = 0.8},
+}
+local GATE_RUNTIME_STATUS_STABLE_TEXT = {"exotic-industries.gate-gui-runtime-stable"}
+local GATE_RUNTIME_STATUS_COOLING_TEXT = {"exotic-industries.gate-gui-runtime-cooling"}
+local GATE_RUNTIME_STATUS_CRITICAL_TEXT = {"exotic-industries.gate-gui-runtime-critical"}
+local GATE_RECEIVER_STRAIN_LOW_TEXT = {"exotic-industries.gate-gui-receiver-strain-low"}
+local GATE_RECEIVER_STRAIN_MEDIUM_TEXT = {"exotic-industries.gate-gui-receiver-strain-medium"}
+local GATE_RECEIVER_STRAIN_HIGH_TEXT = {"exotic-industries.gate-gui-receiver-strain-high"}
+local GATE_RECEIVER_STRAIN_SATURATED_TEXT = {"exotic-industries.gate-gui-receiver-strain-saturated"}
+local GATE_CONTROL_SOURCE_MANUAL_TEXT = {"exotic-industries.gate-gui-control-source-manual"}
+local GATE_CONTROL_SOURCE_CIRCUIT_TEXT = {"exotic-industries.gate-gui-control-source-circuit"}
+local GATE_STATE_ON_CAPTION = {"exotic-industries.gate-gui-control-state-button", "ON"}
+local GATE_STATE_OFF_CAPTION = {"exotic-industries.gate-gui-control-state-button", "OFF"}
+local GATE_CAMERA_FALLBACK_POSITION = {x = 0, y = 0}
+local GATE_SPAN_UNRESOLVED_CAPTION = {"exotic-industries.gate-gui-status-span-unresolved"}
+local GATE_SPAN_UNRESOLVED_TOOLTIP = {"exotic-industries.gate-gui-status-span-tooltip-unresolved"}
+local GATE_LEGACY_STATUS_NONE = {"exotic-industries.gate-gui-legacy-none"}
+local EMPTY_GUI_TAGS = {}
+
+
+local function make_gate_gui_projection_signature(data)
+    local preview_pos = data.preview_pos
+    local parts = {
+        data.gate_unit or 0,
+        data.energy_mj_text or "",
+        data.energy / data.max_energy,
+        data.span_resolved and 1 or 0,
+        data.span_target_surface_index or 0,
+        data.span_multiplier_raw or 0,
+        data.span_distance_raw or 0,
+        data.span_value or 0,
+        data.stress or 0,
+        data.stress_ratio or 0,
+        data.receiver_dropdown_generation or 0,
+        data.receiver_dropdown_variant or "normal",
+        data.receiver_dropdown_variant_id or 0,
+        data.selected_index or 0,
+        data.legacy_status_mode or "none",
+        data.legacy_surface or "",
+        data.legacy_x or 0,
+        data.legacy_y or 0,
+        data.control_source_mode or "manual",
+        data.runtime_status_mode or "stable",
+        data.receiver_strain_mode or "low",
+        data.preview_surface_index or 0,
+        preview_pos and preview_pos.x or GATE_CAMERA_FALLBACK_POSITION.x,
+        preview_pos and preview_pos.y or GATE_CAMERA_FALLBACK_POSITION.y,
+        data.state and 1 or 0,
+    }
+
+    for index = 1, #parts do
+        parts[index] = tostring(parts[index])
+    end
+
+    return table.concat(parts, "|")
+end
 
 --====================================================================================================
 -- GATE
@@ -899,8 +960,32 @@ function model.check_global_init()
         storage.ei.gate.open_redirect = {}
     end
 
+    if not storage.ei.gate.open_gui_players then
+        storage.ei.gate.open_gui_players = {}
+    end
+
+    if not storage.ei.gate.gui_projection_cache then
+        storage.ei.gate.gui_projection_cache = {}
+    end
+
+    if not storage.ei.gate.gui_elements_cache then
+        storage.ei.gate.gui_elements_cache = {}
+    end
+
     if storage.ei.gate.receiver_registry_dirty == nil then
         storage.ei.gate.receiver_registry_dirty = false
+    end
+
+    if storage.ei.gate.receiver_registry_generation == nil then
+        storage.ei.gate.receiver_registry_generation = 0
+    end
+
+    if not storage.ei.gate.receiver_dropdown_cache then
+        storage.ei.gate.receiver_dropdown_cache = {
+            generation = -1,
+            by_force = {},
+            variants = {},
+        }
     end
 
 end
@@ -971,6 +1056,7 @@ function model.copy_exit(exit)
 
     return {
         surface = exit.surface,
+        surface_index = exit.surface_index,
         x = exit.x,
         y = exit.y
     }
@@ -980,6 +1066,17 @@ end
 
 local function lerp(minimum, maximum, ratio)
     return minimum + ((maximum - minimum) * ratio)
+end
+
+
+local function mark_gate_resolution_dirty(gate_data)
+    if not gate_data then
+        return
+    end
+
+    gate_data.resolve_revision = (gate_data.resolve_revision or 0) + 1
+    gate_data.last_resolve_tick = nil
+    gate_data.distance_snapshot = nil
 end
 
 
@@ -1180,6 +1277,58 @@ function model.distance_multiplier_to_span_ratio(multiplier)
 end
 
 
+local function decorate_distance_snapshot(snapshot, source_surface, target_surface)
+    if not snapshot then
+        return nil
+    end
+
+    local resolved = snapshot.resolved or target_surface ~= nil
+    local multiplier = snapshot.distance_multiplier or 0
+    local raw_distance = snapshot.raw_distance or 0
+
+    snapshot.gui_target_surface_index = target_surface and ei_lib.get_surface_index(target_surface) or 0
+    snapshot.gui_multiplier_raw = multiplier
+    snapshot.gui_distance_raw = raw_distance
+    snapshot.gui_resolved = resolved
+
+    local multiplier_text = snapshot.gui_multiplier_text
+    if not multiplier_text or snapshot.gui_multiplier_value ~= multiplier then
+        multiplier_text = string.format("%.2f", multiplier)
+        snapshot.gui_multiplier_text = multiplier_text
+        snapshot.gui_multiplier_value = multiplier
+    end
+
+    local distance_text = snapshot.gui_distance_text
+    if not distance_text or snapshot.gui_distance_value ~= raw_distance then
+        distance_text = string.format("%.1f", raw_distance)
+        snapshot.gui_distance_text = distance_text
+        snapshot.gui_distance_value = raw_distance
+    end
+
+    if resolved then
+        snapshot.gui_caption = {
+            "exotic-industries.gate-gui-status-span",
+            snapshot.span_band or {"exotic-industries.gate-gui-span-band-local"},
+            multiplier_text
+        }
+        snapshot.gui_tooltip = {
+            "exotic-industries.gate-gui-status-span-tooltip",
+            snapshot.source_anchor_name or make_surface_label(source_surface),
+            snapshot.target_anchor_name or {"exotic-industries.gate-gui-status-span-unresolved-anchor"},
+            distance_text,
+            multiplier_text
+        }
+        snapshot.gui_value = snapshot.span_ratio or 0
+    else
+        snapshot.gui_caption = GATE_SPAN_UNRESOLVED_CAPTION
+        snapshot.gui_tooltip = GATE_SPAN_UNRESOLVED_TOOLTIP
+        snapshot.gui_value = 0
+    end
+
+    return snapshot
+end
+
+
 function model.resolve_distance_quote(source_surface, target_surface)
     -- Distance pricing is layered on top of cargo burden:
     -- - same surface: almost free
@@ -1287,8 +1436,19 @@ function model.get_gate_target_surface(gate_data)
     end
 
     local exit = gate_data.effective_exit or gate_data.legacy_exit
-    if exit and exit.surface then
-        return game.get_surface(exit.surface)
+    if exit then
+        local surface = exit.surface_index and game.surfaces[exit.surface_index] or nil
+        if surface then
+            return surface
+        end
+
+        if exit.surface then
+            surface = game.get_surface(exit.surface)
+            if surface then
+                exit.surface_index = surface.index
+            end
+            return surface
+        end
     end
 
     return nil
@@ -1301,8 +1461,39 @@ function model.update_distance_snapshot(gate, gate_data)
     end
 
     local target_surface = model.get_gate_target_surface(gate_data)
-    gate_data.distance_snapshot = model.resolve_distance_quote(gate.surface, target_surface)
+    gate_data.distance_snapshot = decorate_distance_snapshot(
+        model.resolve_distance_quote(gate.surface, target_surface),
+        gate.surface,
+        target_surface
+    )
     return gate_data.distance_snapshot
+end
+
+
+local function get_cached_legacy_status(exit)
+    if not exit then
+        return GATE_LEGACY_STATUS_NONE
+    end
+
+    local cached_status = exit.legacy_status_caption
+    if not cached_status
+    or exit.legacy_status_surface ~= exit.surface
+    or exit.legacy_status_x ~= exit.x
+    or exit.legacy_status_y ~= exit.y then
+        cached_status = {
+            "exotic-industries.gate-gui-legacy-destination",
+            exit.surface,
+            exit.x,
+            exit.y,
+            exit.surface
+        }
+        exit.legacy_status_caption = cached_status
+        exit.legacy_status_surface = exit.surface
+        exit.legacy_status_x = exit.x
+        exit.legacy_status_y = exit.y
+    end
+
+    return cached_status
 end
 
 
@@ -1449,6 +1640,22 @@ function model.ensure_gate_defaults(gate_unit, event)
         gate_data.last_low_power = false
     end
 
+    if gate_data.resolve_revision == nil then
+        gate_data.resolve_revision = 0
+    end
+
+    if gate_data.last_resolve_tick == nil then
+        gate_data.last_resolve_tick = -1
+    end
+
+    if gate_data.last_resolve_revision == nil then
+        gate_data.last_resolve_revision = -1
+    end
+
+    if gate_data.last_resolve_registry_generation == nil then
+        gate_data.last_resolve_registry_generation = -1
+    end
+
     if gate_data.stress == nil then
         gate_data.stress = 0
     end
@@ -1476,6 +1683,10 @@ function model.ensure_gate_defaults(gate_unit, event)
 
     if gate_data.last_signal_update_tick == nil then
         gate_data.last_signal_update_tick = -60
+    end
+
+    if gate_data.last_wire_probe_tick == nil then
+        gate_data.last_wire_probe_tick = -GATE_WIRE_SCAN_INTERVAL_TICKS
     end
 
     if gate_data.wire_proxy_wired == nil then
@@ -1576,7 +1787,6 @@ function model.register_receiver(receiver, event)
 
     storage.ei.gate.receiver[unit] = storage.ei.gate.receiver[unit] or {}
     storage.ei.gate.receiver[unit].entity = receiver
-    model.ensure_receiver_defaults(unit, event)
     model.refresh_receivers(event)
 
 end
@@ -1612,7 +1822,7 @@ function model.get_signal_value(entity, signal)
         end
 
         for connector_id, connector in pairs(connectors) do
-            if connector and connector.valid then
+            if connector and connector.valid and connector.real_connections and #connector.real_connections > 0 then
                 local network_ok, network = pcall(source.get_circuit_network, connector_id)
                 if network_ok and network and not seen_networks[network.network_id] then
                     seen_networks[network.network_id] = true
@@ -1663,7 +1873,7 @@ function model.get_gate_signal_value(gate_data, signal)
         end
 
         for connector_id, connector in pairs(connectors) do
-            if connector and connector.valid then
+            if connector and connector.valid and connector.real_connections and #connector.real_connections > 0 then
                 local network_ok, network = pcall(source.get_circuit_network, connector_id)
                 if network_ok and network and not seen_networks[network.network_id] then
                     seen_networks[network.network_id] = true
@@ -1682,6 +1892,58 @@ function model.get_gate_signal_value(gate_data, signal)
 
     return total
 
+end
+
+
+local GATE_CONTROL_SIGNAL_DEFS = {
+    {key = "enable", signal = SIGNAL_GATE_ENABLE},
+    {key = "destination", signal = SIGNAL_GATE_DESTINATION},
+}
+
+
+local function get_gate_control_signals(gate_data)
+    local totals = {
+        enable = 0,
+        destination = 0,
+    }
+
+    if not gate_data then
+        return totals
+    end
+
+    local seen_networks = {}
+
+    local function add_entity_signals(source)
+        if not model.entity_check(source) then
+            return
+        end
+
+        local ok, connectors = pcall(source.get_wire_connectors, false)
+        if not ok or type(connectors) ~= "table" then
+            return
+        end
+
+        for connector_id, connector in pairs(connectors) do
+            if connector and connector.valid and connector.real_connections and #connector.real_connections > 0 then
+                local network_ok, network = pcall(source.get_circuit_network, connector_id)
+                if network_ok and network and not seen_networks[network.network_id] then
+                    seen_networks[network.network_id] = true
+
+                    for _, signal_def in ipairs(GATE_CONTROL_SIGNAL_DEFS) do
+                        local signal_ok, value = pcall(network.get_signal, signal_def.signal)
+                        if signal_ok and value then
+                            totals[signal_def.key] = totals[signal_def.key] + value
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    add_entity_signals(gate_data.container)
+    add_entity_signals(gate_data.wire_proxy)
+
+    return totals
 end
 
 
@@ -1983,10 +2245,26 @@ function model.update_input_lock(gate, gate_data)
         return
     end
 
+    local container_unit = get_entity_unit_number(gate_data.container) or 0
+    if gate_data.last_input_bar_container_unit ~= container_unit then
+        gate_data.last_input_bar_container_unit = container_unit
+        gate_data.last_input_bar = nil
+    end
+
     local bar = model.should_lock_input(gate, gate_data) and 0 or (#inventory + 1)
+    if gate_data.last_input_bar == bar then
+        return
+    end
+
     local ok = pcall(inventory.set_bar, bar)
-    if not ok and bar == 0 then
+    if ok then
+        gate_data.last_input_bar = bar
+        return
+    end
+
+    if bar == 0 then
         pcall(inventory.set_bar, 1)
+        gate_data.last_input_bar = bar
     end
 end
 
@@ -2044,6 +2322,7 @@ local function ensure_internal_wire(source_entity, source_id, target_entity, tar
 
     local ok, connected = pcall(
         source.connect_to,
+        source,
         target,
         false,
         defines.wire_origin.script
@@ -2142,6 +2421,16 @@ function model.attach_wire_proxy_to_container(gate_data)
         return false
     end
 
+    local container_red_id = resolve_wire_connector_id(container, {
+        defines.wire_connector_id.circuit_red,
+        defines.wire_connector_id.combinator_output_red,
+        defines.wire_connector_id.combinator_input_red,
+    })
+    local container_green_id = resolve_wire_connector_id(container, {
+        defines.wire_connector_id.circuit_green,
+        defines.wire_connector_id.combinator_output_green,
+        defines.wire_connector_id.combinator_input_green,
+    })
     local proxy_red_id = resolve_wire_connector_id(proxy, {
         defines.wire_connector_id.combinator_output_red,
         defines.wire_connector_id.circuit_red,
@@ -2153,25 +2442,30 @@ function model.attach_wire_proxy_to_container(gate_data)
         defines.wire_connector_id.combinator_input_green,
     })
 
-    if not proxy_red_id or not proxy_green_id then
+    if (not container_red_id and not container_green_id) or (not proxy_red_id and not proxy_green_id) then
         gate_data.wire_proxy_connected = false
         return false
     end
 
-    local red_connected = ensure_internal_wire(
-        container,
-        defines.wire_connector_id.circuit_red,
-        proxy,
-        proxy_red_id
-    )
-    local green_connected = ensure_internal_wire(
-        container,
-        defines.wire_connector_id.circuit_green,
-        proxy,
-        proxy_green_id
-    )
+    local connected = false
+    if container_red_id and proxy_red_id then
+        connected = ensure_internal_wire(
+            container,
+            container_red_id,
+            proxy,
+            proxy_red_id
+        ) or connected
+    end
 
-    local connected = red_connected and green_connected
+    if container_green_id and proxy_green_id then
+        connected = ensure_internal_wire(
+            container,
+            container_green_id,
+            proxy,
+            proxy_green_id
+        ) or connected
+    end
+
     gate_data.wire_proxy_connected = connected
     gate_data.signal_cache = nil
     return connected
@@ -2222,6 +2516,8 @@ function model.ensure_wire_proxy(gate_unit)
     gate_data.wire_proxy = proxy
     gate_data.wire_proxy_connected = nil
     gate_data.signal_cache = nil
+    gate_data.wire_proxy_wired = false
+    gate_data.last_wire_probe_tick = -GATE_WIRE_SCAN_INTERVAL_TICKS
     model.attach_wire_proxy_to_container(gate_data)
 
     return proxy
@@ -2242,9 +2538,18 @@ function model.update_wire_proxy_signals(gate, gate_data, event)
         return
     end
 
-    local externally_wired = model.is_wire_proxy_externally_wired(gate_data)
+    local current_tick = ei_lib.get_event_tick(event)
+    local cached_wired = gate_data.wire_proxy_wired == true
+    local externally_wired = cached_wired
+
+    if current_tick >= ((gate_data.last_wire_probe_tick or -GATE_WIRE_SCAN_INTERVAL_TICKS) + GATE_WIRE_SCAN_INTERVAL_TICKS) then
+        externally_wired = model.is_wire_proxy_externally_wired(gate_data)
+        gate_data.wire_proxy_wired = externally_wired
+        gate_data.last_wire_probe_tick = current_tick
+    end
+
     if not externally_wired then
-        if gate_data.wire_proxy_wired then
+        if cached_wired then
             local control = proxy.get_control_behavior()
             if control and control.valid then
                 control.enabled = false
@@ -2260,13 +2565,9 @@ function model.update_wire_proxy_signals(gate, gate_data, event)
             gate_data.signal_cache = nil
         end
 
-        gate_data.wire_proxy_wired = false
         return
     end
 
-    gate_data.wire_proxy_wired = true
-
-    local current_tick = ei_lib.get_event_tick(event)
     if gate_data.signal_cache and current_tick < ((gate_data.last_signal_update_tick or -60) + 60) then
         return
     end
@@ -2386,6 +2687,12 @@ function model.refresh_receivers(event)
     local registry_by_force = {}
     local stale_units = {}
     local registry_changed = false
+    local tick = ei_lib.get_event_tick(event)
+    local previous_conflict_by_unit = {}
+
+    for unit, receiver_data in pairs(storage.ei.gate.receiver) do
+        previous_conflict_by_unit[unit] = receiver_data and receiver_data.conflict == true or false
+    end
 
     for unit, receiver_data in pairs(storage.ei.gate.receiver) do
         local receiver = receiver_data.entity
@@ -2402,7 +2709,6 @@ function model.refresh_receivers(event)
             goto continue
         end
 
-        local tick = ei_lib.get_event_tick(event)
         local elapsed_ticks = math.max(0, tick - (receiver_data.last_penalty_tick or 0))
         model.decay_receiver_penalties(receiver_data, elapsed_ticks)
         receiver_data.last_penalty_tick = tick
@@ -2410,7 +2716,12 @@ function model.refresh_receivers(event)
         local previous_effective_id = receiver_data.effective_id
         local previous_conflict = receiver_data.conflict
         local previous_surface = receiver_data.surface
+        local previous_surface_index = receiver_data.surface_index
         local previous_position = receiver_data.position
+        local receiver_surface = receiver.surface.name
+        local receiver_surface_index = ei_lib.get_surface_index(receiver.surface)
+        local receiver_position_x = receiver.position.x
+        local receiver_position_y = receiver.position.y
 
         local override_id = model.get_signal_value(receiver, SIGNAL_RECEIVER_ID)
         if override_id and override_id > 0 then
@@ -2420,16 +2731,14 @@ function model.refresh_receivers(event)
         end
 
         receiver_data.conflict = false
-        receiver_data.surface = receiver.surface.name
-        receiver_data.position = {x = receiver.position.x, y = receiver.position.y}
+        receiver_data.surface = receiver_surface
+        receiver_data.surface_index = receiver_surface_index
 
-        if previous_effective_id ~= receiver_data.effective_id
-        or previous_conflict ~= receiver_data.conflict
-        or previous_surface ~= receiver_data.surface
-        or not previous_position
-        or previous_position.x ~= receiver_data.position.x
-        or previous_position.y ~= receiver_data.position.y then
-            registry_changed = true
+        local position_changed = not previous_position
+            or previous_position.x ~= receiver_position_x
+            or previous_position.y ~= receiver_position_y
+        if position_changed then
+            receiver_data.position = {x = receiver_position_x, y = receiver_position_y}
         end
 
         local force_index = receiver.force.index
@@ -2437,8 +2746,7 @@ function model.refresh_receivers(event)
         if not force_registry then
             force_registry = {
                 valid = {},
-                conflicts = {},
-                sorted_ids = {}
+                conflicts = {}
             }
             registry_by_force[force_index] = force_registry
         end
@@ -2450,16 +2758,26 @@ function model.refresh_receivers(event)
             force_registry.valid[effective_id] = nil
             force_registry.conflicts[effective_id] = {existing_unit, unit}
             receiver_data.conflict = true
-            registry_changed = true
-            if storage.ei.gate.receiver[existing_unit] then
-                storage.ei.gate.receiver[existing_unit].conflict = true
+            local existing_data = storage.ei.gate.receiver[existing_unit]
+            if existing_data then
+                existing_data.conflict = true
+                if previous_conflict_by_unit[existing_unit] ~= true then
+                    registry_changed = true
+                end
             end
         elseif force_registry.conflicts[effective_id] then
             table.insert(force_registry.conflicts[effective_id], unit)
             receiver_data.conflict = true
-            registry_changed = true
         else
             force_registry.valid[effective_id] = unit
+        end
+
+        if previous_effective_id ~= receiver_data.effective_id
+        or previous_conflict ~= receiver_data.conflict
+        or previous_surface ~= receiver_surface
+        or previous_surface_index ~= receiver_surface_index
+        or position_changed then
+            registry_changed = true
         end
 
         ::continue::
@@ -2469,15 +2787,13 @@ function model.refresh_receivers(event)
         storage.ei.gate.receiver[unit] = nil
     end
 
-    for _, force_registry in pairs(registry_by_force) do
-        for id, _ in pairs(force_registry.valid) do
-            table.insert(force_registry.sorted_ids, id)
-        end
-        table.sort(force_registry.sorted_ids)
+    if registry_changed or not storage.ei.gate.receiver_by_force then
+        storage.ei.gate.receiver_by_force = registry_by_force
     end
-
-    storage.ei.gate.receiver_by_force = registry_by_force
     storage.ei.gate.receiver_registry_dirty = registry_changed
+    if registry_changed then
+        storage.ei.gate.receiver_registry_generation = (storage.ei.gate.receiver_registry_generation or 0) + 1
+    end
 
 end
 
@@ -2513,15 +2829,128 @@ end
 
 
 function model.make_receiver_label(receiver_data)
+    local position = receiver_data and receiver_data.position
+    local effective_id = receiver_data and receiver_data.effective_id or 0
+    local surface = receiver_data and receiver_data.surface or ""
+    local position_x = position and position.x or 0
+    local position_y = position and position.y or 0
 
-    return string.format(
+    local cached = receiver_data and receiver_data.dropdown_label or nil
+    if cached
+    and receiver_data.dropdown_label_effective_id == effective_id
+    and receiver_data.dropdown_label_surface == surface
+    and receiver_data.dropdown_label_x == position_x
+    and receiver_data.dropdown_label_y == position_y then
+        return cached
+    end
+
+    cached = string.format(
         "ID %d | %s | %.1f, %.1f",
-        receiver_data.effective_id,
-        receiver_data.surface,
-        receiver_data.position.x,
-        receiver_data.position.y
+        effective_id,
+        surface,
+        position_x,
+        position_y
     )
 
+    if receiver_data then
+        receiver_data.dropdown_label = cached
+        receiver_data.dropdown_label_effective_id = effective_id
+        receiver_data.dropdown_label_surface = surface
+        receiver_data.dropdown_label_x = position_x
+        receiver_data.dropdown_label_y = position_y
+    end
+
+    return cached
+
+end
+
+
+local function copy_array_shallow(source)
+    local copy = {}
+    for index = 1, #source do
+        copy[index] = source[index]
+    end
+    return copy
+end
+
+
+function model.get_receiver_dropdown_snapshot(force_index)
+    model.check_global_init()
+
+    local dropdown_cache = storage.ei.gate.receiver_dropdown_cache
+    local registry_generation = storage.ei.gate.receiver_registry_generation or 0
+    if dropdown_cache.generation ~= registry_generation then
+        dropdown_cache.generation = registry_generation
+        dropdown_cache.by_force = {}
+        dropdown_cache.variants = {}
+    end
+
+    local cached = dropdown_cache.by_force[force_index]
+    if cached then
+        return cached
+    end
+
+    local receiver_items = {
+        {"exotic-industries.gate-gui-no-receivers"}
+    }
+    local receiver_ids = {
+        [1] = false
+    }
+    local selected_index_by_receiver_id = {}
+
+    local force_registry = storage.ei.gate.receiver_by_force[force_index]
+    if force_registry then
+        local sorted_ids = {}
+        for receiver_id, _ in pairs(force_registry.valid) do
+            table.insert(sorted_ids, receiver_id)
+        end
+        table.sort(sorted_ids)
+
+        for _, receiver_id in ipairs(sorted_ids) do
+            local unit = force_registry.valid[receiver_id]
+            local receiver_data = storage.ei.gate.receiver[unit]
+            if receiver_data then
+                table.insert(receiver_items, model.make_receiver_label(receiver_data))
+                receiver_ids[#receiver_items] = receiver_id
+                selected_index_by_receiver_id[receiver_id] = #receiver_items
+            end
+        end
+    end
+
+    cached = {
+        receiver_items = receiver_items,
+        receiver_ids = receiver_ids,
+        selected_index_by_receiver_id = selected_index_by_receiver_id
+    }
+    dropdown_cache.by_force[force_index] = cached
+
+    return cached
+end
+
+
+local function get_receiver_dropdown_variant_items(force_index, base_items, variant, receiver_id)
+    local dropdown_cache = storage.ei.gate.receiver_dropdown_cache
+    local force_variants = dropdown_cache.variants[force_index]
+    if not force_variants then
+        force_variants = {}
+        dropdown_cache.variants[force_index] = force_variants
+    end
+
+    local variant_key = string.format("%s:%d", variant, receiver_id)
+    local cached = force_variants[variant_key]
+    if cached then
+        return cached
+    end
+
+    local items = copy_array_shallow(base_items)
+    if variant == "conflict" then
+        items[1] = {"exotic-industries.gate-gui-receiver-conflict", receiver_id}
+    else
+        items[1] = {"exotic-industries.gate-gui-receiver-unavailable", receiver_id}
+    end
+
+    force_variants[variant_key] = items
+    return items
 end
 
 
@@ -2563,6 +2992,7 @@ function model.resolve_manual_target(gate_data, force_index)
                 entity = receiver_data.entity,
                 exit = {
                     surface = receiver_data.surface,
+                    surface_index = receiver_data.surface_index,
                     x = receiver_data.position.x,
                     y = receiver_data.position.y
                 },
@@ -2587,8 +3017,10 @@ function model.resolve_manual_target(gate_data, force_index)
         if model.entity_check(gate_data.exit_container) then
             legacy_entity = gate_data.exit_container
         elseif exit and exit.surface then
-            local surface = game.get_surface(exit.surface)
+            local surface = (exit.surface_index and game.surfaces[exit.surface_index]) or game.get_surface(exit.surface)
             if surface then
+                exit.surface_index = surface.index
+                gate_data.legacy_exit.surface_index = surface.index
                 legacy_entity = model.find_container_entity(surface, exit)
             end
             gate_data.exit_container = legacy_entity
@@ -2631,17 +3063,26 @@ function model.resolve_gate_target(gate, event)
         return nil
     end
 
+    local current_tick = ei_lib.get_event_tick(event)
+    local registry_generation = storage.ei.gate.receiver_registry_generation or 0
+    if gate_data.last_resolve_tick == current_tick
+    and gate_data.last_resolve_revision == (gate_data.resolve_revision or 0)
+    and gate_data.last_resolve_registry_generation == registry_generation then
+        return gate_data
+    end
+
     local manual_target = model.resolve_manual_target(gate_data, gate.force.index)
     local resolved_target = manual_target
     local control_source = "manual"
     local effective_enabled = gate_data.manual_enabled == true
-    local enable_signal = model.get_gate_signal_value(gate_data, SIGNAL_GATE_ENABLE)
+    local control_signals = get_gate_control_signals(gate_data)
+    local enable_signal = control_signals.enable
 
     if enable_signal ~= 0 then
         effective_enabled = enable_signal > 0
     end
 
-    local circuit_receiver_id = model.get_gate_signal_value(gate_data, SIGNAL_GATE_DESTINATION)
+    local circuit_receiver_id = control_signals.destination
     if circuit_receiver_id and circuit_receiver_id > 0 then
         circuit_receiver_id = math.floor(circuit_receiver_id)
         local circuit_target = model.get_receiver_by_id(gate.force.index, circuit_receiver_id)
@@ -2651,6 +3092,7 @@ function model.resolve_gate_target(gate, event)
                 entity = circuit_target.entity,
                 exit = {
                     surface = circuit_target.surface,
+                    surface_index = circuit_target.surface_index or ei_lib.get_surface_index(circuit_target.entity and circuit_target.entity.surface),
                     x = circuit_target.position.x,
                     y = circuit_target.position.y
                 },
@@ -2673,6 +3115,9 @@ function model.resolve_gate_target(gate, event)
     gate_data.effective_receiver_id = resolved_target.receiver_id
     gate_data.manual_target_conflicted = manual_target.conflicted
     model.update_distance_snapshot(gate, gate_data)
+    gate_data.last_resolve_tick = current_tick
+    gate_data.last_resolve_revision = gate_data.resolve_revision or 0
+    gate_data.last_resolve_registry_generation = registry_generation
 
     return gate_data
 
@@ -2691,6 +3136,7 @@ function model.get_preview_exit(gate_data)
         if receiver_data then
             return {
                 surface = receiver_data.surface,
+                surface_index = receiver_data.surface_index,
                 x = receiver_data.position.x,
                 y = receiver_data.position.y
             }
@@ -2711,13 +3157,22 @@ function model.set_manual_receiver(gate_unit, receiver_id, event)
     end
 
     if not gate_data or not receiver_id or receiver_id < 1 then
-        return
+        return false
+    end
+
+    if gate_data.manual_receiver_id == receiver_id
+    and gate_data.legacy_exit == nil
+    and gate_data.exit == nil
+    and gate_data.exit_container == nil then
+        return false
     end
 
     gate_data.manual_receiver_id = receiver_id
     gate_data.legacy_exit = nil
     gate_data.exit = nil
     gate_data.exit_container = nil
+    mark_gate_resolution_dirty(gate_data)
+    return true
 
 end
 
@@ -2946,11 +3401,13 @@ function model.find_container(gate, surface, position, print_out, event)
         gate_data.exit_container = container
         gate_data.legacy_exit = {
             surface = surface.name,
+            surface_index = ei_lib.get_surface_index(surface),
             x = position.x,
             y = position.y
         }
         gate_data.exit = model.copy_exit(gate_data.legacy_exit)
         gate_data.manual_receiver_id = nil
+        mark_gate_resolution_dirty(gate_data)
 
         if print_out then
             ei_lib.notify_connected_players(
@@ -2962,11 +3419,13 @@ function model.find_container(gate, surface, position, print_out, event)
         gate_data.exit_container = nil
         gate_data.legacy_exit = {
             surface = surface.name,
+            surface_index = ei_lib.get_surface_index(surface),
             x = position.x,
             y = position.y
         }
         gate_data.exit = model.copy_exit(gate_data.legacy_exit)
         gate_data.manual_receiver_id = nil
+        mark_gate_resolution_dirty(gate_data)
 
         if print_out then
             ei_lib.notify_connected_players(
@@ -3125,9 +3584,9 @@ function model.render_exit(gate, box)
     local animation
 
     -- check if exit already exists, if at same pos and surface extend time to live
-    if storage.ei.gate.gate[gate_unit].exit_animation then
+    if gate_data.exit_animation then
 
-        animation = storage.ei.gate.gate[gate_unit].exit_animation  --[[@as LuaRenderObject]]
+        animation = gate_data.exit_animation  --[[@as LuaRenderObject]]
 
         -- check if still valid, might be very old
         if animation.valid then
@@ -3171,54 +3630,47 @@ function model.render_exit(gate, box)
         time_to_live = 180,
     }
 
-    storage.ei.gate.gate[gate_unit].exit_animation = animation
+    gate_data.exit_animation = animation
     
 end
 
 
-function model.render_animation(gate, event)
-    local gate_data, gate_unit = get_gate_storage_entry(gate)
-    if not gate_data or not gate_unit then
+function model.render_animation(gate, gate_data)
+    if not model.entity_check(gate) or not gate_data then
         return
     end
 
-    local pick = math.random(1,4) --ei_rng.int("gate_light", 1, 4, gate_unit, event.tick)
+    local surface = gate.surface
+    local color = GATE_ANIMATION_LIGHT_COLORS[math.random(1, #GATE_ANIMATION_LIGHT_COLORS)]
 
-    local colors = {
-        {r = 0, g = 0.4, b = 1.0},
-        {r = 0.4, g = 0.2, b = 1.0},
-        {r = 0.2, g = 0.2, b = 1.0},
-        {r = 0.4, g = 0.1, b = 0.8},
-    }
-    local color = colors[pick]
-
-    -- Reuse existing light if valid, otherwise create new
-    --local light = storage.ei.gate.gate[gate_unit].light
---[[    if light and light.valid then
+    -- Reuse the glow render instead of recreating a fresh light object every active visit.
+    local light = gate_data.light
+    if light and light.valid then
         light.color = color
         light.time_to_live = ei_ticksPerFullUpdate * 2
-    else]]
-    local light = rendering.draw_light {
-        sprite = "gate_glow",
-        scale = 4,
-        intensity = 0.22,
-        color = color,
-        target = gate,
-        surface = gate.surface,
-        time_to_live = ei_ticksPerFullUpdate * 2,
-        blend_mode = "multiplicative",
-        apply_runtime_tint = true,
-        draw_as_glow = true,
-    }
-        --storage.ei.gate.gate[gate_unit].light = light
-    --end
+    else
+        light = rendering.draw_light {
+            sprite = "gate_glow",
+            scale = 4,
+            intensity = 0.22,
+            color = color,
+            target = gate,
+            surface = surface,
+            time_to_live = ei_ticksPerFullUpdate * 2,
+            blend_mode = "multiplicative",
+            apply_runtime_tint = true,
+            draw_as_glow = true,
+        }
+        gate_data.light = light
+    end
 
-    if gate_data.animation then return end
+    if gate_data.animation and gate_data.animation.valid then return end
+    gate_data.animation = nil
 
     local animation = rendering.draw_animation{
         animation = "ei-gate-running",
         target = gate,
-        surface = gate.surface,
+        surface = surface,
         render_layer = "object",
         x_scale = 1,
         y_scale = 1
@@ -3230,26 +3682,36 @@ end
 
 
 function model.update_renders(unit, gate, event)
+    local gate_data = storage.ei.gate.gate[unit]
+    if not gate_data then
+        return
+    end
 
     local state = model.gate_state(gate)
     -- if state true -> check if need to render animation
     -- if state false -> check if need to destroy animation + cleanup
 
     if not state then
-        if storage.ei.gate.gate[unit].animation then
-            storage.ei.gate.gate[unit].animation.destroy()
-            storage.ei.gate.gate[unit].animation = nil
+        if gate_data.animation then
+            if gate_data.animation.valid then
+                gate_data.animation.destroy()
+            end
+            gate_data.animation = nil
         end
-        if storage.ei.gate.gate[unit].light then
-            storage.ei.gate.gate[unit].light.destroy()
-            storage.ei.gate.gate[unit].light = nil
+        if gate_data.light then
+            if gate_data.light.valid then
+                gate_data.light.destroy()
+            end
+            gate_data.light = nil
         end
     else
-        model.render_animation(gate, event)
+        -- update_renders already resolved gate_data for this gate, so pass it through instead of
+        -- paying for another storage lookup on the active render path.
+        model.render_animation(gate, gate_data)
         -- High stress can leak out as short-range electrical tendrils around the gate body.
         -- These are purely local hazards: they stay inside the glow footprint, originate from
         -- the six outer cylinder extensions, and only roll while the gate is actually active.
-        model.emit_stress_tendril(gate, storage.ei.gate.gate[unit], event)
+        model.emit_stress_tendril(gate, gate_data, event)
     end
 
 end
@@ -3258,10 +3720,67 @@ end
 --GUI
 -----------------------------------------------------------------------------------------------------
 
+local function gui_elements_valid(elements)
+    return elements
+        and elements.root and elements.root.valid
+        and elements.energy and elements.energy.valid
+        and elements.span and elements.span.valid
+        and elements.stress and elements.stress.valid
+        and elements.dropdown and elements.dropdown.valid
+        and elements.legacy_status and elements.legacy_status.valid
+        and elements.control_source and elements.control_source.valid
+        and elements.runtime and elements.runtime.valid
+        and elements.receiver_strain and elements.receiver_strain.valid
+        and elements.camera and elements.camera.valid
+        and elements.state and elements.state.valid
+end
+
+
+local function clear_gate_gui_session(player_index, player, destroy_root)
+    local gate_storage = storage.ei and storage.ei.gate or nil
+    if not gate_storage or not player_index then
+        return
+    end
+
+    if gate_storage.open_gui_players then
+        gate_storage.open_gui_players[player_index] = nil
+    end
+
+    if gate_storage.gui_elements_cache then
+        gate_storage.gui_elements_cache[player_index] = nil
+    end
+
+    if gate_storage.gui_projection_cache then
+        gate_storage.gui_projection_cache[player_index] = nil
+    end
+
+    if gate_storage.open_redirect then
+        gate_storage.open_redirect[player_index] = nil
+    end
+
+    if destroy_root and player and player.valid then
+        local root = player.gui.relative["ei-gate-console"]
+        if root then
+            root.destroy()
+        end
+    end
+end
+
+
 function model.get_gui_elements(player)
 
     if not player or not player.valid then
         return nil
+    end
+
+    local gate_storage = storage.ei and storage.ei.gate
+    local gui_elements_cache = gate_storage and gate_storage.gui_elements_cache or nil
+    local cached = gui_elements_cache and gui_elements_cache[player.index] or nil
+    if gui_elements_valid(cached) then
+        return cached
+    end
+    if gui_elements_cache then
+        gui_elements_cache[player.index] = nil
     end
 
     local root = player.gui.relative["ei-gate-console"]
@@ -3290,38 +3809,12 @@ function model.get_gui_elements(player)
         state = target_flow and target_flow["state-button"],
     }
 
-    if not (elements.root and elements.root.valid) then
+    if not gui_elements_valid(elements) then
         return nil
     end
-    if not (elements.energy and elements.energy.valid) then
-        return nil
-    end
-    if not (elements.span and elements.span.valid) then
-        return nil
-    end
-    if not (elements.stress and elements.stress.valid) then
-        return nil
-    end
-    if not (elements.dropdown and elements.dropdown.valid) then
-        return nil
-    end
-    if not (elements.legacy_status and elements.legacy_status.valid) then
-        return nil
-    end
-    if not (elements.control_source and elements.control_source.valid) then
-        return nil
-    end
-    if not (elements.runtime and elements.runtime.valid) then
-        return nil
-    end
-    if not (elements.receiver_strain and elements.receiver_strain.valid) then
-        return nil
-    end
-    if not (elements.camera and elements.camera.valid) then
-        return nil
-    end
-    if not (elements.state and elements.state.valid) then
-        return nil
+
+    if gui_elements_cache then
+        gui_elements_cache[player.index] = elements
     end
 
     return elements
@@ -3483,6 +3976,7 @@ function model.build_gui(player, gate)
         target_flow.add{
             type = "label",
             caption = {"exotic-industries.gate-gui-legacy-label"},
+            tooltip = {"exotic-industries.gate-gui-legacy-label-tooltip"},
         }
         target_flow.add{
             type = "label",
@@ -3494,16 +3988,19 @@ function model.build_gui(player, gate)
             type = "label",
             name = "control-source",
             caption = {"exotic-industries.gate-gui-control-source-label", {"exotic-industries.gate-gui-control-source-manual"}},
+            tooltip = {"exotic-industries.gate-gui-control-source-label-tooltip"},
         }
         target_flow.add{
             type = "label",
             name = "runtime-state",
             caption = {"exotic-industries.gate-gui-control-runtime-label", {"exotic-industries.gate-gui-runtime-stable"}},
+            tooltip = {"exotic-industries.gate-gui-control-runtime-label-tooltip"},
         }
         target_flow.add{
             type = "label",
             name = "receiver-strain",
             caption = {"exotic-industries.gate-gui-receiver-strain-label", {"exotic-industries.gate-gui-receiver-strain-low"}},
+            tooltip = {"exotic-industries.gate-gui-receiver-strain-label-tooltip"},
         }
         target_flow.add{
             type = "label",
@@ -3541,33 +4038,54 @@ function model.build_gui(player, gate)
 
     end
 
+    storage.ei.gate.open_gui_players[player.index] = gate_unit
+    storage.ei.gate.gui_projection_cache[player.index] = nil
+
     return model.get_gui_elements(player)
 
 end
 
 
 function model.open_gui(player, event)
+    model.check_global_init()
 
     local gate = model.find_gate(player.opened)
     if not gate then
         return
     end
 
-    model.refresh_receivers(event)
-    model.resolve_gate_target(gate, event)
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return
+    end
 
-    model.build_gui(player, gate)
+    if storage.ei.gate.last_housekeeping_tick ~= ei_lib.get_event_tick(event) then
+        model.refresh_receivers(event)
+    end
+
+    local gui = model.get_gui_elements(player)
+    local current_gate_unit = gui and gui.root and gui.root.tags and gui.root.tags.gate_unit or nil
+    if current_gate_unit ~= gate_unit then
+        gui = model.build_gui(player, gate)
+        if not gui then
+            return
+        end
+    else
+        storage.ei.gate.open_gui_players[player.index] = gate_unit
+    end
 
     local data = model.get_data(gate, event)
-    model.update_gui(player, data, false, gate)
+    model.update_gui(player, data, false, gate, gui)
 
 end
 
 
-function model.update_gui(player, data, ontick, gate)
+function model.update_gui(player, data, ontick, gate, gui)
 
     if not data then return end
-    local gui = model.get_gui_elements(player)
+    if not gui_elements_valid(gui) then
+        gui = model.get_gui_elements(player)
+    end
     if not gui then
         local open_gate = model.find_gate(player.opened)
         if not gate or gate ~= open_gate then
@@ -3592,10 +4110,18 @@ function model.update_gui(player, data, ontick, gate)
     local receiver_strain = gui.receiver_strain
     local camera = gui.camera
     local state = gui.state
+    local projection_cache = storage.ei.gate and storage.ei.gate.gui_projection_cache
+    local previous_projection = projection_cache and projection_cache[player.index] or nil
+
+    if previous_projection
+    and previous_projection.gate_unit == data.gate_unit
+    and previous_projection.signature == data.gui_projection_signature then
+        return
+    end
 
     -- Update the view from a precomputed gate snapshot. update_gui should stay dumb and avoid
     -- poking back into storage except when it needs to rebuild a stale GUI shell.
-    energy.caption = {"exotic-industries.gate-gui-status-energy", string.format("%.0f", data.energy/1000000)}
+    energy.caption = {"exotic-industries.gate-gui-status-energy", data.energy_mj_text}
     energy.value = data.energy / data.max_energy
     span.caption = data.span_caption
     span.tooltip = data.span_tooltip
@@ -3603,58 +4129,126 @@ function model.update_gui(player, data, ontick, gate)
     stress.caption = {"exotic-industries.gate-gui-status-stress", data.stress}
     stress.value = data.stress_ratio
 
-    dropdown.items = data.receiver_items
+    local previous_dropdown_tags = dropdown.tags or EMPTY_GUI_TAGS
+    if previous_dropdown_tags.receiver_dropdown_generation ~= data.receiver_dropdown_generation
+    or previous_dropdown_tags.receiver_dropdown_variant ~= data.receiver_dropdown_variant
+    or previous_dropdown_tags.receiver_dropdown_variant_id ~= data.receiver_dropdown_variant_id then
+        dropdown.items = data.receiver_items
+    end
     dropdown.selected_index = data.selected_index
-    dropdown.tags = {
-        parent_gui = "ei-gate-console",
-        action = "set-receiver",
-        receiver_ids = data.receiver_ids,
-        gate_unit = get_entity_unit_number(gate) or (dropdown.tags and dropdown.tags.gate_unit)
-    }
+    local gate_unit = data.gate_unit or previous_dropdown_tags.gate_unit
+    if previous_dropdown_tags.parent_gui ~= "ei-gate-console"
+    or previous_dropdown_tags.action ~= "set-receiver"
+    or previous_dropdown_tags.gate_unit ~= gate_unit
+    or previous_dropdown_tags.receiver_dropdown_generation ~= data.receiver_dropdown_generation
+    or previous_dropdown_tags.receiver_dropdown_variant ~= data.receiver_dropdown_variant
+    or previous_dropdown_tags.receiver_dropdown_variant_id ~= data.receiver_dropdown_variant_id then
+        dropdown.tags = {
+            parent_gui = "ei-gate-console",
+            action = "set-receiver",
+            receiver_ids = data.receiver_ids,
+            gate_unit = gate_unit,
+            receiver_dropdown_generation = data.receiver_dropdown_generation,
+            receiver_dropdown_variant = data.receiver_dropdown_variant,
+            receiver_dropdown_variant_id = data.receiver_dropdown_variant_id
+        }
+    end
 
     legacy_status.caption = data.legacy_status
     control_source.caption = {"exotic-industries.gate-gui-control-source-label", data.control_source_text}
     runtime.caption = {"exotic-industries.gate-gui-control-runtime-label", data.runtime_status}
     receiver_strain.caption = {"exotic-industries.gate-gui-receiver-strain-label", data.receiver_strain_text}
 
-    if data.preview_surface and game.get_surface(data.preview_surface) then
-        camera.surface_index = game.get_surface(data.preview_surface).index or 1
-        camera.position = {data.preview_pos.x, data.preview_pos.y}
+    if data.preview_surface_index and data.preview_pos then
+        camera.surface_index = data.preview_surface_index
+        camera.position = data.preview_pos
     else
-        camera.position = {0, 0}
+        camera.position = GATE_CAMERA_FALLBACK_POSITION
     end
 
     -- State button
     if data.state then
         state.style = "ei_small_green_button"
-        state.caption = {"exotic-industries.gate-gui-control-state-button", "ON"}
+        state.caption = GATE_STATE_ON_CAPTION
     else
         state.style = "ei_small_red_button"
-        state.caption = {"exotic-industries.gate-gui-control-state-button", "OFF"}
+        state.caption = GATE_STATE_OFF_CAPTION
+    end
+
+    if projection_cache then
+        projection_cache[player.index] = {
+            gate_unit = data.gate_unit,
+            signature = data.gui_projection_signature,
+        }
     end
 
 end
 
 
 function model.update_player_guis(event)
-    for _, player in pairs(game.connected_players) do
-        local root = player.gui.relative["ei-gate-console"]
-        if root then
-            local gate_unit = root.tags and root.tags.gate_unit
-            if not gate_unit or not storage.ei.gate.gate[gate_unit] then
-                model.close_gui(player)
-                goto continue
-            end
+    local gate_storage = storage.ei and storage.ei.gate or nil
+    local open_gui_players = gate_storage and gate_storage.open_gui_players or nil
+    if not open_gui_players or not next(open_gui_players) then
+        return
+    end
 
-            local gate = storage.ei.gate.gate[gate_unit].gate
-            if not gate or not gate.valid then
-                model.close_gui(player)
-                goto continue
-            end
+    local gate_registry = gate_storage and gate_storage.gate or nil
+    local gui_elements_cache = gate_storage and gate_storage.gui_elements_cache or nil
+    local projection_cache = gate_storage and gate_storage.gui_projection_cache or nil
+    local data_by_gate_unit = {}
 
-            local data = model.get_data(gate, event)
-            model.update_gui(player, data, true, gate)
+    for player_index, gate_unit in pairs(open_gui_players) do
+        local player = game.get_player(player_index)
+        if not player or not player.valid then
+            clear_gate_gui_session(player_index)
+            goto continue
         end
+
+        local cached_gui = gui_elements_cache and gui_elements_cache[player_index] or nil
+        local root = nil
+        if gui_elements_valid(cached_gui) then
+            root = cached_gui.root
+        else
+            if gui_elements_cache then
+                gui_elements_cache[player_index] = nil
+            end
+            cached_gui = nil
+            root = player.gui.relative["ei-gate-console"]
+        end
+
+        if not root then
+            clear_gate_gui_session(player_index)
+            goto continue
+        end
+
+        gate_unit = gate_unit or (root.tags and root.tags.gate_unit)
+        local gate_entry = gate_unit and gate_registry and gate_registry[gate_unit] or nil
+        if not gate_unit or not gate_entry then
+            model.close_gui(player)
+            goto continue
+        end
+
+        local gate = gate_entry.gate
+        if not gate or not gate.valid then
+            model.close_gui(player)
+            goto continue
+        end
+
+        local data = data_by_gate_unit[gate_unit]
+        if not data then
+            data = model.get_data(gate, event)
+            data_by_gate_unit[gate_unit] = data
+        end
+
+        local previous_projection = projection_cache and projection_cache[player_index] or nil
+        if previous_projection
+        and previous_projection.gate_unit == data.gate_unit
+        and previous_projection.signature == data.gui_projection_signature
+        and gui_elements_valid(cached_gui) then
+            goto continue
+        end
+
+        model.update_gui(player, data, true, gate, cached_gui)
         ::continue::
     end
 
@@ -3681,11 +4275,13 @@ function model.update_receiver_selection(player, gate_unit, event)
     local gate = storage.ei.gate.gate[gate_unit].gate
     if not gate or not gate.valid then return end
 
-    model.set_manual_receiver(gate_unit, receiver_id, event)
+    if not model.set_manual_receiver(gate_unit, receiver_id, event) then
+        return
+    end
     model.refresh_gate_live_state(gate, event)
 
     local data = model.get_data(gate, event)
-    model.update_gui(player, data, false, gate)
+    model.update_gui(player, data, false, gate, gui)
 
 end
 
@@ -3701,6 +4297,7 @@ function model.toggle_state(player, gate_unit, event)
     local gate_data = model.ensure_gate_defaults(gate_unit, event)
     gate_data.manual_enabled = not gate_data.manual_enabled
     gate_data.state = gate_data.manual_enabled
+    mark_gate_resolution_dirty(gate_data)
 
     if gate_data.manual_enabled and gate.energy < LOW_POWER_J then
         ei_lib.notify_connected_players(
@@ -3712,10 +4309,10 @@ function model.toggle_state(player, gate_unit, event)
     model.refresh_gate_live_state(gate, event)
 
     -- GUI update is cosmetic — guard against missing GUI
-    local root = player.gui.relative["ei-gate-console"]
-    if root then
+    local gui = model.get_gui_elements(player)
+    if gui then
         local data = model.get_data(gate, event)
-        model.update_gui(player, data, false, gate)
+        model.update_gui(player, data, false, gate, gui)
     end
 
 end
@@ -3786,7 +4383,9 @@ function model.get_data(gate, event)
     -- need to understand storage layout or receiver resolution rules.
     model.resolve_gate_target(gate, event)
 
-    local data = {}
+    local data = {
+        gate_unit = gate_unit,
+    }
     if gate.electric_buffer_size then
         data.max_energy = gate.electric_buffer_size
     end
@@ -3795,110 +4394,130 @@ function model.get_data(gate, event)
     else
         data.energy = 0
     end
+    data.energy_mj_text = string.format("%.0f", data.energy / 1000000)
     data.max_energy = math.max(data.max_energy or 0, 1)
     data.stress = math.floor((gate_data.stress or 0) + 0.5)
     data.stress_ratio = clamp((gate_data.stress or 0) / MAX_GATE_STRESS, 0, 1)
 
+    local target_surface = model.get_gate_target_surface(gate_data)
     local span_data = gate_data.distance_snapshot or model.update_distance_snapshot(gate, gate_data)
-    if span_data and (span_data.resolved or model.get_gate_target_surface(gate_data)) then
-        data.span_caption = {
-            "exotic-industries.gate-gui-status-span",
-            span_data.span_band or {"exotic-industries.gate-gui-span-band-local"},
-            string.format("%.2f", span_data.distance_multiplier or 1)
-        }
-        data.span_tooltip = {
-            "exotic-industries.gate-gui-status-span-tooltip",
-            span_data.source_anchor_name or make_surface_label(gate.surface),
-            span_data.target_anchor_name or {"exotic-industries.gate-gui-status-span-unresolved-anchor"},
-            string.format("%.1f", span_data.raw_distance or 0),
-            string.format("%.2f", span_data.distance_multiplier or 1)
-        }
-        data.span_value = span_data.span_ratio or 0
-    else
-        data.span_caption = {"exotic-industries.gate-gui-status-span-unresolved"}
-        data.span_tooltip = {"exotic-industries.gate-gui-status-span-tooltip-unresolved"}
-        data.span_value = 0
+    if span_data and (span_data.gui_caption == nil or span_data.gui_tooltip == nil or span_data.gui_value == nil) then
+        span_data = decorate_distance_snapshot(span_data, gate.surface, target_surface)
+        gate_data.distance_snapshot = span_data
     end
+    data.span_target_surface_index = span_data and (span_data.gui_target_surface_index or 0) or 0
+    data.span_multiplier_raw = span_data and (span_data.gui_multiplier_raw or 0) or 0
+    data.span_distance_raw = span_data and (span_data.gui_distance_raw or 0) or 0
+    data.span_resolved = span_data and (span_data.gui_resolved == true) or false
+    data.span_caption = span_data and span_data.gui_caption or GATE_SPAN_UNRESOLVED_CAPTION
+    data.span_tooltip = span_data and span_data.gui_tooltip or GATE_SPAN_UNRESOLVED_TOOLTIP
+    data.span_value = span_data and (span_data.gui_value or 0) or 0
 
-    local receiver_items = {
-        {"exotic-industries.gate-gui-no-receivers"}
-    }
-    local receiver_ids = {
-        [1] = false
-    }
-    local selected_index = 1
-
-    local force_registry = storage.ei.gate.receiver_by_force[gate.force.index]
-    if force_registry then
-        for _, receiver_id in ipairs(force_registry.sorted_ids) do
-            local unit = force_registry.valid[receiver_id]
-            local receiver_data = storage.ei.gate.receiver[unit]
-            if receiver_data then
-                table.insert(receiver_items, model.make_receiver_label(receiver_data))
-                receiver_ids[#receiver_items] = receiver_id
-                if gate_data.manual_receiver_id == receiver_id then
-                    selected_index = #receiver_items
-                end
-            end
-        end
-    end
+    local dropdown_snapshot = model.get_receiver_dropdown_snapshot(gate.force.index)
+    local receiver_items = dropdown_snapshot.receiver_items
+    local receiver_ids = dropdown_snapshot.receiver_ids
+    local selected_index = dropdown_snapshot.selected_index_by_receiver_id[gate_data.manual_receiver_id] or 1
+    local receiver_dropdown_variant = "normal"
+    local receiver_dropdown_variant_id = 0
 
     if gate_data.manual_receiver_id and selected_index == 1 then
+        receiver_dropdown_variant_id = gate_data.manual_receiver_id
         if gate_data.manual_target_conflicted then
-            receiver_items[1] = {"exotic-industries.gate-gui-receiver-conflict", gate_data.manual_receiver_id}
+            receiver_dropdown_variant = "conflict"
         else
-            receiver_items[1] = {"exotic-industries.gate-gui-receiver-unavailable", gate_data.manual_receiver_id}
+            receiver_dropdown_variant = "unavailable"
         end
+        receiver_items = get_receiver_dropdown_variant_items(
+            gate.force.index,
+            receiver_items,
+            receiver_dropdown_variant,
+            gate_data.manual_receiver_id
+        )
     end
 
     local preview_exit = model.get_preview_exit(gate_data)
     if preview_exit then
-        data.preview_surface = preview_exit.surface
-        data.preview_pos = {x = preview_exit.x, y = preview_exit.y}
+        local preview_surface_index = preview_exit.surface_index
+        if not preview_surface_index and preview_exit.surface then
+            local preview_surface = game.get_surface(preview_exit.surface)
+            preview_surface_index = preview_surface and preview_surface.index or nil
+            preview_exit.surface_index = preview_surface_index
+        end
+
+        if preview_surface_index then
+            data.preview_surface_index = preview_surface_index
+            local preview_position = preview_exit.preview_position
+            if not preview_position
+            or preview_position.x ~= preview_exit.x
+            or preview_position.y ~= preview_exit.y then
+                preview_position = {
+                    x = preview_exit.x,
+                    y = preview_exit.y
+                }
+                preview_exit.preview_position = preview_position
+            end
+            data.preview_pos = preview_position
+        end
     end
 
     if gate_data.legacy_exit and not gate_data.manual_receiver_id then
-        data.legacy_status = {
-            "exotic-industries.gate-gui-legacy-destination",
-            gate_data.legacy_exit.surface,
-            gate_data.legacy_exit.x,
-            gate_data.legacy_exit.y,
-            gate_data.legacy_exit.surface
-        }
+        data.legacy_status_mode = "destination"
+        data.legacy_surface = gate_data.legacy_exit.surface
+        data.legacy_x = gate_data.legacy_exit.x
+        data.legacy_y = gate_data.legacy_exit.y
+        data.legacy_status = get_cached_legacy_status(gate_data.legacy_exit)
     else
-        data.legacy_status = {"exotic-industries.gate-gui-legacy-none"}
+        data.legacy_status_mode = "none"
+        data.legacy_surface = ""
+        data.legacy_x = 0
+        data.legacy_y = 0
+        data.legacy_status = GATE_LEGACY_STATUS_NONE
     end
 
     data.receiver_items = receiver_items
     data.receiver_ids = receiver_ids
     data.selected_index = selected_index
+    data.receiver_dropdown_generation = storage.ei.gate.receiver_dropdown_cache.generation or 0
+    data.receiver_dropdown_variant = receiver_dropdown_variant
+    data.receiver_dropdown_variant_id = receiver_dropdown_variant_id
     data.state = gate_data.manual_enabled
 
     if (gate_data.cooldown_until_tick or 0) > ei_lib.get_event_tick(event) then
-        data.runtime_status = {"exotic-industries.gate-gui-runtime-cooling"}
+        data.runtime_status_mode = "cooling"
+        data.runtime_status = GATE_RUNTIME_STATUS_COOLING_TEXT
     elseif (gate_data.stress or 0) >= 75 then
-        data.runtime_status = {"exotic-industries.gate-gui-runtime-critical"}
+        data.runtime_status_mode = "critical"
+        data.runtime_status = GATE_RUNTIME_STATUS_CRITICAL_TEXT
     else
-        data.runtime_status = {"exotic-industries.gate-gui-runtime-stable"}
+        data.runtime_status_mode = "stable"
+        data.runtime_status = GATE_RUNTIME_STATUS_STABLE_TEXT
     end
 
     local receiver_data = model.get_effective_receiver_data(gate_data, event)
     local receiver_saturation = receiver_data and receiver_data.saturation or 0
     if receiver_saturation >= MAX_RECEIVER_SATURATION then
-        data.receiver_strain_text = {"exotic-industries.gate-gui-receiver-strain-saturated"}
+        data.receiver_strain_mode = "saturated"
+        data.receiver_strain_text = GATE_RECEIVER_STRAIN_SATURATED_TEXT
     elseif receiver_saturation >= 60 then
-        data.receiver_strain_text = {"exotic-industries.gate-gui-receiver-strain-high"}
+        data.receiver_strain_mode = "high"
+        data.receiver_strain_text = GATE_RECEIVER_STRAIN_HIGH_TEXT
     elseif receiver_saturation >= 25 then
-        data.receiver_strain_text = {"exotic-industries.gate-gui-receiver-strain-medium"}
+        data.receiver_strain_mode = "medium"
+        data.receiver_strain_text = GATE_RECEIVER_STRAIN_MEDIUM_TEXT
     else
-        data.receiver_strain_text = {"exotic-industries.gate-gui-receiver-strain-low"}
+        data.receiver_strain_mode = "low"
+        data.receiver_strain_text = GATE_RECEIVER_STRAIN_LOW_TEXT
     end
 
     if gate_data.control_source == "circuit" then
-        data.control_source_text = {"exotic-industries.gate-gui-control-source-circuit"}
+        data.control_source_mode = "circuit"
+        data.control_source_text = GATE_CONTROL_SOURCE_CIRCUIT_TEXT
     else
-        data.control_source_text = {"exotic-industries.gate-gui-control-source-manual"}
+        data.control_source_mode = "manual"
+        data.control_source_text = GATE_CONTROL_SOURCE_MANUAL_TEXT
     end
+
+    data.gui_projection_signature = make_gate_gui_projection_signature(data)
 
     return data
 
@@ -4032,31 +4651,38 @@ function model.update(event)
         return false
     end
 
-    if not storage.ei.gate.gate then
+    local gate_registry = storage.ei.gate.gate
+    if not gate_registry then
         return false
     end
 
     local tick = event and event.tick or game.tick
+    local live_state_refreshed_this_tick = false
     if storage.ei.gate.last_housekeeping_tick ~= tick then
         storage.ei.gate.last_housekeeping_tick = tick
 
         model.refresh_receivers(event)
         if storage.ei.gate.receiver_registry_dirty then
-            for gate_unit, gate_data in pairs(storage.ei.gate.gate) do
+            for gate_unit, gate_data in pairs(gate_registry) do
                 local gate = gate_data.gate
                 if model.entity_check(gate) then
-                    model.ensure_gate_defaults(gate_unit, event)
                     model.refresh_gate_live_state(gate, event)
                 end
             end
+            live_state_refreshed_this_tick = true
             storage.ei.gate.receiver_registry_dirty = false
         end
 
         model.update_player_guis(event)
     end
 
-    if not storage.ei.gate.gate_break_point and next(storage.ei.gate.gate) then
-       storage.ei.gate.gate_break_point,_ = next(storage.ei.gate.gate)
+    local first_gate = nil
+    if not storage.ei.gate.gate_break_point then
+        first_gate = next(gate_registry)
+    end
+
+    if first_gate then
+       storage.ei.gate.gate_break_point = first_gate
     end
 
     if not storage.ei.gate.gate_break_point then
@@ -4064,26 +4690,29 @@ function model.update(event)
     end
 
     local break_id = storage.ei.gate.gate_break_point
-    local current_gate_exists = storage.ei.gate.gate[break_id] ~= nil
-    if break_id and storage.ei.gate.gate and storage.ei.gate.gate[break_id] then
-        local gate = storage.ei.gate.gate[break_id].gate
+    local gate_entry = break_id and gate_registry[break_id] or nil
+    local current_gate_exists = gate_entry ~= nil
+    if gate_entry then
+        local gate = gate_entry.gate
         if model.entity_check(gate) then
-            model.ensure_gate_defaults(break_id, event)
-            model.resolve_gate_target(gate, event)
+            if not live_state_refreshed_this_tick then
+                model.ensure_gate_defaults(break_id, event)
+                model.resolve_gate_target(gate, event)
+            end
             model.update_energy(break_id, gate, event)
             model.check_for_teleport(break_id, gate, event)
             model.update_renders(break_id, gate, event)
-            model.update_wire_proxy_signals(gate, storage.ei.gate.gate[break_id], event)
         else
-            storage.ei.gate.gate[break_id] = nil
+            gate_registry[break_id] = nil
+            current_gate_exists = false
         end
     end
 
     local next_break_id
     if current_gate_exists then
-        next_break_id = next(storage.ei.gate.gate, break_id)
+        next_break_id = next(gate_registry, break_id)
     else
-        next_break_id = next(storage.ei.gate.gate)
+        next_break_id = next(gate_registry)
     end
 
     if next_break_id then
@@ -4099,14 +4728,16 @@ end
 function model.get_runtime_status()
     model.check_global_init()
 
+    local gate_count = ei_runtime_scheduler.table_count(storage.ei.gate.gate)
+
     local status = {
-        gate_count = ei_runtime_scheduler.table_count(storage.ei.gate.gate),
+        gate_count = gate_count,
         receiver_count = ei_runtime_scheduler.table_count(storage.ei.gate.receiver),
         receiver_force_count = ei_runtime_scheduler.table_count(storage.ei.gate.receiver_by_force),
         receiver_registry_dirty = storage.ei.gate.receiver_registry_dirty == true,
         gate_break_point = storage.ei.gate.gate_break_point,
         last_housekeeping_tick = storage.ei.gate.last_housekeeping_tick or -1,
-        gates = ei_runtime_scheduler.table_count(storage.ei.gate.gate),
+        gates = gate_count,
         breakpoint = storage.ei.gate.gate_break_point,
     }
 
@@ -4135,16 +4766,7 @@ function model.used_remote(event)
 
     -- Set the gate exit position
     if storage.ei.gate.gate[gate_unit] then
-        if not model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true, event) then
-            storage.ei.gate.gate[gate_unit].legacy_exit = {
-                surface = surface.name,
-                x = position.x,
-                y = position.y
-            }
-            storage.ei.gate.gate[gate_unit].exit = model.copy_exit(storage.ei.gate.gate[gate_unit].legacy_exit)
-            storage.ei.gate.gate[gate_unit].manual_receiver_id = nil
-        end
-        model.refresh_gate_live_state(storage.ei.gate.gate[gate_unit].gate, event)
+        model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true, event)
     end
 
     model.cleanup_position_selection(player_index)
@@ -4174,16 +4796,7 @@ function model.on_player_selected_area(event)
 
     -- Set the gate exit position
     if storage.ei.gate.gate[gate_unit] then
-        if not model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true, event) then
-            storage.ei.gate.gate[gate_unit].legacy_exit = {
-                surface = surface.name,
-                x = position.x,
-                y = position.y
-            }
-            storage.ei.gate.gate[gate_unit].exit = model.copy_exit(storage.ei.gate.gate[gate_unit].legacy_exit)
-            storage.ei.gate.gate[gate_unit].manual_receiver_id = nil
-        end
-        model.refresh_gate_live_state(storage.ei.gate.gate[gate_unit].gate, event)
+        model.find_container(storage.ei.gate.gate[gate_unit].gate, surface, position, true, event)
     end
 
     model.cleanup_position_selection(player_index)
@@ -4252,9 +4865,11 @@ end
 
 
 function model.close_gui(player)
-    if player.gui.relative["ei-gate-console"] then
-        player.gui.relative["ei-gate-console"].destroy()
+    if not player or not player.valid then
+        return
     end
+
+    clear_gate_gui_session(player.index, player, true)
 end
 
 
@@ -4315,6 +4930,9 @@ end
 
 function model.on_player_left_game(player_index)
     if not storage.ei.gate then return end
+
+    clear_gate_gui_session(player_index)
+
     if not storage.ei.gate.remote then return end
     if not storage.ei.gate.remote[player_index] then return end
 

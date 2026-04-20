@@ -3,7 +3,7 @@
 -- owns: main Informatron pages
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: load-time remote interface registration
--- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, beacon_overhaul, black_hole, bots, cranes_and_belts, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, repair, resources, rocket_launch_pollution, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
+-- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, beacon_overhaul, black_hole, bots, cranes_and_belts, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, railgun_cooling, repair, resources, rocket_launch_pollution, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
 -- storage_roots: none
 -- gui_ids: exotic-industries-informatron, exotic-industries-informatron., exotic-industries-informatron.ages-and-tech, exotic-industries-informatron.ages-and-tech-2, exotic-industries-informatron.ages-and-tech-text, exotic-industries-informatron.ages-and-tech-text-2, exotic-industries-informatron.artifacts, exotic-industries-informatron.artifacts-text, exotic-industries-informatron.asteroid-anomalies, exotic-industries-informatron.asteroid-anomalies-text, exotic-industries-informatron.asteroid-variants, exotic-industries-informatron.asteroid-variants-text, exotic-industries-informatron.auric-fumarole, exotic-industries-informatron.auric-fumarole-2, exotic-industries-informatron.auric-fumarole-text, exotic-industries-informatron.auric-fumarole-text-2, exotic-industries-informatron.beacon-overhaul, exotic-industries-informatron.beacon-overhaul-text, exotic-industries-informatron.biters, exotic-industries-informatron.biters-text, exotic-industries-informatron.black-hole, exotic-industries-informatron.black-hole-2, exotic-industries-informatron.black-hole-2-text, exotic-industries-informatron.black-hole-3, exotic-industries-informatron.black-hole-3-text, exotic-industries-informatron.black-hole-text, exotic-industries-informatron.bots, exotic-industries-informatron.bots-2, exotic-industries-informatron.bots-text, exotic-industries-informatron.bots-text-2, exotic-industries-informatron.chemical-asteroid, exotic-industries-informatron.chemical-asteroid-text, exotic-industries-informatron.chunk-grades, exotic-industries-informatron.chunk-grades-text, exotic-industries-informatron.chunk-refining, exotic-industries-informatron.chunk-refining-2, exotic-industries-informatron.chunk-refining-text, exotic-industries-informatron.chunk-refining-text-2, exotic-industries-informatron.cranes-and-belts, exotic-industries-informatron.cranes-and-belts-text, exotic-industries-informatron.em-trains, exotic-industries-informatron.em-trains-2, exotic-industries-informatron.em-trains-3, exotic-industries-informatron.em-trains-text, exotic-industries-informatron.em-trains-text-2, exotic-industries-informatron.em-trains-text-3, exotic-industries-informatron.exotic-stabilizers, exotic-industries-informatron.exotic-stabilizers-text, exotic-industries-informatron.fission-reactors, exotic-industries-informatron.fission-reactors-2, exotic-industries-informatron.fission-reactors-2-text, exotic-industries-informatron.fission-reactors-text, exotic-industries-informatron.fulgora-day-variation, exotic-industries-informatron.fulgora-day-variation-2, exotic-industries-informatron.fulgora-day-variation-text, exotic-industries-informatron.fulgora-day-variation-text-2, exotic-industries-informatron.fusion-power, exotic-industries-informatron.fusion-power-2, exotic-industries-informatron.fusion-power-2-text, exotic-industries-informatron.fusion-power-text, exotic-industries-informatron.game-related, exotic-industries-informatron.game-related-text, exotic-industries-informatron.induction-matrix, exotic-industries-informatron.induction-matrix-2, exotic-industries-informatron.induction-matrix-2-text, exotic-industries-informatron.induction-matrix-text, exotic-industries-informatron.loaders, exotic-industries-informatron.loaders-2, exotic-industries-informatron.loaders-3, exotic-industries-informatron.loaders-4, exotic-industries-informatron.loaders-5, exotic-industries-informatron.loaders-text, exotic-industries-informatron.loaders-text-2, exotic-industries-informatron.loaders-text-3, exotic-industries-informatron.loaders-text-4, exotic-industries-informatron.loaders-text-5, exotic-industries-informatron.mining-scars, exotic-industries-informatron.mining-scars-2, exotic-industries-informatron.mining-scars-text, exotic-industries-informatron.mining-scars-text-2, exotic-industries-informatron.nauvis-pressure-grace, exotic-industries-informatron.nauvis-pressure-grace-2, exotic-industries-informatron.nauvis-pressure-grace-text, exotic-industries-informatron.nauvis-pressure-grace-text-2, exotic-industries-informatron.new-logistics, exotic-industries-informatron.new-logistics-text, exotic-industries-informatron.new-mechanics, exotic-industries-informatron.new-mechanics-text, exotic-industries-informatron.nuclear-fission-and-fusion, exotic-industries-informatron.nuclear-fission-and-fusion-text, exotic-industries-informatron.orbital-scanner, exotic-industries-informatron.orbital-scanner-2, exotic-industries-informatron.orbital-scanner-3, exotic-industries-informatron.orbital-scanner-text, exotic-industries-informatron.orbital-scanner-text-2, exotic-industries-informatron.orbital-scanner-text-3, exotic-industries-informatron.organic-asteroid, exotic-industries-informatron.organic-asteroid-text, exotic-industries-informatron.overall, exotic-industries-informatron.overall-text, exotic-industries-informatron.petrified-asteroid, exotic-industries-informatron.petrified-asteroid-text, exotic-industries-informatron.repair, exotic-industries-informatron.repair-text, exotic-industries-informatron.resources, exotic-industries-informatron.resources-text, exotic-industries-informatron.rock-asteroid, exotic-industries-informatron.rock-asteroid-text, exotic-industries-informatron.rocket-launch-pollution, exotic-industries-informatron.rocket-launch-pollution-2, exotic-industries-informatron.rocket-launch-pollution-text, exotic-industries-informatron.rocket-launch-pollution-text-2, exotic-industries-informatron.scrap-asteroid, exotic-industries-informatron.scrap-asteroid-text, exotic-industries-informatron.specialised-pipes, exotic-industries-informatron.specialised-pipes-2, exotic-industries-informatron.specialised-pipes-3, exotic-industries-informatron.specialised-pipes-text, exotic-industries-informatron.specialised-pipes-text-2, exotic-industries-informatron.specialised-pipes-text-3, exotic-industries-informatron.spidertron, exotic-industries-informatron.spidertron-text, exotic-industries-informatron.steam-bots, exotic-industries-informatron.steam-bots-2, exotic-industries-informatron.steam-bots-text, exotic-industries-informatron.steam-bots-text-2, exotic-industries-informatron.surface-patches, exotic-industries-informatron.surface-patches-text, exotic-industries-informatron.tech, exotic-industries-informatron.tech-2, exotic-industries-informatron.tech-3, exotic-industries-informatron.tech-text, exotic-industries-informatron.tech-text-2, exotic-industries-informatron.tech-text-3, exotic-industries-informatron.teslas-legacy, exotic-industries-informatron.teslas-legacy-2, exotic-industries-informatron.teslas-legacy-3, exotic-industries-informatron.teslas-legacy-4, exotic-industries-informatron.teslas-legacy-5, exotic-industries-informatron.teslas-legacy-6, exotic-industries-informatron.teslas-legacy-7, exotic-industries-informatron.teslas-legacy-text, exotic-industries-informatron.teslas-legacy-text-2, exotic-industries-informatron.teslas-legacy-text-3, exotic-industries-informatron.teslas-legacy-text-4, exotic-industries-informatron.teslas-legacy-text-5, exotic-industries-informatron.teslas-legacy-text-6, exotic-industries-informatron.teslas-legacy-text-7, exotic-industries-informatron.train-progression, exotic-industries-informatron.train-progression-text-2, exotic-industries-informatron.turrets, exotic-industries-informatron.turrets-2, exotic-industries-informatron.turrets-3, exotic-industries-informatron.turrets-4, exotic-industries-informatron.turrets-5, exotic-industries-informatron.turrets-text, exotic-industries-informatron.turrets-text-2, exotic-industries-informatron.turrets-text-3, exotic-industries-informatron.turrets-text-4, exotic-industries-informatron.turrets-text-5, exotic-industries-informatron.uranium-asteroid, exotic-industries-informatron.uranium-asteroid-text, exotic-industries-informatron.veins, exotic-industries-informatron.veins-text, exotic-industries-informatron.welcome, exotic-industries-informatron.welcome-text, exotic-industries-informatron.welcome-text-2, exotic-industries-informatron.world-gen-related, exotic-industries-informatron.world-gen-related-text
 -- remote_interfaces: exotic-industries-informatron
@@ -18,6 +18,35 @@ local function add_centered_sprite_row(element, sprites)
 
     for _, sprite in ipairs(sprites) do
         image_container.add{type = "sprite", sprite = sprite}
+    end
+end
+
+local function add_centered_named_sprite_row(element, entries, opts)
+    opts = opts or {}
+    local card_width = tonumber(opts.card_width) or 112
+    local label_max_width = tonumber(opts.label_max_width) or math.max(96, card_width - 8)
+    local horizontal_spacing = tonumber(opts.horizontal_spacing) or 0
+
+    local row = element.add{type = "flow"}
+    row.style.horizontal_align = "center"
+    row.style.horizontally_stretchable = true
+    row.style.horizontal_spacing = horizontal_spacing
+
+    for _, entry in ipairs(entries) do
+        local card = row.add{type = "flow", direction = "vertical"}
+        card.style.width = card_width
+        card.style.horizontal_align = "center"
+
+        card.add{type = "sprite", sprite = entry.sprite}
+
+        local label = card.add{
+            type = "label",
+            caption = entry.caption,
+            style = "caption_label",
+        }
+        label.style.single_line = false
+        label.style.maximal_width = label_max_width
+        label.style.horizontal_align = "center"
     end
 end
 
@@ -349,6 +378,7 @@ function model.menu(player_index)
         new_mechanics = {
             beacon_overhaul = 1,
             specialised_pipes = 1,
+            railgun_cooling = 1,
             induction_matrix = 1,
             teslas_legacy = 1,
             exotic_stabilizer = 1,
@@ -790,11 +820,49 @@ function model.gate(player_index, element)
     end
 
     add_section("gate", "gate-text", "ei_gate")
+    add_centered_named_sprite_row(element, {
+        {sprite = "item/ei-gate", caption = {"item-name.ei-gate"}},
+        {sprite = "item/ei-gate-receiver", caption = {"item-name.ei-gate-receiver"}},
+        {sprite = "item/ei-breach-residue", caption = {"item-name.ei-breach-residue"}},
+    })
     add_section("gate-2", "gate-text-2")
     add_section("gate-3", "gate-text-3")
+    local gate_control_signals = element.add{
+        type = "label",
+        caption = {"exotic-industries-informatron.gate-control-signals"},
+        style = "caption_label"
+    }
+    gate_control_signals.style.horizontally_stretchable = true
+    gate_control_signals.style.horizontal_align = "center"
+    add_centered_named_sprite_row(element, {
+        {sprite = "virtual-signal/signal-D", caption = {"virtual-signal-name.signal-D"}},
+        {sprite = "virtual-signal/signal-E", caption = {"virtual-signal-name.signal-E"}},
+        {sprite = "virtual-signal/signal-I", caption = {"virtual-signal-name.signal-I"}},
+    })
     add_section("gate-4", "gate-text-4")
+    local gate_telemetry_signals = element.add{
+        type = "label",
+        caption = {"exotic-industries-informatron.gate-telemetry-signals"},
+        style = "caption_label"
+    }
+    gate_telemetry_signals.style.horizontally_stretchable = true
+    gate_telemetry_signals.style.horizontal_align = "center"
+    add_centered_named_sprite_row(element, {
+        {sprite = "virtual-signal/ei-gate-active", caption = {"virtual-signal-name.ei-gate-active"}},
+        {sprite = "virtual-signal/ei-gate-energy", caption = {"virtual-signal-name.ei-gate-energy"}},
+        {sprite = "virtual-signal/ei-gate-stress", caption = {"virtual-signal-name.ei-gate-stress"}},
+    })
     add_section("gate-5", "gate-text-5")
     add_section("gate-6", "gate-text-6")
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.gate-7"}, style = "heading_1_label"}
+    element.add{
+        type = "label",
+        caption = {
+            "exotic-industries-informatron.gate-text-7",
+            get_localized_startup_string_setting_value("ei-gate-difficulty", "Recovered")
+        }
+    }
 end
 
 function model.repair(player_index, element)
@@ -862,6 +930,43 @@ function model.orbital_scanner(player_index, element)
 
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-2"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text-2"}}
+    local operator_block = element.add{type = "flow", direction = "vertical"}
+    operator_block.style.horizontally_stretchable = true
+    operator_block.style.vertical_spacing = 4
+
+    local operator_note = operator_block.add{
+        type = "label",
+        caption = {"exotic-industries-informatron.orbital-scanner-text-2b"},
+        style = "caption_label"
+    }
+    operator_note.style.single_line = false
+    operator_note.style.maximal_width = 720
+    local operator_legend = operator_block.add{
+        type = "label",
+        caption = {"exotic-industries.orbital-logistics-gui-status-legend"},
+        style = "caption_label"
+    }
+    operator_legend.style.single_line = false
+    operator_legend.style.maximal_width = 720
+    operator_block.style.bottom_padding = 6
+
+    add_centered_named_sprite_row(element, {
+        {sprite = "item/ei-platform-transponder", caption = {"entity-name.ei-platform-transponder"}},
+        {sprite = "item/ei-orbital-selector", caption = {"entity-name.ei-orbital-selector"}},
+    }, {
+        card_width = 168,
+        label_max_width = 156,
+        horizontal_spacing = 12,
+    })
+
+    add_centered_named_sprite_row(element, {
+        {sprite = "item/ei-orbital-coordinator", caption = {"entity-name.ei-orbital-coordinator"}},
+        {sprite = "item/ei-orbital-dispatch-uplink", caption = {"entity-name.ei-orbital-dispatch-uplink"}},
+    }, {
+        card_width = 168,
+        label_max_width = 156,
+        horizontal_spacing = 12,
+    })
 
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-3"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text-3"}}
@@ -925,6 +1030,18 @@ end
 function model.new_mechanics(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.new-mechanics"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.new-mechanics-text"}}
+end
+
+function model.railgun_cooling(player_index, element)
+    local function add_section(section_key, text_key)
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. section_key}, style = "heading_1_label"}
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
+    end
+
+    add_section("railgun-cooling", "railgun-cooling-text")
+    add_section("railgun-cooling-2", "railgun-cooling-text-2")
+    add_section("railgun-cooling-3", "railgun-cooling-text-3")
+    add_section("railgun-cooling-4", "railgun-cooling-text-4")
 end
 
 function model.beacon_overhaul(player_index, element)
@@ -1193,6 +1310,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "specialised_pipes" then
         model.specialised_pipes(player_index, element)
+    end
+
+    if page_name == "railgun_cooling" then
+        model.railgun_cooling(player_index, element)
     end
 
     if page_name == "induction_matrix" then

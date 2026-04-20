@@ -24,6 +24,7 @@ require("scripts/data-updates/tech-structure")
 require("scripts/data-updates/vanilla-patches")
 require("scripts/data-updates/flammable-fluids")
 require("scripts/data-updates/rocket-ammo")
+require("scripts/data-updates/railgun-cooling")
 
 -- add metalworks
 require("prototypes/metalworks")

@@ -1,15 +1,38 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.27
+Date: 4-19-2026
+  Features:
+    - Orbital cohort GUI panels are now actual panels instead of an unaesthetic mess of buttons.
+    - Exotic assemblers now have an additional GUI when selected which details their volatility parameters.
+    - Railguns now run a gun-side fluoroketone cooling loop: each shot consumes cold fluoroketone, vents hot fluoroketone, builds heat debt when starved, and exposes a cooling console plus status line so you can see when the weapon is recovering.
+    - Neutron collectors now have an additional GUI when selected which details efficiency, charge time, nearby sources, etc.
+    - Prepared custom neutron collector telemetry signal assets for a later release.
+    - Added an ice-based fluoroketone cooling recipe that vents 500 C steam.
+    - Added railgun cooling documentation in Informatron across all supported languages.
+    - Added a disabled by default startup setting to Enable the preliminary Krastorio2 Spaced out compatibility patch.
+  Changes:
+    - Loaders now have descriptions indicating the extend of their filtering and stacking capabilities.
+    - Marked ESIR incompatible with Railguns-Require-Fluoroketone.
+    - Extensively optimized the Gate control script improving UPS usage and reducing inconsistent behavior.
+    - Drastically optimized Orbital logistics cohort control script improving UPS usage.
+    - Orbital Logistics Cohort terminals now mirror the scanner's electric contract through hidden power sensors: transponders draw 100 kW, selectors 250 kW, dispatch uplinks 350 kW, coordinators 500 kW, and unpowered cohort terminals stop participating until power returns.
+    - Neutron collectors now reopen through a standby shell when idle and rebuild old collector runtime state on load.
+  Bugfixes:
+    - Removed Nitric acid extraction from slag recipe from Purifier technology.
+    - Fixed a Fuelwarden associated equipment grid error.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.26
 Date: 4-18-2026
   Features:
     - Added Age ramp as a new technology cost scaling curve. Dark and steam ages stay gentle, electricity starts the climb, and computer, quantum, and exotic ages carry most of the pressure.
     - Orbital Logistics Scanner now draws 750kW, shows powered / low-power / unpowered state on its GUI and status light, blanks output while unpowered, and documents sparse unwired refresh behavior in Informatron.
-    - Added Orbital Logistics Cohort around the scanner: platform transponders, orbital selectors, orbital coordinator, silo dispatch uplinks with mixed-manifest leases, expanded orbit handbook coverage in all supported languages, and shipped orbital rebuild/QC surfaces for development.
+    - Added Orbital Logistics Cohort around the scanner: platform transponders, orbital selectors, orbital coordinator, silo dispatch uplinks with mixed-manifest leases, expanded orbit handbook coverage in all supported languages.
   Changes:
     - Set Age ramp as the default technology cost scaling mode for new startup-setting profiles.
     - Refreshed the technology cost scaling setting text and Informatron page text in all supported languages so the new mode is explained clearly and the existing curve forms remain documented.
     - Optimized research-finished behavior preventing UPS drops: technology cost scaling now updates from incremental cached progress, while Tesla variant sync and EM-train rollout settle through bounded deferred passes instead of spiking the completion tick.
     - Script-driven research floods now coalesce: cheat-mode or helper-triggered `research_all_technologies()` bursts settle through one scheduled pass instead of re-running the full research-finished handler chain for every same-tick completion.
+    - Optimized flame rapture system control script, minimizing UPS spikes.
     - Refined Fuelwarden tower scheduling so target selection now picks the best in-range tower in one pass, reuses cached range and tower preference data, and skips unrelated build/destroy events earlier.
     - Fuelwarden player-equipment support now refreshes primarily from player lifecycle, controller, and armor events with a much slower fallback sweep instead of repeatedly rescanning all connected players.
     - Fuelwarden now runs a rare ready-queue integrity audit so stale per-surface counters and queues can heal themselves without needing an immediate `/rescan_fuelers`.
