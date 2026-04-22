@@ -6,42 +6,57 @@ local function icon_data(prototype, fallback_icon, fallback_size)
     if prototype and prototype.icons then
         local first = prototype.icons[1]
         if first and first.icon then
-            return {icon = first.icon, icon_size = first.icon_size or prototype.icon_size or fallback_size or 64}
+            return {
+                icon = first.icon,
+                icon_size = first.icon_size or prototype.icon_size or fallback_size or 64,
+                icon_mipmaps = first.icon_mipmaps or prototype.icon_mipmaps,
+            }
         end
     elseif prototype and prototype.icon then
-        return {icon = prototype.icon, icon_size = prototype.icon_size or fallback_size or 64}
+        return {
+            icon = prototype.icon,
+            icon_size = prototype.icon_size or fallback_size or 64,
+            icon_mipmaps = prototype.icon_mipmaps,
+        }
     end
 
     return {icon = fallback_icon, icon_size = fallback_size or 64}
 end
 
-local function layered_icons(base, overlay)
+local function layered_icons(base, overlay, opts)
+    opts = opts or {}
     return {
         icons = {
             {
                 icon = base.icon,
                 icon_size = base.icon_size,
+                icon_mipmaps = base.icon_mipmaps,
             },
             {
                 icon = overlay.icon,
                 icon_size = overlay.icon_size,
-                scale = 0.35,
-                shift = {8, 8},
+                icon_mipmaps = overlay.icon_mipmaps,
+                scale = opts.scale or 0.35,
+                shift = opts.shift or {8, 8},
             },
         },
         icon_size = base.icon_size,
     }
 end
 
-local slag_icon = icon_data(data.raw.item["ei-slag"], ei_graphics_item_path.."slag.png", 64)
-local gold_icon = icon_data(data.raw.item["ei-gold-chunk"], ei_graphics_item_path.."gold-chunk.png", 64)
-local calcite_icon = icon_data(data.raw.item["calcite"], "__space-age__/graphics/icons/calcite.png", 64)
-local carbide_icon = icon_data(data.raw.item["tungsten-carbide"], "__space-age__/graphics/icons/tungsten-carbide.png", 64)
 local steam_icon = icon_data(data.raw.fluid["steam"], "__base__/graphics/icons/fluid/steam.png", 64)
+local sulfuric_acid_icon = icon_data(data.raw.fluid["sulfuric-acid"], "__base__/graphics/icons/fluid/sulfuric-acid.png", 64)
+local crushed_slag_item_icon = ei_path.."graphics/items/crushed-slag.png"
+local auric_slag_icon_1 = ei_path.."graphics/items/auric-slag-1.png"
+local auric_slag_icon_2 = ei_path.."graphics/items/auric-slag-2.png"
+local auric_slag_icon_3 = ei_path.."graphics/items/auric-slag-3.png"
+local carbide_core_item_icon = ei_path.."graphics/items/carbide-precipitation-core.png"
 
-local auric_vapor_icons = layered_icons(steam_icon, gold_icon)
-local carbide_core_icons = layered_icons(carbide_icon, calcite_icon)
-local auric_slag_icons = layered_icons(slag_icon, gold_icon)
+local auric_slag_recipe_icon_2 = {icon = auric_slag_icon_2, icon_size = 64, icon_mipmaps = 4}
+local auric_slag_recipe_icon_3 = {icon = auric_slag_icon_3, icon_size = 64, icon_mipmaps = 4}
+local auric_vapor_icons = layered_icons(steam_icon, auric_slag_recipe_icon_2)
+local auric_vapor_condensation_recipe_icons = layered_icons(auric_slag_recipe_icon_2, steam_icon, {scale = 0.3, shift = {9, 9}})
+local auric_slag_washing_recipe_icons = layered_icons(auric_slag_recipe_icon_3, sulfuric_acid_icon, {scale = 0.3, shift = {9, 9}})
 
 local function extraction_result(name, probability, amount_min, amount_max)
     return {type = "item", name = name, amount_min = amount_min, amount_max = amount_max, probability = math.min(1, probability * 1.25)}
@@ -75,6 +90,7 @@ auric_fumarole.minable = {
 }
 auric_fumarole.icon = auric_vapor_icons.icons[1].icon
 auric_fumarole.icon_size = auric_vapor_icons.icon_size
+auric_fumarole.icon_mipmaps = auric_vapor_icons.icons[1].icon_mipmaps
 auric_fumarole.icons = auric_vapor_icons.icons
 
 -- Sulfuric geyser ambience already works directly on the resource prototype, so the auric clone
@@ -150,8 +166,29 @@ data:extend({
     {
         type = "item",
         name = "ei-auric-slag",
-        icons = auric_slag_icons.icons,
-        icon_size = auric_slag_icons.icon_size,
+        icon = auric_slag_icon_1,
+        icon_size = 256,
+        icon_mipmaps = 5,
+        pictures = {
+            {
+                filename = auric_slag_icon_1,
+                size = 256,
+                icon_mipmaps = 5,
+                scale = 0.125,
+            },
+            {
+                filename = auric_slag_icon_2,
+                size = 64,
+                icon_mipmaps = 4,
+                scale = 0.5,
+            },
+            {
+                filename = auric_slag_icon_3,
+                size = 64,
+                icon_mipmaps = 4,
+                scale = 0.5,
+            },
+        },
         stack_size = 100,
         subgroup = "ei-refining-byproduct",
         order = "z[auric-slag]",
@@ -159,8 +196,9 @@ data:extend({
     {
         type = "item",
         name = "ei-crushed-slag",
-        icon = slag_icon.icon,
-        icon_size = slag_icon.icon_size,
+        icon = crushed_slag_item_icon,
+        icon_size = 64,
+        icon_mipmaps = 4,
         stack_size = 100,
         subgroup = "ei-refining-crushed",
         order = "z[crushed-slag]",
@@ -168,8 +206,9 @@ data:extend({
     {
         type = "item",
         name = "ei-carbide-precipitation-core",
-        icons = carbide_core_icons.icons,
-        icon_size = carbide_core_icons.icon_size,
+        icon = carbide_core_item_icon,
+        icon_size = 256,
+        icon_mipmaps = 5,
         stack_size = 50,
         subgroup = "intermediate-product",
         order = "z[carbide-precipitation-core]",
@@ -206,8 +245,9 @@ data:extend({
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-carbide-precipitation-core",
-        icons = carbide_core_icons.icons,
-        icon_size = carbide_core_icons.icon_size,
+        icon = carbide_core_item_icon,
+        icon_size = 256,
+        icon_mipmaps = 5,
     },
     {
         type = "recipe",
@@ -219,16 +259,16 @@ data:extend({
             {type = "item", name = "ei-carbide-precipitation-core", amount = 1},
         },
         results = {
-            {type = "fluid", name = "steam", amount = 100, temperature = 500},
-            {type = "fluid", name = "ei-dirty-water", amount = 40},
-            {type = "item", name = "ei-auric-slag", amount = 40},
+            {type = "fluid", name = "steam", amount_min = 90, amount_max = 110, temperature = 500},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 25, amount_max = 55, ignored_by_stats = 55},
+            {type = "item", name = "ei-auric-slag", amount_min = 40, amount_max = 50},
         },
         always_show_made_in = true,
         allow_productivity = false,
         enabled = false,
         main_product = "ei-auric-slag",
-        icons = auric_vapor_icons.icons,
-        icon_size = auric_vapor_icons.icon_size,
+        icons = auric_vapor_condensation_recipe_icons.icons,
+        icon_size = auric_vapor_condensation_recipe_icons.icon_size,
         subgroup = "ei-refining-purified",
         order = "z[auric-vapor-condensation]",
     },
@@ -244,15 +284,15 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-chunk", amount_min = 4, amount_max = 6},
-            {type = "item", name = "ei-slag", amount_min = 8, amount_max = 12},
+            {type = "item", name = "ei-slag", amount_min = 8, amount_max = 12, ignored_by_stats = 12},
             {type = "fluid", name = "ei-dirty-water", amount_min = 30, amount_max = 50, ignored_by_stats = 50},
         },
         always_show_made_in = true,
         allow_productivity = false,
         enabled = false,
         main_product = "ei-gold-chunk",
-        icons = auric_slag_icons.icons,
-        icon_size = auric_slag_icons.icon_size,
+        icons = auric_slag_washing_recipe_icons.icons,
+        icon_size = auric_slag_washing_recipe_icons.icon_size,
         subgroup = "ei-refining-extraction",
         order = "z[auric-slag-washing]",
     },
@@ -340,8 +380,9 @@ data:extend({
     {
         type = "technology",
         name = "ei-auric-precipitation",
-        icons = auric_slag_icons.icons,
-        icon_size = auric_slag_icons.icon_size,
+        icon = auric_slag_icon_1,
+        icon_size = 256,
+        icon_mipmaps = 5,
         prerequisites = {"planet-discovery-vulcanus", "ei-purifier", "tungsten-carbide"},
         effects = {
             {type = "unlock-recipe", recipe = "ei-carbide-precipitation-core"},

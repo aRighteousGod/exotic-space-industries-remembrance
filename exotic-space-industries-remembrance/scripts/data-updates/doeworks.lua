@@ -23,7 +23,7 @@ local deer_ammo_atomic_u235_direct_icon = rocket_items_path .. "dw-deer-ammo-ato
 local deer_ammo_atomic_plutonium_direct_icon = rocket_items_path .. "dw-deer-ammo-atomic-plutonium.png"
 local deer_tech_icon = rocket_techs_path .. "dw-deer-tech.png"
 local atomic_rocket_action = data.raw.projectile["atomic-rocket"] and data.raw.projectile["atomic-rocket"].action
-local atomic_rocket_u235_action
+local atomic_rocket_u235_action = data.raw.projectile["ei-atomic-rocket-u235"] and data.raw.projectile["ei-atomic-rocket-u235"].action
 
 local function mirror_gun_speed_bonus(tech_name, source_ammo_category, target_ammo_category)
     local technology = data.raw.technology[tech_name]
@@ -80,7 +80,9 @@ local function clone_atomic_action_with_center(action, center_name)
     return cloned
 end
 
-atomic_rocket_u235_action = clone_atomic_action_with_center(atomic_rocket_action, "ei-atomic-u235-center-explosion")
+if not atomic_rocket_u235_action then
+    atomic_rocket_u235_action = clone_atomic_action_with_center(atomic_rocket_action, "ei-atomic-u235-center-explosion")
+end
 
 local function patch_stream_damage(stream_name, damage_updates)
     local stream = data.raw.stream and data.raw.stream[stream_name]
@@ -950,10 +952,10 @@ retag_stream_damage("ei-dw-deer-cryo-stream", "explosion", "cold")
 retag_stream_damage("ei-dw-deer-cryo-cratestream", "explosion", "cold")
 retag_stream_damage("ei-dw-deer-cryo-cratestreambad", "explosion", "cold")
 retag_stream_damage("ei-dw-deer-cryo-cratestreamworse", "explosion", "cold")
-patch_stream_damage("ei-dw-deer-atomic-u235-stream", {physical = 90, explosion = 300})
-patch_stream_damage("ei-dw-deer-atomic-u235-cratestream", {physical = 450})
-patch_stream_damage("ei-dw-deer-atomic-u235-cratestreambad", {physical = 90, explosion = 300})
-patch_stream_damage("ei-dw-deer-atomic-u235-cratestreamworse", {physical = 90, explosion = 300})
+patch_stream_damage("ei-dw-deer-atomic-u235-stream", {physical = 75, explosion = 240})
+patch_stream_damage("ei-dw-deer-atomic-u235-cratestream", {physical = 360})
+patch_stream_damage("ei-dw-deer-atomic-u235-cratestreambad", {physical = 75, explosion = 240})
+patch_stream_damage("ei-dw-deer-atomic-u235-cratestreamworse", {physical = 75, explosion = 240})
 patch_stream_damage("ei-dw-deer-atomic-plutonium-stream", {physical = 90, explosion = 300})
 patch_stream_damage("ei-dw-deer-atomic-plutonium-cratestream", {physical = 450})
 patch_stream_damage("ei-dw-deer-atomic-plutonium-cratestreambad", {physical = 90, explosion = 300})

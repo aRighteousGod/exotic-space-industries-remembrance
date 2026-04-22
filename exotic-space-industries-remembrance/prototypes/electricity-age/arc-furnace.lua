@@ -702,6 +702,22 @@ data:extend({
         main_product = "ei-molten-carbon",
     },
     {
+        name = "ei-coal-gas-carbon-dioxide",
+        type = "recipe",
+        category = "ei-arc-furnace",
+        energy_required = 4,
+        ingredients = {
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 20},
+            {type = "item", name = "carbon", amount = 1},
+        },
+        results = {
+            {type = "fluid", name = "ei-coal-gas", amount = 20},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-coal-gas",
+    },
+    {
         name = "ei-molten-carbon-reheat",
         type = "recipe",
         category = "ei-arc-furnace",

@@ -951,9 +951,16 @@ for _,technology in pairs(data.raw.technology) do
     end
 end
 ei_lib.remove_unlock_recipe("kovarex-enrichment-process", "kovarex-enrichment-process")
-data.raw.recipe["kovarex-enrichment-process"].hidden = true
-ei_lib.raw["technology"]["kovarex-enrichment-process"].localised_name = {"technology-name.ei-kovarex-fuel-enrichment"}
-ei_lib.raw["technology"]["kovarex-enrichment-process"].localised_description = {"technology-description.ei-kovarex-fuel-enrichment"}
+if data.raw.recipe["kovarex-enrichment-process"] then
+    data.raw.recipe["kovarex-enrichment-process"].hidden = true
+end
+
+local kovarex_tech = ei_lib.raw["technology"]["kovarex-enrichment-process"]
+if kovarex_tech then
+    kovarex_tech.hidden = true
+    kovarex_tech.localised_name = {"technology-name.ei-kovarex-fuel-enrichment"}
+    kovarex_tech.localised_description = {"technology-description.ei-kovarex-fuel-enrichment"}
+end
 
 ei_lib.overwrite_entity_and_description("logistic-system","technology") -- overwrite to theory fluff because ei logistic containers is an post-grad tech
 ei_lib.remove_unlock_recipe("logistic-system", "active-provider-chest")
@@ -2422,9 +2429,98 @@ if a_n then
         },
         age = "computer-age",
     },
+    {
+        name = "ei-calcite-bed",
+        type = "item",
+        icon = ei_path.."graphics/items/calcite-bed.png",
+        icon_size = 128,
+        icon_mipmaps = 3,
+        stack_size = 100,
+        subgroup = "intermediate-product",
+        order = "h[fluorite]-a[calcite-bed]",
+    },
+    {
+        name = "ei-calcite-bed",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 2,
+        ingredients = {
+            {type = "item", name = "calcite", amount = 2},
+            {type = "item", name = "ei-ceramic", amount = 1},
+            {type = "item", name = "ei-steel-mechanical-parts", amount = 1},
+        },
+        results = {
+            {type = "item", name = "ei-calcite-bed", amount = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-calcite-bed",
+    },
+    {
+        name = "ei-acidic-water-fluorite-bed",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 8,
+        ingredients = {
+            {type = "fluid", name = "ei-acidic-water", amount = 100},
+            {type = "fluid", name = "steam", amount = 100, minimum_temperature = 500},
+            {type = "item", name = "ei-calcite-bed", amount = 1},
+        },
+        results = {
+            {type = "item", name = "ei-fluorite", amount = 1},
+            {type = "fluid", name = "water", amount_min = 1, amount_max = 20, ignored_by_stats = 20, ignored_by_productivity = 20},
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 10, ignored_by_stats = 10, ignored_by_productivity = 10},
+            {type = "item", name = "ei-calcite-bed", amount = 1, probability = 0.25, ignored_by_stats = 1, ignored_by_productivity = 1},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-fluorite",
+        icons = ei_lib.make_icons(
+            ei_graphics_item_path.."fluorite.png",
+            64,
+            ei_path.."graphics/items/calcite-bed.png",
+            128,
+            0.28,
+            {10, 10},
+            nil,
+            {overlay_mipmaps = 3, base_scale = 1.05}
+        ),
+        icon_size = 64,
+    },
+    {
+        name = "ei-carbon-dioxide-acidic-water",
+        type = "recipe",
+        category = "chemistry",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 20},
+            {type = "fluid", name = "water", amount = 20},
+        },
+        results = {
+            {type = "fluid", name = "ei-acidic-water", amount = 20},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-acidic-water",
+        icons = ei_lib.make_icons(
+            ei_graphics_fluid_path.."acidic-water.png",
+            64,
+            ei_path.."graphics/fluids/carbon-dioxide.png",
+            64,
+            0.36,
+            {9, 9}
+        ),
+        icon_size = 64,
+        subgroup = "fluid-recipes",
+        order = "a[fluid-chemistry]-a[ei_carbon-dioxide-acidic-water]",
+    },
         })
     local a_n_t2_tech = ei_lib.raw.technology["ei-acid-neutralisation-t2"]
     table.insert(a_n_t2_tech.unit.ingredients,{"metallurgic-science-pack",1})
+    ei_lib.add_unlock_recipe("ei-acid-neutralisation-t2", "ei-calcite-bed")
+    ei_lib.add_unlock_recipe("ei-acid-neutralisation-t2", "ei-acidic-water-fluorite-bed")
+    ei_lib.add_unlock_recipe("ei-acid-neutralisation-t2", "ei-carbon-dioxide-acidic-water")
+    ei_lib.add_unlock_recipe("ei-acid-neutralisation-t2", "ei-carbon-dioxide-vent")
     a_n.ingredients = {
         {type= "item", name= "calcite", amount=15},
         {type= "fluid", name= "sulfuric-acid", amount=1000},
@@ -2465,8 +2561,7 @@ data:extend({
     },
     results = {
         {type = "item", name = "ei-fluorite", amount = 2},
-        {type = "fluid", name = "ei-oxygen-gas", amount = 15},
-        --co2?
+        {type = "fluid", name = "ei-carbon-dioxide", amount = 10, ignored_by_stats = 10},
     },
     always_show_made_in = true,
     enabled = false,
@@ -2493,8 +2588,11 @@ data:extend({
         order = "b[fluid-chemistry]-i[ei-fluorine-vent]"
     },
 })
+ei_lib.add_unlock_recipe("ei-nitric-acid", "ei-dirty-water-fluorite-nitric")
+ei_lib.add_unlock_recipe("ei-carbon-manipulation", "ei-coal-gas-carbon-dioxide")
 table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-fluorite-fluorine-calcite"})
 table.insert(data.raw["technology"]["planet-discovery-aquilo"].effects, {type = "unlock-recipe", recipe = "ei-fluorine-vent"})
+ei_lib.add_unlock_recipe("planet-discovery-aquilo", "ei-carbon-dioxide-vent")
 
 local lithium_plate = ei_lib.raw.recipe["lithium-plate"]
 if lithium_plate then

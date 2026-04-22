@@ -546,11 +546,60 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-fluorite", amount_min = 1, amount_max=3, probability=0.35},
-            {type = "fluid", name = "water", amount_min = 1,amount_max=10,ignored_by_stats=2}
+            {type = "fluid", name = "water", amount_min = 1,amount_max=10,ignored_by_stats=10}
         },
         always_show_made_in = true,
         enabled = false,
         main_product = "ei-fluorite",
+    },
+    {
+        name = "ei-dirty-water-fluorite-nitric",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 8,
+        ingredients = {
+            {type = "fluid", name = "ei-dirty-water", amount = 100},
+            {type = "fluid", name = "ei-nitric-acid", amount = 10},
+        },
+        results = {
+            {type = "item", name = "ei-fluorite", amount = 1},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max = 20, ignored_by_stats = 20, ignored_by_productivity = 20}
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-fluorite",
+    },
+    {
+        name = "ei-irradiated-water-purification",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 8,
+        ingredients = {
+            {type = "fluid", name = "ei-irradiated-water", amount = 100},
+        },
+        results = {
+            {type = "fluid", name = "ei-dirty-water", amount = 95},
+            {type = "item", name = "ei-nuclear-waste", amount = 1, probability = 0.25},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        icon_size = 64,
+        icons = {
+            {
+                icon = "__exotic-space-industries-remembrance__/graphics/fluids/irradiated-water.png",
+                icon_size = 64,
+                icon_mipmaps = 4,
+            },
+            {
+                icon = ei_graphics_item_path.."nuclear-waste.png",
+                icon_size = 64,
+                scale = 0.35,
+                shift = {8, 8},
+            },
+        },
+        subgroup = "ei-nuclear-processing",
+        order = "a-a-0",
+        main_product = "ei-dirty-water",
     },
     {
         name = "ei-dirty-water-vent",

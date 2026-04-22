@@ -3,7 +3,7 @@
 -- owns: neutron collector runtime, source linking, and relative GUI diagnostics
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, scheduled tick step 3, GUI open/close/click, and configuration rebuild
--- forwarded_events: add_connected_source, apply_collector_animation, attach_wire_proxy_to_collector, calc_distance, calc_efficiency, calc_fusion_flux, check_global, clear_gui_session, clear_legacy_runtime_fields, clear_queued_collector, close_gui, close_sessions_for_unit, connect_collector, dequeue_dirty_collector, destroy_all_wire_proxies, destroy_wire_proxy, disconnect_collector, ensure_gui_session, ensure_runtime_ready, ensure_wire_proxy, entity_check, find_neutron_source, get_collector_state_key, get_connected_source_count, get_dirty_collector_count, get_dirty_queue, get_due_gui_refresh_count, get_entity_recipe_name, get_gui_snapshot, get_open_neutron_collector, get_pending_work_count, get_source_entry, get_source_fusion_multiplier, get_state, is_output_empty, make_direction_animation, on_built_entity, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_player_left_game, open_gui, poll_connected_sources, poll_source, process_dirty_collectors, queue_collectors_in_range, queue_dirty_collector, queue_gui_refresh_for_player, queue_gui_refresh_for_unit, rebuild_runtime_state, refresh_collector, register_collector, remove_collector_from_source, remove_connected_source, remove_direction_animation, remove_direction_animation_by_unit, remove_source_entry, reset_runtime_storage, service_gui_refreshes, show_resolution_text, unregister_collector, update, update_gui, update_neutron_collector, update_neutron_collectors_in_range, update_wire_proxy_signals
+-- forwarded_events: add_connected_source, apply_collector_animation, attach_wire_proxy_to_collector, calc_distance, calc_efficiency, calc_fusion_flux, check_global, clear_gui_session, clear_legacy_runtime_fields, clear_queued_collector, close_gui, close_sessions_for_unit, connect_collector, dequeue_dirty_collector, destroy_all_wire_proxies, destroy_wire_proxy, disconnect_collector, ensure_gui_session, ensure_runtime_ready, ensure_wire_proxy, entity_check, find_neutron_source, get_collector_state_key, get_connected_source_count, get_dirty_collector_count, get_dirty_queue, get_due_gui_refresh_count, get_entity_recipe_name, get_gui_snapshot, get_open_neutron_collector, get_pending_work_count, get_source_entry, get_source_fusion_multiplier, get_state, is_output_empty, make_direction_animation, on_built_entity, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_player_left_game, open_gui, poll_connected_sources, poll_source, process_dirty_collectors, queue_collectors_in_range, queue_dirty_collector, queue_gui_refresh_for_player, queue_gui_refresh_for_unit, rebuild_runtime_state, refresh_collector, register_collector, remove_collector_from_source, remove_connected_source, remove_direction_animation, remove_direction_animation_by_unit, remove_source_entry, reset_runtime_storage, service_gui_refreshes, service_wire_proxy_outputs, show_resolution_text, unregister_collector, update, update_gui, update_neutron_collector, update_neutron_collectors_in_range, update_wire_proxy_signals
 -- storage_roots: storage.ei.neutron_runtime, storage.ei.neutron_collector_animation
 -- gui_ids: ei-neutron-collector-console
 -- remote_interfaces: none
@@ -13,16 +13,17 @@ local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 
-local NEUTRON_RUNTIME_VERSION = 5
+local NEUTRON_RUNTIME_VERSION = 6
 local NEUTRON_COLLECTOR_NAME = "ei-neutron-collector"
 local NEUTRON_IDLE_RECIPE_NAME = "ei-neutron-collector-idle"
 local NEUTRON_WIRE_PROXY_NAME = "ei-neutron-collector-circuit-interface"
-local NEUTRON_WIRE_PROXY_ENABLED = false
+local NEUTRON_WIRE_PROXY_ENABLED = true
 local FUSION_REACTOR_NAME = "ei-fusion-reactor"
 local DEFAULT_FUSION_RECIPE = "ei-fusion-F1__ei-heated-deuterium-F2__ei-heated-tritium-TM__medium-FM__medium"
 local GUI_NAME = "ei-neutron-collector-console"
 local GUI_REFRESH_DELAY = 1
 local MAX_GUI_CANDIDATES = 3
+local NEUTRON_WIRE_UPDATE_INTERVAL = 60
 
 local function make_wire_signal(name)
     return {
@@ -82,6 +83,79 @@ local SCAN_AGENT_SIGNAL_VALUES = {
 
 local function make_dirty_queue()
     return ei_runtime_scheduler.ensure_queue(nil)
+end
+
+local function make_wire_output_buckets()
+    local buckets = {}
+    for i = 0, NEUTRON_WIRE_UPDATE_INTERVAL - 1 do
+        buckets[i] = {}
+    end
+    return buckets
+end
+
+local function add_wire_output_bucket(runtime, unit_number)
+    if not runtime or type(unit_number) ~= "number" then
+        return
+    end
+
+    local buckets = runtime.wire_output_buckets
+    local index_by_unit = runtime.wire_output_index_by_unit
+    if type(buckets) ~= "table" or type(index_by_unit) ~= "table" then
+        return
+    end
+
+    if index_by_unit[unit_number] then
+        return
+    end
+
+    local bucket_index = unit_number % NEUTRON_WIRE_UPDATE_INTERVAL
+    local bucket = buckets[bucket_index]
+    if type(bucket) ~= "table" then
+        bucket = {}
+        buckets[bucket_index] = bucket
+    end
+
+    bucket[#bucket + 1] = unit_number
+    index_by_unit[unit_number] = {
+        bucket_index = bucket_index,
+        slot_index = #bucket,
+    }
+end
+
+local function remove_wire_output_bucket(runtime, unit_number)
+    if not runtime or type(unit_number) ~= "number" then
+        return
+    end
+
+    local index_by_unit = runtime.wire_output_index_by_unit
+    local buckets = runtime.wire_output_buckets
+    if type(index_by_unit) ~= "table" or type(buckets) ~= "table" then
+        return
+    end
+
+    local location = index_by_unit[unit_number]
+    if not location then
+        return
+    end
+
+    local bucket = buckets[location.bucket_index]
+    if type(bucket) == "table" then
+        local last_index = #bucket
+        local slot_index = location.slot_index
+        local last_unit = bucket[last_index]
+
+        bucket[slot_index] = last_unit
+        bucket[last_index] = nil
+
+        if last_unit ~= nil and last_index ~= slot_index then
+            local last_location = index_by_unit[last_unit]
+            if last_location then
+                last_location.slot_index = slot_index
+            end
+        end
+    end
+
+    index_by_unit[unit_number] = nil
 end
 
 local function reset_dirty_queue(queue)
@@ -243,7 +317,6 @@ local function ensure_internal_wire(source_entity, source_id, target_entity, tar
 
     local ok, connected = pcall(
         source.connect_to,
-        source,
         target,
         false,
         defines.wire_origin.script
@@ -265,7 +338,7 @@ local function resolve_wire_connector_id(entity, preferred_ids)
         return nil
     end
 
-    local ok, connectors = pcall(entity.get_wire_connectors, false)
+    local ok, connectors = pcall(entity.get_wire_connectors, true)
     if not ok or type(connectors) ~= "table" then
         return nil
     end
@@ -388,11 +461,15 @@ function model.check_global()
     ensure_component("watchers_by_unit", {}, false)
     ensure_component("gui_refresh_buckets", make_gui_refresh_buckets(), false)
     ensure_component("last_gui_service_tick", 0, false)
+    ensure_component("wire_output_buckets", make_wire_output_buckets(), false)
+    ensure_component("wire_output_index_by_unit", {}, false)
 
     runtime.open_by_player = type(runtime.open_by_player) == "table" and runtime.open_by_player or {}
     runtime.watchers_by_unit = type(runtime.watchers_by_unit) == "table" and runtime.watchers_by_unit or {}
     runtime.gui_refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(runtime.gui_refresh_buckets)
     runtime.last_gui_service_tick = tonumber(runtime.last_gui_service_tick) or 0
+    runtime.wire_output_buckets = type(runtime.wire_output_buckets) == "table" and runtime.wire_output_buckets or make_wire_output_buckets()
+    runtime.wire_output_index_by_unit = type(runtime.wire_output_index_by_unit) == "table" and runtime.wire_output_index_by_unit or {}
 
     if runtime.runtime_version ~= NEUTRON_RUNTIME_VERSION then
         needs_rebuild = true
@@ -424,6 +501,8 @@ function model.reset_runtime_storage(runtime)
     runtime.watchers_by_unit = {}
     runtime.gui_refresh_buckets = make_gui_refresh_buckets()
     runtime.last_gui_service_tick = 0
+    runtime.wire_output_buckets = make_wire_output_buckets()
+    runtime.wire_output_index_by_unit = {}
 
     for player_index, session in pairs(preserved_sessions) do
         if type(session) == "table" and session.unit_number ~= nil then
@@ -602,6 +681,22 @@ function model.get_due_gui_refresh_count(runtime, event_or_tick)
     end
 
     return ei_runtime_scheduler.table_count(due_players)
+end
+
+
+local function get_due_wire_output_count(runtime, event_or_tick)
+    local buckets = runtime and runtime.wire_output_buckets or nil
+    if type(buckets) ~= "table" then
+        return 0
+    end
+
+    local tick = now_tick(event_or_tick)
+    local bucket = buckets[tick % NEUTRON_WIRE_UPDATE_INTERVAL]
+    if type(bucket) ~= "table" then
+        return 0
+    end
+
+    return #bucket
 end
 
 
@@ -858,6 +953,8 @@ function model.register_collector(runtime, entity)
     end
 
     model.ensure_wire_proxy(entry)
+    add_wire_output_bucket(runtime, unit_number)
+    model.update_wire_proxy_signals(runtime, entry)
 
     return entry
 end
@@ -1010,6 +1107,7 @@ function model.unregister_collector(runtime, collector)
         model.clear_queued_collector(runtime, collector_entry)
         model.disconnect_collector(runtime, collector_entry)
         model.destroy_wire_proxy(collector_entry)
+        remove_wire_output_bucket(runtime, unit_number)
         runtime.collectors_by_unit[unit_number] = nil
     end
 
@@ -1268,6 +1366,39 @@ function model.process_dirty_collectors(runtime, budget)
 end
 
 
+function model.service_wire_proxy_outputs(runtime, event_or_tick)
+    runtime = runtime or model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
+        return 0
+    end
+
+    local tick = now_tick(event_or_tick)
+    local bucket_index = tick % NEUTRON_WIRE_UPDATE_INTERVAL
+    local bucket = runtime.wire_output_buckets and runtime.wire_output_buckets[bucket_index] or nil
+    if type(bucket) ~= "table" or #bucket == 0 then
+        return 0
+    end
+
+    local scheduled = {}
+    for i = 1, #bucket do
+        scheduled[i] = bucket[i]
+    end
+
+    local processed = 0
+    for _, unit_number in ipairs(scheduled) do
+        local collector_entry = runtime.collectors_by_unit[unit_number]
+        if collector_entry and model.entity_check(collector_entry.entity) then
+            model.update_wire_proxy_signals(runtime, collector_entry)
+            processed = processed + 1
+        else
+            remove_wire_output_bucket(runtime, unit_number)
+        end
+    end
+
+    return processed
+end
+
+
 function model.poll_source(runtime, source_unit)
     local source_entry = runtime.sources_by_unit[source_unit]
     if not source_entry then
@@ -1449,6 +1580,7 @@ function model.get_pending_work_count()
 
     return (runtime.dirty_collector_count or 0)
         + (runtime.connected_source_count or 0)
+        + get_due_wire_output_count(runtime)
         + model.get_due_gui_refresh_count(runtime)
 end
 
@@ -1754,13 +1886,35 @@ local function build_wire_signal_cache(runtime, collector_entry)
 end
 
 local function set_wire_signal_slot(section, slot_index, signal, value)
-    local ok = pcall(section.set_slot, section, slot_index, {value = signal, min = value})
+    local ok = pcall(section.set_slot, slot_index, {value = signal, min = value})
     if ok then
         return true
     end
 
-    pcall(section.clear_slot, section, slot_index)
+    pcall(section.clear_slot, slot_index)
     return false
+end
+
+local function clear_wire_proxy_output(proxy)
+    if model.entity_check(proxy) == false then
+        return
+    end
+
+    local control = proxy.get_control_behavior()
+    if not control or not control.valid then
+        return
+    end
+
+    control.enabled = false
+
+    local section = control.get_section(1)
+    if not section then
+        return
+    end
+
+    for i = 1, section.filters_count do
+        section.clear_slot(i)
+    end
 end
 
 
@@ -1781,6 +1935,12 @@ function model.update_wire_proxy_signals(runtime, collector_entry)
 
     local proxy = model.ensure_wire_proxy(collector_entry)
     if model.entity_check(proxy) == false then
+        return false
+    end
+
+    if collector_entry.wire_proxy_connected ~= true then
+        clear_wire_proxy_output(proxy)
+        collector_entry.signal_cache = nil
         return false
     end
 
@@ -1922,7 +2082,7 @@ function model.build_gui(player)
         tags = {
             parent_gui = GUI_NAME,
             action = "goto-informatron",
-            page = "fusion_power",
+            page = "neutron_collector",
         },
     }
     if detached then
@@ -2336,7 +2496,8 @@ function model.update(budget)
 
     local dirty_count = runtime.dirty_collector_count or 0
     local connected_count = runtime.connected_source_count or 0
-    if dirty_count <= 0 and connected_count <= 0 then
+    local wire_due_count = get_due_wire_output_count(runtime)
+    if dirty_count <= 0 and connected_count <= 0 and wire_due_count <= 0 then
         return gui_refreshed
     end
 
@@ -2371,11 +2532,16 @@ function model.update(budget)
         dirty_processed = dirty_processed + model.process_dirty_collectors(runtime, remaining_budget)
     end
 
+    local wire_processed = 0
+    if budget > 0 then
+        wire_processed = model.service_wire_proxy_outputs(runtime, game and game.tick or nil)
+    end
+
     if connected_count > 0 and dirty_count > 0 and budget == 1 then
         runtime.prefer_poll_next = not runtime.prefer_poll_next
     end
 
-    return gui_refreshed or (dirty_processed + poll_processed) > 0
+    return gui_refreshed or (dirty_processed + poll_processed + wire_processed) > 0
 end
 
 --SPRITE RELATED

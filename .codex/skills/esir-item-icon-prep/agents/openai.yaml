@@ -1,0 +1,5 @@
+interface:
+  display_name: "ESIR Item Icon Prep"
+  short_description: "Build transparent Factorio item icon mip strips"
+  default_prompt: "Use $esir-item-icon-prep to convert ESIR source art into a transparent 128/64/32 Factorio item icon strip."
+

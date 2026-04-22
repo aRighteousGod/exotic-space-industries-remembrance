@@ -133,6 +133,78 @@ local function replace_created_entity_name(root, source_name, replacement_name, 
     return replaced
 end
 
+local function replace_projectile_name(root, source_name, replacement_name, limit)
+    local replaced = 0
+
+    visit_tables(root, function(node)
+        if replaced >= (limit or math.huge) then
+            return
+        end
+
+        if node.projectile == source_name then
+            node.projectile = replacement_name
+            replaced = replaced + 1
+        end
+    end)
+
+    return replaced
+end
+
+local function tune_nested_projectile_delivery(root, projectile_name, updates, limit)
+    local tuned = 0
+
+    visit_tables(root, function(node)
+        if tuned >= (limit or math.huge) then
+            return
+        end
+
+        local delivery = node.action_delivery
+        if type(delivery) ~= "table" or delivery.projectile ~= projectile_name then
+            return
+        end
+
+        for key, value in pairs(updates) do
+            node[key] = value
+        end
+        tuned = tuned + 1
+    end)
+
+    return tuned
+end
+
+local function tune_nested_entity_delivery(root, entity_name, updates, limit)
+    local tuned = 0
+
+    visit_tables(root, function(node)
+        if tuned >= (limit or math.huge) then
+            return
+        end
+
+        local delivery = node.action_delivery
+        if type(delivery) ~= "table" or delivery.type ~= "instant" then
+            return
+        end
+
+        local target_effects = delivery.target_effects
+        if type(target_effects) ~= "table" then
+            return
+        end
+
+        local effects = target_effects.type and {target_effects} or target_effects
+        for _, effect in ipairs(effects) do
+            if effect.type == "create-entity" and effect.entity_name == entity_name then
+                for key, value in pairs(updates) do
+                    node[key] = value
+                end
+                tuned = tuned + 1
+                break
+            end
+        end
+    end)
+
+    return tuned
+end
+
 local function make_rocket_projectile(name, source_name, explosion_name, smoke_name, radius, damage_type, damage_amount, sticker_name, extra_actions)
     local projectile = table.deepcopy(data.raw.projectile[source_name])
     local area_effects = {
@@ -347,6 +419,7 @@ if data.raw.ammo["atomic-bomb"] and data.raw.projectile["atomic-rocket"] then
     data.raw.ammo["atomic-bomb"].icon_size = 512
     data.raw.ammo["atomic-bomb"].icon_mipmaps = 5
     data.raw.ammo["atomic-bomb"].icons = nil
+    data.raw.ammo["atomic-bomb"].pictures = nil
 
     atomic_bomb_u235 = table.deepcopy(data.raw.ammo["atomic-bomb"])
     atomic_bomb_u235.name = "ei-atomic-bomb-u235"
@@ -354,6 +427,7 @@ if data.raw.ammo["atomic-bomb"] and data.raw.projectile["atomic-rocket"] then
     atomic_bomb_u235.icon_size = 512
     atomic_bomb_u235.icon_mipmaps = 5
     atomic_bomb_u235.icons = nil
+    atomic_bomb_u235.pictures = nil
     atomic_bomb_u235.localised_name = {"item-name.ei-atomic-bomb-u235"}
     atomic_bomb_u235.order = "d[rocket-launcher]-e[ei-atomic-bomb-u235]"
     atomic_bomb_u235.ammo_type.action.action_delivery.projectile = "ei-atomic-rocket-u235"
@@ -361,7 +435,43 @@ if data.raw.ammo["atomic-bomb"] and data.raw.projectile["atomic-rocket"] then
     atomic_rocket_u235 = table.deepcopy(data.raw.projectile["atomic-rocket"])
     atomic_rocket_u235.name = "ei-atomic-rocket-u235"
     atomic_rocket_u235.acceleration = 0.00625
+    replace_damage_amount(atomic_rocket_u235.action, "explosion", 400, 300, 1)
     replace_atomic_center_explosion(atomic_rocket_u235.action, "ei-atomic-u235-center-explosion")
+    replace_projectile_name(
+        atomic_rocket_u235.action,
+        "atomic-bomb-ground-zero-projectile",
+        "ei-atomic-u235-ground-zero-projectile",
+        1
+    )
+    replace_projectile_name(atomic_rocket_u235.action, "atomic-bomb-wave", "ei-atomic-u235-wave", 1)
+    tune_nested_projectile_delivery(atomic_rocket_u235.action, "ei-atomic-u235-ground-zero-projectile", {
+        repeat_count = 800,
+        radius = 6,
+    }, 1)
+    tune_nested_projectile_delivery(atomic_rocket_u235.action, "ei-atomic-u235-wave", {
+        repeat_count = 800,
+        radius = 30,
+    }, 1)
+    tune_nested_projectile_delivery(atomic_rocket_u235.action, "atomic-bomb-wave-spawns-cluster-nuke-explosion", {
+        repeat_count = 700,
+        radius = 20,
+    }, 1)
+    tune_nested_projectile_delivery(atomic_rocket_u235.action, "atomic-bomb-wave-spawns-fire-smoke-explosion", {
+        repeat_count = 500,
+        radius = 3,
+    }, 1)
+    tune_nested_projectile_delivery(atomic_rocket_u235.action, "atomic-bomb-wave-spawns-nuke-shockwave-explosion", {
+        repeat_count = 700,
+        radius = 6,
+    }, 1)
+    tune_nested_projectile_delivery(atomic_rocket_u235.action, "atomic-bomb-wave-spawns-nuclear-smoke", {
+        repeat_count = 180,
+        radius = 20,
+    }, 1)
+    tune_nested_entity_delivery(atomic_rocket_u235.action, "nuclear-smouldering-smoke-source", {
+        repeat_count = 7,
+        radius = 6,
+    }, 1)
 end
 
 if atomic_rocket_u235 and atomic_bomb_u235 then

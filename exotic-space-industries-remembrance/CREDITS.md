@@ -18,7 +18,7 @@ Acidthrower from Additional turrets
 Originally by @DarkNova
 Updated by @Beathoven
 
-insulated wire item 1-4 item sprites from unused renders by malcolm riley
+insulated wire item 1-4, carbon dioxide, irradiated water, auric-slag-1-3 item sprites from unused renders by malcolm riley
 
 cannon mk1 art originally by... YuokiTani ?
 

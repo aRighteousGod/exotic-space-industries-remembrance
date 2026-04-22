@@ -84,6 +84,8 @@ local recipes = {
 	"ei-ceramic",
 	"ei-steel-blend",
 	"ei-dirty-water-fluorite",
+	"ei-dirty-water-fluorite-nitric",
+	"ei-acidic-water-fluorite-bed",
 	"ei-morphium-fluorite",
 	"ei-neutron-container",
 	"ei-odd-plating",
@@ -464,6 +466,24 @@ data.raw.recipe["ei-acidic-water-crushed-sulfur"].crafting_machine_tint = {
 	tertiary = { r = 0.876, g = 0.869, b = 0.597, a = 1.000 },
 	quaternary = { r = 0.969, g = 1.000, b = 0.019, a = 1.000 },
 }
+data.raw.recipe["ei-carbon-dioxide-acidic-water"].crafting_machine_tint = {
+	primary = { r = 0.72, g = 0.72, b = 0.72, a = 1.000 },
+	secondary = { r = 0.55, g = 0.64, b = 0.68, a = 1.000 },
+	tertiary = { r = 0.51, g = 0.69, b = 0.62, a = 1.000 },
+	quaternary = { r = 0.86, g = 0.84, b = 0.77, a = 1.000 },
+}
+data.raw.recipe["ei-dirty-water-fluorite-nitric"].crafting_machine_tint = {
+	primary = { r = 0.29, g = 0.41, b = 0.45, a = 1.000 },
+	secondary = { r = 0.76, g = 0.45, b = 0.3, a = 1.000 },
+	tertiary = { r = 0.51, g = 0.69, b = 0.62, a = 1.000 },
+	quaternary = { r = 1.000, g = 0.978, b = 0.513, a = 1.000 },
+}
+data.raw.recipe["ei-acidic-water-fluorite-bed"].crafting_machine_tint = {
+	primary = { r = 0.51, g = 0.69, b = 0.62, a = 1.000 },
+	secondary = { r = 0.94, g = 0.94, b = 0.94, a = 1.000 },
+	tertiary = { r = 0.86, g = 0.84, b = 0.77, a = 1.000 },
+	quaternary = { r = 1.000, g = 0.978, b = 0.513, a = 1.000 },
+}
 data.raw.recipe["ei-oxygen-sulfuric-acid"].crafting_machine_tint = {
 	primary = { r = 0.313, g = 0.705, b = 0.352, a = 1.000 },
 	-- #50b459ff (acidic green)
@@ -731,6 +751,12 @@ data.raw.recipe["ei-carbon"].crafting_machine_tint = {
 	secondary = { r = 0.1, g = 0.1, b = 0.1, a = 1.000 },
 	tertiary = { r = 1.000, g = 0.978, b = 0.513, a = 1.000 },
 	quaternary = { r = 0.210, g = 0.170, b = 0.013, a = 1.000 },
+}
+data.raw.recipe["ei-coal-gas-carbon-dioxide"].crafting_machine_tint = {
+	primary = { r = 0.72, g = 0.72, b = 0.72, a = 1.000 },
+	secondary = { r = 0.25, g = 0.16, b = 0.15, a = 1.000 },
+	tertiary = { r = 0.1, g = 0.1, b = 0.1, a = 1.000 },
+	quaternary = { r = 0.88, g = 0.53, b = 0.16, a = 1.000 },
 }
 
 --do fluorine to fluorite recipe

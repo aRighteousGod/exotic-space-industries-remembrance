@@ -21,11 +21,11 @@ gate_wire_proxy.icon = ei_graphics_other_path.."64_empty.png"
 gate_wire_proxy.flags = {"not-blueprintable", "not-deconstructable", "not-on-map", "not-flammable", "not-repairable", "not-upgradable", "hide-alt-info"}
 gate_wire_proxy.hidden = true
 gate_wire_proxy.gui_mode = "none"
-gate_wire_proxy.selectable_in_game = true
+gate_wire_proxy.selectable_in_game = false
 gate_wire_proxy.minable = nil
 gate_wire_proxy.max_health = 300
 gate_wire_proxy.collision_box = {{0, 0}, {0, 0}}
-gate_wire_proxy.selection_box = {{-1.5, -1.5}, {1.5, 1.5}}
+gate_wire_proxy.selection_box = {{0, 0}, {0, 0}}
 gate_wire_proxy.item_slot_count = 3
 gate_wire_proxy.activity_led_light = {intensity = 0, size = 0, color = {r = 1, g = 1, b = 1}}
 gate_wire_proxy.activity_led_sprites = {

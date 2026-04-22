@@ -189,6 +189,50 @@ local function clone_explosion(name, source_name, opts)
     return explosion
 end
 
+local function visit_tables(root, callback)
+    if type(root) ~= "table" then
+        return
+    end
+
+    callback(root)
+
+    for _, value in pairs(root) do
+        if type(value) == "table" then
+            visit_tables(value, callback)
+        end
+    end
+end
+
+local function replace_damage_amount(root, damage_type, old_amount, new_amount, limit)
+    local replaced = 0
+
+    visit_tables(root, function(node)
+        if replaced >= (limit or math.huge) then
+            return
+        end
+
+        local damage = node.damage
+        if type(damage) == "table" and damage.type == damage_type and damage.amount == old_amount then
+            damage.amount = new_amount
+            replaced = replaced + 1
+        end
+    end)
+
+    return replaced
+end
+
+local function clone_projectile(name, source_name, damage_type, old_amount, new_amount)
+    local source = data.raw.projectile[source_name]
+    if not source then
+        return nil
+    end
+
+    local projectile = table.deepcopy(source)
+    projectile.name = name
+    replace_damage_amount(projectile.action, damage_type, old_amount, new_amount, 1)
+    return projectile
+end
+
 local function make_smoke(name, opts)
     opts = opts or {}
 
@@ -651,17 +695,17 @@ data:extend({
         order = "c-a-b",
     }),
     clone_explosion("ei-atomic-u235-center-explosion", "nuke-explosion", {
-        scale = 0.8,
+        scale = 0.72,
         shift = {0.015625, -3.828125},
         light = {
             intensity = 0.95,
             blend_mode = "multiplicative",
             draw_as_glow = true,
             color = {r = 1.0, g = 0.92, b = 0.6},
-            size = 120,
+            size = 96,
         },
         smoke = "ei-atomic-rocket-smoke",
-        smoke_count = 4,
+        smoke_count = 3,
         remove_created_effect = true,
         scale_out_duration = 50,
         scale_end = 0.9,
@@ -807,6 +851,28 @@ data:extend({
         },
     }),
 })
+
+local u235_projectiles = {}
+
+local atomic_u235_wave = clone_projectile("ei-atomic-u235-wave", "atomic-bomb-wave", "explosion", 400, 300)
+if atomic_u235_wave then
+    u235_projectiles[#u235_projectiles + 1] = atomic_u235_wave
+end
+
+local atomic_u235_ground_zero = clone_projectile(
+    "ei-atomic-u235-ground-zero-projectile",
+    "atomic-bomb-ground-zero-projectile",
+    "explosion",
+    100,
+    75
+)
+if atomic_u235_ground_zero then
+    u235_projectiles[#u235_projectiles + 1] = atomic_u235_ground_zero
+end
+
+if #u235_projectiles > 0 then
+    data:extend(u235_projectiles)
+end
 
 if #optional_stickers > 0 then
     data:extend(optional_stickers)

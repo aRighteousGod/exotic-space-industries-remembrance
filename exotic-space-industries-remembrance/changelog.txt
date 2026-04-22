@@ -1,4 +1,25 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.28
+Date: 4-21-2026
+  Features:
+    - Added icons for Carbide precipitation core, Calcite bed, Carbon dioxide, Auric slag, Crushed slag, and Irradiated water.
+    - Neutron collectors now expose circuit telemetry: custom signals report efficiency, source distance, and collector/source/scan agent state with dedicated icons.
+    - Added a dedicated neutron collector Informatron page covering source binding, standby behavior, and circuit telemetry, and pointed the collector console's documentation button at it.
+    - Added Electric age sulfuric and fluoride U-238 reprocessing recipes with irradiated-water cleanup through the purifier.
+    - Added Carbon Dioxide and two associated recipes—can be turned into Coal gas, Acidic water, or vented in the Air filter.
+    - Added Fluorite from Dirty water and Nitric acid recipe to Nitric acid technology.
+    - Added Hot fluorite recovery recipe to High redox acid neutralisation with accompanying Calcite bed item.
+  Changes:
+    - U-235 rockets are now less powerful than Plutonium variants and visuals have been adjusted to match.
+    - Fluorite from Fluorine and Calcite recipe outputs: 15 Oxygen gas -> 10 Carbon dioxide.
+    - Increased the railgun cooling helper buffer to a practical three-shot hold and made the cooling GUI bars scale to the railgun's true fluoroketone capacity.
+    - Auric vapor condensation recipe outputs: 100 Steam -> 90-110, 40 Dirty water -> 25-55, 40 Auric slag -> 40-50.
+  Bugfixes:
+    - Fixed that Railgun might accumulate multiple shots worth of heat debt from a single shot.
+    - Fixed that the Gate hidden-proxy circuit bridge didn't connect to the visible gate and added a runtime migration that moves old direct proxy wire connections onto the visible gate container.
+    - Fixed railgun cooling hidden proxies so they accept cold fluoroketone instead of immediately accumulating heat debt.
+    - Fixed that u-235 and plutonium atomic rockets still appeared as the vanilla icon when on the ground.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.27
 Date: 4-19-2026
   Features:
@@ -11,7 +32,7 @@ Date: 4-19-2026
     - Added railgun cooling documentation in Informatron across all supported languages.
     - Added a disabled by default startup setting to Enable the preliminary Krastorio2 Spaced out compatibility patch.
   Changes:
-    - Loaders now have descriptions indicating the extend of their filtering and stacking capabilities.
+    - Loaders now have descriptions indicating the extent of their filtering and stacking capabilities.
     - Marked ESIR incompatible with Railguns-Require-Fluoroketone.
     - Extensively optimized the Gate control script improving UPS usage and reducing inconsistent behavior.
     - Drastically optimized Orbital logistics cohort control script improving UPS usage.

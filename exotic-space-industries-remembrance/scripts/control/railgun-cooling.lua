@@ -23,15 +23,23 @@ local DIAGONAL_PROXY_NAMES = {
     [defines.direction.southwest] = PROXY_NAME .. "-sw",
     [defines.direction.southeast] = PROXY_NAME .. "-se",
 }
+local ALL_PROXY_NAMES = {PROXY_NAME}
+for _, proxy_name in pairs(DIAGONAL_PROXY_NAMES) do
+    ALL_PROXY_NAMES[#ALL_PROXY_NAMES + 1] = proxy_name
+end
 local SHOT_EFFECT_ID = "ei-railgun-cooling-shot"
 local COLD_FLUID = "fluoroketone-cold"
 local HOT_FLUID = "fluoroketone-hot"
 local COLD_TEMPERATURE = -150
 local HOT_TEMPERATURE = 180
 local COOLANT_PER_SHOT = 10
+local BUFFER_SHOTS = 3
+local BUFFER_CAPACITY = COOLANT_PER_SHOT * BUFFER_SHOTS
 local MAX_HEAT_DEBT = 40
 local PASSIVE_DELAY_TICKS = 300
 local RECOVERY_INTERVAL_TICKS = 60
+local SHOT_TRIGGER_DEBOUNCE_TICKS = 5
+local SHORTFALL_TOLERANCE = 0.05
 local RUNTIME_VERSION = 1
 local STATUS_YELLOW = defines.entity_status_diode and defines.entity_status_diode.yellow or 2
 local STATUS_RED = defines.entity_status_diode and defines.entity_status_diode.red or 3
@@ -72,6 +80,14 @@ end
 
 local function round_amount(value)
     return math.floor(((tonumber(value) or 0) * 10) + 0.5) / 10
+end
+
+local function get_shot_shortfall(cooled_amount)
+    local shortfall = COOLANT_PER_SHOT - (tonumber(cooled_amount) or 0)
+    if shortfall <= SHORTFALL_TOLERANCE then
+        return 0
+    end
+    return shortfall
 end
 
 local function ticks_to_seconds(value)
@@ -228,15 +244,29 @@ local function get_fluid_amount(proxy, index, fluid_name)
     return 0
 end
 
+local function get_fluid_capacity(proxy, index)
+    local ok, capacity = pcall(function()
+        return proxy and proxy.valid and proxy.fluidbox.get_capacity(index) or nil
+    end)
+    capacity = ok and tonumber(capacity) or nil
+    if capacity and capacity > 0 then
+        return capacity
+    end
+    local contents = get_fluidbox_contents(proxy, index)
+    local amount = contents and tonumber(contents.amount) or 0
+    return math.max(BUFFER_CAPACITY, amount)
+end
+
 local function get_hot_capacity(proxy)
+    local capacity = get_fluid_capacity(proxy, 2)
     local contents = get_fluidbox_contents(proxy, 2)
     if not contents then
-        return 100
+        return capacity
     end
     if contents.name ~= HOT_FLUID then
         return 0
     end
-    return math.max(0, 100 - (tonumber(contents.amount) or 0))
+    return math.max(0, capacity - (tonumber(contents.amount) or 0))
 end
 
 local function set_fluid_amount(proxy, index, fluid_name, amount, temperature)
@@ -258,13 +288,34 @@ local function move_coolant(proxy, amount)
     end
     local cold_amount = get_fluid_amount(proxy, 1, COLD_FLUID)
     local hot_amount = get_fluid_amount(proxy, 2, HOT_FLUID)
-    local moved = math.min(amount, cold_amount, math.max(0, 100 - hot_amount))
+    local hot_capacity = get_fluid_capacity(proxy, 2)
+    local moved = math.min(amount, cold_amount, math.max(0, hot_capacity - hot_amount))
     if moved <= 0 then
         return 0
     end
     set_fluid_amount(proxy, 1, COLD_FLUID, cold_amount - moved, COLD_TEMPERATURE)
     set_fluid_amount(proxy, 2, HOT_FLUID, hot_amount + moved, HOT_TEMPERATURE)
     return moved
+end
+
+local function sanitize_proxy_buffers(proxy)
+    if not (proxy and proxy.valid) then
+        return
+    end
+
+    local cold_capacity = get_fluid_capacity(proxy, 1)
+    local cold_contents = get_fluidbox_contents(proxy, 1)
+    local cold_amount = cold_contents and tonumber(cold_contents.amount) or 0
+    if cold_contents and cold_contents.name == COLD_FLUID and cold_amount > cold_capacity + 0.001 then
+        set_fluid_amount(proxy, 1, COLD_FLUID, cold_capacity, cold_contents.temperature or COLD_TEMPERATURE)
+    end
+
+    local hot_capacity = get_fluid_capacity(proxy, 2)
+    local hot_contents = get_fluidbox_contents(proxy, 2)
+    local hot_amount = hot_contents and tonumber(hot_contents.amount) or 0
+    if hot_contents and hot_contents.name == HOT_FLUID and hot_amount > hot_capacity + 0.001 then
+        set_fluid_amount(proxy, 2, HOT_FLUID, hot_capacity, hot_contents.temperature or HOT_TEMPERATURE)
+    end
 end
 
 local function clear_visuals(record)
@@ -424,6 +475,7 @@ local function ensure_proxy(runtime, record)
         and math.abs(proxy.position.x - desired_position.x) < 0.01
         and math.abs(proxy.position.y - desired_position.y) < 0.01
     then
+        sanitize_proxy_buffers(proxy)
         record.proxy_missing = false
         return true
     end
@@ -438,6 +490,7 @@ local function ensure_proxy(runtime, record)
     pcall(function() proxy.destructible = false end)
     pcall(function() proxy.operable = false end)
     pcall(function() proxy.minable = false end)
+    sanitize_proxy_buffers(proxy)
     record.proxy = proxy
     record.proxy_registration = register_destroy(runtime, proxy, "proxy", record.unit_number)
     record.proxy_missing = false
@@ -497,11 +550,12 @@ local function register_turret(runtime, entity, current_tick)
     end
     local record = runtime.turrets_by_unit[unit_number]
     if not record then
-        record = {unit_number = unit_number, turret = entity, heat_debt = 0, last_shot_tick = 0, hot_visual_until_tick = 0}
+        record = {unit_number = unit_number, turret = entity, heat_debt = 0, last_shot_tick = 0, last_cooling_effect_tick = -SHOT_TRIGGER_DEBOUNCE_TICKS, hot_visual_until_tick = 0}
         runtime.turrets_by_unit[unit_number] = record
         record.turret_registration = register_destroy(runtime, entity, "turret", unit_number)
     else
         record.turret = entity
+        record.last_cooling_effect_tick = tonumber(record.last_cooling_effect_tick) or -SHOT_TRIGGER_DEBOUNCE_TICKS
     end
     refresh_record(runtime, record)
     ensure_proxy(runtime, record)
@@ -555,11 +609,12 @@ local function apply_shot(runtime, record, current_tick)
     local cold_available = proxy_ready and get_fluid_amount(proxy, 1, COLD_FLUID) or 0
     local hot_capacity = proxy_ready and get_hot_capacity(proxy) or 0
     local cooled_amount = math.min(COOLANT_PER_SHOT, cold_available, hot_capacity)
-    local shortfall = COOLANT_PER_SHOT - cooled_amount
+    local shortfall = get_shot_shortfall(cooled_amount)
     if cooled_amount > 0 then
         move_coolant(proxy, cooled_amount)
     end
     record.last_shot_tick = current_tick
+    record.last_cooling_effect_tick = current_tick
     if shortfall > 0 then
         record.heat_debt = math.min(MAX_HEAT_DEBT, (record.heat_debt or 0) + shortfall)
         record.disabled_by_railgun_cooling = true
@@ -635,6 +690,8 @@ function model.get_gui_snapshot(record, current_tick)
         state = get_state_caption(record),
         cold_buffer = proxy and get_fluid_amount(proxy, 1, COLD_FLUID) or 0,
         hot_buffer = proxy and get_fluid_amount(proxy, 2, HOT_FLUID) or 0,
+        cold_buffer_capacity = BUFFER_CAPACITY,
+        hot_buffer_capacity = BUFFER_CAPACITY,
         heat_debt = record and (record.heat_debt or 0) or 0,
         profile_key = record and record.profile_key or "default_atmospheric",
         seconds_since_last_shot = ticks_since_last_shot and ticks_to_seconds(ticks_since_last_shot) or nil,
@@ -667,14 +724,16 @@ function model.update_gui(player, snapshot)
     if not flow then
         return
     end
+    local cold_capacity = math.max(1, tonumber(snapshot.cold_buffer_capacity) or BUFFER_CAPACITY)
+    local hot_capacity = math.max(1, tonumber(snapshot.hot_buffer_capacity) or BUFFER_CAPACITY)
     flow["state-label"].caption = {"exotic-industries.railgun-cooling-gui-block-state", snapshot.state}
     flow["surface-profile-label"].caption = {"exotic-industries.railgun-cooling-gui-surface-profile", {"exotic-industries.railgun-cooling-profile-" .. snapshot.profile_key}}
     flow["last-shot-label"].caption = snapshot.seconds_since_last_shot and {"exotic-industries.railgun-cooling-gui-last-shot", snapshot.seconds_since_last_shot} or {"exotic-industries.railgun-cooling-gui-last-shot-never"}
     flow["afterglow-label"].caption = {"exotic-industries.railgun-cooling-gui-afterglow", snapshot.afterglow_seconds or 0}
-    flow["cold-buffer-bar"].value = ei_lib.clamp((snapshot.cold_buffer or 0) / 100, 0, 1)
-    flow["cold-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-cold-buffer", round_amount(snapshot.cold_buffer or 0)}
-    flow["hot-buffer-bar"].value = ei_lib.clamp((snapshot.hot_buffer or 0) / 100, 0, 1)
-    flow["hot-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-hot-buffer", round_amount(snapshot.hot_buffer or 0)}
+    flow["cold-buffer-bar"].value = ei_lib.clamp((snapshot.cold_buffer or 0) / cold_capacity, 0, 1)
+    flow["cold-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-cold-buffer", round_amount(snapshot.cold_buffer or 0), round_amount(cold_capacity)}
+    flow["hot-buffer-bar"].value = ei_lib.clamp((snapshot.hot_buffer or 0) / hot_capacity, 0, 1)
+    flow["hot-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-hot-buffer", round_amount(snapshot.hot_buffer or 0), round_amount(hot_capacity)}
     flow["heat-debt-bar"].value = ei_lib.clamp((snapshot.heat_debt or 0) / MAX_HEAT_DEBT, 0, 1)
     flow["heat-debt-bar"].caption = {"exotic-industries.railgun-cooling-gui-heat-debt", round_amount(snapshot.heat_debt or 0)}
 end
@@ -727,6 +786,11 @@ function model.rebuild_runtime_state(reason, current_tick)
     runtime = build_runtime()
     storage.ei.railgun_cooling = runtime
     for _, surface in pairs(game and game.surfaces or {}) do
+        for _, proxy in pairs(surface.find_entities_filtered{name = ALL_PROXY_NAMES}) do
+            if ei_lib.entity_check(proxy) then
+                proxy.destroy()
+            end
+        end
         for _, entity in pairs(surface.find_entities_filtered{name = RAILGUN_NAME}) do
             register_turret(runtime, entity, current_tick or (game and game.tick) or 0)
         end
@@ -798,8 +862,14 @@ function model.on_script_trigger_effect(event)
     local source = ei_lib.get_valid_entity(event.source_entity)
     if not (source and source.name == RAILGUN_NAME) then return end
     local runtime = get_runtime()
-    local record = register_turret(runtime, source, now_tick(event))
-    if record then apply_shot(runtime, record, now_tick(event)) end
+    local current_tick = now_tick(event)
+    local record = register_turret(runtime, source, current_tick)
+    if not record then return end
+    local last_effect_tick = tonumber(record.last_cooling_effect_tick) or -SHOT_TRIGGER_DEBOUNCE_TICKS
+    if (current_tick - last_effect_tick) <= SHOT_TRIGGER_DEBOUNCE_TICKS then
+        return
+    end
+    apply_shot(runtime, record, current_tick)
 end
 
 function model.get_pending_work_count(event)

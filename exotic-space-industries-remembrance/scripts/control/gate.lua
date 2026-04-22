@@ -3,7 +3,7 @@
 -- owns: gate runtime, GUI, selector flow, and remote dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
--- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, is_gate_armed, is_receiver_saturated, is_wire_proxy_externally_wired, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
 -- storage_roots: storage.ei
 -- gui_ids: ei-gate-console
 -- remote_interfaces: none
@@ -35,6 +35,7 @@ local SIGNAL_GATE_STRESS = {type = "virtual", name = "ei-gate-stress", quality =
 local GATE_WIRE_PROXY_NAME = "ei-gate-circuit-interface"
 local GATE_WIRE_PROXY_OFFSET = {x = 0, y = 0.75}
 local GATE_WIRE_SCAN_INTERVAL_TICKS = 60
+local GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION = 1
 local MAX_GATE_STRESS = 100
 local MAX_RECEIVER_SATURATION = 100
 local RESIDUE_THRESHOLD = 250
@@ -89,6 +90,17 @@ local GATE_SPAN_UNRESOLVED_CAPTION = {"exotic-industries.gate-gui-status-span-un
 local GATE_SPAN_UNRESOLVED_TOOLTIP = {"exotic-industries.gate-gui-status-span-tooltip-unresolved"}
 local GATE_LEGACY_STATUS_NONE = {"exotic-industries.gate-gui-legacy-none"}
 local EMPTY_GUI_TAGS = {}
+local GATE_RED_CONNECTOR_IDS = {
+    defines.wire_connector_id.circuit_red,
+    defines.wire_connector_id.combinator_output_red,
+    defines.wire_connector_id.combinator_input_red,
+}
+local GATE_GREEN_CONNECTOR_IDS = {
+    defines.wire_connector_id.circuit_green,
+    defines.wire_connector_id.combinator_output_green,
+    defines.wire_connector_id.combinator_input_green,
+}
+local migrate_wire_proxy_connections_to_container
 
 
 local function make_gate_gui_projection_signature(data)
@@ -1693,6 +1705,14 @@ function model.ensure_gate_defaults(gate_unit, event)
         gate_data.wire_proxy_wired = false
     end
 
+    if gate_data.wire_proxy_connection_migration_version == nil then
+        gate_data.wire_proxy_connection_migration_version = 0
+    end
+
+    if gate_data.wire_proxy_connection_migration_version < GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION then
+        migrate_wire_proxy_connections_to_container(gate_data)
+    end
+
     if gate_data.last_tendril_roll_tick == nil then
         gate_data.last_tendril_roll_tick = ei_lib.get_event_tick(event)
     end
@@ -2308,10 +2328,7 @@ local function connector_targets_match(source, target)
 end
 
 
-local function ensure_internal_wire(source_entity, source_id, target_entity, target_id)
-    local source = source_entity.get_wire_connector(source_id, true)
-    local target = target_entity.get_wire_connector(target_id, true)
-
+local function ensure_connector_wire(source, target, origin)
     if not source or not source.valid or not target or not target.valid then
         return false
     end
@@ -2320,14 +2337,7 @@ local function ensure_internal_wire(source_entity, source_id, target_entity, tar
         return true
     end
 
-    local ok, connected = pcall(
-        source.connect_to,
-        source,
-        target,
-        false,
-        defines.wire_origin.script
-    )
-
+    local ok, connected = pcall(source.connect_to, target, false, origin)
     if not ok then
         return false
     end
@@ -2340,12 +2350,42 @@ local function ensure_internal_wire(source_entity, source_id, target_entity, tar
 end
 
 
+local function disconnect_connector_wire(source, target, origin)
+    if not source or not source.valid or not target or not target.valid then
+        return false
+    end
+
+    if not connector_targets_match(source, target) then
+        return true
+    end
+
+    local ok, disconnected = pcall(source.disconnect_from, target, origin)
+    if not ok then
+        return false
+    end
+
+    if disconnected then
+        return true
+    end
+
+    return not connector_targets_match(source, target)
+end
+
+
+local function ensure_internal_wire(source_entity, source_id, target_entity, target_id)
+    local source = source_entity.get_wire_connector(source_id, true)
+    local target = target_entity.get_wire_connector(target_id, true)
+
+    return ensure_connector_wire(source, target, defines.wire_origin.script)
+end
+
+
 local function resolve_wire_connector_id(entity, preferred_ids)
     if not model.entity_check(entity) then
         return nil
     end
 
-    local ok, connectors = pcall(entity.get_wire_connectors, false)
+    local ok, connectors = pcall(entity.get_wire_connectors, true)
     if not ok or type(connectors) ~= "table" then
         return nil
     end
@@ -2358,6 +2398,100 @@ local function resolve_wire_connector_id(entity, preferred_ids)
     end
 
     return nil
+end
+
+
+local function get_gate_connector_preferences(connector_id)
+    if connector_id == defines.wire_connector_id.circuit_green
+    or connector_id == defines.wire_connector_id.combinator_output_green
+    or connector_id == defines.wire_connector_id.combinator_input_green then
+        return GATE_GREEN_CONNECTOR_IDS
+    end
+
+    return GATE_RED_CONNECTOR_IDS
+end
+
+
+local function collect_external_proxy_connections(proxy, ignored_owner)
+    if model.entity_check(proxy) == false then
+        return {}
+    end
+
+    local saved_connections = {}
+    local ok, connectors = pcall(proxy.get_wire_connectors, false)
+    if not ok or type(connectors) ~= "table" then
+        return saved_connections
+    end
+
+    for connector_id, connector in pairs(connectors) do
+        if not (connector and connector.valid) then
+            goto continue
+        end
+
+        for _, connection in ipairs(connector.real_connections) do
+            local target = connection.target
+            if target and target.valid and target.owner ~= ignored_owner then
+                saved_connections[#saved_connections + 1] = {
+                    source_id = connector_id,
+                    target = target,
+                    origin = connection.origin,
+                }
+            end
+        end
+
+        ::continue::
+    end
+
+    return saved_connections
+end
+
+
+migrate_wire_proxy_connections_to_container = function(gate_data)
+    if not gate_data then
+        return false
+    end
+
+    local proxy = gate_data.wire_proxy
+    local container = gate_data.container
+    if model.entity_check(proxy) == false or model.entity_check(container) == false then
+        return false
+    end
+
+    local saved_connections = collect_external_proxy_connections(proxy, container)
+    if #saved_connections == 0 then
+        gate_data.wire_proxy_connection_migration_version = GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION
+        return false
+    end
+
+    local changed_any = false
+
+    for _, connection in ipairs(saved_connections) do
+        local container_connector_id = resolve_wire_connector_id(
+            container,
+            get_gate_connector_preferences(connection.source_id)
+        )
+        local container_connector = container_connector_id and container.get_wire_connector(container_connector_id, true) or nil
+        local proxy_connector = proxy.get_wire_connector(connection.source_id, true)
+
+        if ensure_connector_wire(container_connector, connection.target, connection.origin)
+        and disconnect_connector_wire(proxy_connector, connection.target, connection.origin) then
+            changed_any = true
+        end
+    end
+
+    if #collect_external_proxy_connections(proxy, container) == 0 then
+        gate_data.wire_proxy_connection_migration_version = GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION
+    else
+        gate_data.wire_proxy_connection_migration_version = 0
+    end
+
+    if changed_any then
+        gate_data.signal_cache = nil
+        gate_data.wire_proxy_wired = false
+        gate_data.last_wire_probe_tick = -GATE_WIRE_SCAN_INTERVAL_TICKS
+    end
+
+    return changed_any
 end
 
 
@@ -2377,30 +2511,20 @@ local function connector_has_external_peer(connector, ignored_owner)
 end
 
 
-function model.is_wire_proxy_externally_wired(gate_data)
+function model.is_gate_container_externally_wired(gate_data)
     if not gate_data then
         return false
     end
 
     local container = gate_data.container
-    local proxy = gate_data.wire_proxy
-    if model.entity_check(container) == false or model.entity_check(proxy) == false then
+    if model.entity_check(container) == false then
         return false
     end
 
     local ok, container_connectors = pcall(container.get_wire_connectors, false)
     if ok and type(container_connectors) == "table" then
         for _, connector in pairs(container_connectors) do
-            if connector_has_external_peer(connector, proxy) then
-                return true
-            end
-        end
-    end
-
-    local proxy_ok, proxy_connectors = pcall(proxy.get_wire_connectors, false)
-    if proxy_ok and type(proxy_connectors) == "table" then
-        for _, connector in pairs(proxy_connectors) do
-            if connector_has_external_peer(connector, container) then
+            if connector_has_external_peer(connector, nil) then
                 return true
             end
         end
@@ -2518,6 +2642,7 @@ function model.ensure_wire_proxy(gate_unit)
     gate_data.signal_cache = nil
     gate_data.wire_proxy_wired = false
     gate_data.last_wire_probe_tick = -GATE_WIRE_SCAN_INTERVAL_TICKS
+    gate_data.wire_proxy_connection_migration_version = GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION
     model.attach_wire_proxy_to_container(gate_data)
 
     return proxy
@@ -2543,7 +2668,7 @@ function model.update_wire_proxy_signals(gate, gate_data, event)
     local externally_wired = cached_wired
 
     if current_tick >= ((gate_data.last_wire_probe_tick or -GATE_WIRE_SCAN_INTERVAL_TICKS) + GATE_WIRE_SCAN_INTERVAL_TICKS) then
-        externally_wired = model.is_wire_proxy_externally_wired(gate_data)
+        externally_wired = model.is_gate_container_externally_wired(gate_data)
         gate_data.wire_proxy_wired = externally_wired
         gate_data.last_wire_probe_tick = current_tick
     end
@@ -3200,6 +3325,7 @@ function model.register_gate(gate, container, event)
     storage.ei.gate.gate[gate_unit].manual_receiver_id = nil
     storage.ei.gate.gate[gate_unit].legacy_exit = nil
     storage.ei.gate.gate[gate_unit].last_low_power = false
+    storage.ei.gate.gate[gate_unit].wire_proxy_connection_migration_version = GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION
 
     local gate_data = model.ensure_gate_defaults(gate_unit, event)
     if gate_data then
@@ -4569,18 +4695,30 @@ function model.update_player_permissions()
 end
 ]]
 
+local function migrate_existing_gate_proxy_connections(event)
+    if not storage.ei or not storage.ei.gate or not storage.ei.gate.gate then
+        return
+    end
+
+    for gate_unit, _ in pairs(storage.ei.gate.gate) do
+        model.ensure_gate_defaults(gate_unit, event)
+    end
+end
+
 --HANDLERS
 -----------------------------------------------------------------------------------------------------
 
 function model.on_init(event)
     model.check_global_init()
     model.rebuild_distance_cache()
+    migrate_existing_gate_proxy_connections(event)
 end
 
 
 function model.on_configuration_changed(event)
     model.check_global_init()
     model.rebuild_distance_cache()
+    migrate_existing_gate_proxy_connections(event)
 end
 
 function model.on_built_entity(event)

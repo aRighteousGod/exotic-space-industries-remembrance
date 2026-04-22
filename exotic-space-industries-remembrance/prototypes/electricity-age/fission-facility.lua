@@ -412,6 +412,65 @@ data:extend({
         order = "a-a",
     },
     {
+        name = "ei-sulfuric-uranium-235-reprocessing",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 10,
+        icons = {
+            {icon = "__base__/graphics/icons/uranium-238.png", icon_size = 64, scale = 0.35, shift = {-5, -5}},
+            {icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", icon_size = 64, scale = 0.3, shift = {5, -5}},
+            {icon = ei_graphics_fluid_path.."uranium-solution.png", icon_size = 64, scale = 0.3, shift = {0, 6}},
+        },
+        ingredients = {
+            {type = "item", name = "ei-uranium-test-fuel", amount = 1},
+            {type = "item", name = "uranium-238", amount = 30},
+            {type = "fluid", name = "ei-uranium-solution", amount = 40},
+            {type = "fluid", name = "sulfuric-acid", amount = 20},
+        },
+        results = {
+            {type = "item", name = "uranium-235", amount = 1},
+            {type = "item", name = "uranium-238", amount = 12},
+            {type = "item", name = "ei-nuclear-waste", amount = 1, probability = 0.35},
+            {type = "fluid", name = "ei-irradiated-water", amount = 30, ignored_by_stats = 30},
+        },
+        always_show_made_in = true,
+        allow_productivity = false,
+        enabled = false,
+        main_product = "uranium-235",
+        subgroup = "ei-nuclear-processing",
+        order = "a-b",
+    },
+    {
+        name = "ei-fluoride-uranium-235-reprocessing",
+        type = "recipe",
+        category = "centrifuging",
+        energy_required = 12,
+        icons = {
+            {icon = "__base__/graphics/icons/uranium-238.png", icon_size = 64, scale = 0.35, shift = {-5, -5}},
+            {icon = ei_graphics_fluid_path.."uranium-hexafluorite.png", icon_size = 64, scale = 0.3, shift = {5, -5}},
+            {icon = ei_graphics_fluid_path.."hydrofluoric-acid.png", icon_size = 64, scale = 0.3, shift = {5, 5}},
+        },
+        ingredients = {
+            {type = "item", name = "ei-uranium-test-fuel", amount = 1},
+            {type = "item", name = "uranium-238", amount = 26},
+            {type = "fluid", name = "ei-uranium-hexafluorite", amount = 40},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 20},
+        },
+        results = {
+            {type = "item", name = "uranium-235", amount = 1},
+            {type = "item", name = "uranium-238", amount = 16},
+            {type = "item", name = "ei-nuclear-waste", amount = 1, probability = 0.2},
+            {type = "fluid", name = "ei-uranium-hexafluorite", amount = 15},
+            {type = "fluid", name = "ei-irradiated-water", amount = 20, ignored_by_stats = 20},
+        },
+        always_show_made_in = true,
+        allow_productivity = false,
+        enabled = false,
+        main_product = "uranium-235",
+        subgroup = "ei-nuclear-processing",
+        order = "a-c",
+    },
+    {
         name = "ei-uranium-235-fuel",
         type = "recipe",
         category = "crafting",
@@ -482,6 +541,48 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-fission-tech"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["electricity-age"],
+            time = 20
+        },
+        age = "electricity-age",
+    },
+    {
+        name = "ei-sulfuric-uranium-reprocessing",
+        type = "technology",
+        icon = "__base__/graphics/icons/fluid/sulfuric-acid.png",
+        icon_size = 64,
+        prerequisites = {"ei-fission-facility", "ei-purifier", "sulfur-processing"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-sulfuric-uranium-235-reprocessing"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-irradiated-water-purification"
+            },
+        },
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["electricity-age"],
+            time = 20
+        },
+        age = "electricity-age",
+    },
+    {
+        name = "ei-fluoride-uranium-reprocessing",
+        type = "technology",
+        icon = ei_graphics_fluid_path.."hydrofluoric-acid.png",
+        icon_size = 64,
+        prerequisites = {"ei-sulfuric-uranium-reprocessing"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei-fluoride-uranium-235-reprocessing"
             },
         },
         unit = {

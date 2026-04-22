@@ -12,9 +12,9 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
-- `2026-04-19 | neutron-collector | open | hidden-proxy circuit telemetry is temporarily hard-disabled for release stability; the collector GUI and runtime charging path stay live, and the neutron runtime version bump now tears down legacy proxy entities on rebuild/load instead of recreating them.`
-  - `Files:` `exotic-space-industries-remembrance/scripts/control/neutron-collector.lua`, `exotic-space-industries-remembrance/prototypes/quantum-age/neutron-collector.lua`
-  - `Next safe move:` restore telemetry only after a real runtime smoke proves the chosen surface actually exposes signals through the collector's wire network, then either re-enable the proxy path with that verified wiring model or replace it with a less-hidden circuit endpoint plus migration.
+- `2026-04-20 | neutron-collector | open | hidden-proxy circuit telemetry is re-enabled after the collector proxy wiring and refresh paths were repaired, but the repo still lacks a dedicated neutron collector QC save/helper, so future regressions still depend on live play smoke or a locally supplied collector-bearing save.`
+  - `Files:` `exotic-space-industries-remembrance/scripts/control/neutron-collector.lua`, `exotic-space-industries-remembrance/prototypes/quantum-age/neutron-collector.lua`, `.codex/esir/save-catalog.json`
+  - `Next safe move:` add a tiny neutron collector runtime smoke save or helper that places one collector beside a live source and asserts the custom signals after a rebuild, then wire that save into `qc-runtime`.
 
 - `2026-04-19 | orbital-logistics | open | cohort service now skips steady-state transponder claim rebuilds, shares one registry-scoped lease count pass across job build plus reconcile, builds each dispatch-surface registry from a dedicated transponder-unit index, refreshes platform-state transponders through a force+platform index instead of rescanning every transponder in the force on platform churn, rebuilds force claims from a dedicated force transponder index with narrow conflict dirtying, and lazily invalidates uplink silo dropdowns per surface so threshold edits skip unrelated binding-control repaints.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua`

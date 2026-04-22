@@ -3,6 +3,11 @@ require("util")
 local ei_lib = require("lib/lib")
 
 local PROXY_NAME = "ei-railgun-cooling-proxy"
+local PROXY_RECIPE_CATEGORY = PROXY_NAME .. "-crafting"
+local PROXY_RECIPE_NAME = PROXY_NAME .. "-running"
+local PROXY_LOCK_ITEM_NAME = PROXY_NAME .. "-lock"
+local PROXY_BUFFER_SHOTS = 3
+local PROXY_FLUID_CAPACITY = PROXY_BUFFER_SHOTS * 10
 local DIAGONAL_PROXY_NAMES = {
     [defines.direction.northwest] = PROXY_NAME .. "-nw",
     [defines.direction.northeast] = PROXY_NAME .. "-ne",
@@ -36,10 +41,50 @@ local function make_hidden_proxy()
     end
 
     local railgun_item = data.raw.item["railgun-turret"]
+    local proxy_icon = railgun_item and railgun_item.icon or base.icon
+    local proxy_icon_size = railgun_item and railgun_item.icon_size or base.icon_size
+    local proxy_support = {
+        {
+            type = "recipe-category",
+            name = PROXY_RECIPE_CATEGORY,
+        },
+        {
+            type = "item",
+            name = PROXY_LOCK_ITEM_NAME,
+            icon = proxy_icon,
+            icon_size = proxy_icon_size,
+            subgroup = railgun_item and railgun_item.subgroup or "intermediate-product",
+            order = ((railgun_item and railgun_item.order) or "z") .. "-railgun-cooling-lock",
+            stack_size = 1,
+            hidden = true,
+        },
+        {
+            type = "recipe",
+            name = PROXY_RECIPE_NAME,
+            category = PROXY_RECIPE_CATEGORY,
+            energy_required = 1,
+            ingredients = {
+                {type = "fluid", name = "fluoroketone-cold", amount = PROXY_FLUID_CAPACITY, fluidbox_multiplier = 1},
+                {type = "item", name = PROXY_LOCK_ITEM_NAME, amount = 1},
+            },
+            results = {
+                {type = "fluid", name = "fluoroketone-hot", amount = PROXY_FLUID_CAPACITY},
+            },
+            enabled = false,
+            hidden = true,
+            hide_from_player_crafting = true,
+            hide_from_stats = true,
+            allow_productivity = false,
+            allow_as_intermediate = false,
+            allow_decomposition = false,
+            icon = proxy_icon,
+            icon_size = proxy_icon_size,
+        },
+    }
     local proxy = table.deepcopy(base)
     proxy.name = PROXY_NAME
-    proxy.icon = railgun_item and railgun_item.icon or proxy.icon
-    proxy.icon_size = railgun_item and railgun_item.icon_size or proxy.icon_size
+    proxy.icon = proxy_icon
+    proxy.icon_size = proxy_icon_size
     proxy.minable = nil
     proxy.max_health = 1
     proxy.flags = {
@@ -60,17 +105,16 @@ local function make_hidden_proxy()
     proxy.fast_replaceable_group = nil
     proxy.next_upgrade = nil
     proxy.show_recipe_icon = false
+    proxy.fixed_recipe = PROXY_RECIPE_NAME
+    proxy.disabled_when_recipe_not_researched = false
     proxy.energy_usage = "1W"
     proxy.energy_source = {
-        type = "electric",
-        usage_priority = "secondary-input",
-        buffer_capacity = "1J",
-        input_flow_limit = "1W",
+        type = "void",
         emissions_per_minute = {pollution = 0},
         render_no_power_icon = false,
         render_no_network_icon = false,
     }
-    proxy.crafting_categories = {"crafting"}
+    proxy.crafting_categories = {PROXY_RECIPE_CATEGORY}
     proxy.ingredient_count = 255
     proxy.module_slots = 0
     proxy.allowed_effects = {}
@@ -90,7 +134,7 @@ local function make_hidden_proxy()
             filter = "fluoroketone-cold",
             pipe_picture = ei_pipe_big_insulated,
             pipe_covers = pipecoverspictures(),
-            volume = 100,
+            volume = PROXY_FLUID_CAPACITY,
             pipe_connections = {
                 {flow_direction = "input", direction = defines.direction.south, position = {1, 1}},
             },
@@ -100,7 +144,7 @@ local function make_hidden_proxy()
             filter = "fluoroketone-hot",
             pipe_picture = ei_pipe_big_insulated,
             pipe_covers = pipecoverspictures(),
-            volume = 100,
+            volume = PROXY_FLUID_CAPACITY,
             pipe_connections = {
                 {flow_direction = "output", direction = defines.direction.south, position = {-1, 1}},
             },
@@ -124,7 +168,11 @@ local function make_hidden_proxy()
         diagonal_proxies[#diagonal_proxies + 1] = diagonal_proxy
     end
 
-    local prototypes = {proxy}
+    local prototypes = {}
+    for _, support in ipairs(proxy_support) do
+        prototypes[#prototypes + 1] = support
+    end
+    prototypes[#prototypes + 1] = proxy
     for _, diagonal_proxy in ipairs(diagonal_proxies) do
         prototypes[#prototypes + 1] = diagonal_proxy
     end

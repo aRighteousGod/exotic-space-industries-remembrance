@@ -1,4 +1,7 @@
 ei_data = require("lib/data")
+local carbon_dioxide_fluid = data.raw.fluid["ei-carbon-dioxide"]
+local carbon_dioxide_icon = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon) or (ei_path.."graphics/fluids/carbon-dioxide.png")
+local carbon_dioxide_icon_size = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon_size) or 64
 
 --====================================================================================================
 --LUFTER aka AIR FILTER air filter Air filter
@@ -201,6 +204,24 @@ data:extend({
         icon_size = 64,
         subgroup = "fluid-recipes",
         order = "b[fluid-chemistry]-h[ei-oxygen-gas-vent]"
+    },
+    {
+        name = "ei-carbon-dioxide-vent",
+        type = "recipe",
+        category = "ei-lufter",
+        energy_required = 1,
+        ingredients = {
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 20},
+        },
+        results = {},
+        always_show_made_in = true,
+        enabled = false,
+        icons = {
+            {icon = carbon_dioxide_icon, icon_size = carbon_dioxide_icon_size, scale = 1.12},
+            {icon = "__base__/graphics/icons/signal/signal-no-entry.png", icon_size = 64, scale = 1.5},
+        },
+        subgroup = "fluid-recipes",
+        order = "b[fluid-chemistry]-h[ei-carbon-dioxide-vent]"
     },
     {
         name = "ei-extract-water",
