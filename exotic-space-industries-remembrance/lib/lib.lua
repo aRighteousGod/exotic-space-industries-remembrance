@@ -2085,6 +2085,16 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
   -- === INTENT→TINT FALLBACK SYSTEM ===
   -- If no tint is specified, try to select one based on declared emotional "intent".
   -- These two tables should be defined externally and kept updated at runtime:
+  local raw_msg = msg
+  local string_msg = nil
+
+  if type(raw_msg) == "string" then
+    string_msg = raw_msg
+  elseif type(raw_msg) ~= "table" then
+    raw_msg = tostring(raw_msg)
+    string_msg = raw_msg
+  end
+
   local intent_tint_map = intent_tint_map  -- {intent = {"tint_name", ...}}
   local tint_palette = ei_lib.tint_palette        -- {tint_name = {hex, adj, intent, ...}}
 
@@ -2101,16 +2111,17 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
 
   -- === SUBSTITUTE PLACEHOLDER TOKENS ===
   -- Replace {tint} and {tint_adj} in the message with correct values from the tint_palette
-  if tint_label then
-    msg = msg:gsub("{tint}", tint_label)
-    msg = msg:gsub("{tint_adj}", tint_info.adj or "mysterious")
+  if tint_label and string_msg then
+    string_msg = string_msg:gsub("{tint}", tint_label)
+    string_msg = string_msg:gsub("{tint_adj}", tint_info.adj or "mysterious")
+    raw_msg = string_msg
   end
 
   -- === DETERMINE POSITION OF TINT IN FINAL STRING ===
   -- This allows us to apply a specific color to just the {tint} portion later.
   local tint_start, tint_end = nil, nil
-  if tint_label then
-    local start_pos = msg:find(tint_label, 1, true)
+  if tint_label and string_msg then
+    local start_pos = string_msg:find(tint_label, 1, true)
     if start_pos then
       tint_start = start_pos
       tint_end = start_pos + #tint_label - 1
@@ -2119,15 +2130,15 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
 
   -- === PREPARE COLOR GRADIENT ===
   -- If not using force_full_tint, generate a multi-color gradient for text
-  local gradient = not force_full_tint and ei_lib.pick_gradient_stops(msg) or nil
+  local gradient = string_msg and not force_full_tint and ei_lib.pick_gradient_stops(string_msg) or nil
   local segments = gradient and (ei_lib.getn(gradient) - 1) or nil
 
   -- === BUILD COLORED MESSAGE, CHARACTER BY CHARACTER ===
   local result = {}
-  local total_chars = #msg
+  local total_chars = string_msg and #string_msg or 0
 
   for i = 1, total_chars do
-    local char = msg:sub(i, i)
+    local char = string_msg:sub(i, i)
     local hex
 
     local in_tint = tint_start and i >= tint_start and i <= tint_end
@@ -2159,21 +2170,50 @@ function ei_lib.crystal_echo(msg, font, player, tint, force_full_tint, intent, a
   end
 
   -- === FINALIZE THE MESSAGE STRING ===
-  local final_msg = table.concat(result)
+  local final_msg = string_msg and table.concat(result) or raw_msg
   local target
   local canPrint
+  local render_surface
+  local render_target
+  local render_forces
+  local render_players
   -- === DETERMINE TARGET OUTPUT LOCATION ===
-  if pcall(function() return game.get_player(player) end) then
+  if type(player) == "table"
+    and not player.valid
+    and player.surface
+    and (player.target or player.position) then
+    render_surface = player.surface
+    render_target = player.target or player.position
+    render_forces = player.forces
+    render_players = player.players
+  elseif pcall(function() return game.get_player(player) end) then
     target = game.get_player(player)
     canPrint = true
   else
     target = player --technically can be any entity
+    if as_floating_text and target and target.valid then
+      render_surface = target.surface
+      render_target = target
+    end
   end
   -- === EMIT AS FLOATING TEXT OR CHAT ===
-  if target and target.valid then
+  if as_floating_text and render_surface and render_target then
+      rendering.draw_text{
+        text = raw_msg,
+        surface = render_surface,
+        target = render_target,
+        color = tint_rgb or {r = 1, g = 1, b = 1},          -- fallback white
+        alignment = "center",
+        vertical_alignment = "middle",
+        scale = 1.5,
+        time_to_live = floating_timetolive or 180,          -- custom TTL or 3 seconds
+        forces = render_forces,
+        players = render_players
+      }
+  elseif target and target.valid then
     if as_floating_text then
       rendering.draw_text{
-        text = msg,
+        text = raw_msg,
         surface = target.surface,
         target = target,
         color = tint_rgb or {r = 1, g = 1, b = 1},          -- fallback white

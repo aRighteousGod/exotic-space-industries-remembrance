@@ -197,6 +197,7 @@ local family_assignments = {
     "ei-exchanger",
     "ei-grower",
     "ei-heat-chemical-plant",
+    "elevated-pipe",
     "ei-insulated-pipe",
     "ei-insulated-underground-pipe",
     "ei-lufter",
@@ -459,6 +460,14 @@ local preserve_exact = {
   ["ei-steampunk-lamp"] = true,
 }
 
+local nuclear_locomotive_override_explosion_name = "ei-death-explosion-nuclear-locomotive"
+local nuclear_locomotive_delay_anchor_name = "ei-death-explosion-nuclear-locomotive-delay-anchor"
+local nuclear_locomotive_delayed_trigger_name = "ei-death-explosion-nuclear-locomotive-delay"
+
+local exact_rolling_stock_overrides = {
+  ["ei-nuclear-locomotive"] = nuclear_locomotive_delay_anchor_name,
+}
+
 local generated_explosions = {}
 local rolling_stock_cores = {
   ["cargo-wagon"] = "cargo-wagon-explosion",
@@ -619,6 +628,22 @@ local function scaled_animation(animation, scale)
   end
 
   return copy
+end
+
+local function tint_animation(animation, tint)
+  if type(animation) ~= "table" then
+    return
+  end
+
+  if animation.filename or animation.filenames or animation.stripes then
+    animation.tint = tint
+  end
+
+  for _, value in pairs(animation) do
+    if type(value) == "table" then
+      tint_animation(value, tint)
+    end
+  end
 end
 
 local function make_particle_prototype(params)
@@ -1048,6 +1073,150 @@ local function make_explosion(family, bucket_key)
   return explosion
 end
 
+local function make_nuclear_locomotive_override_explosion()
+  local explosion = table.deepcopy(data.raw.explosion["small-atomic-explosion"])
+  local nuclear_green = { r = 0.42, g = 0.90, b = 0.32, a = 1.00 }
+  local nuclear_tint = { r = 0.82, g = 1.00, b = 0.78, a = 0.96 }
+
+  explosion.name = nuclear_locomotive_override_explosion_name
+  explosion.flags = { "not-on-map" }
+  explosion.hidden = true
+  explosion.subgroup = "explosions"
+  explosion.order = "z[ei-death]-nuclear-locomotive"
+  explosion.animations = scaled_animation(explosion.animations, 0.82)
+  tint_animation(explosion.animations, nuclear_tint)
+  explosion.light = {
+    intensity = 0.90,
+    size = 40,
+    color = nuclear_green,
+  }
+  explosion.smoke = nil
+  explosion.smoke_count = nil
+  explosion.smoke_slow_down_factor = nil
+  explosion.created_effect = {
+    type = "direct",
+    action_delivery = {
+      type = "instant",
+      target_effects = {
+        {
+          type = "nested-result",
+          action = {
+            type = "area",
+            radius = 2.6,
+            trigger_from_target = true,
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                {
+                  type = "damage",
+                  damage = { amount = 220, type = "explosion" },
+                  apply_damage_to_trees = true,
+                },
+              },
+            },
+          },
+        },
+        {
+          type = "nested-result",
+          action = {
+            type = "area",
+            radius = 6.5,
+            trigger_from_target = true,
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                {
+                  type = "damage",
+                  damage = { amount = 95, type = "explosion" },
+                  apply_damage_to_trees = true,
+                },
+              },
+            },
+          },
+        },
+        {
+          type = "nested-result",
+          action = {
+            type = "area",
+            radius = 1.8,
+            target_entities = false,
+            trigger_from_target = true,
+            repeat_count = 4,
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                {
+                  type = "create-explosion",
+                  entity_name = "uranium-cannon-explosion",
+                },
+              },
+            },
+          },
+        },
+        {
+          type = "create-trivial-smoke",
+          repeat_count = 6,
+          smoke_name = "ei-nuclear-train-smoke",
+          offset_deviation = square(1.00),
+          speed_from_center = 0.020,
+          speed_from_center_deviation = 0.012,
+          starting_frame = 0,
+          starting_frame_deviation = 60,
+        },
+        {
+          type = "create-entity",
+          entity_name = "medium-scorchmark",
+          check_buildability = true,
+        },
+      },
+    },
+  }
+
+  return explosion
+end
+
+local function make_nuclear_locomotive_delay_anchor()
+  return {
+    type = "explosion",
+    name = nuclear_locomotive_delay_anchor_name,
+    flags = { "not-on-map" },
+    hidden = true,
+    subgroup = "explosions",
+    order = "z[ei-death]-nuclear-locomotive-delay",
+    height = 0,
+    animations = util.empty_sprite(),
+    created_effect = {
+      type = "direct",
+      action_delivery = {
+        type = "delayed",
+        delayed_trigger = nuclear_locomotive_delayed_trigger_name,
+      },
+    },
+  }
+end
+
+local function make_nuclear_locomotive_delayed_trigger()
+  return {
+    type = "delayed-active-trigger",
+    name = nuclear_locomotive_delayed_trigger_name,
+    delay = 60,
+    action = {
+      {
+        type = "direct",
+        action_delivery = {
+          type = "instant",
+          source_effects = {
+            {
+              type = "create-explosion",
+              entity_name = nuclear_locomotive_override_explosion_name,
+            },
+          },
+        },
+      },
+    },
+  }
+end
+
 local function generate_explosions()
   local prototypes = {
     make_particle_prototype {
@@ -1117,6 +1286,10 @@ local function generate_explosions()
       table.insert(prototypes, explosion)
     end
   end
+
+  table.insert(prototypes, make_nuclear_locomotive_override_explosion())
+  table.insert(prototypes, make_nuclear_locomotive_delay_anchor())
+  table.insert(prototypes, make_nuclear_locomotive_delayed_trigger())
 
   data:extend(prototypes)
 end
@@ -1452,11 +1625,40 @@ local function should_supplement(name, current_core)
   return not is_generic_dying_explosion(current_core)
 end
 
+local function apply_exact_rolling_stock_override(name, prototype, entity_type, family, bucket_key, current_core, rolling_stock_core, assignment_log)
+  local override_explosion = exact_rolling_stock_overrides[name]
+  if not override_explosion or not rolling_stock_core then
+    return false
+  end
+
+  prototype.dying_explosion = rolling_stock_core
+  append_trigger_effects(prototype, {
+    {
+      type = "create-explosion",
+      entity_name = override_explosion,
+    },
+  })
+  assignment_log[name] = {
+    mode = "rail-exact",
+    family = family,
+    bucket = bucket_key,
+    core = current_core,
+    final_core = rolling_stock_core,
+    override = override_explosion,
+  }
+
+  return true
+end
+
 local function apply_family(name, prototype, entity_type, family, assignment_log)
   local bucket_key = footprint_bucket(prototype, entity_type)
   local target_explosion = generated_explosions[family][bucket_key]
   local current_core = prototype.dying_explosion
   local rolling_stock_core = rolling_stock_cores[entity_type]
+
+  if apply_exact_rolling_stock_override(name, prototype, entity_type, family, bucket_key, current_core, rolling_stock_core, assignment_log) then
+    return
+  end
 
   if rolling_stock_core then
     prototype.dying_explosion = rolling_stock_core

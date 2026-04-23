@@ -16,8 +16,18 @@
                         "preferred_for":  [
                                               "runtime-benchmark"
                                           ],
+                        "helper_mods":  [
+                                            {
+                                                "name":  "zzz-research-hitch-qc",
+                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-research-hitch-qc_0.0.1",
+                                                "auto_stage_for":  [
+                                                                       "runtime-benchmark"
+                                                                   ],
+                                                "notes":  "Needed to author the late-game hitch save and to replay its queued research completions."
+                                            }
+                                        ],
                         "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for generation and runtime benchmark playback."
+                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for save generation. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
                     },
                     {
                         "id":  "orbital-cohort",
@@ -33,8 +43,46 @@
                         "preferred_for":  [
                                               "qc-runtime"
                                           ],
+                        "helper_mods":  [
+                                            {
+                                                "name":  "zzz-orbital-logistics-qc",
+                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-orbital-logistics-qc_0.0.1",
+                                                "auto_stage_for":  [
+
+                                                                   ],
+                                                "notes":  "Needed to author and replay the full orbital cohort helper scenario."
+                                            }
+                                        ],
                         "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback."
+                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback. Wrapper runtime lanes still require manual or pre-staged helper sync."
+                    },
+                    {
+                        "id":  "fluid-rupture",
+                        "path":  ".factorio-qc\\fluid-rupture.zip",
+                        "kind":  "scenario-save",
+                        "purpose":  "Dedicated fluid-safety and flammable rupture coverage for pipes, tanks, cryo vents, and rupture scheduler playback",
+                        "tags":  [
+                                     "runtime",
+                                     "scenario",
+                                     "fluid",
+                                     "rupture",
+                                     "qc"
+                                 ],
+                        "preferred_for":  [
+
+                                          ],
+                        "helper_mods":  [
+                                            {
+                                                "name":  "zzz-fluid-rupture-qc",
+                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-fluid-rupture-qc_0.0.1",
+                                                "auto_stage_for":  [
+                                                                       "runtime-benchmark"
+                                                                   ],
+                                                "notes":  "Needed to author the rupture scenario and replay deterministic fluid-safety plus flammable-rupture checkpoints."
+                                            }
+                                        ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-fluid-rupture-qc helper mod for save generation and helper-aware playback. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
                     },
                     {
                         "id":  "fueler-smoke",
@@ -51,6 +99,9 @@
                                               "qc-runtime",
                                               "qc-preview"
                                           ],
+                        "helper_mods":  [
+
+                                        ],
                         "mods_source":  "live-repo-via-qc-sync",
                         "notes":  "Primary smoke save shipped in ignored QC artifact space."
                     }

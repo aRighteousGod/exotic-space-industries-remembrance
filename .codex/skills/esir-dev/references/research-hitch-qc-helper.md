@@ -36,10 +36,11 @@ It also appends focused runtime snapshots to `research-hitch-qc.txt` around each
 2. Add or enable the `zzz-research-hitch-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
 3. Create the save with the normal Factorio executable, for example:
    - `factorio.exe --create .factorio-qc\\research-hitch.zip --mod-directory .factorio-qc\\fmqc\\mods-live`
-4. Keep the helper staged and enabled while running:
+4. Keep the helper staged and enabled while running wrapper runtime smoke:
    - `qc-runtime -SaveId research-hitch`
-   - `runtime-benchmark -SaveId research-hitch`
-5. Disable or remove the helper again before unrelated QC runs.
+5. Repo-side runtime benchmarks now honor the save catalog's `helper_mods`, so this path will restage and enable `zzz-research-hitch-qc` automatically:
+   - `powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId research-hitch`
+6. Disable or remove the helper again before unrelated QC runs.
 
 ## Scope
 

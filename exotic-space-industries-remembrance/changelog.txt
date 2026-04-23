@@ -1,4 +1,19 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.29
+Date: 4-22-2026
+  Features:
+    - Fluid safety breaches now use contextual rupture aftermath by carrier and fluid family: data contamination shorts out data cables, cryogenic incompatibilities vent frost, thermal breaches rupture hot, and chemical breaches discharge with corrosive styling.
+    - Added color tinting for recipes which lacked it, and added high contrast versions when the Colorful Biochamber mod is enabled.
+    - X1 "Goliath" atomic locomotives now break apart on death and then vent a delayed compact green criticality burst that punishes the immediate consist without blooming into a full atomic-rocket detonation.
+  Changes:
+    - Updated the specialised pipes Informatron page and supported locale text so rupture families, fireless data-cable breaches, elevated-pipe locality, and the new diagnostics read consistently across languages.
+    - Fluid safety step-2 service now caches fluidbox capacities by prototype before repeated breach-plan reads.
+    - Dense-network rupture fire targeting now keeps the nearest capped pipeline candidates instead of traversal-order winners.
+  Bugfixes:
+    - Fixed fluid-safety breach floating text so rupture labels now spawn as visible flying-text at the snapped breach position instead of relying on a render target that could disappear with the ruptured pipe or tank.
+    - Fixed storage-tank rupture severity so mixed-segment tanks now size their aftermath from the tank's own actionable fluid instead of the whole network total.
+    - Fixed equal-capacity fluid-safety breach plans so primary victims, normal cryo anchors, and replacement carriers no longer depend on segment hash traversal order when candidates tie.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.28
 Date: 4-21-2026
   Features:

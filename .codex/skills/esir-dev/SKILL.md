@@ -53,6 +53,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 
 - Keep reusable ESIR-only QC companion mods in this skill's `assets/` folder instead of leaving them only in `.factorio-qc`.
 - The Vulcanus auric fumarole benchmark helper lives at [`assets/zzz-auric-fumarole-qc_0.0.1`](./assets/zzz-auric-fumarole-qc_0.0.1). Use [`references/auric-fumarole-qc-helper.md`](./references/auric-fumarole-qc-helper.md) when a run needs radial-band, off-center-placement, or non-Vulcanus-isolation telemetry.
+- The fluid rupture helper lives at [`assets/zzz-fluid-rupture-qc_0.0.1`](./assets/zzz-fluid-rupture-qc_0.0.1). Use [`references/fluid-rupture-qc-helper.md`](./references/fluid-rupture-qc-helper.md) when a run needs deterministic fluid-safety and flammable-rupture coverage with QC snapshots from the shared rupture runtime.
 - The orbital logistics cohort helper lives at [`assets/zzz-orbital-logistics-qc_0.0.1`](./assets/zzz-orbital-logistics-qc_0.0.1). Use [`references/orbital-logistics-qc-helper.md`](./references/orbital-logistics-qc-helper.md) when a run needs a save-driven cohort with live platform IDs, selector setup, coordinator arbitration, uplink leases, and structured orbital QC snapshots.
 - The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
 - Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
@@ -166,6 +167,7 @@ See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-
 
 - Prefer `-SaveId` over `-SavePath`.
 - The wrapper resolves `-SaveId` through `.codex/esir/save-catalog.json`.
+- Save-catalog entries may declare `helper_mods` with asset paths and auto-stage tasks. The repo-side `runtime-benchmark` path can restage those helper mods automatically, but wrapper-driven `qc-runtime`, `qc-preview`, and `qc-full` still require manual or pre-staged helper sync until the lower QC sync path grows save-aware helper staging.
 - When neither is provided, `qc-runtime` and `qc-preview` fall back to the catalog default for that task.
 
 ## Sidecar Roles

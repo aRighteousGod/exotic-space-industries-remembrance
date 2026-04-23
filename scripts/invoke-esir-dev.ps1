@@ -46,6 +46,16 @@ if ($AsJson) {
     Write-Host "Repo: $($paths.repo_root)"
     Write-Host "Task: $Task"
     Write-Host "Overall: $($result.overall_status)"
+    if ($result.PSObject.Properties.Name -contains 'helper_requirements' -and $result.helper_requirements) {
+        $helperWarnings = @($result.helper_requirements.warnings | Where-Object { $_ })
+        if ($helperWarnings.Count -gt 0) {
+            foreach ($warning in $helperWarnings) {
+                Write-Host "Helper: $warning"
+            }
+        } elseif (@($result.helper_requirements.items).Count -gt 0) {
+            Write-Host "Helper: save-backed helper requirements detected; see helper_requirements in the JSON output."
+        }
+    }
     $result | ConvertTo-Json -Depth 16
 }
 

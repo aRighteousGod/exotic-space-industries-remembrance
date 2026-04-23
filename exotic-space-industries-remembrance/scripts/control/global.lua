@@ -15,6 +15,7 @@ ei_echo_codex = require("lib/echo-codex")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local ei_global = {}
 local BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT = false
+local FLUID_QUEUE_STORAGE_VERSION = 2
 
 local function new_steam_train_runtime()
     -- Steam trains maintain a full tracked set plus a smaller active queue for frequent wheel updates.
@@ -68,21 +69,26 @@ local function new_beacon_overload_runtime()
 end
 
 local function new_fluid_runtime()
+    local urgent_queue = ei_runtime_scheduler.ensure_queue(nil)
+    local dirty_queue = ei_runtime_scheduler.ensure_queue(nil)
     return {
         initialized = false,
         entries_by_unit = {},
         tracked_count = 0,
         scan_units = {},
         scan_index = 1,
-        urgent_units = {},
+        urgent_units = urgent_queue,
         urgent_head = 1,
         urgent_tail = 1,
-        urgent_pending = {},
+        urgent_pending = urgent_queue.queued,
+        urgent_count = 0,
         segments = {},
-        dirty_segments = {},
+        dirty_segments = dirty_queue,
         dirty_head = 1,
         dirty_tail = 1,
-        dirty_pending = {},
+        dirty_pending = dirty_queue.queued,
+        dirty_count = 0,
+        queue_storage_version = FLUID_QUEUE_STORAGE_VERSION,
         service_mode_cursor = 1,
     }
 end

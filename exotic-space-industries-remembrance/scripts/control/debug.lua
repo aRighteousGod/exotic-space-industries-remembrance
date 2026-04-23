@@ -43,6 +43,10 @@ local function capture_runtime_module_status(module_name, module_ref, fallback_s
         end
     end
 
+    if type(fallback_status) == "function" then
+        fallback_status = fallback_status()
+    end
+
     local status = fallback_status or {}
     ei_runtime_scheduler.set_module_status(module_name, status)
     return status
@@ -277,14 +281,21 @@ local function get_runtime_status_snapshot()
             pending_cleanup_items = ei_runtime_scheduler.delayed_item_count(rocket_pollution.pending_launch_cleanup_buckets),
             launch_smoke = ei_lib.count_sequence(rocket_pollution.launch_smoke),
         }),
-        fluid_safety = capture_runtime_module_status("fluid-safety", ei_fluid_safety, {
-            tracked_entities = fluid_runtime.tracked_count or 0,
-            segments = ei_runtime_scheduler.table_count(fluid_runtime.segments),
-            urgent_queue = fluid_runtime.urgent_count or 0,
-            dirty_queue = fluid_runtime.dirty_count or 0,
-            scan_units = ei_lib.count_sequence(fluid_runtime.scan_units),
-            service_mode_cursor = fluid_runtime.service_mode_cursor or 1,
-        }),
+        fluid_safety = capture_runtime_module_status("fluid-safety", ei_fluid_safety, function()
+            return {
+                tracked_entities = fluid_runtime.tracked_count or 0,
+                segments = ei_runtime_scheduler.table_count(fluid_runtime.segments),
+                urgent_queue = fluid_runtime.urgent_count or 0,
+                dirty_queue = fluid_runtime.dirty_count or 0,
+                scan_units = ei_lib.count_sequence(fluid_runtime.scan_units),
+                service_mode_cursor = fluid_runtime.service_mode_cursor or 1,
+                service_mode_name = fluid_runtime.service_mode_name or "idle",
+                heavy_aftermath_queued = fluid_runtime.aftermath_stats and fluid_runtime.aftermath_stats.heavy_aftermath_queued or 0,
+                light_vent_queued = fluid_runtime.aftermath_stats and fluid_runtime.aftermath_stats.light_vent_queued or 0,
+                heavy_cooldown_suppressed = fluid_runtime.aftermath_stats and fluid_runtime.aftermath_stats.heavy_cooldown_suppressed or 0,
+                light_cooldown_suppressed = fluid_runtime.aftermath_stats and fluid_runtime.aftermath_stats.light_cooldown_suppressed or 0,
+            }
+        end),
         matter_stabilizer = capture_runtime_module_status("matter-stabilizer", ei_matter_stabilizer, {
             machines = matter_runtime.machine_count or ei_lib.getn(ei_state.matter_machines),
             stabilizers = matter_runtime.stabilizer_count or ei_lib.getn(ei_state.matter_stabilizers),
@@ -295,13 +306,17 @@ local function get_runtime_status_snapshot()
             strained = matter_tier_counts.strained,
             critical = matter_tier_counts.critical,
         }),
-        flammable_ruptures = capture_runtime_module_status("flammable-ruptures", ei_flammable_rupture_scheduler, {
-            fidelity_mode = flammable_ruptures.fidelity_mode,
-            active_jobs = flammable_ruptures.active_job_count or ei_lib.getn(flammable_ruptures.jobs),
-            pending_rings = flammable_ruptures.pending_ring_count or 0,
-            ring_buckets = flammable_ruptures.scheduled_bucket_count or ei_runtime_scheduler.delayed_bucket_count(flammable_ruptures.ring_buckets),
-            ring_bucket_items = flammable_ruptures.scheduled_ring_count or ei_runtime_scheduler.delayed_item_count(flammable_ruptures.ring_buckets),
-        }),
+        flammable_ruptures = capture_runtime_module_status("flammable-ruptures", ei_flammable_rupture_scheduler, function()
+            return {
+                fidelity_mode = flammable_ruptures.fidelity_mode,
+                active_jobs = flammable_ruptures.active_job_count or ei_lib.getn(flammable_ruptures.jobs),
+                pending_rings = flammable_ruptures.pending_ring_count or 0,
+                ring_buckets = flammable_ruptures.scheduled_bucket_count or ei_runtime_scheduler.delayed_bucket_count(flammable_ruptures.ring_buckets),
+                ring_bucket_items = flammable_ruptures.scheduled_ring_count or ei_runtime_scheduler.delayed_item_count(flammable_ruptures.ring_buckets),
+                overdue_bucket_count = flammable_ruptures.overdue_bucket_count or 0,
+                overdue_item_count = flammable_ruptures.overdue_item_count or 0,
+            }
+        end),
         em_trains = capture_runtime_module_status("em-trains", em_trains, {
             chargers = ei_lib.getn(emt.chargers),
             trains = ei_lib.getn(emt.trains),
@@ -375,8 +390,9 @@ local function format_runtime_status_summary(snapshot)
         "gaia(delay)=" .. tostring(gaia.damage_tick_buckets or 0),
         "alien(delay)=" .. tostring(alien_spawner.delayed_buckets or 0),
         "rocket(pending/smoke)=" .. tostring(rocket.pending_launches or 0) .. "/" .. tostring(rocket.launch_smoke or 0),
-        "fluid(t/u/d/s/m)=" .. tostring(fluid.tracked_entities or 0) .. "/" .. tostring(fluid.urgent_queue or 0) .. "/" .. tostring(fluid.dirty_queue or 0) .. "/" .. tostring(fluid.scan_units or 0) .. "/" .. tostring(fluid.service_mode_cursor or 1),
-        "rupture(mode/a/p/d)=" .. tostring(ruptures.fidelity_mode or "?") .. "/" .. tostring(ruptures.active_jobs or 0) .. "/" .. tostring(ruptures.pending_rings or 0) .. "/" .. tostring(ruptures.ring_buckets or 0),
+        "fluid(t/u/d/s/cursor/mode)=" .. tostring(fluid.tracked_entities or 0) .. "/" .. tostring(fluid.urgent_queue or 0) .. "/" .. tostring(fluid.dirty_queue or 0) .. "/" .. tostring(fluid.scan_units or 0) .. "/" .. tostring(fluid.service_mode_cursor or 1) .. "/" .. tostring(fluid.service_mode_name or "idle"),
+        "fluidfx(qh/ql|sh/sl)=" .. tostring(fluid.heavy_aftermath_queued or 0) .. "/" .. tostring(fluid.light_vent_queued or 0) .. "|" .. tostring(fluid.heavy_cooldown_suppressed or 0) .. "/" .. tostring(fluid.light_cooldown_suppressed or 0),
+        "rupture(mode/a/p/d|ob/oi)=" .. tostring(ruptures.fidelity_mode or "?") .. "/" .. tostring(ruptures.active_jobs or 0) .. "/" .. tostring(ruptures.pending_rings or 0) .. "/" .. tostring(ruptures.ring_buckets or 0) .. "|" .. tostring(ruptures.overdue_bucket_count or 0) .. "/" .. tostring(ruptures.overdue_item_count or 0),
         "em(chargers/trains)=" .. tostring(emt.chargers or 0) .. "/" .. tostring(emt.trains or 0),
         "blackhole=" .. tostring(black_hole.entries or 0),
         "orbital(banks/dirty/probe)=" .. tostring(orbital.banks or orbital.bank_count or 0) .. "/" .. tostring(orbital.dirty_banks or 0) .. "/" .. tostring(orbital.probe_enabled == true or (orbital.probe and orbital.probe.enabled == true)),
@@ -616,14 +632,14 @@ local function handle_runtime_status_command(cmd)
 
     if parameter == "telemetry-on" then
         runtime_state.telemetry.enabled = true
-        print_runtime_status(player, "ESIR runtime telemetry enabled.")
+        print_runtime_status(player, { "exotic-industries.ei-runtime-status-enabled" })
         return
     elseif parameter == "telemetry-off" then
         runtime_state.telemetry.enabled = false
-        print_runtime_status(player, "ESIR runtime telemetry disabled.")
+        print_runtime_status(player, { "exotic-industries.ei-runtime-status-disabled" })
         return
     elseif parameter ~= "" and parameter ~= "snapshot" then
-        print_runtime_status(player, "Usage: /ei_runtime_status [snapshot|telemetry-on|telemetry-off]")
+        print_runtime_status(player, { "exotic-industries.ei-runtime-status-usage" })
         return
     end
 
@@ -685,7 +701,7 @@ end)
 commands.add_command("beacon_overload_status", "Reports beacon overload debug state and logs a structured snapshot.", function(cmd)
     handle_status_command(cmd)
 end)
-commands.add_command("ei_runtime_status", "Reports shared runtime scheduler queues and controls default-off heartbeat telemetry.", function(cmd)
+commands.add_command("ei_runtime_status", { "exotic-industries.ei-runtime-status-command-help" }, function(cmd)
     handle_runtime_status_command(cmd)
 end)
 commands.add_command("ei_orbital_scanner_probe", "Arms, inspects, dumps, or clears the orbital scanner diagnostic probe.", function(cmd)

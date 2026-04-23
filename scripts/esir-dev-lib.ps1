@@ -1419,6 +1419,7 @@ function Get-EsirSaveCatalogData {
         purpose       = 'Fueler runtime and preview smoke coverage'
         tags          = @('runtime', 'preview', 'smoke', 'fueler')
         preferred_for = @('qc-runtime', 'qc-preview')
+        helper_mods   = @()
         mods_source   = 'live-repo-via-qc-sync'
         notes         = if (Test-Path -LiteralPath $defaultSavePath) { 'Primary smoke save shipped in ignored QC artifact space.' } else { 'Expected smoke save location; add the save artifact when available.' }
     }) | Out-Null
@@ -1432,6 +1433,7 @@ function Get-EsirSaveCatalogData {
             purpose       = $entry.purpose
             tags          = @($entry.tags)
             preferred_for = @($entry.preferred_for)
+            helper_mods   = @($entry.helper_mods)
             mods_source   = $entry.mods_source
             notes         = $entry.notes
         }) | Out-Null
@@ -1561,6 +1563,175 @@ function Resolve-EsirSaveSelection {
     return $null
 }
 
+function Get-EsirSaveHelperRequirements {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        $SaveSelection,
+        [string]$TaskName,
+        [switch]$AllowAutoStage
+    )
+
+    $entry = if ($SaveSelection) { $SaveSelection.entry } else { $null }
+    $requirements = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($helper in (ConvertTo-EsirArray $(if ($entry) { $entry.helper_mods } else { $null }))) {
+        $assetPath = if ($helper.asset_path) { [string]$helper.asset_path } else { $null }
+        $assetFullPath = if ($assetPath) { Join-Path $Paths.repo_root $assetPath } else { $null }
+        $autoStageFor = @($helper.auto_stage_for)
+        $willAutoStage = $AllowAutoStage.IsPresent -and $TaskName -and ($autoStageFor -contains $TaskName)
+
+        $requirements.Add([ordered]@{
+            name            = if ($helper.name) { [string]$helper.name } else { $null }
+            asset_path      = $assetPath
+            asset_exists    = $assetFullPath -and (Test-Path -LiteralPath $assetFullPath)
+            auto_stage_for  = $autoStageFor
+            will_auto_stage = $willAutoStage
+            stage_mode      = if ($willAutoStage) { 'auto' } else { 'manual-or-prestaged' }
+            notes           = if ($helper.notes) { [string]$helper.notes } else { $null }
+        }) | Out-Null
+    }
+
+    return @($requirements)
+}
+
+function Get-EsirSaveHelperSummary {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        $SaveSelection,
+        [string]$TaskName,
+        [switch]$AllowAutoStage
+    )
+
+    if (-not $SaveSelection) {
+        return $null
+    }
+
+    $requirements = @(Get-EsirSaveHelperRequirements -Paths $Paths -SaveSelection $SaveSelection -TaskName $TaskName -AllowAutoStage:$AllowAutoStage)
+    if ($requirements.Count -eq 0) {
+        return $null
+    }
+
+    $warnings = [System.Collections.Generic.List[string]]::new()
+    foreach ($helper in $requirements) {
+        if (-not $helper.asset_exists) {
+            $warnings.Add("Save '$($SaveSelection.id)' declares helper mod '$($helper.name)', but the asset path is missing: $($helper.asset_path)") | Out-Null
+        } elseif (-not $helper.will_auto_stage) {
+            $warnings.Add("Save '$($SaveSelection.id)' depends on helper mod '$($helper.name)'; task '$TaskName' still requires manual or pre-staged helper sync.") | Out-Null
+        }
+    }
+
+    return [ordered]@{
+        save_id                 = $SaveSelection.id
+        task                    = $TaskName
+        automatic_staging       = $AllowAutoStage.IsPresent
+        manual_staging_required = @($requirements | Where-Object { $_.stage_mode -ne 'auto' }).Count -gt 0
+        items                   = $requirements
+        warnings                = @($warnings)
+    }
+}
+
+function Set-EsirModListEntryEnabled {
+    param(
+        [Parameter(Mandatory = $true)][string]$ModListPath,
+        [Parameter(Mandatory = $true)][string]$ModName
+    )
+
+    $modList = if (Test-Path -LiteralPath $ModListPath) {
+        Get-Content -LiteralPath $ModListPath -Raw | ConvertFrom-Json
+    } else {
+        [pscustomobject]@{ mods = @() }
+    }
+
+    $mods = [System.Collections.Generic.List[object]]::new()
+    $found = $false
+    foreach ($mod in (ConvertTo-EsirArray $modList.mods)) {
+        if ([string]$mod.name -eq $ModName) {
+            $mods.Add([ordered]@{ name = $ModName; enabled = $true }) | Out-Null
+            $found = $true
+        } else {
+            $mods.Add([ordered]@{
+                name    = [string]$mod.name
+                enabled = $mod.enabled -eq $true
+            }) | Out-Null
+        }
+    }
+
+    if (-not $found) {
+        $mods.Add([ordered]@{ name = $ModName; enabled = $true }) | Out-Null
+    }
+
+    $sortedMods = @($mods | Sort-Object name)
+    Write-EsirJson -Path $ModListPath -Data ([ordered]@{ mods = $sortedMods })
+}
+
+function Sync-EsirSaveHelperMods {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        [Parameter(Mandatory = $true)][string]$RunMods,
+        $HelperSummary,
+        $Result
+    )
+
+    if (-not $HelperSummary -or @($HelperSummary.items).Count -eq 0) {
+        return $HelperSummary
+    }
+
+    $warnings = [System.Collections.Generic.List[string]]::new()
+    foreach ($warning in (ConvertTo-EsirArray $HelperSummary.warnings)) {
+        $warnings.Add([string]$warning) | Out-Null
+    }
+
+    $modListPath = Join-Path $RunMods 'mod-list.json'
+    $items = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($helper in @($HelperSummary.items)) {
+        $entry = [ordered]@{
+            name            = $helper.name
+            asset_path      = $helper.asset_path
+            asset_exists    = $helper.asset_exists
+            auto_stage_for  = @($helper.auto_stage_for)
+            will_auto_stage = $helper.will_auto_stage
+            stage_mode      = $helper.stage_mode
+            notes           = $helper.notes
+            stage_status    = 'not-requested'
+        }
+
+        if ($helper.will_auto_stage -ne $true) {
+            $items.Add($entry) | Out-Null
+            continue
+        }
+
+        if (-not $helper.asset_exists) {
+            $entry.stage_status = 'missing-asset'
+            $warnings.Add("Helper auto-staging skipped for '$($helper.name)' because the asset path was not found: $($helper.asset_path)") | Out-Null
+            if ($Result -and (Get-Command -Name Add-FactorioQCWarning -ErrorAction SilentlyContinue)) {
+                Add-FactorioQCWarning -Result $Result -Message "Helper auto-staging skipped for '$($helper.name)' because the asset path was not found: $($helper.asset_path)"
+            }
+            $items.Add($entry) | Out-Null
+            continue
+        }
+
+        $source = Join-Path $Paths.repo_root $helper.asset_path
+        $destination = Join-Path $RunMods ([System.IO.Path]::GetFileName($source))
+        Copy-DirectoryTreeRobust -Source $source -Destination $destination
+        if ($helper.name) {
+            Set-EsirModListEntryEnabled -ModListPath $modListPath -ModName ([string]$helper.name)
+        }
+
+        $entry.stage_status = 'staged'
+        $entry.destination = $destination
+        if ($Result -and (Get-Command -Name Add-FactorioQCNote -ErrorAction SilentlyContinue)) {
+            Add-FactorioQCNote -Result $Result -Message "Auto-staged helper mod for save '$($HelperSummary.save_id)': $($helper.name)"
+        }
+        $items.Add($entry) | Out-Null
+    }
+
+    $HelperSummary.items = @($items)
+    $HelperSummary.warnings = @($warnings)
+    $HelperSummary.manual_staging_required = @($items | Where-Object { $_.stage_mode -ne 'auto' }).Count -gt 0
+    return $HelperSummary
+}
+
 function Invoke-EsirQcMode {
     param(
         [Parameter(Mandatory = $true)]$Paths,
@@ -1581,6 +1752,7 @@ function Invoke-EsirQcMode {
         $preferredTask = if ($Mode -eq 'preview') { 'qc-preview' } else { 'qc-runtime' }
         $saveSelection = Resolve-EsirSaveSelection -Paths $Paths -TaskName $preferredTask -SaveId $SaveId -SavePath $SavePath
     }
+    $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName ('qc-' + $Mode) -AllowAutoStage:$false
 
     $arguments = @('-ExecutionPolicy', 'Bypass', '-File', $Paths.factorio_invoke_script, '-Mode', $Mode, '-RepoRoot', $Paths.repo_root)
     if ($saveSelection -and $saveSelection.path) { $arguments += @('-Save', $saveSelection.path) }
@@ -1605,6 +1777,7 @@ function Invoke-EsirQcMode {
         exit_code      = $exitCode
         summary_path   = if (Test-Path -LiteralPath $summaryPath) { Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $summaryPath } else { $null }
         save_selection = $saveSelection
+        helper_requirements = $helperRequirements
         encoding       = $encodingPass
         summary        = $summary
     }
@@ -1759,6 +1932,8 @@ function Invoke-EsirRuntimeBenchmark {
     $result = New-FactorioQCResult -Name 'runtime-benchmark'
     $runMods = Sync-FactorioRunMods -Context $context -Result $result
     $smokeSave = if ($saveSelection -and $saveSelection.path) { $saveSelection.path } else { Find-SmokeSave -Context $context -Save $SavePath }
+    $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName 'runtime-benchmark' -AllowAutoStage
+    $helperRequirements = Sync-EsirSaveHelperMods -Paths $Paths -RunMods $runMods -HelperSummary $helperRequirements -Result $result
     if (-not $smokeSave) {
         return [ordered]@{
             task           = 'runtime-benchmark'
@@ -1766,6 +1941,7 @@ function Invoke-EsirRuntimeBenchmark {
             reason         = 'No smoke save was found for runtime benchmark mode.'
             encoding       = $encodingPass
             save_selection = $saveSelection
+            helper_requirements = $helperRequirements
         }
     }
 
@@ -1844,6 +2020,7 @@ function Invoke-EsirRuntimeBenchmark {
         overall_status  = $overallStatus
         exit_code       = $process.exit_code
         save_selection  = $saveSelection
+        helper_requirements = $helperRequirements
         control_review  = $controlReview
         encoding        = $encodingPass
         warning_classes = $warningClasses

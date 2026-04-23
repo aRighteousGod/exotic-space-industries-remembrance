@@ -557,6 +557,18 @@ data:extend({
         type = "recipe",
         category = "ei-purifier",
         energy_required = 8,
+        icons = {
+            {
+                icon = ei_graphics_item_path.."fluorite.png",
+                icon_size = 64,
+            },
+            {
+                icon = ei_graphics_fluid_path.."nitric-acid.png",
+                icon_size = 64,
+                scale = 0.35,
+                shift = {8, 8},
+            },
+        },
         ingredients = {
             {type = "fluid", name = "ei-dirty-water", amount = 100},
             {type = "fluid", name = "ei-nitric-acid", amount = 10},

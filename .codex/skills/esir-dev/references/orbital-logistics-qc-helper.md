@@ -58,8 +58,9 @@ Use this helper when ESIR work needs a deterministic orbital logistics cohort sa
    - `qc-runtime -SaveId orbital-cohort`
 5. For the full helper scenario, keep the helper staged and run Factorio directly from `.factorio-qc\\fmqc\\mods-live` for at least `420` ticks so every checkpoint fires:
    - `factorio.exe --mod-directory .factorio-qc\\fmqc\\mods-live --config .factorio-qc\\fmqc\\factorio-orbital-helper.ini --disable-audio --benchmark .factorio-qc\\orbital-cohort.zip --benchmark-ticks 420 --benchmark-runs 1`
-6. The wrapper currently rebuilds `mods-live` before runtime lanes, so restage the helper after wrapper sync or use the direct helper-aware run above until the sync path grows save-aware helper staging.
-7. Disable or remove the helper again before unrelated QC runs.
+6. The save catalog now records the helper requirement explicitly, and the wrapper will report that manual or pre-staged helper sync is still required for `qc-runtime -SaveId orbital-cohort`.
+7. The wrapper still rebuilds `mods-live` before runtime lanes, so restage the helper after wrapper sync or use the direct helper-aware run above until the lower QC sync path grows save-aware helper staging.
+8. Disable or remove the helper again before unrelated QC runs.
 
 ## Scope
 

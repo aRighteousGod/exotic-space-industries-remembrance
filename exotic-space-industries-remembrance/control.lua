@@ -112,6 +112,19 @@ local function register_exotic_industries_qc_remote()
         service_orbital_logistics_qc = function(limit)
             return orbital_logistics.service_for_qc(limit, game and game.tick or 0)
         end,
+        rebuild_fluid_rupture_runtime = function()
+            return ei_fluid_safety.rebuild_fluid_runtime("fluid-rupture-qc")
+        end,
+        service_fluid_rupture_runtime = function(limit)
+            return ei_fluid_safety.service_fluid_runtime(limit or 1, game and game.tick or 0)
+        end,
+        get_fluid_rupture_qc_snapshot = function()
+            return {
+                tick = game and game.tick or 0,
+                fluid_safety = ei_fluid_safety.get_runtime_status(),
+                rupture = ei_flammable_rupture_scheduler.get_runtime_status(),
+            }
+        end,
         rebuild_railgun_cooling_runtime = function()
             ei_railgun_cooling.rebuild_runtime_state("qc-remote", game and game.tick or 0)
         end,
@@ -1049,7 +1062,7 @@ function updater(event)
                 local fluid_work_count = ei_fluid_safety.get_fluid_work_count()
                 if fluid_work_count > 0 then
                     updates_needed = math.max(1, math.min(math.ceil(fluid_work_count / divisor), ei_maxEntityUpdates))
-                    ei_fluid_safety.service_fluid_runtime(updates_needed)
+                    ei_fluid_safety.service_fluid_runtime(updates_needed, event)
                 end
             end
 

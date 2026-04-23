@@ -114,6 +114,13 @@ data:extend({
         1.25
     ),
     make_rupture_fire(
+        "ei-lava-fire-flame",
+        1200,
+        {amount = 1.05, type = "fire"},
+        {r = 1.0, g = 0.36, b = 0.08},
+        1.20
+    ),
+    make_rupture_fire(
         "ei-oil-platform-fire-flame",
         420,
         {amount = 1, type = "fire"},
@@ -136,6 +143,14 @@ data:extend({
         {r = 0.72, g = 0.34, b = 1.0},
         1.05,
         {platform_safe = true, maximum_lifetime = 300}
+    ),
+    make_rupture_fire(
+        "ei-lava-platform-fire-flame",
+        210,
+        {amount = 1.05, type = "fire"},
+        {r = 1.0, g = 0.36, b = 0.08},
+        1.08,
+        {platform_safe = true, maximum_lifetime = 210}
     ),
     make_rupture_smoke(
         "ei-oil-rupture-smoke",
@@ -175,5 +190,73 @@ data:extend({
             glow_color = {r = 0.48, g = 0.92, b = 1.0, a = 0.35},
             glow_fade_away_duration = 140
         }
-    )
+    ),
+    make_rupture_smoke(
+        "ei-lava-rupture-smoke",
+        {r = 0.22, g = 0.12, b = 0.08, a = 0.30},
+        {
+            duration = 220,
+            fade_away_duration = 104,
+            spread_duration = 180,
+            start_scale = 0.32,
+            end_scale = 1.18,
+            affected_by_wind = false,
+            animation_tint = {r = 1.0, g = 0.52, b = 0.18, a = 0.82},
+            glow_color = {r = 1.0, g = 0.28, b = 0.04, a = 0.48},
+            glow_fade_away_duration = 120,
+            animation_speed = 0.20
+        }
+    ),
+    make_rupture_smoke(
+        "ei-data-rupture-smoke",
+        {r = 0.18, g = 0.52, b = 0.62, a = 0.24},
+        {
+            duration = 120,
+            fade_away_duration = 64,
+            spread_duration = 140,
+            start_scale = 0.28,
+            end_scale = 1.10,
+            animation_tint = {r = 0.48, g = 1.0, b = 0.92, a = 0.82},
+            glow_color = {r = 0.22, g = 0.88, b = 1.0, a = 0.38},
+            glow_fade_away_duration = 70,
+            animation_speed = 0.22
+        }
+    ),
+    make_rupture_smoke(
+        "ei-cryo-rupture-smoke",
+        {r = 0.62, g = 0.78, b = 0.92, a = 0.20},
+        {
+            duration = 160,
+            fade_away_duration = 80,
+            spread_duration = 180,
+            start_scale = 0.30,
+            end_scale = 1.28,
+            animation_tint = {r = 0.88, g = 0.97, b = 1.0, a = 0.76},
+            glow_color = {r = 0.70, g = 0.88, b = 1.0, a = 0.26},
+            glow_fade_away_duration = 84,
+            animation_speed = 0.21
+        }
+    ),
+    make_rupture_smoke(
+        "ei-chemical-rupture-smoke",
+        {r = 0.24, g = 0.40, b = 0.12, a = 0.24},
+        {
+            duration = 190,
+            fade_away_duration = 88,
+            spread_duration = 220,
+            start_scale = 0.32,
+            end_scale = 1.36,
+            animation_tint = {r = 0.58, g = 1.0, b = 0.42, a = 0.80},
+            glow_color = {r = 0.36, g = 0.92, b = 0.22, a = 0.30},
+            glow_fade_away_duration = 100,
+            animation_speed = 0.23
+        }
+    ),
+    {
+        type = "sprite",
+        name = "ei-lava-ground-patch",
+        filename = "__space-age__/graphics/terrain/water-transitions/lava-patch.png",
+        width = 64,
+        height = 64
+    }
 })
