@@ -291,6 +291,14 @@ data:extend({
     type = "damage-type",
     name = "ei-plasma"
     },
+  {
+    type = "damage-type",
+    name = "ei-radiological"
+    },
+  {
+    type = "damage-type",
+    name = "ei-morphium"
+    },
 
 })
 

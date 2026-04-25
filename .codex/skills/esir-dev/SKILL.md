@@ -23,6 +23,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `dependency-refresh|dependency-query|dependency-diff`: operate on the ESIR dependency catalog and optional local installed-mod enrichment
 - `preflight`: static syntax/reference/header/encoding sweeps without touching gameplay data
 - `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness
+- `runtime-benchmark`: run save-catalog-backed runtime benchmarks, auto-staging helper mods declared for that save
 - `portal-scout`: build or refresh `.codex/esir/portal-shortlist.json`
 - `diff`: compare live source, seeded caches, package outputs, and shortlist freshness
 - `art-start|art-collect|art-review|art-validate`: stage and review supervised Firefox image sessions
@@ -38,6 +39,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Treat cached run-mod directories as dependency seeds only. Live repo pack folders are the source of truth.
 - Keep raw caches in `.factorio-qc` or `output`; stable manifests stay checked in.
 - The checked-in dependency catalog is intentionally limited to declared pack dependencies plus ESIR touchpoints. Local installed mod roots are query-time enrichment only.
+- Before applying generic Lua advice to ESIR code, use the repo-local `factorio-lua-assumptions` skill to check Factorio's staged lifecycle, sandboxed libraries, storage rules, `require()` behavior, deterministic runtime changes, and LuaObject validity semantics.
 - For official Factorio API or wiki questions, prefer the repo-local `factorio-lua-docs` skill and `scripts\invoke-factorio-lua-docs.ps1` before broad web search or memory.
 - `pack-deploy` is intentionally mutating. Prefer `pack-dryrun` unless the user explicitly wants `%APPDATA%\Factorio\mods` updated.
 - Encoding detection is part of `preflight` and the `qc-*` wrapper surface. Pass `-FixEncoding` when you want the harness to rewrite non-UTF-8 or repaired mojibake sources as UTF-8.
@@ -55,6 +57,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - The Vulcanus auric fumarole benchmark helper lives at [`assets/zzz-auric-fumarole-qc_0.0.1`](./assets/zzz-auric-fumarole-qc_0.0.1). Use [`references/auric-fumarole-qc-helper.md`](./references/auric-fumarole-qc-helper.md) when a run needs radial-band, off-center-placement, or non-Vulcanus-isolation telemetry.
 - The fluid rupture helper lives at [`assets/zzz-fluid-rupture-qc_0.0.1`](./assets/zzz-fluid-rupture-qc_0.0.1). Use [`references/fluid-rupture-qc-helper.md`](./references/fluid-rupture-qc-helper.md) when a run needs deterministic fluid-safety and flammable-rupture coverage with QC snapshots from the shared rupture runtime.
 - The orbital logistics cohort helper lives at [`assets/zzz-orbital-logistics-qc_0.0.1`](./assets/zzz-orbital-logistics-qc_0.0.1). Use [`references/orbital-logistics-qc-helper.md`](./references/orbital-logistics-qc-helper.md) when a run needs a save-driven cohort with live platform IDs, selector setup, coordinator arbitration, uplink leases, and structured orbital QC snapshots.
+- The research hitch helper lives at [`assets/zzz-research-hitch-qc_0.0.1`](./assets/zzz-research-hitch-qc_0.0.1). Use [`references/research-hitch-qc-helper.md`](./references/research-hitch-qc-helper.md) when a run needs late-game research-completion hitch coverage with Tesla, EM train, and tech-scaling snapshots.
 - The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
 - Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
 
@@ -79,6 +82,8 @@ Refresh the dependency catalog whenever dependency declarations or compatibility
 ## Factorio Lua Docs
 
 Use the repo-local `factorio-lua-docs` skill when the main question is about official Factorio runtime, prototype, auxiliary, or wiki scripting documentation.
+
+Use the repo-local `factorio-lua-assumptions` skill first when the risk is a wrong generic-Lua assumption rather than a missing symbol lookup.
 
 Preferred commands:
 
@@ -185,5 +190,13 @@ When parallel read-only help is useful, use the playbook in [`references/agent-p
 - `dependency-runtime explorer`
 - `dependency-prototype explorer`
 - `dependency-presence explorer`
+- `stage-boundary explorer`
+- `sandbox-delta explorer`
+- `storage-lifecycle explorer`
+- `event-determinism explorer`
+- `runtime-api explorer`
+- `prototype-api explorer`
+- `auxiliary-docs explorer`
+- `wiki-guidance explorer`
 
 Keep the main agent on orchestration and edits. Sidecars stay read-only.

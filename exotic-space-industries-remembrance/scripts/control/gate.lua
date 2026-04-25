@@ -13,6 +13,7 @@ local model = {}
 ei_rng = require("lib/rng")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local ei_surface_anchor = require("lib/surface-anchor")
 local clamp = ei_lib.clamp
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 
@@ -587,6 +588,7 @@ model.mass_weights = {
     ["ei-cold-coolant-barrel"] = 200,
     ["ei-combustion-turbine"] = 500,
     ["ei-compound-ammo"] = 2,
+    ["ei-corrosive-ammo"] = 2,
     ["ei-computer-age-tech"] = 1,
     ["ei-computer-core"] = 100,
     ["ei-computing-unit"] = 4,
@@ -610,6 +612,7 @@ model.mass_weights = {
     ["ei-crushed-sulfur"] = 2,
     ["ei-crushed-uranium"] = 2,
     ["ei-crusher"] = 25,
+    ["ei-cryo-ammo"] = 2,
     ["ei-cryo-container-nitrogen"] = 10,
     ["ei-cryo-container-oxygen"] = 10,
     ["ei-cryocondensate"] = 10,
@@ -619,6 +622,9 @@ model.mass_weights = {
     ["ei-crystal-accumulator-gaia"] = 50,
     ["ei-crystal-accumulator-repair"] = 1,
     ["ei-crystal-accumulator_off-1"] = 125,
+    ["ei-crystal-accumulator_off-2"] = 125,
+    ["ei-crystal-accumulator_off-3"] = 125,
+    ["ei-crystal-accumulator_off-4"] = 125,
     ["ei-crystal-solution-barrel"] = 200,
     ["ei-dark-age-lab"] = 25,
     ["ei-dark-age-tech"] = 1,
@@ -692,6 +698,7 @@ model.mass_weights = {
     ["ei-heat-steel-furnace"] = 10,
     ["ei-heavy-destilate-barrel"] = 200,
     ["ei-heavy-minigun"] = 10,
+    ["ei-hexafluoride-ammo"] = 2,
     ["ei-helium-3-barrel"] = 200,
     ["ei-high-energy-crystal"] = 4,
     ["ei-high-tech-parts"] = 2,
@@ -748,6 +755,7 @@ model.mass_weights = {
     ["ei-metalworks-3"] = 10,
     ["ei-metalworks-4"] = 10,
     ["ei-minigun"] = 10,
+    ["ei-morphium-ammo"] = 2,
     ["ei-module-base"] = 4,
     ["ei-module-part"] = 4,
     ["ei-monosilicon"] = 2,
@@ -762,6 +770,7 @@ model.mass_weights = {
     ["ei-neodym-ingot"] = 2,
     ["ei-neodym-solution-barrel"] = 200,
     ["ei-neuro-reactive-residue"] = 2,
+    ["ei-neutron-ammo"] = 2,
     ["ei-neutron-activator"] = 25,
     ["ei-neutron-collector"] = 25,
     ["ei-neutron-container"] = 10,
@@ -774,6 +783,7 @@ model.mass_weights = {
     ["ei-nuclear-locomotive"] = 25,
     ["ei-nuclear-waste"] = 100,
     ["ei-odd-plating"] = 2,
+    ["ei-oxyfluoride-ammo"] = 2,
     ["ei-orbital-combinator"] = 4,
     ["ei-organic-asteroid-chunk"] = 200,
     ["ei-oxygen-difluoride-barrel"] = 200,
@@ -871,6 +881,7 @@ model.mass_weights = {
     ["ei-tritium-barrel"] = 200,
     ["ei-turbo-loader"] = 4,
     ["ei-uranium-233"] = 4,
+    ["ei-arc-ammo"] = 2,
     ["ei-uranium-233-fuel"] = 50,
     ["ei-uranium-235-fuel"] = 50,
     ["ei-uranium-asteroid-chunk"] = 200,
@@ -1092,16 +1103,6 @@ local function mark_gate_resolution_dirty(gate_data)
 end
 
 
-local function make_space_location_label(location_name)
-    local prototype = prototypes and prototypes.space_location and prototypes.space_location[location_name]
-    if prototype and prototype.localised_name then
-        return prototype.localised_name
-    end
-
-    return location_name
-end
-
-
 local function make_surface_label(surface)
     if not surface then
         return {"exotic-industries.gate-gui-status-span-unresolved-anchor"}
@@ -1122,39 +1123,7 @@ function model.rebuild_distance_cache()
     -- Static starmap coordinates never need to be recomputed during normal gate updates,
     -- and keeping this work out of the quote path lets moving-platform routes pay only for
     -- their final interpolation step at runtime.
-    local cache = {
-        locations = {},
-        pair_distance = {},
-        max_pair_distance = 1,
-    }
-
-    local space_locations = prototypes and prototypes.space_location or {}
-    for location_name, prototype in pairs(space_locations) do
-        local position = prototype.position
-        if position and position.x ~= nil and position.y ~= nil then
-            cache.locations[location_name] = {
-                x = position.x,
-                y = position.y,
-            }
-            cache.pair_distance[location_name] = {}
-        end
-    end
-
-    -- Precompute the full pair matrix once so inter-location quotes become a table lookup.
-    for from_name, from_point in pairs(cache.locations) do
-        for to_name, to_point in pairs(cache.locations) do
-            if cache.pair_distance[from_name][to_name] == nil then
-                local dx = from_point.x - to_point.x
-                local dy = from_point.y - to_point.y
-                local raw_distance = math.sqrt((dx * dx) + (dy * dy))
-                cache.pair_distance[from_name][to_name] = raw_distance
-                cache.pair_distance[to_name][from_name] = raw_distance
-                if raw_distance > cache.max_pair_distance then
-                    cache.max_pair_distance = raw_distance
-                end
-            end
-        end
-    end
+    local cache = ei_surface_anchor.build_distance_cache(prototypes and prototypes.space_location)
 
     storage.ei.gate.distance_cache = cache
     return cache
@@ -1164,101 +1133,25 @@ end
 function model.ensure_distance_cache()
     model.check_global_init()
 
-    local cache = storage.ei.gate.distance_cache
-    if not cache or type(cache) ~= "table" or type(cache.locations) ~= "table" or type(cache.pair_distance) ~= "table" then
-        cache = model.rebuild_distance_cache()
-    end
-
-    if not cache.max_pair_distance or cache.max_pair_distance <= 0 then
-        cache.max_pair_distance = 1
-    end
+    local cache = ei_surface_anchor.ensure_distance_cache(
+        storage.ei.gate.distance_cache,
+        prototypes and prototypes.space_location
+    )
+    storage.ei.gate.distance_cache = cache
 
     return cache
 end
 
 
 function model.get_surface_anchor(surface)
-    if not surface then
-        return nil
-    end
-
-    local cache = model.ensure_distance_cache()
-    local platform = surface.platform
-
-    if platform and platform.valid then
-        local connection = platform.space_connection
-        if connection and connection.valid then
-            local from_name = connection.from and connection.from.name
-            local to_name = connection.to and connection.to.name
-            local from_point = from_name and cache.locations[from_name]
-            local to_point = to_name and cache.locations[to_name]
-            local route_length = tonumber(connection.length) or 0
-            local route_distance = tonumber(platform.distance)
-
-            -- Moving platforms are priced from live route progress instead of simply snapping
-            -- to the orbit they most recently visited. This keeps gate cost understandable when
-            -- the receiver is in transit between two astronomical anchors.
-            if from_point and to_point and route_length > 0 and route_distance then
-                local progress = clamp(route_distance / route_length, 0, 1)
-                return {
-                    x = lerp(from_point.x, to_point.x, progress),
-                    y = lerp(from_point.y, to_point.y, progress),
-                    location_name = nil,
-                    label = {
-                        "",
-                        make_space_location_label(from_name),
-                        " -> ",
-                        make_space_location_label(to_name)
-                    }
-                }
-            end
-        end
-
-        local current_location = platform.space_location
-        if current_location and cache.locations[current_location.name] then
-            local point = cache.locations[current_location.name]
-            return {
-                x = point.x,
-                y = point.y,
-                location_name = current_location.name,
-                label = make_space_location_label(current_location.name)
-            }
-        end
-
-        local last_location = platform.last_visited_space_location
-        if last_location and cache.locations[last_location.name] then
-            local point = cache.locations[last_location.name]
-            return {
-                x = point.x,
-                y = point.y,
-                location_name = last_location.name,
-                label = make_space_location_label(last_location.name)
-            }
-        end
-    end
-
-    local planet = surface.planet
-    if planet and planet.valid and cache.locations[planet.name] then
-        local point = cache.locations[planet.name]
-        return {
-            x = point.x,
-            y = point.y,
-            location_name = planet.name,
-            label = make_space_location_label(planet.name)
-        }
-    end
-
-    if cache.locations[surface.name] then
-        local point = cache.locations[surface.name]
-        return {
-            x = point.x,
-            y = point.y,
-            location_name = surface.name,
-            label = make_space_location_label(surface.name)
-        }
-    end
-
-    return nil
+    -- Moving platforms are priced from live route progress instead of simply snapping
+    -- to the orbit they most recently visited. This keeps gate cost understandable when
+    -- the receiver is in transit between two astronomical anchors.
+    return ei_surface_anchor.get_surface_anchor(
+        surface,
+        model.ensure_distance_cache(),
+        prototypes and prototypes.space_location
+    )
 end
 
 

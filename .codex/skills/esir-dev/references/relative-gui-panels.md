@@ -22,18 +22,18 @@ Use this reference when adding or refactoring ESIR runtime GUI in `scripts/contr
 
 ### `player.gui.relative`
 
-- [`exotic-space-industries-remembrance/scripts/control/black-hole.lua`](../../../exotic-space-industries-remembrance/scripts/control/black-hole.lua): container-adjacent console with a straightforward relative build, tag-driven titlebar actions, and a good stale-entity close path in `update_player_guis`.
-- [`exotic-space-industries-remembrance/scripts/control/fusion-reactor.lua`](../../../exotic-space-industries-remembrance/scripts/control/fusion-reactor.lua): assembling-machine relative console with a clean split between GUI refresh and entity mutation. Good reference for control widgets that feed back into recipe or mode changes.
-- [`exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua`](../../../exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua): clean relative-only lifecycle with stable rebuild and teardown on GUI close or entity destruction. Use when the panel is truly an attached entity console and does not need a detached mode.
-- [`exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua`](../../../exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua): advanced relative-first pattern with explicit screen fallback, stored GUI mode, preserved detached window position, centralized root lookup, and rebuild-tolerant refresh logic.
+- [`exotic-space-industries-remembrance/scripts/control/black-hole.lua`](../../../../exotic-space-industries-remembrance/scripts/control/black-hole.lua): container-adjacent console with a straightforward relative build, tag-driven titlebar actions, and a good stale-entity close path in `update_player_guis`.
+- [`exotic-space-industries-remembrance/scripts/control/fusion-reactor.lua`](../../../../exotic-space-industries-remembrance/scripts/control/fusion-reactor.lua): assembling-machine relative console with a clean split between GUI refresh and entity mutation. Good reference for control widgets that feed back into recipe or mode changes.
+- [`exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua`](../../../../exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua): clean relative-only lifecycle with stable rebuild and teardown on GUI close or entity destruction. Use when the panel is truly an attached entity console and does not need a detached mode.
+- [`exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua`](../../../../exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua): advanced relative-first pattern with explicit screen fallback, stored GUI mode, preserved detached window position, centralized root lookup, and rebuild-tolerant refresh logic.
 
 ### `player.gui.screen`
 
-- [`exotic-space-industries-remembrance/scripts/control/alien-system.lua`](../../../exotic-space-industries-remembrance/scripts/control/alien-system.lua): confirm and informatron-oriented flow that belongs on the screen layer rather than as an entity-adjacent side panel.
+- [`exotic-space-industries-remembrance/scripts/control/alien-system.lua`](../../../../exotic-space-industries-remembrance/scripts/control/alien-system.lua): confirm and informatron-oriented flow that belongs on the screen layer rather than as an entity-adjacent side panel.
 
 ### `mod_gui`
 
-- [`exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua`](../../../exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua): persistent mod button and left-side panel. Use this shape for long-lived mod controls, not for one-entity consoles.
+- [`exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua`](../../../../exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua): persistent mod button and left-side panel. Use this shape for long-lived mod controls, not for one-entity consoles.
 
 ## Anchor guidance
 

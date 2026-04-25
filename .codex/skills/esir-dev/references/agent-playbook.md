@@ -2,6 +2,14 @@
 
 Use these as light read-only sidecars when the main agent can keep moving without waiting.
 
+Each sidecar should report:
+
+- files inspected
+- commands run
+- freshness status of any manifest, cache, save, or generated artifact it relied on
+- blockers first, then warnings, then optional suggestions
+- confirmation that it made no writes
+
 ## `event-lifecycle explorer`
 
 Use for:
@@ -99,5 +107,67 @@ Use for:
 - optional local installed-mod presence checks under `%APPDATA%\Factorio\mods`, `output\tesla-run-mods`, and `.factorio-qc`
 - confirming whether a named external mod is present locally and which key files it exposes
 - validating that local presence stays query-time enrichment instead of leaking into checked-in manifests
+
+## `stage-boundary explorer`
+
+Use for:
+
+- deciding whether a Lua question belongs to settings, prototype/data, runtime/control, migration, console, or remote interface context
+- checking whether data-stage assumptions are being imported into runtime code or runtime assumptions are being imported into prototype code
+- routing exact API lookups through `factorio-lua-docs` after the stage is clear
+
+## `sandbox-delta explorer`
+
+Use for:
+
+- checking whether generic Lua advice relies on libraries or behaviors Factorio changes or removes
+- reviewing `require()`, `package`, `debug`, `load`, `pairs()`, `next()`, `math.random()`, or `math.randomseed()` assumptions
+- comparing a proposed Lua pattern against `factorio-lua-assumptions` before the main agent edits code
+
+## `storage-lifecycle explorer`
+
+Use for:
+
+- checking whether runtime state belongs in `storage`, locals, module upvalues, migrations, `on_init`, `on_load`, or `on_configuration_changed`
+- spotting unsafe stored functions, stale `LuaObject` dereferences, missing `.valid` checks, and metatable-registration gaps
+- separating durable identity keys such as `unit_number` from live object validity
+
+## `event-determinism explorer`
+
+Use for:
+
+- checking event-registration, event-order, and deterministic-runtime assumptions before control-stage changes
+- reviewing whether `event.tick` can be passed through instead of rereading `game.tick`
+- spotting RNG or iteration-order assumptions that need Factorio-specific handling
+
+## `runtime-api explorer`
+
+Use for:
+
+- exact runtime symbol lookup through `factorio-lua-docs`
+- class, method, attribute, event, define, GUI, remote-interface, migration, and storage documentation checks
+- returning official URLs for any API claim the main agent will rely on
+
+## `prototype-api explorer`
+
+Use for:
+
+- exact prototype symbol lookup through `factorio-lua-docs`
+- prototype inheritance, property, concept, and data.raw documentation checks
+- separating prototype declaration rules from runtime prototype-read APIs
+
+## `auxiliary-docs explorer`
+
+Use for:
+
+- official auxiliary docs such as Data Lifecycle, Storage, Libraries and functions, Mod Structure, Migrations, Instrument Mode, and JSON docs
+- resolving broad "how should Factorio Lua behave here?" questions after `factorio-lua-assumptions` identifies the risk
+
+## `wiki-guidance explorer`
+
+Use for:
+
+- official wiki scripting guidance such as script interfaces, localisation, console, command-line parameters, and data.raw
+- checking tutorial-level behavior when the API JSON does not answer the workflow question directly
 
 Main-agent rule: sidecars analyze and summarize. The main agent still owns edits, wrapper invocations, and final integration.

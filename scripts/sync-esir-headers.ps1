@@ -56,7 +56,7 @@ function Set-HeaderContent {
     [System.IO.File]::WriteAllText($FilePath, $header + $trimmed)
 }
 
-$paths = Get-EsirPaths -RepoRoot $RepoRoot
+$paths = Get-EsirPaths -RepoRoot $RepoRoot -EnsureWritableDirs
 Invoke-EsirManifestRefresh -Paths $paths | Out-Null
 
 $runtimeManifest = Read-EsirJson -Path $paths.runtime_manifest_path

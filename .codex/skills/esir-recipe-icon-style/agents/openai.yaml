@@ -1,4 +1,4 @@
 interface:
   display_name: "ESIR Recipe Icon Style"
   short_description: "Audit ESIR icon and behavior drift against the local companion baseline"
-  default_prompt: "Use this skill to ingest the local recipe-icons-improvement-for-esir companion mod, audit ESIR recipe icon and behavior drift, generate out-of-game review reports, and emit non-mutating patch plans or snippets for icon, sorting, hiding, and signal cleanup work."
+  default_prompt: "Use $esir-recipe-icon-style to ingest the local recipe-icons-improvement-for-esir companion mod, audit ESIR recipe icon and behavior drift, generate out-of-game review reports, and emit non-mutating patch plans or snippets for icon, sorting, hiding, and signal cleanup work."

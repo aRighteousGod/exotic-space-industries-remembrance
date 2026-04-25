@@ -1,0 +1,4 @@
+interface:
+  display_name: "Factorio Lua Assumptions"
+  short_description: "Check Factorio-specific Lua behavior before applying generic Lua advice"
+  default_prompt: "Use $factorio-lua-assumptions before changing Factorio mod Lua when lifecycle, storage, require, standard library, RNG, LuaObject, data.raw, prototype, event, or ESIR helper assumptions could matter."

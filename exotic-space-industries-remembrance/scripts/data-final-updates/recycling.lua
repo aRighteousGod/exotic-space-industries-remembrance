@@ -67,7 +67,23 @@ if recycler then
 
     -- Generating the recycle (reverse) recipes
     for name, recipe in pairs(data.raw.recipe) do
-        recycling.generate_recycling_recipe(recipe)
+        if not string.find(name, "^ei%-auric%-vat%-") then
+            recycling.generate_recycling_recipe(recipe)
+        end
+    end
+    for name, recipe in pairs(data.raw.recipe) do
+        local remove_recipe = recipe.category == "recycling" and string.find(name, "^ei%-auric%-vat%-")
+        if not remove_recipe and recipe.category == "recycling" then
+            for _, result in pairs(recipe.results or {}) do
+                if result.name == "ei-auric-cyst" then
+                    remove_recipe = true
+                    break
+                end
+            end
+        end
+        if remove_recipe then
+            data.raw.recipe[name] = nil
+        end
     end
     --Swap superior data for simulation else nobody will ever do the space crafting chain
     ei_lib.raw.recipe["processing-unit-recycling"].results = {
@@ -77,10 +93,62 @@ if recycler then
         {type="item",name="ei-crushed-gold", amount_min=0,amount_max=1,probability=0.16},
     }
 
+    -- Late merge/swap passes can leave stale alias recyclers behind.
     data.raw.recipe["iron-stick-recycling"] = nil
-    ei_lib.raw.recipe["atan-ash-recycling"].results = {
-        {type="item",name="atan-ash", amount_min=0,amount_max=1,probability=0.25},
-    }
+    data.raw.recipe["iron-gear-wheel-recycling"] = nil
+    data.raw.recipe["uranium-fuel-cell-recycling"] = nil
+    for _, recipe_name in pairs({
+        "ei-used-uranium-235-fuel-recycling",
+        "ei-used-uranium-233-fuel-recycling",
+        "ei-used-plutonium-239-fuel-recycling",
+        "ei-used-thorium-232-fuel-recycling",
+    }) do
+        data.raw.recipe[recipe_name] = nil
+    end
+
+    -- Use Quality's own self-recycling shape for raw loops that should only return themselves.
+    for _, item_name in pairs({
+        "ei-neodym-ingot",
+        "atan-ash",
+        "iron-ore",
+        "copper-ore",
+    }) do
+        data.raw.recipe[item_name.."-recycling"] = nil
+        if data.raw.item[item_name] then
+            recycling.generate_self_recycling_recipe(data.raw.item[item_name])
+        end
+    end
+
+    -- Crushed intermediates should recycle into themselves rather than back into parent materials.
+    for recipe_name, recipe in pairs(data.raw.recipe) do
+        local crushed_item_name = string.gsub(recipe_name, "%-recycling$", "")
+        if recipe.category == "recycling"
+        and crushed_item_name ~= recipe_name
+        and string.find(crushed_item_name, "crushed", 1, true)
+        and data.raw.item[crushed_item_name] then
+            recipe.ingredients = {
+                {type = "item", name = crushed_item_name, amount = 1, ignored_by_stats = 1},
+            }
+            recipe.results = {
+                {type = "item", name = crushed_item_name, amount = 1, probability = 0.25, ignored_by_stats = 1},
+            }
+        end
+    end
+
+    -- Prefer the sensible base craft when multi-route items would otherwise recycle into odd byproducts.
+    local stone_brick_recycling = ei_lib.raw.recipe["stone-brick-recycling"]
+    if stone_brick_recycling then
+        stone_brick_recycling.results = {
+            {type = "item", name = "stone", amount = 0.25, extra_count_fraction = 0.25},
+        }
+    end
+    local neutron_container_recycling = ei_lib.raw.recipe["ei-neutron-container-recycling"]
+    if neutron_container_recycling then
+        neutron_container_recycling.results = {
+            {type = "item", name = "ei-empty-cryo-container", amount = 0.15, extra_count_fraction = 0.15},
+            {type = "item", name = "ei-carbon-structure", amount = 0.05, extra_count_fraction = 0.05},
+        }
+    end
     ei_lib.raw.recipe["ei-energy-crystal-recycling"].results = {
         {type="item",name="ei-sand", amount_min=0,amount_max=1,probability=0.18},
         {type="item",name="ei-crushed-sulfur", amount_min=0,amount=1,probability=0.11},
@@ -142,8 +210,5 @@ if recycler then
         table.insert(saca.results,output_bak)
     end
     end
-    local nwr = data.raw.recipe["ei-nuclear-waste-recycling"]
-    if nwr then
-        nwr = nil
-    end
+    data.raw.recipe["ei-nuclear-waste-recycling"] = nil
 end

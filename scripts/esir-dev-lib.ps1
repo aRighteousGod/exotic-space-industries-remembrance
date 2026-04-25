@@ -1,9 +1,18 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+function Get-EsirCodexHome {
+    if (-not [string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+        return $env:CODEX_HOME
+    }
+
+    return (Join-Path $HOME '.codex')
+}
+
 $script:EsirRuntimeOverrideMap = $null
 $script:EsirFactorioQcLoaded = $false
-$script:EsirFactorioLibDefault = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc\scripts\factorio-qc-lib.ps1'
+$script:EsirGlobalSkillRoot = Join-Path (Get-EsirCodexHome) 'skills'
+$script:EsirFactorioLibDefault = Join-Path $script:EsirGlobalSkillRoot 'factorio-mod-qc\scripts\factorio-qc-lib.ps1'
 $script:EsirReachableLuaCache = @{}
 $script:EsirAssignedRequireCache = @{}
 $script:EsirBareRequireCache = @{}
@@ -58,15 +67,21 @@ function Get-EsirEnabledLocalMods {
 }
 
 function Get-EsirPaths {
-    param([Parameter(Mandatory = $true)][string]$RepoRoot)
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [switch]$EnsureWritableDirs
+    )
 
     $resolvedRepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
     $manifestRoot = Join-Path $resolvedRepoRoot '.codex\esir'
     $repoSkillRoot = Join-Path $resolvedRepoRoot '.codex\skills\esir-dev'
     $artifactRoot = Join-Path $resolvedRepoRoot '.factorio-qc'
+    $globalSkillRoot = Join-Path (Get-EsirCodexHome) 'skills'
 
-    New-Item -ItemType Directory -Force -Path $manifestRoot | Out-Null
-    New-Item -ItemType Directory -Force -Path $artifactRoot | Out-Null
+    if ($EnsureWritableDirs) {
+        New-Item -ItemType Directory -Force -Path $manifestRoot | Out-Null
+        New-Item -ItemType Directory -Force -Path $artifactRoot | Out-Null
+    }
 
     return [pscustomobject]@{
         repo_root              = $resolvedRepoRoot
@@ -74,13 +89,13 @@ function Get-EsirPaths {
         artifact_root          = $artifactRoot
         repo_skill_root        = $repoSkillRoot
         dependency_skill_root  = Join-Path $resolvedRepoRoot '.codex\skills\esir-dependency-intel'
-        factorio_skill_root    = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc'
-        factorio_invoke_script = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc\scripts\invoke-factorio-qc.ps1'
-        factorio_lib_script    = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc\scripts\factorio-qc-lib.ps1'
-        portal_search_script   = 'C:\Users\Theorun\.codex\skills\factorio-mod-qc\scripts\search-factorio-mod-portal.ps1'
-        firefox_skill_root     = 'C:\Users\Theorun\.codex\skills\chatgpt-firefox-companion'
-        firefox_invoke_script  = 'C:\Users\Theorun\.codex\skills\chatgpt-firefox-companion\scripts\invoke-chatgpt-firefox-companion.ps1'
-        global_shim_root       = 'C:\Users\Theorun\.codex\skills\esir-dev'
+        factorio_skill_root    = Join-Path $globalSkillRoot 'factorio-mod-qc'
+        factorio_invoke_script = Join-Path $globalSkillRoot 'factorio-mod-qc\scripts\invoke-factorio-qc.ps1'
+        factorio_lib_script    = Join-Path $globalSkillRoot 'factorio-mod-qc\scripts\factorio-qc-lib.ps1'
+        portal_search_script   = Join-Path $globalSkillRoot 'factorio-mod-qc\scripts\search-factorio-mod-portal.ps1'
+        firefox_skill_root     = Join-Path $globalSkillRoot 'chatgpt-firefox-companion'
+        firefox_invoke_script  = Join-Path $globalSkillRoot 'chatgpt-firefox-companion\scripts\invoke-chatgpt-firefox-companion.ps1'
+        global_shim_root       = Join-Path $globalSkillRoot 'esir-dev'
         dependency_invoke_script = Join-Path $resolvedRepoRoot 'scripts\invoke-esir-dependency-intel.ps1'
         dependency_lib_script    = Join-Path $resolvedRepoRoot 'scripts\esir-dependency-lib.ps1'
         runtime_manifest_path  = Join-Path $manifestRoot 'runtime-modules.json'
@@ -477,10 +492,28 @@ function Get-RelativeRepoPath {
     return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).Replace('/', '\')
 }
 
+function Resolve-EsirUserPath {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        [Parameter(Mandatory = $true)][string]$Path
+    )
+
+    $candidate = if ([System.IO.Path]::IsPathRooted($Path)) {
+        $Path
+    } else {
+        Join-Path $Paths.repo_root $Path
+    }
+
+    return (Resolve-Path -LiteralPath $candidate).Path
+}
+
 function Import-EsirFactorioQc {
     param([Parameter(Mandatory = $true)]$Paths)
 
     if (-not (Get-Command Get-FactorioQCContext -ErrorAction SilentlyContinue)) {
+        if (-not (Test-Path -LiteralPath $Paths.factorio_lib_script)) {
+            throw "Factorio QC library not found: $($Paths.factorio_lib_script). Install or repair the global factorio-mod-qc skill."
+        }
         . $Paths.factorio_lib_script
         $script:EsirFactorioQcLoaded = $true
     }
@@ -489,11 +522,12 @@ function Import-EsirFactorioQc {
 function Get-EsirQcContext {
     param(
         [Parameter(Mandatory = $true)]$Paths,
-        [string]$FactorioPath
+        [string]$FactorioPath,
+        [switch]$EnsureArtifactRoot
     )
 
     Import-EsirFactorioQc -Paths $Paths
-    return (Get-FactorioQCContext -RepoRoot $Paths.repo_root -FactorioPath $FactorioPath)
+    return (Get-FactorioQCContext -RepoRoot $Paths.repo_root -FactorioPath $FactorioPath -EnsureArtifactRoot:$EnsureArtifactRoot)
 }
 
 function Get-EsirRuntimeOverrideMap {
@@ -1468,13 +1502,37 @@ function Get-EsirToolManifestData {
             tasks   = @('refresh', 'query')
         }
         engines        = @(
-            [ordered]@{ name = 'factorio-mod-qc'; root = $Paths.factorio_skill_root; wrapper = $Paths.factorio_invoke_script },
-            [ordered]@{ name = 'chatgpt-firefox-companion'; root = $Paths.firefox_skill_root; wrapper = $Paths.firefox_invoke_script }
+            [ordered]@{
+                name      = 'factorio-mod-qc'
+                root_kind = 'global-skill'
+                root      = 'factorio-mod-qc'
+                wrapper   = 'scripts\invoke-factorio-qc.ps1'
+                available = (Test-Path -LiteralPath $Paths.factorio_invoke_script)
+            },
+            [ordered]@{
+                name      = 'chatgpt-firefox-companion'
+                root_kind = 'global-skill'
+                root      = 'chatgpt-firefox-companion'
+                wrapper   = 'scripts\invoke-chatgpt-firefox-companion.ps1'
+                available = (Test-Path -LiteralPath $Paths.firefox_invoke_script)
+            }
         )
         repo_skills    = @(
-            [ordered]@{ name = 'esir-dev'; root = '.codex\skills\esir-dev'; wrapper = 'scripts\invoke-esir-dev.ps1' },
-            [ordered]@{ name = 'esir-dependency-intel'; root = '.codex\skills\esir-dependency-intel'; wrapper = 'scripts\invoke-esir-dependency-intel.ps1' },
-            [ordered]@{ name = 'factorio-lua-docs'; root = '.codex\skills\factorio-lua-docs'; wrapper = 'scripts\invoke-factorio-lua-docs.ps1' }
+            Get-ChildItem -LiteralPath (Join-Path $Paths.repo_root '.codex\skills') -Directory |
+                Sort-Object Name |
+                ForEach-Object {
+                    $wrapper = switch ($_.Name) {
+                        'esir-dev' { 'scripts\invoke-esir-dev.ps1' }
+                        'esir-dependency-intel' { 'scripts\invoke-esir-dependency-intel.ps1' }
+                        'factorio-lua-docs' { 'scripts\invoke-factorio-lua-docs.ps1' }
+                        default { $null }
+                    }
+                    [ordered]@{
+                        name    = $_.Name
+                        root    = ".codex\skills\$($_.Name)"
+                        wrapper = $wrapper
+                    }
+                }
         )
         manifests      = @(
             '.codex\esir\runtime-modules.json',
@@ -1488,7 +1546,11 @@ function Get-EsirToolManifestData {
         )
         legacy_scripts = @('process.ps1', 'graphics1_process.ps1', 'graphics2_process.ps1', 'graphics3_process.ps1', 'soundtrack1_process.ps1', 'soundtrack2_process.ps1')
         artifacts      = @('.factorio-qc', 'output')
-        global_shim    = $Paths.global_shim_root
+        global_shim    = [ordered]@{
+            root_kind = 'global-skill'
+            root      = 'esir-dev'
+            available = (Test-Path -LiteralPath $Paths.global_shim_root)
+        }
     }
 }
 
@@ -1552,7 +1614,7 @@ function Resolve-EsirSaveSelection {
     }
 
     if ($SavePath) {
-        return [ordered]@{ id = $null; path = (Resolve-Path -LiteralPath $SavePath).Path; reason = 'explicit-save-path'; entry = $null }
+        return [ordered]@{ id = $null; path = (Resolve-EsirUserPath -Paths $Paths -Path $SavePath); reason = 'explicit-save-path'; entry = $null }
     }
 
     $preferred = $entries | Where-Object { @($_.preferred_for) -contains $TaskName } | Select-Object -First 1
@@ -1745,7 +1807,7 @@ function Invoke-EsirQcMode {
         [switch]$FixEncoding
     )
 
-    $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath
+    $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath -EnsureArtifactRoot
     $encodingPass = Invoke-EsirEncodingPass -Paths $Paths -Fix:$FixEncoding
     $saveSelection = $null
     if ($Mode -in @('runtime', 'preview', 'full')) {
@@ -1923,7 +1985,7 @@ function Invoke-EsirRuntimeBenchmark {
         [switch]$FixEncoding
     )
 
-    $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath
+    $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath -EnsureArtifactRoot
     $encodingPass = Invoke-EsirEncodingPass -Paths $Paths -Fix:$FixEncoding
     $saveSelection = Resolve-EsirSaveSelection -Paths $Paths -TaskName 'qc-runtime' -SaveId $SaveId -SavePath $SavePath
 
@@ -2472,7 +2534,8 @@ function Invoke-EsirDiff {
     $portalShortlist = Read-EsirJson -Path $Paths.portal_shortlist_path
     $portalCachePath = Join-Path $context.artifact_root 'portal\mods-index-2.0.json'
     $portalState = [ordered]@{
-        shortlist_generated_at = $portalShortlist.generated_at
+        shortlist_exists       = $null -ne $portalShortlist
+        shortlist_generated_at = if ($portalShortlist) { $portalShortlist.generated_at } else { $null }
         raw_cache_exists       = Test-Path -LiteralPath $portalCachePath
         raw_cache_age_hours    = if (Test-Path -LiteralPath $portalCachePath) { [math]::Round(((Get-Date) - (Get-Item -LiteralPath $portalCachePath).LastWriteTime).TotalHours, 2) } else { $null }
     }
@@ -2496,8 +2559,15 @@ function Resolve-EsirArtSessionPath {
         [string]$SessionName
     )
 
-    if ($SessionName -and (Test-Path -LiteralPath $SessionName)) {
-        return (Resolve-Path -LiteralPath $SessionName).Path
+    if ($SessionName) {
+        $candidate = if ([System.IO.Path]::IsPathRooted($SessionName)) {
+            $SessionName
+        } else {
+            Join-Path $Paths.repo_root $SessionName
+        }
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
     }
 
     $latestFile = Join-Path $Paths.artifact_root 'chatgpt-firefox\latest-session.txt'
@@ -2521,14 +2591,20 @@ function Invoke-EsirArtStart {
 
     $arguments = @('-ExecutionPolicy', 'Bypass', '-File', $Paths.firefox_invoke_script, '-Mode', 'start', '-RepoRoot', $Paths.repo_root)
     if ($PromptText) { $arguments += @('-PromptText', $PromptText) }
-    if ($PromptFile) { $arguments += @('-PromptFile', $PromptFile) }
+    if ($PromptFile) { $arguments += @('-PromptFile', (Resolve-EsirUserPath -Paths $Paths -Path $PromptFile)) }
     if ($SessionName) { $arguments += @('-SessionName', $SessionName) }
     if ($DownloadsPath) { $arguments += @('-DownloadsPath', $DownloadsPath) }
     if ($SkipBrowser) { $arguments += '-SkipBrowser' }
     if ($SkipClipboard) { $arguments += '-SkipClipboard' }
     & powershell @arguments | Out-Null
-    $latestSession = Resolve-EsirArtSessionPath -Paths $Paths
-    return [ordered]@{ task = 'art-start'; overall_status = if ($LASTEXITCODE -eq 0) { 'ok' } else { 'failed' }; session_path = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $latestSession }
+    $exitCode = $LASTEXITCODE
+    $latestSession = if ($exitCode -eq 0) { Resolve-EsirArtSessionPath -Paths $Paths } else { $null }
+    return [ordered]@{
+        task           = 'art-start'
+        overall_status = if ($exitCode -eq 0) { 'ok' } else { 'failed' }
+        exit_code      = $exitCode
+        session_path   = if ($latestSession) { Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $latestSession } else { $null }
+    }
 }
 
 function Invoke-EsirArtCollect {

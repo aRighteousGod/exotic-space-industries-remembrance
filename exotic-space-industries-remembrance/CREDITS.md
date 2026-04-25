@@ -35,3 +35,5 @@ gatling turret from additionalturrets by DarkNova
 bio oil by Kil_Jaeden
 
 orbital request combinator icon from Orbital Request Combinator by @Skjolbir
+
+auric inoculation vat graphic from hurricane046

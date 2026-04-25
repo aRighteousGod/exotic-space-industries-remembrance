@@ -627,6 +627,7 @@ function model.repair_artifact(event)
                 name = model.repair_tools[item].result,
                 position = entity.position,
                 force = entity.force,
+                quality = entity.quality,
                 raise_built = false,
             }
 
@@ -647,9 +648,11 @@ function model.repair_artifact(event)
                 cursor_stack.clear()
             end
 
-            -- que new entity for damage ticks
-            ei_gaia.register_entity(new_entity, true)
-            ei_gaia.swap_entity(new_entity)
+            -- Route repaired crystals back through the dedicated resonance runtime so
+            -- quality and surface attunement are restored immediately.
+            if ei_crystal_accumulator and ei_crystal_accumulator.on_repaired_entity then
+                ei_crystal_accumulator.on_repaired_entity(new_entity, event)
+            end
 
             ei_victory.count_value("artifacts_repaired", 1)
 

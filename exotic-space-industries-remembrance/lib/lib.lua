@@ -97,6 +97,23 @@ function ei_lib.table_contains_value(table_in, value)
     return false
 end
 
+function ei_lib.upsert_resistance(prototype, resistance)
+    if type(prototype) ~= "table" or type(resistance) ~= "table" or type(resistance.type) ~= "string" then
+        return nil
+    end
+
+    prototype.resistances = prototype.resistances or {}
+    for _, existing in pairs(prototype.resistances) do
+        if type(existing) == "table" and existing.type == resistance.type then
+            return existing
+        end
+    end
+
+    local inserted = table.deepcopy(resistance)
+    table.insert(prototype.resistances, inserted)
+    return inserted
+end
+
 --Look through a nested table and set a value at a given path
 function ei_lib.patch_nested_value(root, path_str, new_value)
   -- Split the path string into keys (supports dot and bracket notation)
@@ -335,6 +352,25 @@ function ei_lib.get_quality_level_bounds(force_refresh)
     }
 
     return min_level, max_level
+end
+
+function ei_lib.get_normalized_quality_factor(entity_or_stack)
+    if not entity_or_stack then
+        return 0
+    end
+
+    local quality = entity_or_stack.quality
+    local level = quality and quality.level or nil
+    if not ei_lib.is_valid_number(level) then
+        return 0
+    end
+
+    local min_level, max_level = ei_lib.get_quality_level_bounds()
+    if not ei_lib.is_valid_number(min_level) or not ei_lib.is_valid_number(max_level) or max_level <= min_level then
+        return 0
+    end
+
+    return ei_lib.clamp((level - min_level) / (max_level - min_level), 0, 1)
 end
 
 function ei_lib.try_get_stack_field(item_stack, getter)

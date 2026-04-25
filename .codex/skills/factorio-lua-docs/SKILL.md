@@ -10,9 +10,12 @@ Use this before freehand memory or broad web search when the task is mainly abou
 Start with the wrapper:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task query -Query LuaGuiElement -Stage runtime
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task refresh
-powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task query -Query LuaGuiElement -Stage runtime -RefreshIfMissing
 ```
+
+For `-Task query`, provide either `-Query` or `-ExactName`. Blank queries fail instead of returning arbitrary first entries.
+Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refresh` only when network/cache writes are acceptable.
 
 ## What This Skill Covers
 
@@ -27,7 +30,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 
 - Prefer the machine-readable runtime and prototype JSON docs for exact symbol lookup.
 - Prefer local cached index results first, then open the official page when the question needs more detail, examples, or release-specific nuance.
 - Do not copy the whole docs corpus into checked-in repo files. Keep downloaded snapshots in the ignored cache at `.factorio-lua-docs-cache`.
-- The official docs are version-sensitive. Refresh when “latest” matters.
+- The official docs are version-sensitive. Refresh when "latest" matters.
+- For language/runtime assumptions, use `factorio-lua-assumptions` first, then verify exact API claims here.
 - Return the exact official URL with your answer whenever practical.
 
 ## Query Hints
@@ -55,6 +59,7 @@ Keep the main agent on synthesis and edits.
 
 ## Read Next When Needed
 
+- Factorio-vs-general-Lua guardrails: [../factorio-lua-assumptions/SKILL.md](../factorio-lua-assumptions/SKILL.md)
 - Official source map and scope: [references/source-map.md](./references/source-map.md)
 - Query workflow and answer shape: [references/query-flow.md](./references/query-flow.md)
 - License and cache boundaries: [references/licensing.md](./references/licensing.md)

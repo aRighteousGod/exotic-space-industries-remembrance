@@ -29,7 +29,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
-ei_update_functions_length = 11 --# of entity updaters updater() goes through
+ei_update_functions_length = 12 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
@@ -57,6 +57,8 @@ ei_informatron_messager = require("scripts/control/informatron-messager")
 ei_gaia = require("scripts/control/gaia")
 ei_gate = require("scripts/control/gate")
 ei_alien_system = require("scripts/control/alien-system")
+ei_crystal_accumulator = require("scripts/control/crystal-accumulator")
+ei_auric_inoculation_vat = require("scripts/control/auric-inoculation-vat")
 ei_debug = require("scripts/control/debug")
 ei_compat = require("scripts/control/compat")
 ei_loaders_lib = require("lib/loaders")
@@ -399,6 +401,7 @@ local function refresh_runtime_telemetry_snapshot()
         ei_matter_stabilizer,
         em_trains,
         ei_black_hole,
+        ei_auric_inoculation_vat,
         ei_vulcanus_fumaroles,
         orbital_logistics,
         ei_railgun_cooling,
@@ -406,7 +409,7 @@ local function refresh_runtime_telemetry_snapshot()
 
     for _, module_ref in ipairs(modules) do
         if module_ref and module_ref.get_runtime_status then
-            pcall(module_ref.get_runtime_status)
+            pcall(module_ref.get_runtime_status, game and game.tick or 0, false)
         end
     end
 
@@ -473,6 +476,11 @@ script.on_init(function(event)
     orbital_logistics.check_init()
     ei_railgun_cooling.check_global()
     ei_railgun_cooling.rebuild_runtime_state("init", event and event.tick or 0)
+    ei_gaia.ensure_surface()
+    ei_crystal_accumulator.check_global()
+    ei_crystal_accumulator.rebuild_runtime_state("init", event and event.tick or 0)
+    ei_auric_inoculation_vat.check_global()
+    ei_auric_inoculation_vat.rebuild_runtime_state("init", event and event.tick or 0)
     -- Steam train wheel helpers are runtime-only entities, so init always rebuilds that cache
     -- from the live world instead of trusting whatever happened to be serialized last save.
     ei_steam_train.check_global()
@@ -496,15 +504,21 @@ end)
 
 -- Entity/tile events are normalized through wrapper functions below so subsystems can
 -- share one code path regardless of whether the change came from a player, a robot,
--- a script-raise, or an entity death.
+-- a space platform, a script-raise, or an entity death.
 script.on_event({
     defines.events.on_built_entity,
     defines.events.on_robot_built_entity,
+    defines.events.on_space_platform_built_entity,
     defines.events.script_raised_built,
     defines.events.script_raised_revive,
-    --defines.events.on_entity_cloned
     }, function(e)
     on_built_entity(e)
+end)
+
+script.on_event(defines.events.on_entity_cloned, function(e)
+    -- Clone events expose the new entity as `destination`, not `entity`, so route
+    -- the auric vat through its own normalizer instead of the generic build fanout.
+    ei_auric_inoculation_vat.on_built_entity(e)
 end)
 
 script.on_event({
@@ -523,6 +537,17 @@ script.on_event({
         orbital_combinator.on_destroyed_entity(e)
     end
     on_destroyed_entity(e)
+end)
+
+script.on_event({
+    defines.events.on_player_mined_entity,
+    defines.events.on_robot_mined_entity
+    }, function(e)
+    if e.name == defines.events.on_player_mined_entity then
+        ei_crystal_accumulator.on_player_mined_entity(e)
+    else
+        ei_crystal_accumulator.on_robot_mined_entity(e)
+    end
 end)
 
 script.on_event(defines.events.on_entity_damaged, function(event)
@@ -545,6 +570,28 @@ script.on_event({
     on_built_tile(e)
 end)
 
+if defines.events.script_raised_set_tiles then
+    script.on_event(defines.events.script_raised_set_tiles, function(e)
+        on_built_tile(e)
+    end)
+end
+
+if defines.events.on_pre_surface_deleted then
+    script.on_event(defines.events.on_pre_surface_deleted, function(e)
+        if ei_auric_inoculation_vat.on_pre_surface_deleted then
+            ei_auric_inoculation_vat.on_pre_surface_deleted(e)
+        end
+    end)
+end
+
+if defines.events.on_pre_surface_cleared then
+    script.on_event(defines.events.on_pre_surface_cleared, function(e)
+        if ei_auric_inoculation_vat.on_pre_surface_deleted then
+            ei_auric_inoculation_vat.on_pre_surface_deleted(e)
+        end
+    end)
+end
+
 script.on_event({
     defines.events.on_player_mined_tile,
     defines.events.on_robot_mined_tile
@@ -552,7 +599,7 @@ script.on_event({
     on_destroyed_tile(e)
 end)
 
-script.on_event(defines.events.on_tick, function(e) 
+script.on_event(defines.events.on_tick, function(e)
     updater(e)
 end)
 
@@ -570,10 +617,15 @@ script.on_event(defines.events.on_player_selected_area, function(e)
     ei_gate.on_player_selected_area(e)
 end)
 
+script.on_event(defines.events.on_player_alt_selected_area, function(e)
+    ei_crystal_accumulator.on_player_alt_selected_area(e)
+end)
+
 script.on_event(defines.events.on_selected_entity_changed, function(e)
     -- Selection-change handlers are lightweight enough to dispatch directly every time.
     -- Matter stabilizers use them for hover diagnostics.
     ei_matter_stabilizer.on_selected_entity_changed(e)
+    ei_crystal_accumulator.on_selected_entity_changed(e)
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
@@ -581,6 +633,35 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
     -- with a tool/selector and need to clean up when the cursor changes.
     ei_matter_stabilizer.on_player_cursor_stack_changed(e)
     ei_gate.on_player_cursor_stack_changed(e)
+    if ei_auric_inoculation_vat.on_player_cursor_stack_changed then
+        ei_auric_inoculation_vat.on_player_cursor_stack_changed(e)
+    end
+end)
+
+script.on_event(defines.events.on_player_changed_position, function(e)
+    if ei_auric_inoculation_vat.on_player_changed_position
+    and (
+        not ei_auric_inoculation_vat.has_active_placement_guide
+        or ei_auric_inoculation_vat.has_active_placement_guide(e.player_index)
+    ) then
+        ei_auric_inoculation_vat.on_player_changed_position(e)
+    end
+end)
+
+script.on_event(defines.events.on_player_changed_surface, function(e)
+    if ei_auric_inoculation_vat.on_player_changed_surface then
+        ei_auric_inoculation_vat.on_player_changed_surface(e)
+    end
+end)
+
+script.on_event(defines.events.on_player_toggled_alt_mode, function(e)
+    if ei_auric_inoculation_vat.on_player_toggled_alt_mode
+    and (
+        not ei_auric_inoculation_vat.has_active_placement_guide
+        or ei_auric_inoculation_vat.has_active_placement_guide(e.player_index)
+    ) then
+        ei_auric_inoculation_vat.on_player_toggled_alt_mode(e)
+    end
 end)
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
@@ -602,6 +683,7 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
     orbital_combinator.on_space_platform_changed_state(e)
     orbital_logistics.on_space_platform_changed_state(e)
     ei_railgun_cooling.on_space_platform_changed_state(e)
+    ei_crystal_accumulator.on_space_platform_changed_state(e)
 end)
 
 script.on_event(defines.events.on_player_rotated_entity, function(e)
@@ -623,6 +705,7 @@ end)
 script.on_event(defines.events.on_object_destroyed, function(e)
     orbital_combinator.on_object_destroyed(e)
     ei_railgun_cooling.on_object_destroyed(e)
+    ei_auric_inoculation_vat.on_object_destroyed(e)
 end)
 
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
@@ -718,6 +801,12 @@ script.on_event(defines.events.on_gui_opened, function(event)
     local entity = get_valid_gui_entity(event, player, true)
     local name = entity and entity.name or nil
 
+    ei_crystal_accumulator.on_gui_opened(event)
+    if name == "ei-auric-inoculation-vat"
+    or (ei_auric_inoculation_vat.has_open_gui_session and ei_auric_inoculation_vat.has_open_gui_session(event.player_index)) then
+        ei_auric_inoculation_vat.on_gui_opened(event)
+    end
+
     if not name then
       return
     elseif name == "ei-neutron-collector" then
@@ -752,6 +841,13 @@ script.on_event(defines.events.on_gui_closed, function(event)
     local element = get_valid_gui_element(event)
     local name = entity and entity.name or nil
     local element_name = element and element.name or nil
+
+    ei_crystal_accumulator.on_gui_closed(event)
+    if name == "ei-auric-inoculation-vat"
+    or element_name == "ei-auric-inoculation-vat-console"
+    or (ei_auric_inoculation_vat.has_open_gui_session and ei_auric_inoculation_vat.has_open_gui_session(event.player_index)) then
+        ei_auric_inoculation_vat.on_gui_closed(event)
+    end
 
     if name == "ei-neutron-collector" or element_name == "ei-neutron-collector-console" then
         ei_neutron_collector.close_gui(game.get_player(event.player_index))
@@ -813,6 +909,12 @@ script.on_event(defines.events.on_gui_click, function(event)
         if ei_matter_stabilizer and ei_matter_stabilizer.on_gui_click then
             ei_matter_stabilizer.on_gui_click(event)
         end
+    elseif parent_gui == "ei-crystal-accumulator-console" then
+        ei_crystal_accumulator.on_gui_click(event)
+    elseif parent_gui == "ei-crystal-accumulator-strip" then
+        ei_crystal_accumulator.on_gui_click(event)
+    elseif parent_gui == "ei-auric-inoculation-vat-console" then
+        ei_auric_inoculation_vat.on_gui_click(event)
     elseif parent_gui == "mod_gui" then
       em_trains_gui.on_gui_click(event)
     elseif parent_gui == "em_trains_mod-gui" then
@@ -882,6 +984,14 @@ script.on_event(defines.events.on_player_left_game, function(event)
     ei_matter_stabilizer.on_player_left_game(event.player_index)
     orbital_logistics.on_player_left_game(event.player_index)
     ei_railgun_cooling.on_player_left_game(event.player_index)
+    ei_crystal_accumulator.on_player_left_game(event.player_index)
+    ei_auric_inoculation_vat.on_player_left_game(event.player_index, event)
+end)
+
+script.on_event(defines.events.on_player_removed, function(event)
+    -- Removed players do not always pass through disconnect cleanup, so clear any
+    -- player-indexed auric GUI and placement-guide state directly.
+    ei_auric_inoculation_vat.on_player_left_game(event.player_index, event)
 end)
 
 --OTHER
@@ -904,8 +1014,17 @@ script.on_configuration_changed(function(e)
         end
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
-        ei_teslas_legacy.on_configuration_changed(e)
     end
+
+    -- Auric vats derive basin claims, destroy registrations, and hidden
+    -- telemetry proxies from visible vats. Rebuild on every configuration pass,
+    -- including migration-only loads, so helper state cannot fossilize.
+    ei_auric_inoculation_vat.check_global()
+    ei_auric_inoculation_vat.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+
+    -- Migration-only configuration changes can still strand Tesla helper entities or
+    -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
+    ei_teslas_legacy.on_configuration_changed(e)
 
     -- Beacon overload keeps its own runtime repair path so any configuration change can
     -- re-seed its state and queue a refresh when prototype or startup settings moved.
@@ -961,6 +1080,8 @@ script.on_configuration_changed(function(e)
         orbital_combinator.check_init()
         orbital_logistics.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_railgun_cooling.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+        ei_gaia.ensure_surface()
+        ei_crystal_accumulator.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_vulcanus_fumaroles.on_configuration_changed(e)
     end
 
@@ -989,6 +1110,7 @@ script.on_event(
         -- work from `on_load`, which also runs for peers connecting to a live session.
         ei_echo_codex.queue_arrival(event.player_index)
         ei_fueler.on_player_ready(event.player_index)
+        ei_auric_inoculation_vat.on_player_ready(event.player_index, event)
     end
 )
 
@@ -1010,6 +1132,9 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
     -- deriving gameplay work from `on_load`.
     ei_echo_codex.queue_players(game.connected_players)
     ei_fueler.mark_players_dirty()
+    for _, player in pairs(game.connected_players) do
+        ei_auric_inoculation_vat.on_player_ready(player.index, _event)
+    end
 end)
 
 --====================================================================================================
@@ -1199,24 +1324,42 @@ function updater(event)
                    end
                end
            end
-       elseif ei_update_step == 11 then
-           -- Step 11 services overheated railguns only. Healthy railguns stay fully event-driven.
-           local railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
-           if railgun_pending_work_count > 0 then
-               updates_needed = math.max(1, math.min(math.ceil(railgun_pending_work_count / divisor), ei_maxEntityUpdates))
+      elseif ei_update_step == 11 then
+          -- Step 11 services overheated railguns only. Healthy railguns stay fully event-driven.
+          local railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
+          if railgun_pending_work_count > 0 then
+              updates_needed = math.max(1, math.min(math.ceil(railgun_pending_work_count / divisor), ei_maxEntityUpdates))
                for i = 1, updates_needed do
                    local current_railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
                    if current_railgun_pending_work_count == 0
                    or math.max(1, math.min(math.ceil(current_railgun_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                        goto skip
                    end
-                   if not ei_railgun_cooling.update(event) then
-                       goto skip
-                   end
-               end
-           end
-       end
-   end
+                  if not ei_railgun_cooling.update(event) then
+                      goto skip
+                  end
+              end
+          end
+      elseif ei_update_step == 12 then
+          -- Step 12 services crystal accumulator resonance by surface.
+          local crystal_pending_work_count = ei_crystal_accumulator and ei_crystal_accumulator.get_pending_work_count and ei_crystal_accumulator.get_pending_work_count(event) or 0
+          if crystal_pending_work_count > 0 then
+              updates_needed = math.max(1, math.min(math.ceil(crystal_pending_work_count / divisor), ei_maxEntityUpdates))
+              local current_crystal_pending_work_count = crystal_pending_work_count
+              for i = 1, updates_needed do
+                  if current_crystal_pending_work_count == 0
+                  or math.max(1, math.min(math.ceil(current_crystal_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                      goto skip
+                  end
+                  local processed_crystal_surfaces, remaining_crystal_pending_work_count = ei_crystal_accumulator.update(1, event)
+                  if not processed_crystal_surfaces or processed_crystal_surfaces == 0 then
+                      goto skip
+                  end
+                  current_crystal_pending_work_count = remaining_crystal_pending_work_count or 0
+              end
+          end
+      end
+  end
     ::skip::
 
    -- Essential updates that run every tick regardless of the scheduled branch above.
@@ -1226,6 +1369,29 @@ function updater(event)
     ei_alien_spawner.update(event)
     ei_gaia.update(event)
     ei_induction_matrix.update(event)
+    local crystal_ui_next_due_tick = ei_crystal_accumulator
+        and ei_crystal_accumulator.get_next_ui_due_tick
+        and ei_crystal_accumulator.get_next_ui_due_tick()
+        or 0
+    if crystal_ui_next_due_tick > 0 and event.tick >= crystal_ui_next_due_tick then
+        ei_crystal_accumulator.service_ui(event)
+    end
+    -- Ask the vat scheduler for one compact dispatcher snapshot. This read is
+    -- intentionally side-effect free; the vat module activates due buckets only
+    -- inside update(), under the same per-tick budget that processes them.
+    local auric_vat_pending_work_count = 0
+    local auric_vat_next_due_tick = 0
+    local auric_vat_ui_next_due_tick = 0
+    if ei_auric_inoculation_vat then
+        auric_vat_pending_work_count, auric_vat_next_due_tick, auric_vat_ui_next_due_tick = ei_auric_inoculation_vat.get_dispatcher_state(event)
+    end
+    if auric_vat_pending_work_count > 0
+    or (auric_vat_next_due_tick > 0 and event.tick >= auric_vat_next_due_tick) then
+        ei_auric_inoculation_vat.update(ei_maxEntityUpdates, event)
+    end
+    if auric_vat_ui_next_due_tick > 0 and event.tick >= auric_vat_ui_next_due_tick then
+        ei_auric_inoculation_vat.service_ui(event)
+    end
     ei_black_hole.update(event)
     ei_steam_train.updater(event)
     ei_echo_codex.arrival_waves(event)
@@ -1301,6 +1467,8 @@ function on_built_entity(e)
     ei_gate.on_built_entity(e)
     ei_alien_system.on_built_entity(e["entity"])
     ei_gaia.on_built_entity(e)
+    ei_crystal_accumulator.on_built_entity(e)
+    ei_auric_inoculation_vat.on_built_entity(e)
     ei_loaders_lib.on_built_entity(e["entity"])
     ei_fueler.on_built_entity(e["entity"])
     em_trains.on_built_entity(e["entity"])
@@ -1316,6 +1484,7 @@ function on_built_tile(e)
     -- Tile events only matter to the induction matrix right now, but they stay wrapped
     -- here for consistency with the entity dispatcher pattern.
     ei_induction_matrix.on_built_tile(e)
+    ei_auric_inoculation_vat.on_built_tile(e)
 end
 
 function on_destroyed_entity(e)
@@ -1348,6 +1517,8 @@ function on_destroyed_entity(e)
     -- As with on_built_entity(), modules self-filter if the entity is irrelevant to them.
     ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
+    ei_crystal_accumulator.on_destroyed_entity(e)
+    ei_auric_inoculation_vat.on_destroyed_entity(e)
     ei_alien_spawner.on_destroyed_entity(e["entity"])
     ei_matter_stabilizer.on_destroyed_entity(e["entity"])
     ei_induction_matrix.on_destroyed_entity(e)
@@ -1365,4 +1536,5 @@ end
 
 function on_destroyed_tile(e)
     ei_induction_matrix.on_destroyed_tile(e)
+    ei_auric_inoculation_vat.on_destroyed_tile(e)
 end

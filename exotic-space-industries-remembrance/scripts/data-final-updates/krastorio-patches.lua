@@ -5,12 +5,13 @@ if not mods["Krastorio2-spaced-out"] then
     return
 end
 
-if not (settings and settings.startup and settings.startup["ei-enable-preliminary-k2so-patch"] and settings.startup["ei-enable-preliminary-k2so-patch"].value) then
+local ei_lib = require("lib.lib")
+local ei_data = require("lib.data")
+
+if not ei_lib.config("enable-preliminary-k2so-patch") then
     return
 end
 
-local ei_lib = require("lib.lib")
-local ei_data = require("lib.data")
 local function k2so_startup_enabled(setting_name)
     return settings
         and settings.startup

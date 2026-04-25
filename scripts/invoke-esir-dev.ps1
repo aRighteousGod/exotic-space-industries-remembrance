@@ -36,7 +36,26 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'esir-dev-lib.ps1')
 
-$paths = Get-EsirPaths -RepoRoot $RepoRoot
+$writeTasks = @(
+    'manifest-refresh',
+    'preflight',
+    'qc-fast',
+    'qc-runtime',
+    'qc-preview',
+    'qc-assets',
+    'qc-package',
+    'qc-full',
+    'runtime-benchmark',
+    'portal-scout',
+    'art-start',
+    'art-collect',
+    'art-review',
+    'art-validate',
+    'pack-dryrun',
+    'pack-deploy',
+    'full'
+)
+$paths = Get-EsirPaths -RepoRoot $RepoRoot -EnsureWritableDirs:($Task -in $writeTasks)
 $result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Planet $Planet -Pack $Pack -DependencyScope $Scope -DependencyCategory $Category -ModName $ModName -TargetPath $Path -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -ResolveInstalled:$ResolveInstalled -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard
 
 if ($AsJson) {

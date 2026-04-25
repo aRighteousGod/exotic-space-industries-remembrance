@@ -205,6 +205,106 @@ local function tune_nested_entity_delivery(root, entity_name, updates, limit)
     return tuned
 end
 
+local function ensure_target_effect_list(delivery)
+    if type(delivery) ~= "table" then
+        return nil
+    end
+
+    local target_effects = delivery.target_effects
+    if type(target_effects) ~= "table" then
+        delivery.target_effects = {}
+        return delivery.target_effects
+    end
+
+    if target_effects.type then
+        delivery.target_effects = {target_effects}
+    end
+
+    return delivery.target_effects
+end
+
+local function append_action_target_effects(action, effects)
+    if type(action) ~= "table" or type(action.action_delivery) ~= "table" then
+        return false
+    end
+
+    local target_effects = ensure_target_effect_list(action.action_delivery)
+    if not target_effects then
+        return false
+    end
+
+    append_list(target_effects, effects)
+    return true
+end
+
+local function make_radiological_aftermath(sticker_name, cloud_name, inner_damage, inner_radius, outer_damage, outer_radius, sticker_radius)
+    return {
+        {
+            type = "nested-result",
+            action = {
+                type = "area",
+                radius = inner_radius,
+                show_in_tooltip = false,
+                trigger_from_target = true,
+                action_delivery = {
+                    type = "instant",
+                    target_effects = {
+                        {
+                            type = "damage",
+                            damage = {amount = inner_damage, type = "ei-radiological"},
+                            apply_damage_to_trees = false,
+                        },
+                    },
+                },
+            },
+        },
+        {
+            type = "nested-result",
+            action = {
+                type = "area",
+                radius = outer_radius,
+                show_in_tooltip = false,
+                trigger_from_target = true,
+                action_delivery = {
+                    type = "instant",
+                    target_effects = {
+                        {
+                            type = "damage",
+                            damage = {amount = outer_damage, type = "ei-radiological"},
+                            apply_damage_to_trees = false,
+                        },
+                    },
+                },
+            },
+        },
+        {
+            type = "nested-result",
+            action = {
+                type = "area",
+                radius = sticker_radius,
+                show_in_tooltip = false,
+                trigger_from_target = true,
+                action_delivery = {
+                    type = "instant",
+                    target_effects = {
+                        {
+                            type = "create-sticker",
+                            sticker = sticker_name,
+                            show_in_tooltip = false,
+                        },
+                    },
+                },
+            },
+        },
+        {
+            type = "create-entity",
+            entity_name = cloud_name,
+            trigger_created_entity = true,
+            show_in_tooltip = false,
+        },
+    }
+end
+
 local function make_rocket_projectile(name, source_name, explosion_name, smoke_name, radius, damage_type, damage_amount, sticker_name, extra_actions)
     local projectile = table.deepcopy(data.raw.projectile[source_name])
     local area_effects = {
@@ -472,6 +572,30 @@ if data.raw.ammo["atomic-bomb"] and data.raw.projectile["atomic-rocket"] then
         repeat_count = 7,
         radius = 6,
     }, 1)
+    append_action_target_effects(
+        atomic_rocket_u235.action,
+        make_radiological_aftermath(
+            "ei-radiological-fallout-sticker-u235",
+            "ei-radiological-fallout-cloud-u235",
+            18,
+            6,
+            8,
+            16,
+            5
+        )
+    )
+    append_action_target_effects(
+        data.raw.projectile["atomic-rocket"].action,
+        make_radiological_aftermath(
+            "ei-radiological-fallout-sticker-plutonium",
+            "ei-radiological-fallout-cloud-plutonium",
+            24,
+            8,
+            10,
+            20,
+            7
+        )
+    )
 end
 
 if atomic_rocket_u235 and atomic_bomb_u235 then

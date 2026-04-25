@@ -407,7 +407,16 @@ local function get_effect_target(event)
     return get_valid_entity(event and event.target_entity)
 end
 
-local function create_entity_with_origin(surface, position, name, force, source_entity, cause_entity)
+local function get_effect_target_reference(event)
+    local target_entity = get_effect_target(event)
+    if target_entity then
+        return target_entity
+    end
+
+    return event and event.target_position or nil
+end
+
+local function create_entity_with_origin(surface, position, name, force, source_entity, cause_entity, target)
     if not surface or not position or not name then
         return nil
     end
@@ -427,6 +436,10 @@ local function create_entity_with_origin(surface, position, name, force, source_
 
     if cause_entity and cause_entity.valid then
         params.cause = cause_entity
+    end
+
+    if target then
+        params.target = target
     end
 
     return surface.create_entity(params)
@@ -459,7 +472,8 @@ local function create_runtime_entity(surface, position, name, force, subject)
         name,
         force,
         get_origin_source(subject),
-        get_origin_cause(subject)
+        get_origin_cause(subject),
+        nil
     )
 end
 
@@ -470,7 +484,8 @@ local function create_visual(surface, position, name, subject)
         name,
         nil,
         get_origin_source(subject),
-        get_origin_cause(subject)
+        get_origin_cause(subject),
+        get_effect_target_reference(subject)
     )
 end
 
@@ -1021,6 +1036,26 @@ local function add_legacy_lookup_entity(position, entity)
 
     local bucket = legacy_lookup_bucket(position)
     bucket[#bucket + 1] = entity
+end
+
+local function destroy_legacy_lookup_entities()
+    if not storage.tl_entity_lookup then
+        return
+    end
+
+    for _, y_lookup in pairs(storage.tl_entity_lookup) do
+        if type(y_lookup) == "table" then
+            for _, entities in pairs(y_lookup) do
+                if type(entities) == "table" then
+                    for _, entity in pairs(entities) do
+                        if entity and entity.valid then
+                            entity.destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function is_legacy_location_free(surface, position)
@@ -1653,10 +1688,20 @@ local function apply_tank_chain_damage(event, force, cache, flavor)
         return
     end
 
-    target.damage(amount, force, "electric", get_origin_source(event), get_origin_cause(event))
+    local surface = target.surface
+    local position = copy_position(target.position)
+    local source_entity = get_origin_source(event)
+    local cause_entity = get_origin_cause(event)
 
-    if cache.exotic_convergence then
-        create_visual(target.surface, target.position, cache.names.tank_exotic_impact, event)
+    target.damage(amount, force, "electric", source_entity, cause_entity)
+
+    if cache.exotic_convergence and surface and position then
+        create_visual(surface, position, cache.names.tank_exotic_impact, {
+            target_entity = target.valid and target or nil,
+            target_position = position,
+            source_entity = source_entity,
+            cause_entity = cause_entity,
+        })
     end
 
     if flavor == "tank-h3" or cache.levels.reactance_overdrive >= 2 then
@@ -2036,6 +2081,8 @@ local function run_exact_legacy_tank_hit(state, event, force, cache)
 
     if cache.exotic_convergence and surface and position then
         create_visual(surface, position, cache.names.tank_exotic_impact, {
+            target_entity = event.entity and event.entity.valid and event.entity or nil,
+            target_position = position,
             source_entity = event.cause,
             cause_entity = event.cause,
         })
@@ -2379,6 +2426,8 @@ local SCRIPT_EFFECT_HANDLERS = {
 }
 
 local function cleanup_legacy_helpers()
+    destroy_legacy_lookup_entities()
+
     for _, surface in pairs(game.surfaces) do
         for _, entity in pairs(surface.find_entities_filtered({name = "tl-basic-tesla-coil-timer"})) do
             if entity.valid then
@@ -2495,7 +2544,8 @@ function model.on_entity_died(event)
     -- Replica Fulgoran aftershocks should stay visually anchored to real turret kills.
     -- Only consume the bridge record when the entity actually died to electric damage,
     -- and require an exact unit-number match instead of the looser position fallback.
-    if event.damage_type and event.damage_type.name == "electric" then
+    local died_to_electric = event.damage_type and event.damage_type.name == "electric"
+    if died_to_electric then
         local bridge_record = take_recent_hit(state, event.entity, "bridge-turret", false)
         if bridge_record then
             handle_bridge_turret_aftershock(state, event.entity, bridge_record)
@@ -2503,9 +2553,11 @@ function model.on_entity_died(event)
         end
     end
 
-    local legacy_record = take_recent_hit(state, event.entity, "legacy-advanced", true)
-    if legacy_record then
-        handle_legacy_aftershock(state, event.entity, legacy_record)
+    if died_to_electric then
+        local legacy_record = take_recent_hit(state, event.entity, "legacy-advanced", true)
+        if legacy_record then
+            handle_legacy_aftershock(state, event.entity, legacy_record)
+        end
     end
 end
 

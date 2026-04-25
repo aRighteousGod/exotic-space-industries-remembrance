@@ -1,9 +1,10 @@
 /.factorio-qc
+**/.factorio-qc/
 /.factorio-lua-docs-cache
 /.tmp_inspect
 /output
 /tmp
 /scripts/__pycache__
 /__pycache__
+/.codex/skills/**/__pycache__/
 /.codex/skills/esir-recipe-icon-style/output
-/.codex/skills/esir-recipe-icon-style/scripts/__pycache__

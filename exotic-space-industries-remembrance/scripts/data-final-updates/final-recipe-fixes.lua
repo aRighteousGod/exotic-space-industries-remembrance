@@ -98,6 +98,13 @@ local recipes = {
 	"piercing-rounds-magazine",
 	"uranium-rounds-magazine",
 	"ei-compound-ammo",
+	"ei-corrosive-ammo",
+	"ei-cryo-ammo",
+	"ei-oxyfluoride-ammo",
+	"ei-morphium-ammo",
+	"ei-hexafluoride-ammo",
+	"ei-arc-ammo",
+	"ei-neutron-ammo",
 	"shotgun-shell",
 	"piercing-shotgun-shell",
 	"cannon-shell",
@@ -343,7 +350,9 @@ for _, item in pairs(data.raw.item) do
 	end
 end
 for _, recipe in pairs(data.raw.recipe) do
-	if recipe.name and string.sub(recipe.name, 1, 3) == "ei-" then
+	if recipe.name
+	and string.sub(recipe.name, 1, 3) == "ei-"
+	and string.sub(recipe.name, 1, #"ei-auric-vat-") ~= "ei-auric-vat-" then
 		--recipe.always_show_made_in = false
 		--recipe.always_show_products = false
 		recipe.hide_from_signal_gui = false

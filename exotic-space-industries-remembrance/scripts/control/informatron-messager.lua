@@ -28,6 +28,10 @@ local PAGE_RESEARCH = {
         page = "flammable_ruptures",
         caption = {"exotic-industries-informatron.title_flammable_ruptures"},
     }},
+    ["ei-auric-marsh-inoculation"] = {{
+        page = "auric_inoculation_vat",
+        caption = {"exotic-industries-informatron.title_auric_inoculation_vat"},
+    }},
     ["planet-discovery-vulcanus"] = {
         {
             page = "auric_fumarole",

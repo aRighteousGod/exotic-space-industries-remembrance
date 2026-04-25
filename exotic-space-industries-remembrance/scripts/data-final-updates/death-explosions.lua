@@ -1120,6 +1120,24 @@ local function make_nuclear_locomotive_override_explosion()
           type = "nested-result",
           action = {
             type = "area",
+            radius = 2.6,
+            trigger_from_target = true,
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                {
+                  type = "damage",
+                  damage = { amount = 20, type = "ei-radiological" },
+                  apply_damage_to_trees = false,
+                },
+              },
+            },
+          },
+        },
+        {
+          type = "nested-result",
+          action = {
+            type = "area",
             radius = 6.5,
             trigger_from_target = true,
             action_delivery = {
@@ -1129,6 +1147,43 @@ local function make_nuclear_locomotive_override_explosion()
                   type = "damage",
                   damage = { amount = 95, type = "explosion" },
                   apply_damage_to_trees = true,
+                },
+              },
+            },
+          },
+        },
+        {
+          type = "nested-result",
+          action = {
+            type = "area",
+            radius = 6.5,
+            trigger_from_target = true,
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                {
+                  type = "damage",
+                  damage = { amount = 12, type = "ei-radiological" },
+                  apply_damage_to_trees = false,
+                },
+              },
+            },
+          },
+        },
+        {
+          type = "nested-result",
+          action = {
+            type = "area",
+            radius = 4.5,
+            show_in_tooltip = false,
+            trigger_from_target = true,
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                {
+                  type = "create-sticker",
+                  sticker = "ei-radiological-fallout-sticker-locomotive",
+                  show_in_tooltip = false,
                 },
               },
             },
@@ -1162,6 +1217,11 @@ local function make_nuclear_locomotive_override_explosion()
           speed_from_center_deviation = 0.012,
           starting_frame = 0,
           starting_frame_deviation = 60,
+        },
+        {
+          type = "create-entity",
+          entity_name = "ei-radiological-fallout-cloud-locomotive",
+          trigger_created_entity = true,
         },
         {
           type = "create-entity",

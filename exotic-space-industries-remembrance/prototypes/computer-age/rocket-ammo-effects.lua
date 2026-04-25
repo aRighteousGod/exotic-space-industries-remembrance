@@ -554,6 +554,159 @@ local function make_corrosive_cloud(name, pulse_damage)
     return cloud
 end
 
+local function make_radiological_cloud_visual()
+    local source = data.raw["smoke-with-trigger"]["tb_poison-cloud-visual-dummy"]
+        or data.raw["smoke-with-trigger"]["poison-cloud-visual-dummy"]
+
+    local visual = source and table.deepcopy(source) or {
+        type = "smoke-with-trigger",
+        name = "ei-radiological-fallout-cloud-visual",
+        flags = {"not-on-map"},
+        show_when_smoke_off = true,
+        particle_count = 8,
+        particle_spread = {3.4, 2.2},
+        particle_distance_scale_factor = 0.1,
+        particle_duration_variance = 60,
+        wave_distance = {0.28, 0.18},
+        wave_speed = {0.012, 0.014},
+        duration = 10 * 60,
+        fade_away_duration = 3 * 60,
+        spread_duration = 6 * 60,
+        color = {r = 0.62, g = 1.0, b = 0.62, a = 0.3},
+        animation = {
+            width = 152,
+            height = 120,
+            line_length = 5,
+            frame_count = 60,
+            shift = {-0.53125, -0.4375},
+            priority = "high",
+            animation_speed = 0.23,
+            filename = "__base__/graphics/entity/smoke/smoke.png",
+            flags = {"compressed"},
+        },
+        affected_by_wind = false,
+        cyclic = true,
+    }
+
+    visual.name = "ei-radiological-fallout-cloud-visual"
+    visual.flags = {"not-on-map"}
+    visual.show_when_smoke_off = true
+    visual.duration = 12 * 60
+    visual.fade_away_duration = 3 * 60
+    visual.spread_duration = 7 * 60
+    visual.color = {r = 0.62, g = 1.0, b = 0.62, a = 0.3}
+    visual.affected_by_wind = false
+    visual.cyclic = true
+
+    if visual.animation then
+        visual.animation = table.deepcopy(visual.animation)
+        visual.animation.tint = {r = 0.82, g = 1.0, b = 0.82, a = 0.68}
+    end
+
+    return visual
+end
+
+local function make_radiological_cloud(name, opts)
+    opts = opts or {}
+
+    local source = data.raw["smoke-with-trigger"]["tb_poison_cloud_1"]
+        or data.raw["smoke-with-trigger"]["poison-cloud"]
+
+    local cloud = source and table.deepcopy(source) or {
+        type = "smoke-with-trigger",
+        name = name,
+        flags = {"not-on-map"},
+        show_when_smoke_off = true,
+        particle_count = 8,
+        particle_spread = {3.8, 2.2},
+        particle_distance_scale_factor = 0.1,
+        wave_distance = {0.3, 0.2},
+        wave_speed = {0.012, 0.014},
+        duration = 10 * 60,
+        fade_away_duration = 3 * 60,
+        spread_duration = 6 * 60,
+        color = {r = 0.22, g = 0.78, b = 0.18, a = 0.4},
+        animation = {
+            width = 152,
+            height = 120,
+            line_length = 5,
+            frame_count = 60,
+            shift = {-0.53125, -0.4375},
+            priority = "high",
+            animation_speed = 0.25,
+            filename = "__base__/graphics/entity/smoke/smoke.png",
+            flags = {"compressed"},
+        },
+        affected_by_wind = false,
+        cyclic = true,
+    }
+
+    cloud.name = name
+    cloud.flags = {"not-on-map"}
+    cloud.show_when_smoke_off = true
+    cloud.duration = opts.duration or 10 * 60
+    cloud.fade_away_duration = opts.fade_away_duration or 3 * 60
+    cloud.spread_duration = opts.spread_duration or 6 * 60
+    cloud.action_cooldown = 30
+    cloud.color = opts.color or {r = 0.22, g = 0.78, b = 0.18, a = 0.4}
+    cloud.affected_by_wind = false
+    cloud.cyclic = true
+
+    if cloud.animation then
+        cloud.animation = table.deepcopy(cloud.animation)
+        cloud.animation.tint = opts.animation_tint or {r = 0.42, g = 1.0, b = 0.34, a = 0.82}
+        cloud.animation.animation_speed = opts.animation_speed or 0.25
+    end
+
+    cloud.created_effect = {
+        {
+            type = "cluster",
+            cluster_count = opts.cluster_count or 6,
+            distance = opts.cluster_distance or 2.5,
+            distance_deviation = opts.cluster_distance_deviation or 2,
+            action_delivery = {
+                type = "instant",
+                target_effects = {
+                    {
+                        type = "create-smoke",
+                        entity_name = "ei-radiological-fallout-cloud-visual",
+                        show_in_tooltip = false,
+                        initial_height = 0,
+                    },
+                },
+            },
+        },
+    }
+    cloud.action = {
+        type = "direct",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "nested-result",
+                    action = {
+                        type = "area",
+                        radius = opts.radius or 5.5,
+                        trigger_from_target = true,
+                        action_delivery = {
+                            type = "instant",
+                            target_effects = {
+                                {
+                                    type = "damage",
+                                    damage = {amount = opts.pulse_damage or 6, type = "ei-radiological"},
+                                    apply_damage_to_trees = false,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }
+
+    return cloud
+end
+
 local optional_stickers = {}
 local corrosive_toxic_overlay_sticker = make_optional_corrosive_toxic_sticker()
 if corrosive_toxic_overlay_sticker then
@@ -613,6 +766,43 @@ data:extend({
     make_corrosive_cloud_visual(),
     make_corrosive_cloud("ei-corrosive-rocket-cloud", 12.5),
     make_corrosive_cloud("ei-dw-corrosive-rocket-cloud", 12.5),
+    make_radiological_cloud_visual(),
+    make_radiological_cloud("ei-radiological-fallout-cloud-u235", {
+        duration = 10 * 60,
+        fade_away_duration = 3 * 60,
+        spread_duration = 6 * 60,
+        radius = 5.5,
+        pulse_damage = 6,
+        color = {r = 0.44, g = 0.88, b = 0.32, a = 0.34},
+        animation_tint = {r = 0.82, g = 1.0, b = 0.78, a = 0.76},
+        animation_speed = 0.22,
+        cluster_count = 5,
+        cluster_distance = 2.2,
+    }),
+    make_radiological_cloud("ei-radiological-fallout-cloud-plutonium", {
+        duration = 14 * 60,
+        fade_away_duration = 4 * 60,
+        spread_duration = 8 * 60,
+        radius = 7.0,
+        pulse_damage = 9,
+        color = {r = 0.24, g = 0.68, b = 0.16, a = 0.42},
+        animation_tint = {r = 0.48, g = 0.9, b = 0.32, a = 0.84},
+        animation_speed = 0.2,
+        cluster_count = 7,
+        cluster_distance = 3.1,
+    }),
+    make_radiological_cloud("ei-radiological-fallout-cloud-locomotive", {
+        duration = 18 * 60,
+        fade_away_duration = 5 * 60,
+        spread_duration = 10 * 60,
+        radius = 7.5,
+        pulse_damage = 12,
+        color = {r = 0.3, g = 0.92, b = 0.22, a = 0.46},
+        animation_tint = {r = 0.62, g = 1.0, b = 0.42, a = 0.9},
+        animation_speed = 0.19,
+        cluster_count = 8,
+        cluster_distance = 3.4,
+    }),
 
     make_sticker("ei-corrosive-rocket-sticker", {
         tint = {r = 0.45, g = 1.0, b = 0.42, a = 0.98},
@@ -639,6 +829,39 @@ data:extend({
         damage_per_tick = {
             amount = 3 / 60,
             type = "cold",
+        },
+    }),
+    make_sticker("ei-radiological-fallout-sticker-u235", {
+        tint = {r = 0.82, g = 1.0, b = 0.8, a = 0.92},
+        duration_in_ticks = 6 * 60,
+        target_movement_modifier = 1,
+        animation_speed = 0.32,
+        scale = 0.56,
+        damage_per_tick = {
+            amount = 10 / (6 * 60),
+            type = "ei-radiological",
+        },
+    }),
+    make_sticker("ei-radiological-fallout-sticker-plutonium", {
+        tint = {r = 0.52, g = 0.9, b = 0.36, a = 0.94},
+        duration_in_ticks = 8 * 60,
+        target_movement_modifier = 1,
+        animation_speed = 0.28,
+        scale = 0.62,
+        damage_per_tick = {
+            amount = 18 / (8 * 60),
+            type = "ei-radiological",
+        },
+    }),
+    make_sticker("ei-radiological-fallout-sticker-locomotive", {
+        tint = {r = 0.64, g = 1.0, b = 0.4, a = 0.98},
+        duration_in_ticks = 10 * 60,
+        target_movement_modifier = 1,
+        animation_speed = 0.24,
+        scale = 0.68,
+        damage_per_tick = {
+            amount = 22 / (10 * 60),
+            type = "ei-radiological",
         },
     }),
 

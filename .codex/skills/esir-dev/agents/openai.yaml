@@ -1,4 +1,4 @@
 interface:
   display_name: "ESIR Dev"
-  short_description: "Repo-local ESIR wrapper for QC, manifests, portal scouting, art flow, and packaging"
+  short_description: "Repo-local ESIR wrapper for QC, runtime benchmarks, manifests, portal scouting, art flow, and packaging"
   default_prompt: "Use $esir-dev to operate on this Exotic Space Industries: Remembrance workspace through the repo-local wrapper and checked-in manifests."

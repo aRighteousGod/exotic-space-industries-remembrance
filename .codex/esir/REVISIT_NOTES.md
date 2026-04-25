@@ -12,6 +12,22 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-04-25 | esir-dev-skill-platform | open | the ESIR wrapper now derives global skill paths from CODEX_HOME or the user .codex home, the checked-in tool manifest records global engine skills without absolute home-directory paths, and read-only ESIR/docs path resolution no longer creates artifact/cache directories. The remaining wrapper-shape debt is that diff still does not compare fresh in-memory manifests against the checked-in stable maps.`
+  - `Files:` `scripts/esir-dev-lib.ps1`, `.codex/esir/tool-manifest.json`
+  - `Next safe move:` add a non-writing manifest freshness check that normalizes volatile fields before reporting drift.
+
+- `2026-04-24 | crystal-accumulator | open | the EEI load-model rework now uses surface-global electric flow statistics blended with local strain, which fixes the dead generator-only path and restores shell-aware load behavior without helper entities. The remaining tradeoff is that crystals with the same shell and quality on one surface still share the same averaged output term.`
+  - `Files:` `exotic-space-industries-remembrance/scripts/control/crystal-accumulator.lua`, `exotic-space-industries-remembrance/prototypes/alien-system/crystal-accumulator.lua`
+  - `Next safe move:` if playtests still need per-crystal real-output fidelity, prototype a hidden helper-entity telemetry path and benchmark it against the current surface-stat proxy before changing the visible crystal topology.
+
+- `2026-04-23 | exotic-bullet-magazines | open | the new exotic bullet magazine family now ships with unique sticker prototypes, bespoke hit effects, and layered icon/glow presentation, but the final ammo still relies on composite/generated icon assembly instead of hand-painted premium item art.`
+  - `Files:` `exotic-space-industries-remembrance/prototypes/computer-age/exotic-magazines.lua`, `exotic-space-industries-remembrance/prototypes/computer-age/exotic-magazine-effects.lua`
+  - `Next safe move:` replace the layered final-ammo icon compositions with dedicated painted `64/128` item assets per exotic magazine while keeping the current prototype ids, sticker ids, and combat effect wiring stable.
+
+- `2026-04-23 | locale | open | focused locale repair filled the recent `fueler.cfg` and `lignumis.cfg` gaps, fixed broken locale strings/encoding, refreshed the Polish/Russian receiver-ID gate UI/help slice, later tightened the remaining Polish/Russian asteroid-help, bot-help, Nauvis-pressure, and Fulgora day-length wording, and then refined the adjacent loaders plus later electric-bot help copy. Broader translation debt still remains in the larger split files and older monolithic locale anchors. French still lacks `em-trains.cfg` and `more-asteroids.cfg`, Simplified Chinese still lacks `em-trains.cfg` and `more-asteroids.cfg`, Traditional Chinese still lacks `more-asteroids.cfg`, and Polish/Russian still have older non-gate drift elsewhere inside `lang_pl.cfg` and `lang_ru.cfg`.`
+  - `Files:` `exotic-space-industries-remembrance/locale/fr`, `exotic-space-industries-remembrance/locale/pl/lang_pl.cfg`, `exotic-space-industries-remembrance/locale/ru/lang_ru.cfg`, `exotic-space-industries-remembrance/locale/zh-CN`, `exotic-space-industries-remembrance/locale/zh-TW`
+  - `Next safe move:` fill the remaining split-file gaps one file at a time with idiomatic per-language passes (`em-trains.cfg` before `more-asteroids.cfg`), then do a separate targeted completion sweep for the remaining non-gate missing or stale keys in `lang_pl.cfg` and `lang_ru.cfg`.
+
 - `2026-04-20 | neutron-collector | open | hidden-proxy circuit telemetry is re-enabled after the collector proxy wiring and refresh paths were repaired, but the repo still lacks a dedicated neutron collector QC save/helper, so future regressions still depend on live play smoke or a locally supplied collector-bearing save.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/neutron-collector.lua`, `exotic-space-industries-remembrance/prototypes/quantum-age/neutron-collector.lua`, `.codex/esir/save-catalog.json`
   - `Next safe move:` add a tiny neutron collector runtime smoke save or helper that places one collector beside a live source and asserts the custom signals after a rebuild, then wire that save into `qc-runtime`.

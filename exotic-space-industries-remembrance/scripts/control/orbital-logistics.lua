@@ -637,6 +637,32 @@ function cohort_power.get_live_state(entity, current_tick)
   return cohort_power.state_unpowered
 end
 
+function cohort_power.apply_visible_status(entity, state)
+  if not is_cohort_entity(entity) then
+    return
+  end
+
+  state = cohort_power.normalize_state(state)
+
+  if state == cohort_power.state_unpowered then
+    entity.custom_status = {
+      diode = STATUS_RED,
+      label = {"exotic-industries.orbital-scanner-status-no-power"},
+    }
+    return
+  end
+
+  if state == cohort_power.state_low_power then
+    entity.custom_status = {
+      diode = STATUS_YELLOW,
+      label = {"exotic-industries.orbital-scanner-status-low-power"},
+    }
+    return
+  end
+
+  entity.custom_status = nil
+end
+
 function cohort_power.destroy(unit_number, entity_name)
   unit_number = tonumber(unit_number) or nil
   if not unit_number then
@@ -1160,6 +1186,12 @@ function cohort_power.refresh_record_state(record, current_tick)
     cohort_power.destroy(record.unit_number)
   end
 
+  -- Power status belongs to the visible terminal, not the hidden sensor. Keep
+  -- degraded states fresh even when output pages do not need a full rewrite.
+  if entity and (next_state ~= cohort_power.state_powered or previous_state ~= next_state) then
+    cohort_power.apply_visible_status(entity, next_state)
+  end
+
   if previous_state == next_state then
     return false
   end
@@ -1286,6 +1318,7 @@ local function register_transponder(entity, current_tick)
   root.transponders_by_unit[entity.unit_number] = record
   cohort_power.ensure(entity, current_tick)
   cohort_power.set_cached_state(entity.unit_number, cohort_power.get_live_state(entity, current_tick))
+  cohort_power.apply_visible_status(entity, cohort_power.get_cached_state(entity.unit_number))
   sync_transponder_dispatch_indexes(record, previous_force_index, previous_platform_index, previous_dispatch_surface_name, previous_hub_unit_number)
   ensure_cohort(record.force_index, record.surface_name).transponder_units[entity.unit_number] = true
   ensure_transponder_platform_id(record)
@@ -1370,6 +1403,7 @@ local function register_selector(entity, current_tick)
   root.selectors_by_unit[entity.unit_number] = record
   cohort_power.ensure(entity, current_tick)
   cohort_power.set_cached_state(entity.unit_number, cohort_power.get_live_state(entity, current_tick))
+  cohort_power.apply_visible_status(entity, cohort_power.get_cached_state(entity.unit_number))
   ensure_cohort(record.force_index, record.surface_name).selector_units[entity.unit_number] = true
   mark_cohort_dirty(record.force_index, record.surface_name)
   return record
@@ -1416,6 +1450,7 @@ local function register_coordinator(entity, current_tick)
   root.coordinators_by_unit[entity.unit_number] = record
   cohort_power.ensure(entity, current_tick)
   cohort_power.set_cached_state(entity.unit_number, cohort_power.get_live_state(entity, current_tick))
+  cohort_power.apply_visible_status(entity, cohort_power.get_cached_state(entity.unit_number))
   ensure_cohort(record.force_index, record.surface_name).coordinator_units[entity.unit_number] = true
   mark_cohort_dirty(record.force_index, record.surface_name)
   return record
@@ -1702,6 +1737,7 @@ local function register_uplink(entity, current_tick)
   root.uplinks_by_unit[entity.unit_number] = record
   cohort_power.ensure(entity, current_tick)
   cohort_power.set_cached_state(entity.unit_number, cohort_power.get_live_state(entity, current_tick))
+  cohort_power.apply_visible_status(entity, cohort_power.get_cached_state(entity.unit_number))
 
   if not record.binding_silo_unit_number then
     local nearest = find_preferred_adjacent_silo(entity, entity.unit_number)
@@ -2694,19 +2730,8 @@ local function set_custom_status(entity, diode, label, power_state)
   end
 
   power_state = cohort_power.normalize_state(power_state)
-  if power_state == cohort_power.state_unpowered then
-    entity.custom_status = {
-      diode = STATUS_RED,
-      label = {"exotic-industries.orbital-scanner-status-no-power"},
-    }
-    return
-  end
-
-  if power_state == cohort_power.state_low_power then
-    entity.custom_status = {
-      diode = STATUS_YELLOW,
-      label = {"exotic-industries.orbital-scanner-status-low-power"},
-    }
+  if power_state == cohort_power.state_unpowered or power_state == cohort_power.state_low_power then
+    cohort_power.apply_visible_status(entity, power_state)
     return
   end
 

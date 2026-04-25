@@ -1,4 +1,26 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.30
+Date: 4-22-2026
+  Features:
+    - Added a modular exotic bullet magazine family with dedicated body, driver, core, and payload assembly for compound, corrosive, cryo, oxyfluoride, morphium, hexafluoride, arc, and neutron magazines.
+    - Added bespoke source flashes, impact bursts, and bullet-tuned stickers for every exotic magazine so the expensive rounds read distinctly.
+    - Crystal accumulators now run a full resonance runtime: they shift between low, base, surged, and Gaia shell states, build instability by surface and orbit profile, preserve quality through swaps and repair, and collapse into husks when coherence finally breaks.
+    - Added crystal accumulator readouts with a small status strip, an entity-side detail console, repair-tool alt-select inspection, and a dedicated Informatron page across all supported locales.
+    - Added a dedicated Informatron page, research unlock messaging, localized vat-console terminology, and supported locale coverage for Gleba auric inoculation vats around basin claims, cyst blooms, and washing telemetry.
+  Changes:
+    - Compound rounds now craft through the exotic magazine assembly chain instead of upgrading directly from uranium magazines.
+    - U-235 and plutonium atomic rockets and the X1 "Goliath" death criticality now carry radiological aftermath.
+    - Stone brick recycling: Ash -> Stone.
+    - Iron ore recycling: Iron chunks -> Iron ore.
+    - Copper ore recycling: Copper chunks -> Copper ore.
+    - Neodymium ingot recycling: Crushed coal -> Neodymium ingot.
+    - Crushed metals no longer recycle into their parent materials.
+    - Spent fuel cells can no longer be recycled.
+  Bugfixes:
+    - Gaia rock tiles now all use the appropriately tinted lichen, instead of sometimes receiving the purple variant.
+    - Fixed a crash caused by Tesla tank firing.
+    - Fixed that Orbital Logistics Cohort helper terminals didn't display the no-power entity status icon.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.29
 Date: 4-22-2026
   Features:

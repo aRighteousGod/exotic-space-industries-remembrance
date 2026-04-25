@@ -2,6 +2,18 @@
 --CRYSTAL ACCUMULATOR
 --====================================================================================================
 
+local crystal_repair_filters = ei_data.repair_tool_entity_filter("ei-crystal-accumulator-repair")
+local crystal_inspect_filters = {
+    "ei-crystal-accumulator",
+    "ei-crystal-accumulator-gaia",
+    "ei-crystal-accumulator-low",
+    "ei-crystal-accumulator-surged",
+}
+
+for _, entity_name in ipairs(crystal_repair_filters) do
+    table.insert(crystal_inspect_filters, entity_name)
+end
+
 data:extend({
     {
         name = "ei-crystal-accumulator",
@@ -34,14 +46,16 @@ data:extend({
             border_color = {r=0.79, g=0.4, b=0, a=0.5 },
             mode = {"any-entity"},
             cursor_box_type = "entity",
+            entity_filter_mode = "whitelist",
+            entity_filters = crystal_repair_filters,
         },
         alt_select = {
             border_color = {r=0, g=1, b=0, a=0.5 },
             cursor_box_type = "entity",
             mode = {"any-entity"},
+            entity_filter_mode = "whitelist",
+            entity_filters = crystal_inspect_filters,
         },
-        entity_filter_mode = "whitelist",
-        entity_filters = ei_data.repair_tool_entity_filter("ei-crystal-accumulator-repair"),
         subgroup = "ei-repairs",
         order = "a-a",
     },
@@ -65,8 +79,8 @@ data:extend({
         energy_source = {
             type = 'electric',
             usage_priority = 'primary-output',
-            input_flow_limit = "10MW",
-            output_flow_limit = "10MW",
+            input_flow_limit = "7.5MW",
+            output_flow_limit = "7.5MW",
             buffer_capacity = "1GJ",
             render_no_power_icon = false,
         },
@@ -82,7 +96,7 @@ data:extend({
         },
         energy_production = "7.5MW",
         energy_usage = "0GW",
-        --gui_mode = "none",
+        gui_mode = "all",
         continuous_animation = true,
         circuit_connector =  circuit_connector_definitions.create_vector(
         universal_connector_template,
@@ -115,8 +129,8 @@ data:extend({
         energy_source = {
             type = 'electric',
             usage_priority = 'primary-output',
-            input_flow_limit = "10MW",
-            output_flow_limit = "10MW",
+            input_flow_limit = "15MW",
+            output_flow_limit = "15MW",
             buffer_capacity = "1GJ",
             render_no_power_icon = false,
         },
@@ -132,7 +146,7 @@ data:extend({
         },
         energy_production = "15MW",
         energy_usage = "0GW",
-        --gui_mode = "none",
+        gui_mode = "all",
         continuous_animation = true,
         circuit_connector =  circuit_connector_definitions.create_vector(
         universal_connector_template,
@@ -425,4 +439,42 @@ data:extend({
         enabled = false,
         main_product = "ei-crystal-accumulator-gaia",
     },
+})
+
+local function make_hidden_crystal_shell_item(base_item_name, hidden_item_name, hidden_entity_name)
+    local item = table.deepcopy(data.raw["item"][base_item_name])
+
+    item.name = hidden_item_name
+    item.place_result = hidden_entity_name
+    item.hidden = true
+    item.hidden_in_factoriopedia = true
+    item.localised_name = {"item-name." .. base_item_name}
+
+    return item
+end
+
+local function make_hidden_crystal_shell_entity(base_entity_name, hidden_entity_name, mining_result, production)
+    local entity = table.deepcopy(data.raw["electric-energy-interface"][base_entity_name])
+
+    entity.name = hidden_entity_name
+    entity.hidden = true
+    entity.hidden_in_factoriopedia = true
+    entity.localised_name = {"entity-name." .. base_entity_name}
+    entity.flags = {"placeable-neutral", "placeable-player", "player-creation", "not-blueprintable"}
+    entity.minable = {
+        mining_time = entity.minable and entity.minable.mining_time or 4,
+        result = mining_result,
+    }
+    entity.energy_production = production
+    entity.energy_source.input_flow_limit = production
+    entity.energy_source.output_flow_limit = production
+
+    return entity
+end
+
+data:extend({
+    make_hidden_crystal_shell_item("ei-crystal-accumulator", "ei-crystal-accumulator-low", "ei-crystal-accumulator-low"),
+    make_hidden_crystal_shell_item("ei-crystal-accumulator", "ei-crystal-accumulator-surged", "ei-crystal-accumulator-surged"),
+    make_hidden_crystal_shell_entity("ei-crystal-accumulator", "ei-crystal-accumulator-low", "ei-crystal-accumulator", "4MW"),
+    make_hidden_crystal_shell_entity("ei-crystal-accumulator", "ei-crystal-accumulator-surged", "ei-crystal-accumulator", "10MW"),
 })

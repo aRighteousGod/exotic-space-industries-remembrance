@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-19T21:19:26.3791525-05:00",
+    "generated_at":  "2026-04-25T13:11:11.9258774-05:00",
     "wrapper":  {
                     "path":  "scripts\\invoke-esir-dev.ps1",
                     "library":  "scripts\\esir-dev-lib.ps1",
@@ -49,25 +49,49 @@
     "engines":  [
                     {
                         "name":  "factorio-mod-qc",
-                        "root":  "C:\\Users\\Theorun\\.codex\\skills\\factorio-mod-qc",
-                        "wrapper":  "C:\\Users\\Theorun\\.codex\\skills\\factorio-mod-qc\\scripts\\invoke-factorio-qc.ps1"
+                        "root_kind":  "global-skill",
+                        "root":  "factorio-mod-qc",
+                        "wrapper":  "scripts\\invoke-factorio-qc.ps1",
+                        "available":  true
                     },
                     {
                         "name":  "chatgpt-firefox-companion",
-                        "root":  "C:\\Users\\Theorun\\.codex\\skills\\chatgpt-firefox-companion",
-                        "wrapper":  "C:\\Users\\Theorun\\.codex\\skills\\chatgpt-firefox-companion\\scripts\\invoke-chatgpt-firefox-companion.ps1"
+                        "root_kind":  "global-skill",
+                        "root":  "chatgpt-firefox-companion",
+                        "wrapper":  "scripts\\invoke-chatgpt-firefox-companion.ps1",
+                        "available":  true
                     }
                 ],
     "repo_skills":  [
+                        {
+                            "name":  "esir-dependency-intel",
+                            "root":  ".codex\\skills\\esir-dependency-intel",
+                            "wrapper":  "scripts\\invoke-esir-dependency-intel.ps1"
+                        },
                         {
                             "name":  "esir-dev",
                             "root":  ".codex\\skills\\esir-dev",
                             "wrapper":  "scripts\\invoke-esir-dev.ps1"
                         },
                         {
-                            "name":  "esir-dependency-intel",
-                            "root":  ".codex\\skills\\esir-dependency-intel",
-                            "wrapper":  "scripts\\invoke-esir-dependency-intel.ps1"
+                            "name":  "esir-item-icon-prep",
+                            "root":  ".codex\\skills\\esir-item-icon-prep",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "esir-lib-first",
+                            "root":  ".codex\\skills\\esir-lib-first",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "esir-recipe-icon-style",
+                            "root":  ".codex\\skills\\esir-recipe-icon-style",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "factorio-lua-assumptions",
+                            "root":  ".codex\\skills\\factorio-lua-assumptions",
+                            "wrapper":  null
                         },
                         {
                             "name":  "factorio-lua-docs",
@@ -97,5 +121,9 @@
                       ".factorio-qc",
                       "output"
                   ],
-    "global_shim":  "C:\\Users\\Theorun\\.codex\\skills\\esir-dev"
+    "global_shim":  {
+                        "root_kind":  "global-skill",
+                        "root":  "esir-dev",
+                        "available":  true
+                    }
 }

@@ -238,8 +238,8 @@ make_decorative(
     "a[landscape]-b[gaia]-j[core-lichen]",
     "clamp((0.001 + 0.014 * gaia_rock_core_mask * gaia_select(gaia_accent_noise, 0.26, 1.06, 0.16, 0.22, 1)) * " .. gaia_decorative_control_multiplier() .. ", 0, 0.02)",
     tile_groups.rock_core,
-    "core-lichen-decal",
-    {r = 0.74, g = 0.70, b = 0.85}
+    "fringe-lichen-decal",
+    {r = 0.86, g = 0.78, b = 0.68}
 )
 
 make_decorative(

@@ -807,9 +807,9 @@
                                                   ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-colorful-biochamber-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-colorful-biochamber-lua:prototype-integration",
                             "category":  "prototype-integration",
-                            "phase":  "data-updates",
+                            "phase":  "data-final-updates",
                             "direction":  "bridge",
                             "mod_names":  [
                                               "colorful_biochamber"
@@ -818,7 +818,7 @@
                                                "colorful_biochamber"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\colorful-biochamber.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\colorful-biochamber.lua"
                                              ],
                             "touchpoints":  [
                                                 "mods"

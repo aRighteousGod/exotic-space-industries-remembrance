@@ -21,7 +21,7 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'esir-dev-lib.ps1')
 
-$paths = Get-EsirPaths -RepoRoot $RepoRoot
+$paths = Get-EsirPaths -RepoRoot $RepoRoot -EnsureWritableDirs:($Task -eq 'refresh')
 $result = Invoke-EsirDependencyTask -Task $Task -Paths $paths -Scope $Scope -Category $Category -ModName $ModName -Pack $Pack -PathFilter $Path -ResolveInstalled:$ResolveInstalled -Strict:$Strict
 
 if ($AsJson) {

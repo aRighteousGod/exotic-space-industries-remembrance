@@ -80,6 +80,11 @@ function create_asteroid_chunk_parameter(number)
   }
   local shared_health = {0, 100, 400, 2000, 5000}
   local shared_mass = {0, 200000, 500000, 5000000, 100000000}
+  local custom_asteroid_resistances =
+  {
+    ["ei-radiological"] = {0, 10, 20, 35, 50},
+    ["ei-morphium"] = {0, 45, 60, 75, 85}
+  }
   local asteroids_data =
   {
     scrap =
@@ -372,6 +377,12 @@ function create_asteroid_chunk_parameter(number)
               type = damage_name,
               decrease = asteroid_data.resistances[damage_name].decrease[asteroid_size],
               percent = asteroid_data.resistances[damage_name].percent[asteroid_size]
+            })
+          elseif custom_asteroid_resistances[damage_name] then
+            table.insert(resistances,
+            {
+              type = damage_name,
+              percent = custom_asteroid_resistances[damage_name][asteroid_size]
             })
           else
             if damage_name ~= "impact" and damage_name ~= "poison" and damage_name ~= "ei-plasma" and damage_name ~= "acid" then

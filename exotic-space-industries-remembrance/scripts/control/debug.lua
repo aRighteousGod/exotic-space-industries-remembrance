@@ -35,11 +35,15 @@ local function call_beacon_overload(name, ...)
     return helper(...)
 end
 
-local function capture_runtime_module_status(module_name, module_ref, fallback_status)
+local function capture_runtime_module_status(module_name, module_ref, fallback_status, ...)
+    local fallback_error = nil
     if module_ref and module_ref.get_runtime_status then
-        local ok, status = pcall(module_ref.get_runtime_status)
+        local ok, status = pcall(module_ref.get_runtime_status, ...)
         if ok and status then
             return status
+        end
+        if not ok then
+            fallback_error = status
         end
     end
 
@@ -48,6 +52,10 @@ local function capture_runtime_module_status(module_name, module_ref, fallback_s
     end
 
     local status = fallback_status or {}
+    status.fallback_used = true
+    if fallback_error then
+        status.fallback_error = tostring(fallback_error)
+    end
     ei_runtime_scheduler.set_module_status(module_name, status)
     return status
 end
@@ -239,6 +247,158 @@ local function get_runtime_status_snapshot()
         end
     end
 
+    local function get_auric_fallback_status()
+        local auric_runtime = ei_state.auric_inoculation_vat or {}
+        local auric_claimed_vat_count = 0
+        local auric_conflict_count = 0
+        local auric_conflict_tile_count = 0
+        local auric_missing_proxy_count = 0
+        local auric_unwired_vat_count = 0
+        local auric_unavailable_proxy_count = 0
+        local auric_stale_entity_count = 0
+        local auric_status_counts = {}
+        local auric_invalid_reason_counts = {}
+        local auric_phase_counts = {invalid = 0}
+        local auric_band_counts = {unclaimed = 0}
+        local auric_guide_active_player_count = 0
+        local auric_guide_rendered_chunk_count = 0
+        local auric_guide_render_object_count = 0
+        local auric_telemetry_proxy_available = auric_runtime.telemetry_proxy_available ~= false
+        for _, record in pairs(auric_runtime.vats_by_unit or {}) do
+            if record then
+                local status_key = "stable"
+                if not record.claim_valid then
+                    local invalid_reason = record.invalid_reason or "unknown"
+                    auric_invalid_reason_counts[invalid_reason] = (auric_invalid_reason_counts[invalid_reason] or 0) + 1
+                    auric_phase_counts.invalid = auric_phase_counts.invalid + 1
+                    auric_band_counts.unclaimed = auric_band_counts.unclaimed + 1
+                    if invalid_reason == "conflict" then
+                        status_key = "conflict"
+                    elseif invalid_reason == "no-basin"
+                    or invalid_reason == "too-small"
+                    or invalid_reason == "too-large" then
+                        status_key = "invalid-" .. invalid_reason
+                    else
+                        status_key = "invalid"
+                    end
+                else
+                    auric_claimed_vat_count = auric_claimed_vat_count + 1
+                    local phase_key = record.phase or "unknown"
+                    local band_key = record.band_key or "unknown"
+                    auric_phase_counts[phase_key] = (auric_phase_counts[phase_key] or 0) + 1
+                    auric_band_counts[band_key] = (auric_band_counts[band_key] or 0) + 1
+                    if (tonumber(record.contamination) or 0) >= 100 or (tonumber(record.vigor) or 100) <= 20 then
+                        status_key = "failure"
+                    elseif (tonumber(record.blocked_drain_streak) or 0) > 0 then
+                        status_key = "blocked-drain"
+                    elseif (tonumber(record.starvation_streak) or 0) > 0 then
+                        status_key = "starved"
+                    elseif (tonumber(record.contamination) or 0) >= 45 or (tonumber(record.vigor) or 100) <= 55 then
+                        status_key = "strained"
+                    elseif record.phase == "rest" then
+                        status_key = "resting"
+                    end
+                end
+
+                auric_status_counts[status_key] = (auric_status_counts[status_key] or 0) + 1
+                local record_conflict_tile_count = tonumber(record.conflict_tile_count)
+                if record_conflict_tile_count and record_conflict_tile_count > 0 then
+                    auric_conflict_count = auric_conflict_count + 1
+                    auric_conflict_tile_count = auric_conflict_tile_count + record_conflict_tile_count
+                elseif not record_conflict_tile_count and ei_runtime_scheduler.table_count(record.claim_conflicts) > 0 then
+                    auric_conflict_count = auric_conflict_count + 1
+                end
+                if not ei_lib.entity_check(record.entity) then
+                    auric_stale_entity_count = auric_stale_entity_count + 1
+                elseif not ei_lib.entity_check(record.telemetry_proxy)
+                and record.signal_cache
+                and record.signal_cache.disconnected == true then
+                    auric_unwired_vat_count = auric_unwired_vat_count + 1
+                elseif not ei_lib.entity_check(record.telemetry_proxy) and auric_telemetry_proxy_available then
+                    auric_missing_proxy_count = auric_missing_proxy_count + 1
+                elseif not ei_lib.entity_check(record.telemetry_proxy) then
+                    auric_unavailable_proxy_count = auric_unavailable_proxy_count + 1
+                end
+            end
+        end
+
+        local auric_orphan_claim_units = {}
+        local auric_claimed_tile_count = 0
+        for _, owner_unit_number in pairs(auric_runtime.claims_by_tile or {}) do
+            auric_claimed_tile_count = auric_claimed_tile_count + 1
+            if not (auric_runtime.vats_by_unit and auric_runtime.vats_by_unit[owner_unit_number]) then
+                auric_orphan_claim_units[owner_unit_number] = true
+            end
+        end
+
+        local queued_vat_count = ei_runtime_scheduler.table_count(auric_runtime.due_tick_by_unit)
+        local auric_ready_queue_count = tonumber(auric_runtime.ready_queue_count)
+            or ei_runtime_scheduler.table_count(auric_runtime.ready_queue and auric_runtime.ready_queue.queued)
+        local current_tick = game and game.tick or 0
+        local auric_due_vat_count = auric_ready_queue_count
+        for unit_number, due_tick in pairs(auric_runtime.due_tick_by_unit or {}) do
+            if due_tick and due_tick <= current_tick
+            and not (auric_runtime.ready_queue and auric_runtime.ready_queue.queued and auric_runtime.ready_queue.queued[unit_number]) then
+                auric_due_vat_count = auric_due_vat_count + 1
+            end
+        end
+        for _, guide_state in pairs(auric_runtime.placement_guides or {}) do
+            auric_guide_active_player_count = auric_guide_active_player_count + 1
+            for _, chunk in pairs(guide_state.chunks or {}) do
+                auric_guide_rendered_chunk_count = auric_guide_rendered_chunk_count + 1
+                auric_guide_render_object_count = auric_guide_render_object_count
+                    + (tonumber(chunk.render_object_count) or ei_lib.count_sequence(chunk.render_objects))
+            end
+        end
+        return {
+            tracked_vat_count = ei_lib.getn(auric_runtime.vats_by_unit),
+            queued_vat_count = queued_vat_count,
+            due_vat_count = auric_due_vat_count,
+            claim_count = auric_claimed_vat_count,
+            claimed_tile_count = auric_claimed_tile_count,
+            conflict_count = auric_conflict_count,
+            conflict_tile_count = auric_conflict_tile_count,
+            orphan_claim_count = ei_runtime_scheduler.table_count(auric_orphan_claim_units),
+            missing_telemetry_proxy_count = auric_missing_proxy_count,
+            telemetry_unwired_vat_count = auric_unwired_vat_count,
+            telemetry_proxy_unavailable_count = auric_unavailable_proxy_count,
+            stale_entity_count = auric_stale_entity_count,
+            open_gui_count = ei_runtime_scheduler.table_count(auric_runtime.open_by_player),
+            ready_queue_items = auric_ready_queue_count,
+            due_bucket_count = ei_runtime_scheduler.delayed_bucket_count(auric_runtime.due_buckets),
+            due_bucket_items = ei_runtime_scheduler.delayed_item_count(auric_runtime.due_buckets),
+            ui_bucket_count = ei_runtime_scheduler.delayed_bucket_count(auric_runtime.ui_due_buckets),
+            ui_bucket_items = ei_runtime_scheduler.delayed_item_count(auric_runtime.ui_due_buckets),
+            due_stale_bucket_entry_count = tonumber(auric_runtime.due_stale_bucket_entry_count) or 0,
+            ready_stale_dequeue_count = tonumber(auric_runtime.ready_stale_dequeue_count) or 0,
+            due_activation_deferred_count = tonumber(auric_runtime.due_activation_deferred_count) or 0,
+            last_due_activation_scanned_count = tonumber(auric_runtime.last_due_activation_scanned_count) or 0,
+            last_due_activation_activated_count = tonumber(auric_runtime.last_due_activation_activated_count) or 0,
+            pending_ui_refresh_count = ei_runtime_scheduler.table_count(auric_runtime.ui_pending_by_player),
+            next_ui_due_tick = tonumber(auric_runtime.next_ui_due_tick) or 0,
+            ui_stale_bucket_entry_count = tonumber(auric_runtime.ui_stale_bucket_entry_count) or 0,
+            last_ui_refresh_player_count = tonumber(auric_runtime.last_ui_refresh_player_count) or 0,
+            placement_guide_active_player_count = auric_guide_active_player_count,
+            placement_guide_surface_count = ei_runtime_scheduler.table_count(auric_runtime.placement_guides_by_surface),
+            placement_cursor_intent_cached_player_count = ei_runtime_scheduler.table_count(auric_runtime.placement_cursor_intent_by_player),
+            placement_guide_rendered_chunk_count = auric_guide_rendered_chunk_count,
+            placement_guide_render_object_count = auric_guide_render_object_count,
+            placement_guide_stale_cleanup_count = tonumber(auric_runtime.placement_stale_cleanup_count) or 0,
+            placement_guide_skipped_ungenerated_chunk_count = tonumber(auric_runtime.placement_skipped_ungenerated_chunk_count) or 0,
+            placement_guide_dirty_player_skip_count = tonumber(auric_runtime.placement_dirty_player_skip_count) or 0,
+            last_tile_change_region_count = tonumber(auric_runtime.last_tile_change_region_count) or 0,
+            last_tile_change_dirty_chunk_count = tonumber(auric_runtime.last_tile_change_dirty_chunk_count) or 0,
+            last_tile_change_scan_region_count = tonumber(auric_runtime.last_tile_change_scan_region_count) or 0,
+            tile_change_region_refresh_count = tonumber(auric_runtime.tile_change_region_refresh_count) or 0,
+            orphan_telemetry_proxy_cleanup_count = tonumber(auric_runtime.orphan_telemetry_proxy_cleanup_count) or 0,
+            orphan_claim_cleanup_count = tonumber(auric_runtime.orphan_claim_cleanup_count) or 0,
+            status_counts = auric_status_counts,
+            invalid_reason_counts = auric_invalid_reason_counts,
+            phase_counts = auric_phase_counts,
+            band_counts = auric_band_counts,
+        }
+    end
+
     return ei_runtime_scheduler.status_snapshot({
         induction_matrix = capture_runtime_module_status("induction-matrix", ei_induction_matrix, {
             cores = ei_lib.getn(matrix.core) - (matrix.core and matrix.core.stats and 1 or 0),
@@ -354,6 +514,7 @@ local function get_runtime_status_snapshot()
             recovery_buckets = ei_runtime_scheduler.delayed_bucket_count(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_buckets),
             recovery_bucket_items = ei_runtime_scheduler.delayed_item_count(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_buckets),
         }),
+        auric_inoculation_vat = capture_runtime_module_status("auric-inoculation-vat", ei_auric_inoculation_vat, get_auric_fallback_status, game and game.tick or 0, false),
         vulcanus = capture_runtime_module_status("vulcanus-fumaroles", ei_vulcanus_fumaroles, {
             active = ei_lib.getn(vulcanus.active),
             dormant = ei_lib.getn(vulcanus.dormant_chunks),
@@ -379,7 +540,10 @@ local function format_runtime_status_summary(snapshot)
     local orbital = extra.orbital_scanner or {}
     local orbital_logistics = extra.orbital_logistics or {}
     local railgun = extra.railgun_cooling or {}
+    local auric_vat = extra.auric_inoculation_vat or {}
     local vulcanus = extra.vulcanus or {}
+    local auric_claimed_tile_count = auric_vat.claimed_tile_count ~= nil and tostring(auric_vat.claimed_tile_count) or "n/a"
+    local auric_orphan_claim_count = auric_vat.orphan_claim_count ~= nil and tostring(auric_vat.orphan_claim_count) or "n/a"
 
     return table.concat({
         "ESIR runtime",
@@ -398,7 +562,31 @@ local function format_runtime_status_summary(snapshot)
         "orbital(banks/dirty/probe)=" .. tostring(orbital.banks or orbital.bank_count or 0) .. "/" .. tostring(orbital.dirty_banks or 0) .. "/" .. tostring(orbital.probe_enabled == true or (orbital.probe and orbital.probe.enabled == true)),
         "cohort(c/l/u/gui)=" .. tostring(orbital_logistics.cohorts or orbital_logistics.cohort_count or 0) .. "/" .. tostring(orbital_logistics.leases or orbital_logistics.lease_count or 0) .. "/" .. tostring(orbital_logistics.uplinks or orbital_logistics.uplink_count or 0) .. "/" .. tostring(orbital_logistics.open_gui_count or 0),
         "railgun(track/block/recover)=" .. tostring(railgun.tracked_railguns or 0) .. "/" .. tostring(railgun.blocked_count or 0) .. "/" .. tostring(railgun.recovering_count or 0),
+        "auric-vat(track/due/ready/claim/gui|conflict-vat/tile/orphan/proxy-miss/unwired)=" .. tostring(auric_vat.tracked_vat_count or 0) .. "/" .. tostring(auric_vat.due_vat_count or auric_vat.queued_vat_count or 0) .. "/" .. tostring(auric_vat.ready_queue_items or 0) .. "/" .. tostring(auric_vat.claim_count or 0) .. "(" .. auric_claimed_tile_count .. ")/" .. tostring(auric_vat.open_gui_count or 0) .. "|" .. tostring(auric_vat.conflict_count or 0) .. "/" .. tostring(auric_vat.conflict_tile_count or 0) .. "/" .. auric_orphan_claim_count .. "/" .. tostring(auric_vat.missing_telemetry_proxy_count or 0) .. "/" .. tostring(auric_vat.telemetry_unwired_vat_count or 0),
+        "auric-tile(regions/dirty/scan/total)=" .. tostring(auric_vat.last_tile_change_region_count or 0) .. "/" .. tostring(auric_vat.last_tile_change_dirty_chunk_count or 0) .. "/" .. tostring(auric_vat.last_tile_change_scan_region_count or 0) .. "/" .. tostring(auric_vat.tile_change_region_refresh_count or 0),
         "vulcanus(active/dormant)=" .. tostring(vulcanus.active or 0) .. "/" .. tostring(vulcanus.dormant or 0),
+    }, " ")
+end
+
+local function format_auric_status_summary(auric_vat)
+    auric_vat = auric_vat or {}
+    local invalid = auric_vat.invalid_reason_counts or {}
+    local status = auric_vat.status_counts or {}
+    local claimed_tile_count = auric_vat.claimed_tile_count ~= nil and tostring(auric_vat.claimed_tile_count) or "n/a"
+    local orphan_claim_count = auric_vat.orphan_claim_count ~= nil and tostring(auric_vat.orphan_claim_count) or "n/a"
+    local due_bucket_items = auric_vat.due_bucket_items ~= nil and tostring(auric_vat.due_bucket_items) or "n/a"
+    local ui_bucket_items = auric_vat.ui_bucket_items ~= nil and tostring(auric_vat.ui_bucket_items) or "n/a"
+    return table.concat({
+        "ESIR auric-vat",
+        "track/due/ready/claim/gui=" .. tostring(auric_vat.tracked_vat_count or 0) .. "/" .. tostring(auric_vat.due_vat_count or auric_vat.queued_vat_count or 0) .. "/" .. tostring(auric_vat.ready_queue_items or 0) .. "/" .. tostring(auric_vat.claim_count or 0) .. "(" .. claimed_tile_count .. ")/" .. tostring(auric_vat.open_gui_count or 0),
+        "conflict-vats/tiles/orphan/proxy-miss/unwired/stale=" .. tostring(auric_vat.conflict_count or 0) .. "/" .. tostring(auric_vat.conflict_tile_count or 0) .. "/" .. orphan_claim_count .. "/" .. tostring(auric_vat.missing_telemetry_proxy_count or 0) .. "/" .. tostring(auric_vat.telemetry_unwired_vat_count or 0) .. "/" .. tostring(auric_vat.stale_entity_count or 0),
+        "proxy-unavailable=" .. tostring(auric_vat.telemetry_proxy_unavailable_count or 0),
+        "invalid(no/small/large/conflict/unknown)=" .. tostring(invalid["no-basin"] or 0) .. "/" .. tostring(invalid["too-small"] or 0) .. "/" .. tostring(invalid["too-large"] or 0) .. "/" .. tostring(invalid.conflict or 0) .. "/" .. tostring(invalid.unknown or 0),
+        "state(stable/strained/starved/drain/fail/rest/invalid)=" .. tostring(status.stable or 0) .. "/" .. tostring(status.strained or 0) .. "/" .. tostring(status.starved or 0) .. "/" .. tostring(status["blocked-drain"] or 0) .. "/" .. tostring(status.failure or 0) .. "/" .. tostring(status.resting or 0) .. "/" .. tostring((status.invalid or 0) + (status["invalid-no-basin"] or 0) + (status["invalid-too-small"] or 0) + (status["invalid-too-large"] or 0) + (status.conflict or 0)),
+        "sched(due-b/i/ui-b/i/next/ui-next|act/defer/ui-pending/ui-stale/ui-last)=" .. tostring(auric_vat.due_bucket_count or 0) .. "/" .. due_bucket_items .. "/" .. tostring(auric_vat.ui_bucket_count or 0) .. "/" .. ui_bucket_items .. "/" .. tostring(auric_vat.next_due_tick or 0) .. "/" .. tostring(auric_vat.next_ui_due_tick or 0) .. "|" .. tostring(auric_vat.last_due_activation_activated_count or 0) .. "/" .. tostring(auric_vat.due_activation_deferred_count or 0) .. "/" .. tostring(auric_vat.pending_ui_refresh_count or 0) .. "/" .. tostring(auric_vat.ui_stale_bucket_entry_count or 0) .. "/" .. tostring(auric_vat.last_ui_refresh_player_count or 0),
+        "guide(players/cache/surfaces/chunks/renders/cleanup/skipped/dirty-skip)=" .. tostring(auric_vat.placement_guide_active_player_count or 0) .. "/" .. tostring(auric_vat.placement_cursor_intent_cached_player_count or 0) .. "/" .. tostring(auric_vat.placement_guide_surface_count or 0) .. "/" .. tostring(auric_vat.placement_guide_rendered_chunk_count or 0) .. "/" .. tostring(auric_vat.placement_guide_render_object_count or 0) .. "/" .. tostring(auric_vat.placement_guide_stale_cleanup_count or 0) .. "/" .. tostring(auric_vat.placement_guide_skipped_ungenerated_chunk_count or 0) .. "/" .. tostring(auric_vat.placement_guide_dirty_player_skip_count or 0),
+        "tile-regions(last/dirty/scan/total)=" .. tostring(auric_vat.last_tile_change_region_count or 0) .. "/" .. tostring(auric_vat.last_tile_change_dirty_chunk_count or 0) .. "/" .. tostring(auric_vat.last_tile_change_scan_region_count or 0) .. "/" .. tostring(auric_vat.tile_change_region_refresh_count or 0),
+        "stale(due/ready/ui)/orphan-cleanup(proxy/claim)=" .. tostring(auric_vat.due_stale_bucket_entry_count or 0) .. "/" .. tostring(auric_vat.ready_stale_dequeue_count or 0) .. "/" .. tostring(auric_vat.ui_stale_bucket_entry_count or 0) .. "/" .. tostring(auric_vat.orphan_telemetry_proxy_cleanup_count or 0) .. "/" .. tostring(auric_vat.orphan_claim_cleanup_count or 0),
     }, " ")
 end
 
@@ -637,6 +825,24 @@ local function handle_runtime_status_command(cmd)
     elseif parameter == "telemetry-off" then
         runtime_state.telemetry.enabled = false
         print_runtime_status(player, { "exotic-industries.ei-runtime-status-disabled" })
+        return
+    elseif parameter == "auric" or parameter == "auric-detail" then
+        local detailed = parameter == "auric-detail"
+        local auric_status = nil
+        if ei_auric_inoculation_vat and ei_auric_inoculation_vat.get_runtime_status then
+            local ok, status = pcall(ei_auric_inoculation_vat.get_runtime_status, game and game.tick or 0, detailed)
+            if ok then
+                auric_status = status
+            end
+        end
+        if not auric_status then
+            local snapshot = get_runtime_status_snapshot()
+            auric_status = snapshot.extra and snapshot.extra.auric_inoculation_vat or {}
+        end
+        print_runtime_status(player, format_auric_status_summary(auric_status))
+        if detailed then
+            ei_runtime_scheduler.log_snapshot("debug-command-auric", auric_status)
+        end
         return
     elseif parameter ~= "" and parameter ~= "snapshot" then
         print_runtime_status(player, { "exotic-industries.ei-runtime-status-usage" })

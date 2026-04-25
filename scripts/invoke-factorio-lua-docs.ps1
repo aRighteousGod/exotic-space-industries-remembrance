@@ -10,6 +10,7 @@ param(
     [ValidateSet('class', 'method', 'attribute', 'operator', 'event', 'concept', 'concept-property', 'define', 'define-value', 'global-object', 'global-function', 'prototype', 'prototype-property', 'type', 'type-property', 'topic', 'all')]
     [string]$Kind = 'all',
     [string]$ExactName,
+    [ValidateRange(1, 100)]
     [int]$Limit = 12,
     [switch]$RefreshIfMissing,
     [switch]$AsJson
@@ -20,7 +21,7 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'factorio-lua-docs-lib.ps1')
 
-$paths = Get-FactorioLuaDocsPaths -RepoRoot $RepoRoot
+$paths = Get-FactorioLuaDocsPaths -RepoRoot $RepoRoot -EnsureCacheRoot:($Task -eq 'refresh')
 $result = switch ($Task) {
     'refresh' { Invoke-FactorioLuaDocsRefresh -Paths $paths }
     'query' { Invoke-FactorioLuaDocsQuery -Paths $paths -Query $Query -Stage $Stage -Kind $Kind -ExactName $ExactName -Limit $Limit -RefreshIfMissing:$RefreshIfMissing }

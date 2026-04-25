@@ -15,7 +15,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - General utility:
   `endswith`, `startswith`, `contains`, `is_valid_number`, `clean_nils`, `clamp`, `unique_values_only`, `table_contains_value`, `patch_nested_value`, `get_random_different_value`, `table_to_string`, `switch_string`, `get_event_tick`, `config`, `getn`
 - Runtime entity safety:
-  `entity_check`, `get_valid_entity`, `get_entity_unit_number`
+  `entity_check`, `get_valid_entity`, `get_entity_unit_number`, `get_normalized_quality_factor`
 - Prototype and raw access:
   `modify_data_raw`, `raw`, `recursive_copy`, `recursive_insert`, `set_properties`
 - Localization and prototype text:
@@ -38,3 +38,4 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - `ei_lib.make_icons` is the shared layered-icon helper when a base icon needs one optional overlay with shared scale/shift defaults.
 - `ei_lib.get_event_tick` and `ei_lib.config` are general runtime utilities, not the runtime scheduling abstraction. For queues, delayed buckets, telemetry gates, counters, cadence, and status snapshots, check `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` first.
 - `ei_lib.get_entity_unit_number` is a safe `.unit_number` read, not a validity check. When later code needs the entity itself, pair it with `entity_check` or `get_valid_entity`.
+- `ei_lib.get_normalized_quality_factor(entity_or_stack)` is the shared `0..1` quality scaler for runtime and inventory-facing quality logic. Prefer it over file-local clones.

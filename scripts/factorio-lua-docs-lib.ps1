@@ -2,11 +2,16 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 function Get-FactorioLuaDocsPaths {
-    param([Parameter(Mandatory = $true)][string]$RepoRoot)
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [switch]$EnsureCacheRoot
+    )
 
     $resolvedRepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
     $cacheRoot = Join-Path $resolvedRepoRoot '.factorio-lua-docs-cache'
-    New-Item -ItemType Directory -Force -Path $cacheRoot | Out-Null
+    if ($EnsureCacheRoot) {
+        New-Item -ItemType Directory -Force -Path $cacheRoot | Out-Null
+    }
 
     return [pscustomobject]@{
         repo_root            = $resolvedRepoRoot
@@ -40,7 +45,8 @@ function Read-FactorioLuaDocsJson {
         return $null
     }
 
-    return ((Get-Content -LiteralPath $Path -Raw) | ConvertFrom-Json)
+    $text = [System.IO.File]::ReadAllText($Path, [System.Text.UTF8Encoding]::new($false, $true))
+    return ($text | ConvertFrom-Json)
 }
 
 function Get-FactorioLuaDocsSourceMap {
@@ -359,20 +365,32 @@ function Get-FactorioLuaDocsTopicEntries {
     )
 
     $entries = [System.Collections.Generic.List[object]]::new()
+    $warnings = [System.Collections.Generic.List[object]]::new()
     foreach ($topic in @($Sources.auxiliary_topics) + @($Sources.wiki_topics)) {
-        $response = Invoke-WebRequest -UseBasicParsing -Uri $topic.url
-        $html = [string]$response.Content
-        $entries.Add([ordered]@{
-            stage   = [string]$topic.stage
-            kind    = 'topic'
-            name    = if ($topic.title) { [string]$topic.title } else { (Get-FactorioLuaDocsHtmlTitle -Html $html) }
-            symbol  = [string]$topic.id
-            summary = Get-FactorioLuaDocsHtmlSummary -Html $html
-            url     = [string]$topic.url
-        }) | Out-Null
+        try {
+            $response = Invoke-WebRequest -UseBasicParsing -Uri $topic.url
+            $html = [string]$response.Content
+            $entries.Add([ordered]@{
+                stage   = [string]$topic.stage
+                kind    = 'topic'
+                name    = if ($topic.title) { [string]$topic.title } else { (Get-FactorioLuaDocsHtmlTitle -Html $html) }
+                symbol  = [string]$topic.id
+                summary = Get-FactorioLuaDocsHtmlSummary -Html $html
+                url     = [string]$topic.url
+            }) | Out-Null
+        } catch {
+            $warnings.Add([ordered]@{
+                topic = [string]$topic.id
+                url   = [string]$topic.url
+                error = $_.Exception.Message
+            }) | Out-Null
+        }
     }
 
-    return @($entries | Sort-Object stage, name)
+    return [pscustomobject]@{
+        entries  = @($entries | Sort-Object stage, name)
+        warnings = @($warnings)
+    }
 }
 
 function Invoke-FactorioLuaDocsRefresh {
@@ -391,7 +409,9 @@ function Invoke-FactorioLuaDocsRefresh {
 
     $runtimeEntries = Get-FactorioLuaDocsRuntimeEntries -RuntimeDoc $runtimeDoc
     $prototypeEntries = Get-FactorioLuaDocsPrototypeEntries -PrototypeDoc $prototypeDoc
-    $topicEntries = Get-FactorioLuaDocsTopicEntries -Sources $sources -Paths $Paths
+    $topicResult = Get-FactorioLuaDocsTopicEntries -Sources $sources -Paths $Paths
+    $topicEntries = @($topicResult.entries)
+    $refreshWarnings = @($topicResult.warnings)
 
     $index = [ordered]@{
         schema_version = 1
@@ -405,6 +425,7 @@ function Invoke-FactorioLuaDocsRefresh {
             api_version         = $prototypeDoc.api_version
         }
         sources        = $sources
+        warnings       = $refreshWarnings
         counts         = [ordered]@{
             runtime_entries   = @($runtimeEntries).Count
             prototype_entries = @($prototypeEntries).Count
@@ -419,10 +440,11 @@ function Invoke-FactorioLuaDocsRefresh {
 
     return [ordered]@{
         task           = 'refresh'
-        overall_status = 'ok'
+        overall_status = if ($refreshWarnings.Count -gt 0) { 'warning' } else { 'ok' }
         cache_root     = $Paths.cache_root
         index_path     = $Paths.index_path
         counts         = $index.counts
+        warnings       = $refreshWarnings
         versions       = [ordered]@{
             runtime   = $runtimeDoc.application_version
             prototype = $prototypeDoc.application_version
@@ -480,9 +502,27 @@ function Invoke-FactorioLuaDocsQuery {
         [ValidateSet('runtime', 'prototype', 'auxiliary', 'wiki', 'all')][string]$Stage = 'all',
         [ValidateSet('class', 'method', 'attribute', 'operator', 'event', 'concept', 'concept-property', 'define', 'define-value', 'global-object', 'global-function', 'prototype', 'prototype-property', 'type', 'type-property', 'topic', 'all')][string]$Kind = 'all',
         [string]$ExactName,
+        [ValidateRange(1, 100)]
         [int]$Limit = 12,
         [switch]$RefreshIfMissing
     )
+
+    if ([string]::IsNullOrWhiteSpace($Query) -and [string]::IsNullOrWhiteSpace($ExactName)) {
+        return [ordered]@{
+            task           = 'query'
+            overall_status = 'failed'
+            query          = $Query
+            exact_name     = $ExactName
+            stage          = $Stage
+            kind           = $Kind
+            error          = 'Provide -Query or -ExactName for docs query.'
+            counts         = [ordered]@{
+                searched_entries = 0
+                matches          = 0
+            }
+            matches        = @()
+        }
+    }
 
     $index = Get-FactorioLuaDocsIndex -Paths $Paths -RefreshIfMissing:$RefreshIfMissing
     $entries = @($index.entries)

@@ -543,11 +543,15 @@ try_form_retaliation = function(surface, position, pollution)
     distraction = defines.distraction.by_enemy,
   }
 
-  surface.create_entity{
-    name = "flying-text",
-    position = position,
+  rendering.draw_text{
     text = "Enemy retaliation!",
+    surface = surface,
+    target = {x = position.x, y = position.y},
     color = {r = 1, g = 0.25, b = 0.25},
+    scale = 1,
+    alignment = "center",
+    scale_with_zoom = false,
+    time_to_live = 180,
   }
 
   return true
