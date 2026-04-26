@@ -12,7 +12,6 @@
 local util = require("util")
 
 local main_graphics_path = ei_path .. "graphics/"
-local cyst_icon_path = main_graphics_path .. "items/auric-cyst.png"
 local cyst_node_shadow_path = main_graphics_path .. "entities/auric-cyst-node/auric-cyst-node-shadow.png"
 local cyst_node_variation_paths = {
     main_graphics_path .. "entities/auric-cyst-node/auric-cyst-1.png",
@@ -22,10 +21,13 @@ local cyst_node_variation_paths = {
     main_graphics_path .. "entities/auric-cyst-node/auric-cyst-5.png",
     main_graphics_path .. "entities/auric-cyst-node/auric-cyst-6.png",
 }
+local cyst_icon_path = cyst_node_variation_paths[1]
+local cyst_icon_size = 512
+local cyst_icon_mipmaps = 5
 
 local function make_cyst_node_sprite(filename)
-    local shift = util.by_pixel(0, -10)
-    local scale = 0.36
+    local shift = util.by_pixel(0, -3)
+    local scale = 0.04
 
     return {
         filename = filename,
@@ -39,7 +41,7 @@ local function make_cyst_node_sprite(filename)
 end
 
 local function make_cyst_node_variation(filename)
-    local scale = 0.36
+    local scale = 0.04
     local variation = table.deepcopy(data.raw["plant"]["jellystem"].variations[1])
 
     variation.trunk = make_cyst_node_sprite(filename)
@@ -56,7 +58,7 @@ local function make_cyst_node_variation(filename)
         },
         width = 512,
         height = 512,
-        shift = util.by_pixel(10, 20),
+        shift = util.by_pixel(3, 5),
         scale = scale,
     }
     variation.underwater = nil
@@ -83,10 +85,27 @@ local function make_cyst_node_variations()
     return variations
 end
 
+local function make_cyst_item_pictures()
+    local pictures = {}
+
+    for _, filename in ipairs(cyst_node_variation_paths) do
+        pictures[#pictures + 1] = {
+            filename = filename,
+            flags = {"icon"},
+            size = cyst_icon_size,
+            mipmap_count = cyst_icon_mipmaps,
+            scale = 0.0625,
+        }
+    end
+
+    return pictures
+end
+
 local cyst_node = table.deepcopy(data.raw["plant"]["jellystem"])
 cyst_node.name = "ei-auric-cyst-node"
 cyst_node.icon = cyst_icon_path
-cyst_node.icon_size = 256
+cyst_node.icon_size = cyst_icon_size
+cyst_node.icon_mipmaps = cyst_icon_mipmaps
 cyst_node.flags = {"placeable-neutral", "placeable-off-grid", "breaths-air", "not-blueprintable"}
 cyst_node.minable = {
     mining_time = 0.75,
@@ -96,9 +115,9 @@ cyst_node.minable = {
     },
 }
 cyst_node.max_health = 65
-cyst_node.collision_box = {{-0.7, -0.7}, {0.7, 0.7}}
-cyst_node.selection_box = {{-0.9, -1.15}, {0.9, 0.8}}
-cyst_node.drawing_box_vertical_extension = 0.45
+cyst_node.collision_box = {{-0.2, -0.2}, {0.2, 0.2}}
+cyst_node.selection_box = {{-0.25, -0.35}, {0.25, 0.25}}
+cyst_node.drawing_box_vertical_extension = 0.12
 cyst_node.autoplace = nil
 cyst_node.subgroup = "trees"
 cyst_node.order = "a[tree]-c[gleba]-d[auric-cyst-node]"
@@ -118,14 +137,16 @@ local cyst_washing_recipe = {
     type = "recipe",
     name = "ei-auric-cyst-washing",
     category = "ei-purifier",
-    energy_required = 4,
+    energy_required = 2,
     ingredients = {
-        {type = "item", name = "ei-auric-cyst", amount = 2},
-        {type = "fluid", name = "water", amount = 20},
+        {type = "item", name = "ei-auric-cyst", amount = 1},
+        {type = "fluid", name = "steam", amount = 100, minimum_temperature = 500},
+        {type = "fluid", name = "sulfuric-acid", amount = 15},
     },
     results = {
-        {type = "item", name = "ei-gold-chunk", amount = 2},
-        {type = "fluid", name = "ei-dirty-water", amount = 20, ignored_by_stats = 20},
+        {type = "item", name = "ei-gold-chunk", amount_min = 1, amount_max = 3},
+        {type = "item", name = "spoilage", amount_min = 1, amount_max = 3, ignored_by_stats = 3, probability = 0.5},
+        {type = "fluid", name = "ei-dirty-water", amount_min = 5, amount_max = 25, ignored_by_stats = 30},
     },
     always_show_made_in = true,
     allow_productivity = false,
@@ -135,7 +156,8 @@ local cyst_washing_recipe = {
     icons = {
         {
             icon = cyst_icon_path,
-            icon_size = 256,
+            icon_size = cyst_icon_size,
+            icon_mipmaps = cyst_icon_mipmaps,
         },
         {
             icon = "__base__/graphics/icons/fluid/water.png",
@@ -156,7 +178,9 @@ data:extend({
         type = "item",
         name = "ei-auric-cyst",
         icon = cyst_icon_path,
-        icon_size = 256,
+        icon_size = cyst_icon_size,
+        icon_mipmaps = cyst_icon_mipmaps,
+        pictures = make_cyst_item_pictures(),
         subgroup = "intermediate-product",
         order = "z[auric-cyst]",
         stack_size = 50,

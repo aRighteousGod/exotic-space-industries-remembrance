@@ -22,28 +22,36 @@ local MAIN_GRAPHICS_PATH = ei_path .. "graphics/"
 
 local VAT_ICON_PATH = MAIN_GRAPHICS_PATH .. "items/auric-inoculation-vat.png"
 local VAT_TECH_ICON_PATH = MAIN_GRAPHICS_PATH .. "techs/auric-marsh-inoculation.png"
-local CYST_ICON_PATH = MAIN_GRAPHICS_PATH .. "items/auric-cyst.png"
+local CYST_ICON_PATH = MAIN_GRAPHICS_PATH .. "entities/auric-cyst-node/auric-cyst-1.png"
+local CYST_ICON_SIZE = 512
+local CYST_ICON_MIPMAPS = 5
 local VAT_ENTITY_PATH = MAIN_GRAPHICS_PATH .. "entities/auric-inoculation-vat/"
 local VAT_FRAME_SIZE = 500
 local VAT_FRAME_SCALE = 0.36
 
 local MARKER_ICON = ei_graphics_other_path .. "64_empty.png"
+local DIRTY_WATER_INPUT_FLUIDBOX = 1
+local BIO_OIL_INPUT_FLUIDBOX = 2
+local DIRTY_WATER_OUTPUT_FLUIDBOX = 1
+local ACIDIC_WATER_OUTPUT_FLUIDBOX = 2
+local MARKER_OUTPUT_FLUIDBOX = 3
 
 local BAND_DEFS = {
-    {key = "b1", min = 24, max = 39, seed_spoilage = 8,  seed_bio_oil = 16, flood_dirty_water = 40,  ferment_jelly = 18, ferment_yumako = 18, enrich_bioflux = 1},
-    {key = "b2", min = 40, max = 55, seed_spoilage = 9,  seed_bio_oil = 18, flood_dirty_water = 50,  ferment_jelly = 22, ferment_yumako = 22, enrich_bioflux = 1},
-    {key = "b3", min = 56, max = 71, seed_spoilage = 10, seed_bio_oil = 20, flood_dirty_water = 60,  ferment_jelly = 25, ferment_yumako = 25, enrich_bioflux = 2},
-    {key = "b4", min = 72, max = 87, seed_spoilage = 12, seed_bio_oil = 24, flood_dirty_water = 72,  ferment_jelly = 30, ferment_yumako = 30, enrich_bioflux = 2},
-    {key = "b5", min = 88, max = 103, seed_spoilage = 14, seed_bio_oil = 28, flood_dirty_water = 84,  ferment_jelly = 35, ferment_yumako = 35, enrich_bioflux = 3},
-    {key = "b6", min = 104, max = 127, seed_spoilage = 16, seed_bio_oil = 32, flood_dirty_water = 96, ferment_jelly = 40, ferment_yumako = 40, enrich_bioflux = 3},
-    {key = "b7", min = 128, max = 160, seed_spoilage = 18, seed_bio_oil = 36, flood_dirty_water = 108, ferment_jelly = 45, ferment_yumako = 45, enrich_bioflux = 4},
+    {key = "b1", min = 24, max = 39, seed_spoilage = 8,  seed_bio_oil = 16, flood_dirty_water = 40,  ferment_jelly = 18, ferment_yumako = 18, enrich_bioflux = 1, drain_dirty_water = 25, drain_acidic_water = 5},
+    {key = "b2", min = 40, max = 55, seed_spoilage = 9,  seed_bio_oil = 18, flood_dirty_water = 50,  ferment_jelly = 22, ferment_yumako = 22, enrich_bioflux = 1, drain_dirty_water = 35, drain_acidic_water = 5},
+    {key = "b3", min = 56, max = 71, seed_spoilage = 10, seed_bio_oil = 20, flood_dirty_water = 60,  ferment_jelly = 25, ferment_yumako = 25, enrich_bioflux = 2, drain_dirty_water = 45, drain_acidic_water = 10},
+    {key = "b4", min = 72, max = 87, seed_spoilage = 12, seed_bio_oil = 24, flood_dirty_water = 72,  ferment_jelly = 30, ferment_yumako = 30, enrich_bioflux = 2, drain_dirty_water = 55, drain_acidic_water = 10},
+    {key = "b5", min = 88, max = 103, seed_spoilage = 14, seed_bio_oil = 28, flood_dirty_water = 84,  ferment_jelly = 35, ferment_yumako = 35, enrich_bioflux = 3, drain_dirty_water = 65, drain_acidic_water = 15},
+    {key = "b6", min = 104, max = 127, seed_spoilage = 16, seed_bio_oil = 32, flood_dirty_water = 96, ferment_jelly = 40, ferment_yumako = 40, enrich_bioflux = 3, drain_dirty_water = 80, drain_acidic_water = 15},
+    {key = "b7", min = 128, max = 160, seed_spoilage = 18, seed_bio_oil = 36, flood_dirty_water = 108, ferment_jelly = 45, ferment_yumako = 45, enrich_bioflux = 4, drain_dirty_water = 95, drain_acidic_water = 20},
 }
 
-local function make_signal_icons(base_icon, base_size, overlay_icon, tint)
+local function make_signal_icons(base_icon, base_size, overlay_icon, tint, base_mipmaps)
     return {
         {
             icon = base_icon,
             icon_size = base_size,
+            icon_mipmaps = base_mipmaps,
         },
         {
             icon = overlay_icon,
@@ -53,7 +61,16 @@ local function make_signal_icons(base_icon, base_size, overlay_icon, tint)
     }
 end
 
-local function make_hidden_recipe(name, energy_required, ingredients)
+local function make_marker_result()
+    return {type = "fluid", name = MARKER_FLUID_NAME, amount = 1, fluidbox_index = MARKER_OUTPUT_FLUIDBOX, ignored_by_stats = 1, ignored_by_productivity = 1}
+end
+
+local function make_hidden_recipe(name, energy_required, ingredients, extra_results, localised_name)
+    local results = {make_marker_result()}
+    for _, result in ipairs(extra_results or {}) do
+        results[#results + 1] = result
+    end
+
     local recipe = {
         type = "recipe",
         name = name,
@@ -61,7 +78,7 @@ local function make_hidden_recipe(name, energy_required, ingredients)
         enabled = true,
         hidden = true,
         hide_from_player_crafting = true,
-        hide_from_stats = true,
+        hide_from_stats = false,
         hide_from_signal_gui = true,
         allow_as_intermediate = false,
         allow_decomposition = false,
@@ -71,10 +88,9 @@ local function make_hidden_recipe(name, energy_required, ingredients)
         auto_recycle = false,
         energy_required = energy_required,
         ingredients = ingredients or {},
-        results = {
-            {type = "fluid", name = MARKER_FLUID_NAME, amount = 1, ignored_by_stats = 1, ignored_by_productivity = 1},
-        },
+        results = results,
         main_product = MARKER_FLUID_NAME,
+        localised_name = localised_name,
         always_show_made_in = true,
     }
 
@@ -94,7 +110,7 @@ for _, band in ipairs(BAND_DEFS) do
         10,
         {
             {type = "item", name = "spoilage", amount = band.seed_spoilage},
-            {type = "fluid", name = "ei-bio-oil", amount = band.seed_bio_oil},
+            {type = "fluid", name = "ei-bio-oil", amount = band.seed_bio_oil, fluidbox_index = BIO_OIL_INPUT_FLUIDBOX},
         }
     )
 
@@ -102,7 +118,7 @@ for _, band in ipairs(BAND_DEFS) do
         "ei-auric-vat-flood-" .. band.key,
         15,
         {
-            {type = "fluid", name = "ei-dirty-water", amount = band.flood_dirty_water},
+            {type = "fluid", name = "ei-dirty-water", amount = band.flood_dirty_water, fluidbox_index = DIRTY_WATER_INPUT_FLUIDBOX},
         }
     )
 
@@ -122,6 +138,25 @@ for _, band in ipairs(BAND_DEFS) do
             {type = "item", name = "jelly", amount = band.ferment_jelly},
             {type = "item", name = "yumako-mash", amount = band.ferment_yumako},
             {type = "item", name = "bioflux", amount = band.enrich_bioflux},
+        }
+    )
+
+    recipes[#recipes + 1] = make_hidden_recipe(
+        "ei-auric-vat-drain-" .. band.key,
+        15,
+        {},
+        {
+            {type = "fluid", name = "ei-dirty-water", amount = band.drain_dirty_water, fluidbox_index = DIRTY_WATER_OUTPUT_FLUIDBOX},
+        }
+    )
+
+    recipes[#recipes + 1] = make_hidden_recipe(
+        "ei-auric-vat-drain-acidic-" .. band.key,
+        15,
+        {},
+        {
+            {type = "fluid", name = "ei-dirty-water", amount = band.drain_dirty_water, fluidbox_index = DIRTY_WATER_OUTPUT_FLUIDBOX},
+            {type = "fluid", name = "ei-acidic-water", amount = band.drain_acidic_water, fluidbox_index = ACIDIC_WATER_OUTPUT_FLUIDBOX},
         }
     )
 end
@@ -159,10 +194,10 @@ local vat_entity = {
     circuit_connector = circuit_connector_definitions.create_vector(
         universal_connector_template,
         {
-            {variation = 30, main_offset = util.by_pixel(0.625, 58.875), shadow_offset = util.by_pixel(0.625, 58.875), show_shadow = true},
-            {variation = 30, main_offset = util.by_pixel(0.625, 58.875), shadow_offset = util.by_pixel(0.625, 58.875), show_shadow = true},
-            {variation = 30, main_offset = util.by_pixel(0.625, 58.875), shadow_offset = util.by_pixel(0.625, 58.875), show_shadow = true},
-            {variation = 30, main_offset = util.by_pixel(0.625, 58.875), shadow_offset = util.by_pixel(0.625, 58.875), show_shadow = true},
+            { variation = 23, main_offset = util.by_pixel( 70.125,  55.125), shadow_offset = util.by_pixel( 70.125,  55.125), show_shadow = true },
+            { variation = 23, main_offset = util.by_pixel( 70.125,  55.125), shadow_offset = util.by_pixel( 70.125,  55.125), show_shadow = true },
+            { variation = 23, main_offset = util.by_pixel( 70.125,  55.125), shadow_offset = util.by_pixel( 70.125,  55.125), show_shadow = true },
+            { variation = 23, main_offset = util.by_pixel( 70.125,  55.125), shadow_offset = util.by_pixel( 70.125,  55.125), show_shadow = true },
         }
     ),
     circuit_wire_max_distance = default_circuit_wire_max_distance,
@@ -171,9 +206,11 @@ local vat_entity = {
         mining_time = 0.75,
         result = VAT_NAME,
     },
-    max_health = 450,
+    max_health = 500,
     corpse = "big-remnants",
-    dying_explosion = "medium-explosion",
+    dying_explosion = "biolab-explosion",
+    impact_category = "organic",
+    damaged_trigger_effect = hit_effects.entity(),
     collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
     selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
     radius_visualisation_specification = {
@@ -192,13 +229,20 @@ local vat_entity = {
     ingredient_count = 4,
     heating_energy = "200kW",
     energy_source = {
-        type = "electric",
+        type = "burner",
+        fuel_categories = {"nutrients"},
+        effectivity = 1,
+        burner_usage = "nutrients",
+        fuel_inventory_size = 1,
         usage_priority = "secondary-input",
         emissions_per_minute = {pollution = 6, spores = 8},
     },
-    energy_usage = "2.5MW",
+    energy_usage = "1.25MW",
     allowed_effects = {"speed", "consumption", "pollution", "quality"},
-    module_slots = 4,
+    module_slots = 2,
+    surface_conditions = {
+        {property = "pressure", min = 2000, max = 2000},
+    },
     fluid_boxes = {
         {
             volume = 300,
@@ -243,6 +287,10 @@ local vat_entity = {
         {
             volume = 10,
             filter = MARKER_FLUID_NAME,
+            pipe_picture = util.empty_sprite(),
+            pipe_covers = util.empty_sprite(),
+            -- Keep this box in the machine but disconnected from player-built
+            -- pipes so marker fluid stays internal.
             pipe_connections = {},
             production_type = "output",
         },
@@ -318,9 +366,29 @@ local vat_entity = {
             },
         },
     },
-    working_sound = {
-        sound = {filename = "__base__/sound/chemical-plant-3.ogg", volume = 0.3},
-        apparent_volume = 0.2,
+    open_sound = {filename = "__base__/sound/open-close/fluid-open.ogg", volume = 0.55},
+    close_sound = {filename = "__base__/sound/open-close/fluid-close.ogg", volume = 0.54},
+    working_sound =
+    {
+      sound = {filename = "__space-age__/sound/entity/biochamber/biochamber-loop.ogg", volume = 0.4},
+      max_sounds_per_prototype = 3,
+      fade_in_ticks = 4,
+      fade_out_ticks = 20
+    },
+    water_reflection =
+    {
+      pictures =
+      {
+        filename = "__base__/graphics/entity/chemical-plant/chemical-plant-reflection.png",
+        priority = "extra-high",
+        width = 28,
+        height = 36,
+        shift = util.by_pixel(5, 60),
+        variation_count = 4,
+        scale = 5
+      },
+      rotate = false,
+      orientation_to_variation = true
     },
 }
 
@@ -357,14 +425,13 @@ local prototypes = {
         type = "recipe",
         name = VAT_NAME,
         category = "crafting",
-        energy_required = 6,
+        energy_required = 12,
         ingredients = {
-            {type = "item", name = "chemical-plant", amount = 2},
-            {type = "item", name = "ei-bio-chamber", amount = 1},
+            {type = "item", name = "biochamber", amount = 1},
             {type = "item", name = "ei-purifier", amount = 1},
             {type = "item", name = "electric-engine-unit", amount = 8},
             {type = "item", name = "ei-tank-1", amount = 2},
-            {type = "item", name = "ei-steel-mechanical-parts", amount = 12},
+            {type = "item", name = "ei-steel-mechanical-parts", amount = 50},
             {type = "item", name = "bioflux", amount = 10},
         },
         results = {{type = "item", name = VAT_NAME, amount = 1}},
@@ -404,7 +471,7 @@ local prototypes = {
     {
         type = "virtual-signal",
         name = "ei-auric-vat-vigor",
-        icons = make_signal_icons(CYST_ICON_PATH, 256, ei_graphics_other_path .. "overlay_2.png", {r = 0.42, g = 0.96, b = 0.46, a = 0.95}),
+        icons = make_signal_icons(CYST_ICON_PATH, CYST_ICON_SIZE, ei_graphics_other_path .. "overlay_2.png", {r = 0.42, g = 0.96, b = 0.46, a = 0.95}, CYST_ICON_MIPMAPS),
         order = "ei-auric-a",
     },
     {
@@ -428,7 +495,7 @@ local prototypes = {
     {
         type = "virtual-signal",
         name = "ei-auric-vat-bloom",
-        icons = make_signal_icons(CYST_ICON_PATH, 256, ei_graphics_other_path .. "overlay_4.png", {r = 1.0, g = 0.82, b = 0.22, a = 0.95}),
+        icons = make_signal_icons(CYST_ICON_PATH, CYST_ICON_SIZE, ei_graphics_other_path .. "overlay_4.png", {r = 1.0, g = 0.82, b = 0.22, a = 0.95}, CYST_ICON_MIPMAPS),
         order = "ei-auric-e",
     },
 }

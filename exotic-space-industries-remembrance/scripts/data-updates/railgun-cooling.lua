@@ -61,6 +61,8 @@ local function make_hidden_proxy()
         {
             type = "recipe",
             name = PROXY_RECIPE_NAME,
+            localised_name = {"recipe-name." .. PROXY_RECIPE_NAME},
+            localised_description = {"recipe-description." .. PROXY_RECIPE_NAME},
             category = PROXY_RECIPE_CATEGORY,
             energy_required = 1,
             ingredients = {
@@ -73,7 +75,7 @@ local function make_hidden_proxy()
             enabled = false,
             hidden = true,
             hide_from_player_crafting = true,
-            hide_from_stats = true,
+            hide_from_stats = false,
             allow_productivity = false,
             allow_as_intermediate = false,
             allow_decomposition = false,
@@ -213,6 +215,7 @@ local function add_ice_cooling_recipe()
     recipe.localised_description = {"recipe-description." .. ICE_RECIPE_NAME}
     recipe.order = (base_recipe.order or "z") .. "-ice"
     recipe.enabled = false
+    recipe.hide_from_stats = false
     recipe.allow_productivity = false
     recipe.auto_recycle = false
     recipe.ingredients = {

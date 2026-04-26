@@ -60,6 +60,11 @@ local owned_prefixes = {
 
 local helper_exact = {
   ["ei-gate"] = true,
+  ["ei-auric-inoculation-vat"] = true,
+}
+
+local exact_effect_assignments = {
+  "ei-auric-inoculation-vat",
 }
 
 local helper_prefixes = {
@@ -1032,6 +1037,53 @@ local function effects_for_family(family, bucket_key)
   }
 end
 
+local function effects_for_exact(name, bucket_key)
+  if name == "ei-auric-inoculation-vat" then
+    return {
+      make_smoke_burst(10, 1.35, 0.018, bucket_key),
+      {
+        type = "create-explosion",
+        entity_name = "blood-explosion-huge",
+      },
+      {
+        type = "create-explosion",
+        entity_name = "blood-explosion-big",
+      },
+      make_particle_burst("ei-auric-blood-particle", 42, 1.55, 0.38, 0.070, 0.050, bucket_key, {
+        frame_speed = 0.78,
+        frame_speed_deviation = 0.18,
+        tail_length = 8,
+        tail_length_deviation = 3,
+        tail_width = 4,
+        only_when_visible = true,
+      }),
+      make_particle_burst("ei-auric-gore-particle", 32, 1.25, 0.44, 0.092, 0.056, bucket_key),
+      {
+        type = "create-entity",
+        entity_name = "medium-scorchmark",
+        check_buildability = true,
+      },
+    }
+  end
+
+  return nil
+end
+
+local function combined_trigger_effects(name, family, bucket_key)
+  local effects = effects_for_family(family, bucket_key)
+  local exact_effects = effects_for_exact(name, bucket_key)
+
+  if exact_effects then
+    effects = table.deepcopy(effects)
+
+    for _, effect in pairs(exact_effects) do
+      table.insert(effects, effect)
+    end
+  end
+
+  return effects
+end
+
 local function make_explosion(family, bucket_key)
   local name = "ei-death-explosion-" .. family .. "-" .. bucket_key
   local smoke_count = 0
@@ -1326,6 +1378,22 @@ local function generate_explosions()
       render_layer = "object",
       render_layer_when_on_ground = "lower-object-above-shadow",
       vertical_acceleration = -0.0030,
+    },
+    make_particle_prototype {
+      name = "ei-auric-blood-particle",
+      life_time = 38,
+      pictures = particle_animations.get_water_particle_pictures({ tint = { 0.56, 0.02, 0.01, 0.88 } }),
+      render_layer = "air-object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      vertical_acceleration = -0.0012,
+    },
+    make_particle_prototype {
+      name = "ei-auric-gore-particle",
+      life_time = 42,
+      pictures = particle_animations.get_stone_particle_small_pictures({ tint = { 0.36, 0.02, 0.02, 1.00 } }),
+      render_layer = "object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      vertical_acceleration = -0.0034,
     },
     make_particle_prototype {
       name = "ei-fortified-shard-particle",
@@ -1722,7 +1790,7 @@ local function apply_family(name, prototype, entity_type, family, assignment_log
 
   if rolling_stock_core then
     prototype.dying_explosion = rolling_stock_core
-    append_trigger_effects(prototype, effects_for_family(family, bucket_key))
+    append_trigger_effects(prototype, combined_trigger_effects(name, family, bucket_key))
     assignment_log[name] = {
       mode = "rail-core",
       family = family,
@@ -1734,7 +1802,7 @@ local function apply_family(name, prototype, entity_type, family, assignment_log
   end
 
   if should_supplement(name, current_core) then
-    append_trigger_effects(prototype, effects_for_family(family, bucket_key))
+    append_trigger_effects(prototype, combined_trigger_effects(name, family, bucket_key))
     assignment_log[name] = {
       mode = "supplement",
       family = family,
@@ -1745,11 +1813,34 @@ local function apply_family(name, prototype, entity_type, family, assignment_log
   end
 
   prototype.dying_explosion = target_explosion
+  local exact_effects = effects_for_exact(name, bucket_key)
+  if exact_effects then
+    append_trigger_effects(prototype, exact_effects)
+  end
   assignment_log[name] = {
     mode = "replace",
     family = family,
     bucket = bucket_key,
     core = current_core,
+  }
+end
+
+local function apply_exact_effect(name, prototype, entity_type, assignment_log)
+  if assignment_log[name] then
+    return
+  end
+
+  local bucket_key = footprint_bucket(prototype, entity_type)
+  local exact_effects = effects_for_exact(name, bucket_key)
+  if not exact_effects then
+    return
+  end
+
+  append_trigger_effects(prototype, exact_effects)
+  assignment_log[name] = {
+    mode = "exact-effect",
+    bucket = bucket_key,
+    core = prototype.dying_explosion,
   }
 end
 
@@ -1827,6 +1918,15 @@ for _, entity_type in pairs(entity_types) do
         apply_family(name, prototype, entity_type, family, assignment_log)
       end
     end
+  end
+end
+
+for _, name in pairs(exact_effect_assignments) do
+  local prototype, entity_type = find_entity(name)
+  if prototype then
+    apply_exact_effect(name, prototype, entity_type, assignment_log)
+  else
+    log("EI death explosion audit: unresolved exact effect assignment -> " .. name)
   end
 end
 

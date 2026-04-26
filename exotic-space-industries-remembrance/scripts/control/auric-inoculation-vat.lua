@@ -32,6 +32,13 @@ local INFORMATRON_PAGE = "auric_inoculation_vat"
 local CYST_NODE_NAME = "ei-auric-cyst-node"
 
 local RUNTIME_VERSION = 1
+model.BLOOM_MIN_VIGOR = 40
+model.BLOOM_MAX_CONTAMINATION = 60
+model.BASIN_RESTORE_SUCCESS_STREAK = 3
+model.BASIN_RESTORE_TILE_PERCENT = 15
+model.BASIN_RESTORE_MAX_CONTAMINATION = 20
+model.BASIN_RESTORE_MIN_VIGOR = 70
+model.CYST_SPAWN_EFFECT_TICKS = 42
 local BASIN_RADIUS = 20
 local BASIN_RADIUS_SQR = BASIN_RADIUS * BASIN_RADIUS
 local MIN_BASIN_TILES = 24
@@ -126,13 +133,13 @@ local PHASE_DEFS = {
 -- reward. Keeping these numbers beside runtime behavior makes the later drain
 -- output, bloom yield, and telemetry code read from the same source of truth.
 local BAND_DEFS = {
-    {key = "b1", min = 24, max = 39, node_yield = 1, dirty_water = 25, acidic_water = 5, enrich_bonus = 1, enrich_bioflux = 1},
-    {key = "b2", min = 40, max = 55, node_yield = 1, dirty_water = 35, acidic_water = 5, enrich_bonus = 1, enrich_bioflux = 1},
-    {key = "b3", min = 56, max = 71, node_yield = 2, dirty_water = 45, acidic_water = 10, enrich_bonus = 1, enrich_bioflux = 2},
-    {key = "b4", min = 72, max = 87, node_yield = 2, dirty_water = 55, acidic_water = 10, enrich_bonus = 1, enrich_bioflux = 2},
-    {key = "b5", min = 88, max = 103, node_yield = 3, dirty_water = 65, acidic_water = 15, enrich_bonus = 1, enrich_bioflux = 3},
-    {key = "b6", min = 104, max = 127, node_yield = 4, dirty_water = 80, acidic_water = 15, enrich_bonus = 1, enrich_bioflux = 3},
-    {key = "b7", min = 128, max = 160, node_yield = 5, dirty_water = 95, acidic_water = 20, enrich_bonus = 1, enrich_bioflux = 4},
+    {key = "b1", min = 24, max = 39, node_yield = 1, cyst_capacity = 3, dirty_water = 25, acidic_water = 5, enrich_bonus = 1, enrich_bioflux = 1},
+    {key = "b2", min = 40, max = 55, node_yield = 1, cyst_capacity = 4, dirty_water = 35, acidic_water = 5, enrich_bonus = 1, enrich_bioflux = 1},
+    {key = "b3", min = 56, max = 71, node_yield = 2, cyst_capacity = 6, dirty_water = 45, acidic_water = 10, enrich_bonus = 1, enrich_bioflux = 2},
+    {key = "b4", min = 72, max = 87, node_yield = 2, cyst_capacity = 8, dirty_water = 55, acidic_water = 10, enrich_bonus = 1, enrich_bioflux = 2},
+    {key = "b5", min = 88, max = 103, node_yield = 3, cyst_capacity = 10, dirty_water = 65, acidic_water = 15, enrich_bonus = 1, enrich_bioflux = 3},
+    {key = "b6", min = 104, max = 127, node_yield = 4, cyst_capacity = 12, dirty_water = 80, acidic_water = 15, enrich_bonus = 1, enrich_bioflux = 3},
+    {key = "b7", min = 128, max = 160, node_yield = 5, cyst_capacity = 14, dirty_water = 95, acidic_water = 20, enrich_bonus = 1, enrich_bioflux = 4},
 }
 
 local BAND_INDEX = {}
@@ -190,6 +197,23 @@ local WETLAND_TILE_DOWNGRADE = {
     ["wetland-dead-skin"] = "wetland-pink-tentacle",
     ["wetland-pink-tentacle"] = "wetland-red-tentacle",
     ["wetland-red-tentacle"] = "wetland-red-tentacle",
+}
+
+model.WETLAND_TILE_RANK = {
+    ["wetland-light-green-slime"] = 1,
+    ["wetland-green-slime"] = 2,
+    ["wetland-light-dead-skin"] = 3,
+    ["wetland-dead-skin"] = 4,
+    ["wetland-pink-tentacle"] = 5,
+    ["wetland-red-tentacle"] = 6,
+}
+
+model.WETLAND_TILE_RECOVERY = {
+    ["wetland-green-slime"] = "wetland-light-green-slime",
+    ["wetland-light-dead-skin"] = "wetland-green-slime",
+    ["wetland-dead-skin"] = "wetland-light-dead-skin",
+    ["wetland-pink-tentacle"] = "wetland-dead-skin",
+    ["wetland-red-tentacle"] = "wetland-pink-tentacle",
 }
 
 local ELIGIBLE_TILES = {
@@ -380,6 +404,26 @@ local function get_downgraded_tile_name(tile_name)
     end
 
     return WETLAND_TILE_DOWNGRADE[tile_name] or DEFAULT_FAILURE_TILE
+end
+
+function model._get_recovered_tile_name(tile_name, original_tile_name)
+    if not (is_eligible_tile_name(tile_name) and is_eligible_tile_name(original_tile_name)) then
+        return nil
+    end
+
+    local tile_rank = model.WETLAND_TILE_RANK[tile_name]
+    local original_rank = model.WETLAND_TILE_RANK[original_tile_name]
+    if not tile_rank or not original_rank or tile_rank <= original_rank then
+        return nil
+    end
+
+    local recovered_name = model.WETLAND_TILE_RECOVERY[tile_name]
+    local recovered_rank = recovered_name and model.WETLAND_TILE_RANK[recovered_name]
+    if not recovered_rank or recovered_rank < original_rank then
+        return original_tile_name
+    end
+
+    return recovered_name
 end
 
 local function safe_runtime_field(object, field_name)
@@ -1886,13 +1930,22 @@ local function select_phase_key(record, current_tick)
 end
 
 -- Hidden recipe names encode the runtime decision. Banded phases scale by basin
--- size, while drain/bloom/rest stay fixed because their costs and outputs are
--- resolved by script-side biological state.
+-- size, and drain is banded too so Factorio owns the runoff output routing.
 local function get_phase_recipe_name(record, current_tick)
     local phase_key, lock_phase = select_phase_key(record, current_tick)
     local band_def = get_band_def(record)
 
-    if phase_key == "drain" or phase_key == "bloom" or phase_key == "rest" then
+    if phase_key == "drain" then
+        if not band_def then
+            return "ei-auric-vat-drain", phase_key, lock_phase
+        end
+        if record.pending_acidic_runoff == true then
+            return "ei-auric-vat-drain-acidic-" .. band_def.key, phase_key, lock_phase
+        end
+        return "ei-auric-vat-drain-" .. band_def.key, phase_key, lock_phase
+    end
+
+    if phase_key == "bloom" or phase_key == "rest" then
         return "ei-auric-vat-" .. phase_key, phase_key, lock_phase
     end
 
@@ -1950,6 +2003,7 @@ local function apply_phase_recipe(record, current_tick)
         and recipe_active
         and PHASE_DEFS[record.phase]
         and PHASE_DEFS[record.phase].active == true
+        and not (record.phase == "drain" and record.drain_runoff_pending == true)
     if entity.recipe_locked ~= true then
         entity.recipe_locked = true
     end
@@ -2006,22 +2060,55 @@ local function set_fluidbox_contents(entity, index, contents, known_count)
     return ok == true
 end
 
-local function get_fluidbox_capacity(entity, index, fluidbox_proto)
-    if entity_check(entity) and entity.fluidbox then
-        local ok, capacity = pcall(function()
-            return entity.fluidbox.get_capacity(index)
-        end)
-        if ok and capacity then
-            return math.max(0, tonumber(capacity) or 0)
+local function get_filtered_output_fluidbox_index(entity, fluid_name, known_count)
+    if not entity_check(entity) then
+        return nil
+    end
+
+    known_count = known_count or fluidbox_count(entity)
+    local fluidbox_prototypes = entity.prototype and entity.prototype.fluidbox_prototypes
+    if not fluidbox_prototypes then
+        return nil
+    end
+
+    for index = 1, known_count do
+        local fluidbox_proto = fluidbox_prototypes[index]
+        if fluidbox_proto then
+            local production_type = fluidbox_proto.production_type
+            local filter = fluidbox_proto.filter
+            local filter_name = type(filter) == "string" and filter or filter and filter.name
+            if (production_type == "output" or production_type == "input-output") and filter_name == fluid_name then
+                return index
+            end
         end
     end
 
-    return fluidbox_proto and math.max(0, tonumber(fluidbox_proto.volume) or 0) or 0
+    return nil
+end
+
+local function fluidbox_has_fluid(entity, index, known_count)
+    local contents = get_fluidbox_contents(entity, index, known_count)
+    return contents and contents.name and (tonumber(contents.amount) or 0) > 0.001
+end
+
+local function drain_outputs_are_clear(record, entity)
+    local count = fluidbox_count(entity)
+    local dirty_index = get_filtered_output_fluidbox_index(entity, "ei-dirty-water", count)
+    local acidic_index = get_filtered_output_fluidbox_index(entity, "ei-acidic-water", count)
+
+    if dirty_index and fluidbox_has_fluid(entity, dirty_index, count) then
+        return false
+    end
+    if acidic_index and fluidbox_has_fluid(entity, acidic_index, count) then
+        return false
+    end
+
+    return true
 end
 
 -- The hidden marker fluid is the phase-completion pulse emitted by every hidden
--- recipe. Runtime consumes the marker instead of trusting only crafting progress,
--- which makes phase advancement robust against weird progress snapshots.
+-- recipe. Fluidbox reads return a plain fluid table, not an inventory stack, so
+-- marker detection keys off the fluid name instead of stack.valid_for_read.
 local function get_marker_amount(entity)
     if not entity_check(entity) then
         return 0
@@ -2031,7 +2118,7 @@ local function get_marker_amount(entity)
     local count = fluidbox_count(entity)
     for index = 1, count do
         local marker = get_fluidbox_contents(entity, index, count)
-        if marker and marker.valid_for_read and marker.name == MARKER_FLUID_NAME then
+        if marker and marker.name == MARKER_FLUID_NAME then
             total = total + (marker.amount or 0)
         end
     end
@@ -2050,55 +2137,10 @@ local function clear_marker(entity)
     local count = fluidbox_count(entity)
     for index = 1, count do
         local marker = get_fluidbox_contents(entity, index, count)
-        if marker and marker.valid_for_read and marker.name == MARKER_FLUID_NAME then
+        if marker and marker.name == MARKER_FLUID_NAME then
             set_fluidbox_contents(entity, index, nil, count)
         end
     end
-end
-
--- Drain output is script-emitted into normal fluidboxes. Capacity checks happen
--- before writing either fluid so a blocked acidic side cannot partially leak
--- dirty water and desynchronize the biological phase.
-local function fluidbox_accepts(entity, index, fluid_name, amount, known_count)
-    if not entity_check(entity) then
-        return false
-    end
-
-    local fluidbox_prototypes = entity.prototype and entity.prototype.fluidbox_prototypes
-    local fluidbox_proto = fluidbox_prototypes and fluidbox_prototypes[index]
-    if not fluidbox_proto then
-        return false
-    end
-
-    local production_type = fluidbox_proto.production_type
-    if production_type ~= "output" and production_type ~= "input-output" then
-        return false
-    end
-
-    local filter = fluidbox_proto.filter
-    local filter_name = type(filter) == "string" and filter or filter and filter.name
-    if filter_name ~= fluid_name then
-        return false
-    end
-
-    local existing = get_fluidbox_contents(entity, index, known_count)
-    if existing and existing.valid_for_read and existing.name ~= fluid_name then
-        return false
-    end
-
-    local current_amount = existing and existing.amount or 0
-    local capacity = get_fluidbox_capacity(entity, index, fluidbox_proto)
-    return (current_amount + amount) <= capacity + 0.001
-end
-
-local function add_output_fluid(entity, index, fluid_name, amount, known_count)
-    local existing = get_fluidbox_contents(entity, index, known_count)
-    local current_amount = existing and existing.amount or 0
-    return set_fluidbox_contents(entity, index, {
-        name = fluid_name,
-        amount = current_amount + amount,
-        temperature = existing and existing.temperature or 25,
-    }, known_count)
 end
 
 -- Products-finished is another completion signal, but it is only a backup. The
@@ -2436,6 +2478,25 @@ local function get_claim_footprint_signature(record)
     return table.concat(keys, ",")
 end
 
+function model._update_original_basin_tiles(record)
+    record.original_basin_tiles = type(record.original_basin_tiles) == "table" and record.original_basin_tiles or {}
+
+    local live_keys = {}
+    for _, tile in ipairs(record.claim_tiles or {}) do
+        local key = get_tile_key(record.surface_index, tile.x, tile.y)
+        live_keys[key] = true
+        if record.original_basin_tiles[key] == nil and is_eligible_tile_name(tile.name) then
+            record.original_basin_tiles[key] = tile.name
+        end
+    end
+
+    for key in pairs(record.original_basin_tiles) do
+        if not live_keys[key] then
+            record.original_basin_tiles[key] = nil
+        end
+    end
+end
+
 -- Basin discovery starts from the nearest eligible wetland tile to the vat, not
 -- necessarily the tile under the entity. That supports "firm ground beside marsh"
 -- placement while still binding the machine to one adjacent biological patch.
@@ -2608,6 +2669,7 @@ local function refresh_claim(runtime, record, current_tick, queue_immediately)
         for _, tile in ipairs(record.claim_tiles) do
             runtime.claims_by_tile[get_tile_key(record.surface_index, tile.x, tile.y)] = record.unit_number
         end
+        model._update_original_basin_tiles(record)
 
         local band_def = get_band_for_size(record.basin_size)
         if band_def then
@@ -2640,6 +2702,7 @@ local function refresh_claim(runtime, record, current_tick, queue_immediately)
         record.enriched_bloom = false
         record.ferment_enrichment_until_tick = nil
         record.pending_acidic_runoff = nil
+        record.drain_runoff_pending = false
         clear_marker(entity)
         record.last_products_finished = get_products_finished(entity)
         queue_vat_due(runtime, record.unit_number, nil)
@@ -2683,12 +2746,46 @@ local function get_signature(snapshot)
         tostring(snapshot.blocked_drain_streak or 0),
         tostring(snapshot.expected_yield or 0),
         tostring(snapshot.ready_nodes or 0),
+        tostring(snapshot.cyst_nodes or 0),
+        tostring(snapshot.cyst_capacity or 0),
         tostring(snapshot.dirty_water or 0),
         tostring(snapshot.bloom_state or 0),
         tostring(math.floor((snapshot.phase_progress_ratio or 0) * 1000 + 0.5)),
         tostring(math.floor(snapshot.phase_seconds_remaining or 0)),
         tostring(snapshot.due_tick or 0),
     }, "|")
+end
+
+function model._count_cyst_nodes_in_basin(record, entity)
+    entity = entity or ei_lib.get_valid_entity(record and record.entity)
+    if not (entity and record and record.claim_tiles and #record.claim_tiles > 0) then
+        return 0, {}
+    end
+
+    local left_top = {x = math.huge, y = math.huge}
+    local right_bottom = {x = -math.huge, y = -math.huge}
+    local claimed_tile_keys = {}
+    for _, tile in ipairs(record.claim_tiles) do
+        claimed_tile_keys[get_tile_key(record.surface_index, tile.x, tile.y)] = true
+        if tile.x < left_top.x then left_top.x = tile.x end
+        if tile.y < left_top.y then left_top.y = tile.y end
+        if tile.x + 1 > right_bottom.x then right_bottom.x = tile.x + 1 end
+        if tile.y + 1 > right_bottom.y then right_bottom.y = tile.y + 1 end
+    end
+
+    local existing_nodes = {}
+    local existing_basin_nodes = 0
+    for _, node in ipairs(entity.surface.find_entities_filtered{area = {left_top, right_bottom}, name = CYST_NODE_NAME}) do
+        if entity_check(node) then
+            local tile_key = get_tile_key(record.surface_index, math.floor(node.position.x), math.floor(node.position.y))
+            existing_nodes[tile_key] = true
+            if claimed_tile_keys[tile_key] then
+                existing_basin_nodes = existing_basin_nodes + 1
+            end
+        end
+    end
+
+    return existing_basin_nodes, existing_nodes
 end
 
 function model._get_claim_signature(snapshot)
@@ -2720,6 +2817,7 @@ local function build_snapshot(runtime, record, current_tick)
     if band_def and (record.enriched_bloom or record.phase == "ferment-enriched") then
         expected_yield = math.min(6, expected_yield + (band_def.enrich_bonus or 0))
     end
+    local cyst_nodes = model._count_cyst_nodes_in_basin(record)
     local snapshot = {
         unit_number = record.unit_number,
         phase = display_phase,
@@ -2731,6 +2829,8 @@ local function build_snapshot(runtime, record, current_tick)
         band_index = record.band_index or 0,
         expected_yield = expected_yield,
         ready_nodes = record.ready_nodes or 0,
+        cyst_nodes = cyst_nodes or 0,
+        cyst_capacity = band_def and band_def.cyst_capacity or 0,
         dirty_water = band_def and band_def.dirty_water or 0,
         bloom_state = get_bloom_state_value(record),
         vigor = math.floor(clamp(record.vigor or 0, 0, 100) + 0.5),
@@ -2849,6 +2949,7 @@ local function build_gui(player)
         style = "ei_inner_content_flow",
     }
     basin_flow.style.vertical_spacing = 4
+    add_wrapped_label(basin_flow, "cyst-count-line")
     add_wrapped_label(basin_flow, "basin-line")
     add_wrapped_label(basin_flow, "basin-detail-line")
     add_wrapped_label(basin_flow, "status-line")
@@ -2991,7 +3092,7 @@ local function update_gui(player, snapshot)
         if root and main_container and basin_flow and cycle_flow and pressure_flow
         and titlebar and titlebar["informatron-button"]
         and basin_flow["basin-line"] and basin_flow["basin-detail-line"] and basin_flow["status-line"]
-        and basin_flow["telemetry-line"] and basin_flow["bloom-line"]
+        and basin_flow["cyst-count-line"] and basin_flow["telemetry-line"] and basin_flow["bloom-line"]
         and cycle_flow["phase-line"] and cycle_flow["phase-bar"] and cycle_flow["timer-line"]
         and cycle_flow["vigor-line"] and cycle_flow["vigor-bar"]
         and cycle_flow["contamination-line"] and cycle_flow["contamination-bar"]
@@ -3009,6 +3110,11 @@ local function update_gui(player, snapshot)
     end
 
     if snapshot.claim_valid then
+        basin_flow["cyst-count-line"].caption = {
+            "exotic-industries.auric-inoculation-vat-gui-basin-cyst-count",
+            snapshot.cyst_nodes or 0,
+            snapshot.cyst_capacity or 0,
+        }
         basin_flow["basin-line"].caption = {
             "",
             {"exotic-industries.auric-inoculation-vat-gui-band", snapshot.band_index or 0},
@@ -3016,6 +3122,11 @@ local function update_gui(player, snapshot)
             {"exotic-industries.auric-inoculation-vat-gui-claimed-nodes", snapshot.basin_size or 0},
         }
     else
+        basin_flow["cyst-count-line"].caption = {
+            "exotic-industries.auric-inoculation-vat-gui-basin-cyst-count",
+            0,
+            0,
+        }
         basin_flow["basin-line"].caption = get_status_locale(snapshot.status_key)
     end
 
@@ -3289,6 +3400,7 @@ local function register_vat(runtime, entity, current_tick, carried_state)
             phase_started_tick = current_tick,
             last_tick = current_tick,
             claim_tiles = {},
+            original_basin_tiles = {},
             claim_conflicts = {},
             claim_valid = false,
             invalid_reason = "no-basin",
@@ -3301,10 +3413,12 @@ local function register_vat(runtime, entity, current_tick, carried_state)
             starvation_streak = 0,
             blocked_drain_streak = 0,
             completed_cycles = 0,
+            successful_bloom_streak = 0,
             ready_nodes = 0,
             enriched_bloom = false,
             ferment_enrichment_until_tick = nil,
             pending_acidic_runoff = nil,
+            drain_runoff_pending = false,
             active_recipe_name = nil,
             last_products_finished = 0,
             signal_cache = nil,
@@ -3327,10 +3441,15 @@ local function register_vat(runtime, entity, current_tick, carried_state)
         record.starvation_streak = tonumber(carried_state.starvation_streak) or record.starvation_streak
         record.blocked_drain_streak = tonumber(carried_state.blocked_drain_streak) or record.blocked_drain_streak
         record.completed_cycles = tonumber(carried_state.completed_cycles) or record.completed_cycles
+        record.successful_bloom_streak = tonumber(carried_state.successful_bloom_streak) or record.successful_bloom_streak
         record.ready_nodes = tonumber(carried_state.ready_nodes) or record.ready_nodes
+        if type(carried_state.original_basin_tiles) == "table" then
+            record.original_basin_tiles = carried_state.original_basin_tiles
+        end
         record.enriched_bloom = carried_state.enriched_bloom == true
         record.ferment_enrichment_until_tick = tonumber(carried_state.ferment_enrichment_until_tick)
         record.pending_acidic_runoff = carried_state.pending_acidic_runoff
+        record.drain_runoff_pending = carried_state.drain_runoff_pending == true
         record.last_products_finished = tonumber(carried_state.last_products_finished) or record.last_products_finished
         record.last_starvation_penalty_tick = tonumber(carried_state.last_starvation_penalty_tick) or record.last_starvation_penalty_tick
         record.last_blocked_drain_penalty_tick = tonumber(carried_state.last_blocked_drain_penalty_tick) or record.last_blocked_drain_penalty_tick
@@ -3372,6 +3491,14 @@ local function failure_roll(tile, unit_number, current_tick)
     return normalized < FAILURE_TILE_DOWNGRADE_PERCENT
 end
 
+function model._recovery_roll(tile, unit_number, current_tick)
+    local x = tonumber(tile.x) or 0
+    local y = tonumber(tile.y) or 0
+    local seed = (x * 19349663) + (y * 73856093) + ((tonumber(unit_number) or 0) * 2654435761) + (tonumber(current_tick) or 0)
+    local normalized = math.abs(seed) % 100
+    return normalized < (model.BASIN_RESTORE_TILE_PERCENT or 0)
+end
+
 -- A failed bloom or ruptured basin leaves terrain evidence. Only a percentage of
 -- claimed tiles downgrade, making the wound readable without instantly erasing
 -- the whole wetland patch.
@@ -3395,6 +3522,39 @@ local function apply_failure_downgrade(runtime, record, current_tick)
     if #tiles > 0 then
         entity.surface.set_tiles(tiles, true, false)
     end
+end
+
+-- Successful blooms can heal scars, but only toward the tile each basin first
+-- claimed. That keeps recovery from bleaching every long-running basin into one
+-- idealized wetland type.
+function model._apply_success_recovery(runtime, record, current_tick)
+    local entity = ei_lib.get_valid_entity(record.entity)
+    if not entity or type(record.original_basin_tiles) ~= "table" then
+        return 0
+    end
+
+    local tiles = {}
+    for _, tile in ipairs(record.claim_tiles or {}) do
+        local key = get_tile_key(record.surface_index, tile.x, tile.y)
+        local original_name = record.original_basin_tiles[key]
+        local current_tile = entity.surface.get_tile(tile.x, tile.y)
+        local current_name = current_tile and current_tile.name or tile.name
+        local recovered_name = model._get_recovered_tile_name(current_name, original_name)
+        if recovered_name and model._recovery_roll(tile, record.unit_number, current_tick) then
+            tiles[#tiles + 1] = {
+                name = recovered_name,
+                position = {x = tile.x, y = tile.y},
+            }
+        end
+    end
+
+    if #tiles <= 0 then
+        return 0
+    end
+
+    entity.surface.set_tiles(tiles, true, false)
+    refresh_claim(runtime, record, current_tick, false)
+    return #tiles
 end
 
 -- Acidic-water runoff is chance-based but deterministic per cycle. It adds risk
@@ -3423,19 +3583,53 @@ end
 -- Cyst nodes are spawned into the world rather than returned by the assembler.
 -- This keeps the reward Gleban and lets agriculture towers harvest the bloom as
 -- living output instead of a normal craft result.
-local function can_place_cyst_node(surface, position)
-    if not (surface and surface.valid) then
-        return false
+function model._play_cyst_spawn_effect(surface, position)
+    if not (surface and surface.valid and position) then
+        return
     end
 
-    local ok, can_place = pcall(function()
-        return surface.can_place_entity{
-            name = CYST_NODE_NAME,
-            position = position,
-            force = "neutral",
+    local ttl = model.CYST_SPAWN_EFFECT_TICKS or 42
+    pcall(function()
+        rendering.draw_circle{
+            surface = surface,
+            target = position,
+            radius = 0.42,
+            width = 3,
+            color = {r = 0.95, g = 0.66, b = 0.18, a = 0.72},
+            filled = false,
+            draw_on_ground = true,
+            time_to_live = ttl,
         }
     end)
-    return ok and can_place == true
+    pcall(function()
+        rendering.draw_circle{
+            surface = surface,
+            target = position,
+            radius = 0.24,
+            color = {r = 0.20, g = 0.90, b = 0.74, a = 0.22},
+            filled = true,
+            draw_on_ground = true,
+            time_to_live = math.max(12, math.floor(ttl * 0.65)),
+        }
+    end)
+    pcall(function()
+        rendering.draw_light{
+            sprite = "utility/light_medium",
+            surface = surface,
+            target = position,
+            color = {r = 1.0, g = 0.62, b = 0.18},
+            intensity = 0.75,
+            scale = 1.15,
+            time_to_live = math.max(12, math.floor(ttl * 0.7)),
+        }
+    end)
+    pcall(function()
+        surface.create_trivial_smoke{
+            name = "water-splash",
+            position = position,
+            starting_frame_deviation = 12,
+        }
+    end)
 end
 
 -- Node placement walks the claimed basin with a deterministic offset so repeated
@@ -3453,21 +3647,12 @@ local function spawn_cyst_nodes(record, current_tick)
     local spawned = 0
     local tile_count = #record.claim_tiles
     local offset_seed = ((record.completed_cycles or 0) * 13 + (record.unit_number or 0)) % tile_count
-    local left_top = {x = math.huge, y = math.huge}
-    local right_bottom = {x = -math.huge, y = -math.huge}
+    local existing_basin_nodes, existing_nodes = model._count_cyst_nodes_in_basin(record, entity)
 
-    for _, tile in ipairs(record.claim_tiles) do
-        if tile.x < left_top.x then left_top.x = tile.x end
-        if tile.y < left_top.y then left_top.y = tile.y end
-        if tile.x + 1 > right_bottom.x then right_bottom.x = tile.x + 1 end
-        if tile.y + 1 > right_bottom.y then right_bottom.y = tile.y + 1 end
-    end
-
-    local existing_nodes = {}
-    for _, node in ipairs(entity.surface.find_entities_filtered{area = {left_top, right_bottom}, name = CYST_NODE_NAME}) do
-        if entity_check(node) then
-            existing_nodes[get_tile_key(record.surface_index, math.floor(node.position.x), math.floor(node.position.y))] = true
-        end
+    target = math.min(target, math.max(0, (band_def.cyst_capacity or 0) - existing_basin_nodes))
+    if target <= 0 then
+        record.ready_nodes = 0
+        return 0
     end
 
     for offset = 0, tile_count - 1 do
@@ -3479,85 +3664,28 @@ local function spawn_cyst_nodes(record, current_tick)
         local tile = record.claim_tiles[index]
         local tile_key = get_tile_key(record.surface_index, tile.x, tile.y)
         local position = {x = tile.x + 0.5, y = tile.y + 0.5}
-        if not existing_nodes[tile_key] and can_place_cyst_node(entity.surface, position) then
-            local node = entity.surface.create_entity{
-                name = CYST_NODE_NAME,
-                position = position,
-                force = "neutral",
-                raise_built = false,
-                create_build_effect_smoke = false,
-                register_plant = true,
-                tick_grown = current_tick,
-            }
-            if entity_check(node) then
+        if not existing_nodes[tile_key] then
+            local ok, node = pcall(function()
+                return entity.surface.create_entity{
+                    name = CYST_NODE_NAME,
+                    position = position,
+                    force = "neutral",
+                    raise_built = false,
+                    create_build_effect_smoke = false,
+                    register_plant = true,
+                    tick_grown = current_tick,
+                }
+            end)
+            if ok and entity_check(node) then
                 spawned = spawned + 1
                 existing_nodes[tile_key] = true
+                model._play_cyst_spawn_effect(entity.surface, position)
             end
         end
     end
 
     record.ready_nodes = spawned
     return spawned
-end
-
--- Drain output is the only scripted fluid production. Both dirty water and the
--- optional acidic runoff must fit before either is written, because failure to
--- drain should contaminate the vat rather than producing partial invisible debt.
-local function try_emit_drain_outputs(record, current_tick)
-    local function find_output_fluidbox_index(entity, fluid_name, known_count)
-        local fluidbox_prototypes = entity.prototype and entity.prototype.fluidbox_prototypes
-        if not fluidbox_prototypes then
-            return nil
-        end
-
-        for index = 1, known_count do
-            local fluidbox_proto = fluidbox_prototypes[index]
-            if fluidbox_proto then
-                local production_type = fluidbox_proto.production_type
-                local filter = fluidbox_proto.filter
-                local filter_name = type(filter) == "string" and filter or filter and filter.name
-                if (production_type == "output" or production_type == "input-output") and filter_name == fluid_name then
-                    return index
-                end
-            end
-        end
-
-        return nil
-    end
-
-    local entity = ei_lib.get_valid_entity(record.entity)
-    local band_def = get_band_def(record)
-    if not (entity and band_def) then
-        return false
-    end
-
-    if record.pending_acidic_runoff == nil then
-        record.pending_acidic_runoff = acid_roll(record, current_tick)
-    end
-    local emit_acidic = record.pending_acidic_runoff == true
-    local known_count = fluidbox_count(entity)
-    local dirty_index = find_output_fluidbox_index(entity, "ei-dirty-water", known_count)
-    local acidic_index = emit_acidic and find_output_fluidbox_index(entity, "ei-acidic-water", known_count) or nil
-    if not dirty_index or not fluidbox_accepts(entity, dirty_index, "ei-dirty-water", band_def.dirty_water, known_count) then
-        return false
-    end
-    if emit_acidic and (not acidic_index or not fluidbox_accepts(entity, acidic_index, "ei-acidic-water", band_def.acidic_water, known_count)) then
-        return false
-    end
-
-    local dirty_contents = get_fluidbox_contents(entity, dirty_index, known_count)
-    local acidic_contents = emit_acidic and get_fluidbox_contents(entity, acidic_index, known_count) or nil
-    if not add_output_fluid(entity, dirty_index, "ei-dirty-water", band_def.dirty_water, known_count) then
-        return false
-    end
-    if emit_acidic and not add_output_fluid(entity, acidic_index, "ei-acidic-water", band_def.acidic_water, known_count) then
-        set_fluidbox_contents(entity, dirty_index, dirty_contents, known_count)
-        set_fluidbox_contents(entity, acidic_index, acidic_contents, known_count)
-        return false
-    end
-
-    record.pending_acidic_runoff = nil
-    return true
 end
 
 -- Advancing a phase resets the short-term pressure streaks because the vat has
@@ -3569,10 +3697,17 @@ local function advance_phase(record, current_tick, next_phase, completed_phase_o
     local completed_phase = completed_phase_override or record.active_phase_key or record.phase
     if completed_phase == "ferment-enriched" and resolved_next_phase == "drain" then
         record.enriched_bloom = true
+        if record.pending_acidic_runoff == nil then
+            record.pending_acidic_runoff = acid_roll(record, current_tick)
+        end
     elseif completed_phase == "ferment" and resolved_next_phase == "drain" then
         record.enriched_bloom = false
+        if record.pending_acidic_runoff == nil then
+            record.pending_acidic_runoff = acid_roll(record, current_tick)
+        end
     elseif record.phase == "drain" and resolved_next_phase ~= "drain" then
         record.pending_acidic_runoff = nil
+        record.drain_runoff_pending = false
     end
     if record.phase == "bloom" then
         record.completed_cycles = (record.completed_cycles or 0) + 1
@@ -3616,7 +3751,7 @@ end
 -- 2. keep the hidden recipe locked to the current phase and basin band;
 -- 3. interpret recipe marker/progress/products-finished as phase completion;
 -- 4. penalize starvation or blocked drain only on their long intervals;
--- 5. apply bloom success/failure, drain runoff, rest recovery, and tile scarring;
+-- 5. apply bloom success/failure, drain completion, rest recovery, and tile scarring;
 -- 6. rewrite status, telemetry, and any open GUI exactly once at the end.
 local function process_due_vat(runtime, record, current_tick)
     local entity = ei_lib.get_valid_entity(record.entity)
@@ -3706,50 +3841,39 @@ local function process_due_vat(runtime, record, current_tick)
         record.phase_progress = math.floor(progress * phase_def.duration_ticks)
     end
 
-    -- Hard failure overrides ordinary phase flow. The vat immediately scars its
-    -- basin, worsens biological pressure, consumes the completion marker if one
-    -- existed, and retreats into rest before trying again.
-    if record.vigor <= VIGOR_FAILURE_THRESHOLD or record.contamination >= CONTAMINATION_FAILURE_THRESHOLD then
-        apply_failure_downgrade(runtime, record, current_tick)
-        record.vigor = clamp(record.vigor - 20, 0, 100)
-        record.contamination = clamp(record.contamination + 15, 0, 100)
-        consume_phase_completion(record, entity)
-        advance_phase(record, current_tick, "rest", completed_phase)
-        recipe_dirty = true
-        refresh_claim(runtime, record, current_tick, false)
-        recipe_dirty = true
-        queue_vat_due(runtime, record.unit_number, current_tick + WAITING_SAMPLE_INTERVAL_TICKS)
-    elseif phase_ready then
-        -- Drain is completion-gated by output capacity. A completed drain recipe
-        -- that cannot emit runoff stays in drain and slowly contaminates the vat
-        -- rather than dropping fluids or advancing invisibly.
+    if phase_ready then
+        -- Drain runoff is engine-owned. This branch only runs after Factorio has
+        -- completed the recipe, which means its dirty/acidic outputs already found
+        -- valid room in the indexed output fluidboxes.
         if record.phase == "drain" then
-            if try_emit_drain_outputs(record, current_tick) then
-                consume_phase_completion(record, entity)
-                advance_phase(record, current_tick, nil, completed_phase)
-                recipe_dirty = true
-                queue_vat_due(runtime, record.unit_number, current_tick + ACTIVE_SAMPLE_INTERVAL_TICKS)
-            else
-                if not power_blocked and current_tick >= ((record.last_blocked_drain_penalty_tick or current_tick) + BLOCKED_DRAIN_PENALTY_INTERVAL_TICKS) then
-                    record.blocked_drain_streak = (record.blocked_drain_streak or 0) + 1
-                    record.contamination = clamp(record.contamination + 10, 0, 100)
-                    record.last_blocked_drain_penalty_tick = current_tick
-                end
-                queue_vat_due(runtime, record.unit_number, current_tick + BLOCKED_DRAIN_SAMPLE_INTERVAL_TICKS)
-            end
+            consume_phase_completion(record, entity)
+            record.drain_runoff_pending = true
+            recipe_dirty = true
+            queue_vat_due(runtime, record.unit_number, current_tick + ACTIVE_SAMPLE_INTERVAL_TICKS)
         -- Bloom is the payoff and the risk point. Healthy basins spawn cyst nodes;
         -- tired or contaminated basins lose the bloom, scar the marsh, and force a
         -- recovery rest instead.
         elseif record.phase == "bloom" then
             consume_phase_completion(record, entity)
-            if record.vigor >= 40 and record.contamination <= 60 then
+            if record.vigor >= model.BLOOM_MIN_VIGOR and record.contamination <= model.BLOOM_MAX_CONTAMINATION then
                 spawn_cyst_nodes(record, current_tick)
                 record.vigor = clamp(record.vigor - 12, 0, 100)
                 record.contamination = clamp(record.contamination - 15, 0, 100)
+                if record.contamination <= model.BASIN_RESTORE_MAX_CONTAMINATION
+                or record.vigor >= model.BASIN_RESTORE_MIN_VIGOR then
+                    record.successful_bloom_streak = (record.successful_bloom_streak or 0) + 1
+                    if record.successful_bloom_streak >= model.BASIN_RESTORE_SUCCESS_STREAK then
+                        model._apply_success_recovery(runtime, record, current_tick)
+                        record.successful_bloom_streak = 0
+                    end
+                else
+                    record.successful_bloom_streak = 0
+                end
                 advance_phase(record, current_tick, nil, completed_phase)
                 recipe_dirty = true
             else
                 record.ready_nodes = 0
+                record.successful_bloom_streak = 0
                 apply_failure_downgrade(runtime, record, current_tick)
                 record.vigor = clamp(record.vigor - 20, 0, 100)
                 record.contamination = clamp(record.contamination + 15, 0, 100)
@@ -3764,7 +3888,11 @@ local function process_due_vat(runtime, record, current_tick)
             consume_phase_completion(record, entity)
             record.vigor = clamp(record.vigor + 8, 0, 100)
             record.contamination = clamp(record.contamination - 5, 0, 100)
-            advance_phase(record, current_tick, nil, completed_phase)
+            if record.vigor < model.BLOOM_MIN_VIGOR or record.contamination > model.BLOOM_MAX_CONTAMINATION then
+                advance_phase(record, current_tick, "rest", completed_phase)
+            else
+                advance_phase(record, current_tick, nil, completed_phase)
+            end
             recipe_dirty = true
             queue_vat_due(runtime, record.unit_number, current_tick + ACTIVE_SAMPLE_INTERVAL_TICKS)
         else
@@ -3772,6 +3900,20 @@ local function process_due_vat(runtime, record, current_tick)
             advance_phase(record, current_tick, nil, completed_phase)
             recipe_dirty = true
             queue_vat_due(runtime, record.unit_number, current_tick + ACTIVE_SAMPLE_INTERVAL_TICKS)
+        end
+    elseif record.phase == "drain" and record.drain_runoff_pending == true then
+        if drain_outputs_are_clear(record, entity) then
+            record.drain_runoff_pending = false
+            advance_phase(record, current_tick, nil, record.active_phase_key or record.phase)
+            recipe_dirty = true
+            queue_vat_due(runtime, record.unit_number, current_tick + ACTIVE_SAMPLE_INTERVAL_TICKS)
+        else
+            if current_tick >= ((record.last_blocked_drain_penalty_tick or current_tick) + BLOCKED_DRAIN_PENALTY_INTERVAL_TICKS) then
+                record.blocked_drain_streak = (record.blocked_drain_streak or 0) + 1
+                record.contamination = clamp(record.contamination + 10, 0, 100)
+                record.last_blocked_drain_penalty_tick = current_tick
+            end
+            queue_vat_due(runtime, record.unit_number, current_tick + BLOCKED_DRAIN_SAMPLE_INTERVAL_TICKS)
         end
     elseif power_blocked then
         -- Power problems do not punish the basin. They only slow sampling because
