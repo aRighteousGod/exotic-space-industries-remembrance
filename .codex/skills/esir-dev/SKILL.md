@@ -109,7 +109,7 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 ## Runtime Entity Safety
 
 - Keep generic entity safety in `ei_lib`, not in `runtime-scheduler.lua`.
-- Use `ei_lib.entity_check(entity)` when code is about to read LuaEntity fields or call LuaEntity methods.
+- Use `ei_lib.entity_check(entity)` when code is about to read LuaEntity fields or call LuaEntity methods. It rejects valid non-entity LuaObjects such as equipment grids.
 - Use `ei_lib.get_valid_entity(entity)` when normalizing an uncertain optional or stale entity input into `entity-or-nil`.
 - Use `ei_lib.get_entity_unit_number(entity)` only for a safe `.unit_number` read. It does not prove the entity is valid.
 - Raw `entity.unit_number` is acceptable only when validity and unit-number expectations are established immediately in the same scope, especially in tight event-local code.

@@ -50,7 +50,25 @@ function ei_lib.clamp(x, lo, hi)
 end
 
 function ei_lib.entity_check(entity)
-    return entity ~= nil and entity.valid == true
+    if entity == nil then
+        return false
+    end
+
+    local ok_valid, valid = pcall(function()
+        return entity.valid
+    end)
+    if not ok_valid or valid ~= true then
+        return false
+    end
+
+    local ok_object_name, object_name = pcall(function()
+        return entity.object_name
+    end)
+    if not ok_object_name then
+        return false
+    end
+
+    return object_name == nil or object_name == "LuaEntity"
 end
 
 function ei_lib.get_valid_entity(entity)
