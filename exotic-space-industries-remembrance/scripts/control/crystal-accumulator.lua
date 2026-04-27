@@ -3948,6 +3948,16 @@ function model.service_ui(event)
     recalculate_next_ui_due_tick(runtime)
 end
 
+-- Public every-tick UI gate. control.lua should not need to know the crystal UI
+-- scheduler's next due tick; it only gives the module a chance to wake itself.
+function model.update_ui(event)
+    local current_tick = now_tick(event)
+    local next_ui_due_tick = get_next_ui_due_tick()
+    if next_ui_due_tick > 0 and current_tick >= next_ui_due_tick then
+        model.service_ui(event)
+    end
+end
+
 function model.get_next_ui_due_tick()
     return get_next_ui_due_tick()
 end

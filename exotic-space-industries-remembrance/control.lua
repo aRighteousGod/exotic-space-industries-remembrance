@@ -1168,7 +1168,7 @@ function updater(event)
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
-   if ei_update_step < 5 then -- Reduces the average number of `if` checks
+   if ei_update_step < 7 then -- Reduces the average number of `if` checks
        if ei_update_step == 1 then
            -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
            -- It ensures storage still has the expected tables before later steps run.
@@ -1216,11 +1216,7 @@ function updater(event)
                 goto skip
                end
            end
-       end
-
-   else -- Otherwise, ei_update_step is >= 5
-
-       if ei_update_step == 5 then
+        elseif ei_update_step == 5 then
            -- Step 5 mirrors logistic/platform state into orbital scanners only.
            local pending_work_count = 0
            local get_scanner_pending_work_count = nil
@@ -1252,8 +1248,7 @@ function updater(event)
                     end
                 end
             end
-
-       elseif ei_update_step == 6 then
+        elseif ei_update_step == 6 then
            -- Step 6 advances the Fueler target scheduler against its ready-target workload.
            local fueler_ready_count = ei_fueler.get_ready_target_count()
            if fueler_ready_count > 0 then
@@ -1264,8 +1259,11 @@ function updater(event)
                    goto skip
                end
            end
+       end
+   else -- Otherwise, ei_update_step is >= 7
 
-       elseif ei_update_step == 7 then
+
+       if ei_update_step == 7 then
            -- Step 7 advances gate state, transport, and receiver logic.
            if storage.ei and storage.ei.gate and storage.ei.gate.gate and  ei_lib.getn(storage.ei.gate.gate) then
                 updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates))
@@ -1369,29 +1367,8 @@ function updater(event)
     ei_alien_spawner.update(event)
     ei_gaia.update(event)
     ei_induction_matrix.update(event)
-    local crystal_ui_next_due_tick = ei_crystal_accumulator
-        and ei_crystal_accumulator.get_next_ui_due_tick
-        and ei_crystal_accumulator.get_next_ui_due_tick()
-        or 0
-    if crystal_ui_next_due_tick > 0 and event.tick >= crystal_ui_next_due_tick then
-        ei_crystal_accumulator.service_ui(event)
-    end
-    -- Ask the vat scheduler for one compact dispatcher snapshot. This read is
-    -- intentionally side-effect free; the vat module activates due buckets only
-    -- inside update(), under the same per-tick budget that processes them.
-    local auric_vat_pending_work_count = 0
-    local auric_vat_next_due_tick = 0
-    local auric_vat_ui_next_due_tick = 0
-    if ei_auric_inoculation_vat then
-        auric_vat_pending_work_count, auric_vat_next_due_tick, auric_vat_ui_next_due_tick = ei_auric_inoculation_vat.get_dispatcher_state(event)
-    end
-    if auric_vat_pending_work_count > 0
-    or (auric_vat_next_due_tick > 0 and event.tick >= auric_vat_next_due_tick) then
-        ei_auric_inoculation_vat.update(ei_maxEntityUpdates, event)
-    end
-    if auric_vat_ui_next_due_tick > 0 and event.tick >= auric_vat_ui_next_due_tick then
-        ei_auric_inoculation_vat.service_ui(event)
-    end
+    ei_crystal_accumulator.update_ui(event)
+    ei_auric_inoculation_vat.updater(ei_maxEntityUpdates, event)
     ei_black_hole.update(event)
     ei_steam_train.updater(event)
     ei_echo_codex.arrival_waves(event)

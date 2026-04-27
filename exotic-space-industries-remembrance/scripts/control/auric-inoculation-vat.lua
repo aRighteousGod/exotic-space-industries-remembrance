@@ -4350,6 +4350,23 @@ function model.get_pending_work_count(event)
     return ready_count
 end
 
+-- Top-level control hands the vat module one tick event and one budget. The
+-- module owns the dispatcher policy so control.lua does not need to know about
+-- ready queues, delayed vat buckets, or the separate UI gate.
+function model.updater(limit, event)
+    local current_tick = now_tick(event)
+    local pending_work_count, next_due_tick, ui_next_due_tick = get_dispatcher_state(event)
+
+    if pending_work_count > 0
+    or (next_due_tick > 0 and current_tick >= next_due_tick) then
+        model.update(limit, event)
+    end
+
+    if ui_next_due_tick > 0 and current_tick >= ui_next_due_tick then
+        model.service_ui(event)
+    end
+end
+
 function model.get_next_due_tick()
     local runtime = get_existing_runtime()
     if not runtime then
