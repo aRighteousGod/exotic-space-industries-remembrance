@@ -429,6 +429,7 @@ function ei_global.init()
         dormant_active_surfaces = {},
         dormant_active_surface_positions = {},
         dormant_active_surface_cursor = 0,
+        breach_fires = {},
         zero_active_since_tick = nil,
     }
     ei_lib.crystal_echo("»» INITIALIZING SYSTEM CORE: ＥＸＯＴＩＣ ＳＰΛＣΣ ＩＮＤＵＳＴＲＩＥＳ ««","default-bold")

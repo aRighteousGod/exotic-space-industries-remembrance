@@ -16,6 +16,7 @@ $script:EsirFactorioLibDefault = Join-Path $script:EsirGlobalSkillRoot 'factorio
 $script:EsirReachableLuaCache = @{}
 $script:EsirAssignedRequireCache = @{}
 $script:EsirBareRequireCache = @{}
+$script:EsirLuaStaticReachableContentCache = @{}
 $script:EsirResolvedRequireCache = @{}
 $script:EsirEnabledLocalMods = $null
 
@@ -363,30 +364,36 @@ function Repair-EsirMojibakeText {
 function Get-EsirTextFileTargets {
     param([Parameter(Mandatory = $true)]$Paths)
 
-    $extensions = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $extensions = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     foreach ($extension in @('.lua', '.cfg', '.json', '.md', '.txt', '.ps1', '.py', '.yml', '.yaml', '.ini')) {
         [void]$extensions.Add($extension)
     }
 
-    $targets = foreach ($file in Get-ChildItem -LiteralPath $Paths.repo_root -Recurse -File) {
-        $relativePath = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $file.FullName
-        if ($relativePath -like '.git\*' -or
-            $relativePath -like '.factorio-qc\*' -or
-            $relativePath -like '.tmp_inspect\*' -or
-            $relativePath -like 'output\*' -or
-            $relativePath -like '.tools\*' -or
-            $relativePath -like '__pycache__\*' -or
-            $relativePath -like '*\__pycache__\*') {
-            continue
-        }
+    $skipDirectories = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($directory in @('.git', '.factorio-qc', '.factorio-lua-docs-cache', '.tmp_inspect', '.tools', '__pycache__', 'output', 'tmp')) {
+        [void]$skipDirectories.Add($directory)
+    }
 
-        if ($file.Name -in @('.gitignore', 'AGENTS.md')) {
-            $file
-            continue
-        }
+    $targets = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
+    $directories = [System.Collections.Generic.Stack[System.IO.DirectoryInfo]]::new()
+    $directories.Push([System.IO.DirectoryInfo]::new($Paths.repo_root))
 
-        if ($extensions.Contains($file.Extension)) {
-            $file
+    while ($directories.Count -gt 0) {
+        $directory = $directories.Pop()
+        try {
+            foreach ($file in $directory.EnumerateFiles()) {
+                if ($file.Name -in @('.gitignore', 'AGENTS.md') -or $extensions.Contains($file.Extension)) {
+                    $targets.Add($file) | Out-Null
+                }
+            }
+
+            foreach ($child in $directory.EnumerateDirectories()) {
+                if (-not $skipDirectories.Contains($child.Name)) {
+                    $directories.Push($child)
+                }
+            }
+        } catch {
+            continue
         }
     }
 
@@ -585,8 +592,7 @@ function Get-DirectAssignedRequires {
         return @($script:EsirAssignedRequireCache[$FilePath])
     }
 
-    $content = Get-EsirTextContent -Path $FilePath
-    $content = Get-LuaStaticallyReachableContent -Content (Get-LuaStaticScanContent -Content $content)
+    $content = Get-LuaReachableStaticContentForFile -FilePath $FilePath
     $records = @()
     foreach ($match in [regex]::Matches($content, '(?m)^\s*(?:local\s+)?(?<id>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*require\("(?<req>[^"]+)"\)')) {
         $records += [pscustomobject]@{ id = $match.Groups['id'].Value; require = $match.Groups['req'].Value }
@@ -603,8 +609,7 @@ function Get-DirectBareRequires {
         return @($script:EsirBareRequireCache[$FilePath])
     }
 
-    $content = Get-EsirTextContent -Path $FilePath
-    $content = Get-LuaStaticallyReachableContent -Content (Get-LuaStaticScanContent -Content $content)
+    $content = Get-LuaReachableStaticContentForFile -FilePath $FilePath
     $records = @()
     foreach ($match in [regex]::Matches($content, '(?m)^\s*require\("(?<req>[^"]+)"\)')) {
         $records += [pscustomobject]@{ require = $match.Groups['req'].Value }
@@ -756,6 +761,19 @@ function Get-LuaStaticallyReachableContent {
     }
 
     return ($activeLines -join "`n")
+}
+
+function Get-LuaReachableStaticContentForFile {
+    param([Parameter(Mandatory = $true)][string]$FilePath)
+
+    if ($script:EsirLuaStaticReachableContentCache.ContainsKey($FilePath)) {
+        return [string]$script:EsirLuaStaticReachableContentCache[$FilePath]
+    }
+
+    $content = Get-EsirTextContent -Path $FilePath
+    $staticContent = Get-LuaStaticallyReachableContent -Content (Get-LuaStaticScanContent -Content $content)
+    $script:EsirLuaStaticReachableContentCache[$FilePath] = $staticContent
+    return $staticContent
 }
 
 function Get-LuaRequirePathVariants {
@@ -945,28 +963,55 @@ function Test-EsirReachableLuaFiles {
         }
     }
 
-    $scannedCount = 0
+    $relativePaths = @()
     foreach ($relativePath in (Get-EsirReachableLuaFiles -Paths $Paths -Context $Context)) {
         $filePath = Join-Path $Paths.repo_root $relativePath
         if (-not (Test-Path -LiteralPath $filePath)) {
             continue
         }
 
-        $scannedCount += 1
-        $previousPreference = $ErrorActionPreference
-        try {
-            $ErrorActionPreference = 'Continue'
-            $output = & $Context.luac_exe -p $filePath 2>&1 | ForEach-Object { "$_" }
-        } finally {
-            $ErrorActionPreference = $previousPreference
-        }
+        $relativePaths += $relativePath
+    }
 
-        if ($LASTEXITCODE -ne 0) {
-            $failures += [pscustomobject]@{
-                file  = $filePath
-                error = ($output -join ' ')
+    $scannedCount = $relativePaths.Count
+    $chunkSize = 50
+    Push-Location $Paths.repo_root
+    try {
+        for ($start = 0; $start -lt $relativePaths.Count; $start += $chunkSize) {
+            $end = [Math]::Min($start + $chunkSize - 1, $relativePaths.Count - 1)
+            $chunk = @($relativePaths[$start..$end])
+            $previousPreference = $ErrorActionPreference
+            try {
+                $ErrorActionPreference = 'Continue'
+                $output = & $Context.luac_exe -p @chunk 2>&1 | ForEach-Object { "$_" }
+            } finally {
+                $ErrorActionPreference = $previousPreference
+            }
+
+            if ($LASTEXITCODE -eq 0) {
+                continue
+            }
+
+            foreach ($relativePath in $chunk) {
+                $filePath = Join-Path $Paths.repo_root $relativePath
+                $previousPreference = $ErrorActionPreference
+                try {
+                    $ErrorActionPreference = 'Continue'
+                    $output = & $Context.luac_exe -p $relativePath 2>&1 | ForEach-Object { "$_" }
+                } finally {
+                    $ErrorActionPreference = $previousPreference
+                }
+
+                if ($LASTEXITCODE -ne 0) {
+                    $failures += [pscustomobject]@{
+                        file  = $filePath
+                        error = ($output -join ' ')
+                    }
+                }
             }
         }
+    } finally {
+        Pop-Location
     }
 
     return [pscustomobject]@{
@@ -2231,7 +2276,15 @@ function Get-EsirAssetReferenceFindings {
             }
 
             $content = Get-EsirTextContent -Path $file.FullName
-            $contentToScan = if ($file.Extension -eq '.lua') { Get-LuaStaticallyReachableContent -Content (Get-LuaStaticScanContent -Content $content) } else { if ($null -eq $content) { '' } else { $content } }
+            if (($null -eq $content) -or ($content -notmatch '\.(?:png|jpg|jpeg|webp|ogg|wav)')) {
+                continue
+            }
+
+            $contentToScan = if ($file.Extension -eq '.lua') { Get-LuaReachableStaticContentForFile -FilePath $file.FullName } else { $content }
+            if ($contentToScan -notmatch '\.(?:png|jpg|jpeg|webp|ogg|wav)') {
+                continue
+            }
+
             $fieldPrefixMap = if ($file.Extension -eq '.lua') { Get-EsirLuaFieldPrefixMap -Content $contentToScan -PathVariableMap $pathVariableMap } else { @{} }
             foreach ($line in ($contentToScan -split "`r?`n")) {
 

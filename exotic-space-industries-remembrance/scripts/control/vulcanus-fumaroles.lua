@@ -53,6 +53,8 @@ local UNTOUCHED_LIFETIME_MIN_TICKS = 35 * 60 * 60
 local UNTOUCHED_LIFETIME_MAX_TICKS = 65 * 60 * 60
 local UNTOUCHED_LIFETIME_HASH_SALT = 11801
 local AFTERGLOW_TICKS = 3600
+local BREACH_FIRE_LIFETIME_TICKS = 15 * 60
+local BREACH_FIRE_CLEANUP_TICKS = 60
 local MIN_FUMAROLE_AMOUNT = 4000
 local MAX_FUMAROLE_AMOUNT = 8000
 local AURIC_SPACING_RADIUS = 64
@@ -175,6 +177,7 @@ local function new_state()
             soft_misses = 0,
             blocked = 0,
         },
+        breach_fires = {},
         zero_active_since_tick = nil,
         below_floor_since_tick = nil,
     }
@@ -312,6 +315,7 @@ function model.check_global()
         soft_misses = 0,
         blocked = 0,
     }
+    state.breach_fires = state.breach_fires or {}
     -- Legacy helper-entity ambience state is retired; the resource prototype now owns looping sound.
     state.sound_proxies = nil
 
@@ -349,6 +353,36 @@ end
 local function get_surface_seed(surface)
     local map_settings = surface and surface.valid and surface.map_gen_settings or nil
     return (map_settings and map_settings.seed) or 0
+end
+
+local function get_entity_force_name(entity)
+    if not ei_lib.entity_check(entity) then
+        return nil
+    end
+
+    local ok, force = pcall(function()
+        return entity.force
+    end)
+    if ok and force and force.valid then
+        return force.name
+    end
+
+    return nil
+end
+
+local function get_fumarole_resource_amount(entity)
+    if not ei_lib.entity_check(entity) or entity.name ~= RESOURCE_NAME or entity.type ~= "resource" then
+        return nil
+    end
+
+    local ok, amount = pcall(function()
+        return entity.amount
+    end)
+    if ok and type(amount) == "number" then
+        return amount
+    end
+
+    return nil
 end
 
 local function chunk_key(surface_index, chunk_x, chunk_y)
@@ -1141,11 +1175,12 @@ collect_center_obstacles = function(surface, position)
 
     for _, entity in pairs(entities) do
         if entity.valid and entity.name ~= RESOURCE_NAME then
+            local force_name = get_entity_force_name(entity)
             if entity.type == "resource" then
                 non_breachable = true
             elseif EXEMPT_BREACH_TYPES[entity.type] then
                 non_breachable = true
-            elseif entity.force and entity.force.valid and entity.force.name ~= "neutral" and entity.force.name ~= "enemy" then
+            elseif force_name and force_name ~= "neutral" and force_name ~= "enemy" then
                 blockers[#blockers + 1] = entity
             elseif entity.type ~= "corpse" and entity.type ~= "simple-entity" and entity.type ~= "simple-entity-with-owner" and entity.type ~= "simple-entity-with-force" then
                 non_breachable = true
@@ -1208,9 +1243,37 @@ local function spawn_afterglow(surface, position)
     end)
 end
 
-local function create_breach_fires(surface, position)
+local function cleanup_breach_fires(state, current_tick)
+    current_tick = resolve_tick(current_tick)
+    state.breach_fires = state.breach_fires or {}
+    local active_fires = state.breach_fires
+    local write_index = 1
+
+    for read_index = 1, #active_fires do
+        local record = active_fires[read_index]
+        local fire = record and record.entity or nil
+        if ei_lib.entity_check(fire) and current_tick < (record.expires_tick or 0) then
+            active_fires[write_index] = record
+            write_index = write_index + 1
+        elseif ei_lib.entity_check(fire) then
+            pcall(function()
+                fire.destroy()
+            end)
+        end
+    end
+
+    for index = write_index, #active_fires do
+        active_fires[index] = nil
+    end
+
+    state.breach_fires = active_fires
+end
+
+local function create_breach_fires(state, surface, position, current_tick)
     local seed = get_surface_seed(surface)
     local fire_count = 1 + math.floor(hash01(seed, math.floor(position.x), math.floor(position.y), 7711) * 3)
+    current_tick = resolve_tick(current_tick)
+    state.breach_fires = state.breach_fires or {}
 
     for i = 1, fire_count do
         local angle = hash01(seed, math.floor(position.x), math.floor(position.y), 7711 + i) * math.pi * 2
@@ -1225,7 +1288,12 @@ local function create_breach_fires(surface, position)
             force = "neutral",
         }
         if fire and fire.valid then
-            fire.time_to_live = math.min(fire.time_to_live or 60 * 60, 15 * 60)
+            -- Normal fire entities do not expose LuaEntity::time_to_live, so keep the
+            -- breach flames short-lived through our own tiny cleanup list.
+            table.insert(state.breach_fires, {
+                entity = fire,
+                expires_tick = current_tick + BREACH_FIRE_LIFETIME_TICKS,
+            })
         end
     end
 end
@@ -1238,7 +1306,9 @@ local function create_fumarole_entity(surface, position, amount)
     }
 
     if entity and entity.valid then
-        entity.amount = amount
+        pcall(function()
+            entity.amount = amount
+        end)
     end
 
     return entity
@@ -1267,9 +1337,38 @@ end
 local clear_dormant_chunk
 local get_untouched_lifetime_ticks
 
+local function destroy_breach_blocker(blocker)
+    if not ei_lib.entity_check(blocker) then
+        return
+    end
+
+    local ok_destructible, destructible = pcall(function()
+        return blocker.destructible
+    end)
+    if ok_destructible and destructible then
+        local died_ok = pcall(function()
+            return blocker.die("neutral")
+        end)
+        if died_ok and not blocker.valid then
+            return
+        end
+    end
+
+    if blocker.valid then
+        pcall(function()
+            blocker.destroy()
+        end)
+    end
+end
+
 local function adopt_existing_fumarole(state, surface, chunk_x, chunk_y, current_tick)
     local entity = find_existing_fumarole_entity(surface, chunk_x, chunk_y)
     if not entity then
+        return false
+    end
+
+    local amount = get_fumarole_resource_amount(entity)
+    if not amount then
         return false
     end
 
@@ -1288,14 +1387,14 @@ local function adopt_existing_fumarole(state, surface, chunk_x, chunk_y, current
         record.band_name = record.band_name or get_chunk_band_name(chunk_x, chunk_y)
         record.position = {x = entity.position.x, y = entity.position.y}
         record.entity = entity
-        record.initial_amount = record.initial_amount or entity.amount
+        record.initial_amount = record.initial_amount or amount
         record.untouched_deadline_tick = record.untouched_deadline_tick
             or (current_tick + get_untouched_lifetime_ticks(surface, chunk_x, chunk_y, current_tick))
         add_active_bucket_entry(state, surface.index, chunk_x, chunk_y, key)
         return true
     end
 
-    register_active_fumarole(state, surface, chunk_x, chunk_y, entity, entity.amount, current_tick)
+    register_active_fumarole(state, surface, chunk_x, chunk_y, entity, amount, current_tick)
     return true
 end
 
@@ -1394,8 +1493,10 @@ local function finalize_closure(state, record, reason, current_tick)
     remove_active_bucket_entry(state, record.surface_index, record.chunk_x, record.chunk_y)
     decrement_active_band_count(state, record.surface_index, band_name)
 
-    if record.entity and record.entity.valid then
-        record.entity.destroy()
+    if ei_lib.entity_check(record.entity) then
+        pcall(function()
+            record.entity.destroy()
+        end)
     end
 
     if surface and surface.valid and model.is_vulcanus_surface(surface) then
@@ -1480,15 +1581,9 @@ local function attempt_spawn_fumarole(surface, chunk_x, chunk_y, context, curren
         end
 
         for _, blocker in pairs(candidate.blockers) do
-            if blocker.valid then
-                if blocker.destructible then
-                    blocker.die("neutral")
-                else
-                    blocker.destroy()
-                end
-            end
+            destroy_breach_blocker(blocker)
         end
-        create_breach_fires(surface, position)
+        create_breach_fires(state, surface, position, current_tick)
         play_surface_sound(surface, "utility/cannot_build", position, 1.1)
     end
 
@@ -1924,10 +2019,11 @@ local function audit_active_fumaroles(current_tick)
             finalize_closure(state, record, "invalid-surface", current_tick)
         else
             local entity = record.entity
-            if not entity or not entity.valid then
+            local amount = get_fumarole_resource_amount(entity)
+            if not amount then
                 finalize_closure(state, record, "missing", current_tick)
             else
-                if not record.touched and entity.amount < (record.initial_amount or entity.amount) then
+                if not record.touched and amount < (record.initial_amount or amount) then
                     record.touched = true
                 end
 
@@ -2154,6 +2250,10 @@ function model.updater(event)
 
     if event.tick % ACTIVE_AUDIT_TICKS == 0 then
         audit_active_fumaroles(current_tick)
+    end
+
+    if event.tick % BREACH_FIRE_CLEANUP_TICKS == 0 then
+        cleanup_breach_fires(state, current_tick)
     end
 end
 

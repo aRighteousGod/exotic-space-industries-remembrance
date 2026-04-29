@@ -1,4 +1,9 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.33
+Date: 4-28-2026
+  Bugfixes:
+    - Fixed a Vulcanus auric fumarole breach eruption related crash and hardened script against similar occurrences.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.32
 Date: 4-26-2026
   Bugfixes:
