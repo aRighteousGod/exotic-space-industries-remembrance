@@ -3,7 +3,7 @@
 -- owns: main Informatron pages
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: load-time remote interface registration
--- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, auric_inoculation_vat, beacon_overhaul, black_hole, bots, cranes_and_belts, crystal_accumulator_resonance, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, neutron_collector, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, railgun_cooling, repair, resources, rocket_launch_pollution, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
+-- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, auric_inoculation_vat, beacon_overhaul, black_hole, bots, cranes_and_belts, crystal_accumulator_resonance, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, neutron_collector, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, railgun_cooling, repair, resources, rocket_launch_pollution, severance_array, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
 -- storage_roots: none
 -- gui_ids: exotic-industries-informatron, exotic-industries-informatron., exotic-industries-informatron.ages-and-tech, exotic-industries-informatron.ages-and-tech-2, exotic-industries-informatron.ages-and-tech-text, exotic-industries-informatron.ages-and-tech-text-2, exotic-industries-informatron.artifacts, exotic-industries-informatron.artifacts-text, exotic-industries-informatron.asteroid-anomalies, exotic-industries-informatron.asteroid-anomalies-text, exotic-industries-informatron.asteroid-variants, exotic-industries-informatron.asteroid-variants-text, exotic-industries-informatron.auric-fumarole, exotic-industries-informatron.auric-fumarole-2, exotic-industries-informatron.auric-fumarole-text, exotic-industries-informatron.auric-fumarole-text-2, exotic-industries-informatron.beacon-overhaul, exotic-industries-informatron.beacon-overhaul-text, exotic-industries-informatron.biters, exotic-industries-informatron.biters-text, exotic-industries-informatron.black-hole, exotic-industries-informatron.black-hole-2, exotic-industries-informatron.black-hole-2-text, exotic-industries-informatron.black-hole-3, exotic-industries-informatron.black-hole-3-text, exotic-industries-informatron.black-hole-text, exotic-industries-informatron.bots, exotic-industries-informatron.bots-2, exotic-industries-informatron.bots-text, exotic-industries-informatron.bots-text-2, exotic-industries-informatron.chemical-asteroid, exotic-industries-informatron.chemical-asteroid-text, exotic-industries-informatron.chunk-grades, exotic-industries-informatron.chunk-grades-text, exotic-industries-informatron.chunk-refining, exotic-industries-informatron.chunk-refining-2, exotic-industries-informatron.chunk-refining-text, exotic-industries-informatron.chunk-refining-text-2, exotic-industries-informatron.cranes-and-belts, exotic-industries-informatron.cranes-and-belts-text, exotic-industries-informatron.crystal-accumulator-resonance, exotic-industries-informatron.crystal-accumulator-resonance-2, exotic-industries-informatron.crystal-accumulator-resonance-3, exotic-industries-informatron.crystal-accumulator-resonance-4, exotic-industries-informatron.crystal-accumulator-resonance-5, exotic-industries-informatron.crystal-accumulator-resonance-6, exotic-industries-informatron.crystal-accumulator-resonance-text, exotic-industries-informatron.crystal-accumulator-resonance-text-2, exotic-industries-informatron.crystal-accumulator-resonance-text-3, exotic-industries-informatron.crystal-accumulator-resonance-text-4, exotic-industries-informatron.crystal-accumulator-resonance-text-5, exotic-industries-informatron.crystal-accumulator-resonance-text-6, exotic-industries-informatron.em-trains, exotic-industries-informatron.em-trains-2, exotic-industries-informatron.em-trains-3, exotic-industries-informatron.em-trains-text, exotic-industries-informatron.em-trains-text-2, exotic-industries-informatron.em-trains-text-3, exotic-industries-informatron.exotic-stabilizers, exotic-industries-informatron.exotic-stabilizers-text, exotic-industries-informatron.fission-reactors, exotic-industries-informatron.fission-reactors-2, exotic-industries-informatron.fission-reactors-2-text, exotic-industries-informatron.fission-reactors-text, exotic-industries-informatron.fulgora-day-variation, exotic-industries-informatron.fulgora-day-variation-2, exotic-industries-informatron.fulgora-day-variation-text, exotic-industries-informatron.fulgora-day-variation-text-2, exotic-industries-informatron.fusion-power, exotic-industries-informatron.fusion-power-2, exotic-industries-informatron.fusion-power-2-text, exotic-industries-informatron.fusion-power-text, exotic-industries-informatron.game-related, exotic-industries-informatron.game-related-text, exotic-industries-informatron.induction-matrix, exotic-industries-informatron.induction-matrix-2, exotic-industries-informatron.induction-matrix-2-text, exotic-industries-informatron.induction-matrix-text, exotic-industries-informatron.loaders, exotic-industries-informatron.loaders-2, exotic-industries-informatron.loaders-3, exotic-industries-informatron.loaders-4, exotic-industries-informatron.loaders-5, exotic-industries-informatron.loaders-text, exotic-industries-informatron.loaders-text-2, exotic-industries-informatron.loaders-text-3, exotic-industries-informatron.loaders-text-4, exotic-industries-informatron.loaders-text-5, exotic-industries-informatron.mining-scars, exotic-industries-informatron.mining-scars-2, exotic-industries-informatron.mining-scars-text, exotic-industries-informatron.mining-scars-text-2, exotic-industries-informatron.nauvis-pressure-grace, exotic-industries-informatron.nauvis-pressure-grace-2, exotic-industries-informatron.nauvis-pressure-grace-text, exotic-industries-informatron.nauvis-pressure-grace-text-2, exotic-industries-informatron.new-logistics, exotic-industries-informatron.new-logistics-text, exotic-industries-informatron.new-mechanics, exotic-industries-informatron.new-mechanics-text, exotic-industries-informatron.nuclear-fission-and-fusion, exotic-industries-informatron.nuclear-fission-and-fusion-text, exotic-industries-informatron.orbital-scanner, exotic-industries-informatron.orbital-scanner-2, exotic-industries-informatron.orbital-scanner-3, exotic-industries-informatron.orbital-scanner-text, exotic-industries-informatron.orbital-scanner-text-2, exotic-industries-informatron.orbital-scanner-text-3, exotic-industries-informatron.organic-asteroid, exotic-industries-informatron.organic-asteroid-text, exotic-industries-informatron.overall, exotic-industries-informatron.overall-text, exotic-industries-informatron.petrified-asteroid, exotic-industries-informatron.petrified-asteroid-text, exotic-industries-informatron.repair, exotic-industries-informatron.repair-text, exotic-industries-informatron.resources, exotic-industries-informatron.resources-text, exotic-industries-informatron.rock-asteroid, exotic-industries-informatron.rock-asteroid-text, exotic-industries-informatron.rocket-launch-pollution, exotic-industries-informatron.rocket-launch-pollution-2, exotic-industries-informatron.rocket-launch-pollution-text, exotic-industries-informatron.rocket-launch-pollution-text-2, exotic-industries-informatron.scrap-asteroid, exotic-industries-informatron.scrap-asteroid-text, exotic-industries-informatron.specialised-pipes, exotic-industries-informatron.specialised-pipes-2, exotic-industries-informatron.specialised-pipes-3, exotic-industries-informatron.specialised-pipes-4, exotic-industries-informatron.specialised-pipes-text, exotic-industries-informatron.specialised-pipes-text-2, exotic-industries-informatron.specialised-pipes-text-3, exotic-industries-informatron.specialised-pipes-text-4, exotic-industries-informatron.spidertron, exotic-industries-informatron.spidertron-text, exotic-industries-informatron.steam-bots, exotic-industries-informatron.steam-bots-2, exotic-industries-informatron.steam-bots-text, exotic-industries-informatron.steam-bots-text-2, exotic-industries-informatron.surface-patches, exotic-industries-informatron.surface-patches-text, exotic-industries-informatron.tech, exotic-industries-informatron.tech-2, exotic-industries-informatron.tech-3, exotic-industries-informatron.tech-text, exotic-industries-informatron.tech-text-2, exotic-industries-informatron.tech-text-3, exotic-industries-informatron.teslas-legacy, exotic-industries-informatron.teslas-legacy-2, exotic-industries-informatron.teslas-legacy-3, exotic-industries-informatron.teslas-legacy-4, exotic-industries-informatron.teslas-legacy-5, exotic-industries-informatron.teslas-legacy-6, exotic-industries-informatron.teslas-legacy-7, exotic-industries-informatron.teslas-legacy-text, exotic-industries-informatron.teslas-legacy-text-2, exotic-industries-informatron.teslas-legacy-text-3, exotic-industries-informatron.teslas-legacy-text-4, exotic-industries-informatron.teslas-legacy-text-5, exotic-industries-informatron.teslas-legacy-text-6, exotic-industries-informatron.teslas-legacy-text-7, exotic-industries-informatron.train-progression, exotic-industries-informatron.train-progression-text-2, exotic-industries-informatron.turrets, exotic-industries-informatron.turrets-2, exotic-industries-informatron.turrets-3, exotic-industries-informatron.turrets-4, exotic-industries-informatron.turrets-5, exotic-industries-informatron.turrets-text, exotic-industries-informatron.turrets-text-2, exotic-industries-informatron.turrets-text-3, exotic-industries-informatron.turrets-text-4, exotic-industries-informatron.turrets-text-5, exotic-industries-informatron.uranium-asteroid, exotic-industries-informatron.uranium-asteroid-text, exotic-industries-informatron.veins, exotic-industries-informatron.veins-text, exotic-industries-informatron.welcome, exotic-industries-informatron.welcome-text, exotic-industries-informatron.welcome-text-2, exotic-industries-informatron.world-gen-related, exotic-industries-informatron.world-gen-related-text
 -- remote_interfaces: exotic-industries-informatron
@@ -48,6 +48,11 @@ local function add_centered_named_sprite_row(element, entries, opts)
         label.style.maximal_width = label_max_width
         label.style.horizontal_align = "center"
     end
+end
+
+local function add_section(element, section_key, text_key)
+    element.add{type = "label", caption = {"exotic-industries-informatron." .. section_key}, style = "heading_1_label"}
+    element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
 end
 
 local function get_startup_string_setting_value(setting_name, default_value)
@@ -357,6 +362,7 @@ function model.menu(player_index)
             rocket_ammo_schema = 1,
             flammable_ruptures = 1,
             turrets = 1,
+            severance_array = 1,
         },
         world_gen_related = {
             resources = 1,
@@ -389,6 +395,11 @@ function model.menu(player_index)
             fission = 1,
             --htr_reactor = 1,
             fusion_power = 1,
+            fusion_reactor_controls = 1,
+            fusion_reactor_circuit_interface = 1,
+            fusion_reactor_agents = 1,
+            fusion_reactor_options = 1,
+            fusion_neutron_collectors = 1,
             neutron_collector = 1,
             --neutrons = 1,
         },
@@ -644,8 +655,42 @@ function model.turrets(player_index, element)
 
     add_centered_sprite_row(element, {
         "item/ei-plasma-turret",
+        "item/ei-severance-array",
         "item/zeus-wrath-zeus-turret",
     })
+
+    element.add{type = "label", caption = {"exotic-industries-informatron.turrets-text-6"}}
+end
+
+function model.severance_array(player_index, element)
+    local function add_section(section_key, text_key)
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. section_key}, style = "heading_1_label"}
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
+    end
+
+    add_section("severance-array", "severance-array-text")
+
+    add_centered_named_sprite_row(element, {
+        {
+            sprite = "entity/ei-severance-array",
+            caption = {"entity-name.ei-severance-array"},
+        },
+        {
+            sprite = "item/ei-plasma-turret",
+            caption = {"entity-name.ei-plasma-turret"},
+        },
+        {
+            sprite = "item/laser-turret",
+            caption = {"entity-name.laser-turret"},
+        },
+    }, {
+        card_width = 144,
+        label_max_width = 132,
+        horizontal_spacing = 8,
+    })
+
+    add_section("severance-array-2", "severance-array-text-2")
+    add_section("severance-array-3", "severance-array-text-3")
 end
 
 
@@ -1255,13 +1300,62 @@ function model.fusion_power(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.fusion-power-2-text"}}
 end
 
-function model.neutron_collector(player_index, element)
-    local function add_section(section_key, text_key)
-        element.add{type = "label", caption = {"exotic-industries-informatron." .. section_key}, style = "heading_1_label"}
-        element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
-    end
+function model.fusion_reactor_controls(player_index, element)
+    add_section(element, "fusion-reactor-controls", "fusion-reactor-controls-text")
 
-    add_section("neutron-collector", "neutron-collector-text")
+    add_centered_named_sprite_row(element, {
+        {
+            sprite = "entity/ei-fusion-reactor",
+            caption = {"entity-name.ei-fusion-reactor"},
+        },
+        {
+            sprite = "fluid/ei-heated-deuterium",
+            caption = {"fluid-name.ei-heated-deuterium"},
+        },
+        {
+            sprite = "fluid/ei-heated-tritium",
+            caption = {"fluid-name.ei-heated-tritium"},
+        },
+        {
+            sprite = "fluid/ei-cold-coolant",
+            caption = {"fluid-name.ei-cold-coolant"},
+        },
+        {
+            sprite = "fluid/ei-hot-coolant",
+            caption = {"fluid-name.ei-hot-coolant"},
+        },
+    }, {
+        card_width = 96,
+        label_max_width = 92,
+        horizontal_spacing = 2,
+    })
+
+    add_section(element, "fusion-reactor-controls-2", "fusion-reactor-controls-text-2")
+    add_section(element, "fusion-reactor-controls-3", "fusion-reactor-controls-text-3")
+end
+
+function model.fusion_reactor_circuit_interface(player_index, element)
+    add_section(element, "fusion-reactor-circuit-interface", "fusion-reactor-circuit-interface-text")
+    add_section(element, "fusion-reactor-circuit-interface-2", "fusion-reactor-circuit-interface-text-2")
+end
+
+function model.fusion_reactor_agents(player_index, element)
+    add_section(element, "fusion-reactor-agents", "fusion-reactor-agents-text")
+    add_section(element, "fusion-reactor-agents-2", "fusion-reactor-agents-text-2")
+end
+
+function model.fusion_reactor_options(player_index, element)
+    add_section(element, "fusion-reactor-options", "fusion-reactor-options-text")
+    add_section(element, "fusion-reactor-options-2", "fusion-reactor-options-text-2")
+end
+
+function model.fusion_neutron_collectors(player_index, element)
+    add_section(element, "fusion-neutron-collectors", "fusion-neutron-collectors-text")
+    add_section(element, "fusion-neutron-collectors-2", "fusion-neutron-collectors-text-2")
+end
+
+function model.neutron_collector(player_index, element)
+    add_section(element, "neutron-collector", "neutron-collector-text")
 
     add_centered_named_sprite_row(element, {
         {
@@ -1282,8 +1376,8 @@ function model.neutron_collector(player_index, element)
         horizontal_spacing = 4,
     })
 
-    add_section("neutron-collector-2", "neutron-collector-text-2")
-    add_section("neutron-collector-3", "neutron-collector-text-3")
+    add_section(element, "neutron-collector-2", "neutron-collector-text-2")
+    add_section(element, "neutron-collector-3", "neutron-collector-text-3")
 
     add_centered_named_sprite_row(element, {
         {
@@ -1357,6 +1451,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "turrets" then
         model.turrets(player_index, element)
+    end
+
+    if page_name == "severance_array" then
+        model.severance_array(player_index, element)
     end
 
     -- =======================================================
@@ -1481,6 +1579,26 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "fusion_power" then
         model.fusion_power(player_index, element)
+    end
+
+    if page_name == "fusion_reactor_controls" then
+        model.fusion_reactor_controls(player_index, element)
+    end
+
+    if page_name == "fusion_reactor_circuit_interface" then
+        model.fusion_reactor_circuit_interface(player_index, element)
+    end
+
+    if page_name == "fusion_reactor_agents" then
+        model.fusion_reactor_agents(player_index, element)
+    end
+
+    if page_name == "fusion_reactor_options" then
+        model.fusion_reactor_options(player_index, element)
+    end
+
+    if page_name == "fusion_neutron_collectors" then
+        model.fusion_neutron_collectors(player_index, element)
     end
 
     if page_name == "neutron_collector" then

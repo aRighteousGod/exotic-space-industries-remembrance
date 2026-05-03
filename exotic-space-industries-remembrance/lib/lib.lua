@@ -1553,6 +1553,48 @@ function ei_lib.entity_icon_scaler(entity,scale_multiplier)
 
     local sm = scale_multiplier
     local e = entity
+
+    local function scale_shift(node)
+      if not node or not node.shift then return end
+
+      if node.shift[1] then
+        node.shift[1] = node.shift[1] * sm
+      end
+      if node.shift[2] then
+        node.shift[2] = node.shift[2] * sm
+      end
+    end
+
+    local function scale_visual_node(node)
+      if type(node) ~= "table" then return false end
+
+      local scaled = false
+      if node.filename or node.filenames or node.stripes or node.width or node.height then
+        node.scale = (node.scale or 1) * sm
+        scale_shift(node)
+        scaled = true
+      end
+
+      if type(node.layers) == "table" then
+        for _, layer in pairs(node.layers) do
+          scaled = scale_visual_node(layer) or scaled
+        end
+      end
+
+      if type(node.hr_version) == "table" then
+        scaled = scale_visual_node(node.hr_version) or scaled
+      end
+
+      for _, child in pairs(node) do
+        if type(child) == "table" and child ~= node.layers and child ~= node.hr_version then
+          scaled = scale_visual_node(child) or scaled
+        end
+      end
+
+      return scaled
+    end
+
+    local scaled_visual = false
     --tile_width, tile_height are corpse variables
     if e.tile_width then
       e.tile_width = e.tile_width * sm
@@ -1564,35 +1606,28 @@ function ei_lib.entity_icon_scaler(entity,scale_multiplier)
     --build_grid_size -- not sure what adjustment to make here if any
     --static
     if e.picture and e.picture.layers then
-        for _,layer in pairs(e.picture.layers) do
-            layer.scale = layer.scale * sm
-            if layer.shift then
-              if layer.shift[1] then
-                layer.shift[1] = layer.shift[1] * sm
-              end
-              if layer.shift[2] then
-                layer.shift[2] = layer.shift[2] * sm
-              end
-            end
-        end
+        scaled_visual = scale_visual_node(e.picture) or scaled_visual
     --animated, particularly corpses
     elseif e.animation then
-        for count,_ in pairs(e.animation) do
-            if e.animation[count] and e.animation[count].layers then
-                for _,layer in pairs (e.animation[count].layers) do
-                    layer.scale = layer.scale * sm
-                    if layer.shift then
-                      if layer.shift[1] then
-                        layer.shift[1] = layer.shift[1] * sm
-                      end
-                      if layer.shift[2] then
-                        layer.shift[2] = layer.shift[2] * sm
-                      end
-                    end
-                end
-            end
-        end
-    else
+        scaled_visual = scale_visual_node(e.animation) or scaled_visual
+    end
+
+    local animation_fields = {
+      "folded_animation",
+      "preparing_animation",
+      "prepared_animation",
+      "attacking_animation",
+      "ending_attack_animation",
+      "folding_animation",
+      "energy_glow_animation",
+      "resource_indicator_animation",
+      "graphics_set",
+    }
+    for _, field in pairs(animation_fields) do
+      scaled_visual = scale_visual_node(e[field]) or scaled_visual
+    end
+
+    if not scaled_visual then
       log("ei_lib.entity_icon_scaler had valid entity: "..e.name.." and multiplier: "..sm.." but didn't have valid picture or animation layers to modify")
       return
     end

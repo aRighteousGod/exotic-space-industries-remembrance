@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-04-30 | clone-routing | open | clone events now use an allowlisted registration path for clone-safe runtime systems instead of the full build dispatcher. State-preserving clone semantics remain deliberately unresolved for constructor/destructive build paths.`
+  - `Files:` `exotic-space-industries-remembrance/control.lua`
+  - `Next safe move:` design per-module clone behavior for gates, Gaia swaps, black holes, crystal accumulators, steam-train placement proxies, and `rp-steam-pump` fluid priming before routing those through clone handling.
+
 - `2026-04-25 | esir-dev-skill-platform | open | the ESIR wrapper now derives global skill paths from CODEX_HOME or the user .codex home, the checked-in tool manifest records global engine skills without absolute home-directory paths, and read-only ESIR/docs path resolution no longer creates artifact/cache directories. The remaining wrapper-shape debt is that diff still does not compare fresh in-memory manifests against the checked-in stable maps.`
   - `Files:` `scripts/esir-dev-lib.ps1`, `.codex/esir/tool-manifest.json`
   - `Next safe move:` add a non-writing manifest freshness check that normalizes volatile fields before reporting drift.

@@ -1,0 +1,13 @@
+{
+  "name": "zzz-severance-array-qc",
+  "version": "0.0.1",
+  "title": "Severance Array QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "QC-only helper that builds a dense Severance Array firing benchmark and records scythe runtime status/timing snapshots."
+}

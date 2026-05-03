@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Asset Pipeline"
+  short_description: "Orchestrate Meshy to Blender to Factorio assets"
+  default_prompt: "Use $esir-asset-pipeline to plan, estimate, batch, run, dry-run, QA, and document reproducible ESIR asset jobs across Meshy, scripted Blender rendering, render_factorio_preset, procedural animation, raw preset bundle packing, optional water_reflection staging, visual/style/regression QA, approval galleries, manifest-backed asset registry browser/status updates, and explicit dry-run promotion."

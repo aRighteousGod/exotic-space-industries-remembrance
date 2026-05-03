@@ -36,6 +36,28 @@ function gatling_sheet(inputs)
 		},
 	}
 end
+
+function gatling_projectile_creation_parameters()
+	return {
+		{ 0.0625 * 0, util.by_pixel(15, -106.5) },
+		{ 0.0625 * 1, util.by_pixel(40.5, -105.75) },
+		{ 0.0625 * 2, util.by_pixel(66, -77.25) },
+		{ 0.0625 * 3, util.by_pixel(83.25, -52.5) },
+		{ 0.0625 * 4, util.by_pixel(79.5, -45) },
+		{ 0.0625 * 5, util.by_pixel(66, -18.75) },
+		{ 0.0625 * 6, util.by_pixel(51, 7.5) },
+		{ 0.0625 * 7, util.by_pixel(12, 15) },
+		{ 0.0625 * 8, util.by_pixel(-30, 12.75) },
+		{ 0.0625 * 9, util.by_pixel(-39.75, -4.5) },
+		{ 0.0625 * 10, util.by_pixel(-39.75, -29.25) },
+		{ 0.0625 * 11, util.by_pixel(-39.75, -51.75) },
+		{ 0.0625 * 12, util.by_pixel(-39, -66) },
+		{ 0.0625 * 13, util.by_pixel(-21.75, -70.5) },
+		{ 0.0625 * 14, util.by_pixel(-5.25, -92.25) },
+		{ 0.0625 * 15, util.by_pixel(8.25, -100.5) },
+	}
+end
+
 data:extend({
 	{
 		name = "ei-gatling-turret",
@@ -129,6 +151,7 @@ data:extend({
 			rotate_penalty = 14.0,
 			projectile_center = { -0.56, -0.72 },
 			projectile_creation_distance = 2,
+			projectile_creation_parameters = gatling_projectile_creation_parameters(),
 			shell_particle = {
 				name = "shell-particle",
 				direction_deviation = 40,

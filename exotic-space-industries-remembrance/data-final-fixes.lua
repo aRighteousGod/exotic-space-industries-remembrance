@@ -135,6 +135,10 @@ for _,tech in pairs(data.raw.technology) do
   end
 end
 
+-- Fuel glow needs to run after final fuel-category compatibility passes so ESIR's
+-- curated colors win over optional generic fuel glow mods.
+require("scripts/data-final-updates/fuel-glow")
+
 -- Gate attunement stays near the end so the startup setting remains the final word on gate
 -- tech placement and both gate recipes after the repo's generic age/prereq passes.
 require("scripts/data-final-updates/exotic-damage-resistances")

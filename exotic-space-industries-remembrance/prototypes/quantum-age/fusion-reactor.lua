@@ -184,6 +184,79 @@ data:extend({
     },
 })
 
+local function make_fusion_signal_icons(base_icon, overlay_icon, tint)
+    return {
+        {
+            icon = base_icon,
+            icon_size = 64,
+        },
+        {
+            icon = overlay_icon,
+            icon_size = 64,
+            tint = tint,
+        },
+    }
+end
+
+local fusion_wire_proxy = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+fusion_wire_proxy.name = "ei-fusion-reactor-circuit-interface"
+fusion_wire_proxy.icon = ei_graphics_other_path.."64_empty.png"
+fusion_wire_proxy.flags = {"not-blueprintable", "not-deconstructable", "not-on-map", "not-flammable", "not-repairable", "not-upgradable", "hide-alt-info"}
+fusion_wire_proxy.hidden = true
+fusion_wire_proxy.gui_mode = "none"
+fusion_wire_proxy.selectable_in_game = false
+fusion_wire_proxy.minable = nil
+fusion_wire_proxy.max_health = 300
+fusion_wire_proxy.collision_box = {{0, 0}, {0, 0}}
+fusion_wire_proxy.selection_box = {{0, 0}, {0, 0}}
+fusion_wire_proxy.item_slot_count = 13
+fusion_wire_proxy.activity_led_light = {intensity = 0, size = 0, color = {r = 1, g = 1, b = 1}}
+fusion_wire_proxy.activity_led_sprites = {
+    north = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    east = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    south = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    west = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+}
+fusion_wire_proxy.sprites = {
+    north = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    east = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    south = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+    west = {filename = ei_graphics_other_path.."64_empty.png", size = 64},
+}
+fusion_wire_proxy.circuit_wire_max_distance = default_circuit_wire_max_distance
+
+local fusion_signal_defs = {
+    {"ei-fusion-set-fuel-1", ei_graphics_fluid_path.."heated-deuterium.png", ei_graphics_other_path.."overlay_1.png", {r = 0.25, g = 0.85, b = 1, a = 0.95}},
+    {"ei-fusion-set-fuel-2", ei_graphics_fluid_path.."heated-tritium.png", ei_graphics_other_path.."overlay_2.png", {r = 0.35, g = 1, b = 0.45, a = 0.95}},
+    {"ei-fusion-set-temperature", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_3.png", {r = 1, g = 0.35, b = 0.2, a = 0.95}},
+    {"ei-fusion-set-injection", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_3.png", {r = 1, g = 0.78, b = 0.25, a = 0.95}},
+    {"ei-fusion-state-fuel-1", ei_graphics_fluid_path.."heated-deuterium.png", ei_graphics_other_path.."overlay_1.png", {r = 0.4, g = 0.65, b = 1, a = 0.95}},
+    {"ei-fusion-state-fuel-2", ei_graphics_fluid_path.."heated-tritium.png", ei_graphics_other_path.."overlay_2.png", {r = 0.55, g = 1, b = 0.55, a = 0.95}},
+    {"ei-fusion-state-temperature", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_3.png", {r = 1, g = 0.5, b = 0.35, a = 0.95}},
+    {"ei-fusion-state-injection", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_3.png", {r = 1, g = 0.9, b = 0.35, a = 0.95}},
+    {"ei-fusion-power", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_1.png", {r = 0.95, g = 0.35, b = 1, a = 0.95}},
+    {"ei-fusion-neutron-flux", ei_graphics_item_path.."charged-neutron-container.png", ei_graphics_other_path.."overlay_2.png", {r = 0.25, g = 0.95, b = 1, a = 0.95}},
+    {"ei-fusion-efficiency", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_2.png", {r = 0.35, g = 0.95, b = 0.45, a = 0.95}},
+    {"ei-fusion-coolant-rate", ei_graphics_fluid_path.."hot-coolant.png", ei_graphics_other_path.."overlay_2.png", {r = 0.15, g = 0.55, b = 1, a = 0.95}},
+    {"ei-fusion-control-agent", ei_graphics_item_path.."fusion-reactor.png", ei_graphics_other_path.."overlay_1.png", {r = 1, g = 0.75, b = 0.15, a = 0.95}},
+    {"ei-fusion-fuel-agent", ei_graphics_item_path.."fusion-data.png", ei_graphics_other_path.."overlay_2.png", {r = 0.25, g = 0.85, b = 1, a = 0.95}},
+    {"ei-fusion-thermal-agent", ei_graphics_item_path.."plasma-heater.png", ei_graphics_other_path.."overlay_3.png", {r = 1, g = 0.2, b = 0.15, a = 0.95}},
+    {"ei-fusion-coolant-agent", ei_graphics_fluid_path.."hot-coolant.png", ei_graphics_other_path.."overlay_2.png", {r = 0.3, g = 0.75, b = 1, a = 0.95}},
+    {"ei-fusion-circuit-agent", ei_graphics_item_path.."fusion-data.png", ei_graphics_other_path.."overlay_3.png", {r = 0.8, g = 0.35, b = 1, a = 0.95}},
+}
+
+local fusion_signal_prototypes = {fusion_wire_proxy}
+for index, signal in ipairs(fusion_signal_defs) do
+    table.insert(fusion_signal_prototypes, {
+        type = "virtual-signal",
+        name = signal[1],
+        icons = make_fusion_signal_icons(signal[2], signal[3], signal[4]),
+        order = "ei-fusion-" .. string.char(96 + index),
+    })
+end
+
+data:extend(fusion_signal_prototypes)
+
 --RECIPES FOR FUSION
 ------------------------------------------------------------------------------------------------------
 

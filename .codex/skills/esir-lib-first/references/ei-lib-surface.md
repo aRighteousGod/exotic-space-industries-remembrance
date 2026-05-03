@@ -36,6 +36,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - `ei_lib.add_unlock_recipe` already guards missing techs and recipes, so avoid file-local `add_unlock_if_present` wrappers around it.
 - `ei_lib.recipe_new` accepts an optional `opts` table for ingredient replacement patches that also need `clear_difficulty_variants` and/or explicit `enabled` control.
 - `ei_lib.make_icons` is the shared layered-icon helper when a base icon needs one optional overlay with shared scale/shift defaults.
+- `ei_lib.entity_icon_scaler` scales entity or corpse visuals plus boxes. It supports `picture`, `animation`, common turret animation fields, `energy_glow_animation`, `resource_indicator_animation`, and nested `graphics_set` visualisations.
 - `ei_lib.get_event_tick` and `ei_lib.config` are general runtime utilities, not the runtime scheduling abstraction. For queues, delayed buckets, telemetry gates, counters, cadence, and status snapshots, check `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` first.
 - `ei_lib.get_entity_unit_number` is a safe `.unit_number` read, not a validity check. When later code needs the entity itself, pair it with `entity_check` or `get_valid_entity`.
 - `ei_lib.get_normalized_quality_factor(entity_or_stack)` is the shared `0..1` quality scaler for runtime and inventory-facing quality logic. Prefer it over file-local clones.

@@ -3,7 +3,7 @@
 -- owns: crystal accumulator resonance runtime, shell swaps, mining override, and UI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: scheduled surface service plus dirty UI refresh
--- forwarded_events: check_global, get_pending_work_count, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_closed, on_gui_opened, on_player_alt_selected_area, on_player_left_game, on_player_mined_entity, on_repaired_entity, on_robot_mined_entity, on_selected_entity_changed, on_space_platform_changed_state, rebuild_runtime_state, service_ui, update
+-- forwarded_events: check_global, get_pending_work_count, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_closed, on_gui_opened, on_player_alt_selected_area, on_player_left_game, on_player_mined_entity, on_repaired_entity, on_robot_mined_entity, on_selected_entity_changed, on_space_platform_changed_state, on_space_platform_mined_entity, rebuild_runtime_state, service_ui, update
 -- storage_roots: storage.ei.crystal_accumulator
 -- gui_ids: ei-crystal-accumulator-console, ei-crystal-accumulator-console-screen, ei-crystal-accumulator-strip
 -- remote_interfaces: none
@@ -2776,7 +2776,7 @@ local function build_console_contents(root)
     local coherence_bar = flow.add{type = "progressbar", name = "coherence-bar", style = "ei_status_progressbar_cyan"}
     coherence_bar.style.horizontally_stretchable = true
     coherence_bar.style.minimal_width = 260
-    local field_bar = flow.add{type = "progressbar", name = "field-bar"}
+    local field_bar = flow.add{type = "progressbar", name = "field-bar", style = "ei_status_progressbar"}
     field_bar.style.horizontally_stretchable = true
     field_bar.style.minimal_width = 260
 
@@ -3353,11 +3353,6 @@ local function should_allow_screen_detail(runtime, player, snapshot)
         return not has_other_detached_screen
     end
 
-    local selected = ei_lib.get_valid_entity(player.selected)
-    if selected and get_unit_number(selected) == unit_number and not snapshot.is_live then
-        return not has_other_detached_screen
-    end
-
     return false
 end
 
@@ -3375,19 +3370,23 @@ local function queue_player_ui_if_relevant(runtime, player_index, current_tick)
     end
 
     local opened = ei_lib.get_valid_entity(player.opened)
+    local opened_entity = is_relevant_entity(opened) and opened or nil
     local selected = ei_lib.get_valid_entity(player.selected)
-    local entity = is_relevant_entity(opened) and opened or (is_relevant_entity(selected) and selected or nil)
-    if entity then
-        set_entity_custom_status(entity, build_snapshot(runtime, entity, current_tick))
+    local selected_entity = is_relevant_entity(selected) and selected or nil
+    if selected_entity then
+        set_entity_custom_status(selected_entity, build_snapshot(runtime, selected_entity, current_tick))
     end
-    if entity or player_has_active_crystal_ui(runtime, player) then
+    if opened_entity and opened_entity ~= selected_entity then
+        set_entity_custom_status(opened_entity, build_snapshot(runtime, opened_entity, current_tick))
+    end
+    if opened_entity or player_has_active_crystal_ui(runtime, player) then
         queue_ui_refresh(runtime, player_index, current_tick)
     end
 end
 
--- Prefer the entity GUI target over selection. Selection changes are frequent
--- and fuzzy; an opened entity is a much stronger statement that the player wants
--- the detailed readout for that specific accumulator.
+-- Detailed readouts are opt-in. Selection/hover may refresh the compact entity
+-- status line above, but it must not create a console; only Factorio's opened
+-- entity state or an already detached screen may own the detailed UI.
 local function get_relevant_entity_for_player(player)
     if not (player and player.valid) then
         return nil
@@ -3396,11 +3395,6 @@ local function get_relevant_entity_for_player(player)
     local opened = ei_lib.get_valid_entity(player.opened)
     if is_relevant_entity(opened) then
         return opened
-    end
-
-    local selected = ei_lib.get_valid_entity(player.selected)
-    if is_relevant_entity(selected) then
-        return selected
     end
 
     return nil
@@ -4049,6 +4043,14 @@ local function finalize_mined_buffer(event)
     local runtime = get_runtime()
     local snapshot = take_pending_mining(runtime, event)
     if not snapshot then
+        local entity = event and event.entity or nil
+        local unit_number = entity and get_unit_number(entity) or nil
+        local record = unit_number and runtime.by_unit[unit_number] or nil
+        if record and is_live_entity(entity) then
+            snapshot = capture_pending_mining(record)
+        end
+    end
+    if not snapshot then
         return
     end
 
@@ -4077,6 +4079,10 @@ function model.on_player_mined_entity(event)
 end
 
 function model.on_robot_mined_entity(event)
+    finalize_mined_buffer(event)
+end
+
+function model.on_space_platform_mined_entity(event)
     finalize_mined_buffer(event)
 end
 

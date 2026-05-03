@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.3.33",
+    "version": "1.3.34",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -47,7 +47,6 @@
         "? celestial-weather",
         "? DiscoScience",
         "? heat_glow",
-        "? NicerFuelGlow-Fixed",
         "? Shield-FX",
         "? vehicle_physics",
         "? gore",

@@ -29,7 +29,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
-ei_update_functions_length = 12 --# of entity updaters updater() goes through
+ei_update_functions_length = 14 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
@@ -80,6 +80,7 @@ ei_camp_fire = require("scripts/control/camp-fire")
 orbital_combinator = require("scripts/control/orbital-combinator")
 local orbital_logistics = require("scripts/control/orbital-logistics")
 local ei_railgun_cooling = require("scripts/control/railgun-cooling")
+local ei_severance_array = require("scripts/control/severance-array")
 
 local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
 
@@ -132,6 +133,18 @@ local function register_exotic_industries_qc_remote()
         end,
         get_railgun_cooling_qc_snapshot = function()
             return ei_railgun_cooling.get_qc_snapshot(game and game.tick or 0)
+        end,
+        reset_severance_array_runtime = function()
+            ei_severance_array.reset_runtime_state("qc-remote", game and game.tick or 0)
+        end,
+        configure_severance_array_qc = function(config)
+            return ei_severance_array.configure_qc(config or {})
+        end,
+        service_severance_array_qc = function(limit)
+            return ei_severance_array.service_for_qc(limit or 1, {tick = game and game.tick or 0})
+        end,
+        get_severance_array_qc_snapshot = function()
+            return ei_severance_array.get_qc_snapshot(game and game.tick or 0)
         end,
         get_research_hitch_qc_snapshot = function()
             local ei_state = storage and storage.ei or {}
@@ -405,6 +418,8 @@ local function refresh_runtime_telemetry_snapshot()
         ei_vulcanus_fumaroles,
         orbital_logistics,
         ei_railgun_cooling,
+        ei_severance_array,
+        ei_fusion_reactor,
     }
 
     for _, module_ref in ipairs(modules) do
@@ -476,6 +491,7 @@ script.on_init(function(event)
     orbital_logistics.check_init()
     ei_railgun_cooling.check_global()
     ei_railgun_cooling.rebuild_runtime_state("init", event and event.tick or 0)
+    ei_severance_array.check_global()
     ei_gaia.ensure_surface()
     ei_crystal_accumulator.check_global()
     ei_crystal_accumulator.rebuild_runtime_state("init", event and event.tick or 0)
@@ -487,6 +503,8 @@ script.on_init(function(event)
     ei_steam_train.rebuild_runtime_state("init")
     ei_fueler.check_global()
     ei_fueler.rebuild_runtime_state("init")
+    ei_fusion_reactor.check_global()
+    ei_fusion_reactor.rebuild_runtime_state("init", event and event.tick or 0)
     ei_neutron_collector.check_global()
     ei_neutron_collector.rebuild_runtime_state("init")
     ei_matter_stabilizer.check_global()
@@ -516,9 +534,7 @@ script.on_event({
 end)
 
 script.on_event(defines.events.on_entity_cloned, function(e)
-    -- Clone events expose the new entity as `destination`, not `entity`, so route
-    -- the auric vat through its own normalizer instead of the generic build fanout.
-    ei_auric_inoculation_vat.on_built_entity(e)
+    on_cloned_entity(e)
 end)
 
 script.on_event({
@@ -541,12 +557,18 @@ end)
 
 script.on_event({
     defines.events.on_player_mined_entity,
-    defines.events.on_robot_mined_entity
+    defines.events.on_robot_mined_entity,
+    defines.events.on_space_platform_mined_entity
     }, function(e)
     if e.name == defines.events.on_player_mined_entity then
         ei_crystal_accumulator.on_player_mined_entity(e)
-    else
+    elseif e.name == defines.events.on_robot_mined_entity then
         ei_crystal_accumulator.on_robot_mined_entity(e)
+    else
+        ei_crystal_accumulator.on_space_platform_mined_entity(e)
+        -- Space platform mining has no separate pre-mined event. This event still
+        -- exposes the live entity just before destruction, so route teardown here.
+        on_destroyed_entity(e)
     end
 end)
 
@@ -673,6 +695,7 @@ end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
+    ei_fusion_reactor.on_entity_settings_pasted(e)
     ei_neutron_collector.on_entity_settings_pasted(e)
     orbital_combinator.on_entity_settings_pasted(e)
     orbital_logistics.on_entity_settings_pasted(e)
@@ -734,6 +757,7 @@ script.on_event(defines.events.on_research_finished, function(e)
 
     ei_tech_scaling.on_research_finished(e)
     ei_teslas_legacy.on_research_finished(e)
+    ei_severance_array.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
     em_trains.on_research_finished(e)
     ei_nauvis_pressure_grace.on_research_finished(e)
@@ -851,7 +875,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
 
     if name == "ei-neutron-collector" or element_name == "ei-neutron-collector-console" then
         ei_neutron_collector.close_gui(game.get_player(event.player_index))
-    elseif name == "ei-fusion-reactor" then
+    elseif name == "ei-fusion-reactor" or element_name == "ei-fusion-reactor-console" then
        ei_fusion_reactor.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif element_name == "ei-induction-matrix-console" then
         ei_induction_matrix.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
@@ -971,6 +995,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
     -- prototypes but need runtime behavior.
     ei_teslas_legacy.on_script_trigger_effect(event)
     ei_railgun_cooling.on_script_trigger_effect(event)
+    ei_severance_array.on_script_trigger_effect(event)
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
@@ -978,6 +1003,7 @@ end)
 
 script.on_event(defines.events.on_player_left_game, function(event)
     -- Gate remote state is player-bound, so disconnects need explicit cleanup.
+    ei_fusion_reactor.on_player_left_game(event.player_index)
     ei_neutron_collector.on_player_left_game(event.player_index)
     ei_gate.on_player_left_game(event.player_index)
     ei_fueler.on_player_left_game(event.player_index)
@@ -1009,6 +1035,7 @@ script.on_configuration_changed(function(e)
         ei_flammable_rupture_scheduler.check_global()
         ei_vulcanus_fumaroles.check_global()
         ei_railgun_cooling.check_global()
+        ei_severance_array.check_global()
         if ei_fluid_safety and ei_fluid_safety.on_configuration_changed then
             ei_fluid_safety.on_configuration_changed(e)
         end
@@ -1021,10 +1048,12 @@ script.on_configuration_changed(function(e)
     -- including migration-only loads, so helper state cannot fossilize.
     ei_auric_inoculation_vat.check_global()
     ei_auric_inoculation_vat.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+    ei_fusion_reactor.on_configuration_changed(e)
 
     -- Migration-only configuration changes can still strand Tesla helper entities or
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
     ei_teslas_legacy.on_configuration_changed(e)
+    ei_severance_array.on_configuration_changed(e)
 
     -- Beacon overload keeps its own runtime repair path so any configuration change can
     -- re-seed its state and queue a refresh when prototype or startup settings moved.
@@ -1080,6 +1109,7 @@ script.on_configuration_changed(function(e)
         orbital_combinator.check_init()
         orbital_logistics.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_railgun_cooling.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+        ei_severance_array.check_global()
         ei_gaia.ensure_surface()
         ei_crystal_accumulator.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_vulcanus_fumaroles.on_configuration_changed(e)
@@ -1164,6 +1194,7 @@ function updater(event)
   end
 
   local updates_needed = 1
+  local severance_serviced_this_tick = false
   -- Compute update step from event.tick to keep the timing source explicit.
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
@@ -1356,6 +1387,21 @@ function updater(event)
                   current_crystal_pending_work_count = remaining_crystal_pending_work_count or 0
               end
           end
+      elseif ei_update_step == 13 then
+          -- Step 13 services Severance Array's lossy aim-trace visuals; direct alpha is script-owned.
+          local severance_pending_work_count = ei_severance_array and ei_severance_array.get_pending_work_count and ei_severance_array.get_pending_work_count(event) or 0
+          if severance_pending_work_count > 0 then
+              updates_needed = math.max(1, math.min(math.ceil(severance_pending_work_count / divisor), ei_maxEntityUpdates))
+              ei_severance_array.update(updates_needed, event)
+              severance_serviced_this_tick = true
+          end
+      elseif ei_update_step == 14 then
+          -- Step 14 polls fusion circuit input and refreshes hidden reactor telemetry.
+          local fusion_pending_work_count = ei_fusion_reactor and ei_fusion_reactor.get_pending_work_count and ei_fusion_reactor.get_pending_work_count(event) or 0
+          if fusion_pending_work_count > 0 then
+              updates_needed = math.max(1, math.min(math.ceil(fusion_pending_work_count / divisor), ei_maxEntityUpdates))
+              ei_fusion_reactor.update(updates_needed, event)
+          end
       end
   end
     ::skip::
@@ -1363,6 +1409,13 @@ function updater(event)
    -- Essential updates that run every tick regardless of the scheduled branch above.
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.
+    if not severance_serviced_this_tick
+    and ei_severance_array
+    and ei_severance_array.get_pending_work_count
+    and ei_severance_array.get_pending_work_count(event) > 0 then
+        ei_severance_array.update(1, event)
+    end
+
     em_trains_gui.updater()
     ei_alien_spawner.update(event)
     ei_gaia.update(event)
@@ -1385,6 +1438,48 @@ function updater(event)
     end
     ]]
    --======================================================================
+end
+
+function on_cloned_entity(e)
+    -- Clone events expose the new entity as `destination`, not `entity`.
+    -- Route only clone-safe registration/update hooks here; full build routing
+    -- also contains constructor paths and surface swaps that are not clone-safe.
+    local destination = e and e.destination or nil
+    if not destination or not destination.valid then
+        return
+    end
+
+    local clone_event = {}
+    for key, value in pairs(e) do
+        clone_event[key] = value
+    end
+    clone_event.entity = destination
+    clone_event.created_entity = destination
+    clone_event.is_clone = true
+
+    if ei_fluid_safety.counts_for_fluid_handling(destination) then
+        ei_register.register_fluid_entity(destination)
+    end
+
+    ei_fusion_reactor.on_built_entity(destination)
+    ei_beacon_overload.on_built_entity(destination)
+    ei_neutron_collector.on_built_entity(destination)
+    ei_matter_stabilizer.on_built_entity(destination)
+    ei_induction_matrix.on_built_entity(clone_event)
+    ei_auric_inoculation_vat.on_built_entity(clone_event)
+    ei_loaders_lib.on_built_entity(destination)
+    ei_fueler.on_built_entity(destination)
+    em_trains.on_built_entity(destination)
+    orbital_combinator.add(destination)
+    orbital_logistics.on_built_entity(clone_event)
+    ei_railgun_cooling.on_built_entity(clone_event)
+    ei_camp_fire.on_built_entity(clone_event)
+    ei_teslas_legacy.on_built_entity(clone_event)
+
+    ei_fusion_reactor.on_entity_settings_pasted(e)
+    ei_neutron_collector.on_entity_settings_pasted(e)
+    orbital_combinator.on_entity_settings_pasted(e)
+    orbital_logistics.on_entity_settings_pasted(e)
 end
 
 function on_built_entity(e)
@@ -1435,9 +1530,9 @@ function on_built_entity(e)
     -- Feature fan-out starts here. Most modules simply inspect the entity and return if
     -- it is not theirs, so it is safe for the central dispatcher to call them in sequence.
 
+    ei_fusion_reactor.on_built_entity(e["entity"])
     ei_beacon_overload.on_built_entity(e["entity"])
     ei_neutron_collector.on_built_entity(e["entity"])
-    ei_fusion_reactor.on_built_entity(e["entity"])
     ei_matter_stabilizer.on_built_entity(e["entity"])
     ei_induction_matrix.on_built_entity(e)
     ei_black_hole.on_built_entity(e)
@@ -1471,16 +1566,18 @@ function on_destroyed_entity(e)
       return
     end
 
-    -- "pre" means a player/robot initiated the removal and a transfer target may exist.
+    -- "pre" means a player, robot, or platform initiated the removal and the entity is
+    -- still present for live-neighborhood cleanup.
     -- "past" means the entity is already being removed due to death or a script destroy.
-    if e["robot"] or e["player_index"] then
+    if e["robot"] or e["player_index"] or e["platform"] then
         e["destroy_type"] = "pre"
     else
         e["destroy_type"] = "past"
     end
 
     -- Some subsystems accept either a robot reference or a player index here because
-    -- they only need to know whether removed items should be handed back.
+    -- they only need to know whether removed items should be handed back. Platform
+    -- mining moves buffered items into the platform after the event, so keep this nil.
     local transfer = nil or e["robot"] or e["player_index"]
 
     if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
@@ -1492,6 +1589,7 @@ function on_destroyed_entity(e)
     end
 
     -- As with on_built_entity(), modules self-filter if the entity is irrelevant to them.
+    ei_fusion_reactor.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_crystal_accumulator.on_destroyed_entity(e)
@@ -1507,6 +1605,7 @@ function on_destroyed_entity(e)
     orbital_logistics.on_destroyed_entity(e)
     ei_railgun_cooling.on_destroyed_entity(e)
     ei_camp_fire.on_destroyed_entity(e)
+    ei_severance_array.on_destroyed_entity(e)
     -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
     ei_steam_train.on_destroyed_entity(e["entity"])
 end

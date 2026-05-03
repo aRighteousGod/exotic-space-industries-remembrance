@@ -58,6 +58,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - The fluid rupture helper lives at [`assets/zzz-fluid-rupture-qc_0.0.1`](./assets/zzz-fluid-rupture-qc_0.0.1). Use [`references/fluid-rupture-qc-helper.md`](./references/fluid-rupture-qc-helper.md) when a run needs deterministic fluid-safety and flammable-rupture coverage with QC snapshots from the shared rupture runtime.
 - The orbital logistics cohort helper lives at [`assets/zzz-orbital-logistics-qc_0.0.1`](./assets/zzz-orbital-logistics-qc_0.0.1). Use [`references/orbital-logistics-qc-helper.md`](./references/orbital-logistics-qc-helper.md) when a run needs a save-driven cohort with live platform IDs, selector setup, coordinator arbitration, uplink leases, and structured orbital QC snapshots.
 - The research hitch helper lives at [`assets/zzz-research-hitch-qc_0.0.1`](./assets/zzz-research-hitch-qc_0.0.1). Use [`references/research-hitch-qc-helper.md`](./references/research-hitch-qc-helper.md) when a run needs late-game research-completion hitch coverage with Tesla, EM train, and tech-scaling snapshots.
+- The Severance Array helper lives at [`assets/zzz-severance-array-qc_0.0.1`](./assets/zzz-severance-array-qc_0.0.1). Use [`references/severance-array-qc-helper.md`](./references/severance-array-qc-helper.md) when a run needs dense quantum-turret sweep coverage with scripted damage and visual-slice telemetry.
 - The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
 - Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
 
@@ -120,6 +121,7 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 When touching ESIR runtime GUI, prefer Factorio relative panels for entity-adjacent consoles and treat the existing modules as a pattern library instead of inventing a fresh surface each time.
 
 See [references/relative-gui-panels.md](./references/relative-gui-panels.md) before adding or refactoring entity-specific GUI.
+For deeper runtime GUI creation, style standardization, and read-only audits, use [`esir-runtime-gui`](../esir-runtime-gui/SKILL.md).
 
 - Default to `player.gui.relative` for consoles that should live beside a vanilla entity window. Match the anchor to the entity GUI type and keep the panel on the right unless the local UX needs something different.
 - Use `player.gui.screen` for confirm dialogs, detached panels, or explicit fallback behavior when a relative anchor is unavailable or the panel should survive as a movable window.

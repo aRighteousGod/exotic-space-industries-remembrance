@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Runtime GUI"
+  short_description: "Choose and audit ESIR runtime GUI surfaces"
+  default_prompt: "Use $esir-runtime-gui before adding or refactoring ESIR runtime GUI panels."

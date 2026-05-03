@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meshy API"
+  short_description: "Use Meshy.ai API workflows safely"
+  default_prompt: "Use $meshy-api to generate, inspect, look up animation library actions, or download Meshy.ai assets with environment-based credentials and safe local outputs. For web-app/manual assets, prefer documented task downloads or the official DCC Bridge; do not rely on undocumented personal-library routes."

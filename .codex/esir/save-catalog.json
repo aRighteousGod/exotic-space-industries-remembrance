@@ -85,6 +85,34 @@
                         "notes":  "Requires the staged zzz-fluid-rupture-qc helper mod for save generation and helper-aware playback. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
                     },
                     {
+                        "id":  "severance-array",
+                        "path":  ".factorio-qc\\severance-array.zip",
+                        "kind":  "stress-save",
+                        "purpose":  "Dense Severance Array firing benchmark for native alpha damage and lossy sweep visuals",
+                        "tags":  [
+                                     "runtime",
+                                     "benchmark",
+                                     "severance-array",
+                                     "turret",
+                                     "qc"
+                                 ],
+                        "preferred_for":  [
+                                              "runtime-benchmark"
+                                          ],
+                        "helper_mods":  [
+                                            {
+                                                "name":  "zzz-severance-array-qc",
+                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-severance-array-qc_0.0.1",
+                                                "auto_stage_for":  [
+                                                                       "runtime-benchmark"
+                                                                   ],
+                                                "notes":  "Needed to author the dense array firing save and replay Severance runtime snapshots."
+                                            }
+                                        ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-severance-array-qc helper mod for save generation and helper-aware playback. Repo-side runtime-benchmark can restage it from the save catalog."
+                    },
+                    {
                         "id":  "fueler-smoke",
                         "path":  ".factorio-qc\\fueler-smoke.zip",
                         "kind":  "smoke-save",
