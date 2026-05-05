@@ -9,7 +9,8 @@ Use this skill when an asset needs a reproducible end-to-end dossier instead of 
 
 ## Hard Rules
 
-- Default all artifacts to `output/meshy/<asset>/`.
+- Default generated artifacts to ignored `output/meshy/<asset>/`.
+- Keep durable asset-specific generators, replay scripts, and generator notes under `.codex/esir/asset-generators/`; keep hand-written prompt notes under `.codex/esir/art-prompts/`. Do not make `output/` the only home for source material worth committing.
 - Use `plan` or `--dry-run` before any credit-spending Meshy step.
 - Never store, print, or request Meshy API keys. Meshy helpers read only `MESHY_API_KEY`.
 - Do not copy assets into ESIR graphics folders or edit prototypes unless the user explicitly asks after staging.
@@ -21,7 +22,7 @@ Use this skill when an asset needs a reproducible end-to-end dossier instead of 
 
 1. Create or update an asset spec.
 2. Run `plan` to inspect commands and inferred paths.
-3. Run individual steps until the output looks good. Use `render_preset` for the local Factorio `.blend` path when maximum fidelity matters. For Meshy image-to-3D assets, include at least one tight/framed render variant when the first draft leaves too much empty alpha or reads too dark.
+3. Run individual steps until the output looks good. Auto ortho fitting is the default for static, procedural, and scripted preset renders; keep `min_alpha_margin`/`preflight_margin` enabled before export so the render expands only as much as needed to avoid clipping. Use `render_preset` for the local Factorio `.blend` path when maximum fidelity matters.
 4. Run `qa` and inspect previews/bbox overlays. Enable `style` to compare staged PNGs against the local ESIR graphics baseline. Treat low frame occupancy, weak silhouette contrast, or black-material detail loss as a rerender cue rather than a promotion candidate.
 5. Stage Factorio snippets and previews with the export step. Multi-sheet exports remain staged as Factorio `stripes`.
 6. Enable `gallery` to write an HTML approval page with previews, warnings, snippets, and dossier links.
@@ -102,3 +103,5 @@ Each run writes `asset.pipeline-dossier.json` beside the spec or under the asset
 - image dimensions and alpha bounds
 - warnings and QA findings
 - optional style reports, regression reports, approval gallery, render-cost estimate, and asset registry updates
+
+Generated dossiers, manifests, galleries, and previews stay in ignored `output/` by default. Promote only deliberately curated provenance into `.codex/esir/asset-generators/` or another checked-in ESIR manifest path.

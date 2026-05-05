@@ -55,6 +55,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--elevation", type=float, default=60.0, help="Camera elevation in degrees.")
     parser.add_argument("--yaw-offset", type=float, default=45.0, help="First camera yaw in degrees.")
     parser.add_argument("--ortho-scale", type=float, help="Override orthographic camera scale.")
+    parser.add_argument("--min-alpha-margin", type=int, default=16, help="Minimum transparent margin in pixels for every rendered frame.")
+    parser.add_argument("--fail-alpha-margin", action="store_true", help="Exit non-zero when the fitted render cannot satisfy the alpha margin.")
+    parser.add_argument("--auto-ortho-scale", dest="auto_ortho_scale", action="store_true", default=True, help="Increase orthographic scale and rerender until alpha margins pass. Enabled by default.")
+    parser.add_argument("--no-auto-ortho-scale", dest="auto_ortho_scale", action="store_false", help="Disable automatic orthographic scale fitting.")
+    parser.add_argument("--auto-ortho-step", type=float, default=1.12, help="Multiplier used after an alpha margin failure.")
+    parser.add_argument("--auto-ortho-max", type=float, default=8.0, help="Maximum orthographic scale allowed by auto fitting.")
     parser.add_argument("--resolution-scale", type=int, default=100, help="Blender render resolution percentage.")
     parser.add_argument("--engine", choices=["eevee", "cycles"], default="eevee")
     parser.add_argument("--samples", type=int, default=64)
@@ -100,6 +106,12 @@ def parse_args() -> argparse.Namespace:
         parser.error("--directions must be >= 1.")
     if args.frame_size < 16:
         parser.error("--frame-size must be >= 16.")
+    if args.min_alpha_margin < 0:
+        parser.error("--min-alpha-margin must be >= 0.")
+    if args.auto_ortho_step <= 1.0:
+        parser.error("--auto-ortho-step must be greater than 1.")
+    if args.auto_ortho_max <= 0:
+        parser.error("--auto-ortho-max must be greater than 0.")
     return args
 
 
@@ -477,6 +489,124 @@ def render_frames(args: argparse.Namespace, root: bpy.types.Object, camera: bpy.
     return paths
 
 
+def alpha_bounds_for_frame(frame_path: Path, alpha_threshold: float = 0.03) -> dict[str, object]:
+    image = bpy.data.images.load(str(frame_path), check_existing=False)
+    width, height = image.size
+    pixels = list(image.pixels)
+    min_x = width
+    min_y = height
+    max_x = -1
+    max_y = -1
+    for y in range(height):
+        row = y * width * 4
+        for x in range(width):
+            alpha = pixels[row + x * 4 + 3]
+            if alpha > alpha_threshold:
+                min_x = min(min_x, x)
+                min_y = min(min_y, y)
+                max_x = max(max_x, x)
+                max_y = max(max_y, y)
+    bpy.data.images.remove(image)
+    if max_x < 0:
+        return {"path": str(frame_path), "empty": True, "width": width, "height": height}
+    margins = {
+        "left": min_x,
+        "right": width - 1 - max_x,
+        "bottom": min_y,
+        "top": height - 1 - max_y,
+    }
+    return {
+        "path": str(frame_path),
+        "empty": False,
+        "width": width,
+        "height": height,
+        "bounds": {"min_x": min_x, "min_y": min_y, "max_x": max_x, "max_y": max_y},
+        "margins": margins,
+        "minimum_margin": min(margins.values()),
+    }
+
+
+def effective_min_alpha_margin(args: argparse.Namespace, shadow_sheet: Path | None) -> int:
+    margin = max(0, int(args.min_alpha_margin))
+    if shadow_sheet:
+        offset_x, offset_down = parse_pixel_offset(args.shadow_offset)
+        margin = max(margin, max(0, offset_x), max(0, offset_down))
+    return margin
+
+
+def analyze_alpha_margins(frame_paths: list[Path], min_margin: int) -> tuple[list[dict[str, object]], list[str]]:
+    records = [alpha_bounds_for_frame(path) for path in frame_paths]
+    warnings = []
+    if min_margin > 0:
+        for index, record in enumerate(records):
+            margin = record.get("minimum_margin")
+            if isinstance(margin, int) and margin < min_margin:
+                warnings.append(f"frame_{index:03d} alpha margin {margin}px is below required margin {min_margin}px.")
+    return records, warnings
+
+
+def next_ortho_scale_from_alpha(
+    records: list[dict[str, object]],
+    current_scale: float,
+    min_margin: int,
+    step: float,
+    max_scale: float,
+) -> float | None:
+    if min_margin <= 0:
+        return None
+    needed = current_scale * step
+    for record in records:
+        bounds = record.get("bounds")
+        width = record.get("width")
+        height = record.get("height")
+        if not isinstance(bounds, dict) or not isinstance(width, int) or not isinstance(height, int):
+            continue
+        target_w = max(width - 2 * min_margin, 1)
+        target_h = max(height - 2 * min_margin, 1)
+        content_w = int(bounds["max_x"]) - int(bounds["min_x"]) + 1
+        content_h = int(bounds["max_y"]) - int(bounds["min_y"]) + 1
+        needed = max(needed, current_scale * content_w / target_w * 1.02)
+        needed = max(needed, current_scale * content_h / target_h * 1.02)
+    if needed > max_scale:
+        return max_scale if current_scale < max_scale else None
+    return needed if needed > current_scale else None
+
+
+def render_with_optional_auto_ortho(
+    args: argparse.Namespace,
+    root: bpy.types.Object,
+    camera: bpy.types.Object,
+    center: Vector,
+    radius: float,
+    frames_dir: Path,
+    min_margin: int,
+) -> tuple[list[Path], list[dict[str, object]], list[str], list[dict[str, object]], float]:
+    attempts = []
+    scale = float(camera.data.ortho_scale)
+    while True:
+        camera.data.ortho_scale = scale
+        frame_paths = render_frames(args, root, camera, center, radius, frames_dir)
+        alpha_bounds, warnings = analyze_alpha_margins(frame_paths, min_margin)
+        margins = [
+            int(record["minimum_margin"])
+            for record in alpha_bounds
+            if isinstance(record.get("minimum_margin"), int)
+        ]
+        attempts.append({"ortho_scale": scale, "minimum_margin": min(margins) if margins else None, "warnings": warnings})
+        if not args.auto_ortho_scale or not warnings:
+            return frame_paths, alpha_bounds, warnings, attempts, scale
+        next_scale = next_ortho_scale_from_alpha(
+            alpha_bounds,
+            scale,
+            min_margin,
+            args.auto_ortho_step,
+            args.auto_ortho_max,
+        )
+        if next_scale is None:
+            return frame_paths, alpha_bounds, warnings, attempts, scale
+        scale = next_scale
+
+
 def pack_sheet(frame_paths: list[Path], output_sheet: Path, columns: int, padding: int) -> tuple[int, int]:
     first = bpy.data.images.load(str(frame_paths[0]), check_existing=False)
     tile_w, tile_h = first.size
@@ -539,7 +669,19 @@ def make_shadow_sheet(source_sheet: Path, output_shadow: Path, offset: tuple[int
     bpy.data.images.remove(image)
 
 
-def write_manifest(path: Path, args: argparse.Namespace, frame_paths: list[Path], sheet_size: tuple[int, int], source: str | None, shadow_sheet: Path | None) -> None:
+def write_manifest(
+    path: Path,
+    args: argparse.Namespace,
+    frame_paths: list[Path],
+    sheet_size: tuple[int, int],
+    source: str | None,
+    shadow_sheet: Path | None,
+    alpha_bounds: list[dict[str, object]],
+    warnings: list[str],
+    final_ortho_scale: float,
+    auto_ortho_attempts: list[dict[str, object]],
+    effective_margin: int,
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     manifest = {
         "kind": "blender_procedural_animation",
@@ -559,6 +701,13 @@ def write_manifest(path: Path, args: argparse.Namespace, frame_paths: list[Path]
         "sheet_height": sheet_size[1],
         "elevation": args.elevation,
         "yaw_offset": args.yaw_offset,
+        "ortho_scale": final_ortho_scale,
+        "min_alpha_margin": args.min_alpha_margin,
+        "effective_min_alpha_margin": effective_margin,
+        "auto_ortho_scale": args.auto_ortho_scale,
+        "auto_ortho_attempts": auto_ortho_attempts,
+        "alpha_bounds": alpha_bounds,
+        "warnings": warnings,
         "engine": args.engine,
         "samples": args.samples,
         "factorio_preset_defaults": args.factorio_preset_defaults,
@@ -607,12 +756,35 @@ def main() -> None:
     set_camera_angle(camera, center, radius, args.yaw_offset, args.elevation)
     bpy.context.view_layer.update()
     setup_lighting(args, center, radius, camera)
-    frame_paths = render_frames(args, root, camera, center, radius, frames_dir)
-    sheet_size = pack_sheet(frame_paths, output_sheet, columns, args.padding)
     shadow_sheet = resolve_path(args.shadow_sheet, base_dir) if args.shadow_sheet else None
+    effective_margin = effective_min_alpha_margin(args, shadow_sheet)
+    frame_paths, alpha_bounds, warnings, auto_ortho_attempts, final_ortho_scale = render_with_optional_auto_ortho(
+        args,
+        root,
+        camera,
+        center,
+        radius,
+        frames_dir,
+        effective_margin,
+    )
+    sheet_size = pack_sheet(frame_paths, output_sheet, columns, args.padding)
     if shadow_sheet:
         make_shadow_sheet(output_sheet, shadow_sheet, parse_pixel_offset(args.shadow_offset), args.shadow_alpha)
-    write_manifest(manifest, args, frame_paths, sheet_size, source, shadow_sheet)
+    write_manifest(
+        manifest,
+        args,
+        frame_paths,
+        sheet_size,
+        source,
+        shadow_sheet,
+        alpha_bounds,
+        warnings,
+        final_ortho_scale,
+        auto_ortho_attempts,
+        effective_margin,
+    )
+    if warnings and args.fail_alpha_margin:
+        raise SystemExit("Alpha margin check failed; see manifest warnings.")
 
     if args.save_blend:
         blend_path = resolve_path(args.save_blend, base_dir)

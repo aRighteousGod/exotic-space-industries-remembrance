@@ -37,7 +37,9 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - For dependency-heavy questions, prefer the dedicated `esir-dependency-intel` skill and `scripts\invoke-esir-dependency-intel.ps1` before freehand repo scans.
 - Treat headless Factorio runs as authoritative when they disagree with static sweeps.
 - Treat cached run-mod directories as dependency seeds only. Live repo pack folders are the source of truth.
-- Keep raw caches in `.factorio-qc` or `output`; stable manifests stay checked in.
+- Keep raw caches and generated staging in `.factorio-qc` or ignored `output/`; stable manifests stay checked in.
+- Keep durable ESIR asset generator scripts and generator-specific notes in `.codex/esir/asset-generators/`, not in `output/`. Keep hand-written art prompts in `.codex/esir/art-prompts/` unless the user intentionally wants the older top-level `art-prompts/` tree.
+- Treat `exotic-space-industries-remembrance*/graphics/` as the shipping surface for approved/promoted PNGs, not as scratch staging.
 - The checked-in dependency catalog is intentionally limited to declared pack dependencies plus ESIR touchpoints. Local installed mod roots are query-time enrichment only.
 - Before applying generic Lua advice to ESIR code, use the repo-local `factorio-lua-assumptions` skill to check Factorio's staged lifecycle, sandboxed libraries, storage rules, `require()` behavior, deterministic runtime changes, and LuaObject validity semantics.
 - For official Factorio API or wiki questions, prefer the repo-local `factorio-lua-docs` skill and `scripts\invoke-factorio-lua-docs.ps1` before broad web search or memory.

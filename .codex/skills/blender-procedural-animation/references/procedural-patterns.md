@@ -36,8 +36,9 @@ Use the preset for maximum-fidelity manual Blender work:
 - Leave or scale `Ground Dirt` when it helps scattered ground contact and shadows.
 - Put object light sources under `Lights on`; exclude sun lights from this collection.
 - Put pipes in `Pipe` when the machine uses the preset pipe helpers.
-- Change canvas size through the preset UI: Factorio sidebar > `Orthographic Scale` and tile size > `Set Resolution`. Do not hand-edit camera resolution first.
-- Test export with `F12` and reduce ortho scale/canvas as much as possible without clipping shadow or glow.
+- Change canvas size through the preset UI: Factorio sidebar > `Orthographic Scale` and tile size > `Set Resolution`. Do not hand-edit camera resolution first; the operator only recalculates pixel resolution from the chosen ortho scale and tile size.
+- Test export with `F12`, inspect every moving pose for object/shadow/glow edge contact, and reduce ortho scale/canvas as much as possible without clipping.
+- For scripted procedural exports, leave auto-ortho fitting enabled unless the task is explicitly a manual framing comparison. The renderer checks every frame's alpha bounds, raises ortho scale until the effective margin passes, and records `auto_ortho_attempts` in the manifest.
 - For repo-compatible compositor output, save the `.blend` under a repo `blender` folder and point output paths to `///Render/{export_type}`.
 
 Glow and light pass notes:
@@ -93,8 +94,10 @@ Use Blender MCP when the first sheet is close but needs human-looking compositio
 2. Connect the BlenderMCP add-on.
 3. Import or create the asset.
 4. Rename important parts with the naming hints above.
-5. Save a `.blend` under `output/meshy/<asset>/`.
+5. Save generated `.blend` files under `output/meshy/<asset>/`.
 6. Run the deterministic background renderer from the saved scene or source model.
+
+Keep reusable procedural source scripts and asset-specific reproduction notes under `.codex/esir/asset-generators/`; `output/meshy/` is ignored staging for generated Blender files, sheets, manifests, and previews.
 
 ## Factorio Export Handoff
 

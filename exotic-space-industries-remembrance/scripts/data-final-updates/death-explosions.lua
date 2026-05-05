@@ -262,6 +262,7 @@ local family_assignments = {
     "ei-plasma-heater",
     "ei-plasma-turret",
     "ei-quantum-computer",
+    "ei-severance-array",
     "ei-solar-panel-3",
     "ei-superior-electric-mining-drill",
     "ei-ultimate-nova-loader",

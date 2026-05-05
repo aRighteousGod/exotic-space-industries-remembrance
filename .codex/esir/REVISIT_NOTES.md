@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-05-05 | gaian-saucer-locale | open | the Gaian saucer v1 prototype ships with English locale while the vehicle art and gameplay role settle; supported non-English locale files still need idiomatic entries.`
+  - `Files:` `exotic-space-industries-remembrance/locale/en/lang_en.cfg`, `exotic-space-industries-remembrance/prototypes/alien-system/gaian-saucer.lua`
+  - `Next safe move:` after the saucer name, recipe role, and visual scale are accepted, add per-language locale entries for item/entity/technology/recipe names and descriptions.
+
 - `2026-04-30 | clone-routing | open | clone events now use an allowlisted registration path for clone-safe runtime systems instead of the full build dispatcher. State-preserving clone semantics remain deliberately unresolved for constructor/destructive build paths.`
   - `Files:` `exotic-space-industries-remembrance/control.lua`
   - `Next safe move:` design per-module clone behavior for gates, Gaia swaps, black holes, crystal accumulators, steam-train placement proxies, and `rp-steam-pump` fluid priming before routing those through clone handling.

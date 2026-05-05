@@ -41,7 +41,7 @@ data:extend({
         type = "technology",
         icon = ei_graphics_tech_path.."destill-tower.png",
         icon_size = 256,
-        prerequisites = {"ei-steam-oil-processing"},
+        prerequisites = {"ei-steam-oil-processing", "ei-tank-column"},
         effects = {
             {
                 type = "unlock-recipe",

@@ -26,5 +26,7 @@ require("gate")
 require("crystal-accumulator")
 -- add farsation
 require("farstation")
+-- add gaian saucer
+require("gaian-saucer")
 -- add other
 require("alien-structures")

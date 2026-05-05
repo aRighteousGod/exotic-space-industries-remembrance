@@ -57,6 +57,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--passes", default=DEFAULT_PASSES, help="Comma-separated preset passes to render.")
     parser.add_argument("--quality", choices=["smoke", "final"], default="smoke", help="Smoke is low-sample; final uses preset-style samples.")
     parser.add_argument("--samples", type=int, help="Override Cycles samples.")
+    parser.add_argument("--cycles-compute-device", choices=["auto", "cpu", "cuda", "optix", "hip", "oneapi"], default="auto", help="Cycles compute device. Auto prefers GPU devices when available.")
+    parser.add_argument("--cycles-include-cpu", action="store_true", help="Allow the CPU to render alongside the selected GPU device.")
+    parser.add_argument("--persistent-data", dest="persistent_data", action="store_true", default=True, help="Keep render data resident between frames. Uses more RAM but speeds animation renders.")
+    parser.add_argument("--no-persistent-data", dest="persistent_data", action="store_false", help="Disable persistent render data.")
+    parser.add_argument("--denoise", dest="use_denoising", action="store_true", default=True, help="Enable Cycles denoising.")
+    parser.add_argument("--no-denoise", dest="use_denoising", action="store_false", help="Disable Cycles denoising to reduce CPU post-processing.")
     parser.add_argument("--frames", type=int, default=64, help="Total Blender frame range end.")
     parser.add_argument("--directions", type=int, default=4, help="Preset direction count.")
     parser.add_argument("--animation-frames", type=int, default=16, help="Animation frames per direction.")
@@ -71,6 +77,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--keep-ground-dirt", action="store_true", help="Keep Ground Dirt when clearing preset object examples.")
     parser.add_argument("--keep-pipe", action="store_true", help="Keep Pipe when clearing preset object examples.")
     parser.add_argument("--no-parent-to-rotation", action="store_true", help="Do not parent imported meshes to Rotation by Frames & Directions.")
+    parser.add_argument("--spin-object", help="Add a procedural spin driver to the named imported object.")
+    parser.add_argument("--spin-axis", choices=["x", "y", "z"], default="z", help="Axis used by --spin-object.")
+    parser.add_argument("--spin-degrees", type=float, default=360.0, help="Degrees covered over --spin-frames.")
+    parser.add_argument("--spin-frames", type=int, help="Loop length for --spin-object. Defaults to --animation-frames.")
     parser.add_argument("--no-normalize", action="store_true", help="Do not center and scale imported meshes.")
     parser.add_argument("--auto-prep", action="store_true", help="Run conservative imported-model cleanup before preset placement.")
     parser.add_argument("--prep-origin-mode", choices=["center", "ground"], default="center", help="Origin normalization mode for imported meshes.")
@@ -83,6 +93,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preflight-only", action="store_true", help="Configure and inspect the preset, write a manifest, and skip rendering.")
     parser.add_argument("--preflight-margin", type=float, default=0.12, help="Warn when projected asset margin is below this ratio.")
     parser.add_argument("--fail-framing-risk", action="store_true", help="Exit non-zero when preflight detects low framing margin.")
+    parser.add_argument("--auto-ortho-scale", dest="auto_ortho_scale", action="store_true", default=True, help="Increase preset Orthographic Scale from preflight before rendering. Enabled by default.")
+    parser.add_argument("--no-auto-ortho-scale", dest="auto_ortho_scale", action="store_false", help="Disable automatic preset Orthographic Scale fitting.")
+    parser.add_argument("--auto-ortho-step", type=float, default=1.04, help="Safety multiplier applied to the computed fitting ortho scale.")
+    parser.add_argument("--auto-ortho-max", type=float, default=12.0, help="Maximum Orthographic Scale allowed by preset auto fitting.")
     parser.add_argument("--require-light-group", default="Lights", help="Required light group for export/glow lights.")
     parser.add_argument("--fail-missing-light-group", action="store_true", help="Exit non-zero when export lights are not in --require-light-group.")
     parser.add_argument("--footprint-tiles", help="Gameplay footprint estimate as WxH tiles, used for preflight reporting.")
@@ -102,6 +116,12 @@ def parse_args() -> argparse.Namespace:
         args.frames = args.animation_frames * args.unit_directions
     if args.frames < 1 or args.directions < 1 or args.animation_frames < 1:
         parser.error("--frames, --directions, and --animation-frames must be positive.")
+    if not 0 <= args.preflight_margin < 0.49:
+        parser.error("--preflight-margin must be >= 0 and < 0.49.")
+    if args.auto_ortho_step < 1.0:
+        parser.error("--auto-ortho-step must be >= 1.")
+    if args.auto_ortho_max <= 0:
+        parser.error("--auto-ortho-max must be greater than 0.")
     return args
 
 
@@ -148,6 +168,99 @@ def parse_tiles(raw: str | None) -> tuple[float, float] | None:
 
 def scene() -> bpy.types.Scene:
     return bpy.data.scenes.get("Default Scene") or bpy.context.scene
+
+
+def compositor_tree(scn: bpy.types.Scene) -> Any | None:
+    return getattr(scn, "node_tree", None) or getattr(scn, "compositing_node_group", None)
+
+
+def set_file_output_path(node: Any, folder: Path) -> None:
+    folder.mkdir(parents=True, exist_ok=True)
+    if hasattr(node, "base_path"):
+        node.base_path = str(folder)
+    elif hasattr(node, "file_name"):
+        legacy_base = Path.cwd() / "Render" / folder.name
+        node.file_name = os.path.relpath(folder, legacy_base) + os.sep
+
+
+def file_output_path(node: Any) -> str:
+    return str(getattr(node, "base_path", getattr(node, "file_name", "")))
+
+
+def file_output_slots(node: Any) -> list[str]:
+    slots = getattr(node, "file_slots", None)
+    if slots is not None:
+        return [getattr(slot, "path", "") for slot in slots]
+    items = getattr(node, "file_output_items", None)
+    if items is not None:
+        return [getattr(item, "name", "") for item in items]
+    return []
+
+
+def configure_cycles_device(args: argparse.Namespace, scn: bpy.types.Scene) -> dict[str, Any]:
+    report: dict[str, Any] = {
+        "requested": args.cycles_compute_device,
+        "include_cpu": bool(args.cycles_include_cpu),
+        "selected": "CPU",
+        "scene_device": "CPU",
+        "devices": [],
+        "warnings": [],
+    }
+
+    if args.cycles_compute_device == "cpu":
+        scn.cycles.device = "CPU"
+        return report
+
+    prefs = bpy.context.preferences.addons.get("cycles")
+    if not prefs:
+        report["warnings"].append("Cycles preferences were not available; using CPU.")
+        scn.cycles.device = "CPU"
+        return report
+
+    cycles_prefs = prefs.preferences
+    try:
+        cycles_prefs.refresh_devices()
+        device_types = [row[0] for row in cycles_prefs.get_device_types(bpy.context)]
+    except Exception as exc:
+        report["warnings"].append(f"Could not refresh Cycles devices: {exc}")
+        device_types = []
+
+    available = [(dev.name, dev.type) for dev in cycles_prefs.devices]
+    report["available_types"] = device_types
+    report["available_devices"] = [{"name": name, "type": dev_type} for name, dev_type in available]
+
+    if args.cycles_compute_device == "auto":
+        candidates = ["OPTIX", "CUDA", "HIP", "ONEAPI"]
+    else:
+        candidates = [args.cycles_compute_device.upper()]
+
+    selected = None
+    for candidate in candidates:
+        if candidate in device_types and any(dev_type == candidate for _, dev_type in available):
+            selected = candidate
+            break
+
+    if not selected:
+        report["warnings"].append("No requested GPU Cycles device was available; using CPU.")
+        scn.cycles.device = "CPU"
+        return report
+
+    try:
+        cycles_prefs.compute_device_type = selected
+        cycles_prefs.refresh_devices()
+    except Exception as exc:
+        report["warnings"].append(f"Could not select Cycles {selected}: {exc}")
+        scn.cycles.device = "CPU"
+        return report
+
+    for dev in cycles_prefs.devices:
+        dev.use = dev.type == selected or (args.cycles_include_cpu and dev.type == "CPU")
+
+    scn.cycles.device = "GPU"
+    report["selected"] = selected
+    report["scene_device"] = scn.cycles.device
+    report["devices"] = [{"name": dev.name, "type": dev.type, "use": bool(dev.use)} for dev in cycles_prefs.devices]
+    return report
 
 
 def ensure_factorio_props() -> None:
@@ -243,6 +356,33 @@ def bounds_for(objects: list[bpy.types.Object]) -> tuple[Vector, Vector]:
     mins = Vector((min(p.x for p in points), min(p.y for p in points), min(p.z for p in points)))
     maxs = Vector((max(p.x for p in points), max(p.y for p in points), max(p.z for p in points)))
     return mins, maxs
+
+
+def camera_plane_bounds(objects: list[bpy.types.Object], camera: bpy.types.Object | None) -> dict[str, Any] | None:
+    if camera is None or camera.type != "CAMERA":
+        return None
+    points = []
+    camera_inverse = camera.matrix_world.inverted()
+    for obj in objects:
+        for corner in obj.bound_box:
+            points.append(camera_inverse @ (obj.matrix_world @ Vector(corner)))
+    if not points:
+        return None
+    min_x = min(p.x for p in points)
+    max_x = max(p.x for p in points)
+    min_y = min(p.y for p in points)
+    max_y = max(p.y for p in points)
+    width = max_x - min_x
+    height = max_y - min_y
+    return {
+        "min_x": min_x,
+        "max_x": max_x,
+        "min_y": min_y,
+        "max_y": max_y,
+        "width": width,
+        "height": height,
+        "extent": max(width, height),
+    }
 
 
 def vector_list(value: Vector) -> list[float]:
@@ -370,6 +510,38 @@ def place_imported_objects(objects: list[bpy.types.Object], args: argparse.Names
                 obj.parent = rotator
 
 
+def apply_spin_driver(args: argparse.Namespace) -> dict[str, Any] | None:
+    if not args.spin_object:
+        return None
+
+    obj = bpy.data.objects.get(args.spin_object)
+    if obj is None:
+        raise SystemExit(f"--spin-object not found after import: {args.spin_object}")
+
+    obj.rotation_mode = "XYZ"
+    axis_index = {"x": 0, "y": 1, "z": 2}[args.spin_axis]
+    frames = args.spin_frames or args.animation_frames
+    if frames < 1:
+        raise SystemExit("--spin-frames must be positive.")
+
+    if obj.animation_data:
+        for fcu in list(obj.animation_data.drivers):
+            if fcu.data_path == "rotation_euler" and fcu.array_index == axis_index:
+                obj.driver_remove(fcu.data_path, fcu.array_index)
+
+    fcu = obj.driver_add("rotation_euler", axis_index)
+    driver = fcu.driver
+    driver.type = "SCRIPTED"
+    driver.expression = f"radians((frame - 1) * {args.spin_degrees:.12g} / {frames})"
+    return {
+        "object": obj.name,
+        "axis": args.spin_axis,
+        "degrees": args.spin_degrees,
+        "frames": frames,
+        "expression": driver.expression,
+    }
+
+
 def setup_scene(args: argparse.Namespace, selected_passes: list[str], output_dir: Path) -> dict[str, Any]:
     ensure_factorio_props()
     scn = scene()
@@ -391,7 +563,10 @@ def setup_scene(args: argparse.Namespace, selected_passes: list[str], output_dir
     scn.frame_end = args.frames
     scn.render.engine = "CYCLES"
     scn.cycles.samples = args.samples if args.samples is not None else (256 if args.quality == "final" else 16)
-    scn.cycles.use_denoising = True
+    scn.cycles.use_denoising = bool(args.use_denoising)
+    cycles_device_report = configure_cycles_device(args, scn)
+    if hasattr(scn.render, "use_persistent_data"):
+        scn.render.use_persistent_data = bool(args.persistent_data)
     scn.render.film_transparent = True
     scn.render.use_compositing = True
     scn.render.image_settings.file_format = "PNG"
@@ -411,8 +586,9 @@ def setup_scene(args: argparse.Namespace, selected_passes: list[str], output_dir
         for label in PASS_DEFS[pass_name]["node_labels"]
     }
     node_records = []
-    if scn.use_nodes and scn.node_tree:
-        for node in scn.node_tree.nodes:
+    comp_tree = compositor_tree(scn)
+    if getattr(scn, "use_nodes", True) and comp_tree:
+        for node in comp_tree.nodes:
             if node.bl_idname != "CompositorNodeOutputFile":
                 continue
             label = node.label or node.name
@@ -424,21 +600,24 @@ def setup_scene(args: argparse.Namespace, selected_passes: list[str], output_dir
             node.mute = matched_pass is None
             if matched_pass:
                 folder = PASS_DEFS[matched_pass]["folder"]
-                node.base_path = str(output_dir / folder)
+                set_file_output_path(node, output_dir / str(folder))
             node_records.append(
                 {
                     "name": node.name,
                     "label": label,
                     "mute": bool(node.mute),
-                    "base_path": node.base_path,
+                    "base_path": file_output_path(node),
                     "selected": label in selected_labels,
-                    "slots": [slot.path for slot in node.file_slots],
+                    "slots": file_output_slots(node),
                 }
             )
     return {
         "scene": scn.name,
         "resolution": [resolution, resolution],
         "samples": scn.cycles.samples,
+        "cycles_device": cycles_device_report,
+        "persistent_data": bool(getattr(scn.render, "use_persistent_data", False)),
+        "denoising": bool(scn.cycles.use_denoising),
         "frame_start": scn.frame_start,
         "frame_end": scn.frame_end,
         "node_records": node_records,
@@ -527,11 +706,12 @@ def preflight_report(
     meshes = mesh_objects(imported)
     mins, maxs = bounds_for(meshes)
     size = maxs - mins
-    width = max(size.x, size.y)
-    height = size.z
+    camera_bounds = camera_plane_bounds(meshes, scene().camera)
+    projected_extent = float(camera_bounds["extent"]) if camera_bounds else max(size.x, size.y)
     ortho = float(args.ortho_scale)
-    margin_ratio = max(0.0, (ortho - width) / max(ortho, 0.000001) / 2.0)
+    margin_ratio = max(0.0, (ortho - projected_extent) / max(ortho, 0.000001) / 2.0)
     framing_risk = margin_ratio < args.preflight_margin
+    minimum_ortho_scale = projected_extent / max(1.0 - 2.0 * args.preflight_margin, 0.000001)
     footprint = parse_tiles(args.footprint_tiles)
     footprint_report = None
     if footprint:
@@ -590,8 +770,11 @@ def preflight_report(
             "bounds_min": [mins.x, mins.y, mins.z],
             "bounds_max": [maxs.x, maxs.y, maxs.z],
             "dimensions": [size.x, size.y, size.z],
+            "camera_plane": camera_bounds,
+            "projected_extent": projected_extent,
             "ortho_scale": ortho,
             "margin_ratio": margin_ratio,
+            "minimum_ortho_scale": minimum_ortho_scale,
             "framing_risk": framing_risk,
             "footprint": footprint_report,
         },
@@ -722,6 +905,7 @@ def main() -> None:
             origin_mode=args.prep_origin_mode,
         )
     place_imported_objects(imported, args)
+    spin_report = apply_spin_driver(args)
     add_unit_driver(args)
 
     scene_record = setup_scene(args, selected_passes, output_dir)
@@ -731,6 +915,33 @@ def main() -> None:
         imported=imported,
         scene_record=scene_record,
     )
+    auto_ortho_attempts = [
+        {
+            "ortho_scale": args.ortho_scale,
+            "margin_ratio": preflight.get("framing", {}).get("margin_ratio"),
+            "framing_risk": preflight.get("framing", {}).get("framing_risk"),
+        }
+    ]
+    while args.auto_ortho_scale and preflight.get("framing", {}).get("framing_risk"):
+        required = float(preflight.get("framing", {}).get("minimum_ortho_scale") or args.ortho_scale)
+        next_scale = max(args.ortho_scale * args.auto_ortho_step, required * args.auto_ortho_step)
+        if next_scale > args.auto_ortho_max:
+            break
+        args.ortho_scale = next_scale
+        scene_record = setup_scene(args, selected_passes, output_dir)
+        preflight = preflight_report(
+            args,
+            selected_passes=selected_passes,
+            imported=imported,
+            scene_record=scene_record,
+        )
+        auto_ortho_attempts.append(
+            {
+                "ortho_scale": args.ortho_scale,
+                "margin_ratio": preflight.get("framing", {}).get("margin_ratio"),
+                "framing_risk": preflight.get("framing", {}).get("framing_risk"),
+            }
+        )
     if not args.dry_run and not args.preflight_only:
         render_animation(output_dir)
     packed = pack_sheets(output_dir, selected_passes, grid) if args.pack_sheets and not args.dry_run and not args.preflight_only else {}
@@ -759,10 +970,13 @@ def main() -> None:
             "unit_directions": args.unit_directions,
             "initial_angle": args.initial_angle,
             "ortho_scale": args.ortho_scale,
+            "auto_ortho_scale": args.auto_ortho_scale,
+            "auto_ortho_attempts": auto_ortho_attempts,
             "tile_size": args.tile_size,
             "grid": list(grid),
             "cleared_preset_objects": cleared,
             "imported_objects": [obj.name for obj in imported],
+            "procedural_spin": spin_report,
             "auto_prep": auto_prep,
             "normalization": normalize_report,
             "scene": scene_record,

@@ -7,6 +7,8 @@
 3. Inspect the preview PNG.
 4. Only after explicit follow-up, copy assets into the mod graphics tree and wire the generated snippet into a prototype.
 
+`output/` is ignored staging. If an asset needs a reusable generator, replay script, hand-written prompt, or promotion note, keep that source under `.codex/esir/asset-generators/` or `.codex/esir/art-prompts/`; generated manifests, snippets, galleries, and previews stay under `output/` unless deliberately promoted as provenance.
+
 ## Entity Mode
 
 Use `entity` for static entity pictures, simple `animation` tables, directional sheets, or draft rotated-animation snippets.

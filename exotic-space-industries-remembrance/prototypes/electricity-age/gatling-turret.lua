@@ -38,24 +38,61 @@ function gatling_sheet(inputs)
 end
 
 function gatling_projectile_creation_parameters()
-	return {
-		{ 0.0625 * 0, util.by_pixel(15, -106.5) },
-		{ 0.0625 * 1, util.by_pixel(40.5, -105.75) },
-		{ 0.0625 * 2, util.by_pixel(66, -77.25) },
-		{ 0.0625 * 3, util.by_pixel(83.25, -52.5) },
-		{ 0.0625 * 4, util.by_pixel(79.5, -45) },
-		{ 0.0625 * 5, util.by_pixel(66, -18.75) },
-		{ 0.0625 * 6, util.by_pixel(51, 7.5) },
-		{ 0.0625 * 7, util.by_pixel(12, 15) },
-		{ 0.0625 * 8, util.by_pixel(-30, 12.75) },
-		{ 0.0625 * 9, util.by_pixel(-39.75, -4.5) },
-		{ 0.0625 * 10, util.by_pixel(-39.75, -29.25) },
-		{ 0.0625 * 11, util.by_pixel(-39.75, -51.75) },
-		{ 0.0625 * 12, util.by_pixel(-39, -66) },
-		{ 0.0625 * 13, util.by_pixel(-21.75, -70.5) },
-		{ 0.0625 * 14, util.by_pixel(-5.25, -92.25) },
-		{ 0.0625 * 15, util.by_pixel(8.25, -100.5) },
+	local points = {
+		{15, -106.5},
+		{27.75, -106.125},
+		{40.5, -105.75},
+		{53.25, -91.5},
+		{66, -77.25},
+		{74.625, -64.875},
+		{83.25, -52.5},
+		{81.375, -48.75},
+		{79.5, -45},
+		{72.75, -31.875},
+		{66, -18.75},
+		{58.5, -5.625},
+		{51, 7.5},
+		{31.5, 11.25},
+		{12, 15},
+		{-9, 13.875},
+		{-30, 12.75},
+		{-34.875, 4.125},
+		{-39.75, -4.5},
+		{-39.75, -16.875},
+		{-39.75, -29.25},
+		{-39.75, -40.5},
+		{-39.75, -51.75},
+		{-39.375, -58.875},
+		{-39, -66},
+		{-30.375, -68.25},
+		{-21.75, -70.5},
+		{-13.5, -81.375},
+		{-5.25, -92.25},
+		{1.5, -96.375},
+		{8.25, -100.5},
+		{11.625, -103.5},
 	}
+
+	local samples_per_segment = 4
+	local result = {}
+	for index, point in ipairs(points) do
+		local next_point = points[index % #points + 1]
+
+		for segment_index = 0, samples_per_segment - 1 do
+			local ratio = segment_index / samples_per_segment
+			local direction_index = (index - 1) * samples_per_segment + segment_index
+
+			result[#result + 1] = {
+				0.0078125 * direction_index,
+				util.by_pixel(
+					point[1] + (next_point[1] - point[1]) * ratio,
+					point[2] + (next_point[2] - point[2]) * ratio
+				),
+			}
+		end
+	end
+
+	return result
 end
 
 data:extend({

@@ -10,9 +10,10 @@ Use this skill after `$meshy-blender-spritesheet`, `$meshy-api`, or any other ar
 ## Hard Rules
 
 - Stage generated assets under `output/meshy/<asset>/factorio-export/` unless the user explicitly gives another staging path.
+- Treat `output/` as ignored generated staging only. Do not leave the only copy of a reusable generator script, hand-written note, or prompt there; promote durable sources to `.codex/esir/asset-generators/` or `.codex/esir/art-prompts/`.
 - Do not copy files into `exotic-space-industries-remembrance/graphics/` or edit prototypes unless the user explicitly asks for that follow-up. Promotion remains dry-run unless `--execute` is passed.
 - Do not treat a generated sheet as shippable until the preview has been inspected.
-- During preview inspection, reject or rerender drafts whose sprite occupies too little of each frame, loses its silhouette at Factorio scale, or has minimal contrast because the material is near-black. Stage them as tests only until a tighter/brighter render exists.
+- During preview inspection, reject or rerender drafts whose sprite occupies too little of each frame, loses its silhouette at Factorio scale, touches/cuts off at a frame edge, or has minimal contrast because the material is near-black. If a render manifest includes `alpha_bounds`, treat non-empty `warnings` or margins below the requested `min_alpha_margin` as a rerender cue.
 - Keep Meshy credentials out of this workflow. This skill does not need API keys.
 - For item icons, reuse the repo-local `$esir-item-icon-prep` behavior instead of hand-building mip strips.
 
@@ -130,6 +131,8 @@ Each run writes staged files only:
 - preview PNG(s), including working-animation previews when present
 - `<asset>.factorio-asset-manifest.json`
 - `<asset>.prototype-snippet.lua`
+
+These staged files remain generated review artifacts under ignored `output/`. Commit final approved PNGs only after promotion into the mod graphics packs, and commit reproducible procedural source scripts under `.codex/esir/asset-generators/` instead of under an output `source/` folder.
 
 The Lua snippet assumes the staged PNGs will eventually be copied into the graphics folder matching the selected path variable, such as `ei_graphics_entity_path` or `ei_graphics_item_path`. Icon snippets are prototype-table field fragments and keep trailing commas for pasteability inside an item prototype. `--snippet-template`, `--target-prototype-type`, `--target-prototype-name`, and `--target-field` add prototype-aware comments and manifest metadata for safer promotion planning; they do not copy or patch anything.
 

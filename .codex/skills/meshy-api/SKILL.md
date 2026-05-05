@@ -15,7 +15,8 @@ Use this skill when a task needs Meshy.ai model, image, texture, rigging, animat
 - In this workspace, the Codex MCP server is configured globally as `meshy`.
 - Fall back to `scripts/meshy_rest.py` when MCP tools are unavailable or when a deterministic local download is useful.
 - Treat generation calls as credit-consuming unless the environment is intentionally using Meshy's documented test-mode key.
-- Keep generated assets, task metadata, and experiments under `output/meshy/` unless the user gives another path.
+- Keep generated assets, task metadata, and experiments under ignored `output/meshy/` unless the user gives another path.
+- Keep durable prompt notes in `.codex/esir/art-prompts/` and reusable generator/replay scripts in `.codex/esir/asset-generators/`; `output/` is not a commit-safe source home.
 - Do not wire generated assets into ESIR prototypes, graphics folders, locale, or changelogs unless the user explicitly asks for that follow-up.
 
 ## Workflow
@@ -78,4 +79,5 @@ python .codex/skills/meshy-api/scripts/meshy_rest.py animation-library `
 - Bias prompts toward silhouettes that read at Factorio scale: strong outline, low clutter, clear top-down identity, no tiny text.
 - Use Remembrance language when it helps the asset direction: recursion, rupture, signal, memory, machinery, oath, blade, devotion, decay, threshold, fracture, cosmic industry.
 - Prefer GLB for quick local review and OBJ/FBX only when downstream tooling needs them.
+- After a Meshy image-to-3D download, hand off to `$meshy-blender-spritesheet` with its default auto-ortho fitting, an explicit `--min-alpha-margin`, and brightness controls before staging through `$esir-factorio-asset-export`; dark or edge-touching first drafts are test results, not promotion candidates.
 - Download immediately when a result matters; non-Enterprise API assets may expire after 3 days.

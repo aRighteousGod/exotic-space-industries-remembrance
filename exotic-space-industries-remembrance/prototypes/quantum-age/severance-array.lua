@@ -22,16 +22,37 @@ local TRIGGER_BEAM_DURATION = 1
 local FIRE_STICKER_DURATION = VISUAL_CONFIG.fire_sticker_duration
 local HIT_FIRE_DURATION = VISUAL_CONFIG.hit_fire_duration
 local SCORCHMARK_DURATION = VISUAL_CONFIG.scorchmark_duration
-local ATTACK_SOURCE_OFFSET = {0, -0.55}
-local BEAM_SOURCE_OFFSET = {0, -2.6}
-local VISUAL_BEAM_TINT = {r = 0.94, g = 0.24, b = 1.0, a = 1}
-local VISUAL_GROUND_LIGHT_TINT = {r = 0.28, g = 0.08, b = 1.0, a = 0.72}
-local IMPACT_BEAM_TINT = {r = 1.0, g = 0.10, b = 1.0, a = 1}
-local IMPACT_GROUND_LIGHT_TINT = {r = 0.78, g = 0.08, b = 1.0, a = 0.95}
+local ATTACK_SOURCE_OFFSET = {0, -3.35}
+local BEAM_SOURCE_OFFSET = {0, -3.35}
 local TURRET_GLOW_TINT = {r = 0.74, g = 0.14, b = 1.0, a = 0.90}
-local FIRE_GLOW_TINT = {r = 0.92, g = 0.18, b = 1.0, a = 0.85}
-local SCORCHMARK_TINT = {r = 0.30, g = 0.05, b = 0.48, a = 0.86}
-local SCORCHMARK_GLOW_TINT = {r = 0.82, g = 0.20, b = 1.0, a = 0.56}
+local ARRAY_GRAPHICS_PATH = ei_path.."graphics/entities/severance-array/"
+local ARRAY_FRAME_SIZE = 768
+local ARRAY_FRAME_COUNT = 64
+local ARRAY_LINE_LENGTH = 8
+local ARRAY_ANIMATION_SPEED = 0.12
+local ARRAY_BODY_SCALE = 0.65
+local ARRAY_BODY_SHIFT = {0, -2.66}
+local ARRAY_BODY_SHADOW_SHIFT = {0, 0.65}
+local ARRAY_CRYSTAL_SCALE = 0.5
+local ARRAY_CRYSTAL_SHIFT = {0, -1.75}
+local ARRAY_CRYSTAL_GLOW_TINT = {r = 0.64, g = 0.98, b = 1.0, a = 0.52}
+local ARRAY_CRYSTAL_LINK_ANIMATION_SPEED = 0.55
+local ARRAY_CRYSTAL_LINK_SCALE = ARRAY_CRYSTAL_SCALE
+local ARRAY_CRYSTAL_LINK_SHIFT = ARRAY_CRYSTAL_SHIFT
+local ARRAY_CRYSTAL_LINK_GRAPHICS_PATH = ARRAY_GRAPHICS_PATH.."crystal-link/"
+local PRISMATIC_BEAM_GRAPHICS_PATH = ARRAY_GRAPHICS_PATH.."beam/"
+local PRISMATIC_BEAM_SCALE = 0.34
+local PRISMATIC_IMPACT_BEAM_SCALE = 0.42
+local PRISMATIC_BEAM_LIGHT_TINT = {r = 1.0, g = 0.58, b = 0.24, a = 0.82}
+local PRISMATIC_IMPACT_LIGHT_TINT = {r = 1.0, g = 0.74, b = 0.34, a = 0.95}
+local AFTERBURN_GRAPHICS_PATH = ARRAY_GRAPHICS_PATH.."afterburn/"
+local AFTERBURN_LIGHT_TINT = {r = 1.0, g = 0.58, b = 0.24, a = 0.90}
+local AFTERBURN_FIRE_SCALE = 0.34
+local AFTERBURN_FIRE_SHIFT = {0, -0.16}
+local AFTERBURN_STICKER_SCALE = 0.38
+local AFTERBURN_STICKER_SHIFT = {0, -0.10}
+local AFTERBURN_SCORCHMARK_SCALE = 0.5
+local AFTERBURN_SCORCHMARK_SHIFT = {0, 0.0625}
 local IMPACT_SOUND_VARIATIONS = {
     {filename = "__base__/sound/fight/electric-beam.ogg", volume = 0.24},
     {filename = "__base__/sound/fight/laser-1.ogg", volume = 0.20},
@@ -54,30 +75,6 @@ local END_SOUND_VARIATIONS = {
     {filename = "__base__/sound/fight/laser-3.ogg", volume = 0.17},
 }
 
-local function scale_and_tint_beam_animation(node, scale, tint)
-    if not node then return end
-
-    if node.filename or node.filenames or node.stripes or node.width or node.frame_count or node.line_length then
-        node.scale = (node.scale or 1) * scale
-        node.tint = tint
-        if node.hr_version then
-            scale_and_tint_beam_animation(node.hr_version, scale, tint)
-        end
-        if node.layers then
-            for _, layer in pairs(node.layers) do
-                scale_and_tint_beam_animation(layer, scale, tint)
-            end
-        end
-        return
-    end
-
-    for _, child in pairs(node) do
-        if type(child) == "table" then
-            scale_and_tint_beam_animation(child, scale, tint)
-        end
-    end
-end
-
 local function tint_glow_animation(node, tint)
     if type(node) ~= "table" then return end
 
@@ -91,14 +88,6 @@ local function tint_glow_animation(node, tint)
             tint_glow_animation(child, tint)
         end
     end
-end
-
-local function tint_scorchmark_patch(patch, tint)
-    local sheet = patch and patch.sheet
-    if not sheet then return end
-
-    sheet.tint = tint
-    sheet.apply_runtime_tint = nil
 end
 
 local function make_empty_beam_graphics_set(empty_sprite)
@@ -118,6 +107,164 @@ local function make_empty_beam_graphics_set(empty_sprite)
             body = empty(),
         },
     }
+end
+
+local function make_prismatic_beam_animation(filename, glow_filename, width, height, frame_count, line_length, scale)
+    scale = scale or 1
+
+    return {
+        layers = {
+            {
+                filename = PRISMATIC_BEAM_GRAPHICS_PATH..filename,
+                width = width,
+                height = height,
+                frame_count = frame_count,
+                line_length = line_length,
+                animation_speed = 0.55,
+                scale = scale,
+            },
+            {
+                filename = PRISMATIC_BEAM_GRAPHICS_PATH..glow_filename,
+                width = width,
+                height = height,
+                frame_count = frame_count,
+                line_length = line_length,
+                animation_speed = 0.55,
+                scale = scale,
+                draw_as_glow = true,
+                blend_mode = "additive-soft",
+            },
+        },
+    }
+end
+
+local function make_prismatic_beam_graphics_set(scale, options)
+    options = options or {}
+
+    local body = make_prismatic_beam_animation(
+        "ei-severance-array-beam-body.png",
+        "ei-severance-array-beam-body-glow.png",
+        256,
+        96,
+        16,
+        4,
+        scale
+    )
+    local head = make_prismatic_beam_animation(
+        "ei-severance-array-beam-head.png",
+        "ei-severance-array-beam-head-glow.png",
+        192,
+        160,
+        16,
+        4,
+        scale
+    )
+    local tail = make_prismatic_beam_animation(
+        "ei-severance-array-beam-tail.png",
+        "ei-severance-array-beam-tail-glow.png",
+        192,
+        160,
+        16,
+        4,
+        scale
+    )
+    local impact = options.impact_ending and make_prismatic_beam_animation(
+        "ei-severance-array-impact-prism.png",
+        "ei-severance-array-impact-prism-glow.png",
+        256,
+        256,
+        24,
+        6,
+        scale
+    ) or nil
+
+    return {
+        beam = {
+            start = table.deepcopy(tail),
+            ending = impact or table.deepcopy(head),
+            head = head,
+            tail = tail,
+            body = {body},
+            render_layer = "projectile",
+        },
+        ground = {
+            head = util.empty_sprite(),
+            tail = util.empty_sprite(),
+            body = util.empty_sprite(),
+        },
+        desired_segment_length = 1,
+        transparent_start_end_animations = true,
+        random_end_animation_rotation = false,
+        randomize_animation_per_segment = false,
+    }
+end
+
+local function make_prismatic_beam(name, width, light, graphics_set, working_sound)
+    local beam = table.deepcopy(data.raw.beam["laser-beam"])
+    beam.name = name
+    beam.width = width
+    beam.light = light
+    beam.hidden = true
+    beam.hidden_in_factoriopedia = true
+    beam.damage_interval = 60
+    beam.random_target_offset = false
+    beam.target_offset = {0, 0}
+    beam.action = nil
+    beam.working_sound = working_sound
+    beam.graphics_set = graphics_set
+    beam.head = nil
+    beam.tail = nil
+    beam.body = nil
+
+    return beam
+end
+
+local function make_afterburn_animation(filename, glow_filename, width, height, frame_count, line_length, scale, shift, animation_speed)
+    return {
+        layers = {
+            {
+                filename = AFTERBURN_GRAPHICS_PATH..filename,
+                width = width,
+                height = height,
+                frame_count = frame_count,
+                line_length = line_length,
+                animation_speed = animation_speed,
+                scale = scale,
+                shift = shift,
+            },
+            {
+                filename = AFTERBURN_GRAPHICS_PATH..glow_filename,
+                width = width,
+                height = height,
+                frame_count = frame_count,
+                line_length = line_length,
+                animation_speed = animation_speed,
+                scale = scale,
+                shift = shift,
+                draw_as_glow = true,
+                blend_mode = "additive-soft",
+            },
+        },
+    }
+end
+
+local function make_afterburn_scorchmark_patch(filename, glow)
+    local sheet = {
+        filename = AFTERBURN_GRAPHICS_PATH..filename,
+        width = 256,
+        height = 182,
+        line_length = 4,
+        variation_count = 4,
+        scale = AFTERBURN_SCORCHMARK_SCALE,
+        shift = table.deepcopy(AFTERBURN_SCORCHMARK_SHIFT),
+    }
+
+    if glow then
+        sheet.draw_as_glow = true
+        sheet.blend_mode = "additive-soft"
+    end
+
+    return {sheet = sheet}
 end
 
 local function make_sound_variations(variations, max_count, audible_distance_modifier)
@@ -159,15 +306,183 @@ local function make_cyclic_laser_sound()
     }
 end
 
-local severance_icons = ei_lib.make_icons(
-    "__space-age__/graphics/icons/tesla-turret.png",
-    64,
-    ei_graphics_3_path.."graphics/items/high-energy-crystal.png",
-    64,
-    0.38,
-    {9, 8},
-    {r = 0.72, g = 0.24, b = 1.0, a = 0.95}
-)
+local function make_array_animation_layer(filename, options)
+    options = options or {}
+    local layer = {
+        filename = (options.graphics_path or ARRAY_GRAPHICS_PATH)..filename,
+        width = ARRAY_FRAME_SIZE,
+        height = ARRAY_FRAME_SIZE,
+        frame_count = options.frame_count or ARRAY_FRAME_COUNT,
+        line_length = options.line_length or ARRAY_LINE_LENGTH,
+        lines_per_file = options.lines_per_file or options.line_length or ARRAY_LINE_LENGTH,
+        animation_speed = options.animation_speed or ARRAY_ANIMATION_SPEED,
+        scale = options.scale or ARRAY_BODY_SCALE,
+        shift = table.deepcopy(options.shift or ARRAY_BODY_SHIFT),
+    }
+
+    if options.draw_as_shadow then
+        layer.draw_as_shadow = true
+    end
+    if options.tint then
+        layer.tint = table.deepcopy(options.tint)
+    end
+    if options.draw_as_glow then
+        layer.draw_as_glow = true
+        layer.blend_mode = options.blend_mode or "additive"
+    elseif options.blend_mode then
+        layer.blend_mode = options.blend_mode
+    end
+
+    return layer
+end
+
+local function make_array_base_visualisation()
+    return {
+        {
+            render_layer = "object",
+            secondary_draw_order = 1,
+            animation = {
+                layers = {
+                    make_array_animation_layer("ei-severance-array_base-shadow.png", {
+                        draw_as_shadow = true,
+                        scale = ARRAY_BODY_SCALE,
+                        shift = ARRAY_BODY_SHADOW_SHIFT,
+                    }),
+                    make_array_animation_layer("ei-severance-array_shadow.png", {
+                        draw_as_shadow = true,
+                        scale = ARRAY_CRYSTAL_SCALE,
+                        shift = ARRAY_CRYSTAL_SHIFT,
+                    }),
+                    make_array_animation_layer("ei-severance-array.png", {
+                        scale = ARRAY_BODY_SCALE,
+                        shift = ARRAY_BODY_SHIFT,
+                    }),
+                },
+            },
+        },
+        {
+            render_layer = "object",
+            secondary_draw_order = 2,
+            animation = {
+                layers = {
+                    make_array_animation_layer("ei-severance-array-crystal-link.png", {
+                        graphics_path = ARRAY_CRYSTAL_LINK_GRAPHICS_PATH,
+                        animation_speed = ARRAY_CRYSTAL_LINK_ANIMATION_SPEED,
+                        scale = ARRAY_CRYSTAL_LINK_SCALE,
+                        shift = ARRAY_CRYSTAL_LINK_SHIFT,
+                    }),
+                    make_array_animation_layer("ei-severance-array-crystal-link-glow.png", {
+                        graphics_path = ARRAY_CRYSTAL_LINK_GRAPHICS_PATH,
+                        animation_speed = ARRAY_CRYSTAL_LINK_ANIMATION_SPEED,
+                        draw_as_glow = true,
+                        blend_mode = "additive-soft",
+                        scale = ARRAY_CRYSTAL_LINK_SCALE,
+                        shift = ARRAY_CRYSTAL_LINK_SHIFT,
+                    }),
+                },
+            },
+        },
+        {
+            render_layer = "object",
+            secondary_draw_order = 3,
+            animation = {
+                layers = {
+                    make_array_animation_layer("ei-severance-array_crystal.png", {
+                        scale = ARRAY_CRYSTAL_SCALE,
+                        shift = ARRAY_CRYSTAL_SHIFT,
+                    }),
+                    make_array_animation_layer("ei-severance-array_crystal.png", {
+                        draw_as_glow = true,
+                        blend_mode = "normal",
+                        tint = ARRAY_CRYSTAL_GLOW_TINT,
+                        scale = ARRAY_CRYSTAL_SCALE,
+                        shift = ARRAY_CRYSTAL_SHIFT,
+                    }),
+                },
+            },
+        },
+    }
+end
+
+local function make_empty_turret_animation()
+    local animation = util.empty_sprite()
+    animation.frame_count = 1
+    animation.line_length = 1
+    animation.direction_count = 1
+    return animation
+end
+
+local function apply_array_visuals(turret)
+    if not turret then return end
+
+    local empty_animation = make_empty_turret_animation()
+    local animation_fields = {
+        "folded_animation",
+        "preparing_animation",
+        "prepared_animation",
+        "starting_attack_animation",
+        "attacking_animation",
+        "ending_attack_animation",
+        "folding_animation",
+    }
+
+    for _, field in pairs(animation_fields) do
+        turret[field] = table.deepcopy(empty_animation)
+    end
+
+    turret.graphics_set = {
+        base_visualisation = make_array_base_visualisation(),
+    }
+    turret.energy_glow_animation = nil
+    turret.resource_indicator_animation = nil
+    turret.prepared_alternative_animation = nil
+    turret.prepared_alternative_chance = nil
+    turret.turret_base_has_direction = false
+    turret.folded_animation_is_stateless = true
+    turret.random_animation_offset = true
+end
+
+local SEVERANCE_ARRAY_ITEM_ICON = ei_path.."graphics/items/ei-severance-array.png"
+local SEVERANCE_ARRAY_ITEM_OVERLAY_ICON = ei_path.."graphics/items/ei-severance-array-chromatic-overlay.png"
+local SEVERANCE_ARRAY_TECH_ICON = ei_path.."graphics/techs/ei-severance-array.png"
+local SEVERANCE_ARRAY_TECH_OVERLAY_ICON = ei_path.."graphics/techs/ei-severance-array-chromatic-overlay.png"
+local severance_base_icons = {
+    {
+        icon = SEVERANCE_ARRAY_ITEM_ICON,
+        icon_size = 128,
+        icon_mipmaps = 3,
+    },
+}
+local severance_item_icons = {
+    {
+        icon = SEVERANCE_ARRAY_ITEM_ICON,
+        icon_size = 128,
+        icon_mipmaps = 3,
+    },
+    {
+        icon = SEVERANCE_ARRAY_ITEM_OVERLAY_ICON,
+        icon_size = 128,
+        icon_mipmaps = 3,
+    },
+}
+local severance_item_pictures = {
+    {
+        filename = SEVERANCE_ARRAY_ITEM_ICON,
+        mipmap_count = 3,
+        scale = 0.25,
+        size = 128,
+    },
+}
+local severance_technology_icons = {
+    {
+        icon = SEVERANCE_ARRAY_TECH_ICON,
+        icon_size = 256,
+    },
+    {
+        icon = SEVERANCE_ARRAY_TECH_OVERLAY_ICON,
+        icon_size = 256,
+    },
+}
 
 local function copy_turret_visuals(target, source)
     if not target or not source then return end
@@ -210,58 +525,33 @@ local function selection_width(entity)
     return math.abs((entity.selection_box[2][1] or 2) - (entity.selection_box[1][1] or -2))
 end
 
-local severance_beam = table.deepcopy(data.raw.beam["laser-beam"])
-severance_beam.name = BEAM_NAME
-severance_beam.width = VISUAL_CONFIG.visual_beam_width
-severance_beam.light = {
-    intensity = VISUAL_CONFIG.visual_beam_light_intensity,
-    size = VISUAL_CONFIG.visual_beam_light_size,
-    minimum_darkness = 0,
-    color = VISUAL_GROUND_LIGHT_TINT,
-}
-severance_beam.hidden = true
-severance_beam.hidden_in_factoriopedia = true
-severance_beam.damage_interval = 60
-severance_beam.random_target_offset = false
-severance_beam.target_offset = {0, 0}
-severance_beam.action = nil
-severance_beam.working_sound = nil
-scale_and_tint_beam_animation(severance_beam.head, 3, VISUAL_BEAM_TINT)
-scale_and_tint_beam_animation(severance_beam.tail, 3, VISUAL_BEAM_TINT)
-scale_and_tint_beam_animation(severance_beam.body, 3, VISUAL_BEAM_TINT)
-if severance_beam.graphics_set then
-    scale_and_tint_beam_animation(severance_beam.graphics_set.beam, 2.6, VISUAL_BEAM_TINT)
-    scale_and_tint_beam_animation(severance_beam.graphics_set.ground, 1.6, VISUAL_GROUND_LIGHT_TINT)
-    tint_glow_animation(severance_beam.graphics_set.beam, TURRET_GLOW_TINT)
-    tint_glow_animation(severance_beam.graphics_set.ground, VISUAL_GROUND_LIGHT_TINT)
-    scale_and_tint_beam_animation(severance_beam.graphics_set.start, 6, VISUAL_BEAM_TINT)
-    scale_and_tint_beam_animation(severance_beam.graphics_set.ending, 6, VISUAL_BEAM_TINT)
-    scale_and_tint_beam_animation(severance_beam.graphics_set.head, 6, VISUAL_BEAM_TINT)
-    scale_and_tint_beam_animation(severance_beam.graphics_set.tail, 6, VISUAL_BEAM_TINT)
-    scale_and_tint_beam_animation(severance_beam.graphics_set.body, 6, VISUAL_BEAM_TINT)
-end
+local severance_beam = make_prismatic_beam(
+    BEAM_NAME,
+    VISUAL_CONFIG.visual_beam_width,
+    {
+        intensity = VISUAL_CONFIG.visual_beam_light_intensity,
+        size = VISUAL_CONFIG.visual_beam_light_size,
+        minimum_darkness = 0,
+        color = PRISMATIC_BEAM_LIGHT_TINT,
+    },
+    make_prismatic_beam_graphics_set(PRISMATIC_BEAM_SCALE),
+    nil
+)
 
-local severance_impact_beam = table.deepcopy(severance_beam)
-severance_impact_beam.name = IMPACT_BEAM_NAME
-severance_impact_beam.width = VISUAL_CONFIG.impact_beam_width
-severance_impact_beam.random_target_offset = false
-severance_impact_beam.target_offset = {0, 0}
-severance_impact_beam.light = {
-    intensity = VISUAL_CONFIG.impact_beam_light_intensity,
-    size = VISUAL_CONFIG.impact_beam_light_size,
-    minimum_darkness = 0,
-    color = IMPACT_GROUND_LIGHT_TINT,
-}
-scale_and_tint_beam_animation(severance_impact_beam.head, 1.15, IMPACT_BEAM_TINT)
-scale_and_tint_beam_animation(severance_impact_beam.tail, 1.15, IMPACT_BEAM_TINT)
-scale_and_tint_beam_animation(severance_impact_beam.body, 1.15, IMPACT_BEAM_TINT)
-severance_impact_beam.working_sound = make_beam_working_sound(IMPACT_SOUND_VARIATIONS, VISUAL_CONFIG.impact_sound_cap, 0.50)
-if severance_impact_beam.graphics_set then
-    scale_and_tint_beam_animation(severance_impact_beam.graphics_set.beam, 1.12, IMPACT_BEAM_TINT)
-    scale_and_tint_beam_animation(severance_impact_beam.graphics_set.ground, 1.18, IMPACT_GROUND_LIGHT_TINT)
-    tint_glow_animation(severance_impact_beam.graphics_set.beam, IMPACT_BEAM_TINT)
-    tint_glow_animation(severance_impact_beam.graphics_set.ground, IMPACT_GROUND_LIGHT_TINT)
-end
+local severance_impact_beam = make_prismatic_beam(
+    IMPACT_BEAM_NAME,
+    VISUAL_CONFIG.impact_beam_width,
+    {
+        intensity = VISUAL_CONFIG.impact_beam_light_intensity,
+        size = VISUAL_CONFIG.impact_beam_light_size,
+        minimum_darkness = 0,
+        color = PRISMATIC_IMPACT_LIGHT_TINT,
+    },
+    make_prismatic_beam_graphics_set(PRISMATIC_IMPACT_BEAM_SCALE, {
+        impact_ending = true,
+    }),
+    make_beam_working_sound(IMPACT_SOUND_VARIATIONS, VISUAL_CONFIG.impact_sound_cap, 0.50)
+)
 
 local severance_trigger_beam = table.deepcopy(data.raw.beam["laser-beam"])
 severance_trigger_beam.name = TRIGGER_BEAM_NAME
@@ -304,11 +594,25 @@ severance_fire_sticker.damage_per_tick = {amount = 1.25, type = "fire"}
 severance_fire_sticker.spread_fire_entity = nil
 severance_fire_sticker.fire_spread_cooldown = nil
 severance_fire_sticker.fire_spread_radius = nil
-if severance_fire_sticker.animation then
-    severance_fire_sticker.animation = table.deepcopy(severance_fire_sticker.animation)
-    severance_fire_sticker.animation.tint = {r = 0.92, g = 0.18, b = 1.0, a = 0.36}
-    severance_fire_sticker.animation.scale = 0.32
-end
+severance_fire_sticker.animation = make_afterburn_animation(
+    "ei-severance-array-afterburn-sticker.png",
+    "ei-severance-array-afterburn-sticker-glow.png",
+    96,
+    96,
+    32,
+    8,
+    AFTERBURN_STICKER_SCALE,
+    table.deepcopy(AFTERBURN_STICKER_SHIFT),
+    0.65
+)
+severance_fire_sticker.light = {
+    intensity = 0.22,
+    size = 5,
+    color = AFTERBURN_LIGHT_TINT,
+    flicker_interval = 18,
+    flicker_min_modifier = 0.75,
+    flicker_max_modifier = 1.25,
+}
 
 local severance_hit_fire = table.deepcopy(data.raw.fire["fire-flame"])
 severance_hit_fire.name = HIT_FIRE_NAME
@@ -331,22 +635,45 @@ severance_hit_fire.delay_between_initial_flames = 1
 severance_hit_fire.initial_flame_count = 1
 severance_hit_fire.fade_out_duration = math.min(15, HIT_FIRE_DURATION)
 severance_hit_fire.burnt_patch_lifetime = 0
+severance_hit_fire.burnt_patch_pictures = nil
 severance_hit_fire.emissions_per_second = nil
 severance_hit_fire.tree_dying_factor = nil
+severance_hit_fire.on_fuel_added_action = nil
+severance_hit_fire.smoke_source_pictures = nil
+severance_hit_fire.flame_alpha = 0.88
+severance_hit_fire.flame_alpha_deviation = 0.03
 severance_hit_fire.light = {
     intensity = VISUAL_CONFIG.hit_fire_light_intensity,
     size = VISUAL_CONFIG.hit_fire_light_size,
-    color = FIRE_GLOW_TINT,
+    color = AFTERBURN_LIGHT_TINT,
 }
-scale_and_tint_beam_animation(severance_hit_fire.pictures, 1, {r = 0.92, g = 0.18, b = 1.0, a = 0.64})
+severance_hit_fire.pictures = {
+    make_afterburn_animation(
+        "ei-severance-array-afterburn-fire.png",
+        "ei-severance-array-afterburn-fire-glow.png",
+        192,
+        192,
+        32,
+        8,
+        AFTERBURN_FIRE_SCALE,
+        table.deepcopy(AFTERBURN_FIRE_SHIFT),
+        0.62
+    ),
+}
 
 local severance_scorchmark = table.deepcopy(data.raw.corpse["small-scorchmark-tintable"] or data.raw.corpse["small-scorchmark"])
 severance_scorchmark.name = SCORCHMARK_NAME
 severance_scorchmark.hidden_in_factoriopedia = true
 severance_scorchmark.time_before_removed = SCORCHMARK_DURATION
 severance_scorchmark.selectable_in_game = false
-tint_scorchmark_patch(severance_scorchmark.ground_patch, SCORCHMARK_TINT)
-tint_scorchmark_patch(severance_scorchmark.ground_patch_higher, SCORCHMARK_GLOW_TINT)
+severance_scorchmark.use_tile_color_for_ground_patch_tint = false
+severance_scorchmark.ground_patch = make_afterburn_scorchmark_patch(
+    "ei-severance-array-afterburn-scorchmark.png"
+)
+severance_scorchmark.ground_patch_higher = make_afterburn_scorchmark_patch(
+    "ei-severance-array-afterburn-scorchmark-glow.png",
+    true
+)
 
 local tesla_visual_source = data.raw["electric-turret"]["tesla-turret"]
     or data.raw["electric-turret"]["tl-basic-tesla-coil"]
@@ -363,7 +690,8 @@ severance_turret.localised_name = {"entity-name."..NAME}
 severance_turret.localised_description = {"entity-description."..NAME}
 severance_turret.icon = nil
 severance_turret.icon_size = nil
-severance_turret.icons = severance_icons
+severance_turret.icon_mipmaps = nil
+severance_turret.icons = severance_base_icons
 copy_turret_visuals(severance_turret, tesla_visual_source)
 severance_turret.flags = {"placeable-player", "placeable-enemy", "player-creation", "get-by-unit-number"}
 severance_turret.minable = {
@@ -372,8 +700,9 @@ severance_turret.minable = {
 }
 severance_turret.max_health = 2000
 severance_turret.heating_energy = "100kW"
-severance_turret.collision_box = {{-1.8, -1.8}, {1.8, 1.8}}
-severance_turret.selection_box = {{-2, -2}, {2, 2}}
+severance_turret.collision_box = {{-2.4, -2.4}, {2.4, 2.4}}
+severance_turret.selection_box = {{-2.5, -2.5}, {2.5, 2.5}}
+severance_turret.drawing_box = {{-2.6, -4.5}, {4.35, 3.75}}
 severance_turret.rotation_speed = math.max(tesla_visual_source and tesla_visual_source.rotation_speed or 0.005, 0.08)
 severance_turret.preparing_speed = tesla_visual_source and tesla_visual_source.preparing_speed or 0.1
 severance_turret.folding_speed = tesla_visual_source and tesla_visual_source.folding_speed or 0.1
@@ -399,9 +728,7 @@ severance_turret.attack_parameters.range = RANGE
 severance_turret.attack_parameters.min_range = MIN_RANGE
 severance_turret.attack_parameters.range_mode = inherited_attack_parameters and inherited_attack_parameters.range_mode or "center-to-bounding-box"
 severance_turret.attack_parameters.source_direction_count = inherited_attack_parameters and inherited_attack_parameters.source_direction_count or 64
-severance_turret.attack_parameters.source_offset = table.deepcopy(
-    inherited_attack_parameters and inherited_attack_parameters.source_offset or ATTACK_SOURCE_OFFSET
-)
+severance_turret.attack_parameters.source_offset = table.deepcopy(ATTACK_SOURCE_OFFSET)
 severance_turret.attack_parameters.damage_modifier = 1
 severance_turret.attack_parameters.fire_penalty = 0
 severance_turret.attack_parameters.health_penalty = nil
@@ -430,6 +757,7 @@ if severance_turret.graphics_set then
 end
 severance_turret.glow_light_intensity = 0.85
 severance_turret.water_reflection = nil
+apply_array_visuals(severance_turret)
 
 data:extend({
     severance_fire_sticker,
@@ -438,7 +766,8 @@ data:extend({
     {
         name = NAME,
         type = "item",
-        icons = severance_icons,
+        icons = severance_item_icons,
+        pictures = severance_item_pictures,
         subgroup = "defensive-structure",
         order = "c-b",
         place_result = NAME,
@@ -466,12 +795,12 @@ data:extend({
         enabled = false,
         always_show_made_in = true,
         main_product = NAME,
-        icons = severance_icons,
+        icons = severance_item_icons,
     },
     {
         name = NAME,
         type = "technology",
-        icons = severance_icons,
+        icons = severance_technology_icons,
         prerequisites = {"ei-accelerator", "laser-weapons-damage-6"},
         effects = {
             {

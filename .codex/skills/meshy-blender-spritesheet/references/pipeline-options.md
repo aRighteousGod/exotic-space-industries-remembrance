@@ -9,6 +9,8 @@ Use when the user wants a new asset from text or image:
 3. Run `render_spritesheet.py` on the GLB.
 4. Inspect the transparent sheet before committing to any graphics path.
 
+`output/meshy/<asset>/` is ignored staging. Durable prompt notes belong in `.codex/esir/art-prompts/`; reusable generators and asset-specific reproduction scripts belong in `.codex/esir/asset-generators/`.
+
 ## Existing Model To Sprite
 
 Use when the user already has a model:
@@ -20,10 +22,18 @@ Use when the user already has a model:
   --input path\to\model.glb `
   --output-sheet output/meshy/model-sheet.png `
   --directions 8 `
-  --frame-size 256
+  --frame-size 384 `
+  --ortho-scale 2.0 `
+  --min-alpha-margin 16 `
+  --exposure 0.7 `
+  --world-strength 0.05 `
+  --key-energy 900 `
+  --fill-energy 220
 ```
 
 Add `--factorio-preset-defaults` when the user wants to bias the scripted render toward the local `factorioRenderingPreset_v4.blend` reference. That switches default scripted values to 384px cells, an 8x8/64-frame sheet, 8 columns, Cycles, and 256 samples unless the command explicitly overrides those flags.
+
+For clipping prevention, keep the default auto-ortho behavior and set an explicit `--min-alpha-margin` for the draft. This reproduces the manual preset loop of raising Orthographic Scale only until the object fits, while preserving the final scale and all attempts in the manifest. Use `--no-auto-ortho-scale` only when comparing manual framing.
 
 ## Local Factorio Rendering Preset
 
@@ -73,7 +83,7 @@ Incorporated notes from the saved Notion guide (`C:\Users\Theorun\Documents\3D m
 - Put object lights under `Lights on`; keep sun lights out of that collection.
 - Put pipes in `Pipe` when using the preset pipe helpers.
 - Leave `Scene` alone.
-- Change canvas size through the preset UI: `Orthographic Scale` / tile size / `Set Resolution`; then test with `F12` for clipping.
+- Change canvas size through the preset UI: `Orthographic Scale` / tile size / `Set Resolution`; then test with `F12` for clipping. The embedded `factorio.set_resolution` operator only recalculates output resolution from the camera's orthographic scale and tile size; it does not inspect model bounds or choose a new ortho scale. The scripted preset renderer does perform a preflight fit and records `auto_ortho_attempts`.
 - Use compositor output paths like `///Render/{export_type}` when saving a preset `.blend` under the repo so the export structure matches `Render.zip`.
 - Assign object lights to the `Lights` Light Group for glow/light pass exports.
 
@@ -108,4 +118,4 @@ Use when the model needs manual-looking composition fixes:
 - Blender MCP can execute arbitrary Python in Blender; use it only on working copies and save before large changes.
 - Meshy Blender Bridge may prompt for local Blender user-preference auth; prefer Meshy MCP or `$meshy-api` with `MESHY_API_KEY` for Codex workflows. Do not paste keys into chat, Blender files, repo files, scripts, or Codex config.
 - Meshy web-to-Blender bridge uses a local HTTP bridge; if it fails, use direct GLB download through Meshy MCP or `$meshy-api`.
-- Keep temporary sheets in `tmp/` or `output/meshy/`; both are ignored by this repo.
+- Keep temporary sheets in `tmp/` or `output/meshy/`; both are ignored by this repo. Do not keep the only copy of a reusable generator or hand-written prompt in either scratch folder.

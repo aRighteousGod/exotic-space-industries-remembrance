@@ -19,7 +19,8 @@ Use this skill for the Meshy -> Blender -> spritesheet path. It assumes Meshy MC
 - Never store Meshy keys in Blender files, repo files, scripts, or Codex config.
 - Use `MESHY_API_KEY` through Meshy MCP or the `$meshy-api` REST helper.
 - Treat Meshy generation as credit-consuming unless explicitly using a documented test mode.
-- Keep generated models and render outputs under `output/meshy/` or `tmp/` unless the user specifies a shipping path.
+- Keep generated models and render outputs under ignored `output/meshy/` or `tmp/` unless the user specifies a shipping path.
+- Keep reusable generator scripts, asset-specific replay notes, and hand-written prompts out of `output/`: use `.codex/esir/asset-generators/` for generators/notes and `.codex/esir/art-prompts/` for prompt provenance.
 - Do not replace production sprites in `exotic-space-industries-remembrance/graphics/` until the user approves the generated sheet.
 
 ## Workflow
@@ -37,6 +38,7 @@ Use this skill for the Meshy -> Blender -> spritesheet path. It assumes Meshy MC
   --directions 8 `
   --frame-size 384 `
   --ortho-scale 2.0 `
+  --min-alpha-margin 16 `
   --exposure 0.7 `
   --world-strength 0.05 `
   --key-energy 900 `
@@ -73,10 +75,11 @@ Use this skill for the Meshy -> Blender -> spritesheet path. It assumes Meshy MC
 - Direction order is a clockwise camera orbit in one row.
 - Default camera is orthographic, transparent, elevated 60 degrees, with first yaw at 45 degrees.
 - Default render engine is EEVEE Next with transparent PNG output.
-- For Meshy image-to-3D models, the default camera can leave too much empty transparent space. Start quick ESIR tests with `--ortho-scale 2.0` at `--frame-size 384` when the silhouette matters, then loosen only if the asset clips.
+- For Meshy image-to-3D models, bounds fitting is on by default. Start quick ESIR tests with `--ortho-scale 2.0` and `--min-alpha-margin 16` at `--frame-size 384` when the silhouette matters; the manifest records each ortho retry and per-frame alpha margins. Use `--no-auto-ortho-scale` only for deliberate manual comparison renders.
 - Dark Meshy materials often collapse against Factorio-style shadows/checker previews. For quick renders, try `--exposure 0.7`, `--world-strength 0.05`, `--key-energy 900`, and `--fill-energy 220`; for higher-fidelity drafts, use the preset renderer's object/shadow/light passes and material/light reports.
 - The script writes individual frame PNGs and a `.manifest.json` next to the sheet.
 - `factorioRenderingPreset_v4.blend` uses transparent Cycles output, 384px frames, 64-frame/8x8 sample sheets, upper-left lighting, lower-right shadows, and object/shadow/light/mask passes.
+- The preset's embedded `Factorio` script provides a `Set Resolution` operator: it sets render resolution to `camera.data.ortho_scale * factorio_tilesize`. It does not auto-fit object bounds by itself; scripted preset renders now auto-raise ortho from preflight unless `--no-auto-ortho-scale` is passed.
 - `render_factorio_preset.py` opens the preset, imports GLB/GLTF/OBJ/FBX, links meshes into `Object > Normal`, sets the preset props, replaces the rotator driver with the documented direction formula, unmutes selected compositor file-output passes, renders into `output/meshy/<asset>/Render/`, and can pack `.Sheets`.
 - Use `--preflight-only` before expensive renders to check preset collections, selected compositor outputs, light groups, framing margins, footprint estimates, and material alpha/emission risks. Add `--fail-framing-risk`, `--fail-missing-light-group`, or `--fail-alpha-risk` when the gate should be strict.
 - Use `--auto-prep` for conservative imported-model cleanup before preset placement: remove imported cameras/empty meshes, normalize origin/size, optionally apply scale, and record the cleanup in the manifest. It does not decimate, join, rebake, or rewrite silhouettes.

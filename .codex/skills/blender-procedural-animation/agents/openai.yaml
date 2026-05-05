@@ -1,4 +1,4 @@
 interface:
   display_name: "Blender Procedural Animation"
   short_description: "Animate non-human Blender assets procedurally"
-  default_prompt: "Use $blender-procedural-animation to design or render procedural Blender motion for machines, crystals, gates, orbitals, props, Meshy GLBs, and ESIR animation sheets. Follow the local Factorio rendering preset conventions for collection placement, light groups, canvas sizing, and loop/direction handling. Stage outputs only; do not wire them into the mod unless explicitly asked."
+  default_prompt: "Use $blender-procedural-animation to design or render procedural Blender motion for machines, crystals, gates, orbitals, props, Meshy GLBs, and ESIR animation sheets. Procedural renders auto-fit ortho against per-frame alpha margins by default, including generated shadow offset margin; inspect manifest warnings/alpha_bounds and only disable auto-fit for manual comparisons. Stage outputs only; do not wire them into the mod unless explicitly asked."

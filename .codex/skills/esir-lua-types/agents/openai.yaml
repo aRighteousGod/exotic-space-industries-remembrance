@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Lua Types"
+  short_description: "High-fidelity LuaLS typing for ESIR Lua"
+  default_prompt: "Use $esir-lua-types to add high-fidelity LuaLS annotations to ESIR Lua work."

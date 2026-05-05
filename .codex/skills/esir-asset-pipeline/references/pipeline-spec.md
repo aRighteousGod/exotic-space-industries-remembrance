@@ -28,6 +28,8 @@ The orchestrator accepts JSON by default and YAML when PyYAML is installed. JSON
 - `model_glob`: fallback search when a Meshy download produced a new GLB.
 - `factorio_render_preset`: optional notes/paths for local preset files. The `render_preset` step opens the preset in background Blender and writes outputs under the asset root; it does not modify the source `.blend`.
 
+`output_root` is ignored generated staging. Keep reusable generators, reproduction scripts, and hand-written asset notes under `.codex/esir/asset-generators/`; keep prompt text under `.codex/esir/art-prompts/`; keep approved shipped PNGs under the appropriate mod graphics folder.
+
 ## Meshy
 
 Use `meshy.enabled = false` for local-only jobs. Use `dry_run` before spending credits.
@@ -80,11 +82,19 @@ Maximum-control workflow:
   "input": "{model_path}",
   "output_sheet": "{output_root}/renders/{asset_name}-static.png",
   "directions": 8,
-  "frame_size": 256,
+  "frame_size": 384,
   "columns": 8,
   "padding": 0,
   "elevation": 60,
   "yaw_offset": 45,
+  "ortho_scale": 2.0,
+  "auto_ortho_scale": true,
+  "min_alpha_margin": 16,
+  "fail_alpha_margin": true,
+  "exposure": 0.7,
+  "world_strength": 0.05,
+  "key_energy": 900,
+  "fill_energy": 220,
   "engine": "eevee",
   "samples": 64
 }
@@ -93,6 +103,8 @@ Maximum-control workflow:
 Uses `$meshy-blender-spritesheet`.
 
 Set `"factorio_preset_defaults": true` to add `--factorio-preset-defaults`, which changes default scripted values to 384px cells, an 8x8/64-frame sheet, 8 columns, Cycles, and 256 samples unless explicitly overridden.
+
+For Meshy image-to-3D assets, auto fitting is on by default. Keep `"auto_ortho_scale": true` or omit it, set `"min_alpha_margin": 16`, and use `"fail_alpha_margin": true` so the renderer expands the orthographic scale until no frame touches the canvas edge. The manifest records `auto_ortho_attempts`, final `ortho_scale`, and per-frame `alpha_bounds`. Set `"auto_ortho_scale": false` only for manual framing comparisons.
 
 ## Procedural Animation
 
@@ -108,13 +120,19 @@ Set `"factorio_preset_defaults": true` to add `--factorio-preset-defaults`, whic
   "directions": 1,
   "columns": 4,
   "frame_size": 256,
+  "ortho_scale": 2.8,
+  "auto_ortho_scale": true,
+  "auto_ortho_step": 1.12,
+  "auto_ortho_max": 8.0,
+  "min_alpha_margin": 16,
+  "fail_alpha_margin": true,
   "direction_mode": "rotate-object",
   "shadow_offset": "18,12",
   "shadow_alpha": 0.42
 }
 ```
 
-Uses `$blender-procedural-animation`. Its defaults preserve Factorio-style upper-left lighting and lower-right shadows.
+Uses `$blender-procedural-animation`. Its defaults preserve Factorio-style upper-left lighting and lower-right shadows, and auto-fit all frames against alpha margins before packing the sheet. When `shadow_sheet` is set, the effective margin also accounts for the configured lower-right shadow offset.
 
 Set `"factorio_preset_defaults": true` for 384px, 64-frame, 8-column, Cycles-based scripted animation drafts matching the local preset more closely.
 
@@ -136,6 +154,11 @@ Set `"factorio_preset_defaults": true` for 384px, 64-frame, 8-column, Cycles-bas
   "quality": "smoke",
   "pack_sheets": true,
   "preflight_only": false,
+  "preflight_margin": 0.12,
+  "auto_ortho_scale": true,
+  "auto_ortho_step": 1.04,
+  "auto_ortho_max": 12.0,
+  "fail_framing_risk": true,
   "material_report": true,
   "warn_alpha_materials": true,
   "footprint_tiles": "3x3",
@@ -150,7 +173,7 @@ Uses `$meshy-blender-spritesheet` `render_factorio_preset.py`. It opens `factori
 
 Set `"quality": "final"` for higher Cycles samples. Use `"unit_directions": 16` or `32` plus `"animation_frames"` for direction-major unit layouts. Optional passes include `light`, `light-glared`, `light-glared-alpha`, and `water-reflection`.
 
-Preflight options let the preset act as a material/framing gate before rendering: `"preflight_only": true`, `"preflight_margin"`, `"fail_framing_risk"`, `"require_light_group"`, `"fail_missing_light_group"`, `"material_report"`, `"warn_alpha_materials"`, and `"fail_alpha_risk"`.
+Preflight options let the preset act as a material/framing gate before rendering: `"preflight_only": true`, `"preflight_margin"`, `"auto_ortho_scale"`, `"auto_ortho_max"`, `"fail_framing_risk"`, `"require_light_group"`, `"fail_missing_light_group"`, `"material_report"`, `"warn_alpha_materials"`, and `"fail_alpha_risk"`. Scripted preset renders auto-fit from camera-plane bounds by default and record `auto_ortho_attempts`; set `"auto_ortho_scale": false` only for manual preset parity tests.
 
 Auto-prep is conservative and preset-only. Set `"auto_prep": true` to remove imported cameras/empty meshes, normalize to `"prep_target_size"`, and record cleanup in the render manifest. Optional flags include `"prep_origin_mode": "center|ground"`, `"prep_apply_scale"`, `"prep_delete_empty_meshes"`, `"prep_remove_imported_cameras"`, and `"prep_alpha_mode": "report|force-opaque"`.
 
@@ -249,7 +272,7 @@ Findings incorporated from `factorioRenderingPreset_v4.blend`, `Render.zip`, and
 - Main mesh goes in `Object > Normal`.
 - Object lights go in `Lights on` and need the `Lights` light group for glow/light exports.
 - `Scene` should be left alone; `Ground Dirt` can remain or be scaled for contact/shadow.
-- Canvas changes should go through the preset sidebar's `Orthographic Scale` and `Set Resolution`, then tested with `F12`.
+- Canvas changes should go through the preset sidebar's `Orthographic Scale` and `Set Resolution`, then tested with `F12`; the preset operator syncs resolution from the chosen ortho scale/tile size and does not auto-fit object bounds. The scripted preset step adds its own preflight auto-fit layer around that template behavior.
 - Repo-compatible compositor output uses paths shaped like `///Render/{export_type}`.
 - Simple animations should avoid duplicating frame one as the last frame.
 - Directional/unit animation can use a driver like `radians(-initial_angle - ((frame - 1) // frame_count) * 360 / direction_count)`.

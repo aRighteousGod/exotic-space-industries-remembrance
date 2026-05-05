@@ -25,10 +25,10 @@ local SCORCHMARK_NAME = "ei-severance-array-scorchmark"
 
 local BASE_DAMAGE = 540
 local AOE_DAMAGE = 90
-local AOE_RADIUS = 1.1
+local AOE_RADIUS = 1.27017
 local RANGE = 85
 local AMMO_DAMAGE_CATEGORY = "laser"
-local VISUAL_SOURCE_OFFSET = {x = 0, y = -2.60}
+local VISUAL_SOURCE_OFFSET = {x = 0, y = -3.35}
 
 local TARGET_UPDATE_MS = 0.5
 local HARD_UPDATE_MS = 1.0

@@ -2,13 +2,16 @@
 Version: 1.3.34
 Date: 4-30-2026
   Features:
+    - Added the Gaian saucer, an unarmed Alien Age Spidertron-style vehicle shell with its own equipment grid and hidden hover-leg scaffolding.
     - Added thematic fuel glow colors for burnable items, fluid-fuel consumers, reactors, and high-temperature reactor fuel recipes—Nicer Fuel Glow was removed from optional dependencies as a consequence.
     - Added the Severance Array, a quantum-age laser turret with load-shedding sweep visuals.
     - Expanded the Fusion Reactor console with Manual/Circuit control source selection, agent readouts, reset and collector-refresh commands, and Power, Flux, and Balanced presets.
     - Added Fusion Reactor circuit control and telemetry through a hidden combinator interface with dedicated write, state, power, neutron-flux, coolant, efficiency, and agent signals.
     - Added expanded Fusion Reactor Informatron coverage across supported languages for manual controls, circuit read/write behavior, agents, options, and neutron collector interaction.
+  Changes:
+    - Distillation tower technology requirements: Additionally requires Storage tank.
   Bugfixes:
-    - Fixed Minigun turret firing origin alignment for non-south/east facings.
+    - Fixed Minigun turret firing origin alignment for non-south/east facings by expanding firing alignment positions from 1 -> 128.
     - Fixed crystal accumulator detail readouts opening from hover/selection, and adjusted the field bar caption to the green bar body.
     - Fixed crystal accumulators and broken crystal husks getting stuck on space platforms when removed.
     - Fixed space-platform mining not forwarding live entity teardown, so fluid safety, matter stabilizers, black holes, gates, beacon overload, neutron collectors, fusion reactors, exotic assemblers, induction matrices, loaders, fuelers, EM trains, orbital combinators/logistics, railgun cooling, Auric inoculation vats, camp fires, and Tesla variant sync can clean up platform entities as intended.

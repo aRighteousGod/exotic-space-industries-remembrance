@@ -83,7 +83,7 @@ Use these paths instead:
 - Web-app-generated assets: use Meshy's official DCC Bridge to Blender, which runs a local server on port `5324` and receives a direct model URL from the Meshy website.
 - Animation presets: use `animation-library` to find `action_id` values; this is a public catalog endpoint and does not require `MESHY_API_KEY`.
 
-Do not build workflows against private web-app routes unless Meshy publishes them in the official API docs. For manual site assets, stage downloaded files under `output/meshy/manual/` or the relevant asset folder before feeding them into Blender/export skills.
+Do not build workflows against private web-app routes unless Meshy publishes them in the official API docs. For manual site assets, stage downloaded files under ignored `output/meshy/manual/` or the relevant asset folder before feeding them into Blender/export skills. Keep durable prompt text in `.codex/esir/art-prompts/` and reusable asset generators/replay scripts in `.codex/esir/asset-generators/`.
 
 ## Common Payloads
 
@@ -145,7 +145,7 @@ Remesh:
 - Check balance before batch generation.
 - Current public pricing lists credit costs for Text-to-3D preview/refine, Image-to-3D, Multi-Image-to-3D, Retexture, Remesh, Auto-Rigging, Animation, Text/Image-to-Image, and Multi-Color Print.
 - Rate limits are account-wide and include request-per-second and queued-task limits.
-- Generated API assets for non-Enterprise customers may be retained for only 3 days. Download anything important into `output/meshy/`.
+- Generated API assets for non-Enterprise customers may be retained for only 3 days. Download anything important into ignored `output/meshy/`; move only durable prompt/generator provenance into `.codex/esir/`.
 
 ## ESIR Prompt Bias
 

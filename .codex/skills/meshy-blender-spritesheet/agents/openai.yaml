@@ -1,4 +1,4 @@
 interface:
   display_name: "Meshy Blender Spritesheet"
   short_description: "Render Meshy/Blender models into ESIR spritesheets"
-  default_prompt: "Use $meshy-blender-spritesheet to turn a Meshy GLB or Blender-compatible model (GLB/GLTF/OBJ/FBX) into Factorio-ready sprite frames and spritesheets. When fidelity matters, drive factorioRenderingPreset_v4.blend with render_factorio_preset.py, use conservative --auto-prep when imports need cleanup, run --preflight-only/material reports before expensive renders, keep outputs under output/meshy/<asset>/Render, and stage through the exporter."
+  default_prompt: "Use $meshy-blender-spritesheet to turn a Meshy GLB or Blender-compatible model (GLB/GLTF/OBJ/FBX) into Factorio-ready sprite frames and spritesheets. Auto-ortho fitting is enabled by default; set --min-alpha-margin and use brightness controls for dark Meshy materials, and only pass --no-auto-ortho-scale for intentional manual comparisons. When fidelity matters, drive factorioRenderingPreset_v4.blend with render_factorio_preset.py; its preflight auto-fits ortho before rendering, then stage through the exporter."

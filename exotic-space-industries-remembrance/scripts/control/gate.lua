@@ -321,6 +321,7 @@ model.mass_weights = {
     ["solid-fuel"] = 10,
     ["spidertron"] = 200,
     ["spidertron-remote"] = 1,
+    ["ei-gaian-saucer"] = 240,
     ["splitter"] = 10,
     ["steam-engine"] = 50,
     ["steam-turbine"] = 50,

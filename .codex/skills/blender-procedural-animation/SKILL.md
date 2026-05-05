@@ -17,12 +17,14 @@ Use this skill when an asset should move without relying on humanoid auto-riggin
 
 ## Hard Rules
 
-- Keep generated `.blend`, frame, sheet, and manifest outputs under `output/meshy/` or `tmp/` unless the user explicitly gives a shipping path.
+- Keep generated `.blend`, frame, sheet, and manifest outputs under ignored `output/meshy/` or `tmp/` unless the user explicitly gives a shipping path.
+- Keep durable procedural generator scripts or asset-specific reproduction notes under `.codex/esir/asset-generators/`, not under `output/`.
 - Do not edit ESIR prototypes or replace mod graphics from this skill. Use `$esir-factorio-asset-export` first.
 - Prefer procedural transforms, object naming, constraints, drivers, and simple generated helper geometry before trying creature auto-rigging.
 - Keep animation loops readable at Factorio scale: strong silhouette, limited micro-motion, clean frame count, no tiny detail as the only motion cue.
 - Use Factorio-style lighting by default: highlights come from the upper-left of the rendered sprite and generated draft shadows fall lower-right.
 - Keep shadows as separate staged sheets when possible so `$esir-factorio-asset-export` can emit `draw_as_shadow` layers.
+- Keep enough orthographic margin for all animated poses. The procedural renderer auto-fits `--ortho-scale` against per-frame alpha bounds by default, including extra margin for generated lower-right shadow sheets. Inspect manifest `warnings` and `alpha_bounds`; use `--no-auto-ortho-scale` only for deliberate manual tests.
 - Treat Blender MCP as an inspection/tuning surface; deterministic background rendering should produce final sheets.
 
 ## Presets
@@ -53,6 +55,9 @@ Run from the repo root with Blender:
   --frames 16 `
   --frame-size 256 `
   --columns 4 `
+  --ortho-scale 2.8 `
+  --min-alpha-margin 16 `
+  --fail-alpha-margin `
   --shadow-sheet output/meshy/MODEL/MODEL-animation-shadow.png
 ```
 
@@ -80,6 +85,7 @@ The script writes:
 - individual transparent frame PNGs
 - packed animation sheet PNG
 - `.manifest.json` with frame size, frame count, direction count, columns, preset, camera, and render settings
+- `alpha_bounds`, `auto_ortho_attempts`, final `ortho_scale`, and margin warnings when any pose approaches a frame edge
 - optional lower-right transparent shadow sheet when `--shadow-sheet` is provided
 - optional `.blend` if `--save-blend` is provided
 

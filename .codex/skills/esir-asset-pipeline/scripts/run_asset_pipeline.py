@@ -153,11 +153,21 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "test_cube": True,
             "output_sheet": "{output_root}/renders/{asset_name}-static.png",
             "directions": 8,
-            "frame_size": 256,
+            "frame_size": 384,
             "columns": 8,
             "padding": 0,
             "elevation": 60,
             "yaw_offset": 45,
+            "ortho_scale": 2.0,
+            "auto_ortho_scale": True,
+            "auto_ortho_step": 1.12,
+            "auto_ortho_max": 4.5,
+            "min_alpha_margin": 16,
+            "fail_alpha_margin": True,
+            "exposure": 0.7,
+            "world_strength": 0.05,
+            "key_energy": 900,
+            "fill_energy": 220,
             "engine": "eevee",
             "samples": 64,
             "factorio_preset_defaults": False,
@@ -173,6 +183,12 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "directions": 1,
             "columns": 4,
             "frame_size": 256,
+            "ortho_scale": 2.8,
+            "auto_ortho_scale": True,
+            "auto_ortho_step": 1.12,
+            "auto_ortho_max": 8.0,
+            "min_alpha_margin": 16,
+            "fail_alpha_margin": True,
             "direction_mode": "rotate-object",
             "shadow_offset": "18,12",
             "shadow_alpha": 0.42,
@@ -199,6 +215,10 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "grid": "8x8",
             "preflight_only": False,
             "preflight_margin": 0.12,
+            "auto_ortho_scale": True,
+            "auto_ortho_step": 1.04,
+            "auto_ortho_max": 12.0,
+            "fail_framing_risk": True,
             "material_report": True,
             "warn_alpha_materials": True,
             "footprint_tiles": "3x3",
@@ -521,12 +541,24 @@ def build_static_command(spec: dict[str, Any]) -> list[str] | None:
         ("resolution_scale", "--resolution-scale"),
         ("engine", "--engine"),
         ("samples", "--samples"),
+        ("exposure", "--exposure"),
+        ("gamma", "--gamma"),
+        ("world_strength", "--world-strength"),
+        ("key_energy", "--key-energy"),
+        ("fill_energy", "--fill-energy"),
+        ("min_alpha_margin", "--min-alpha-margin"),
+        ("auto_ortho_step", "--auto-ortho-step"),
+        ("auto_ortho_max", "--auto-ortho-max"),
         ("factorio_preset_defaults", "--factorio-preset-defaults"),
         ("save_blend", "--save-blend"),
     ]:
         append_flag(command, flag, section.get(key))
     if section.get("no_normalize"):
         command.append("--no-normalize")
+    if "auto_ortho_scale" in section:
+        command.append("--auto-ortho-scale" if as_bool(section.get("auto_ortho_scale")) else "--no-auto-ortho-scale")
+    if section.get("fail_alpha_margin"):
+        command.append("--fail-alpha-margin")
     return command
 
 
@@ -556,6 +588,9 @@ def build_procedural_command(spec: dict[str, Any]) -> list[str] | None:
         ("elevation", "--elevation"),
         ("yaw_offset", "--yaw-offset"),
         ("ortho_scale", "--ortho-scale"),
+        ("min_alpha_margin", "--min-alpha-margin"),
+        ("auto_ortho_step", "--auto-ortho-step"),
+        ("auto_ortho_max", "--auto-ortho-max"),
         ("resolution_scale", "--resolution-scale"),
         ("engine", "--engine"),
         ("samples", "--samples"),
@@ -573,6 +608,10 @@ def build_procedural_command(spec: dict[str, Any]) -> list[str] | None:
         append_flag(command, flag, section.get(key))
     if section.get("no_normalize"):
         command.append("--no-normalize")
+    if "auto_ortho_scale" in section:
+        command.append("--auto-ortho-scale" if as_bool(section.get("auto_ortho_scale")) else "--no-auto-ortho-scale")
+    if section.get("fail_alpha_margin"):
+        command.append("--fail-alpha-margin")
     return command
 
 
@@ -612,6 +651,8 @@ def build_preset_command(spec: dict[str, Any]) -> list[str] | None:
         ("grid", "--grid"),
         ("lights", "--lights"),
         ("preflight_margin", "--preflight-margin"),
+        ("auto_ortho_step", "--auto-ortho-step"),
+        ("auto_ortho_max", "--auto-ortho-max"),
         ("require_light_group", "--require-light-group"),
         ("footprint_tiles", "--footprint-tiles"),
         ("prep_origin_mode", "--prep-origin-mode"),
@@ -638,6 +679,8 @@ def build_preset_command(spec: dict[str, Any]) -> list[str] | None:
         command.append("--preflight-only")
     if section.get("fail_framing_risk"):
         command.append("--fail-framing-risk")
+    if "auto_ortho_scale" in section:
+        command.append("--auto-ortho-scale" if as_bool(section.get("auto_ortho_scale")) else "--no-auto-ortho-scale")
     if section.get("fail_missing_light_group"):
         command.append("--fail-missing-light-group")
     if section.get("material_report"):
