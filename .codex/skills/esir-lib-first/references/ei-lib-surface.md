@@ -13,11 +13,11 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 ## Function Families
 
 - General utility:
-  `endswith`, `startswith`, `contains`, `is_valid_number`, `clean_nils`, `clamp`, `unique_values_only`, `table_contains_value`, `patch_nested_value`, `get_random_different_value`, `table_to_string`, `switch_string`, `get_event_tick`, `config`, `getn`
+  `endswith`, `startswith`, `contains`, `is_valid_number`, `clean_nils`, `copy_array`, `copy_preset`, `clamp`, `clamp_number`, `clamp_integer`, `unique_values_only`, `table_contains_value`, `patch_nested_value`, `get_random_different_value`, `table_to_string`, `switch_string`, `get_event_tick`, `config`, `getn`
 - Runtime entity safety:
   `entity_check`, `get_valid_entity`, `get_entity_unit_number`, `get_normalized_quality_factor`
 - Prototype and raw access:
-  `modify_data_raw`, `raw`, `recursive_copy`, `recursive_insert`, `set_properties`
+  `modify_data_raw`, `raw`, `recursive_copy`, `recursive_insert`, `set_properties`, `set_custom_tooltip_fields`
 - Localization and prototype text:
   `overwrite_entity_and_description`, `overwrite_entity_name`, `overwrite_description`
 - Recipe and technology mutation:
@@ -32,6 +32,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - `startswith` and `starts_with` already both exist. Do not add a third spelling.
 - `lerp_color` and `rgb_to_hex` are each defined twice later in the file. If you touch them, update carefully and confirm which definition wins.
 - Prefer `ei_lib.raw` or `ei_lib.modify_data_raw` before open-coded `data.raw` mutation when the operation is a shared mutation pattern rather than a one-off prototype tweak.
+- Prefer `ei_lib.set_custom_tooltip_fields(prototype, fields, opts)` before direct `prototype.custom_tooltip_fields = ...`; pass `opts.append = true` when adding a section to a prototype that may already have tooltip rows.
 - If a helper is almost right, favor a backward-compatible improvement over a sibling helper with a near-identical name.
 - `ei_lib.add_unlock_recipe` already guards missing techs and recipes, so avoid file-local `add_unlock_if_present` wrappers around it.
 - `ei_lib.recipe_new` accepts an optional `opts` table for ingredient replacement patches that also need `clear_difficulty_variants` and/or explicit `enabled` control.
@@ -40,3 +41,6 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - `ei_lib.get_event_tick` and `ei_lib.config` are general runtime utilities, not the runtime scheduling abstraction. For queues, delayed buckets, telemetry gates, counters, cadence, and status snapshots, check `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` first.
 - `ei_lib.get_entity_unit_number` is a safe `.unit_number` read, not a validity check. When later code needs the entity itself, pair it with `entity_check` or `get_valid_entity`.
 - `ei_lib.get_normalized_quality_factor(entity_or_stack)` is the shared `0..1` quality scaler for runtime and inventory-facing quality logic. Prefer it over file-local clones.
+- For copy helpers, distinguish intent: use `ei_lib.copy_array` for dense sequence copies and `ei_lib.copy_preset` for shallow visual-fidelity/config preset snapshots with `visual_fidelity` and `setting_name` metadata. Use `recursive_copy` and `recursive_insert` only for in-place prototype/data merges.
+- Prefer `ei_lib.clamp_number(...)` or `ei_lib.clamp_integer(...)` when normalizing settings, budgets, caps, ratios, or optional maximums. Keep `ei_lib.clamp(x, lo, hi)` for values that are already known numbers.
+- For startup preset/config module style, see [preset-config-pattern.md](./preset-config-pattern.md).

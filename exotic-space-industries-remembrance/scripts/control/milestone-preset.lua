@@ -124,7 +124,7 @@ remote.add_interface("exotic-industries-milestones", {
                 {type="item",       name="ei-accelerator", quantity=1},
                 {type="item",       name="ei-plasma-heater", quantity=1},
                 {type="item",       name="ei-plasma-turret", quantity=1},
-                {type="item",       name="ei-severance-array", quantity=1},
+                {type="item",       name="ei-singularity-lance", quantity=1},
                 {type="item",       name="zeus-wrath-zeus-turret", quantity=1},
 
                 {type="group",      name="Space Flight"},

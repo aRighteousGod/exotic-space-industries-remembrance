@@ -9,14 +9,13 @@
 --                   on_destroyed_entity, on_entity_logistic_slot_changed,
 --                   on_entity_settings_pasted, on_space_platform_changed_state,
 --                   on_rocket_launch_ordered, request_runtime_rescan,
---                   open_gui, close_gui, on_player_left_game,
---                   on_gui_click, on_gui_selection_state_changed,
---                   on_gui_text_changed, update,
+--                   open_gui, close_gui, on_player_left_game, on_gui_click,
+--                   on_gui_selection_state_changed, on_gui_text_changed, update,
 --                   get_pending_work_count, get_runtime_status, get_qc_snapshot
 -- storage_roots: storage.ei.orbital_logistics
 -- gui_ids: ei-orbital-logistics-console
--- remote_interfaces: exposed indirectly through control.lua QC hooks
 -- rebuild_on: init, configuration change, admin rescan, and cohort entity churn
+-- remote_interfaces: exposed indirectly through control.lua QC hooks
 --==============================================================================
 
 local ei_lib = require("lib/lib")

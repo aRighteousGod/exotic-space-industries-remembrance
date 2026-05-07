@@ -98,7 +98,7 @@ data:extend({
         type = "recipe",
         category = "crafting-with-fluid",
         additional_categories = {"electronics-with-fluid"},
-        energy_required = 4,
+        energy_required = 60,
         ingredients =
         {
             {type = "fluid", name = "electrolyte", amount = 800},

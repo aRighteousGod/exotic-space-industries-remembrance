@@ -80,7 +80,13 @@ ei_camp_fire = require("scripts/control/camp-fire")
 orbital_combinator = require("scripts/control/orbital-combinator")
 local orbital_logistics = require("scripts/control/orbital-logistics")
 local ei_railgun_cooling = require("scripts/control/railgun-cooling")
-local ei_severance_array = require("scripts/control/severance-array")
+local ei_singularity_lance = require("scripts/control/singularity-lance")
+local ei_sawblade_turret = require("scripts/control/sawblade-turret")
+local ei_gaian_saucer_wake = require("scripts/control/gaian-saucer-wake")
+
+local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
+    [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,
+}
 
 local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
 
@@ -134,17 +140,26 @@ local function register_exotic_industries_qc_remote()
         get_railgun_cooling_qc_snapshot = function()
             return ei_railgun_cooling.get_qc_snapshot(game and game.tick or 0)
         end,
-        reset_severance_array_runtime = function()
-            ei_severance_array.reset_runtime_state("qc-remote", game and game.tick or 0)
+        reset_singularity_lance_runtime = function()
+            ei_singularity_lance.reset_runtime_state("qc-remote", game and game.tick or 0)
         end,
-        configure_severance_array_qc = function(config)
-            return ei_severance_array.configure_qc(config or {})
+        configure_singularity_lance_qc = function(config)
+            return ei_singularity_lance.configure_qc(config or {})
         end,
-        service_severance_array_qc = function(limit)
-            return ei_severance_array.service_for_qc(limit or 1, {tick = game and game.tick or 0})
+        service_singularity_lance_qc = function(limit)
+            return ei_singularity_lance.service_for_qc(limit or 1, {tick = game and game.tick or 0})
         end,
-        get_severance_array_qc_snapshot = function()
-            return ei_severance_array.get_qc_snapshot(game and game.tick or 0)
+        get_singularity_lance_qc_snapshot = function()
+            return ei_singularity_lance.get_qc_snapshot(game and game.tick or 0)
+        end,
+        reset_gaian_saucer_wake_runtime = function()
+            ei_gaian_saucer_wake.reset_runtime_state("qc-remote", game and game.tick or 0)
+        end,
+        service_gaian_saucer_wake_qc = function(limit)
+            return ei_gaian_saucer_wake.service_for_qc(limit or 1, game and game.tick or 0)
+        end,
+        get_gaian_saucer_wake_qc_snapshot = function()
+            return ei_gaian_saucer_wake.get_qc_snapshot(game and game.tick or 0)
         end,
         get_research_hitch_qc_snapshot = function()
             local ei_state = storage and storage.ei or {}
@@ -418,7 +433,9 @@ local function refresh_runtime_telemetry_snapshot()
         ei_vulcanus_fumaroles,
         orbital_logistics,
         ei_railgun_cooling,
-        ei_severance_array,
+        ei_singularity_lance,
+        ei_sawblade_turret,
+        ei_gaian_saucer_wake,
         ei_fusion_reactor,
     }
 
@@ -491,7 +508,9 @@ script.on_init(function(event)
     orbital_logistics.check_init()
     ei_railgun_cooling.check_global()
     ei_railgun_cooling.rebuild_runtime_state("init", event and event.tick or 0)
-    ei_severance_array.check_global()
+    ei_singularity_lance.check_global()
+    ei_sawblade_turret.check_global()
+    ei_gaian_saucer_wake.rebuild_runtime_state("init", event and event.tick or 0)
     ei_gaia.ensure_surface()
     ei_crystal_accumulator.check_global()
     ei_crystal_accumulator.rebuild_runtime_state("init", event and event.tick or 0)
@@ -729,6 +748,7 @@ script.on_event(defines.events.on_object_destroyed, function(e)
     orbital_combinator.on_object_destroyed(e)
     ei_railgun_cooling.on_object_destroyed(e)
     ei_auric_inoculation_vat.on_object_destroyed(e)
+    ei_sawblade_turret.on_object_destroyed(e)
 end)
 
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
@@ -757,7 +777,7 @@ script.on_event(defines.events.on_research_finished, function(e)
 
     ei_tech_scaling.on_research_finished(e)
     ei_teslas_legacy.on_research_finished(e)
-    ei_severance_array.on_research_finished(e)
+    ei_singularity_lance.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
     em_trains.on_research_finished(e)
     ei_nauvis_pressure_grace.on_research_finished(e)
@@ -993,9 +1013,15 @@ end)
 script.on_event(defines.events.on_script_trigger_effect, function(event)
     -- Script trigger effects are used for capsule/remote actions that originate from data-stage
     -- prototypes but need runtime behavior.
+    local single_owner_handler = SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS[event.effect_id]
+    if single_owner_handler then
+        single_owner_handler(event)
+        return
+    end
+
     ei_teslas_legacy.on_script_trigger_effect(event)
     ei_railgun_cooling.on_script_trigger_effect(event)
-    ei_severance_array.on_script_trigger_effect(event)
+    ei_singularity_lance.on_script_trigger_effect(event)
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
@@ -1035,7 +1061,8 @@ script.on_configuration_changed(function(e)
         ei_flammable_rupture_scheduler.check_global()
         ei_vulcanus_fumaroles.check_global()
         ei_railgun_cooling.check_global()
-        ei_severance_array.check_global()
+        ei_singularity_lance.check_global()
+        ei_sawblade_turret.check_global()
         if ei_fluid_safety and ei_fluid_safety.on_configuration_changed then
             ei_fluid_safety.on_configuration_changed(e)
         end
@@ -1053,7 +1080,9 @@ script.on_configuration_changed(function(e)
     -- Migration-only configuration changes can still strand Tesla helper entities or
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
     ei_teslas_legacy.on_configuration_changed(e)
-    ei_severance_array.on_configuration_changed(e)
+    ei_singularity_lance.on_configuration_changed(e)
+    ei_sawblade_turret.on_configuration_changed(e)
+    ei_gaian_saucer_wake.on_configuration_changed(e)
 
     -- Beacon overload keeps its own runtime repair path so any configuration change can
     -- re-seed its state and queue a refresh when prototype or startup settings moved.
@@ -1109,7 +1138,8 @@ script.on_configuration_changed(function(e)
         orbital_combinator.check_init()
         orbital_logistics.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_railgun_cooling.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
-        ei_severance_array.check_global()
+        ei_singularity_lance.check_global()
+        ei_sawblade_turret.check_global()
         ei_gaia.ensure_surface()
         ei_crystal_accumulator.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
         ei_vulcanus_fumaroles.on_configuration_changed(e)
@@ -1194,7 +1224,7 @@ function updater(event)
   end
 
   local updates_needed = 1
-  local severance_serviced_this_tick = false
+  local singularity_lance_serviced_this_tick = false
   -- Compute update step from event.tick to keep the timing source explicit.
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
@@ -1388,12 +1418,12 @@ function updater(event)
               end
           end
       elseif ei_update_step == 13 then
-          -- Step 13 services Severance Array's lossy aim-trace visuals; direct alpha is script-owned.
-          local severance_pending_work_count = ei_severance_array and ei_severance_array.get_pending_work_count and ei_severance_array.get_pending_work_count(event) or 0
-          if severance_pending_work_count > 0 then
-              updates_needed = math.max(1, math.min(math.ceil(severance_pending_work_count / divisor), ei_maxEntityUpdates))
-              ei_severance_array.update(updates_needed, event)
-              severance_serviced_this_tick = true
+          -- Step 13 services Singularity Lance's lossy aim-trace visuals; direct alpha is script-owned.
+          local singularity_lance_pending_work_count = ei_singularity_lance and ei_singularity_lance.get_pending_work_count and ei_singularity_lance.get_pending_work_count(event) or 0
+          if singularity_lance_pending_work_count > 0 then
+              updates_needed = math.max(1, math.min(math.ceil(singularity_lance_pending_work_count / divisor), ei_maxEntityUpdates))
+              ei_singularity_lance.update(updates_needed, event)
+              singularity_lance_serviced_this_tick = true
           end
       elseif ei_update_step == 14 then
           -- Step 14 polls fusion circuit input and refreshes hidden reactor telemetry.
@@ -1409,11 +1439,11 @@ function updater(event)
    -- Essential updates that run every tick regardless of the scheduled branch above.
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.
-    if not severance_serviced_this_tick
-    and ei_severance_array
-    and ei_severance_array.get_pending_work_count
-    and ei_severance_array.get_pending_work_count(event) > 0 then
-        ei_severance_array.update(1, event)
+    if not singularity_lance_serviced_this_tick
+    and ei_singularity_lance
+    and ei_singularity_lance.get_pending_work_count
+    and ei_singularity_lance.get_pending_work_count(event) > 0 then
+        ei_singularity_lance.update(1, event)
     end
 
     em_trains_gui.updater()
@@ -1427,6 +1457,7 @@ function updater(event)
     ei_echo_codex.arrival_waves(event)
     ei_teslas_legacy.updater(event)
     ei_beacon_overload.updater(event)
+    ei_gaian_saucer_wake.updater(event)
     ei_rocket_launch_pollution.updater(event)
     ei_flammable_rupture_scheduler.updater(event)
     ei_fulgora_day_length_variation.updater(event)
@@ -1475,6 +1506,9 @@ function on_cloned_entity(e)
     ei_railgun_cooling.on_built_entity(clone_event)
     ei_camp_fire.on_built_entity(clone_event)
     ei_teslas_legacy.on_built_entity(clone_event)
+    ei_singularity_lance.on_built_entity(clone_event)
+    ei_sawblade_turret.on_built_entity(clone_event)
+    ei_gaian_saucer_wake.on_built_entity(clone_event)
 
     ei_fusion_reactor.on_entity_settings_pasted(e)
     ei_neutron_collector.on_entity_settings_pasted(e)
@@ -1550,6 +1584,9 @@ function on_built_entity(e)
     ei_steam_train.on_built_entity(e)
     ei_camp_fire.on_built_entity(e)
     ei_teslas_legacy.on_built_entity(e)
+    ei_singularity_lance.on_built_entity(e)
+    ei_sawblade_turret.on_built_entity(e)
+    ei_gaian_saucer_wake.on_built_entity(e)
 end
 
 function on_built_tile(e)
@@ -1605,7 +1642,9 @@ function on_destroyed_entity(e)
     orbital_logistics.on_destroyed_entity(e)
     ei_railgun_cooling.on_destroyed_entity(e)
     ei_camp_fire.on_destroyed_entity(e)
-    ei_severance_array.on_destroyed_entity(e)
+    ei_singularity_lance.on_destroyed_entity(e)
+    ei_sawblade_turret.on_destroyed_entity(e)
+    ei_gaian_saucer_wake.on_destroyed_entity(e)
     -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
     ei_steam_train.on_destroyed_entity(e["entity"])
 end

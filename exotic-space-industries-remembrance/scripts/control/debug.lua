@@ -514,13 +514,21 @@ local function get_runtime_status_snapshot()
             recovery_buckets = ei_runtime_scheduler.delayed_bucket_count(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_buckets),
             recovery_bucket_items = ei_runtime_scheduler.delayed_item_count(ei_state.railgun_cooling and ei_state.railgun_cooling.recovery_buckets),
         }),
-        severance_array = capture_runtime_module_status("severance-array", package.loaded["scripts/control/severance-array"], {
-            pending = ei_runtime_scheduler.queue_item_count(ei_state.severance_array and ei_state.severance_array.damage_queue)
-                + tonumber(ei_state.severance_array and ei_state.severance_array.visual_slice_count or 0),
-            pending_visual_slices = tonumber(ei_state.severance_array and ei_state.severance_array.visual_slice_count or 0),
-            active_visual_jobs = tonumber(ei_state.severance_array and ei_state.severance_array.active_visual_jobs or 0),
-            visual_jobs_dropped = ei_state.severance_array and ei_state.severance_array.counters and ei_state.severance_array.counters.visual_jobs_dropped or 0,
-            max_update_ms = ei_state.severance_array and ei_state.severance_array.timings and ei_state.severance_array.timings.max_ms or 0,
+        singularity_lance = capture_runtime_module_status("singularity-lance", package.loaded["scripts/control/singularity-lance"], {
+            pending = ei_runtime_scheduler.queue_item_count(ei_state.singularity_lance and ei_state.singularity_lance.damage_queue)
+                + tonumber(ei_state.singularity_lance and ei_state.singularity_lance.visual_slice_count or 0),
+            pending_visual_slices = tonumber(ei_state.singularity_lance and ei_state.singularity_lance.visual_slice_count or 0),
+            active_visual_jobs = tonumber(ei_state.singularity_lance and ei_state.singularity_lance.active_visual_jobs or 0),
+            visual_jobs_dropped = ei_state.singularity_lance and ei_state.singularity_lance.counters and ei_state.singularity_lance.counters.visual_jobs_dropped or 0,
+            max_update_ms = ei_state.singularity_lance and ei_state.singularity_lance.timings and ei_state.singularity_lance.timings.max_ms or 0,
+        }),
+        gaian_saucer_wake = capture_runtime_module_status("gaian-saucer-wake", package.loaded["scripts/control/gaian-saucer-wake"], {
+            visual_fidelity = ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.last_fidelity or "?",
+            tracked_saucers = ei_runtime_scheduler.table_count(ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.tracked),
+            queue_items = ei_runtime_scheduler.queue_item_count(ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.active_queue),
+            emitted = ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.counters and ei_state.gaian_saucer_wake.counters.emitted or 0,
+            capped = ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.counters and ei_state.gaian_saucer_wake.counters.capped or 0,
+            invalid_purges = ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.counters and ei_state.gaian_saucer_wake.counters.invalid_purges or 0,
         }),
         auric_inoculation_vat = capture_runtime_module_status("auric-inoculation-vat", ei_auric_inoculation_vat, get_auric_fallback_status, game and game.tick or 0, false),
         vulcanus = capture_runtime_module_status("vulcanus-fumaroles", ei_vulcanus_fumaroles, {
@@ -548,7 +556,8 @@ local function format_runtime_status_summary(snapshot)
     local orbital = extra.orbital_scanner or {}
     local orbital_logistics = extra.orbital_logistics or {}
     local railgun = extra.railgun_cooling or {}
-    local severance = extra.severance_array or {}
+    local singularity_lance = extra.singularity_lance or {}
+    local saucer_wake = extra.gaian_saucer_wake or {}
     local auric_vat = extra.auric_inoculation_vat or {}
     local vulcanus = extra.vulcanus or {}
     local auric_claimed_tile_count = auric_vat.claimed_tile_count ~= nil and tostring(auric_vat.claimed_tile_count) or "n/a"
@@ -571,7 +580,8 @@ local function format_runtime_status_summary(snapshot)
         "orbital(banks/dirty/probe)=" .. tostring(orbital.banks or orbital.bank_count or 0) .. "/" .. tostring(orbital.dirty_banks or 0) .. "/" .. tostring(orbital.probe_enabled == true or (orbital.probe and orbital.probe.enabled == true)),
         "cohort(c/l/u/gui)=" .. tostring(orbital_logistics.cohorts or orbital_logistics.cohort_count or 0) .. "/" .. tostring(orbital_logistics.leases or orbital_logistics.lease_count or 0) .. "/" .. tostring(orbital_logistics.uplinks or orbital_logistics.uplink_count or 0) .. "/" .. tostring(orbital_logistics.open_gui_count or 0),
         "railgun(track/block/recover)=" .. tostring(railgun.tracked_railguns or 0) .. "/" .. tostring(railgun.blocked_count or 0) .. "/" .. tostring(railgun.recovering_count or 0),
-        "severance(pending/vis/drop/maxms)=" .. tostring(severance.pending or 0) .. "/" .. tostring(severance.pending_visual_slices or 0) .. "/" .. tostring(severance.visual_jobs_dropped or 0) .. "/" .. tostring(severance.max_update_ms or 0),
+        "singularity-lance(pending/vis/drop/maxms)=" .. tostring(singularity_lance.pending or 0) .. "/" .. tostring(singularity_lance.pending_visual_slices or 0) .. "/" .. tostring(singularity_lance.visual_jobs_dropped or 0) .. "/" .. tostring(singularity_lance.max_update_ms or 0),
+        "saucerwake(mode/t/q/e/cap)=" .. tostring(saucer_wake.visual_fidelity or "?") .. "/" .. tostring(saucer_wake.tracked_saucers or 0) .. "/" .. tostring(saucer_wake.queue_items or 0) .. "/" .. tostring(saucer_wake.emitted or 0) .. "/" .. tostring(saucer_wake.capped or 0),
         "auric-vat(track/due/ready/claim/gui|conflict-vat/tile/orphan/proxy-miss/unwired)=" .. tostring(auric_vat.tracked_vat_count or 0) .. "/" .. tostring(auric_vat.due_vat_count or auric_vat.queued_vat_count or 0) .. "/" .. tostring(auric_vat.ready_queue_items or 0) .. "/" .. tostring(auric_vat.claim_count or 0) .. "(" .. auric_claimed_tile_count .. ")/" .. tostring(auric_vat.open_gui_count or 0) .. "|" .. tostring(auric_vat.conflict_count or 0) .. "/" .. tostring(auric_vat.conflict_tile_count or 0) .. "/" .. auric_orphan_claim_count .. "/" .. tostring(auric_vat.missing_telemetry_proxy_count or 0) .. "/" .. tostring(auric_vat.telemetry_unwired_vat_count or 0),
         "auric-tile(regions/dirty/scan/total)=" .. tostring(auric_vat.last_tile_change_region_count or 0) .. "/" .. tostring(auric_vat.last_tile_change_dirty_chunk_count or 0) .. "/" .. tostring(auric_vat.last_tile_change_scan_region_count or 0) .. "/" .. tostring(auric_vat.tile_change_region_refresh_count or 0),
         "vulcanus(active/dormant)=" .. tostring(vulcanus.active or 0) .. "/" .. tostring(vulcanus.dormant or 0),

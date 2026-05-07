@@ -35,7 +35,7 @@ STATIC_RENDER_SCRIPT = SKILLS_ROOT / "meshy-blender-spritesheet" / "scripts" / "
 PRESET_RENDER_SCRIPT = SKILLS_ROOT / "meshy-blender-spritesheet" / "scripts" / "render_factorio_preset.py"
 PROCEDURAL_RENDER_SCRIPT = SKILLS_ROOT / "blender-procedural-animation" / "scripts" / "procedural_animation_sheet.py"
 EXPORT_SCRIPT = SKILLS_ROOT / "esir-factorio-asset-export" / "scripts" / "export_factorio_asset.py"
-DEFAULT_BLENDER = Path(r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe")
+DEFAULT_BLENDER = Path(r"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe")
 ALL_STEPS = ["meshy", "render_static", "render_procedural", "render_preset", "export", "promotion", "qa"]
 DEFAULT_ALL_STEPS = ["meshy", "render_static", "render_procedural", "render_preset", "export", "qa"]
 

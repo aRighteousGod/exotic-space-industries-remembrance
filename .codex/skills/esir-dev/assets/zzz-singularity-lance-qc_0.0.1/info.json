@@ -1,0 +1,13 @@
+{
+  "name": "zzz-singularity-lance-qc",
+  "version": "0.0.1",
+  "title": "Singularity Lance QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "QC-only helper that builds a dense Singularity Lance firing benchmark and records Singularity Lance runtime status/timing snapshots."
+}

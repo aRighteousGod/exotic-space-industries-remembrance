@@ -471,7 +471,7 @@ data:extend({
 		drive_over_tie_trigger = drive_over_tie(),
 		drive_over_tie_trigger_minimal_speed = drive_over_tie_speed,
 		tie_distance = 50,
-		vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+		vehicle_impact_sound =  { variations = sound_variations("__base__/sound/car-metal-impact", 5, 0.65) },
 		impact_category = "metal-large",
 		working_sound =
 		{
@@ -648,7 +648,7 @@ data:extend({
 		open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 		close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
 		sound_minimum_speed = steam_sound_minimum_speed;
-		vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 },
+		vehicle_impact_sound =  { variations = sound_variations("__base__/sound/car-wood-impact", 5, 1.0) },
 	},
 
 
@@ -826,7 +826,7 @@ data:extend({
 		open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 		close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
 		sound_minimum_speed = steam_sound_minimum_speed;
-		vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 },
+		vehicle_impact_sound =  { variations = sound_variations("__base__/sound/car-wood-impact", 5, 1.0) },
 	},
 	{
 		type = "fluid-wagon",
@@ -962,7 +962,7 @@ data:extend({
 		},
 		crash_trigger = crash_trigger(),
 		sound_minimum_speed = steam_sound_minimum_speed;
-		vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 },
+		vehicle_impact_sound =  { variations = sound_variations("__base__/sound/car-wood-impact", 5, 1.0) },
 	},
 	{
 		type = "locomotive",
@@ -1168,7 +1168,7 @@ data:extend({
 		drive_over_tie_trigger = drive_over_tie(),
 		drive_over_tie_trigger_minimal_speed = drive_over_tie_speed,
 		tie_distance = 50,
-		vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
+		vehicle_impact_sound = {variations = sound_variations("__base__/sound/car-metal-impact", 5, 0.65)},
 		impact_category = "metal-large",
 		working_sound =
 		{

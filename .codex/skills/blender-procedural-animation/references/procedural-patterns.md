@@ -23,13 +23,13 @@ Default Factorio-compatible render assumptions:
 
 For directional sheets, prefer object rotation over camera orbit when the goal is an in-game rotated entity. This keeps the screen-space light and shadow direction stable while the object turns.
 
-The bundled renderer defaults to `--direction-mode rotate-object`, screen-space upper-left key lighting, and optional generated lower-right shadow sheets.
+The bundled renderer defaults to `--direction-mode rotate-object`, screen-space upper-left key lighting, and generated lower-right shadow sheets for Factorio-bound exports.
 
 ## Local Factorio Rendering Preset
 
 The repo root includes `factorioRenderingPreset_v4.blend` and `Render.zip`, and the saved Notion guide is at `C:\Users\Theorun\Documents\3D model to Factorio sprites v2 _ Notion.htm`.
 
-Use the preset for maximum-fidelity manual Blender work:
+Use the preset conventions for ESIR Factorio-bound manual Blender work by default:
 
 - Move the main mesh into `Object > Normal`.
 - Keep the preset's `Scene` collection intact.
@@ -38,7 +38,7 @@ Use the preset for maximum-fidelity manual Blender work:
 - Put pipes in `Pipe` when the machine uses the preset pipe helpers.
 - Change canvas size through the preset UI: Factorio sidebar > `Orthographic Scale` and tile size > `Set Resolution`. Do not hand-edit camera resolution first; the operator only recalculates pixel resolution from the chosen ortho scale and tile size.
 - Test export with `F12`, inspect every moving pose for object/shadow/glow edge contact, and reduce ortho scale/canvas as much as possible without clipping.
-- For scripted procedural exports, leave auto-ortho fitting enabled unless the task is explicitly a manual framing comparison. The renderer checks every frame's alpha bounds, raises ortho scale until the effective margin passes, and records `auto_ortho_attempts` in the manifest.
+- For scripted procedural exports, including quick verification, pass `--factorio-preset-defaults` and leave auto-ortho fitting enabled unless the task is explicitly a non-preset/manual framing comparison or renderer-tool debugging. The renderer checks every frame's alpha bounds, raises ortho scale until the effective margin passes, and records `auto_ortho_attempts` in the manifest.
 - For repo-compatible compositor output, save the `.blend` under a repo `blender` folder and point output paths to `///Render/{export_type}`.
 
 Glow and light pass notes:
@@ -47,6 +47,15 @@ Glow and light pass notes:
 - Warm yellow/red glow tends to read well for Factorio machines.
 - Toggle the preset's `Lighting` collection visibility to preview how the object will read at night.
 - Keep glow/light sheets separate from base and shadow sheets so the exporter can emit `draw_as_glow` or `draw_as_light` layers.
+
+Runtime tint and color-mask notes:
+
+- Use runtime-tint masks only when owner-readability matters: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities.
+- Avoid runtime tint on neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, or assets whose baked ESIR chromatic identity should stay fixed.
+- Name moving recolorable parts or materials `team_color`, `force_trim`, or `color_mask` so Blender work can keep them separate from baked color.
+- A promoted Factorio color mask must match the base sheet's frame size, frame count, direction count, shift, scale, and loop timing; otherwise force/player color will drift against the animated base.
+- Wire the mask as its own layer with `flags = {"mask"}` and `apply_runtime_tint = true` on that layer. If the animation table uses `layers`, top-level tint fields are ignored by Factorio for the child layers.
+- Use `tint_as_overlay = true` only after visual QA says the overlay blend reads better. Use static `tint` for fixed-color overlays and runtime `rendering.draw_sprite{tint=...}` for script-rendered effects.
 
 Animation notes from the guide:
 
@@ -58,7 +67,7 @@ Animation notes from the guide:
 Directional/unit animation:
 
 - Recommended direction counts are 16 or 32 for unit-like sprites; base-game biters use 16.
-- Shadows and water reflection usually do not need full animation because the motion is barely visible at scale.
+- Shadows should remain separate lower-right sheets for Factorio-bound output. Water reflection usually does not need full animation because the motion is barely visible at scale.
 - The guide's directional driver pattern is `radians(-initial_angle - ((frame - 1) // frame_count) * 360 / direction_count)`.
 - Loop the object animation in Graph Editor after copying the first key to the next cycle and applying cyclic extrapolation.
 - Disable unused compositor outputs before long exports.

@@ -4,14 +4,24 @@
 --       hot-shot visuals, turret status, and railgun relative GUI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy/rotate/script-trigger, scheduled tick step 11, and GUI hooks
+-- forwarded_events: check_global, get_pending_work_count, get_runtime_status, get_qc_snapshot,
+--                   on_built_entity, on_destroyed_entity, on_gui_click, on_object_destroyed,
+--                   on_player_left_game, on_player_rotated_entity, on_script_trigger_effect,
+--                   on_space_platform_changed_state, rebuild_runtime_state, update
 -- storage_roots: storage.ei.railgun_cooling
 -- gui_ids: ei-railgun-cooling-console
+-- remote_interfaces: none; Informatron is called outward from the relative GUI shortcut
+-- rebuild_on: configuration change, railgun build/destroy/rotation, platform state changes
 --==============================================================================
 
 local model = {}
 
 local ei_lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
+
+--====================================================================================================
+--CONSTANTS
+--====================================================================================================
 
 local MODULE_NAME = "railgun-cooling"
 local GUI_NAME = "ei-railgun-cooling-console"
@@ -65,6 +75,10 @@ local PROXY_OFFSETS = {
     [defines.direction.northwest] = {x = 1, y = 1},
 }
 
+--====================================================================================================
+--GENERAL HELPERS
+--====================================================================================================
+
 local function now_tick(event_or_tick)
     if type(event_or_tick) == "number" then
         return event_or_tick
@@ -93,6 +107,10 @@ end
 local function ticks_to_seconds(value)
     return round_amount((tonumber(value) or 0) / 60)
 end
+
+--====================================================================================================
+--RUNTIME STORAGE
+--====================================================================================================
 
 local function build_runtime()
     return {
@@ -130,6 +148,10 @@ local function get_runtime()
     return runtime
 end
 
+--====================================================================================================
+--GUI AND ENTITY LOOKUPS
+--====================================================================================================
+
 local function get_gui_root(player)
     local root = player and player.valid and player.gui and player.gui.relative and player.gui.relative[GUI_NAME] or nil
     return root and root.valid and root or nil
@@ -161,6 +183,10 @@ local function remove_surface_membership(runtime, surface_index, unit_number)
         runtime.units_by_surface[surface_index] = nil
     end
 end
+
+--====================================================================================================
+--PROXY GEOMETRY AND SURFACE PROFILES
+--====================================================================================================
 
 local function register_destroy(runtime, entity, kind, unit_number)
     if not ei_lib.entity_check(entity) then
@@ -209,6 +235,7 @@ local function get_surface_pollutant_type(surface)
 end
 
 local function get_surface_profile(runtime, surface)
+    -- Thermal profiles are cached per surface and invalidated by lifecycle/platform events instead of polling.
     if not (surface and surface.valid) then
         return "default_atmospheric", SURFACE_PROFILES.default_atmospheric
     end
@@ -230,6 +257,10 @@ local function get_surface_profile(runtime, surface)
     runtime.surface_profiles[surface.index] = {key = key, profile = SURFACE_PROFILES[key], surface_name = surface.name, platform = surface.platform ~= nil}
     return key, SURFACE_PROFILES[key]
 end
+
+--====================================================================================================
+--COOLANT ACCOUNTING
+--====================================================================================================
 
 local function get_fluidbox_contents(proxy, index)
     local ok, contents = pcall(function() return proxy and proxy.valid and proxy.fluidbox[index] or nil end)
@@ -299,6 +330,7 @@ local function move_coolant(proxy, amount)
 end
 
 local function sanitize_proxy_buffers(proxy)
+    -- Prototype changes or old saves can leave helper boxes over capacity; trim only the proxy buffers.
     if not (proxy and proxy.valid) then
         return
     end
@@ -317,6 +349,10 @@ local function sanitize_proxy_buffers(proxy)
         set_fluid_amount(proxy, 2, HOT_FLUID, hot_capacity, hot_contents.temperature or HOT_TEMPERATURE)
     end
 end
+
+--====================================================================================================
+--STATUS AND RECOVERY QUEUES
+--====================================================================================================
 
 local function clear_visuals(record)
     destroy_render_object(record.afterglow_render)
@@ -402,6 +438,7 @@ local function recalculate_next_due_tick(runtime)
 end
 
 local function activate_due_recovery(runtime, current_tick)
+    -- Delayed buckets only wake blocked or indebted guns; healthy railguns stay out of steady-state work.
     if runtime.next_due_tick == 0 or current_tick < runtime.next_due_tick then
         return false
     end
@@ -446,6 +483,10 @@ local function refresh_record(runtime, record)
     return true
 end
 
+--====================================================================================================
+--PROXY LIFECYCLE
+--====================================================================================================
+
 local function destroy_proxy(runtime, record)
     local proxy = record and record.proxy
     if proxy and proxy.valid then
@@ -460,6 +501,7 @@ local function destroy_proxy(runtime, record)
 end
 
 local function ensure_proxy(runtime, record)
+    -- The hidden helper owns the fluid interface while the railgun remains the player-facing entity.
     local turret = record.turret
     if not refresh_record(runtime, record) then
         return false
@@ -562,6 +604,10 @@ local function register_turret(runtime, entity, current_tick)
     apply_status(record, current_tick)
     return record
 end
+
+--====================================================================================================
+--SHOT HEAT AND VISUALS
+--====================================================================================================
 
 local function apply_heat_damage(turret, shortfall)
     local max_health = nil
@@ -670,6 +716,10 @@ local function recover_record(runtime, record, current_tick)
     return true
 end
 
+--====================================================================================================
+--RELATIVE GUI
+--====================================================================================================
+
 local function get_state_caption(record)
     if not record then
         return {"exotic-industries.railgun-cooling-gui-state-healthy"}
@@ -770,11 +820,16 @@ function model.on_player_left_game(player_index)
     if player then model.close_gui(player) end
 end
 
+--====================================================================================================
+--EVENT ENTRYPOINTS
+--====================================================================================================
+
 function model.check_global()
     return get_runtime()
 end
 
 function model.rebuild_runtime_state(reason, current_tick)
+    -- Rebuilds bind visible railguns back to fresh helpers and discard orphaned coolant proxies.
     local runtime = get_runtime()
     local existing_units = {}
     for unit_number in pairs(runtime.turrets_by_unit) do
@@ -865,12 +920,17 @@ function model.on_script_trigger_effect(event)
     local current_tick = now_tick(event)
     local record = register_turret(runtime, source, current_tick)
     if not record then return end
+    -- Script trigger effects can cluster around one firing action; debounce before charging coolant.
     local last_effect_tick = tonumber(record.last_cooling_effect_tick) or -SHOT_TRIGGER_DEBOUNCE_TICKS
     if (current_tick - last_effect_tick) <= SHOT_TRIGGER_DEBOUNCE_TICKS then
         return
     end
     apply_shot(runtime, record, current_tick)
 end
+
+--====================================================================================================
+--SCHEDULER SERVICE AND TELEMETRY
+--====================================================================================================
 
 function model.get_pending_work_count(event)
     local runtime = get_runtime()

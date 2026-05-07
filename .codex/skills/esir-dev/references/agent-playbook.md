@@ -67,6 +67,7 @@ Use for:
 - prompt-to-asset role matching
 - import-plan suggestions
 - non-destructive image-format checks
+- checking whether an asset should reserve `team_color`, `force_trim`, or `color_mask` regions for owner-readability
 
 ## `regression explorer`
 
@@ -155,6 +156,33 @@ Use for:
 - exact prototype symbol lookup through `factorio-lua-docs`
 - prototype inheritance, property, concept, and data.raw documentation checks
 - separating prototype declaration rules from runtime prototype-read APIs
+
+## `tint-api explorer`
+
+Use for:
+
+- exact official lookup of runtime tint, player color, force color, rolling-stock color, and sprite/animation tint behavior
+- confirming whether a target prototype supports `LuaEntity.color`, player color inheritance, rolling-stock color copying, or explicit script-render `tint`
+- checking `apply_runtime_tint`, `tint_as_overlay`, `tint`, `LuaRendering::draw_sprite`, `LuaRendering::draw_animation`, and `LuaRenderObject::color` before the main agent writes guidance or code
+- warning when `LuaForce.color` exists but is not an official universal source for entity-mask tinting
+
+## `asset-mask explorer`
+
+Use for:
+
+- reviewing preset render bundles and staged exports for base, shadow, glow/light, runtime color mask, water reflection, and baked-color roles
+- checking whether `object_mask_0.png` is a runtime-tint mask, manual post-processing source, or unused evidence
+- verifying that proposed mask layers match base frame dimensions, frame count, direction count, shift, scale, and Factorio layer placement
+- spotting accidental tinting of neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, or baked ESIR chromatic assets
+
+## `third-party-art-precedent explorer`
+
+Use for:
+
+- read-only precedent inspection of installed or public mods that demonstrate prototype graphics patterns
+- summarizing implementation shape without copying third-party art, code, filenames, or license-sensitive content into ESIR
+- checking `FluidWagonColorMask` by yeahtoast as a color-mask precedent: `flags = {"mask"}`, `apply_runtime_tint = true`, rotated/sloped fluid-wagon mask layers, `additional_pastable_entities`, and `on_entity_settings_pasted`
+- reporting source, license, version, and whether the files came from local installed mods or public Mod Portal metadata
 
 ## `auxiliary-docs explorer`
 

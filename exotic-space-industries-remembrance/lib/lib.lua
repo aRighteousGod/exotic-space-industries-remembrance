@@ -3,7 +3,7 @@
 -- owns: runtime module: lib
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: on-demand helper calls
--- forwarded_events: add_item_level, add_prerequisite, add_unlock_recipe, clamp, clean_nils, config, contains, convert_short_ingredients_to_full, copy_science_packs, crystal_echo, crystal_echo_floating, debug_crafting_categories, disable, do_fluid_merge, do_item_merge, empty_sprite, enable, enable_from_start, endswith, entity_check, entity_icon_scaler, fix_recipe, format_echo, generate_crystal_gradient_stops, get_adjective_and_tint, get_box_area, get_entity_area, get_entity_area_change, get_entity_unit_number, get_event_tick, get_player_setting_value, get_random_different_value, get_valid_entity, getn, hex_to_rgb_normalized, hex_to_rgb_raw, is_valid_number, lerp_color, make_4way_animation_from_spritesheet, make_circuit_connector, merge_fluid, merge_item, modify_data_raw, notify_connected_players, overwrite_description, overwrite_entity_and_description, overwrite_entity_name, patch_nested_value, pick_gradient_stops, pick_tint_from_intent, player_allows_notification, recipe_add, recipe_hard_overwrite, recipe_new, recipe_output_add, recipe_remove, recipe_swap, recursive_copy, recursive_insert, remove_prerequisite, remove_tech, remove_tech_ingredient, remove_unlock_recipe, rgb_to_hex, sb, set_age_packs, set_prerequisites, set_properties, set_science_packs, starts_with, startswith, strike_lightning, switch_string, table_contains_value, table_to_string, unique_values_only
+-- forwarded_events: add_item_level, add_prerequisite, add_unlock_recipe, clamp, clamp_integer, clamp_number, clean_nils, config, contains, convert_short_ingredients_to_full, copy_array, copy_preset, copy_science_packs, crystal_echo, crystal_echo_floating, debug_crafting_categories, disable, do_fluid_merge, do_item_merge, empty_sprite, enable, enable_from_start, endswith, entity_check, entity_icon_scaler, fix_recipe, format_echo, generate_crystal_gradient_stops, get_adjective_and_tint, get_box_area, get_entity_area, get_entity_area_change, get_entity_unit_number, get_event_tick, get_player_setting_value, get_random_different_value, get_valid_entity, getn, hex_to_rgb_normalized, hex_to_rgb_raw, is_valid_number, lerp_color, make_4way_animation_from_spritesheet, make_circuit_connector, merge_fluid, merge_item, modify_data_raw, notify_connected_players, overwrite_description, overwrite_entity_and_description, overwrite_entity_name, patch_nested_value, pick_gradient_stops, pick_tint_from_intent, player_allows_notification, recipe_add, recipe_hard_overwrite, recipe_new, recipe_output_add, recipe_remove, recipe_swap, recursive_copy, recursive_insert, remove_prerequisite, remove_tech, remove_tech_ingredient, remove_unlock_recipe, rgb_to_hex, sb, set_age_packs, set_custom_tooltip_fields, set_prerequisites, set_properties, set_science_packs, starts_with, startswith, strike_lightning, switch_string, table_contains_value, table_to_string, unique_values_only
 -- storage_roots: none
 -- gui_ids: none
 -- remote_interfaces: none
@@ -42,11 +42,57 @@ function ei_lib.clean_nils(t)
   return ans
 end
 
+function ei_lib.copy_array(source)
+  local result = {}
+  if type(source) ~= "table" then
+    return result
+  end
+
+  for index = 1, #source do
+    result[index] = source[index]
+  end
+  return result
+end
+
+function ei_lib.copy_preset(name, preset, setting_name)
+  local result = {}
+  if type(preset) == "table" then
+    for key, value in pairs(preset) do
+      result[key] = value
+    end
+  end
+
+  result.visual_fidelity = name
+  result.setting_name = setting_name
+  return result
+end
+
 -- clamp a number into [lo, hi].
 function ei_lib.clamp(x, lo, hi)
   if x < lo then return lo end
   if x > hi then return hi end
   return x
+end
+
+function ei_lib.clamp_number(value, minimum, maximum, default_value)
+  value = tonumber(value)
+  if value == nil then
+    value = default_value
+  end
+  if value == nil then
+    value = minimum
+  end
+
+  if minimum ~= nil and value < minimum then return minimum end
+  if maximum ~= nil and value > maximum then return maximum end
+  return value
+end
+
+function ei_lib.clamp_integer(value, minimum, maximum, default_value)
+  value = math.floor(tonumber(value) or default_value or minimum or 0)
+  if minimum ~= nil and value < minimum then return minimum end
+  if maximum ~= nil and value > maximum then return maximum end
+  return value
 end
 
 function ei_lib.entity_check(entity)
@@ -504,6 +550,56 @@ function ei_lib.entity_can_take_health_damage(entity)
     end)
 
     return ok and health ~= nil
+end
+
+---@class EiCustomTooltipOptions
+---@field append boolean|nil Append to an existing `custom_tooltip_fields` list instead of replacing it.
+
+---@param prototype table|nil Prototype table to mutate.
+---@param fields table|nil One custom tooltip field or a dense list of custom tooltip fields. Nil clears the field.
+---@param options EiCustomTooltipOptions|boolean|nil Options table, or `true` to append.
+---@return table|nil fields The prototype's resulting `custom_tooltip_fields`, when present.
+function ei_lib.set_custom_tooltip_fields(prototype, fields, options)
+    if type(prototype) ~= "table" then
+        log("ei_lib.set_custom_tooltip_fields: prototype must be a table")
+        return nil
+    end
+
+    if fields == nil then
+        prototype.custom_tooltip_fields = nil
+        return nil
+    end
+
+    if type(fields) ~= "table" then
+        log("ei_lib.set_custom_tooltip_fields: fields must be a table")
+        return prototype.custom_tooltip_fields
+    end
+
+    local incoming = {}
+    if fields.name ~= nil or fields.value ~= nil then
+        incoming[1] = table.deepcopy(fields)
+    else
+        for _, field in ipairs(fields) do
+            if type(field) == "table" then
+                incoming[#incoming + 1] = table.deepcopy(field)
+            end
+        end
+    end
+
+    local append = options == true or (type(options) == "table" and options.append == true)
+    if append then
+        if type(prototype.custom_tooltip_fields) ~= "table" then
+            prototype.custom_tooltip_fields = {}
+        end
+
+        for _, field in ipairs(incoming) do
+            prototype.custom_tooltip_fields[#prototype.custom_tooltip_fields + 1] = field
+        end
+    else
+        prototype.custom_tooltip_fields = incoming
+    end
+
+    return prototype.custom_tooltip_fields
 end
 -- Use ei_lib.raw to access this
 --- Modifies a prototype in `data.raw` using one of three modes:

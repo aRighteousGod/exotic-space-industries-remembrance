@@ -12,7 +12,7 @@ The orchestrator accepts JSON by default and YAML when PyYAML is installed. JSON
   "model_path": "output/meshy/ei-threshold-array/model.glb",
   "model_glob": "output/meshy/ei-threshold-array/*.glb",
   "blender": {
-    "exe": "C:/Program Files/Blender Foundation/Blender 4.4/blender.exe"
+    "exe": "C:/Program Files/Blender Foundation/Blender 5.1/blender.exe"
   },
   "factorio_render_preset": {
     "blend": "factorioRenderingPreset_v4.blend",
@@ -26,9 +26,11 @@ The orchestrator accepts JSON by default and YAML when PyYAML is installed. JSON
 - `output_root`: defaults to `output/meshy/<asset_name>`.
 - `model_path`: preferred input model for render steps.
 - `model_glob`: fallback search when a Meshy download produced a new GLB.
-- `factorio_render_preset`: optional notes/paths for local preset files. The `render_preset` step opens the preset in background Blender and writes outputs under the asset root; it does not modify the source `.blend`.
+- `factorio_render_preset`: paths for local preset files. The `render_preset` step opens the preset in background Blender and writes outputs under the asset root; it does not modify the source `.blend`. Factorio-bound spritesheet specs should include this block unless the task is explicitly non-preset.
 
 `output_root` is ignored generated staging. Keep reusable generators, reproduction scripts, and hand-written asset notes under `.codex/esir/asset-generators/`; keep prompt text under `.codex/esir/art-prompts/`; keep approved shipped PNGs under the appropriate mod graphics folder.
+
+Runtime color masks default to owner-readability only: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Preserve baked ESIR color on neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, and deliberately chromatic assets.
 
 ## Meshy
 
@@ -74,6 +76,8 @@ Maximum-control workflow:
 
 `args` is passed directly to `.codex/skills/meshy-api/scripts/meshy_rest.py`.
 
+When a generated asset needs force/player-colored regions, put that requirement in the prompt as separate neutral material groups or readable trim named `team_color`, `force_trim`, or `color_mask`. Do not ask Meshy to recolor the whole object for team color.
+
 ## Static Render
 
 ```json
@@ -102,7 +106,7 @@ Maximum-control workflow:
 
 Uses `$meshy-blender-spritesheet`.
 
-Set `"factorio_preset_defaults": true` to add `--factorio-preset-defaults`, which changes default scripted values to 384px cells, an 8x8/64-frame sheet, 8 columns, Cycles, and 256 samples unless explicitly overridden.
+If `render_static` is used for an explicitly non-preset diagnostic, set `"factorio_preset_defaults": true` so scripted values still follow the preset as closely as that secondary renderer allows. Do not use `render_static` as the normal smoke or final path for Factorio-bound assets; use `render_preset` with `"quality": "smoke"` for quick checks.
 
 For Meshy image-to-3D assets, auto fitting is on by default. Keep `"auto_ortho_scale": true` or omit it, set `"min_alpha_margin": 16`, and use `"fail_alpha_margin": true` so the renderer expands the orthographic scale until no frame touches the canvas edge. The manifest records `auto_ortho_attempts`, final `ortho_scale`, and per-frame `alpha_bounds`. Set `"auto_ortho_scale": false` only for manual framing comparisons.
 
@@ -134,7 +138,7 @@ For Meshy image-to-3D assets, auto fitting is on by default. Keep `"auto_ortho_s
 
 Uses `$blender-procedural-animation`. Its defaults preserve Factorio-style upper-left lighting and lower-right shadows, and auto-fit all frames against alpha margins before packing the sheet. When `shadow_sheet` is set, the effective margin also accounts for the configured lower-right shadow offset.
 
-Set `"factorio_preset_defaults": true` for 384px, 64-frame, 8-column, Cycles-based scripted animation drafts matching the local preset more closely.
+Set `"factorio_preset_defaults": true` for scripted animation drafts and quick checks so they match the local preset conventions as closely as the procedural renderer allows.
 
 ## Preset Render
 
@@ -176,6 +180,8 @@ Set `"quality": "final"` for higher Cycles samples. Use `"unit_directions": 16` 
 Preflight options let the preset act as a material/framing gate before rendering: `"preflight_only": true`, `"preflight_margin"`, `"auto_ortho_scale"`, `"auto_ortho_max"`, `"fail_framing_risk"`, `"require_light_group"`, `"fail_missing_light_group"`, `"material_report"`, `"warn_alpha_materials"`, and `"fail_alpha_risk"`. Scripted preset renders auto-fit from camera-plane bounds by default and record `auto_ortho_attempts`; set `"auto_ortho_scale": false` only for manual preset parity tests.
 
 Auto-prep is conservative and preset-only. Set `"auto_prep": true` to remove imported cameras/empty meshes, normalize to `"prep_target_size"`, and record cleanup in the render manifest. Optional flags include `"prep_origin_mode": "center|ground"`, `"prep_apply_scale"`, `"prep_delete_empty_meshes"`, `"prep_remove_imported_cameras"`, and `"prep_alpha_mode": "report|force-opaque"`.
+
+The preset `mask` pass produces `object_mask_0.png`/ColorMask-style output. Treat it as unclassified evidence until export review marks it as a runtime-tint mask, manual post-processing source, or unused sheet.
 
 ## Factorio Export
 
@@ -221,7 +227,7 @@ Preset bundle export:
 }
 ```
 
-Use this when Blender has already exported the preset's `Render/.Sheets` passes. The exporter stages base, shadow, mask, light/glare, and water-reflection PNGs and emits a draft layered snippet.
+Use this when Blender has already exported the preset's `Render/.Sheets` passes. The exporter stages base, shadow, mask, light/glare, and water-reflection PNGs and emits a draft layered snippet. Mask sheets are not automatically wired as runtime-tint layers; classify them before promotion.
 
 If `export.mode = "render-bundle"` and `export.bundle` is omitted, the orchestrator uses `{render_preset.output_dir}`. Set `"pack_raw_frames": true` to pack raw preset frame folders with safe PIL logic:
 
@@ -242,6 +248,8 @@ If `export.mode = "render-bundle"` and `export.bundle` is omitted, the orchestra
 ```
 
 The orchestrator also supplies `{render_preset.manifest}` to the exporter, so `render-bundle` can infer direction-major values from the preset run. For a 4-direction/16-frame preset render, snippets should emit `frame_count = 16` and `direction_count = 4`, not a flat 64-frame animation.
+
+If a mask is promoted as a runtime-tint layer, the prototype layer should match the base dimensions, frame count, direction count, shift, and scale, and carry `flags = {"mask"}` plus `apply_runtime_tint = true` on the actual layer. Use `tint_as_overlay = true` only after visual QA confirms overlay blending is intended. Use static `tint` for fixed-color art and runtime `rendering.draw_sprite{tint=...}`/`rendering.draw_animation{tint=...}` for script-rendered effects.
 
 ## Promotion
 
@@ -271,6 +279,7 @@ Findings incorporated from `factorioRenderingPreset_v4.blend`, `Render.zip`, and
 
 - Main mesh goes in `Object > Normal`.
 - Object lights go in `Lights on` and need the `Lights` light group for glow/light exports.
+- Runtime-tint regions should stay as separate `team_color`, `force_trim`, or `color_mask` parts/materials and be exported through the mask pass, not baked into base, shadow, glow, or light.
 - `Scene` should be left alone; `Ground Dirt` can remain or be scaled for contact/shadow.
 - Canvas changes should go through the preset sidebar's `Orthographic Scale` and `Set Resolution`, then tested with `F12`; the preset operator syncs resolution from the chosen ortho scale/tile size and does not auto-fit object bounds. The scripted preset step adds its own preflight auto-fit layer around that template behavior.
 - Repo-compatible compositor output uses paths shaped like `///Render/{export_type}`.
@@ -299,7 +308,7 @@ QA checks dimensions, alpha bounds, missing files, manifest readability, and dra
 Additional visual QA:
 
 - Missing files, invalid JSON, empty alpha, and invalid sheet layouts are errors.
-- Clipping margins, blank tiles, bbox variance, base/shadow/glow dimension mismatch, shadow centroid direction, and duplicate first/last frames are warnings.
+- Clipping margins, blank tiles, bbox variance, base/shadow/glow/mask dimension mismatch, shadow centroid direction, unclassified `object_mask_0.png`, and duplicate first/last frames are warnings.
 - Set `contact_sheet_dir` to write bbox overlay previews for sheet checks.
 
 ## Style And Registry

@@ -1,0 +1,24 @@
+# Oathbreaker Saw Turret Asset Generator
+
+Imports the Meshy GLB source, separates the rotating toothed blade ring from the static turret body while preserving the source textures, then renders through the exact local Factorio preset for camera, lighting, shadows, and compositor passes.
+
+Default source:
+
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python .\.codex\esir\asset-generators\sawblade-turret\prepare_sawblade_turret_model.py -- --source "C:\Users\Theorun\Documents\Development\Meshy_AI_circular_saw_defensiv_0506203053_texture.glb" --out .\output\meshy\ei-sawblade-turret\prepared\ei-sawblade-turret-prepared.glb
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python .\.codex\esir\asset-generators\sawblade-turret\export_sawblade_turret_roles.py -- --prepared .\output\meshy\ei-sawblade-turret\prepared\ei-sawblade-turret-prepared.glb --out-dir .\output\meshy\ei-sawblade-turret\prepared\roles
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python .\.codex\skills\meshy-blender-spritesheet\scripts\render_factorio_preset.py -- --preset-blend .\factorioRenderingPreset_v4.blend --input .\output\meshy\ei-sawblade-turret\prepared\roles\ei-sawblade-turret-full.glb --asset-name ei-sawblade-turret-full --output-dir .\output\meshy\ei-sawblade-turret\Render-full --passes object,shadow --quality final --samples 128 --frames 1 --directions 1 --animation-frames 1 --ortho-scale 6 --tile-size 64 --resolution 384 --grid 1x1 --pack-sheets --no-normalize --no-parent-to-rotation --material-report --footprint-tiles 2x2
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python .\.codex\skills\meshy-blender-spritesheet\scripts\render_factorio_preset.py -- --preset-blend .\factorioRenderingPreset_v4.blend --input .\output\meshy\ei-sawblade-turret\prepared\roles\ei-sawblade-turret-body-only.glb --asset-name ei-sawblade-turret-body --output-dir .\output\meshy\ei-sawblade-turret\Render-body --passes object,shadow --quality final --samples 128 --frames 1 --directions 1 --animation-frames 1 --ortho-scale 6 --tile-size 64 --resolution 384 --grid 1x1 --pack-sheets --no-normalize --no-parent-to-rotation --material-report --footprint-tiles 2x2
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python .\.codex\skills\meshy-blender-spritesheet\scripts\render_factorio_preset.py -- --preset-blend .\factorioRenderingPreset_v4.blend --input .\output\meshy\ei-sawblade-turret\prepared\roles\ei-sawblade-turret-blade-only.glb --asset-name ei-sawblade-turret-blade --output-dir .\output\meshy\ei-sawblade-turret\Render-blade --passes object,shadow --quality final --samples 128 --frames 64 --directions 1 --animation-frames 64 --ortho-scale 6 --tile-size 64 --resolution 384 --grid 8x8 --pack-sheets --no-normalize --no-parent-to-rotation --spin-object ei-sawblade-turret-blade --spin-axis z --spin-degrees 360 --spin-frames 64 --material-report --footprint-tiles 2x2
+python .\.codex\esir\asset-generators\sawblade-turret\compose_sawblade_turret_assets.py --out .\output\meshy\ei-sawblade-turret --full-render-dir .\output\meshy\ei-sawblade-turret\Render-full --body-render-dir .\output\meshy\ei-sawblade-turret\Render-body --blade-render-dir .\output\meshy\ei-sawblade-turret\Render-blade --attack-frame-order reverse --promote --graphics-root .\exotic-space-industries-remembrance\graphics
+```
+
+The prep heuristic treats the rotating blade as the high, outer annulus of the model. The blade overlay uses only the large exposed ring and high-radius tooth islands; the static body uses a broader upper-blade cut so hidden tooth/collar geometry cannot ghost underneath the runtime blade layer. The top cap and lower chassis stay static.
+
+Render full, body-only, and blade-only roles separately. `sawblade-turret.png` is body-only, `sawblade-turret-blade.png` is the idle runtime overlay, and `sawblade-turret-attack.png` is the same blade-only role rendered as a 64-frame spin loop. The compositor defaults to `--attack-frame-order reverse`, anchoring frame 0 and then walking frames 63..1 so the attack starts from the idle pose but spins opposite the Blender render order.
+
+The prep script defaults to preserving source materials. Use `--legacy-material-overrides` only to reproduce the first-pass dark body / silver blade material replacement.
+
+`sawblade-turret-attack-shadow.png` is intentionally empty unless a future visual review proves a blade-only rotating shadow is worth the extra runtime/state complexity. Do not wire a full-body attack shadow.
+
+The technology icon writes separate underlay and entity layer PNGs. The mod prototype combines them in-game with Factorio `icons`; `sawblade-turret-preview.png` is a staged review composite only.

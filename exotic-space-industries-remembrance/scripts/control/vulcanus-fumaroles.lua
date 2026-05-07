@@ -1336,6 +1336,7 @@ end
 
 local clear_dormant_chunk
 local get_untouched_lifetime_ticks
+local register_active_fumarole
 
 local function destroy_breach_blocker(blocker)
     if not ei_lib.entity_check(blocker) then
@@ -1517,7 +1518,7 @@ local function finalize_closure(state, record, reason, current_tick)
     refresh_active_floor_state(state, current_tick)
 end
 
-local function register_active_fumarole(state, surface, chunk_x, chunk_y, entity, amount, current_tick)
+register_active_fumarole = function(state, surface, chunk_x, chunk_y, entity, amount, current_tick)
     current_tick = resolve_tick(current_tick)
     local key = chunk_key(surface.index, chunk_x, chunk_y)
     local position = entity.position

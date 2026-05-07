@@ -8,6 +8,7 @@ Run with Blender:
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import math
 import os
@@ -87,6 +88,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--prep-target-size", type=float, default=2.0, help="Largest normalized mesh dimension before preset render.")
     parser.add_argument("--prep-remove-imported-cameras", action="store_true", help="Remove cameras imported with the model.")
     parser.add_argument("--prep-delete-empty-meshes", action="store_true", help="Delete imported mesh objects with no polygons.")
+    parser.add_argument("--prep-delete-unmaterialed-meshes", action="store_true", help="Delete imported mesh objects that have no material slots.")
+    parser.add_argument("--prep-delete-mesh-name-glob", action="append", default=[], help="Delete imported mesh objects matching a glob, e.g. Icosphere*. May be repeated.")
     parser.add_argument("--prep-alpha-mode", choices=["report", "force-opaque"], default="report", help="Report alpha material risks or force imported materials opaque.")
     parser.add_argument("--prep-apply-scale", action="store_true", help="Apply imported mesh scale transforms before normalization.")
     parser.add_argument("--dry-run", action="store_true", help="Configure the preset and write a manifest without rendering.")
@@ -439,6 +442,7 @@ def force_opaque_alpha_materials(objects: list[bpy.types.Object]) -> list[dict[s
             before = {
                 "blend_method": getattr(mat, "blend_method", None),
                 "use_nodes": bool(getattr(mat, "use_nodes", False)),
+                "alpha_links_removed": 0,
             }
             touched = False
             if getattr(mat, "blend_method", "OPAQUE") != "OPAQUE":
@@ -446,9 +450,15 @@ def force_opaque_alpha_materials(objects: list[bpy.types.Object]) -> list[dict[s
                 touched = True
             if mat.use_nodes and mat.node_tree:
                 bsdf = mat.node_tree.nodes.get("Principled BSDF")
-                if bsdf and "Alpha" in bsdf.inputs and bsdf.inputs["Alpha"].default_value < 1:
-                    bsdf.inputs["Alpha"].default_value = 1
-                    touched = True
+                if bsdf and "Alpha" in bsdf.inputs:
+                    alpha = bsdf.inputs["Alpha"]
+                    for link in list(alpha.links):
+                        mat.node_tree.links.remove(link)
+                        before["alpha_links_removed"] += 1
+                        touched = True
+                    if alpha.default_value < 1:
+                        alpha.default_value = 1
+                        touched = True
             if touched:
                 changed.append({"object": obj.name, "material": mat.name, "before": before})
     return changed
@@ -460,6 +470,8 @@ def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.N
             args.auto_prep,
             args.prep_remove_imported_cameras,
             args.prep_delete_empty_meshes,
+            args.prep_delete_unmaterialed_meshes,
+            bool(args.prep_delete_mesh_name_glob),
             args.prep_apply_scale,
             args.prep_alpha_mode == "force-opaque",
         ]
@@ -471,6 +483,7 @@ def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.N
         "alpha_mode": args.prep_alpha_mode,
         "removed_imported_cameras": [],
         "deleted_empty_meshes": [],
+        "deleted_meshes": [],
         "forced_opaque_materials": [],
         "applied_scale": False,
     }
@@ -479,12 +492,24 @@ def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.N
     remove_cameras = args.auto_prep or args.prep_remove_imported_cameras
     delete_empty = args.auto_prep or args.prep_delete_empty_meshes
     for obj in list(objects):
+        name_match = obj.type == "MESH" and any(fnmatch.fnmatchcase(obj.name, pattern) for pattern in args.prep_delete_mesh_name_glob)
+        unmaterialed = obj.type == "MESH" and args.prep_delete_unmaterialed_meshes and not any(slot.material for slot in obj.material_slots)
         if remove_cameras and obj.type == "CAMERA":
             report["removed_imported_cameras"].append(obj.name)
             bpy.data.objects.remove(obj, do_unlink=True)
             objects.remove(obj)
         elif delete_empty and obj.type == "MESH" and len(obj.data.polygons) == 0:
             report["deleted_empty_meshes"].append(obj.name)
+            bpy.data.objects.remove(obj, do_unlink=True)
+            objects.remove(obj)
+        elif name_match or unmaterialed:
+            report["deleted_meshes"].append(
+                {
+                    "name": obj.name,
+                    "polygons": len(obj.data.polygons),
+                    "reason": "name_glob" if name_match else "unmaterialed",
+                }
+            )
             bpy.data.objects.remove(obj, do_unlink=True)
             objects.remove(obj)
     if args.prep_apply_scale:

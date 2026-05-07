@@ -14,17 +14,19 @@ Use this skill when an asset needs a reproducible end-to-end dossier instead of 
 - Use `plan` or `--dry-run` before any credit-spending Meshy step.
 - Never store, print, or request Meshy API keys. Meshy helpers read only `MESHY_API_KEY`.
 - Do not copy assets into ESIR graphics folders or edit prototypes unless the user explicitly asks after staging.
-- Keep Factorio lighting assumptions intact: upper-left baked light, lower-right staged shadows, separate shadow/glow/light layers.
-- Use the local `factorioRenderingPreset_v4.blend` and `Render.zip` conventions when the user asks for maximum fidelity or preset-compatible output.
+- Keep Factorio preset assumptions intact by default: orthographic camera, upper-left baked light, lower-right staged shadows, separate base/shadow/glow/light/mask layers, and preset-compatible sheet layout.
+- Use the local `factorioRenderingPreset_v4.blend`, `render_factorio_preset.py`, and `Render.zip` conventions for Factorio-bound spritesheets unless the user explicitly asks for a non-preset experiment.
+- Classify every preset render output before promotion as base, shadow, glow/light, runtime color mask, water reflection, manual mask source, unused evidence, or baked color. Do not treat `object_mask_0.png` as wired just because it was staged.
+- Runtime color masks default to owner-readability only: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Preserve baked ESIR color on neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, and deliberately chromatic assets.
 - Preserve every command and artifact path in the dossier so the pipeline can be replayed.
 
 ## Workflow
 
 1. Create or update an asset spec.
 2. Run `plan` to inspect commands and inferred paths.
-3. Run individual steps until the output looks good. Auto ortho fitting is the default for static, procedural, and scripted preset renders; keep `min_alpha_margin`/`preflight_margin` enabled before export so the render expands only as much as needed to avoid clipping. Use `render_preset` for the local Factorio `.blend` path when maximum fidelity matters.
+3. Run individual steps until the output looks good. `render_preset` is the default final render path for Factorio-bound static or directional spritesheets. Auto ortho fitting is still required for static, procedural, and scripted preset renders; keep `min_alpha_margin`/`preflight_margin` enabled before export so the render expands only as much as needed to avoid clipping.
 4. Run `qa` and inspect previews/bbox overlays. Enable `style` to compare staged PNGs against the local ESIR graphics baseline. Treat low frame occupancy, weak silhouette contrast, or black-material detail loss as a rerender cue rather than a promotion candidate.
-5. Stage Factorio snippets and previews with the export step. Multi-sheet exports remain staged as Factorio `stripes`.
+5. Stage Factorio snippets and previews with the export step. Multi-sheet exports remain staged as Factorio `stripes`; runtime color-mask layers still require explicit classification and prototype wiring.
 6. Enable `gallery` to write an HTML approval page with previews, warnings, snippets, and dossier links.
 7. Enable `registry` to update the manifest-backed asset index with hashes, roles, QA status, and manual review fields; use the `registry` command to browse or mark queue status.
 8. Use `batch` for sequential variant runs and `estimate` before expensive render batches.
@@ -88,7 +90,7 @@ python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py registry 
   --html output/meshy/asset-index.html
 ```
 
-Stage a preset bundle through the orchestrator by setting `export.mode = "render-bundle"`. If `export.bundle` is omitted, it consumes `render_preset.output_dir`; pass `export.pack_raw_frames = true` to pack raw `Render/Object/*.png` folders.
+Stage the preset bundle through the orchestrator by setting `export.mode = "render-bundle"`. If `export.bundle` is omitted, it consumes `render_preset.output_dir`; pass `export.pack_raw_frames = true` to pack raw `Render/Object/*.png` folders.
 
 Read `references/pipeline-spec.md` before authoring a complex spec or changing defaults.
 

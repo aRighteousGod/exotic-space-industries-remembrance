@@ -1,6 +1,7 @@
 -- settings for Exotic Industries
 ei_lib = require("lib/lib")
-local severance_array_config = require("lib/severance-array-config")
+local singularity_lance_config = require("lib/singularity-lance-config")
+local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
@@ -296,7 +297,8 @@ data:extend({
       maximum_value = 100,
       order  = "b5",
   },
-  severance_array_config.startup_setting_definition(),
+  singularity_lance_config.startup_setting_definition(),
+  gaian_saucer_wake_config.startup_setting_definition(),
   {
       name = "ei-ticks_per_full_update",
       type = "int-setting",

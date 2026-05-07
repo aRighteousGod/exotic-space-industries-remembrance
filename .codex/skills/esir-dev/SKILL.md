@@ -1,6 +1,6 @@
 ---
 name: esir-dev
-description: "ESIR-first repo-local development surface for Exotic Space Industries: Remembrance. Use when Codex should work faster inside this workspace by relying on checked-in manifests, the ESIR wrapper command, Factorio QC delegation, Mod Portal scouting, save catalog resolution, art/browser session handoff, cache diffing, packaging, or ESIR-specific runtime/prototype maps."
+description: "ESIR-first repo-local development surface for Exotic Space Industries: Remembrance. Use when Codex should work faster inside this workspace by relying on checked-in manifests, the ESIR wrapper command, Factorio QC delegation, Mod Portal scouting, save catalog resolution, Lua/runtime/prototype helper routing, Meshy/Blender asset pipeline routing, Factorio asset export, item icon prep, recipe icon style audits, art/browser session handoff, cache diffing, packaging, or ESIR-specific runtime/prototype maps."
 ---
 
 # ESIR Dev
@@ -15,6 +15,11 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 
 - `factorio-mod-qc` for headless Factorio validation, package dry-runs, and Mod Portal metadata
 - `chatgpt-firefox-companion` for supervised Firefox image sessions
+- `esir-dependency-intel` for dependency declarations, compatibility touchpoints, remote interfaces, and local installed-mod enrichment
+- `factorio-lua-assumptions` and `factorio-lua-docs` for Factorio Lua lifecycle/API truth
+- `esir-lib-first`, `esir-lua-types`, and `esir-runtime-gui` for ESIR Lua helper reuse, LuaLS annotations, and runtime GUI house style
+- `esir-asset-pipeline`, `meshy-api`, `meshy-blender-spritesheet`, `blender-procedural-animation`, `esir-factorio-asset-export`, and `esir-item-icon-prep` for the generated-art-to-Factorio asset path
+- `esir-recipe-icon-style` for recipe icon readability, companion-baseline drift, visibility, sorting, and signal cleanup audits
 
 ## Task Map
 
@@ -40,18 +45,54 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Keep raw caches and generated staging in `.factorio-qc` or ignored `output/`; stable manifests stay checked in.
 - Keep durable ESIR asset generator scripts and generator-specific notes in `.codex/esir/asset-generators/`, not in `output/`. Keep hand-written art prompts in `.codex/esir/art-prompts/` unless the user intentionally wants the older top-level `art-prompts/` tree.
 - Treat `exotic-space-industries-remembrance*/graphics/` as the shipping surface for approved/promoted PNGs, not as scratch staging.
+- Factorio-bound spritesheet work defaults to the local Factorio rendering preset conventions, including smoke/preflight checks: orthographic camera, upper-left lighting, lower-right shadows, separate base/shadow/light/mask passes, and preset-compatible sheet layout. Use non-preset rendering only when the user specifically asks for it or when debugging the renderer tooling itself.
+- For force color, player color, runtime tint, color mask, or overlay mask work, route through official `factorio-lua-docs` first, then the asset path skills. Default to owner-readability masks only: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Do not add automatic runtime tint to neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, or assets whose baked ESIR chromatic identity should remain fixed.
 - The checked-in dependency catalog is intentionally limited to declared pack dependencies plus ESIR touchpoints. Local installed mod roots are query-time enrichment only.
 - Before applying generic Lua advice to ESIR code, use the repo-local `factorio-lua-assumptions` skill to check Factorio's staged lifecycle, sandboxed libraries, storage rules, `require()` behavior, deterministic runtime changes, and LuaObject validity semantics.
 - For official Factorio API or wiki questions, prefer the repo-local `factorio-lua-docs` skill and `scripts\invoke-factorio-lua-docs.ps1` before broad web search or memory.
+- When editing ESIR Lua and the change touches function signatures, runtime state, option tables, GUI tags, scheduler payloads, prototype records, or module exports, use the repo-local [`esir-lua-types`](../esir-lua-types/SKILL.md) skill to add high-signal LuaLS annotations without forcing unrelated annotation churn.
+- For ESIR recipe icon readability, subgroup/order drift, Factoriopedia visibility, player-crafting visibility, recipe signal cleanup, or companion-style batch review, use the repo-local [`esir-recipe-icon-style`](../esir-recipe-icon-style/SKILL.md) skill before ad hoc prototype edits.
 - `pack-deploy` is intentionally mutating. Prefer `pack-dryrun` unless the user explicitly wants `%APPDATA%\Factorio\mods` updated.
 - Encoding detection is part of `preflight` and the `qc-*` wrapper surface. Pass `-FixEncoding` when you want the harness to rewrite non-UTF-8 or repaired mojibake sources as UTF-8.
 - Keep commentary current during ESIR work. As context changes, say what you are inspecting, what you are changing next, and what you verified; do not go quiet through long repo-specific work.
 - When a shared helper surface changes in a way future Codex runs should follow, update the matching skill/reference guidance in the same patch.
 - When a patch leaves deferred implementation work, migration debt, upgrade hooks, or intentionally local behavior worth revisiting, add or update a short note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) in the same patch. Remove or close the note when the follow-up is done.
+- Runtime script files should keep useful comments by default: preserve or add the ESIR file-map header, state-machine summaries, lifecycle/cadence notes, storage ownership notes, Factorio/Lua caveats, and non-obvious invariants. Do not add comments that merely restate simple assignments or control flow.
 - Runtime scripts should strive to use `event.tick` over `game.tick` wherever an event context already provides the tick.
 - When editing non-English locale files, write bespoke idiomatic translations for the target language instead of mechanically mirroring the English text.
 - For entity-specific runtime GUI, prefer `player.gui.relative` first. Reach for `player.gui.screen` only when the panel is modal or intentionally detachable, and use `mod_gui` only for persistent global mod controls.
 - Default new runtime work to event-first control. Before adding `on_tick`, `on_nth_tick`, or a persistent queue, check whether explicit lifecycle hooks, delayed one-shots, or `script.register_on_object_destroyed` can express the behavior cleanly.
+
+## Repo-Local Skill Router
+
+Use these specialist skills early instead of letting `esir-dev` absorb the whole task:
+
+- [`esir-dependency-intel`](../esir-dependency-intel/SKILL.md): dependency declarations, remote interfaces, dependency touchpoints, planet/content integrations, and local installed-mod presence.
+- [`factorio-lua-assumptions`](../factorio-lua-assumptions/SKILL.md): Lua sandbox, lifecycle, storage, `require()`, deterministic runtime behavior, `data.raw` versus runtime state, and LuaObject validity.
+- [`factorio-lua-docs`](../factorio-lua-docs/SKILL.md): official Factorio runtime, prototype, auxiliary, and wiki scripting docs, including `apply_runtime_tint`, `tint_as_overlay`, `LuaEntity.color`, `LuaPlayer.color`, and rolling-stock color behavior.
+- [`esir-lib-first`](../esir-lib-first/SKILL.md): shared `ei_lib` helpers before adding local Lua helpers, including recipe/prototype mutation, table/string helpers, tint/config utilities, and runtime entity safety.
+- [`esir-lua-types`](../esir-lua-types/SKILL.md): LuaLS/EmmyLua annotations for signatures, storage/state shapes, option tables, GUI tags, scheduler payloads, prototype records, and module exports.
+- [`esir-runtime-gui`](../esir-runtime-gui/SKILL.md): runtime GUI surfaces, relative anchors, root names, style vocabulary, tag routing, stale-root teardown, and entity-bound lifecycle.
+- [`esir-asset-pipeline`](../esir-asset-pipeline/SKILL.md): replayable Meshy/Blender/Factorio preset-based asset dossiers with QA, output-role classification, previews, manifests, and promotion planning.
+- [`meshy-api`](../meshy-api/SKILL.md): Meshy generation, balance checks, polling, downloads, manual asset handoff, and safe `MESHY_API_KEY` handling.
+- [`meshy-blender-spritesheet`](../meshy-blender-spritesheet/SKILL.md): static or directional Factorio-preset spritesheet renders from Meshy GLBs or other Blender-compatible models, including named `team_color`/`force_trim`/`color_mask` regions when owner-readability requires runtime tint.
+- [`blender-procedural-animation`](../blender-procedural-animation/SKILL.md): non-human procedural motion for ESIR machines, gates, crystals, orbitals, props, and preset-compatible transparent animation sheets.
+- [`esir-factorio-asset-export`](../esir-factorio-asset-export/SKILL.md): staged Factorio-ready previews, manifests, Lua snippets, galleries, render-bundle export, runtime color-mask classification, and dry-run promotion plans.
+- [`esir-item-icon-prep`](../esir-item-icon-prep/SKILL.md): source item art cleanup and transparent `128/64/32` mipmapped icon strips.
+- [`esir-recipe-icon-style`](../esir-recipe-icon-style/SKILL.md): recipe icon readability, companion-mod baseline drift, sorting/order drift, hiding/visibility behavior, and recipe signal cleanup.
+
+When a task spans several specialists, start with the broadest orchestrator (`esir-asset-pipeline` for assets, `esir-dev` wrapper tasks for QC/runtime, or `esir-dependency-intel` for dependency questions), then load narrower skills as the work crosses their boundary.
+
+## Art And Asset Routing
+
+- Use `esir-asset-pipeline` when a generated or imported asset needs an end-to-end, replayable dossier across Meshy, Blender, QA, Factorio export, previews, and manifests.
+- Use `meshy-api` for Meshy generation, task polling, downloads, balance checks, or manual Meshy asset handoff. Run dry plans before credit-spending steps and read credentials only from `MESHY_API_KEY`.
+- Use `meshy-blender-spritesheet` for static or directional renders from Meshy GLBs or other Blender-compatible models; default to `factorioRenderingPreset_v4.blend`/`render_factorio_preset.py` rather than ad hoc camera, lighting, or shadow setups.
+- Use `blender-procedural-animation` when an ESIR machine, gate, crystal, orbital, prop, or Meshy model needs readable non-human procedural motion; keep preset-compatible lighting, orthographic framing, and separate lower-right shadow sheets unless explicitly asked otherwise.
+- Use `esir-factorio-asset-export` after any art workflow produces source PNGs, sheets, or render bundles that should become staged Factorio/ESIR drafts. Prefer preset `render-bundle` exports for final review and keep promotion dry-run unless explicitly approved.
+- For runtime-tinted force/player color overlays, keep the mask as a separate neutral/white sheet and wire it as a sprite/animation layer with `flags = {"mask"}` and `apply_runtime_tint = true` on that layer. When `layers` exists, never put tint fields only on the parent. Treat `FluidWagonColorMask` by yeahtoast as a read-only precedent for the pattern; do not copy third-party art or code.
+- Use `esir-item-icon-prep` when source item art needs background cleanup and a transparent `128/64/32` mipmapped item icon strip.
+- Use `esir-recipe-icon-style` when work touches recipe icon readability, companion-style overlays, subgroup/order drift, Factoriopedia visibility, player-crafting visibility, or recipe signal cleanup.
 
 ## ESIR QC Helpers
 
@@ -60,7 +101,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - The fluid rupture helper lives at [`assets/zzz-fluid-rupture-qc_0.0.1`](./assets/zzz-fluid-rupture-qc_0.0.1). Use [`references/fluid-rupture-qc-helper.md`](./references/fluid-rupture-qc-helper.md) when a run needs deterministic fluid-safety and flammable-rupture coverage with QC snapshots from the shared rupture runtime.
 - The orbital logistics cohort helper lives at [`assets/zzz-orbital-logistics-qc_0.0.1`](./assets/zzz-orbital-logistics-qc_0.0.1). Use [`references/orbital-logistics-qc-helper.md`](./references/orbital-logistics-qc-helper.md) when a run needs a save-driven cohort with live platform IDs, selector setup, coordinator arbitration, uplink leases, and structured orbital QC snapshots.
 - The research hitch helper lives at [`assets/zzz-research-hitch-qc_0.0.1`](./assets/zzz-research-hitch-qc_0.0.1). Use [`references/research-hitch-qc-helper.md`](./references/research-hitch-qc-helper.md) when a run needs late-game research-completion hitch coverage with Tesla, EM train, and tech-scaling snapshots.
-- The Severance Array helper lives at [`assets/zzz-severance-array-qc_0.0.1`](./assets/zzz-severance-array-qc_0.0.1). Use [`references/severance-array-qc-helper.md`](./references/severance-array-qc-helper.md) when a run needs dense quantum-turret sweep coverage with scripted damage and visual-slice telemetry.
+- The Singularity Lance helper lives at [`assets/zzz-singularity-lance-qc_0.0.1`](./assets/zzz-singularity-lance-qc_0.0.1). Use [`references/singularity-lance-qc-helper.md`](./references/singularity-lance-qc-helper.md) when a run needs dense alien-age turret sweep coverage with scripted damage and visual-slice telemetry.
 - The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
 - Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
 
@@ -82,11 +123,29 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task dep
 
 Refresh the dependency catalog whenever dependency declarations or compatibility touchpoints change.
 
+## Recipe Prototype Icon And Visibility Review
+
+Use the repo-local [`esir-recipe-icon-style`](../esir-recipe-icon-style/SKILL.md) skill when the main question is about recipe icon layers, sorting/order drift, hiding or visibility behavior, recipe signal cleanup, or comparing ESIR prototypes against the local `recipe-icons-improvement-for-esir` companion baseline.
+
+Start non-mutating with the companion probe and recipe audit before planning source edits.
+
+## Runtime Script Comments
+
+Default ESIR runtime/control edits should leave helpful comments in place and add them where the next maintainer or agent would otherwise have to reconstruct intent from event wiring.
+
+- Keep or add the `ESIR FILE MAP` header for substantial runtime modules: `owns`, `loaded_by`, `cadence`, forwarded events, `storage_roots`, GUI IDs, remote interfaces, and rebuild triggers.
+- Add short orientation comments before dense state machines, lifecycle repair paths, scheduler/backstop logic, proxy-entity ownership, telemetry mirrors, migration/rebuild behavior, and Factorio API caveats.
+- Prefer comments that explain why a runtime invariant exists, what owns a piece of derived state, or which event boundary keeps the module cheap.
+- Avoid decorative comments and comments that only translate obvious Lua syntax. If a helper name can carry the meaning cleanly, prefer the name.
+- When adding LuaLS annotations through [`esir-lua-types`](../esir-lua-types/SKILL.md), keep prose comments for intent and annotations for editor-visible shape; do not make one substitute for the other.
+
 ## Factorio Lua Docs
 
 Use the repo-local `factorio-lua-docs` skill when the main question is about official Factorio runtime, prototype, auxiliary, or wiki scripting documentation.
 
 Use the repo-local `factorio-lua-assumptions` skill first when the risk is a wrong generic-Lua assumption rather than a missing symbol lookup.
+
+Use [`esir-lua-types`](../esir-lua-types/SKILL.md) when the work should improve LuaLS/EmmyLua editor fidelity for ESIR Lua. It defaults to touched-code annotations and supports explicit whole-module or whole-codebase typing passes.
 
 Preferred commands:
 
@@ -101,6 +160,9 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 
 - Prefer `ei_lib` reuse for general string or table helpers, `data.raw` mutation, recipe or technology mutation, echo or notification formatting, tint helpers, and other cross-module utility behavior.
 - If an existing `ei_lib` function is close but missing a guard, default, or narrow capability, extend it compatibly before adding a parallel local helper with overlapping behavior. For runtime queue, delayed-bucket, telemetry-gate, counter, cadence, or status-snapshot plumbing, the `Runtime Scheduler Rules` section below wins.
+- Prefer `ei_lib.copy_array` for dense sequence copies, `ei_lib.copy_preset` for visual-fidelity/config preset snapshots, and `ei_lib.clamp_number` or `ei_lib.clamp_integer` for setting/cap normalization. Use `ei_lib.clamp` only when the value is already numeric.
+- Prefer `ei_lib.set_custom_tooltip_fields(prototype, fields, opts)` when writing Factorio `custom_tooltip_fields`; use `opts.append = true` for compatibility pass-throughs that add rows without owning the whole tooltip.
+- For startup preset/config module style, including visual-fidelity settings and runtime snapshots, read [`esir-lib-first/references/preset-config-pattern.md`](../esir-lib-first/references/preset-config-pattern.md).
 
 ## Locale Rules
 
@@ -200,6 +262,9 @@ When parallel read-only help is useful, use the playbook in [`references/agent-p
 - `event-determinism explorer`
 - `runtime-api explorer`
 - `prototype-api explorer`
+- `tint-api explorer`
+- `asset-mask explorer`
+- `third-party-art-precedent explorer`
 - `auxiliary-docs explorer`
 - `wiki-guidance explorer`
 

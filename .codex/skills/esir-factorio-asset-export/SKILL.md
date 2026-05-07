@@ -13,16 +13,20 @@ Use this skill after `$meshy-blender-spritesheet`, `$meshy-api`, or any other ar
 - Treat `output/` as ignored generated staging only. Do not leave the only copy of a reusable generator script, hand-written note, or prompt there; promote durable sources to `.codex/esir/asset-generators/` or `.codex/esir/art-prompts/`.
 - Do not copy files into `exotic-space-industries-remembrance/graphics/` or edit prototypes unless the user explicitly asks for that follow-up. Promotion remains dry-run unless `--execute` is passed.
 - Do not treat a generated sheet as shippable until the preview has been inspected.
+- For generated item or technology icon underlays/overlays, keep each semantic layer as its own transparent PNG and wire the prototype with Factorio `icons` entries so the game composites them. A baked composite may be emitted as a preview artifact, but it must not be the only shipped asset unless the user explicitly asks for a flattened icon.
 - During preview inspection, reject or rerender drafts whose sprite occupies too little of each frame, loses its silhouette at Factorio scale, touches/cuts off at a frame edge, or has minimal contrast because the material is near-black. If a render manifest includes `alpha_bounds`, treat non-empty `warnings` or margins below the requested `min_alpha_margin` as a rerender cue.
+- For Factorio-bound sprites from Blender or Meshy, prefer preset `render-bundle` manifests with base, shadow, light/glow, and mask passes. Treat single-sheet entity/machine exports without a shadow or preset-equivalent manifest as draft-only unless the user explicitly requested no shadow or non-preset output.
+- Treat staged `object_mask_0.png` as unclassified until review marks it as a runtime-tint mask, manual post-processing source, or unused evidence. The exporter stages masks; it does not mean the prototype is colorable until the Lua layer explicitly includes `flags = {"mask"}` and `apply_runtime_tint = true`.
+- Runtime-tint masks are for owner-readability only: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Do not promote masks for neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, or assets whose baked ESIR chromatic identity should remain fixed.
 - Keep Meshy credentials out of this workflow. This skill does not need API keys.
 - For item icons, reuse the repo-local `$esir-item-icon-prep` behavior instead of hand-building mip strips.
 
 ## Modes
 
-- `entity`: one-frame or directional entity sheets, with optional shadow sheet.
-- `machine`: base machine sheet, optional base shadow, and optional `working_visualisations` animation sheet.
+- `entity`: one-frame or directional entity sheets. Factorio-bound entities should include a separate shadow sheet unless explicitly no-shadow.
+- `machine`: base machine sheet plus shadow, with optional `working_visualisations` animation sheet and matching working shadow.
 - `icon`: source art to a staged `128/64/32` Factorio item icon strip.
-- `render-bundle`: staged output from the local Factorio rendering preset, such as `Render.zip`, an extracted `Render/.Sheets` folder, or raw `Render/Object/*.png` frame folders, preserving base, shadow, mask, light, glare, and water-reflection sheets. Large exports can emit Factorio `stripes`.
+- `render-bundle`: staged output from the local Factorio rendering preset, such as `Render.zip`, an extracted `Render/.Sheets` folder, or raw `Render/Object/*.png` frame folders, preserving base, shadow, mask, light, glare, and water-reflection sheets. Large exports can emit Factorio `stripes`; mask sheets still need manual classification before prototype wiring.
 - `promote`: dry-run or explicitly execute narrow asset copies and marker-delimited prototype patching from a staged manifest, with optional asset-count and prototype-identity guards.
 - `gallery`: static visual approval HTML over staged manifests and preview/source PNGs.
 
@@ -134,6 +138,6 @@ Each run writes staged files only:
 
 These staged files remain generated review artifacts under ignored `output/`. Commit final approved PNGs only after promotion into the mod graphics packs, and commit reproducible procedural source scripts under `.codex/esir/asset-generators/` instead of under an output `source/` folder.
 
-The Lua snippet assumes the staged PNGs will eventually be copied into the graphics folder matching the selected path variable, such as `ei_graphics_entity_path` or `ei_graphics_item_path`. Icon snippets are prototype-table field fragments and keep trailing commas for pasteability inside an item prototype. `--snippet-template`, `--target-prototype-type`, `--target-prototype-name`, and `--target-field` add prototype-aware comments and manifest metadata for safer promotion planning; they do not copy or patch anything.
+The Lua snippet assumes the staged PNGs will eventually be copied into the graphics folder matching the selected path variable, such as `ei_graphics_entity_path` or `ei_graphics_item_path`. Icon snippets are prototype-table field fragments and keep trailing commas for pasteability inside an item prototype. `--snippet-template`, `--target-prototype-type`, `--target-prototype-name`, and `--target-field` add prototype-aware comments and manifest metadata for safer promotion planning; they do not copy or patch anything. Preset mask sheets remain staged evidence unless the snippet or later prototype patch explicitly wires a mask layer with `flags = {"mask"}` and `apply_runtime_tint = true`.
 
 `promote` prints the exact copy and patch plan by default. It only copies PNGs or edits Lua when `--execute` is present, and prototype patching requires explicit `-- ESIR_ASSET_PROMOTE_START <prototype-name> <field>` / `-- ESIR_ASSET_PROMOTE_END <prototype-name> <field>` markers. Use `--prototype-integration data-raw-assignment` when a marker block should become a guarded `data.raw["type"]["name"].field = ...` assignment instead of a raw snippet fragment.

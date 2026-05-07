@@ -244,6 +244,19 @@ ei_data.science["exotic-age"] = {
     {"ei-exotic-age-tech",1},
 }
 
+ei_data.science["exotic-age-space"] = {
+    {"ei-dark-age-tech",1},
+    {"ei-steam-age-tech",1},
+    {"ei-electricity-age-tech",1},
+    {"ei-computer-age-tech",1},
+    {"ei-advanced-computer-age-tech",1},
+    {"ei-alien-computer-age-tech",1},
+    {"ei-quantum-age-tech",1},
+    {"ei-fusion-quantum-age-tech",1},
+    {"ei-exotic-age-tech",1},
+    {"space-science-pack",1},
+}
+
 ei_data.science["black-hole-exotic-age"] = {
     {"ei-dark-age-tech",1},
     {"ei-steam-age-tech",1},
@@ -437,7 +450,6 @@ ei_data.add_to_sub_age["fusion-quantum-age"] = {
     "mining-productivity-4",
     "worker-robots-speed-6",
     "research-speed-6",
-    "laser-weapons-damage-7",
     "stronger-explosives-7",
 }
 
@@ -741,6 +753,7 @@ ei_data.tech_structure["exotic-age"] = {
     "inserter-capacity-bonus-7",
     "weapon-shooting-speed-7",
     "physical-projectile-damage-7",
+    "laser-weapons-damage-7",
 }
 
 ei_data.tech_structure["black-hole-exotic-age"] = {

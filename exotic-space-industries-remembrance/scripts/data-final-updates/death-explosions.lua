@@ -46,6 +46,7 @@ local entity_types = {
   "roboport",
   "rocket-silo",
   "solar-panel",
+  "spider-vehicle",
   "splitter",
   "storage-tank",
   "transport-belt",
@@ -146,6 +147,7 @@ local family_order = {
   "electric-logistics",
   "signal",
   "ballistic",
+  "sawblade",
   "chemical",
   "quantum",
   "alien",
@@ -244,6 +246,9 @@ local family_assignments = {
     "ei-gatling-turret",
     "ei-shotgun-turret",
   },
+  sawblade = {
+    "ei-sawblade-turret",
+  },
   chemical = {
     "ei-acidthrower-turret",
   },
@@ -262,7 +267,6 @@ local family_assignments = {
     "ei-plasma-heater",
     "ei-plasma-turret",
     "ei-quantum-computer",
-    "ei-severance-array",
     "ei-solar-panel-3",
     "ei-superior-electric-mining-drill",
     "ei-ultimate-nova-loader",
@@ -284,9 +288,11 @@ local family_assignments = {
     "ei-crystal-accumulator-gaia",
     "ei-farstation",
     "ei-gaia-pump",
+    "ei-gaian-saucer",
     "ei-gate-receiver",
     "ei-rift-stabilizer",
     "ei-warp-beacon",
+    "ei-singularity-lance",
   },
   cosmic = {
     "ei-black-hole",
@@ -401,6 +407,7 @@ local family_colors = {
   ["electric-logistics"] = { r = 0.40, g = 0.72, b = 1.00 },
   signal = { r = 0.45, g = 0.78, b = 1.00 },
   ballistic = { r = 1.00, g = 0.56, b = 0.30 },
+  sawblade = { r = 0.96, g = 0.82, b = 0.48 },
   chemical = { r = 0.62, g = 1.00, b = 0.42 },
   quantum = { r = 0.42, g = 0.92, b = 1.00 },
   alien = { r = 0.48, g = 1.00, b = 0.62 },
@@ -469,9 +476,18 @@ local preserve_exact = {
 local nuclear_locomotive_override_explosion_name = "ei-death-explosion-nuclear-locomotive"
 local nuclear_locomotive_delay_anchor_name = "ei-death-explosion-nuclear-locomotive-delay-anchor"
 local nuclear_locomotive_delayed_trigger_name = "ei-death-explosion-nuclear-locomotive-delay"
+local gaian_saucer_death_explosion_name = "ei-gaian-saucer-death-explosion"
+local gaian_saucer_death_graphics_path = ei_path.."graphics/entities/gaian-saucer/death/"
+local singularity_lance_death_explosion_name = "ei-singularity-lance-death-explosion"
+local singularity_lance_death_graphics_path = ei_path.."graphics/entities/singularity-lance/death/"
 
 local exact_rolling_stock_overrides = {
   ["ei-nuclear-locomotive"] = nuclear_locomotive_delay_anchor_name,
+}
+
+local exact_dying_explosion_overrides = {
+  ["ei-gaian-saucer"] = gaian_saucer_death_explosion_name,
+  ["ei-singularity-lance"] = singularity_lance_death_explosion_name,
 }
 
 local generated_explosions = {}
@@ -753,6 +769,22 @@ local function animation_for_family(family, bucket_key)
     return scaled_animation(explosion_animations.massive_explosion(), 0.80 * scale)
   end
 
+  if family == "sawblade" then
+    if bucket_key == "micro" or bucket_key == "small" then
+      return scaled_animation(explosion_animations.small_explosion(), 0.78 * scale)
+    end
+
+    if bucket_key == "medium" then
+      return scaled_animation(explosion_animations.medium_explosion(), 0.96 * scale)
+    end
+
+    if bucket_key == "large" then
+      return scaled_animation(explosion_animations.big_explosion(), 0.90 * scale)
+    end
+
+    return scaled_animation(explosion_animations.massive_explosion(), 0.82 * scale)
+  end
+
   if family == "steam" or family == "fortified" then
     return scaled_animation(explosion_animations.dust_explosion(), 0.95 * scale)
   end
@@ -777,7 +809,7 @@ local function animation_for_family(family, bucket_key)
 end
 
 local function sound_for_family(family, bucket_key)
-  if family == "tank" or family == "ballistic" or family == "chemical" then
+  if family == "tank" or family == "ballistic" or family == "sawblade" or family == "chemical" then
     if bucket_key == "large" or bucket_key == "huge" then
       return sounds.large_explosion(0.65, 0.85)
     end
@@ -941,6 +973,23 @@ local function effects_for_family(family, bucket_key)
     }
   end
 
+  if family == "sawblade" then
+    return {
+      make_smoke_burst(8, 0.92, 0.024, bucket_key),
+      make_particle_burst("steam-engine-metal-particle-big", 8, 0.58, 0.46, 0.088, 0.046, bucket_key),
+      make_particle_burst("steam-engine-metal-particle-medium", 14, 0.86, 0.52, 0.094, 0.052, bucket_key),
+      make_particle_burst("explosion-remnants-particle", 12, 0.92, 0.18, 0.080, 0.044, bucket_key),
+      make_particle_burst("spark-particle", 12, 0.98, 1.08, 0.022, 0.082, bucket_key, {
+        frame_speed = 0.62,
+        frame_speed_deviation = 0.14,
+        tail_length = 9,
+        tail_length_deviation = 4,
+        tail_width = 3,
+        only_when_visible = true,
+      }),
+    }
+  end
+
   if family == "chemical" then
     return {
       make_smoke_burst(8, 0.82, 0.022, bucket_key),
@@ -1089,7 +1138,7 @@ local function make_explosion(family, bucket_key)
   local name = "ei-death-explosion-" .. family .. "-" .. bucket_key
   local smoke_count = 0
 
-  if family == "tank" or family == "combustion" or family == "steam" or family == "ballistic" or family == "chemical" or family == "fortified" then
+  if family == "tank" or family == "combustion" or family == "steam" or family == "ballistic" or family == "sawblade" or family == "chemical" or family == "fortified" then
     smoke_count = bucket_data[bucket_key].smoke_count
   end
 
@@ -1124,6 +1173,220 @@ local function make_explosion(family, bucket_key)
   end
 
   return explosion
+end
+
+local function make_gaian_saucer_death_animation_layer(filename, options)
+  options = options or {}
+
+  return {
+    filename = gaian_saucer_death_graphics_path..filename,
+    priority = "high",
+    width = 512,
+    height = 512,
+    line_length = 8,
+    lines_per_file = 6,
+    frame_count = 48,
+    animation_speed = 0.58,
+    scale = 0.48,
+    shift = {0, -0.06},
+    draw_as_glow = options.draw_as_glow,
+    blend_mode = options.blend_mode,
+  }
+end
+
+local function make_singularity_lance_death_animation_layer(filename, options)
+  options = options or {}
+
+  return {
+    filename = singularity_lance_death_graphics_path..filename,
+    priority = "high",
+    width = 512,
+    height = 512,
+    line_length = 8,
+    lines_per_file = 6,
+    frame_count = 48,
+    animation_speed = 0.58,
+    scale = 0.56,
+    shift = {0, -1.05},
+    draw_as_glow = options.draw_as_glow,
+    blend_mode = options.blend_mode,
+  }
+end
+
+local function make_gaian_saucer_damage_effect(radius, amount, damage_type, apply_damage_to_trees)
+  return {
+    type = "nested-result",
+    action = {
+      type = "area",
+      radius = radius,
+      trigger_from_target = true,
+      action_delivery = {
+        type = "instant",
+        target_effects = {
+          {
+            type = "damage",
+            damage = {amount = amount, type = damage_type},
+            apply_damage_to_trees = apply_damage_to_trees,
+          },
+        },
+      },
+    },
+  }
+end
+
+local function gaian_saucer_death_effects()
+  local effects = table.deepcopy(effects_for_family("alien", "large"))
+
+  table.insert(effects, make_particle_burst("ei-quantum-mote-particle", 24, 1.35, 0.92, 0.026, 0.052, "large", {
+    frame_speed = 0.66,
+    frame_speed_deviation = 0.14,
+    tail_length = 14,
+    tail_length_deviation = 5,
+    tail_width = 4,
+    only_when_visible = true,
+  }))
+  table.insert(effects, make_particle_burst("spark-particle", 16, 1.18, 1.20, 0.024, 0.085, "large", {
+    frame_speed = 0.64,
+    frame_speed_deviation = 0.16,
+    tail_length = 11,
+    tail_length_deviation = 4,
+    tail_width = 3,
+    only_when_visible = true,
+  }))
+  table.insert(effects, make_smoke_burst(9, 1.12, 0.022, "large"))
+  table.insert(effects, make_gaian_saucer_damage_effect(3.0, 160, "electric", false))
+  table.insert(effects, make_gaian_saucer_damage_effect(3.0, 80, "explosion", true))
+  table.insert(effects, make_gaian_saucer_damage_effect(5.0, 70, "electric", false))
+  table.insert(effects, make_gaian_saucer_damage_effect(5.0, 35, "explosion", true))
+  table.insert(effects, {
+    type = "create-entity",
+    entity_name = "medium-scorchmark",
+    check_buildability = true,
+  })
+
+  return effects
+end
+
+local function singularity_lance_death_effects()
+  return {
+    make_particle_burst("ei-cosmic-mote-particle", 28, 1.32, 1.18, 0.016, 0.026, "large", {
+      frame_speed = 0.74,
+      frame_speed_deviation = 0.16,
+      tail_length = 16,
+      tail_length_deviation = 5,
+      tail_width = 4,
+      only_when_visible = true,
+    }),
+    make_particle_burst("ei-quantum-mote-particle", 18, 1.10, 1.02, 0.020, 0.036, "large", {
+      frame_speed = 0.66,
+      frame_speed_deviation = 0.14,
+      tail_length = 12,
+      tail_length_deviation = 4,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_particle_burst("spark-particle", 12, 0.96, 1.12, 0.022, 0.070, "large", {
+      frame_speed = 0.62,
+      frame_speed_deviation = 0.14,
+      tail_length = 10,
+      tail_length_deviation = 4,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_smoke_burst(5, 0.72, 0.016, "large", "smoke-fast"),
+  }
+end
+
+local function make_singularity_lance_death_explosion()
+  return {
+    type = "explosion",
+    name = singularity_lance_death_explosion_name,
+    flags = {"not-on-map"},
+    hidden = true,
+    subgroup = "explosions",
+    order = "z[ei-death]-singularity-lance",
+    height = 0,
+    animations = {
+      {
+        layers = {
+          make_singularity_lance_death_animation_layer("ei-singularity-lance-death-implosion.png"),
+          make_singularity_lance_death_animation_layer("ei-singularity-lance-death-implosion-glow.png", {
+            draw_as_glow = true,
+            blend_mode = "additive-soft",
+          }),
+        },
+      },
+    },
+    light_intensity_peak_start_progress = 0.03,
+    light_intensity_peak_end_progress = 0.36,
+    light_size_peak_start_progress = 0.06,
+    light_size_peak_end_progress = 0.70,
+    scale_out_duration = 32,
+    scale_end = 0.78,
+    scale_animation_speed = true,
+    light = {
+      intensity = 1.10,
+      size = 58,
+      color = {r = 0.46, g = 0.16, b = 1.00},
+    },
+    sound = sounds.large_explosion(0.52, 0.78),
+    smoke = "smoke-fast",
+    smoke_count = 2,
+    smoke_slow_down_factor = 1,
+    created_effect = {
+      type = "direct",
+      action_delivery = {
+        type = "instant",
+        target_effects = singularity_lance_death_effects(),
+      },
+    },
+  }
+end
+
+local function make_gaian_saucer_death_explosion()
+  return {
+    type = "explosion",
+    name = gaian_saucer_death_explosion_name,
+    flags = {"not-on-map"},
+    hidden = true,
+    subgroup = "explosions",
+    order = "z[ei-death]-gaian-saucer",
+    height = 0,
+    animations = {
+      {
+        layers = {
+          make_gaian_saucer_death_animation_layer("ei-gaian-saucer-death-rupture.png"),
+          make_gaian_saucer_death_animation_layer("ei-gaian-saucer-death-rupture-glow.png", {
+            draw_as_glow = true,
+            blend_mode = "additive-soft",
+          }),
+        },
+      },
+    },
+    light_intensity_peak_start_progress = 0.04,
+    light_intensity_peak_end_progress = 0.42,
+    light_size_peak_start_progress = 0.08,
+    light_size_peak_end_progress = 0.78,
+    scale_out_duration = 34,
+    scale_end = 0.82,
+    scale_animation_speed = true,
+    light = {
+      intensity = 1.15,
+      size = 58,
+      color = {r = 0.28, g = 1.00, b = 0.78},
+    },
+    sound = sounds.large_explosion(0.56, 0.84),
+    smoke = "smoke-fast",
+    smoke_count = 3,
+    smoke_slow_down_factor = 1,
+    created_effect = {
+      type = "direct",
+      action_delivery = {
+        type = "instant",
+        target_effects = gaian_saucer_death_effects(),
+      },
+    },
+  }
 end
 
 local function make_nuclear_locomotive_override_explosion()
@@ -1419,6 +1682,8 @@ local function generate_explosions()
   table.insert(prototypes, make_nuclear_locomotive_override_explosion())
   table.insert(prototypes, make_nuclear_locomotive_delay_anchor())
   table.insert(prototypes, make_nuclear_locomotive_delayed_trigger())
+  table.insert(prototypes, make_gaian_saucer_death_explosion())
+  table.insert(prototypes, make_singularity_lance_death_explosion())
 
   data:extend(prototypes)
 end
@@ -1784,6 +2049,19 @@ local function apply_family(name, prototype, entity_type, family, assignment_log
   local target_explosion = generated_explosions[family][bucket_key]
   local current_core = prototype.dying_explosion
   local rolling_stock_core = rolling_stock_cores[entity_type]
+  local exact_override = exact_dying_explosion_overrides[name]
+
+  if exact_override then
+    prototype.dying_explosion = exact_override
+    assignment_log[name] = {
+      mode = "exact-core",
+      family = family,
+      bucket = bucket_key,
+      core = current_core,
+      final_core = exact_override,
+    }
+    return
+  end
 
   if apply_exact_rolling_stock_override(name, prototype, entity_type, family, bucket_key, current_core, rolling_stock_core, assignment_log) then
     return

@@ -580,6 +580,7 @@ function Get-EsirRuntimeOverrideMap {
         'exotic-space-industries-remembrance\scripts\control\steam-train.lua' = @{ owns = 'steam locomotive wheel and helper runtime'; cadence = 'init/config rebuild, build/destroy, train state changes, and every-tick runtime updates'; rebuild_on = @('init', 'configuration change', 'entity topology changes') }
         'exotic-space-industries-remembrance\scripts\control\camp-fire.lua' = @{ owns = 'camp-fire periodic fire spawning'; cadence = 'build/destroy and scheduled tick step 1'; rebuild_on = @('init', 'configuration change', 'entity topology changes') }
         'exotic-space-industries-remembrance\scripts\control\orbital-combinator.lua' = @{ owns = 'orbital combinator and platform bank mirroring'; cadence = 'init/config, build/destroy, logistic slot change, settings paste, platform state change, and scheduled tick step 5'; rebuild_on = @('init', 'configuration change', 'platform topology changes', 'combinator topology changes') }
+        'exotic-space-industries-remembrance\scripts\control\orbital-logistics.lua' = @{ owns = 'orbital logistics cohort runtime, including platform transponder IDs, selector focus/policy, coordinator arbitration, dispatch uplinks, leased mixed-manifest jobs, cohort GUIs, and QC/runtime snapshots'; cadence = 'event-driven invalidation plus dedicated control.lua step-10 cohort servicing'; events = @('check_init', 'rebuild_runtime_state', 'on_built_entity', 'on_destroyed_entity', 'on_entity_logistic_slot_changed', 'on_entity_settings_pasted', 'on_space_platform_changed_state', 'on_rocket_launch_ordered', 'request_runtime_rescan', 'open_gui', 'close_gui', 'on_player_left_game', 'on_gui_click', 'on_gui_selection_state_changed', 'on_gui_text_changed', 'update', 'get_pending_work_count', 'get_runtime_status', 'get_qc_snapshot'); storage_roots = @('storage.ei.orbital_logistics'); gui_ids = @('ei-orbital-logistics-console'); remote_interfaces = @('exposed indirectly through control.lua QC hooks'); rebuild_on = @('init', 'configuration change', 'admin rescan', 'cohort entity churn') }
     }
 
     return $script:EsirRuntimeOverrideMap
@@ -1863,7 +1864,7 @@ function Invoke-EsirQcMode {
 
     $arguments = @('-ExecutionPolicy', 'Bypass', '-File', $Paths.factorio_invoke_script, '-Mode', $Mode, '-RepoRoot', $Paths.repo_root)
     if ($saveSelection -and $saveSelection.path) { $arguments += @('-Save', $saveSelection.path) }
-    if ($Seed) { $arguments += @('-Seed', [string]$Seed.Value) }
+    if ($null -ne $Seed) { $arguments += @('-Seed', [string]$Seed) }
     if ($Planet) { $arguments += @('-Planet', $Planet) }
     if ($FactorioPath) { $arguments += @('-FactorioPath', $FactorioPath) }
     if ($Strict) { $arguments += '-Strict' }

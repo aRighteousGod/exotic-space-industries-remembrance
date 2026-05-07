@@ -75,6 +75,12 @@ local GATE_ANIMATION_LIGHT_COLORS = {
     {r = 0.2, g = 0.2, b = 1.0},
     {r = 0.4, g = 0.1, b = 0.8},
 }
+local GATE_GLOW_SLOT_COUNT = 4
+local GATE_GLOW_INTENSITY_MIN = 0.06
+local GATE_GLOW_INTENSITY_MAX = 0.22
+local GATE_GLOW_SCALE_MIN = 3.75
+local GATE_GLOW_SCALE_MAX = 4.2
+local GATE_GLOW_SEED_STEP = 17
 local GATE_RUNTIME_STATUS_STABLE_TEXT = {"exotic-industries.gate-gui-runtime-stable"}
 local GATE_RUNTIME_STATUS_COOLING_TEXT = {"exotic-industries.gate-gui-runtime-cooling"}
 local GATE_RUNTIME_STATUS_CRITICAL_TEXT = {"exotic-industries.gate-gui-runtime-critical"}
@@ -102,6 +108,167 @@ local GATE_GREEN_CONNECTOR_IDS = {
     defines.wire_connector_id.combinator_input_green,
 }
 local migrate_wire_proxy_connections_to_container
+
+
+---@class GateGlowSlot
+---@field render LuaRenderObject|nil
+---@field phase number|nil
+---@field direction integer|nil
+---@field intensity number|nil
+---@field scale number|nil
+---@field color_index integer|nil
+
+---@class GateGlowState
+---@field slots table<integer, GateGlowSlot>
+---@field last_tick integer|nil
+
+
+local function destroy_render_object(render_object)
+    if render_object and render_object.valid then
+        render_object.destroy()
+    end
+end
+
+
+local function destroy_gate_glow_slot(slot)
+    if type(slot) == "table" then
+        destroy_render_object(slot.render)
+        destroy_render_object(slot.light)
+    else
+        destroy_render_object(slot)
+    end
+end
+
+
+local function destroy_gate_glows(gate_data)
+    if not gate_data then
+        return
+    end
+
+    -- `light` is the pre-four-slot render handle. Clear it anywhere we touch glow state so
+    -- existing saves migrate without leaving the old single object alive beside the new pool.
+    destroy_render_object(gate_data.light)
+    gate_data.light = nil
+
+    local glows = gate_data.glows
+    if type(glows) == "table" and type(glows.slots) == "table" then
+        for _, slot in pairs(glows.slots) do
+            destroy_gate_glow_slot(slot)
+        end
+    end
+
+    gate_data.glows = nil
+end
+
+
+local function get_gate_glow_ttl()
+    return math.max(1, (tonumber(ei_ticksPerFullUpdate) or 60) * 2)
+end
+
+
+local function get_gate_glow_profile(gate_unit, slot_index, tick)
+    local pulse_period = get_gate_glow_ttl()
+    local half_period = math.max(1, pulse_period / 2)
+    local phase_offset = (slot_index - 1) / GATE_GLOW_SLOT_COUNT
+    local seeded_tick = tick + ((gate_unit or 0) * GATE_GLOW_SEED_STEP)
+    local phase = (((seeded_tick % pulse_period) / pulse_period) + phase_offset) % 1
+    local pulse = phase < 0.5 and (phase * 2) or ((1 - phase) * 2)
+    local edge_index = math.floor((seeded_tick + (phase_offset * pulse_period)) / half_period)
+    local color_index = ((edge_index + slot_index - 1) % #GATE_ANIMATION_LIGHT_COLORS) + 1
+    local scale_step = (edge_index + slot_index - 1) % GATE_GLOW_SLOT_COUNT
+    local scale_ratio = scale_step / math.max(1, GATE_GLOW_SLOT_COUNT - 1)
+
+    return {
+        phase = phase,
+        direction = phase < 0.5 and 1 or -1,
+        intensity = GATE_GLOW_INTENSITY_MIN + ((GATE_GLOW_INTENSITY_MAX - GATE_GLOW_INTENSITY_MIN) * pulse),
+        scale = GATE_GLOW_SCALE_MIN + ((GATE_GLOW_SCALE_MAX - GATE_GLOW_SCALE_MIN) * scale_ratio),
+        color = GATE_ANIMATION_LIGHT_COLORS[color_index],
+        color_index = color_index,
+    }
+end
+
+
+local function normalize_gate_glow_slots(gate_data)
+    destroy_render_object(gate_data.light)
+    gate_data.light = nil
+
+    local glows = gate_data.glows
+    if type(glows) ~= "table" then
+        glows = {}
+        gate_data.glows = glows
+    end
+
+    local slots = glows.slots
+    if type(slots) ~= "table" then
+        slots = {}
+        glows.slots = slots
+    end
+
+    for key, slot in pairs(slots) do
+        local slot_index = tonumber(key)
+        if not slot_index
+        or slot_index < 1
+        or slot_index > GATE_GLOW_SLOT_COUNT
+        or slot_index ~= math.floor(slot_index) then
+            destroy_gate_glow_slot(slot)
+            slots[key] = nil
+        end
+    end
+
+    return glows, slots
+end
+
+
+local function draw_gate_glow(gate, profile, ttl)
+    return rendering.draw_light {
+        sprite = "gate_glow",
+        scale = profile.scale,
+        intensity = profile.intensity,
+        color = profile.color,
+        target = gate,
+        surface = gate.surface,
+        time_to_live = ttl,
+        blend_mode = "multiplicative",
+        apply_runtime_tint = true,
+        draw_as_glow = true,
+    }
+end
+
+
+local function update_gate_glows(gate, gate_data, gate_unit, tick)
+    local glows, slots = normalize_gate_glow_slots(gate_data)
+    local ttl = get_gate_glow_ttl()
+
+    for slot_index = 1, GATE_GLOW_SLOT_COUNT do
+        local slot = slots[slot_index]
+        if type(slot) ~= "table" then
+            destroy_gate_glow_slot(slot)
+            slot = {}
+            slots[slot_index] = slot
+        end
+
+        local profile = get_gate_glow_profile(gate_unit, slot_index, tick)
+        local render = slot.render
+        if not render or not render.valid then
+            render = draw_gate_glow(gate, profile, ttl)
+            slot.render = render
+        else
+            render.color = profile.color
+            render.intensity = profile.intensity
+            render.scale = profile.scale
+            render.time_to_live = ttl
+        end
+
+        slot.phase = profile.phase
+        slot.direction = profile.direction
+        slot.intensity = profile.intensity
+        slot.scale = profile.scale
+        slot.color_index = profile.color_index
+    end
+
+    glows.last_tick = tick
+end
 
 
 local function make_gate_gui_projection_signature(data)
@@ -1576,6 +1743,11 @@ function model.ensure_gate_defaults(gate_unit, event)
 
     if gate_data.last_energy_tick == nil then
         gate_data.last_energy_tick = ei_lib.get_event_tick(event)
+    end
+
+    if gate_data.light ~= nil then
+        destroy_render_object(gate_data.light)
+        gate_data.light = nil
     end
 
     if gate_data.wire_proxy ~= nil and model.entity_check(gate_data.wire_proxy) == false then
@@ -3302,6 +3474,10 @@ function model.destroy_gate(gate, container, event)
     model.cleanup_gate_remote_selection(gate_unit)
     model.destroy_wire_proxy(gate_unit)
 
+    if storage.ei.gate.gate[gate_unit] then
+        destroy_gate_glows(storage.ei.gate.gate[gate_unit])
+    end
+
     if model.entity_check(gate) then
         gate.destroy()
     end
@@ -3655,34 +3831,13 @@ function model.render_exit(gate, box)
 end
 
 
-function model.render_animation(gate, gate_data)
+function model.render_animation(gate, gate_data, gate_unit, event)
     if not model.entity_check(gate) or not gate_data then
         return
     end
 
-    local surface = gate.surface
-    local color = GATE_ANIMATION_LIGHT_COLORS[math.random(1, #GATE_ANIMATION_LIGHT_COLORS)]
-
-    -- Reuse the glow render instead of recreating a fresh light object every active visit.
-    local light = gate_data.light
-    if light and light.valid then
-        light.color = color
-        light.time_to_live = ei_ticksPerFullUpdate * 2
-    else
-        light = rendering.draw_light {
-            sprite = "gate_glow",
-            scale = 4,
-            intensity = 0.22,
-            color = color,
-            target = gate,
-            surface = surface,
-            time_to_live = ei_ticksPerFullUpdate * 2,
-            blend_mode = "multiplicative",
-            apply_runtime_tint = true,
-            draw_as_glow = true,
-        }
-        gate_data.light = light
-    end
+    local tick = ei_lib.get_event_tick(event)
+    update_gate_glows(gate, gate_data, gate_unit, tick)
 
     if gate_data.animation and gate_data.animation.valid then return end
     gate_data.animation = nil
@@ -3690,7 +3845,7 @@ function model.render_animation(gate, gate_data)
     local animation = rendering.draw_animation{
         animation = "ei-gate-running",
         target = gate,
-        surface = surface,
+        surface = gate.surface,
         render_layer = "object",
         x_scale = 1,
         y_scale = 1
@@ -3718,16 +3873,11 @@ function model.update_renders(unit, gate, event)
             end
             gate_data.animation = nil
         end
-        if gate_data.light then
-            if gate_data.light.valid then
-                gate_data.light.destroy()
-            end
-            gate_data.light = nil
-        end
+        destroy_gate_glows(gate_data)
     else
         -- update_renders already resolved gate_data for this gate, so pass it through instead of
         -- paying for another storage lookup on the active render path.
-        model.render_animation(gate, gate_data)
+        model.render_animation(gate, gate_data, unit, event)
         -- High stress can leak out as short-range electrical tendrils around the gate body.
         -- These are purely local hazards: they stay inside the glow footprint, originate from
         -- the six outer cylinder extensions, and only roll while the gate is actually active.
@@ -4735,6 +4885,7 @@ function model.update(event)
             model.check_for_teleport(break_id, gate, event)
             model.update_renders(break_id, gate, event)
         else
+            destroy_gate_glows(gate_entry)
             gate_registry[break_id] = nil
             current_gate_exists = false
         end

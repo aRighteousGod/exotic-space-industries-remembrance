@@ -179,7 +179,7 @@ data:extend({
 		attacking_animation = gatling_sheet({}),
 		folding_animation = gatling_place({ run_mode = "backward" }),
 
-		vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.8 },
+		vehicle_impact_sound = { variations = sound_variations("__base__/sound/car-metal-impact", 5, 0.8) },
 
 		attack_parameters = {
 			type = "projectile",
