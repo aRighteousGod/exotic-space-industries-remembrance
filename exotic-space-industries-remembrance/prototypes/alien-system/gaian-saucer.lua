@@ -128,6 +128,15 @@ saucer.friction_force = SAUCER_FRICTION_FORCE
 saucer.braking_force = SAUCER_BRAKING_FORCE
 saucer.create_ghost_on_death = false
 saucer.hide_resistances = false
+saucer.resistances = {
+    {type = "acid", percent = 80, decrease=10},
+    {type = "electric", percent = 80, decrease=10},
+    {type = "explosion", percent = 85, decrease=40},
+    {type = "fire", percent = 70, decrease=30},
+    {type = "impact", percent = 90, decrease=100},
+    {type = "laser", percent = 80, decrease=10},
+    {type = "physical", percent = 70, decrease=30},
+}
 saucer.guns = {}
 saucer.automatic_weapon_cycling = false
 saucer.inventory_size = 80

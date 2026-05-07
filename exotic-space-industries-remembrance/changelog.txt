@@ -5,6 +5,9 @@ Date: 5-7-2026
     - Added the Slipwake Saucer, a nimble but unarmed Alien Age Spidertron-style vehicle shell which doesn't require fuel and has a custom death explosion.
     - Added a scheduler-backed chromatic wake visual for the Slipwake Saucer, with startup fidelity presets to trade spectacle for UPS.
     - Added thematic fuel glow colors for burnable items, fluid-fuel consumers, reactors, and high-temperature reactor fuel recipes—Nicer Fuel Glow was removed from optional dependencies as a consequence.
+    - Added the Oathbreaker Saw, an Electricity Age melee turret that keeps a visible blade wake alive while nearby enemies are fed into the oath-machine.
+    - Added per-turret Oathbreaker Saw attack audio with trimmed sawblade grind variations, strong distance falloff, and runtime gating so each machine speaks once instead of stacking its own echo.
+    - Added a custom Oathbreaker Saw death-explosion family with steel shards, sparks, and compact smoke for ruined 3x3 defensive machinery.
     - Added the Singularity Lance, a late alien-age laser weapon with load-shedding chromatic strafing beam visuals, oscillating sound effects, and a custom death explosion.
     - Added a scheduler-backed aesthetic adjuster for the Singularity Lance, with startup fidelity presets to trade spectacle for UPS.
     - Expanded the Fusion Reactor console with Manual/Circuit control source selection, agent readouts, reset and collector-refresh commands, and Power, Flux, and Balanced presets.
