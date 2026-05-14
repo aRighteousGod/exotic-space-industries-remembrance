@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.3.34",
+    "version": "1.3.35",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
@@ -49,6 +49,7 @@
         "? heat_glow",
         "? Shield-FX",
         "? vehicle_physics",
+        "? Hovercrafts",
         "? gore",
         "? valves",
         "? FluidMustFlow",

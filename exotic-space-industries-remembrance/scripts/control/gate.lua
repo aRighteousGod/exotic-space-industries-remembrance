@@ -3,7 +3,7 @@
 -- owns: gate runtime, GUI, selector flow, and remote dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
--- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
 -- storage_roots: storage.ei
 -- gui_ids: ei-gate-console
 -- remote_interfaces: none
@@ -1038,6 +1038,7 @@ model.mass_weights = {
     ["ei-sulfur-chunk"] = 4,
     ["ei-superior-data"] = 1,
     ["ei-superior-electric-mining-drill"] = 25,
+    ["ei-steam-loader"] = 4,
     ["ei-sus-plating"] = 2,
     ["ei-tank-1"] = 100,
     ["ei-tank-2"] = 500,
@@ -3403,6 +3404,31 @@ function model.register_gate(gate, container, event)
 end
 
 
+local function repair_gate_pair(gate, container, event, seen_gates)
+    if not model.entity_check(gate) or not model.entity_check(container) then
+        return
+    end
+
+    local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit then
+        return
+    end
+
+    seen_gates[gate_unit] = true
+    local gate_data = storage.ei.gate.gate[gate_unit]
+    if not gate_data then
+        model.register_gate(gate, container, event)
+        return
+    end
+
+    gate_data.gate = gate
+    gate_data.container = container
+    model.ensure_gate_defaults(gate_unit, event)
+    mark_gate_resolution_dirty(gate_data)
+    model.refresh_gate_live_state(gate, event)
+end
+
+
 function model.find_gate(container)
 
     if not container or not container.valid then
@@ -3439,11 +3465,14 @@ function model.make_gate(container, event)
     -- The player places the visible container. Script then spawns the hidden EEI that actually
     -- stores energy and drives transport so placement preview and in-world interaction both use
     -- the visible gate silhouette.
-    local gate = container.surface.create_entity({
-        name = "ei-gate",
-        position = container.position,
-        force = container.force
-    })
+    local gate = container.surface.find_entity("ei-gate", container.position)
+    if not model.entity_check(gate) then
+        gate = container.surface.create_entity({
+            name = "ei-gate",
+            position = container.position,
+            force = container.force
+        })
+    end
 
     model.register_gate(gate, container, event)
 
@@ -4759,10 +4788,80 @@ function model.on_init(event)
 end
 
 
-function model.on_configuration_changed(event)
+function model.rebuild_runtime_state(reason, event)
+    -- Configuration/import repair is scan-based and storage-preserving: normal
+    -- construction handles the common path, while this catches clones or saves
+    -- whose hidden gate/runtime entries fell out of sync.
+    local _ = reason
     model.check_global_init()
+
+    local seen_gates = {}
+    local seen_receivers = {}
+
+    for _, surface in pairs(game.surfaces) do
+        for _, container in pairs(surface.find_entities_filtered{name = "ei-gate-container"}) do
+            local gate = surface.find_entity("ei-gate", container.position)
+            if not model.entity_check(gate) then
+                gate = surface.create_entity({
+                    name = "ei-gate",
+                    position = container.position,
+                    force = container.force
+                })
+            end
+            repair_gate_pair(gate, container, event, seen_gates)
+        end
+
+        for _, gate in pairs(surface.find_entities_filtered{name = "ei-gate"}) do
+            local gate_unit = get_entity_unit_number(gate)
+            if gate_unit and not seen_gates[gate_unit] then
+                local container = surface.find_entity("ei-gate-container", gate.position)
+                if model.entity_check(container) then
+                    repair_gate_pair(gate, container, event, seen_gates)
+                elseif model.entity_check(gate) then
+                    gate.destroy()
+                end
+            end
+        end
+
+        for _, receiver in pairs(surface.find_entities_filtered{name = "ei-gate-receiver"}) do
+            local receiver_unit = get_entity_unit_number(receiver)
+            if receiver_unit then
+                seen_receivers[receiver_unit] = true
+                storage.ei.gate.receiver[receiver_unit] = storage.ei.gate.receiver[receiver_unit] or {}
+                storage.ei.gate.receiver[receiver_unit].entity = receiver
+                model.ensure_receiver_defaults(receiver_unit, event)
+            end
+        end
+    end
+
+    for gate_unit, gate_data in pairs(storage.ei.gate.gate) do
+        if not seen_gates[gate_unit] then
+            local gate = gate_data and gate_data.gate or nil
+            local container = gate_data and gate_data.container or nil
+            if model.entity_check(gate) and model.entity_check(container) then
+                repair_gate_pair(gate, container, event, seen_gates)
+            else
+                destroy_gate_glows(gate_data)
+                model.destroy_wire_proxy(gate_unit)
+                storage.ei.gate.gate[gate_unit] = nil
+            end
+        end
+    end
+
+    for receiver_unit, receiver_data in pairs(storage.ei.gate.receiver) do
+        if not seen_receivers[receiver_unit] and not model.entity_check(receiver_data and receiver_data.entity) then
+            storage.ei.gate.receiver[receiver_unit] = nil
+        end
+    end
+
+    model.refresh_receivers(event)
     model.rebuild_distance_cache()
     migrate_existing_gate_proxy_connections(event)
+end
+
+
+function model.on_configuration_changed(event)
+    model.rebuild_runtime_state("configuration-changed", event)
 end
 
 function model.on_built_entity(event)

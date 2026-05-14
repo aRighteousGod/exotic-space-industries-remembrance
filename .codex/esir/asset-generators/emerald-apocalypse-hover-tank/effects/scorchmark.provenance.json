@@ -1,0 +1,12 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "scorchmark",
+  "status": "promoted-v3-endpoint-apocalypse",
+  "frame_size": [768, 768],
+  "frames": 1,
+  "line_length": 1,
+  "aesthetic": "36-tile-wide alkaline black glass crater, emerald residue veins, fractured sigil ash",
+  "prompt": "transparent Factorio ground scorch decal, Emerald Apocalypse hover tank endpoint apocalypse mark, huge black glass crater with emerald residue veins, fractured sigil ash, inward radial scars, readable dark decal with transparent edges, no beam sprite reuse",
+  "negative_prompt": "bright radial explosion, purple prism, chromatic wake, opaque square background, text",
+  "roles": ["base", "decal"]
+}

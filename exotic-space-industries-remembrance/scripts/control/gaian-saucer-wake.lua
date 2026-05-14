@@ -3,7 +3,7 @@
 -- owns: Gaian saucer chromatic wake runtime visuals
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: control.lua updater fan-out, internally gated by startup preset
--- forwarded_events: check_global, get_pending_work_count, get_qc_snapshot, get_runtime_status, on_built_entity, on_configuration_changed, on_destroyed_entity, rebuild_runtime_state, reset_runtime_state, service_for_qc, updater
+-- forwarded_events: check_global, get_pending_work_count, get_qc_snapshot, get_runtime_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, rebuild_runtime_state, reset_runtime_state, service_for_qc, updater
 -- storage_roots: storage.ei.gaian_saucer_wake
 -- gui_ids: none
 -- remote_interfaces: none
@@ -140,6 +140,26 @@ local function ensure_state()
         state.active_queue_count = scheduler.table_count(state.active_queue.queued)
     end
     return state
+end
+
+local function raw_queue_has_items(queue)
+    if type(queue) ~= "table" then
+        return false
+    end
+
+    local items = queue.items
+    if type(items) == "table" then
+        local head = queue.head or 1
+        local tail = queue.tail or #items
+        for index = head, tail do
+            if items[index] ~= nil then
+                return true
+            end
+        end
+    end
+
+    local queued = queue.queued
+    return type(queued) == "table" and next(queued) ~= nil
 end
 
 -- Turning the startup setting off should remove all live wake state immediately,
@@ -562,8 +582,28 @@ function model.get_pending_work_count()
     return tonumber(state.tracked_count) or 0
 end
 
-function model.updater(event)
+function model.has_tick_work(_event)
+    if runtime_active == true then
+        return true
+    end
+
     if runtime_active == false then
+        return false
+    end
+
+    local state = storage and storage.ei and storage.ei.gaian_saucer_wake or nil
+    if type(state) ~= "table" then
+        return false
+    end
+
+    return (tonumber(state.tracked_count) or 0) > 0
+        or (tonumber(state.active_queue_count) or 0) > 0
+        or (type(state.tracked) == "table" and next(state.tracked) ~= nil)
+        or raw_queue_has_items(state.active_queue)
+end
+
+function model.updater(event)
+    if runtime_active == false and not model.has_tick_work(event) then
         return false
     end
 
@@ -571,7 +611,9 @@ function model.updater(event)
     local visual_config = get_visual_config()
 
     if visual_config.enabled ~= true then
-        runtime_active = false
+        local state = ensure_state()
+        clear_runtime_state(state)
+        make_status(state, current_tick, visual_config)
         return false
     end
 

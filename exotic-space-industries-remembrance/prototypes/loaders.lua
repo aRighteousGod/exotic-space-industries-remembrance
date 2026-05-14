@@ -11,6 +11,9 @@
 --==============================================================================
 ei_loaders_lib = require("lib/loaders")
 
+local ei_steam_loader_item_path = ei_path.."graphics/items/"
+local ei_steam_loader_entity_path = ei_path.."graphics/entities/"
+
 --====================================================================================================
 --BASE PROTOTYPES
 --====================================================================================================
@@ -87,6 +90,17 @@ data:extend({
 
 data:extend({
     {
+        name = "ei-steam-loader",
+        type = "item",
+        icon = ei_steam_loader_item_path.."steam-loader.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+        subgroup = "loader",
+        order = "h[ei-loader]-0",
+        place_result = "ei-steam-loader",
+        stack_size = 50
+    },
+    {
         name = "ei-loader",
         type = "item",
         icon = ei_loaders_item_path.."loader.png",
@@ -142,16 +156,33 @@ data:extend({
         stack_size = 50
     },
     {
+        name = "ei-steam-loader",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 15,
+        ingredients =
+        {
+        {type="item", name="transport-belt", amount=4},
+        {type="item", name="ei-steam-inserter", amount=4},
+        {type="item", name="ei-steam-engine", amount=2},
+        {type="item", name="ei-copper-mechanical-parts", amount=8},
+        },
+        results = {{type="item", name="ei-steam-loader", amount=1}},
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei-steam-loader",
+    },
+    {
         name = "ei-loader",
         type = "recipe",
         category = "crafting",
         energy_required = 30,
         ingredients =
         {
-        {type="item", name="transport-belt", amount=4},
-        {type="item", name="engine-unit", amount=8},
-        {type="item", name="burner-inserter", amount=4},
-        {type="item", name="ei-iron-mechanical-parts", amount=20},
+        {type="item", name="ei-steam-loader", amount=1},
+        {type="item", name="electric-engine-unit", amount=4},
+        {type="item", name="inserter", amount=4},
+        {type="item", name="ei-iron-mechanical-parts", amount=12},
         },
         results = {{type="item", name="ei-loader", amount=1}},
         enabled = false,
@@ -169,7 +200,7 @@ data:extend({
         {type="item", name="ei-loader", amount=1},
         {type="item", name="ei-cpu", amount=20},
         {type="item", name="fast-inserter", amount=4},
-        {type="item", name="electric-engine-unit", amount=10},
+        {type="item", name="electric-engine-unit", amount=6},
         },
         results = {{type="item", name="ei-fast-loader", amount=1}},
         enabled = false,
@@ -244,6 +275,7 @@ local turbo_belt = data.raw["transport-belt"]["turbo-transport-belt"]
 local neo_belt = data.raw["transport-belt"]["ei-neo-belt"]
 
 -- add entities
+ei_loaders_lib.make_loader("steam", "ei-loader", belt.belt_animation_set, belt.speed, ei_steam_loader_item_path, ei_steam_loader_entity_path)
 ei_loaders_lib.make_loader(nil, "ei-fast-loader", belt.belt_animation_set, belt.speed)
 ei_loaders_lib.make_loader("fast", "ei-express-loader", fast_belt.belt_animation_set, fast_belt.speed)
 ei_loaders_lib.make_loader("express", "ei-turbo-loader", express_belt.belt_animation_set, express_belt.speed)
@@ -256,6 +288,28 @@ ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-fast-loader"],"12000","1
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-express-loader"],"18000","270000")
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-turbo-loader"],"27000","405000")
 ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-neo-loader"],"40500","607500")
+
+local steam_loader = data.raw["loader-1x1"]["ei-steam-loader"]
+steam_loader.energy_source = {
+    type = "fluid",
+    fluid_box = {
+        filter = "steam",
+        volume = 200,
+        pipe_covers = pipecoverspictures(),
+        pipe_connections = {
+            { flow_direction = "input-output", direction = defines.direction.east, position = {0, 0} },
+            { flow_direction = "input-output", direction = defines.direction.west, position = {0, 0} },
+        },
+        production_type = "input-output",
+    },
+    effectivity = 0.7,
+    scale_fluid_usage = true,
+}
+steam_loader.energy_per_item = "6000J"
+steam_loader.filter_count = 1
+steam_loader.per_lane_filters = false
+steam_loader.max_belt_stack_size = 1
+steam_loader.adjustable_belt_stack_size = false
 
 --Lane filtering / stacking
 local loader = data.raw["loader-1x1"]["ei-express-loader"]
@@ -277,6 +331,11 @@ loader.per_lane_filters = true -- Enable lane-specific filtering
 
 
 table.insert(data.raw["technology"]["logistics"].effects, {
+    type = "unlock-recipe",
+    recipe = "ei-steam-loader"
+})
+
+table.insert(data.raw["technology"]["automation"].effects, {
     type = "unlock-recipe",
     recipe = "ei-loader"
 })

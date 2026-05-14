@@ -131,3 +131,104 @@ data:extend({
         },
     },
 })
+
+local solid_turbine = data.raw["burner-generator"]["ei-combustion-turbine"]
+local fluid_open_proxy_name = "ei-combustion-turbine-fluid-open-proxy"
+if solid_turbine then
+    solid_turbine.fast_replaceable_group = "ei-combustion-turbine"
+    solid_turbine.placeable_by = {item = "ei-combustion-turbine", count = 1}
+    solid_turbine.additional_pastable_entities = {
+        "ei-combustion-turbine-fluid",
+        fluid_open_proxy_name,
+    }
+
+    local fluid_turbine = table.deepcopy(solid_turbine)
+    fluid_turbine.name = "ei-combustion-turbine-fluid"
+    fluid_turbine.type = "generator"
+    fluid_turbine.localised_name = {"entity-name.ei-combustion-turbine"}
+    fluid_turbine.localised_description = {"entity-description.ei-combustion-turbine"}
+    fluid_turbine.hidden = true
+    fluid_turbine.hidden_in_factoriopedia = true
+    fluid_turbine.allow_copy_paste = true
+    fluid_turbine.additional_pastable_entities = {
+        "ei-combustion-turbine",
+        fluid_open_proxy_name,
+    }
+    fluid_turbine.placeable_by = {item = "ei-combustion-turbine", count = 1}
+    fluid_turbine.minable = {
+        mining_time = 1,
+        result = "ei-combustion-turbine"
+    }
+
+    fluid_turbine.effectivity = solid_turbine.burner and solid_turbine.burner.effectivity or 1
+    fluid_turbine.burns_fluid = true
+    fluid_turbine.scale_fluid_usage = true
+    fluid_turbine.fluid_usage_per_tick = 1
+    fluid_turbine.maximum_temperature = 1000
+    fluid_turbine.fluid_box = {
+        volume = 400,
+        pipe_covers = pipecoverspictures(),
+        pipe_picture = ei_pipe_big,
+        pipe_connections = {
+            {flow_direction = "input-output", direction = defines.direction.east, position = {4, 0}},
+            {flow_direction = "input-output", direction = defines.direction.west, position = {-4, 0}},
+        },
+        production_type = "input-output",
+    }
+    fluid_turbine.smoke = table.deepcopy(solid_turbine.burner and solid_turbine.burner.smoke or {})
+    fluid_turbine.horizontal_animation = table.deepcopy(solid_turbine.animation)
+    fluid_turbine.vertical_animation = table.deepcopy(solid_turbine.animation)
+    fluid_turbine.horizontal_animation.filename = ei_path.."graphics/entities/combustion-turbine-fluid_animation.png"
+    fluid_turbine.vertical_animation.filename = ei_path.."graphics/entities/combustion-turbine-fluid_animation.png"
+    fluid_turbine.burner = nil
+    fluid_turbine.animation = nil
+    fluid_turbine.idle_animation = nil
+    fluid_turbine.always_draw_idle_animation = nil
+
+    local fluid_open_proxy = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+    fluid_open_proxy.name = fluid_open_proxy_name
+    fluid_open_proxy.icon = ei_graphics_item_path.."combustion-turbine.png"
+    fluid_open_proxy.icon_size = 64
+    fluid_open_proxy.localised_name = {"entity-name.ei-combustion-turbine"}
+    fluid_open_proxy.localised_description = {"entity-description.ei-combustion-turbine"}
+    fluid_open_proxy.flags = {
+        "not-blueprintable",
+        "not-deconstructable",
+        "not-on-map",
+        "not-flammable",
+        "not-repairable",
+        "not-upgradable",
+        "hide-alt-info",
+    }
+    fluid_open_proxy.hidden = true
+    fluid_open_proxy.hidden_in_factoriopedia = true
+    fluid_open_proxy.gui_mode = "all"
+    fluid_open_proxy.minable = nil
+    fluid_open_proxy.max_health = 1
+    fluid_open_proxy.collision_box = {{0, 0}, {0, 0}}
+    fluid_open_proxy.collision_mask = {layers = {}}
+    fluid_open_proxy.selection_box = {{-2.9, -3.0}, {2.9, 3.0}}
+    fluid_open_proxy.selection_priority = 255
+    fluid_open_proxy.allow_copy_paste = true
+    fluid_open_proxy.additional_pastable_entities = {
+        "ei-combustion-turbine",
+        "ei-combustion-turbine-fluid",
+    }
+    fluid_open_proxy.item_slot_count = 1
+    fluid_open_proxy.activity_led_light = {intensity = 0, size = 0, color = {r = 1, g = 1, b = 1}}
+    fluid_open_proxy.activity_led_sprites = {
+        north = util.empty_sprite(),
+        east = util.empty_sprite(),
+        south = util.empty_sprite(),
+        west = util.empty_sprite(),
+    }
+    fluid_open_proxy.sprites = {
+        north = util.empty_sprite(),
+        east = util.empty_sprite(),
+        south = util.empty_sprite(),
+        west = util.empty_sprite(),
+    }
+    fluid_open_proxy.circuit_wire_max_distance = 0
+
+    data:extend({fluid_turbine, fluid_open_proxy})
+end

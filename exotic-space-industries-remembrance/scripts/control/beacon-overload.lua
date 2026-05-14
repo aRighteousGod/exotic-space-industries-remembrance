@@ -3,7 +3,7 @@
 -- owns: beacon overload effects, icons, and rebuild/runtime state
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, configuration refresh, and queued refresh drain
--- forwarded_events: add_overload_effect, add_overload_icon, allows_effects, check_global, count_beacons, counts_for_overload, entity_check, get_debug_status, on_built_entity, on_configuration_changed, on_destroyed_entity, refresh_all_overloads, refresh_tracked_overloads, remove_overload_icon, set_debug_auto_arm, set_debug_enabled, update_all_machines_in_range, update_overload, updater
+-- forwarded_events: add_overload_effect, add_overload_icon, allows_effects, check_global, count_beacons, counts_for_overload, entity_check, get_debug_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, refresh_all_overloads, refresh_tracked_overloads, remove_overload_icon, set_debug_auto_arm, set_debug_enabled, update_all_machines_in_range, update_overload, updater
 -- storage_roots: storage.ei, storage.ei.beacon_overload
 -- gui_ids: none
 -- remote_interfaces: none
@@ -67,6 +67,22 @@ local active_surface_scan = nil
 
 local function new_queue_section()
     return ei_runtime_scheduler.ensure_queue(nil)
+end
+
+local function raw_queue_has_items(queue)
+    if type(queue) ~= "table" or type(queue.items) ~= "table" then
+        return false
+    end
+
+    local head = queue.head or 1
+    local tail = queue.tail or #queue.items
+    for index = head, tail do
+        if queue.items[index] ~= nil then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function read_overload_enabled_config()
@@ -1399,6 +1415,48 @@ function model.on_configuration_changed(e)
     end)
 
     log_debug_status(state, "config-change-exit", reason, nil)
+end
+
+function model.has_tick_work(event)
+    local state = storage and storage.ei and storage.ei.beacon_overload or nil
+    if type(state) ~= "table" then
+        return false
+    end
+
+    if state.mode ~= nil
+        or active_surface_scan ~= nil
+        or state.tracked_refresh_cursor ~= nil
+        or state.release_cursor ~= nil
+        or state.tracked_audit_cursor ~= nil
+        or state.icon_audit_cursor ~= nil
+    then
+        return true
+    end
+
+    if raw_queue_has_items(state.surface_queue)
+        or raw_queue_has_items(state.chunk_queue)
+        or raw_queue_has_items(state.machine_queue)
+    then
+        return true
+    end
+
+    if (tonumber(state.overloaded_count) or 0) > 0
+        or (type(state.overloaded_units) == "table" and next(state.overloaded_units) ~= nil)
+    then
+        return true
+    end
+
+    if state.debug and state.debug.enabled == true then
+        return true
+    end
+
+    local tracked_count = tonumber(state.tracked_count) or 0
+    if tracked_count <= 0 and type(state.tracked_machines) == "table" then
+        tracked_count = next(state.tracked_machines) ~= nil and 1 or 0
+    end
+
+    local tick = event and event.tick or game and game.tick or 0
+    return tracked_count > 0 and tick % IDLE_AUDIT_INTERVAL_TICKS == 0
 end
 
 function model.updater(event)

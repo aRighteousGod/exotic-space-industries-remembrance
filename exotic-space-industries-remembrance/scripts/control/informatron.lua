@@ -364,6 +364,7 @@ function model.menu(player_index)
             flammable_ruptures = 1,
             turrets = 1,
             singularity_lance = 1,
+            emerald_apocalypse_hover_tank = 1,
         },
         world_gen_related = {
             resources = 1,
@@ -677,6 +678,20 @@ function model.singularity_lance(player_index, element)
     add_section("singularity-lance-3", "singularity-lance-text-3")
     element.add{type = "label", caption = {"exotic-industries-informatron.singularity-lance-4"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.singularity-lance-text-4", fidelity_label}}
+end
+
+function model.emerald_apocalypse_hover_tank(player_index, element)
+    add_section(element, "emerald-apocalypse-hover-tank", "emerald-apocalypse-hover-tank-text")
+
+    add_centered_named_sprite_row(element, {
+        { sprite = "item/ei-emerald-apocalypse-hover-tank", caption = {"item-name.ei-emerald-apocalypse-hover-tank"} },
+        { sprite = "item/ei-emerald-apocalypse-cannon", caption = {"item-name.ei-emerald-apocalypse-cannon"} },
+        { sprite = "item/ei-emerald-apocalypse-charge", caption = {"item-name.ei-emerald-apocalypse-charge"} },
+    }, { card_width = 150, label_max_width = 138, horizontal_spacing = 8 })
+
+    add_section(element, "emerald-apocalypse-hover-tank-2", "emerald-apocalypse-hover-tank-text-2")
+    add_section(element, "emerald-apocalypse-hover-tank-3", "emerald-apocalypse-hover-tank-text-3")
+    add_section(element, "emerald-apocalypse-hover-tank-4", "emerald-apocalypse-hover-tank-text-4")
 end
 
 
@@ -1099,6 +1114,7 @@ function model.loaders(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.loaders-text"}}
 
     add_centered_sprite_row(element, {
+        "item/ei-steam-loader",
         "item/ei-loader",
         "item/ei-fast-loader",
         "item/ei-express-loader",
@@ -1465,6 +1481,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "singularity_lance" then
         model.singularity_lance(player_index, element)
+    end
+
+    if page_name == "emerald_apocalypse_hover_tank" then
+        model.emerald_apocalypse_hover_tank(player_index, element)
     end
 
     -- =======================================================

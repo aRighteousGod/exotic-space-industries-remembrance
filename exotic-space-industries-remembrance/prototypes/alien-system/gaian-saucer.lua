@@ -14,8 +14,8 @@ local icon_path = main_graphics_item_path.."gaian-saucer.png"
 local tech_icon_path = main_graphics_tech_path.."gaian-saucer.png"
 local wake_graphics_path = main_graphics_entity_path.."gaian-saucer/wake/"
 local saucer_hum_sound_path = ei_path.."sounds/gaian-saucer-hum.ogg"
-local SAUCER_FRAME_SIZE = 768
-local SAUCER_SCALE = 0.23
+local SAUCER_FRAME_SIZE = 256
+local SAUCER_SCALE = 0.69
 local WAKE_FRAME_SIZE = 768
 local WAKE_FRAME_COUNT = 64
 local SAUCER_TARGET_SPEED_MULTIPLIER = 2.0
@@ -133,6 +133,7 @@ saucer.resistances = {
     {type = "electric", percent = 80, decrease=10},
     {type = "explosion", percent = 85, decrease=40},
     {type = "fire", percent = 70, decrease=30},
+    {type = "cold", percent = 70, decrease=30},
     {type = "impact", percent = 90, decrease=100},
     {type = "laser", percent = 80, decrease=10},
     {type = "physical", percent = 70, decrease=30},
@@ -192,13 +193,13 @@ saucer.graphics_set = {
     base_render_layer = "air-object",
     animation = {
         layers = {
-            saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer.png"),
-            saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_glow.png", {
+            saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_dark_compact.png"),
+            saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_dark_compact_glow.png", {
                 draw_as_glow = true,
             }),
         },
     },
-    shadow_animation = saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_shadow.png", {
+    shadow_animation = saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_dark_compact_shadow.png", {
         draw_as_shadow = true,
     }),
     light = {

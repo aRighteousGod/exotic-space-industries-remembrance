@@ -1,0 +1,92 @@
+{
+  "asset_name": "emerald-apocalypse-hover-tank",
+  "kind": "unit-vehicle-directional",
+  "output_root": "output/meshy/emerald-apocalypse-hover-tank",
+  "model_path": "output/meshy/emerald-apocalypse-hover-tank/prepared/emerald-apocalypse-hover-tank-prepared.glb",
+  "source_model_path": "C:/Users/Theorun/Documents/Development/Meshy_AI_Emerald_Crystal_Canno_0509011313_texture.glb",
+  "blender": {
+    "exe": "C:/Program Files/Blender Foundation/Blender 5.1/blender.exe"
+  },
+  "factorio_render_preset": {
+    "blend": "factorioRenderingPreset_v4.blend"
+  },
+  "prepare_model": {
+    "script": ".codex/esir/asset-generators/emerald-apocalypse-hover-tank/prepare_emerald_apocalypse_hover_tank.py",
+    "source": "{source_model_path}",
+    "output": "{output_root}/prepared/emerald-apocalypse-hover-tank-prepared.glb",
+    "artifact_output": "{output_root}/prepared/emerald-apocalypse-hover-tank-removed-forward-cylinder.glb",
+    "manifest": "{output_root}/prepared/emerald-apocalypse-hover-tank-prepared.manifest.json",
+    "mode": "remove-forward-bright-green-cylinder-preserve-muzzle-endpoint"
+  },
+  "render_preset": {
+    "enabled": true,
+    "preset_blend": "{factorio_render_preset.blend}",
+    "input": "{model_path}",
+    "output_dir": "{output_root}/Render",
+    "manifest": "{output_root}/Render/factorio-preset-render-manifest.json",
+    "frames": 64,
+    "directions": 64,
+    "animation_frames": 1,
+    "ortho_scale": 7,
+    "tile_size": 64,
+    "resolution": 448,
+    "grid": "8x8",
+    "passes": [
+      "object",
+      "shadow",
+      "light-alpha-reduced",
+      "light-alpha",
+      "mask"
+    ],
+    "quality": "smoke",
+    "pack_sheets": true,
+    "preflight_only": true,
+    "auto_prep": true,
+    "prep_origin_mode": "ground",
+    "prep_target_size": 4.4,
+    "prep_alpha_mode": "report",
+    "material_report": true,
+    "warn_alpha_materials": true,
+    "footprint_tiles": "4x4"
+  },
+  "export": {
+    "enabled": false,
+    "mode": "render-bundle",
+    "bundle": "{render_preset.output_dir}",
+    "preset_manifest": "{render_preset.manifest}",
+    "pack_raw_frames": true,
+    "grid": "8x8",
+    "line_length": 8,
+    "frame_count": 64,
+    "scale": 0.35,
+    "shift": "0,-0.25",
+    "prototype_mode": "unit",
+    "target_prototype_type": "unit",
+    "target_prototype_name": "emerald-apocalypse-hover-tank",
+    "target_field": "run_animation",
+    "output_dir": "{output_root}/factorio-export"
+  },
+  "role_classification": {
+    "base": [
+      "Render/Object/*.png",
+      "Render/.Sheets/object_0.png"
+    ],
+    "shadow": [
+      "Render/Shadow/*.png",
+      "Render/.Sheets/object_shadow_0.png"
+    ],
+    "glow_or_light": [
+      "Render/Light A Reduced/*.png",
+      "Render/Light A/*.png",
+      "Render/.Sheets/object_lightAR_0.png",
+      "Render/.Sheets/object_lightA_0.png"
+    ],
+    "mask_evidence": [
+      "Render/ColorMask/*.png",
+      "Render/.Sheets/object_mask_0.png"
+    ],
+    "unused_evidence": [
+      "prepared/emerald-apocalypse-hover-tank-removed-forward-cylinder.glb"
+    ]
+  }
+}

@@ -50,6 +50,16 @@ Use for:
 - pack-to-pack asset dependency scans
 - prototype header-metadata suggestions
 
+## `combat-readout explorer`
+
+Use for:
+
+- mapping scripted weapon, turret, vehicle, or support-system damage readouts across prototype, runtime, locale, and research-refresh files
+- comparing a target module against Singularity Lance for turret DPS `custom_status` and Emerald Apocalypse orbital shards for vehicle/support DPS readouts
+- checking whether base tooltip rows belong in `custom_tooltip_fields` and live force-tuned numbers belong in `LuaEntity.custom_status`
+- spotting missing build/rebuild/research/scripted-research refresh hooks for force-scaled DPS caches
+- recommending where `esir-lib-first/references/combat-readout-pattern.md` should be followed before the main agent edits code
+
 ## `portal-scout explorer`
 
 Use for:

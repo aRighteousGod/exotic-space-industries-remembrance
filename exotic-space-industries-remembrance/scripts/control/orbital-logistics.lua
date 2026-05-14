@@ -23,7 +23,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local model = {}
 
-local ORBITAL_LOGISTICS_RUNTIME_STATE_VERSION = 5
+local ORBITAL_LOGISTICS_RUNTIME_STATE_VERSION = 7
 local PLATFORM_TRANSPONDER_NAME = "ei-platform-transponder"
 local ORBITAL_SELECTOR_NAME = "ei-orbital-selector"
 local ORBITAL_COORDINATOR_NAME = "ei-orbital-coordinator"
@@ -399,6 +399,11 @@ local function get_root()
   root.power_sensor_by_unit = type(root.power_sensor_by_unit) == "table" and root.power_sensor_by_unit or {}
   root.power_state_by_unit = type(root.power_state_by_unit) == "table" and root.power_state_by_unit or {}
   root.power_seeded_tick_by_unit = type(root.power_seeded_tick_by_unit) == "table" and root.power_seeded_tick_by_unit or {}
+  root.power_audit_queue = ei_runtime_scheduler.ensure_queue(root.power_audit_queue)
+  root.next_power_audit_tick = tonumber(root.next_power_audit_tick) or nil
+  if root.next_power_audit_tick == nil and next(root.cohorts) ~= nil then
+    root.next_power_audit_tick = ((game and game.tick) or 0) + 1
+  end
   root.lease_by_job_id = type(root.lease_by_job_id) == "table" and root.lease_by_job_id or {}
   root.lease_by_uplink_unit = type(root.lease_by_uplink_unit) == "table" and root.lease_by_uplink_unit or {}
   root.uplink_by_silo_unit = type(root.uplink_by_silo_unit) == "table" and root.uplink_by_silo_unit or {}
@@ -421,6 +426,8 @@ local function destroy_render_object(render_object)
 end
 
 local cohort_power = {}
+cohort_power.power_audit_interval_ticks = 120
+cohort_power.empty_registry_repair_interval_ticks = 3600
 cohort_power.proxy_search_radius = 1.25
 cohort_power.state_powered = "powered"
 cohort_power.state_low_power = "low_power"
@@ -436,8 +443,24 @@ for _, sensor_name in pairs(cohort_power.sensor_name_by_entity) do
   cohort_power.sensor_names[sensor_name] = true
 end
 
+function cohort_power.schedule_audit_tick(due_tick)
+  due_tick = tonumber(due_tick) or now_tick()
+  local root = get_root()
+  if root.next_power_audit_tick == nil or due_tick < root.next_power_audit_tick then
+    root.next_power_audit_tick = due_tick
+  end
+end
+
 function cohort_power.get_sensor_name(entity_or_name)
-  local entity_name = type(entity_or_name) == "table" and entity_or_name.name or entity_or_name
+  local entity_name = entity_or_name
+  if ei_lib.entity_check(entity_or_name) or type(entity_or_name) == "table" then
+    local ok, name = pcall(function()
+      return entity_or_name.name
+    end)
+    if ok then
+      entity_name = name
+    end
+  end
   return cohort_power.sensor_name_by_entity[entity_name]
 end
 
@@ -578,8 +601,10 @@ function cohort_power.ensure(entity, current_tick)
 
   sensor_root[unit_number] = cohort_power.is_sensor(sensor) and sensor or nil
   if created then
-    cohort_power.get_seed_root()[unit_number] = (current_tick or (game and game.tick) or 0) + 2
+    local seeded_until_tick = (current_tick or (game and game.tick) or 0) + 2
+    cohort_power.get_seed_root()[unit_number] = seeded_until_tick
     cohort_power.set_cached_state(unit_number, cohort_power.state_unpowered)
+    cohort_power.schedule_audit_tick(seeded_until_tick + 1)
   end
 
   return sensor_root[unit_number]
@@ -779,6 +804,9 @@ local function ensure_cohort(force_index, surface_name)
   -- only when signature-visible cohort state actually changes.
   cohort.signature_generation = tonumber(cohort.signature_generation) or 0
   cohort.last_signature_generation = tonumber(cohort.last_signature_generation) or -1
+  if root.next_power_audit_tick == nil then
+    cohort_power.schedule_audit_tick(now_tick() + cohort_power.power_audit_interval_ticks)
+  end
   return cohort
 end
 
@@ -930,6 +958,31 @@ local function queue_cohort(force_index, surface_name)
 
   ei_runtime_scheduler.queue_push_unique(root.dirty_cohort_queue, key, key)
   return true
+end
+
+function cohort_power.is_audit_due(root, current_tick)
+  local next_power_audit_tick = tonumber(root and root.next_power_audit_tick) or nil
+  return next_power_audit_tick ~= nil and now_tick(current_tick) >= next_power_audit_tick
+end
+
+function cohort_power.enqueue_due_audits(root, current_tick)
+  if not cohort_power.is_audit_due(root, current_tick) then
+    return false
+  end
+
+  root.next_power_audit_tick = nil
+  local queued = false
+  for key, cohort in pairs(root.cohorts or EMPTY_FILTERS) do
+    if cohort_has_members(cohort) then
+      ei_runtime_scheduler.queue_push_unique(root.power_audit_queue, key, key)
+      queued = true
+    end
+  end
+
+  if queued then
+    cohort_power.schedule_audit_tick(now_tick(current_tick) + cohort_power.power_audit_interval_ticks)
+  end
+  return queued
 end
 
 -- GUI polish uses these cheap queue lookups so operators can see when a cohort
@@ -3254,6 +3307,9 @@ function model.rebuild_runtime_state(reason, current_tick)
   root.power_sensor_by_unit = {}
   root.power_state_by_unit = {}
   root.power_seeded_tick_by_unit = {}
+  root.power_audit_queue = ei_runtime_scheduler.ensure_queue(nil)
+  root.next_power_audit_tick = nil
+  root.next_empty_registry_repair_tick = current_tick + cohort_power.empty_registry_repair_interval_ticks
   root.lease_by_job_id = {}
   root.lease_by_uplink_unit = {}
   root.uplink_by_silo_unit = {}
@@ -3327,15 +3383,36 @@ function model.check_init(rebuild)
   if rebuild ~= false then
     if root.runtime_state_version ~= ORBITAL_LOGISTICS_RUNTIME_STATE_VERSION or root.runtime_initialized ~= true then
       model.rebuild_runtime_state("init", game and game.tick or 0)
+    elseif count_map(root.transponders_by_unit) == 0
+      and count_map(root.selectors_by_unit) == 0
+      and count_map(root.coordinators_by_unit) == 0
+      and count_map(root.uplinks_by_unit) == 0
+    then
+      local current_tick = game and game.tick or 0
+      if current_tick >= (tonumber(root.next_empty_registry_repair_tick) or 0) and game and game.surfaces then
+        root.next_empty_registry_repair_tick = current_tick + cohort_power.empty_registry_repair_interval_ticks
+        for _, surface in pairs(game.surfaces) do
+          if next(build_world_entity_list(surface)) ~= nil then
+            root.next_empty_registry_repair_tick = nil
+            model.rebuild_runtime_state("empty-registry-repair", current_tick)
+            return
+          end
+        end
+      end
     end
   end
 end
 
-function model.get_pending_work_count()
+function model.get_pending_work_count(event)
   local root = get_root()
+  local current_tick = event and event.tick or (game and game.tick) or 0
   local rescan_pending = root.pending_rescan_reason and 1 or 0
   local rescan_length = math.max(ei_runtime_scheduler.queue_length(root.rescan_queue), rescan_pending)
-  return ei_runtime_scheduler.queue_length(root.dirty_cohort_queue) + rescan_length
+  local power_audit_pending = ei_runtime_scheduler.queue_length(root.power_audit_queue)
+  if cohort_power.is_audit_due(root, current_tick) then
+    power_audit_pending = power_audit_pending + 1
+  end
+  return ei_runtime_scheduler.queue_length(root.dirty_cohort_queue) + rescan_length + power_audit_pending
 end
 
 function model.update(event)
@@ -3344,15 +3421,22 @@ function model.update(event)
   local current_tick = event and event.tick or game and game.tick or 0
 
   if consume_pending_runtime_rescan(root, current_tick) then
-    return model.get_pending_work_count() > 0
+    return model.get_pending_work_count(event) > 0
   end
 
+  cohort_power.enqueue_due_audits(root, current_tick)
+
   local key = ei_runtime_scheduler.queue_peek(root.dirty_cohort_queue)
+  local queue = root.dirty_cohort_queue
+  if not key then
+    key = ei_runtime_scheduler.queue_peek(root.power_audit_queue)
+    queue = root.power_audit_queue
+  end
   if not key then
     return false
   end
 
-  ei_runtime_scheduler.queue_pop(root.dirty_cohort_queue, key)
+  ei_runtime_scheduler.queue_pop(queue, key)
   local cohort = root.cohorts[key]
   if cohort then
     if service_cohort(cohort, current_tick) then
@@ -3360,7 +3444,7 @@ function model.update(event)
     end
   end
 
-  return model.get_pending_work_count() > 0
+  return model.get_pending_work_count(event) > 0
 end
 
 function model.get_runtime_status(current_tick)
@@ -3394,6 +3478,11 @@ function model.get_runtime_status(current_tick)
       },
       queues = {
         dirty = {count = 0, length = 0},
+        power_audit = {
+          count = ei_runtime_scheduler.queue_item_count(root.power_audit_queue),
+          length = ei_runtime_scheduler.queue_length(root.power_audit_queue),
+          next_tick = root.next_power_audit_tick,
+        },
         rescan = {
           count = math.max(ei_runtime_scheduler.queue_item_count(root.rescan_queue), root.pending_rescan_reason and 1 or 0),
           length = math.max(ei_runtime_scheduler.queue_length(root.rescan_queue), root.pending_rescan_reason and 1 or 0),
@@ -3463,6 +3552,11 @@ function model.get_runtime_status(current_tick)
       dirty = {
         count = ei_runtime_scheduler.queue_item_count(root.dirty_cohort_queue),
         length = ei_runtime_scheduler.queue_length(root.dirty_cohort_queue),
+      },
+      power_audit = {
+        count = ei_runtime_scheduler.queue_item_count(root.power_audit_queue),
+        length = ei_runtime_scheduler.queue_length(root.power_audit_queue),
+        next_tick = root.next_power_audit_tick,
       },
       rescan = {
         count = math.max(ei_runtime_scheduler.queue_item_count(root.rescan_queue), root.pending_rescan_reason and 1 or 0),
@@ -3709,12 +3803,18 @@ function model.service_for_qc(limit, current_tick)
     if consume_pending_runtime_rescan(root, current_tick) then
       serviced = serviced + 1
     else
+      cohort_power.enqueue_due_audits(root, current_tick)
       local key = ei_runtime_scheduler.queue_peek(root.dirty_cohort_queue)
+      local queue = root.dirty_cohort_queue
+      if not key then
+        key = ei_runtime_scheduler.queue_peek(root.power_audit_queue)
+        queue = root.power_audit_queue
+      end
       if not key then
         break
       end
 
-      ei_runtime_scheduler.queue_pop(root.dirty_cohort_queue, key)
+      ei_runtime_scheduler.queue_pop(queue, key)
       local cohort = root.cohorts[key]
       if cohort then
         service_cohort(cohort, current_tick)
@@ -3726,7 +3826,7 @@ function model.service_for_qc(limit, current_tick)
   return {
     tick = current_tick,
     serviced = serviced,
-    pending = model.get_pending_work_count(),
+    pending = model.get_pending_work_count({tick = current_tick}),
   }
 end
 

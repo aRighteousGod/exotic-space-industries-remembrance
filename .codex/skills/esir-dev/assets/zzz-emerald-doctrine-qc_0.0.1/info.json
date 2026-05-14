@@ -1,0 +1,13 @@
+{
+  "name": "zzz-emerald-doctrine-qc",
+  "version": "0.0.1",
+  "title": "Emerald Doctrine QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "QC-only helper that builds a small Emerald Apocalypse tank doctrine sandbox and records runtime snapshots through the ESIR QC remote."
+}

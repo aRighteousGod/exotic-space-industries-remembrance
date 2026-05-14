@@ -44,6 +44,9 @@ local LANCE_FRAME_SIZE = 768
 local LANCE_FRAME_COUNT = 64
 local LANCE_LINE_LENGTH = 8
 local LANCE_ANIMATION_SPEED = 0.12
+local LANCE_STATIC_FRAME_COUNT = 1
+local LANCE_STATIC_LINE_LENGTH = 1
+local LANCE_RUNE_GLOW_ANIMATION_SPEED = 0.16
 local LANCE_BODY_SCALE = 0.65
 local LANCE_BODY_SHIFT = {0, -2.66}
 local LANCE_BODY_SHADOW_SHIFT = {0, 0.65}
@@ -354,20 +357,60 @@ local function make_lance_base_visualisation()
     return {
         {
             render_layer = "object",
-            secondary_draw_order = 1,
+            secondary_draw_order = 0,
             animation = {
                 layers = {
                     make_lance_animation_layer("ei-singularity-lance_base-shadow.png", {
                         draw_as_shadow = true,
+                        frame_count = LANCE_STATIC_FRAME_COUNT,
+                        line_length = LANCE_STATIC_LINE_LENGTH,
+                        lines_per_file = LANCE_STATIC_LINE_LENGTH,
                         scale = LANCE_BODY_SCALE,
                         shift = LANCE_BODY_SHADOW_SHIFT,
                     }),
+                },
+            },
+        },
+        {
+            render_layer = "object",
+            secondary_draw_order = 0,
+            animation = {
+                layers = {
                     make_lance_animation_layer("ei-singularity-lance_shadow.png", {
                         draw_as_shadow = true,
+                        frame_count = LANCE_STATIC_FRAME_COUNT,
+                        line_length = LANCE_STATIC_LINE_LENGTH,
+                        lines_per_file = LANCE_STATIC_LINE_LENGTH,
                         scale = LANCE_CRYSTAL_SCALE,
                         shift = LANCE_CRYSTAL_SHIFT,
                     }),
+                },
+            },
+        },
+        {
+            render_layer = "object",
+            secondary_draw_order = 1,
+            animation = {
+                layers = {
                     make_lance_animation_layer("ei-singularity-lance.png", {
+                        frame_count = LANCE_STATIC_FRAME_COUNT,
+                        line_length = LANCE_STATIC_LINE_LENGTH,
+                        lines_per_file = LANCE_STATIC_LINE_LENGTH,
+                        scale = LANCE_BODY_SCALE,
+                        shift = LANCE_BODY_SHIFT,
+                    }),
+                },
+            },
+        },
+        {
+            render_layer = "object",
+            secondary_draw_order = 1,
+            animation = {
+                layers = {
+                    make_lance_animation_layer("ei-singularity-lance-rune-glow.png", {
+                        animation_speed = LANCE_RUNE_GLOW_ANIMATION_SPEED,
+                        draw_as_glow = true,
+                        blend_mode = "additive-soft",
                         scale = LANCE_BODY_SCALE,
                         shift = LANCE_BODY_SHIFT,
                     }),

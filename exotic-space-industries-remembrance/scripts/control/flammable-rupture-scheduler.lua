@@ -449,13 +449,24 @@ function model.updater(event)
         refresh_cached_counts(state)
     end
 
-    local due_job_ids = ei_runtime_scheduler.delayed_take_due(state.ring_buckets, event.tick)
+    local due_job_ids = {}
+    local due_bucket_count = 0
+    for due_tick, bucket in pairs(state.ring_buckets) do
+        if due_tick <= event.tick then
+            state.ring_buckets[due_tick] = nil
+            due_bucket_count = due_bucket_count + 1
+            for _, job_id in ipairs(bucket) do
+                due_job_ids[#due_job_ids + 1] = job_id
+            end
+        end
+    end
+
     if #due_job_ids <= 0 then
         return
     end
 
-    state.scheduled_ring_count = math.max(0, (tonumber(state.scheduled_ring_count) or 0) - #due_job_ids)
-    state.scheduled_bucket_count = math.max(0, (tonumber(state.scheduled_bucket_count) or 0) - 1)
+    state.scheduled_ring_count = math.max(0, (state.scheduled_ring_count or 0) - #due_job_ids)
+    state.scheduled_bucket_count = math.max(0, (state.scheduled_bucket_count or 0) - due_bucket_count)
 
     for _, job_id in ipairs(due_job_ids) do
         local job = state.jobs[job_id]

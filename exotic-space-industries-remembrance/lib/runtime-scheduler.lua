@@ -3,7 +3,7 @@
 -- owns: shared runtime queue, delayed bucket, telemetry, and status helpers
 -- loaded_by: control.lua and runtime control modules on demand
 -- cadence: helper calls only; no top-level events
--- forwarded_events: audit_queue, bump_counter, clear_queue, compact_queue, delayed_bucket_count, delayed_item_count, delayed_schedule, delayed_take_due, ensure_delayed_buckets, ensure_module_state, ensure_queue, get_module_status, log_snapshot, queue_item_count, queue_length, queue_peek, queue_pop, queue_pop_matching, queue_pop_queued, queue_push, queue_push_unique, queue_remove_value, set_module_status, status_snapshot, table_count, telemetry_enabled, write_telemetry
+-- forwarded_events: audit_queue, bump_counter, clear_queue, compact_queue, delayed_bucket_count, delayed_item_count, delayed_schedule, delayed_take_due, delayed_take_due_through, ensure_delayed_buckets, ensure_module_state, ensure_queue, get_module_status, log_snapshot, queue_item_count, queue_length, queue_peek, queue_pop, queue_pop_matching, queue_pop_queued, queue_push, queue_push_unique, queue_remove_value, set_module_status, status_snapshot, table_count, telemetry_enabled, write_telemetry
 -- storage_roots: storage.ei.runtime_scheduler and caller-owned queue tables
 -- gui_ids: none
 -- remote_interfaces: none
@@ -347,6 +347,32 @@ function scheduler.delayed_take_due(buckets, tick)
     local bucket = buckets[tick]
     buckets[tick] = nil
     return bucket or {}
+end
+
+function scheduler.delayed_take_due_through(buckets, current_tick)
+    buckets = scheduler.ensure_delayed_buckets(buckets)
+    local due_ticks = {}
+    for due_tick, bucket in pairs(buckets) do
+        if due_tick <= current_tick and type(bucket) == "table" and next(bucket) ~= nil then
+            due_ticks[#due_ticks + 1] = due_tick
+        end
+    end
+
+    if #due_ticks == 0 then
+        return {}
+    end
+
+    table.sort(due_ticks)
+    local due_values = {}
+    for _, due_tick in ipairs(due_ticks) do
+        local bucket = buckets[due_tick]
+        buckets[due_tick] = nil
+        for _, value in ipairs(bucket) do
+            due_values[#due_values + 1] = value
+        end
+    end
+
+    return due_values
 end
 
 function scheduler.delayed_bucket_count(buckets)

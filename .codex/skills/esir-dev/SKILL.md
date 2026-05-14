@@ -17,7 +17,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `chatgpt-firefox-companion` for supervised Firefox image sessions
 - `esir-dependency-intel` for dependency declarations, compatibility touchpoints, remote interfaces, and local installed-mod enrichment
 - `factorio-lua-assumptions` and `factorio-lua-docs` for Factorio Lua lifecycle/API truth
-- `esir-lib-first`, `esir-lua-types`, and `esir-runtime-gui` for ESIR Lua helper reuse, LuaLS annotations, and runtime GUI house style
+- `esir-lib-first`, `esir-lua-types`, `esir-runtime-gui`, and `esir-research-events` for ESIR Lua helper reuse, LuaLS annotations, runtime GUI house style, and research-event burst dispatch
 - `esir-asset-pipeline`, `meshy-api`, `meshy-blender-spritesheet`, `blender-procedural-animation`, `esir-factorio-asset-export`, and `esir-item-icon-prep` for the generated-art-to-Factorio asset path
 - `esir-recipe-icon-style` for recipe icon readability, companion-baseline drift, visibility, sorting, and signal cleanup audits
 
@@ -51,6 +51,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Before applying generic Lua advice to ESIR code, use the repo-local `factorio-lua-assumptions` skill to check Factorio's staged lifecycle, sandboxed libraries, storage rules, `require()` behavior, deterministic runtime changes, and LuaObject validity semantics.
 - For official Factorio API or wiki questions, prefer the repo-local `factorio-lua-docs` skill and `scripts\invoke-factorio-lua-docs.ps1` before broad web search or memory.
 - When editing ESIR Lua and the change touches function signatures, runtime state, option tables, GUI tags, scheduler payloads, prototype records, or module exports, use the repo-local [`esir-lua-types`](../esir-lua-types/SKILL.md) skill to add high-signal LuaLS annotations without forcing unrelated annotation churn.
+- For weapon, turret, or vehicle tooltip/status readouts such as DPS, scripted payload, force-scaled damage, or custom entity status lines, use the repo-local [`esir-lib-first`](../esir-lib-first/SKILL.md) skill and its combat readout pattern before adding ad hoc tooltip or status wiring.
 - For ESIR recipe icon readability, subgroup/order drift, Factoriopedia visibility, player-crafting visibility, recipe signal cleanup, or companion-style batch review, use the repo-local [`esir-recipe-icon-style`](../esir-recipe-icon-style/SKILL.md) skill before ad hoc prototype edits.
 - `pack-deploy` is intentionally mutating. Prefer `pack-dryrun` unless the user explicitly wants `%APPDATA%\Factorio\mods` updated.
 - Encoding detection is part of `preflight` and the `qc-*` wrapper surface. Pass `-FixEncoding` when you want the harness to rewrite non-UTF-8 or repaired mojibake sources as UTF-8.
@@ -70,9 +71,10 @@ Use these specialist skills early instead of letting `esir-dev` absorb the whole
 - [`esir-dependency-intel`](../esir-dependency-intel/SKILL.md): dependency declarations, remote interfaces, dependency touchpoints, planet/content integrations, and local installed-mod presence.
 - [`factorio-lua-assumptions`](../factorio-lua-assumptions/SKILL.md): Lua sandbox, lifecycle, storage, `require()`, deterministic runtime behavior, `data.raw` versus runtime state, and LuaObject validity.
 - [`factorio-lua-docs`](../factorio-lua-docs/SKILL.md): official Factorio runtime, prototype, auxiliary, and wiki scripting docs, including `apply_runtime_tint`, `tint_as_overlay`, `LuaEntity.color`, `LuaPlayer.color`, and rolling-stock color behavior.
-- [`esir-lib-first`](../esir-lib-first/SKILL.md): shared `ei_lib` helpers before adding local Lua helpers, including recipe/prototype mutation, table/string helpers, tint/config utilities, and runtime entity safety.
+- [`esir-lib-first`](../esir-lib-first/SKILL.md): shared `ei_lib` helpers before adding local Lua helpers, including recipe/prototype mutation, table/string helpers, tint/config utilities, runtime entity safety, prototype tooltip rows, and runtime combat status readouts.
 - [`esir-lua-types`](../esir-lua-types/SKILL.md): LuaLS/EmmyLua annotations for signatures, storage/state shapes, option tables, GUI tags, scheduler payloads, prototype records, and module exports.
 - [`esir-runtime-gui`](../esir-runtime-gui/SKILL.md): runtime GUI surfaces, relative anchors, root names, style vocabulary, tag routing, stale-root teardown, and entity-bound lifecycle.
+- [`esir-research-events`](../esir-research-events/SKILL.md): research completion receivers, scripted research burst compatibility, force-wide refresh hooks, and `event.by_script` QC planning.
 - [`esir-asset-pipeline`](../esir-asset-pipeline/SKILL.md): replayable Meshy/Blender/Factorio preset-based asset dossiers with QA, output-role classification, previews, manifests, and promotion planning.
 - [`meshy-api`](../meshy-api/SKILL.md): Meshy generation, balance checks, polling, downloads, manual asset handoff, and safe `MESHY_API_KEY` handling.
 - [`meshy-blender-spritesheet`](../meshy-blender-spritesheet/SKILL.md): static or directional Factorio-preset spritesheet renders from Meshy GLBs or other Blender-compatible models, including named `team_color`/`force_trim`/`color_mask` regions when owner-readability requires runtime tint.
@@ -102,6 +104,7 @@ When a task spans several specialists, start with the broadest orchestrator (`es
 - The orbital logistics cohort helper lives at [`assets/zzz-orbital-logistics-qc_0.0.1`](./assets/zzz-orbital-logistics-qc_0.0.1). Use [`references/orbital-logistics-qc-helper.md`](./references/orbital-logistics-qc-helper.md) when a run needs a save-driven cohort with live platform IDs, selector setup, coordinator arbitration, uplink leases, and structured orbital QC snapshots.
 - The research hitch helper lives at [`assets/zzz-research-hitch-qc_0.0.1`](./assets/zzz-research-hitch-qc_0.0.1). Use [`references/research-hitch-qc-helper.md`](./references/research-hitch-qc-helper.md) when a run needs late-game research-completion hitch coverage with Tesla, EM train, and tech-scaling snapshots.
 - The Singularity Lance helper lives at [`assets/zzz-singularity-lance-qc_0.0.1`](./assets/zzz-singularity-lance-qc_0.0.1). Use [`references/singularity-lance-qc-helper.md`](./references/singularity-lance-qc-helper.md) when a run needs dense alien-age turret sweep coverage with scripted damage and visual-slice telemetry.
+- Use [`esir-research-events`](../esir-research-events/SKILL.md) before changing research receivers or interpreting scripted-research results so normal `on_research_finished` behavior and burst-safe `on_scripted_research_burst` behavior stay paired.
 - The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
 - Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
 
@@ -162,6 +165,7 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 - If an existing `ei_lib` function is close but missing a guard, default, or narrow capability, extend it compatibly before adding a parallel local helper with overlapping behavior. For runtime queue, delayed-bucket, telemetry-gate, counter, cadence, or status-snapshot plumbing, the `Runtime Scheduler Rules` section below wins.
 - Prefer `ei_lib.copy_array` for dense sequence copies, `ei_lib.copy_preset` for visual-fidelity/config preset snapshots, and `ei_lib.clamp_number` or `ei_lib.clamp_integer` for setting/cap normalization. Use `ei_lib.clamp` only when the value is already numeric.
 - Prefer `ei_lib.set_custom_tooltip_fields(prototype, fields, opts)` when writing Factorio `custom_tooltip_fields`; use `opts.append = true` for compatibility pass-throughs that add rows without owning the whole tooltip.
+- For scripted combat readouts, pair prototype tooltip rows with runtime `LuaEntity.custom_status` only after entity validation; see [`esir-lib-first/references/combat-readout-pattern.md`](../esir-lib-first/references/combat-readout-pattern.md).
 - For startup preset/config module style, including visual-fidelity settings and runtime snapshots, read [`esir-lib-first/references/preset-config-pattern.md`](../esir-lib-first/references/preset-config-pattern.md).
 
 ## Locale Rules
@@ -249,6 +253,7 @@ When parallel read-only help is useful, use the playbook in [`references/agent-p
 - `gui-pattern explorer`
 - `runtime-map explorer`
 - `prototype-map explorer`
+- `combat-readout explorer`
 - `portal-scout explorer`
 - `asset-pipeline explorer`
 - `regression explorer`

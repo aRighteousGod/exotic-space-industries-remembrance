@@ -559,7 +559,7 @@ end
 
 local function cleanup_stale_pending_launches(current_tick)
   local state = ensure_launch_state(current_tick)
-  local due_entries = ei_runtime_scheduler.delayed_take_due(state.pending_launch_cleanup_buckets, current_tick)
+  local due_entries = ei_runtime_scheduler.delayed_take_due_through(state.pending_launch_cleanup_buckets, current_tick)
   if #due_entries == 0 then return end
 
   for _, entry in ipairs(due_entries) do

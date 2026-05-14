@@ -2,8 +2,8 @@
 -- ESIR FILE MAP
 -- owns: Fulgora day-length variation
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: every tick
--- forwarded_events: updater
+-- cadence: gated every tick while Fulgora exists
+-- forwarded_events: has_tick_work, updater
 -- storage_roots: storage.ei, storage.fulgora_day_length_variation
 -- gui_ids: none
 -- remote_interfaces: none
@@ -29,6 +29,14 @@ local function schedule_next_check(state, tick)
 	state.check_phase = ((state.check_phase or 0) + 1) % CHECK_JITTER_STEPS
 	local jitter = state.check_phase
 	state.next_check_tick = tick + CHECK_INTERVAL + jitter
+end
+
+function model.has_tick_work(event)
+	if not event or not event.tick then
+		return false
+	end
+
+	return game and game.surfaces and game.surfaces["fulgora"] ~= nil
 end
 
 function model.updater(event)

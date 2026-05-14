@@ -2,8 +2,8 @@
 -- ESIR FILE MAP
 -- owns: EM train GUI and dirty refresh
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: every-tick dirty refresh and GUI click dispatch
--- forwarded_events: get_data, make_mod_button, mark_dirty, on_gui_click, open_mod_gui, update_mod_gui, updater
+-- cadence: dirty-gated refresh and GUI click dispatch
+-- forwarded_events: force_has_access, get_data, has_tick_work, make_mod_button, mark_dirty, on_gui_click, on_player_ready, open_mod_gui, player_has_access, sync_mod_button, update_mod_gui, updater
 -- storage_roots: storage.ei_emt
 -- gui_ids: ei_emt_button, ei_mod-gui, mod_gui
 -- remote_interfaces: none
@@ -11,6 +11,18 @@
 --==============================================================================
 local mod_gui = require("mod-gui")
 local model = {}
+local GUI_NAME = "ei_mod-gui"
+local BUTTON_NAME = "ei_emt_button"
+local UNLOCK_TECH_NAME = "ei_em-trains"
+local ACCESS_RECIPE_NAMES = {
+    "ei_em-locomotive",
+    "ei_em-fluid-wagon",
+    "ei_em-cargo-wagon",
+    "ei_charger",
+    "ei_em-fielder",
+}
+
+model.gui_name = GUI_NAME
 
 --====================================================================================================
 --MAIN
@@ -19,18 +31,78 @@ local model = {}
 --MOD GUI
 ------------------------------------------------------------------------------------------------------
 
-function model.make_mod_button(player)
+---@param force LuaForce|nil
+---@return boolean
+function model.force_has_access(force)
+    if not force or force.valid == false then
+        return false
+    end
 
-  em_trains.check_global()
+    local technologies = force.technologies
+    local unlock_technology = technologies and technologies[UNLOCK_TECH_NAME] or nil
+    if unlock_technology then
+        return unlock_technology.researched == true
+    end
 
-    -- if button already exists, return
-    if mod_gui.get_button_flow(player)["ei_emt_button"] then
+    local recipes = force.recipes
+    if not recipes then
+        return false
+    end
+
+    for _, recipe_name in ipairs(ACCESS_RECIPE_NAMES) do
+        local recipe = recipes[recipe_name]
+        if recipe and recipe.enabled then
+            return true
+        end
+    end
+
+    return false
+end
+
+---@param player LuaPlayer|nil
+---@return boolean
+function model.player_has_access(player)
+    return player
+        and player.valid
+        and model.force_has_access(player.force)
+        or false
+end
+
+---@param player LuaPlayer|nil
+function model.close_mod_gui(player)
+    if not (player and player.valid) then
         return
     end
 
-    local button = mod_gui.get_button_flow(player).add{
+    local root = player.gui.left[GUI_NAME]
+    if root and root.valid then
+        root.destroy()
+    end
+end
+
+---@param player LuaPlayer|nil
+---@return boolean
+function model.make_mod_button(player)
+    if not model.player_has_access(player) then
+        return false
+    end
+
+    em_trains.check_global()
+
+    local button_flow = mod_gui.get_button_flow(player)
+    if not button_flow then
+        return false
+    end
+
+    -- if button already exists, return
+    local button = button_flow[BUTTON_NAME]
+    if button and button.valid then
+        return true
+    end
+
+    button_flow.add{
         type = "sprite-button",
-        name = "ei_emt_button",
+        name = BUTTON_NAME,
         sprite = "ei_emt-logo",
         style = mod_gui.button_style,
         tags = {
@@ -39,12 +111,54 @@ function model.make_mod_button(player)
         }
     }
 
+    return true
+end
+
+---@param player LuaPlayer|nil
+---@return boolean
+function model.sync_mod_button(player)
+    if not (player and player.valid) then
+        return false
+    end
+
+    local button_flow = mod_gui.get_button_flow(player)
+    local button = button_flow and button_flow[BUTTON_NAME] or nil
+    if model.player_has_access(player) then
+        return model.make_mod_button(player)
+    end
+
+    if button and button.valid then
+        button.destroy()
+    end
+    model.close_mod_gui(player)
+    return false
+end
+
+---@param player_index uint|nil
+function model.on_player_ready(player_index)
+    if not player_index then
+        return
+    end
+
+    local player = game.get_player(player_index)
+    if not player then
+        return
+    end
+
+    model.sync_mod_button(player)
+    model.update_mod_gui(player)
 end
 
 
+---@param player LuaPlayer|nil
 function model.open_mod_gui(player)
-    if player.gui.left["ei_mod-gui"] then
-        player.gui.left["ei_mod-gui"].destroy()
+    if not model.player_has_access(player) then
+        model.sync_mod_button(player)
+        return
+    end
+
+    if player.gui.left[GUI_NAME] then
+        player.gui.left[GUI_NAME].destroy()
         return
     end
 
@@ -52,7 +166,7 @@ function model.open_mod_gui(player)
 
     local root = left_gui.add{
         type = "frame",
-        name = "ei_mod-gui",
+        name = GUI_NAME,
         direction = "vertical"
     }
 
@@ -104,7 +218,7 @@ function model.open_mod_gui(player)
             sprite = "ei_emt-range-toggle",
             tags = {
                 action = "toggle_range_highlight",
-                parent_gui = "ei_mod-gui"
+                parent_gui = GUI_NAME
             }
         }
 
@@ -204,18 +318,27 @@ function model.open_mod_gui(player)
 
     end
 
-    model.mark_dirty()
+    model.update_mod_gui(player)
 
 end
 
 
+---@param player LuaPlayer|nil
 function model.update_mod_gui(player)
+    if not (player and player.valid) then
+        return
+    end
 
-    if not player.gui.left["ei_mod-gui"] then return end
+    if not model.player_has_access(player) then
+        model.close_mod_gui(player)
+        return
+    end
+
+    if not player.gui.left[GUI_NAME] then return end
 
     local data = model.get_data(player.surface)
 
-    local root = player.gui.left["ei_mod-gui"]
+    local root = player.gui.left[GUI_NAME]
     local chargers_flow = root["main-container"]["chargers-flow"]
     local trains_flow = root["main-container"]["trains-flow"]
     local stats_flow = root["main-container"]["stats-flow"]
@@ -235,10 +358,13 @@ function model.update_mod_gui(player)
 end
 
 
+---@param surface LuaSurface|nil
+---@return table
 function model.get_data(surface)
+    em_trains.check_global()
 
     surface = surface or game.get_surface(1)
-    data = {}
+    local data = {}
     
     -- charger info
     local surface_chargers = {}
@@ -282,12 +408,12 @@ end
 
 function model.updater()
 
-    if not storage.ei_emt.gui.dirty then
+    if not model.has_tick_work() then
         return
     end
 
     for _, player in pairs(game.connected_players) do
-        model.make_mod_button(player)
+        model.sync_mod_button(player)
         model.update_mod_gui(player)
     end
 
@@ -296,9 +422,20 @@ function model.updater()
 end
 
 
+function model.has_tick_work(_event)
+
+    local gui_state = storage
+        and storage.ei_emt
+        and storage.ei_emt.gui
+
+    return gui_state and gui_state.dirty == true or false
+
+end
+
+
 function model.mark_dirty()
 
-  em_trains.check_global()
+    em_trains.check_global()
 
     storage.ei_emt.gui.dirty = true
 
@@ -306,6 +443,15 @@ end
 
 
 function model.on_gui_click(event)
+    local element = event and event.element or nil
+    if not (element and element.valid) then
+        return
+    end
+
+    local tags = element.tags
+    if not tags then
+        return
+    end
     
     --[[
     if event.element.tags.action == "goto-informatron" then
@@ -320,12 +466,12 @@ function model.on_gui_click(event)
     end
     ]]
 
-    if event.element.tags.action == "open_mod_gui" then
+    if tags.action == "open_mod_gui" then
         model.open_mod_gui(game.get_player(event.player_index))
         return
     end
 
-    if event.element.tags.action == "toggle_range_highlight" then
+    if tags.action == "toggle_range_highlight" then
       em_trains.toggle_range_highlight(game.get_player(event.player_index))
         return
     end

@@ -3,7 +3,7 @@
 -- owns: black hole GUI and runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, GUI dispatch, and every-tick runtime updates
--- forwarded_events: apply_output, built_extractor_pylon, built_injector_pylon, change_stage, check_battery, check_init, close_gui, ensure_runtime_defaults, entity_check, get_data, get_extractor_pylons_in_range, get_injector_pylons_in_range, get_mass, get_power, get_relative_stage_progress, get_stage, get_stage_progress, get_transfer_inv, invoke_victory, make_energy, make_output, make_stage_picture, mark_nearby_black_holes_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_opened, open_gui, refresh_nearby_pylons, register_black_hole, set_stage_progress, transfer_valid, unregister_black_hole, update, update_battery, update_black_hole, update_black_holes, update_gui, update_mass, update_player_guis, update_stage
+-- forwarded_events: apply_output, built_extractor_pylon, built_injector_pylon, change_stage, check_battery, check_init, close_gui, ensure_runtime_defaults, entity_check, get_data, get_extractor_pylons_in_range, get_injector_pylons_in_range, get_mass, get_power, get_relative_stage_progress, get_stage, get_stage_progress, get_transfer_inv, has_tick_work, invoke_victory, make_energy, make_output, make_stage_picture, mark_nearby_black_holes_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_opened, open_gui, rebuild_runtime_state, refresh_nearby_pylons, register_black_hole, set_stage_progress, transfer_valid, unregister_black_hole, update, update_battery, update_black_hole, update_black_holes, update_gui, update_mass, update_player_guis, update_stage
 -- storage_roots: storage.ei
 -- gui_ids: ei-black-hole-console
 -- remote_interfaces: none
@@ -161,6 +161,10 @@ end
 
 function model.check_init(id)
 
+    if not storage.ei then
+        storage.ei = {}
+    end
+
     if not storage.ei.black_hole then
         storage.ei.black_hole = {}
     end
@@ -271,6 +275,35 @@ function model.ensure_runtime_defaults(black_hole_data, event)
     if black_hole_data.last_overlay_stage == nil then
         black_hole_data.last_overlay_stage = -1
     end
+end
+
+local function render_object_is_valid(render_object)
+    local ok, valid = pcall(function()
+        return render_object and render_object.valid
+    end)
+
+    return ok and valid == true
+end
+
+local function destroy_render_object(render_object)
+    if render_object_is_valid(render_object) then
+        render_object.destroy()
+    end
+end
+
+local function ensure_black_hole_animation(black_hole_data, entity)
+    if render_object_is_valid(black_hole_data.animation) then
+        return
+    end
+
+    black_hole_data.animation = rendering.draw_animation{
+        animation = "ei-black-hole_animation",
+        target = entity,
+        surface = entity.surface,
+        render_layer = "object",
+        x_scale = 1,
+        y_scale = 1,
+    }
 end
 
 
@@ -842,6 +875,60 @@ function model.register_black_hole(entity, event)
 end
 
 
+function model.rebuild_runtime_state(reason, event_or_tick)
+    -- Init/config repair must not reset active black holes. It only reconnects live
+    -- entities to storage, recreates missing visuals, and drops stale serialized refs.
+    local _ = reason
+    model.check_init()
+
+    local tick = 0
+    if type(event_or_tick) == "table" then
+        tick = event_or_tick.tick or 0
+    elseif type(event_or_tick) == "number" then
+        tick = event_or_tick
+    elseif game then
+        tick = game.tick
+    end
+    local event = {tick = tick}
+    local seen_units = {}
+
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered{name = BLACK_HOLE_NAME}) do
+            local unit_number = get_entity_unit_number(entity)
+            if unit_number then
+                seen_units[unit_number] = true
+                if not storage.ei.black_hole[unit_number] then
+                    model.register_black_hole(entity, event)
+                else
+                    local black_hole_data = storage.ei.black_hole[unit_number]
+                    black_hole_data.entity = entity
+                    black_hole_data.mass = black_hole_data.mass or 0
+                    black_hole_data.battery = black_hole_data.battery or 0
+                    black_hole_data.energy = black_hole_data.energy or 0
+                    black_hole_data.energy_last = black_hole_data.energy_last or 0
+                    black_hole_data.last_tick = black_hole_data.last_tick or tick
+                    black_hole_data.energy_out = black_hole_data.energy_out or 0
+                    black_hole_data.stage = black_hole_data.stage or 0
+                    black_hole_data.stage_progress = black_hole_data.stage_progress or 0
+                    model.ensure_runtime_defaults(black_hole_data, event)
+                    ensure_black_hole_animation(black_hole_data, entity)
+                    black_hole_data.cache_dirty = true
+                    model.refresh_nearby_pylons(black_hole_data, entity, event, true)
+                end
+            end
+        end
+    end
+
+    for unit_number, black_hole_data in pairs(storage.ei.black_hole) do
+        if not seen_units[unit_number] then
+            destroy_render_object(black_hole_data.animation)
+            destroy_render_object(black_hole_data.overlay)
+            storage.ei.black_hole[unit_number] = nil
+        end
+    end
+end
+
+
 function model.unregister_black_hole(entity, transfer)
     if model.entity_check(entity) == false or entity.name ~= BLACK_HOLE_NAME then
         return
@@ -906,6 +993,27 @@ function model.on_destroyed_entity(entity, transfer)
 
     model.unregister_black_hole(entity, transfer)
 
+end
+
+
+function model.has_tick_work(_event)
+    local black_holes = storage and storage.ei and storage.ei.black_hole or nil
+    if type(black_holes) == "table" and next(black_holes) ~= nil then
+        return true
+    end
+
+    if game and type(game.connected_players) == "table" then
+        for _, player in pairs(game.connected_players) do
+            if player.gui
+                and player.gui.relative
+                and player.gui.relative["ei-black-hole-console"]
+            then
+                return true
+            end
+        end
+    end
+
+    return false
 end
 
 

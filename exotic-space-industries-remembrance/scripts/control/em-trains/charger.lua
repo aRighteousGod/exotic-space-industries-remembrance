@@ -2095,7 +2095,6 @@ end
 function model.animate_range(charger, fade, player)
 
     fade = fade or false
-    player = {player} or nil
 
     if not model.entity_check(charger) then
         return
@@ -2104,16 +2103,21 @@ function model.animate_range(charger, fade, player)
     local radius = storage.ei_emt.buffs.charger_range
     local status = "default"
     model.render_status_rings(charger,status,radius,10)
-    rendering.draw_sprite{
+
+    local draw_parameters = {
         sprite = "ei_emt-radius_big",
         x_scale = radius / 16,
         y_scale = radius / 16,
         target = charger,
         surface = charger.surface,
         draw_on_ground = true,
-        players = game.connected_players,
-        time_to_live = ei_ticksPerFullUpdate,
+        players = player and {player} or game.connected_players,
     }
+    if fade then
+        draw_parameters.time_to_live = ei_ticksPerFullUpdate
+    end
+
+    return rendering.draw_sprite(draw_parameters)
 
     -- 1 tile == 32 pixels
     -- make circles with 8 pixel width, and color fade
@@ -2202,14 +2206,104 @@ end
 --GUI RELATED
 ------------------------------------------------------------------------------------------------------
 
+local function destroy_range_render(render_object)
+    if not render_object then
+        return false
+    end
+
+    if type(render_object) == "number" then
+        local object = rendering.get_object_by_id and rendering.get_object_by_id(render_object) or nil
+        if object and object.valid ~= false and object.destroy then
+            object.destroy()
+            return true
+        elseif rendering.destroy then
+            rendering.destroy(render_object)
+            return true
+        end
+        return false
+    end
+
+    if render_object.valid ~= false and render_object.destroy then
+        render_object.destroy()
+        return true
+    end
+
+    return false
+end
+
+local function range_render_is_live(render_object)
+    if not render_object then
+        return false
+    end
+
+    if type(render_object) == "number" then
+        local object = rendering.get_object_by_id and rendering.get_object_by_id(render_object) or nil
+        return object and object.valid ~= false or rendering.get_object_by_id == nil
+    end
+
+    return render_object.valid ~= false
+end
+
+local function clear_player_range_highlight(player_index)
+    local player_range_state = storage.ei_emt.gui[player_index]
+    if not player_range_state then
+        return false
+    end
+
+    local had_live_render = false
+    for key, value in pairs(player_range_state) do
+        if key == "render_objects" and type(value) == "table" then
+            for _, render_object in pairs(value) do
+                had_live_render = range_render_is_live(render_object) or had_live_render
+                destroy_range_render(render_object)
+            end
+        elseif value == true then
+            had_live_render = range_render_is_live(key) or had_live_render
+            destroy_range_render(key)
+        else
+            had_live_render = range_render_is_live(value) or had_live_render
+            destroy_range_render(value)
+        end
+    end
+
+    storage.ei_emt.gui[player_index] = nil
+    return had_live_render
+end
+
+local function draw_player_range_highlight(player)
+    if not (player and player.valid) then
+        return false
+    end
+
+    local player_index = player.index
+    local render_objects = {}
+    storage.ei_emt.gui[player_index] = {
+        render_objects = render_objects,
+    }
+
+    for _, charger in pairs(storage.ei_emt.chargers) do
+        local render_object = model.animate_range(charger.entity, false, player)
+        if render_object then
+            render_objects[#render_objects + 1] = render_object
+        end
+    end
+
+    if #render_objects == 0 then
+        storage.ei_emt.gui[player_index] = nil
+        return false
+    end
+
+    return true
+end
+
 function model.fix_toggle_range()
 
     for _, player in pairs(game.connected_players) do
         
         local player_index = player.index
         if storage.ei_emt.gui[player_index] then
-            model.toggle_range_highlight(player) -- remove all
-            model.toggle_range_highlight(player) -- draw new
+            clear_player_range_highlight(player_index)
+            draw_player_range_highlight(player)
         end
 
     end
@@ -2225,22 +2319,12 @@ function model.toggle_range_highlight(player)
     local player_index = player.index
 
     if storage.ei_emt.gui[player_index] then
-        
-        -- remove all renderings
-        for key,_ in pairs(storage.ei_emt.gui[player_index]) do
-            rendering.destroy(key)
+        if clear_player_range_highlight(player_index) then
+            return
         end
-
-        storage.ei_emt.gui[player_index] = nil
-        return
     end
 
-    storage.ei_emt.gui[player_index] = {}
-
-    for id,charger in pairs(storage.ei_emt.chargers) do
-        local render_id = model.animate_range(charger.entity, false, player)
-        if render_id then storage.ei_emt.gui[player_index][render_id] = true end
-    end
+    draw_player_range_highlight(player)
 
 end
 
@@ -2257,11 +2341,15 @@ function model.charger_updater(budget, current_tick)
     return did_update
 end
 
+---@param event EventData.on_research_finished
+---@return boolean
 function model.on_research_finished(event)
     local force = event and event.research and event.research.force or nil
-    model.refresh_research_buffs(event, true, force)
+    return model.refresh_research_buffs(event, true, force)
 end
 
+---@param force LuaForce|nil
+---@return boolean
 function model.on_scripted_research_burst(force)
     local player_force = game and game.forces and game.forces.player or nil
     if force and player_force and force.index ~= player_force.index then

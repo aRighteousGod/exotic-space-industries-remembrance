@@ -101,6 +101,9 @@ local EXTRA_FUELS = {
   "ei-diesel-fuel",
 }
 
+local ELECTRIC_WEAPONS_DAMAGE_GATE = "electric-weapons-damage-4"
+local ELECTRIC_WEAPONS_DAMAGE_REPEATABLE = "electric-weapons-damage-5"
+
 local function starts_with(value, prefix)
   return string.find(value, prefix, 1, true) == 1
 end
@@ -1062,6 +1065,33 @@ local function patch_bridge_weapons()
   end
 end
 
+local function split_electric_weapons_damage_repeatable()
+  local technologies = data.raw.technology
+  local gate = technologies and technologies[ELECTRIC_WEAPONS_DAMAGE_GATE]
+  if not gate or not gate.unit then
+    return
+  end
+
+  local is_repeatable_gate = gate.max_level == "infinite"
+    or gate.unit.count_formula ~= nil
+
+  if not is_repeatable_gate then
+    return
+  end
+
+  if not technologies[ELECTRIC_WEAPONS_DAMAGE_REPEATABLE] then
+    local repeatable = table.deepcopy(gate)
+    repeatable.name = ELECTRIC_WEAPONS_DAMAGE_REPEATABLE
+    repeatable.prerequisites = {ELECTRIC_WEAPONS_DAMAGE_GATE}
+    repeatable.max_level = "infinite"
+    data:extend({repeatable})
+  end
+
+  gate.max_level = nil
+  gate.unit.count = gate.unit.count or 2000
+  gate.unit.count_formula = nil
+end
+
 local function mirror_existing_effects()
   for technology_name, technology in pairs(raw.technology) do
     if technology.effects then
@@ -1639,6 +1669,7 @@ local function apply_overlay()
   create_bridge_prototypes()
   create_doctrine_prototypes()
   patch_bridge_weapons()
+  split_electric_weapons_damage_repeatable()
   mirror_existing_effects()
   add_doctrine_technologies()
   reassert_tesla_technology_layouts()

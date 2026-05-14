@@ -145,6 +145,8 @@ require("scripts/data-final-updates/exotic-damage-resistances")
 require("scripts/data-final-updates/enemy-difficulty")
 require("scripts/data-final-updates/gate-difficulty")
 require("scripts/data-final-updates/singularity-lance-damage-category")
+require("scripts/data-final-updates/emerald-apocalypse-hover-tank")
+require("scripts/data-final-updates/item-glow-overlays")
 
 -- Weighted-tech badges are a pure icon pass, so they can run truly last after every other
 -- final tech rewrite has settled on its finished icon and science layout.

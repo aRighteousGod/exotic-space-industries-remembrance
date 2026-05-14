@@ -3,11 +3,11 @@
 -- owns: Singularity Lance runtime damage, chromatic beam witnesses, and QC telemetry
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: control.lua updater fan-out, startup visual-fidelity preset, shot trigger effects
--- forwarded_events: check_global, configure_qc, get_pending_work_count, get_qc_snapshot, get_runtime_status, on_built_entity, on_configuration_changed, on_destroyed_entity, on_research_finished, on_script_trigger_effect, refresh_runtime_state, reset_runtime_state, service_for_qc, updater
+-- forwarded_events: check_global, configure_qc, get_pending_work_count, get_qc_snapshot, get_runtime_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, refresh_runtime_state, reset_runtime_state, service_for_qc, updater
 -- storage_roots: storage.ei.singularity_lance
 -- gui_ids: none
 -- remote_interfaces: debug/QC methods are registered by control.lua
--- rebuild_on: startup setting changes, laser damage research changes, runtime schema changes
+-- rebuild_on: startup setting changes, laser damage research changes, scripted research bursts, runtime schema changes
 --==============================================================================
 
 local ei_lib = require("lib/lib")
@@ -237,6 +237,22 @@ local function get_tick(event)
     end
 
     return game and game.tick or 0
+end
+
+local function raw_queue_has_items(queue)
+    if type(queue) ~= "table" or type(queue.items) ~= "table" then
+        return false
+    end
+
+    local head = queue.head or 1
+    local tail = queue.tail or #queue.items
+    for index = head, tail do
+        if queue.items[index] ~= nil then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function get_perf_setting()
@@ -772,9 +788,8 @@ local function recalculate_impact_next_due_tick(runtime)
         if type(bucket) == "table" and next(bucket) ~= nil then
             item_count = item_count + #bucket
 
-            local numeric_tick = tonumber(due_tick)
-            if numeric_tick and (next_due_tick == 0 or numeric_tick < next_due_tick) then
-                next_due_tick = numeric_tick
+            if next_due_tick == 0 or due_tick < next_due_tick then
+                next_due_tick = due_tick
             end
         end
     end
@@ -789,7 +804,7 @@ local function get_due_impact_count(runtime, tick)
         return 0
     end
 
-    local due_tick = tonumber(runtime.impact_next_due_tick) or 0
+    local due_tick = runtime.impact_next_due_tick or 0
     if due_tick <= 0 then
         due_tick = recalculate_impact_next_due_tick(runtime)
     end
@@ -1363,6 +1378,17 @@ function singularity_lance.on_research_finished(event)
     refresh_lance_damage_statuses(runtime, event.research.force)
 end
 
+function singularity_lance.on_scripted_research_burst(force, _current_tick)
+    if not force or not force.valid then
+        return false
+    end
+
+    local runtime = ensure_runtime()
+    sync_force_cache(runtime, force)
+    refresh_lance_damage_statuses(runtime, force)
+    return true
+end
+
 function singularity_lance.on_built_entity(event)
     local entity = event and event.entity or event
     if not entity or not entity.valid or entity.name ~= TURRET_NAME then return end
@@ -1442,7 +1468,7 @@ end
 --====================================================================================================
 
 local function take_due_impact_bucket(runtime, tick)
-    local due_tick = tonumber(runtime.impact_next_due_tick) or 0
+    local due_tick = runtime.impact_next_due_tick or 0
     if due_tick <= 0 then
         due_tick = recalculate_impact_next_due_tick(runtime)
     end
@@ -1517,6 +1543,32 @@ end
 function singularity_lance.get_pending_work_count(event)
     local runtime = ensure_runtime()
     return (runtime.visual_slice_count or 0) + get_due_impact_count(runtime, get_tick(event))
+end
+
+function singularity_lance.has_tick_work(event)
+    local runtime = storage and storage.ei and storage.ei.singularity_lance or nil
+    if type(runtime) ~= "table" then
+        return false
+    end
+
+    if runtime.version ~= RUNTIME_VERSION then
+        return true
+    end
+
+    if (runtime.visual_slice_count or 0) > 0
+        or (runtime.active_visual_jobs or 0) > 0
+        or raw_queue_has_items(runtime.visual_queue)
+    then
+        return true
+    end
+
+    local impact_count = runtime.impact_effect_count or 0
+    if impact_count <= 0 then
+        return false
+    end
+
+    local next_due_tick = runtime.impact_next_due_tick or 0
+    return next_due_tick <= 0 or next_due_tick <= get_tick(event)
 end
 
 function singularity_lance.update(limit, event)

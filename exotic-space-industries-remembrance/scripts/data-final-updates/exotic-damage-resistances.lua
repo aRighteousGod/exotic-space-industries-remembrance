@@ -52,6 +52,33 @@ local function add_missing_damage_resistance(prototype, damage_type, percent)
     })
 end
 
+local function get_resistance(prototype, damage_type)
+    if type(prototype) ~= "table" or type(prototype.resistances) ~= "table" then
+        return nil
+    end
+
+    for _, resistance in pairs(prototype.resistances) do
+        if type(resistance) == "table" and resistance.type == damage_type then
+            return resistance
+        end
+    end
+
+    return nil
+end
+
+local function mirror_fire_resistance_to_cold(prototype)
+    local fire_resistance = get_resistance(prototype, "fire")
+    if not fire_resistance then
+        return
+    end
+
+    ei_lib.upsert_resistance(prototype, {
+        type = "cold",
+        decrease = fire_resistance.decrease,
+        percent = fire_resistance.percent
+    })
+end
+
 local function apply_pair(prototype, radiological_percent, morphium_percent)
     add_missing_damage_resistance(prototype, "ei-radiological", radiological_percent)
     add_missing_damage_resistance(prototype, "ei-morphium", morphium_percent)
@@ -198,6 +225,12 @@ local rolling_stock_types = {
 for _, raw_type in pairs(rolling_stock_types) do
     for _, prototype in pairs(data.raw[raw_type] or {}) do
         apply_pair(prototype, 25, 60)
+    end
+end
+
+for _, raw_type in pairs({"spider-vehicle", "car", "locomotive"}) do
+    for _, prototype in pairs(data.raw[raw_type] or {}) do
+        mirror_fire_resistance_to_cold(prototype)
     end
 end
 

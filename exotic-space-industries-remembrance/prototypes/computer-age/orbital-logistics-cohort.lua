@@ -207,6 +207,15 @@ local selector_icon = ei_graphics_item_path .. "alien-console.png"
 local coordinator_icon = ei_graphics_item_path .. "computer-core.png"
 local uplink_icon = ei_fueler_graphics_path .. "fueler_icon.png"
 
+local transponder_collision_box = {{-0.35, -0.35}, {0.35, 0.35}}
+local transponder_selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+local selector_collision_box = {{-0.8, -0.8}, {0.8, 0.8}}
+local selector_selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
+local coordinator_collision_box = {{-2.4, -2.4}, {2.4, 2.4}}
+local coordinator_selection_box = {{-2.5, -2.5}, {2.5, 2.5}}
+local uplink_collision_box = {{-0.8, -0.8}, {0.8, 0.8}}
+local uplink_selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
+
 local function make_hidden_power_sensor(params)
     local sensor = table.deepcopy(data.raw["lamp"]["small-lamp"])
     sensor.name = params.name
@@ -230,8 +239,8 @@ local function make_hidden_power_sensor(params)
     sensor.selectable_in_game = false
     sensor.minable = nil
     sensor.max_health = 1
-    sensor.collision_box = {{0, 0}, {0, 0}}
-    sensor.selection_box = {{0, 0}, {0, 0}}
+    sensor.collision_box = table.deepcopy(params.collision_box or {{0, 0}, {0, 0}})
+    sensor.selection_box = table.deepcopy(params.selection_box or params.collision_box or {{0, 0}, {0, 0}})
     sensor.collision_mask = {layers = {}}
     sensor.always_on = true
     sensor.energy_source = {
@@ -257,6 +266,8 @@ local orbital_power_sensors = {
         entity_name = "ei-platform-transponder",
         icon = transponder_icon,
         tint = {r = 0.55, g = 0.95, b = 1.0, a = 0.95},
+        collision_box = transponder_collision_box,
+        selection_box = transponder_selection_box,
         energy_usage_per_tick = "100kW",
     },
     make_hidden_power_sensor{
@@ -264,6 +275,8 @@ local orbital_power_sensors = {
         entity_name = "ei-orbital-selector",
         icon = selector_icon,
         tint = {r = 0.95, g = 0.75, b = 0.20, a = 0.95},
+        collision_box = selector_collision_box,
+        selection_box = selector_selection_box,
         energy_usage_per_tick = "250kW",
     },
     make_hidden_power_sensor{
@@ -271,6 +284,8 @@ local orbital_power_sensors = {
         entity_name = "ei-orbital-coordinator",
         icon = coordinator_icon,
         tint = {r = 1.0, g = 0.40, b = 0.18, a = 0.95},
+        collision_box = coordinator_collision_box,
+        selection_box = coordinator_selection_box,
         energy_usage_per_tick = "500kW",
     },
     make_hidden_power_sensor{
@@ -278,6 +293,8 @@ local orbital_power_sensors = {
         entity_name = "ei-orbital-dispatch-uplink",
         icon = uplink_icon,
         tint = {r = 1.0, g = 0.62, b = 0.15, a = 0.95},
+        collision_box = uplink_collision_box,
+        selection_box = uplink_selection_box,
         energy_usage_per_tick = "350kW",
     },
 }
@@ -287,8 +304,8 @@ local orbital_entities = {
         name = "ei-platform-transponder",
         icon = transponder_icon,
         tint = {r = 0.55, g = 0.95, b = 1.0, a = 0.95},
-        collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
-        selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+        collision_box = transponder_collision_box,
+        selection_box = transponder_selection_box,
         fast_replaceable_group = "ei-orbital-cohort-terminal",
         item_slot_count = 32,
         order = "c[combinators]-d[platform-transponder]",
@@ -308,8 +325,8 @@ local orbital_entities = {
         name = "ei-orbital-selector",
         icon = selector_icon,
         tint = {r = 0.95, g = 0.75, b = 0.20, a = 0.95},
-        collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-        selection_box = {{-1.0, -1.0}, {1.0, 1.0}},
+        collision_box = selector_collision_box,
+        selection_box = selector_selection_box,
         fast_replaceable_group = "ei-orbital-cohort-terminal",
         item_slot_count = 512,
         order = "c[combinators]-e[orbital-selector]",
@@ -329,8 +346,8 @@ local orbital_entities = {
         name = "ei-orbital-coordinator",
         icon = coordinator_icon,
         tint = {r = 1.0, g = 0.40, b = 0.18, a = 0.95},
-        collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
-        selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
+        collision_box = coordinator_collision_box,
+        selection_box = coordinator_selection_box,
         fast_replaceable_group = "ei-orbital-cohort-terminal",
         item_slot_count = 128,
         order = "c[combinators]-f[orbital-coordinator]",
@@ -350,8 +367,8 @@ local orbital_entities = {
         name = "ei-orbital-dispatch-uplink",
         icon = uplink_icon,
         tint = {r = 1.0, g = 0.62, b = 0.15, a = 0.95},
-        collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-        selection_box = {{-1.0, -1.0}, {1.0, 1.0}},
+        collision_box = uplink_collision_box,
+        selection_box = uplink_selection_box,
         fast_replaceable_group = "ei-orbital-cohort-terminal",
         item_slot_count = 512,
         order = "c[combinators]-g[orbital-dispatch-uplink]",

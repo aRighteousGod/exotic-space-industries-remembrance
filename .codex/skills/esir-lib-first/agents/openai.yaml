@@ -1,4 +1,4 @@
 interface:
   display_name: "ESIR Lib First"
-  short_description: "Prefer ei_lib before adding new ESIR Lua helpers"
-  default_prompt: "Use $esir-lib-first and inspect exotic-space-industries-remembrance/lib/lib.lua before adding or duplicating helper functions in ESIR Lua code."
+  short_description: "ei_lib helpers plus tooltip/status readouts"
+  default_prompt: "Use $esir-lib-first to inspect exotic-space-industries-remembrance/lib/lib.lua before adding helpers, tooltip rows, or runtime status readouts in ESIR Lua code."

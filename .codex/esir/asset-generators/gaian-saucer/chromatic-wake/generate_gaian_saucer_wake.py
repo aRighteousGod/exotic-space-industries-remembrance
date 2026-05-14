@@ -41,7 +41,7 @@ SEED = 5905030805
 NORMAL_FILENAME = "ei-gaian-saucer_wake.png"
 GLOW_FILENAME = "ei-gaian-saucer_wake_glow.png"
 
-SAUCER_SCALE = 0.23
+SAUCER_SCALE = 0.69
 WAKE_SCALE = 0.23
 
 
@@ -405,9 +405,9 @@ def paste_layer(
 
 
 def make_factorio_preview(wake: Image.Image, wake_glow: Image.Image) -> Image.Image:
-    saucer = first_frame(SAUCER_DIR / "ei-gaian-saucer.png")
-    saucer_glow = first_frame(SAUCER_DIR / "ei-gaian-saucer_glow.png")
-    saucer_shadow = first_frame(SAUCER_DIR / "ei-gaian-saucer_shadow.png")
+    saucer = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact.png")
+    saucer_glow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_glow.png")
+    saucer_shadow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_shadow.png")
 
     backgrounds = [
         ((17, 20, 23), "dark factory"),

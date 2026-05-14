@@ -3,7 +3,7 @@
 -- owns: fueler towers, targets, player servicing, and console GUI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init/config rebuild, build/destroy, scheduled tick step 6, and GUI open/close/click
--- forwarded_events: add_active_surface, audit_runtime_state, build_target_entry, build_tower_entry, cast_beam, check_global, clear_legacy_runtime_fields, close_gui, consume_tower_slice_budget, dequeue_ready_player, dequeue_surface_target, enqueue_ready_player, enqueue_ready_target, ensure_runtime_ready, entity_check, get_equipment, get_normalized_quality_factor, get_quality_sort_level, get_ready_target_count, get_retry_delay, get_runtime_status, get_service_budget, get_surface_queue, get_target_type, get_tower_chunk_bucket, get_tower_slice_remaining, get_transfer_inv, index_tower, is_better_tower, is_supported_runtime_target, mark_players_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_player_left_game, on_player_ready, open_gui, process_player_state, process_ready_player, process_ready_target, process_target_entry, rebuild_runtime_state, refuel_equipments, refuel_target, register_fueler, register_target, release_due_players, release_due_targets, remove_active_surface, remove_ready_player, remove_ready_target, remove_target_entry, remove_tower_entry, reset_runtime_storage, schedule_player, schedule_target, select_service_towers, set_equipment, set_target_type, sync_connected_players, sync_player_state, tower_matches_target, transfer_ammo, transfer_fuel, transfer_valid, unindex_tower, unregister_fueler, unregister_player_by_index, unregister_target, unschedule_player, unschedule_target, update_gui, updater
+-- forwarded_events: add_active_surface, audit_runtime_state, build_target_entry, build_tower_entry, cast_beam, check_global, clear_legacy_runtime_fields, close_gui, consume_tower_slice_budget, dequeue_ready_player, dequeue_surface_target, enqueue_ready_player, enqueue_ready_target, ensure_runtime_ready, entity_check, get_equipment, get_normalized_quality_factor, get_pending_work_count, get_quality_sort_level, get_ready_target_count, get_retry_delay, get_runtime_status, get_service_budget, get_surface_queue, get_target_type, get_tower_chunk_bucket, get_tower_slice_remaining, get_transfer_inv, has_tick_work, index_tower, is_better_tower, is_supported_runtime_target, mark_players_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_player_left_game, on_player_ready, open_gui, process_player_state, process_ready_player, process_ready_target, process_target_entry, rebuild_runtime_state, refuel_equipments, refuel_target, register_fueler, register_target, release_due_players, release_due_targets, remove_active_surface, remove_ready_player, remove_ready_target, remove_target_entry, remove_tower_entry, reset_runtime_storage, schedule_player, schedule_target, select_service_towers, set_equipment, set_target_type, sync_connected_players, sync_player_state, tower_matches_target, transfer_ammo, transfer_fuel, transfer_valid, unindex_tower, unregister_fueler, unregister_player_by_index, unregister_target, unschedule_player, unschedule_target, update_gui, updater
 -- storage_roots: storage.ei
 -- gui_ids: ei-fueler-console
 -- remote_interfaces: none
@@ -86,6 +86,68 @@ local function compact_queue(queue)
     end
 
     return queue
+end
+
+local function raw_table_has_entries(tbl)
+    return type(tbl) == "table" and next(tbl) ~= nil
+end
+
+local function raw_queue_item_count(queue)
+    if type(queue) ~= "table" or type(queue.items) ~= "table" then
+        return 0
+    end
+
+    local count = 0
+    local head = queue.head or 1
+    local tail = queue.tail or #queue.items
+    for index = head, tail do
+        if queue.items[index] ~= nil then
+            count = count + 1
+        end
+    end
+
+    return count
+end
+
+local function raw_surface_queue_item_count(surface_queues)
+    if type(surface_queues) ~= "table" then
+        return 0
+    end
+
+    local count = 0
+    for _, queue in pairs(surface_queues) do
+        count = count + raw_queue_item_count(queue)
+    end
+
+    return count
+end
+
+local function raw_due_bucket_ticks(buckets, current_tick)
+    local due_ticks = {}
+    if type(buckets) ~= "table" then
+        return due_ticks
+    end
+
+    for due_tick, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil then
+            if due_tick <= current_tick then
+                due_ticks[#due_ticks + 1] = due_tick
+            end
+        end
+    end
+
+    return due_ticks
+end
+
+local function raw_due_bucket_item_count(buckets, current_tick)
+    local count = 0
+    for _, due_tick in ipairs(raw_due_bucket_ticks(buckets, current_tick)) do
+        for _ in pairs(buckets[due_tick]) do
+            count = count + 1
+        end
+    end
+
+    return count
 end
 
 local function get_force_index(force)
@@ -1104,22 +1166,27 @@ function model.release_due_targets(runtime, tick)
 
     runtime.last_due_target_release_tick = tick
 
-    local bucket = runtime.delayed_target_buckets[tick]
-    if not bucket then
+    local due_ticks = raw_due_bucket_ticks(runtime.delayed_target_buckets, tick)
+    if #due_ticks == 0 then
         return
     end
 
-    runtime.delayed_target_buckets[tick] = nil
+    for _, due_tick in ipairs(due_ticks) do
+        local bucket = runtime.delayed_target_buckets[due_tick]
+        runtime.delayed_target_buckets[due_tick] = nil
 
-    for target_id in pairs(bucket) do
-        local target_entry = runtime.targets[target_id]
-        if target_entry then
-            target_entry.next_ready_tick = nil
-            if model.entity_check(target_entry.entity) then
-                target_entry.surface_index = ei_lib.get_surface_index(target_entry.entity.surface)
-                model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
-            else
-                model.remove_target_entry(runtime, target_id, target_entry)
+        if type(bucket) == "table" then
+            for target_id in pairs(bucket) do
+                local target_entry = runtime.targets[target_id]
+                if target_entry then
+                    target_entry.next_ready_tick = nil
+                    if model.entity_check(target_entry.entity) then
+                        target_entry.surface_index = ei_lib.get_surface_index(target_entry.entity.surface)
+                        model.enqueue_ready_target(runtime, target_id, target_entry.surface_index)
+                    else
+                        model.remove_target_entry(runtime, target_id, target_entry)
+                    end
+                end
             end
         end
     end
@@ -1132,18 +1199,23 @@ function model.release_due_players(runtime, tick)
 
     runtime.last_due_player_release_tick = tick
 
-    local bucket = runtime.delayed_player_buckets[tick]
-    if not bucket then
+    local due_ticks = raw_due_bucket_ticks(runtime.delayed_player_buckets, tick)
+    if #due_ticks == 0 then
         return
     end
 
-    runtime.delayed_player_buckets[tick] = nil
+    for _, due_tick in ipairs(due_ticks) do
+        local bucket = runtime.delayed_player_buckets[due_tick]
+        runtime.delayed_player_buckets[due_tick] = nil
 
-    for player_index in pairs(bucket) do
-        local player_state = runtime.player_states[player_index]
-        if player_state then
-            player_state.next_ready_tick = nil
-            model.sync_player_state(runtime, player_index)
+        if type(bucket) == "table" then
+            for player_index in pairs(bucket) do
+                local player_state = runtime.player_states[player_index]
+                if player_state then
+                    player_state.next_ready_tick = nil
+                    model.sync_player_state(runtime, player_index)
+                end
+            end
         end
     end
 end
@@ -1537,6 +1609,54 @@ function model.get_ready_target_count()
     return runtime.ready_target_count or 0
 end
 
+function model.get_pending_work_count(event)
+    local runtime = storage and storage.ei and storage.ei.fueler_rt or nil
+    if type(runtime) ~= "table" or runtime.runtime_rebuild_in_progress then
+        return 0
+    end
+
+    local tick = event and event.tick or game and game.tick or 0
+
+    local pending = math.max(
+        tonumber(runtime.ready_target_count) or 0,
+        raw_surface_queue_item_count(runtime.target_surface_queues)
+    )
+
+    pending = pending + raw_queue_item_count(runtime.player_queue)
+    pending = pending + raw_due_bucket_item_count(runtime.delayed_target_buckets, tick)
+    pending = pending + raw_due_bucket_item_count(runtime.delayed_player_buckets, tick)
+
+    if runtime.needs_rebuild == true then
+        pending = pending + 1
+    end
+
+    if runtime.player_sync_dirty == true then
+        pending = pending + 1
+    end
+
+    local has_tracked_runtime = raw_table_has_entries(runtime.towers)
+        or raw_table_has_entries(runtime.targets)
+        or raw_table_has_entries(runtime.player_states)
+
+    if has_tracked_runtime
+        and (tick - (runtime.last_player_sync_tick or -PLAYER_SYNC_INTERVAL_TICKS)) >= PLAYER_SYNC_INTERVAL_TICKS
+    then
+        pending = pending + 1
+    end
+
+    if has_tracked_runtime
+        and (tick - (runtime.last_integrity_audit_tick or -INTEGRITY_AUDIT_INTERVAL_TICKS)) >= INTEGRITY_AUDIT_INTERVAL_TICKS
+    then
+        pending = pending + 1
+    end
+
+    return pending
+end
+
+function model.has_tick_work(event)
+    return model.get_pending_work_count(event) > 0
+end
+
 --HANDLERS
 ------------------------------------------------------------------------------------------------------
 
@@ -1628,13 +1748,8 @@ function model.updater(event)
             model.audit_runtime_state(runtime)
         end
 
-        if runtime.delayed_target_buckets[event.tick] ~= nil then
-            model.release_due_targets(runtime, event.tick)
-        end
-
-        if runtime.delayed_player_buckets[event.tick] ~= nil then
-            model.release_due_players(runtime, event.tick)
-        end
+        model.release_due_targets(runtime, event.tick)
+        model.release_due_players(runtime, event.tick)
     end
 
     if model.process_ready_target(runtime, event) then

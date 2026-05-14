@@ -3,7 +3,7 @@
 -- owns: steam locomotive wheel and helper runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init/config rebuild, build/destroy, train state changes, and every-tick runtime updates
--- forwarded_events: addToGlobal, check_global, on_built_entity, on_destroyed_entity, on_train_changed_state, rebuild_runtime_state, updater
+-- forwarded_events: addToGlobal, check_global, has_tick_work, on_built_entity, on_destroyed_entity, on_train_changed_state, rebuild_runtime_state, updater
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -296,6 +296,17 @@ function steam_train.check_global()
 
 	runtime.audit_cursor = runtime.audit_cursor or 1
 	return runtime
+end
+
+function steam_train.has_tick_work(_event)
+	local runtime = storage and storage.ei and storage.ei.locomotives or nil
+	if type(runtime) ~= "table" then
+		return false
+	end
+
+	return (type(runtime.tracked_units) == "table" and #runtime.tracked_units > 0)
+		or (type(runtime.active_units) == "table" and #runtime.active_units > 0)
+		or (type(runtime.locomotives_by_unit) == "table" and next(runtime.locomotives_by_unit) ~= nil)
 end
 
 function steam_train.rebuild_runtime_state(reason)
