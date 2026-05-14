@@ -29,7 +29,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
-ei_update_functions_length = 14 --# of entity updaters updater() goes through
+ei_update_functions_length = 15 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
@@ -51,6 +51,7 @@ ei_milestone_preset = require("scripts/control/milestone-preset")
 ei_matter_stabilizer = require("scripts/control/matter-stabilizer")
 ei_neutron_collector = require("scripts/control/neutron-collector")
 ei_fusion_reactor = require("scripts/control/fusion-reactor")
+ei_combustion_turbine = require("scripts/control/combustion-turbine")
 ei_induction_matrix = require("scripts/control/induction-matrix")
 ei_black_hole = require("scripts/control/black-hole")
 ei_informatron_messager = require("scripts/control/informatron-messager")
@@ -83,9 +84,12 @@ local ei_railgun_cooling = require("scripts/control/railgun-cooling")
 local ei_singularity_lance = require("scripts/control/singularity-lance")
 local ei_sawblade_turret = require("scripts/control/sawblade-turret")
 local ei_gaian_saucer_wake = require("scripts/control/gaian-saucer-wake")
+local ei_emerald_apocalypse_hover_tank = require("scripts/control/emerald-apocalypse-hover-tank")
+local ei_emerald_apocalypse_hover_tank_drones = require("scripts/control/emerald-apocalypse-orbital-shards")
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
     [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,
+    [ei_emerald_apocalypse_hover_tank.charge_effect_id] = ei_emerald_apocalypse_hover_tank.on_script_trigger_effect,
 }
 
 local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
@@ -103,11 +107,14 @@ local function register_exotic_industries_qc_remote()
             ei_tech_scaling.init()
             em_trains.rebuild_runtime_state("research-hitch-qc")
             ei_teslas_legacy.on_configuration_changed()
+            ei_emerald_apocalypse_hover_tank.reset_runtime_state("research-hitch-qc", game and game.tick or 0)
         end,
         rebuild_scripted_research_runtime = function()
             ei_tech_scaling.init()
             em_trains.rebuild_runtime_state("scripted-research-qc")
             ei_teslas_legacy.on_configuration_changed()
+            ei_singularity_lance.reset_runtime_state("scripted-research-qc", game and game.tick or 0)
+            ei_emerald_apocalypse_hover_tank.reset_runtime_state("scripted-research-qc", game and game.tick or 0)
         end,
         rebuild_orbital_logistics_runtime = function()
             orbital_logistics.rebuild_runtime_state("qc-remote", game and game.tick or 0)
@@ -161,6 +168,18 @@ local function register_exotic_industries_qc_remote()
         get_gaian_saucer_wake_qc_snapshot = function()
             return ei_gaian_saucer_wake.get_qc_snapshot(game and game.tick or 0)
         end,
+        reset_emerald_apocalypse_hover_tank_runtime = function()
+            ei_emerald_apocalypse_hover_tank.reset_runtime_state("qc-remote", game and game.tick or 0)
+        end,
+        configure_emerald_apocalypse_hover_tank_qc = function(config)
+            return ei_emerald_apocalypse_hover_tank.configure_qc(config or {}, game and game.tick or 0)
+        end,
+        service_emerald_apocalypse_hover_tank_qc = function(limit)
+            return ei_emerald_apocalypse_hover_tank.service_for_qc(limit or 1, game and game.tick or 0)
+        end,
+        get_emerald_apocalypse_hover_tank_qc_snapshot = function()
+            return ei_emerald_apocalypse_hover_tank.get_qc_snapshot(game and game.tick or 0)
+        end,
         get_research_hitch_qc_snapshot = function()
             local ei_state = storage and storage.ei or {}
             local tech_scaling = ei_state.tech_scaling or {}
@@ -192,6 +211,9 @@ local function register_exotic_industries_qc_remote()
                 },
                 tesla = ei_teslas_legacy.get_runtime_status and ei_teslas_legacy.get_runtime_status() or nil,
                 em_trains = em_trains.get_runtime_status and em_trains.get_runtime_status() or nil,
+                emerald_apocalypse_hover_tank = ei_emerald_apocalypse_hover_tank.get_runtime_status
+                    and ei_emerald_apocalypse_hover_tank.get_runtime_status(game and game.tick or 0)
+                    or nil,
             }
         end,
     })
@@ -264,7 +286,7 @@ local function queue_scripted_research_burst(event)
         return false
     end
 
-    local source_tick = tonumber(event and event.tick) or game and game.tick or 0
+    local source_tick = tonumber(event and event.tick) or 0
     local scheduled_tick = source_tick + 1
     local state = ensure_scripted_research_burst_state()
     local entry = state.pending_by_force[force_index]
@@ -337,14 +359,24 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
     if ei_teslas_legacy.on_scripted_research_burst then
         ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
     end
+    if ei_singularity_lance.on_scripted_research_burst then
+        ei_singularity_lance.on_scripted_research_burst(force, current_tick)
+    end
     if ei_informatron_messager.on_scripted_research_burst then
         ei_informatron_messager.on_scripted_research_burst(force)
     end
     if em_trains.on_scripted_research_burst then
-        em_trains.on_scripted_research_burst(force)
+        local em_train_buffs_changed = em_trains.on_scripted_research_burst(force) == true
+        if em_train_buffs_changed
+        or (em_trains_gui.force_has_access and em_trains_gui.force_has_access(force)) then
+            em_trains_gui.mark_dirty()
+        end
     end
     if ei_nauvis_pressure_grace.on_scripted_research_burst then
         ei_nauvis_pressure_grace.on_scripted_research_burst(force)
+    end
+    if ei_emerald_apocalypse_hover_tank.on_scripted_research_burst then
+        ei_emerald_apocalypse_hover_tank.on_scripted_research_burst(force, current_tick)
     end
 
     return true
@@ -387,8 +419,9 @@ local function flush_due_scripted_research_bursts(current_tick, state)
         return false
     end
 
-    local due_forces = ei_runtime_scheduler.delayed_take_due(state.due_buckets, current_tick)
+    local due_forces = ei_runtime_scheduler.delayed_take_due_through(state.due_buckets, current_tick)
     if not due_forces or #due_forces == 0 then
+        recalculate_scripted_research_burst_next_due_tick(state)
         return false
     end
 
@@ -436,6 +469,7 @@ local function refresh_runtime_telemetry_snapshot()
         ei_singularity_lance,
         ei_sawblade_turret,
         ei_gaian_saucer_wake,
+        ei_emerald_apocalypse_hover_tank,
         ei_fusion_reactor,
     }
 
@@ -511,11 +545,15 @@ script.on_init(function(event)
     ei_singularity_lance.check_global()
     ei_sawblade_turret.check_global()
     ei_gaian_saucer_wake.rebuild_runtime_state("init", event and event.tick or 0)
+    ei_emerald_apocalypse_hover_tank.check_global(event)
+    ei_emerald_apocalypse_hover_tank.rebuild_runtime_state("init", event and event.tick or 0)
     ei_gaia.ensure_surface()
     ei_crystal_accumulator.check_global()
     ei_crystal_accumulator.rebuild_runtime_state("init", event and event.tick or 0)
     ei_auric_inoculation_vat.check_global()
     ei_auric_inoculation_vat.rebuild_runtime_state("init", event and event.tick or 0)
+    ei_black_hole.check_init()
+    ei_black_hole.rebuild_runtime_state("init", event)
     -- Steam train wheel helpers are runtime-only entities, so init always rebuilds that cache
     -- from the live world instead of trusting whatever happened to be serialized last save.
     ei_steam_train.check_global()
@@ -524,6 +562,8 @@ script.on_init(function(event)
     ei_fueler.rebuild_runtime_state("init")
     ei_fusion_reactor.check_global()
     ei_fusion_reactor.rebuild_runtime_state("init", event and event.tick or 0)
+    ei_combustion_turbine.check_global()
+    ei_combustion_turbine.rebuild_runtime_state("init", event and event.tick or 0)
     ei_neutron_collector.check_global()
     ei_neutron_collector.rebuild_runtime_state("init")
     ei_matter_stabilizer.check_global()
@@ -596,6 +636,7 @@ script.on_event(defines.events.on_entity_damaged, function(event)
     -- still needs this centralized forwarding point so the owned runtime can selectively
     -- restore the original recursive helper behavior.
     ei_teslas_legacy.on_entity_damaged(event)
+    ei_emerald_apocalypse_hover_tank.on_entity_damaged(event)
 end)
 
 script.on_event(defines.events.on_train_changed_state, function(e)
@@ -613,6 +654,7 @@ end)
 
 if defines.events.script_raised_set_tiles then
     script.on_event(defines.events.script_raised_set_tiles, function(e)
+        on_destroyed_tile(e)
         on_built_tile(e)
     end)
 end
@@ -715,6 +757,7 @@ end)
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
     ei_fusion_reactor.on_entity_settings_pasted(e)
+    ei_combustion_turbine.on_entity_settings_pasted(e)
     ei_neutron_collector.on_entity_settings_pasted(e)
     orbital_combinator.on_entity_settings_pasted(e)
     orbital_logistics.on_entity_settings_pasted(e)
@@ -747,8 +790,10 @@ end)
 script.on_event(defines.events.on_object_destroyed, function(e)
     orbital_combinator.on_object_destroyed(e)
     ei_railgun_cooling.on_object_destroyed(e)
+    ei_combustion_turbine.on_object_destroyed(e)
     ei_auric_inoculation_vat.on_object_destroyed(e)
     ei_sawblade_turret.on_object_destroyed(e)
+    ei_emerald_apocalypse_hover_tank.on_object_destroyed(e)
 end)
 
 script.on_event(defines.events.on_rocket_launch_ordered, function(e)
@@ -779,8 +824,13 @@ script.on_event(defines.events.on_research_finished, function(e)
     ei_teslas_legacy.on_research_finished(e)
     ei_singularity_lance.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
-    em_trains.on_research_finished(e)
+    local em_train_buffs_changed = em_trains.on_research_finished(e) == true
+    if em_train_buffs_changed
+    or (e and e.research and e.research.name == "ei_em-trains") then
+        em_trains_gui.mark_dirty()
+    end
     ei_nauvis_pressure_grace.on_research_finished(e)
+    ei_emerald_apocalypse_hover_tank.on_research_finished(e)
 end)
 
 --WORLD RELATED
@@ -857,6 +907,11 @@ script.on_event(defines.events.on_gui_opened, function(event)
         ei_neutron_collector.on_gui_opened(event)
     elseif name == "ei-fusion-reactor" then
         ei_fusion_reactor.open_gui(player --[[@as LuaPlayer]])
+    elseif name == "ei-combustion-turbine"
+        or name == "ei-combustion-turbine-fluid"
+        or name == ei_combustion_turbine.fluid_open_proxy_name
+    then
+        ei_combustion_turbine.open_gui(player --[[@as LuaPlayer]], entity)
     elseif ei_induction_matrix.core[name] or ei_induction_matrix.proxy[name] then
         ei_induction_matrix.open_gui(player --[[@as LuaPlayer]])
     elseif name == "ei-black-hole" then
@@ -869,6 +924,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
         orbital_logistics.open_gui(player, entity)
     elseif name == "railgun-turret" then
         ei_railgun_cooling.open_gui(player, entity)
+    elseif name == ei_emerald_apocalypse_hover_tank.tank_name then
+        ei_emerald_apocalypse_hover_tank.on_gui_opened(event)
     elseif name == "ei-fueler" then
         ei_fueler.open_gui(player)
     elseif name == "ei-exotic-assembler" then
@@ -897,6 +954,12 @@ script.on_event(defines.events.on_gui_closed, function(event)
         ei_neutron_collector.close_gui(game.get_player(event.player_index))
     elseif name == "ei-fusion-reactor" or element_name == "ei-fusion-reactor-console" then
        ei_fusion_reactor.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
+    elseif name == "ei-combustion-turbine"
+        or name == "ei-combustion-turbine-fluid"
+        or name == ei_combustion_turbine.fluid_open_proxy_name
+        or element_name == "ei-combustion-turbine-console"
+    then
+        ei_combustion_turbine.on_gui_closed(event)
     elseif element_name == "ei-induction-matrix-console" then
         ei_induction_matrix.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
     elseif name == "ei-black-hole" then
@@ -911,6 +974,10 @@ script.on_event(defines.events.on_gui_closed, function(event)
         orbital_logistics.close_gui(game.get_player(event.player_index))
     elseif name == "railgun-turret" or element_name == "ei-railgun-cooling-console" then
         ei_railgun_cooling.close_gui(game.get_player(event.player_index))
+    elseif name == ei_emerald_apocalypse_hover_tank.tank_name
+        or element_name == ei_emerald_apocalypse_hover_tank.gui_name
+    then
+        ei_emerald_apocalypse_hover_tank.on_gui_closed(event)
     elseif name == "ei-fueler" then
         ei_fueler.close_gui(game.get_player(event.player_index))
     elseif name == "ei-exotic-assembler" or element_name == "ei-exotic-assembler-console" then
@@ -933,6 +1000,8 @@ script.on_event(defines.events.on_gui_click, function(event)
         ei_neutron_collector.on_gui_click(event)
     elseif parent_gui == "ei-fusion-reactor-console" then
         ei_fusion_reactor.on_gui_click(event)
+    elseif parent_gui == "ei-combustion-turbine-console" then
+        ei_combustion_turbine.on_gui_click(event)
     elseif parent_gui == "ei-induction-matrix-console" then
         ei_induction_matrix.on_gui_click(event)
     elseif parent_gui == "ei-black-hole-console" then
@@ -947,6 +1016,8 @@ script.on_event(defines.events.on_gui_click, function(event)
         orbital_logistics.on_gui_click(event)
     elseif parent_gui == "ei-railgun-cooling-console" then
         ei_railgun_cooling.on_gui_click(event)
+    elseif parent_gui == ei_emerald_apocalypse_hover_tank.gui_name then
+        ei_emerald_apocalypse_hover_tank.on_gui_click(event)
     elseif parent_gui == "ei-fueler-console" then
         ei_fueler.on_gui_click(event)
     elseif parent_gui == "ei-exotic-assembler-console" then
@@ -961,7 +1032,7 @@ script.on_event(defines.events.on_gui_click, function(event)
         ei_auric_inoculation_vat.on_gui_click(event)
     elseif parent_gui == "mod_gui" then
       em_trains_gui.on_gui_click(event)
-    elseif parent_gui == "em_trains_mod-gui" then
+    elseif parent_gui == em_trains_gui.gui_name or parent_gui == "em_trains_mod-gui" then
       em_trains_gui.on_gui_click(event)
 
     end
@@ -979,6 +1050,8 @@ script.on_event(defines.events.on_gui_value_changed, function(event)
 
     if parent_gui == "ei-fusion-reactor-console" then
         ei_fusion_reactor.on_gui_value_changed(event)
+    elseif parent_gui == ei_emerald_apocalypse_hover_tank.gui_name then
+        ei_emerald_apocalypse_hover_tank.on_gui_value_changed(event)
     end
 end)
 
@@ -1030,6 +1103,7 @@ end)
 script.on_event(defines.events.on_player_left_game, function(event)
     -- Gate remote state is player-bound, so disconnects need explicit cleanup.
     ei_fusion_reactor.on_player_left_game(event.player_index)
+    ei_combustion_turbine.on_player_left_game(event.player_index)
     ei_neutron_collector.on_player_left_game(event.player_index)
     ei_gate.on_player_left_game(event.player_index)
     ei_fueler.on_player_left_game(event.player_index)
@@ -1038,13 +1112,34 @@ script.on_event(defines.events.on_player_left_game, function(event)
     ei_railgun_cooling.on_player_left_game(event.player_index)
     ei_crystal_accumulator.on_player_left_game(event.player_index)
     ei_auric_inoculation_vat.on_player_left_game(event.player_index, event)
+    ei_emerald_apocalypse_hover_tank.on_player_left_game(event)
 end)
 
 script.on_event(defines.events.on_player_removed, function(event)
     -- Removed players do not always pass through disconnect cleanup, so clear any
     -- player-indexed auric GUI and placement-guide state directly.
+    ei_combustion_turbine.on_player_left_game(event.player_index)
     ei_auric_inoculation_vat.on_player_left_game(event.player_index, event)
+    ei_emerald_apocalypse_hover_tank.on_player_left_game(event)
 end)
+
+if defines.events.on_player_driving_changed_state then
+    script.on_event(defines.events.on_player_driving_changed_state, function(event)
+        ei_emerald_apocalypse_hover_tank.on_player_driving_changed_state(event)
+    end)
+end
+
+if defines.events.on_player_removed_equipment then
+    script.on_event(defines.events.on_player_removed_equipment, function(event)
+        ei_emerald_apocalypse_hover_tank.on_player_removed_equipment(event)
+    end)
+end
+
+if defines.events.on_player_placed_equipment then
+    script.on_event(defines.events.on_player_placed_equipment, function(event)
+        ei_emerald_apocalypse_hover_tank.on_player_placed_equipment(event)
+    end)
+end
 
 --OTHER
 ------------------------------------------------------------------------------------------------------
@@ -1057,12 +1152,16 @@ script.on_configuration_changed(function(e)
     local mod_changes_present = next(e.mod_changes or {}) ~= nil
     local startup_settings_changed = e.mod_startup_settings_changed
 
+    local configuration_tick = e and e.tick or 0
+
     if mod_changes_present or startup_settings_changed then
         ei_flammable_rupture_scheduler.check_global()
         ei_vulcanus_fumaroles.check_global()
         ei_railgun_cooling.check_global()
         ei_singularity_lance.check_global()
         ei_sawblade_turret.check_global()
+        ei_combustion_turbine.check_global()
+        ei_emerald_apocalypse_hover_tank.check_global(configuration_tick)
         if ei_fluid_safety and ei_fluid_safety.on_configuration_changed then
             ei_fluid_safety.on_configuration_changed(e)
         end
@@ -1074,8 +1173,9 @@ script.on_configuration_changed(function(e)
     -- telemetry proxies from visible vats. Rebuild on every configuration pass,
     -- including migration-only loads, so helper state cannot fossilize.
     ei_auric_inoculation_vat.check_global()
-    ei_auric_inoculation_vat.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+    ei_auric_inoculation_vat.rebuild_runtime_state("configuration-changed", configuration_tick)
     ei_fusion_reactor.on_configuration_changed(e)
+    ei_combustion_turbine.on_configuration_changed(e)
 
     -- Migration-only configuration changes can still strand Tesla helper entities or
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
@@ -1083,6 +1183,7 @@ script.on_configuration_changed(function(e)
     ei_singularity_lance.on_configuration_changed(e)
     ei_sawblade_turret.on_configuration_changed(e)
     ei_gaian_saucer_wake.on_configuration_changed(e)
+    ei_emerald_apocalypse_hover_tank.on_configuration_changed(configuration_tick)
 
     -- Beacon overload keeps its own runtime repair path so any configuration change can
     -- re-seed its state and queue a refresh when prototype or startup settings moved.
@@ -1102,6 +1203,7 @@ script.on_configuration_changed(function(e)
         ei_fueler.check_global()
         ei_neutron_collector.check_global()
         ei_matter_stabilizer.check_global()
+        ei_black_hole.check_init()
 
         -- Clean up stale gate remote selection state to avoid crashes on save reload
         if storage.ei and storage.ei.gate and storage.ei.gate.remote then
@@ -1128,20 +1230,21 @@ script.on_configuration_changed(function(e)
         ei_fueler.rebuild_runtime_state("configuration-changed")
         ei_neutron_collector.rebuild_runtime_state("configuration-changed")
         ei_matter_stabilizer.rebuild_runtime_state("configuration-changed")
+        ei_black_hole.rebuild_runtime_state("configuration-changed", e)
         --em_trains.update_rail_counts()
-        em_trains_gui.mark_dirty()
         ei_lib.crystal_echo("⟦✦ TRANSCENSION RECOGNIZED ✦⟧","default-bold")
         ei_lib.crystal_echo("⫷ Sub-layer Recalibration Initiated ⫸")
         ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
         ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()
-        orbital_logistics.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
-        ei_railgun_cooling.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+        orbital_logistics.rebuild_runtime_state("configuration-changed", configuration_tick)
+        ei_railgun_cooling.rebuild_runtime_state("configuration-changed", configuration_tick)
         ei_singularity_lance.check_global()
         ei_sawblade_turret.check_global()
+        ei_emerald_apocalypse_hover_tank.check_global(configuration_tick)
         ei_gaia.ensure_surface()
-        ei_crystal_accumulator.rebuild_runtime_state("configuration-changed", e and e.tick or game.tick)
+        ei_crystal_accumulator.rebuild_runtime_state("configuration-changed", configuration_tick)
         ei_vulcanus_fumaroles.on_configuration_changed(e)
     end
 
@@ -1149,6 +1252,7 @@ script.on_configuration_changed(function(e)
     -- both startup settings and the loaded prototype set, so refresh it for every
     -- configuration-changed event.
     ei_tech_scaling.init()
+    em_trains_gui.mark_dirty()
 end)
 
 script.on_load(function()
@@ -1170,6 +1274,7 @@ script.on_event(
         -- work from `on_load`, which also runs for peers connecting to a live session.
         ei_echo_codex.queue_arrival(event.player_index)
         ei_fueler.on_player_ready(event.player_index)
+        em_trains_gui.on_player_ready(event.player_index)
         ei_auric_inoculation_vat.on_player_ready(event.player_index, event)
     end
 )
@@ -1193,6 +1298,7 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
     ei_echo_codex.queue_players(game.connected_players)
     ei_fueler.mark_players_dirty()
     for _, player in pairs(game.connected_players) do
+        em_trains_gui.on_player_ready(player.index)
         ei_auric_inoculation_vat.on_player_ready(player.index, _event)
     end
 end)
@@ -1225,6 +1331,7 @@ function updater(event)
 
   local updates_needed = 1
   local singularity_lance_serviced_this_tick = false
+  local emerald_apocalypse_serviced_this_tick = false
   -- Compute update step from event.tick to keep the timing source explicit.
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
@@ -1267,14 +1374,15 @@ function updater(event)
            local matter_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
            if matter_machine_count > 0 then
                updates_needed = math.max(1,math.min(math.ceil(matter_machine_count / divisor), ei_maxEntityUpdates))
-                end
-            for i = 1, updates_needed do
-               local live_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
-               if math.max(1,math.min(math.ceil(live_machine_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+               for i = 1, updates_needed do
+                  local live_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
+                  if live_machine_count <= 0
+                  or math.max(1,math.min(math.ceil(live_machine_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                      goto skip
+                      end
+                  if not ei_matter_stabilizer.update(event) then
                    goto skip
-                   end
-               if not ei_matter_stabilizer.update(event) then
-                goto skip
+                  end
                end
            end
         elseif ei_update_step == 5 then
@@ -1309,15 +1417,17 @@ function updater(event)
                     end
                 end
             end
-        elseif ei_update_step == 6 then
+       elseif ei_update_step == 6 then
            -- Step 6 advances the Fueler target scheduler against its ready-target workload.
-           local fueler_ready_count = ei_fueler.get_ready_target_count()
-           if fueler_ready_count > 0 then
-               updates_needed = math.max(1,math.min(math.ceil(fueler_ready_count / divisor), ei_maxEntityUpdates))
-           end
-           for i = 1, updates_needed do
-               if not ei_fueler.updater(event) then
-                   goto skip
+           local fueler_pending_work_count = ei_fueler.get_pending_work_count
+               and ei_fueler.get_pending_work_count(event)
+               or ei_fueler.get_ready_target_count()
+           if fueler_pending_work_count > 0 then
+               updates_needed = math.max(1,math.min(math.ceil(fueler_pending_work_count / divisor), ei_maxEntityUpdates))
+              for i = 1, updates_needed do
+                  if not ei_fueler.updater(event) then
+                      goto skip
+                  end
                end
            end
        end
@@ -1326,16 +1436,18 @@ function updater(event)
 
        if ei_update_step == 7 then
            -- Step 7 advances gate state, transport, and receiver logic.
-           if storage.ei and storage.ei.gate and storage.ei.gate.gate and  ei_lib.getn(storage.ei.gate.gate) then
-                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates))
-                end
-           for i = 1, updates_needed do
-               if storage.ei and storage.ei.gate and storage.ei.gate.gate and
-               math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei.gate.gate) / divisor), ei_maxEntityUpdates)) ~= updates_needed then
-                   goto skip
-                   end
-               if not ei_gate.update(event) then -- only try once if nil ie reach end of breakpoints or no entities to update
-                   goto skip
+           local gate_count = storage.ei and storage.ei.gate and storage.ei.gate.gate and ei_lib.getn(storage.ei.gate.gate) or 0
+           if gate_count > 0 then
+                updates_needed = math.max(1,math.min(math.ceil(gate_count / divisor), ei_maxEntityUpdates))
+              for i = 1, updates_needed do
+                  local live_gate_count = storage.ei and storage.ei.gate and storage.ei.gate.gate and ei_lib.getn(storage.ei.gate.gate) or 0
+                  if live_gate_count <= 0
+                  or math.max(1,math.min(math.ceil(live_gate_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                      goto skip
+                      end
+                  if not ei_gate.update(event) then -- only try once if nil ie reach end of breakpoints or no entities to update
+                      goto skip
+                  end
                end
            end
 
@@ -1419,8 +1531,15 @@ function updater(event)
           end
       elseif ei_update_step == 13 then
           -- Step 13 services Singularity Lance's lossy aim-trace visuals; direct alpha is script-owned.
-          local singularity_lance_pending_work_count = ei_singularity_lance and ei_singularity_lance.get_pending_work_count and ei_singularity_lance.get_pending_work_count(event) or 0
-          if singularity_lance_pending_work_count > 0 then
+          local singularity_lance_has_work = ei_singularity_lance
+              and ei_singularity_lance.has_tick_work
+              and ei_singularity_lance.has_tick_work(event)
+          local singularity_lance_pending_work_count = singularity_lance_has_work
+              and ei_singularity_lance.get_pending_work_count
+              and ei_singularity_lance.get_pending_work_count(event)
+              or 0
+          if singularity_lance_has_work then
+              singularity_lance_pending_work_count = math.max(1, singularity_lance_pending_work_count)
               updates_needed = math.max(1, math.min(math.ceil(singularity_lance_pending_work_count / divisor), ei_maxEntityUpdates))
               ei_singularity_lance.update(updates_needed, event)
               singularity_lance_serviced_this_tick = true
@@ -1432,6 +1551,15 @@ function updater(event)
               updates_needed = math.max(1, math.min(math.ceil(fusion_pending_work_count / divisor), ei_maxEntityUpdates))
               ei_fusion_reactor.update(updates_needed, event)
           end
+      elseif ei_update_step == 15 then
+          -- Step 15 services Emerald Apocalypse charge completions, cold shard targeting, hover drift, and shield pulse cleanup.
+          local emerald_has_work = ei_emerald_apocalypse_hover_tank
+              and ei_emerald_apocalypse_hover_tank.has_tick_work
+              and ei_emerald_apocalypse_hover_tank.has_tick_work(event)
+          if emerald_has_work then
+              ei_emerald_apocalypse_hover_tank.update(event)
+              emerald_apocalypse_serviced_this_tick = true
+          end
       end
   end
     ::skip::
@@ -1441,27 +1569,75 @@ function updater(event)
    -- delayed to a once-per-cycle slot.
     if not singularity_lance_serviced_this_tick
     and ei_singularity_lance
-    and ei_singularity_lance.get_pending_work_count
-    and ei_singularity_lance.get_pending_work_count(event) > 0 then
+    and ei_singularity_lance.has_tick_work
+    and ei_singularity_lance.has_tick_work(event) then
         ei_singularity_lance.update(1, event)
     end
 
-    em_trains_gui.updater()
-    ei_alien_spawner.update(event)
-    ei_gaia.update(event)
-    ei_induction_matrix.update(event)
+    -- Cold Emerald work stays separate from the hot shard visual pass below:
+    -- charge completions, hover drift, shield cleanup,
+    -- and shard target scans should run when due even if Step 15 is not this tick.
+    if not emerald_apocalypse_serviced_this_tick
+    and ei_emerald_apocalypse_hover_tank
+    and ei_emerald_apocalypse_hover_tank.has_tick_work
+    and ei_emerald_apocalypse_hover_tank.has_tick_work(event) then
+        ei_emerald_apocalypse_hover_tank.update(event)
+    end
+
+    -- Hot Emerald presentation is event-gated: tank hover emitters only stay hot
+    -- while occupied, while shard motion/rendering keeps its every-tick cadence.
+    if ei_emerald_apocalypse_hover_tank
+    and ei_emerald_apocalypse_hover_tank.has_hot_tick_work
+    and ei_emerald_apocalypse_hover_tank.has_hot_tick_work(event)
+    and ei_emerald_apocalypse_hover_tank.hot_update then
+        ei_emerald_apocalypse_hover_tank.hot_update(event)
+    end
+
+    if ei_emerald_apocalypse_hover_tank_drones
+    and ei_emerald_apocalypse_hover_tank_drones.has_tick_work
+    and ei_emerald_apocalypse_hover_tank_drones.has_tick_work(event)
+    and ei_emerald_apocalypse_hover_tank_drones.updater then
+        ei_emerald_apocalypse_hover_tank_drones.updater(event)
+    end
+
+    if em_trains_gui.has_tick_work and em_trains_gui.has_tick_work(event) then
+        em_trains_gui.updater()
+    end
+    if ei_alien_spawner.has_tick_work and ei_alien_spawner.has_tick_work(event) then
+        ei_alien_spawner.update(event)
+    end
+    if ei_gaia.has_tick_work and ei_gaia.has_tick_work(event) then
+        ei_gaia.update(event)
+    end
+    if ei_induction_matrix.has_tick_work and ei_induction_matrix.has_tick_work(event) then
+        ei_induction_matrix.update(event)
+    end
     ei_crystal_accumulator.update_ui(event)
     ei_auric_inoculation_vat.updater(ei_maxEntityUpdates, event)
-    ei_black_hole.update(event)
-    ei_steam_train.updater(event)
+    if ei_black_hole.has_tick_work and ei_black_hole.has_tick_work(event) then
+        ei_black_hole.update(event)
+    end
+    if ei_steam_train.has_tick_work and ei_steam_train.has_tick_work(event) then
+        ei_steam_train.updater(event)
+    end
     ei_echo_codex.arrival_waves(event)
-    ei_teslas_legacy.updater(event)
-    ei_beacon_overload.updater(event)
-    ei_gaian_saucer_wake.updater(event)
+    if ei_teslas_legacy.has_tick_work and ei_teslas_legacy.has_tick_work(event) then
+        ei_teslas_legacy.updater(event)
+    end
+    if ei_beacon_overload.has_tick_work and ei_beacon_overload.has_tick_work(event) then
+        ei_beacon_overload.updater(event)
+    end
+    if ei_gaian_saucer_wake.has_tick_work and ei_gaian_saucer_wake.has_tick_work(event) then
+        ei_gaian_saucer_wake.updater(event)
+    end
     ei_rocket_launch_pollution.updater(event)
     ei_flammable_rupture_scheduler.updater(event)
-    ei_fulgora_day_length_variation.updater(event)
-    ei_vulcanus_fumaroles.updater(event)
+    if ei_fulgora_day_length_variation.has_tick_work and ei_fulgora_day_length_variation.has_tick_work(event) then
+        ei_fulgora_day_length_variation.updater(event)
+    end
+    if ei_vulcanus_fumaroles.has_tick_work and ei_vulcanus_fumaroles.has_tick_work(event) then
+        ei_vulcanus_fumaroles.updater(event)
+    end
     --[[
     leave this disabled
     if event.tick % 600 == 0 then
@@ -1493,10 +1669,14 @@ function on_cloned_entity(e)
     end
 
     ei_fusion_reactor.on_built_entity(destination)
+    ei_combustion_turbine.on_built_entity(clone_event)
     ei_beacon_overload.on_built_entity(destination)
     ei_neutron_collector.on_built_entity(destination)
     ei_matter_stabilizer.on_built_entity(destination)
     ei_induction_matrix.on_built_entity(clone_event)
+    ei_black_hole.on_built_entity(clone_event)
+    ei_gate.on_built_entity(clone_event)
+    ei_crystal_accumulator.on_built_entity(clone_event)
     ei_auric_inoculation_vat.on_built_entity(clone_event)
     ei_loaders_lib.on_built_entity(destination)
     ei_fueler.on_built_entity(destination)
@@ -1509,8 +1689,11 @@ function on_cloned_entity(e)
     ei_singularity_lance.on_built_entity(clone_event)
     ei_sawblade_turret.on_built_entity(clone_event)
     ei_gaian_saucer_wake.on_built_entity(clone_event)
+    ei_emerald_apocalypse_hover_tank.on_cloned_entity(clone_event)
+    ei_steam_train.on_built_entity(clone_event)
 
     ei_fusion_reactor.on_entity_settings_pasted(e)
+    ei_combustion_turbine.on_entity_settings_pasted(e)
     ei_neutron_collector.on_entity_settings_pasted(e)
     orbital_combinator.on_entity_settings_pasted(e)
     orbital_logistics.on_entity_settings_pasted(e)
@@ -1565,6 +1748,7 @@ function on_built_entity(e)
     -- it is not theirs, so it is safe for the central dispatcher to call them in sequence.
 
     ei_fusion_reactor.on_built_entity(e["entity"])
+    ei_combustion_turbine.on_built_entity(e)
     ei_beacon_overload.on_built_entity(e["entity"])
     ei_neutron_collector.on_built_entity(e["entity"])
     ei_matter_stabilizer.on_built_entity(e["entity"])
@@ -1587,6 +1771,7 @@ function on_built_entity(e)
     ei_singularity_lance.on_built_entity(e)
     ei_sawblade_turret.on_built_entity(e)
     ei_gaian_saucer_wake.on_built_entity(e)
+    ei_emerald_apocalypse_hover_tank.on_built_entity(e)
 end
 
 function on_built_tile(e)
@@ -1627,6 +1812,7 @@ function on_destroyed_entity(e)
 
     -- As with on_built_entity(), modules self-filter if the entity is irrelevant to them.
     ei_fusion_reactor.on_destroyed_entity(e["entity"], e["destroy_type"])
+    ei_combustion_turbine.on_destroyed_entity(e)
     ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
     ei_crystal_accumulator.on_destroyed_entity(e)
@@ -1645,6 +1831,7 @@ function on_destroyed_entity(e)
     ei_singularity_lance.on_destroyed_entity(e)
     ei_sawblade_turret.on_destroyed_entity(e)
     ei_gaian_saucer_wake.on_destroyed_entity(e)
+    ei_emerald_apocalypse_hover_tank.on_destroyed_entity(e)
     -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
     ei_steam_train.on_destroyed_entity(e["entity"])
 end

@@ -1,0 +1,14 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "beam",
+  "status": "generator-ready",
+  "frame_size": [384, 96],
+  "frames": 16,
+  "line_length": 4,
+  "aesthetic": "rectilinear emerald execution beam, black fault rails, glassy corrosion vein",
+  "prompt": "transparent tileable Factorio beam body, Emerald Apocalypse hover tank cannon discharge, hard emerald slab beam with black fault rails and acid glass fracture veins, industrial execution signal, readable at small scale, distinct from prismatic Singularity Lance and Gaian saucer wake",
+  "negative_prompt": "rainbow prism, saucer trail, purple lance, soft ribbon wake, smooth sci-fi laser, opaque background",
+  "roles": ["base", "glow"],
+  "tiling": "horizontal beam body with separate head/tail possible in later promotion"
+}
+

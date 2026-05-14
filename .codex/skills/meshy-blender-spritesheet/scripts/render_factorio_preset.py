@@ -75,6 +75,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pack-sheets", action="store_true", help="Pack rendered pass folders into Render/.Sheets.")
     parser.add_argument("--grid", default="8x8", help="Packed sheet grid, e.g. 8x8.")
     parser.add_argument("--lights", choices=["auto", "none"], default="auto", help="Move non-sun lights to Lights on and assign Light Group Lights.")
+    parser.add_argument("--preset-sun-energy-scale", type=float, default=1.0, help="Scale the preset's main baked-light suns (Sun 1/Sun 2) without changing shadow, glow, or geometry setup.")
+    parser.add_argument("--preset-world-strength-scale", type=float, default=1.0, help="Scale the preset world color/fill contribution without changing geometry setup.")
+    parser.add_argument("--preset-view-exposure-offset", type=float, default=0.0, help="Offset Blender view exposure for controlled render-time brightness tests. Defaults to the preset exposure unchanged.")
+    parser.add_argument("--preset-view-gamma", type=float, help="Override Blender view gamma for controlled render-time midtone tests. Defaults to the preset gamma unchanged.")
     parser.add_argument("--keep-ground-dirt", action="store_true", help="Keep Ground Dirt when clearing preset object examples.")
     parser.add_argument("--keep-pipe", action="store_true", help="Keep Pipe when clearing preset object examples.")
     parser.add_argument("--no-parent-to-rotation", action="store_true", help="Do not parent imported meshes to Rotation by Frames & Directions.")
@@ -119,6 +123,12 @@ def parse_args() -> argparse.Namespace:
         args.frames = args.animation_frames * args.unit_directions
     if args.frames < 1 or args.directions < 1 or args.animation_frames < 1:
         parser.error("--frames, --directions, and --animation-frames must be positive.")
+    if args.preset_sun_energy_scale < 0:
+        parser.error("--preset-sun-energy-scale must be >= 0.")
+    if args.preset_world_strength_scale < 0:
+        parser.error("--preset-world-strength-scale must be >= 0.")
+    if args.preset_view_gamma is not None and args.preset_view_gamma <= 0:
+        parser.error("--preset-view-gamma must be > 0.")
     if not 0 <= args.preflight_margin < 0.49:
         parser.error("--preflight-margin must be >= 0 and < 0.49.")
     if args.auto_ortho_step < 1.0:
@@ -567,6 +577,73 @@ def apply_spin_driver(args: argparse.Namespace) -> dict[str, Any] | None:
     }
 
 
+def apply_preset_lighting_adjustments(args: argparse.Namespace) -> dict[str, Any]:
+    sun_scale = float(args.preset_sun_energy_scale)
+    world_scale = float(args.preset_world_strength_scale)
+    record: dict[str, Any] = {
+        "preset_sun_energy_scale": sun_scale,
+        "preset_world_strength_scale": world_scale,
+        "sun_lights": [],
+        "world": None,
+    }
+
+    for obj in bpy.data.objects:
+        if obj.type != "LIGHT":
+            continue
+        if obj.name not in {"Sun 1", "Sun 2"}:
+            continue
+        data = obj.data
+        original_energy = float(data.energy)
+        data.energy = original_energy * sun_scale
+        record["sun_lights"].append(
+            {
+                "name": obj.name,
+                "type": data.type,
+                "original_energy": original_energy,
+                "adjusted_energy": float(data.energy),
+                "collections": [coll.name for coll in obj.users_collection],
+            }
+        )
+
+    world = scene().world
+    if world is not None:
+        original_color = [float(component) for component in world.color]
+        adjusted_color = [max(0.0, component * world_scale) for component in original_color]
+        world.color = adjusted_color
+        record["world"] = {
+            "original_color": original_color,
+            "adjusted_color": [float(component) for component in world.color],
+        }
+
+    return record
+
+
+def apply_view_settings_adjustments(args: argparse.Namespace, scn: bpy.types.Scene) -> dict[str, Any]:
+    settings = scn.view_settings
+    if "_esir_original_view_exposure" not in scn:
+        scn["_esir_original_view_exposure"] = float(settings.exposure)
+    if "_esir_original_view_gamma" not in scn:
+        scn["_esir_original_view_gamma"] = float(settings.gamma)
+    original_exposure = float(scn["_esir_original_view_exposure"])
+    original_gamma = float(scn["_esir_original_view_gamma"])
+    exposure_offset = float(args.preset_view_exposure_offset)
+    settings.exposure = original_exposure + exposure_offset
+    if args.preset_view_gamma is not None:
+        settings.gamma = float(args.preset_view_gamma)
+    else:
+        settings.gamma = original_gamma
+    return {
+        "preset_view_exposure_offset": exposure_offset,
+        "preset_view_gamma": None if args.preset_view_gamma is None else float(args.preset_view_gamma),
+        "original_exposure": original_exposure,
+        "adjusted_exposure": float(settings.exposure),
+        "original_gamma": original_gamma,
+        "adjusted_gamma": float(settings.gamma),
+        "view_transform": settings.view_transform,
+        "look": settings.look,
+    }
+
+
 def setup_scene(args: argparse.Namespace, selected_passes: list[str], output_dir: Path) -> dict[str, Any]:
     ensure_factorio_props()
     scn = scene()
@@ -643,6 +720,7 @@ def setup_scene(args: argparse.Namespace, selected_passes: list[str], output_dir
         "cycles_device": cycles_device_report,
         "persistent_data": bool(getattr(scn.render, "use_persistent_data", False)),
         "denoising": bool(scn.cycles.use_denoising),
+        "view_settings_adjustments": apply_view_settings_adjustments(args, scn),
         "frame_start": scn.frame_start,
         "frame_end": scn.frame_end,
         "node_records": node_records,
@@ -967,6 +1045,7 @@ def main() -> None:
                 "framing_risk": preflight.get("framing", {}).get("framing_risk"),
             }
         )
+    scene_record["lighting_adjustments"] = apply_preset_lighting_adjustments(args)
     if not args.dry_run and not args.preflight_only:
         render_animation(output_dir)
     packed = pack_sheets(output_dir, selected_passes, grid) if args.pack_sheets and not args.dry_run and not args.preflight_only else {}

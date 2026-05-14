@@ -1,0 +1,27 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "status": "planned",
+  "scope": "asset-generator and output staging only; no prototype/runtime files",
+  "source_glb": "C:/Users/Theorun/Documents/Development/Meshy_AI_Emerald_Crystal_Canno_0509011313_texture.glb",
+  "planned_outputs": {
+    "prepared_model": "output/meshy/emerald-apocalypse-hover-tank/prepared/emerald-apocalypse-hover-tank-prepared.glb",
+    "removed_artifact": "output/meshy/emerald-apocalypse-hover-tank/prepared/emerald-apocalypse-hover-tank-removed-forward-cylinder.glb",
+    "prepared_manifest": "output/meshy/emerald-apocalypse-hover-tank/prepared/emerald-apocalypse-hover-tank-prepared.manifest.json",
+    "preset_manifest": "output/meshy/emerald-apocalypse-hover-tank/Render/factorio-preset-render-manifest.json",
+    "effect_manifest": "output/meshy/emerald-apocalypse-hover-tank/effects/emerald-apocalypse-hover-tank-effects.manifest.json"
+  },
+  "role_classification": {
+    "base": "Render/Object or Render/.Sheets/object_0.png",
+    "shadow": "Render/Shadow or Render/.Sheets/object_shadow_0.png",
+    "glow": "Render/Light A Reduced and Render/Light A sheets",
+    "mask": "Render/ColorMask evidence only until reviewed for owner-readability trim",
+    "removed_forward_cylinder": "unused evidence; endpoint metadata only"
+  },
+  "render_plan": {
+    "directions": 64,
+    "layout": "8x8",
+    "preset": "factorioRenderingPreset_v4.blend",
+    "default_mode": "preflight smoke until visual approval"
+  }
+}
+

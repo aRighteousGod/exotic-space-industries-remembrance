@@ -183,6 +183,7 @@ local family_assignments = {
     "ei-fluid-boiler",
     "ei-fluid-heater",
     "ei-heat-steel-furnace",
+    "ei-steam-loader",
   },
   ["electric-industrial"] = {
     "accumulator",
@@ -480,12 +481,21 @@ local gaian_saucer_death_explosion_name = "ei-gaian-saucer-death-explosion"
 local gaian_saucer_death_graphics_path = ei_path.."graphics/entities/gaian-saucer/death/"
 local singularity_lance_death_explosion_name = "ei-singularity-lance-death-explosion"
 local singularity_lance_death_graphics_path = ei_path.."graphics/entities/singularity-lance/death/"
+local em_charger_death_explosion_name = "ei-em-charger-death-explosion"
+local em_charger_pink_shard_particle_name = "ei-em-charger-pink-crystal-shard-particle"
+local emerald_apocalypse_hover_tank_death_explosion_name = "ei-emerald-apocalypse-hover-tank-death-explosion"
+local emerald_apocalypse_hover_tank_death_graphics_path = ei_path.."graphics/entities/emerald-apocalypse-hover-tank/death/"
+local emerald_apocalypse_crystal_shard_particle_name = "ei-emerald-apocalypse-crystal-shard-particle"
+local emerald_apocalypse_hull_fragment_particle_name = "ei-emerald-apocalypse-hull-fragment-particle"
+local emerald_apocalypse_vapor_particle_name = "ei-emerald-apocalypse-vapor-particle"
+local emerald_apocalypse_singularity_mote_particle_name = "ei-emerald-apocalypse-singularity-mote-particle"
 
 local exact_rolling_stock_overrides = {
   ["ei-nuclear-locomotive"] = nuclear_locomotive_delay_anchor_name,
 }
 
 local exact_dying_explosion_overrides = {
+  ["ei_charger"] = em_charger_death_explosion_name,
   ["ei-gaian-saucer"] = gaian_saucer_death_explosion_name,
   ["ei-singularity-lance"] = singularity_lance_death_explosion_name,
 }
@@ -1175,6 +1185,129 @@ local function make_explosion(family, bucket_key)
   return explosion
 end
 
+local function find_first_explosion(names)
+  local explosions = data.raw.explosion or {}
+  for _, name in ipairs(names) do
+    if explosions[name] then
+      return explosions[name]
+    end
+  end
+
+  return nil
+end
+
+local function em_charger_death_effects()
+  return {
+    make_smoke_burst(7, 1.00, 0.020, "large", "smoke-fast"),
+    {
+      type = "create-explosion",
+      entity_name = "spark-explosion-higher",
+      show_in_tooltip = false,
+    },
+    -- The middle pink crystal is the charger identity; make its rupture
+    -- louder than the generic quantum motes and electronics debris.
+    make_particle_burst(em_charger_pink_shard_particle_name, 72, 1.58, 0.62, 0.110, 0.078, "large", {
+      frame_speed = 0.86,
+      frame_speed_deviation = 0.18,
+      tail_length = 7,
+      tail_length_deviation = 3,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_particle_burst(em_charger_pink_shard_particle_name, 30, 0.82, 0.96, 0.135, 0.095, "large", {
+      frame_speed = 0.92,
+      frame_speed_deviation = 0.20,
+      tail_length = 8,
+      tail_length_deviation = 3,
+      tail_width = 4,
+      only_when_visible = true,
+    }),
+    make_particle_burst("lab-glass-particle-small", 18, 0.95, 0.55, 0.090, 0.050, "large"),
+    make_particle_burst("ei-quantum-mote-particle", 14, 1.08, 1.02, 0.026, 0.050, "large", {
+      frame_speed = 0.66,
+      frame_speed_deviation = 0.14,
+      tail_length = 12,
+      tail_length_deviation = 4,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_particle_burst("ei-cosmic-mote-particle", 9, 0.92, 1.10, 0.018, 0.030, "large", {
+      frame_speed = 0.74,
+      frame_speed_deviation = 0.16,
+      tail_length = 13,
+      tail_length_deviation = 4,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_particle_burst("spark-particle", 22, 1.28, 1.18, 0.024, 0.090, "large", {
+      frame_speed = 0.64,
+      frame_speed_deviation = 0.16,
+      tail_length = 11,
+      tail_length_deviation = 4,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_particle_burst("pole-spark-particle", 13, 1.14, 1.08, 0.022, 0.074, "large", {
+      frame_speed = 0.58,
+      frame_speed_deviation = 0.12,
+      tail_length = 12,
+      tail_length_deviation = 4,
+      tail_width = 4,
+      only_when_visible = true,
+    }),
+    make_particle_burst("cable-and-electronics-particle-small-medium", 14, 0.72, 0.48, 0.074, 0.030, "large"),
+  }
+end
+
+local function make_em_charger_death_explosion()
+  local source = find_first_explosion({
+    "electromagnetic-plant-explosion",
+    "big-electric-pole-explosion",
+    "medium-explosion",
+  })
+
+  if not source then
+    error("EM charger death explosion requires a vanilla or Space Age explosion prototype")
+  end
+
+  local core_tint = {r = 1.00, g = 0.10, b = 0.86, a = 0.96}
+  local cyan_light = {r = 0.22, g = 0.92, b = 1.00, a = 1.00}
+  local explosion = table.deepcopy(source)
+  explosion.name = em_charger_death_explosion_name
+  explosion.flags = {"not-on-map"}
+  explosion.hidden = true
+  explosion.subgroup = "explosions"
+  explosion.order = "z[ei-death]-em-charger"
+  explosion.height = 0
+
+  if explosion.animations then
+    explosion.animations = scaled_animation(explosion.animations, 1.08)
+    tint_animation(explosion.animations, core_tint)
+  elseif explosion.animation then
+    explosion.animation = scaled_animation(explosion.animation, 1.08)
+    tint_animation(explosion.animation, core_tint)
+  end
+
+  explosion.light = {
+    intensity = 1.32,
+    size = 64,
+    color = cyan_light,
+  }
+  explosion.sound = explosion.sound or sounds.large_explosion(0.56, 0.86)
+  explosion.smoke = "smoke-fast"
+  explosion.smoke_count = 2
+  explosion.smoke_slow_down_factor = 1
+  explosion.created_effect = {
+    type = "direct",
+    action_delivery = {
+      type = "instant",
+      target_effects = em_charger_death_effects(),
+    },
+  }
+
+  return explosion
+end
+
 local function make_gaian_saucer_death_animation_layer(filename, options)
   options = options or {}
 
@@ -1213,6 +1346,25 @@ local function make_singularity_lance_death_animation_layer(filename, options)
   }
 end
 
+local function make_emerald_apocalypse_hover_tank_death_animation_layer(filename, options)
+  options = options or {}
+
+  return {
+    filename = emerald_apocalypse_hover_tank_death_graphics_path..filename,
+    priority = "high",
+    width = 768,
+    height = 768,
+    line_length = 8,
+    lines_per_file = 8,
+    frame_count = 64,
+    animation_speed = 0.62,
+    scale = 0.74,
+    shift = {0, -0.28},
+    draw_as_glow = options.draw_as_glow,
+    blend_mode = options.blend_mode,
+  }
+end
+
 local function make_gaian_saucer_damage_effect(radius, amount, damage_type, apply_damage_to_trees)
   return {
     type = "nested-result",
@@ -1229,6 +1381,126 @@ local function make_gaian_saucer_damage_effect(radius, amount, damage_type, appl
             apply_damage_to_trees = apply_damage_to_trees,
           },
         },
+      },
+    },
+  }
+end
+
+local function make_emerald_apocalypse_damage_effect(radius, amount, damage_type, apply_damage_to_trees)
+  return {
+    type = "nested-result",
+    action = {
+      type = "area",
+      radius = radius,
+      trigger_from_target = true,
+      action_delivery = {
+        type = "instant",
+        target_effects = {
+          {
+            type = "damage",
+            damage = {amount = amount, type = damage_type},
+            apply_damage_to_trees = apply_damage_to_trees,
+          },
+        },
+      },
+    },
+  }
+end
+
+local function emerald_apocalypse_hover_tank_death_effects()
+  return {
+    {
+      type = "create-explosion",
+      entity_name = "medium-explosion",
+      show_in_tooltip = false,
+    },
+    make_smoke_burst(16, 2.40, 0.030, "medium", "smoke-fast"),
+    make_particle_burst(emerald_apocalypse_crystal_shard_particle_name, 74, 2.25, 0.72, 0.125, 0.105, "medium", {
+      frame_speed = 0.88,
+      frame_speed_deviation = 0.18,
+      tail_length = 8,
+      tail_length_deviation = 3,
+      tail_width = 4,
+      only_when_visible = true,
+    }),
+    make_particle_burst(emerald_apocalypse_hull_fragment_particle_name, 42, 1.95, 0.58, 0.105, 0.072, "medium"),
+    make_particle_burst(emerald_apocalypse_vapor_particle_name, 38, 2.65, 0.24, 0.055, 0.045, "medium", {
+      frame_speed = 0.56,
+      frame_speed_deviation = 0.12,
+      tail_length = 14,
+      tail_length_deviation = 5,
+      tail_width = 5,
+      only_when_visible = true,
+    }),
+    make_particle_burst(emerald_apocalypse_singularity_mote_particle_name, 28, 2.05, 1.18, 0.022, 0.046, "medium", {
+      frame_speed = 0.72,
+      frame_speed_deviation = 0.16,
+      tail_length = 16,
+      tail_length_deviation = 5,
+      tail_width = 4,
+      only_when_visible = true,
+    }),
+    make_particle_burst("spark-particle", 30, 2.20, 1.10, 0.028, 0.105, "medium", {
+      frame_speed = 0.64,
+      frame_speed_deviation = 0.16,
+      tail_length = 12,
+      tail_length_deviation = 4,
+      tail_width = 3,
+      only_when_visible = true,
+    }),
+    make_emerald_apocalypse_damage_effect(8, 6000, "ei-plasma", false),
+    make_emerald_apocalypse_damage_effect(14, 1400, "ei-plasma", false),
+    make_emerald_apocalypse_damage_effect(14, 350, "explosion", true),
+    {
+      type = "create-entity",
+      entity_name = "big-scorchmark",
+      check_buildability = true,
+    },
+  }
+end
+
+local function make_emerald_apocalypse_hover_tank_death_explosion()
+  return {
+    type = "explosion",
+    name = emerald_apocalypse_hover_tank_death_explosion_name,
+    flags = {"not-on-map"},
+    hidden = true,
+    hidden_in_factoriopedia = true,
+    subgroup = "explosions",
+    order = "z[ei-death]-emerald-apocalypse-hover-tank",
+    height = 0,
+    animations = {
+      {
+        layers = {
+          make_emerald_apocalypse_hover_tank_death_animation_layer("ei-emerald-apocalypse-hover-tank-death-collapse.png"),
+          make_emerald_apocalypse_hover_tank_death_animation_layer("ei-emerald-apocalypse-hover-tank-death-collapse-glow.png", {
+            draw_as_glow = true,
+            blend_mode = "additive-soft",
+          }),
+        },
+      },
+    },
+    light_intensity_peak_start_progress = 0.02,
+    light_intensity_peak_end_progress = 0.48,
+    light_size_peak_start_progress = 0.04,
+    light_size_peak_end_progress = 0.82,
+    scale_out_duration = 42,
+    scale_end = 0.88,
+    scale_animation_speed = true,
+    light = {
+      intensity = 1.42,
+      size = 92,
+      color = {r = 0.08, g = 1.00, b = 0.48},
+    },
+    sound = sounds.large_explosion(0.68, 0.74),
+    smoke = "smoke-fast",
+    smoke_count = 5,
+    smoke_slow_down_factor = 1,
+    created_effect = {
+      type = "direct",
+      action_delivery = {
+        type = "instant",
+        target_effects = emerald_apocalypse_hover_tank_death_effects(),
       },
     },
   }
@@ -1667,6 +1939,54 @@ local function generate_explosions()
       render_layer_when_on_ground = "lower-object-above-shadow",
       vertical_acceleration = -0.0030,
     },
+    make_particle_prototype {
+      name = em_charger_pink_shard_particle_name,
+      life_time = 42,
+      pictures = particle_animations.get_stone_particle_small_pictures({ tint = { 1.00, 0.18, 0.86, 1.00 } }),
+      render_layer = "object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      movement_modifier = 0.92,
+      movement_modifier_when_on_ground = 0.20,
+      vertical_acceleration = -0.0036,
+    },
+    make_particle_prototype {
+      name = emerald_apocalypse_crystal_shard_particle_name,
+      life_time = 46,
+      pictures = particle_animations.get_stone_particle_small_pictures({ tint = { 0.10, 1.00, 0.56, 1.00 } }),
+      render_layer = "object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      movement_modifier = 0.92,
+      movement_modifier_when_on_ground = 0.18,
+      vertical_acceleration = -0.0038,
+    },
+    make_particle_prototype {
+      name = emerald_apocalypse_hull_fragment_particle_name,
+      life_time = 54,
+      pictures = particle_animations.get_stone_particle_small_pictures({ tint = { 0.28, 0.36, 0.34, 1.00 } }),
+      render_layer = "object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      movement_modifier = 0.86,
+      movement_modifier_when_on_ground = 0.12,
+      vertical_acceleration = -0.0042,
+    },
+    make_particle_prototype {
+      name = emerald_apocalypse_vapor_particle_name,
+      life_time = 38,
+      pictures = particle_animations.get_water_particle_pictures({ tint = { 0.20, 1.00, 0.66, 0.58 } }),
+      render_layer = "air-object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      movement_modifier = 0.98,
+      vertical_acceleration = -0.0012,
+    },
+    make_particle_prototype {
+      name = emerald_apocalypse_singularity_mote_particle_name,
+      life_time = 34,
+      pictures = particle_animations.get_water_particle_pictures({ tint = { 0.58, 0.26, 1.00, 0.72 } }),
+      render_layer = "air-object",
+      render_layer_when_on_ground = "lower-object-above-shadow",
+      movement_modifier = 1.08,
+      vertical_acceleration = -0.0016,
+    },
   }
 
   for _, family in pairs(family_order) do
@@ -1682,8 +2002,10 @@ local function generate_explosions()
   table.insert(prototypes, make_nuclear_locomotive_override_explosion())
   table.insert(prototypes, make_nuclear_locomotive_delay_anchor())
   table.insert(prototypes, make_nuclear_locomotive_delayed_trigger())
+  table.insert(prototypes, make_em_charger_death_explosion())
   table.insert(prototypes, make_gaian_saucer_death_explosion())
   table.insert(prototypes, make_singularity_lance_death_explosion())
+  table.insert(prototypes, make_emerald_apocalypse_hover_tank_death_explosion())
 
   data:extend(prototypes)
 end
@@ -1807,6 +2129,10 @@ local function family_from_heuristics(name, prototype, entity_type)
   end
 
   if entity_type == "loader-1x1" or entity_type == "transport-belt" or entity_type == "underground-belt" or entity_type == "splitter" then
+    if startswith(name, "ei-steam-") then
+      return "steam"
+    end
+
     if startswith(name, "ei-neo-") or startswith(name, "ei_em-") or startswith(name, "ei-5dim-mk") then
       return "quantum"
     end
@@ -2180,6 +2506,13 @@ local function audit_logs(exact_family_map, assignment_log, prefix_hits)
 end
 
 generate_explosions()
+
+local emerald_apocalypse_hover_tank = data.raw.car and data.raw.car["ei-emerald-apocalypse-hover-tank"]
+if emerald_apocalypse_hover_tank then
+  emerald_apocalypse_hover_tank.dying_explosion = emerald_apocalypse_hover_tank_death_explosion_name
+else
+  log("EI death explosion audit: unresolved exact car assignment -> ei-emerald-apocalypse-hover-tank")
+end
 
 local exact_family_map = build_exact_family_map()
 local assignment_log = {}

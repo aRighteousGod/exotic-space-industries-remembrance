@@ -3,7 +3,7 @@
 -- owns: hybrid Tesla legacy runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, load, configuration-changed, combat, research, build, destroy, and script triggers
--- forwarded_events: get_runtime_status, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater
+-- forwarded_events: get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater
 -- storage_roots: storage.ei, storage.tl_entity_lookup, storage.tl_index
 -- gui_ids: none
 -- remote_interfaces: none
@@ -959,7 +959,7 @@ local function update_variant_sync_jobs(state, tick)
         return
     end
 
-    local due_forces = ei_runtime_scheduler.delayed_take_due(state.variant_sync_buckets, tick)
+    local due_forces = ei_runtime_scheduler.delayed_take_due_through(state.variant_sync_buckets, tick)
     if not due_forces or #due_forces == 0 then
         return
     end
@@ -2610,6 +2610,16 @@ function model.on_built_entity(event)
 
     local state = ensure_state()
     sync_entity_variant(state, event.entity)
+end
+
+function model.has_tick_work(_event)
+    local state = storage and storage.ei and storage.ei.tesla_legacy or nil
+    if type(state) ~= "table" then
+        return false
+    end
+
+    return (type(state.variant_sync_buckets) == "table" and next(state.variant_sync_buckets) ~= nil)
+        or (type(state.variant_sync_jobs) == "table" and next(state.variant_sync_jobs) ~= nil)
 end
 
 function model.updater(event)

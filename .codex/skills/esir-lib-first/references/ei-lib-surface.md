@@ -33,6 +33,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - `lerp_color` and `rgb_to_hex` are each defined twice later in the file. If you touch them, update carefully and confirm which definition wins.
 - Prefer `ei_lib.raw` or `ei_lib.modify_data_raw` before open-coded `data.raw` mutation when the operation is a shared mutation pattern rather than a one-off prototype tweak.
 - Prefer `ei_lib.set_custom_tooltip_fields(prototype, fields, opts)` before direct `prototype.custom_tooltip_fields = ...`; pass `opts.append = true` when adding a section to a prototype that may already have tooltip rows.
+- For scripted weapon/turret/vehicle readouts, pair prototype `custom_tooltip_fields` with runtime `entity.custom_status` only after `ei_lib.entity_check`; see [combat-readout-pattern.md](./combat-readout-pattern.md).
 - If a helper is almost right, favor a backward-compatible improvement over a sibling helper with a near-identical name.
 - `ei_lib.add_unlock_recipe` already guards missing techs and recipes, so avoid file-local `add_unlock_if_present` wrappers around it.
 - `ei_lib.recipe_new` accepts an optional `opts` table for ingredient replacement patches that also need `clear_difficulty_variants` and/or explicit `enabled` control.

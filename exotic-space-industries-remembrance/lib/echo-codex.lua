@@ -577,7 +577,7 @@ function echo_codex.youHaveArrived(event)
 	ei_lib.crystal_echo_floating("⚠️ YOU HAVE BEEN SEEN ⚠️", player.character, 600, "wrath")
 	if not script.active_mods["recipe-icons-improvement-for-esir"] and ei_lib.config("check-for-recipe-icons-improvement-mod") then
 		ei_lib.crystal_echo(
-			"⚠ [Lack identified] — Recipe Icons Improvement for Exotic Space Industries Remembrance by NaK1119 not detected; Some icons may be difficult to interpret and recipe circuit signals may not function as desired.  This alert can be disabled in mod settings."
+			{"ei-log.recipe-icons-improvement-missing"}
 		)
 	end
 end

@@ -1,0 +1,14 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "muzzle",
+  "status": "generator-ready",
+  "frame_size": [256, 256],
+  "frames": 16,
+  "line_length": 4,
+  "aesthetic": "short brutal emerald crown, cracked black muzzle petals, alkaline flash pressure",
+  "prompt": "transparent Factorio muzzle flash for Emerald Apocalypse hover tank, hard-edged emerald crown bursting from black crystal barrel, splintered acid glass, industrial devotional sigil fragments, compact readable burst, no Singularity Lance beam language, no Gaian wake ribbons",
+  "negative_prompt": "long laser body, purple prism, chromatic wake, fireball orange dominance, smoke-only effect, opaque background",
+  "roles": ["base", "glow"],
+  "muzzle_endpoint_dependency": "Center on removed forward cylinder endpoint and align along its recorded axis."
+}
+

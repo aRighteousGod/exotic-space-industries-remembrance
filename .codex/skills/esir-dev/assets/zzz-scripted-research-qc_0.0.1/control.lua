@@ -24,7 +24,10 @@ local CHARGER_STEP = 16
 local TRAIN_START_X = -96
 local TRAIN_END_X = 96
 local TRAIN_STEP = 32
+local EMERALD_TANK_NAME = "ei-emerald-apocalypse-hover-tank"
+local EMERALD_TANK_POSITION = {x = -136, y = 74}
 local RESEARCH_TRIGGER_DELAY = 10
+local POST_BURST_REPORT_DELAY = 4
 local QC_REMOTE = "exotic-industries-qc"
 
 local function ensure_state()
@@ -207,12 +210,79 @@ local function build_em_layout(surface, force)
     return rail_count, charger_count, train_count
 end
 
+local function build_emerald_layout(surface, force)
+    local ok, tank = pcall(function()
+        return surface.create_entity({
+            name = EMERALD_TANK_NAME,
+            position = EMERALD_TANK_POSITION,
+            direction = defines.direction.east,
+            force = force,
+            create_build_effect_smoke = false,
+            raise_built = true,
+        })
+    end)
+
+    if ok and tank and tank.valid then
+        return 1
+    end
+
+    return 0
+end
+
 local function rebuild_runtime()
     if remote.interfaces[QC_REMOTE] and remote.interfaces[QC_REMOTE].rebuild_scripted_research_runtime then
         remote.call(QC_REMOTE, "rebuild_scripted_research_runtime")
     elseif remote.interfaces[QC_REMOTE] and remote.interfaces[QC_REMOTE].rebuild_research_hitch_runtime then
         remote.call(QC_REMOTE, "rebuild_research_hitch_runtime")
     end
+end
+
+local function get_esir_qc_snapshot()
+    if not remote.interfaces[QC_REMOTE] or not remote.interfaces[QC_REMOTE].get_research_hitch_qc_snapshot then
+        return nil
+    end
+
+    local ok, snapshot = pcall(function()
+        return remote.call(QC_REMOTE, "get_research_hitch_qc_snapshot")
+    end)
+    if ok and type(snapshot) == "table" then
+        return snapshot
+    end
+
+    return nil
+end
+
+local function append_post_burst_report(current_tick)
+    local snapshot = get_esir_qc_snapshot()
+    if type(snapshot) ~= "table" then
+        write_report(
+            "post_burst_tick=" .. tostring(current_tick)
+                .. "\nqc_snapshot=unavailable\n",
+            true
+        )
+        return
+    end
+
+    local burst = type(snapshot.scripted_research_burst) == "table" and snapshot.scripted_research_burst or {}
+    local emerald = type(snapshot.emerald_apocalypse_hover_tank) == "table"
+        and snapshot.emerald_apocalypse_hover_tank
+        or {}
+    local shards = type(emerald.orbital_shards) == "table" and emerald.orbital_shards or {}
+
+    write_report(
+        "post_burst_tick=" .. tostring(current_tick)
+            .. "\npending_force_count=" .. tostring(burst.pending_force_count or 0)
+            .. "\nnext_due_tick=" .. tostring(burst.next_due_tick or 0)
+            .. "\nemerald_shard_records=" .. tostring(shards.shard_records or 0)
+            .. "\nemerald_shard_force_cache_count=" .. tostring(shards.shard_force_cache_count or 0)
+            .. "\nemerald_shard_laser_7_levels=" .. tostring(shards.shard_current_laser_7_levels or 0)
+            .. "\nemerald_shard_multiplier=" .. tostring(shards.shard_current_multiplier or 0)
+            .. "\nemerald_shard_swarm_dps=" .. tostring(shards.shard_current_swarm_dps or 0)
+            .. "\nemerald_shard_quality_multiplier=" .. tostring(shards.shard_current_quality_multiplier or 1)
+            .. "\nemerald_shard_effective_swarm_dps=" .. tostring(shards.shard_current_effective_swarm_dps or 0)
+            .. "\n",
+        true
+    )
 end
 
 local function prepare_world(reason)
@@ -243,15 +313,19 @@ local function prepare_world(reason)
 
     local main_surface = game.surfaces[MAIN_SURFACE_NAME]
     local rail_count, charger_count, train_count = build_em_layout(main_surface, force)
+    local emerald_tank_count = build_emerald_layout(main_surface, force)
     lines[#lines + 1] = "em:rails=" .. tostring(rail_count)
         .. ",chargers=" .. tostring(charger_count)
         .. ",trains=" .. tostring(train_count)
+    lines[#lines + 1] = "emerald:tanks=" .. tostring(emerald_tank_count)
 
     rebuild_runtime()
 
     state.prepared = true
     state.trigger_tick = (game.tick or 0) + RESEARCH_TRIGGER_DELAY
     state.fired = false
+    state.awaiting_flush_report = false
+    state.report_tick = 0
 
     lines[#lines + 1] = "tesla_basic=" .. tostring(total_basic)
     lines[#lines + 1] = "tesla_advanced=" .. tostring(total_advanced)
@@ -276,7 +350,15 @@ end)
 
 script.on_event(defines.events.on_tick, function(event)
     local state = ensure_state()
-    if not state.prepared or state.fired then
+    if not state.prepared then
+        return
+    end
+
+    if state.fired then
+        if state.awaiting_flush_report and event.tick >= (state.report_tick or 0) then
+            append_post_burst_report(event.tick)
+            state.awaiting_flush_report = false
+        end
         return
     end
 
@@ -291,6 +373,8 @@ script.on_event(defines.events.on_tick, function(event)
 
     force.research_all_technologies()
     state.fired = true
+    state.awaiting_flush_report = true
+    state.report_tick = event.tick + POST_BURST_REPORT_DELAY
 
     local researched_count = 0
     for _, technology in pairs(force.technologies) do
@@ -302,6 +386,7 @@ script.on_event(defines.events.on_tick, function(event)
     write_report(
         "burst_tick=" .. tostring(event.tick)
             .. "\nresearched_count=" .. tostring(researched_count)
+            .. "\npost_burst_report_tick=" .. tostring(state.report_tick)
             .. "\n",
         true
     )

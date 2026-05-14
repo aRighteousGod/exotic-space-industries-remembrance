@@ -3,7 +3,7 @@
 -- owns: Gaia alien spawning, queues, and selection tooling
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: chunk generation, selected area, console command, destroy hooks, and every-tick queue update
--- forwarded_events: count_flowers, dump, entity_check, entity_select, gaia_tile_family, get_spawn_position, give_tool, is_gaia_surface, is_gaia_tree_name, on_chunk_generated, on_destroyed_entity, on_player_selected_area, prepare_entities, que_preset, resolve_gaia_tree_name, select_preset, spawn_entities, spawn_guardian, spawn_preset, spawn_tiles, tile_select, update
+-- forwarded_events: count_flowers, dump, entity_check, entity_select, gaia_tile_family, get_spawn_position, give_tool, has_tick_work, is_gaia_surface, is_gaia_tree_name, on_chunk_generated, on_destroyed_entity, on_player_selected_area, prepare_entities, que_preset, resolve_gaia_tree_name, select_preset, spawn_entities, spawn_guardian, spawn_preset, spawn_tiles, tile_select, update
 -- storage_roots: storage.ei, storage.gaia_surfaces
 -- gui_ids: none
 -- remote_interfaces: none
@@ -64,6 +64,57 @@ model.flower_counter_warnings = {
     [7] = {"exotic-industries.flower-count-7"},
     [10] = {"exotic-industries.flower-count-10"},
 }
+
+local function raw_spawner_has_due_work(current_tick)
+    local root = storage and storage.ei or nil
+    if type(root) ~= "table" then
+        return false
+    end
+
+    if type(root.spawner_queue) == "table" and #root.spawner_queue > 0 then
+        return true
+    end
+
+    local buckets = root.spawner_buckets
+    if type(buckets) ~= "table" then
+        return false
+    end
+
+    for due_tick, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil then
+            if due_tick <= current_tick then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+local function take_due_spawner_jobs(buckets, current_tick)
+    local due_jobs = {}
+    if type(buckets) ~= "table" then
+        return due_jobs
+    end
+
+    for due_tick, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil then
+            if due_tick <= current_tick then
+                buckets[due_tick] = nil
+                for _, job in pairs(bucket) do
+                    due_jobs[#due_jobs + 1] = job
+                end
+            end
+        end
+    end
+
+    return due_jobs
+end
+
+function model.has_tick_work(event)
+    local tick = event and event.tick or game and game.tick or 0
+    return raw_spawner_has_due_work(tick)
+end
 
 local function ensure_spawner_buckets(current_tick)
     storage.ei = storage.ei or {}
@@ -843,17 +894,21 @@ end
 
 
 function model.update(event)
+    if not model.has_tick_work(event) then
+        return
+    end
 
     local tick = event.tick
     local spawner_buckets = ensure_spawner_buckets(tick)
-    local due_spawners = ei_runtime_scheduler.delayed_take_due(spawner_buckets, tick)
+    local due_spawners = take_due_spawner_jobs(spawner_buckets, tick)
 
     if #due_spawners == 0 then
         return
     end
 
     for _, spawner in ipairs(due_spawners) do
-        if tick - spawner.tick <= 10 then
+        local spawner_tick = spawner.tick or tick
+        if tick - spawner_tick <= 10 then
             model.spawn_preset(spawner.preset, spawner.surface, spawner.pos, spawner.tiles, tick)
             ei_runtime_scheduler.bump_counter("alien-spawner", "processed", 1)
 

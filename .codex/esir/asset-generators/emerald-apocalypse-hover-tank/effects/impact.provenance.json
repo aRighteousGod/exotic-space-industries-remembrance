@@ -1,0 +1,12 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "impact",
+  "status": "promoted-v3-endpoint-apocalypse",
+  "frame_size": [768, 768],
+  "frames": 64,
+  "line_length": 8,
+  "aesthetic": "18-tile-radius emerald-black implosion, inward oath-rings, black triangular shutters, white-green inversion flash, delayed shard pull",
+  "prompt": "transparent Factorio impact animation, Emerald Apocalypse hover tank endpoint apocalypse, massive emerald-black implosion, inward sigil collapse, black triangular shutters, chevron corruption, white-green inversion flash, fractured oath rings, no copied Singularity Lance impact prism, no Gaian chromatic wake",
+  "negative_prompt": "purple prism, rainbow shockwave, saucer wake trail, muddy smoke cloud, opaque background",
+  "roles": ["base", "glow", "endpoint-collapse"]
+}

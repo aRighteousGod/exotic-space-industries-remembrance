@@ -25,3 +25,7 @@ require("exotic-prototypes")
 require("black-hole")
 -- add holo signs
 require("holo")
+-- add Emerald Apocalypse Hover Tank prototype slice
+require("emerald-apocalypse-hover-tank")
+-- add Emerald Apocalypse orbital shard research suite
+require("emerald-orbital-shard-research")

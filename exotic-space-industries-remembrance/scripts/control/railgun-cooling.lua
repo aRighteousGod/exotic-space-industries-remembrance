@@ -428,9 +428,8 @@ end
 local function recalculate_next_due_tick(runtime)
     local next_due_tick = 0
     for bucket_tick in pairs(runtime.recovery_buckets) do
-        local numeric_tick = tonumber(bucket_tick) or 0
-        if numeric_tick > 0 and (next_due_tick == 0 or numeric_tick < next_due_tick) then
-            next_due_tick = numeric_tick
+        if bucket_tick > 0 and (next_due_tick == 0 or bucket_tick < next_due_tick) then
+            next_due_tick = bucket_tick
         end
     end
     runtime.next_due_tick = next_due_tick
@@ -444,9 +443,8 @@ local function activate_due_recovery(runtime, current_tick)
     end
     local due_ticks = {}
     for bucket_tick in pairs(runtime.recovery_buckets) do
-        local numeric_tick = tonumber(bucket_tick) or 0
-        if numeric_tick > 0 and numeric_tick <= current_tick then
-            due_ticks[#due_ticks + 1] = numeric_tick
+        if bucket_tick > 0 and bucket_tick <= current_tick then
+            due_ticks[#due_ticks + 1] = bucket_tick
         end
     end
     table.sort(due_ticks)

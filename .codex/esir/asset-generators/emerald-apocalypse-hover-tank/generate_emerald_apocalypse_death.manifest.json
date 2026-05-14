@@ -1,0 +1,982 @@
+{
+  "asset": "emerald-apocalypse-hover-tank death collapse",
+  "frame_size": 768,
+  "frame_count": 64,
+  "line_length": 8,
+  "sheet_size": [
+    6144,
+    6144
+  ],
+  "normal": "exotic-space-industries-remembrance\\graphics\\entities\\emerald-apocalypse-hover-tank\\death\\ei-emerald-apocalypse-hover-tank-death-collapse.png",
+  "glow": "exotic-space-industries-remembrance\\graphics\\entities\\emerald-apocalypse-hover-tank\\death\\ei-emerald-apocalypse-hover-tank-death-collapse-glow.png",
+  "seed": 90377816,
+  "style_notes": [
+    "emerald shield membrane implodes",
+    "underhull rings shear outward",
+    "crystal spine rupture",
+    "black-green core flash",
+    "transparent background"
+  ],
+  "per_frame_bounds": [
+    {
+      "frame": 0,
+      "normal_alpha_bounds": [
+        33,
+        156,
+        735,
+        660
+      ],
+      "glow_alpha_bounds": [
+        26,
+        133,
+        742,
+        680
+      ]
+    },
+    {
+      "frame": 1,
+      "normal_alpha_bounds": [
+        29,
+        156,
+        739,
+        660
+      ],
+      "glow_alpha_bounds": [
+        25,
+        134,
+        743,
+        679
+      ]
+    },
+    {
+      "frame": 2,
+      "normal_alpha_bounds": [
+        28,
+        157,
+        740,
+        659
+      ],
+      "glow_alpha_bounds": [
+        24,
+        135,
+        744,
+        678
+      ]
+    },
+    {
+      "frame": 3,
+      "normal_alpha_bounds": [
+        27,
+        158,
+        741,
+        658
+      ],
+      "glow_alpha_bounds": [
+        24,
+        136,
+        744,
+        677
+      ]
+    },
+    {
+      "frame": 4,
+      "normal_alpha_bounds": [
+        28,
+        160,
+        740,
+        656
+      ],
+      "glow_alpha_bounds": [
+        24,
+        138,
+        744,
+        675
+      ]
+    },
+    {
+      "frame": 5,
+      "normal_alpha_bounds": [
+        31,
+        163,
+        737,
+        653
+      ],
+      "glow_alpha_bounds": [
+        25,
+        140,
+        743,
+        673
+      ]
+    },
+    {
+      "frame": 6,
+      "normal_alpha_bounds": [
+        37,
+        166,
+        731,
+        650
+      ],
+      "glow_alpha_bounds": [
+        28,
+        143,
+        740,
+        672
+      ]
+    },
+    {
+      "frame": 7,
+      "normal_alpha_bounds": [
+        44,
+        169,
+        724,
+        647
+      ],
+      "glow_alpha_bounds": [
+        32,
+        146,
+        736,
+        670
+      ]
+    },
+    {
+      "frame": 8,
+      "normal_alpha_bounds": [
+        52,
+        173,
+        715,
+        643
+      ],
+      "glow_alpha_bounds": [
+        37,
+        150,
+        730,
+        666
+      ]
+    },
+    {
+      "frame": 9,
+      "normal_alpha_bounds": [
+        62,
+        177,
+        706,
+        639
+      ],
+      "glow_alpha_bounds": [
+        45,
+        154,
+        723,
+        662
+      ]
+    },
+    {
+      "frame": 10,
+      "normal_alpha_bounds": [
+        72,
+        182,
+        697,
+        636
+      ],
+      "glow_alpha_bounds": [
+        54,
+        159,
+        716,
+        659
+      ]
+    },
+    {
+      "frame": 11,
+      "normal_alpha_bounds": [
+        82,
+        186,
+        689,
+        631
+      ],
+      "glow_alpha_bounds": [
+        61,
+        164,
+        710,
+        654
+      ]
+    },
+    {
+      "frame": 12,
+      "normal_alpha_bounds": [
+        88,
+        185,
+        682,
+        627
+      ],
+      "glow_alpha_bounds": [
+        68,
+        169,
+        703,
+        650
+      ]
+    },
+    {
+      "frame": 13,
+      "normal_alpha_bounds": [
+        93,
+        178,
+        675,
+        622
+      ],
+      "glow_alpha_bounds": [
+        72,
+        163,
+        696,
+        644
+      ]
+    },
+    {
+      "frame": 14,
+      "normal_alpha_bounds": [
+        94,
+        172,
+        669,
+        615
+      ],
+      "glow_alpha_bounds": [
+        73,
+        156,
+        689,
+        638
+      ]
+    },
+    {
+      "frame": 15,
+      "normal_alpha_bounds": [
+        95,
+        165,
+        664,
+        608
+      ],
+      "glow_alpha_bounds": [
+        74,
+        148,
+        684,
+        630
+      ]
+    },
+    {
+      "frame": 16,
+      "normal_alpha_bounds": [
+        97,
+        159,
+        661,
+        600
+      ],
+      "glow_alpha_bounds": [
+        77,
+        141,
+        681,
+        623
+      ]
+    },
+    {
+      "frame": 17,
+      "normal_alpha_bounds": [
+        105,
+        155,
+        665,
+        594
+      ],
+      "glow_alpha_bounds": [
+        85,
+        137,
+        681,
+        616
+      ]
+    },
+    {
+      "frame": 18,
+      "normal_alpha_bounds": [
+        114,
+        154,
+        676,
+        590
+      ],
+      "glow_alpha_bounds": [
+        95,
+        135,
+        690,
+        612
+      ]
+    },
+    {
+      "frame": 19,
+      "normal_alpha_bounds": [
+        118,
+        155,
+        688,
+        619
+      ],
+      "glow_alpha_bounds": [
+        99,
+        137,
+        700,
+        631
+      ]
+    },
+    {
+      "frame": 20,
+      "normal_alpha_bounds": [
+        113,
+        157,
+        693,
+        662
+      ],
+      "glow_alpha_bounds": [
+        96,
+        139,
+        706,
+        672
+      ]
+    },
+    {
+      "frame": 21,
+      "normal_alpha_bounds": [
+        104,
+        147,
+        693,
+        672
+      ],
+      "glow_alpha_bounds": [
+        88,
+        137,
+        706,
+        682
+      ]
+    },
+    {
+      "frame": 22,
+      "normal_alpha_bounds": [
+        95,
+        154,
+        690,
+        689
+      ],
+      "glow_alpha_bounds": [
+        78,
+        140,
+        704,
+        699
+      ]
+    },
+    {
+      "frame": 23,
+      "normal_alpha_bounds": [
+        88,
+        118,
+        692,
+        740
+      ],
+      "glow_alpha_bounds": [
+        71,
+        107,
+        704,
+        743
+      ]
+    },
+    {
+      "frame": 24,
+      "normal_alpha_bounds": [
+        85,
+        120,
+        696,
+        747
+      ],
+      "glow_alpha_bounds": [
+        68,
+        110,
+        709,
+        747
+      ]
+    },
+    {
+      "frame": 25,
+      "normal_alpha_bounds": [
+        86,
+        138,
+        731,
+        747
+      ],
+      "glow_alpha_bounds": [
+        69,
+        127,
+        737,
+        747
+      ]
+    },
+    {
+      "frame": 26,
+      "normal_alpha_bounds": [
+        21,
+        73,
+        730,
+        747
+      ],
+      "glow_alpha_bounds": [
+        22,
+        64,
+        736,
+        747
+      ]
+    },
+    {
+      "frame": 27,
+      "normal_alpha_bounds": [
+        84,
+        110,
+        714,
+        746
+      ],
+      "glow_alpha_bounds": [
+        71,
+        99,
+        724,
+        746
+      ]
+    },
+    {
+      "frame": 28,
+      "normal_alpha_bounds": [
+        57,
+        93,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        49,
+        85,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 29,
+      "normal_alpha_bounds": [
+        22,
+        112,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        102,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 30,
+      "normal_alpha_bounds": [
+        48,
+        107,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        40,
+        97,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 31,
+      "normal_alpha_bounds": [
+        22,
+        37,
+        722,
+        715
+      ],
+      "glow_alpha_bounds": [
+        22,
+        32,
+        729,
+        723
+      ]
+    },
+    {
+      "frame": 32,
+      "normal_alpha_bounds": [
+        30,
+        40,
+        723,
+        746
+      ],
+      "glow_alpha_bounds": [
+        27,
+        35,
+        730,
+        746
+      ]
+    },
+    {
+      "frame": 33,
+      "normal_alpha_bounds": [
+        37,
+        24,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        32,
+        24,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 34,
+      "normal_alpha_bounds": [
+        22,
+        38,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        32,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 35,
+      "normal_alpha_bounds": [
+        22,
+        35,
+        725,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        30,
+        732,
+        746
+      ]
+    },
+    {
+      "frame": 36,
+      "normal_alpha_bounds": [
+        22,
+        100,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        91,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 37,
+      "normal_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 38,
+      "normal_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 39,
+      "normal_alpha_bounds": [
+        22,
+        22,
+        742,
+        743
+      ],
+      "glow_alpha_bounds": [
+        22,
+        22,
+        743,
+        743
+      ]
+    },
+    {
+      "frame": 40,
+      "normal_alpha_bounds": [
+        25,
+        84,
+        746,
+        719
+      ],
+      "glow_alpha_bounds": [
+        24,
+        75,
+        746,
+        726
+      ]
+    },
+    {
+      "frame": 41,
+      "normal_alpha_bounds": [
+        22,
+        29,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        26,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 42,
+      "normal_alpha_bounds": [
+        22,
+        22,
+        732,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        22,
+        737,
+        746
+      ]
+    },
+    {
+      "frame": 43,
+      "normal_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        23,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 44,
+      "normal_alpha_bounds": [
+        22,
+        25,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        24,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 45,
+      "normal_alpha_bounds": [
+        22,
+        32,
+        736,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        28,
+        740,
+        746
+      ]
+    },
+    {
+      "frame": 46,
+      "normal_alpha_bounds": [
+        22,
+        33,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        30,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 47,
+      "normal_alpha_bounds": [
+        22,
+        24,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        24,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 48,
+      "normal_alpha_bounds": [
+        22,
+        36,
+        727,
+        744
+      ],
+      "glow_alpha_bounds": [
+        22,
+        31,
+        733,
+        744
+      ]
+    },
+    {
+      "frame": 49,
+      "normal_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        22,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 50,
+      "normal_alpha_bounds": [
+        22,
+        54,
+        740,
+        741
+      ],
+      "glow_alpha_bounds": [
+        22,
+        47,
+        742,
+        741
+      ]
+    },
+    {
+      "frame": 51,
+      "normal_alpha_bounds": [
+        22,
+        59,
+        733,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        51,
+        738,
+        746
+      ]
+    },
+    {
+      "frame": 52,
+      "normal_alpha_bounds": [
+        22,
+        68,
+        725,
+        715
+      ],
+      "glow_alpha_bounds": [
+        22,
+        59,
+        731,
+        719
+      ]
+    },
+    {
+      "frame": 53,
+      "normal_alpha_bounds": [
+        22,
+        130,
+        746,
+        746
+      ],
+      "glow_alpha_bounds": [
+        22,
+        120,
+        746,
+        746
+      ]
+    },
+    {
+      "frame": 54,
+      "normal_alpha_bounds": [
+        59,
+        71,
+        746,
+        711
+      ],
+      "glow_alpha_bounds": [
+        51,
+        62,
+        744,
+        718
+      ]
+    },
+    {
+      "frame": 55,
+      "normal_alpha_bounds": [
+        48,
+        76,
+        721,
+        733
+      ],
+      "glow_alpha_bounds": [
+        41,
+        68,
+        729,
+        737
+      ]
+    },
+    {
+      "frame": 56,
+      "normal_alpha_bounds": [
+        65,
+        81,
+        719,
+        746
+      ],
+      "glow_alpha_bounds": [
+        57,
+        72,
+        727,
+        746
+      ]
+    },
+    {
+      "frame": 57,
+      "normal_alpha_bounds": [
+        83,
+        118,
+        716,
+        730
+      ],
+      "glow_alpha_bounds": [
+        67,
+        108,
+        724,
+        735
+      ]
+    },
+    {
+      "frame": 58,
+      "normal_alpha_bounds": [
+        86,
+        148,
+        712,
+        725
+      ],
+      "glow_alpha_bounds": [
+        71,
+        150,
+        721,
+        731
+      ]
+    },
+    {
+      "frame": 59,
+      "normal_alpha_bounds": [
+        90,
+        139,
+        709,
+        662
+      ],
+      "glow_alpha_bounds": [
+        75,
+        130,
+        718,
+        671
+      ]
+    },
+    {
+      "frame": 60,
+      "normal_alpha_bounds": [
+        94,
+        155,
+        704,
+        626
+      ],
+      "glow_alpha_bounds": [
+        81,
+        172,
+        712,
+        634
+      ]
+    },
+    {
+      "frame": 61,
+      "normal_alpha_bounds": [
+        99,
+        237,
+        700,
+        598
+      ],
+      "glow_alpha_bounds": [
+        86,
+        228,
+        709,
+        607
+      ]
+    },
+    {
+      "frame": 62,
+      "normal_alpha_bounds": [
+        104,
+        254,
+        695,
+        543
+      ],
+      "glow_alpha_bounds": [
+        93,
+        246,
+        702,
+        552
+      ]
+    },
+    {
+      "frame": 63,
+      "normal_alpha_bounds": [
+        111,
+        272,
+        687,
+        531
+      ],
+      "glow_alpha_bounds": [
+        100,
+        268,
+        692,
+        540
+      ]
+    }
+  ]
+}

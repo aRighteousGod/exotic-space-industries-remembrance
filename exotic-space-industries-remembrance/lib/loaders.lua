@@ -43,6 +43,7 @@ local ei_loaders_lib = {}
 
 -- loaders: the named masks that qualify for snapping
 local loaders = {
+	["ei-steam-loader"] = true,
 	["ei-loader"] = true,
 	["ei-fast-loader"] = true,
 	["ei-express-loader"] = true,
@@ -92,6 +93,7 @@ local container_like = {
 
 -- loader_like: all EI loader names (for fast filtered lookup)
 local loader_like = {
+	"ei-steam-loader",
 	"ei-loader",
 	"ei-fast-loader",
 	"ei-express-loader",

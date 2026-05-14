@@ -269,19 +269,19 @@ def make_preview(normal_frames: list[Image.Image], glow_frames: list[Image.Image
         shade = 38 + (x // 26) % 2 * 8
         draw.rectangle((x, 0, x + 25, canvas.height), fill=(shade, 34, 35, 255))
 
-    saucer = first_frame(SAUCER_DIR / "ei-gaian-saucer.png")
-    saucer_glow = first_frame(SAUCER_DIR / "ei-gaian-saucer_glow.png")
-    saucer_shadow = first_frame(SAUCER_DIR / "ei-gaian-saucer_shadow.png")
+    saucer = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact.png")
+    saucer_glow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_glow.png")
+    saucer_shadow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_shadow.png")
     center = (390, 176)
     frame_index = 18
     paste_scaled(canvas, glow_frames[frame_index], 0.52, center, 0.95)
     paste_scaled(canvas, normal_frames[frame_index], 0.52, center, 1.0)
     if saucer_shadow:
-        paste_scaled(canvas, saucer_shadow, 0.23, (center[0] + 18, center[1] + 26), 0.35)
+        paste_scaled(canvas, saucer_shadow, 0.69, (center[0] + 18, center[1] + 26), 0.35)
     if saucer:
-        paste_scaled(canvas, saucer, 0.23, center, 0.42)
+        paste_scaled(canvas, saucer, 0.69, center, 0.42)
     if saucer_glow:
-        paste_scaled(canvas, saucer_glow, 0.23, center, 0.70)
+        paste_scaled(canvas, saucer_glow, 0.69, center, 0.70)
 
     preview_path = PREVIEW_DIR / f"{ASSET_NAME}-factorio-scale-preview.png"
     canvas.convert("RGBA").save(preview_path)

@@ -500,6 +500,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."condensed-cryodust-1.png",
                     scale = 0.125,
                     size = 128
@@ -515,6 +516,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."condensed-cryodust-2.png",
                     scale = 0.125,
                     size = 128
@@ -530,6 +532,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."condensed-cryodust-3.png",
                     scale = 0.125,
                     size = 128
@@ -545,6 +548,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."condensed-cryodust-4.png",
                     scale = 0.125,
                     size = 128
@@ -560,6 +564,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."condensed-cryodust-5.png",
                     scale = 0.125,
                     size = 128
@@ -575,6 +580,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."condensed-cryodust-6.png",
                     scale = 0.125,
                     size = 128
@@ -601,6 +607,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."enriched-cryodust.png",
                     scale = 0.125,
                     size = 128
@@ -616,6 +623,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."enriched-cryodust-2.png",
                     scale = 0.125,
                     size = 128
@@ -631,6 +639,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."enriched-cryodust-3.png",
                     scale = 0.125,
                     size = 128
@@ -646,6 +655,7 @@ data:extend({
                 },
                 {
                     draw_as_light = true,
+                    flags = {"light"},
                     filename = ei_graphics_item_2_path.."enriched-cryodust-4.png",
                     scale = 0.125,
                     size = 128

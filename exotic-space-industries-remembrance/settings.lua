@@ -2,6 +2,7 @@
 ei_lib = require("lib/lib")
 local singularity_lance_config = require("lib/singularity-lance-config")
 local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
+local emerald_hover_tank_config = require("lib/emerald-apocalypse-hover-tank-config")
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
@@ -299,6 +300,7 @@ data:extend({
   },
   singularity_lance_config.startup_setting_definition(),
   gaian_saucer_wake_config.startup_setting_definition(),
+  emerald_hover_tank_config.startup_setting_definition(),
   {
       name = "ei-ticks_per_full_update",
       type = "int-setting",
@@ -336,6 +338,14 @@ data:extend({
       default_value = false,
       order  = "c1f",
       hidden = true, --Commit to the vision of the mod, don't disable this.
+  },
+  {
+      name = "ei-item-glow-overlay-fidelity",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "all",
+      allowed_values = {"all", "flat", "off"},
+      order = "c1f0",
   },
   {
       name = "ei-solar-icon-scaling",

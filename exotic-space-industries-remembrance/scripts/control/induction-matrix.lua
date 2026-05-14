@@ -3,7 +3,7 @@
 -- owns: induction matrix GUI, runtime, and tile hooks
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, tile changes, GUI dispatch, and every-tick runtime updates
--- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_sorted_lookup_names, is_core, lookup_tile_for_entity, mark_dirty, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_gui_click, open_gui, queue_tile_render, rebuild_runtime_state, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
+-- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_sorted_lookup_names, has_tick_work, is_core, lookup_tile_for_entity, mark_dirty, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_gui_click, open_gui, queue_tile_render, rebuild_runtime_state, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
 -- storage_roots: storage.ei
 -- gui_ids: ei-induction-matrix-console
 -- remote_interfaces: none
@@ -42,6 +42,84 @@ local function mark_wire_slots_dirty()
     if storage and storage.ei and storage.ei.induction_matrix then
         storage.ei.induction_matrix.wire_slots_rebuild_needed = true
     end
+end
+
+local function raw_queue_has_items(queue)
+    if type(queue) ~= "table" or type(queue.items) ~= "table" then
+        return false
+    end
+
+    local head = queue.head or 1
+    local tail = queue.tail or #queue.items
+    for index = head, tail do
+        if queue.items[index] ~= nil then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function raw_delayed_has_due_work(buckets, current_tick)
+    if type(buckets) ~= "table" then
+        return false
+    end
+
+    for due_tick, bucket in pairs(buckets) do
+        local has_items = type(bucket) == "table" and next(bucket) ~= nil
+        if has_items then
+            if due_tick <= current_tick then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+local function raw_legacy_render_has_due_work(render_queue, current_tick)
+    if type(render_queue) ~= "table" or #render_queue <= 0 then
+        return false
+    end
+
+    for _, entry in ipairs(render_queue) do
+        if type(entry) ~= "table" or (entry.tick or 0) <= current_tick then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function raw_has_numeric_matrix_core(core)
+    if type(core) ~= "table" then
+        return false
+    end
+
+    for matrix_id in pairs(core) do
+        if type(matrix_id) == "number" then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function raw_matrix_gui_open()
+    if not game or type(game.connected_players) ~= "table" then
+        return false
+    end
+
+    for _, player in pairs(game.connected_players) do
+        if player.gui
+            and player.gui.screen
+            and player.gui.screen["ei-induction-matrix-console"]
+        then
+            return true
+        end
+    end
+
+    return false
 end
 
 --====================================================================================================
@@ -241,6 +319,55 @@ local function schedule_render_entry(entry)
     matrix_state.render_buckets = ei_runtime_scheduler.delayed_schedule(matrix_state.render_buckets, entry.tick, entry)
 end
 
+local function entity_has_required_matrix_tiles(entity)
+    if not model.entity_check(entity) then
+        return false
+    end
+
+    if entity.type == "entity-ghost" or entity.type == "tile-ghost" then
+        return false
+    end
+
+    if model.core[entity.name] or model.converters[entity.name] then
+        local tiles = entity.surface.count_tiles_filtered({
+            area = {{entity.position.x - 0.5, entity.position.y - 0.5}, {entity.position.x + 0.5, entity.position.y + 0.5}},
+            name = "ei-induction-matrix-tile",
+        })
+
+        return tiles == 4
+    end
+
+    local tile = entity.surface.get_tile(entity.position)
+    return tile and tile.name == "ei-induction-matrix-tile"
+end
+
+local function ensure_dormant_core_record(entity)
+    -- Core entities are intentionally non-selectable; the hidden proxy is the player-facing
+    -- handle. When bots or blueprints place the core before the floor tiles arrive, keep a
+    -- dormant matrix record so the proxy exists and later tile builds can wake it.
+    if not model.entity_check(entity) or not model.core[entity.name] then
+        return nil
+    end
+
+    model.check_global_init()
+
+    local matrix_id = get_entity_unit_number(entity)
+    if not matrix_id then
+        return nil
+    end
+
+    model.reset_matrix_table(matrix_id)
+    local matrix = storage.ei.induction_matrix.core[matrix_id]
+    matrix.core[matrix_id] = entity
+    matrix.state = false
+    matrix.stats = matrix.stats or {}
+    matrix.stats.max_IO = tonumber(matrix.stats.max_IO) or 0
+    matrix.stats.capacity = tonumber(matrix.stats.capacity) or 0
+    matrix.dirty = false
+    model.ensure_wire_proxy(matrix_id)
+    return matrix_id
+end
+
 
 function model.entity_check(entity)
     -- This helper is intentionally tiny because it is called in many hot paths.
@@ -258,16 +385,8 @@ function model.check_tile(entity)
         return false
     end
 
-    -- for matrix core and converter the footprint is 2x2
-
-    if model.core[entity.name] or model.converters[entity.name] then
-
-        local tiles = entity.surface.count_tiles_filtered({
-            area = {{entity.position.x - 0.5, entity.position.y - 0.5}, {entity.position.x + 0.5, entity.position.y + 0.5}},
-            name = "ei-induction-matrix-tile",
-        })
-
-        if tiles ~= 4 then
+    if not entity_has_required_matrix_tiles(entity) then
+        if model.core[entity.name] or model.converters[entity.name] then
             rendering.draw_text{
                 target = entity,
                 text = "This entity must be placed on a induction matrix tile",
@@ -276,16 +395,7 @@ function model.check_tile(entity)
                 scale = 1,
                 time_to_live = 120
             }
-            return false
-        end
-
-        return true
-
-    else
-
-        local tile = entity.surface.get_tile(entity.position)
-
-        if tile.name ~= "ei-induction-matrix-tile" then
+        else
             rendering.draw_text{
                 target = entity,
                 text = "This entity must be placed on a induction matrix tile",
@@ -294,12 +404,12 @@ function model.check_tile(entity)
                 scale = 1,
                 time_to_live = 120
             }
-            return false
         end
 
-        return true
-
+        return false
     end
+
+    return true
 end
 
 
@@ -318,13 +428,13 @@ function model.check_connected_tiles(pos, surface, render, matrix_id, force, eve
     -- first and then repopulate them from scratch. This avoids stale membership after tile
     -- edits, removals, or duplicate-core cleanup.
 
-    local max_connected_tiles = model.get_max_connected_tiles(force)
     local tile = surface.get_tile({x=pos.x - 0.25, y=pos.y - 0.25})
-    local pos = tile.position
 
     if not tile then
         return false
     end
+
+    local pos = tile.position
 
     if tile.name ~= "ei-induction-matrix-tile" then
         return false
@@ -389,6 +499,12 @@ function model.check_connected_tiles(pos, surface, render, matrix_id, force, eve
         known_lenght = known_lenght + 1
     end
 
+    if not force and matrix_id then
+        local core = model.get_core_entity(matrix_id)
+        force = core and core.valid and core.force or nil
+    end
+
+    local max_connected_tiles = model.get_max_connected_tiles(force)
     if known_lenght > max_connected_tiles then
         rendering.draw_text{
             target = pos,
@@ -1578,7 +1694,7 @@ function model.update_render_queue(tick)
 
     model.check_global_init()
 
-    local due_entries = ei_runtime_scheduler.delayed_take_due(storage.ei.induction_matrix.render_buckets, tick)
+    local due_entries = ei_runtime_scheduler.delayed_take_due_through(storage.ei.induction_matrix.render_buckets, tick)
     for _, v in ipairs(due_entries) do
         if v.rtype == "tile-box" then
             model.render_tile_box(v)
@@ -1786,6 +1902,10 @@ function model.force_visual_update(matrix_id, event)
         return
     end
 
+    if model.check_tile(core) == false then
+        return
+    end
+
     local dict = model.check_connected_tiles(core.position, core.surface, true, matrix_id, core.force, event)
 
     if dict == false then
@@ -1970,7 +2090,8 @@ end
 
 function model.on_built_entity(event)
     -- Entity build path:
-    -- - reject irrelevant or illegally placed entities
+    -- - reject irrelevant entities
+    -- - keep illegally placed cores recoverable through their proxy
     -- - if a core was placed, rebuild from that core and ensure its proxy exists
     -- - if a non-core component was placed, discover the owning matrix and mark it dirty
     model.check_global_init()
@@ -1985,6 +2106,9 @@ function model.on_built_entity(event)
     end
 
     if model.check_tile(entity) == false then
+        if model.core[entity.name] then
+            ensure_dormant_core_record(entity)
+        end
         return
     end
 
@@ -2009,6 +2133,9 @@ function model.on_built_entity(event)
     if model.but_cores[entity.name] then
 
         local dict = model.check_connected_tiles(entity.position, entity.surface, false, nil, entity.force,event)
+        if dict == false or not dict.matrix_id then
+            return
+        end
 
         model.set_core_state(dict.matrix_id, dict.state)
 
@@ -2085,6 +2212,9 @@ function model.on_destroyed_entity(event)
     if model.but_cores[entity.name] then
 
         local dict = model.check_connected_tiles(entity.position, entity.surface, false, nil, entity.force,event)
+        if dict == false or not dict.matrix_id then
+            return
+        end
 
         model.set_core_state(dict.matrix_id, dict.state)
 
@@ -2103,7 +2233,10 @@ function model.on_built_tile(event)
     local surface = game.surfaces[event.surface_index]
     local tiles = event.tiles
     local tile = event.tile
-    local source = event.robot or game.get_player(event.player_index)
+    local source = event.robot or (event.player_index and game.get_player(event.player_index)) or nil
+    local source_force = source and source.force or nil
+    local core_names = model.get_sorted_lookup_names(model.core)
+    local recovered_core_units = {}
 
     --if tile.name ~= "ei-induction-matrix-tile" then
     --    return
@@ -2119,25 +2252,49 @@ function model.on_built_tile(event)
 
     end
 
-    if tile.name ~= "ei-induction-matrix-tile" then
-        return
-    end
-
     for _, v in ipairs(tiles) do
 
         local pos = v.position
+        local placed_tile = surface.get_tile(pos)
+        local tile_name = tile and tile.name or placed_tile and placed_tile.name or nil
 
-        pos = {x = pos.x + 0.25, y = pos.y + 0.25}
-
-        local dict = model.check_connected_tiles(pos, surface, false, nil, source.force,event)
-
-        if dict == false then
+        if tile_name ~= "ei-induction-matrix-tile" then
             goto continue
         end
 
-        model.set_core_state(dict.matrix_id, dict.state)
+        local probe_pos = {x = pos.x + 0.25, y = pos.y + 0.25}
 
-        model.mark_dirty(dict.matrix_id)
+        local dict = model.check_connected_tiles(probe_pos, surface, false, nil, source_force, event)
+
+        if dict ~= false and dict.matrix_id then
+            model.set_core_state(dict.matrix_id, dict.state)
+            model.mark_dirty(dict.matrix_id)
+        end
+
+        local nearby_cores = surface.find_entities_filtered{
+            area = {{pos.x - 1.5, pos.y - 1.5}, {pos.x + 1.5, pos.y + 1.5}},
+            name = core_names,
+        }
+
+        for _, core in ipairs(nearby_cores) do
+            local core_unit = get_entity_unit_number(core)
+            if not core_unit or recovered_core_units[core_unit] then
+                goto continue_core
+            end
+
+            recovered_core_units[core_unit] = true
+            if entity_has_required_matrix_tiles(core) then
+                ensure_dormant_core_record(core)
+                local core_dict = model.check_connected_tiles(core.position, core.surface, false, core_unit, core.force or source_force, event)
+                if core_dict ~= false and core_dict.matrix_id then
+                    model.set_core_state(core_dict.matrix_id, core_dict.state)
+                    model.mark_dirty(core_dict.matrix_id)
+                    model.ensure_wire_proxy(core_dict.matrix_id)
+                end
+            end
+
+            ::continue_core::
+        end
 
         ::continue::
 
@@ -2156,15 +2313,22 @@ function model.on_destroyed_tile(event)
 
     local surface = game.surfaces[event.surface_index]
     local tiles = event.tiles
-    local source = event.robot or game.get_player(event.player_index)
+    local source = event.robot or (event.player_index and game.get_player(event.player_index)) or nil
+    local source_force = source and source.force or nil
 
     for _, v in ipairs(tiles) do
 
-        if v.old_tile.name ~= "ei-induction-matrix-tile" then
+        local old_tile_name = v.old_tile and (v.old_tile.name or v.old_tile) or nil
+        if old_tile_name ~= "ei-induction-matrix-tile" then
             goto continue
         end
 
         local pos = v.position
+        local current_tile = surface.get_tile(pos)
+        if event.name == defines.events.script_raised_set_tiles
+        and current_tile and current_tile.name == "ei-induction-matrix-tile" then
+            goto continue
+        end
 
         -- check if there is a core on the tile
         -- if so spill it and remove it from storage
@@ -2300,9 +2464,9 @@ function model.on_destroyed_tile(event)
             if y.name == "ei-induction-matrix-tile" then
 
                 local shifted_pos = {x = y.position.x + 0.25, y = y.position.y + 0.25}
-                local dict = model.check_connected_tiles(shifted_pos, surface, false, nil, source.force,event)
+                local dict = model.check_connected_tiles(shifted_pos, surface, false, nil, source_force,event)
 
-                if dict == false then
+                if dict == false or not dict.matrix_id then
                     goto contin
                 end
 
@@ -2319,6 +2483,36 @@ function model.on_destroyed_tile(event)
         ::continue::
     end
 
+end
+
+
+function model.has_tick_work(event)
+    local state = storage and storage.ei and storage.ei.induction_matrix or nil
+    if type(state) ~= "table" then
+        return false
+    end
+
+    local tick = event and event.tick or game and game.tick or 0
+    if raw_delayed_has_due_work(state.render_buckets, tick)
+        or raw_legacy_render_has_due_work(state.render_queue, tick)
+        or raw_queue_has_items(state.dirty_core_queue)
+    then
+        return true
+    end
+
+    if type(state.to_remove) == "table" and #state.to_remove > 0 then
+        return true
+    end
+
+    if state.wire_slots_rebuild_needed == true then
+        return true
+    end
+
+    if raw_has_numeric_matrix_core(state.core) then
+        return true
+    end
+
+    return raw_matrix_gui_open()
 end
 
 

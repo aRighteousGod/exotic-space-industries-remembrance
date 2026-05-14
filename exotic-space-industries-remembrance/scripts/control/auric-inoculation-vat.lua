@@ -1393,14 +1393,13 @@ local function recalculate_next_due_tick(runtime)
     local stale_count = 0
     local compacted_buckets = {}
     for bucket_tick, bucket in pairs(runtime.due_buckets) do
-        local numeric_tick = math.max(0, math.floor(tonumber(bucket_tick) or 0))
-        if numeric_tick > 0 and type(bucket) == "table" then
+        if bucket_tick > 0 and type(bucket) == "table" then
             local live_bucket = {}
             for _, unit_number in ipairs(bucket) do
-                if runtime.due_tick_by_unit[unit_number] == numeric_tick then
+                if runtime.due_tick_by_unit[unit_number] == bucket_tick then
                     live_bucket[#live_bucket + 1] = unit_number
-                    if next_due_tick == 0 or numeric_tick < next_due_tick then
-                        next_due_tick = numeric_tick
+                    if next_due_tick == 0 or bucket_tick < next_due_tick then
+                        next_due_tick = bucket_tick
                     end
                 else
                     stale_count = stale_count + 1
@@ -1427,14 +1426,13 @@ local function recalculate_next_ui_due_tick(runtime)
     local stale_count = 0
     local compacted_buckets = {}
     for bucket_tick, bucket in pairs(runtime.ui_due_buckets) do
-        local numeric_tick = math.max(0, math.floor(tonumber(bucket_tick) or 0))
-        if numeric_tick > 0 and type(bucket) == "table" then
+        if bucket_tick > 0 and type(bucket) == "table" then
             local live_bucket = {}
             for _, player_index in ipairs(bucket) do
-                if runtime.ui_pending_by_player[player_index] == numeric_tick then
+                if runtime.ui_pending_by_player[player_index] == bucket_tick then
                     live_bucket[#live_bucket + 1] = player_index
-                    if next_ui_due_tick == 0 or numeric_tick < next_ui_due_tick then
-                        next_ui_due_tick = numeric_tick
+                    if next_ui_due_tick == 0 or bucket_tick < next_ui_due_tick then
+                        next_ui_due_tick = bucket_tick
                     end
                 else
                     stale_count = stale_count + 1
@@ -4463,9 +4461,8 @@ function model.service_ui(event)
     -- authority; delayed buckets are only wake hints and can contain old echoes
     -- after rapid open/close or feedback refresh coalescing.
     for bucket_tick, bucket in pairs(runtime.ui_due_buckets) do
-        local numeric_tick = math.max(0, math.floor(tonumber(bucket_tick) or 0))
-        if numeric_tick > 0 and type(bucket) == "table" then
-            if numeric_tick <= current_tick then
+        if bucket_tick > 0 and type(bucket) == "table" then
+            if bucket_tick <= current_tick then
                 for _, player_index in ipairs(bucket) do
                     local pending_tick = runtime.ui_pending_by_player[player_index]
                     if pending_tick and pending_tick <= current_tick then
@@ -4477,7 +4474,7 @@ function model.service_ui(event)
             else
                 local live_bucket = {}
                 for _, player_index in ipairs(bucket) do
-                    if runtime.ui_pending_by_player[player_index] == numeric_tick then
+                    if runtime.ui_pending_by_player[player_index] == bucket_tick then
                         live_bucket[#live_bucket + 1] = player_index
                     else
                         stale_count = stale_count + 1
@@ -4485,8 +4482,8 @@ function model.service_ui(event)
                 end
                 if #live_bucket > 0 then
                     compacted_buckets[bucket_tick] = live_bucket
-                    if next_ui_due_tick == 0 or numeric_tick < next_ui_due_tick then
-                        next_ui_due_tick = numeric_tick
+                    if next_ui_due_tick == 0 or bucket_tick < next_ui_due_tick then
+                        next_ui_due_tick = bucket_tick
                     end
                 end
             end

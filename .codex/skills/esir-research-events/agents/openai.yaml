@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Research Events"
+  short_description: "Guide ESIR research handlers through scripted burst dispatch"
+  default_prompt: "Use $esir-research-events before adding or refactoring ESIR research event handlers."

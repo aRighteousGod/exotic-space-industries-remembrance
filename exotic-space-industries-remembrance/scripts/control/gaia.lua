@@ -3,7 +3,7 @@
 -- owns: Gaia runtime, spawn command, build hooks, and reforge behavior
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: console command, build hooks, scheduled tick step 1, and every-tick Gaia updates
--- forwarded_events: create_drop, create_gaia, degrade_building, destroy_building, ensure_surface, entity_check, migrate_gaia_surface, on_built_entity, reforge_gaia_surface, reforge_on_tick, register_entity, remove_search_tick, spawn_command, swap_entity, update, update_entity_lifetimes
+-- forwarded_events: create_drop, create_gaia, degrade_building, destroy_building, ensure_surface, entity_check, has_tick_work, migrate_gaia_surface, on_built_entity, reforge_gaia_surface, reforge_on_tick, register_entity, remove_search_tick, spawn_command, swap_entity, update, update_entity_lifetimes
 -- storage_roots: storage.ei, storage.gaia_surfaces
 -- gui_ids: none
 -- remote_interfaces: none
@@ -54,6 +54,61 @@ model.hour = 60 * 60 * 60
 model.entity_damage_ticks = {
   
 }
+
+local function raw_damage_ticks_have_due_work(current_tick)
+    local root = storage and storage.ei or nil
+    if type(root) ~= "table" then
+        return false
+    end
+
+    if root.reforge_gaia ~= nil then
+        return true
+    end
+
+    if type(root.damage_ticks) == "table" and #root.damage_ticks > 0 then
+        return true
+    end
+
+    local buckets = root.damage_tick_buckets
+    if type(buckets) ~= "table" then
+        return false
+    end
+
+    for due_tick, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil then
+            if due_tick <= current_tick then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+local function take_due_damage_ticks(buckets, current_tick)
+    local due_entries = {}
+    if type(buckets) ~= "table" then
+        return due_entries
+    end
+
+    for due_tick, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil then
+            if due_tick <= current_tick then
+                buckets[due_tick] = nil
+                for _, entry in pairs(bucket) do
+                    due_entries[#due_entries + 1] = entry
+                end
+            end
+        end
+    end
+
+    return due_entries
+end
+
+function model.has_tick_work(event)
+    local tick = event and event.tick or game and game.tick or 0
+    return raw_damage_ticks_have_due_work(tick)
+end
 
 local function ensure_damage_tick_buckets(current_tick)
     storage.ei = storage.ei or {}
@@ -799,7 +854,7 @@ end
 
 function model.update_entity_lifetimes(event)
 
-    local damage_ticks = ei_runtime_scheduler.delayed_take_due(ensure_damage_tick_buckets(event.tick), event.tick)
+    local damage_ticks = take_due_damage_ticks(ensure_damage_tick_buckets(event.tick), event.tick)
     if #damage_ticks == 0 then
         return
     end
@@ -1052,6 +1107,9 @@ end
 
 
 function model.update(event)
+    if not model.has_tick_work(event) then
+        return
+    end
 
     model.update_entity_lifetimes(event)
 

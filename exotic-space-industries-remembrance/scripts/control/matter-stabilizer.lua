@@ -1112,9 +1112,8 @@ function model.service_due_gui_refreshes(event_tick)
 
     local due_ticks = {}
     for bucket_tick, _ in pairs(gui_state.refresh_buckets) do
-        local numeric_tick = tonumber(bucket_tick)
-        if numeric_tick and numeric_tick <= tick then
-            due_ticks[#due_ticks + 1] = numeric_tick
+        if bucket_tick <= tick then
+            due_ticks[#due_ticks + 1] = bucket_tick
         end
     end
 

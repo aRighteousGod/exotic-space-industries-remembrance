@@ -1030,9 +1030,8 @@ rebuild_ui_due_frontier = function(runtime)
 
     local due_ticks = clear_scratch_array(runtime.scratch_due_ticks)
     for bucket_tick in pairs(runtime.ui_due_buckets) do
-        local numeric_tick = tonumber(bucket_tick) or 0
-        if numeric_tick > 0 then
-            due_ticks[#due_ticks + 1] = numeric_tick
+        if bucket_tick > 0 then
+            due_ticks[#due_ticks + 1] = bucket_tick
         end
     end
 
@@ -1222,9 +1221,8 @@ local function rebuild_surface_due_frontier(runtime)
 
     local due_ticks = clear_scratch_array(runtime.scratch_due_ticks)
     for bucket_tick in pairs(runtime.surface_due_buckets) do
-        local numeric_tick = tonumber(bucket_tick) or 0
-        if numeric_tick > 0 then
-            due_ticks[#due_ticks + 1] = numeric_tick
+        if bucket_tick > 0 then
+            due_ticks[#due_ticks + 1] = bucket_tick
         end
     end
 
@@ -3932,7 +3930,7 @@ function model.service_ui(event)
     end
 
     local runtime = get_runtime()
-    for _, player_index in ipairs(scheduler.delayed_take_due(runtime.ui_due_buckets, current_tick)) do
+    for _, player_index in ipairs(scheduler.delayed_take_due_through(runtime.ui_due_buckets, current_tick)) do
         local pending_tick = runtime.ui_pending_by_player[player_index]
         if pending_tick and pending_tick <= current_tick then
             runtime.ui_pending_by_player[player_index] = nil

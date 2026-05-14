@@ -10,3 +10,5 @@
 /Render
 /output/
 /temp
+/.codex/esir/asset-generators/emerald-apocalypse-hover-tank/__pycache__
+*.pyc

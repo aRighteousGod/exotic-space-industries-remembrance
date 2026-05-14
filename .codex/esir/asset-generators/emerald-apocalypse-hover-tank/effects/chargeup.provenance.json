@@ -1,0 +1,14 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "chargeup",
+  "status": "generator-ready",
+  "frame_size": [256, 256],
+  "frames": 32,
+  "line_length": 8,
+  "aesthetic": "black-caged emerald reactor rosary, segmented hover-tank capacitor rings, acid-saint ignition",
+  "prompt": "transparent Factorio sprite sheet, Emerald Apocalypse hover tank chargeup, concentric emerald capacitor rings compressed into a black industrial muzzle cage, devotional hazard glyphs, acid glass sparks, readable circular silhouette, no purple prismatic lance, no chromatic saucer wake",
+  "negative_prompt": "Singularity Lance reuse, Gaian saucer wake reuse, rainbow beam, soft fog blob, tiny unreadable text, opaque background",
+  "roles": ["base", "glow"],
+  "muzzle_endpoint_dependency": "Use prepared manifest muzzle_endpoint.prepared_space as centerline anchor."
+}
+

@@ -2,8 +2,8 @@
 -- ESIR FILE MAP
 -- owns: auric fumarole runtime generation, depletion, and afterglow cleanup
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: init, configuration-changed, chunk generation, resource depletion, and every-tick cleanup
--- forwarded_events: check_global, is_vulcanus_surface, on_chunk_generated, on_configuration_changed, on_init, on_resource_depleted, updater
+-- cadence: init, configuration-changed, chunk generation, resource depletion, and gated cleanup/probe ticks
+-- forwarded_events: check_global, has_tick_work, is_vulcanus_surface, on_chunk_generated, on_configuration_changed, on_init, on_resource_depleted, updater
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -48,6 +48,7 @@ local REENTRY_DELAY_TICKS = 60 * 60 * 60
 
 local ACTIVE_AUDIT_TICKS = 600
 local BACKFILL_PROCESS_TICKS = 30
+local SURFACE_PROBE_RETRY_TICKS = 600
 local BACKFILL_CHUNKS_PER_PASS = 4
 local UNTOUCHED_LIFETIME_MIN_TICKS = 35 * 60 * 60
 local UNTOUCHED_LIFETIME_MAX_TICKS = 65 * 60 * 60
@@ -154,6 +155,7 @@ local function new_state()
         eligibility_version = ELIGIBILITY_VERSION,
         pending_eligibility_refresh = false,
         backfill_bootstrapped = false,
+        next_surface_probe_tick = 0,
         processed_chunks = {},
         history_chunks = {},
         cooldown_chunks = {},
@@ -195,6 +197,68 @@ local function resolve_tick(current_tick)
     end
 
     return game and game.tick or 0
+end
+
+local function raw_queue_has_items(queue)
+    if type(queue) ~= "table" or type(queue.items) ~= "table" then
+        return false
+    end
+
+    local head = queue.head or 1
+    local tail = queue.tail or #queue.items
+    for index = head, tail do
+        if queue.items[index] ~= nil then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function raw_delayed_buckets_have_items(buckets)
+    if type(buckets) ~= "table" then
+        return false
+    end
+
+    for _, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function raw_surface_queues_have_items(queues)
+    if type(queues) ~= "table" then
+        return false
+    end
+
+    for _, queue in pairs(queues) do
+        if raw_queue_has_items(queue) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function raw_band_queues_have_items(surface_queues)
+    if type(surface_queues) ~= "table" then
+        return false
+    end
+
+    for _, queues in pairs(surface_queues) do
+        if type(queues) == "table" then
+            for _, queue in pairs(queues) do
+                if raw_queue_has_items(queue) then
+                    return true
+                end
+            end
+        end
+    end
+
+    return false
 end
 
 local function state_has_runtime_evidence(state)
@@ -292,6 +356,7 @@ function model.check_global()
     if state.pending_eligibility_refresh == nil then
         state.pending_eligibility_refresh = false
     end
+    state.next_surface_probe_tick = tonumber(state.next_surface_probe_tick) or 0
     state.processed_chunks = state.processed_chunks or {}
     state.history_chunks = state.history_chunks or {}
     state.cooldown_chunks = state.cooldown_chunks or {}
@@ -1653,15 +1718,15 @@ end
 
 local function migrate_due_dormant_buckets(state, current_tick)
     current_tick = resolve_tick(current_tick)
-    local bucket = ei_runtime_scheduler.delayed_take_due(state.dormant_delayed_buckets, current_tick)
-    if #bucket == 0 then
-        return
-    end
-
-    for _, key in pairs(bucket) do
-        local record = state.dormant_chunks[key]
-        if record and record.due_tick == current_tick then
-            enqueue_ready_chunk(state, record.surface_index, key, record.band_name)
+    for due_tick, bucket in pairs(state.dormant_delayed_buckets or {}) do
+        if due_tick <= current_tick then
+            state.dormant_delayed_buckets[due_tick] = nil
+            for _, key in pairs(bucket) do
+                local record = state.dormant_chunks[key]
+                if record and (record.due_tick or due_tick) <= current_tick then
+                    enqueue_ready_chunk(state, record.surface_index, key, record.band_name)
+                end
+            end
         end
     end
 end
@@ -2122,6 +2187,7 @@ local function bootstrap_generated_chunks(force_refresh)
         return 0
     end
 
+    local current_tick = game and game.tick or 0
     local found_vulcanus = false
     for _, surface in pairs(game.surfaces) do
         if model.is_vulcanus_surface(surface) then
@@ -2131,12 +2197,14 @@ local function bootstrap_generated_chunks(force_refresh)
     end
 
     if not found_vulcanus then
+        state.next_surface_probe_tick = current_tick + SURFACE_PROBE_RETRY_TICKS
         return 0
     end
 
     local queued = force_refresh and rebuild_all_vulcanus_backfill() or enqueue_all_vulcanus_backfill(false)
     state.backfill_bootstrapped = true
     state.pending_eligibility_refresh = false
+    state.next_surface_probe_tick = 0
     return queued
 end
 
@@ -2234,13 +2302,51 @@ function model.on_resource_depleted(event)
     finalize_closure(state, record, "depleted", event and event.tick)
 end
 
+function model.has_tick_work(event)
+    local state = storage and storage.ei and storage.ei.vulcanus_fumaroles or nil
+    if type(state) ~= "table" then
+        return false
+    end
+
+    local tick = event and event.tick or game and game.tick or 0
+    if not state.backfill_bootstrapped or state.pending_eligibility_refresh == true then
+        local next_surface_probe_tick = tonumber(state.next_surface_probe_tick) or 0
+        return next_surface_probe_tick <= 0 or tick >= next_surface_probe_tick
+    end
+
+    if raw_queue_has_items(state.backfill_queue) then
+        return tick % BACKFILL_PROCESS_TICKS == 0
+    end
+
+    if raw_delayed_buckets_have_items(state.dormant_delayed_buckets)
+        or (type(state.dormant_chunks) == "table" and next(state.dormant_chunks) ~= nil)
+        or raw_surface_queues_have_items(state.dormant_surface_queues)
+        or raw_band_queues_have_items(state.dormant_band_queues)
+    then
+        return tick % DORMANT_PULSE_TICKS == 0
+    end
+
+    if type(state.active) == "table" and next(state.active) ~= nil then
+        return tick % ACTIVE_AUDIT_TICKS == 0
+    end
+
+    if type(state.breach_fires) == "table" and next(state.breach_fires) ~= nil then
+        return tick % BREACH_FIRE_CLEANUP_TICKS == 0
+    end
+
+    return false
+end
+
 function model.updater(event)
     local state = get_state()
-    if not state.backfill_bootstrapped or state.pending_eligibility_refresh then
+    local current_tick = event and event.tick or game and game.tick or 0
+    local next_surface_probe_tick = tonumber(state.next_surface_probe_tick) or 0
+    if (not state.backfill_bootstrapped or state.pending_eligibility_refresh)
+        and (next_surface_probe_tick <= 0 or current_tick >= next_surface_probe_tick)
+    then
         bootstrap_generated_chunks(false)
     end
 
-    local current_tick = event and event.tick
     if event.tick % BACKFILL_PROCESS_TICKS == 0 then
         process_backfill_queue(current_tick)
     end

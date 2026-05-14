@@ -1,0 +1,13 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "hover-emitter",
+  "status": "generator-ready",
+  "frame_size": [256, 256],
+  "frames": 32,
+  "line_length": 8,
+  "aesthetic": "prismatic green pressure halo, rotating crystalline null-sigil, relic-tier underhull hover emitter",
+  "prompt": "transparent Factorio sprite sheet, Emerald Apocalypse hover tank hover emitter, flat projected green shimmering circle below vehicle, prismatic emerald arcs, black industrial null-sigil gaps, readable at gameplay scale, generated for four underhull hover feet",
+  "negative_prompt": "Singularity Lance beam reuse, Gaian saucer wake reuse, vertical portal, opaque background, soft fog blob, tiny unreadable text",
+  "roles": ["base", "glow", "runtime-animation"],
+  "runtime_anchor": "Draw at the resolved underhull hover emitter positions in scripts/control/emerald-apocalypse-hover-tank.lua."
+}

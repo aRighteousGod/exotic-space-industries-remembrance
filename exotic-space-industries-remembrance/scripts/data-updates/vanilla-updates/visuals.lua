@@ -9,6 +9,7 @@ layers = {
     },
     {
         draw_as_light = true,
+        flags = {"light"},
         filename = ei_graphics_3_path.."graphics/items/fulgora-science-vial-glow.png",
         size = 128,
     	scale = 0.25,
@@ -25,6 +26,7 @@ layers = {
     },
     {
         draw_as_light = true,
+        flags = {"light"},
         filename = ei_graphics_3_path.."graphics/items/promethium-science-vial-glow.png",
         size = 128,
     	scale = 0.25,
@@ -41,6 +43,7 @@ layers = {
     },
     {
         draw_as_light = true,
+        flags = {"light"},
         filename = ei_graphics_3_path.."graphics/items/aquilo-science-vial-glow.png",
         size = 128,
         scale = 0.25,
@@ -57,6 +60,7 @@ layers = {
     },
     {
         draw_as_light = true,
+        flags = {"light"},
         filename = ei_graphics_3_path.."graphics/items/vulcanus-science-vial-glow.png",
         size = 128,
     	scale = 0.25,
@@ -73,6 +77,7 @@ layers = {
     },
     {
         draw_as_light = true,
+        flags = {"light"},
         filename = ei_graphics_3_path.."graphics/items/gleba-science-vial-glow.png",
         size = 128,
     	scale = 0.25,

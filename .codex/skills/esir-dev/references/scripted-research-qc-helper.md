@@ -14,9 +14,11 @@ Use this helper when ESIR work needs a deterministic `event.by_script` research 
   - `scripted-research-aux`
 - Dense Tesla turret grids on both surfaces
 - A main EM train surface with rails, chargers, and locomotives
+- One Emerald Apocalypse hover tank so orbital shard force-cache/status refreshes are visible
 - One delayed scripted research burst that calls `force.research_all_technologies()` after `10` ticks
 
 The helper also calls the QC-only remote hook `exotic-industries-qc.rebuild_scripted_research_runtime` before the burst so ESIR runtime state matches the world it just created.
+After the burst fires, it waits a few ticks before writing its post-burst report so ESIR's coalesced `on_scripted_research_burst` handler has time to flush.
 
 ## Important Behavior
 

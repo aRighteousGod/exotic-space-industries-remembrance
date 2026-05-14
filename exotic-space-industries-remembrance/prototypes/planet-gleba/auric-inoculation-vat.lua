@@ -354,17 +354,6 @@ local vat_entity = {
                 },
             },
         },
-        frozen_patch = {
-            sheet = {
-                filename = VAT_ENTITY_PATH .. "pathogen-lab-hr-frozen-1.png",
-                width = VAT_FRAME_SIZE,
-                height = VAT_FRAME_SIZE,
-                shift = {0.0, -0.08},
-                scale = VAT_FRAME_SCALE,
-                frames = 1,
-                priority = "high",
-            },
-        },
     },
     open_sound = {filename = "__base__/sound/open-close/fluid-open.ogg", volume = 0.55},
     close_sound = {filename = "__base__/sound/open-close/fluid-close.ogg", volume = 0.54},

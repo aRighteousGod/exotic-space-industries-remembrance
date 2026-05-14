@@ -1,0 +1,18 @@
+{
+  "asset": "emerald-apocalypse-hover-tank",
+  "effect": "shield",
+  "status": "promoted-v3",
+  "frame_size": [768, 768],
+  "frames": 48,
+  "line_length": 8,
+  "runtime_scale": 0.72,
+  "target_coverage": "normal idle orbital shard halo around the 9x9 Emerald Apocalypse hover tank",
+  "aesthetic": "wide broken emerald reliquary shell, angular hover-field plates, black oath seams, idle-orbit membrane",
+  "prompt": "transparent Factorio shield pulse for Emerald Apocalypse hover tank, angular emerald reliquary plates flickering around a heavy hover vehicle and its normal orbital shard halo, black oath seams, corrosive signal grid, readable elliptical shell, not a Gaian saucer wake, not a Singularity Lance prism",
+  "negative_prompt": "round magic bubble, rainbow field, purple lance refraction, soft aura only, opaque background",
+  "roles": ["glow", "manual-mask-source"],
+  "promoted_files": [
+    "emerald-apocalypse-hover-tank-shield-pulse-v3.png",
+    "emerald-apocalypse-hover-tank-shield-pulse-v3-glow.png"
+  ]
+}

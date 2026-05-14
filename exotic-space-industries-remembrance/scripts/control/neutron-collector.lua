@@ -672,8 +672,7 @@ function model.get_due_gui_refresh_count(runtime, event_or_tick)
     local tick = now_tick(event_or_tick)
     local due_players = {}
     for bucket_tick, bucket in pairs(runtime.gui_refresh_buckets) do
-        local numeric_tick = tonumber(bucket_tick)
-        if numeric_tick and numeric_tick <= tick then
+        if bucket_tick <= tick then
             for _, player_index in pairs(bucket) do
                 due_players[player_index] = true
             end
@@ -2426,9 +2425,8 @@ function model.service_gui_refreshes(event_or_tick, runtime)
 
     local due_ticks = {}
     for bucket_tick, _ in pairs(runtime.gui_refresh_buckets) do
-        local numeric_tick = tonumber(bucket_tick)
-        if numeric_tick and numeric_tick <= tick then
-            due_ticks[#due_ticks + 1] = numeric_tick
+        if bucket_tick <= tick then
+            due_ticks[#due_ticks + 1] = bucket_tick
         end
     end
 

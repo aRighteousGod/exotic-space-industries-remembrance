@@ -1,4 +1,29 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.35
+Date: 5-13-2026
+  Features:
+    - Added the Emerald Apocalypse hover tank—an Exotic age apex siege vehicle with skid-heavy hover movement, orbiting defense drones, an integrated fusion core and shield membrane, custom control GUI, and a fixed-forward crystal cannon that consumes apocalypse charges which detonate into a 52-tile-radius traveling plasma shockwave that unfolds into a spiraling nuclear-ground scar with emerald burst vents.
+    - Added the Emerald Apocalypse tank research suite, a set of one-time Exotic age upgrades for shard count, reload cadence, target verdicts, aperture width, cannon wind-up, recoil recovery, aegis reprisals, hover keel control, endpoint collapse pressure, and per-tank dangerous behavior controls.
+    - Added a custom Emerald Apocalypse hull-breach death explosion with bespoke collapse art, emerald crystal shards, hull fragments, singularity motes, and a medium plasma blast.
+    - Added a steam-powered loader tier unlocked from Logistics.
+    - Added an Industrial combustion turbine fuel-mode GUI console—the turbine can now swap between solid and liquid fuel burning modes.
+    - Added an item glow overlay fidelity startup setting. The default preserves the full glow treatment, while Flat and Off modes reduce render cost for ESIR item pictures and the ESIR-styled Space Age science packs.
+  Changes:
+    - Singularity lance runes now visually shimmer.
+    - Reduced new asset spritesheet sizes saving on file size while retaining visual fidelity.
+    - Reduced idle on_tick script UPS usage.
+    - Spider vehicles, cars, locomotives, and the Slipwake Saucer now mirror fire protection against cold damage when they already had fire resistance.
+    - Moved the standard electric Loader unlock to Automation and made it upgrade from the Steam loader.
+    - Steam loader recipe inputs: Set to 4 Transport belts, 4 Steam inserters, 2 Steam engines, and 8 Copper mechanical parts.
+    - Loader recipe inputs: 4 Transport belts -> 1 Steam loader, 8 Engine units -> 4 Electric engine units, 4 Burner inserters -> 4 Inserters, 20 Iron mechanical parts -> 12.
+    - Fast loader recipe inputs: 10 Electric engine units -> 6.
+    - The Recipe icons improvement mod is missing alert message is now localised.
+    - EM locomotive charger now has a custom death explosion.
+  Bugfixes:
+    - Fixed Waveform harmonics II not being researchable by making Electric weapons damage 4 finite and creating a new infinite Electric weapons damage 5.
+    - Fixed Orbital Logistics Cohort terminals not creating or rechecking hidden power sensors, and made the hidden sensors match each terminal footprint so electric-tile power coverage is detected like the visible terminal.
+    - Fixed the EM train mod GUI refresh gate so the button appears after the EM trains unlock for new and returning players, open panels populate immediately, research and configuration changes refresh stale stats, and the charger range toggle routes correctly and stays active.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.34
 Date: 5-7-2026
   Features:

@@ -71,6 +71,7 @@ remote.add_interface("exotic-industries-milestones", {
                 {type="item",       name="fast-transport-belt", quantity=100},
                 {type="item",       name="express-transport-belt", quantity=100},
                 {type="item",       name="ei-neo-belt", quantity=100},
+                {type="item",       name="ei-steam-loader", quantity=1},
                 {type="item",       name="ei-loader", quantity=1},
                 {type="item",       name="ei-fast-loader", quantity=1},
                 {type="item",       name="ei-express-loader", quantity=1},
