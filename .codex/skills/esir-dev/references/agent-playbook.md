@@ -167,6 +167,64 @@ Use for:
 - prototype inheritance, property, concept, and data.raw documentation checks
 - separating prototype declaration rules from runtime prototype-read APIs
 
+## `lualib-surface explorer`
+
+Use for:
+
+- mapping the installed Factorio `data/core/lualib` modules and Factorio version
+- finding vanilla and ESIR usage examples for a core lualib helper
+- reporting whether the result came from live Factorio files, cached docs, or repo source
+
+## `meld-pattern explorer`
+
+Use for:
+
+- deciding whether a prototype patch should use `meld`, `util.merge`, direct mutation, or ESIR `ei_lib`
+- checking `meld.delete`, `meld.overwrite`, `meld.invoke`, and `meld.append` semantics against the installed core file
+- warning when a proposed `meld` patch would mutate shared tables, rely on append order, or store functions/control markers
+
+## `core-require explorer`
+
+Use for:
+
+- verifying core lualib require forms such as short names, `__core__.lualib.*`, and `__core__/lualib/*`
+- finding nearby vanilla or ESIR precedent before changing an import
+- separating data/prototype helpers from runtime/scenario helpers before the main agent edits code
+
+## `vanilla-prototype-lib explorer`
+
+Use for:
+
+- mapping installed Base, Space Age, Quality, or Elevated Rails prototype helper modules and Factorio version
+- finding ESIR and vanilla usage examples for `__base__`, `__space-age__`, `__quality__`, or `__elevated-rails__` imports
+- separating vanilla prototype helper modules from true `data/core/lualib` helpers before the main agent edits code
+- reporting whether the result came from live Factorio files, cached docs, or repo source
+
+## `space-age-planet explorer`
+
+Use for:
+
+- inspecting Space Age asteroid spawn definitions, route constants, probability interpolation, and `spawn_definitions`
+- checking planet map-gen helper usage before adding or changing ESIR planet generation
+- mapping procession, cargo-pod, platform-to-planet, and planet-to-platform helper modules
+- warning when Space Age dependency assumptions are not established for the target pack or data stage
+
+## `vanilla-graphics-precedent explorer`
+
+Use for:
+
+- reading vanilla picture modules as precedent for graphics_set, layer ordering, shadows, lights, masks, working visualisations, status lamps, and frozen variants
+- summarizing `util.sprite_load` option shape and table layout without copying large vanilla source blocks or art paths into ESIR
+- checking whether a target graphics question should route to asset pipeline skills or official prototype docs instead
+
+## `quality-recycling explorer`
+
+Use for:
+
+- verifying `__quality__/prototypes/recycling` exports and current Quality recycling eligibility behavior
+- checking ESIR recycling regeneration precedents before data-final-fixes edits
+- deciding whether a change belongs in ESIR recipe policy before calling the vanilla recycling generator
+
 ## `tint-api explorer`
 
 Use for:

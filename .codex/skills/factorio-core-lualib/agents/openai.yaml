@@ -1,0 +1,4 @@
+interface:
+  display_name: "Factorio Core Lualib"
+  short_description: "Factorio core lualib helper map and meld guidance"
+  default_prompt: "Use $factorio-core-lualib before importing or replacing Factorio core lualib helpers such as meld, util, mod-gui, resource-autoplace, collision-mask-util, math2d, or math3d in ESIR Lua."

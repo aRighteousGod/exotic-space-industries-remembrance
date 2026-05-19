@@ -16,7 +16,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `factorio-mod-qc` for headless Factorio validation, package dry-runs, and Mod Portal metadata
 - `chatgpt-firefox-companion` for supervised Firefox image sessions
 - `esir-dependency-intel` for dependency declarations, compatibility touchpoints, remote interfaces, and local installed-mod enrichment
-- `factorio-lua-assumptions` and `factorio-lua-docs` for Factorio Lua lifecycle/API truth
+- `factorio-lua-assumptions`, `factorio-lua-docs`, `factorio-core-lualib`, and `factorio-vanilla-prototype-libs` for Factorio Lua lifecycle/API truth, bundled core helper routing, and vanilla prototype helper routing
 - `esir-lib-first`, `esir-lua-types`, `esir-runtime-gui`, and `esir-research-events` for ESIR Lua helper reuse, LuaLS annotations, runtime GUI house style, and research-event burst dispatch
 - `esir-asset-pipeline`, `meshy-api`, `meshy-blender-spritesheet`, `blender-procedural-animation`, `esir-factorio-asset-export`, and `esir-item-icon-prep` for the generated-art-to-Factorio asset path
 - `esir-recipe-icon-style` for recipe icon readability, companion-baseline drift, visibility, sorting, and signal cleanup audits
@@ -50,6 +50,8 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - The checked-in dependency catalog is intentionally limited to declared pack dependencies plus ESIR touchpoints. Local installed mod roots are query-time enrichment only.
 - Before applying generic Lua advice to ESIR code, use the repo-local `factorio-lua-assumptions` skill to check Factorio's staged lifecycle, sandboxed libraries, storage rules, `require()` behavior, deterministic runtime changes, and LuaObject validity semantics.
 - For official Factorio API or wiki questions, prefer the repo-local `factorio-lua-docs` skill and `scripts\invoke-factorio-lua-docs.ps1` before broad web search or memory.
+- Before importing, replacing, or reimplementing Factorio bundled helpers such as `meld`, `util`, `mod-gui`, `resource-autoplace`, `collision-mask-util`, `math2d`, or `math3d`, use the repo-local [`factorio-core-lualib`](../factorio-core-lualib/SKILL.md) skill and verify exact semantics against the installed Factorio `data/core/lualib` files when needed.
+- Before importing, replacing, or reimplementing vanilla prototype helper modules from `__base__`, `__space-age__`, `__quality__`, or `__elevated-rails__`, use the repo-local [`factorio-vanilla-prototype-libs`](../factorio-vanilla-prototype-libs/SKILL.md) skill and verify exact semantics against the installed Factorio `data/*/prototypes` files when needed.
 - When editing ESIR Lua and the change touches function signatures, runtime state, option tables, GUI tags, scheduler payloads, prototype records, or module exports, use the repo-local [`esir-lua-types`](../esir-lua-types/SKILL.md) skill to add high-signal LuaLS annotations without forcing unrelated annotation churn.
 - For weapon, turret, or vehicle tooltip/status readouts such as DPS, scripted payload, force-scaled damage, or custom entity status lines, use the repo-local [`esir-lib-first`](../esir-lib-first/SKILL.md) skill and its combat readout pattern before adding ad hoc tooltip or status wiring.
 - For ESIR recipe icon readability, subgroup/order drift, Factoriopedia visibility, player-crafting visibility, recipe signal cleanup, or companion-style batch review, use the repo-local [`esir-recipe-icon-style`](../esir-recipe-icon-style/SKILL.md) skill before ad hoc prototype edits.
@@ -71,6 +73,8 @@ Use these specialist skills early instead of letting `esir-dev` absorb the whole
 - [`esir-dependency-intel`](../esir-dependency-intel/SKILL.md): dependency declarations, remote interfaces, dependency touchpoints, planet/content integrations, and local installed-mod presence.
 - [`factorio-lua-assumptions`](../factorio-lua-assumptions/SKILL.md): Lua sandbox, lifecycle, storage, `require()`, deterministic runtime behavior, `data.raw` versus runtime state, and LuaObject validity.
 - [`factorio-lua-docs`](../factorio-lua-docs/SKILL.md): official Factorio runtime, prototype, auxiliary, and wiki scripting docs, including `apply_runtime_tint`, `tint_as_overlay`, `LuaEntity.color`, `LuaPlayer.color`, and rolling-stock color behavior.
+- [`factorio-core-lualib`](../factorio-core-lualib/SKILL.md): bundled Factorio `data/core/lualib` helpers, including `meld`, `util`, `mod-gui`, `resource-autoplace`, `collision-mask-util`, `math2d`, `math3d`, require forms, stage routing, and when to prefer `ei_lib`.
+- [`factorio-vanilla-prototype-libs`](../factorio-vanilla-prototype-libs/SKILL.md): vanilla prototype helper modules from Base, Space Age, Quality, and Elevated Rails, including canonical sounds/effects, asteroid and planet helpers, recycling generation, tile helpers, graphics precedent, require routing, and when to prefer `ei_lib`.
 - [`esir-lib-first`](../esir-lib-first/SKILL.md): shared `ei_lib` helpers before adding local Lua helpers, including recipe/prototype mutation, table/string helpers, tint/config utilities, runtime entity safety, prototype tooltip rows, and runtime combat status readouts.
 - [`esir-lua-types`](../esir-lua-types/SKILL.md): LuaLS/EmmyLua annotations for signatures, storage/state shapes, option tables, GUI tags, scheduler payloads, prototype records, and module exports.
 - [`esir-runtime-gui`](../esir-runtime-gui/SKILL.md): runtime GUI surfaces, relative anchors, root names, style vocabulary, tag routing, stale-root teardown, and entity-bound lifecycle.
@@ -256,6 +260,10 @@ When parallel read-only help is useful, use the playbook in [`references/agent-p
 - `combat-readout explorer`
 - `portal-scout explorer`
 - `asset-pipeline explorer`
+- `vanilla-prototype-lib explorer`
+- `space-age-planet explorer`
+- `vanilla-graphics-precedent explorer`
+- `quality-recycling explorer`
 - `regression explorer`
 - `dependency-touchpoint explorer`
 - `dependency-runtime explorer`
@@ -267,6 +275,9 @@ When parallel read-only help is useful, use the playbook in [`references/agent-p
 - `event-determinism explorer`
 - `runtime-api explorer`
 - `prototype-api explorer`
+- `lualib-surface explorer`
+- `meld-pattern explorer`
+- `core-require explorer`
 - `tint-api explorer`
 - `asset-mask explorer`
 - `third-party-art-precedent explorer`

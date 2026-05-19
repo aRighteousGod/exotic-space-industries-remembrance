@@ -1,0 +1,4 @@
+interface:
+  display_name: "Factorio Vanilla Prototype Libs"
+  short_description: "Base and Space Age prototype helper maps"
+  default_prompt: "Use $factorio-vanilla-prototype-libs before importing or replacing vanilla prototype helpers from Base, Space Age, Quality, or Elevated Rails in ESIR Lua."
