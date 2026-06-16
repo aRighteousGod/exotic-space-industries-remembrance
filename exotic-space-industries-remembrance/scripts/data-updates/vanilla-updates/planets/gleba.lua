@@ -20,15 +20,20 @@ if ag_sci_pack_r then
 end
 
 -- Biolab uses nutrients, @StephenB
-local originalEnergySource = ei_lib.raw.lab.biolab.energy_source
 local biolab = ei_lib.raw.lab.biolab
 if biolab then
+    local originalEnergySource = biolab.energy_source
     local biochamber = ei_lib.raw["assembling-machine"].biochamber
-    if biochamber and biochamber.energy_sourcethen then
+    if biochamber and biochamber.energy_source then
         -- Leaving power at 300kW. Biochambers use 500kW.
         biolab.energy_source = table.deepcopy(biochamber.energy_source)
         -- Biochambers have -1/m pollution emission (ie they reduce pollution). Biolabs had 8/m pollution emission, but this changes it to -1/m. Captive biter spawners are also -1/m. Looking at a simple Nauvis base importing most sciences, biolabs are actually the majority of the pollution, so I'm changing it back to 8/m.
-        biolab.energy_source.emissions_per_minute.pollution = originalEnergySource.emissions_per_minute
+        local originalEmissions = originalEnergySource and originalEnergySource.emissions_per_minute
+        local originalPollution = type(originalEmissions) == "table" and originalEmissions.pollution or originalEmissions
+        if originalPollution then
+            biolab.energy_source.emissions_per_minute = biolab.energy_source.emissions_per_minute or {}
+            biolab.energy_source.emissions_per_minute.pollution = originalPollution
+        end
     else
         log("Could not find biochamber to copy energy source from, leaving biolab energy source unchanged")
     end

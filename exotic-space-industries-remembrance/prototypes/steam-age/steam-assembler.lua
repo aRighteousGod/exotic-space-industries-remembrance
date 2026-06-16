@@ -98,8 +98,8 @@ data:extend({
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_steam,
                 pipe_connections = {
-                    {flow_direction = "input-output", direction = defines.direction.north, position = {0, -1}},
-                    {flow_direction = "input-output", direction = defines.direction.south, position = {0, 1}}
+                    {flow_direction = "input-output", direction = defines.direction.east, position = {1, 0}},
+                    {flow_direction = "input-output", direction = defines.direction.west, position = {-1, 0}}
                 },
                 production_type = "input-output",
             },
@@ -114,7 +114,7 @@ data:extend({
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_steam,
                 pipe_connections = {
-                    {flow_direction = "input", direction = defines.direction.east, position = {1, 0}},
+                    {flow_direction = "input", direction = defines.direction.north, position = {0, -1}},
                 },
                 production_type = "input",
             },
@@ -123,7 +123,7 @@ data:extend({
                 pipe_covers = pipecoverspictures(),
                 pipe_picture = ei_pipe_steam,
                 pipe_connections = {
-                    {flow_direction = "output", direction = defines.direction.west, position = {-1, 0}},
+                    {flow_direction = "output", direction = defines.direction.south, position = {0, 1}},
                 },
                 production_type = "output",
             },

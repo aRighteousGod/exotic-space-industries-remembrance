@@ -12,6 +12,7 @@ The bundled helper:
 - preserves already-transparent sources
 - fits the subject onto a `128x128` transparent canvas
 - emits a horizontal `128/64/32` mip strip (`224x128`)
+- follows the main-pack graphics convention: shipped icon filenames omit leading `ei-` even when the item prototype keeps an `ei-*` name
 
 ## Workflow
 
@@ -41,4 +42,3 @@ python .codex/skills/esir-item-icon-prep/scripts/build_factorio_item_icon.py `
 - The helper is for source art, not an already-built `224x128` mip strip.
 - Background removal keys off light, low-saturation pixels that are edge-connected to the canvas border, so bright highlights inside the subject are less likely to be eaten.
 - The output strip is written into the main mod folder unless you point `--output` somewhere else.
-

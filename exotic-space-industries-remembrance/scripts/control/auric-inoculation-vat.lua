@@ -4324,7 +4324,7 @@ function model.rebuild_runtime_state(reason, current_tick)
     return status
 end
 
-local function get_dispatcher_state(event)
+local function get_dispatcher_state()
     local raw_runtime = get_existing_runtime()
     if not raw_runtime then
         return 0, 0, 0
@@ -4336,15 +4336,29 @@ local function get_dispatcher_state(event)
     return ready_count, next_due_tick, next_ui_due_tick
 end
 
+local function get_dispatcher_work_state(event)
+    local current_tick = now_tick(event)
+    local ready_count, next_due_tick, next_ui_due_tick = get_dispatcher_state()
+    local has_work = ready_count > 0
+        or (next_due_tick > 0 and current_tick >= next_due_tick)
+        or (next_ui_due_tick > 0 and current_tick >= next_ui_due_tick)
+
+    return has_work, current_tick, ready_count, next_due_tick, next_ui_due_tick
+end
+
 -- control.lua calls this once per tick to decide whether either vat simulation or
 -- its separate UI due gate needs service. This is deliberately side-effect free:
 -- actual due-bucket activation happens in update(), under the normal budget.
-function model.get_dispatcher_state(event)
-    return get_dispatcher_state(event)
+function model.get_dispatcher_state(_event)
+    return get_dispatcher_state()
 end
 
-function model.get_pending_work_count(event)
-    local ready_count = get_dispatcher_state(event)
+function model.has_tick_work(event)
+    return (get_dispatcher_work_state(event))
+end
+
+function model.get_pending_work_count(_event)
+    local ready_count = get_dispatcher_state()
     return ready_count
 end
 
@@ -4352,8 +4366,10 @@ end
 -- module owns the dispatcher policy so control.lua does not need to know about
 -- ready queues, delayed vat buckets, or the separate UI gate.
 function model.updater(limit, event)
-    local current_tick = now_tick(event)
-    local pending_work_count, next_due_tick, ui_next_due_tick = get_dispatcher_state(event)
+    local has_work, current_tick, pending_work_count, next_due_tick, ui_next_due_tick = get_dispatcher_work_state(event)
+    if not has_work then
+        return false
+    end
 
     if pending_work_count > 0
     or (next_due_tick > 0 and current_tick >= next_due_tick) then

@@ -52,9 +52,9 @@ Use `render_factorio_preset.py` when Codex should drive the `.blend` automatical
 & "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background `
   --python .codex/skills/meshy-blender-spritesheet/scripts/render_factorio_preset.py -- `
   --preset-blend factorioRenderingPreset_v4.blend `
-  --input output/meshy/ei-example/model.glb `
-  --asset-name ei-example `
-  --output-dir output/meshy/ei-example/Render `
+  --input output/meshy/example/model.glb `
+  --asset-name example `
+  --output-dir output/meshy/example/Render `
   --auto-prep `
   --prep-origin-mode ground `
   --frames 64 `
@@ -109,7 +109,7 @@ Known `.blend` caveats:
 - Blender may warn that the file was saved by a newer binary.
 - The embedded `Factorio` text block is a UI helper script and is skipped unless scripts are enabled.
 - The source `.blend` can still print legacy driver warnings while loading or shutting down; automated manifests report whether the active rotator driver was replaced successfully.
-- In automated mode, prefer output under `output/meshy/<asset>/Render/`; then feed that folder into `$esir-factorio-asset-export render-bundle`.
+- In automated mode, prefer output under `output/meshy/<asset>/Render/` with no leading `ei-` for main-pack graphics; then feed that folder into `$esir-factorio-asset-export render-bundle` with explicit prototype metadata when needed.
 
 ## MCP-Assisted Blender Pass
 

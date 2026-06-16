@@ -253,7 +253,7 @@ if a_n then
     {
         name = "ei-calcite-bed",
         type = "item",
-        icon = ei_path.."graphics/items/calcite-bed.png",
+        icon = ei_graphics_item_4_path.."calcite-bed.png",
         icon_size = 128,
         icon_mipmaps = 3,
         stack_size = 100,
@@ -299,7 +299,7 @@ if a_n then
         icons = ei_lib.make_icons(
             ei_graphics_item_path.."fluorite.png",
             64,
-            ei_path.."graphics/items/calcite-bed.png",
+            ei_graphics_item_4_path.."calcite-bed.png",
             128,
             0.28,
             {10, 10},
@@ -326,7 +326,7 @@ if a_n then
         icons = ei_lib.make_icons(
             ei_graphics_fluid_path.."acidic-water.png",
             64,
-            ei_path.."graphics/fluids/carbon-dioxide.png",
+            ei_graphics_fluid_4_path.."carbon-dioxide.png",
             64,
             0.36,
             {9, 9}

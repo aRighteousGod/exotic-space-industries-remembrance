@@ -45,10 +45,12 @@ Use for:
 
 Use for:
 
-- `data.lua` direct aggregator mapping
+- `data.lua`, `data-updates.lua`, and `data-final-fixes.lua` aggregator and require-order mapping
 - prototype subtree ownership questions
 - pack-to-pack asset dependency scans
 - prototype header-metadata suggestions
+- checking whether data-updates global mutation passes or data-final progression passes overwrite the prototype surface being edited
+- checking whether relevant entity, item, fuel, recipe, tech, asset, or effect changes should also update `scripts/data-final-updates/final-tint-pass.lua`, `fuel-glow.lua`, `item-glow-overlays.lua`, `death-explosions.lua`, `tech-weight-badges.lua`, or the `entity-presentation*` registry modules
 
 ## `combat-readout explorer`
 
@@ -107,7 +109,7 @@ Use for:
 
 Use for:
 
-- data-stage dependency scans rooted in `scripts/data-updates` and `scripts/data-final-updates`
+- data-stage dependency scans rooted in `data.lua`, `prototypes`, `scripts/data-updates`, and `scripts/data-final-updates`
 - cataloging guarded mod patches, `mods[...]` gates, and external prototype/library references
 - separating general prototype integration from planet/content-specific compatibility
 
@@ -124,6 +126,7 @@ Use for:
 Use for:
 
 - deciding whether a Lua question belongs to settings, prototype/data, runtime/control, migration, console, or remote interface context
+- pinning the active stage from `ei_mod.stage`, the top-level aggregator, and the loaded subtree before making API or helper assumptions
 - checking whether data-stage assumptions are being imported into runtime code or runtime assumptions are being imported into prototype code
 - routing exact API lookups through `factorio-lua-docs` after the stage is clear
 
@@ -158,6 +161,7 @@ Use for:
 - exact runtime symbol lookup through `factorio-lua-docs`
 - class, method, attribute, event, define, GUI, remote-interface, migration, and storage documentation checks
 - returning official URLs for any API claim the main agent will rely on
+- reporting the docs cache version used for runtime API claims
 
 ## `prototype-api explorer`
 
@@ -166,6 +170,7 @@ Use for:
 - exact prototype symbol lookup through `factorio-lua-docs`
 - prototype inheritance, property, concept, and data.raw documentation checks
 - separating prototype declaration rules from runtime prototype-read APIs
+- reporting the docs cache version used for prototype API claims
 
 ## `lualib-surface explorer`
 

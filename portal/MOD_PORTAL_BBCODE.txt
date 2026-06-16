@@ -13,6 +13,8 @@ A Factorio 2.0 Space Age overhaul built around rising pressure, deliberate trade
 
 ![Emerald Apocalypse hover tank animation](https://raw.githubusercontent.com/aRighteousGod/exotic-space-industries-remembrance/master/portal/emerald-apocalypse-hover-tank-18s-portal.gif)
 
+![Singularity Lance beam sweep](https://raw.githubusercontent.com/aRighteousGod/exotic-space-industries-remembrance/master/portal/singularity-lance-portal.gif)
+
 ![Emerald Apocalypse and Slipwake Saucer](https://raw.githubusercontent.com/aRighteousGod/exotic-space-industries-remembrance/master/portal/emerald-and-saucer.png)
 
 ![Remembrance industrial scene](https://raw.githubusercontent.com/aRighteousGod/exotic-space-industries-remembrance/master/portal/scene-1.png)
@@ -75,7 +77,7 @@ Resources are not just bigger vanilla patches. The run pushes you through chunk 
 
 ### Buildings And Industry
 
-Buildings matter visually and mechanically here. Steam assemblers, crushers, loaders, reactors, matrix components, black hole hardware, and alien machinery all carry a strong industrial identity, and the companion graphics packs extend that look across the run. Late-game progression is built around real infrastructure: induction matrix arrays, fusion and neutron chains, matter stabilizers, and black hole systems are not decorative endpoints, they are central factory surfaces with their own runtime and UI behavior.
+Buildings matter visually and mechanically here. Steam assemblers, crushers, loaders, reactors, matrix components, black hole hardware, and alien machinery all carry a strong industrial identity, and the companion graphics/media packs extend that look and sound across the run. Late-game progression is built around real infrastructure: induction matrix arrays, fusion and neutron chains, matter stabilizers, and black hole systems are not decorative endpoints, they are central factory surfaces with their own runtime and UI behavior.
 
 ![](https://raw.githubusercontent.com/aRighteousGod/exotic-space-industries-remembrance/master/exotic-space-industries-remembrance-graphics-1/graphics/other/fusion.png)
 
@@ -139,7 +141,8 @@ This page also carries forward the non-K2 image set from the original portal so 
 
 ### Pack, Compatibility, And Save Notes
 
-- Requires the main gameplay pack plus `exotic-space-industries-remembrance-graphics-1`, `exotic-space-industries-remembrance-graphics-2`, `exotic-space-industries-remembrance-graphics-3`, `exotic-space-industries-remembrance-soundtrack-1`, and `exotic-space-industries-remembrance-soundtrack-2`.
+- Requires the main gameplay pack plus `exotic-space-industries-remembrance-graphics-1`, `exotic-space-industries-remembrance-graphics-2`, `exotic-space-industries-remembrance-graphics-3`, `exotic-space-industries-remembrance-graphics-4`, `exotic-space-industries-remembrance-soundtrack-1`, and `exotic-space-industries-remembrance-soundtrack-2`.
+- Graphics 4 also carries shared non-music sound effects moved out of the gameplay pack.
 - Built for Factorio 2.0 with Space Age.
 - The dependency surface is broad and includes optional planet and utility integrations. Use the Mod Portal dependency page for the exact current list instead of relying on a stale summary.
 - Gaia world-generation changes on an existing save may require `/reforge_gaia`. This destroys and rebuilds Gaia, so it should be treated as a major save operation.
@@ -200,7 +203,7 @@ A: Yes. Current rebuild and repair commands include `/refresh_tech_scaling`, `/r
 
 **Q: Are the graphics and soundtrack separate packs?**
 
-A: Yes. The gameplay pack depends on three graphics packs and two soundtrack packs, and the full audiovisual identity of the overhaul assumes those companion packs are present.
+A: Yes. The gameplay pack depends on four graphics/media packs and two soundtrack packs, and the full audiovisual identity of the overhaul assumes those companion packs are present. Graphics 4 also carries shared non-music sound effects.
 
 **Q: What kind of run should I expect?**
 

@@ -15,8 +15,8 @@ FRAME_COUNT = 64
 LINE_LENGTH = 8
 DISPLAY_SCALE = 0.69
 
-BASE_FILENAME = "ei-gaian-saucer_dark_compact.png"
-GLOW_FILENAME = "ei-gaian-saucer_dark_compact_glow.png"
+BASE_FILENAME = "gaian-saucer_dark_compact.png"
+GLOW_FILENAME = "gaian-saucer_dark_compact_glow.png"
 
 
 @dataclass(frozen=True)

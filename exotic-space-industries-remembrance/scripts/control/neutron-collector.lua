@@ -13,12 +13,13 @@ local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 
-local NEUTRON_RUNTIME_VERSION = 6
+local NEUTRON_RUNTIME_VERSION = 7
 local NEUTRON_COLLECTOR_NAME = "ei-neutron-collector"
 local NEUTRON_IDLE_RECIPE_NAME = "ei-neutron-collector-idle"
 local NEUTRON_WIRE_PROXY_NAME = "ei-neutron-collector-circuit-interface"
 local NEUTRON_WIRE_PROXY_ENABLED = true
 local FUSION_REACTOR_NAME = "ei-fusion-reactor"
+local SPACE_AGE_FUSION_REACTOR_NAME = "fusion-reactor"
 local DEFAULT_FUSION_RECIPE = "ei-fusion-F1__ei-heated-deuterium-F2__ei-heated-tritium-TM__medium-FM__medium"
 local GUI_NAME = "ei-neutron-collector-console"
 local GUI_REFRESH_DELAY = 1
@@ -51,6 +52,7 @@ model.neutron_sources = {
     ["ei-fission-facility"] = -40,
     ["ei-castor"] = -50,
     [FUSION_REACTOR_NAME] = 10,
+    [SPACE_AGE_FUSION_REACTOR_NAME] = -50,
 }
 model.neutron_source_names = {
     "ei-high-temperature-reactor",
@@ -58,6 +60,7 @@ model.neutron_source_names = {
     "ei-fission-facility",
     "ei-castor",
     FUSION_REACTOR_NAME,
+    SPACE_AGE_FUSION_REACTOR_NAME,
 }
 model.dist_buffs = {
     [FUSION_REACTOR_NAME] = 3,
@@ -1650,6 +1653,10 @@ function model.get_state(entity)
         return true
     end
 
+    if entity.type == "fusion-reactor" then
+        return entity.status == defines.entity_status.working
+    end
+
     return false
 end
 
@@ -2349,7 +2356,7 @@ function model.on_gui_click(event)
         remote.call("informatron", "informatron_open_to_page", {
             player_index = event.player_index,
             interface = "exotic-industries-informatron",
-            page_name = element.tags.page or "fusion_power",
+            page_name = element.tags.page or "neutron_collector",
         })
         return
     end

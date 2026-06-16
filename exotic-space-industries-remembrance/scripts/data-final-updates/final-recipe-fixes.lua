@@ -107,6 +107,7 @@ local recipes = {
 	"ei-neutron-ammo",
 	"shotgun-shell",
 	"piercing-shotgun-shell",
+	"ei-uranium-shotgun-shell",
 	"cannon-shell",
 	"explosive-cannon-shell",
 	"uranium-cannon-shell",
@@ -133,7 +134,9 @@ local recipes = {
 	"ei-nitric-acid-medium-destilate-cracking",
 	"ei-bio-oil-refining",
 	"ei-water-bio-oil-refining",
-	"ei-steam-bio-oil-refining"
+	"ei-steam-bio-oil-refining",
+	"ei-crushed-lead-sulfuric-extraction",
+	"ei-crushed-gold-sulfuric-extraction"
 }
 
 for i, v in pairs(recipes) do

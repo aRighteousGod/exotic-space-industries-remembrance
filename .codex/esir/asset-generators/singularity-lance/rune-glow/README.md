@@ -22,6 +22,6 @@ python .\.codex\esir\asset-generators\singularity-lance\rune-glow\generate_singu
 
 ## Output
 
-- `ei-singularity-lance-rune-glow.png`
+- `singularity-lance-rune-glow.png`
 
 The sheet uses `768x768` frames, `64` frames, `8` columns, and `8` rows. Staged output lands under `output/meshy/ei-singularity-lance-rune-glow/`; `--promote` copies the approved sheet to `exotic-space-industries-remembrance/graphics/entities/singularity-lance/`.

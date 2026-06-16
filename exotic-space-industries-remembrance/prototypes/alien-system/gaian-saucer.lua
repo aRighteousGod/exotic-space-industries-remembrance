@@ -7,13 +7,13 @@ local ei_data = require("lib/data")
 local saucer_name = "ei-gaian-saucer"
 local leg_name = saucer_name.."-leg"
 local grid_name = saucer_name.."-equipment-grid"
-local main_graphics_entity_path = ei_path.."graphics/entities/"
-local main_graphics_item_path = ei_path.."graphics/items/"
-local main_graphics_tech_path = ei_path.."graphics/techs/"
+local main_graphics_entity_path = ei_graphics_entity_4_path
+local main_graphics_item_path = ei_graphics_item_4_path
+local main_graphics_tech_path = ei_graphics_tech_4_path
 local icon_path = main_graphics_item_path.."gaian-saucer.png"
 local tech_icon_path = main_graphics_tech_path.."gaian-saucer.png"
 local wake_graphics_path = main_graphics_entity_path.."gaian-saucer/wake/"
-local saucer_hum_sound_path = ei_path.."sounds/gaian-saucer-hum.ogg"
+local saucer_hum_sound_path = ei_sounds_4_path.."gaian-saucer-hum.ogg"
 local SAUCER_FRAME_SIZE = 256
 local SAUCER_SCALE = 0.69
 local WAKE_FRAME_SIZE = 768
@@ -25,6 +25,17 @@ local SAUCER_HOVER_BASE_SELECTION_DISTANCE = 2.4
 local SAUCER_HOVER_MOVEMENT_SELECTION_DISTANCE = 2.8
 local SAUCER_FRICTION_FORCE = 0.7 / SAUCER_TARGET_SPEED_MULTIPLIER
 local SAUCER_BRAKING_FORCE = 1 + ((SAUCER_TARGET_SPEED_MULTIPLIER - 1) * 0.35)
+local SAUCER_DIRECTION_COUNT = 64
+local TAU = math.pi * 2
+local CRYSTAL_HEADLIGHT_COLOR = {r = 0.12, g = 0.95, b = 0.88}
+local CRYSTAL_HEADLIGHT_BEAM_FORWARD_OFFSET = 12
+local CRYSTAL_HEADLIGHT_SOURCE_OFFSETS = {
+    {x = 0, y = -50},
+    {x = 70, y = -1},
+    {x = 0, y = 45},
+    {x = -70, y = -1},
+    {x = 0, y = 0},
+}
 
 local base_spider = data.raw["spider-vehicle"] and data.raw["spider-vehicle"]["spidertron"]
 local base_leg = data.raw["spider-leg"] and data.raw["spider-leg"]["spidertron-leg-1"]
@@ -44,7 +55,7 @@ local function saucer_sprite(path, options)
         height = SAUCER_FRAME_SIZE,
         line_length = 8,
         lines_per_file = 8,
-        direction_count = 64,
+        direction_count = SAUCER_DIRECTION_COUNT,
         frame_count = 1,
         scale = options.scale or SAUCER_SCALE,
         shift = options.shift or {0, 0},
@@ -76,6 +87,68 @@ local function map_icon()
         flags = {"icon"},
         size = {64, 64},
         scale = 0.5,
+    }
+end
+
+local function crystal_headlight_beam_origin(offset)
+    local distance = math.sqrt(offset.x * offset.x + offset.y * offset.y)
+    if distance == 0 then
+        return offset
+    end
+
+    return {
+        x = offset.x + (offset.x / distance * CRYSTAL_HEADLIGHT_BEAM_FORWARD_OFFSET),
+        y = offset.y + (offset.y / distance * CRYSTAL_HEADLIGHT_BEAM_FORWARD_OFFSET),
+    }
+end
+
+local function rotate_crystal_offset(offset, direction_index)
+    local angle = direction_index / SAUCER_DIRECTION_COUNT * TAU
+    local cos_angle = math.cos(angle)
+    local sin_angle = math.sin(angle)
+
+    return util.by_pixel(
+        (offset.x * cos_angle - offset.y * sin_angle) * SAUCER_SCALE,
+        (offset.x * sin_angle + offset.y * cos_angle) * SAUCER_SCALE
+    )
+end
+
+local function crystal_headlight_positions()
+    local positions = {}
+
+    for crystal_index, offset in ipairs(CRYSTAL_HEADLIGHT_SOURCE_OFFSETS) do
+        local crystal_positions = {}
+        for direction_index = 0, SAUCER_DIRECTION_COUNT - 1 do
+            crystal_positions[direction_index + 1] = rotate_crystal_offset(offset, direction_index)
+        end
+        positions[crystal_index] = crystal_positions
+    end
+
+    return positions
+end
+
+local function crystal_headlight_beam_shift(offset)
+    offset = crystal_headlight_beam_origin(offset)
+    return util.by_pixel(offset.x * SAUCER_SCALE, offset.y * SAUCER_SCALE)
+end
+
+local function crystal_headlight_beam(source_orientation_offset, source_offset)
+    return {
+        type = "oriented",
+        minimum_darkness = 0.25,
+        picture = {
+            filename = "__core__/graphics/light-cone.png",
+            priority = "extra-high",
+            flags = {"light"},
+            scale = 0.85,
+            width = 200,
+            height = 200,
+        },
+        source_orientation_offset = source_orientation_offset,
+        shift = crystal_headlight_beam_shift(source_offset),
+        size = 0.95,
+        intensity = 0.26,
+        color = table.deepcopy(CRYSTAL_HEADLIGHT_COLOR),
     }
 end
 
@@ -183,32 +256,38 @@ saucer.working_sound = {
 }
 saucer.minimap_representation = map_icon()
 saucer.selected_minimap_representation = map_icon()
-saucer.factoriopedia_simulation = {
-    init = 'game.simulation.camera_zoom = 1.2\n'
-        ..'game.simulation.camera_position = {0, -0.5}\n'
-        ..'game.surfaces[1].create_entity{name = "ei-gaian-saucer", position = {0, 0}, force = "player"}\n'
-}
 saucer.graphics_set = {
     render_layer = "air-object",
     base_render_layer = "air-object",
     animation = {
         layers = {
-            saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_dark_compact.png"),
-            saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_dark_compact_glow.png", {
+            saucer_sprite(main_graphics_entity_path.."gaian-saucer/gaian-saucer_dark_compact.png"),
+            saucer_sprite(main_graphics_entity_path.."gaian-saucer/gaian-saucer_dark_compact_glow.png", {
                 draw_as_glow = true,
             }),
         },
     },
-    shadow_animation = saucer_sprite(main_graphics_entity_path.."gaian-saucer/ei-gaian-saucer_dark_compact_shadow.png", {
+    shadow_animation = saucer_sprite(main_graphics_entity_path.."gaian-saucer/gaian-saucer_dark_compact_shadow.png", {
         draw_as_shadow = true,
     }),
     light = {
-        type = "basic",
-        minimum_darkness = 0.25,
-        intensity = 0.5,
-        size = 18,
-        color = {r = 0.25, g = 0.95, b = 0.55},
+        crystal_headlight_beam(0.00, CRYSTAL_HEADLIGHT_SOURCE_OFFSETS[1]),
+        {
+            type = "basic",
+            minimum_darkness = 0.25,
+            intensity = 0.5,
+            size = 18,
+            color = {r = 0.25, g = 0.95, b = 0.55},
+        },
     },
+    eye_light = {
+        type = "basic",
+        minimum_darkness = 0.18,
+        intensity = 0.82,
+        size = 2.2,
+        color = table.deepcopy(CRYSTAL_HEADLIGHT_COLOR),
+    },
+    light_positions = crystal_headlight_positions(),
 }
 
 -- Exotic skimmer profile: the hidden hover anchors are already much more
@@ -314,8 +393,8 @@ data:extend({
         name = "ei-gaian-saucer-wake",
         type = "animation",
         layers = {
-            wake_animation_layer("ei-gaian-saucer_wake.png"),
-            wake_animation_layer("ei-gaian-saucer_wake_glow.png", {
+            wake_animation_layer("gaian-saucer_wake.png"),
+            wake_animation_layer("gaian-saucer_wake_glow.png", {
                 draw_as_glow = true,
                 blend_mode = "additive-soft",
             }),

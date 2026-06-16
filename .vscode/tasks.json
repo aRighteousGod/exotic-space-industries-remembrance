@@ -62,6 +62,21 @@
         "problemMatcher": []
       },
       {
+        "label": "Run graphics4 process.ps1",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy", "Bypass",
+          "-File", "${workspaceFolder}/graphics4_process.ps1"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
         "label": "Run soundtrack1 process.ps1",
         "type": "shell",
         "command": "powershell",

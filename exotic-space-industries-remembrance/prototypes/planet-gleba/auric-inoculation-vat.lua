@@ -18,14 +18,12 @@ local VAT_TECH_NAME = "ei-auric-marsh-inoculation"
 local VAT_IDLE_RECIPE_NAME = "ei-auric-vat-idle"
 local MARKER_FLUID_NAME = "ei-auric-inoculation-vat-marker"
 local TELEMETRY_PROXY_NAME = "ei-auric-inoculation-vat-circuit-interface"
-local MAIN_GRAPHICS_PATH = ei_path .. "graphics/"
-
-local VAT_ICON_PATH = MAIN_GRAPHICS_PATH .. "items/auric-inoculation-vat.png"
-local VAT_TECH_ICON_PATH = MAIN_GRAPHICS_PATH .. "techs/auric-marsh-inoculation.png"
-local CYST_ICON_PATH = MAIN_GRAPHICS_PATH .. "entities/auric-cyst-node/auric-cyst-1.png"
+local VAT_ICON_PATH = ei_graphics_item_4_path .. "auric-inoculation-vat.png"
+local VAT_TECH_ICON_PATH = ei_graphics_tech_4_path .. "auric-marsh-inoculation.png"
+local CYST_ICON_PATH = ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-1.png"
 local CYST_ICON_SIZE = 512
 local CYST_ICON_MIPMAPS = 5
-local VAT_ENTITY_PATH = MAIN_GRAPHICS_PATH .. "entities/auric-inoculation-vat/"
+local VAT_ENTITY_PATH = ei_graphics_entity_4_path .. "auric-inoculation-vat/"
 local VAT_FRAME_SIZE = 500
 local VAT_FRAME_SCALE = 0.36
 

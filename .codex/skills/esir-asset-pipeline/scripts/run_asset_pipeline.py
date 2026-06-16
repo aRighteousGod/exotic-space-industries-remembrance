@@ -70,6 +70,12 @@ def parse_args() -> argparse.Namespace:
     qa.add_argument("--spec", required=True)
     qa.add_argument("--dossier", help="Optional dossier path.")
 
+    compare = subparsers.add_parser("compare", help="Render lighting-profile preview comparisons from a spec.")
+    compare.add_argument("--spec", required=True)
+    compare.add_argument("--dry-run", action="store_true", help="Plan comparison renders without running Blender.")
+    compare.add_argument("--continue-on-error", action="store_true")
+    compare.add_argument("--dossier", help="Optional comparison dossier path.")
+
     estimate = subparsers.add_parser("estimate", help="Estimate render weight without running Blender.")
     estimate.add_argument("--spec", required=True)
     estimate.add_argument("--steps", default="all", help="Accepted for consistency; render estimates use enabled render sections.")
@@ -118,10 +124,26 @@ def write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2), encoding="utf-8")
 
 
+def graphics_name_for(asset_name: str) -> str:
+    if asset_name.startswith("ei-") and len(asset_name) > 3:
+        return asset_name[3:]
+    return asset_name
+
+
+def sample_prototype_name(asset_name: str, graphics_name: str) -> str:
+    if asset_name.startswith("ei-"):
+        return asset_name
+    return f"ei-{graphics_name}"
+
+
 def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
-    output_root = f"output/meshy/{asset_name}"
+    graphics_name = graphics_name_for(asset_name)
+    prototype_name = sample_prototype_name(asset_name, graphics_name)
+    output_root = f"output/meshy/{graphics_name}"
     return {
         "asset_name": asset_name,
+        "graphics_name": graphics_name,
+        "prototype_name": prototype_name,
         "kind": kind,
         "output_root": output_root,
         "model_path": f"{output_root}/model.glb",
@@ -151,7 +173,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "enabled": True,
             "input": "{model_path}",
             "test_cube": True,
-            "output_sheet": "{output_root}/renders/{asset_name}-static.png",
+            "output_sheet": "{output_root}/renders/{graphics_name}-static.png",
             "directions": 8,
             "frame_size": 384,
             "columns": 8,
@@ -177,8 +199,8 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "input": "{model_path}",
             "test_asset": "machine",
             "preset": "machine",
-            "output_sheet": "{output_root}/renders/{asset_name}-animation.png",
-            "shadow_sheet": "{output_root}/renders/{asset_name}-animation-shadow.png",
+            "output_sheet": "{output_root}/renders/{graphics_name}-animation.png",
+            "shadow_sheet": "{output_root}/renders/{graphics_name}-animation-shadow.png",
             "frames": 16,
             "directions": 1,
             "columns": 4,
@@ -201,7 +223,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "preset_blend": "{factorio_render_preset.blend}",
             "input": "{model_path}",
             "test_cube": True,
-            "asset_name": "{asset_name}",
+            "asset_name": "{graphics_name}",
             "output_dir": "{output_root}/Render",
             "manifest": "{output_root}/Render/factorio-preset-render-manifest.json",
             "frames": 64,
@@ -211,6 +233,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "tile_size": 64,
             "passes": ["object", "shadow", "light-alpha-reduced", "light-alpha", "mask"],
             "quality": "smoke",
+            "lighting_profile": "preset-default",
             "pack_sheets": True,
             "grid": "8x8",
             "preflight_only": False,
@@ -230,6 +253,22 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "prep_delete_empty_meshes": False,
             "prep_apply_scale": False,
         },
+        "lighting_compare": {
+            "enabled": True,
+            "profiles": ["preset-default", "rail-fill", "gamma-rescue"],
+            "output_dir": "{output_root}/lighting-compare",
+            "report": "{output_root}/lighting-compare/lighting-compare-report.json",
+            "html": "{output_root}/lighting-compare/lighting-compare-report.html",
+            "frames": 8,
+            "directions": 8,
+            "animation_frames": 1,
+            "passes": ["object", "shadow", "light-alpha-reduced", "mask"],
+            "quality": "smoke",
+            "pack_sheets": True,
+            "grid": "8x1",
+            "warn_clip250_pct": 3.0,
+            "reject_clip250_pct": 5.0,
+        },
         "export": {
             "enabled": True,
             "mode": "machine",
@@ -240,6 +279,8 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "working_shadow_sheet": "{render_procedural.shadow_sheet}",
             "scale": 0.35,
             "shift": "0,-0.2",
+            "filename_root": "{graphics_name}",
+            "target_prototype_name": "{prototype_name}",
             "animation_speed": 0.6,
             "output_dir": "{output_root}/factorio-export",
             "pack_raw_frames": False,
@@ -247,13 +288,13 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
         },
         "promotion": {
             "enabled": False,
-            "manifest": "{export.output_dir}/{asset_name}.factorio-asset-manifest.json",
+            "manifest": "{export.output_dir}/{graphics_name}.factorio-asset-manifest.json",
             "copy_assets": False,
-            "graphics_destination": "exotic-space-industries-remembrance/graphics/entity/{asset_name}",
+            "graphics_destination": "exotic-space-industries-remembrance/graphics/entity/{graphics_name}",
             "apply_prototype": False,
             "prototype_file": "",
             "prototype_type": "assembling-machine" if kind == "machine" else "{kind}",
-            "prototype_name": "{asset_name}",
+            "prototype_name": "{prototype_name}",
             "field": "graphics_set",
             "execute": False,
             "expected_asset_count": None,
@@ -311,7 +352,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
                 "{render_static.output_sheet}",
                 "{render_procedural.output_sheet}",
                 "{render_procedural.shadow_sheet}",
-                "{export.output_dir}/{asset_name}.preview.png",
+                "{export.output_dir}/{graphics_name}.preview.png",
             ],
         },
     }
@@ -369,12 +410,18 @@ def defaulted_spec(spec: dict[str, Any]) -> dict[str, Any]:
     if "asset_name" not in spec:
         raise PipelineError("Spec requires asset_name.")
     result = deepcopy(spec)
+    result["asset_name"] = str(result["asset_name"])
+    result.setdefault("graphics_name", graphics_name_for(result["asset_name"]))
+    result.setdefault("prototype_name", sample_prototype_name(result["asset_name"], result["graphics_name"]))
     result.setdefault("kind", "machine")
-    result.setdefault("output_root", f"output/meshy/{result['asset_name']}")
+    result.setdefault("output_root", f"output/meshy/{result['graphics_name']}")
     result.setdefault("model_path", f"{result['output_root']}/model.glb")
     result.setdefault("model_glob", f"{result['output_root']}/**/*.glb")
     result.setdefault("blender", {})
     result["blender"].setdefault("exe", str(DEFAULT_BLENDER))
+    result.setdefault("factorio_render_preset", {})
+    result["factorio_render_preset"].setdefault("blend", "factorioRenderingPreset_v4.blend")
+    result.setdefault("lighting_compare", {})
     for section in ALL_STEPS:
         if section not in result:
             result[section] = {"enabled": False}
@@ -408,11 +455,32 @@ def resolve_spec(spec: dict[str, Any]) -> dict[str, Any]:
         if isinstance(render_preset, dict):
             render_preset.setdefault("output_dir", str(output_root / "Render"))
             render_preset.setdefault("manifest", str(Path(render_preset["output_dir"]) / "factorio-preset-render-manifest.json"))
+    if "lighting_compare" in result:
+        lighting_compare = result["lighting_compare"]
+        if isinstance(lighting_compare, dict):
+            lighting_compare.setdefault("output_dir", str(output_root / "lighting-compare"))
+            lighting_compare.setdefault("report", str(Path(lighting_compare["output_dir"]) / "lighting-compare-report.json"))
+            lighting_compare.setdefault("html", str(Path(lighting_compare["output_dir"]) / "lighting-compare-report.html"))
     if "export" in result:
         export = result["export"]
         if isinstance(export, dict):
             export.setdefault("output_dir", str(output_root / "factorio-export"))
-            export.setdefault("manifest", str(Path(export["output_dir"]) / f"{result['asset_name']}.factorio-asset-manifest.json"))
+            if not export.get("filename_root"):
+                export["filename_root"] = result.get("graphics_name", result["asset_name"])
+            if not export.get("target_prototype_name"):
+                export["target_prototype_name"] = result.get("prototype_name", result["asset_name"])
+            if not export.get("manifest"):
+                export["manifest"] = str(Path(export["output_dir"]) / f"{export['filename_root']}.factorio-asset-manifest.json")
+    if "promotion" in result:
+        promotion = result["promotion"]
+        if isinstance(promotion, dict):
+            export = result.get("export", {}) if isinstance(result.get("export"), dict) else {}
+            if not promotion.get("manifest"):
+                promotion["manifest"] = export.get("manifest") or str(output_root / "factorio-export" / f"{result.get('graphics_name', result['asset_name'])}.factorio-asset-manifest.json")
+            if not promotion.get("graphics_destination"):
+                promotion["graphics_destination"] = f"exotic-space-industries-remembrance/graphics/entity/{result.get('graphics_name', result['asset_name'])}"
+            if not promotion.get("prototype_name"):
+                promotion["prototype_name"] = result.get("prototype_name", result["asset_name"])
     if "style" in result:
         style = result["style"]
         if isinstance(style, dict):
@@ -650,6 +718,11 @@ def build_preset_command(spec: dict[str, Any]) -> list[str] | None:
         ("resolution", "--resolution"),
         ("grid", "--grid"),
         ("lights", "--lights"),
+        ("lighting_profile", "--lighting-profile"),
+        ("preset_sun_energy_scale", "--preset-sun-energy-scale"),
+        ("preset_world_strength_scale", "--preset-world-strength-scale"),
+        ("preset_view_exposure_offset", "--preset-view-exposure-offset"),
+        ("preset_view_gamma", "--preset-view-gamma"),
         ("preflight_margin", "--preflight-margin"),
         ("auto_ortho_step", "--auto-ortho-step"),
         ("auto_ortho_max", "--auto-ortho-max"),
@@ -658,6 +731,10 @@ def build_preset_command(spec: dict[str, Any]) -> list[str] | None:
         ("prep_origin_mode", "--prep-origin-mode"),
         ("prep_target_size", "--prep-target-size"),
         ("prep_alpha_mode", "--prep-alpha-mode"),
+        ("prep_material_metallic", "--prep-material-metallic"),
+        ("prep_material_roughness", "--prep-material-roughness"),
+        ("prep_base_color_gamma", "--prep-base-color-gamma"),
+        ("prep_base_color_value", "--prep-base-color-value"),
         ("save_blend", "--save-blend"),
     ]:
         append_flag(command, flag, section.get(key))
@@ -691,10 +768,16 @@ def build_preset_command(spec: dict[str, Any]) -> list[str] | None:
         command.append("--fail-alpha-risk")
     if section.get("auto_prep"):
         command.append("--auto-prep")
+    if section.get("prep_vehicle_material_lift"):
+        command.append("--prep-vehicle-material-lift")
     if section.get("prep_remove_imported_cameras"):
         command.append("--prep-remove-imported-cameras")
     if section.get("prep_delete_empty_meshes"):
         command.append("--prep-delete-empty-meshes")
+    if section.get("prep_delete_unmaterialed_meshes"):
+        command.append("--prep-delete-unmaterialed-meshes")
+    for pattern in section.get("prep_delete_mesh_name_glob", []) or []:
+        append_flag(command, "--prep-delete-mesh-name-glob", pattern)
     if section.get("prep_apply_scale"):
         command.append("--prep-apply-scale")
     return command
@@ -808,7 +891,8 @@ def build_promotion_command(spec: dict[str, Any]) -> list[str] | None:
         return None
     manifest = section.get("manifest") or spec.get("export", {}).get("manifest")
     if not manifest:
-        manifest = f"{spec.get('export', {}).get('output_dir', spec.get('output_root'))}/{spec['asset_name']}.factorio-asset-manifest.json"
+        manifest_root = spec.get("export", {}).get("filename_root") or spec.get("graphics_name") or spec["asset_name"]
+        manifest = f"{spec.get('export', {}).get('output_dir', spec.get('output_root'))}/{manifest_root}.factorio-asset-manifest.json"
     command = python_cmd(EXPORT_SCRIPT) + ["promote", "--manifest", str(manifest)]
     for key, flag in [
         ("graphics_destination", "--graphics-destination"),
@@ -1440,6 +1524,290 @@ def tile_report(path: Path, layout: dict[str, Any]) -> dict[str, Any]:
         }
 
 
+KNOWN_LIGHTING_PROFILES = {"preset-default", "rail-fill", "gamma-rescue"}
+DEFAULT_LIGHTING_COMPARE_PROFILES = ["preset-default", "rail-fill", "gamma-rescue"]
+
+
+def safe_id(value: str) -> str:
+    cleaned = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in value.strip().lower())
+    cleaned = "-".join(part for part in cleaned.split("-") if part)
+    return cleaned or "variant"
+
+
+def percentile_from_histogram(histogram: list[int], quantile: float) -> float:
+    total = sum(histogram)
+    if total <= 0:
+        return 0.0
+    target = max(1, int(round(total * quantile)))
+    seen = 0
+    for value, count in enumerate(histogram):
+        seen += count
+        if seen >= target:
+            return float(value)
+    return float(len(histogram) - 1)
+
+
+def active_luma_metrics(path: Path) -> dict[str, Any]:
+    if Image is None:
+        raise PipelineError("Pillow is required for lighting comparison metrics.")
+    with Image.open(path).convert("RGBA") as image:
+        alpha = image.getchannel("A")
+        bbox = alpha.getbbox()
+        histogram = [0] * 256
+        active_pixels = 0
+        luma_sum = 0.0
+        clip250 = 0
+        if bbox:
+            min_x, min_y, max_x, max_y = bbox
+            pixels = image.load()
+            for y in range(min_y, max_y):
+                for x in range(min_x, max_x):
+                    r, g, b, a = pixels[x, y]
+                    if a == 0:
+                        continue
+                    luma = int(round((0.2126 * r) + (0.7152 * g) + (0.0722 * b)))
+                    luma = min(255, max(0, luma))
+                    histogram[luma] += 1
+                    active_pixels += 1
+                    luma_sum += luma
+                    if max(r, g, b) >= 250:
+                        clip250 += 1
+        return {
+            "path": str(path),
+            "width": image.width,
+            "height": image.height,
+            "alpha_bbox": bbox,
+            "active_alpha_pixels": active_pixels,
+            "mean_luma": round(luma_sum / max(1, active_pixels), 3),
+            "median_luma": percentile_from_histogram(histogram, 0.50),
+            "p95_luma": percentile_from_histogram(histogram, 0.95),
+            "p99_luma": percentile_from_histogram(histogram, 0.99),
+            "clip250_pixels": clip250,
+            "clip250_pct": round((clip250 / max(1, active_pixels)) * 100.0, 4),
+            "sheet_edge_touch": bool(
+                bbox
+                and (bbox[0] <= 0 or bbox[1] <= 0 or image.width - bbox[2] <= 0 or image.height - bbox[3] <= 0)
+            ),
+        }
+
+
+def configured_lighting_compare(spec: dict[str, Any]) -> dict[str, Any]:
+    section = deepcopy(spec.get("lighting_compare", {})) if isinstance(spec.get("lighting_compare"), dict) else {}
+    section.setdefault("enabled", True)
+    section.setdefault("profiles", DEFAULT_LIGHTING_COMPARE_PROFILES)
+    section.setdefault("output_dir", str(Path(str(spec.get("output_root", "output/meshy/asset"))) / "lighting-compare"))
+    section.setdefault("report", str(Path(section["output_dir"]) / "lighting-compare-report.json"))
+    section.setdefault("html", str(Path(section["output_dir"]) / "lighting-compare-report.html"))
+    section.setdefault("frames", 8)
+    section.setdefault("directions", 8)
+    section.setdefault("animation_frames", 1)
+    section.setdefault("passes", ["object", "shadow", "light-alpha-reduced", "mask"])
+    section.setdefault("quality", "smoke")
+    section.setdefault("samples", None)
+    section.setdefault("resolution", None)
+    section.setdefault("pack_sheets", True)
+    section.setdefault("grid", "8x1")
+    section.setdefault("preflight_only", False)
+    section.setdefault("warn_clip250_pct", 3.0)
+    section.setdefault("reject_clip250_pct", 5.0)
+    return section
+
+
+def lighting_profile_entry(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, str):
+        return {"id": safe_id(raw), "profile": raw, "overrides": {}}
+    if isinstance(raw, dict):
+        profile = str(raw.get("profile") or raw.get("lighting_profile") or raw.get("name") or "").strip()
+        if not profile:
+            raise PipelineError("Lighting comparison profile entries require profile, lighting_profile, or name.")
+        return {
+            "id": safe_id(str(raw.get("id") or raw.get("name") or profile)),
+            "profile": profile,
+            "overrides": deepcopy(raw.get("overrides", {})) if isinstance(raw.get("overrides"), dict) else {},
+        }
+    raise PipelineError(f"Unsupported lighting comparison profile entry: {raw!r}")
+
+
+def lighting_compare_variant_spec(spec: dict[str, Any], section: dict[str, Any], entry: dict[str, Any]) -> dict[str, Any]:
+    profile = entry["profile"]
+    if profile not in KNOWN_LIGHTING_PROFILES:
+        raise PipelineError(f"Unknown lighting profile for comparison: {profile}")
+    variant_id = entry["id"]
+    output_dir = Path(str(section["output_dir"])) / variant_id / "Render"
+
+    render_preset = deepcopy(spec.get("render_preset", {})) if isinstance(spec.get("render_preset"), dict) else {}
+    render_preset.setdefault("preset_blend", spec.get("factorio_render_preset", {}).get("blend", "factorioRenderingPreset_v4.blend"))
+    render_preset.setdefault("input", spec.get("model_path"))
+    render_preset.update(
+        {
+            "enabled": True,
+            "asset_name": f"{spec['asset_name']}-{variant_id}",
+            "output_dir": str(output_dir),
+            "manifest": str(output_dir / "factorio-preset-render-manifest.json"),
+            "lighting_profile": profile,
+            "frames": section["frames"],
+            "directions": section["directions"],
+            "animation_frames": section["animation_frames"],
+            "passes": section["passes"],
+            "quality": section["quality"],
+            "samples": section.get("samples"),
+            "resolution": section.get("resolution"),
+            "pack_sheets": section["pack_sheets"],
+            "grid": section["grid"],
+            "preflight_only": section["preflight_only"],
+            "dry_run": False,
+        }
+    )
+    if "test_cube" in section:
+        render_preset["test_cube"] = section["test_cube"]
+    if isinstance(section.get("render_preset_overrides"), dict):
+        render_preset = deep_merge(render_preset, section["render_preset_overrides"])
+    if entry["overrides"]:
+        render_preset = deep_merge(render_preset, entry["overrides"])
+
+    variant = deepcopy(spec)
+    variant["asset_name"] = f"{spec['asset_name']}-{variant_id}"
+    variant["output_root"] = str(Path(str(section["output_dir"])) / variant_id)
+    variant["render_preset"] = render_preset
+    return variant
+
+
+def build_lighting_compare_plan(spec: dict[str, Any], section: dict[str, Any]) -> list[dict[str, Any]]:
+    if not as_bool(section.get("enabled"), True):
+        raise PipelineError("lighting_compare is disabled in the spec.")
+    plan = []
+    for raw in section.get("profiles", DEFAULT_LIGHTING_COMPARE_PROFILES):
+        entry = lighting_profile_entry(raw)
+        variant = lighting_compare_variant_spec(spec, section, entry)
+        command = build_preset_command(variant)
+        if command is None:
+            raise PipelineError(f"Could not build render command for lighting profile {entry['profile']}.")
+        render_preset = variant["render_preset"]
+        plan.append(
+            {
+                "id": entry["id"],
+                "profile": entry["profile"],
+                "command": command,
+                "display": shell_join(command),
+                "output_dir": render_preset["output_dir"],
+                "manifest": render_preset["manifest"],
+                "object_sheet": str(Path(render_preset["output_dir"]) / ".Sheets" / "object_0.png"),
+            }
+        )
+    return plan
+
+
+def manifest_layout(manifest_path: Path, sheet_path: Path) -> dict[str, Any] | None:
+    if not manifest_path.exists():
+        return None
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError:
+        return None
+    packed_object = manifest.get("packed_sheets", {}).get("object") if isinstance(manifest.get("packed_sheets"), dict) else {}
+    tile_size = packed_object.get("tile_size") if isinstance(packed_object, dict) else None
+    resolution = manifest.get("scene", {}).get("resolution") if isinstance(manifest.get("scene"), dict) else None
+    frame_width = (tile_size or resolution or [None, None])[0]
+    frame_height = (tile_size or resolution or [None, None])[1]
+    grid = manifest.get("grid") or [8, 1]
+    if not frame_width or not frame_height:
+        with Image.open(sheet_path) as image:
+            frame_width = image.width // max(1, int(grid[0]))
+            frame_height = image.height // max(1, int(grid[1]))
+    return {
+        "frame_width": frame_width,
+        "frame_height": frame_height,
+        "line_length": int(grid[0]),
+        "frame_count": int(manifest.get("frames") or 1),
+        "direction_count": 1,
+    }
+
+
+def lighting_compare_metrics(item: dict[str, Any], warn_clip: float, reject_clip: float) -> dict[str, Any]:
+    sheet_path = Path(item["object_sheet"])
+    manifest_path = Path(item["manifest"])
+    warnings: list[str] = []
+    errors: list[str] = []
+    if not sheet_path.exists():
+        errors.append(f"Missing object comparison sheet: {sheet_path}")
+        return {"profile": item["profile"], "id": item["id"], "path": str(sheet_path), "warnings": warnings, "errors": errors}
+
+    metrics = active_luma_metrics(sheet_path)
+    layout = manifest_layout(manifest_path, sheet_path)
+    tile_details = tile_report(sheet_path, layout) if layout else {"layout_valid": False, "message": "missing manifest layout"}
+    clipped_tiles = tile_details.get("clipped_tiles", []) if isinstance(tile_details, dict) else []
+    blank_tiles = tile_details.get("blank_tiles", []) if isinstance(tile_details, dict) else []
+    metrics.update(
+        {
+            "profile": item["profile"],
+            "id": item["id"],
+            "manifest": str(manifest_path),
+            "tile_report": tile_details,
+            "alpha_edge_touches": len(clipped_tiles),
+        }
+    )
+    if metrics["clip250_pct"] >= reject_clip:
+        errors.append(f"{item['profile']} clip250_pct {metrics['clip250_pct']:.3f}% meets reject threshold {reject_clip:.3f}%.")
+    elif metrics["clip250_pct"] > warn_clip:
+        warnings.append(f"{item['profile']} clip250_pct {metrics['clip250_pct']:.3f}% exceeds warning threshold {warn_clip:.3f}%.")
+    if clipped_tiles:
+        warnings.append(f"{item['profile']} has alpha touching tile edges: {clipped_tiles[:12]}")
+    if blank_tiles:
+        warnings.append(f"{item['profile']} has blank tiles: {blank_tiles[:12]}")
+    if metrics.get("sheet_edge_touch"):
+        warnings.append(f"{item['profile']} alpha touches the packed sheet edge.")
+    metrics["warnings"] = warnings
+    metrics["errors"] = errors
+    return metrics
+
+
+def relative_html_path(path: str, base: Path) -> str:
+    candidate = Path(path)
+    try:
+        return candidate.resolve().relative_to(base.resolve()).as_posix()
+    except ValueError:
+        return candidate.as_posix()
+
+
+def write_lighting_compare_html(report: dict[str, Any], target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for metric in report.get("metrics", []):
+        image = html.escape(relative_html_path(metric.get("path", ""), target.parent))
+        rows.append(
+            "<tr>"
+            f"<td>{html.escape(metric.get('profile', ''))}</td>"
+            f"<td><img src=\"{image}\" alt=\"{html.escape(metric.get('profile', ''))}\"></td>"
+            f"<td>{metric.get('mean_luma', '')}</td>"
+            f"<td>{metric.get('median_luma', '')}</td>"
+            f"<td>{metric.get('p95_luma', '')}</td>"
+            f"<td>{metric.get('p99_luma', '')}</td>"
+            f"<td>{metric.get('clip250_pct', '')}</td>"
+            f"<td>{metric.get('alpha_edge_touches', '')}</td>"
+            f"<td>{html.escape('; '.join(metric.get('warnings', []) + metric.get('errors', [])))}</td>"
+            "</tr>"
+        )
+    markup = """<!doctype html>
+<meta charset="utf-8">
+<title>ESIR Lighting Compare</title>
+<style>
+body{font-family:Segoe UI,sans-serif;margin:24px;background:#181818;color:#eee}
+table{border-collapse:collapse;width:100%}
+td,th{border:1px solid #444;padding:8px;vertical-align:top}
+img{max-width:260px;max-height:260px;background:#2c2c2c}
+code{white-space:pre-wrap}
+</style>
+<h1>ESIR Lighting Compare</h1>
+<p>Preview metrics only. This report never selects or locks a final lighting profile.</p>
+<table>
+<thead><tr><th>Profile</th><th>Object Sheet</th><th>Mean</th><th>Median</th><th>P95</th><th>P99</th><th>Clip250 %</th><th>Edge Tiles</th><th>Warnings</th></tr></thead>
+<tbody>
+"""
+    markup += "\n".join(rows)
+    markup += "\n</tbody></table>\n"
+    target.write_text(markup, encoding="utf-8")
+
+
 def write_bbox_overlay(path: Path, layout: dict[str, Any], tile_details: dict[str, Any], output_dir: Path) -> str | None:
     if Image is None or ImageDraw is None or not tile_details.get("layout_valid"):
         return None
@@ -1964,6 +2332,95 @@ def print_run_summary(dossier: dict[str, Any]) -> None:
         raise PipelineError("Pipeline completed with errors. See dossier for details.")
 
 
+def execute_lighting_compare(
+    spec_path: Path,
+    *,
+    dry_run: bool,
+    continue_on_error: bool,
+    dossier_override: str | None,
+) -> dict[str, Any]:
+    spec = resolve_spec(load_spec(spec_path))
+    section = configured_lighting_compare(spec)
+    plan = build_lighting_compare_plan(spec, section)
+    records: list[dict[str, Any]] = []
+    metrics: list[dict[str, Any]] = []
+    failed = False
+
+    for item in plan:
+        record = run_command(item["command"], dry_run=dry_run)
+        record.update({"id": item["id"], "profile": item["profile"], "output_dir": item["output_dir"], "manifest": item["manifest"]})
+        records.append(record)
+        if record.get("returncode") not in {0, None}:
+            failed = True
+            if not continue_on_error:
+                break
+            continue
+        if not dry_run:
+            metric = lighting_compare_metrics(
+                item,
+                warn_clip=float(section["warn_clip250_pct"]),
+                reject_clip=float(section["reject_clip250_pct"]),
+            )
+            metrics.append(metric)
+            if metric.get("errors"):
+                failed = True
+                if not continue_on_error:
+                    break
+
+    warnings = [warning for metric in metrics for warning in metric.get("warnings", [])]
+    errors = [error for metric in metrics for error in metric.get("errors", [])]
+    failed = failed or bool(errors)
+    report = {
+        "asset_name": spec["asset_name"],
+        "spec_path": str(spec_path),
+        "created_at_utc": dt.datetime.now(dt.UTC).isoformat(),
+        "mode": "dry-run" if dry_run else "compare",
+        "output_dir": section["output_dir"],
+        "profiles": [item["profile"] for item in plan],
+        "plan": plan,
+        "records": records,
+        "metrics": metrics,
+        "warnings": warnings,
+        "errors": errors,
+        "selected_profile": None,
+        "notes": [
+            "Lighting comparison renders previews only; choose an explicit render_preset.lighting_profile for final renders.",
+            f"clip250_pct above {section['warn_clip250_pct']} warns; {section['reject_clip250_pct']} or higher is treated as a reject.",
+        ],
+        "failed": failed,
+    }
+    report_path = Path(str(section["report"]))
+    dossier_path = Path(dossier_override) if dossier_override else report_path
+    html_path = Path(str(section["html"]))
+    if not dry_run:
+        write_lighting_compare_html(report, html_path)
+        report["html"] = str(html_path)
+    report["dossier_path"] = str(dossier_path)
+    report["report_path"] = str(report_path)
+    write_json(report_path, report)
+    if dossier_path != report_path:
+        write_json(dossier_path, report)
+    return report
+
+
+def print_lighting_compare_summary(report: dict[str, Any]) -> None:
+    print(f"lighting_compare_report={report['report_path']}")
+    if report.get("html"):
+        print(f"lighting_compare_html={report['html']}")
+    for record in report["records"]:
+        if record.get("dry_run"):
+            print(f"{record['profile']}: planned")
+        else:
+            print(f"{record['profile']}: returncode={record.get('returncode')}")
+    for metric in report.get("metrics", []):
+        print(
+            f"{metric['profile']}: mean={metric.get('mean_luma')} "
+            f"median={metric.get('median_luma')} clip250={metric.get('clip250_pct')}%"
+        )
+    if report.get("failed"):
+        raise PipelineError("Lighting comparison completed with errors. See report for details.")
+
+
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
     result = deepcopy(base)
     for key, value in override.items():
@@ -2084,6 +2541,15 @@ def main() -> int:
         if args.command == "qa":
             dossier = execute(Path(args.spec), ["qa"], dry_run=False, continue_on_error=False, dossier_override=args.dossier)
             print_run_summary(dossier)
+            return 0
+        if args.command == "compare":
+            report = execute_lighting_compare(
+                Path(args.spec),
+                dry_run=args.dry_run,
+                continue_on_error=args.continue_on_error,
+                dossier_override=args.dossier,
+            )
+            print_lighting_compare_summary(report)
             return 0
         if args.command == "estimate":
             spec = resolve_spec(load_spec(Path(args.spec)))

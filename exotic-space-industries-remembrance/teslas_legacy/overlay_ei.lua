@@ -16,6 +16,8 @@ local tl_research = get_research_array()
 -- Mirror the owned startup default here so data-stage helper behavior and control-stage
 -- runtime assumptions stay in sync even in stripped-down dump/test environments.
 local BEHAVIOR_MODE = tl_settings.behavior_mode or "legacy-fidelity"
+local DEFAULT_TESLA_COIL_SOUND_VOLUME = 0.7
+local TESLA_COIL_BEAM_MAX_SOUNDS = 4
 
 -- Bridge categories split the vanilla Tesla family from TL's original categories so EI can
 -- decide exactly which upgrades spill over into teslagun/tesla-ammo/tesla-turret.
@@ -251,6 +253,82 @@ local function ensure_placeable_by(prototype, item_name, count)
     item = item_name,
     count = count or 1,
   }
+end
+
+local function set_sound_definition_volume(sound_definition, volume)
+  if type(sound_definition) ~= "table" or type(volume) ~= "number" then
+    return
+  end
+
+  if sound_definition.variations then
+    for _, variation in pairs(sound_definition.variations) do
+      set_sound_definition_volume(variation, volume)
+    end
+  end
+
+  if sound_definition.layers then
+    for _, layer in pairs(sound_definition.layers) do
+      set_sound_definition_volume(layer, volume)
+    end
+  end
+
+  if sound_definition.filename
+    or sound_definition.name
+    or sound_definition.volume
+    or sound_definition.min_volume
+    or sound_definition.max_volume
+  then
+    sound_definition.volume = volume
+    sound_definition.min_volume = nil
+    sound_definition.max_volume = nil
+  end
+end
+
+local function set_working_sound_volume(working_sound, volume)
+  if type(working_sound) ~= "table" then
+    return
+  end
+
+  set_sound_definition_volume(working_sound.sound, volume)
+  set_sound_definition_volume(working_sound.idle_sound, volume)
+  set_sound_definition_volume(working_sound.activate_sound, volume)
+  set_sound_definition_volume(working_sound.deactivate_sound, volume)
+
+  if working_sound.main_sounds then
+    for _, main_sound in pairs(working_sound.main_sounds) do
+      set_sound_definition_volume(main_sound.sound, volume)
+    end
+  end
+end
+
+local function set_beam_working_sound_volume(beam, volume)
+  if beam and beam.working_sound then
+    set_working_sound_volume(beam.working_sound, volume)
+  end
+
+  return beam
+end
+
+local function apply_tl_coil_beam_sound_properties(beam)
+  if not beam or type(beam.working_sound) ~= "table" then
+    return beam
+  end
+
+  local working_sound = beam.working_sound
+  working_sound.max_sounds_per_prototype = TESLA_COIL_BEAM_MAX_SOUNDS
+
+  if type(working_sound.sound) == "table" then
+    working_sound.sound.category = "weapon"
+  end
+
+  return beam
+end
+
+local function polish_tl_coil_beam_working_sound(beam, volume)
+  set_beam_working_sound_volume(beam, volume)
+  apply_tl_coil_beam_sound_properties(beam)
+
+  return beam
 end
 
 local function copy_beam(base_name, new_name, effect_id, zero_damage)
@@ -685,6 +763,7 @@ local function create_doctrine_prototypes()
       -- the fuller Tesla-turret beam voice once the exotic variant is active.
       basic_exotic_beam.working_sound = table.deepcopy(raw.beam["chain-tesla-turret-beam-start"].working_sound)
     end
+    polish_tl_coil_beam_working_sound(basic_exotic_beam, tl_settings.sound.basic_volume)
     append_unique(prototypes, basic_exotic_beam)
   end
 
@@ -800,6 +879,7 @@ local function create_doctrine_prototypes()
     append_effect(effects, make_damage_effect(tl_settings.turret.advanced.damage))
     append_effect(effects, make_script_effect(EFFECT_ID.tl_advanced_hit))
     advanced_legacy_beam.width = 0.75
+    polish_tl_coil_beam_working_sound(advanced_legacy_beam, tl_settings.sound.advanced_volume)
     append_unique(prototypes, advanced_legacy_beam)
   end
 
@@ -830,6 +910,7 @@ local function create_doctrine_prototypes()
     append_effect(effects, make_script_effect(EFFECT_ID.tl_advanced_hit))
     append_effect(effects, {type = "create-explosion", entity_name = DOCTRINE.advanced_overcharge_impact})
     advanced_exotic_beam.width = 0.75
+    polish_tl_coil_beam_working_sound(advanced_exotic_beam, tl_settings.sound.advanced_volume)
     append_unique(prototypes, advanced_exotic_beam)
   end
 
@@ -837,16 +918,22 @@ local function create_doctrine_prototypes()
   if basic_chain_beam_h2 then
     strip_beam_damage_effects(basic_chain_beam_h2)
     append_effect(get_beam_effects(basic_chain_beam_h2), make_script_effect(EFFECT_ID.tl_basic_chain))
+    polish_tl_coil_beam_working_sound(basic_chain_beam_h2, tl_settings.sound.basic_volume)
     append_unique(prototypes, basic_chain_beam_h2)
   end
 
-  append_unique(prototypes, copy_beam("chain-tesla-gun-beam-bounce", DOCTRINE.basic_chain_beam_h3, EFFECT_ID.tl_basic_chain_h3, true))
+  local basic_chain_beam_h3 = copy_beam("chain-tesla-gun-beam-bounce", DOCTRINE.basic_chain_beam_h3, EFFECT_ID.tl_basic_chain_h3, true)
+  if basic_chain_beam_h3 then
+    polish_tl_coil_beam_working_sound(basic_chain_beam_h3, tl_settings.sound.basic_volume)
+    append_unique(prototypes, basic_chain_beam_h3)
+  end
 
   local basic_chain_beam_exotic = copy_beam("chain-tesla-gun-beam-bounce", DOCTRINE.basic_chain_beam_exotic, EFFECT_ID.tl_basic_chain_exotic, true)
   if basic_chain_beam_exotic then
     strip_beam_damage_effects(basic_chain_beam_exotic)
     append_effect(get_beam_effects(basic_chain_beam_exotic), make_script_effect(EFFECT_ID.tl_basic_chain_exotic))
     basic_chain_beam_exotic.width = 0.30
+    polish_tl_coil_beam_working_sound(basic_chain_beam_exotic, tl_settings.sound.basic_volume)
     append_unique(prototypes, basic_chain_beam_exotic)
   end
 
@@ -854,16 +941,22 @@ local function create_doctrine_prototypes()
   if advanced_chain_beam_h2 then
     strip_beam_damage_effects(advanced_chain_beam_h2)
     append_effect(get_beam_effects(advanced_chain_beam_h2), make_script_effect(EFFECT_ID.tl_advanced_chain))
+    polish_tl_coil_beam_working_sound(advanced_chain_beam_h2, tl_settings.sound.advanced_volume)
     append_unique(prototypes, advanced_chain_beam_h2)
   end
 
-  append_unique(prototypes, copy_beam("chain-tesla-turret-beam-bounce", DOCTRINE.advanced_chain_beam_h3, EFFECT_ID.tl_advanced_chain_h3, true))
+  local advanced_chain_beam_h3 = copy_beam("chain-tesla-turret-beam-bounce", DOCTRINE.advanced_chain_beam_h3, EFFECT_ID.tl_advanced_chain_h3, true)
+  if advanced_chain_beam_h3 then
+    polish_tl_coil_beam_working_sound(advanced_chain_beam_h3, tl_settings.sound.advanced_volume)
+    append_unique(prototypes, advanced_chain_beam_h3)
+  end
 
   local advanced_chain_beam_exotic = copy_beam("chain-tesla-turret-beam-bounce", DOCTRINE.advanced_chain_beam_exotic, EFFECT_ID.tl_advanced_chain_exotic, true)
   if advanced_chain_beam_exotic then
     strip_beam_damage_effects(advanced_chain_beam_exotic)
     append_effect(get_beam_effects(advanced_chain_beam_exotic), make_script_effect(EFFECT_ID.tl_advanced_chain_exotic))
     advanced_chain_beam_exotic.width = 0.82
+    polish_tl_coil_beam_working_sound(advanced_chain_beam_exotic, tl_settings.sound.advanced_volume)
     append_unique(prototypes, advanced_chain_beam_exotic)
   end
 
@@ -871,6 +964,7 @@ local function create_doctrine_prototypes()
   if tank_chain_beam_h2 then
     strip_beam_damage_effects(tank_chain_beam_h2)
     append_effect(get_beam_effects(tank_chain_beam_h2), make_script_effect(EFFECT_ID.tl_tank_chain))
+    set_beam_working_sound_volume(tank_chain_beam_h2, DEFAULT_TESLA_COIL_SOUND_VOLUME)
     append_unique(prototypes, tank_chain_beam_h2)
   end
 

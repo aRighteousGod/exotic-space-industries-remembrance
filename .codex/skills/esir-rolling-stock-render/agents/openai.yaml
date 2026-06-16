@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Rolling Stock Render"
+  short_description: "Render ESIR train sprites with Spritter"
+  default_prompt: "Use $esir-rolling-stock-render to render ESIR train or rolling-stock bodies with rolling_stock_template.blend, pack normal and sloped frames with spritter.exe, and wire the generated metadata into Factorio prototypes."

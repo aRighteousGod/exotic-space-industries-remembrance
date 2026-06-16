@@ -3,7 +3,7 @@
 -- owns: crystal accumulator resonance runtime, shell swaps, mining override, and UI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: scheduled surface service plus dirty UI refresh
--- forwarded_events: check_global, get_pending_work_count, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_closed, on_gui_opened, on_player_alt_selected_area, on_player_left_game, on_player_mined_entity, on_repaired_entity, on_robot_mined_entity, on_selected_entity_changed, on_space_platform_changed_state, on_space_platform_mined_entity, rebuild_runtime_state, service_ui, update
+-- forwarded_events: check_global, get_pending_work_count, has_surface_tick_work, has_tick_work, has_ui_tick_work, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_closed, on_gui_opened, on_player_alt_selected_area, on_player_left_game, on_player_mined_entity, on_repaired_entity, on_robot_mined_entity, on_selected_entity_changed, on_space_platform_changed_state, on_space_platform_mined_entity, rebuild_runtime_state, service_ui, update, update_ui
 -- storage_roots: storage.ei.crystal_accumulator
 -- gui_ids: ei-crystal-accumulator-console, ei-crystal-accumulator-console-screen, ei-crystal-accumulator-strip
 -- remote_interfaces: none
@@ -871,6 +871,40 @@ end
 local function get_next_ui_due_tick()
     local raw_runtime = storage and storage.ei and storage.ei.crystal_accumulator or nil
     return math.max(0, tonumber(raw_runtime and raw_runtime.next_ui_due_tick) or 0)
+end
+
+local function raw_has_surface_tick_work(runtime, current_tick)
+    if not runtime then
+        return false
+    end
+
+    local surface_aggregate_schema = tonumber(runtime.surface_aggregate_schema) or 0
+    if surface_aggregate_schema < SURFACE_AGGREGATE_SCHEMA then
+        return true
+    end
+
+    if (tonumber(runtime.surface_queue_count) or 0) > 0 then
+        return true
+    end
+
+    local queue = runtime.surface_queue
+    if type(queue) == "table" and type(queue.queued) == "table" and next(queue.queued) ~= nil then
+        return true
+    end
+
+    local next_surface_due_tick = tonumber(runtime.next_surface_due_tick) or 0
+    if next_surface_due_tick == 0
+    and type(runtime.surface_due_buckets) == "table"
+    and next(runtime.surface_due_buckets) ~= nil then
+        return true
+    end
+
+    return next_surface_due_tick > 0 and current_tick >= next_surface_due_tick
+end
+
+local function raw_has_ui_tick_work(runtime, current_tick)
+    local next_ui_due_tick = tonumber(runtime and runtime.next_ui_due_tick) or 0
+    return next_ui_due_tick > 0 and current_tick >= next_ui_due_tick
 end
 
 local function clear_scratch_array(array)
@@ -3940,14 +3974,39 @@ function model.service_ui(event)
     recalculate_next_ui_due_tick(runtime)
 end
 
+function model.has_tick_work(event)
+    local runtime = storage and storage.ei and storage.ei.crystal_accumulator or nil
+    if type(runtime) ~= "table" then
+        return false
+    end
+
+    local current_tick = now_tick(event)
+    return raw_has_surface_tick_work(runtime, current_tick)
+        or raw_has_ui_tick_work(runtime, current_tick)
+end
+
+function model.has_surface_tick_work(event)
+    local runtime = storage and storage.ei and storage.ei.crystal_accumulator or nil
+    if type(runtime) ~= "table" then
+        return false
+    end
+
+    return raw_has_surface_tick_work(runtime, now_tick(event))
+end
+
+function model.has_ui_tick_work(event)
+    local runtime = storage and storage.ei and storage.ei.crystal_accumulator or nil
+    if type(runtime) ~= "table" then
+        return false
+    end
+
+    return raw_has_ui_tick_work(runtime, now_tick(event))
+end
+
 -- Public every-tick UI gate. control.lua should not need to know the crystal UI
 -- scheduler's next due tick; it only gives the module a chance to wake itself.
 function model.update_ui(event)
-    local current_tick = now_tick(event)
-    local next_ui_due_tick = get_next_ui_due_tick()
-    if next_ui_due_tick > 0 and current_tick >= next_ui_due_tick then
-        model.service_ui(event)
-    end
+    model.service_ui(event)
 end
 
 function model.get_next_ui_due_tick()

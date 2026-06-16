@@ -436,10 +436,12 @@ local function get_runtime_status_snapshot()
             delayed_items = ei_runtime_scheduler.delayed_item_count(ei_state.spawner_buckets),
         }),
         rocket_launch_pollution = capture_runtime_module_status("rocket-launch-pollution", ei_rocket_launch_pollution, {
+            visual_style = rocket_pollution.visual_style,
             pending_launches = ei_lib.getn(rocket_pollution.pending_launches_by_silo),
             pending_cleanup_buckets = ei_runtime_scheduler.delayed_bucket_count(rocket_pollution.pending_launch_cleanup_buckets),
             pending_cleanup_items = ei_runtime_scheduler.delayed_item_count(rocket_pollution.pending_launch_cleanup_buckets),
             launch_smoke = ei_lib.count_sequence(rocket_pollution.launch_smoke),
+            next_launch_smoke_tick = tonumber(rocket_pollution.next_launch_smoke_tick) or 0,
         }),
         fluid_safety = capture_runtime_module_status("fluid-safety", ei_fluid_safety, function()
             return {
@@ -571,7 +573,7 @@ local function format_runtime_status_summary(snapshot)
         "fueler(ready/delay)=" .. tostring(fueler.ready_targets or 0) .. "/" .. tostring(fueler.delayed_target_buckets or 0),
         "gaia(delay)=" .. tostring(gaia.damage_tick_buckets or 0),
         "alien(delay)=" .. tostring(alien_spawner.delayed_buckets or 0),
-        "rocket(pending/smoke)=" .. tostring(rocket.pending_launches or 0) .. "/" .. tostring(rocket.launch_smoke or 0),
+        "rocket(style/pending/plume/spiral)=" .. tostring(rocket.visual_style or "?") .. "/" .. tostring(rocket.pending_launches or 0) .. "/" .. tostring(rocket.plume_jobs or 0) .. "/" .. tostring(rocket.spiral_jobs or rocket.launch_smoke or 0),
         "fluid(t/u/d/s/cursor/mode)=" .. tostring(fluid.tracked_entities or 0) .. "/" .. tostring(fluid.urgent_queue or 0) .. "/" .. tostring(fluid.dirty_queue or 0) .. "/" .. tostring(fluid.scan_units or 0) .. "/" .. tostring(fluid.service_mode_cursor or 1) .. "/" .. tostring(fluid.service_mode_name or "idle"),
         "fluidfx(qh/ql|sh/sl)=" .. tostring(fluid.heavy_aftermath_queued or 0) .. "/" .. tostring(fluid.light_vent_queued or 0) .. "|" .. tostring(fluid.heavy_cooldown_suppressed or 0) .. "/" .. tostring(fluid.light_cooldown_suppressed or 0),
         "rupture(mode/a/p/d|ob/oi)=" .. tostring(ruptures.fidelity_mode or "?") .. "/" .. tostring(ruptures.active_jobs or 0) .. "/" .. tostring(ruptures.pending_rings or 0) .. "/" .. tostring(ruptures.ring_buckets or 0) .. "|" .. tostring(ruptures.overdue_bucket_count or 0) .. "/" .. tostring(ruptures.overdue_item_count or 0),

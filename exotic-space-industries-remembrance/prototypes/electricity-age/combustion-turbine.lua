@@ -82,7 +82,7 @@ data:extend({
         },
         burner = {
             type = "burner",
-            fuel_categories = {"chemical"},
+            fuel_categories = {"chemical", "ei-rocket-fuel"},
             effectivity = 3,
             fuel_inventory_size = 3,
             emissions_per_minute = {pollution = 120 },
@@ -160,7 +160,10 @@ if solid_turbine then
         result = "ei-combustion-turbine"
     }
 
-    fluid_turbine.effectivity = solid_turbine.burner and solid_turbine.burner.effectivity or 1
+    fluid_turbine.effectivity = 2.25
+    fluid_turbine.energy_source.emissions_per_minute = table.deepcopy(
+        solid_turbine.burner and solid_turbine.burner.emissions_per_minute or {pollution = 120}
+    )
     fluid_turbine.burns_fluid = true
     fluid_turbine.scale_fluid_usage = true
     fluid_turbine.fluid_usage_per_tick = 1
@@ -176,10 +179,17 @@ if solid_turbine then
         production_type = "input-output",
     }
     fluid_turbine.smoke = table.deepcopy(solid_turbine.burner and solid_turbine.burner.smoke or {})
+    -- Generator smoke runs much denser than the burner-generator source this copies from.
+    -- Preserve the plume shape while matching the solid-mode sprite load.
+    for _, smoke_source in pairs(fluid_turbine.smoke) do
+        if type(smoke_source.frequency) == "number" then
+            smoke_source.frequency = smoke_source.frequency * 0.01
+        end
+    end
     fluid_turbine.horizontal_animation = table.deepcopy(solid_turbine.animation)
     fluid_turbine.vertical_animation = table.deepcopy(solid_turbine.animation)
-    fluid_turbine.horizontal_animation.filename = ei_path.."graphics/entities/combustion-turbine-fluid_animation.png"
-    fluid_turbine.vertical_animation.filename = ei_path.."graphics/entities/combustion-turbine-fluid_animation.png"
+    fluid_turbine.horizontal_animation.filename = ei_graphics_entity_4_path.."combustion-turbine-fluid_animation.png"
+    fluid_turbine.vertical_animation.filename = ei_graphics_entity_4_path.."combustion-turbine-fluid_animation.png"
     fluid_turbine.burner = nil
     fluid_turbine.animation = nil
     fluid_turbine.idle_animation = nil

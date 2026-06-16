@@ -17,6 +17,21 @@ local ei_global = {}
 local BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT = false
 local FLUID_QUEUE_STORAGE_VERSION = 2
 
+local function get_next_delayed_bucket_tick(buckets)
+    local next_due_tick = 0
+
+    for due_tick, bucket in pairs(buckets or {}) do
+        local numeric_due_tick = tonumber(due_tick)
+        if numeric_due_tick and type(bucket) == "table" and next(bucket) ~= nil then
+            if next_due_tick <= 0 or numeric_due_tick < next_due_tick then
+                next_due_tick = numeric_due_tick
+            end
+        end
+    end
+
+    return next_due_tick
+end
+
 local function new_steam_train_runtime()
     -- Steam trains maintain a full tracked set plus a smaller active queue for frequent wheel updates.
     return {
@@ -53,6 +68,9 @@ local function new_beacon_overload_runtime()
         icon_audit_cursor = nil,
         release_cursor = nil,
         last_reason = nil,
+        rules_signature = nil,
+        rules_signature_version = nil,
+        max_counted_beacon_range = nil,
         debug = {
             enabled = false,
             auto_arm = BEACON_OVERLOAD_DEBUG_AUTO_ARM_DEFAULT,
@@ -393,20 +411,33 @@ function ei_global.init()
     storage.ei["rocket_launch_pollution"] = {}
     storage.ei["rocket_launch_pollution"].mode = "linear"
     storage.ei["rocket_launch_pollution"].cap = 10000
+    storage.ei["rocket_launch_pollution"].visual_style = "hybrid"
     storage.ei["rocket_launch_pollution"].launch_smoke = {}
+    storage.ei["rocket_launch_pollution"].launch_smoke_count = 0
+    storage.ei["rocket_launch_pollution"].next_launch_smoke_tick = 0
     storage.ei["rocket_launch_pollution"].pending_launches_by_silo = {}
     storage.ei["rocket_launch_pollution"].pending_launch_cleanup_buckets = {}
+    storage.ei["rocket_launch_pollution"].pending_cleanup_bucket_count = 0
+    storage.ei["rocket_launch_pollution"].pending_cleanup_item_count = 0
+    storage.ei["rocket_launch_pollution"].next_pending_cleanup_tick = 0
+    storage.ei["rocket_launch_pollution"].legacy_liftoff_work = false
     storage.ei.fulgora_day_length_variation = {}
     storage.ei.enemy_difficulty = "Tempered"
     storage.ei.nauvis_pressure = {}
     storage.ei.nauvis_pressure.milestone = 0
     storage.ei.nauvis_pressure.last_run_tick = 0
-    --depreciated by NSB
+    storage.ei.nauvis_pressure.profile = "Extended"
+    storage.ei.nauvis_pressure.phase = "pre_steam"
+    storage.ei.nauvis_pressure.pollution_factor_base = nil
+    storage.ei.nauvis_pressure.pollution_factor_last_applied = nil
+    storage.ei.nauvis_pressure.pollution_factor_multiplier = nil
+    --deprecated by NSB
     --storage.ei.spaced_updates = 0
     storage.ei.fluid_runtime = new_fluid_runtime()
     storage.ei.fluid_entity = {}
     storage.ei.fluid_entity_count = 0
     storage.ei.arrival_waves = {}
+    storage.ei.arrival_waves_next_due_tick = 0
     storage.ei.pending_arrivals = {}
     storage.ei.alien = {}
     -- Initialize the indexed steam train runtime shape up front so new saves and migrated saves agree.
@@ -444,6 +475,9 @@ function ei_global.check_init(event)
     if not storage.ei.arrival_waves then
         storage.ei.arrival_waves = {}
     end
+    if storage.ei.arrival_waves_next_due_tick == nil then
+        storage.ei.arrival_waves_next_due_tick = 0
+    end
     if not storage.ei.pending_arrivals then
         storage.ei.pending_arrivals = {}
     end
@@ -463,8 +497,18 @@ function ei_global.check_init(event)
         storage.ei["rocket_launch_pollution"].mode = "linear"
         storage.ei["rocket_launch_pollution"].cap = 10000
     end
+    if storage.ei.rocket_launch_pollution.visual_style ~= "hybrid"
+        and storage.ei.rocket_launch_pollution.visual_style ~= "plume"
+        and storage.ei.rocket_launch_pollution.visual_style ~= "cinematic"
+        and storage.ei.rocket_launch_pollution.visual_style ~= "spiral" then
+        storage.ei.rocket_launch_pollution.visual_style = "hybrid"
+    end
     if not storage.ei.rocket_launch_pollution.launch_smoke then
         storage.ei.rocket_launch_pollution.launch_smoke = {}
+    end
+    storage.ei.rocket_launch_pollution.launch_smoke_count = #storage.ei.rocket_launch_pollution.launch_smoke
+    if storage.ei.rocket_launch_pollution.next_launch_smoke_tick == nil then
+        storage.ei.rocket_launch_pollution.next_launch_smoke_tick = 0
     end
     if not storage.ei.rocket_launch_pollution.pending_launches_by_silo then
         storage.ei.rocket_launch_pollution.pending_launches_by_silo = {}
@@ -472,6 +516,27 @@ function ei_global.check_init(event)
     if not storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets then
         storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets = {}
     end
+    if storage.ei.rocket_launch_pollution.pending_cleanup_bucket_count == nil then
+        storage.ei.rocket_launch_pollution.pending_cleanup_bucket_count =
+            ei_runtime_scheduler.delayed_bucket_count(storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets)
+    end
+    if storage.ei.rocket_launch_pollution.pending_cleanup_item_count == nil then
+        storage.ei.rocket_launch_pollution.pending_cleanup_item_count =
+            ei_runtime_scheduler.delayed_item_count(storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets)
+    end
+    if storage.ei.rocket_launch_pollution.next_pending_cleanup_tick == nil then
+        storage.ei.rocket_launch_pollution.next_pending_cleanup_tick =
+            get_next_delayed_bucket_tick(storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets)
+    elseif (tonumber(storage.ei.rocket_launch_pollution.pending_cleanup_item_count) or 0) > 0
+        and (tonumber(storage.ei.rocket_launch_pollution.next_pending_cleanup_tick) or 0) <= 0 then
+        storage.ei.rocket_launch_pollution.next_pending_cleanup_tick =
+            get_next_delayed_bucket_tick(storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets)
+    end
+    storage.ei.rocket_launch_pollution.legacy_liftoff_work =
+        (type(storage.ei.rocket_launch_pollution.liftoff_queue) == "table"
+            and #storage.ei.rocket_launch_pollution.liftoff_queue > 0)
+        or (type(storage.ei.rocket_launch_pollution.liftoff_buckets) == "table"
+            and next(storage.ei.rocket_launch_pollution.liftoff_buckets) ~= nil)
     if not storage.ei.fulgora_day_length_variation then
         storage.ei.fulgora_day_length_variation = {}
     end
@@ -484,6 +549,12 @@ function ei_global.check_init(event)
     end
     if not storage.ei.nauvis_pressure.last_run_tick then
         storage.ei.nauvis_pressure.last_run_tick = 0
+    end
+    if storage.ei.nauvis_pressure.profile ~= "Classic" and storage.ei.nauvis_pressure.profile ~= "Extended" then
+        storage.ei.nauvis_pressure.profile = "Extended"
+    end
+    if not storage.ei.nauvis_pressure.phase then
+        storage.ei.nauvis_pressure.phase = "pre_steam"
     end
     ensure_tech_scaling_runtime()
     ensure_scripted_research_burst_runtime()
@@ -528,6 +599,17 @@ function ei_global.check_init(event)
     end
     if storage.ei.beacon_overload.last_reason == nil then
         storage.ei.beacon_overload.last_reason = nil
+    end
+    if storage.ei.beacon_overload.rules_signature ~= nil then
+        storage.ei.beacon_overload.rules_signature = tostring(storage.ei.beacon_overload.rules_signature)
+    end
+    if storage.ei.beacon_overload.rules_signature_version ~= nil then
+        local rules_signature_version = tonumber(storage.ei.beacon_overload.rules_signature_version)
+        storage.ei.beacon_overload.rules_signature_version = rules_signature_version and math.floor(rules_signature_version) or nil
+    end
+    if storage.ei.beacon_overload.max_counted_beacon_range ~= nil then
+        local max_counted_beacon_range = tonumber(storage.ei.beacon_overload.max_counted_beacon_range)
+        storage.ei.beacon_overload.max_counted_beacon_range = max_counted_beacon_range and math.max(0, max_counted_beacon_range) or nil
     end
     storage.ei.beacon_overload.surface_queue = ei_runtime_scheduler.ensure_queue(
         type(storage.ei.beacon_overload.surface_queue) == "table" and storage.ei.beacon_overload.surface_queue or nil

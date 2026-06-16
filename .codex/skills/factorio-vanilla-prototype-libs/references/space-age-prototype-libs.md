@@ -2,6 +2,8 @@
 
 Survey source: `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\space-age\prototypes` from Factorio 2.0.76.
 
+This reference tracks installed game files. Do not update its survey version from the hosted Lua API docs alone.
+
 Space Age has no `data/space-age/lualib` directory. Treat these as data/prototype-stage modules supplied by the `space-age` mod, and only import them when ESIR's dependency surface makes Space Age available.
 
 ## Common ESIR Imports

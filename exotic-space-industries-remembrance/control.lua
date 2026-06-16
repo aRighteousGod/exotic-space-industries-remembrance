@@ -86,6 +86,9 @@ local ei_sawblade_turret = require("scripts/control/sawblade-turret")
 local ei_gaian_saucer_wake = require("scripts/control/gaian-saucer-wake")
 local ei_emerald_apocalypse_hover_tank = require("scripts/control/emerald-apocalypse-hover-tank")
 local ei_emerald_apocalypse_hover_tank_drones = require("scripts/control/emerald-apocalypse-orbital-shards")
+local ei_surveyor_scope = require("scripts/control/surveyor-scope")
+local ei_hemocrystal_wall = require("scripts/control/hemocrystal-wall")
+local ei_randomized_tree_growth = require("scripts/control/randomized-tree-growth")
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
     [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,
@@ -519,6 +522,9 @@ script.on_init(function(event)
     ei_global.init()
     ei_global.check_init(event)
     clear_scripted_research_burst_state()
+    ei_surveyor_scope.check_global()
+    ei_hemocrystal_wall.check_global()
+    ei_randomized_tree_growth.check_global()
     ei_beacon_overload.check_global()
     ei_flammable_rupture_scheduler.check_global()
     ei_vulcanus_fumaroles.check_global()
@@ -596,6 +602,10 @@ script.on_event(defines.events.on_entity_cloned, function(e)
     on_cloned_entity(e)
 end)
 
+script.on_event(defines.events.on_tower_planted_seed, function(e)
+    ei_randomized_tree_growth.on_tower_planted_seed(e)
+end)
+
 script.on_event({
     defines.events.on_entity_died,
 	defines.events.on_pre_player_mined_item,
@@ -637,6 +647,7 @@ script.on_event(defines.events.on_entity_damaged, function(event)
     -- restore the original recursive helper behavior.
     ei_teslas_legacy.on_entity_damaged(event)
     ei_emerald_apocalypse_hover_tank.on_entity_damaged(event)
+    ei_hemocrystal_wall.on_entity_damaged(event)
 end)
 
 script.on_event(defines.events.on_train_changed_state, function(e)
@@ -720,6 +731,12 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
         ei_auric_inoculation_vat.on_player_cursor_stack_changed(e)
     end
 end)
+
+if defines.events.on_player_gun_inventory_changed then
+    script.on_event(defines.events.on_player_gun_inventory_changed, function(e)
+        ei_surveyor_scope.on_player_gun_inventory_changed(e)
+    end)
+end
 
 script.on_event(defines.events.on_player_changed_position, function(e)
     if ei_auric_inoculation_vat.on_player_changed_position
@@ -1113,6 +1130,7 @@ script.on_event(defines.events.on_player_left_game, function(event)
     ei_crystal_accumulator.on_player_left_game(event.player_index)
     ei_auric_inoculation_vat.on_player_left_game(event.player_index, event)
     ei_emerald_apocalypse_hover_tank.on_player_left_game(event)
+    ei_surveyor_scope.on_player_left_game(event)
 end)
 
 script.on_event(defines.events.on_player_removed, function(event)
@@ -1121,6 +1139,11 @@ script.on_event(defines.events.on_player_removed, function(event)
     ei_combustion_turbine.on_player_left_game(event.player_index)
     ei_auric_inoculation_vat.on_player_left_game(event.player_index, event)
     ei_emerald_apocalypse_hover_tank.on_player_left_game(event)
+    ei_surveyor_scope.on_player_removed(event)
+end)
+
+script.on_event(defines.events.on_player_died, function(event)
+    ei_surveyor_scope.on_player_died(event)
 end)
 
 if defines.events.on_player_driving_changed_state then
@@ -1148,6 +1171,9 @@ script.on_configuration_changed(function(e)
     register_exotic_industries_qc_remote()
     ei_global.check_init(e)
     clear_scripted_research_burst_state()
+    ei_surveyor_scope.check_global()
+    ei_hemocrystal_wall.check_global()
+    ei_randomized_tree_growth.check_global()
 
     local mod_changes_present = next(e.mod_changes or {}) ~= nil
     local startup_settings_changed = e.mod_startup_settings_changed
@@ -1162,9 +1188,7 @@ script.on_configuration_changed(function(e)
         ei_sawblade_turret.check_global()
         ei_combustion_turbine.check_global()
         ei_emerald_apocalypse_hover_tank.check_global(configuration_tick)
-        if ei_fluid_safety and ei_fluid_safety.on_configuration_changed then
-            ei_fluid_safety.on_configuration_changed(e)
-        end
+        ei_fluid_safety.on_configuration_changed(e)
         ei_echo_codex.handle_global_settings(e)
         ei_nauvis_pressure_grace.on_configuration_changed(e)
     end
@@ -1184,6 +1208,8 @@ script.on_configuration_changed(function(e)
     ei_sawblade_turret.on_configuration_changed(e)
     ei_gaian_saucer_wake.on_configuration_changed(e)
     ei_emerald_apocalypse_hover_tank.on_configuration_changed(configuration_tick)
+    ei_surveyor_scope.on_configuration_changed(e)
+    ei_hemocrystal_wall.on_configuration_changed(e)
 
     -- Beacon overload keeps its own runtime repair path so any configuration change can
     -- re-seed its state and queue a refresh when prototype or startup settings moved.
@@ -1276,6 +1302,7 @@ script.on_event(
         ei_fueler.on_player_ready(event.player_index)
         em_trains_gui.on_player_ready(event.player_index)
         ei_auric_inoculation_vat.on_player_ready(event.player_index, event)
+        ei_surveyor_scope.on_player_ready(event.player_index)
     end
 )
 
@@ -1288,6 +1315,7 @@ script.on_event(
         -- Fuelwarden only needs a focused resync here: controller swaps can remove or restore
         -- the character entity, and armor changes can add or remove burner-backed equipment grids.
         ei_fueler.on_player_ready(event.player_index)
+        ei_surveyor_scope.on_player_controller_changed(event)
     end
 )
 
@@ -1300,6 +1328,7 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
     for _, player in pairs(game.connected_players) do
         em_trains_gui.on_player_ready(player.index)
         ei_auric_inoculation_vat.on_player_ready(player.index, _event)
+        ei_surveyor_scope.on_player_ready(player.index)
     end
 end)
 
@@ -1339,24 +1368,28 @@ function updater(event)
    if ei_update_step < 7 then -- Reduces the average number of `if` checks
        if ei_update_step == 1 then
            -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
-           -- It ensures storage still has the expected tables before later steps run.
+           -- Storage repairs stay unconditional; timer-driven work below is due-guarded.
            ei_global.check_init(event)
            ei_vulcanus_fumaroles.check_global()
-           ei_nauvis_pressure_grace.updater(event)
-           ei_camp_fire.updater(event)
-           ei_gaia.reforge_on_tick(event)
+           if ei_nauvis_pressure_grace.has_tick_work(event) then
+               ei_nauvis_pressure_grace.updater(event)
+           end
+           if ei_camp_fire.has_tick_work(event) then
+               ei_camp_fire.updater(event)
+           end
+           if ei_gaia.has_reforge_tick_work(event) then
+               ei_gaia.reforge_on_tick(event)
+           end
 
         elseif ei_update_step == 2 then
             -- Step 2 services the invalid fluid pipe runtime.
             -- The current runtime strongly favors urgent wakeups, but still rotates
             -- single-slot budgets and reserves a little multi-slot work for dirty-segment
             -- repair plus background scans so they cannot starve under sustained churn.
-            if ei_fluid_safety and ei_fluid_safety.get_fluid_work_count and ei_fluid_safety.service_fluid_runtime then
-                local fluid_work_count = ei_fluid_safety.get_fluid_work_count()
-                if fluid_work_count > 0 then
-                    updates_needed = math.max(1, math.min(math.ceil(fluid_work_count / divisor), ei_maxEntityUpdates))
-                    ei_fluid_safety.service_fluid_runtime(updates_needed, event)
-                end
+            local fluid_work_count = ei_fluid_safety.get_fluid_work_count()
+            if fluid_work_count > 0 then
+                updates_needed = math.max(1, math.min(math.ceil(fluid_work_count / divisor), ei_maxEntityUpdates))
+                ei_fluid_safety.service_fluid_runtime(updates_needed, event)
             end
 
        elseif ei_update_step == 3 then
@@ -1371,13 +1404,13 @@ function updater(event)
 
        elseif ei_update_step == 4 then
            -- Step 4 services matter stabilizers and their nearby volatile machines.
-           local matter_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
-           if matter_machine_count > 0 then
-               updates_needed = math.max(1,math.min(math.ceil(matter_machine_count / divisor), ei_maxEntityUpdates))
+           local matter_pending_work_count = ei_matter_stabilizer.get_pending_work_count(event)
+           if matter_pending_work_count > 0 then
+               updates_needed = math.max(1,math.min(math.ceil(matter_pending_work_count / divisor), ei_maxEntityUpdates))
                for i = 1, updates_needed do
-                  local live_machine_count = storage.ei and storage.ei.matter_runtime and storage.ei.matter_runtime.machine_count or 0
-                  if live_machine_count <= 0
-                  or math.max(1,math.min(math.ceil(live_machine_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                  local current_matter_pending_work_count = ei_matter_stabilizer.get_pending_work_count(event)
+                  if current_matter_pending_work_count <= 0
+                  or math.max(1,math.min(math.ceil(current_matter_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                       goto skip
                       end
                   if not ei_matter_stabilizer.update(event) then
@@ -1387,27 +1420,11 @@ function updater(event)
            end
         elseif ei_update_step == 5 then
            -- Step 5 mirrors logistic/platform state into orbital scanners only.
-           local pending_work_count = 0
-           local get_scanner_pending_work_count = nil
-           local get_scanner_bank_count = nil
-           if orbital_combinator then
-               get_scanner_pending_work_count = orbital_combinator.get_pending_work_count
-               get_scanner_bank_count = orbital_combinator.get_bank_count
-               if get_scanner_pending_work_count then
-                   pending_work_count = get_scanner_pending_work_count(event) or 0
-               elseif get_scanner_bank_count then
-                   pending_work_count = get_scanner_bank_count() or 0
-               end
-           end
+           local pending_work_count = orbital_combinator.get_pending_work_count(event)
            if pending_work_count > 0 then
                 updates_needed = math.max(1,math.min(math.ceil(pending_work_count / divisor), ei_maxEntityUpdates))
                 for i = 1, updates_needed do
-                    local current_pending_work_count = 0
-                    if get_scanner_pending_work_count then
-                        current_pending_work_count = get_scanner_pending_work_count(event) or 0
-                    elseif get_scanner_bank_count then
-                        current_pending_work_count = get_scanner_bank_count() or 0
-                    end
+                    local current_pending_work_count = orbital_combinator.get_pending_work_count(event)
                     if current_pending_work_count == 0
                     or math.max(1,math.min(math.ceil(current_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                         goto skip
@@ -1419,9 +1436,7 @@ function updater(event)
             end
        elseif ei_update_step == 6 then
            -- Step 6 advances the Fueler target scheduler against its ready-target workload.
-           local fueler_pending_work_count = ei_fueler.get_pending_work_count
-               and ei_fueler.get_pending_work_count(event)
-               or ei_fueler.get_ready_target_count()
+           local fueler_pending_work_count = ei_fueler.get_pending_work_count(event)
            if fueler_pending_work_count > 0 then
                updates_needed = math.max(1,math.min(math.ceil(fueler_pending_work_count / divisor), ei_maxEntityUpdates))
               for i = 1, updates_needed do
@@ -1436,13 +1451,13 @@ function updater(event)
 
        if ei_update_step == 7 then
            -- Step 7 advances gate state, transport, and receiver logic.
-           local gate_count = storage.ei and storage.ei.gate and storage.ei.gate.gate and ei_lib.getn(storage.ei.gate.gate) or 0
-           if gate_count > 0 then
-                updates_needed = math.max(1,math.min(math.ceil(gate_count / divisor), ei_maxEntityUpdates))
+           local gate_pending_work_count = ei_gate.get_pending_work_count(event)
+           if gate_pending_work_count > 0 then
+                updates_needed = math.max(1,math.min(math.ceil(gate_pending_work_count / divisor), ei_maxEntityUpdates))
               for i = 1, updates_needed do
-                  local live_gate_count = storage.ei and storage.ei.gate and storage.ei.gate.gate and ei_lib.getn(storage.ei.gate.gate) or 0
-                  if live_gate_count <= 0
-                  or math.max(1,math.min(math.ceil(live_gate_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
+                  local current_gate_pending_work_count = ei_gate.get_pending_work_count(event)
+                  if current_gate_pending_work_count <= 0
+                  or math.max(1,math.min(math.ceil(current_gate_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                       goto skip
                       end
                   if not ei_gate.update(event) then -- only try once if nil ie reach end of breakpoints or no entities to update
@@ -1454,25 +1469,18 @@ function updater(event)
        elseif ei_update_step == 8 then
            -- Step 8 services EM rolling stock separately from chargers so both can be
            -- budgeted independently.
-           em_trains.check_global()
-
-           updates_needed = 0
-           if storage.ei_emt and storage.ei_emt.trains and ei_lib.getn(storage.ei_emt.trains) then
-                updates_needed = math.max(1,math.min(math.ceil(ei_lib.getn(storage.ei_emt.trains) / divisor), ei_maxEntityUpdates))
-           end
-           if updates_needed > 0 then
+           local train_pending_work_count = em_trains.get_train_pending_work_count(event)
+           if train_pending_work_count > 0 then
+               updates_needed = math.max(1,math.min(math.ceil(train_pending_work_count / divisor), ei_maxEntityUpdates))
                if not em_trains.train_updater(updates_needed, event.tick) then
                    goto skip
                end
            end
        elseif ei_update_step == 9 then
            -- Step 9 handles EM chargers after train updates have had a chance to run.
-           em_trains.check_global()
-           updates_needed = 0
-           if storage.ei_emt and storage.ei_emt.chargers and  ei_lib.getn(storage.ei_emt.chargers) then
-                updates_needed = math.max(1,math.min(math.ceil( ei_lib.getn(storage.ei_emt.chargers) / divisor), ei_maxEntityUpdates))
-           end
-           if updates_needed > 0 then
+           local charger_pending_work_count = em_trains.get_charger_pending_work_count(event)
+           if charger_pending_work_count > 0 then
+               updates_needed = math.max(1,math.min(math.ceil(charger_pending_work_count / divisor), ei_maxEntityUpdates))
                if not em_trains.charger_updater(updates_needed, event.tick) then
                    goto skip
                end
@@ -1480,12 +1488,11 @@ function updater(event)
        elseif ei_update_step == 10 then
            -- Step 10 gives the orbital logistics cohort its own budget so scanner
            -- banks and cohort arbitration no longer spike on the same scheduled tick.
-           local get_cohort_pending_work_count = orbital_logistics and orbital_logistics.get_pending_work_count or nil
-           local cohort_pending_work_count = get_cohort_pending_work_count and get_cohort_pending_work_count(event) or 0
+           local cohort_pending_work_count = orbital_logistics.get_pending_work_count(event)
            if cohort_pending_work_count > 0 then
                updates_needed = math.max(1, math.min(math.ceil(cohort_pending_work_count / divisor), ei_maxEntityUpdates))
                for i = 1, updates_needed do
-                   local current_cohort_pending_work_count = get_cohort_pending_work_count and get_cohort_pending_work_count(event) or 0
+                   local current_cohort_pending_work_count = orbital_logistics.get_pending_work_count(event)
                    if current_cohort_pending_work_count == 0
                    or math.max(1, math.min(math.ceil(current_cohort_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                        goto skip
@@ -1497,11 +1504,11 @@ function updater(event)
            end
       elseif ei_update_step == 11 then
           -- Step 11 services overheated railguns only. Healthy railguns stay fully event-driven.
-          local railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
+          local railgun_pending_work_count = ei_railgun_cooling.get_pending_work_count(event)
           if railgun_pending_work_count > 0 then
               updates_needed = math.max(1, math.min(math.ceil(railgun_pending_work_count / divisor), ei_maxEntityUpdates))
                for i = 1, updates_needed do
-                   local current_railgun_pending_work_count = ei_railgun_cooling and ei_railgun_cooling.get_pending_work_count and ei_railgun_cooling.get_pending_work_count(event) or 0
+                   local current_railgun_pending_work_count = ei_railgun_cooling.get_pending_work_count(event)
                    if current_railgun_pending_work_count == 0
                    or math.max(1, math.min(math.ceil(current_railgun_pending_work_count / divisor), ei_maxEntityUpdates)) ~= updates_needed then
                        goto skip
@@ -1513,7 +1520,10 @@ function updater(event)
           end
       elseif ei_update_step == 12 then
           -- Step 12 services crystal accumulator resonance by surface.
-          local crystal_pending_work_count = ei_crystal_accumulator and ei_crystal_accumulator.get_pending_work_count and ei_crystal_accumulator.get_pending_work_count(event) or 0
+          local crystal_has_surface_work = ei_crystal_accumulator.has_surface_tick_work(event)
+          local crystal_pending_work_count = crystal_has_surface_work
+              and ei_crystal_accumulator.get_pending_work_count(event)
+              or 0
           if crystal_pending_work_count > 0 then
               updates_needed = math.max(1, math.min(math.ceil(crystal_pending_work_count / divisor), ei_maxEntityUpdates))
               local current_crystal_pending_work_count = crystal_pending_work_count
@@ -1531,11 +1541,8 @@ function updater(event)
           end
       elseif ei_update_step == 13 then
           -- Step 13 services Singularity Lance's lossy aim-trace visuals; direct alpha is script-owned.
-          local singularity_lance_has_work = ei_singularity_lance
-              and ei_singularity_lance.has_tick_work
-              and ei_singularity_lance.has_tick_work(event)
+          local singularity_lance_has_work = ei_singularity_lance.has_tick_work(event)
           local singularity_lance_pending_work_count = singularity_lance_has_work
-              and ei_singularity_lance.get_pending_work_count
               and ei_singularity_lance.get_pending_work_count(event)
               or 0
           if singularity_lance_has_work then
@@ -1546,16 +1553,14 @@ function updater(event)
           end
       elseif ei_update_step == 14 then
           -- Step 14 polls fusion circuit input and refreshes hidden reactor telemetry.
-          local fusion_pending_work_count = ei_fusion_reactor and ei_fusion_reactor.get_pending_work_count and ei_fusion_reactor.get_pending_work_count(event) or 0
+          local fusion_pending_work_count = ei_fusion_reactor.get_pending_work_count(event)
           if fusion_pending_work_count > 0 then
               updates_needed = math.max(1, math.min(math.ceil(fusion_pending_work_count / divisor), ei_maxEntityUpdates))
               ei_fusion_reactor.update(updates_needed, event)
           end
       elseif ei_update_step == 15 then
           -- Step 15 services Emerald Apocalypse charge completions, cold shard targeting, hover drift, and shield pulse cleanup.
-          local emerald_has_work = ei_emerald_apocalypse_hover_tank
-              and ei_emerald_apocalypse_hover_tank.has_tick_work
-              and ei_emerald_apocalypse_hover_tank.has_tick_work(event)
+          local emerald_has_work = ei_emerald_apocalypse_hover_tank.has_tick_work(event)
           if emerald_has_work then
               ei_emerald_apocalypse_hover_tank.update(event)
               emerald_apocalypse_serviced_this_tick = true
@@ -1568,8 +1573,6 @@ function updater(event)
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.
     if not singularity_lance_serviced_this_tick
-    and ei_singularity_lance
-    and ei_singularity_lance.has_tick_work
     and ei_singularity_lance.has_tick_work(event) then
         ei_singularity_lance.update(1, event)
     end
@@ -1578,65 +1581,70 @@ function updater(event)
     -- charge completions, hover drift, shield cleanup,
     -- and shard target scans should run when due even if Step 15 is not this tick.
     if not emerald_apocalypse_serviced_this_tick
-    and ei_emerald_apocalypse_hover_tank
-    and ei_emerald_apocalypse_hover_tank.has_tick_work
     and ei_emerald_apocalypse_hover_tank.has_tick_work(event) then
         ei_emerald_apocalypse_hover_tank.update(event)
     end
 
     -- Hot Emerald presentation is event-gated: tank hover emitters only stay hot
     -- while occupied, while shard motion/rendering keeps its every-tick cadence.
-    if ei_emerald_apocalypse_hover_tank
-    and ei_emerald_apocalypse_hover_tank.has_hot_tick_work
-    and ei_emerald_apocalypse_hover_tank.has_hot_tick_work(event)
-    and ei_emerald_apocalypse_hover_tank.hot_update then
+    if ei_emerald_apocalypse_hover_tank.has_hot_tick_work(event) then
         ei_emerald_apocalypse_hover_tank.hot_update(event)
     end
 
-    if ei_emerald_apocalypse_hover_tank_drones
-    and ei_emerald_apocalypse_hover_tank_drones.has_tick_work
-    and ei_emerald_apocalypse_hover_tank_drones.has_tick_work(event)
-    and ei_emerald_apocalypse_hover_tank_drones.updater then
+    if ei_emerald_apocalypse_hover_tank_drones.has_tick_work(event) then
         ei_emerald_apocalypse_hover_tank_drones.updater(event)
     end
 
-    if em_trains_gui.has_tick_work and em_trains_gui.has_tick_work(event) then
+    if em_trains_gui.has_tick_work(event) then
         em_trains_gui.updater()
     end
-    if ei_alien_spawner.has_tick_work and ei_alien_spawner.has_tick_work(event) then
+    if ei_alien_spawner.has_tick_work(event) then
         ei_alien_spawner.update(event)
     end
-    if ei_gaia.has_tick_work and ei_gaia.has_tick_work(event) then
+    if ei_gaia.has_damage_tick_work(event) then
         ei_gaia.update(event)
     end
-    if ei_induction_matrix.has_tick_work and ei_induction_matrix.has_tick_work(event) then
+    if ei_induction_matrix.has_tick_work(event) then
         ei_induction_matrix.update(event)
     end
-    ei_crystal_accumulator.update_ui(event)
-    ei_auric_inoculation_vat.updater(ei_maxEntityUpdates, event)
-    if ei_black_hole.has_tick_work and ei_black_hole.has_tick_work(event) then
+    if ei_crystal_accumulator.has_ui_tick_work(event) then
+        ei_crystal_accumulator.update_ui(event)
+    end
+    if ei_auric_inoculation_vat.has_tick_work(event) then
+        ei_auric_inoculation_vat.updater(ei_maxEntityUpdates, event)
+    end
+    if ei_black_hole.has_tick_work(event) then
         ei_black_hole.update(event)
     end
-    if ei_steam_train.has_tick_work and ei_steam_train.has_tick_work(event) then
+    if ei_steam_train.has_tick_work(event) then
         ei_steam_train.updater(event)
     end
-    ei_echo_codex.arrival_waves(event)
-    if ei_teslas_legacy.has_tick_work and ei_teslas_legacy.has_tick_work(event) then
+    if ei_echo_codex.has_tick_work(event) then
+        ei_echo_codex.arrival_waves(event)
+    end
+    if ei_teslas_legacy.has_tick_work(event) then
         ei_teslas_legacy.updater(event)
     end
-    if ei_beacon_overload.has_tick_work and ei_beacon_overload.has_tick_work(event) then
+    if ei_beacon_overload.has_tick_work(event) then
         ei_beacon_overload.updater(event)
     end
-    if ei_gaian_saucer_wake.has_tick_work and ei_gaian_saucer_wake.has_tick_work(event) then
+    if ei_gaian_saucer_wake.has_tick_work(event) then
         ei_gaian_saucer_wake.updater(event)
     end
-    ei_rocket_launch_pollution.updater(event)
-    ei_flammable_rupture_scheduler.updater(event)
-    if ei_fulgora_day_length_variation.has_tick_work and ei_fulgora_day_length_variation.has_tick_work(event) then
+    if ei_rocket_launch_pollution.has_tick_work(event) then
+        ei_rocket_launch_pollution.updater(event)
+    end
+    if ei_flammable_rupture_scheduler.has_tick_work(event) then
+        ei_flammable_rupture_scheduler.updater(event)
+    end
+    if ei_fulgora_day_length_variation.has_tick_work(event) then
         ei_fulgora_day_length_variation.updater(event)
     end
-    if ei_vulcanus_fumaroles.has_tick_work and ei_vulcanus_fumaroles.has_tick_work(event) then
+    if ei_vulcanus_fumaroles.has_tick_work(event) then
         ei_vulcanus_fumaroles.updater(event)
+    end
+    if ei_hemocrystal_wall.has_tick_work(event) then
+        ei_hemocrystal_wall.updater(event)
     end
     --[[
     leave this disabled
@@ -1715,7 +1723,7 @@ function on_built_entity(e)
         local startsteam = {
             name="steam",
             amount=3,
-            temperature=150
+            temperature=165
         }
         local multi = 1
         if e.entity.quality and e.entity.quality.level then
@@ -1832,6 +1840,8 @@ function on_destroyed_entity(e)
     ei_sawblade_turret.on_destroyed_entity(e)
     ei_gaian_saucer_wake.on_destroyed_entity(e)
     ei_emerald_apocalypse_hover_tank.on_destroyed_entity(e)
+    ei_hemocrystal_wall.on_destroyed_entity(e)
+    ei_randomized_tree_growth.on_destroyed_entity(e)
     -- Steam locomotives own extra helper entities that should disappear immediately on teardown.
     ei_steam_train.on_destroyed_entity(e["entity"])
 end

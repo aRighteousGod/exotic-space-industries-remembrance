@@ -45,12 +45,15 @@ This contains:
 - `exotic-space-industries-remembrance-graphics-1`
 - `exotic-space-industries-remembrance-graphics-2`
 - `exotic-space-industries-remembrance-graphics-3`
+- `exotic-space-industries-remembrance-graphics-4`
 - `exotic-space-industries-remembrance-soundtrack-1`
 - `exotic-space-industries-remembrance-soundtrack-2`
 
+Graphics 4 carries the remaining main-pack graphics plus shared non-music sound effects that were split out of the gameplay pack.
+
 Practical rule: gameplay references may depend on these sibling packs existing at run/package time, but the source of truth for behavior stays in the main pack.
 
-Legacy root deploy scripts (`process.ps1` and the five sibling `*_process.ps1` scripts) still package and move ZIPs directly into `%APPDATA%\Factorio\mods`; prefer `scripts\invoke-esir-dev.ps1 -Task pack-dryrun` for non-destructive validation and reserve `-Task pack-deploy` for intentional local deployment.
+Legacy root deploy scripts (`process.ps1` and the six sibling `*_process.ps1` scripts) still package and move ZIPs directly into `%APPDATA%\Factorio\mods`; prefer `scripts\invoke-esir-dev.ps1 -Task pack-dryrun` for non-destructive validation and reserve `-Task pack-deploy` for intentional local deployment.
 
 ## 3. Source Of Truth Rules
 

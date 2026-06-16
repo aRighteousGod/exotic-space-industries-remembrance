@@ -3,6 +3,7 @@ ei_lib = require("lib/lib")
 local singularity_lance_config = require("lib/singularity-lance-config")
 local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
 local emerald_hover_tank_config = require("lib/emerald-apocalypse-hover-tank-config")
+local arc_furnace_light_config = require("lib/arc-furnace-light-config")
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
@@ -163,6 +164,14 @@ data:extend({
       order  = "a7",
   },
   {
+      name = "ei-rocket-launch-pollution-visual-style",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "hybrid",
+      allowed_values = {"hybrid", "plume", "cinematic", "spiral"},
+      order  = "a7a",
+  },
+  {
       name = "ei-rocket-launch-pollution-cap",
       type = "int-setting",
       setting_type = "startup",
@@ -301,6 +310,7 @@ data:extend({
   singularity_lance_config.startup_setting_definition(),
   gaian_saucer_wake_config.startup_setting_definition(),
   emerald_hover_tank_config.startup_setting_definition(),
+  arc_furnace_light_config.startup_setting_definition(),
   {
       name = "ei-ticks_per_full_update",
       type = "int-setting",
@@ -421,12 +431,20 @@ data:extend({
       order  = "c1g5",
   },
   {
+      name = "ei-nauvis-pressure-grace-profile",
+      type = "string-setting",
+      setting_type = "startup",
+      default_value = "Extended",
+      allowed_values = {"Extended", "Classic"},
+      order  = "c1g5a",
+  },
+  {
       name = "ei-enemy-difficulty",
       type = "string-setting",
       setting_type = "startup",
       default_value = "Tempered",
       allowed_values = {"Merciful", "Gentle", "Tempered", "Original", "Severe", "Nightmare", "Impossible"},
-      order  = "c1g5a",
+      order  = "c1g5b",
   },
   {
       name = "ei-gate-difficulty",

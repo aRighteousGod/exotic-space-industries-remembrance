@@ -5,7 +5,7 @@ local exotic_magazine_effects = require("exotic-magazine-effects")
 
 local base_mag_icon = "__base__/graphics/icons/uranium-rounds-magazine.png"
 local base_mag_light_icon = "__base__/graphics/icons/uranium-rounds-magazine-light.png"
-local exotic_mag_picture_path = "__exotic-space-industries-remembrance__/graphics/items/exotic-magazines/"
+local exotic_mag_picture_path = ei_graphics_item_4_path.."exotic-magazines/"
 local advanced_circuit_icon = "__base__/graphics/icons/advanced-circuit.png"
 local battery_icon = "__base__/graphics/icons/battery.png"
 local explosives_icon = "__base__/graphics/icons/explosives.png"
@@ -67,10 +67,12 @@ local function make_icons(base_icon, primary_icon, primary_shift, primary_tint, 
 end
 
 local function make_mag_pictures(ammo_name)
+    local picture_name = ammo_name:gsub("^ei%-", "")
+
     return {
         layers = {
         {
-            filename = exotic_mag_picture_path .. ammo_name .. ".png",
+            filename = exotic_mag_picture_path .. picture_name .. ".png",
             size = 64,
             mipmap_count = 4,
             scale = 0.5,

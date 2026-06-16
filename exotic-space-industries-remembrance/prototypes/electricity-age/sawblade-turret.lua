@@ -13,11 +13,11 @@ local IMPACT_NAME = NAME.."-impact"
 local SHOT_EFFECT_ID = NAME.."-shot"
 local STATIC_BLADE_ANIMATION_NAME = NAME.."-blade-static"
 local SPIN_ANIMATION_NAME = NAME.."-spin"
-local GRAPHICS_PATH = ei_path.."graphics/entities/sawblade-turret/"
-local SOUND_PATH = ei_path.."sounds/"
-local ICON_PATH = ei_path.."graphics/items/sawblade-turret.png"
-local TECH_ICON_UNDERLAY_PATH = ei_path.."graphics/techs/sawblade-turret-underlay.png"
-local TECH_ICON_ENTITY_PATH = ei_path.."graphics/techs/sawblade-turret-entity.png"
+local GRAPHICS_PATH = ei_graphics_entity_4_path.."sawblade-turret/"
+local SOUND_PATH = ei_sounds_4_path
+local ICON_PATH = ei_graphics_item_4_path.."sawblade-turret.png"
+local TECH_ICON_UNDERLAY_PATH = ei_graphics_tech_4_path.."sawblade-turret-underlay.png"
+local TECH_ICON_ENTITY_PATH = ei_graphics_tech_4_path.."sawblade-turret-entity.png"
 local FRAME_SIZE = 384
 local FRAME_SCALE = 0.5
 local FRAME_SHIFT = util.by_pixel(0, 24)
@@ -102,6 +102,7 @@ local function make_attack_sound_prototype(index)
         advanced_volume_control = {
             attenuation = "exponential",
         },
+        aggregation = {max_count = 8, remove = true, count_already_playing = true},
     }
 end
 

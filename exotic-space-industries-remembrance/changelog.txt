@@ -1,4 +1,82 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.36
+Date: 5-13-2026
+  Features:
+    - Added Military 5: Simulated kill doctrine, directly unlocking Prediction snare mines and Breach solver charges, with follow-up Inferno grenade and Incinerator combat robot branches.
+    - Added burner, steam, and electric offshore pump progression.
+    - Added a presentation pass for visible player-placeable ESIR entities, filling missing hit effects, open/close sounds, and Factoriopedia simulations for machines, logistics, trains, combat entities, vehicles, and alien systems.
+    - Added new rolling-stock sprites for the X1 "Goliath" nuclear locomotive and Black Ark advanced cargo wagon, including directional and elevated-rail slope coverage.
+    - Added the CF-8 "Black Grail" advanced fluid wagon, bridging vanilla fluid wagons into EM fluid transport progression.
+    - Added the late wall terminus: Sanguine carapace walls in Quantum age and self-regenerating Hemocrystal bulwark walls in Exotic age.
+    - Added selectable rocket launch pollution visuals: Hybrid pad bloom and plume, Ascending plume only, Cinematic pad bloom and plume, or the original pad bloom.
+    - Added startup presets for Arc furnace working-light flicker, allowing Original, Reduced, Soft, Static, and Off modes while preserving the furnace animation and idle capacitor glow.
+    - Added uranium shotgun shells to Uranium ammo, carrying uranium-rounds-grade pellet damage with a dedicated green tracer and glow treatment.
+    - Added compact teal crystal pin-lights and a forward crystal headlight to the Slipwake Saucer, with the beam originating just outside the front exterior crystal.
+    - Purifier technology now additionally unlocks recipes for halide leaching fluorite: crush lead ingots into crushed lead, then sulfuric-acid extract crushed lead or crushed gold into fluorite, acidic water, and crushed slag.
+    - Added randomized agricultural tower plant growth, varying planted crops by up to 30 seconds so farms produce steadier fruit streams.
+    - Added separate startup volume controls for basic and advanced Tesla coil firing sounds.
+  Changes:
+    - Destroyer capsule recipe inputs: 1 Processing unit -> 5 Electronic parts, 4 Steel ingot -> 16 Steel mechanical parts, additionally requires 2 Batteries.
+    - Distractor capsule recipe inputs: Additionally requires 5 Energy crystals.
+    - Stone well pump now unlocks from Steam Power, while the existing offshore pump is now the electric tier and requires the steam offshore pump.
+    - Steam assembler recipe-fluid ports now align with electric assemblers, with the steam pass-through moved to the side ports.
+    - Portable fusion reactor recipe inputs: Removed Fusion power cell.
+    - Portable fission reactor recipe inputs: Removed Uranium-235 fuel rods and rebuilt the frame from low-density structure, lead shielding, electronic parts, energy crystals, and fission data.
+    - Advanced cargo wagon cargo size: 40 -> 50.
+    - EM fluid wagon capacity: 50k -> 100k.
+    - Added Space Age-style sound caps and falloff metadata to ESIR-owned turret firing sounds.
+    - Made further reductions to idle on_tick script UPS usage.
+    - Speed module 1 energy consumption increase: 10% -> 40%.
+    - Speed module 2 energy consumption increase: 20% -> 60%.
+    - Speed module 3 energy consumption increase: 30% -> 80%.
+    - Speed module 4 energy consumption increase: 40% -> 100%.
+    - Speed module 5 energy consumption increase: 50% -> 120%.
+    - Speed module 6 energy consumption increase: 60% -> 140%.
+    - Cannon turret technology prerequisites: Additionally requires Military 2.
+    - Flamethrower technology prerequisites: Additionally requires Military 2.
+    - Acidthrower technology prerequisites: Additionally requires Military 2.
+    - Oathbreaker Saw technology prerequisites: Swapped Military 2 for Military 3.
+    - Captivity technology prerequisites: Swapped Military 3 for Military 4.
+    - Rocket turret technology prerequisites: Additionally requires Military 4.
+    - Artillery technology prerequisites: Additionally requires Military 5.
+    - Atomic bomb technology prerequisites: Additionally requires Military 5.
+    - Directed energy ramp technology prerequisites: Additionally requires Military 5.
+    - Railgun technology prerequisites: Additionally requires Military 5.
+    - Singularity Lance technology prerequisites: Additionally requires Military 5.
+    - Emerald Apocalypse hover tank technology prerequisites: Additionally requires Military 5.
+    - Plasma turret technology prerequisites: Additionally requires Military 5.
+    - Bug zapper technology prerequisites: Additionally requires Military 5.
+    - Thalassic Ascension technology prerequisites: Additionally requires Military 5.
+    - Sanguine carapace wall technology prerequisites: Additionally requires Military 5.
+    - Adaptive Surveyor technology prerequisites: Additionally requires Military 5.
+    - Heavy minigun technology prerequisites: Additionally requires Military 5.
+    - Extended Nauvis pressure grace with Classic and Extended profiles, lowered the Steam-to-Electricity target to 0.45, added early-Electricity taper relief for pollution evolution, and refreshed the Informatron page across supported locales.
+    - Reworked portable fusion equipment into a fueled upgrade chain, added reactor-aligned PL/DD/DL/DT/TT/DH/HL/TH/HH portable fusion fuel matrix.
+    - Personal fusion reactor recipe inputs: 100 Processing units -> 250 Computing units, Fusion data 50 -> 200, Plasma cube 4 -> 150, additionally requires 1 Portable fusion reactor.
+    - Clarified fusion tier naming, GUI text, and InformaTron pages across supported locales; active Aquilo dense-plasma reactors now provide weak neutron leakage while ESIR thermonuclear reactors remain the strong tunable neutron source.
+    - Fusion fuel mixes now return an empty cryo container when spent.
+    - The Emerald Apocalypse integrated grid core now requires fusion fuel mix.
+    - Emerald Apocalypse hover tank upgrade technologies now count as 1/4-weight side-upgrades for tech scaling, while the base tank unlock remains full weight.
+    - Industrial combustion turbine solid mode now accepts rocket fuel.
+    - Industrial combustion turbine fluid mode fuel effectivity: 300 -> 225%.
+    - Moved the remaining bundled graphics and sounds into the new Graphics 4 mod.
+  Bugfixes:
+    - Rocket launch pollution hover messages and startup setting options are now localized across supported locales.
+    - Fixed that Steam pumps initial starting steam was 150 vs 165c.
+    - Fixed direct Steam assembler replacement with Assembling machine 2 breaking recipe-fluid pipe lines by adjusting Steam assembler fluidbox positions—migration will rotate pre-existing steam assemblers appropriately.
+    - Refined flammables 6 now correctly requires Simulation computer age science packs.
+    - Fixed cryo container filling recipes resolving to filled container item signals, so parameterized blueprints can pipette the recipe signal for inserter filters.
+    - Fixed Industrial combustion turbine fluid mode not emitting pollution.
+    - Reduced Industrial combustion turbine fluid-mode smoke generation to match solid-mode sprite load.
+    - Beacon overload configuration changes now compare an effective rules fingerprint before queueing a world rebuild.
+    - Fixed beacon overload geometry so machines placed into existing beacon fields now count all engine-affecting beacons, including edge overlaps, weighted beacons, long-range beacons, and removal/re-add recounts while still ignoring excluded helper beacons.
+    - Fixed Storage tank columns, Silo storage tanks, and Spherical storage tanks exposing a separate internal pipeline buffer, allowing them to hold more fluid than their listed capacity.
+    - Fixed typo preventing Stone furnace energy requirement changing from 90 -> 135 kW.
+    - Fixed that Dummy lab showed up in lab research speed tooltips.
+    - Fixed the Orbital coordinator linked-panel Informatron button crashing instead of opening the orbital scanner page.
+    - Fixed the Black hole linked-panel Informatron button not opening the black hole page.
+    - Fixed death-explosion assignment crashing on third-party entities that define bounding boxes with named x/y coordinates, including UPS Friendly Nixie Tubes.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.35
 Date: 5-13-2026
   Features:

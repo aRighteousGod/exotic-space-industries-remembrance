@@ -9,6 +9,8 @@ Use this checklist before importing a generic Lua pattern into Factorio mod code
 3. Lua 5.2 manual for baseline language behavior.
 4. ESIR local conventions after Factorio behavior is clear.
 
+The Lua baseline was rechecked against the official Factorio 2.0.77 Libraries and functions page: Factorio still documents Lua 5.2.1 plus Factorio-specific deterministic changes and additions.
+
 ## High-Risk Deltas
 
 - Factorio is based on Lua 5.2.1, with Factorio-specific additions and deterministic changes. Do not assume Lua 5.1, LuaJIT, or Lua 5.4 behavior unless Factorio documents it.

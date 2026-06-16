@@ -2,9 +2,9 @@
 -- ESIR FILE MAP
 -- owns: startup/configuration messaging, arrival-wave rendering, and visual settings mirrors
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: init, configuration-changed, on_load, and every-tick arrival-wave cleanup
--- forwarded_events: on_init, on_configuration_changed, on_load, on_tick, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned
--- storage_roots: storage.ei.arrival_waves, storage.ei.pending_arrivals, storage.ei.lamp_removals, storage.ei.que_*, storage.ei.em_*_glow*, storage.ei.rocket_launch_pollution, storage.ei.fulgora_day_length_variation, storage.ei.nauvis_pressure
+-- cadence: init, configuration-changed, on_load, and guarded on_tick arrival-wave rendering
+-- forwarded_events: on_init, on_configuration_changed, on_load, on_tick, has_tick_work, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned
+-- storage_roots: storage.ei.arrival_waves, storage.ei.arrival_waves_next_due_tick, storage.ei.pending_arrivals, storage.ei.lamp_removals, storage.ei.que_*, storage.ei.em_*_glow*, storage.ei.rocket_launch_pollution, storage.ei.fulgora_day_length_variation, storage.ei.nauvis_pressure
 -- gui_ids: none
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes, init, configuration migration
@@ -244,12 +244,23 @@ function echo_codex.handle_global_settings(event)
 
 	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "linear"
 	local rocket_launch_pollution_cap = ei_lib.config("rocket-launch-pollution-cap") or 10000
+	local rocket_launch_pollution_visual_style = ei_lib.config("rocket-launch-pollution-visual-style") or "hybrid"
 	local fulgora_day_length_variation_max_multiplier = ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
 	local fulgora_day_length_variation_min_multiplier = ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
 	local enemy_difficulty = ei_lib.config("enemy-difficulty") or "Tempered"
 	local nauvis_pressure_grace = ei_lib.config("nauvis-pressure-grace")
+	local nauvis_pressure_profile = ei_lib.config("nauvis-pressure-grace-profile") or "Extended"
 	if nauvis_pressure_grace == nil then
 		nauvis_pressure_grace = true
+	end
+	if nauvis_pressure_profile ~= "Classic" and nauvis_pressure_profile ~= "Extended" then
+		nauvis_pressure_profile = "Extended"
+	end
+	if rocket_launch_pollution_visual_style ~= "hybrid"
+		and rocket_launch_pollution_visual_style ~= "plume"
+		and rocket_launch_pollution_visual_style ~= "cinematic"
+		and rocket_launch_pollution_visual_style ~= "spiral" then
+		rocket_launch_pollution_visual_style = "hybrid"
 	end
 
 	local previous_tint = nil
@@ -406,6 +417,7 @@ function echo_codex.handle_global_settings(event)
 
 	storage.ei.rocket_launch_pollution.mode = rocket_launch_pollution_mode
 	storage.ei.rocket_launch_pollution.cap = rocket_launch_pollution_cap
+	storage.ei.rocket_launch_pollution.visual_style = rocket_launch_pollution_visual_style
 
 	-- Announce fulgora day-length variation bounds
 	tint, tint_adj = next_tint(event)
@@ -429,6 +441,7 @@ function echo_codex.handle_global_settings(event)
 	storage.ei.fulgora_day_length_variation.min_multiplier = fulgora_day_length_variation_min_multiplier
 	storage.ei.enemy_difficulty = enemy_difficulty
 	storage.ei.nauvis_pressure.enabled = nauvis_pressure_grace and enemy_difficulty ~= "Impossible"
+	storage.ei.nauvis_pressure.profile = nauvis_pressure_profile
 end
 
 local function ensure_pending_arrivals()
@@ -439,6 +452,51 @@ local function ensure_pending_arrivals()
 		storage.ei.pending_arrivals = {}
 	end
 	return storage.ei.pending_arrivals
+end
+
+local function ensure_arrival_waves()
+	if not storage.ei then
+		storage.ei = {}
+	end
+	if type(storage.ei.arrival_waves) ~= "table" then
+		storage.ei.arrival_waves = {}
+	end
+	return storage.ei.arrival_waves
+end
+
+---@param arrival_waves table|nil
+---@return uint wave_id
+local function get_next_arrival_wave_id(arrival_waves)
+	local wave_id = 1
+
+	for id, _ in pairs(arrival_waves or {}) do
+		local numeric_id = tonumber(id)
+		if numeric_id and numeric_id >= wave_id then
+			wave_id = numeric_id + 1
+		end
+	end
+
+	return wave_id
+end
+
+---@param arrival_waves table|nil
+---@return uint next_due_tick
+local function recalculate_next_arrival_wave_tick(arrival_waves)
+	local next_due_tick = 0
+
+	for _, wave in pairs(arrival_waves or {}) do
+		if type(wave) == "table" then
+			for _, beam in ipairs(wave) do
+				local beam_tick = tonumber(beam and beam.tick) or 0
+				if beam_tick > 0 and (next_due_tick <= 0 or beam_tick < next_due_tick) then
+					next_due_tick = beam_tick
+				end
+			end
+		end
+	end
+
+	storage.ei.arrival_waves_next_due_tick = next_due_tick
+	return next_due_tick
 end
 
 function echo_codex.queue_arrival(player_index)
@@ -511,7 +569,8 @@ function echo_codex.youHaveArrived(event)
 
 	-- Store wave data in global to be updated
 
-	local wave_id = ei_lib.getn(storage.ei.arrival_waves) + 1
+	local arrival_waves = ensure_arrival_waves()
+	local wave_id = get_next_arrival_wave_id(arrival_waves)
 	local wave_duration = 60
 	local wave_beams = {}
 
@@ -536,7 +595,11 @@ function echo_codex.youHaveArrived(event)
 		end
 	end
 
-	storage.ei.arrival_waves[wave_id] = wave_beams
+	arrival_waves[wave_id] = wave_beams
+	local next_due_tick = tonumber(storage.ei.arrival_waves_next_due_tick) or 0
+	if next_due_tick <= 0 or setTick < next_due_tick then
+		storage.ei.arrival_waves_next_due_tick = setTick
+	end
 
 	-- Central FX: explosion, smoke, light
 	for i = 1, 5 do
@@ -582,14 +645,42 @@ function echo_codex.youHaveArrived(event)
 	end
 end
 
+---@param event EventData.on_tick|table|nil
+---@return boolean
+function echo_codex.has_tick_work(event)
+	if not event or not event.tick or not (storage and storage.ei) then
+		return false
+	end
+
+	local arrival_waves = storage.ei.arrival_waves
+	if type(arrival_waves) ~= "table" or next(arrival_waves) == nil then
+		if storage.ei.arrival_waves_next_due_tick ~= 0 then
+			storage.ei.arrival_waves_next_due_tick = 0
+		end
+		return false
+	end
+
+	local next_due_tick = tonumber(storage.ei.arrival_waves_next_due_tick) or 0
+	if next_due_tick <= 0 then
+		next_due_tick = recalculate_next_arrival_wave_tick(arrival_waves)
+	end
+
+	return next_due_tick > 0 and event.tick >= next_due_tick
+end
+
+---@param e EventData.on_tick|table|nil
 function echo_codex.arrival_waves(e)
-	if not storage.ei.arrival_waves or not e or not e.tick then
+	if not echo_codex.has_tick_work(e) then
 		return
 	end
-	for id, wave in pairs(storage.ei.arrival_waves) do
+
+	local arrival_waves = ensure_arrival_waves()
+	local next_due_tick = 0
+	for id, wave in pairs(arrival_waves) do
 		for i = #wave, 1, -1 do
 			local beam = wave[i]
-			if e.tick >= beam.tick then
+			local beam_tick = tonumber(beam and beam.tick) or 0
+			if beam_tick > 0 and e.tick >= beam_tick then
 				local pX = beam.source.x - beam.target.x
 				local pY = beam.source.y - beam.target.y
 				beam.surface.create_entity({
@@ -601,12 +692,15 @@ function echo_codex.arrival_waves(e)
 					force = beam.force,
 				})
 				table.remove(wave, i)
+			elseif beam_tick > 0 and (next_due_tick <= 0 or beam_tick < next_due_tick) then
+				next_due_tick = beam_tick
 			end
 		end
 		if #wave == 0 then
-			storage.ei.arrival_waves[id] = nil
+			arrival_waves[id] = nil
 		end
 	end
+	storage.ei.arrival_waves_next_due_tick = next_due_tick
 end
 
 --[[

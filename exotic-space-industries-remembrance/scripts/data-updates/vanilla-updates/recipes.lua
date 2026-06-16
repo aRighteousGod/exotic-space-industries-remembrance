@@ -90,9 +90,9 @@ local new_ingredients_table = {
         {type="item",name="ei-iron-beam", amount=1}
     },
     ["offshore-pump"] = {
-        {type="item",name="ei-copper-mechanical-parts", amount=4},
-        {type="item",name="ei-iron-beam", amount=2},
-        {type="item",name="pipe", amount=2}
+        {type="item",name="ei-steam-offshore-pump", amount=1},
+        {type="item",name="electronic-circuit", amount=2},
+        {type="item",name="small-electric-pole", amount=1}
     },
     ["pump"] = {
         {type="item",name="rp-steam-pump", amount=1},
@@ -306,6 +306,13 @@ local new_ingredients_table = {
         {type="item",name="ei-energy-crystal", amount=100},
         {type="item",name="steel-plate", amount=75},
         {type="item",name="ei-steel-beam",amount=75},
+        {type="item",name="ei-fission-tech", amount=100},
+    },
+    ["fission-reactor-equipment"] = {
+        {type="item",name="low-density-structure", amount=75},
+        {type="item",name="ei-lead-ingot", amount=75},
+        {type="item",name="ei-electronic-parts", amount=100},
+        {type="item",name="ei-energy-crystal", amount=50},
         {type="item",name="ei-fission-tech", amount=100},
     },
     ["heat-pipe"] = {
@@ -596,6 +603,17 @@ local new_ingredients_table = {
         {type="item",name="ei-steel-beam", amount=2},
         {type="item",name="steel-plate", amount=6},
         {type="item",name="copper-plate", amount=75},
+    },
+    ["distractor-capsule"] = {
+        {type="item",name="advanced-circuit", amount=3},
+        {type="item",name="ei-energy-crystal", amount=5},
+        {type="item",name="defender-capsule", amount=4},
+    },
+    ["destroyer-capsule"] = {
+        {type="item",name="ei-electronic-parts", amount=5},
+        {type="item",name="ei-steel-mechanical-parts", amount=16},
+        {type="item",name="battery", amount=2},
+        {type="item",name="distractor-capsule", amount=3},
     },
 }
 --adjust categories to allow above changes

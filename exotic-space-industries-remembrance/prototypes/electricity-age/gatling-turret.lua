@@ -155,19 +155,25 @@ data:extend({
 		can_retarget_while_starting_attack = true,
 		attacking_speed = 20,
         preparing_sound = {
+            variations = {
 				{
-                filename = ei_sounds_path .. "gatling-turret-preparing.ogg",
+                    filename = ei_sounds_path .. "gatling-turret-preparing.ogg",
 					volume = 0.6,
-					audible_distance_modifier = 0.66,
 				},
 			},
+            audible_distance_modifier = 0.66,
+            aggregation = {max_count = 2, remove = true, count_already_playing = true},
+        },
         folding_sound = {
+            variations = {
 				{
-                filename = ei_sounds_path .. "gatling-turret-folding.ogg",
+                    filename = ei_sounds_path .. "gatling-turret-folding.ogg",
 					volume = 0.6,
-					audible_distance_modifier = 0.66,
 				},
 			},
+            audible_distance_modifier = 0.66,
+            aggregation = {max_count = 2, remove = true, count_already_playing = true},
+        },
         alert_when_attacking = true,
         open_sound = sounds.machine_open,
         close_sound = sounds.machine_close,
@@ -202,10 +208,15 @@ data:extend({
 			range = 32,
 			min_range = 4,
 			sound = {
-				{
-                filename = ei_sounds_path .. "gatling-turret-firing.ogg",
-					volume = 0.7,
+				category = "weapon",
+				variations = {
+					{
+                        filename = ei_sounds_path .. "gatling-turret-firing.ogg",
+						volume = 0.7,
+					},
 				},
+				audible_distance_modifier = 0.66,
+				aggregation = {max_count = 8, remove = true, count_already_playing = true, priority = "newest"},
 			},
 		},
 

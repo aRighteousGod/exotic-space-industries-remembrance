@@ -108,7 +108,7 @@ data:extend({
 					red = {0.2,-4.8}
 				}
 			},
-		},
+        },
     },
     -- add destroyed beacons as containers
     {

@@ -1,8 +1,8 @@
 -- Tesla's Legacy now ships as a built-in EI module.
 -- The intentionally exposed knobs are the doctrine behavior mode, the advanced-coil attack
--- animation, and the combat-readout toggles. The underlying numeric balance stays hidden so
--- the owned EI defaults define the supported experience and later maintenance has a much
--- narrower, more predictable surface.
+-- animation, firing sound volume, and the combat-readout toggles. The underlying numeric
+-- balance stays hidden so the owned EI defaults define the supported experience and later
+-- maintenance has a much narrower, more predictable surface.
 data:extend({
   {
     -- This is the one high-level compatibility switch we still expose. Legacy-fidelity is
@@ -22,6 +22,24 @@ data:extend({
     default_value = "charge-up",
     allowed_values = {"simple", "charge-up"},
     order = "zzzzzz2",
+  },
+  {
+    name = "tl-basic-sound-volume",
+    type = "int-setting",
+    setting_type = "startup",
+    default_value = 70,
+    minimum_value = 0,
+    maximum_value = 100,
+    order = "zzzzzz2a",
+  },
+  {
+    name = "tl-advanced-sound-volume",
+    type = "int-setting",
+    setting_type = "startup",
+    default_value = 70,
+    minimum_value = 0,
+    maximum_value = 100,
+    order = "zzzzzz2b",
   },
   {
     -- The tower/tank stat knobs remain in the prototype namespace for compatibility with the

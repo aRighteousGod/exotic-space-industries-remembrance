@@ -85,7 +85,15 @@ local fuel_glows = {
     ["ei-uranium-235-fuel"] = color(0.22, 1.00, 0.18, 0.95),
     ["ei-uranium-233-fuel"] = color(0.14, 1.00, 0.70, 0.95),
     ["ei-plutonium-239-fuel"] = color(0.82, 0.32, 1.00, 0.95),
+    ["ei-pl-mix"] = color(0.78, 1.00, 0.58, 0.82),
+    ["ei-dd-mix"] = color(0.46, 0.92, 1.00, 0.86),
+    ["ei-dl-mix"] = color(0.34, 1.00, 0.78, 0.88),
     ["ei-dt-mix"] = color(0.78, 0.86, 1.00, 0.92),
+    ["ei-tt-mix"] = color(1.00, 0.38, 0.42, 0.92),
+    ["ei-dh-mix"] = color(0.66, 0.72, 1.00, 0.88),
+    ["ei-hl-mix"] = color(0.76, 0.42, 1.00, 0.88),
+    ["ei-th-mix"] = color(1.00, 0.42, 0.76, 0.94),
+    ["ei-hh-mix"] = color(1.00, 0.28, 0.95, 0.95),
 }
 
 local function set_fuel_glow(name, glow)

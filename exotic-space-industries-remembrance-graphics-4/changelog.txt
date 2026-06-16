@@ -1,0 +1,9 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2026-06-03
+  Changes:
+    - Moved the main-pack graphics payload into Graphics 4.
+    - Moved the main-pack sound payload into Graphics 4.
+    - Added offshore pump cap overlay masks for ESIR pump-tier presentation.
+    - Added CF-8 "Black Grail" advanced fluid wagon rolling-stock sheets and icons.
+---------------------------------------------------------------------------------------------------

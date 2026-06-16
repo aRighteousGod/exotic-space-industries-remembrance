@@ -1,34 +1,7 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-19T21:19:24.4776551-05:00",
+    "generated_at":  "2026-06-05T11:51:43.0298810-05:00",
     "entries":  [
-                    {
-                        "id":  "research-hitch",
-                        "path":  ".factorio-qc\\research-hitch.zip",
-                        "kind":  "stress-save",
-                        "purpose":  "Late-game research completion hitch coverage for tech scaling, Tesla sync, and EM rollout queues",
-                        "tags":  [
-                                     "runtime",
-                                     "benchmark",
-                                     "research",
-                                     "stress"
-                                 ],
-                        "preferred_for":  [
-                                              "runtime-benchmark"
-                                          ],
-                        "helper_mods":  [
-                                            {
-                                                "name":  "zzz-research-hitch-qc",
-                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-research-hitch-qc_0.0.1",
-                                                "auto_stage_for":  [
-                                                                       "runtime-benchmark"
-                                                                   ],
-                                                "notes":  "Needed to author the late-game hitch save and to replay its queued research completions."
-                                            }
-                                        ],
-                        "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for save generation. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
-                    },
                     {
                         "id":  "orbital-cohort",
                         "path":  ".factorio-qc\\orbital-cohort.zip",
@@ -132,6 +105,61 @@
                                         ],
                         "mods_source":  "live-repo-via-qc-sync",
                         "notes":  "Primary smoke save shipped in ignored QC artifact space."
+                    },
+                    {
+                        "id":  "beacon-overload-geometry",
+                        "path":  ".factorio-qc\\beacon-overload-geometry.zip",
+                        "kind":  "scenario-save",
+                        "purpose":  "Beacon overload geometry coverage for engine-native receivers, spatial fallback overlap, weighted/excluded beacons, churn, long range, and no-beacon-effect machines",
+                        "tags":  [
+                                     "runtime",
+                                     "benchmark",
+                                     "beacon-overload",
+                                     "geometry",
+                                     "qc"
+                                 ],
+                        "preferred_for":  [
+
+                                          ],
+                        "helper_mods":  [
+                                            {
+                                                "name":  "zzz-beacon-overload-geometry-qc",
+                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-beacon-overload-geometry-qc_0.0.1",
+                                                "auto_stage_for":  [
+                                                                       "runtime-benchmark"
+                                                                   ],
+                                                "notes":  "Needed to author and replay deterministic beacon overload receiver-geometry checkpoints."
+                                            }
+                                        ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-beacon-overload-geometry-qc helper mod for save generation and helper-aware playback. Repo-side runtime-benchmark can restage it from the save catalog."
+                    },
+                    {
+                        "id":  "research-hitch",
+                        "path":  ".factorio-qc\\research-hitch.zip",
+                        "kind":  "stress-save",
+                        "purpose":  "Late-game research completion hitch coverage for tech scaling, Tesla sync, and EM rollout queues",
+                        "tags":  [
+                                     "runtime",
+                                     "benchmark",
+                                     "research",
+                                     "stress"
+                                 ],
+                        "preferred_for":  [
+                                              "runtime-benchmark"
+                                          ],
+                        "helper_mods":  [
+                                            {
+                                                "name":  "zzz-research-hitch-qc",
+                                                "asset_path":  ".codex\\skills\\esir-dev\\assets\\zzz-research-hitch-qc_0.0.1",
+                                                "auto_stage_for":  [
+                                                                       "runtime-benchmark"
+                                                                   ],
+                                                "notes":  "Needed to author the late-game hitch save and to replay its queued research completions."
+                                            }
+                                        ],
+                        "mods_source":  "live-repo-via-qc-sync",
+                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for save generation. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
                     }
                 ]
 }

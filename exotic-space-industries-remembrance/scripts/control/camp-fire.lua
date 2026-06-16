@@ -3,7 +3,7 @@
 -- owns: camp-fire periodic fire spawning
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy and scheduled tick step 1
--- forwarded_events: on_built_entity, on_destroyed_entity, updater
+-- forwarded_events: has_tick_work, on_built_entity, on_destroyed_entity, updater
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -36,13 +36,21 @@ function model.on_destroyed_entity(event)
         cleanup(event.entity)
     end
 end
-function model.updater(event)
-    if not event or not event.tick or not storage.ei.campfire or ei_lib.getn(storage.ei.campfire) == 0 then
-        return
+
+function model.has_tick_work(event)
+    if not event or not event.tick
+        or not (storage and storage.ei and storage.ei.campfire)
+    then
+        return false
     end
 
     local last_run_tick = storage.ei.campfire_last_run_tick or 0
-    if event.tick - last_run_tick < FIRE_UPDATE_TICK then
+    return event.tick - last_run_tick >= FIRE_UPDATE_TICK
+        and next(storage.ei.campfire) ~= nil
+end
+
+function model.updater(event)
+    if not model.has_tick_work(event) then
         return
     end
 

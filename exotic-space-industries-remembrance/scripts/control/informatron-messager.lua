@@ -13,7 +13,7 @@ local model = {}
 
 local PAGE_RESEARCH = {
     ["ei-black-hole"] = {{
-        page = "black-hole",
+        page = "black_hole",
         caption = {"exotic-industries-informatron.title_black_hole"},
     }},
     ["ei-cooler"] = {{

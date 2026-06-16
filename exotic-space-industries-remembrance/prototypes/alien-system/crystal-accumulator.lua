@@ -107,7 +107,7 @@ data:extend({
             { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true }
         }
         ),
-        circuit_wire_max_distance = default_circuit_wire_max_distance
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
     },
     {
         name = "ei-crystal-accumulator-gaia",
@@ -154,7 +154,7 @@ data:extend({
             { variation = 27, main_offset = util.by_pixel( 38.125,  21.125), shadow_offset = util.by_pixel( 38.125,  21.125), show_shadow = true }
         }
         ),
-        circuit_wire_max_distance = default_circuit_wire_max_distance
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
     },
     -- add destroyed accumulator as containers
     {

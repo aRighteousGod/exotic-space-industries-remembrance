@@ -1,0 +1,13 @@
+{
+  "name": "zzz-beacon-overload-geometry-qc",
+  "version": "0.0.1",
+  "title": "Beacon Overload Geometry QC Helper",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0.0",
+    "space-age",
+    "exotic-space-industries-remembrance"
+  ],
+  "description": "QC-only helper that builds deterministic beacon-overload geometry layouts and records receiver-state snapshots."
+}

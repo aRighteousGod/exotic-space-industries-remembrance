@@ -139,10 +139,11 @@ local function make_tesla_beam( args )
   {
     sound =
     {
+      category = "weapon",
       filename = "__base__/sound/fight/electric-beam.ogg",
-      volume = 0.7
+      volume = settings.sound.basic_volume
     },
-    max_sounds_per_type = 4
+    max_sounds_per_prototype = 4
   }
   result.name = args.name
   

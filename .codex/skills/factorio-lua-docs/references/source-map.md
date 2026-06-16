@@ -2,6 +2,7 @@
 
 Primary official sources:
 
+- API docs home/version selector: `https://lua-api.factorio.com/`
 - Runtime API docs: `https://lua-api.factorio.com/latest/index-runtime.html`
 - Prototype API docs: `https://lua-api.factorio.com/latest/index-prototype.html`
 - Auxiliary docs: `https://lua-api.factorio.com/latest/index-auxiliary.html`
@@ -32,3 +33,4 @@ Official wiki topics covered by the cache:
 - Tutorial:Modding tutorial
 
 Use the JSON docs for exact symbol lookup and the auxiliary/wiki pages for workflow guidance and examples.
+The `latest` channel can point at the newest experimental API while the local installed game is still on the newest stable release; compare the cache manifest with the local executable before updating skills based on installed `data/` files.

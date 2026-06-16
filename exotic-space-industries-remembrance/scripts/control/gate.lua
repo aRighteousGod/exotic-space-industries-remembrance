@@ -3,7 +3,7 @@
 -- owns: gate runtime, GUI, selector flow, and remote dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
--- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
 -- storage_roots: storage.ei
 -- gui_ids: ei-gate-console
 -- remote_interfaces: none
@@ -448,6 +448,8 @@ model.mass_weights = {
     ["modular-armor"] = 25,
     ["night-vision-equipment"] = 10,
     ["nuclear-reactor"] = 100,
+    ["ei-burner-offshore-pump"] = 10,
+    ["ei-steam-offshore-pump"] = 10,
     ["offshore-pump"] = 10,
     ["passive-provider-chest"] = 4,
     ["petroleum-gas-barrel"] = 200,
@@ -593,7 +595,7 @@ model.mass_weights = {
     ["fusion-generator"] = 50,
     ["fusion-power-cell"] = 4,
     ["fusion-reactor"] = 500,
-    ["fusion-reactor-equipment"] = 10,
+    ["fusion-reactor-equipment"] = 50,
     ["heating-tower"] = 25,
     ["holmium-ore"] = 10,
     ["holmium-plate"] = 2,
@@ -808,9 +810,12 @@ model.mass_weights = {
     ["ei-dinitrogen-tetroxide-gas-barrel"] = 200,
     ["ei-dinitrogen-tetroxide-water-solution-barrel"] = 200,
     ["ei-dirty-water-barrel"] = 200,
+    ["ei-dd-mix"] = 2,
+    ["ei-dh-mix"] = 3,
+    ["ei-dl-mix"] = 2,
     ["ei-dragons-breath-shotgun-shell"] = 2,
     ["ei-drill-fluid-barrel"] = 200,
-    ["ei-dt-mix"] = 2,
+    ["ei-dt-mix"] = 3,
     ["ei-efficiency-module-4"] = 1,
     ["ei-efficiency-module-5"] = 1,
     ["ei-efficiency-module-6"] = 1,
@@ -848,7 +853,6 @@ model.mass_weights = {
     ["ei-fluorite"] = 2,
     ["ei-fueler"] = 50,
     ["ei-fusion-data"] = 1,
-    ["ei-fusion-drive"] = 2,
     ["ei-fusion-quantum-age-tech"] = 1,
     ["ei-fusion-reactor"] = 500,
     ["ei-gaia-pump"] = 10,
@@ -868,6 +872,8 @@ model.mass_weights = {
     ["ei-heavy-minigun"] = 10,
     ["ei-hexafluoride-ammo"] = 2,
     ["ei-helium-3-barrel"] = 200,
+    ["ei-hh-mix"] = 6,
+    ["ei-hl-mix"] = 3,
     ["ei-high-energy-crystal"] = 4,
     ["ei-high-tech-parts"] = 2,
     ["ei-high-temperature-reactor"] = 100,
@@ -958,7 +964,7 @@ model.mass_weights = {
     ["ei-oxygen-gas-barrel"] = 200,
     ["ei-personal-laser"] = 10,
     ["ei-personal-leg"] = 10,
-    ["ei-personal-reactor"] = 100,
+    ["ei-personal-reactor"] = 150,
     ["ei-personal-shield"] = 25,
     ["ei-personal-solar-2"] = 10,
     ["ei-personal-solar-3"] = 10,
@@ -968,6 +974,7 @@ model.mass_weights = {
     ["ei-plasma-cube"] = 25,
     ["ei-plasma-data"] = 1,
     ["ei-plasma-heater"] = 100,
+    ["ei-pl-mix"] = 2,
     ["ei-plasma-turret"] = 100,
     ["ei-plutonium-239"] = 4,
     ["ei-plutonium-239-fuel"] = 50,
@@ -1044,10 +1051,12 @@ model.mass_weights = {
     ["ei-tank-2"] = 500,
     ["ei-tank-3"] = 500,
     ["ei-thermal-furnace"] = 25,
+    ["ei-th-mix"] = 5,
     ["ei-thorium-232"] = 4,
     ["ei-thorium-232-fuel"] = 50,
     ["ei-tile-tool"] = 1,
     ["ei-tritium-barrel"] = 200,
+    ["ei-tt-mix"] = 4,
     ["ei-turbo-loader"] = 4,
     ["ei-uranium-233"] = 4,
     ["ei-arc-ammo"] = 2,
@@ -1126,14 +1135,63 @@ function model.entity_check(entity)
 end
 
 
+local function get_cached_gate_count(gate_root)
+    gate_root = gate_root or (storage and storage.ei and storage.ei.gate or nil)
+    if type(gate_root) ~= "table" then
+        return 0
+    end
+
+    local cached_count = tonumber(gate_root.gate_count)
+    if cached_count and cached_count >= 0 then
+        return cached_count
+    end
+
+    cached_count = ei_runtime_scheduler.table_count(gate_root.gate)
+    gate_root.gate_count = cached_count
+    return cached_count
+end
+
+
+local function set_cached_gate_count(gate_root, count)
+    if type(gate_root) ~= "table" then
+        return 0
+    end
+
+    count = math.max(0, math.floor(tonumber(count) or 0))
+    gate_root.gate_count = count
+    return count
+end
+
+
+local function remove_gate_registry_entry(gate_unit)
+    local gate_root = storage and storage.ei and storage.ei.gate or nil
+    local gate_registry = type(gate_root) == "table" and gate_root.gate or nil
+    if type(gate_registry) ~= "table" or gate_registry[gate_unit] == nil then
+        return false
+    end
+
+    gate_registry[gate_unit] = nil
+    set_cached_gate_count(gate_root, get_cached_gate_count(gate_root) - 1)
+    return true
+end
+
+
 function model.check_global_init()
 
     if not storage.ei.gate then
         storage.ei.gate = {}
     end
 
+    local gate_registry_created = false
     if not storage.ei.gate.gate then
         storage.ei.gate.gate = {}
+        gate_registry_created = true
+    end
+
+    if gate_registry_created
+    or not ei_lib.is_valid_number(storage.ei.gate.gate_count)
+    or storage.ei.gate.gate_count < 0 then
+        set_cached_gate_count(storage.ei.gate, ei_runtime_scheduler.table_count(storage.ei.gate.gate))
     end
 
     if not storage.ei.gate.receiver then
@@ -3384,17 +3442,21 @@ function model.register_gate(gate, container, event)
         return
     end
 
-    storage.ei.gate.gate[gate_unit] = {}
-    storage.ei.gate.gate[gate_unit].gate = gate
-    storage.ei.gate.gate[gate_unit].container = container
-    storage.ei.gate.gate[gate_unit].manual_enabled = false
-    storage.ei.gate.gate[gate_unit].state = false
-    storage.ei.gate.gate[gate_unit].manual_receiver_id = nil
-    storage.ei.gate.gate[gate_unit].legacy_exit = nil
-    storage.ei.gate.gate[gate_unit].last_low_power = false
-    storage.ei.gate.gate[gate_unit].wire_proxy_connection_migration_version = GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION
+    local gate_data = {
+        gate = gate,
+        container = container,
+        manual_enabled = false,
+        state = false,
+        manual_receiver_id = nil,
+        legacy_exit = nil,
+        last_low_power = false,
+        wire_proxy_connection_migration_version = GATE_WIRE_PROXY_CONNECTION_MIGRATION_VERSION,
+    }
+    local gate_count = get_cached_gate_count(storage.ei.gate)
+    storage.ei.gate.gate[gate_unit] = gate_data
+    set_cached_gate_count(storage.ei.gate, gate_count + 1)
 
-    local gate_data = model.ensure_gate_defaults(gate_unit, event)
+    gate_data = model.ensure_gate_defaults(gate_unit, event)
     if gate_data then
         gate_data.gate = gate
         gate_data.container = container
@@ -3515,9 +3577,7 @@ function model.destroy_gate(gate, container, event)
         container.destroy()
     end
 
-    if storage.ei.gate.gate[gate_unit] then
-        storage.ei.gate.gate[gate_unit] = nil
-    end
+    remove_gate_registry_entry(gate_unit)
 
 end
 
@@ -4843,7 +4903,7 @@ function model.rebuild_runtime_state(reason, event)
             else
                 destroy_gate_glows(gate_data)
                 model.destroy_wire_proxy(gate_unit)
-                storage.ei.gate.gate[gate_unit] = nil
+                remove_gate_registry_entry(gate_unit)
             end
         end
     end
@@ -4854,6 +4914,7 @@ function model.rebuild_runtime_state(reason, event)
         end
     end
 
+    set_cached_gate_count(storage.ei.gate, ei_runtime_scheduler.table_count(storage.ei.gate.gate))
     model.refresh_receivers(event)
     model.rebuild_distance_cache()
     migrate_existing_gate_proxy_connections(event)
@@ -4924,6 +4985,34 @@ function model.on_destroyed_entity(event)
 end
 
 
+function model.get_pending_work_count(_event)
+    local gate_root = storage and storage.ei and storage.ei.gate or nil
+    if type(gate_root) ~= "table" or type(gate_root.gate) ~= "table" then
+        return 0
+    end
+
+    -- Gate simulation is intentionally registry-driven: every live gate needs periodic
+    -- energy decay, transfer checks, wire refresh, and render upkeep.
+    return get_cached_gate_count(gate_root)
+end
+
+
+function model.has_tick_work(_event)
+    local gate_root = storage and storage.ei and storage.ei.gate or nil
+    local gate_registry = type(gate_root) == "table" and gate_root.gate or nil
+    if type(gate_registry) ~= "table" then
+        return false
+    end
+
+    local cached_count = tonumber(gate_root.gate_count)
+    if cached_count then
+        return cached_count > 0
+    end
+
+    return next(gate_registry) ~= nil
+end
+
+
 function model.update(event)
 
     model.check_global_init()
@@ -4985,7 +5074,7 @@ function model.update(event)
             model.update_renders(break_id, gate, event)
         else
             destroy_gate_glows(gate_entry)
-            gate_registry[break_id] = nil
+            remove_gate_registry_entry(break_id)
             current_gate_exists = false
         end
     end
@@ -5010,10 +5099,12 @@ end
 function model.get_runtime_status()
     model.check_global_init()
 
-    local gate_count = ei_runtime_scheduler.table_count(storage.ei.gate.gate)
+    local gate_count = get_cached_gate_count(storage.ei.gate)
 
     local status = {
         gate_count = gate_count,
+        pending_work_count = gate_count,
+        has_tick_work = gate_count > 0,
         receiver_count = ei_runtime_scheduler.table_count(storage.ei.gate.receiver),
         receiver_force_count = ei_runtime_scheduler.table_count(storage.ei.gate.receiver_by_force),
         receiver_registry_dirty = storage.ei.gate.receiver_registry_dirty == true,

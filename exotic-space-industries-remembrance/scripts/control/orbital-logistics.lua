@@ -5269,7 +5269,11 @@ function model.on_gui_click(event)
 
   local action = element.tags and element.tags.action or nil
   if action == "goto-informatron" then
-    remote.call("informatron", "informatron_open_to_page", player.index, "exotic-industries-informatron", "orbital_scanner")
+    remote.call("informatron", "informatron_open_to_page", {
+      player_index = player.index,
+      interface = "exotic-industries-informatron",
+      page_name = "orbital_scanner",
+    })
     return
   elseif action == "close-gui" then
     model.close_gui(player)

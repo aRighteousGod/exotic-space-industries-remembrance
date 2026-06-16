@@ -16,6 +16,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task doc
 Get-ChildItem 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\core\lualib' -File
 ```
 
+This survey follows the installed game files, not the hosted `lua-api.factorio.com/latest` docs. Re-run `factorio.exe --version` and resurvey `data\core\lualib` before bumping the recorded version.
+
 ## Workflow
 
 1. Classify the code stage first: data/prototype, runtime/control, scenario/tutorial, migration, or support tooling.

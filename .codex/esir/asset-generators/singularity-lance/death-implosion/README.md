@@ -12,7 +12,7 @@ python .\.codex\esir\asset-generators\singularity-lance\death-implosion\generate
 
 ## Output
 
-- `ei-singularity-lance-death-implosion.png`
-- `ei-singularity-lance-death-implosion-glow.png`
+- `singularity-lance-death-implosion.png`
+- `singularity-lance-death-implosion-glow.png`
 
 Both sheets use `512x512` frames, `48` frames, `8` columns, and `6` rows. Staged output lands under `output/meshy/ei-singularity-lance-death-implosion/`; `--promote` copies the approved sheets to `exotic-space-industries-remembrance/graphics/entities/singularity-lance/death/`.

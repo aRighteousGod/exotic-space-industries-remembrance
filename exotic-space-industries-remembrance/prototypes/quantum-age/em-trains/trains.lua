@@ -214,7 +214,7 @@ data:extend({
         category = "crafting",
         energy_required = 10,
         ingredients = {
-		{type="item", name="fluid-wagon", amount=1},
+		{type="item", name="ei-advanced-fluid-wagon", amount=1},
 		{type="item", name="ei-carbon-structure", amount=15},
 		{type="item", name="ei-clean-plating", amount=15},
 		{type="item", name="ei_em-fielder", amount=8},
@@ -269,7 +269,7 @@ data:extend({
         type = "technology",
         icon = ei_trains_tech_path.."em-locomotive.png",
         icon_size = 256,
-        prerequisites = {"ei-eu-magnet", "energy-shield-mk2-equipment", "fluid-wagon", "ei-copper-beacon","ei-nuclear-locomotive","ei-advanced-cargo-wagon"},
+        prerequisites = {"ei-eu-magnet", "energy-shield-mk2-equipment", "ei-advanced-fluid-wagon", "ei-copper-beacon","ei-nuclear-locomotive","ei-advanced-cargo-wagon"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -644,7 +644,7 @@ data:extend({
 		icon = ei_trains_item_path.."em-fluid-wagon.png",
         icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
-		capacity = 50000,
+		capacity = 100000,
 		minable = {
             mining_time = 1,
             result = "ei_em-fluid-wagon"

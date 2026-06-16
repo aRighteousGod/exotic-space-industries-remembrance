@@ -15,13 +15,11 @@ local plutonium_icon = ei_graphics_item_path .. "plutonium-239.png"
 local deer_ammo_icon = "__doeworks-deer__/graphics-smol/icons/deer-ammo-basic-icon.png"
 local deer_crate_icon = "__doeworks-deer__/graphics-smol/icons/deer-crate-basic-icon.png"
 local rocket_items_path = ei_temporary_rocket_item_path
-local rocket_techs_path = ei_temporary_rocket_tech_path
 local deer_ammo_basic_direct_icon = rocket_items_path .. "dw-deer-ammo-basic.png"
 local deer_ammo_corrosive_direct_icon = rocket_items_path .. "dw-deer-ammo-corrosive.png"
 local deer_ammo_cryo_direct_icon = rocket_items_path .. "dw-deer-ammo-cryo.png"
 local deer_ammo_atomic_u235_direct_icon = rocket_items_path .. "dw-deer-ammo-atomic-u235.png"
 local deer_ammo_atomic_plutonium_direct_icon = rocket_items_path .. "dw-deer-ammo-atomic-plutonium.png"
-local deer_tech_icon = rocket_techs_path .. "dw-deer-tech.png"
 local atomic_rocket_action = data.raw.projectile["atomic-rocket"] and data.raw.projectile["atomic-rocket"].action
 local atomic_rocket_u235_action = data.raw.projectile["ei-atomic-rocket-u235"] and data.raw.projectile["ei-atomic-rocket-u235"].action
 
@@ -206,19 +204,6 @@ local function make_imported_recipe_icons(base_icon, overlay_icon, overlay_scale
     )
 end
 
-local function make_imported_tech_icons(base_icon, overlay_icon, overlay_scale, overlay_shift)
-    return ei_lib.make_icons(
-        base_icon,
-        256,
-        overlay_icon,
-        64,
-        overlay_scale or 0.4,
-        overlay_shift or {8, 8},
-        nil,
-        {base_mipmaps = 4}
-    )
-end
-
 local function clone_stream(source_name, new_name)
     local source = data.raw.stream and data.raw.stream[source_name]
     if not source then
@@ -341,10 +326,6 @@ set_composite_icons(
 set_composite_icons(
     data.raw.recipe["dw-deer-uncrating-basic"],
     make_imported_recipe_icons(deer_ammo_basic_direct_icon, artillery_shell_icon, 0.4, {8, 8})
-)
-set_composite_icons(
-    data.raw.technology["dw-deer-tech"],
-    make_imported_tech_icons(deer_tech_icon, artillery_shell_icon, 0.4, {8, 8})
 )
 
 local deer_turret = data.raw["ammo-turret"] and data.raw["ammo-turret"]["dw-deer-turret"]

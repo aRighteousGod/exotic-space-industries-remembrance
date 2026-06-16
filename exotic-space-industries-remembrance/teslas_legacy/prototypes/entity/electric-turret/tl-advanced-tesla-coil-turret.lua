@@ -5,6 +5,34 @@ local settings = get_settings()
 local anim_spd = 0.5
 local anim_offset = {x=0,y=-1}
 
+local function make_tesla_starting_attack_sound(filename)
+  return
+  {
+    category = "weapon",
+    filename = filename,
+    volume = settings.sound.advanced_volume,
+    speed = 1,
+    aggregation =
+    {
+      max_count = 2,
+      remove = true,
+      count_already_playing = true,
+    },
+    advanced_volume_control =
+    {
+      fades =
+      {
+        fade_in =
+        {
+          curve_type = "S-curve",
+          from = {control = 0.5, volume_percentage = 0.0},
+          to = {2, 100.0},
+        },
+      },
+    },
+  }
+end
+
 function pillar_animation_core(args)
   return
   {
@@ -237,12 +265,9 @@ function init_subtle_animations(electric_turret_object)
     }
   }
   
-  electric_turret_object.starting_attack_sound = 
-  {
-    filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-advanced-tesla-coil-zap-subtle.wav",
-    volume = 0.7,
-    speed = 1,
-  }
+  electric_turret_object.starting_attack_sound = make_tesla_starting_attack_sound(
+    "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/tl-advanced-tesla-coil-zap-subtle.wav"
+  )
   
   return electric_turret_object
 end
@@ -310,12 +335,9 @@ function init_glowing_animations(electric_turret_object)
       get_color_mask_animation({repeat_count = charging_anim.frame_count}),        
     }
   }
-  electric_turret_object.starting_attack_sound = 
-  {
-    filename = "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/chargeup-with-zap.wav",
-    volume = 0.7,
-    speed = 1,
-  }
+  electric_turret_object.starting_attack_sound = make_tesla_starting_attack_sound(
+    "__exotic-space-industries-remembrance-graphics-3__/teslas_legacy/sound/chargeup-with-zap.wav"
+  )
   return electric_turret_object
 end
 

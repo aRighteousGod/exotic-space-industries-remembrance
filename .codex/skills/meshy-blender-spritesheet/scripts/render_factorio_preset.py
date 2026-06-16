@@ -38,6 +38,44 @@ PASS_DEFS = {
 }
 DEFAULT_PASSES = "object,shadow,light-alpha-reduced,light-alpha,mask"
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")
+LIGHTING_PROFILES: dict[str, dict[str, Any]] = {
+    "preset-default": {
+        "description": "Current factorioRenderingPreset_v4 lighting and material behavior.",
+        "values": {},
+    },
+    "rail-fill": {
+        "description": "Dark vehicle profile: moderate sun, strong world fill, and rough non-metallic material lift.",
+        "values": {
+            "preset_sun_energy_scale": 1.40,
+            "preset_world_strength_scale": 3.00,
+            "prep_vehicle_material_lift": True,
+            "prep_material_metallic": 0.0,
+            "prep_material_roughness": 0.76,
+            "prep_base_color_gamma": 0.74,
+            "prep_base_color_value": 1.08,
+        },
+    },
+    "gamma-rescue": {
+        "description": "Exception profile for assets that stay too dark after safer vehicle/fill previews.",
+        "values": {
+            "preset_sun_energy_scale": 1.50,
+            "preset_world_strength_scale": 1.00,
+            "preset_view_exposure_offset": 0.0,
+            "preset_view_gamma": 1.50,
+        },
+    },
+}
+PROFILE_FLAG_BY_ATTR = {
+    "preset_sun_energy_scale": "--preset-sun-energy-scale",
+    "preset_world_strength_scale": "--preset-world-strength-scale",
+    "preset_view_exposure_offset": "--preset-view-exposure-offset",
+    "preset_view_gamma": "--preset-view-gamma",
+    "prep_vehicle_material_lift": "--prep-vehicle-material-lift",
+    "prep_material_metallic": "--prep-material-metallic",
+    "prep_material_roughness": "--prep-material-roughness",
+    "prep_base_color_gamma": "--prep-base-color-gamma",
+    "prep_base_color_value": "--prep-base-color-value",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -47,12 +85,15 @@ def parse_args() -> argparse.Namespace:
     else:
         argv = argv[1:]
 
+    def has_option(name: str) -> bool:
+        return any(part == name or part.startswith(name + "=") for part in argv)
+
     parser = argparse.ArgumentParser(description="Render through factorioRenderingPreset_v4.blend.")
     parser.add_argument("--preset-blend", required=True, help="Path to factorioRenderingPreset_v4.blend.")
     parser.add_argument("--input", help="GLB, GLTF, OBJ, or FBX model path.")
     parser.add_argument("--test-cube", action="store_true", help="Create a simple cube instead of importing a model.")
     parser.add_argument("--base-dir", help="Resolve relative paths from this directory.")
-    parser.add_argument("--asset-name", required=True, help="Asset/prototype-style name used in manifests.")
+    parser.add_argument("--asset-name", required=True, help="Asset/render name used in manifests; main-pack graphics should omit leading ei-.")
     parser.add_argument("--output-dir", required=True, help="Render output root, usually output/meshy/<asset>/Render.")
     parser.add_argument("--manifest", help="Manifest path. Defaults to <output-dir>/factorio-preset-render-manifest.json.")
     parser.add_argument("--passes", default=DEFAULT_PASSES, help="Comma-separated preset passes to render.")
@@ -68,13 +109,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--directions", type=int, default=4, help="Preset direction count.")
     parser.add_argument("--animation-frames", type=int, default=16, help="Animation frames per direction.")
     parser.add_argument("--unit-directions", type=int, choices=[16, 32], help="Unit-style direction count; also sets total frames unless --frames is explicit.")
+    parser.add_argument("--rolling-stock-sloped", action="store_true", help="Group each yaw direction into elevated-rail slope samples.")
+    parser.add_argument("--back-equals-front", action="store_true", help="Render a half-turn yaw sweep for symmetric rolling stock that uses back_equals_front.")
+    parser.add_argument("--slope-samples", type=int, default=5, help="Pitch samples per yaw direction for --rolling-stock-sloped.")
+    parser.add_argument("--slope-angle-between-frames", type=float, default=1.25, help="Degrees between rolling-stock sloped samples.")
+    parser.add_argument("--slope-axis", choices=["x", "y", "z"], default="y", help="Local axis to pitch for --rolling-stock-sloped.")
+    parser.add_argument("--slope-sign", type=float, default=1.0, help="Direction multiplier for the sloped pitch driver.")
+    parser.add_argument("--rolling-stock-ramp-yaw-pairs", action="store_true", help="For elevated ramp stock, render paired ramp directions at cardinal yaw angles like vanilla/Juggernaut.")
+    parser.add_argument("--rolling-stock-ramp-yaw-indices", help="Comma-separated Factorio yaw indices for --rolling-stock-ramp-yaw-pairs, one per ramp direction.")
     parser.add_argument("--initial-angle", type=float, default=90.0, help="Initial angle in degrees for the unit-driver formula.")
+    parser.add_argument("--rotation-denominator", type=float, help="Override the yaw denominator used by the direction driver. Defaults to directions, or directions*2 with --back-equals-front.")
     parser.add_argument("--ortho-scale", type=float, default=6.0, help="Preset camera orthographic scale.")
     parser.add_argument("--tile-size", type=int, default=64, help="Preset tile size in pixels.")
     parser.add_argument("--resolution", type=int, help="Override square render resolution.")
     parser.add_argument("--pack-sheets", action="store_true", help="Pack rendered pass folders into Render/.Sheets.")
     parser.add_argument("--grid", default="8x8", help="Packed sheet grid, e.g. 8x8.")
     parser.add_argument("--lights", choices=["auto", "none"], default="auto", help="Move non-sun lights to Lights on and assign Light Group Lights.")
+    parser.add_argument("--lighting-profile", choices=sorted(LIGHTING_PROFILES), default="preset-default", help="Named opt-in lighting/material profile. Defaults preserve current preset behavior.")
     parser.add_argument("--preset-sun-energy-scale", type=float, default=1.0, help="Scale the preset's main baked-light suns (Sun 1/Sun 2) without changing shadow, glow, or geometry setup.")
     parser.add_argument("--preset-world-strength-scale", type=float, default=1.0, help="Scale the preset world color/fill contribution without changing geometry setup.")
     parser.add_argument("--preset-view-exposure-offset", type=float, default=0.0, help="Offset Blender view exposure for controlled render-time brightness tests. Defaults to the preset exposure unchanged.")
@@ -95,6 +146,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--prep-delete-unmaterialed-meshes", action="store_true", help="Delete imported mesh objects that have no material slots.")
     parser.add_argument("--prep-delete-mesh-name-glob", action="append", default=[], help="Delete imported mesh objects matching a glob, e.g. Icosphere*. May be repeated.")
     parser.add_argument("--prep-alpha-mode", choices=["report", "force-opaque"], default="report", help="Report alpha material risks or force imported materials opaque.")
+    parser.add_argument("--prep-vehicle-material-lift", action="store_true", help="Normalize imported vehicle materials for Factorio renders: non-metallic, rough, and brighter albedo.")
+    parser.add_argument("--prep-material-metallic", type=float, default=0.0, help="Metallic value used by --prep-vehicle-material-lift.")
+    parser.add_argument("--prep-material-roughness", type=float, default=0.72, help="Roughness value used by --prep-vehicle-material-lift.")
+    parser.add_argument("--prep-base-color-gamma", type=float, default=0.62, help="Gamma node value used to lift linked Base Color textures.")
+    parser.add_argument("--prep-base-color-value", type=float, default=1.15, help="Hue/Saturation value multiplier used to lift linked Base Color textures.")
     parser.add_argument("--prep-apply-scale", action="store_true", help="Apply imported mesh scale transforms before normalization.")
     parser.add_argument("--dry-run", action="store_true", help="Configure the preset and write a manifest without rendering.")
     parser.add_argument("--preflight-only", action="store_true", help="Configure and inspect the preset, write a manifest, and skip rendering.")
@@ -117,12 +173,46 @@ def parse_args() -> argparse.Namespace:
         parser.error("--asset-name must contain only letters, numbers, underscores, or dashes.")
     if not args.input and not args.test_cube:
         parser.error("Provide --input or --test-cube.")
-    if args.unit_directions and not any(part == "--directions" or part.startswith("--directions=") for part in argv):
+    if args.unit_directions and not has_option("--directions"):
         args.directions = args.unit_directions
-    if args.unit_directions and not any(part == "--frames" or part.startswith("--frames=") for part in argv):
+    if args.unit_directions and not has_option("--frames"):
         args.frames = args.animation_frames * args.unit_directions
+    if args.rolling_stock_sloped:
+        if args.slope_samples < 1:
+            parser.error("--slope-samples must be positive.")
+        if args.slope_angle_between_frames <= 0:
+            parser.error("--slope-angle-between-frames must be positive.")
+        if not has_option("--animation-frames"):
+            args.animation_frames = args.slope_samples
+        elif args.animation_frames != args.slope_samples:
+            parser.error("--rolling-stock-sloped requires --animation-frames to match --slope-samples.")
+        expected_frames = args.directions * args.slope_samples
+        if not has_option("--frames"):
+            args.frames = expected_frames
+        elif args.frames != expected_frames:
+            parser.error("--rolling-stock-sloped requires --frames to equal --directions * --slope-samples.")
     if args.frames < 1 or args.directions < 1 or args.animation_frames < 1:
         parser.error("--frames, --directions, and --animation-frames must be positive.")
+    if args.rotation_denominator is not None and args.rotation_denominator <= 0:
+        parser.error("--rotation-denominator must be positive.")
+    if args.rolling_stock_ramp_yaw_pairs and not args.rolling_stock_sloped:
+        parser.error("--rolling-stock-ramp-yaw-pairs requires --rolling-stock-sloped.")
+    if args.rolling_stock_ramp_yaw_pairs and args.directions not in (4, 8):
+        parser.error("--rolling-stock-ramp-yaw-pairs currently supports 4 or 8 ramp yaw groups.")
+    if args.rolling_stock_ramp_yaw_indices and not args.rolling_stock_ramp_yaw_pairs:
+        parser.error("--rolling-stock-ramp-yaw-indices requires --rolling-stock-ramp-yaw-pairs.")
+    if args.rolling_stock_ramp_yaw_indices:
+        yaw_indices = parse_int_list(args.rolling_stock_ramp_yaw_indices, "--rolling-stock-ramp-yaw-indices")
+        if len(yaw_indices) != args.directions:
+            parser.error("--rolling-stock-ramp-yaw-indices must contain exactly --directions values.")
+        if any(value < 0 or value >= 256 for value in yaw_indices):
+            parser.error("--rolling-stock-ramp-yaw-indices values must be in the 0..255 Factorio direction range.")
+        args.rolling_stock_ramp_yaw_indices = yaw_indices
+    apply_lighting_profile(args, has_option)
+    if args.prep_material_metallic < 0 or args.prep_material_roughness < 0:
+        parser.error("--prep-material-metallic and --prep-material-roughness must be >= 0.")
+    if args.prep_base_color_gamma <= 0 or args.prep_base_color_value <= 0:
+        parser.error("--prep-base-color-gamma and --prep-base-color-value must be > 0.")
     if args.preset_sun_energy_scale < 0:
         parser.error("--preset-sun-energy-scale must be >= 0.")
     if args.preset_world_strength_scale < 0:
@@ -164,6 +254,45 @@ def parse_grid(raw: str) -> tuple[int, int]:
     if columns < 1 or rows < 1:
         raise SystemExit("--grid values must be positive.")
     return columns, rows
+
+
+def apply_lighting_profile(args: argparse.Namespace, has_option: Any) -> None:
+    profile = LIGHTING_PROFILES[args.lighting_profile]
+    applied = {}
+    explicit_overrides = {}
+    for attr, value in profile["values"].items():
+        flag = PROFILE_FLAG_BY_ATTR[attr]
+        if has_option(flag):
+            explicit_overrides[attr] = getattr(args, attr)
+            continue
+        setattr(args, attr, value)
+        applied[attr] = value
+
+    args.lighting_profile_settings = {
+        "name": args.lighting_profile,
+        "description": profile["description"],
+        "applied_defaults": applied,
+        "explicit_overrides": explicit_overrides,
+    }
+
+
+def parse_int_list(raw: str, option_name: str) -> list[int]:
+    parts = [part.strip() for part in raw.replace(";", ",").split(",") if part.strip()]
+    if not parts:
+        raise SystemExit(f"{option_name} must contain at least one integer.")
+    try:
+        return [int(part) for part in parts]
+    except ValueError as exc:
+        raise SystemExit(f"{option_name} must be a comma-separated integer list, got {raw}") from exc
+
+
+def ramp_yaw_indices(args: argparse.Namespace) -> tuple[int, ...] | None:
+    if not args.rolling_stock_ramp_yaw_pairs:
+        return None
+    override = args.rolling_stock_ramp_yaw_indices
+    if override:
+        return tuple(int(value) for value in override)
+    return (128, 0, 56, 72, 0, 128, 200, 184) if args.directions == 8 else (128, 0, 56, 72)
 
 
 def parse_tiles(raw: str | None) -> tuple[float, float] | None:
@@ -474,6 +603,106 @@ def force_opaque_alpha_materials(objects: list[bpy.types.Object]) -> list[dict[s
     return changed
 
 
+def socket_default(socket: Any) -> Any:
+    if socket is None or not hasattr(socket, "default_value"):
+        return None
+    value = socket.default_value
+    try:
+        return list(value)
+    except TypeError:
+        return value
+
+
+def lift_color_tuple(value: Any, gamma: float, gain: float) -> tuple[float, float, float, float] | None:
+    try:
+        components = list(value)
+    except TypeError:
+        return None
+    if len(components) < 3:
+        return None
+    alpha = components[3] if len(components) > 3 else 1.0
+    lifted = [min(1.0, max(0.0, (float(component) ** gamma) * gain)) for component in components[:3]]
+    return (lifted[0], lifted[1], lifted[2], float(alpha))
+
+
+def lift_vehicle_materials(objects: list[bpy.types.Object], args: argparse.Namespace) -> list[dict[str, Any]]:
+    changed: list[dict[str, Any]] = []
+    for obj in mesh_objects(objects):
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat:
+                continue
+            record: dict[str, Any] = {
+                "object": obj.name,
+                "material": mat.name,
+                "metallic": None,
+                "roughness": None,
+                "base_color": None,
+                "base_color_links_lifted": 0,
+            }
+            touched = False
+            if not mat.use_nodes or not mat.node_tree:
+                if hasattr(mat, "diffuse_color"):
+                    before = list(mat.diffuse_color)
+                    lifted = lift_color_tuple(mat.diffuse_color, args.prep_base_color_gamma, args.prep_base_color_value)
+                    if lifted:
+                        mat.diffuse_color = lifted
+                        record["base_color"] = {"before": before, "after": list(lifted)}
+                        touched = True
+                if touched:
+                    changed.append(record)
+                continue
+
+            for node in mat.node_tree.nodes:
+                if node.bl_idname != "ShaderNodeBsdfPrincipled":
+                    continue
+                metallic = node.inputs.get("Metallic")
+                if metallic:
+                    before = socket_default(metallic)
+                    for link in list(metallic.links):
+                        mat.node_tree.links.remove(link)
+                    metallic.default_value = min(1.0, max(0.0, float(args.prep_material_metallic)))
+                    record["metallic"] = {"before": before, "after": socket_default(metallic)}
+                    touched = True
+                roughness = node.inputs.get("Roughness")
+                if roughness:
+                    before = socket_default(roughness)
+                    for link in list(roughness.links):
+                        mat.node_tree.links.remove(link)
+                    roughness.default_value = min(1.0, max(0.0, float(args.prep_material_roughness)))
+                    record["roughness"] = {"before": before, "after": socket_default(roughness)}
+                    touched = True
+                base_color = node.inputs.get("Base Color")
+                if not base_color:
+                    continue
+                if base_color.links:
+                    incoming = list(base_color.links)
+                    for link in incoming:
+                        source_socket = link.from_socket
+                        mat.node_tree.links.remove(link)
+                        gamma_node = mat.node_tree.nodes.new("ShaderNodeGamma")
+                        gamma_node.name = "ESIR Vehicle Albedo Gamma"
+                        gamma_node.inputs["Gamma"].default_value = float(args.prep_base_color_gamma)
+                        value_node = mat.node_tree.nodes.new("ShaderNodeHueSaturation")
+                        value_node.name = "ESIR Vehicle Albedo Value"
+                        value_node.inputs["Value"].default_value = float(args.prep_base_color_value)
+                        mat.node_tree.links.new(source_socket, gamma_node.inputs["Color"])
+                        mat.node_tree.links.new(gamma_node.outputs["Color"], value_node.inputs["Color"])
+                        mat.node_tree.links.new(value_node.outputs["Color"], base_color)
+                        record["base_color_links_lifted"] += 1
+                        touched = True
+                else:
+                    before = socket_default(base_color)
+                    lifted = lift_color_tuple(base_color.default_value, args.prep_base_color_gamma, args.prep_base_color_value)
+                    if lifted:
+                        base_color.default_value = lifted
+                        record["base_color"] = {"before": before, "after": socket_default(base_color)}
+                        touched = True
+            if touched:
+                changed.append(record)
+    return changed
+
+
 def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.Namespace) -> dict[str, Any]:
     enabled = any(
         [
@@ -484,6 +713,7 @@ def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.N
             bool(args.prep_delete_mesh_name_glob),
             args.prep_apply_scale,
             args.prep_alpha_mode == "force-opaque",
+            args.prep_vehicle_material_lift,
         ]
     )
     report: dict[str, Any] = {
@@ -491,10 +721,18 @@ def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.N
         "origin_mode": args.prep_origin_mode,
         "target_size": args.prep_target_size,
         "alpha_mode": args.prep_alpha_mode,
+        "material_lift_settings": {
+            "enabled": bool(args.prep_vehicle_material_lift),
+            "metallic": float(args.prep_material_metallic),
+            "roughness": float(args.prep_material_roughness),
+            "base_color_gamma": float(args.prep_base_color_gamma),
+            "base_color_value": float(args.prep_base_color_value),
+        },
         "removed_imported_cameras": [],
         "deleted_empty_meshes": [],
         "deleted_meshes": [],
         "forced_opaque_materials": [],
+        "vehicle_material_lift": [],
         "applied_scale": False,
     }
     if not enabled:
@@ -526,10 +764,31 @@ def auto_prep_imported_objects(objects: list[bpy.types.Object], args: argparse.N
         report["applied_scale"] = apply_scale_to_meshes(objects)
     if args.prep_alpha_mode == "force-opaque":
         report["forced_opaque_materials"] = force_opaque_alpha_materials(objects)
+    if args.prep_vehicle_material_lift:
+        report["vehicle_material_lift"] = lift_vehicle_materials(objects, args)
     return report
 
 
-def place_imported_objects(objects: list[bpy.types.Object], args: argparse.Namespace) -> None:
+def create_rolling_stock_slope_parent(args: argparse.Namespace) -> bpy.types.Object | None:
+    if not args.rolling_stock_sloped:
+        return None
+
+    slope_parent = bpy.data.objects.new("Rolling Stock Slope Pitch", None)
+    slope_parent.empty_display_type = "ARROWS"
+    slope_parent.rotation_mode = "XYZ"
+    link_to_collection(slope_parent, "Normal")
+
+    rotator = bpy.data.objects.get("Rotation by Frames & Directions")
+    if rotator and not args.no_parent_to_rotation:
+        slope_parent.parent = rotator
+    return slope_parent
+
+
+def place_imported_objects(
+    objects: list[bpy.types.Object],
+    args: argparse.Namespace,
+    slope_parent: bpy.types.Object | None = None,
+) -> None:
     rotator = bpy.data.objects.get("Rotation by Frames & Directions")
     for obj in objects:
         unlink_from_all(obj)
@@ -541,8 +800,9 @@ def place_imported_objects(objects: list[bpy.types.Object], args: argparse.Names
             link_to_collection(obj, "Object")
         else:
             link_to_collection(obj, "Normal")
-            if rotator and not args.no_parent_to_rotation:
-                obj.parent = rotator
+            parent = slope_parent or rotator
+            if parent and not args.no_parent_to_rotation:
+                obj.parent = parent
 
 
 def apply_spin_driver(args: argparse.Namespace) -> dict[str, Any] | None:
@@ -573,6 +833,41 @@ def apply_spin_driver(args: argparse.Namespace) -> dict[str, Any] | None:
         "axis": args.spin_axis,
         "degrees": args.spin_degrees,
         "frames": frames,
+        "expression": driver.expression,
+    }
+
+
+def apply_rolling_stock_slope_driver(
+    args: argparse.Namespace,
+    slope_parent: bpy.types.Object | None,
+) -> dict[str, Any] | None:
+    if not args.rolling_stock_sloped:
+        return None
+    if slope_parent is None:
+        raise SystemExit("--rolling-stock-sloped could not create a slope parent.")
+
+    axis_index = {"x": 0, "y": 1, "z": 2}[args.slope_axis]
+    if slope_parent.animation_data:
+        for fcu in list(slope_parent.animation_data.drivers):
+            if fcu.data_path == "rotation_euler" and fcu.array_index == axis_index:
+                slope_parent.driver_remove(fcu.data_path, fcu.array_index)
+
+    fcu = slope_parent.driver_add("rotation_euler", axis_index)
+    driver = fcu.driver
+    driver.type = "SCRIPTED"
+    center = (args.slope_samples - 1) / 2
+    driver.expression = (
+        f"radians((((frame - 1) % {args.slope_samples}) - {center:.12g}) "
+        f"* {args.slope_angle_between_frames:.12g} * {args.slope_sign:.12g})"
+    )
+    return {
+        "object": slope_parent.name,
+        "axis": args.slope_axis,
+        "samples": args.slope_samples,
+        "angle_between_frames": args.slope_angle_between_frames,
+        "sign": args.slope_sign,
+        "yaw_directions": args.directions,
+        "factorio_direction_count": args.frames,
         "expression": driver.expression,
     }
 
@@ -610,9 +905,26 @@ def apply_preset_lighting_adjustments(args: argparse.Namespace) -> dict[str, Any
         original_color = [float(component) for component in world.color]
         adjusted_color = [max(0.0, component * world_scale) for component in original_color]
         world.color = adjusted_color
+        background_nodes = []
+        if world.use_nodes and world.node_tree:
+            for node in world.node_tree.nodes:
+                if node.bl_idname != "ShaderNodeBackground":
+                    continue
+                strength = node.inputs.get("Strength")
+                color = node.inputs.get("Color")
+                background_record: dict[str, Any] = {"name": node.name}
+                if strength:
+                    original_strength = float(strength.default_value)
+                    strength.default_value = original_strength * world_scale
+                    background_record["original_strength"] = original_strength
+                    background_record["adjusted_strength"] = float(strength.default_value)
+                if color:
+                    background_record["color"] = list(color.default_value)
+                background_nodes.append(background_record)
         record["world"] = {
             "original_color": original_color,
             "adjusted_color": [float(component) for component in world.color],
+            "background_nodes": background_nodes,
         }
 
     return record
@@ -737,7 +1049,20 @@ def add_unit_driver(args: argparse.Namespace) -> None:
     fcu = rotator.driver_add("rotation_euler", 2)
     driver = fcu.driver
     driver.type = "SCRIPTED"
-    driver.expression = f"radians(-{args.initial_angle} - ((frame - 1) // {args.animation_frames}) * 360 / {args.directions})"
+    denominator = args.rotation_denominator
+    if denominator is None:
+        denominator = args.directions * 2 if args.back_equals_front else args.directions
+    if args.rolling_stock_ramp_yaw_pairs:
+        yaw_indices = ramp_yaw_indices(args)
+        bpy.app.driver_namespace["esir_ramp_yaw_index"] = lambda group: yaw_indices[int(group) % len(yaw_indices)]
+        driver.expression = (
+            f"radians(-{args.initial_angle} - esir_ramp_yaw_index((frame - 1) // {args.animation_frames}) * 360 / 256)"
+        )
+    else:
+        driver.expression = (
+            f"radians(-{args.initial_angle} - ((frame - 1) // {args.animation_frames}) "
+            f"* 360 / {float(denominator):.12g})"
+        )
 
 
 def material_risks(objects: list[bpy.types.Object]) -> list[dict[str, Any]]:
@@ -1007,9 +1332,11 @@ def main() -> None:
             target_size=args.prep_target_size,
             origin_mode=args.prep_origin_mode,
         )
-    place_imported_objects(imported, args)
+    slope_parent = create_rolling_stock_slope_parent(args)
+    place_imported_objects(imported, args, slope_parent=slope_parent)
     spin_report = apply_spin_driver(args)
     add_unit_driver(args)
+    slope_report = apply_rolling_stock_slope_driver(args, slope_parent)
 
     scene_record = setup_scene(args, selected_passes, output_dir)
     preflight = preflight_report(
@@ -1066,12 +1393,33 @@ def main() -> None:
             "output_dir": str(output_dir),
             "passes": selected_passes,
             "quality": args.quality,
+            "lighting_profile": args.lighting_profile,
+            "lighting_profile_settings": args.lighting_profile_settings,
+            "resolved_lighting": {
+                "preset_sun_energy_scale": float(args.preset_sun_energy_scale),
+                "preset_world_strength_scale": float(args.preset_world_strength_scale),
+                "preset_view_exposure_offset": float(args.preset_view_exposure_offset),
+                "preset_view_gamma": None if args.preset_view_gamma is None else float(args.preset_view_gamma),
+            },
+            "resolved_material_lift": {
+                "enabled": bool(args.prep_vehicle_material_lift),
+                "metallic": float(args.prep_material_metallic),
+                "roughness": float(args.prep_material_roughness),
+                "base_color_gamma": float(args.prep_base_color_gamma),
+                "base_color_value": float(args.prep_base_color_value),
+            },
             "dry_run": args.dry_run,
             "preflight_only": args.preflight_only,
             "frames": args.frames,
             "directions": args.directions,
             "animation_frames": args.animation_frames,
             "unit_directions": args.unit_directions,
+            "rolling_stock_sloped": args.rolling_stock_sloped,
+            "back_equals_front": args.back_equals_front,
+            "rolling_stock_ramp_yaw_pairs": args.rolling_stock_ramp_yaw_pairs,
+            "rolling_stock_ramp_yaw_indices": list(ramp_yaw_indices(args)) if args.rolling_stock_ramp_yaw_pairs else None,
+            "rotation_denominator": args.rotation_denominator if args.rotation_denominator is not None else (args.directions * 2 if args.back_equals_front else args.directions),
+            "factorio_direction_count": args.frames if args.rolling_stock_sloped else args.directions,
             "initial_angle": args.initial_angle,
             "ortho_scale": args.ortho_scale,
             "auto_ortho_scale": args.auto_ortho_scale,
@@ -1081,6 +1429,7 @@ def main() -> None:
             "cleared_preset_objects": cleared,
             "imported_objects": [obj.name for obj in imported],
             "procedural_spin": spin_report,
+            "rolling_stock_slope": slope_report,
             "auto_prep": auto_prep,
             "normalization": normalize_report,
             "scene": scene_record,

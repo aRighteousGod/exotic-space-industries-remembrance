@@ -2,6 +2,8 @@
 
 Survey source: `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\base\prototypes` from Factorio 2.0.76.
 
+This reference tracks installed game files. Do not update its survey version from the hosted Lua API docs alone.
+
 Use Base prototype helper modules when ESIR wants canonical vanilla shapes for data-stage sounds, effects, graphics metadata, tile behavior, simulation snippets, or planet/procession tables. Re-check the live file before relying on exact table keys.
 
 ## Common ESIR Imports

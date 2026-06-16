@@ -203,7 +203,7 @@
 - `scripts\invoke-esir-dev.ps1 -Task qc-fast` completed with exit code 0 after wiring `v2-strong`; overall status remains `warning` from the existing cached run-mod/advisory warnings only.
 
 ## Hover Hum Sound Update
-- Updated `prototypes/exotic-age/emerald-apocalypse-hover-tank.lua` so the tank uses the same `sounds/gaian-saucer-hum.ogg` asset as the Gaian saucer.
+- Updated `prototypes/exotic-age/emerald-apocalypse-hover-tank.lua` so the tank uses the same Graphics 4 `sounds/gaian-saucer-hum.ogg` asset as the Gaian saucer.
 - Tank profile is deeper and heavier than the saucer: active sound `speed = 0.72`, idle sound `speed = 0.66`, with higher active/idle volume and wider audible distance.
 - `scripts\invoke-esir-dev.ps1 -Task qc-fast` completed with exit code 0 after the sound update; overall status remains `warning` from existing cached run-mod/advisory warnings only.
 

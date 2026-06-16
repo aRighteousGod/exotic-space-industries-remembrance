@@ -12,7 +12,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageStat
 
 
 ASSET_NAME = "ei-singularity-lance-rune-glow"
-OUTPUT_FILENAME = "ei-singularity-lance-rune-glow.png"
+OUTPUT_FILENAME = "singularity-lance-rune-glow.png"
 
 FRAME_SIZE = 768
 FRAME_COUNT = 64
@@ -35,7 +35,7 @@ ROOT = REPO_ROOT / "output" / "meshy" / ASSET_NAME
 EXPORT_DIR = ROOT / "factorio-export"
 PREVIEW_DIR = ROOT / "previews"
 GRAPHICS_DIR = REPO_ROOT / "exotic-space-industries-remembrance" / "graphics" / "entities" / "singularity-lance"
-BODY_SHEET = GRAPHICS_DIR / "ei-singularity-lance.png"
+BODY_SHEET = GRAPHICS_DIR / "singularity-lance.png"
 PROMOTED_SHEET = GRAPHICS_DIR / OUTPUT_FILENAME
 
 
@@ -224,15 +224,15 @@ def make_previews(body_frame: Image.Image, frames: list[Image.Image]) -> None:
         overlay_strip.alpha_composite(Image.alpha_composite(checker, overlay), (column * thumb_size[0], 0))
         composite_strip.alpha_composite(Image.alpha_composite(body_thumb, overlay), (column * thumb_size[0], 0))
 
-    overlay_strip.save(PREVIEW_DIR / "ei-singularity-lance-rune-glow-overlay-strip.png")
-    composite_strip.save(PREVIEW_DIR / "ei-singularity-lance-rune-glow-composite-strip.png")
+    overlay_strip.save(PREVIEW_DIR / "singularity-lance-rune-glow-overlay-strip.png")
+    composite_strip.save(PREVIEW_DIR / "singularity-lance-rune-glow-composite-strip.png")
 
     gif_frames = [
         Image.alpha_composite(body_frame, frame).resize(thumb_size, Image.Resampling.LANCZOS).convert("P", palette=Image.Palette.ADAPTIVE)
         for frame in frames
     ]
     gif_frames[0].save(
-        PREVIEW_DIR / "ei-singularity-lance-rune-glow-loop.gif",
+        PREVIEW_DIR / "singularity-lance-rune-glow-loop.gif",
         save_all=True,
         append_images=gif_frames[1:],
         duration=80,
@@ -305,7 +305,7 @@ def write_outputs(promote: bool) -> dict:
     sheet_path = EXPORT_DIR / OUTPUT_FILENAME
     sheet.save(sheet_path)
 
-    mask.save(PREVIEW_DIR / "ei-singularity-lance-rune-mask.png")
+    mask.save(PREVIEW_DIR / "singularity-lance-rune-mask.png")
     make_previews(body_frame, frames)
 
     if promote:

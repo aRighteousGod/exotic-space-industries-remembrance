@@ -34,6 +34,7 @@ simulations = require("__base__.prototypes.factoriopedia-simulations")
 
 require("prototypes/pipe-covers")
 require("prototypes/other")
+require("prototypes/rocket-launch-plume-smoke")
 require("prototypes/fluids")
 require("prototypes/styles")
 require("prototypes/informatron-sprites")
@@ -73,6 +74,8 @@ data:extend({
     energy_source = {type = "void"},
     energy_usage = "1J",
     inputs = {},
+    hidden = true,
+    hidden_in_factoriopedia = true,
   }
 })
 

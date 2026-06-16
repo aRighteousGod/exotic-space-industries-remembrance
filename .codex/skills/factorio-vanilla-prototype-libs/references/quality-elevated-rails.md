@@ -6,6 +6,7 @@ Survey sources:
 - `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\elevated-rails\prototypes`
 
 These surfaces require the corresponding vanilla mod dependency or guarded usage. Do not assume Quality or Elevated Rails helpers are available in every data-stage context.
+This reference tracks installed game files. Do not update its survey assumptions from the hosted Lua API docs alone.
 
 ## Quality
 

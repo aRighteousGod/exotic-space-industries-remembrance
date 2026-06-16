@@ -11,15 +11,14 @@
 --==============================================================================
 local util = require("util")
 
-local main_graphics_path = ei_path .. "graphics/"
-local cyst_node_shadow_path = main_graphics_path .. "entities/auric-cyst-node/auric-cyst-node-shadow.png"
+local cyst_node_shadow_path = ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-node-shadow.png"
 local cyst_node_variation_paths = {
-    main_graphics_path .. "entities/auric-cyst-node/auric-cyst-1.png",
-    main_graphics_path .. "entities/auric-cyst-node/auric-cyst-2.png",
-    main_graphics_path .. "entities/auric-cyst-node/auric-cyst-3.png",
-    main_graphics_path .. "entities/auric-cyst-node/auric-cyst-4.png",
-    main_graphics_path .. "entities/auric-cyst-node/auric-cyst-5.png",
-    main_graphics_path .. "entities/auric-cyst-node/auric-cyst-6.png",
+    ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-1.png",
+    ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-2.png",
+    ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-3.png",
+    ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-4.png",
+    ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-5.png",
+    ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-6.png",
 }
 local cyst_icon_path = cyst_node_variation_paths[1]
 local cyst_icon_size = 512

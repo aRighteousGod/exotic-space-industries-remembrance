@@ -1,6 +1,6 @@
 ei_data = require("lib/data")
 local carbon_dioxide_fluid = data.raw.fluid["ei-carbon-dioxide"]
-local carbon_dioxide_icon = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon) or (ei_path.."graphics/fluids/carbon-dioxide.png")
+local carbon_dioxide_icon = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon) or (ei_graphics_fluid_4_path.."carbon-dioxide.png")
 local carbon_dioxide_icon_size = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon_size) or 64
 
 --====================================================================================================

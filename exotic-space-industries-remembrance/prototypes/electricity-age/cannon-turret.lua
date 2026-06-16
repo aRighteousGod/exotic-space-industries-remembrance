@@ -144,12 +144,7 @@ data:extend({
             min_range = 10,
             rotate_penalty = 20,
             health_penalty = -10,
-            sound = {
-                {
-                    filename = "__base__/sound/fight/tank-cannon.ogg",
-                    volume = 0.8
-                }
-            },
+            sound = sounds.tank_gunshot,
             shell_particle = {
                 name = "shell-particle",
                 direction_deviation = 0.033,

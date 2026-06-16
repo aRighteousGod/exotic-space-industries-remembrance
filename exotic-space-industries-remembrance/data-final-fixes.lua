@@ -19,11 +19,11 @@ require("scripts/data-final-updates/set-menu-background")
 
 -- =======================================================================================
 require("scripts/data-final-updates/assembler-reskin")
-require("scripts/data-final-updates/legacy-train-model")
 require("scripts/data-final-updates/distant-misfires")
 require("scripts/data-final-updates/camp-fire")
 require("scripts/data-final-updates/flare-stack")
 require("scripts/data-final-updates/final-tech-fixes")
+require("scripts/data-final-updates/hide-surveyor-weapons")
 require("scripts/data-final-updates/final-recipe-fixes")
 require("scripts/data-final-updates/final-tint-pass")
 require("scripts/data-final-updates/colorful-biochamber")
@@ -147,6 +147,63 @@ require("scripts/data-final-updates/gate-difficulty")
 require("scripts/data-final-updates/singularity-lance-damage-category")
 require("scripts/data-final-updates/emerald-apocalypse-hover-tank")
 require("scripts/data-final-updates/item-glow-overlays")
+require("scripts/data-final-updates/arc-furnace-light")
+require("scripts/data-final-updates/entity-presentation")
+
+-- Spider-vehicle lights are normalized between data-updates and final fixes; keep
+-- the saucer's forward crystal headlight as the final word so Spidertron defaults do not leak in.
+do
+  local saucer = data.raw["spider-vehicle"] and data.raw["spider-vehicle"]["ei-gaian-saucer"]
+  if saucer and saucer.graphics_set then
+    local crystal_headlight_color = {r = 0.12, g = 0.95, b = 0.88}
+    local front_crystal_offset = {x = 0, y = -50}
+    local function crystal_beam_origin(offset)
+      local distance = math.sqrt(offset.x * offset.x + offset.y * offset.y)
+      if distance == 0 then
+        return offset
+      end
+
+      return {
+        x = offset.x + (offset.x / distance * 12),
+        y = offset.y + (offset.y / distance * 12),
+      }
+    end
+    local function crystal_beam_shift(offset)
+      offset = crystal_beam_origin(offset)
+      return util.by_pixel(offset.x * 0.69, offset.y * 0.69)
+    end
+    local function crystal_beam(source_orientation_offset, source_offset)
+      return {
+        type = "oriented",
+        minimum_darkness = 0.25,
+        picture = {
+          filename = "__core__/graphics/light-cone.png",
+          priority = "extra-high",
+          flags = {"light"},
+          scale = 0.85,
+          width = 200,
+          height = 200,
+        },
+        source_orientation_offset = source_orientation_offset,
+        shift = crystal_beam_shift(source_offset),
+        size = 0.95,
+        intensity = 0.26,
+        color = table.deepcopy(crystal_headlight_color),
+      }
+    end
+
+    saucer.graphics_set.light = {
+      crystal_beam(0.00, front_crystal_offset),
+      {
+        type = "basic",
+        minimum_darkness = 0.25,
+        intensity = 0.5,
+        size = 18,
+        color = {r = 0.25, g = 0.95, b = 0.55},
+      },
+    }
+  end
+end
 
 -- Weighted-tech badges are a pure icon pass, so they can run truly last after every other
 -- final tech rewrite has settled on its finished icon and science layout.

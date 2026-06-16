@@ -25,10 +25,10 @@ ENTITY_DIR = REPO_ROOT / "exotic-space-industries-remembrance" / "graphics" / "e
 ITEM_DIR = REPO_ROOT / "exotic-space-industries-remembrance" / "graphics" / "items"
 TECH_DIR = REPO_ROOT / "exotic-space-industries-remembrance" / "graphics" / "techs"
 
-ITEM_ICON = "ei-singularity-lance.png"
-ITEM_OVERLAY_ICON = "ei-singularity-lance-chromatic-overlay.png"
-TECH_ICON = "ei-singularity-lance.png"
-TECH_OVERLAY_ICON = "ei-singularity-lance-chromatic-overlay.png"
+ITEM_ICON = "singularity-lance.png"
+ITEM_OVERLAY_ICON = "singularity-lance-chromatic-overlay.png"
+TECH_ICON = "singularity-lance.png"
+TECH_OVERLAY_ICON = "singularity-lance-chromatic-overlay.png"
 ITEM_SOURCE_SIZE = 128
 TECH_SIZE = 256
 FRAME_SIZE = 768
@@ -108,8 +108,8 @@ def outline_subject(img: Image.Image, radius: int, color: tuple[int, int, int, i
 
 
 def make_entity_composite() -> Image.Image:
-    body = first_frame("ei-singularity-lance.png")
-    crystal = first_frame("ei-singularity-lance_crystal.png")
+    body = first_frame("singularity-lance.png")
+    crystal = first_frame("singularity-lance_crystal.png")
 
     composite = Image.new("RGBA", (FRAME_SIZE, FRAME_SIZE), (0, 0, 0, 0))
     for layer in (body, crystal):
@@ -132,8 +132,8 @@ def boost_layer(layer: Image.Image) -> Image.Image:
 
 
 def make_identity_layout(size: int, tech: bool = False) -> Image.Image:
-    body = boost_layer(crop_subject(first_frame("ei-singularity-lance.png")))
-    crystal = boost_layer(crop_subject(first_frame("ei-singularity-lance_crystal.png")))
+    body = boost_layer(crop_subject(first_frame("singularity-lance.png")))
+    crystal = boost_layer(crop_subject(first_frame("singularity-lance_crystal.png")))
 
     body_width = int(size * (0.68 if tech else 0.66))
     crystal_width = int(size * (0.27 if tech else 0.25))
@@ -305,14 +305,14 @@ def write_report(
         "asset_name": ASSET_NAME,
         "outputs": [
             {
-                "path": "graphics/items/ei-singularity-lance.png",
+                "path": "graphics/items/singularity-lance.png",
                 "size": list(item_strip.size),
                 "icon_size": 128,
                 "icon_mipmaps": 3,
                 "mode": item_strip.mode,
             },
             {
-                "path": "graphics/items/ei-singularity-lance-chromatic-overlay.png",
+                "path": "graphics/items/singularity-lance-chromatic-overlay.png",
                 "size": list(item_overlay_strip.size),
                 "icon_size": 128,
                 "icon_mipmaps": 3,
@@ -320,13 +320,13 @@ def write_report(
                 "role": "transparent UI icon overlay",
             },
             {
-                "path": "graphics/techs/ei-singularity-lance.png",
+                "path": "graphics/techs/singularity-lance.png",
                 "size": list(tech_base.size),
                 "icon_size": 256,
                 "mode": tech_base.mode,
             },
             {
-                "path": "graphics/techs/ei-singularity-lance-chromatic-overlay.png",
+                "path": "graphics/techs/singularity-lance-chromatic-overlay.png",
                 "size": list(tech_overlay.size),
                 "icon_size": 256,
                 "mode": tech_overlay.mode,
@@ -359,13 +359,13 @@ def main() -> None:
     tech_base = build_base_icon(TECH_SIZE, tech=True)
     tech_overlay = build_overlay_icon(TECH_SIZE, tech=True)
 
-    item_base.save(EXPORT_DIR / "ei-singularity-lance-source-128.png")
-    item_overlay.save(EXPORT_DIR / "ei-singularity-lance-chromatic-overlay-source-128.png")
-    composite_layers(item_base, item_overlay).save(EXPORT_DIR / "ei-singularity-lance-ui-composite-128.png")
+    item_base.save(EXPORT_DIR / "singularity-lance-source-128.png")
+    item_overlay.save(EXPORT_DIR / "singularity-lance-chromatic-overlay-source-128.png")
+    composite_layers(item_base, item_overlay).save(EXPORT_DIR / "singularity-lance-ui-composite-128.png")
     item_strip.save(EXPORT_DIR / ITEM_ICON)
     item_overlay_strip.save(EXPORT_DIR / ITEM_OVERLAY_ICON)
-    tech_base.save(EXPORT_DIR / "ei-singularity-lance-tech.png")
-    tech_overlay.save(EXPORT_DIR / "ei-singularity-lance-tech-chromatic-overlay.png")
+    tech_base.save(EXPORT_DIR / "singularity-lance-tech.png")
+    tech_overlay.save(EXPORT_DIR / "singularity-lance-tech-chromatic-overlay.png")
     item_strip.save(ITEM_DIR / ITEM_ICON)
     item_overlay_strip.save(ITEM_DIR / ITEM_OVERLAY_ICON)
     tech_base.save(TECH_DIR / TECH_ICON)

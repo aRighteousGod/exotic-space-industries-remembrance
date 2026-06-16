@@ -7,8 +7,8 @@
     6144,
     6144
   ],
-  "normal": "exotic-space-industries-remembrance\\graphics\\entities\\emerald-apocalypse-hover-tank\\death\\ei-emerald-apocalypse-hover-tank-death-collapse.png",
-  "glow": "exotic-space-industries-remembrance\\graphics\\entities\\emerald-apocalypse-hover-tank\\death\\ei-emerald-apocalypse-hover-tank-death-collapse-glow.png",
+  "normal": "exotic-space-industries-remembrance\\graphics\\entities\\emerald-apocalypse-hover-tank\\death\\emerald-apocalypse-hover-tank-death-collapse.png",
+  "glow": "exotic-space-industries-remembrance\\graphics\\entities\\emerald-apocalypse-hover-tank\\death\\emerald-apocalypse-hover-tank-death-collapse-glow.png",
   "seed": 90377816,
   "style_notes": [
     "emerald shield membrane implodes",

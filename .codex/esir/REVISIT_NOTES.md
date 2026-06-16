@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-05-22 | rocket-launch-plume-locale | open | rocket launch pollution now has a selectable visual-style startup setting with English locale; supported non-English locale files still need idiomatic setting names, allowed-value labels, and descriptions.`
+  - `Files:` `exotic-space-industries-remembrance/locale/en/lang_en.cfg`, `exotic-space-industries-remembrance/settings.lua`
+  - `Next safe move:` add per-language translations for `ei-rocket-launch-pollution-visual-style` and its `hybrid`, `plume`, `cinematic`, and `spiral` values after the English copy is accepted.
+
 - `2026-05-05 | gaian-saucer-locale | open | the Gaian saucer v1 prototype ships with English locale while the vehicle art and gameplay role settle; supported non-English locale files still need idiomatic entries.`
   - `Files:` `exotic-space-industries-remembrance/locale/en/lang_en.cfg`, `exotic-space-industries-remembrance/prototypes/alien-system/gaian-saucer.lua`
   - `Next safe move:` after the saucer name, recipe role, and visual scale are accepted, add per-language locale entries for item/entity/technology/recipe names and descriptions.

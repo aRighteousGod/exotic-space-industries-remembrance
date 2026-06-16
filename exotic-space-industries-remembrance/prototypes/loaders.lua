@@ -11,8 +11,8 @@
 --==============================================================================
 ei_loaders_lib = require("lib/loaders")
 
-local ei_steam_loader_item_path = ei_path.."graphics/items/"
-local ei_steam_loader_entity_path = ei_path.."graphics/entities/"
+local ei_steam_loader_item_path = ei_graphics_item_4_path
+local ei_steam_loader_entity_path = ei_graphics_entity_4_path
 
 --====================================================================================================
 --BASE PROTOTYPES
@@ -24,6 +24,7 @@ data:extend({
     type = "loader-1x1",
     icon = ei_loaders_item_path.."loader.png",
     icon_size = 64,
+    hidden_in_factoriopedia = true,
     flags = {"placeable-neutral", "player-creation"},
     minable = {
         mining_time = 0.2,

@@ -9,7 +9,15 @@
                          },
     "declared_dependencies":  [
                                   {
-                                      "mod_name":  "Cerys-Moon-of-Fulgora",
+                                      "mod_name":  "janus",
+                                      "dependency_kind":  "hidden-optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "maraxsis",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -33,7 +41,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "lignumis",
+                                      "mod_name":  "Cerys-Moon-of-Fulgora",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -41,7 +49,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Krastorio2-spaced-out",
+                                      "mod_name":  "Moshine",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -49,7 +57,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "janus",
+                                      "mod_name":  "corrundum",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -57,7 +65,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "tenebris-prime",
+                                      "mod_name":  "fall-of-promethea",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -81,7 +89,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "maraxsis",
+                                      "mod_name":  "tenebris-prime",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -89,16 +97,8 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Moshine",
+                                      "mod_name":  "Krastorio2-spaced-out",
                                       "dependency_kind":  "hidden-optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "Redrawn-Space-Connections",
-                                      "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
@@ -106,30 +106,6 @@
                                   },
                                   {
                                       "mod_name":  "Placeables",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "Better_Starmap_Background",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "Inter-Platform-Logistics",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "visible-planets",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -145,7 +121,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "better-victory-screen",
+                                      "mod_name":  "Redrawn-Space-Connections",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -153,7 +129,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Milestones",
+                                      "mod_name":  "visible-planets",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -161,7 +137,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "spoilage-scanner",
+                                      "mod_name":  "Better_Starmap_Background",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -177,6 +153,30 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
+                                      "mod_name":  "Milestones",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "lignumis",
+                                      "dependency_kind":  "hidden-optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "better-victory-screen",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
                                       "mod_name":  "more-quality-scaling",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
@@ -185,17 +185,25 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "corrundum",
-                                      "dependency_kind":  "hidden-optional",
+                                      "mod_name":  "spoilage-scanner",
+                                      "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "exotic-space-industries-remembrance-graphics-1",
+                                      "mod_name":  "exotic-space-industries-remembrance-graphics-3",
                                       "dependency_kind":  "required",
-                                      "constraint":  null,
+                                      "constraint":  "\u003e= 1.0.4",
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "exotic-space-industries-remembrance-graphics-4",
+                                      "dependency_kind":  "required",
+                                      "constraint":  "\u003e= 1.0.0",
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
@@ -217,36 +225,20 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "More-Asteroids",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "exotic-space-industries-remembrance-graphics-1",
+                                      "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "More-Asteroids-exotic-space-industries-fork",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "exotic-space-industries-remembrance-soundtrack-1",
+                                      "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "exotic-space-industries-remembrance-graphics-3",
-                                      "dependency_kind":  "required",
-                                      "constraint":  "\u003e= 1.0.4",
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "base",
-                                      "dependency_kind":  "required",
-                                      "constraint":  "\u003e= 2.0.0",
-                                      "declared_by_pack":  "exotic-space-industries-remembrance-graphics-2",
-                                      "declared_in":  "exotic-space-industries-remembrance-graphics-2\\info.json",
-                                      "pack_role":  "graphics companion assets"
                                   },
                                   {
                                       "mod_name":  "base",
@@ -260,17 +252,17 @@
                                       "mod_name":  "base",
                                       "dependency_kind":  "required",
                                       "constraint":  "\u003e= 2.0.0",
-                                      "declared_by_pack":  "exotic-space-industries-remembrance-graphics-1",
-                                      "declared_in":  "exotic-space-industries-remembrance-graphics-1\\info.json",
-                                      "pack_role":  "graphics companion assets"
+                                      "declared_by_pack":  "exotic-space-industries-remembrance-graphics-4",
+                                      "declared_in":  "exotic-space-industries-remembrance-graphics-4\\info.json",
+                                      "pack_role":  "graphics and sound-effect companion assets"
                                   },
                                   {
-                                      "mod_name":  "exotic-space-industries-remembrance-soundtrack-1",
+                                      "mod_name":  "base",
                                       "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
+                                      "constraint":  "\u003e= 2.0.0",
+                                      "declared_by_pack":  "exotic-space-industries-remembrance-graphics-2",
+                                      "declared_in":  "exotic-space-industries-remembrance-graphics-2\\info.json",
+                                      "pack_role":  "graphics companion assets"
                                   },
                                   {
                                       "mod_name":  "exotic-space-industries-remembrance-soundtrack-2",
@@ -281,8 +273,16 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "dea-dia-system",
-                                      "dependency_kind":  "hidden-optional",
+                                      "mod_name":  "base",
+                                      "dependency_kind":  "required",
+                                      "constraint":  "\u003e= 2.0.0",
+                                      "declared_by_pack":  "exotic-space-industries-remembrance-graphics-1",
+                                      "declared_in":  "exotic-space-industries-remembrance-graphics-1\\info.json",
+                                      "pack_role":  "graphics companion assets"
+                                  },
+                                  {
+                                      "mod_name":  "More-Asteroids-exotic-space-industries-fork",
+                                      "dependency_kind":  "incompatible",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
@@ -290,30 +290,6 @@
                                   },
                                   {
                                       "mod_name":  "Paracelsin",
-                                      "dependency_kind":  "hidden-optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "metal-and-stars",
-                                      "dependency_kind":  "hidden-optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "fall-of-promethea",
-                                      "dependency_kind":  "hidden-optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "cubium",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -329,24 +305,24 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "factorioplus",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "dea-dia-system",
+                                      "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "no-triggers",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "cubium",
+                                      "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "ExoticDiscoIndustries",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "metal-and-stars",
+                                      "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
@@ -361,6 +337,30 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
+                                      "mod_name":  "no-triggers",
+                                      "dependency_kind":  "incompatible",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "More-Asteroids",
+                                      "dependency_kind":  "incompatible",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "factorioplus",
+                                      "dependency_kind":  "incompatible",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
                                       "mod_name":  "Igrys",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
@@ -369,16 +369,8 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Flare Stack",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "atan-ash",
-                                      "dependency_kind":  "required",
+                                      "mod_name":  "ExoticDiscoIndustries",
+                                      "dependency_kind":  "incompatible",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
@@ -386,30 +378,6 @@
                                   },
                                   {
                                       "mod_name":  "PollutionCombinator-JamieFork",
-                                      "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "atan-air-scrubbing",
-                                      "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "Electric_flying_enemies",
-                                      "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "rp_steam_roboports",
                                       "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -425,7 +393,31 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Assembler-Reskin",
+                                      "mod_name":  "atan-ash",
+                                      "dependency_kind":  "required",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "rp_steam_roboports",
+                                      "dependency_kind":  "required",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "atan-air-scrubbing",
+                                      "dependency_kind":  "required",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "extinguisher",
                                       "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -441,15 +433,15 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Flammable_Oils_QUICKFIX",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "SolarMatrix",
+                                      "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "extinguisher",
+                                      "mod_name":  "Assembler-Reskin",
                                       "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -460,6 +452,22 @@
                                       "mod_name":  "doeworks-deer",
                                       "dependency_kind":  "required",
                                       "constraint":  "\u003e= 0.3.0",
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "Flammable_Oils_QUICKFIX",
+                                      "dependency_kind":  "incompatible",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "Electric_flying_enemies",
+                                      "dependency_kind":  "required",
+                                      "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
                                       "pack_role":  "primary gameplay and runtime pack"
@@ -553,15 +561,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "SolarMatrix",
-                                      "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "heat_glow",
+                                      "mod_name":  "vehicle_physics",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -569,31 +569,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "NicerFuelGlow-Fixed",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "DiscoScience",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "colorful_biochamber",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "celestial-weather",
+                                      "mod_name":  "Hovercrafts",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -609,7 +585,39 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "FluidMustFlow",
+                                      "mod_name":  "DiscoScience",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "heat_glow",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "gore",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "Flare Stack",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "Inter-Platform-Logistics",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -633,7 +641,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "vehicle_physics",
+                                      "mod_name":  "FluidMustFlow",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -641,7 +649,23 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "gore",
+                                      "mod_name":  "celestial-weather",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "Railguns-Require-Fluoroketone",
+                                      "dependency_kind":  "incompatible",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "distant-misfires",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -657,8 +681,8 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "Railguns-Require-Fluoroketone",
-                                      "dependency_kind":  "incompatible",
+                                      "mod_name":  "enhanced-walls",
+                                      "dependency_kind":  "required",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
                                       "declared_in":  "exotic-space-industries-remembrance\\info.json",
@@ -673,31 +697,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "enhanced-walls",
-                                      "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "AspctTrainPatch",
-                                      "dependency_kind":  "required",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "distant-misfires",
-                                      "dependency_kind":  "optional",
-                                      "constraint":  null,
-                                      "declared_by_pack":  "exotic-space-industries-remembrance",
-                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
-                                      "pack_role":  "primary gameplay and runtime pack"
-                                  },
-                                  {
-                                      "mod_name":  "Pro-Flashlight",
+                                      "mod_name":  "fire-lights",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -713,7 +713,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "light-overhaul",
+                                      "mod_name":  "colorful_biochamber",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -721,7 +721,7 @@
                                       "pack_role":  "primary gameplay and runtime pack"
                                   },
                                   {
-                                      "mod_name":  "fire-lights",
+                                      "mod_name":  "Pro-Flashlight",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -730,6 +730,14 @@
                                   },
                                   {
                                       "mod_name":  "diurnal-dynamics",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "light-overhaul",
                                       "dependency_kind":  "optional",
                                       "constraint":  null,
                                       "declared_by_pack":  "exotic-space-industries-remembrance",
@@ -753,6 +761,7 @@
                                                  "exotic-space-industries-remembrance\\scripts\\data-updates\\enhanced-walls.lua"
                                              ],
                             "touchpoints":  [
+                                                "external-path",
                                                 "mods"
                                             ],
                             "purpose":  "Data-stage compatibility touchpoints in enhanced-walls",
@@ -807,25 +816,33 @@
                                                   ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-colorful-biochamber-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-castra-loaders-lua:planet-content",
+                            "category":  "planet-content",
+                            "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "colorful_biochamber"
+                                              "castra"
                                           ],
                             "guard_mods":  [
-                                               "colorful_biochamber"
+                                               "castra"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\colorful-biochamber.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\castra-loaders.lua"
                                              ],
                             "touchpoints":  [
+                                                "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in colorful-biochamber",
+                            "purpose":  "Planet or content integration touchpoints in castra-loaders",
                             "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "target_prototypes":  [
+                                                      "loader-1x1:ei-military-loader",
+                                                      "transport-belt:military-transport-belt"
+                                                  ],
+                            "planet_or_system":  [
+                                                     "castra"
+                                                 ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-disco-science-lua:prototype-integration",
@@ -851,6 +868,29 @@
                             "target_prototypes":  [
                                                       "lab:ei-dark-age-lab"
                                                   ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-extra-storage-tanks-patches-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "extra-storage-tank",
+                                              "extra-storage-tank-minibuffer"
+                                          ],
+                            "guard_mods":  [
+                                               "extra-storage-tank",
+                                               "extra-storage-tank-minibuffer"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\extra-storage-tanks-patches.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in extra-storage-tanks-patches",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-flow-control-patches-lua:prototype-integration",
@@ -896,46 +936,24 @@
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-flamethrower-wagon-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-flammable-fluids-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "flamethrower-wagon"
+                                              "space-age"
                                           ],
                             "guard_mods":  [
-                                               "flamethrower-wagon"
+
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\flamethrower-wagon.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\flammable-fluids.lua"
                                              ],
                             "touchpoints":  [
-                                                "mods"
+                                                "data.raw",
+                                                "external-path"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in flamethrower-wagon",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-extra-storage-tanks-patches-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "extra-storage-tank",
-                                              "extra-storage-tank-minibuffer"
-                                          ],
-                            "guard_mods":  [
-                                               "extra-storage-tank",
-                                               "extra-storage-tank-minibuffer"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\extra-storage-tanks-patches.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in extra-storage-tanks-patches",
+                            "purpose":  "Data-stage compatibility touchpoints in flammable-fluids",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
@@ -968,51 +986,47 @@
                                                   ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-5dim-loaders-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-flamethrower-wagon-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "5dim_transport"
+                                              "flamethrower-wagon"
                                           ],
                             "guard_mods":  [
-                                               "5dim_transport"
+                                               "flamethrower-wagon"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\5dim-loaders.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\flamethrower-wagon.lua"
                                              ],
                             "touchpoints":  [
-                                                "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in 5dim-loaders",
+                            "purpose":  "Data-stage compatibility touchpoints in flamethrower-wagon",
                             "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "target_prototypes":  [
-                                                      "transport-belt:5d-transport-belt-10"
-                                                  ]
+                            "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-accumulator-v2-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-set-prerequisites-lua:prototype-integration",
                             "category":  "prototype-integration",
-                            "phase":  "data-updates",
+                            "phase":  "data-final-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "Accumulator-V2"
+                                              "Krastorio2-spaced-out"
                                           ],
                             "guard_mods":  [
-                                               "Accumulator-V2",
-                                               "Paracelsin"
+                                               "Krastorio2-spaced-out",
+                                               "lignumis",
+                                               "planet-muluna"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\accumulator-v2.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\set-prerequisites.lua"
                                              ],
                             "touchpoints":  [
                                                 "data.raw",
-                                                "external-path",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in accumulator-v2",
+                            "purpose":  "Data-stage compatibility touchpoints in set-prerequisites",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
@@ -1046,104 +1060,123 @@
                                                  ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-legacy-train-model-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-krastorio-patches-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-final-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "AspctTrainPatch"
-                                          ],
-                            "guard_mods":  [
-                                               "AspctTrainPatch"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\legacy-train-model.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in legacy-train-model",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "target_prototypes":  [
-                                                      "cargo-wagon:legacy-cargo-wagon",
-                                                      "trivial-smoke:train-smoke"
-                                                  ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-set-prerequisites-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
+                                              "exotic-industries-robots",
                                               "Krastorio2-spaced-out"
                                           ],
                             "guard_mods":  [
-                                               "Krastorio2-spaced-out",
-                                               "lignumis",
-                                               "planet-muluna"
+                                               "exotic-industries-robots",
+                                               "Krastorio2-spaced-out"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\set-prerequisites.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\krastorio-patches.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "external-path",
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in krastorio-patches",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "target_prototypes":  [
+                                                      "ammo:firearm-magazine",
+                                                      "ammo:piercing-rounds-magazine",
+                                                      "assembling-machine:ei-arc-furnace",
+                                                      "assembling-machine:ei-energy-injector-pylon",
+                                                      "assembling-machine:kr-crusher",
+                                                      "boiler:ei-fluid-boiler",
+                                                      "capsule:raw-fish",
+                                                      "container:kr-crash-site-chest-2",
+                                                      "item:ei-neo-splitter",
+                                                      "item:ei-neo-underground-belt",
+                                                      "item:satellite",
+                                                      "lab:ei-big-lab",
+                                                      "module:productivity-module",
+                                                      "module:productivity-module-2",
+                                                      "module:productivity-module-3",
+                                                      "offshore-pump:offshore-pump",
+                                                      "pump:pump",
+                                                      "reactor:nuclear-reactor",
+                                                      "recipe:copper-plate",
+                                                      "recipe:iron-plate",
+                                                      "recipe:kr-ai-core",
+                                                      "recipe:kr-quartz",
+                                                      "solar-panel:kr-advanced-solar-panel",
+                                                      "transport-belt:transport-belt"
+                                                  ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-final-recipe-fixes-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "aai-signal-transmission"
+                                          ],
+                            "guard_mods":  [
+                                               "aai-signal-transmission"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\final-recipe-fixes.lua"
                                              ],
                             "touchpoints":  [
                                                 "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in set-prerequisites",
+                            "purpose":  "Data-stage compatibility touchpoints in final-recipe-fixes",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-atan-ash-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-flare-stack-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "Flare Stack"
+                                          ],
+                            "guard_mods":  [
+                                               "Flare Stack"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\flare-stack.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in flare-stack",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-5dim-loaders-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "atan-ash"
+                                              "5dim_transport"
                                           ],
                             "guard_mods":  [
-                                               "atan-ash"
+                                               "5dim_transport"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\atan-ash.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in atan-ash",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-castra-loaders-lua:planet-content",
-                            "category":  "planet-content",
-                            "phase":  "data-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "castra"
-                                          ],
-                            "guard_mods":  [
-                                               "castra"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\castra-loaders.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\5dim-loaders.lua"
                                              ],
                             "touchpoints":  [
                                                 "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Planet or content integration touchpoints in castra-loaders",
+                            "purpose":  "Data-stage compatibility touchpoints in 5dim-loaders",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "target_prototypes":  [
-                                                      "loader-1x1:ei-military-loader",
-                                                      "transport-belt:military-transport-belt"
-                                                  ],
-                            "planet_or_system":  [
-                                                     "castra"
-                                                 ]
+                                                      "transport-belt:5d-transport-belt-10"
+                                                  ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-atan-air-scrubber-lua:prototype-integration",
@@ -1168,31 +1201,25 @@
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-accumulator-v2-lua:planet-content",
-                            "category":  "planet-content",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-atan-ash-lua:prototype-integration",
+                            "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "Paracelsin"
+                                              "atan-ash"
                                           ],
                             "guard_mods":  [
-                                               "Accumulator-V2",
-                                               "Paracelsin"
+                                               "atan-ash"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\accumulator-v2.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\atan-ash.lua"
                                              ],
                             "touchpoints":  [
-                                                "data.raw",
-                                                "external-path",
                                                 "mods"
                                             ],
-                            "purpose":  "Planet or content integration touchpoints in accumulator-v2",
+                            "purpose":  "Data-stage compatibility touchpoints in atan-ash",
                             "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "planet_or_system":  [
-                                                     "Paracelsin"
-                                                 ]
+                            "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-advanced-belts-loaders-lua:prototype-integration",
@@ -1228,34 +1255,55 @@
                                                   ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-krastorio-loaders-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-accumulator-v2-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "Krastorio2",
-                                              "Krastorio2-spaced-out"
+                                              "Accumulator-V2"
                                           ],
                             "guard_mods":  [
-                                               "Krastorio2",
-                                               "Krastorio2-spaced-out"
+                                               "Accumulator-V2",
+                                               "Paracelsin"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\krastorio-loaders.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\accumulator-v2.lua"
                                              ],
                             "touchpoints":  [
                                                 "data.raw",
+                                                "external-path",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in krastorio-loaders",
+                            "purpose":  "Data-stage compatibility touchpoints in accumulator-v2",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-accumulator-v2-lua:planet-content",
+                            "category":  "planet-content",
+                            "phase":  "data-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "Paracelsin"
+                                          ],
+                            "guard_mods":  [
+                                               "Accumulator-V2",
+                                               "Paracelsin"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\accumulator-v2.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "external-path",
+                                                "mods"
+                                            ],
+                            "purpose":  "Planet or content integration touchpoints in accumulator-v2",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
-                            "target_prototypes":  [
-                                                      "loader:ei_kr-advanced-loader",
-                                                      "loader:ei_kr-superior-loader",
-                                                      "transport-belt:kr-advanced-transport-belt",
-                                                      "transport-belt:kr-superior-transport-belt"
-                                                  ]
+                            "planet_or_system":  [
+                                                     "Paracelsin"
+                                                 ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-vehicle-inventory-limiter-lua:prototype-integration",
@@ -1313,7 +1361,7 @@
                                                   ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-vanilla-patches-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-vanilla-updates-other-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
@@ -1324,14 +1372,13 @@
                                                "Krastorio2-spaced-out"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\vanilla-patches.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\vanilla-updates\\other.lua"
                                              ],
                             "touchpoints":  [
                                                 "data.raw",
-                                                "external-path",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in vanilla-patches",
+                            "purpose":  "Data-stage compatibility touchpoints in other",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "target_prototypes":  [
@@ -1339,12 +1386,8 @@
                                                       "beam:laser-beam",
                                                       "character:character",
                                                       "electric-turret:laser-turret",
+                                                      "generator-equipment:fusion-reactor-equipment",
                                                       "recipe:electric-engine-unit",
-                                                      "resource:copper-ore",
-                                                      "resource:iron-ore",
-                                                      "resource:uranium-ore",
-                                                      "simple-entity:fulgurite",
-                                                      "technology:planet-discovery-aquilo",
                                                       "tile:concrete",
                                                       "tile:hazard-concrete-left",
                                                       "tile:refined-concrete",
@@ -1407,6 +1450,28 @@
                                                   ]
                         },
                         {
+                            "id":  "exotic-space-industries-remembrance-graphics-1:media-pack",
+                            "category":  "media-pack",
+                            "phase":  "pack",
+                            "direction":  "pack",
+                            "mod_names":  [
+                                              "exotic-space-industries-remembrance-graphics-1"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance-graphics-1\\info.json"
+                                             ],
+                            "touchpoints":  [
+                                                "info.json",
+                                                "pack-manifest"
+                                            ],
+                            "purpose":  "graphics companion assets",
+                            "pack_role":  "graphics companion assets",
+                            "source_pack":  "exotic-space-industries-remembrance-graphics-1"
+                        },
+                        {
                             "id":  "exotic-space-industries-remembrance-soundtrack-1:media-pack",
                             "category":  "media-pack",
                             "phase":  "pack",
@@ -1451,48 +1516,26 @@
                             "source_pack":  "exotic-space-industries-remembrance-soundtrack-2"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-graphics-3:media-pack",
+                            "id":  "exotic-space-industries-remembrance-graphics-4:media-pack",
                             "category":  "media-pack",
                             "phase":  "pack",
                             "direction":  "pack",
                             "mod_names":  [
-                                              "exotic-space-industries-remembrance-graphics-3"
+                                              "exotic-space-industries-remembrance-graphics-4"
                                           ],
                             "guard_mods":  [
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance-graphics-3\\info.json"
+                                                 "exotic-space-industries-remembrance-graphics-4\\info.json"
                                              ],
                             "touchpoints":  [
                                                 "info.json",
                                                 "pack-manifest"
                                             ],
-                            "purpose":  "graphics companion assets",
-                            "pack_role":  "graphics companion assets",
-                            "source_pack":  "exotic-space-industries-remembrance-graphics-3"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-graphics-1:media-pack",
-                            "category":  "media-pack",
-                            "phase":  "pack",
-                            "direction":  "pack",
-                            "mod_names":  [
-                                              "exotic-space-industries-remembrance-graphics-1"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance-graphics-1\\info.json"
-                                             ],
-                            "touchpoints":  [
-                                                "info.json",
-                                                "pack-manifest"
-                                            ],
-                            "purpose":  "graphics companion assets",
-                            "pack_role":  "graphics companion assets",
-                            "source_pack":  "exotic-space-industries-remembrance-graphics-1"
+                            "purpose":  "graphics and sound-effect companion assets",
+                            "pack_role":  "graphics and sound-effect companion assets",
+                            "source_pack":  "exotic-space-industries-remembrance-graphics-4"
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-graphics-2:media-pack",
@@ -1515,6 +1558,49 @@
                             "purpose":  "graphics companion assets",
                             "pack_role":  "graphics companion assets",
                             "source_pack":  "exotic-space-industries-remembrance-graphics-2"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-graphics-3:media-pack",
+                            "category":  "media-pack",
+                            "phase":  "pack",
+                            "direction":  "pack",
+                            "mod_names":  [
+                                              "exotic-space-industries-remembrance-graphics-3"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance-graphics-3\\info.json"
+                                             ],
+                            "touchpoints":  [
+                                                "info.json",
+                                                "pack-manifest"
+                                            ],
+                            "purpose":  "graphics companion assets",
+                            "pack_role":  "graphics companion assets",
+                            "source_pack":  "exotic-space-industries-remembrance-graphics-3"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-pollution-combinator-jamie-fork-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "PollutionCombinator-JamieFork"
+                                          ],
+                            "guard_mods":  [
+                                               "PollutionCombinator-JamieFork"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\pollution-combinator-jamie-fork.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in pollution-combinator-jamie-fork",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-repair-turret-lua:prototype-integration",
@@ -1540,46 +1626,56 @@
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-rp-steam-roboports-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-nanobot-patches-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "rp_steam_roboports"
+                                              "Nanobots"
                                           ],
                             "guard_mods":  [
-                                               "rp_steam_roboports"
+                                               "Nanobots"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\rp-steam-roboports.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\nanobot-patches.lua"
                                              ],
                             "touchpoints":  [
+                                                "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in rp-steam-roboports",
+                            "purpose":  "Data-stage compatibility touchpoints in nanobot-patches",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-pollution-combinator-jamie-fork-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-krastorio-loaders-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "PollutionCombinator-JamieFork"
+                                              "Krastorio2",
+                                              "Krastorio2-spaced-out"
                                           ],
                             "guard_mods":  [
-                                               "PollutionCombinator-JamieFork"
+                                               "Krastorio2",
+                                               "Krastorio2-spaced-out"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\pollution-combinator-jamie-fork.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\krastorio-loaders.lua"
                                              ],
                             "touchpoints":  [
+                                                "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in pollution-combinator-jamie-fork",
+                            "purpose":  "Data-stage compatibility touchpoints in krastorio-loaders",
                             "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "target_prototypes":  [
+                                                      "loader:ei_kr-advanced-loader",
+                                                      "loader:ei_kr-superior-loader",
+                                                      "transport-belt:kr-advanced-transport-belt",
+                                                      "transport-belt:kr-superior-transport-belt"
+                                                  ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-more-asteroids-lua:prototype-integration",
@@ -1614,24 +1710,23 @@
                                                   ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-nanobot-patches-lua:prototype-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-rp-steam-roboports-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "Nanobots"
+                                              "rp_steam_roboports"
                                           ],
                             "guard_mods":  [
-                                               "Nanobots"
+                                               "rp_steam_roboports"
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\nanobot-patches.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\data-updates\\rp-steam-roboports.lua"
                                              ],
                             "touchpoints":  [
-                                                "data.raw",
                                                 "mods"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in nanobot-patches",
+                            "purpose":  "Data-stage compatibility touchpoints in rp-steam-roboports",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
@@ -1753,86 +1848,6 @@
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-gaia-mapgen-data-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "Electric_flying_enemies"
-                                          ],
-                            "guard_mods":  [
-                                               "Electric_flying_enemies"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\gaia-mapgen-data.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods",
-                                                "script.active_mods"
-                                            ],
-                            "purpose":  "Runtime compatibility touchpoints in gaia-mapgen-data",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-gate-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "informatron",
-                                              "RemoteConfiguration"
-                                          ],
-                            "guard_mods":  [
-                                               "RemoteConfiguration"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\gate.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods",
-                                                "remote.call",
-                                                "script.active_mods"
-                                            ],
-                            "purpose":  "Runtime compatibility touchpoints in gate",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "ei_gate"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-fusion-reactor-lua:remote-interface",
-                            "category":  "remote-interface",
-                            "phase":  "runtime",
-                            "direction":  "outbound",
-                            "mod_names":  [
-                                              "informatron"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\fusion-reactor.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "external-path",
-                                                "remote.call"
-                                            ],
-                            "purpose":  "Remote interface bridge touchpoints in fusion-reactor",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "ei_fusion_reactor"
-                                             ]
-                        },
-                        {
                             "id":  "exotic-space-industries-remembrance-scripts-control-fueler-fueler-lua:remote-interface",
                             "category":  "remote-interface",
                             "phase":  "runtime",
@@ -1888,7 +1903,7 @@
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-matter-stabilizer-lua:runtime-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-fueler-fueler-lua:runtime-integration",
                             "category":  "runtime-integration",
                             "phase":  "runtime",
                             "direction":  "bridge",
@@ -1899,23 +1914,50 @@
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\matter-stabilizer.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\fueler\\fueler.lua"
                                              ],
                             "touchpoints":  [
                                                 "remote.call"
                                             ],
-                            "purpose":  "Runtime compatibility touchpoints in matter-stabilizer",
+                            "purpose":  "Runtime compatibility touchpoints in fueler",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
                                                       "informatron"
                                                   ],
                             "runtime_refs":  [
-                                                 "ei_matter_stabilizer"
+                                                 "ei_fueler"
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-matter-stabilizer-lua:remote-interface",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-em-trains-gui-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\gui.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in gui",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "em_trains_gui"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-em-trains-gui-lua:remote-interface",
                             "category":  "remote-interface",
                             "phase":  "runtime",
                             "direction":  "outbound",
@@ -1926,19 +1968,77 @@
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\matter-stabilizer.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\gui.lua"
                                              ],
                             "touchpoints":  [
                                                 "remote.call"
                                             ],
-                            "purpose":  "Remote interface bridge touchpoints in matter-stabilizer",
+                            "purpose":  "Remote interface bridge touchpoints in gui",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
                                                       "informatron"
                                                   ],
                             "runtime_refs":  [
-                                                 "ei_matter_stabilizer"
+                                                 "em_trains_gui"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-fusion-reactor-lua:remote-interface",
+                            "category":  "remote-interface",
+                            "phase":  "runtime",
+                            "direction":  "outbound",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\fusion-reactor.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "external-path",
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Remote interface bridge touchpoints in fusion-reactor",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_fusion_reactor"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-induction-matrix-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\induction-matrix.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in induction-matrix",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "event_hooks":  [
+                                                "script_raised_set_tiles"
+                                            ],
+                            "runtime_refs":  [
+                                                 "ei_induction_matrix"
                                              ]
                         },
                         {
@@ -1964,6 +2064,9 @@
                             "remote_interfaces":  [
                                                       "informatron"
                                                   ],
+                            "event_hooks":  [
+                                                "script_raised_set_tiles"
+                                            ],
                             "runtime_refs":  [
                                                  "ei_induction_matrix"
                                              ]
@@ -1999,7 +2102,59 @@
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-induction-matrix-lua:runtime-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-gaia-mapgen-data-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "Electric_flying_enemies"
+                                          ],
+                            "guard_mods":  [
+                                               "Electric_flying_enemies"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\gaia-mapgen-data.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods",
+                                                "script.active_mods"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in gaia-mapgen-data",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-gate-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "informatron",
+                                              "RemoteConfiguration"
+                                          ],
+                            "guard_mods":  [
+                                               "RemoteConfiguration"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\gate.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods",
+                                                "remote.call",
+                                                "script.active_mods"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in gate",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_gate"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-auric-inoculation-vat-lua:runtime-integration",
                             "category":  "runtime-integration",
                             "phase":  "runtime",
                             "direction":  "bridge",
@@ -2010,75 +2165,46 @@
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\induction-matrix.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\auric-inoculation-vat.lua"
                                              ],
                             "touchpoints":  [
                                                 "remote.call"
                                             ],
-                            "purpose":  "Runtime compatibility touchpoints in induction-matrix",
+                            "purpose":  "Runtime compatibility touchpoints in auric-inoculation-vat",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
                                                       "informatron"
                                                   ],
                             "runtime_refs":  [
-                                                 "ei_induction_matrix"
+                                                 "ei_auric_inoculation_vat"
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-black-hole-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "better-victory-screen"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\black-hole.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "remote.call",
-                                                "remote.interfaces"
-                                            ],
-                            "purpose":  "Runtime compatibility touchpoints in black-hole",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "better-victory-screen"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "ei_black_hole"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-black-hole-lua:remote-interface",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-auric-inoculation-vat-lua:remote-interface",
                             "category":  "remote-interface",
                             "phase":  "runtime",
                             "direction":  "outbound",
                             "mod_names":  [
-                                              "better-victory-screen"
+                                              "informatron"
                                           ],
                             "guard_mods":  [
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\black-hole.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\auric-inoculation-vat.lua"
                                              ],
                             "touchpoints":  [
-                                                "remote.call",
-                                                "remote.interfaces"
+                                                "remote.call"
                                             ],
-                            "purpose":  "Remote interface bridge touchpoints in black-hole",
+                            "purpose":  "Remote interface bridge touchpoints in auric-inoculation-vat",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
-                                                      "better-victory-screen"
+                                                      "informatron"
                                                   ],
                             "runtime_refs":  [
-                                                 "ei_black_hole"
+                                                 "ei_auric_inoculation_vat"
                                              ]
                         },
                         {
@@ -2154,22 +2280,36 @@
                                                 "on_gui_text_changed",
                                                 "on_gui_value_changed",
                                                 "on_object_destroyed",
+                                                "on_player_alt_selected_area",
                                                 "on_player_armor_inventory_changed",
                                                 "on_player_built_tile",
+                                                "on_player_changed_position",
+                                                "on_player_changed_surface",
                                                 "on_player_controller_changed",
                                                 "on_player_created",
                                                 "on_player_cursor_stack_changed",
+                                                "on_player_died",
+                                                "on_player_driving_changed_state",
+                                                "on_player_gun_inventory_changed",
                                                 "on_player_joined_game",
                                                 "on_player_left_game",
+                                                "on_player_mined_entity",
                                                 "on_player_mined_tile",
+                                                "on_player_placed_equipment",
+                                                "on_player_removed",
+                                                "on_player_removed_equipment",
                                                 "on_player_respawned",
                                                 "on_player_rotated_entity",
                                                 "on_player_selected_area",
+                                                "on_player_toggled_alt_mode",
                                                 "on_pre_player_mined_item",
+                                                "on_pre_surface_cleared",
+                                                "on_pre_surface_deleted",
                                                 "on_research_finished",
                                                 "on_resource_depleted",
                                                 "on_robot_built_entity",
                                                 "on_robot_built_tile",
+                                                "on_robot_mined_entity",
                                                 "on_robot_mined_tile",
                                                 "on_robot_pre_mined",
                                                 "on_rocket_launch_ordered",
@@ -2177,12 +2317,15 @@
                                                 "on_script_trigger_effect",
                                                 "on_selected_entity_changed",
                                                 "on_singleplayer_init",
+                                                "on_space_platform_built_entity",
                                                 "on_space_platform_changed_state",
+                                                "on_space_platform_mined_entity",
                                                 "on_tick",
                                                 "on_train_changed_state",
                                                 "script_raised_built",
                                                 "script_raised_destroy",
-                                                "script_raised_revive"
+                                                "script_raised_revive",
+                                                "script_raised_set_tiles"
                                             ]
                         },
                         {
@@ -2213,7 +2356,66 @@
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-em-trains-gui-lua:remote-interface",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-black-hole-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "better-victory-screen"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\black-hole.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call",
+                                                "remote.interfaces"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in black-hole",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "better-victory-screen"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_black_hole"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-crystal-accumulator-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\crystal-accumulator.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in crystal-accumulator",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "event_hooks":  [
+                                                "on_pre_player_mined_item",
+                                                "on_robot_pre_mined"
+                                            ],
+                            "runtime_refs":  [
+                                                 "ei_crystal_accumulator"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-crystal-accumulator-lua:remote-interface",
                             "category":  "remote-interface",
                             "phase":  "runtime",
                             "direction":  "outbound",
@@ -2224,108 +2426,23 @@
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\gui.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\crystal-accumulator.lua"
                                              ],
                             "touchpoints":  [
                                                 "remote.call"
                                             ],
-                            "purpose":  "Remote interface bridge touchpoints in gui",
+                            "purpose":  "Remote interface bridge touchpoints in crystal-accumulator",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
                                                       "informatron"
                                                   ],
-                            "runtime_refs":  [
-                                                 "em_trains_gui"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-fueler-fueler-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "informatron"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\fueler\\fueler.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "remote.call"
+                            "event_hooks":  [
+                                                "on_pre_player_mined_item",
+                                                "on_robot_pre_mined"
                                             ],
-                            "purpose":  "Runtime compatibility touchpoints in fueler",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
                             "runtime_refs":  [
-                                                 "ei_fueler"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-em-trains-gui-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "informatron"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\em-trains\\gui.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "remote.call"
-                                            ],
-                            "purpose":  "Runtime compatibility touchpoints in gui",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "em_trains_gui"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-compat-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "DiscoScience",
-                                              "krastorio2-spaced-out",
-                                              "kr-intergalactic-transceiver"
-                                          ],
-                            "guard_mods":  [
-                                               "DiscoScience",
-                                               "krastorio2-spaced-out"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\compat.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods",
-                                                "remote.add_interface",
-                                                "remote.call",
-                                                "remote.interfaces",
-                                                "script.active_mods"
-                                            ],
-                            "purpose":  "Runtime compatibility touchpoints in compat",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "DiscoScience",
-                                                      "kr-intergalactic-transceiver"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "ei_compat"
+                                                 "ei_crystal_accumulator"
                                              ]
                         },
                         {
@@ -2364,32 +2481,297 @@
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-neutron-collector-lua:runtime-integration",
-                            "category":  "runtime-integration",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-black-hole-lua:remote-interface",
+                            "category":  "remote-interface",
                             "phase":  "runtime",
-                            "direction":  "bridge",
+                            "direction":  "outbound",
                             "mod_names":  [
-                                              "informatron"
+                                              "better-victory-screen"
                                           ],
                             "guard_mods":  [
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\neutron-collector.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\black-hole.lua"
                                              ],
                             "touchpoints":  [
-                                                "external-path",
-                                                "remote.call"
+                                                "remote.call",
+                                                "remote.interfaces"
                                             ],
-                            "purpose":  "Runtime compatibility touchpoints in neutron-collector",
+                            "purpose":  "Remote interface bridge touchpoints in black-hole",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
-                                                      "informatron"
+                                                      "better-victory-screen"
                                                   ],
                             "runtime_refs":  [
-                                                 "ei_neutron_collector"
+                                                 "ei_black_hole"
                                              ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-compat-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "DiscoScience",
+                                              "krastorio2-spaced-out",
+                                              "kr-intergalactic-transceiver"
+                                          ],
+                            "guard_mods":  [
+                                               "DiscoScience",
+                                               "krastorio2-spaced-out"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\compat.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods",
+                                                "remote.add_interface",
+                                                "remote.call",
+                                                "remote.interfaces",
+                                                "script.active_mods"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in compat",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "DiscoScience",
+                                                      "kr-intergalactic-transceiver"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_compat"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "aai-industry",
+                                              "elevated-pipes"
+                                          ],
+                            "guard_mods":  [
+                                               "aai-industry",
+                                               "elevated-pipes",
+                                               "Igrys"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\compatibility.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in compatibility",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "target_prototypes":  [
+                                                      "assembling-machine:burner-assembling-machine"
+                                                  ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-lua:planet-content",
+                            "category":  "planet-content",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "Igrys"
+                                          ],
+                            "guard_mods":  [
+                                               "aai-industry",
+                                               "elevated-pipes",
+                                               "Igrys"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\compatibility.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "mods"
+                                            ],
+                            "purpose":  "Planet or content integration touchpoints in compatibility",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "target_prototypes":  [
+                                                      "assembling-machine:burner-assembling-machine"
+                                                  ],
+                            "planet_or_system":  [
+                                                     "Igrys"
+                                                 ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-colorful-biochamber-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "colorful_biochamber"
+                                          ],
+                            "guard_mods":  [
+                                               "colorful_biochamber"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\colorful-biochamber.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in colorful-biochamber",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-assembler-reskin-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "Assembler-Reskin"
+                                          ],
+                            "guard_mods":  [
+                                               "Assembler-Reskin"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\assembler-reskin.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in assembler-reskin",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-camp-fire-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "core__.lualib.util\"\r\n\r\nlocal recipes = {}\r\nlocal exceptions = {\r\n    [\"wood\"] = \"2MJ\",\r\n    [\"wooden-chest\"] = \"4MJ\",\r\n    [\"lumber\"] = \"4MJ\"\r\n}\r\n\r\nlocal function add_recipe(energy,speed,name,item)\r\n    speed = item[\u0027fuel_top_speed_multiplier\u0027] or 1\r\n    table.insert(recipes, {\r\n        type = \"recipe\",\r\n        name = \"ei-warm-fire-from-\" .. name,\r\n        localised_name = {\"recipe-name.ei-warm-fire\"},\r\n        category = \"ei-burning\",\r\n        icon = \"__core"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\camp-fire.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "external-path"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in camp-fire",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-lignumis-lua:planet-content",
+                            "category":  "planet-content",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "lignumis"
+                                          ],
+                            "guard_mods":  [
+                                               "lignumis"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\compatibility-lignumis.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "mods"
+                                            ],
+                            "purpose":  "Planet or content integration touchpoints in compatibility-lignumis",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "planet_or_system":  [
+                                                     "lignumis"
+                                                 ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-distant-misfires-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "distant-misfires"
+                                          ],
+                            "guard_mods":  [
+                                               "distant-misfires"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\distant-misfires.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in distant-misfires",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-emerald-apocalypse-hover-tank-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "Hovercrafts"
+                                          ],
+                            "guard_mods":  [
+                                               "Hovercrafts"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\emerald-apocalypse-hover-tank.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "mods"
+                                            ],
+                            "purpose":  "Data-stage compatibility touchpoints in emerald-apocalypse-hover-tank",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-death-explosions-lua:planet-content",
+                            "category":  "planet-content",
+                            "phase":  "data-final-updates",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "castra"
+                                          ],
+                            "guard_mods":  [
+                                               "5dim_transport",
+                                               "Accumulator-V2",
+                                               "AdvancedBeltsSA",
+                                               "castra",
+                                               "enhanced-walls",
+                                               "Krastorio2",
+                                               "Krastorio2-spaced-out",
+                                               "NovasUltimateBelts",
+                                               "rp_steam_roboports",
+                                               "SolarMatrix",
+                                               "UltimateBeltsSpaceAge",
+                                               "UltimateBeltsSpaceAgeFork",
+                                               "zeus-wrath"
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\death-explosions.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "data.raw",
+                                                "external-path",
+                                                "mods"
+                                            ],
+                            "purpose":  "Planet or content integration touchpoints in death-explosions",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "planet_or_system":  [
+                                                     "castra"
+                                                 ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-muluna-lua:planet-content",
@@ -2463,323 +2845,6 @@
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-lignumis-lua:planet-content",
-                            "category":  "planet-content",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "lignumis"
-                                          ],
-                            "guard_mods":  [
-                                               "lignumis"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\compatibility-lignumis.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "mods"
-                                            ],
-                            "purpose":  "Planet or content integration touchpoints in compatibility-lignumis",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "planet_or_system":  [
-                                                     "lignumis"
-                                                 ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "aai-industry",
-                                              "elevated-pipes"
-                                          ],
-                            "guard_mods":  [
-                                               "aai-industry",
-                                               "elevated-pipes",
-                                               "Igrys"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\compatibility.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in compatibility",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "target_prototypes":  [
-                                                      "assembling-machine:burner-assembling-machine"
-                                                  ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-compatibility-lua:planet-content",
-                            "category":  "planet-content",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "Igrys"
-                                          ],
-                            "guard_mods":  [
-                                               "aai-industry",
-                                               "elevated-pipes",
-                                               "Igrys"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\compatibility.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "mods"
-                                            ],
-                            "purpose":  "Planet or content integration touchpoints in compatibility",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "target_prototypes":  [
-                                                      "assembling-machine:burner-assembling-machine"
-                                                  ],
-                            "planet_or_system":  [
-                                                     "Igrys"
-                                                 ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-flare-stack-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "Flare Stack"
-                                          ],
-                            "guard_mods":  [
-                                               "Flare Stack"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\flare-stack.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in flare-stack",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-krastorio-patches-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "exotic-industries-robots",
-                                              "Krastorio2-spaced-out"
-                                          ],
-                            "guard_mods":  [
-                                               "exotic-industries-robots",
-                                               "Krastorio2-spaced-out"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\krastorio-patches.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "external-path",
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in krastorio-patches",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "target_prototypes":  [
-                                                      "ammo:firearm-magazine",
-                                                      "ammo:piercing-rounds-magazine",
-                                                      "assembling-machine:ei-arc-furnace",
-                                                      "assembling-machine:ei-energy-injector-pylon",
-                                                      "assembling-machine:kr-crusher",
-                                                      "boiler:ei-fluid-boiler",
-                                                      "capsule:raw-fish",
-                                                      "container:kr-crash-site-chest-2",
-                                                      "item:ei-neo-splitter",
-                                                      "item:ei-neo-underground-belt",
-                                                      "item:satellite",
-                                                      "lab:ei-big-lab",
-                                                      "module:productivity-module",
-                                                      "module:productivity-module-2",
-                                                      "module:productivity-module-3",
-                                                      "offshore-pump:offshore-pump",
-                                                      "pump:pump",
-                                                      "reactor:nuclear-reactor",
-                                                      "recipe:copper-plate",
-                                                      "recipe:iron-plate",
-                                                      "recipe:kr-ai-core",
-                                                      "recipe:kr-quartz",
-                                                      "solar-panel:kr-advanced-solar-panel",
-                                                      "transport-belt:transport-belt"
-                                                  ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-final-recipe-fixes-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "aai-signal-transmission"
-                                          ],
-                            "guard_mods":  [
-                                               "aai-signal-transmission"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\final-recipe-fixes.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in final-recipe-fixes",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-death-explosions-lua:planet-content",
-                            "category":  "planet-content",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "castra"
-                                          ],
-                            "guard_mods":  [
-                                               "5dim_transport",
-                                               "Accumulator-V2",
-                                               "AdvancedBeltsSA",
-                                               "castra",
-                                               "enhanced-walls",
-                                               "Krastorio2",
-                                               "Krastorio2-spaced-out",
-                                               "NovasUltimateBelts",
-                                               "rp_steam_roboports",
-                                               "SolarMatrix",
-                                               "UltimateBeltsSpaceAge",
-                                               "UltimateBeltsSpaceAgeFork",
-                                               "zeus-wrath"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\death-explosions.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "external-path",
-                                                "mods"
-                                            ],
-                            "purpose":  "Planet or content integration touchpoints in death-explosions",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "planet_or_system":  [
-                                                     "castra"
-                                                 ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-distant-misfires-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "distant-misfires"
-                                          ],
-                            "guard_mods":  [
-                                               "distant-misfires"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\distant-misfires.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in distant-misfires",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-orbital-logistics-lua:runtime-integration",
-                            "category":  "runtime-integration",
-                            "phase":  "runtime",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "informatron"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\orbital-logistics.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "remote.call"
-                                            ],
-                            "purpose":  "Runtime compatibility touchpoints in orbital-logistics",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "orbital_logistics"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-orbital-logistics-lua:remote-interface",
-                            "category":  "remote-interface",
-                            "phase":  "runtime",
-                            "direction":  "outbound",
-                            "mod_names":  [
-                                              "informatron"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\orbital-logistics.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "remote.call"
-                                            ],
-                            "purpose":  "Remote interface bridge touchpoints in orbital-logistics",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "orbital_logistics"
-                                             ]
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-orbital-combinator-lua:remote-interface",
-                            "category":  "remote-interface",
-                            "phase":  "runtime",
-                            "direction":  "outbound",
-                            "mod_names":  [
-                                              "informatron"
-                                          ],
-                            "guard_mods":  [
-
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\orbital-combinator.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "remote.call"
-                                            ],
-                            "purpose":  "Remote interface bridge touchpoints in orbital-combinator",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance",
-                            "remote_interfaces":  [
-                                                      "informatron"
-                                                  ],
-                            "runtime_refs":  [
-                                                 "orbital_combinator"
-                                             ]
-                        },
-                        {
                             "id":  "exotic-space-industries-remembrance-scripts-control-neutron-collector-lua:remote-interface",
                             "category":  "remote-interface",
                             "phase":  "runtime",
@@ -2835,47 +2900,140 @@
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-assembler-reskin-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-neutron-collector-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
                             "direction":  "bridge",
                             "mod_names":  [
-                                              "Assembler-Reskin"
-                                          ],
-                            "guard_mods":  [
-                                               "Assembler-Reskin"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\assembler-reskin.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in assembler-reskin",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-camp-fire-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "core__.lualib.util\"\r\n\r\nlocal recipes = {}\r\nlocal exceptions = {\r\n    [\"wood\"] = \"2MJ\",\r\n    [\"wooden-chest\"] = \"4MJ\",\r\n    [\"lumber\"] = \"4MJ\"\r\n}\r\n\r\nlocal function add_recipe(energy,speed,name,item)\r\n    speed = item[\u0027fuel_top_speed_multiplier\u0027] or 1\r\n    table.insert(recipes, {\r\n        type = \"recipe\",\r\n        name = \"ei-warm-fire-from-\" .. name,\r\n        localised_name = {\"recipe-name.ei-warm-fire\"},\r\n        category = \"ei-burning\",\r\n        icon = \"__core"
+                                              "informatron"
                                           ],
                             "guard_mods":  [
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\camp-fire.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\neutron-collector.lua"
                                              ],
                             "touchpoints":  [
-                                                "data.raw",
-                                                "external-path"
+                                                "external-path",
+                                                "remote.call"
                                             ],
-                            "purpose":  "Data-stage compatibility touchpoints in camp-fire",
+                            "purpose":  "Runtime compatibility touchpoints in neutron-collector",
                             "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_neutron_collector"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-matter-stabilizer-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\matter-stabilizer.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in matter-stabilizer",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_matter_stabilizer"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-matter-stabilizer-lua:remote-interface",
+                            "category":  "remote-interface",
+                            "phase":  "runtime",
+                            "direction":  "outbound",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\matter-stabilizer.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Remote interface bridge touchpoints in matter-stabilizer",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_matter_stabilizer"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-orbital-combinator-lua:remote-interface",
+                            "category":  "remote-interface",
+                            "phase":  "runtime",
+                            "direction":  "outbound",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\orbital-combinator.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Remote interface bridge touchpoints in orbital-combinator",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "orbital_combinator"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-railgun-cooling-lua:remote-interface",
+                            "category":  "remote-interface",
+                            "phase":  "runtime",
+                            "direction":  "outbound",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\railgun-cooling.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Remote interface bridge touchpoints in railgun-cooling",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "ei_railgun_cooling"
+                                             ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-control-victory-disabler-lua:runtime-integration",
@@ -2933,7 +3091,34 @@
                                              ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-control-railgun-cooling-lua:remote-interface",
+                            "id":  "exotic-space-industries-remembrance-scripts-control-orbital-logistics-lua:runtime-integration",
+                            "category":  "runtime-integration",
+                            "phase":  "runtime",
+                            "direction":  "bridge",
+                            "mod_names":  [
+                                              "informatron"
+                                          ],
+                            "guard_mods":  [
+
+                                           ],
+                            "source_files":  [
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\orbital-logistics.lua"
+                                             ],
+                            "touchpoints":  [
+                                                "remote.call"
+                                            ],
+                            "purpose":  "Runtime compatibility touchpoints in orbital-logistics",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "remote_interfaces":  [
+                                                      "informatron"
+                                                  ],
+                            "runtime_refs":  [
+                                                 "orbital_logistics"
+                                             ]
+                        },
+                        {
+                            "id":  "exotic-space-industries-remembrance-scripts-control-orbital-logistics-lua:remote-interface",
                             "category":  "remote-interface",
                             "phase":  "runtime",
                             "direction":  "outbound",
@@ -2944,19 +3129,19 @@
 
                                            ],
                             "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\control\\railgun-cooling.lua"
+                                                 "exotic-space-industries-remembrance\\scripts\\control\\orbital-logistics.lua"
                                              ],
                             "touchpoints":  [
                                                 "remote.call"
                                             ],
-                            "purpose":  "Remote interface bridge touchpoints in railgun-cooling",
+                            "purpose":  "Remote interface bridge touchpoints in orbital-logistics",
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "remote_interfaces":  [
                                                       "informatron"
                                                   ],
                             "runtime_refs":  [
-                                                 "ei_railgun_cooling"
+                                                 "orbital_logistics"
                                              ]
                         }
                     ]

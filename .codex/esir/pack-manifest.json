@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-19T21:19:24.4591549-05:00",
+    "generated_at":  "2026-06-05T11:51:43.0128809-05:00",
     "entries":  [
                     {
                         "id":  "exotic-space-industries-remembrance",
@@ -33,6 +33,14 @@
                         "info_json":  "exotic-space-industries-remembrance-graphics-3\\info.json",
                         "deploy_script":  "graphics3_process.ps1",
                         "role":  "graphics companion assets"
+                    },
+                    {
+                        "id":  "exotic-space-industries-remembrance-graphics-4",
+                        "folder":  "exotic-space-industries-remembrance-graphics-4",
+                        "type":  "graphics-pack",
+                        "info_json":  "exotic-space-industries-remembrance-graphics-4\\info.json",
+                        "deploy_script":  "graphics4_process.ps1",
+                        "role":  "graphics and sound-effect companion assets"
                     },
                     {
                         "id":  "exotic-space-industries-remembrance-soundtrack-1",

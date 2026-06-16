@@ -102,7 +102,7 @@ data:extend({
             { variation = 30, main_offset = util.by_pixel(-93.125,  128), shadow_offset = util.by_pixel(-93.125,  128), show_shadow = true }
         }
         ),
-        circuit_wire_max_distance = default_circuit_wire_max_distance
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
     },
     {
         name = "ei-energy-injector-pylon",

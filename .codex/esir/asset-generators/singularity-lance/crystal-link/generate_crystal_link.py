@@ -37,8 +37,8 @@ BEAM_FRAME_COUNT = 16
 BEAM_LINE_LENGTH = 4
 SEED = 892117
 
-NORMAL_FILENAME = "ei-singularity-lance-crystal-link.png"
-GLOW_FILENAME = "ei-singularity-lance-crystal-link-glow.png"
+NORMAL_FILENAME = "singularity-lance-crystal-link.png"
+GLOW_FILENAME = "singularity-lance-crystal-link-glow.png"
 
 ARRAY_BODY_SCALE = 0.65
 ARRAY_BODY_SHIFT = (0.0, -2.66)
@@ -390,10 +390,10 @@ def first_frame(path: Path) -> Image.Image:
 
 
 def make_factorio_preview(link: Image.Image, link_glow: Image.Image) -> Image.Image:
-    base = first_frame(GRAPHICS_DIR / "ei-singularity-lance.png")
-    base_shadow = first_frame(GRAPHICS_DIR / "ei-singularity-lance_base-shadow.png")
-    crystal_shadow = first_frame(GRAPHICS_DIR / "ei-singularity-lance_shadow.png")
-    crystal = first_frame(GRAPHICS_DIR / "ei-singularity-lance_crystal.png")
+    base = first_frame(GRAPHICS_DIR / "singularity-lance.png")
+    base_shadow = first_frame(GRAPHICS_DIR / "singularity-lance_base-shadow.png")
+    crystal_shadow = first_frame(GRAPHICS_DIR / "singularity-lance_shadow.png")
+    crystal = first_frame(GRAPHICS_DIR / "singularity-lance_crystal.png")
 
     backgrounds = [
         ((17, 20, 23), "dark"),
@@ -449,8 +449,8 @@ def write_manifest(specs: list[SheetSpec], previews: list[Path], promoted: bool)
         "asset_name": ASSET_NAME,
         "mode": "singularity-lance-crystal-link",
         "source_assets": [
-            str((BEAM_DIR / "ei-singularity-lance-beam-body.png").relative_to(REPO_ROOT)).replace("\\", "/"),
-            str((BEAM_DIR / "ei-singularity-lance-beam-body-glow.png").relative_to(REPO_ROOT)).replace("\\", "/"),
+            str((BEAM_DIR / "singularity-lance-beam-body.png").relative_to(REPO_ROOT)).replace("\\", "/"),
+            str((BEAM_DIR / "singularity-lance-beam-body-glow.png").relative_to(REPO_ROOT)).replace("\\", "/"),
         ],
         "generator": str(Path(__file__).resolve().relative_to(REPO_ROOT)).replace("\\", "/"),
         "seed": SEED,
@@ -480,8 +480,8 @@ def generate(promote: bool) -> dict[str, object]:
     PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
     (ROOT / "source").mkdir(parents=True, exist_ok=True)
 
-    body_path = BEAM_DIR / "ei-singularity-lance-beam-body.png"
-    glow_path = BEAM_DIR / "ei-singularity-lance-beam-body-glow.png"
+    body_path = BEAM_DIR / "singularity-lance-beam-body.png"
+    glow_path = BEAM_DIR / "singularity-lance-beam-body-glow.png"
     if not body_path.exists() or not glow_path.exists():
         raise FileNotFoundError(f"Expected promoted beam body sheets in {BEAM_DIR}")
 

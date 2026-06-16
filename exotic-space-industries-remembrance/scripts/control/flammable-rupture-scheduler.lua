@@ -2,8 +2,8 @@
 -- ESIR FILE MAP
 -- owns: queued flammable rupture ring execution and runtime status
 -- loaded_by: exotic-space-industries-remembrance\control.lua, scripts/control/flammable-fluids.lua
--- cadence: every tick and on-demand job creation
--- forwarded_events: begin_rupture, check_global, get_fidelity_profile, get_runtime_status, queue_rupture, updater
+-- cadence: on-demand job creation and due ring ticks
+-- forwarded_events: begin_rupture, check_global, get_fidelity_profile, get_runtime_status, has_tick_work, queue_rupture, updater
 -- storage_roots: storage.ei.flammable_ruptures
 -- gui_ids: none
 -- remote_interfaces: none
@@ -106,7 +106,36 @@ local function new_state()
         pending_ring_count = 0,
         scheduled_ring_count = 0,
         scheduled_bucket_count = 0,
+        next_ring_due_tick = 0,
     }
+end
+
+local function recalculate_next_ring_due_tick(state)
+    local next_due_tick = 0
+
+    for due_tick, bucket in pairs(state.ring_buckets or {}) do
+        local numeric_due_tick = tonumber(due_tick)
+        if numeric_due_tick and type(bucket) == "table" and next(bucket) ~= nil then
+            if next_due_tick <= 0 or numeric_due_tick < next_due_tick then
+                next_due_tick = numeric_due_tick
+            end
+        end
+    end
+
+    state.next_ring_due_tick = next_due_tick
+    return next_due_tick
+end
+
+local function remember_next_ring_due_tick(state, due_tick)
+    local numeric_due_tick = tonumber(due_tick)
+    if not numeric_due_tick or numeric_due_tick <= 0 then
+        return
+    end
+
+    local next_due_tick = tonumber(state.next_ring_due_tick) or 0
+    if next_due_tick <= 0 or numeric_due_tick < next_due_tick then
+        state.next_ring_due_tick = numeric_due_tick
+    end
 end
 
 local function count_pending_rings(state)
@@ -122,6 +151,7 @@ local function refresh_cached_counts(state)
     state.pending_ring_count = count_pending_rings(state)
     state.scheduled_ring_count = ei_runtime_scheduler.delayed_item_count(state.ring_buckets)
     state.scheduled_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.ring_buckets)
+    recalculate_next_ring_due_tick(state)
 end
 
 function model.check_global()
@@ -135,7 +165,9 @@ function model.check_global()
     if state.active_job_count == nil
         or state.pending_ring_count == nil
         or state.scheduled_ring_count == nil
-        or state.scheduled_bucket_count == nil then
+        or state.scheduled_bucket_count == nil
+        or state.next_ring_due_tick == nil
+        or ((tonumber(state.scheduled_ring_count) or 0) > 0 and (tonumber(state.next_ring_due_tick) or 0) <= 0) then
         refresh_cached_counts(state)
     end
     return state
@@ -175,6 +207,7 @@ end
 local function schedule_job_ring(state, job_id, due_tick)
     local created_bucket = state.ring_buckets[due_tick] == nil
     ei_runtime_scheduler.delayed_schedule(state.ring_buckets, due_tick, job_id)
+    remember_next_ring_due_tick(state, due_tick)
     state.scheduled_ring_count = math.max(0, tonumber(state.scheduled_ring_count) or 0) + 1
     if created_bucket then
         state.scheduled_bucket_count = math.max(0, tonumber(state.scheduled_bucket_count) or 0) + 1
@@ -436,6 +469,33 @@ function model.begin_rupture(job, current_tick)
     return job_id
 end
 
+function model.has_tick_work(event)
+    local state = storage and storage.ei and storage.ei.flammable_ruptures or nil
+    if type(state) ~= "table" then
+        return false
+    end
+
+    if state.active_job_count == nil
+        or state.pending_ring_count == nil
+        or state.scheduled_ring_count == nil
+        or state.scheduled_bucket_count == nil
+        or state.next_ring_due_tick == nil then
+        return true
+    end
+
+    local scheduled_ring_count = tonumber(state.scheduled_ring_count) or 0
+    if scheduled_ring_count <= 0 then
+        return false
+    end
+
+    local next_ring_due_tick = tonumber(state.next_ring_due_tick) or 0
+    if next_ring_due_tick <= 0 then
+        return true
+    end
+
+    return ei_lib.get_event_tick(event) >= next_ring_due_tick
+end
+
 function model.updater(event)
     local state = storage and storage.ei and storage.ei.flammable_ruptures
     if not state then
@@ -445,33 +505,53 @@ function model.updater(event)
     if state.active_job_count == nil
         or state.pending_ring_count == nil
         or state.scheduled_ring_count == nil
-        or state.scheduled_bucket_count == nil then
+        or state.scheduled_bucket_count == nil
+        or state.next_ring_due_tick == nil
+        or ((tonumber(state.scheduled_ring_count) or 0) > 0 and (tonumber(state.next_ring_due_tick) or 0) <= 0)
+        or ((tonumber(state.scheduled_ring_count) or 0) <= 0 and next(state.ring_buckets or {}) ~= nil) then
         refresh_cached_counts(state)
     end
 
+    local current_tick = ei_lib.get_event_tick(event)
     local due_job_ids = {}
     local due_bucket_count = 0
+    local due_ring_count = 0
+    local next_remaining_ring_due_tick = 0
     for due_tick, bucket in pairs(state.ring_buckets) do
-        if due_tick <= event.tick then
+        local numeric_due_tick = tonumber(due_tick)
+        if numeric_due_tick and numeric_due_tick <= current_tick then
             state.ring_buckets[due_tick] = nil
             due_bucket_count = due_bucket_count + 1
-            for _, job_id in ipairs(bucket) do
-                due_job_ids[#due_job_ids + 1] = job_id
+            if type(bucket) == "table" then
+                for _, job_id in ipairs(bucket) do
+                    due_job_ids[#due_job_ids + 1] = job_id
+                    due_ring_count = due_ring_count + 1
+                end
             end
+        elseif numeric_due_tick and type(bucket) == "table" and next(bucket) ~= nil then
+            if next_remaining_ring_due_tick <= 0 or numeric_due_tick < next_remaining_ring_due_tick then
+                next_remaining_ring_due_tick = numeric_due_tick
+            end
+        else
+            state.ring_buckets[due_tick] = nil
         end
     end
+    state.next_ring_due_tick = next_remaining_ring_due_tick
+    state.scheduled_bucket_count = math.max(0, (state.scheduled_bucket_count or 0) - due_bucket_count)
 
     if #due_job_ids <= 0 then
+        if (tonumber(state.scheduled_ring_count) or 0) > 0 and next_remaining_ring_due_tick <= 0 then
+            refresh_cached_counts(state)
+        end
         return
     end
 
-    state.scheduled_ring_count = math.max(0, (state.scheduled_ring_count or 0) - #due_job_ids)
-    state.scheduled_bucket_count = math.max(0, (state.scheduled_bucket_count or 0) - due_bucket_count)
+    state.scheduled_ring_count = math.max(0, (state.scheduled_ring_count or 0) - due_ring_count)
 
     for _, job_id in ipairs(due_job_ids) do
         local job = state.jobs[job_id]
         if job then
-            process_job(state, job, event.tick, true)
+            process_job(state, job, current_tick, true)
         end
     end
 end
@@ -481,7 +561,8 @@ local function count_overdue(state, current_tick)
     local item_count = 0
 
     for due_tick, bucket in pairs(state.ring_buckets or {}) do
-        if due_tick < current_tick then
+        local numeric_due_tick = tonumber(due_tick)
+        if numeric_due_tick and numeric_due_tick < current_tick then
             bucket_count = bucket_count + 1
             item_count = item_count + ei_lib.count_sequence(bucket, true)
         end
@@ -505,6 +586,7 @@ function model.get_runtime_status()
         ring_bucket_count = scheduled_bucket_count,
         ring_bucket_items = scheduled_ring_count,
         ring_buckets = scheduled_bucket_count,
+        next_ring_due_tick = tonumber(state.next_ring_due_tick) or 0,
         overdue_bucket_count = overdue_buckets,
         overdue_item_count = overdue_items,
     }

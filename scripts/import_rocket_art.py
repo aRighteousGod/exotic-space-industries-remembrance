@@ -28,20 +28,20 @@ class TechImport:
 
 
 ITEM_IMPORTS = [
-    ItemImport("Empty rocket airframe icon.png", "ei-rocket-airframe.png"),
-    ItemImport("rocket motor.png", "ei-rocket-motor-basic.png"),
-    ItemImport("high-energy rocket motor.png", "ei-rocket-motor-high-energy.png"),
-    ItemImport("impact warhead.png", "ei-rocket-warhead-impact.png"),
-    ItemImport("explosive warhead.png", "ei-rocket-warhead-explosive.png"),
-    ItemImport("siege warhead.png", "ei-rocket-warhead-siege.png"),
-    ItemImport("corrosive warhead.png", "ei-rocket-warhead-corrosive.png"),
-    ItemImport("cryo warhead.png", "ei-rocket-warhead-cryo.png"),
-    ItemImport("atomic 235 warhead.png", "ei-rocket-warhead-atomic-u235.png"),
-    ItemImport("atomic plutonium warhead.png", "ei-rocket-warhead-atomic-plutonium.png"),
-    ItemImport("corrosive rocket.png", "ei-corrosive-rocket.png"),
-    ItemImport("cryo rocket.png", "ei-cryo-rocket.png"),
-    ItemImport("atomic 235 rocket.png", "ei-atomic-bomb-u235.png"),
-    ItemImport("atomic plutonium rocket.png", "ei-atomic-bomb-plutonium.png"),
+    ItemImport("Empty rocket airframe icon.png", "rocket-airframe.png"),
+    ItemImport("rocket motor.png", "rocket-motor-basic.png"),
+    ItemImport("high-energy rocket motor.png", "rocket-motor-high-energy.png"),
+    ItemImport("impact warhead.png", "rocket-warhead-impact.png"),
+    ItemImport("explosive warhead.png", "rocket-warhead-explosive.png"),
+    ItemImport("siege warhead.png", "rocket-warhead-siege.png"),
+    ItemImport("corrosive warhead.png", "rocket-warhead-corrosive.png"),
+    ItemImport("cryo warhead.png", "rocket-warhead-cryo.png"),
+    ItemImport("atomic 235 warhead.png", "rocket-warhead-atomic-u235.png"),
+    ItemImport("atomic plutonium warhead.png", "rocket-warhead-atomic-plutonium.png"),
+    ItemImport("corrosive rocket.png", "corrosive-rocket.png"),
+    ItemImport("cryo rocket.png", "cryo-rocket.png"),
+    ItemImport("atomic 235 rocket.png", "atomic-bomb-u235.png"),
+    ItemImport("atomic plutonium rocket.png", "atomic-bomb-plutonium.png"),
     ItemImport("doeworks siege rocket.png", "dw-deer-ammo-basic.png"),
     ItemImport("doeworks corrosive rocket.png", "dw-deer-ammo-corrosive.png"),
     ItemImport("doeworks cryo rocket.png", "dw-deer-ammo-cryo.png"),
@@ -52,10 +52,10 @@ ITEM_IMPORTS = [
 
 TECH_IMPORTS = [
     TechImport("dw-deer-tech.png", "doeworks siege rocket.png"),
-    TechImport("ei-corrosive-rocketry.png", "corrosive rocket.png", "doeworks corrosive rocket.png"),
-    TechImport("ei-cryo-rocketry.png", "cryo rocket.png", "doeworks cryo rocket.png"),
+    TechImport("corrosive-rocketry.png", "corrosive rocket.png", "doeworks corrosive rocket.png"),
+    TechImport("cryo-rocketry.png", "cryo rocket.png", "doeworks cryo rocket.png"),
     TechImport("atomic-bomb.png", "atomic 235 rocket.png", "doeworks atomic 235 rocket.png"),
-    TechImport("ei-plutonium-warheads.png", "atomic plutonium rocket.png", "doeworks atomic plutonium rocket.png"),
+    TechImport("plutonium-warheads.png", "atomic plutonium rocket.png", "doeworks atomic plutonium rocket.png"),
 ]
 
 
@@ -179,7 +179,7 @@ def build_tech_assets(downloads_dir: Path, output_dir: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Import ESIR rocket-family art from Downloads into mipmapped temporary main-mod assets.")
+    parser = argparse.ArgumentParser(description="Import ESIR rocket-family art from Downloads into mipmapped Graphics 4 assets.")
     parser.add_argument(
         "--downloads-dir",
         type=Path,
@@ -189,13 +189,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--items-dir",
         type=Path,
-        default=Path("exotic-space-industries-remembrance") / "graphics" / "temp" / "rocket-family" / "items",
+        default=Path("exotic-space-industries-remembrance-graphics-4") / "graphics" / "temp" / "rocket-family" / "items",
         help="Output directory for mipmapped item/ammo/intermediate art.",
     )
     parser.add_argument(
         "--tech-dir",
         type=Path,
-        default=Path("exotic-space-industries-remembrance") / "graphics" / "temp" / "rocket-family" / "tech",
+        default=Path("exotic-space-industries-remembrance-graphics-4") / "graphics" / "temp" / "rocket-family" / "tech",
         help="Output directory for mipmapped tech art.",
     )
     return parser.parse_args()

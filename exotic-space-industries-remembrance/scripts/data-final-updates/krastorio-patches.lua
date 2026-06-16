@@ -952,7 +952,7 @@ local K2_CHANGES = {
         ["ei-personal-reactor"] = {
             burner = {
                 type = "burner", fuel_categories = {"ei-fusion-fuel"},
-                effectivity = 1, fuel_inventory_size = 1, burnt_inventory_size = 1
+                effectivity = 1, fuel_inventory_size = 4, burnt_inventory_size = 4
             },
         },
     },

@@ -226,12 +226,16 @@ def parse_args() -> argparse.Namespace:
 
 
 def add_common(parser: argparse.ArgumentParser, factorio_var: str, prototype_kind: str) -> None:
-    parser.add_argument("--asset-name", required=True, help="Prototype-style asset name, usually ei-...")
+    parser.add_argument(
+        "--asset-name",
+        required=True,
+        help="Asset/staging name. For main-pack graphics, prefer no leading ei- and pass --target-prototype-name for ei-* prototypes.",
+    )
     parser.add_argument(
         "--output-dir",
         help="Staging directory. Defaults to output/meshy/<asset-name>/factorio-export.",
     )
-    parser.add_argument("--filename-root", help="Output filename root. Defaults to --asset-name.")
+    parser.add_argument("--filename-root", help="Output filename root. Defaults to --asset-name with a leading ei- removed.")
     parser.add_argument("--factorio-var", default=factorio_var, help="Lua graphics path variable for snippets.")
     parser.add_argument("--prototype-kind", default=prototype_kind, help="Prototype kind noted in metadata.")
     parser.add_argument(
@@ -305,8 +309,15 @@ def output_dir_for(args: argparse.Namespace) -> Path:
     return (Path.cwd() / "output" / "meshy" / args.asset_name / "factorio-export").resolve()
 
 
+def graphics_filename_root(value: str) -> str:
+    if value.startswith("ei-") and len(value) > 3:
+        return value[3:]
+    return value
+
+
 def filename_root_for(args: argparse.Namespace) -> str:
-    return require_safe_name(args.filename_root or args.asset_name, "filename root")
+    root = args.filename_root if args.filename_root else graphics_filename_root(args.asset_name)
+    return require_safe_name(root, "filename root")
 
 
 def read_manifest(path: Path | None) -> dict[str, Any]:
@@ -770,10 +781,14 @@ def assign_table(name: str, table: str, *, indent: int = 0, trailing_comma: bool
 
 
 def prototype_template_metadata(args: argparse.Namespace, *, default_field: str, mode: str) -> dict[str, Any]:
-    template = args.snippet_template if getattr(args, "snippet_template", "auto") != "auto" else args.prototype_kind
+    explicit_template = getattr(args, "snippet_template", "auto") != "auto"
+    explicit_target_type = bool(args.target_prototype_type)
+    explicit_target_name = bool(args.target_prototype_name)
+    explicit_target_field = getattr(args, "target_field", "auto") != "auto"
+    template = args.snippet_template if explicit_template else args.prototype_kind
     target_type = args.target_prototype_type or args.prototype_kind
     target_name = args.target_prototype_name or args.asset_name
-    field = args.target_field if getattr(args, "target_field", "auto") != "auto" else default_field
+    field = args.target_field if explicit_target_field else default_field
     warnings: list[str] = []
     machine_types = {"machine", "assembling-machine", "furnace", "lab", "beacon"}
     icon_types = {"item", "recipe", "technology"}
@@ -789,6 +804,12 @@ def prototype_template_metadata(args: argparse.Namespace, *, default_field: str,
         "target_prototype_name": target_name,
         "target_field": field,
         "mode": mode,
+        "explicit": {
+            "snippet_template": explicit_template,
+            "target_prototype_type": explicit_target_type,
+            "target_prototype_name": explicit_target_name,
+            "target_field": explicit_target_field,
+        },
         "warnings": warnings,
     }
 
@@ -1966,6 +1987,40 @@ def data_raw_assignment(snippet_text: str, *, prototype_type: str, prototype_nam
     )
 
 
+def manifest_prototype_metadata_check(manifest: dict[str, Any], args: argparse.Namespace) -> dict[str, Any]:
+    metadata = manifest.get("prototype_template")
+    result: dict[str, Any] = {"available": isinstance(metadata, dict), "checked": {}, "mismatches": []}
+    if not isinstance(metadata, dict):
+        return result
+
+    explicit = metadata.get("explicit") if isinstance(metadata.get("explicit"), dict) else None
+    checks = [
+        ("target_prototype_type", "prototype_type", manifest.get("prototype_kind")),
+        ("target_prototype_name", "prototype_name", manifest.get("asset_name")),
+        ("target_field", "field", None),
+    ]
+    for metadata_key, args_key, legacy_default in checks:
+        manifest_value = metadata.get(metadata_key)
+        if not manifest_value:
+            continue
+        if explicit is not None:
+            should_check = bool(explicit.get(metadata_key))
+        else:
+            should_check = legacy_default is not None and str(manifest_value) != str(legacy_default)
+        if not should_check:
+            continue
+        requested_value = getattr(args, args_key)
+        result["checked"][metadata_key] = {
+            "manifest": manifest_value,
+            "requested": requested_value,
+        }
+        if str(manifest_value) != str(requested_value):
+            result["mismatches"].append(
+                f"{metadata_key}={manifest_value!r} does not match --{args_key.replace('_', '-')} {requested_value!r}"
+            )
+    return result
+
+
 def prototype_patch_plan(args: argparse.Namespace, manifest: dict[str, Any], *, execute: bool) -> dict[str, Any]:
     missing = [
         name
@@ -1976,9 +2031,11 @@ def prototype_patch_plan(args: argparse.Namespace, manifest: dict[str, Any], *, 
         raise SystemExit("--apply-prototype requires " + ", ".join(f"--{name.replace('_', '-')}" for name in missing))
     if not SAFE_FIELD.match(args.field):
         raise SystemExit(f"--field must be a simple Lua field path, got: {args.field}")
-    if manifest.get("asset_name") and manifest.get("asset_name") != args.prototype_name:
+    metadata_check = manifest_prototype_metadata_check(manifest, args)
+    if metadata_check["mismatches"]:
         raise SystemExit(
-            f"Manifest asset_name {manifest.get('asset_name')} does not match --prototype-name {args.prototype_name}."
+            "Manifest prototype metadata does not match promotion request: "
+            + "; ".join(str(item) for item in metadata_check["mismatches"])
         )
 
     prototype_file = resolve_path(args.prototype_file)
@@ -2002,6 +2059,7 @@ def prototype_patch_plan(args: argparse.Namespace, manifest: dict[str, Any], *, 
         "marker_start": start_marker,
         "marker_end": end_marker,
         "integration": args.prototype_integration,
+        "manifest_prototype_metadata_check": metadata_check,
         "status": "planned",
     }
 

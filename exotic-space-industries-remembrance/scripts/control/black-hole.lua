@@ -1496,6 +1496,12 @@ end
 function model.on_gui_click(event)
     if event.element.tags.action == "control-start" then
         model.change_stage(game.get_player(event.player_index))
+    elseif event.element.tags.action == "goto-informatron" then
+        remote.call("informatron", "informatron_open_to_page", {
+            player_index = event.player_index,
+            interface = "exotic-industries-informatron",
+            page_name = event.element.tags.page or "black_hole",
+        })
     end
 end
 

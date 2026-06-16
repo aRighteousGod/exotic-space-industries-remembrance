@@ -39,4 +39,5 @@ require("drill-deposits")
 require("acid-turret/acid-util")
 require("acid-turret/acid")
 require("steam-surface-harvester")
+require("steam-offshore-pump")
 --============================================

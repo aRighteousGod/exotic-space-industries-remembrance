@@ -332,6 +332,42 @@ data:extend({
         },
     },
     {
+        name = "ei-crushed-lead",
+        type = "item",
+        icon = ei_graphics_item_4_path.."crushed-lead-1.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+        stack_size = 100,
+        subgroup = "ei-refining-crushed",
+        order = "a5",
+        pictures = {
+            {
+                filename = ei_graphics_item_4_path.."crushed-lead-1.png",
+                scale = 0.5,
+                size = 64,
+                mipmap_count = 4,
+            },
+            {
+                filename = ei_graphics_item_4_path.."crushed-lead-2.png",
+                scale = 0.5,
+                size = 64,
+                mipmap_count = 4,
+            },
+            {
+                filename = ei_graphics_item_4_path.."crushed-lead-3.png",
+                scale = 0.5,
+                size = 64,
+                mipmap_count = 4,
+            },
+            {
+                filename = ei_graphics_item_4_path.."crushed-lead-4.png",
+                scale = 0.5,
+                size = 64,
+                mipmap_count = 4,
+            },
+        },
+    },
+    {
         name = "ei-crushed-sulfur",
         type = "item",
         icon = ei_graphics_item_path.."crushed-sulfur.png",
@@ -992,6 +1028,21 @@ data:extend({
         enabled = false,
         main_product = "ei-crushed-gold",
     },
+    {
+        name = "ei-crushed-lead",
+        type = "recipe",
+        category = "ei-crushing",
+        energy_required = 1,
+        ingredients = {
+            {type = "item", name = "ei-lead-ingot", amount = 1},
+        },
+        results = {
+            {type = "item", name = "ei-crushed-lead", amount = 2},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        main_product = "ei-crushed-lead",
+    },
     --[[
     {
         name = "ei-crushed-gold-plate",
@@ -1246,7 +1297,7 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
-                recipe = "offshore-pump"
+                recipe = "ei-stone-well-pump"
             }
         },
         unit = {

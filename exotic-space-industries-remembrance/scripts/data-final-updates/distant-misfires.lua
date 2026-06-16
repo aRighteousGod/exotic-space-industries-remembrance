@@ -36,6 +36,73 @@ local function find_projectile_delivery(ammo)
     return nil
 end
 
+-- Surveyor weapons are hidden for now, so keep their Distant Misfires restore
+-- patch parked until the chain comes back.
+--[[
+local surveyor_guns = {
+    ["ei-surveyor-carbine"] = {
+        range = 40,
+        cooldown = 36,
+        damage_modifier = 6.4,
+        movement_slow_down_factor = 0.6,
+    },
+    ["ei-surveyor-rifle"] = {
+        range = 52,
+        cooldown = 45,
+        damage_modifier = 9.0,
+        movement_slow_down_factor = 0.65,
+    },
+    ["ei-surveyor-cannon"] = {
+        range = 70,
+        cooldown = 60,
+        damage_modifier = 24.0,
+        movement_slow_down_factor = 0.8,
+    },
+    ["ei-adaptive-surveyor"] = {
+        range = 90,
+        cooldown = 72,
+        damage_modifier = 34.2,
+        movement_slow_down_factor = 0.75,
+    },
+}
+
+local function restore_surveyor_gun(name, spec)
+    local gun = ei_lib.raw["gun"][name]
+    local attack_parameters = gun and gun.attack_parameters
+    if not attack_parameters then
+        return 0
+    end
+
+    -- Distant Misfires sees Surveyors as ordinary bullet guns. Reassert the
+    -- scoped weapon profile after its generic gun pass has finished.
+    attack_parameters.ammo_category = "bullet"
+    attack_parameters.range = spec.range
+    attack_parameters.cooldown = spec.cooldown
+    attack_parameters.damage_modifier = spec.damage_modifier
+    attack_parameters.movement_slow_down_factor = spec.movement_slow_down_factor
+    attack_parameters.projectile_creation_distance = 1.125
+    attack_parameters.projectile_center = {0, -0.9}
+    attack_parameters.use_shooter_direction = true
+
+    if attack_parameters.shell_particle then
+        attack_parameters.shell_particle.center = {0, 0.9}
+    end
+
+    return spec.range
+end
+
+local function ensure_bullet_projectile_range(minimum_range)
+    for _, ammo in pairs(data.raw.ammo) do
+        if ammo.ammo_category == "bullet" then
+            local delivery = find_projectile_delivery(ammo)
+            if delivery and (not delivery.max_range or delivery.max_range < minimum_range) then
+                delivery.max_range = minimum_range
+            end
+        end
+    end
+end
+]]
+
 local ur_mag = ei_lib.raw["ammo"]["uranium-rounds-magazine"]
 if ur_mag then
     local ur_delivery = find_projectile_delivery(ur_mag)
@@ -72,3 +139,14 @@ if ur_mag then
         end
     end
 end
+
+--[[
+local max_surveyor_range = 0
+for name, spec in pairs(surveyor_guns) do
+    max_surveyor_range = math.max(max_surveyor_range, restore_surveyor_gun(name, spec))
+end
+
+if max_surveyor_range > 0 then
+    ensure_bullet_projectile_range(max_surveyor_range)
+end
+]]

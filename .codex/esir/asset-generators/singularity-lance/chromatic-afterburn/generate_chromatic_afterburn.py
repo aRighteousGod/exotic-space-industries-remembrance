@@ -506,23 +506,23 @@ def main() -> None:
     scorch_glow = make_scorch_sheet(True)
 
     outputs = {
-        "ei-singularity-lance-afterburn-fire.png": fire,
-        "ei-singularity-lance-afterburn-fire-glow.png": fire_glow,
-        "ei-singularity-lance-afterburn-sticker.png": sticker,
-        "ei-singularity-lance-afterburn-sticker-glow.png": sticker_glow,
-        "ei-singularity-lance-afterburn-scorchmark.png": scorch,
-        "ei-singularity-lance-afterburn-scorchmark-glow.png": scorch_glow,
+        "singularity-lance-afterburn-fire.png": fire,
+        "singularity-lance-afterburn-fire-glow.png": fire_glow,
+        "singularity-lance-afterburn-sticker.png": sticker,
+        "singularity-lance-afterburn-sticker-glow.png": sticker_glow,
+        "singularity-lance-afterburn-scorchmark.png": scorch,
+        "singularity-lance-afterburn-scorchmark-glow.png": scorch_glow,
     }
     for filename, sheet in outputs.items():
         sheet.save(EXPORT_DIR / filename)
 
     specs = [
-        SheetSpec(EXPORT_DIR / "ei-singularity-lance-afterburn-fire.png", FIRE_SIZE, FIRE_FRAMES, FIRE_LINE_LENGTH),
-        SheetSpec(EXPORT_DIR / "ei-singularity-lance-afterburn-fire-glow.png", FIRE_SIZE, FIRE_FRAMES, FIRE_LINE_LENGTH),
-        SheetSpec(EXPORT_DIR / "ei-singularity-lance-afterburn-sticker.png", STICKER_SIZE, STICKER_FRAMES, STICKER_LINE_LENGTH),
-        SheetSpec(EXPORT_DIR / "ei-singularity-lance-afterburn-sticker-glow.png", STICKER_SIZE, STICKER_FRAMES, STICKER_LINE_LENGTH),
-        SheetSpec(EXPORT_DIR / "ei-singularity-lance-afterburn-scorchmark.png", SCORCH_SIZE, SCORCH_VARIATIONS, SCORCH_VARIATIONS),
-        SheetSpec(EXPORT_DIR / "ei-singularity-lance-afterburn-scorchmark-glow.png", SCORCH_SIZE, SCORCH_VARIATIONS, SCORCH_VARIATIONS),
+        SheetSpec(EXPORT_DIR / "singularity-lance-afterburn-fire.png", FIRE_SIZE, FIRE_FRAMES, FIRE_LINE_LENGTH),
+        SheetSpec(EXPORT_DIR / "singularity-lance-afterburn-fire-glow.png", FIRE_SIZE, FIRE_FRAMES, FIRE_LINE_LENGTH),
+        SheetSpec(EXPORT_DIR / "singularity-lance-afterburn-sticker.png", STICKER_SIZE, STICKER_FRAMES, STICKER_LINE_LENGTH),
+        SheetSpec(EXPORT_DIR / "singularity-lance-afterburn-sticker-glow.png", STICKER_SIZE, STICKER_FRAMES, STICKER_LINE_LENGTH),
+        SheetSpec(EXPORT_DIR / "singularity-lance-afterburn-scorchmark.png", SCORCH_SIZE, SCORCH_VARIATIONS, SCORCH_VARIATIONS),
+        SheetSpec(EXPORT_DIR / "singularity-lance-afterburn-scorchmark-glow.png", SCORCH_SIZE, SCORCH_VARIATIONS, SCORCH_VARIATIONS),
     ]
     save_manifest(specs, outputs)
     write_snippet()

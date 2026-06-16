@@ -1,4 +1,5 @@
--- this file contains the prototype definition for varios stuff from computer age
+-- this file contains the prototype definition for varios stuff from computer age,
+-- including Military 5 fire doctrine munitions.
 
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
@@ -1628,6 +1629,7 @@ data:extend({
         allow_quality = false,
         icon = ei_graphics_other_path.."fill-cryo-container-nitrogen.png",
         icon_size = 64,
+        main_product = "",
         subgroup = "fill-barrel",
         order = "c-1",
     },
@@ -1670,6 +1672,7 @@ data:extend({
         allow_quality = false,
         icon = ei_graphics_other_path.."fill-cryo-container-oxygen.png",
         icon_size = 64,
+        main_product = "",
         subgroup = "fill-barrel",
         order = "c-2",
     },
@@ -3722,6 +3725,631 @@ data:extend({
       quaternary = {r = 0.683, g = 0.915, b = 1.000, a = 0.502}, -- #aee9ff80
     }
   },
+})
+
+local inferno_fire = table.deepcopy(data.raw.fire["fire-flame"])
+inferno_fire.name = "ei-inferno-fire-flame"
+inferno_fire.initial_lifetime = 420
+inferno_fire.maximum_lifetime = 540
+inferno_fire.damage_per_tick = {amount = 1.8, type = "fire"}
+inferno_fire.light = {intensity = 0.9, size = 18, color = {r = 1.0, g = 0.42, b = 0.08}}
+inferno_fire.tree_dying_factor = nil
+inferno_fire.spawn_entity = nil
+inferno_fire.maximum_spread_count = 0
+inferno_fire.spread_delay = 60 * 60
+inferno_fire.spread_delay_deviation = 0
+inferno_fire.lifetime_increase_by = 0
+inferno_fire.lifetime_increase_cooldown = 1
+
+local function inferno_fire_effect(flame_count)
+    return {
+        type = "create-fire",
+        entity_name = "ei-inferno-fire-flame",
+        show_in_tooltip = true,
+        initial_ground_flame_count = flame_count,
+    }
+end
+
+local function inferno_area_damage(radius, damage)
+    return {
+        type = "nested-result",
+        action = {
+            type = "area",
+            radius = radius,
+            force = "not-same",
+            action_delivery = {
+                type = "instant",
+                target_effects = {
+                    {
+                        type = "damage",
+                        damage = {amount = damage, type = "explosion"},
+                        apply_damage_to_trees = false,
+                    },
+                    {
+                        type = "create-sticker",
+                        sticker = "fire-sticker",
+                    },
+                },
+            },
+        },
+    }
+end
+
+local function nested_inferno_cluster(cluster_count, distance, distance_deviation, flame_count)
+    return {
+        type = "nested-result",
+        action = {
+            type = "cluster",
+            cluster_count = cluster_count,
+            distance = distance,
+            distance_deviation = distance_deviation,
+            action_delivery = {
+                type = "instant",
+                target_effects = {
+                    inferno_fire_effect(flame_count),
+                },
+            },
+        },
+    }
+end
+
+local function inferno_grenade_projectile_animation(scale)
+    return {
+        filename = ei_graphics_entity_4_path.."inferno-grenade/inferno-grenade-projectile.png",
+        priority = "high",
+        width = 64,
+        height = 64,
+        frame_count = 16,
+        line_length = 8,
+        scale = scale,
+    }
+end
+
+local function inferno_grenade_projectile_shadow(scale)
+    return {
+        filename = ei_graphics_entity_4_path.."inferno-grenade/inferno-grenade-projectile-shadow.png",
+        priority = "high",
+        width = 64,
+        height = 64,
+        frame_count = 16,
+        line_length = 8,
+        draw_as_shadow = true,
+        scale = scale,
+    }
+end
+
+local function inferno_grenade_fragment_animation(scale)
+    return {
+        filename = ei_graphics_entity_4_path.."inferno-grenade/inferno-grenade-fragment.png",
+        priority = "high",
+        width = 64,
+        height = 64,
+        frame_count = 16,
+        line_length = 8,
+        scale = scale,
+    }
+end
+
+local function inferno_grenade_fragment_shadow(scale)
+    return {
+        filename = ei_graphics_entity_4_path.."inferno-grenade/inferno-grenade-fragment-shadow.png",
+        priority = "high",
+        width = 64,
+        height = 64,
+        frame_count = 16,
+        line_length = 8,
+        draw_as_shadow = true,
+        scale = scale,
+    }
+end
+
+local function incinerator_robot_animation()
+    return {
+        layers = {
+            {
+                filename = ei_graphics_entity_4_path.."incinerator/incinerator-bot.png",
+                priority = "high",
+                width = 128,
+                height = 128,
+                frame_count = 8,
+                line_length = 8,
+                direction_count = 32,
+                animation_speed = 0.25,
+                scale = 0.5,
+            },
+            {
+                filename = ei_graphics_entity_4_path.."incinerator/incinerator-bot-glow.png",
+                priority = "high",
+                width = 128,
+                height = 128,
+                frame_count = 8,
+                line_length = 8,
+                direction_count = 32,
+                animation_speed = 0.25,
+                draw_as_glow = true,
+                scale = 0.5,
+            },
+        },
+    }
+end
+
+local function incinerator_robot_shadow()
+    return {
+        filename = ei_graphics_entity_4_path.."incinerator/incinerator-bot-shadow.png",
+        priority = "high",
+        width = 128,
+        height = 128,
+        frame_count = 8,
+        line_length = 8,
+        direction_count = 32,
+        animation_speed = 0.25,
+        draw_as_shadow = true,
+        scale = 0.5,
+    }
+end
+
+local function prediction_snare_icons()
+    return {
+        {
+            icon = "__base__/graphics/icons/land-mine.png",
+            icon_size = 64,
+            tint = {r = 0.65, g = 0.9, b = 1.0, a = 1.0},
+        },
+        {
+            icon = ei_graphics_item_path.."simulation-data.png",
+            icon_size = 128,
+            scale = 0.18,
+            shift = {8, 8},
+        },
+    }
+end
+
+local function breach_solver_icons()
+    return {
+        {
+            icon = "__base__/graphics/icons/cluster-grenade.png",
+            icon_size = 64,
+            tint = {r = 1.0, g = 0.82, b = 0.55, a = 1.0},
+        },
+        {
+            icon = ei_graphics_item_path.."simulation-data.png",
+            icon_size = 128,
+            scale = 0.16,
+            shift = {8, 8},
+        },
+    }
+end
+
+local prediction_snare_item = table.deepcopy(data.raw.item["land-mine"])
+prediction_snare_item.name = "ei-prediction-snare-mine"
+prediction_snare_item.icon = nil
+prediction_snare_item.icon_size = nil
+prediction_snare_item.icons = prediction_snare_icons()
+prediction_snare_item.place_result = "ei-prediction-snare-mine"
+prediction_snare_item.order = "f[land-mine]-b[prediction-snare]"
+
+local prediction_snare_sticker = table.deepcopy(data.raw.sticker["slowdown-sticker"])
+prediction_snare_sticker.name = "ei-prediction-snare-sticker"
+prediction_snare_sticker.duration_in_ticks = 12 * 60
+prediction_snare_sticker.target_movement_modifier = 0.2
+
+local prediction_snare_mine = table.deepcopy(data.raw["land-mine"]["land-mine"])
+prediction_snare_mine.name = "ei-prediction-snare-mine"
+prediction_snare_mine.icon = nil
+prediction_snare_mine.icon_size = nil
+prediction_snare_mine.icons = prediction_snare_icons()
+prediction_snare_mine.minable.result = "ei-prediction-snare-mine"
+prediction_snare_mine.trigger_radius = 3.5
+prediction_snare_mine.action = {
+    type = "direct",
+    action_delivery = {
+        type = "instant",
+        source_effects = {
+            {
+                type = "nested-result",
+                affects_target = true,
+                action = {
+                    type = "area",
+                    radius = 7.5,
+                    force = "enemy",
+                    action_delivery = {
+                        type = "instant",
+                        target_effects = {
+                            {
+                                type = "create-sticker",
+                                sticker = "ei-prediction-snare-sticker",
+                                show_in_tooltip = true,
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                type = "create-entity",
+                entity_name = "slowdown-capsule-explosion",
+            },
+        },
+    },
+}
+
+local breach_solver_charge = table.deepcopy(data.raw.capsule["cluster-grenade"])
+breach_solver_charge.name = "ei-breach-solver-charge"
+breach_solver_charge.icon = nil
+breach_solver_charge.icon_size = nil
+breach_solver_charge.icon_mipmaps = nil
+breach_solver_charge.icons = breach_solver_icons()
+breach_solver_charge.order = "a[grenade]-d[breach-solver]"
+breach_solver_charge.capsule_action.attack_parameters.range = 18
+breach_solver_charge.capsule_action.attack_parameters.cooldown = 75
+breach_solver_charge.capsule_action.attack_parameters.ammo_type.action[1].action_delivery.projectile = "ei-breach-solver-charge"
+
+local breach_solver_projectile = table.deepcopy(data.raw.projectile["cluster-grenade"])
+breach_solver_projectile.name = "ei-breach-solver-charge"
+breach_solver_projectile.action = {
+    {
+        type = "direct",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "create-entity",
+                    entity_name = "big-explosion",
+                    only_when_visible = true,
+                },
+                {
+                    type = "create-entity",
+                    entity_name = "medium-scorchmark-tintable",
+                    check_buildability = true,
+                },
+            },
+        },
+    },
+    {
+        type = "area",
+        radius = 2.5,
+        force = "enemy",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "damage",
+                    damage = {amount = 550, type = "explosion"},
+                },
+                {
+                    type = "create-entity",
+                    entity_name = "explosion",
+                },
+            },
+        },
+    },
+    {
+        type = "area",
+        radius = 5,
+        force = "enemy",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "damage",
+                    damage = {amount = 75, type = "explosion"},
+                },
+            },
+        },
+    },
+}
+
+local inferno_grenade = table.deepcopy(data.raw.capsule["cluster-grenade"])
+inferno_grenade.name = "ei-inferno-grenade"
+inferno_grenade.icon = ei_graphics_item_4_path.."inferno-grenade.png"
+inferno_grenade.icon_size = 128
+inferno_grenade.icon_mipmaps = 3
+inferno_grenade.order = "a[grenade]-c[inferno]"
+inferno_grenade.capsule_action.attack_parameters.range = 24
+inferno_grenade.capsule_action.attack_parameters.cooldown = 45
+inferno_grenade.capsule_action.attack_parameters.ammo_type.action[1].action_delivery.projectile = "ei-inferno-grenade"
+
+local inferno_fragment_projectile = table.deepcopy(data.raw.projectile["grenade"])
+inferno_fragment_projectile.name = "ei-inferno-grenade-fragment"
+inferno_fragment_projectile.animation = inferno_grenade_fragment_animation(0.36)
+inferno_fragment_projectile.shadow = inferno_grenade_fragment_shadow(0.36)
+inferno_fragment_projectile.light = {intensity = 0.8, size = 5, color = {r = 1.0, g = 0.36, b = 0.08}}
+inferno_fragment_projectile.action = {
+    {
+        type = "direct",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "create-entity",
+                    entity_name = "explosion",
+                    only_when_visible = true,
+                },
+                {
+                    type = "create-entity",
+                    entity_name = "small-scorchmark-tintable",
+                    check_buildability = true,
+                },
+                inferno_fire_effect(2),
+                inferno_area_damage(4.5, 30),
+                nested_inferno_cluster(5, 2.25, 1, 1),
+            },
+        },
+    },
+}
+
+local inferno_projectile = table.deepcopy(data.raw.projectile["cluster-grenade"])
+inferno_projectile.name = "ei-inferno-grenade"
+inferno_projectile.animation = inferno_grenade_projectile_animation(0.5)
+inferno_projectile.shadow = inferno_grenade_projectile_shadow(0.5)
+inferno_projectile.action = {
+    {
+        type = "direct",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "create-entity",
+                    entity_name = "big-explosion",
+                    only_when_visible = true,
+                },
+                {
+                    type = "create-entity",
+                    entity_name = "medium-scorchmark-tintable",
+                    check_buildability = true,
+                },
+                inferno_fire_effect(4),
+                inferno_area_damage(6, 35),
+            },
+        },
+    },
+    {
+        type = "cluster",
+        cluster_count = 18,
+        distance = 2.75,
+        distance_deviation = 1.25,
+        action_delivery = {
+            type = "projectile",
+            projectile = "ei-inferno-grenade-fragment",
+            direction_deviation = 0.55,
+            starting_speed = 0.14,
+            starting_speed_deviation = 0.05,
+        },
+    },
+    {
+        type = "cluster",
+        cluster_count = 8,
+        distance = 4.5,
+        distance_deviation = 1.5,
+        action_delivery = {
+            type = "projectile",
+            projectile = "ei-inferno-grenade-fragment",
+            direction_deviation = 0.65,
+            starting_speed = 0.16,
+            starting_speed_deviation = 0.06,
+        },
+    },
+}
+
+local incinerator_capsule = table.deepcopy(data.raw.capsule["destroyer-capsule"])
+incinerator_capsule.name = "ei-incinerator-capsule"
+incinerator_capsule.icon = ei_graphics_item_4_path.."incinerator-capsule.png"
+incinerator_capsule.icon_size = 128
+incinerator_capsule.icon_mipmaps = 3
+incinerator_capsule.order = "f[destroyer]-c[incinerator]"
+incinerator_capsule.capsule_action.attack_parameters.ammo_type.action[1].action_delivery.projectile = "ei-incinerator-capsule-projectile"
+
+local incinerator_projectile = table.deepcopy(data.raw.projectile["destroyer-capsule"])
+incinerator_projectile.name = "ei-incinerator-capsule-projectile"
+incinerator_projectile.action.action_delivery.target_effects.entity_name = "ei-incinerator"
+
+local incinerator_stream = table.deepcopy(data.raw.stream["handheld-flamethrower-fire-stream"] or data.raw.stream["flamethrower-fire-stream"])
+incinerator_stream.name = "ei-incinerator-fire-stream"
+incinerator_stream.particle_spawn_timeout = 5
+incinerator_stream.particle_horizontal_speed = 0.36 * 1.5
+incinerator_stream.particle_horizontal_speed_deviation = 0.006 * 1.5
+incinerator_stream.action = {
+    {
+        type = "area",
+        radius = 2.25,
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                {
+                    type = "create-sticker",
+                    sticker = "fire-sticker",
+                    show_in_tooltip = true,
+                },
+                {
+                    type = "damage",
+                    damage = {amount = 4, type = "fire"},
+                    apply_damage_to_trees = true,
+                },
+            },
+        },
+    },
+    {
+        type = "direct",
+        action_delivery = {
+            type = "instant",
+            target_effects = {
+                inferno_fire_effect(1),
+            },
+        },
+    },
+}
+
+local incinerator = table.deepcopy(data.raw["combat-robot"]["destroyer"])
+incinerator.name = "ei-incinerator"
+incinerator.icon = ei_graphics_item_4_path.."incinerator.png"
+incinerator.icon_size = 128
+incinerator.icon_mipmaps = 3
+incinerator.order = "f[destroyer]-b[incinerator]"
+incinerator.time_to_live = 60 * 180
+incinerator.speed = 0.05
+incinerator.range_from_player = 18
+incinerator.idle = incinerator_robot_animation()
+incinerator.in_motion = incinerator_robot_animation()
+incinerator.shadow_idle = incinerator_robot_shadow()
+incinerator.shadow_in_motion = incinerator_robot_shadow()
+incinerator.resistances = {
+    {type = "fire", percent = 100},
+    {type = "acid", decrease = 0, percent = 90},
+}
+incinerator.attack_parameters = {
+    type = "stream",
+    ammo_category = "flamethrower",
+    cooldown = 4,
+    range = 21,
+    min_range = 5,
+    gun_barrel_length = 0.45,
+    gun_center_shift = {0, -0.6},
+    ammo_type = {
+        action = {
+            type = "direct",
+            action_delivery = {
+                type = "stream",
+                stream = "ei-incinerator-fire-stream",
+                source_offset = {0.15, -0.5},
+            },
+        },
+    },
+    cyclic_sound = table.deepcopy(data.raw.gun["flamethrower"].attack_parameters.cyclic_sound),
+}
+
+data:extend({
+    prediction_snare_item,
+    prediction_snare_sticker,
+    prediction_snare_mine,
+    breach_solver_charge,
+    breach_solver_projectile,
+    inferno_fire,
+    inferno_grenade,
+    inferno_projectile,
+    inferno_fragment_projectile,
+    incinerator_capsule,
+    incinerator_projectile,
+    incinerator_stream,
+    incinerator,
+    {
+        name = "ei-inferno-grenade",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 12,
+        ingredients = {
+            {type = "item", name = "cluster-grenade", amount = 1},
+            {type = "item", name = "flamethrower-ammo", amount = 3},
+            {type = "item", name = "explosives", amount = 5},
+            {type = "item", name = "ei-ceramic", amount = 4},
+            {type = "item", name = "ei-simulation-data", amount = 5},
+        },
+        results = {{type = "item", name = "ei-inferno-grenade", amount = 1}},
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei-inferno-grenade",
+    },
+    {
+        name = "ei-incinerator-capsule",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 18,
+        ingredients = {
+            {type = "item", name = "destroyer-capsule", amount = 1},
+            {type = "item", name = "flamethrower-ammo", amount = 5},
+            {type = "item", name = "ei-ceramic", amount = 10},
+            {type = "item", name = "flamethrower", amount = 5},
+            {type = "item", name = "processing-unit", amount = 2},
+            {type = "item", name = "ei-simulation-data", amount = 15},
+        },
+        results = {{type = "item", name = "ei-incinerator-capsule", amount = 1}},
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei-incinerator-capsule",
+    },
+    {
+        name = "ei-prediction-snare-mine",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 8,
+        ingredients = {
+            {type = "item", name = "steel-plate", amount = 1},
+            {type = "item", name = "battery", amount = 2},
+            {type = "item", name = "ei-electronic-parts", amount = 2},
+            {type = "item", name = "ei-simulation-data", amount = 2},
+        },
+        results = {{type = "item", name = "ei-prediction-snare-mine", amount = 4}},
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei-prediction-snare-mine",
+    },
+    {
+        name = "ei-breach-solver-charge",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 10,
+        ingredients = {
+            {type = "item", name = "grenade", amount = 1},
+            {type = "item", name = "explosives", amount = 4},
+            {type = "item", name = "ei-electronic-parts", amount = 1},
+            {type = "item", name = "ei-simulation-data", amount = 2},
+        },
+        results = {{type = "item", name = "ei-breach-solver-charge", amount = 1}},
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei-breach-solver-charge",
+    },
+    {
+        name = "military-5",
+        type = "technology",
+        icon = "__base__/graphics/technology/military.png",
+        icon_size = 256,
+        prerequisites = {"military-4", "ei-advanced-computer-age-tech"},
+        effects = {
+            {type = "unlock-recipe", recipe = "ei-prediction-snare-mine"},
+            {type = "unlock-recipe", recipe = "ei-breach-solver-charge"},
+        },
+        unit = {
+            count = 200,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 30,
+        },
+        age = "advanced-computer-age",
+    },
+    {
+        name = "ei-inferno-grenade",
+        type = "technology",
+        icon = ei_graphics_tech_4_path.."inferno-grenade.png",
+        icon_size = 256,
+        icon_mipmaps = 4,
+        prerequisites = {"military-5", "flamethrower"},
+        effects = {
+            {type = "unlock-recipe", recipe = "ei-inferno-grenade"},
+        },
+        unit = {
+            count = 200,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 30,
+        },
+        age = "advanced-computer-age",
+        order = "e-m-a[inferno-grenade]",
+    },
+    {
+        name = "ei-incinerator",
+        type = "technology",
+        icon = ei_graphics_tech_4_path.."incinerator.png",
+        icon_size = 256,
+        icon_mipmaps = 4,
+        prerequisites = {"military-5", "destroyer", "flamethrower"},
+        effects = {
+            {type = "unlock-recipe", recipe = "ei-incinerator-capsule"},
+        },
+        unit = {
+            count = 200,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 30,
+        },
+        age = "advanced-computer-age",
+        order = "e-m-b[incinerator]",
+    },
 })
 
 ei_lib.raw.technology.modules.effects = {

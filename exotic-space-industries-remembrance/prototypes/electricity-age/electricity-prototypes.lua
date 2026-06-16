@@ -2,6 +2,50 @@
 
 local ei_data = require("lib/data")
 
+local uranium_shotgun_shell_icon = ei_graphics_item_4_path.."uranium-shotgun-shell.png"
+local uranium_shotgun_shell_light_icon = ei_graphics_item_4_path.."uranium-shotgun-shell-light.png"
+local uranium_shotgun_tint = {r = 0.38, g = 1.0, b = 0.24, a = 1.0}
+
+local uranium_shotgun_fx = {}
+
+local function tint_animation_tree(node, tint)
+    if type(node) ~= "table" then return end
+
+    if node.filename or node.stripes then
+        node.tint = tint
+    end
+
+    for _, child in pairs(node) do
+        if type(child) == "table" then
+            tint_animation_tree(child, tint)
+        end
+    end
+end
+
+local function add_uranium_shotgun_explosion(source_name, name, light_size)
+    local source = data.raw.explosion[source_name]
+    if not source then return end
+
+    local explosion = table.deepcopy(source)
+    explosion.name = name
+    explosion.localised_name = nil
+    explosion.hidden = true
+    explosion.light = {
+        intensity = 0.55,
+        size = light_size,
+        color = uranium_shotgun_tint,
+    }
+    tint_animation_tree(explosion.animations, uranium_shotgun_tint)
+    uranium_shotgun_fx[#uranium_shotgun_fx + 1] = explosion
+end
+
+add_uranium_shotgun_explosion("explosion-gunshot", "ei-uranium-shotgun-muzzle", 3)
+add_uranium_shotgun_explosion("explosion-hit", "ei-uranium-shotgun-hit", 4)
+
+if #uranium_shotgun_fx > 0 then
+    data:extend(uranium_shotgun_fx)
+end
+
 --====================================================================================================
 --PROTOTYPE DEFINITIONS
 --====================================================================================================
@@ -10,6 +54,111 @@ local ei_data = require("lib/data")
 ------------------------------------------------------------------------------------------------------
 
 data:extend({
+    {
+        type = "projectile",
+        name = "ei-uranium-shotgun-pellet",
+        flags = {"not-on-map"},
+        hidden = true,
+        collision_box = {{-0.05, -0.25}, {0.05, 0.25}},
+        acceleration = 0,
+        direction_only = true,
+        action = {
+            type = "direct",
+            action_delivery = {
+                type = "instant",
+                target_effects = {
+                    {
+                        type = "create-entity",
+                        entity_name = "ei-uranium-shotgun-hit",
+                        offsets = {{0, 1}},
+                        offset_deviation = {{-0.5, -0.5}, {0.5, 0.5}},
+                        only_when_visible = true,
+                    },
+                    {
+                        type = "damage",
+                        damage = {amount = 24, type = "physical"},
+                    },
+                    {
+                        type = "activate-impact",
+                        deliver_category = "bullet",
+                    },
+                },
+            },
+        },
+        light = {intensity = 0.5, size = 3, color = uranium_shotgun_tint},
+        animation = {
+            filename = "__base__/graphics/entity/piercing-bullet/piercing-bullet.png",
+            draw_as_glow = true,
+            width = 3,
+            height = 50,
+            priority = "high",
+            tint = uranium_shotgun_tint,
+        },
+    },
+    {
+        name = "ei-uranium-shotgun-shell",
+        type = "ammo",
+        icon = uranium_shotgun_shell_icon,
+        icon_size = 128,
+        icon_mipmaps = 3,
+        pictures = {
+            layers = {
+                {
+                    filename = uranium_shotgun_shell_icon,
+                    size = 128,
+                    scale = 0.25,
+                    mipmap_count = 3,
+                },
+                {
+                    filename = uranium_shotgun_shell_light_icon,
+                    size = 128,
+                    scale = 0.25,
+                    mipmap_count = 3,
+                    draw_as_light = true,
+                },
+            },
+        },
+        ammo_category = "shotgun-shell",
+        ammo_type = {
+            target_type = "direction",
+            clamp_position = true,
+            action = {
+                {
+                    type = "direct",
+                    action_delivery = {
+                        type = "instant",
+                        source_effects = {
+                            {
+                                type = "create-explosion",
+                                entity_name = "ei-uranium-shotgun-muzzle",
+                                only_when_visible = true,
+                            },
+                        },
+                    },
+                },
+                {
+                    type = "direct",
+                    repeat_count = 16,
+                    action_delivery = {
+                        type = "projectile",
+                        projectile = "ei-uranium-shotgun-pellet",
+                        starting_speed = 1,
+                        starting_speed_deviation = 0.1,
+                        direction_deviation = 0.3,
+                        range_deviation = 0.3,
+                        max_range = 15,
+                    },
+                },
+            },
+        },
+        magazine_size = 10,
+        subgroup = "ammo",
+        order = "b[shotgun]-c[atomic-uranium]",
+        inventory_move_sound = item_sounds.ammo_small_inventory_move,
+        pick_sound = item_sounds.ammo_small_inventory_pickup,
+        drop_sound = item_sounds.ammo_small_inventory_move,
+        stack_size = 100,
+    },
     {
         name = "ei-minigun",
         type = "gun",
@@ -242,6 +391,22 @@ data:extend({
 ------------------------------------------------------------------------------------------------------
 
 data:extend({
+    {
+        name = "ei-uranium-shotgun-shell",
+        type = "recipe",
+        energy_required = 10,
+        ingredients = {
+            {type = "item", name = "piercing-shotgun-shell", amount = 1},
+            {type = "item", name = "uranium-238", amount = 1},
+        },
+        results = {
+            {type = "item", name = "ei-uranium-shotgun-shell", amount = 1},
+        },
+        enabled = false,
+        main_product = "ei-uranium-shotgun-shell",
+        subgroup = "ammo",
+        order = "b[shotgun]-c[atomic-uranium]",
+    },
     {
         name = "ei-sand-bulk",
         type = "recipe",
@@ -932,6 +1097,8 @@ table.insert(data.raw["technology"]["advanced-oil-processing"].effects, {
     type = "unlock-recipe",
     recipe = "ei-kerosene-cracking"
 })
+
+ei_lib.add_unlock_recipe("uranium-ammo", "ei-uranium-shotgun-shell")
 
 table.insert(data.raw["technology"]["coal-liquefaction"].effects, {
     type = "unlock-recipe",

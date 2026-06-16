@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-25T13:11:11.9258774-05:00",
+    "generated_at":  "2026-06-05T11:51:45.2658809-05:00",
     "wrapper":  {
                     "path":  "scripts\\invoke-esir-dev.ps1",
                     "library":  "scripts\\esir-dev-lib.ps1",
@@ -64,6 +64,16 @@
                 ],
     "repo_skills":  [
                         {
+                            "name":  "blender-procedural-animation",
+                            "root":  ".codex\\skills\\blender-procedural-animation",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "esir-asset-pipeline",
+                            "root":  ".codex\\skills\\esir-asset-pipeline",
+                            "wrapper":  null
+                        },
+                        {
                             "name":  "esir-dependency-intel",
                             "root":  ".codex\\skills\\esir-dependency-intel",
                             "wrapper":  "scripts\\invoke-esir-dependency-intel.ps1"
@@ -72,6 +82,11 @@
                             "name":  "esir-dev",
                             "root":  ".codex\\skills\\esir-dev",
                             "wrapper":  "scripts\\invoke-esir-dev.ps1"
+                        },
+                        {
+                            "name":  "esir-factorio-asset-export",
+                            "root":  ".codex\\skills\\esir-factorio-asset-export",
+                            "wrapper":  null
                         },
                         {
                             "name":  "esir-item-icon-prep",
@@ -84,8 +99,33 @@
                             "wrapper":  null
                         },
                         {
+                            "name":  "esir-lua-types",
+                            "root":  ".codex\\skills\\esir-lua-types",
+                            "wrapper":  null
+                        },
+                        {
                             "name":  "esir-recipe-icon-style",
                             "root":  ".codex\\skills\\esir-recipe-icon-style",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "esir-research-events",
+                            "root":  ".codex\\skills\\esir-research-events",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "esir-rolling-stock-render",
+                            "root":  ".codex\\skills\\esir-rolling-stock-render",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "esir-runtime-gui",
+                            "root":  ".codex\\skills\\esir-runtime-gui",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "factorio-core-lualib",
+                            "root":  ".codex\\skills\\factorio-core-lualib",
                             "wrapper":  null
                         },
                         {
@@ -97,6 +137,21 @@
                             "name":  "factorio-lua-docs",
                             "root":  ".codex\\skills\\factorio-lua-docs",
                             "wrapper":  "scripts\\invoke-factorio-lua-docs.ps1"
+                        },
+                        {
+                            "name":  "factorio-vanilla-prototype-libs",
+                            "root":  ".codex\\skills\\factorio-vanilla-prototype-libs",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "meshy-api",
+                            "root":  ".codex\\skills\\meshy-api",
+                            "wrapper":  null
+                        },
+                        {
+                            "name":  "meshy-blender-spritesheet",
+                            "root":  ".codex\\skills\\meshy-blender-spritesheet",
+                            "wrapper":  null
                         }
                     ],
     "manifests":  [
@@ -114,6 +169,7 @@
                            "graphics1_process.ps1",
                            "graphics2_process.ps1",
                            "graphics3_process.ps1",
+                           "graphics4_process.ps1",
                            "soundtrack1_process.ps1",
                            "soundtrack2_process.ps1"
                        ],

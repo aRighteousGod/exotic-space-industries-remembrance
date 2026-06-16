@@ -2,9 +2,9 @@
 
 Replay note for the compact saucer body rerender shipped as:
 
-- `graphics/entities/gaian-saucer/ei-gaian-saucer_dark_compact.png`
-- `graphics/entities/gaian-saucer/ei-gaian-saucer_dark_compact_glow.png`
-- `graphics/entities/gaian-saucer/ei-gaian-saucer_dark_compact_shadow.png`
+- `graphics/entities/gaian-saucer/gaian-saucer_dark_compact.png`
+- `graphics/entities/gaian-saucer/gaian-saucer_dark_compact_glow.png`
+- `graphics/entities/gaian-saucer/gaian-saucer_dark_compact_shadow.png`
 
 Source model:
 
@@ -55,11 +55,11 @@ python .\.codex\esir\asset-generators\gaian-saucer\body\derive_dark_compact_glow
 
 Generator source:
 
-`exotic-space-industries-remembrance/graphics/entities/gaian-saucer/ei-gaian-saucer_dark_compact.png`
+`exotic-space-industries-remembrance/graphics/entities/gaian-saucer/gaian-saucer_dark_compact.png`
 
 Promoted output:
 
-`exotic-space-industries-remembrance/graphics/entities/gaian-saucer/ei-gaian-saucer_dark_compact_glow.png`
+`exotic-space-industries-remembrance/graphics/entities/gaian-saucer/gaian-saucer_dark_compact_glow.png`
 
 Glow style:
 

@@ -13,7 +13,7 @@
 local ei_data = require("lib/data")
 
 local tank_name = "ei-emerald-apocalypse-hover-tank"
-local tank_tech_icon = ei_path.."graphics/techs/emerald-apocalypse-hover-tank.png"
+local tank_tech_icon = ei_graphics_tech_4_path.."emerald-apocalypse-hover-tank.png"
 
 local function emerald_upgrade_technology(name, prerequisite, order)
     return {

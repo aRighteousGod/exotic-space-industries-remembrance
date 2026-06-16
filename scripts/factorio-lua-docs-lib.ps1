@@ -452,6 +452,40 @@ function Invoke-FactorioLuaDocsRefresh {
     }
 }
 
+function Get-FactorioLuaDocsStatus {
+    param([Parameter(Mandatory = $true)]$Paths)
+
+    $index = Read-FactorioLuaDocsJson -Path $Paths.index_path
+    if (-not $index) {
+        return [ordered]@{
+            task           = 'status'
+            overall_status = 'warning'
+            cache_root     = $Paths.cache_root
+            index_path     = $Paths.index_path
+            cache_exists   = $false
+            error          = 'Factorio Lua docs cache missing. Run refresh first.'
+        }
+    }
+
+    return [ordered]@{
+        task           = 'status'
+        overall_status = 'ok'
+        cache_root     = $Paths.cache_root
+        index_path     = $Paths.index_path
+        cache_exists   = $true
+        refreshed_at   = $index.refreshed_at
+        runtime        = $index.runtime
+        prototype      = $index.prototype
+        counts         = $index.counts
+        warnings       = $index.warnings
+        sources        = [ordered]@{
+            api_home      = 'https://lua-api.factorio.com/'
+            runtime_json  = $index.sources.runtime_api_url
+            prototype_json = $index.sources.prototype_api_url
+        }
+    }
+}
+
 function Get-FactorioLuaDocsIndex {
     param(
         [Parameter(Mandatory = $true)]$Paths,

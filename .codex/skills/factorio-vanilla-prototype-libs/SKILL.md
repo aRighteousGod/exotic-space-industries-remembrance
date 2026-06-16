@@ -17,6 +17,8 @@ Get-ChildItem "$factorio\data\quality\prototypes" -Recurse -Filter *.lua
 Get-ChildItem "$factorio\data\elevated-rails\prototypes" -Recurse -Filter *.lua
 ```
 
+This survey follows the installed game files, not the hosted `lua-api.factorio.com/latest` docs. Re-run `factorio.exe --version` and resurvey the relevant `data\*\prototypes` trees before bumping the recorded version.
+
 Space Age does not have a `data/space-age/lualib` directory. Its reusable Lua surfaces are prototype modules under `data/space-age/prototypes`.
 
 ## Workflow

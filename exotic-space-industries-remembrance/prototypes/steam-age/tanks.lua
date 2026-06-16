@@ -255,7 +255,6 @@ data:extend({
                 { flow_direction = "input-output", direction = defines.direction.west, position = {-2, 0} },
                 { flow_direction = "input-output", direction = defines.direction.east, position = {2, 0} },
             },
-            production_type = "input-output",
         },
         pictures = {
             picture = {
@@ -335,7 +334,6 @@ data:extend({
                 { flow_direction = "input-output", direction = defines.direction.east, position = {3.963, 1.0} },
                 { flow_direction = "input-output", direction = defines.direction.east, position = {3.963, -1.0} },
             },
-            production_type = "input-output",
         },
         pictures = {
             picture = {
@@ -410,7 +408,6 @@ data:extend({
 
                 { flow_direction = "input-output", direction = defines.direction.east, position = {2.9912, 0} },
             },
-            production_type = "input-output",
         },
         pictures = {
             picture = {

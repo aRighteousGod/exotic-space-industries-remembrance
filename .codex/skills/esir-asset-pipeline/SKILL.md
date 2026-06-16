@@ -16,6 +16,8 @@ Use this skill when an asset needs a reproducible end-to-end dossier instead of 
 - Do not copy assets into ESIR graphics folders or edit prototypes unless the user explicitly asks after staging.
 - Keep Factorio preset assumptions intact by default: orthographic camera, upper-left baked light, lower-right staged shadows, separate base/shadow/glow/light/mask layers, and preset-compatible sheet layout.
 - Use the local `factorioRenderingPreset_v4.blend`, `render_factorio_preset.py`, and `Render.zip` conventions for Factorio-bound spritesheets unless the user explicitly asks for a non-preset experiment.
+- Use [`esir-rolling-stock-render`](../esir-rolling-stock-render/SKILL.md) for train or rolling-stock body sprites that use `rolling_stock_template.blend`, Susanne precedent, sloped frames, or Spritter packing.
+- For main-pack shipping graphics, keep staged filename and destination directory roots free of leading `ei-`; use `prototype_name`/`--target-prototype-name` for `ei-*` prototype identity.
 - Classify every preset render output before promotion as base, shadow, glow/light, runtime color mask, water reflection, manual mask source, unused evidence, or baked color. Do not treat `object_mask_0.png` as wired just because it was staged.
 - Runtime color masks default to owner-readability only: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Preserve baked ESIR color on neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, and deliberately chromatic assets.
 - Preserve every command and artifact path in the dossier so the pipeline can be replayed.
@@ -24,13 +26,14 @@ Use this skill when an asset needs a reproducible end-to-end dossier instead of 
 
 1. Create or update an asset spec.
 2. Run `plan` to inspect commands and inferred paths.
-3. Run individual steps until the output looks good. `render_preset` is the default final render path for Factorio-bound static or directional spritesheets. Auto ortho fitting is still required for static, procedural, and scripted preset renders; keep `min_alpha_margin`/`preflight_margin` enabled before export so the render expands only as much as needed to avoid clipping.
-4. Run `qa` and inspect previews/bbox overlays. Enable `style` to compare staged PNGs against the local ESIR graphics baseline. Treat low frame occupancy, weak silhouette contrast, or black-material detail loss as a rerender cue rather than a promotion candidate.
-5. Stage Factorio snippets and previews with the export step. Multi-sheet exports remain staged as Factorio `stripes`; runtime color-mask layers still require explicit classification and prototype wiring.
-6. Enable `gallery` to write an HTML approval page with previews, warnings, snippets, and dossier links.
-7. Enable `registry` to update the manifest-backed asset index with hashes, roles, QA status, and manual review fields; use the `registry` command to browse or mark queue status.
-8. Use `batch` for sequential variant runs and `estimate` before expensive render batches.
-9. Use the disabled-by-default `promotion` step only for dry-run copy/patch plans unless the user explicitly approves execution. `promotion` is excluded from `--steps all`; run it by name when needed.
+3. Run `compare` before expensive dark-vehicle final renders. It previews `preset-default`, `rail-fill`, and `gamma-rescue`, writes metrics/HTML under `lighting-compare`, and never auto-selects the final profile.
+4. Run individual steps until the output looks good. `render_preset` is the default final render path for Factorio-bound static or directional spritesheets. Auto ortho fitting is still required for static, procedural, and scripted preset renders; keep `min_alpha_margin`/`preflight_margin` enabled before export so the render expands only as much as needed to avoid clipping.
+5. Run `qa` and inspect previews/bbox overlays. Enable `style` to compare staged PNGs against the local ESIR graphics baseline. Treat low frame occupancy, weak silhouette contrast, or black-material detail loss as a rerender cue rather than a promotion candidate.
+6. Stage Factorio snippets and previews with the export step. Multi-sheet exports remain staged as Factorio `stripes`; runtime color-mask layers still require explicit classification and prototype wiring.
+7. Enable `gallery` to write an HTML approval page with previews, warnings, snippets, and dossier links.
+8. Enable `registry` to update the manifest-backed asset index with hashes, roles, QA status, and manual review fields; use the `registry` command to browse or mark queue status.
+9. Use `batch` for sequential variant runs and `estimate` before expensive render batches.
+10. Use the disabled-by-default `promotion` step only for dry-run copy/patch plans unless the user explicitly approves execution. `promotion` is excluded from `--steps all`; run it by name when needed.
 
 ## Commands
 
@@ -38,22 +41,22 @@ Create a full example spec:
 
 ```powershell
 python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py sample `
-  --asset-name ei-threshold-array `
-  --output output/meshy/ei-threshold-array/asset.pipeline.json
+  --asset-name threshold-array `
+  --output output/meshy/threshold-array/asset.pipeline.json
 ```
 
 Plan the run:
 
 ```powershell
 python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py plan `
-  --spec output/meshy/ei-threshold-array/asset.pipeline.json
+  --spec output/meshy/threshold-array/asset.pipeline.json
 ```
 
 Run selected stages:
 
 ```powershell
 python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py run `
-  --spec output/meshy/ei-threshold-array/asset.pipeline.json `
+  --spec output/meshy/threshold-array/asset.pipeline.json `
   --steps render_procedural,export,qa
 ```
 
@@ -61,23 +64,30 @@ Dry-run any execution:
 
 ```powershell
 python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py run `
-  --spec output/meshy/ei-threshold-array/asset.pipeline.json `
+  --spec output/meshy/threshold-array/asset.pipeline.json `
   --steps all `
   --dry-run
+```
+
+Compare lighting profiles before final preset renders:
+
+```powershell
+python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py compare `
+  --spec output/meshy/threshold-array/asset.pipeline.json
 ```
 
 Estimate render weight:
 
 ```powershell
 python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py estimate `
-  --spec output/meshy/ei-threshold-array/asset.pipeline.json
+  --spec output/meshy/threshold-array/asset.pipeline.json
 ```
 
 Run declared variants:
 
 ```powershell
 python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py batch `
-  --spec output/meshy/ei-threshold-array/asset.pipeline.json `
+  --spec output/meshy/threshold-array/asset.pipeline.json `
   --steps render_preset,export,qa `
   --continue-on-error
 ```

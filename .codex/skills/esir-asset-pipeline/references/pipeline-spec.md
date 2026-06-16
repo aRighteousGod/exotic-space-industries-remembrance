@@ -6,11 +6,13 @@ The orchestrator accepts JSON by default and YAML when PyYAML is installed. JSON
 
 ```json
 {
-  "asset_name": "ei-threshold-array",
+  "asset_name": "threshold-array",
+  "graphics_name": "threshold-array",
+  "prototype_name": "ei-threshold-array",
   "kind": "machine",
-  "output_root": "output/meshy/ei-threshold-array",
-  "model_path": "output/meshy/ei-threshold-array/model.glb",
-  "model_glob": "output/meshy/ei-threshold-array/*.glb",
+  "output_root": "output/meshy/threshold-array",
+  "model_path": "output/meshy/threshold-array/model.glb",
+  "model_glob": "output/meshy/threshold-array/*.glb",
   "blender": {
     "exe": "C:/Program Files/Blender Foundation/Blender 5.1/blender.exe"
   },
@@ -21,9 +23,11 @@ The orchestrator accepts JSON by default and YAML when PyYAML is installed. JSON
 }
 ```
 
-- `asset_name`: required.
+- `asset_name`: required pipeline/job key. For main-pack shipping graphics, prefer the no-prefix graphics root such as `threshold-array`.
+- `graphics_name`: staged filename and final graphics directory root. Defaults to `asset_name` with a leading `ei-` removed.
+- `prototype_name`: intended Factorio prototype identity. It may keep `ei-*`, for example `ei-threshold-array`.
 - `kind`: `entity`, `machine`, `icon`, `concept`, or a descriptive string.
-- `output_root`: defaults to `output/meshy/<asset_name>`.
+- `output_root`: defaults to `output/meshy/<graphics_name>`.
 - `model_path`: preferred input model for render steps.
 - `model_glob`: fallback search when a Meshy download produced a new GLB.
 - `factorio_render_preset`: paths for local preset files. The `render_preset` step opens the preset in background Blender and writes outputs under the asset root; it does not modify the source `.blend`. Factorio-bound spritesheet specs should include this block unless the task is explicitly non-preset.
@@ -84,7 +88,7 @@ When a generated asset needs force/player-colored regions, put that requirement 
 "render_static": {
   "enabled": true,
   "input": "{model_path}",
-  "output_sheet": "{output_root}/renders/{asset_name}-static.png",
+  "output_sheet": "{output_root}/renders/{graphics_name}-static.png",
   "directions": 8,
   "frame_size": 384,
   "columns": 8,
@@ -118,8 +122,8 @@ For Meshy image-to-3D assets, auto fitting is on by default. Keep `"auto_ortho_s
   "input": "{model_path}",
   "test_asset": null,
   "preset": "gate",
-  "output_sheet": "{output_root}/renders/{asset_name}-animation.png",
-  "shadow_sheet": "{output_root}/renders/{asset_name}-animation-shadow.png",
+  "output_sheet": "{output_root}/renders/{graphics_name}-animation.png",
+  "shadow_sheet": "{output_root}/renders/{graphics_name}-animation-shadow.png",
   "frames": 16,
   "directions": 1,
   "columns": 4,
@@ -156,6 +160,7 @@ Set `"factorio_preset_defaults": true` for scripted animation drafts and quick c
   "tile_size": 64,
   "passes": ["object", "shadow", "light-alpha-reduced", "light-alpha", "mask"],
   "quality": "smoke",
+  "lighting_profile": "preset-default",
   "pack_sheets": true,
   "preflight_only": false,
   "preflight_margin": 0.12,
@@ -169,7 +174,12 @@ Set `"factorio_preset_defaults": true` for scripted animation drafts and quick c
   "auto_prep": false,
   "prep_origin_mode": "center",
   "prep_target_size": 2.0,
-  "prep_alpha_mode": "report"
+  "prep_alpha_mode": "report",
+  "prep_vehicle_material_lift": false,
+  "preset_sun_energy_scale": 1.0,
+  "preset_world_strength_scale": 1.0,
+  "preset_view_exposure_offset": 0.0,
+  "preset_view_gamma": null
 }
 ```
 
@@ -181,7 +191,32 @@ Preflight options let the preset act as a material/framing gate before rendering
 
 Auto-prep is conservative and preset-only. Set `"auto_prep": true` to remove imported cameras/empty meshes, normalize to `"prep_target_size"`, and record cleanup in the render manifest. Optional flags include `"prep_origin_mode": "center|ground"`, `"prep_apply_scale"`, `"prep_delete_empty_meshes"`, `"prep_remove_imported_cameras"`, and `"prep_alpha_mode": "report|force-opaque"`.
 
+Lighting profiles are opt-in. Use `"lighting_profile": "rail-fill"` as the normal dark-vehicle profile: `sun=1.40`, `world=3.00`, vehicle material lift, metallic `0`, roughness `0.76`, base color gamma `0.74`, and value `1.08`. Use `"gamma-rescue"` only after preview approval for assets that remain too dark; it sets `sun=1.50` and view gamma `1.50` and can wash out black shells or high-emission surfaces. Direct numeric lighting/material fields override profile defaults when present.
+
 The preset `mask` pass produces `object_mask_0.png`/ColorMask-style output. Treat it as unclassified evidence until export review marks it as a runtime-tint mask, manual post-processing source, or unused sheet.
+
+## Lighting Compare
+
+```json
+"lighting_compare": {
+  "enabled": true,
+  "profiles": ["preset-default", "rail-fill", "gamma-rescue"],
+  "output_dir": "{output_root}/lighting-compare",
+  "report": "{output_root}/lighting-compare/lighting-compare-report.json",
+  "html": "{output_root}/lighting-compare/lighting-compare-report.html",
+  "frames": 8,
+  "directions": 8,
+  "animation_frames": 1,
+  "passes": ["object", "shadow", "light-alpha-reduced", "mask"],
+  "quality": "smoke",
+  "pack_sheets": true,
+  "grid": "8x1",
+  "warn_clip250_pct": 3.0,
+  "reject_clip250_pct": 5.0
+}
+```
+
+Run with `run_asset_pipeline.py compare --spec <spec>`. The command renders preview variants, writes JSON and HTML, and reports active-alpha mean/median luma, p95/p99 luma, `clip250_pct`, edge-touching tiles, blank tiles, and warnings. It does not auto-select or lock a final profile; set `render_preset.lighting_profile` explicitly for final renders.
 
 ## Factorio Export
 
@@ -196,9 +231,10 @@ The preset `mask` pass produces `object_mask_0.png`/ColorMask-style output. Trea
   "working_shadow_sheet": "{render_procedural.shadow_sheet}",
   "scale": 0.35,
   "shift": "0,-0.2",
+  "filename_root": "{graphics_name}",
   "snippet_template": "assembling-machine",
   "target_prototype_type": "assembling-machine",
-  "target_prototype_name": "{asset_name}",
+  "target_prototype_name": "{prototype_name}",
   "target_field": "graphics_set",
   "animation_speed": 0.6,
   "output_dir": "{output_root}/factorio-export"
@@ -207,7 +243,7 @@ The preset `mask` pass produces `object_mask_0.png`/ColorMask-style output. Trea
 
 Modes are `entity`, `machine`, `icon`, and `render-bundle`, matching `$esir-factorio-asset-export`.
 
-Prototype-aware snippet fields are metadata and comments, not automatic wiring. Use `snippet_template`, `target_prototype_type`, `target_prototype_name`, and `target_field` to make staged snippets and promotion hints line up with the intended prototype.
+Prototype-aware snippet fields are metadata and comments, not automatic wiring. Use `filename_root`/`graphics_name` for staged PNG names and `snippet_template`, `target_prototype_type`, `target_prototype_name`, and `target_field` to make staged snippets and promotion hints line up with the intended prototype.
 
 Preset bundle export:
 
@@ -256,13 +292,13 @@ If a mask is promoted as a runtime-tint layer, the prototype layer should match 
 ```json
 "promotion": {
   "enabled": false,
-  "manifest": "{export.output_dir}/{asset_name}.factorio-asset-manifest.json",
+  "manifest": "{export.output_dir}/{graphics_name}.factorio-asset-manifest.json",
   "copy_assets": false,
-  "graphics_destination": "exotic-space-industries-remembrance/graphics/entity/{asset_name}",
+  "graphics_destination": "exotic-space-industries-remembrance/graphics/entity/{graphics_name}",
   "apply_prototype": false,
   "prototype_file": "",
   "prototype_type": "assembling-machine",
-  "prototype_name": "{asset_name}",
+  "prototype_name": "{prototype_name}",
   "field": "graphics_set",
   "expected_asset_count": null,
   "require_prototype_identity": true,
@@ -364,8 +400,10 @@ Regression checks run inside QA. They compare current staged PNG metrics against
   {
     "name": "low-glow",
     "overrides": {
-      "asset_name": "ei-example-low-glow",
-      "output_root": "output/meshy/ei-example/variants/low-glow",
+      "asset_name": "example-low-glow",
+      "graphics_name": "example-low-glow",
+      "prototype_name": "ei-example-low-glow",
+      "output_root": "output/meshy/example/variants/low-glow",
       "export": {"light_layer": "none"}
     }
   }

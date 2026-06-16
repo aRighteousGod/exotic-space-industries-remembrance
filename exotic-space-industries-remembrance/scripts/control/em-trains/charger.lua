@@ -3,7 +3,7 @@
 -- owns: EM train and charger runtime, buffs, rebuilds, and research hooks
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init/config rebuild, build/destroy, research-finished, and scheduled tick steps 8 and 9
--- forwarded_events: activate_surface, adjust_surface_count, allocate_surface_budgets, animate_range, apply_buffs, build_charger_entry, build_train_entry, cast_beam, charger_updater, check_buffs, check_global, clear_legacy_runtime_fields, compact_queue, deactivate_surface, dequeue_surface_unit, deregister_all_chargers, deregister_all_trains, enqueue_surface_unit, ensure_runtime_ready, ensure_surface_queue, ensure_train_grace_reserve, entity_check, find_charger, fix_toggle_range, get_charger_power_usage, get_charger_transfer_factor, get_charger_upkeep_factor, get_chunk_bucket, get_entity_name_list, get_existing_entity_name_list, get_item_fuel_value, get_locomotive_demand_factor, get_locomotive_grace_ticks, get_normalized_quality_factor, get_rail_count, get_selected_em_fuel_prototype, get_surface_charger_set, get_surface_scheduler_state, get_train_fuel_fraction, has_enough_energy, index_charger, invalidate_runtime_state, is_em_train, on_built_entity, on_destroyed_entity, on_research_finished, on_scripted_research_burst, printBuffStatus, process_surface_quota, process_surface_scheduler, que_charger, que_train, rebuild_runtime_state, register_charger, register_que_charger, register_que_train, register_train, reinitialize_chargers, reinitialize_trains, remove_charger_entry, remove_train_entry, render_status_rings, requeue_surface_unit, reset_surface_scheduler, return_buffs, set_burner, toggle_range_highlight, train_updater, unindex_charger, unregister_charger, unregister_train, update_charger, update_charger_from_rail, update_chargers, update_rail_counts, update_train, update_trains
+-- forwarded_events: activate_surface, adjust_surface_count, allocate_surface_budgets, animate_range, apply_buffs, build_charger_entry, build_train_entry, cast_beam, charger_updater, check_buffs, check_global, clear_legacy_runtime_fields, compact_queue, deactivate_surface, dequeue_surface_unit, deregister_all_chargers, deregister_all_trains, enqueue_surface_unit, ensure_runtime_ready, ensure_surface_queue, ensure_train_grace_reserve, entity_check, find_charger, fix_toggle_range, get_charger_pending_work_count, get_charger_power_usage, get_charger_transfer_factor, get_charger_upkeep_factor, get_chunk_bucket, get_entity_name_list, get_existing_entity_name_list, get_item_fuel_value, get_locomotive_demand_factor, get_locomotive_grace_ticks, get_normalized_quality_factor, get_rail_count, get_selected_em_fuel_prototype, get_surface_charger_set, get_surface_scheduler_state, get_train_fuel_fraction, get_train_pending_work_count, has_charger_tick_work, has_enough_energy, has_train_tick_work, index_charger, invalidate_runtime_state, is_em_train, on_built_entity, on_destroyed_entity, on_research_finished, on_scripted_research_burst, printBuffStatus, process_surface_quota, process_surface_scheduler, que_charger, que_train, rebuild_runtime_state, register_charger, register_que_charger, register_que_train, register_train, reinitialize_chargers, reinitialize_trains, remove_charger_entry, remove_train_entry, render_status_rings, requeue_surface_unit, reset_surface_scheduler, return_buffs, set_burner, toggle_range_highlight, train_updater, unindex_charger, unregister_charger, unregister_train, update_charger, update_charger_from_rail, update_chargers, update_rail_counts, update_train, update_trains
 -- storage_roots: storage.ei, storage.ei_emt
 -- gui_ids: none
 -- remote_interfaces: none
@@ -77,6 +77,15 @@ local QUALITY_LOCO_DEMAND_MAX_REDUCTION = 0.16
 local QUALITY_LOCO_MAX_GRACE_TICKS = 480
 local EM_CHARGER_RAIL_AUDIT_TICKS = 3600
 local EM_CHARGER_RAIL_AUDIT_BUDGET = 4
+
+---@class EmTrainGlowSlot
+---@field renders LuaRenderObject[]|nil
+---@field tick integer|nil
+
+---@class EmTrainGlowPool
+---@field slots table<integer, EmTrainGlowSlot>
+---@field next_slot integer|nil
+---@field slot_count integer|nil
 --UTIL
 ------------------------------------------------------------------------------------------------------
 
@@ -409,6 +418,160 @@ local function resolve_runtime_tick(current_tick)
     end
 
     return game and game.tick or 0
+end
+
+local function destroy_glow_render(render_object)
+    if render_object and render_object.valid then
+        render_object.destroy()
+    end
+end
+
+local function destroy_glow_slot(slot)
+    if type(slot) ~= "table" then
+        destroy_glow_render(slot)
+        return
+    end
+
+    local renders = slot.renders
+    if type(renders) == "table" then
+        for _, render_object in pairs(renders) do
+            destroy_glow_render(render_object)
+        end
+    else
+        destroy_glow_render(slot.render)
+        destroy_glow_render(slot.light)
+    end
+
+    slot.renders = nil
+end
+
+local function destroy_glow_pool(pool)
+    if type(pool) ~= "table" then
+        return
+    end
+
+    local slots = pool.slots
+    if type(slots) == "table" then
+        for _, slot in pairs(slots) do
+            destroy_glow_slot(slot)
+        end
+    end
+
+    pool.slots = nil
+    pool.next_slot = nil
+    pool.slot_count = nil
+end
+
+local function clear_entry_glows(entry)
+    if type(entry) ~= "table" then
+        return
+    end
+
+    destroy_glow_pool(entry.glows)
+    entry.glows = nil
+end
+
+local function clear_registry_glows(registry)
+    if type(registry) ~= "table" then
+        return
+    end
+
+    for _, entry in pairs(registry) do
+        clear_entry_glows(entry)
+    end
+end
+
+local function normalize_glow_ttl(value)
+    return math.max(1, math.floor(tonumber(value) or EM_TICKS_PER_SECOND))
+end
+
+local function get_update_cycle_ticks()
+    return math.max(1, tonumber(ei_ticksPerFullUpdate) or EM_TICKS_PER_SECOND)
+end
+
+local function get_charger_glow_slot_count()
+    local ttl = normalize_glow_ttl(storage.ei and storage.ei.em_charger_glow_timeToLive)
+    local cadence = math.max(1, get_update_cycle_ticks() / 2)
+    return math.max(2, math.ceil(ttl / cadence))
+end
+
+local function get_train_glow_slot_count()
+    local ttl = normalize_glow_ttl(storage.ei and storage.ei.em_train_glow_timeToLive)
+    return math.max(1, math.ceil(ttl / get_update_cycle_ticks()))
+end
+
+local function normalize_glow_pool(entry, slot_count)
+    if type(entry) ~= "table" then
+        return nil, nil
+    end
+
+    slot_count = math.max(1, math.floor(tonumber(slot_count) or 1))
+
+    local pool = entry.glows
+    if type(pool) ~= "table" then
+        pool = {}
+        entry.glows = pool
+    end
+
+    local slots = pool.slots
+    if type(slots) ~= "table" then
+        slots = {}
+        pool.slots = slots
+    end
+
+    for key, slot in pairs(slots) do
+        local slot_index = tonumber(key)
+        if not slot_index
+        or slot_index < 1
+        or slot_index > slot_count
+        or slot_index ~= math.floor(slot_index) then
+            destroy_glow_slot(slot)
+            slots[key] = nil
+        end
+    end
+
+    pool.slot_count = slot_count
+    local next_slot = math.floor(tonumber(pool.next_slot) or 1)
+    if next_slot < 1 or next_slot > slot_count then
+        next_slot = 1
+    end
+    pool.next_slot = next_slot
+
+    return pool, slots
+end
+
+local function take_next_glow_slot(entry, slot_count)
+    local pool, slots = normalize_glow_pool(entry, slot_count)
+    if not pool or not slots then
+        return nil
+    end
+
+    local slot_index = pool.next_slot or 1
+    destroy_glow_slot(slots[slot_index])
+
+    local slot = {
+        renders = {},
+        tick = game and game.tick or 0,
+    }
+    slots[slot_index] = slot
+    pool.next_slot = (slot_index % pool.slot_count) + 1
+
+    return slot
+end
+
+local function add_glow_render(slot, render_object)
+    if not slot or not render_object then
+        return render_object
+    end
+
+    local renders = slot.renders
+    if type(renders) ~= "table" then
+        renders = {}
+        slot.renders = renders
+    end
+
+    renders[#renders + 1] = render_object
+    return render_object
 end
 
 function model.ensure_train_grace_reserve(train, train_entry, current_tick)
@@ -837,6 +1000,7 @@ function model.remove_charger_entry(charger_id, charger_entry)
         ei_runtime_scheduler.queue_remove_value(storage.ei_emt.research_rollout_chargers, charger_id)
     end
 
+    clear_entry_glows(charger_entry)
     model.unindex_charger(charger_id, charger_entry)
     model.adjust_surface_count("charger", charger_entry.surface_index, -1)
     storage.ei_emt.chargers[charger_id] = nil
@@ -853,6 +1017,7 @@ function model.remove_train_entry(train_id, train_entry)
         ei_runtime_scheduler.queue_remove_value(storage.ei_emt.research_rollout_trains, train_id)
     end
 
+    clear_entry_glows(train_entry)
     model.adjust_surface_count("train", train_entry.surface_index, -1)
     storage.ei_emt.trains[train_id] = nil
     return true
@@ -1147,6 +1312,83 @@ local function research_rollout_rescan_should_run(kind)
     return not research_rollout_queue_has_pending_items(queue)
 end
 
+local function get_research_rollout_queue_work_estimate(kind)
+    local emt = storage and storage.ei_emt or nil
+    if not emt then
+        return 0
+    end
+
+    local queue
+    if kind == "charger" then
+        queue = emt.research_rollout_chargers
+    elseif kind == "train" then
+        queue = emt.research_rollout_trains
+    else
+        return 0
+    end
+
+    if type(queue) ~= "table" then
+        return 0
+    end
+
+    return math.max(0, (tonumber(queue.tail) or 0) - (tonumber(queue.head) or 1) + 1)
+end
+
+local function has_charger_rail_audit_work(current_tick)
+    local emt = storage and storage.ei_emt or nil
+    if not emt or type(emt.chargers) ~= "table" or next(emt.chargers) == nil then
+        return false
+    end
+
+    if emt.charger_rail_audit_cursor ~= nil or emt.charger_rail_audit_requested == true then
+        return true
+    end
+
+    return current_tick - (tonumber(emt.charger_rail_audit_last_tick) or 0) >= EM_CHARGER_RAIL_AUDIT_TICKS
+end
+
+local function get_kind_pending_work_count(kind, event)
+    if kind ~= "charger" and kind ~= "train" then
+        return 0
+    end
+
+    model.check_global()
+
+    local current_tick = resolve_runtime_tick(type(event) == "table" and event.tick or event)
+    if storage.ei_emt.needs_runtime_rebuild == true then
+        return 1
+    end
+
+    local pending = model.get_research_rollout_live_count(kind)
+        + get_research_rollout_queue_work_estimate(kind)
+
+    if research_rollout_rescan_should_run(kind) then
+        pending = pending + 1
+    end
+
+    if kind == "charger" and has_charger_rail_audit_work(current_tick) then
+        pending = math.max(pending, 1)
+    end
+
+    return pending
+end
+
+function model.get_train_pending_work_count(event)
+    return get_kind_pending_work_count("train", event)
+end
+
+function model.get_charger_pending_work_count(event)
+    return get_kind_pending_work_count("charger", event)
+end
+
+function model.has_train_tick_work(event)
+    return model.get_train_pending_work_count(event) > 0
+end
+
+function model.has_charger_tick_work(event)
+    return model.get_charger_pending_work_count(event) > 0
+end
+
 function model.queue_research_rollout(kind)
     local registry_name
     if kind == "charger" then
@@ -1355,6 +1597,7 @@ end
 
 function model.deregister_all_trains()
     model.check_global()
+    clear_registry_glows(storage.ei_emt.trains)
     storage.ei_emt.trains = {}
     model.clear_research_rollout_queue("train")
     model.reset_surface_scheduler("train")
@@ -1363,6 +1606,7 @@ end
 
 function model.deregister_all_chargers()
     model.check_global()
+    clear_registry_glows(storage.ei_emt.chargers)
     storage.ei_emt.chargers = {}
     model.clear_research_rollout_queue("charger")
     storage.ei_emt.charger_surfaces = {}
@@ -1593,6 +1837,11 @@ end
 
 function ei_draw_train_glow(train, params)
 	if not (train and train.valid) or not storage.ei.em_train_glow then return end
+    local train_id = get_entity_unit_number(train)
+    local train_entry = train_id and storage.ei_emt and storage.ei_emt.trains and storage.ei_emt.trains[train_id] or nil
+    if not train_entry then
+        return
+    end
 
 	local glow_params = {
 	sprite = "emt_train_glow",
@@ -1642,7 +1891,12 @@ function ei_draw_train_glow(train, params)
 	local intensity = math.random(glow_params.intensity_range[1],glow_params.intensity_range[2])
     intensity = intensity/100
 
-	rendering.draw_light {
+    local slot = take_next_glow_slot(train_entry, get_train_glow_slot_count())
+    if not slot then
+        return
+    end
+
+	add_glow_render(slot, rendering.draw_light {
 	  sprite = glow_params.sprite,
 	  scale = scale,
 	  intensity = intensity,
@@ -1654,12 +1908,12 @@ function ei_draw_train_glow(train, params)
 	  blend_mode = glow_params.blend_mode,
 	  apply_runtime_tint = glow_params.apply_runtime_tint,
 	  draw_as_glow = glow_params.draw_as_glow,
-	}
+	})
   -- Apply the glow to each attached EM train car (wagon)
   if train.train and train.train.carriages then
 	  for _, car in pairs(train.train.carriages) do
 		if car and car.valid and model.wagons[car.name] then
-		  rendering.draw_light {
+		  add_glow_render(slot, rendering.draw_light {
 			sprite = glow_params.sprite,
 			scale = scale,
 			intensity = intensity,
@@ -1671,7 +1925,7 @@ function ei_draw_train_glow(train, params)
 			blend_mode = glow_params.blend_mode,
 			apply_runtime_tint = glow_params.apply_runtime_tint,
 			draw_as_glow = glow_params.draw_as_glow,
-		  }
+		  })
 		end
 	  end
     end
@@ -1700,6 +1954,11 @@ end
 
 function ei_draw_charger_glow(charger, overrides)
     if not (charger and charger.valid) or not storage.ei.em_charger_glow then return end
+    local charger_id = get_entity_unit_number(charger)
+    local charger_entry = charger_id and storage.ei_emt and storage.ei_emt.chargers and storage.ei_emt.chargers[charger_id] or nil
+    if not charger_entry then
+        return
+    end
      local glow_params = {
          sprite = "emt_charger_glow",
          time_to_live = storage.ei.em_charger_glow_timeToLive,
@@ -1821,7 +2080,12 @@ function ei_draw_charger_glow(charger, overrides)
     local intensity = math.random(glow_set.intensity_min,glow_set.intensity_max)
     intensity = intensity/100
     --game.print("index: "..color_index.." color: "..tostring(color).." scale: "..scale.." intensity: "..intensity)
-    rendering.draw_light {
+    local slot = take_next_glow_slot(charger_entry, get_charger_glow_slot_count())
+    if not slot then
+        return
+    end
+
+    add_glow_render(slot, rendering.draw_light {
         sprite = glow_params.sprite,
         scale = scale,
         intensity = intensity,
@@ -1833,7 +2097,7 @@ function ei_draw_charger_glow(charger, overrides)
         blend_mode = glow_params.blend_mode,
         apply_runtime_tint = glow_params.apply_runtime_tint,
         draw_as_glow = glow_params.draw_as_glow,
-        }
+        })
     --Always a bit brighter closer to middle
     set = 3
     glow_set = glow_params.glow_sets[set]
@@ -1843,7 +2107,7 @@ function ei_draw_charger_glow(charger, overrides)
     intensity = math.random(glow_set.intensity_min,glow_set.intensity_max)
     intensity = intensity/100
     --game.print("index: "..color_index.." color: "..tostring(color).." scale: "..scale.." intensity: "..intensity)
-    rendering.draw_light {
+    add_glow_render(slot, rendering.draw_light {
         sprite = glow_params.sprite,
         scale = scale,
         intensity = intensity,
@@ -1855,7 +2119,7 @@ function ei_draw_charger_glow(charger, overrides)
         blend_mode = glow_params.blend_mode,
         apply_runtime_tint = glow_params.apply_runtime_tint,
         draw_as_glow = glow_params.draw_as_glow,
-        }
+        })
  end
 
 function model.has_enough_energy(charger, train)
@@ -2337,8 +2601,8 @@ function model.train_updater(budget, current_tick)
 end
 function model.charger_updater(budget, current_tick)
     local did_update = model.update_chargers(budget, current_tick)
-    model.audit_charger_rail_counts(math.min(EM_CHARGER_RAIL_AUDIT_BUDGET, math.max(1, math.floor(tonumber(budget) or 1))), current_tick)
-    return did_update
+    local did_audit = model.audit_charger_rail_counts(math.min(EM_CHARGER_RAIL_AUDIT_BUDGET, math.max(1, math.floor(tonumber(budget) or 1))), current_tick)
+    return did_update or did_audit
 end
 
 ---@param event EventData.on_research_finished
@@ -2474,10 +2738,16 @@ function model.get_runtime_status()
     local research_rollout_charger_queue_items = ei_runtime_scheduler.queue_item_count(storage.ei_emt.research_rollout_chargers)
     local research_rollout_train_queue_items = ei_runtime_scheduler.queue_item_count(storage.ei_emt.research_rollout_trains)
     local research_rollout_state = model.ensure_research_rollout_state()
+    local charger_pending_work_count = model.get_charger_pending_work_count()
+    local train_pending_work_count = model.get_train_pending_work_count()
 
     local status = {
         charger_count = ei_runtime_scheduler.table_count(storage.ei_emt.chargers),
         train_count = ei_runtime_scheduler.table_count(storage.ei_emt.trains),
+        charger_pending_work_count = charger_pending_work_count,
+        train_pending_work_count = train_pending_work_count,
+        charger_has_tick_work = charger_pending_work_count > 0,
+        train_has_tick_work = train_pending_work_count > 0,
         charger_active_surface_count = #(storage.ei_emt.charger_active_surfaces or {}),
         train_active_surface_count = #(storage.ei_emt.train_active_surfaces or {}),
         charger_surface_queue_items = charger_surface_queue_items,

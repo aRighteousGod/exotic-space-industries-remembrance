@@ -108,6 +108,7 @@ data:extend({
         icon = ei_graphics_item_2_path.."gate.png",
         icon_size = 64,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
+        hidden_in_factoriopedia = true,
         max_health = 1000,
         heating_energy = "500kW",
         corpse = "big-remnants",
@@ -175,7 +176,7 @@ data:extend({
             { variation = 30, main_offset = util.by_pixel(-93.125,  128), shadow_offset = util.by_pixel(-93.125,  128), show_shadow = true }
         }
         ),
-        circuit_wire_max_distance = default_circuit_wire_max_distance
+        circuit_wire_max_distance = default_circuit_wire_max_distance,
     },
     {
         name = "ei-gate-receiver",

@@ -6,11 +6,11 @@ This folder is a dry-run asset stage only. It does not modify shipped graphics o
 
 ## Contents
 
-- `ei-singularity-lance-beam-body.png`: tileable 16-frame body sheet, `256x96` frames, `4x4`.
-- `ei-singularity-lance-beam-head.png`: 16-frame leading cap sheet, `192x160` frames, `4x4`.
-- `ei-singularity-lance-beam-tail.png`: 16-frame dissipating cap sheet, `192x160` frames, `4x4`.
+- `singularity-lance-beam-body.png`: tileable 16-frame body sheet, `256x96` frames, `4x4`.
+- `singularity-lance-beam-head.png`: 16-frame leading cap sheet, `192x160` frames, `4x4`.
+- `singularity-lance-beam-tail.png`: 16-frame dissipating cap sheet, `192x160` frames, `4x4`.
 - `*-glow.png`: additive companion sheets for the same frames.
-- `ei-singularity-lance-impact-prism.png`: optional 24-frame impact bloom, `256x256` frames, `6x4`.
+- `singularity-lance-impact-prism.png`: optional 24-frame impact bloom, `256x256` frames, `6x4`.
 - `ei-singularity-lance-prismatic-beam.prototype-snippet.lua`: draft helper/snippet for later prototype promotion.
 - `ei-singularity-lance-prismatic-beam.factorio-asset-manifest.json`: dimensions, warnings, preview references, and promotion notes.
 

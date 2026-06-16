@@ -32,7 +32,7 @@ python .\.codex\esir\asset-generators\singularity-lance\rune-glow\generate_singu
 
 ## Output
 
-- `ei-singularity-lance.png`
-- `ei-singularity-lance_base-shadow.png`
+- `singularity-lance.png`
+- `singularity-lance_base-shadow.png`
 
 Both are transparent `768x768` single-frame PNGs.

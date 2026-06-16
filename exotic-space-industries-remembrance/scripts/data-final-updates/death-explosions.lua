@@ -217,6 +217,7 @@ local family_assignments = {
   },
   ["electric-logistics"] = {
     "ei-advanced-cargo-wagon",
+    "ei-advanced-fluid-wagon",
     "ei-advanced-construction-bot",
     "ei-advanced-logistic-bot",
     "ei-cargo-bot",
@@ -478,13 +479,13 @@ local nuclear_locomotive_override_explosion_name = "ei-death-explosion-nuclear-l
 local nuclear_locomotive_delay_anchor_name = "ei-death-explosion-nuclear-locomotive-delay-anchor"
 local nuclear_locomotive_delayed_trigger_name = "ei-death-explosion-nuclear-locomotive-delay"
 local gaian_saucer_death_explosion_name = "ei-gaian-saucer-death-explosion"
-local gaian_saucer_death_graphics_path = ei_path.."graphics/entities/gaian-saucer/death/"
+local gaian_saucer_death_graphics_path = ei_graphics_entity_4_path.."gaian-saucer/death/"
 local singularity_lance_death_explosion_name = "ei-singularity-lance-death-explosion"
-local singularity_lance_death_graphics_path = ei_path.."graphics/entities/singularity-lance/death/"
+local singularity_lance_death_graphics_path = ei_graphics_entity_4_path.."singularity-lance/death/"
 local em_charger_death_explosion_name = "ei-em-charger-death-explosion"
 local em_charger_pink_shard_particle_name = "ei-em-charger-pink-crystal-shard-particle"
 local emerald_apocalypse_hover_tank_death_explosion_name = "ei-emerald-apocalypse-hover-tank-death-explosion"
-local emerald_apocalypse_hover_tank_death_graphics_path = ei_path.."graphics/entities/emerald-apocalypse-hover-tank/death/"
+local emerald_apocalypse_hover_tank_death_graphics_path = ei_graphics_entity_4_path.."emerald-apocalypse-hover-tank/death/"
 local emerald_apocalypse_crystal_shard_particle_name = "ei-emerald-apocalypse-crystal-shard-particle"
 local emerald_apocalypse_hull_fragment_particle_name = "ei-emerald-apocalypse-hull-fragment-particle"
 local emerald_apocalypse_vapor_particle_name = "ei-emerald-apocalypse-vapor-particle"
@@ -569,14 +570,55 @@ local function is_placeable(proto)
     or has_flag(proto, "placeable-enemy")
 end
 
-local function positive_area(proto)
-  local box = proto.selection_box or proto.collision_box
-
-  if not box or not box[1] or not box[2] then
-    return false
+local function box_corner_axis(corner, index, key)
+  if type(corner) ~= "table" then
+    return nil
   end
 
-  return (box[2][1] - box[1][1]) > 0 and (box[2][2] - box[1][2]) > 0
+  local value = corner[index]
+  if value == nil then
+    value = corner[key]
+  end
+
+  if type(value) ~= "number" then
+    return nil
+  end
+
+  return value
+end
+
+local function box_dimensions(box)
+  if type(box) ~= "table" then
+    return nil, nil
+  end
+
+  local left_top = box[1] or box.left_top
+  local right_bottom = box[2] or box.right_bottom
+  local left = box_corner_axis(left_top, 1, "x")
+  local top = box_corner_axis(left_top, 2, "y")
+  local right = box_corner_axis(right_bottom, 1, "x")
+  local bottom = box_corner_axis(right_bottom, 2, "y")
+
+  if not left or not top or not right or not bottom then
+    return nil, nil
+  end
+
+  return right - left, bottom - top
+end
+
+local function prototype_box_dimensions(proto)
+  local width, height = box_dimensions(proto.selection_box)
+  if width and height then
+    return width, height
+  end
+
+  return box_dimensions(proto.collision_box)
+end
+
+local function positive_area(proto)
+  local width, height = prototype_box_dimensions(proto)
+
+  return width and height and width > 0 and height > 0
 end
 
 local function visible_candidate(name, proto)
@@ -600,14 +642,11 @@ local function footprint_bucket(proto, entity_type)
     return "micro"
   end
 
-  local box = proto.selection_box or proto.collision_box
-
-  if not box or not box[1] or not box[2] then
+  local width, height = prototype_box_dimensions(proto)
+  if not width or not height or width <= 0 or height <= 0 then
     return "medium"
   end
 
-  local width = box[2][1] - box[1][1]
-  local height = box[2][2] - box[1][2]
   local max_dimension = math.max(width, height)
 
   if max_dimension <= 2.2 then
@@ -1472,8 +1511,8 @@ local function make_emerald_apocalypse_hover_tank_death_explosion()
     animations = {
       {
         layers = {
-          make_emerald_apocalypse_hover_tank_death_animation_layer("ei-emerald-apocalypse-hover-tank-death-collapse.png"),
-          make_emerald_apocalypse_hover_tank_death_animation_layer("ei-emerald-apocalypse-hover-tank-death-collapse-glow.png", {
+          make_emerald_apocalypse_hover_tank_death_animation_layer("emerald-apocalypse-hover-tank-death-collapse.png"),
+          make_emerald_apocalypse_hover_tank_death_animation_layer("emerald-apocalypse-hover-tank-death-collapse-glow.png", {
             draw_as_glow = true,
             blend_mode = "additive-soft",
           }),
@@ -1581,8 +1620,8 @@ local function make_singularity_lance_death_explosion()
     animations = {
       {
         layers = {
-          make_singularity_lance_death_animation_layer("ei-singularity-lance-death-implosion.png"),
-          make_singularity_lance_death_animation_layer("ei-singularity-lance-death-implosion-glow.png", {
+          make_singularity_lance_death_animation_layer("singularity-lance-death-implosion.png"),
+          make_singularity_lance_death_animation_layer("singularity-lance-death-implosion-glow.png", {
             draw_as_glow = true,
             blend_mode = "additive-soft",
           }),
@@ -1627,8 +1666,8 @@ local function make_gaian_saucer_death_explosion()
     animations = {
       {
         layers = {
-          make_gaian_saucer_death_animation_layer("ei-gaian-saucer-death-rupture.png"),
-          make_gaian_saucer_death_animation_layer("ei-gaian-saucer-death-rupture-glow.png", {
+          make_gaian_saucer_death_animation_layer("gaian-saucer-death-rupture.png"),
+          make_gaian_saucer_death_animation_layer("gaian-saucer-death-rupture-glow.png", {
             draw_as_glow = true,
             blend_mode = "additive-soft",
           }),
@@ -2173,7 +2212,15 @@ local function family_from_heuristics(name, prototype, entity_type)
       return "mechanical"
     end
 
-    return "steam"
+    if name == "ei-burner-offshore-pump" then
+      return "combustion"
+    end
+
+    if name == "ei-steam-offshore-pump" then
+      return "steam"
+    end
+
+    return "electric-industrial"
   end
 
   if entity_type == "pipe" or entity_type == "pipe-to-ground" then

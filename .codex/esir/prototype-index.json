@@ -1,14 +1,30 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-04-19T21:19:24.3936564-05:00",
+    "generated_at":  "2026-06-05T11:51:42.9418808-05:00",
     "repo_root":  "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance-2",
     "direct_requires":  [
+                            {
+                                "id":  "gaia",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\gaia.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\boulders.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\decoratives.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\planet.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\relic-debris.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\terrain-noise.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\tiles.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\trees.lua"
+                                             ]
+                            },
                             {
                                 "id":  "exotic-age",
                                 "path":  "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-age.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
                                                  "exotic-space-industries-remembrance\\prototypes\\exotic-age\\black-hole.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\emerald-apocalypse-hover-tank.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\exotic-age\\emerald-orbital-shard-research.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-prototypes.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\exotic-age\\holo.lua"
                                              ]
@@ -22,17 +38,41 @@
                                              ]
                             },
                             {
-                                "id":  "gaia",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\gaia.lua",
+                                "id":  "computer-age",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\computer-age\\computer-age.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\boulders.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\decoratives.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\planet.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\relic-debris.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\terrain-noise.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\tiles.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\trees.lua"
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-centrifuge.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-chem-plant.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-deep-drill.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-destill-tower.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-refinery.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\big-inserter.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\big-lab.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\big-turbine.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\bio-chamber.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\bio-reactor.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\computer-core.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\computer-prototypes.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\cooler.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\copper-beacon.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\data-pipe.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\deep-pumpjack.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\excavator.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\exchanger.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\exotic-magazines.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\gaia-pump.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\high-temperature-reactor.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\induction-matrix.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\insulated-pipe.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\nuclear-trains.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-logistics-cohort.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\surveyor-weapons.lua"
                                              ]
                             },
                             {
@@ -72,15 +112,17 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\alien-system\\alien-structures.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\alien-system\\crystal-accumulator.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\alien-system\\farstation.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\alien-system\\gate.lua"
+                                                 "exotic-space-industries-remembrance\\prototypes\\alien-system\\gaian-saucer.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\alien-system\\gate.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\alien-system\\singularity-lance.lua"
                                              ]
                             },
                             {
-                                "id":  "gleba",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\gleba.lua",
+                                "id":  "more-asteroids",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\more-asteroids.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\bio-oil.lua"
+
                                              ]
                             },
                             {
@@ -100,11 +142,13 @@
                                              ]
                             },
                             {
-                                "id":  "more-asteroids",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\more-asteroids.lua",
+                                "id":  "gleba",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\gleba.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
-
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\auric-cysts.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\auric-inoculation-vat.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\bio-oil.lua"
                                              ]
                             },
                             {
@@ -124,38 +168,11 @@
                                              ]
                             },
                             {
-                                "id":  "computer-age",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\computer-age\\computer-age.lua",
+                                "id":  "rocket-launch-plume-smoke",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\rocket-launch-plume-smoke.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-centrifuge.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-chem-plant.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-deep-drill.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-destill-tower.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-refinery.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\big-inserter.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\big-lab.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\big-turbine.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\bio-chamber.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\bio-reactor.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\computer-core.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\computer-prototypes.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\cooler.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\copper-beacon.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\data-pipe.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\deep-pumpjack.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\excavator.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\exchanger.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\gaia-pump.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\high-temperature-reactor.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\induction-matrix.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\insulated-pipe.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-logistics-cohort.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua"
+
                                              ]
                             },
                             {
@@ -169,14 +186,6 @@
                             {
                                 "id":  "styles",
                                 "path":  "exotic-space-industries-remembrance\\prototypes\\styles.lua",
-                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
-                                "children":  [
-
-                                             ]
-                            },
-                            {
-                                "id":  "other",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\other.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
 
@@ -199,11 +208,27 @@
                                              ]
                             },
                             {
-                                "id":  "informatron-sprites",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\informatron-sprites.lua",
+                                "id":  "other",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\other.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
 
+                                             ]
+                            },
+                            {
+                                "id":  "dark-age",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\dark-age\\dark-age.lua",
+                                "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
+                                "children":  [
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-assembler.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-quarry.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-surface-harvester.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\camp-fire.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\dark-prototypes.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\lab.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\mechanical-inserter.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\shotgun-turret.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\stone-well-pump.lua"
                                              ]
                             },
                             {
@@ -256,6 +281,7 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\gatling-turret.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\grower.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\purifier.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\electricity-age\\sawblade-turret.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\small-inserter.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\solar-panel-2.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\thermal-furnace.lua",
@@ -263,19 +289,11 @@
                                              ]
                             },
                             {
-                                "id":  "dark-age",
-                                "path":  "exotic-space-industries-remembrance\\prototypes\\dark-age\\dark-age.lua",
+                                "id":  "informatron-sprites",
+                                "path":  "exotic-space-industries-remembrance\\prototypes\\informatron-sprites.lua",
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-assembler.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-quarry.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-surface-harvester.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\camp-fire.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\dark-prototypes.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\lab.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\mechanical-inserter.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\shotgun-turret.lua",
-                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\stone-well-pump.lua"
+
                                              ]
                             },
                             {
@@ -305,7 +323,9 @@
                             "exotic-space-industries-remembrance\\prototypes\\alien-system\\crystal-accumulator.lua",
                             "exotic-space-industries-remembrance\\prototypes\\alien-system\\drone-port.lua",
                             "exotic-space-industries-remembrance\\prototypes\\alien-system\\farstation.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\alien-system\\gaian-saucer.lua",
                             "exotic-space-industries-remembrance\\prototypes\\alien-system\\gate.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\alien-system\\singularity-lance.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-centrifuge.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-chem-plant.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\advanced-deep-drill.lua",
@@ -325,12 +345,15 @@
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\deep-pumpjack.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\excavator.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\exchanger.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\exotic-magazine-effects.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\exotic-magazines.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\gaia-pump.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\high-temperature-reactor.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\induction-matrix.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\insulated-pipe.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\kirazy-semi-classic-mining-drill\\advanced-electric-mining-drill.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\lufter.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\computer-age\\nuclear-trains.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-combinator.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\orbital-logistics-cohort.lua",
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\rocket-ammo.lua",
@@ -364,11 +387,14 @@
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\grower.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\purifier.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\robots.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\electricity-age\\sawblade-turret.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\small-inserter.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\solar-panel-2.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\thermal-furnace.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\waver-factory.lua",
                             "exotic-space-industries-remembrance\\prototypes\\exotic-age\\black-hole.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\exotic-age\\emerald-apocalypse-hover-tank.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\exotic-age\\emerald-orbital-shard-research.lua",
                             "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-age.lua",
                             "exotic-space-industries-remembrance\\prototypes\\exotic-age\\exotic-prototypes.lua",
                             "exotic-space-industries-remembrance\\prototypes\\exotic-age\\holo.lua",
@@ -390,6 +416,8 @@
                             "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\terrain-noise.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\tiles.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-gaia\\trees.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\auric-cysts.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\auric-inoculation-vat.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\bio-oil.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-gleba\\gleba.lua",
                             "exotic-space-industries-remembrance\\prototypes\\planet-vulcanus\\vulcanus.lua",
@@ -416,6 +444,7 @@
                             "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-computer.lua",
                             "exotic-space-industries-remembrance\\prototypes\\quantum-age\\quantum-prototypes.lua",
                             "exotic-space-industries-remembrance\\prototypes\\quantum-age\\solar-panel-3.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\rocket-launch-plume-smoke.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\acid-turret\\acid.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\acid-turret\\acid-util.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\basic-heat-exchanger.lua",
@@ -440,6 +469,7 @@
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-surface-harvester.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-train.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\tanks.lua",
-                            "exotic-space-industries-remembrance\\prototypes\\styles.lua"
+                            "exotic-space-industries-remembrance\\prototypes\\styles.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\surveyor-weapons.lua"
                         ]
 }

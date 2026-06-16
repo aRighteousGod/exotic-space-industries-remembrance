@@ -38,8 +38,8 @@ local ENERGY_DRAIN = singularity_lance_config.energy_drain or "20MW"
 local ATTACK_SOURCE_OFFSET = {0, -3.50}
 local BEAM_SOURCE_OFFSET = {0, -3.50}
 local TURRET_GLOW_TINT = {r = 0.74, g = 0.14, b = 1.0, a = 0.90}
-local LANCE_GRAPHICS_PATH = ei_path.."graphics/entities/singularity-lance/"
-local LANCE_SOUND_PATH = ei_path.."sounds/"
+local LANCE_GRAPHICS_PATH = ei_graphics_entity_4_path.."singularity-lance/"
+local LANCE_SOUND_PATH = ei_sounds_4_path
 local LANCE_FRAME_SIZE = 768
 local LANCE_FRAME_COUNT = 64
 local LANCE_LINE_LENGTH = 8
@@ -159,8 +159,8 @@ local function make_prismatic_beam_graphics_set(scale, options)
     options = options or {}
 
     local body = make_prismatic_beam_animation(
-        "ei-singularity-lance-beam-body.png",
-        "ei-singularity-lance-beam-body-glow.png",
+        "singularity-lance-beam-body.png",
+        "singularity-lance-beam-body-glow.png",
         256,
         96,
         16,
@@ -168,8 +168,8 @@ local function make_prismatic_beam_graphics_set(scale, options)
         scale
     )
     local head = make_prismatic_beam_animation(
-        "ei-singularity-lance-beam-head.png",
-        "ei-singularity-lance-beam-head-glow.png",
+        "singularity-lance-beam-head.png",
+        "singularity-lance-beam-head-glow.png",
         192,
         160,
         16,
@@ -177,8 +177,8 @@ local function make_prismatic_beam_graphics_set(scale, options)
         scale
     )
     local tail = make_prismatic_beam_animation(
-        "ei-singularity-lance-beam-tail.png",
-        "ei-singularity-lance-beam-tail-glow.png",
+        "singularity-lance-beam-tail.png",
+        "singularity-lance-beam-tail-glow.png",
         192,
         160,
         16,
@@ -186,8 +186,8 @@ local function make_prismatic_beam_graphics_set(scale, options)
         scale
     )
     local impact = options.impact_ending and make_prismatic_beam_animation(
-        "ei-singularity-lance-impact-prism.png",
-        "ei-singularity-lance-impact-prism-glow.png",
+        "singularity-lance-impact-prism.png",
+        "singularity-lance-impact-prism-glow.png",
         256,
         256,
         24,
@@ -360,7 +360,7 @@ local function make_lance_base_visualisation()
             secondary_draw_order = 0,
             animation = {
                 layers = {
-                    make_lance_animation_layer("ei-singularity-lance_base-shadow.png", {
+                    make_lance_animation_layer("singularity-lance_base-shadow.png", {
                         draw_as_shadow = true,
                         frame_count = LANCE_STATIC_FRAME_COUNT,
                         line_length = LANCE_STATIC_LINE_LENGTH,
@@ -376,7 +376,7 @@ local function make_lance_base_visualisation()
             secondary_draw_order = 0,
             animation = {
                 layers = {
-                    make_lance_animation_layer("ei-singularity-lance_shadow.png", {
+                    make_lance_animation_layer("singularity-lance_shadow.png", {
                         draw_as_shadow = true,
                         frame_count = LANCE_STATIC_FRAME_COUNT,
                         line_length = LANCE_STATIC_LINE_LENGTH,
@@ -392,7 +392,7 @@ local function make_lance_base_visualisation()
             secondary_draw_order = 1,
             animation = {
                 layers = {
-                    make_lance_animation_layer("ei-singularity-lance.png", {
+                    make_lance_animation_layer("singularity-lance.png", {
                         frame_count = LANCE_STATIC_FRAME_COUNT,
                         line_length = LANCE_STATIC_LINE_LENGTH,
                         lines_per_file = LANCE_STATIC_LINE_LENGTH,
@@ -407,7 +407,7 @@ local function make_lance_base_visualisation()
             secondary_draw_order = 1,
             animation = {
                 layers = {
-                    make_lance_animation_layer("ei-singularity-lance-rune-glow.png", {
+                    make_lance_animation_layer("singularity-lance-rune-glow.png", {
                         animation_speed = LANCE_RUNE_GLOW_ANIMATION_SPEED,
                         draw_as_glow = true,
                         blend_mode = "additive-soft",
@@ -422,13 +422,13 @@ local function make_lance_base_visualisation()
             secondary_draw_order = 2,
             animation = {
                 layers = {
-                    make_lance_animation_layer("ei-singularity-lance-crystal-link.png", {
+                    make_lance_animation_layer("singularity-lance-crystal-link.png", {
                         graphics_path = LANCE_CRYSTAL_LINK_GRAPHICS_PATH,
                         animation_speed = LANCE_CRYSTAL_LINK_ANIMATION_SPEED,
                         scale = LANCE_CRYSTAL_LINK_SCALE,
                         shift = LANCE_CRYSTAL_LINK_SHIFT,
                     }),
-                    make_lance_animation_layer("ei-singularity-lance-crystal-link-glow.png", {
+                    make_lance_animation_layer("singularity-lance-crystal-link-glow.png", {
                         graphics_path = LANCE_CRYSTAL_LINK_GRAPHICS_PATH,
                         animation_speed = LANCE_CRYSTAL_LINK_ANIMATION_SPEED,
                         draw_as_glow = true,
@@ -444,11 +444,11 @@ local function make_lance_base_visualisation()
             secondary_draw_order = 3,
             animation = {
                 layers = {
-                    make_lance_animation_layer("ei-singularity-lance_crystal.png", {
+                    make_lance_animation_layer("singularity-lance_crystal.png", {
                         scale = LANCE_CRYSTAL_SCALE,
                         shift = LANCE_CRYSTAL_SHIFT,
                     }),
-                    make_lance_animation_layer("ei-singularity-lance_crystal.png", {
+                    make_lance_animation_layer("singularity-lance_crystal.png", {
                         draw_as_glow = true,
                         blend_mode = "normal",
                         tint = LANCE_CRYSTAL_GLOW_TINT,
@@ -499,10 +499,10 @@ local function apply_lance_visuals(turret)
     turret.random_animation_offset = true
 end
 
-local SINGULARITY_LANCE_ITEM_ICON = ei_path.."graphics/items/ei-singularity-lance.png"
-local SINGULARITY_LANCE_ITEM_OVERLAY_ICON = ei_path.."graphics/items/ei-singularity-lance-chromatic-overlay.png"
-local SINGULARITY_LANCE_TECH_ICON = ei_path.."graphics/techs/ei-singularity-lance.png"
-local SINGULARITY_LANCE_TECH_OVERLAY_ICON = ei_path.."graphics/techs/ei-singularity-lance-chromatic-overlay.png"
+local SINGULARITY_LANCE_ITEM_ICON = ei_graphics_item_4_path.."singularity-lance.png"
+local SINGULARITY_LANCE_ITEM_OVERLAY_ICON = ei_graphics_item_4_path.."singularity-lance-chromatic-overlay.png"
+local SINGULARITY_LANCE_TECH_ICON = ei_graphics_tech_4_path.."singularity-lance.png"
+local SINGULARITY_LANCE_TECH_OVERLAY_ICON = ei_graphics_tech_4_path.."singularity-lance-chromatic-overlay.png"
 local singularity_base_icons = {
     {
         icon = SINGULARITY_LANCE_ITEM_ICON,
@@ -712,8 +712,8 @@ singularity_fire_sticker.spread_fire_entity = nil
 singularity_fire_sticker.fire_spread_cooldown = nil
 singularity_fire_sticker.fire_spread_radius = nil
 singularity_fire_sticker.animation = make_afterburn_animation(
-    "ei-singularity-lance-afterburn-sticker.png",
-    "ei-singularity-lance-afterburn-sticker-glow.png",
+    "singularity-lance-afterburn-sticker.png",
+    "singularity-lance-afterburn-sticker-glow.png",
     96,
     96,
     32,
@@ -766,8 +766,8 @@ singularity_hit_fire.light = {
 }
 singularity_hit_fire.pictures = {
     make_afterburn_animation(
-        "ei-singularity-lance-afterburn-fire.png",
-        "ei-singularity-lance-afterburn-fire-glow.png",
+        "singularity-lance-afterburn-fire.png",
+        "singularity-lance-afterburn-fire-glow.png",
         192,
         192,
         32,
@@ -785,10 +785,10 @@ singularity_scorchmark.time_before_removed = SCORCHMARK_DURATION
 singularity_scorchmark.selectable_in_game = false
 singularity_scorchmark.use_tile_color_for_ground_patch_tint = false
 singularity_scorchmark.ground_patch = make_afterburn_scorchmark_patch(
-    "ei-singularity-lance-afterburn-scorchmark.png"
+    "singularity-lance-afterburn-scorchmark.png"
 )
 singularity_scorchmark.ground_patch_higher = make_afterburn_scorchmark_patch(
-    "ei-singularity-lance-afterburn-scorchmark-glow.png",
+    "singularity-lance-afterburn-scorchmark-glow.png",
     true
 )
 

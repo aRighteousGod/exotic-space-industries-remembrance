@@ -482,7 +482,7 @@ data:extend({
     {
         name = "ei-irradiated-water",
         type = "fluid",
-        icon = "__exotic-space-industries-remembrance__/graphics/fluids/irradiated-water.png",
+        icon = ei_graphics_fluid_4_path.."irradiated-water.png",
         icon_size = 64,
         icon_mipmaps = 4,
         default_temperature = 15,
@@ -705,7 +705,7 @@ data:extend({
     {
         name = "ei-carbon-dioxide",
         type = "fluid",
-        icon = ei_path.."graphics/fluids/carbon-dioxide.png",
+        icon = ei_graphics_fluid_4_path.."carbon-dioxide.png",
         icon_size = 64,
         default_temperature = 15,
         max_temperature = 1000,

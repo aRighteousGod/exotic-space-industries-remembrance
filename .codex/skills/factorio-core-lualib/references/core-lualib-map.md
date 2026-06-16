@@ -6,6 +6,8 @@ Surveyed from local Factorio 2.0.76 under:
 C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\core\lualib
 ```
 
+This map tracks installed game files. A hosted Lua API cache refresh alone is not enough to update the surveyed Factorio version.
+
 Re-check with:
 
 ```powershell

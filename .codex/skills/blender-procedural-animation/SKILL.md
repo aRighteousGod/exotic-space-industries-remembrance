@@ -26,6 +26,7 @@ Use this skill when an asset should move without relying on humanoid auto-riggin
 - Keep shadows as separate staged sheets for Factorio-bound animation exports so `$esir-factorio-asset-export` can emit `draw_as_shadow` layers. Omit them only when the user explicitly asks for no shadow.
 - If an animated asset needs force/player-colored regions for owner-readability, animate and render the `team_color`, `force_trim`, or `color_mask` parts as a separate neutral mask sheet with the same frame count, direction count, frame size, shift, scale, and loop timing as the base. Do not add runtime-tint masks to neutral environmental/alien forms or deliberately baked ESIR chromatic assets.
 - Keep enough orthographic margin for all animated poses. The procedural renderer auto-fits `--ortho-scale` against per-frame alpha bounds by default, including extra margin for generated lower-right shadow sheets. Inspect manifest `warnings` and `alpha_bounds`; use `--no-auto-ortho-scale` only for deliberate manual tests.
+- For main-pack shipping graphics, use no-prefix render/staged names such as `example`; pass `ei-*` later as explicit prototype metadata when exporting or promoting.
 - Treat Blender MCP as an inspection/tuning surface; deterministic background rendering should produce final sheets.
 
 ## Presets
@@ -95,10 +96,11 @@ For ESIR, inspect the sheet, then stage it with:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py machine `
-  --asset-name ei-example `
+  --asset-name example `
   --sheet output/meshy/example/base.png `
   --working-sheet output/meshy/example/example-animation.png `
   --working-manifest output/meshy/example/example-animation.manifest.json `
+  --target-prototype-name ei-example `
   --working-frame-count 16 `
   --working-line-length 4 `
   --scale 0.35 `

@@ -18,6 +18,7 @@ Use this skill after `$meshy-blender-spritesheet`, `$meshy-api`, or any other ar
 - For Factorio-bound sprites from Blender or Meshy, prefer preset `render-bundle` manifests with base, shadow, light/glow, and mask passes. Treat single-sheet entity/machine exports without a shadow or preset-equivalent manifest as draft-only unless the user explicitly requested no shadow or non-preset output.
 - Treat staged `object_mask_0.png` as unclassified until review marks it as a runtime-tint mask, manual post-processing source, or unused evidence. The exporter stages masks; it does not mean the prototype is colorable until the Lua layer explicitly includes `flags = {"mask"}` and `apply_runtime_tint = true`.
 - Runtime-tint masks are for owner-readability only: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Do not promote masks for neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, or assets whose baked ESIR chromatic identity should remain fixed.
+- For main-pack shipping graphics, omit leading `ei-` from staged filename roots and final graphics directories. Keep `ei-*` only in prototype metadata, snippet hints, and promotion `--prototype-name` when the prototype uses that internal name.
 - Keep Meshy credentials out of this workflow. This skill does not need API keys.
 - For item icons, reuse the repo-local `$esir-item-icon-prep` behavior instead of hand-building mip strips.
 
@@ -44,9 +45,10 @@ Entity example:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py entity `
-  --asset-name ei-threshold-array `
+  --asset-name threshold-array `
   --sheet output/meshy/threshold-array/threshold-array-sheet.png `
   --render-manifest output/meshy/threshold-array/threshold-array-sheet.manifest.json `
+  --target-prototype-name ei-threshold-array `
   --direction-count 8 `
   --scale 0.35 `
   --shift 0,-0.2
@@ -56,13 +58,14 @@ Machine example:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py machine `
-  --asset-name ei-threshold-array `
+  --asset-name threshold-array `
   --sheet output/meshy/threshold-array/base.png `
   --working-sheet output/meshy/threshold-array/working.png `
   --working-shadow-sheet output/meshy/threshold-array/working-shadow.png `
   --working-frame-count 16 `
   --working-line-length 4 `
   --snippet-template assembling-machine `
+  --target-prototype-name ei-threshold-array `
   --target-field graphics_set `
   --animation-speed 0.6 `
   --scale 0.35 `
@@ -73,16 +76,18 @@ Icon example:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py icon `
-  --asset-name ei-threshold-array `
-  --source output/meshy/threshold-array/icon-source.png
+  --asset-name threshold-array `
+  --source output/meshy/threshold-array/icon-source.png `
+  --target-prototype-name ei-threshold-array
 ```
 
 Render bundle example:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py render-bundle `
-  --asset-name ei-threshold-array `
+  --asset-name threshold-array `
   --bundle Render.zip `
+  --target-prototype-name ei-threshold-array `
   --line-length 8 `
   --frame-count 64 `
   --scale 0.35 `
@@ -93,9 +98,10 @@ Raw preset frame pack example:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py render-bundle `
-  --asset-name ei-threshold-array `
-  --bundle output/meshy/ei-threshold-array/Render `
-  --preset-manifest output/meshy/ei-threshold-array/Render/factorio-preset-render-manifest.json `
+  --asset-name threshold-array `
+  --bundle output/meshy/threshold-array/Render `
+  --preset-manifest output/meshy/threshold-array/Render/factorio-preset-render-manifest.json `
+  --target-prototype-name ei-threshold-array `
   --pack-raw-frames `
   --grid 8x8 `
   --line-length 8 `
@@ -107,7 +113,7 @@ Promotion dry-run example:
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py promote `
-  --manifest output/meshy/ei-threshold-array/factorio-export/ei-threshold-array.factorio-asset-manifest.json `
+  --manifest output/meshy/threshold-array/factorio-export/threshold-array.factorio-asset-manifest.json `
   --apply-prototype `
   --prototype-file exotic-space-industries-remembrance/prototypes/.../target.lua `
   --prototype-type assembling-machine `

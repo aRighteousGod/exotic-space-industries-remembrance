@@ -206,6 +206,12 @@ for _, prototype in pairs(data.raw.wall or {}) do
         apply_pair(prototype, 35, 75)
     elseif lowered == "plated-wall" then
         apply_pair(prototype, 45, 80)
+    elseif lowered == "ei-sanguine-wall" then
+        apply_pair(prototype, 55, 85)
+        add_missing_damage_resistance(prototype, "ei-plasma", 50)
+    elseif lowered == "ei-hemocrystal-wall" then
+        apply_pair(prototype, 65, 90)
+        add_missing_damage_resistance(prototype, "ei-plasma", 65)
     else
         apply_pair(prototype, 25, 65)
     end

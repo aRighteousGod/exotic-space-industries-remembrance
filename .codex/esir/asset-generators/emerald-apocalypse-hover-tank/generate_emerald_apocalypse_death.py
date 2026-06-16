@@ -17,8 +17,8 @@ ROWS = FRAME_COUNT // LINE_LENGTH
 SEED = 90377816
 SCALE = FRAME_SIZE / LOGICAL_FRAME_SIZE
 
-NORMAL_FILENAME = "ei-emerald-apocalypse-hover-tank-death-collapse.png"
-GLOW_FILENAME = "ei-emerald-apocalypse-hover-tank-death-collapse-glow.png"
+NORMAL_FILENAME = "emerald-apocalypse-hover-tank-death-collapse.png"
+GLOW_FILENAME = "emerald-apocalypse-hover-tank-death-collapse-glow.png"
 
 
 def find_repo_root(start: Path) -> Path:

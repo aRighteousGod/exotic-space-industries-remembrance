@@ -32,7 +32,7 @@ entity.custom_status = {
 
 - Put placed-entity readout strings in `[entity-status]` locale. Keep them short; this is the small entity status line, not a GUI panel.
 - Clear `entity.custom_status` on destroy or deregistration when the module already receives that lifecycle event.
-- `LuaEntity::custom_status` is runtime-only. The local Factorio docs cache confirms the attribute in Factorio 2.0.76.
+- `LuaEntity::custom_status` is runtime-only. The refreshed local Factorio docs cache confirms the attribute in Factorio 2.0.77.
 
 ## Force-Scaled Numbers
 

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('refresh', 'query')]
+    [ValidateSet('refresh', 'query', 'status')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [string]$Query,
@@ -25,6 +25,7 @@ $paths = Get-FactorioLuaDocsPaths -RepoRoot $RepoRoot -EnsureCacheRoot:($Task -e
 $result = switch ($Task) {
     'refresh' { Invoke-FactorioLuaDocsRefresh -Paths $paths }
     'query' { Invoke-FactorioLuaDocsQuery -Paths $paths -Query $Query -Stage $Stage -Kind $Kind -ExactName $ExactName -Limit $Limit -RefreshIfMissing:$RefreshIfMissing }
+    'status' { Get-FactorioLuaDocsStatus -Paths $paths }
 }
 
 if ($AsJson) {

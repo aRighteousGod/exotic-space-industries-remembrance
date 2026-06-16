@@ -936,7 +936,7 @@ function model.open_gui(player)
             tags = {
                 parent_gui = GUI_NAME,
                 action = "goto-informatron",
-                page = "fusion_power"
+                page = "fusion_reactor_controls"
             }
         }
     end
@@ -1234,7 +1234,7 @@ function model.on_gui_click(event)
         remote.call("informatron", "informatron_open_to_page", {
             player_index = event.player_index,
             interface = "exotic-industries-informatron",
-            page_name = event.element.tags.page,
+            page_name = event.element.tags.page or "fusion_reactor_controls",
         })
     end
 end

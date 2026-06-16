@@ -13,6 +13,8 @@
 local ei_lib = require("lib/lib")
 
 local tank_name = "ei-emerald-apocalypse-hover-tank"
+local tesla_tank_name = "tl-tesla-tank"
+local tesla_tank_technology = "tl-tesla-tank-technology"
 local cannon_name = "ei-emerald-apocalypse-cannon"
 local ammo_name = "ei-emerald-apocalypse-charge"
 local ammo_category = cannon_name
@@ -26,19 +28,19 @@ local equipment_category = "ei_emerald_hover_tank_core"
 local core_equipment_name = "ei-emerald-fusion-core-equipment"
 local shield_equipment_name = "ei-emerald-aegis-shield-equipment"
 
-local tank_icon = ei_path.."graphics/items/emerald-apocalypse-hover-tank.png"
-local tank_tech_icon = ei_path.."graphics/techs/emerald-apocalypse-hover-tank.png"
+local tank_icon = ei_graphics_item_4_path.."emerald-apocalypse-hover-tank.png"
+local tank_tech_icon = ei_graphics_tech_4_path.."emerald-apocalypse-hover-tank.png"
 local cannon_icon = "__base__/graphics/icons/tank-cannon.png"
-local charge_icon = ei_path.."graphics/items/emerald-apocalypse-charge.png"
-local charge_glow_icon = ei_path.."graphics/items/emerald-apocalypse-charge-glow.png"
+local charge_icon = ei_graphics_item_4_path.."emerald-apocalypse-charge.png"
+local charge_glow_icon = ei_graphics_item_4_path.."emerald-apocalypse-charge-glow.png"
 local core_icon = ei_graphics_item_path.."fusion-reactor.png"
 local shield_icon = "__base__/graphics/equipment/energy-shield-mk2-equipment.png"
-local tank_graphics_path = ei_path.."graphics/entities/emerald-apocalypse-hover-tank/"
-local orbital_shard_graphics_path = ei_path.."graphics/entities/emerald-apocalypse-orbital-shard/"
+local tank_graphics_path = ei_graphics_entity_4_path.."emerald-apocalypse-hover-tank/"
+local orbital_shard_graphics_path = ei_graphics_entity_4_path.."emerald-apocalypse-orbital-shard/"
 local effect_graphics_path = tank_graphics_path.."effects/"
-local hover_sound_path = ei_path.."sounds/emerald-apocalypse-tank-hover.ogg"
+local hover_sound_path = ei_sounds_4_path.."emerald-apocalypse-tank-hover.ogg"
 local chargeup_sound_name = "ei-emerald-apocalypse-hover-tank-charge-start"
-local chargeup_sound_path = ei_path.."sounds/emerald-apocalypse-tank-beam-chargeup.ogg"
+local chargeup_sound_path = ei_sounds_4_path.."emerald-apocalypse-tank-beam-chargeup.ogg"
 local hover_emitter_animation_name = tank_name.."-hover-emitter"
 local orbital_shard_animation_name = tank_name.."-orbital-shard"
 local chargeup_animation_name = "ei-emerald-apocalypse-chargeup"
@@ -680,7 +682,7 @@ hover_tank.resistances = {
 }
 hover_tank.energy_source = {
     type = "burner",
-    fuel_categories = {"ei-fusion-fuel", "ei-nuclear-fuel", "ei-nuclear-fuel-cell"},
+    fuel_categories = {"ei-fusion-fuel", "ei-nuclear-fuel", "ei-nuclear-fuel-cell", "fusion"},
     effectivity = 1,
     fuel_inventory_size = 2,
     burnt_inventory_size = 2,
@@ -806,7 +808,7 @@ data:extend({
         name = chargeup_sound_name.."-upgrade-1",
         type = "sound",
         category = "weapon",
-        filename = ei_path.."sounds/emerald-apocalypse-tank-beam-chargeup-upgrade-1.ogg",
+        filename = ei_sounds_4_path.."emerald-apocalypse-tank-beam-chargeup-upgrade-1.ogg",
         volume = 1.35,
         audible_distance_modifier = 1.65,
         advanced_volume_control = {
@@ -817,7 +819,7 @@ data:extend({
         name = chargeup_sound_name.."-upgrade-2",
         type = "sound",
         category = "weapon",
-        filename = ei_path.."sounds/emerald-apocalypse-tank-beam-chargeup-upgrade-2.ogg",
+        filename = ei_sounds_4_path.."emerald-apocalypse-tank-beam-chargeup-upgrade-2.ogg",
         volume = 1.35,
         audible_distance_modifier = 1.65,
         advanced_volume_control = {
@@ -828,7 +830,7 @@ data:extend({
         name = chargeup_sound_name.."-upgrade-3",
         type = "sound",
         category = "weapon",
-        filename = ei_path.."sounds/emerald-apocalypse-tank-beam-chargeup-upgrade-3.ogg",
+        filename = ei_sounds_4_path.."emerald-apocalypse-tank-beam-chargeup-upgrade-3.ogg",
         volume = 1.35,
         audible_distance_modifier = 1.65,
         advanced_volume_control = {
@@ -839,7 +841,7 @@ data:extend({
         name = "ei-emerald-apocalypse-hover-tank-beam-fire",
         type = "sound",
         category = "weapon",
-        filename = ei_path.."sounds/emerald-apocalypse-tank-beam-fire.ogg",
+        filename = ei_sounds_4_path.."emerald-apocalypse-tank-beam-fire.ogg",
         volume = 1.55,
         audible_distance_modifier = 1.9,
         advanced_volume_control = {
@@ -901,7 +903,7 @@ data:extend({
         category = "ei-exotic-assembler",
         energy_required = 600,
         ingredients = {
-            {type = "item", name = "tank", amount = 1},
+            {type = "item", name = tesla_tank_name, amount = 1},
             {type = "item", name = "ei-fusion-reactor", amount = 1},
             {type = "item", name = "ei-accelerator", amount = 1},
             {type = "item", name = "ei-gauss-module", amount = 2},
@@ -950,6 +952,7 @@ data:extend({
             "ei-high-tech-parts",
             "ei-fusion-reactor",
             "ei-accelerator",
+            tesla_tank_technology,
         },
         effects = {
             {type = "unlock-recipe", recipe = tank_name},
@@ -999,6 +1002,13 @@ data:extend({
         energy_source = {
             type = "electric",
             usage_priority = "primary-output",
+        },
+        burner = {
+            type = "burner",
+            fuel_categories = {"ei-fusion-fuel"},
+            effectivity = 1,
+            fuel_inventory_size = 8,
+            burnt_inventory_size = 8,
         },
     },
     {

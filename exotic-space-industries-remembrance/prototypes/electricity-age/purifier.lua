@@ -241,6 +241,18 @@ data:extend({
             },
             {
                 type = "unlock-recipe",
+                recipe = "ei-crushed-lead"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-crushed-lead-sulfuric-extraction"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-crushed-gold-sulfuric-extraction"
+            },
+            {
+                type = "unlock-recipe",
                 recipe = "ei-water-vent"
             },
             {
@@ -582,6 +594,109 @@ data:extend({
         main_product = "ei-fluorite",
     },
     {
+        name = "ei-crushed-lead-sulfuric-extraction",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 6,
+        icons = {
+            {
+                icon = ei_graphics_item_path.."fluorite.png",
+                icon_size = 64,
+            },
+            {
+                icon = ei_graphics_item_4_path.."crushed-lead-1.png",
+                icon_size = 64,
+                icon_mipmaps = 4,
+                scale = 0.28,
+                shift = {-9, -9},
+            },
+            {
+                icon = "__base__/graphics/icons/fluid/sulfuric-acid.png",
+                icon_size = 64,
+                scale = 0.28,
+                shift = {9, -9},
+            },
+            {
+                icon = ei_graphics_fluid_path.."acidic-water.png",
+                icon_size = 64,
+                scale = 0.28,
+                shift = {-9, 9},
+            },
+            {
+                icon = ei_graphics_item_4_path.."crushed-slag.png",
+                icon_size = 64,
+                icon_mipmaps = 4,
+                scale = 0.28,
+                shift = {9, 9},
+            },
+        },
+        ingredients = {
+            {type = "item", name = "ei-crushed-lead", amount = 10},
+            {type = "fluid", name = "sulfuric-acid", amount = 25},
+        },
+        results = {
+            {type = "item", name = "ei-fluorite", amount = 1},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max = 30, ignored_by_stats = 30},
+            {type = "item", name = "ei-crushed-slag", amount_min = 4, amount_max = 8, ignored_by_stats = 8},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-purified",
+        order = "a-j-a",
+        main_product = "ei-fluorite",
+    },
+    {
+        name = "ei-crushed-gold-sulfuric-extraction",
+        type = "recipe",
+        category = "ei-purifier",
+        energy_required = 6,
+        icons = {
+            {
+                icon = ei_graphics_item_path.."fluorite.png",
+                icon_size = 64,
+            },
+            {
+                icon = ei_graphics_item_path.."crushed-gold.png",
+                icon_size = 64,
+                scale = 0.28,
+                shift = {-9, -9},
+            },
+            {
+                icon = "__base__/graphics/icons/fluid/sulfuric-acid.png",
+                icon_size = 64,
+                scale = 0.28,
+                shift = {9, -9},
+            },
+            {
+                icon = ei_graphics_fluid_path.."acidic-water.png",
+                icon_size = 64,
+                scale = 0.28,
+                shift = {-9, 9},
+            },
+            {
+                icon = ei_graphics_item_4_path.."crushed-slag.png",
+                icon_size = 64,
+                icon_mipmaps = 4,
+                scale = 0.28,
+                shift = {9, 9},
+            },
+        },
+        ingredients = {
+            {type = "item", name = "ei-crushed-gold", amount = 10},
+            {type = "fluid", name = "sulfuric-acid", amount = 40},
+        },
+        results = {
+            {type = "item", name = "ei-fluorite", amount = 1, probability = 0.75},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 20, amount_max = 40, ignored_by_stats = 40},
+            {type = "item", name = "ei-crushed-slag", amount_min = 6, amount_max = 10, ignored_by_stats = 10},
+        },
+        always_show_made_in = true,
+        enabled = false,
+        subgroup = "ei-refining-purified",
+        order = "a-j-b",
+        main_product = "ei-fluorite",
+    },
+    {
         name = "ei-irradiated-water-purification",
         type = "recipe",
         category = "ei-purifier",
@@ -598,7 +713,7 @@ data:extend({
         icon_size = 64,
         icons = {
             {
-                icon = "__exotic-space-industries-remembrance__/graphics/fluids/irradiated-water.png",
+                icon = ei_graphics_fluid_4_path.."irradiated-water.png",
                 icon_size = 64,
                 icon_mipmaps = 4,
             },

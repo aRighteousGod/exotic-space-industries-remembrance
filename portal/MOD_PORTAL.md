@@ -84,7 +84,7 @@ Resources are not just bigger vanilla patches. The run pushes you through chunk 
 
 ## Buildings And Industry
 
-Buildings matter visually and mechanically here. Steam assemblers, crushers, loaders, reactors, matrix components, black hole hardware, and alien machinery all carry a strong industrial identity, and the companion graphics packs extend that look across the run. Late-game progression is built around real infrastructure: induction matrix arrays, fusion and neutron chains, matter stabilizers, and black hole systems are not decorative endpoints, they are central factory surfaces with their own runtime and UI behavior.
+Buildings matter visually and mechanically here. Steam assemblers, crushers, loaders, reactors, matrix components, black hole hardware, and alien machinery all carry a strong industrial identity, and the companion graphics/media packs extend that look and sound across the run. Late-game progression is built around real infrastructure: induction matrix arrays, fusion and neutron chains, matter stabilizers, and black hole systems are not decorative endpoints, they are central factory surfaces with their own runtime and UI behavior.
 
 [Logistics and transport image]
 
@@ -144,7 +144,8 @@ This rewrite carries forward the non-K2 image set from the original portal below
 
 ## Pack, Compatibility, And Save Notes
 
-- Requires the main gameplay pack plus `exotic-space-industries-remembrance-graphics-1`, `exotic-space-industries-remembrance-graphics-2`, `exotic-space-industries-remembrance-graphics-3`, `exotic-space-industries-remembrance-soundtrack-1`, and `exotic-space-industries-remembrance-soundtrack-2`.
+- Requires the main gameplay pack plus `exotic-space-industries-remembrance-graphics-1`, `exotic-space-industries-remembrance-graphics-2`, `exotic-space-industries-remembrance-graphics-3`, `exotic-space-industries-remembrance-graphics-4`, `exotic-space-industries-remembrance-soundtrack-1`, and `exotic-space-industries-remembrance-soundtrack-2`.
+- Graphics 4 also carries shared non-music sound effects moved out of the gameplay pack.
 - Built for Factorio 2.0 with Space Age.
 - The dependency surface is broad and includes optional integrations. Use the Mod Portal dependency page for the exact current list instead of relying on a stale summary.
 - Gaia world-generation changes on an existing save may require `/reforge_gaia`. This destroys and rebuilds Gaia, so it should be treated as a major save operation.

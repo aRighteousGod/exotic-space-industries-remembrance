@@ -23,6 +23,7 @@ Use this skill for the Meshy -> Blender -> Factorio-preset spritesheet path. It 
 - Keep reusable generator scripts, asset-specific replay notes, and hand-written prompts out of `output/`: use `.codex/esir/asset-generators/` for generators/notes and `.codex/esir/art-prompts/` for prompt provenance.
 - Do not replace production sprites in `exotic-space-industries-remembrance/graphics/` until the user approves the generated sheet.
 - For ESIR Factorio-bound spritesheets, do not invent camera, lighting, shadow, or pass layouts. Use the local Factorio preset conventions for final, draft, smoke, and preflight work unless the user specifically requests a non-preset render or the task is debugging the non-preset renderer itself.
+- For main-pack shipping graphics, render and stage with no-prefix asset names such as `threshold-array`; keep `ei-*` for prototype hints passed later to `$esir-factorio-asset-export`.
 - Add runtime-tint mask regions only for owner-readability: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Preserve baked ESIR color for neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, and deliberately chromatic assets.
 - When a runtime-tint region is needed, keep it as named material or object groups such as `team_color`, `force_trim`, or `color_mask` and render it through the preset `mask` pass as a separate sheet. Do not merge it into base, shadow, glow, or light output.
 
@@ -50,7 +51,16 @@ Use this skill for the Meshy -> Blender -> Factorio-preset spritesheet path. It 
   --pack-sheets
 ```
 
-4. Use the lower-level scripted renderer only when the user asks for a non-preset experiment or the task is debugging/import-isolating that renderer. This is not the ESIR smoke-test path:
+4. For dark vehicle-like models, run the asset pipeline lighting comparison before committing to a final render. The comparison renders preview variants only and never locks the final profile; choose the final `--lighting-profile` explicitly after visual/metric review:
+
+```powershell
+python .codex/skills/esir-asset-pipeline/scripts/run_asset_pipeline.py compare `
+  --spec output/meshy/MODEL/asset.pipeline.json
+```
+
+Use `--lighting-profile rail-fill` as the normal dark vehicle starting point. Reserve `--lighting-profile gamma-rescue` for assets that stay too dark after safer previews, and reject or rework profiles that push `clip250_pct` near the comparison reject threshold.
+
+5. Use the lower-level scripted renderer only when the user asks for a non-preset experiment or the task is debugging/import-isolating that renderer. This is not the ESIR smoke-test path:
 
 ```powershell
 & "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background `
@@ -63,8 +73,8 @@ Use this skill for the Meshy -> Blender -> Factorio-preset spritesheet path. It 
   --fail-alpha-margin
 ```
 
-5. Inspect the sheet visually before shipping it. If the model reads as zoomed out, too low-resolution, or black-on-transparent with weak contrast, render at least one tighter/brighter preset variant before staging.
-6. If it is destined for Factorio, stage it through `$esir-factorio-asset-export` `render-bundle` before any mod wiring.
+6. Inspect the sheet visually before shipping it. If the model reads as zoomed out, too low-resolution, or black-on-transparent with weak contrast, render at least one tighter/brighter preset variant before staging.
+7. If it is destined for Factorio, stage it through `$esir-factorio-asset-export` `render-bundle` before any mod wiring.
 
 ## Render Defaults
 
@@ -73,6 +83,7 @@ Use this skill for the Meshy -> Blender -> Factorio-preset spritesheet path. It 
 - `render_factorio_preset.py` opens the preset, imports GLB/GLTF/OBJ/FBX, links meshes into `Object > Normal`, sets the preset props, replaces the rotator driver with the documented direction formula, unmutes selected compositor file-output passes, renders into `output/meshy/<asset>/Render/`, and can pack `.Sheets`.
 - The preset `mask` pass produces `object_mask_0.png`/ColorMask-style output. Treat it as evidence until export review classifies it as a runtime-tint mask, manual post-processing source, or unused mask sheet.
 - Use `--preflight-only` before expensive renders to check preset collections, selected compositor outputs, light groups, framing margins, footprint estimates, and material alpha/emission risks. Add `--fail-framing-risk`, `--fail-missing-light-group`, or `--fail-alpha-risk` when the gate should be strict.
+- Use `--lighting-profile rail-fill` for the rail-car-inspired dark vehicle profile: moderate sun scale, strong world fill, rough non-metallic material lift, and no exposure/gamma shift. Use `gamma-rescue` only as a reviewed exception for assets that remain too dark; it can wash out black shells, glass, or high-emission surfaces.
 - Use `--auto-prep` for conservative imported-model cleanup before preset placement: remove imported cameras/empty meshes, optionally delete named or unmaterialed helper meshes, normalize origin/size, optionally apply scale, and record the cleanup in the manifest. It does not decimate, join, rebake, or rewrite silhouettes.
 - The optional `water-reflection` pass writes `WaterReflection.png`; stage it through `render-bundle` and emit it only when the target prototype should include `water_reflection`.
 - The companion `Render.zip` is not a model source; stage its `.Sheets` output, or raw `Render/Object/*.png` folders, with `$esir-factorio-asset-export` `render-bundle` mode.

@@ -10,9 +10,12 @@ Use this before freehand memory or broad web search when the task is mainly abou
 Start with the wrapper:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task status
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task query -Query LuaGuiElement -Stage runtime
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task refresh
 ```
+
+Use `-Task status` to confirm the cached runtime/prototype application versions before answering version-sensitive API questions.
 
 For `-Task query`, provide either `-Query` or `-ExactName`. Blank queries fail instead of returning arbitrary first entries.
 Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refresh` only when network/cache writes are acceptable.
@@ -31,6 +34,8 @@ Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refre
 - Prefer local cached index results first, then open the official page when the question needs more detail, examples, or release-specific nuance.
 - Do not copy the whole docs corpus into checked-in repo files. Keep downloaded snapshots in the ignored cache at `.factorio-lua-docs-cache`.
 - The official docs are version-sensitive. Refresh when "latest" matters.
+- The `latest` docs can track experimental Factorio while the installed local game remains on stable. Compare `-Task status` with `factorio.exe --version` before updating installed-file surveys such as core lualib or vanilla prototype helper maps.
+- For command-line option questions, query the cached wiki topic first, then compare the official page with local `factorio.exe --help` when choosing flags for this workstation.
 - For language/runtime assumptions, use `factorio-lua-assumptions` first, then verify exact API claims here.
 - Return the exact official URL with your answer whenever practical.
 
@@ -45,6 +50,7 @@ Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refre
 - Guidance topic lookup:
   - `-Stage auxiliary -Query migrations`
   - `-Stage wiki -Query script interfaces`
+  - `-Stage wiki -Query "Command line parameters"`
 
 ## Sidecar Roles
 
@@ -54,6 +60,7 @@ Use light read-only sidecars when it helps:
 - `prototype-api explorer`
 - `auxiliary-docs explorer`
 - `wiki-guidance explorer`
+- `cli-options explorer`
 
 Keep the main agent on synthesis and edits.
 

@@ -341,8 +341,6 @@ ei_lib.raw.item["depleted-uranium-fuel-cell"] = {
 }
 --Remove vanilla uranium fuel cell
 ei_lib.remove_unlock_recipe("nuclear-power","uranium-fuel-cell")
---Swap fission reactor recipe input
-ei_lib.recipe_swap("fission-reactor-equipment","uranium-fuel-cell","ei-uranium-235-fuel",6)
 --set fuel cell recycling to use fuel aka 235 fuel cell, etc
 ei_lib.raw.recipe["nuclear-fuel-reprocessing"] = {
     ingredients = {

@@ -38,8 +38,8 @@ BEAM_FRAME_COUNT = 16
 BEAM_LINE_LENGTH = 4
 SEED = 5905030805
 
-NORMAL_FILENAME = "ei-gaian-saucer_wake.png"
-GLOW_FILENAME = "ei-gaian-saucer_wake_glow.png"
+NORMAL_FILENAME = "gaian-saucer_wake.png"
+GLOW_FILENAME = "gaian-saucer_wake_glow.png"
 
 SAUCER_SCALE = 0.69
 WAKE_SCALE = 0.23
@@ -405,9 +405,9 @@ def paste_layer(
 
 
 def make_factorio_preview(wake: Image.Image, wake_glow: Image.Image) -> Image.Image:
-    saucer = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact.png")
-    saucer_glow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_glow.png")
-    saucer_shadow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_shadow.png")
+    saucer = first_frame(SAUCER_DIR / "gaian-saucer_dark_compact.png")
+    saucer_glow = first_frame(SAUCER_DIR / "gaian-saucer_dark_compact_glow.png")
+    saucer_shadow = first_frame(SAUCER_DIR / "gaian-saucer_dark_compact_shadow.png")
 
     backgrounds = [
         ((17, 20, 23), "dark factory"),
@@ -461,8 +461,8 @@ def write_manifest(specs: list[SheetSpec], previews: list[Path], promoted: bool)
         "asset_name": ASSET_NAME,
         "mode": "gaian-saucer-directional-slipwake",
         "source_assets": [
-            str((BEAM_DIR / "ei-singularity-lance-beam-body.png").relative_to(REPO_ROOT)).replace("\\", "/"),
-            str((BEAM_DIR / "ei-singularity-lance-beam-body-glow.png").relative_to(REPO_ROOT)).replace("\\", "/"),
+            str((BEAM_DIR / "singularity-lance-beam-body.png").relative_to(REPO_ROOT)).replace("\\", "/"),
+            str((BEAM_DIR / "singularity-lance-beam-body-glow.png").relative_to(REPO_ROOT)).replace("\\", "/"),
         ],
         "generator": str(Path(__file__).resolve().relative_to(REPO_ROOT)).replace("\\", "/"),
         "seed": SEED,
@@ -492,8 +492,8 @@ def generate(promote: bool) -> dict[str, object]:
     PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
     (ROOT / "source").mkdir(parents=True, exist_ok=True)
 
-    body_path = BEAM_DIR / "ei-singularity-lance-beam-body.png"
-    glow_path = BEAM_DIR / "ei-singularity-lance-beam-body-glow.png"
+    body_path = BEAM_DIR / "singularity-lance-beam-body.png"
+    glow_path = BEAM_DIR / "singularity-lance-beam-body-glow.png"
     if not body_path.exists() or not glow_path.exists():
         raise FileNotFoundError(f"Expected promoted Singularity Lance beam body sheets in {BEAM_DIR}")
 

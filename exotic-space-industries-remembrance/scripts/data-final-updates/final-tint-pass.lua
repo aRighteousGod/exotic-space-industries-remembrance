@@ -335,11 +335,67 @@ local curated_recipe_tints = {
 		quaternary = { r = 0.54, g = 0.53, b = 0.85, a = 1.000 },
 	},
 
+	["ei-pl-mix"] = {
+		primary = { r = 0.72, g = 0.46, b = 0.1, a = 1.000 },
+		secondary = { r = 0.0, g = 0.49, b = 0.47, a = 1.000 },
+		tertiary = { r = 0.95, g = 0.88, b = 0.35, a = 1.000 },
+		quaternary = { r = 0.0, g = 0.72, b = 0.68, a = 1.000 },
+	},
+
+	["ei-dd-mix"] = {
+		primary = { r = 0.0, g = 0.51, b = 0.58, a = 1.000 },
+		secondary = { r = 0.0, g = 0.51, b = 0.58, a = 1.000 },
+		tertiary = { r = 0.0, g = 0.72, b = 0.8, a = 1.000 },
+		quaternary = { r = 0.4, g = 0.96, b = 1.0, a = 1.000 },
+	},
+
+	["ei-dl-mix"] = {
+		primary = { r = 0.0, g = 0.51, b = 0.58, a = 1.000 },
+		secondary = { r = 0.0, g = 0.49, b = 0.47, a = 1.000 },
+		tertiary = { r = 0.0, g = 0.72, b = 0.8, a = 1.000 },
+		quaternary = { r = 0.0, g = 0.72, b = 0.68, a = 1.000 },
+	},
+
 	["ei-dt-mix"] = {
 		primary = { r = 0.0, g = 0.51, b = 0.58, a = 1.000 },
 		secondary = { r = 0.59, g = 0.22, b = 0.21, a = 1.000 },
 		tertiary = { r = 0.0, g = 0.72, b = 0.8, a = 1.000 },
 		quaternary = { r = 0.96, g = 0.35, b = 0.34, a = 1.000 },
+	},
+
+	["ei-tt-mix"] = {
+		primary = { r = 0.59, g = 0.22, b = 0.21, a = 1.000 },
+		secondary = { r = 0.59, g = 0.22, b = 0.21, a = 1.000 },
+		tertiary = { r = 0.96, g = 0.35, b = 0.34, a = 1.000 },
+		quaternary = { r = 1.0, g = 0.5, b = 0.62, a = 1.000 },
+	},
+
+	["ei-dh-mix"] = {
+		primary = { r = 0.0, g = 0.51, b = 0.58, a = 1.000 },
+		secondary = { r = 0.68, g = 0.12, b = 0.70, a = 1.000 },
+		tertiary = { r = 0.0, g = 0.72, b = 0.8, a = 1.000 },
+		quaternary = { r = 1.0, g = 0.36, b = 0.92, a = 1.000 },
+	},
+
+	["ei-hl-mix"] = {
+		primary = { r = 0.68, g = 0.12, b = 0.70, a = 1.000 },
+		secondary = { r = 0.0, g = 0.49, b = 0.47, a = 1.000 },
+		tertiary = { r = 1.0, g = 0.36, b = 0.92, a = 1.000 },
+		quaternary = { r = 0.0, g = 0.72, b = 0.68, a = 1.000 },
+	},
+
+	["ei-th-mix"] = {
+		primary = { r = 0.59, g = 0.22, b = 0.21, a = 1.000 },
+		secondary = { r = 0.68, g = 0.12, b = 0.70, a = 1.000 },
+		tertiary = { r = 0.96, g = 0.35, b = 0.34, a = 1.000 },
+		quaternary = { r = 1.0, g = 0.36, b = 0.92, a = 1.000 },
+	},
+
+	["ei-hh-mix"] = {
+		primary = { r = 0.68, g = 0.12, b = 0.70, a = 1.000 },
+		secondary = { r = 0.68, g = 0.12, b = 0.70, a = 1.000 },
+		tertiary = { r = 1.0, g = 0.36, b = 0.92, a = 1.000 },
+		quaternary = { r = 0.88, g = 0.22, b = 1.0, a = 1.000 },
 	},
 
 	["ei-oxygen-difluoride"] = {

@@ -145,7 +145,10 @@ ei_lib.set_prerequisites("interstellar-science-pack",{"space-science-pack"})
 ei_lib.set_prerequisites("interstellar-science-pack",{"space-science-pack"})
 ei_lib.set_prerequisites("electric-mining-drill",{"ei-electricity-power"})
 ei_lib.set_prerequisites("military-2",{"military","ei-steam-age"})
-ei_lib.set_prerequisites("flamethrower",{"flammables","engine"})
+ei_lib.set_prerequisites("flamethrower",{"flammables","engine","military-2"})
+ei_lib.add_prerequisite("ei-cannon-turret-mk1","military-2")
+ei_lib.add_prerequisite("ei-acidthrower-turret","military-2")
+ei_lib.set_prerequisites("ei-sawblade-turret",{"military-3","ei-electricity-power","electric-engine","steel-processing"})
 
 ei_lib.set_prerequisites("wdm_home_planet",{})
 
@@ -165,7 +168,11 @@ ei_lib.add_prerequisite("laser-weapons-damage-1","laser")
 ei_lib.add_prerequisite("personal-laser-defense-equipment","laser")
 
 ei_lib.add_prerequisite("ei-personal-laser","laser")
-ei_lib.add_prerequisite("ei-black-hole-exploration","ei-fusion-drive")
+ei_lib.add_prerequisite("ei-black-hole-exploration","ei-personal-reactor")
+
+if data.raw.technology["ei-fusion-drive"] then
+  data.raw.technology["ei-fusion-drive"].hidden = true
+end
 
 ei_lib.set_prerequisites("burner-mechanics",{"ei-dark-age"})
 ei_lib.set_prerequisites("kr-automation-core",{"ei-dark-age"})
@@ -182,6 +189,7 @@ if not mods["Krastorio2-spaced-out"] then
     ei_lib.set_prerequisites("kr-fusion-energy",{"lithium-processing","nuclear-power"})
 end
 
+ei_lib.set_prerequisites("captivity",{"agricultural-science-pack","military-4"})
 ei_lib.set_prerequisites("captive-biter-spawner",{"cryogenic-science-pack","biter-egg-handling"})
 ei_lib.set_prerequisites("lubricant",{"ei-destill-tower"})
 ei_lib.set_prerequisites("sulfur-processing",{"ei-steam-oil-processing"})
@@ -194,10 +202,19 @@ ei_lib.set_prerequisites("explosive-rocketry",{"rocketry"})
 
 ei_lib.set_prerequisites("oil-processing",{"ei-electricity-power"})
 
-ei_lib.set_prerequisites("artillery",{"ei-advanced-computer-age-tech","processing-unit","ei-electronic-parts","ei-carbon-manipulation"})
+ei_lib.set_prerequisites("artillery",{"ei-advanced-computer-age-tech","processing-unit","ei-electronic-parts","ei-carbon-manipulation","military-5"})
 ei_lib.set_prerequisites("artillery-shell-range-1",{"artillery"})
 ei_lib.set_prerequisites("artillery-shell-speed-1",{"artillery"})
 ei_lib.set_prerequisites("artillery-shell-damage-1",{"artillery"})
+ei_lib.add_prerequisite("rocket-turret","military-4")
+ei_lib.add_prerequisite("dw-deer-tech","military-5")
+ei_lib.add_prerequisite("railgun","military-5")
+ei_lib.add_prerequisite("atomic-bomb","military-5")
+ei_lib.add_prerequisite("ei-singularity-lance","military-5")
+ei_lib.add_prerequisite("ei-emerald-apocalypse-hover-tank","military-5")
+ei_lib.add_prerequisite("ei-plasma-turret","military-5")
+ei_lib.add_prerequisite("ei-bug-zapper","military-5")
+ei_lib.add_prerequisite("zeus-wrath-zeus-wrath","military-5")
 ei_lib.set_prerequisites("advanced-oil-processing",{"ei-destill-tower","ei-electricity-age-tech"})
 ei_lib.set_prerequisites("battery-equipment",{"battery","modular-armor"})
 ei_lib.set_prerequisites("solar-panel-equipment",{"solar-energy","advanced-circuit","modular-armor"})

@@ -3,7 +3,7 @@
 -- owns: matter runtime, queues, player rendering cleanup, and exotic assembler GUI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, selection/cursor/player-left, scheduled tick step 4, and configuration rebuild
--- forwarded_events: add_machine_to_surface_queue, add_to_chunk_store, check_entity, check_global, clear_rendering, close_gui, collect_machine_stabilizers, destroy_machine_fx, destroy_player_render_list, destroy_runtime_state, draw_connection, draw_stabilizer_range, draw_warning_text, ensure_machine_light, ensure_runtime_ready, ensure_surface_queue, get_machine_base_chance, get_player_render_list, get_risk_tier, get_runtime_status, get_stabilizer_weight, get_updates_per_entity, link_stabilizer_and_machine, on_built_entity, on_destroyed_entity, on_gui_click, on_player_cursor_stack_changed, on_player_left_game, on_selected_entity_changed, open_gui, query_nearby_machines, query_nearby_stabilizers, query_runtime_registry_in_range, rebuild_runtime_state, register_matter_machine, register_stabilizer, remove_from_chunk_store, remove_machine_from_surface_queue, remove_matter_machine_by_unit, remove_rendering, remove_rendering_by_unit, remove_stabilizer_by_unit, reset_machine_state, reset_runtime_storage, spawn_machine_arc, spawn_machine_crackle, stabilizer_on_cursor, stabilizer_selected, sync_active_surface, unregister_matter_machine, unregister_stabilizer, update, update_machine_presentation, update_matter_machine, update_gui
+-- forwarded_events: add_machine_to_surface_queue, add_to_chunk_store, check_entity, check_global, clear_rendering, close_gui, collect_machine_stabilizers, destroy_machine_fx, destroy_player_render_list, destroy_runtime_state, draw_connection, draw_stabilizer_range, draw_warning_text, ensure_machine_light, ensure_runtime_ready, ensure_surface_queue, get_due_gui_refresh_count, get_machine_base_chance, get_pending_work_count, get_player_render_list, get_risk_tier, get_runtime_status, get_stabilizer_weight, get_updates_per_entity, has_tick_work, link_stabilizer_and_machine, on_built_entity, on_destroyed_entity, on_gui_click, on_player_cursor_stack_changed, on_player_left_game, on_selected_entity_changed, open_gui, query_nearby_machines, query_nearby_stabilizers, query_runtime_registry_in_range, rebuild_runtime_state, register_matter_machine, register_stabilizer, remove_from_chunk_store, remove_machine_from_surface_queue, remove_matter_machine_by_unit, remove_rendering, remove_rendering_by_unit, remove_stabilizer_by_unit, reset_machine_state, reset_runtime_storage, spawn_machine_arc, spawn_machine_crackle, stabilizer_on_cursor, stabilizer_selected, sync_active_surface, unregister_matter_machine, unregister_stabilizer, update, update_machine_presentation, update_matter_machine, update_gui
 -- storage_roots: storage.ei
 -- gui_ids: ei-exotic-assembler-console
 -- remote_interfaces: none
@@ -133,6 +133,49 @@ end
 
 local function now_tick(event_tick)
     return event_tick or (game and game.tick) or 0
+end
+
+
+local function count_due_bucket_items(buckets, tick)
+    if type(buckets) ~= "table" then
+        return 0
+    end
+
+    local count = 0
+    for due_tick, bucket in pairs(buckets) do
+        local numeric_due_tick = tonumber(due_tick)
+        if numeric_due_tick and numeric_due_tick <= tick and type(bucket) == "table" then
+            if #bucket > 0 then
+                count = count + #bucket
+            else
+                for _ in pairs(bucket) do
+                    count = count + 1
+                end
+            end
+        end
+    end
+
+    return count
+end
+
+
+local function recalculate_gui_next_refresh_tick(gui_state)
+    if type(gui_state) ~= "table" or type(gui_state.refresh_buckets) ~= "table" then
+        return 0
+    end
+
+    local next_refresh_tick = 0
+    for due_tick, bucket in pairs(gui_state.refresh_buckets) do
+        local numeric_due_tick = tonumber(due_tick)
+        if numeric_due_tick and type(bucket) == "table" and next(bucket) ~= nil then
+            if next_refresh_tick == 0 or numeric_due_tick < next_refresh_tick then
+                next_refresh_tick = numeric_due_tick
+            end
+        end
+    end
+
+    gui_state.next_refresh_tick = next_refresh_tick
+    return next_refresh_tick
 end
 
 
@@ -337,6 +380,7 @@ function model.reset_runtime_storage(runtime)
         open_by_player = {},
         watchers_by_unit = {},
         refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil),
+        next_refresh_tick = 0,
         last_gui_service_tick = 0,
     }
 end
@@ -443,12 +487,14 @@ function model.check_global()
             open_by_player = {},
             watchers_by_unit = {},
             refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil),
+            next_refresh_tick = 0,
             last_gui_service_tick = 0,
         }
     else
         gui_state.open_by_player = type(gui_state.open_by_player) == "table" and gui_state.open_by_player or {}
         gui_state.watchers_by_unit = type(gui_state.watchers_by_unit) == "table" and gui_state.watchers_by_unit or {}
         gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(gui_state.refresh_buckets)
+        gui_state.next_refresh_tick = tonumber(gui_state.next_refresh_tick) or recalculate_gui_next_refresh_tick(gui_state)
         gui_state.last_gui_service_tick = tonumber(gui_state.last_gui_service_tick) or 0
     end
 
@@ -544,6 +590,7 @@ function model.clear_all_gui_sessions()
     end
 
     gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
+    gui_state.next_refresh_tick = 0
     gui_state.last_gui_service_tick = 0
 end
 
@@ -613,6 +660,10 @@ function model.queue_gui_refresh_for_player(player_index, refresh_tick)
 
     session.pending_tick = refresh_tick
     ei_runtime_scheduler.delayed_schedule(gui_state.refresh_buckets, refresh_tick, player_index)
+    local next_refresh_tick = tonumber(gui_state.next_refresh_tick) or 0
+    if next_refresh_tick <= 0 or refresh_tick < next_refresh_tick then
+        gui_state.next_refresh_tick = refresh_tick
+    end
     ei_runtime_scheduler.bump_counter(MODULE_NAME, "gui_refresh_queued", 1)
 end
 
@@ -1100,13 +1151,27 @@ function model.service_due_gui_refreshes(event_tick)
     local gui_state = model.get_gui_state()
     local tick = now_tick(event_tick)
     if gui_state.last_gui_service_tick == tick then
-        return
+        local next_refresh_tick = tonumber(gui_state.next_refresh_tick) or recalculate_gui_next_refresh_tick(gui_state)
+        if next_refresh_tick <= 0 or next_refresh_tick > tick then
+            return
+        end
     end
 
     gui_state.last_gui_service_tick = tick
 
     if next(gui_state.open_by_player) == nil then
         gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
+        gui_state.next_refresh_tick = 0
+        return
+    end
+
+    local next_refresh_tick = tonumber(gui_state.next_refresh_tick) or recalculate_gui_next_refresh_tick(gui_state)
+    if next_refresh_tick <= 0 or next_refresh_tick > tick then
+        return
+    end
+
+    local runtime = model.ensure_runtime_ready()
+    if not runtime or runtime.runtime_rebuild_in_progress then
         return
     end
 
@@ -1118,6 +1183,7 @@ function model.service_due_gui_refreshes(event_tick)
     end
 
     if #due_ticks == 0 then
+        recalculate_gui_next_refresh_tick(gui_state)
         return
     end
 
@@ -1130,11 +1196,7 @@ function model.service_due_gui_refreshes(event_tick)
             due_players[player_index] = true
         end
     end
-
-    local runtime = model.ensure_runtime_ready()
-    if not runtime or runtime.runtime_rebuild_in_progress then
-        return
-    end
+    recalculate_gui_next_refresh_tick(gui_state)
 
     local player_groups = {}
     for player_index, _ in pairs(due_players) do
@@ -1233,6 +1295,56 @@ function model.get_runtime_status()
 
     ei_runtime_scheduler.set_module_status(MODULE_NAME, status)
     return status
+end
+
+
+function model.get_due_gui_refresh_count(event)
+    local gui_state = storage and storage.ei and storage.ei.matter_stabilizer_gui or nil
+    local open_by_player = type(gui_state) == "table" and gui_state.open_by_player or nil
+    if type(open_by_player) ~= "table" or next(open_by_player) == nil then
+        return 0
+    end
+
+    local tick = now_tick(event and event.tick)
+    local next_refresh_tick = tonumber(gui_state.next_refresh_tick) or recalculate_gui_next_refresh_tick(gui_state)
+    if next_refresh_tick <= 0 or next_refresh_tick > tick then
+        return 0
+    end
+
+    return count_due_bucket_items(gui_state.refresh_buckets, tick)
+end
+
+
+function model.get_pending_work_count(event)
+    local runtime = storage and storage.ei and storage.ei.matter_runtime or nil
+    if type(runtime) ~= "table" then
+        return 1
+    end
+
+    if runtime.runtime_rebuild_in_progress then
+        return 0
+    end
+
+    if runtime.version ~= MATTER_RUNTIME_VERSION
+        or runtime.needs_rebuild == true
+        or not runtime.machine_surface_queues
+        or not runtime.active_surfaces
+    then
+        return 1
+    end
+
+    local machine_count = tonumber(runtime.machine_count) or 0
+    if machine_count > 0 then
+        return machine_count
+    end
+
+    local due_gui_refresh_count = model.get_due_gui_refresh_count(event)
+    return due_gui_refresh_count > 0 and 1 or 0
+end
+
+
+function model.has_tick_work(event)
+    return model.get_pending_work_count(event) > 0
 end
 
 

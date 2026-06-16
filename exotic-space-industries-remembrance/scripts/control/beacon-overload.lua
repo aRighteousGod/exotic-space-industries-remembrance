@@ -15,6 +15,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local OVERLOAD_THRESHOLD = 4
 local DEFAULT_MAX_BEACON_RANGE = ei_data.beacon_range or 6
+local RULES_SIGNATURE_VERSION = 2
 local WORLD_BOOTSTRAP_CHUNK_DISCOVERY_PER_TICK = 1
 local WORLD_BOOTSTRAP_CHUNKS_PER_TICK = 4
 local TRACKED_REFRESH_BUDGET = 8
@@ -118,6 +119,17 @@ local function ensure_state()
     state.compat.machine_exclusions = state.compat.machine_exclusions or {}
     state.compat.beacon_exclusions = state.compat.beacon_exclusions or {}
     state.compat.beacon_weights = state.compat.beacon_weights or {}
+    if state.rules_signature ~= nil then
+        state.rules_signature = tostring(state.rules_signature)
+    end
+    if state.rules_signature_version ~= nil then
+        local signature_version = tonumber(state.rules_signature_version)
+        state.rules_signature_version = signature_version and math.floor(signature_version) or nil
+    end
+    if state.max_counted_beacon_range ~= nil then
+        local max_counted_beacon_range = tonumber(state.max_counted_beacon_range)
+        state.max_counted_beacon_range = max_counted_beacon_range and math.max(0, max_counted_beacon_range) or nil
+    end
     state.debug = state.debug or {}
     state.debug.enabled = state.debug.enabled == true
     if state.debug.auto_arm == nil then
@@ -208,11 +220,11 @@ local function expand_area(area, range)
     }
 end
 
-local function point_in_area(position, area)
-    return position.x >= area.left_top.x
-        and position.x <= area.right_bottom.x
-        and position.y >= area.left_top.y
-        and position.y <= area.right_bottom.y
+local function areas_overlap(a, b)
+    return a.left_top.x <= b.right_bottom.x
+        and a.right_bottom.x >= b.left_top.x
+        and a.left_top.y <= b.right_bottom.y
+        and a.right_bottom.y >= b.left_top.y
 end
 
 local function is_machine_name_excluded(state, name)
@@ -230,6 +242,278 @@ local function get_beacon_weight(state, name)
     end
 
     return DEFAULT_BEACON_WEIGHTS[name] or 1
+end
+
+local function sorted_keys(tbl)
+    local keys = {}
+    if type(tbl) ~= "table" then
+        return keys
+    end
+
+    for key in pairs(tbl) do
+        keys[#keys + 1] = tostring(key)
+    end
+
+    table.sort(keys)
+    return keys
+end
+
+local function merge_rule_keys(defaults, compat)
+    local seen = {}
+    for key in pairs(defaults or {}) do
+        seen[tostring(key)] = true
+    end
+    for key in pairs(compat or {}) do
+        seen[tostring(key)] = true
+    end
+    return sorted_keys(seen)
+end
+
+local function hash_update(hash, value)
+    local text = tostring(value)
+    for i = 1, #text do
+        hash = ((hash * 33) + string.byte(text, i)) % 4294967296
+    end
+
+    return hash
+end
+
+local function hash_append(hash, value)
+    hash = hash_update(hash, type(value))
+    hash = hash_update(hash, "=")
+    hash = hash_update(hash, value == nil and "nil" or value)
+    return hash_update(hash, "\31")
+end
+
+local function format_signature_number(value)
+    return string.format("%.8f", tonumber(value) or 0)
+end
+
+local function get_entity_prototypes()
+    if prototypes and prototypes.entity then
+        return prototypes.entity
+    end
+
+    if game then
+        local ok, entity_prototypes = pcall(function()
+            return game.entity_prototypes
+        end)
+        if ok then
+            return entity_prototypes
+        end
+    end
+
+    return nil
+end
+
+local function get_quality_prototypes()
+    if prototypes and prototypes.quality then
+        return prototypes.quality
+    end
+
+    if game then
+        local ok, quality_prototypes = pcall(function()
+            return game.quality_prototypes
+        end)
+        if ok then
+            return quality_prototypes
+        end
+    end
+
+    return nil
+end
+
+local function get_quality_names()
+    local quality_names = {}
+    local quality_prototypes = get_quality_prototypes()
+    if quality_prototypes then
+        for name, quality in pairs(quality_prototypes) do
+            quality_names[#quality_names + 1] = tostring((quality and quality.name) or name)
+        end
+    end
+
+    if #quality_names == 0 then
+        quality_names[1] = "normal"
+    end
+
+    table.sort(quality_names)
+    return quality_names
+end
+
+local function get_prototype_supply_area_distance(prototype, quality_name)
+    if not prototype then
+        return 0
+    end
+
+    if prototype.get_supply_area_distance then
+        local ok, range = pcall(function()
+            return prototype.get_supply_area_distance(quality_name)
+        end)
+        if ok and range ~= nil then
+            return tonumber(range) or 0
+        end
+    end
+
+    return tonumber(prototype.supply_area_distance) or 0
+end
+
+local function prototype_allows_effects(prototype)
+    local effect_receiver = prototype and prototype.effect_receiver or nil
+    if effect_receiver and effect_receiver.uses_beacon_effects == false then
+        return false
+    end
+
+    local effects = prototype and prototype.allowed_effects or nil
+    if not effects then
+        return false
+    end
+
+    for _, enabled in pairs(effects) do
+        if enabled == true then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function box_coordinate(box, corner, axis)
+    local corner_value = box and box[corner]
+    if not corner_value then
+        return 0
+    end
+
+    return tonumber(corner_value[axis]) or 0
+end
+
+local function append_effective_bool_map(hash, label, defaults, compat)
+    local keys = merge_rule_keys(defaults, compat)
+    hash = hash_append(hash, label)
+    hash = hash_append(hash, #keys)
+    for _, name in ipairs(keys) do
+        hash = hash_append(hash, name)
+        hash = hash_append(hash, defaults[name] == true or compat[name] == true)
+    end
+
+    return hash
+end
+
+local function append_effective_weight_map(hash, label, defaults, compat)
+    local keys = merge_rule_keys(defaults, compat)
+    hash = hash_append(hash, label)
+    hash = hash_append(hash, #keys)
+    for _, name in ipairs(keys) do
+        local compat_weight = compat[name]
+        hash = hash_append(hash, name)
+        hash = hash_append(hash, tonumber(compat_weight or defaults[name] or 1) or 1)
+    end
+
+    return hash
+end
+
+local function build_rules_signature(state)
+    local hash = 5381
+    local max_counted_beacon_range = 0
+    local quality_names = get_quality_names()
+    local entity_prototypes = get_entity_prototypes()
+
+    hash = hash_append(hash, "beacon-overload-rules")
+    hash = hash_append(hash, RULES_SIGNATURE_VERSION)
+    hash = hash_append(hash, OVERLOAD_THRESHOLD)
+    hash = hash_append(hash, read_overload_enabled_config() == true)
+    hash = append_effective_bool_map(hash, "machine-exclusions", DEFAULT_MACHINE_EXCLUSIONS, state.compat.machine_exclusions)
+    hash = append_effective_bool_map(hash, "beacon-exclusions", DEFAULT_BEACON_EXCLUSIONS, state.compat.beacon_exclusions)
+    hash = append_effective_weight_map(hash, "beacon-weights", DEFAULT_BEACON_WEIGHTS, state.compat.beacon_weights)
+    hash = hash_append(hash, "qualities")
+    hash = hash_append(hash, #quality_names)
+    for _, quality_name in ipairs(quality_names) do
+        hash = hash_append(hash, quality_name)
+    end
+
+    if not entity_prototypes then
+        hash = hash_append(hash, "entity-prototypes-unavailable")
+        return string.format("%08x", hash), DEFAULT_MAX_BEACON_RANGE
+    end
+
+    local beacon_names = {}
+    local machine_names = {}
+    for name, prototype in pairs(entity_prototypes) do
+        local prototype_type = prototype and prototype.type or nil
+        if prototype_type == "beacon" then
+            beacon_names[#beacon_names + 1] = tostring(name)
+        elseif ELIGIBLE_MACHINE_TYPES[prototype_type] then
+            machine_names[#machine_names + 1] = tostring(name)
+        end
+    end
+
+    table.sort(beacon_names)
+    table.sort(machine_names)
+
+    hash = hash_append(hash, "beacon-prototypes")
+    hash = hash_append(hash, #beacon_names)
+    for _, name in ipairs(beacon_names) do
+        local prototype = entity_prototypes[name]
+        local excluded = is_beacon_name_excluded(state, name)
+        local weight = get_beacon_weight(state, name)
+
+        hash = hash_append(hash, name)
+        hash = hash_append(hash, prototype and prototype.type or "")
+        hash = hash_append(hash, excluded)
+        hash = hash_append(hash, weight)
+
+        for _, quality_name in ipairs(quality_names) do
+            local range = get_prototype_supply_area_distance(prototype, quality_name)
+            hash = hash_append(hash, quality_name)
+            hash = hash_append(hash, format_signature_number(range))
+            if not excluded and weight and range > 0 then
+                max_counted_beacon_range = math.max(max_counted_beacon_range, range)
+            end
+        end
+    end
+
+    hash = hash_append(hash, "machine-prototypes")
+    hash = hash_append(hash, #machine_names)
+    for _, name in ipairs(machine_names) do
+        local prototype = entity_prototypes[name]
+        local collision_box = prototype and prototype.collision_box or nil
+
+        hash = hash_append(hash, name)
+        hash = hash_append(hash, prototype and prototype.type or "")
+        hash = hash_append(hash, is_machine_name_excluded(state, name))
+        hash = hash_append(hash, prototype_allows_effects(prototype))
+        hash = hash_append(hash, format_signature_number(box_coordinate(collision_box, "left_top", "x")))
+        hash = hash_append(hash, format_signature_number(box_coordinate(collision_box, "left_top", "y")))
+        hash = hash_append(hash, format_signature_number(box_coordinate(collision_box, "right_bottom", "x")))
+        hash = hash_append(hash, format_signature_number(box_coordinate(collision_box, "right_bottom", "y")))
+    end
+
+    return string.format("%08x", hash), (max_counted_beacon_range > 0 and max_counted_beacon_range or DEFAULT_MAX_BEACON_RANGE)
+end
+
+local function store_rules_signature(state, rules_signature, max_counted_beacon_range)
+    state.rules_signature = rules_signature
+    state.rules_signature_version = RULES_SIGNATURE_VERSION
+    state.max_counted_beacon_range = max_counted_beacon_range or DEFAULT_MAX_BEACON_RANGE
+end
+
+local function refresh_rules_signature_cache(state)
+    local rules_signature, max_counted_beacon_range = build_rules_signature(state)
+    store_rules_signature(state, rules_signature, max_counted_beacon_range)
+    return rules_signature, max_counted_beacon_range
+end
+
+local function refresh_max_counted_beacon_range(state)
+    local _, max_counted_beacon_range = build_rules_signature(state)
+    state.max_counted_beacon_range = max_counted_beacon_range or DEFAULT_MAX_BEACON_RANGE
+    return state.max_counted_beacon_range
+end
+
+local function get_recount_search_range(state)
+    if not state.max_counted_beacon_range then
+        return refresh_max_counted_beacon_range(state)
+    end
+
+    return state.max_counted_beacon_range
 end
 
 local function reset_queue_section(queue_section)
@@ -480,6 +764,10 @@ local function build_debug_status(state, phase, reason, elapsed_text)
         icon_audit_cursor = state.icon_audit_cursor,
         release_cursor = state.release_cursor,
         heartbeat_tick = state.debug.last_heartbeat_tick or 0,
+        config_action = state.debug.last_config_action,
+        rules_signature = state.rules_signature,
+        rules_signature_version = state.rules_signature_version,
+        max_counted_beacon_range = state.max_counted_beacon_range,
         elapsed = elapsed_text,
         phase_timings = state.debug.phase_timings or {},
     }
@@ -502,6 +790,10 @@ local function format_debug_status(snapshot)
         "surface=" .. value_to_string(snapshot.current_surface_index),
         "cursors(tr=" .. value_to_string(snapshot.tracked_refresh_cursor) .. ",ta=" .. value_to_string(snapshot.tracked_audit_cursor) .. ",ia=" .. value_to_string(snapshot.icon_audit_cursor) .. ",re=" .. value_to_string(snapshot.release_cursor) .. ")",
         "heartbeat=" .. value_to_string(snapshot.heartbeat_tick),
+        "config_action=" .. value_to_string(snapshot.config_action),
+        "rules=" .. value_to_string(snapshot.rules_signature),
+        "rules_version=" .. value_to_string(snapshot.rules_signature_version),
+        "max_beacon_range=" .. value_to_string(snapshot.max_counted_beacon_range),
     }
 
     if snapshot.elapsed ~= nil then
@@ -810,12 +1102,21 @@ local function get_beacon_range(entity)
     return proto.supply_area_distance or 0
 end
 
-local function beacon_counts_for_overload(state, entity)
+local function beacon_weight_for_overload(state, entity)
     if not model.entity_check(entity) or entity.type ~= "beacon" then
-        return nil, 0
+        return nil
     end
 
     if is_beacon_name_excluded(state, entity.name) then
+        return nil
+    end
+
+    return get_beacon_weight(state, entity.name)
+end
+
+local function beacon_counts_for_overload(state, entity)
+    local weight = beacon_weight_for_overload(state, entity)
+    if not weight then
         return nil, 0
     end
 
@@ -824,7 +1125,7 @@ local function beacon_counts_for_overload(state, entity)
         return nil, 0
     end
 
-    return get_beacon_weight(state, entity.name), range
+    return weight, range
 end
 
 local function chunk_generated(surface, chunk_x, chunk_y)
@@ -966,7 +1267,30 @@ local function update_machine_state(state, entity, should_overload)
     end
 end
 
-local function recount_machine(state, entity)
+local function recount_machine_from_engine(state, entity)
+    if not model.entity_check(entity) then
+        return nil
+    end
+
+    local ok, beacons = pcall(function()
+        return entity.get_beacons()
+    end)
+    if not ok or type(beacons) ~= "table" then
+        return nil
+    end
+
+    local total = 0
+    for _, beacon in ipairs(beacons) do
+        local weight = beacon_weight_for_overload(state, beacon)
+        if weight then
+            total = total + weight
+        end
+    end
+
+    return total
+end
+
+local function recount_machine_spatial_fallback(state, entity)
     if not model.entity_check(entity) then
         return 0
     end
@@ -977,18 +1301,31 @@ local function recount_machine(state, entity)
         return 0
     end
 
-    local search_area = expand_area(bbox, DEFAULT_MAX_BEACON_RANGE)
+    local search_area = expand_area(bbox, get_recount_search_range(state))
     local candidates = surface.find_entities_filtered { area = search_area, type = "beacon" }
 
     local total = 0
     for _, beacon in ipairs(candidates) do
         local weight, range = beacon_counts_for_overload(state, beacon)
-        if weight and point_in_area(beacon.position, expand_area(bbox, range)) then
+        if weight and beacon.bounding_box and areas_overlap(expand_area(beacon.bounding_box, range), bbox) then
             total = total + weight
         end
     end
 
     return total
+end
+
+local function recount_machine(state, entity)
+    if not model.entity_check(entity) then
+        return 0
+    end
+
+    local engine_count = recount_machine_from_engine(state, entity)
+    if engine_count ~= nil then
+        return engine_count
+    end
+
+    return recount_machine_spatial_fallback(state, entity)
 end
 
 local function process_machine_refresh(state, entity)
@@ -1009,36 +1346,6 @@ local function process_machine_refresh(state, entity)
     local count = recount_machine(state, entity)
     state.machine_counts[unit_number] = count
     update_machine_state(state, entity, count > OVERLOAD_THRESHOLD)
-end
-
-local function apply_beacon_delta_to_machine(state, entity, delta, destroy_type)
-    if not model.entity_check(entity) then
-        return
-    end
-
-    if not model.counts_for_overload(entity, state) then
-        remove_machine_tracking(state, entity, true)
-        return
-    end
-
-    if not track_machine(state, entity) then
-        return
-    end
-
-    local unit_number = get_entity_unit_number(entity)
-    local current_count = state.machine_counts[unit_number]
-    if current_count == nil then
-        current_count = recount_machine(state, entity)
-        if delta < 0 and destroy_type == "pre" then
-            current_count = current_count + delta
-        end
-    else
-        current_count = current_count + delta
-    end
-
-    current_count = math.max(0, current_count)
-    state.machine_counts[unit_number] = current_count
-    update_machine_state(state, entity, current_count > OVERLOAD_THRESHOLD)
 end
 
 local function process_chunk_scan(state, chunk_entry)
@@ -1181,7 +1488,13 @@ function model.allows_effects(entity)
         return false
     end
 
-    local effects = entity.prototype and entity.prototype.allowed_effects
+    local prototype = entity.prototype
+    local effect_receiver = prototype and prototype.effect_receiver or nil
+    if effect_receiver and effect_receiver.uses_beacon_effects == false then
+        return false
+    end
+
+    local effects = prototype and prototype.allowed_effects
     if not effects then
         return false
     end
@@ -1232,6 +1545,7 @@ function model.refresh_all_overloads(reason)
         return
     end
 
+    refresh_rules_signature_cache(state)
     enqueue_world_rebuild(state, reason)
 end
 
@@ -1250,6 +1564,7 @@ function model.refresh_tracked_overloads(reason)
         return
     end
 
+    refresh_rules_signature_cache(state)
     enqueue_tracked_refresh(state, reason)
 end
 
@@ -1270,30 +1585,59 @@ function model.update_overload(entity, state)
     process_machine_refresh(state, entity)
 end
 
-function model.update_all_machines_in_range(entity, destroy_type, beacon_value, state)
+function model.update_all_machines_in_range(entity, _destroy_type, _beacon_value, state)
     if not model.entity_check(entity) then
         return
     end
 
     state = state or ensure_state()
+    local candidates = {}
+    local seen = {}
+
+    local function add_candidate(machine)
+        if not model.entity_check(machine) then
+            return
+        end
+
+        local unit_number = get_entity_unit_number(machine)
+        if not unit_number or seen[unit_number] then
+            return
+        end
+
+        seen[unit_number] = true
+        candidates[#candidates + 1] = machine
+    end
+
+    local ok, receivers = pcall(function()
+        return entity.get_beacon_effect_receivers()
+    end)
+    if ok and type(receivers) == "table" then
+        for _, machine in ipairs(receivers) do
+            add_candidate(machine)
+        end
+    end
+
     local _, range = beacon_counts_for_overload(state, entity)
-    if range <= 0 then
-        return
-    end
-
     local bbox = entity.bounding_box
-    if not bbox then
-        return
+    if range > 0 and bbox then
+        local machines = entity.surface.find_entities_filtered {
+            area = expand_area(bbox, range),
+            type = REBUILD_MACHINE_TYPES,
+        }
+
+        for _, machine in ipairs(machines) do
+            add_candidate(machine)
+        end
     end
 
-    local machines = entity.surface.find_entities_filtered {
-        area = expand_area(bbox, range),
-        type = { "assembling-machine", "furnace", "lab", "rocket-silo", "mining-drill" },
-    }
-
-    local delta = beacon_value or get_beacon_weight(state, entity.name)
-    for _, machine in ipairs(machines) do
-        apply_beacon_delta_to_machine(state, machine, delta, destroy_type)
+    for _, machine in ipairs(candidates) do
+        if model.counts_for_overload(machine, state) then
+            if track_machine(state, machine) then
+                queue_machine_for_refresh(state, machine)
+            end
+        else
+            remove_machine_tracking(state, machine, true)
+        end
     end
 end
 
@@ -1392,6 +1736,7 @@ function model.on_configuration_changed(e)
     local state = ensure_state()
     local reason = "configuration-changed"
     maybe_auto_arm_debug(state, reason, true)
+    state.debug.last_config_action = nil
     log_debug_status(state, "config-change-entry", reason, nil)
 
     with_profiled_phase(state, "config-change", reason, function()
@@ -1399,18 +1744,45 @@ function model.on_configuration_changed(e)
         local enabled = sync_overload_enabled_cache(state)
         local mod_changes_present = e and next(e.mod_changes or {}) ~= nil or false
         local startup_settings_changed = e and e.mod_startup_settings_changed or false
+        local previous_rules_signature = state.rules_signature
+        local previous_rules_signature_version = state.rules_signature_version
 
         if not enabled then
+            local rules_signature, max_counted_beacon_range = build_rules_signature(state)
+            store_rules_signature(state, rules_signature, max_counted_beacon_range)
             if next(state.overloaded_units) ~= nil then
+                state.debug.last_config_action = "disabled-release"
                 release_owned_overloads(state, reason .. "-disabled")
             else
+                state.debug.last_config_action = "disabled-clear"
                 clear_refresh_mode(state)
             end
             return
         end
 
-        if previous_enabled == false or mod_changes_present or startup_settings_changed then
+        if previous_enabled == false then
+            refresh_rules_signature_cache(state)
+            state.debug.last_config_action = "rebuild-enabled"
             enqueue_world_rebuild(state, reason)
+            return
+        end
+
+        if mod_changes_present or startup_settings_changed then
+            local rules_signature, max_counted_beacon_range = build_rules_signature(state)
+            local rules_changed = previous_rules_signature_version ~= RULES_SIGNATURE_VERSION
+                or previous_rules_signature == nil
+                or previous_rules_signature ~= rules_signature
+
+            store_rules_signature(state, rules_signature, max_counted_beacon_range)
+            if rules_changed then
+                state.debug.last_config_action = "rebuild-rules-changed"
+                enqueue_world_rebuild(state, reason)
+            else
+                state.debug.last_config_action = "skip-rules-unchanged"
+                log_debug_status(state, "config-change-skip", reason, nil)
+            end
+        else
+            state.debug.last_config_action = "skip-no-relevant-change"
         end
     end)
 
@@ -1544,9 +1916,9 @@ function model.on_built_entity(entity)
         return
     end
 
-    local weight = beacon_counts_for_overload(state, entity)
+    local weight = beacon_weight_for_overload(state, entity)
     if weight then
-        model.update_all_machines_in_range(entity, nil, weight, state)
+        model.update_all_machines_in_range(entity, nil, nil, state)
     end
 end
 
@@ -1575,9 +1947,9 @@ function model.on_destroyed_entity(entity, destroy_type)
         return
     end
 
-    local weight = entity.valid and beacon_counts_for_overload(state, entity) or nil
+    local weight = entity.valid and beacon_weight_for_overload(state, entity) or nil
     if weight then
-        model.update_all_machines_in_range(entity, destroy_type, -weight, state)
+        model.update_all_machines_in_range(entity, destroy_type, nil, state)
     end
 end
 

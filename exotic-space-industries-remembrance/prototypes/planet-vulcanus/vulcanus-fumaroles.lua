@@ -46,11 +46,11 @@ end
 
 local steam_icon = icon_data(data.raw.fluid["steam"], "__base__/graphics/icons/fluid/steam.png", 64)
 local sulfuric_acid_icon = icon_data(data.raw.fluid["sulfuric-acid"], "__base__/graphics/icons/fluid/sulfuric-acid.png", 64)
-local crushed_slag_item_icon = ei_path.."graphics/items/crushed-slag.png"
-local auric_slag_icon_1 = ei_path.."graphics/items/auric-slag-1.png"
-local auric_slag_icon_2 = ei_path.."graphics/items/auric-slag-2.png"
-local auric_slag_icon_3 = ei_path.."graphics/items/auric-slag-3.png"
-local carbide_core_item_icon = ei_path.."graphics/items/carbide-precipitation-core.png"
+local crushed_slag_item_icon = ei_graphics_item_4_path.."crushed-slag.png"
+local auric_slag_icon_1 = ei_graphics_item_4_path.."auric-slag-1.png"
+local auric_slag_icon_2 = ei_graphics_item_4_path.."auric-slag-2.png"
+local auric_slag_icon_3 = ei_graphics_item_4_path.."auric-slag-3.png"
+local carbide_core_item_icon = ei_graphics_item_4_path.."carbide-precipitation-core.png"
 
 local auric_slag_recipe_icon_2 = {icon = auric_slag_icon_2, icon_size = 64, icon_mipmaps = 4}
 local auric_slag_recipe_icon_3 = {icon = auric_slag_icon_3, icon_size = 64, icon_mipmaps = 4}
@@ -100,7 +100,7 @@ auric_fumarole.working_sound = {
         category = "world-ambient",
         variations = {
             {
-                filename = ei_path.."sounds/auric-fumarole.ogg",
+                filename = ei_sounds_4_path.."auric-fumarole.ogg",
                 volume = 0.3,
             },
         },

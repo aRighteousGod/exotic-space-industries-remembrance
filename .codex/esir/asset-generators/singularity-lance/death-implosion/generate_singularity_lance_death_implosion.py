@@ -17,8 +17,8 @@ LINE_LENGTH = 8
 ROWS = 6
 SEED = 506050707
 
-NORMAL_FILENAME = "ei-singularity-lance-death-implosion.png"
-GLOW_FILENAME = "ei-singularity-lance-death-implosion-glow.png"
+NORMAL_FILENAME = "singularity-lance-death-implosion.png"
+GLOW_FILENAME = "singularity-lance-death-implosion-glow.png"
 
 
 def find_repo_root(start: Path) -> Path:

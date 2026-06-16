@@ -32,10 +32,13 @@ local function plasma_firing_sound(volume_scale, aggregation_max_count)
     end
 
     return {
+        category = "weapon",
         aggregation = {
             max_count = aggregation_max_count or 40,
             remove = true,
+            count_already_playing = true,
         },
+        audible_distance_modifier = 1.0,
         variations = variations,
     }
 end
@@ -395,10 +398,13 @@ data:extend({
             size = 125
         },
         sound = {
+            category = "weapon",
             aggregation = {
                 max_count = 40,
-                remove = true
+                remove = true,
+                count_already_playing = true,
             },
+            audible_distance_modifier = 1.0,
             variations = {
                 {
                     filename = ei_graphics_2_path.."sounds/weapons/plasma_bullet_explosion_1.ogg",

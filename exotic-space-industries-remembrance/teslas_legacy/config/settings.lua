@@ -1,7 +1,16 @@
-﻿function get_settings()
+local function get_sound_volume(setting_name)
+  return settings.startup[setting_name].value / 100
+end
+
+function get_settings()
   return
   {
     behavior_mode = settings.startup["ei-tl-behavior-mode"].value,
+    sound =
+    {
+      basic_volume = get_sound_volume("tl-basic-sound-volume"),
+      advanced_volume = get_sound_volume("tl-advanced-sound-volume"),
+    },
     text = {
 	  
       critical = settings.startup["tl-flying-text-critical"].value,

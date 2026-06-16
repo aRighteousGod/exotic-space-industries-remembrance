@@ -17,8 +17,8 @@ LINE_LENGTH = 8
 ROWS = 6
 SEED = 505030805
 
-NORMAL_FILENAME = "ei-gaian-saucer-death-rupture.png"
-GLOW_FILENAME = "ei-gaian-saucer-death-rupture-glow.png"
+NORMAL_FILENAME = "gaian-saucer-death-rupture.png"
+GLOW_FILENAME = "gaian-saucer-death-rupture-glow.png"
 
 
 def find_repo_root(start: Path) -> Path:
@@ -269,9 +269,9 @@ def make_preview(normal_frames: list[Image.Image], glow_frames: list[Image.Image
         shade = 38 + (x // 26) % 2 * 8
         draw.rectangle((x, 0, x + 25, canvas.height), fill=(shade, 34, 35, 255))
 
-    saucer = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact.png")
-    saucer_glow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_glow.png")
-    saucer_shadow = first_frame(SAUCER_DIR / "ei-gaian-saucer_dark_compact_shadow.png")
+    saucer = first_frame(SAUCER_DIR / "gaian-saucer_dark_compact.png")
+    saucer_glow = first_frame(SAUCER_DIR / "gaian-saucer_dark_compact_glow.png")
+    saucer_shadow = first_frame(SAUCER_DIR / "gaian-saucer_dark_compact_shadow.png")
     center = (390, 176)
     frame_index = 18
     paste_scaled(canvas, glow_frames[frame_index], 0.52, center, 0.95)

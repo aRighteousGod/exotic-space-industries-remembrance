@@ -57,7 +57,7 @@ data:extend(
 		results = {
 			{type="item", name="ei-stone-well-pump", amount=1},
 		},
-		enabled = true,
+		enabled = false,
 	},
 	{
 		type = "item",

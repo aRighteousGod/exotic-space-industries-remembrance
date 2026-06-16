@@ -9,6 +9,8 @@
 
 `output/` is ignored staging. If an asset needs a reusable generator, replay script, hand-written prompt, or promotion note, keep that source under `.codex/esir/asset-generators/` or `.codex/esir/art-prompts/`; generated manifests, snippets, galleries, and previews stay under `output/` unless deliberately promoted as provenance.
 
+For main-pack shipping graphics, use no-prefix graphics roots such as `threshold-array` for filenames and destination directories. Keep `ei-*` for prototype names by passing `--target-prototype-name ei-threshold-array` during staging and `promote --prototype-name ei-threshold-array` during promotion.
+
 ## Entity Mode
 
 Use `entity` for static entity pictures, simple `animation` tables, directional sheets, or draft rotated-animation snippets.
@@ -87,7 +89,7 @@ A promoted color mask layer should be a separate neutral/white sprite or animati
 
 ```lua
 {
-    filename = ei_graphics_entity_path.."ei-example-mask.png",
+    filename = ei_graphics_entity_path.."example-mask.png",
     flags = {"mask"},
     size = {384, 384},
     width = 384,
@@ -124,9 +126,9 @@ Use `promote` only after the staged preview and snippet have been inspected. Def
 
 ```powershell
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py promote `
-  --manifest output/meshy/ei-example/factorio-export/ei-example.factorio-asset-manifest.json `
+  --manifest output/meshy/example/factorio-export/example.factorio-asset-manifest.json `
   --copy-assets `
-  --graphics-destination exotic-space-industries-remembrance/graphics/entity/ei-example
+  --graphics-destination exotic-space-industries-remembrance/graphics/entity/example
 ```
 
 Promotion safeguards:
@@ -135,7 +137,7 @@ Promotion safeguards:
 - `--copy-assets` requires an explicit `--graphics-destination`.
 - `--apply-prototype` requires `--prototype-file`, `--prototype-type`, `--prototype-name`, and `--field`.
 - `--expected-asset-count` fails the plan if the manifest exposes more or fewer promotable PNGs than expected.
-- `--require-prototype-identity` requires the target Lua file to mention the requested prototype type and name before patching.
+- `--require-prototype-identity` requires the target Lua file to mention the requested prototype type and name before patching. It does not require manifest `asset_name` to match `--prototype-name`; explicit manifest prototype metadata is compared when present.
 - `--prototype-integration data-raw-assignment` wraps the generated snippet in a guarded `data.raw["type"]["name"]` assignment for explicit data-stage integration.
 - Prototype patching replaces only a marker block:
 
@@ -177,6 +179,6 @@ These options add comments to the snippet and `prototype_template` metadata to t
 - Prefer readable silhouettes over maximum texture detail.
 - Treat generated assets as drafts until checked in-game.
 - Prefer local Factorio preset render bundles for Blender/Meshy sprites. Non-preset single-sheet exports are review drafts unless the user explicitly requested that route.
-- Keep staged filenames close to the final prototype name, usually `ei-...`.
+- Keep staged output roots and final graphics directories close to the visible asset role; leave the leading prototype prefix off main-pack shipping graphics.
 - Generated snippets are fragments, not automatic prototype edits.
 - Existing ESIR snippets commonly use `size`, `width`, `height`, `shift`, `scale`, `line_length`, and `frame_count`; this skill keeps those fields visible so hand-tuning stays straightforward.

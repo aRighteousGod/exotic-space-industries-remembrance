@@ -21,6 +21,18 @@ if a3 then
     a3.energy_source.emissions_per_minute.pollution = 4 --def 2
 end
 
+local offshore_pumps = ei_lib.raw["offshore-pump"]
+local offshore_pump = offshore_pumps and offshore_pumps["offshore-pump"]
+if offshore_pump then
+    offshore_pump.energy_source = {
+        type = "electric",
+        usage_priority = "secondary-input",
+    }
+    offshore_pump.energy_usage = "60kW"
+    offshore_pump.pumping_speed = 20
+    offshore_pump.collision_box = {{-0.32, -1.05}, {0.32, 0.05}}
+end
+
 -- set fluid burn values for crude, light, heavy - oil and petrol
 ei_lib.raw["fluid"]["crude-oil"] = {
     fuel_value = "100kJ",
@@ -244,8 +256,8 @@ ei_lib.raw["item"]["nuclear-reactor"].order = "b-a"
 ei_lib.raw["mining-drill"]["big-mining-drill"].energy_usage = "2MW"
 --adjust furnaces energy usage
 local stf = ei_lib.raw["furnace"]["stone-furnace"] or ei_lib.raw["assembling-machine"]["stone-furnace"]
-if sf then
-    sf.energy_usage = "135kW"
+if stf then
+    stf.energy_usage = "135kW"
 end
 local sf = ei_lib.raw["furnace"]["steel-furnace"] or ei_lib.raw["assembling-machine"]["steel-furnace"]
 if sf then
@@ -361,6 +373,7 @@ local modify_collision_projectiles = {
     "uranium-cannon-projectile",
     "shotgun-pellet",
     "piercing-shotgun-pellet",
+    "ei-uranium-shotgun-pellet",
     "ei-dragons-breath-shotgun-pellet",
 }
 local collision_mask = {
@@ -535,6 +548,19 @@ end
 
 ei_lib.raw["generator-equipment"]["fission-reactor-equipment"].energy_source.usage_priority = "secondary-output"
 ei_lib.raw["item"]["fission-reactor-equipment"].order = "a[energy-source]-g[fission-reactor-equipment]"
+ei_lib.recipe_remove("fusion-reactor-equipment", "fusion-power-cell")
+local fusion_reactor_equipment = data.raw["generator-equipment"]["fusion-reactor-equipment"]
+if fusion_reactor_equipment then
+    fusion_reactor_equipment.power = "12MW"
+    fusion_reactor_equipment.burner = {
+        type = "burner",
+        effectivity = 1.0,
+        fuel_categories = {"fusion"},
+        fuel_inventory_size = 3,
+        burnt_inventory_size = 1,
+    }
+    fusion_reactor_equipment.energy_source.usage_priority = "secondary-output"
+end
 
 -- sort uranium 235/238 in the nuclear tab
 ei_lib.raw["item"]["uranium-235"].subgroup = "ei-nuclear-processing"
@@ -597,17 +623,17 @@ ei_lib.raw.module["productivity-module-3"].effect = {
 }
 
 ei_lib.raw.module["speed-module"].effect = {
-    consumption = 0.1,
+    consumption = 0.40,
     speed = 0.3
 }
 
 ei_lib.raw.module["speed-module-2"].effect = {
-    consumption = 0.2,
+    consumption = 0.60,
     speed = 0.4
 }
 
 ei_lib.raw.module["speed-module-3"].effect = {
-    consumption = 0.3,
+    consumption = 0.80,
     speed = 0.5
 }
 

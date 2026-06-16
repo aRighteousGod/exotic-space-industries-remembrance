@@ -11,8 +11,8 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 
 ASSET_NAME = "ei-singularity-lance-base-render"
-BODY_FILENAME = "ei-singularity-lance.png"
-BASE_SHADOW_FILENAME = "ei-singularity-lance_base-shadow.png"
+BODY_FILENAME = "singularity-lance.png"
+BASE_SHADOW_FILENAME = "singularity-lance_base-shadow.png"
 FRAME_SIZE = 768
 PYRAMID_CONTACT_POINT = (384, 428)
 
@@ -46,7 +46,7 @@ RENDER_DIR = ROOT / "render"
 GRAPHICS_DIR = REPO_ROOT / "exotic-space-industries-remembrance" / "graphics" / "entities" / "singularity-lance"
 BODY_OUTPUT = EXPORT_DIR / BODY_FILENAME
 SHADOW_OUTPUT = EXPORT_DIR / BASE_SHADOW_FILENAME
-TIP_OUTPUT = EXPORT_DIR / "ei-singularity-lance-tip-plug-overlay.png"
+TIP_OUTPUT = EXPORT_DIR / "singularity-lance-tip-plug-overlay.png"
 PROMOTED_BODY = GRAPHICS_DIR / BODY_FILENAME
 PROMOTED_SHADOW = GRAPHICS_DIR / BASE_SHADOW_FILENAME
 BODY_GLB = PREPARED_DIR / "ei-singularity-lance-base-faceclip-body.glb"
@@ -360,13 +360,13 @@ def make_preview(body_path: Path, shadow_path: Path) -> None:
     shadow.save(shadow_path)
 
     composite = Image.alpha_composite(shadow, body)
-    composite.save(PREVIEW_DIR / "ei-singularity-lance-base-composite.png")
+    composite.save(PREVIEW_DIR / "singularity-lance-base-composite.png")
 
     tip_box = (315, 360, 455, 455)
     composite.crop(tip_box).resize(
         ((tip_box[2] - tip_box[0]) * 4, (tip_box[3] - tip_box[1]) * 4),
         Image.Resampling.NEAREST,
-    ).save(PREVIEW_DIR / "ei-singularity-lance-base-tip-check.png")
+    ).save(PREVIEW_DIR / "singularity-lance-base-tip-check.png")
 
     marker = Image.new("RGBA", body.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(marker)
@@ -377,10 +377,10 @@ def make_preview(body_path: Path, shadow_path: Path) -> None:
     marked.crop(tip_box).resize(
         ((tip_box[2] - tip_box[0]) * 4, (tip_box[3] - tip_box[1]) * 4),
         Image.Resampling.NEAREST,
-    ).save(PREVIEW_DIR / "ei-singularity-lance-base-tip-contact-marker.png")
+    ).save(PREVIEW_DIR / "singularity-lance-base-tip-contact-marker.png")
 
     body_crop = body.crop((250, 330, 520, 450)).resize((540, 240), Image.Resampling.NEAREST)
-    body_crop.save(PREVIEW_DIR / "ei-singularity-lance-base-upper-pyramid-2x.png")
+    body_crop.save(PREVIEW_DIR / "singularity-lance-base-upper-pyramid-2x.png")
 
 
 def render_factorio(input_glb: Path, output_dir: Path, passes: str, save_blend: Path) -> None:
