@@ -27,9 +27,9 @@ EXPECTED = {
 }
 
 TARGETS = {
-    "nuclear-locomotive": "exotic-space-industries-remembrance-graphics-4/graphics/entities/nuclear-locomotive",
-    "advanced-cargo-wagon": "exotic-space-industries-remembrance-graphics-4/graphics/entities/advanced-cargo-wagon",
-    "advanced-fluid-wagon": "exotic-space-industries-remembrance-graphics-4/graphics/entities/advanced-fluid-wagon",
+    "nuclear-locomotive": "exotic-space-industries-remembrance-graphics-5/graphics/entities/nuclear-locomotive",
+    "advanced-cargo-wagon": "exotic-space-industries-remembrance-graphics-5/graphics/entities/advanced-cargo-wagon",
+    "advanced-fluid-wagon": "exotic-space-industries-remembrance-graphics-5/graphics/entities/advanced-fluid-wagon",
 }
 
 RAW_RENDER_TARGETS = {

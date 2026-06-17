@@ -1,0 +1,2 @@
+Graphics and sounds moved from the main Exotic Space Industries: Remembrance gameplay pack.
+Project license and contributor attribution follow the main pack license, CREDITS.md, and CONTRIBUTORS.md.

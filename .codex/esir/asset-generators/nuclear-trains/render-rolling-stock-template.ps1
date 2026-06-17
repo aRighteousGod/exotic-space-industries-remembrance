@@ -27,7 +27,7 @@ $padScript = Join-Path $PSScriptRoot "pad-spritter-sheets.py"
 $spritter = Join-Path $repo "spritter.exe"
 $modelRoot = Join-Path $repo "models"
 $renderRoot = Join-Path $repo "output\meshy\nuclear-trains\rolling-stock-template"
-$graphicsRoot = Join-Path $repo "exotic-space-industries-remembrance-graphics-4\graphics\entities"
+$graphicsRoot = Join-Path $repo "exotic-space-industries-remembrance-graphics-5\graphics\entities"
 
 if (-not (Test-Path -LiteralPath $template)) {
     throw "Missing rolling stock template: $template"

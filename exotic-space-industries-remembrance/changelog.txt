@@ -1,8 +1,8 @@
 ﻿---------------------------------------------------------------------------------------------------
 Version: 1.3.36
-Date: 5-13-2026
+Date: 6-16-2026
   Features:
-    - Added Military 5: Simulated kill doctrine, directly unlocking Prediction snare mines and Breach solver charges, with follow-up Inferno grenade and Incinerator combat robot branches.
+    - Added Military 5 technology—unlocking Prediction snare mines and Breach solver charges, with follow-up Inferno grenade and Incinerator combat robot branches.
     - Added burner, steam, and electric offshore pump progression.
     - Added a presentation pass for visible player-placeable ESIR entities, filling missing hit effects, open/close sounds, and Factoriopedia simulations for machines, logistics, trains, combat entities, vehicles, and alien systems.
     - Added new rolling-stock sprites for the X1 "Goliath" nuclear locomotive and Black Ark advanced cargo wagon, including directional and elevated-rail slope coverage.
@@ -23,7 +23,7 @@ Date: 5-13-2026
     - Portable fusion reactor recipe inputs: Removed Fusion power cell.
     - Portable fission reactor recipe inputs: Removed Uranium-235 fuel rods and rebuilt the frame from low-density structure, lead shielding, electronic parts, energy crystals, and fission data.
     - Advanced cargo wagon cargo size: 40 -> 50.
-    - EM fluid wagon capacity: 50k -> 100k.
+    - EM fluid wagon capacity: 50 -> 100k.
     - Added Space Age-style sound caps and falloff metadata to ESIR-owned turret firing sounds.
     - Made further reductions to idle on_tick script UPS usage.
     - Speed module 1 energy consumption increase: 10% -> 40%.
@@ -59,7 +59,7 @@ Date: 5-13-2026
     - Emerald Apocalypse hover tank upgrade technologies now count as 1/4-weight side-upgrades for tech scaling, while the base tank unlock remains full weight.
     - Industrial combustion turbine solid mode now accepts rocket fuel.
     - Industrial combustion turbine fluid mode fuel effectivity: 300 -> 225%.
-    - Moved the remaining bundled graphics and sounds into the new Graphics 4 mod.
+    - Moved the remaining bundled graphics and sounds into the new Graphics 4 and 5 mods.
   Bugfixes:
     - Rocket launch pollution hover messages and startup setting options are now localized across supported locales.
     - Fixed that Steam pumps initial starting steam was 150 vs 165c.

@@ -1,0 +1,12 @@
+{
+    "name": "exotic-space-industries-remembrance-graphics-5",
+    "version": "1.0.0",
+    "title": "Exotic Space Industries: Remembrance Graphics 5",
+    "author": "aRighteousGod",
+    "factorio_version": "2.0",
+    "license": "GPL-3.0-or-later",
+    "description": "Companion graphics and sound-effect payload for Exotic Space Industries: Remembrance. Required by the main gameplay pack.",
+    "dependencies": [
+        "base >= 2.0.0"
+    ]
+}

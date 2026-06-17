@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 
-ENTITY_DIR = Path("exotic-space-industries-remembrance-graphics-4/graphics/entities/nuclear-locomotive")
+ENTITY_DIR = Path("exotic-space-industries-remembrance-graphics-5/graphics/entities/nuclear-locomotive")
 PREVIEW_DIR = Path("output/meshy/nuclear-trains/hid-headlight-previews")
 WIDTH = 400
 HEIGHT = 1013

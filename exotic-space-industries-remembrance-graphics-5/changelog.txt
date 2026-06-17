@@ -1,0 +1,6 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2026-06-16
+  Changes:
+    - Created graphics pack 5 and moved nuclear locomotive and advanced wagons and associated sounds into it.
+---------------------------------------------------------------------------------------------------

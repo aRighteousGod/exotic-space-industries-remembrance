@@ -12,9 +12,10 @@
 
 local ei_data = require("lib/data")
 
-local entity_path = ei_graphics_entity_4_path
-local item_path = ei_graphics_item_4_path
-local tech_path = ei_graphics_tech_4_path
+local entity_path = ei_graphics_entity_5_path
+local item_path = ei_graphics_item_5_path
+local tech_path = ei_graphics_tech_5_path
+local sound_path = ei_sounds_5_path
 
 local nuclear_locomotive_path = entity_path .. "nuclear-locomotive/"
 local advanced_cargo_wagon_path = entity_path .. "advanced-cargo-wagon/"
@@ -267,7 +268,7 @@ nuclear_locomotive.working_sound = {
     main_sounds = {
         {
             sound = {
-                filename = ei_sounds_4_path .. "nuclear-locomotive-engine.ogg",
+                filename = sound_path .. "nuclear-locomotive-engine.ogg",
                 volume = 1.0,
                 speed = 1.0,
                 audible_distance_modifier = 1.15,
@@ -294,7 +295,7 @@ nuclear_locomotive.working_sound = {
         },
         {
             sound = {
-                filename = ei_sounds_4_path .. "nuclear-locomotive-engine.ogg",
+                filename = sound_path .. "nuclear-locomotive-engine.ogg",
                 volume = 0.60,
                 speed = 0.86,
                 audible_distance_modifier = 1.1,

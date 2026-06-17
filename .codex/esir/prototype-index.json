@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-06-05T11:51:42.9418808-05:00",
+    "generated_at":  "2026-06-16T17:53:10.6248069-05:00",
     "repo_root":  "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance-2",
     "direct_requires":  [
                             {
@@ -221,6 +221,7 @@
                                 "loaded_by":  "exotic-space-industries-remembrance\\data.lua",
                                 "children":  [
                                                  "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-assembler.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-offshore-pump.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-quarry.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-surface-harvester.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\dark-age\\camp-fire.lua",
@@ -254,6 +255,7 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-crusher.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-inserter.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-miner.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-offshore-pump.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-oil-pumpjack.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-prototypes.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-surface-harvester.lua",
@@ -275,6 +277,7 @@
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\combustion-turbine.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\crusher.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electricity-prototypes.lua",
+                                                 "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electric-offshore-pump.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electric-surface-harvester.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\fission-facility.lua",
                                                  "exotic-space-industries-remembrance\\prototypes\\electricity-age\\fueler.lua",
@@ -361,6 +364,7 @@
                             "exotic-space-industries-remembrance\\prototypes\\computer-age\\small-simulator.lua",
                             "exotic-space-industries-remembrance\\prototypes\\containers.lua",
                             "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-assembler.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-offshore-pump.lua",
                             "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-quarry.lua",
                             "exotic-space-industries-remembrance\\prototypes\\dark-age\\burner-surface-harvester.lua",
                             "exotic-space-industries-remembrance\\prototypes\\dark-age\\camp-fire.lua",
@@ -380,6 +384,7 @@
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\crusher.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electricity-age.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electricity-prototypes.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electric-offshore-pump.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\electric-surface-harvester.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\fission-facility.lua",
                             "exotic-space-industries-remembrance\\prototypes\\electricity-age\\fueler.lua",
@@ -464,6 +469,7 @@
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-crusher.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-inserter.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-miner.lua",
+                            "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-offshore-pump.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-oil-pumpjack.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-prototypes.lua",
                             "exotic-space-industries-remembrance\\prototypes\\steam-age\\steam-surface-harvester.lua",

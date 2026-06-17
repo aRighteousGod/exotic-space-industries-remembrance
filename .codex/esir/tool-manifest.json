@@ -1,6 +1,6 @@
 {
     "schema_version":  1,
-    "generated_at":  "2026-06-05T11:51:45.2658809-05:00",
+    "generated_at":  "2026-06-16T17:53:13.0908062-05:00",
     "wrapper":  {
                     "path":  "scripts\\invoke-esir-dev.ps1",
                     "library":  "scripts\\esir-dev-lib.ps1",
@@ -170,6 +170,7 @@
                            "graphics2_process.ps1",
                            "graphics3_process.ps1",
                            "graphics4_process.ps1",
+                           "graphics5_process.ps1",
                            "soundtrack1_process.ps1",
                            "soundtrack2_process.ps1"
                        ],

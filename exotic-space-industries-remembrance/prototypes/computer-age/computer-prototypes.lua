@@ -3,6 +3,7 @@
 
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
+local particle_animations = require("__base__.prototypes.particle-animations")
 --====================================================================================================
 --PROTOTYPE DEFINITIONS
 --====================================================================================================
@@ -3888,57 +3889,137 @@ local function incinerator_robot_shadow()
     }
 end
 
-local function prediction_snare_icons()
+local function prediction_snare_mine_picture()
     return {
-        {
-            icon = "__base__/graphics/icons/land-mine.png",
-            icon_size = 64,
-            tint = {r = 0.65, g = 0.9, b = 1.0, a = 1.0},
-        },
-        {
-            icon = ei_graphics_item_path.."simulation-data.png",
-            icon_size = 128,
-            scale = 0.18,
-            shift = {8, 8},
+        layers = {
+            {
+                filename = ei_graphics_entity_4_path.."prediction-snare-mine/prediction-snare-mine-shadow.png",
+                priority = "medium",
+                width = 128,
+                height = 128,
+                draw_as_shadow = true,
+                scale = 0.25,
+            },
+            {
+                filename = ei_graphics_entity_4_path.."prediction-snare-mine/prediction-snare-mine.png",
+                priority = "medium",
+                width = 128,
+                height = 128,
+                scale = 0.25,
+            },
+            {
+                filename = ei_graphics_entity_4_path.."prediction-snare-mine/prediction-snare-mine-glow.png",
+                priority = "high",
+                width = 128,
+                height = 128,
+                draw_as_glow = true,
+                scale = 0.25,
+            },
         },
     }
 end
 
-local function breach_solver_icons()
+local function prediction_snare_item_pictures()
     return {
         {
-            icon = "__base__/graphics/icons/cluster-grenade.png",
-            icon_size = 64,
-            tint = {r = 1.0, g = 0.82, b = 0.55, a = 1.0},
-        },
-        {
-            icon = ei_graphics_item_path.."simulation-data.png",
-            icon_size = 128,
-            scale = 0.16,
-            shift = {8, 8},
+            layers = {
+                {
+                    filename = ei_graphics_item_4_path.."prediction-snare-mine.png",
+                    size = 128,
+                    scale = 0.25,
+                    mipmap_count = 3,
+                },
+                {
+                    filename = ei_graphics_item_4_path.."prediction-snare-mine-glow.png",
+                    size = 128,
+                    scale = 0.25,
+                    mipmap_count = 3,
+                    draw_as_glow = true,
+                    blend_mode = "additive-soft",
+                },
+            },
         },
     }
 end
+
+local function breach_solver_charge_projectile_animation(scale)
+    return {
+        filename = ei_graphics_entity_4_path.."breach-solver-charge/breach-solver-charge-projectile.png",
+        priority = "high",
+        width = 64,
+        height = 64,
+        frame_count = 16,
+        line_length = 8,
+        scale = scale,
+    }
+end
+
+local function breach_solver_charge_projectile_shadow(scale)
+    return {
+        filename = ei_graphics_entity_4_path.."breach-solver-charge/breach-solver-charge-projectile-shadow.png",
+        priority = "high",
+        width = 64,
+        height = 64,
+        frame_count = 16,
+        line_length = 8,
+        draw_as_shadow = true,
+        scale = scale,
+    }
+end
+
+local prediction_snare_tint = {r = 0.0, g = 0.85, b = 0.80, a = 0.70}
 
 local prediction_snare_item = table.deepcopy(data.raw.item["land-mine"])
 prediction_snare_item.name = "ei-prediction-snare-mine"
-prediction_snare_item.icon = nil
-prediction_snare_item.icon_size = nil
-prediction_snare_item.icons = prediction_snare_icons()
+prediction_snare_item.icon = ei_graphics_item_4_path.."prediction-snare-mine.png"
+prediction_snare_item.icon_size = 128
+prediction_snare_item.icon_mipmaps = 3
+prediction_snare_item.icons = nil
+prediction_snare_item.pictures = prediction_snare_item_pictures()
 prediction_snare_item.place_result = "ei-prediction-snare-mine"
 prediction_snare_item.order = "f[land-mine]-b[prediction-snare]"
 
 local prediction_snare_sticker = table.deepcopy(data.raw.sticker["slowdown-sticker"])
 prediction_snare_sticker.name = "ei-prediction-snare-sticker"
-prediction_snare_sticker.duration_in_ticks = 12 * 60
-prediction_snare_sticker.target_movement_modifier = 0.2
+prediction_snare_sticker.duration_in_ticks = 30 * 60
+prediction_snare_sticker.target_movement_modifier = 0.25
+prediction_snare_sticker.animation.tint = prediction_snare_tint
+
+local prediction_snare_particle = table.deepcopy(data.raw["optimized-particle"]["slowdown-capsule-particle"])
+prediction_snare_particle.name = "ei-prediction-snare-particle"
+prediction_snare_particle.pictures = particle_animations.get_water_particle_pictures({tint = prediction_snare_tint})
+
+local prediction_snare_particle_big = table.deepcopy(data.raw["optimized-particle"]["slowdown-capsule-particle-big"])
+prediction_snare_particle_big.name = "ei-prediction-snare-particle-big"
+prediction_snare_particle_big.pictures = particle_animations.get_slowdown_particle_pictures({tint = prediction_snare_tint})
+
+local prediction_snare_smoke = table.deepcopy(data.raw["trivial-smoke"]["smoke-fast"])
+prediction_snare_smoke.name = "ei-prediction-snare-smoke"
+prediction_snare_smoke.animation.tint = prediction_snare_tint
+prediction_snare_smoke.color = prediction_snare_tint
+
+local prediction_snare_explosion = table.deepcopy(data.raw.explosion["slowdown-capsule-explosion"])
+prediction_snare_explosion.name = "ei-prediction-snare-explosion"
+prediction_snare_explosion.icon = ei_graphics_item_4_path.."prediction-snare-mine.png"
+prediction_snare_explosion.smoke = "ei-prediction-snare-smoke"
+for _, effect in ipairs(prediction_snare_explosion.created_effect.action_delivery.target_effects) do
+    if effect.particle_name == "slowdown-capsule-particle" then
+        effect.particle_name = "ei-prediction-snare-particle"
+    elseif effect.particle_name == "slowdown-capsule-particle-big" then
+        effect.particle_name = "ei-prediction-snare-particle-big"
+    end
+end
 
 local prediction_snare_mine = table.deepcopy(data.raw["land-mine"]["land-mine"])
 prediction_snare_mine.name = "ei-prediction-snare-mine"
-prediction_snare_mine.icon = nil
-prediction_snare_mine.icon_size = nil
-prediction_snare_mine.icons = prediction_snare_icons()
+prediction_snare_mine.icon = ei_graphics_item_4_path.."prediction-snare-mine.png"
+prediction_snare_mine.icon_size = 128
+prediction_snare_mine.icon_mipmaps = 3
+prediction_snare_mine.icons = nil
 prediction_snare_mine.minable.result = "ei-prediction-snare-mine"
+prediction_snare_mine.picture_safe = prediction_snare_mine_picture()
+prediction_snare_mine.picture_set = prediction_snare_mine_picture()
+prediction_snare_mine.picture_set_enemy = prediction_snare_mine_picture()
 prediction_snare_mine.trigger_radius = 3.5
 prediction_snare_mine.action = {
     type = "direct",
@@ -3966,7 +4047,7 @@ prediction_snare_mine.action = {
             },
             {
                 type = "create-entity",
-                entity_name = "slowdown-capsule-explosion",
+                entity_name = "ei-prediction-snare-explosion",
             },
         },
     },
@@ -3974,10 +4055,10 @@ prediction_snare_mine.action = {
 
 local breach_solver_charge = table.deepcopy(data.raw.capsule["cluster-grenade"])
 breach_solver_charge.name = "ei-breach-solver-charge"
-breach_solver_charge.icon = nil
-breach_solver_charge.icon_size = nil
-breach_solver_charge.icon_mipmaps = nil
-breach_solver_charge.icons = breach_solver_icons()
+breach_solver_charge.icon = ei_graphics_item_4_path.."breach-solver-charge.png"
+breach_solver_charge.icon_size = 128
+breach_solver_charge.icon_mipmaps = 3
+breach_solver_charge.icons = nil
 breach_solver_charge.order = "a[grenade]-d[breach-solver]"
 breach_solver_charge.capsule_action.attack_parameters.range = 18
 breach_solver_charge.capsule_action.attack_parameters.cooldown = 75
@@ -3985,6 +4066,8 @@ breach_solver_charge.capsule_action.attack_parameters.ammo_type.action[1].action
 
 local breach_solver_projectile = table.deepcopy(data.raw.projectile["cluster-grenade"])
 breach_solver_projectile.name = "ei-breach-solver-charge"
+breach_solver_projectile.animation = breach_solver_charge_projectile_animation(0.5)
+breach_solver_projectile.shadow = breach_solver_charge_projectile_shadow(0.5)
 breach_solver_projectile.action = {
     {
         type = "direct",
@@ -4013,7 +4096,8 @@ breach_solver_projectile.action = {
             target_effects = {
                 {
                     type = "damage",
-                    damage = {amount = 550, type = "explosion"},
+                    damage = {amount = 1750, type = "explosion"},
+                    apply_damage_to_trees = true,
                 },
                 {
                     type = "create-entity",
@@ -4031,7 +4115,8 @@ breach_solver_projectile.action = {
             target_effects = {
                 {
                     type = "damage",
-                    damage = {amount = 75, type = "explosion"},
+                    damage = {amount = 250, type = "explosion"},
+                    apply_damage_to_trees = true,
                 },
             },
         },
@@ -4219,6 +4304,10 @@ incinerator.attack_parameters = {
 data:extend({
     prediction_snare_item,
     prediction_snare_sticker,
+    prediction_snare_particle,
+    prediction_snare_particle_big,
+    prediction_snare_smoke,
+    prediction_snare_explosion,
     prediction_snare_mine,
     breach_solver_charge,
     breach_solver_projectile,
@@ -4240,7 +4329,7 @@ data:extend({
             {type = "item", name = "flamethrower-ammo", amount = 3},
             {type = "item", name = "explosives", amount = 5},
             {type = "item", name = "ei-ceramic", amount = 4},
-            {type = "item", name = "ei-simulation-data", amount = 5},
+            {type = "item", name = "ei-simulation-data", amount = 7},
         },
         results = {{type = "item", name = "ei-inferno-grenade", amount = 1}},
         enabled = false,
@@ -4274,7 +4363,7 @@ data:extend({
             {type = "item", name = "steel-plate", amount = 1},
             {type = "item", name = "battery", amount = 2},
             {type = "item", name = "ei-electronic-parts", amount = 2},
-            {type = "item", name = "ei-simulation-data", amount = 2},
+            {type = "item", name = "ei-simulation-data", amount = 10},
         },
         results = {{type = "item", name = "ei-prediction-snare-mine", amount = 4}},
         enabled = false,
