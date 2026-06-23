@@ -1,4 +1,15 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.37
+Date: 6-22-2026
+  Features:
+    - Steam logistic chests and steam roboports can now be selected in upgrade planners, upgrading to their matching 2x2 ESIR logistic storeboxes and electric roboport replacements.
+  Changes:
+    - CF-8 "Black Grail" Advanced fluid wagon recipe inputs: 1 Storage tank -> 1 Spherical storage tank.
+    - Rocket artillery no longer inherits gravity-based construction surface restrictions.
+  Bugfixes:
+    - Added a startup ignore list for fluid safety and combustible rupture handling, defaulting to Interplanetary Fluid Funnel / Linked Pipe helper entities so their internal fluid proxies are not destroyed by ESIR pipe safety.
+    - Fixed legacy Tesla hidden helper cleanup so advanced coil aftershocks, field arcs, and stormbeam helper mines expire reliably instead of continuing invisible lightning after visible coils are gone; added /tesla_helper_cleanup as a save-repair command.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.36
 Date: 6-16-2026
   Features:
@@ -62,7 +73,7 @@ Date: 6-16-2026
     - Moved the remaining bundled graphics and sounds into the new Graphics 4 and 5 mods.
   Bugfixes:
     - Rocket launch pollution hover messages and startup setting options are now localized across supported locales.
-    - Fixed that Steam pumps initial starting steam was 150 vs 165c.
+    - Fixed that Steam pump's initial starting steam was 150 vs 165c.
     - Fixed direct Steam assembler replacement with Assembling machine 2 breaking recipe-fluid pipe lines by adjusting Steam assembler fluidbox positions—migration will rotate pre-existing steam assemblers appropriately.
     - Refined flammables 6 now correctly requires Simulation computer age science packs.
     - Fixed cryo container filling recipes resolving to filled container item signals, so parameterized blueprints can pipette the recipe signal for inserter filters.

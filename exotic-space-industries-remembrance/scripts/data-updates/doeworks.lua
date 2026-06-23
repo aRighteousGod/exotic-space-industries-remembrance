@@ -329,11 +329,15 @@ set_composite_icons(
 )
 
 local deer_turret = data.raw["ammo-turret"] and data.raw["ammo-turret"]["dw-deer-turret"]
-if deer_turret and deer_turret.attack_parameters then
-    deer_turret.attack_parameters.range = 115
-    deer_turret.attack_parameters.prepare_range = 116
-    deer_turret.attack_parameters.min_range = 35
-    deer_turret.attack_parameters.lead_target_for_projectile_speed = 0.5
+if deer_turret then
+    deer_turret.surface_conditions = nil
+
+    if deer_turret.attack_parameters then
+        deer_turret.attack_parameters.range = 115
+        deer_turret.attack_parameters.prepare_range = 116
+        deer_turret.attack_parameters.min_range = 35
+        deer_turret.attack_parameters.lead_target_for_projectile_speed = 0.5
+    end
 end
 
 local doeworks_prototypes = {}

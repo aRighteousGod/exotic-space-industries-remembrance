@@ -2,8 +2,8 @@
 -- ESIR FILE MAP
 -- owns: hybrid Tesla legacy runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: init, load, configuration-changed, combat, research, build, destroy, and script triggers
--- forwarded_events: get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater
+-- cadence: init, load, configuration-changed, combat, research, build, destroy, script triggers, and console command
+-- forwarded_events: cleanup_tesla_helpers, get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater
 -- storage_roots: storage.ei, storage.tl_entity_lookup, storage.tl_index
 -- gui_ids: none
 -- remote_interfaces: none
@@ -39,6 +39,25 @@ local BURST_GATE_TTL = 1
 local BURST_GATE_PRUNE_TTL = 30
 local PRUNE_INTERVAL = 600
 local VAPORIZE_DAMAGE_THRESHOLD = 5000
+local ADVANCED_HELPER_CLEANUP_DELAY = 15
+local HIDDEN_LAND_MINE_HELPER_TTL = ADVANCED_HELPER_CLEANUP_DELAY
+local LEGACY_TIMER_FALLBACK_RADIUS = 0.5
+local BASIC_MULTI_ZAP_PREFIX = "tl-basic-tesla-coil-multi-zap-"
+local ADVANCED_SINGLE_ZAP_PREFIX = "tl-basic-tesla-coil-single-zap-"
+local ZAP_EXPLOSION_PREFIX = "tl-tesla-coil-zap-explosion-"
+local ADVANCED_OVERCHARGE_PREFIX = "ei-tl-advanced-overcharge-"
+local TESLA_CLEANUP_COMMAND = "tesla_helper_cleanup"
+local TRANSIENT_TESLA_LAND_MINE_HELPER_PREFIXES = {
+    BASIC_MULTI_ZAP_PREFIX,
+    ADVANCED_SINGLE_ZAP_PREFIX,
+    ZAP_EXPLOSION_PREFIX,
+    "ei-legacy-tesla-family-burst-",
+    "ei-legacy-tesla-turret-burst-",
+    "ei-legacy-tesla-turret-aftershock-",
+    "ei-tl-basic-field-arc-",
+    ADVANCED_OVERCHARGE_PREFIX,
+    "ei-tl-tank-stormbeam-",
+}
 
 -- Ammo categories that the runtime understands. The bridge categories let vanilla Tesla
 -- weapons opt into TL-style scripted follow-ups without changing the public TL names.
@@ -219,6 +238,7 @@ local function ensure_state()
     state.burst_gates = state.burst_gates or {}
     state.variant_sync_jobs = state.variant_sync_jobs or {}
     state.variant_sync_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.variant_sync_buckets)
+    state.legacy_helper_expiry_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.legacy_helper_expiry_buckets)
     state.last_prune_tick = state.last_prune_tick or 0
 
     local normalized_variant_sync_jobs = {}
@@ -1038,6 +1058,212 @@ local function add_legacy_lookup_entity(position, entity)
     bucket[#bucket + 1] = entity
 end
 
+local function new_cleanup_result()
+    return {
+        hidden_helpers = 0,
+        lookup_entries_pruned = 0,
+        expiry_bucket_count = 0,
+        expiry_item_count = 0,
+    }
+end
+
+local function add_cleanup_count(result, key, count)
+    if not result then
+        return
+    end
+
+    result[key] = (tonumber(result[key]) or 0) + (tonumber(count) or 1)
+end
+
+local function remove_legacy_lookup_entity(position, target_entity)
+    if not storage.tl_entity_lookup or not position then
+        return
+    end
+
+    local x_lookup = storage.tl_entity_lookup[position.x]
+    if not x_lookup then
+        return
+    end
+
+    local entities = x_lookup[position.y]
+    if type(entities) ~= "table" then
+        return
+    end
+
+    for index = #entities, 1, -1 do
+        local entity = entities[index]
+        if entity == target_entity or not (entity and entity.valid) then
+            table.remove(entities, index)
+        end
+    end
+
+    if #entities == 0 then
+        clear_legacy_lookup_bucket(position)
+    end
+end
+
+local function has_transient_tesla_land_mine_helper_prefix(name)
+    if type(name) ~= "string" then
+        return false
+    end
+
+    for _, prefix in ipairs(TRANSIENT_TESLA_LAND_MINE_HELPER_PREFIXES) do
+        if ei_lib.startswith(name, prefix) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function is_transient_tesla_land_mine_helper(entity)
+    return entity
+        and entity.valid
+        and entity.type == "land-mine"
+        and type(entity.name) == "string"
+        and has_transient_tesla_land_mine_helper_prefix(entity.name)
+end
+
+local function is_timer_backed_tl_helper(entity)
+    return is_transient_tesla_land_mine_helper(entity)
+        and (
+            ei_lib.startswith(entity.name, BASIC_MULTI_ZAP_PREFIX)
+            or ei_lib.startswith(entity.name, ADVANCED_SINGLE_ZAP_PREFIX)
+        )
+end
+
+---@class TeslaLegacyHelperExpiry
+---@field entity LuaEntity
+---@field position MapPosition
+---@field name string
+
+local function schedule_legacy_helper_expiry(state, position, entity, due_tick)
+    if not state or not is_transient_tesla_land_mine_helper(entity) then
+        return
+    end
+
+    local normalized_due_tick = tonumber(due_tick)
+    if not normalized_due_tick then
+        return
+    end
+
+    state.legacy_helper_expiry_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.legacy_helper_expiry_buckets)
+    ei_runtime_scheduler.delayed_schedule(state.legacy_helper_expiry_buckets, normalized_due_tick, {
+        entity = entity,
+        position = copy_position(position),
+        name = entity.name,
+    })
+end
+
+local function create_runtime_hidden_land_mine_helper(state, surface, position, name, force, subject, tick)
+    local helper = create_runtime_entity(surface, position, name, force, subject)
+    if helper then
+        schedule_legacy_helper_expiry(state, position, helper, (tick or game.tick or 0) + HIDDEN_LAND_MINE_HELPER_TTL)
+    end
+
+    return helper
+end
+
+local function create_plain_hidden_land_mine_helper(state, surface, position, name, force, tick)
+    local helper = create_plain_entity(surface, position, name, force)
+    if helper then
+        schedule_legacy_helper_expiry(state, position, helper, (tick or game.tick or 0) + HIDDEN_LAND_MINE_HELPER_TTL)
+    end
+
+    return helper
+end
+
+local function update_legacy_helper_expiries(state, tick)
+    if not state or type(state.legacy_helper_expiry_buckets) ~= "table" or next(state.legacy_helper_expiry_buckets) == nil then
+        return
+    end
+
+    local due_helpers = ei_runtime_scheduler.delayed_take_due_through(state.legacy_helper_expiry_buckets, tick)
+    for _, record in ipairs(due_helpers) do
+        local entity = record and record.entity
+        if is_transient_tesla_land_mine_helper(entity) and entity.name == record.name then
+            entity.destroy()
+        end
+
+        if record and record.position then
+            remove_legacy_lookup_entity(record.position, entity)
+        end
+    end
+end
+
+local function clear_legacy_helper_expiry_buckets(state, result)
+    if not state then
+        return
+    end
+
+    state.legacy_helper_expiry_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.legacy_helper_expiry_buckets)
+    add_cleanup_count(result, "expiry_bucket_count", ei_runtime_scheduler.delayed_bucket_count(state.legacy_helper_expiry_buckets))
+    add_cleanup_count(result, "expiry_item_count", ei_runtime_scheduler.delayed_item_count(state.legacy_helper_expiry_buckets))
+    state.legacy_helper_expiry_buckets = {}
+end
+
+local function destroy_timer_backed_tl_helpers_near(surface, position, radius)
+    if not surface or not position then
+        return
+    end
+
+    local scan_radius = radius or LEGACY_TIMER_FALLBACK_RADIUS
+    local entities = surface.find_entities_filtered({
+        type = "land-mine",
+        area = {
+            left_top = {x = position.x - scan_radius, y = position.y - scan_radius},
+            right_bottom = {x = position.x + scan_radius, y = position.y + scan_radius},
+        },
+    })
+
+    for _, entity in pairs(entities) do
+        if is_timer_backed_tl_helper(entity) then
+            entity.destroy()
+        end
+    end
+end
+
+local function prune_transient_helper_lookup_entries(result)
+    if not storage.tl_entity_lookup then
+        return
+    end
+
+    for x, y_lookup in pairs(storage.tl_entity_lookup) do
+        if type(y_lookup) == "table" then
+            for y, entities in pairs(y_lookup) do
+                if type(entities) == "table" then
+                    for index = #entities, 1, -1 do
+                        local entity = entities[index]
+                        if is_transient_tesla_land_mine_helper(entity) then
+                            entity.destroy()
+                            table.remove(entities, index)
+                            add_cleanup_count(result, "hidden_helpers", 1)
+                            add_cleanup_count(result, "lookup_entries_pruned", 1)
+                        elseif not (entity and entity.valid) then
+                            table.remove(entities, index)
+                            add_cleanup_count(result, "lookup_entries_pruned", 1)
+                        end
+                    end
+
+                    if #entities == 0 then
+                        y_lookup[y] = nil
+                    end
+                else
+                    y_lookup[y] = nil
+                    add_cleanup_count(result, "lookup_entries_pruned", 1)
+                end
+            end
+
+            if next(y_lookup) == nil then
+                storage.tl_entity_lookup[x] = nil
+            end
+        else
+            storage.tl_entity_lookup[x] = nil
+            add_cleanup_count(result, "lookup_entries_pruned", 1)
+        end
+    end
+end
+
 local function destroy_legacy_lookup_entities()
     if not storage.tl_entity_lookup then
         return
@@ -1053,6 +1279,17 @@ local function destroy_legacy_lookup_entities()
                         end
                     end
                 end
+            end
+        end
+    end
+end
+
+local function destroy_stale_tesla_hidden_helpers(result)
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered({type = "land-mine"})) do
+            if is_transient_tesla_land_mine_helper(entity) then
+                entity.destroy()
+                add_cleanup_count(result, "hidden_helpers", 1)
             end
         end
     end
@@ -1317,7 +1554,7 @@ end
 
 -- These helpers gate bursty scripted follow-ups so multiple same-tick Tesla effects do not
 -- stack helper entities at the same position and create avoidable UPS spikes.
-local function maybe_spawn_fire_and_explosion(event, force, cache, salt)
+local function maybe_spawn_fire_and_explosion(state, event, force, cache, salt)
     if not cache.research.flames.probability then
         return
     end
@@ -1337,7 +1574,7 @@ local function maybe_spawn_fire_and_explosion(event, force, cache, salt)
     end
 
     if roll < (cache.research.flames.probability / 2) then
-        create_runtime_entity(surface, position, cache.names.explosion, force, event)
+        create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.explosion, force, event, event.tick)
     end
 end
 
@@ -1366,7 +1603,7 @@ local function maybe_spawn_multi_zap(state, event, force, cache, gate_kind)
         return
     end
 
-    create_runtime_entity(surface, position, cache.names.multi_zap, force, event)
+    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.multi_zap, force, event, event.tick)
 end
 
 local function maybe_spawn_bridge_burst(state, event, force, cache, bridge_kind)
@@ -1406,7 +1643,7 @@ local function maybe_spawn_bridge_burst(state, event, force, cache, bridge_kind)
         helper_name = cache.names.bridge_turret_burst
     end
 
-    create_runtime_entity(surface, position, helper_name, force, event)
+    create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, event, event.tick)
 end
 
 local function maybe_spawn_single_zap_fire(event, force, cache, salt)
@@ -1459,7 +1696,7 @@ local function maybe_spawn_basic_chain_burst(state, event, force, cache)
         return
     end
 
-    create_runtime_entity(surface, position, helper_name, force, event)
+    create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, event, event.tick)
 end
 
 -- Exotic convergence gives the basic coil one guaranteed side-branch burst on successful
@@ -1484,7 +1721,7 @@ local function maybe_spawn_basic_exotic_branch(state, event, force, cache)
         return
     end
 
-    create_runtime_entity(surface, position, cache.names.basic_chain_exotic, force, event)
+    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.basic_chain_exotic, force, event, event.tick)
 end
 
 local function maybe_spawn_tank_chain_burst(state, event, force, cache)
@@ -1517,7 +1754,7 @@ local function maybe_spawn_tank_chain_burst(state, event, force, cache)
         return
     end
 
-    create_runtime_entity(surface, position, helper_name, force, event)
+    create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, event, event.tick)
 end
 
 -- Kill-confirmed exotic execution storms are the advanced coil's unique capstone payoff.
@@ -1537,7 +1774,7 @@ local function maybe_spawn_advanced_exotic_execution_storm(state, surface, posit
         return
     end
 
-    create_runtime_entity(surface, position, cache.names.advanced_chain_exotic, force, subject)
+    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.advanced_chain_exotic, force, subject, game.tick)
     if cache.names.advanced_exotic_impact then
         create_visual(surface, position, cache.names.advanced_exotic_impact, subject)
     end
@@ -1559,7 +1796,7 @@ local function maybe_spawn_tank_exotic_stormfront(state, surface, position, forc
         return
     end
 
-    create_runtime_entity(surface, position, cache.names.tank_chain_exotic, force, subject)
+    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.tank_chain_exotic, force, subject, game.tick)
 end
 
 -- Harmonics/doctrine techs can modernize the TL coil follow-up model, but only when the
@@ -1643,7 +1880,7 @@ local function apply_vaporization(event, target, force, cache, salt)
     return true
 end
 
-local function apply_bridge_chain_damage(event, force, cache, base_damage, salt)
+local function apply_bridge_chain_damage(state, event, force, cache, base_damage, salt)
     local target = get_effect_target(event)
     if not target or not target.valid then
         return
@@ -1664,13 +1901,13 @@ local function apply_bridge_chain_damage(event, force, cache, base_damage, salt)
     target.damage(amount, force, "electric", get_origin_source(event), get_origin_cause(event))
 
     if salt == EFFECT_ID.bridge_turret_chain_h3 then
-        maybe_spawn_fire_and_explosion(event, force, cache, 709)
+        maybe_spawn_fire_and_explosion(state, event, force, cache, 709)
     elseif salt == EFFECT_ID.bridge_turret_chain_exotic then
-        maybe_spawn_fire_and_explosion(event, force, cache, 719)
+        maybe_spawn_fire_and_explosion(state, event, force, cache, 719)
     end
 end
 
-local function apply_tank_chain_damage(event, force, cache, flavor)
+local function apply_tank_chain_damage(state, event, force, cache, flavor)
     local target = get_effect_target(event)
     if not target or not target.valid then
         return
@@ -1705,11 +1942,11 @@ local function apply_tank_chain_damage(event, force, cache, flavor)
     end
 
     if flavor == "tank-h3" or cache.levels.reactance_overdrive >= 2 then
-        maybe_spawn_fire_and_explosion(event, force, cache, 743)
+        maybe_spawn_fire_and_explosion(state, event, force, cache, 743)
     end
 end
 
-local function apply_tl_chain_damage(event, force, cache, flavor)
+local function apply_tl_chain_damage(state, event, force, cache, flavor)
     local target = get_effect_target(event)
     if not target or not target.valid then
         return
@@ -1741,7 +1978,7 @@ local function apply_tl_chain_damage(event, force, cache, flavor)
         or flavor == "advanced-exotic"
         or (flavor == "advanced-h2" and cache.levels.dielectric_rupture >= 2)
     then
-        maybe_spawn_fire_and_explosion(event, force, cache, 727)
+        maybe_spawn_fire_and_explosion(state, event, force, cache, 727)
     end
 end
 
@@ -1792,12 +2029,12 @@ local function handle_legacy_aftershock(state, dead_entity, record)
     end
 
     if use_doctrine_chain then
-        create_runtime_entity(surface, position, helper_name, force, record)
+        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, game.tick)
         return
     end
 
     for _ = 1, cache.research.single_zap.count do
-        create_runtime_entity(surface, position, helper_name, force, record)
+        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, game.tick)
     end
 end
 
@@ -1820,7 +2057,7 @@ local function handle_bridge_turret_aftershock(state, dead_entity, record)
         -- do not wake a follow-up helper from a corpse alone.
         and bridge_has_other_enemy_in_range(surface, position, cache.ranges.bridge_aftershock_exotic, force, dead_entity)
     then
-        create_runtime_entity(surface, position, cache.names.bridge_aftershock_exotic, force, record)
+        create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.bridge_aftershock_exotic, force, record, game.tick)
     end
 
     if not can_spawn_burst(state, "bridge-aftershock", surface.index, position) then
@@ -1842,7 +2079,7 @@ local function handle_bridge_turret_aftershock(state, dead_entity, record)
         return
     end
 
-    create_runtime_entity(surface, position, helper_name, force, record)
+    create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, game.tick)
 end
 
 local function handle_critical_text(event)
@@ -1860,17 +2097,28 @@ local function handle_critical_text(event)
 end
 
 local function handle_legacy_timer(event)
-    if not storage.tl_entity_lookup or not event.source_position then
+    if not event or not event.source_position then
+        return
+    end
+
+    local function fallback_cleanup()
+        destroy_timer_backed_tl_helpers_near(get_effect_surface(event), event.source_position)
+    end
+
+    if not storage.tl_entity_lookup then
+        fallback_cleanup()
         return
     end
 
     local x_lookup = storage.tl_entity_lookup[event.source_position.x]
     if not x_lookup then
+        fallback_cleanup()
         return
     end
 
     local entities = x_lookup[event.source_position.y]
     if not entities then
+        fallback_cleanup()
         return
     end
 
@@ -1979,7 +2227,7 @@ local function maybe_spawn_fidelity_advanced_overlay(state, surface, position, f
     end
 
     if has_enemy_in_range(surface, position, helper_range, force) then
-        create_runtime_entity(surface, position, helper_name, force, subject)
+        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, subject, game.tick)
     end
 end
 
@@ -2009,7 +2257,7 @@ local function run_exact_legacy_basic_hit(state, event, force, cache)
     then
         if legacy_random_number(event.tick) < research.multi_zap.probability then
             create_plain_entity(surface, position, "tl-basic-tesla-coil-timer", force)
-            local helper = create_plain_entity(surface, position, cache.names.multi_zap, force)
+            local helper = create_plain_hidden_land_mine_helper(state, surface, position, cache.names.multi_zap, force, event.tick)
             if helper then
                 add_legacy_lookup_entity(position, helper)
             end
@@ -2047,7 +2295,7 @@ local function run_exact_legacy_advanced_hit(state, event, force, cache)
             create_plain_entity(surface, position, cache.names.fire, force)
         end
         if roll < (research.flames.probability / 2) then
-            create_plain_entity(surface, position, cache.names.explosion, force)
+            create_plain_hidden_land_mine_helper(state, surface, position, cache.names.explosion, force, event.tick)
         end
     end
 end
@@ -2125,7 +2373,7 @@ local function run_exact_legacy_advanced_kill(state, event, force, cache)
         if legacy_are_enemies_in_range(surface, position, cache.ranges.single_zap, force) then
             create_plain_entity(surface, position, "tl-basic-tesla-coil-timer", force)
             for _ = 1, research.single_zap.count do
-                local helper = create_plain_entity(surface, position, cache.names.single_zap, force)
+                local helper = create_plain_hidden_land_mine_helper(state, surface, position, cache.names.single_zap, force, event.tick)
                 if helper then
                     add_legacy_lookup_entity(position, helper)
                 end
@@ -2186,7 +2434,7 @@ local function handle_tl_advanced_hit(state, event)
     end
 
     remember_recent_hit(state, event, "legacy-advanced", force)
-    maybe_spawn_fire_and_explosion(event, force, cache, 211)
+    maybe_spawn_fire_and_explosion(state, event, force, cache, 211)
 end
 
 local function handle_tl_tank_hit(state, event)
@@ -2245,7 +2493,7 @@ local function handle_bridge_family_hit(state, event)
     end
 
     if cache.harmonics_level >= 1 or cache.levels.bridge_coupling >= 1 then
-        maybe_spawn_fire_and_explosion(event, force, cache, 389)
+        maybe_spawn_fire_and_explosion(state, event, force, cache, 389)
     end
 
     if cache.harmonics_level >= 2 or cache.levels.bridge_coupling >= 1 then
@@ -2269,7 +2517,7 @@ local function handle_bridge_turret_hit(state, event)
         -- bridge-turret match with electric deaths. That preserves the feel without reopening
         -- the older loose position-fallback path.
         remember_recent_hit(state, event, "bridge-turret", force, 5)
-        maybe_spawn_fire_and_explosion(event, force, cache, 401)
+        maybe_spawn_fire_and_explosion(state, event, force, cache, 401)
     end
 
     if cache.harmonics_level >= 2 or cache.levels.bridge_coupling >= 1 then
@@ -2288,7 +2536,7 @@ local function handle_bridge_family_chain(state, event)
         return
     end
 
-    apply_bridge_chain_damage(event, force, cache, cache.damage.bridge_family, EFFECT_ID.bridge_family_chain)
+    apply_bridge_chain_damage(state, event, force, cache, cache.damage.bridge_family, EFFECT_ID.bridge_family_chain)
 end
 
 local function handle_bridge_turret_chain(state, event)
@@ -2302,7 +2550,7 @@ local function handle_bridge_turret_chain(state, event)
         return
     end
 
-    apply_bridge_chain_damage(event, force, cache, cache.damage.bridge_turret, EFFECT_ID.bridge_turret_chain)
+    apply_bridge_chain_damage(state, event, force, cache, cache.damage.bridge_turret, EFFECT_ID.bridge_turret_chain)
 end
 
 local function handle_bridge_turret_chain_h3(state, event)
@@ -2316,7 +2564,7 @@ local function handle_bridge_turret_chain_h3(state, event)
         return
     end
 
-    apply_bridge_chain_damage(event, force, cache, cache.damage.bridge_turret, EFFECT_ID.bridge_turret_chain_h3)
+    apply_bridge_chain_damage(state, event, force, cache, cache.damage.bridge_turret, EFFECT_ID.bridge_turret_chain_h3)
 end
 
 local function handle_bridge_turret_chain_exotic(state, event)
@@ -2330,7 +2578,7 @@ local function handle_bridge_turret_chain_exotic(state, event)
         return
     end
 
-    apply_bridge_chain_damage(event, force, cache, cache.damage.bridge_turret, EFFECT_ID.bridge_turret_chain_exotic)
+    apply_bridge_chain_damage(state, event, force, cache, cache.damage.bridge_turret, EFFECT_ID.bridge_turret_chain_exotic)
 end
 
 local function handle_tl_basic_chain(state, event, flavor)
@@ -2344,7 +2592,7 @@ local function handle_tl_basic_chain(state, event, flavor)
         return
     end
 
-    apply_tl_chain_damage(event, force, cache, flavor)
+    apply_tl_chain_damage(state, event, force, cache, flavor)
 end
 
 local function handle_tl_advanced_chain(state, event, flavor)
@@ -2358,7 +2606,7 @@ local function handle_tl_advanced_chain(state, event, flavor)
         return
     end
 
-    apply_tl_chain_damage(event, force, cache, flavor)
+    apply_tl_chain_damage(state, event, force, cache, flavor)
 end
 
 local function handle_tl_tank_chain(state, event, flavor)
@@ -2372,7 +2620,7 @@ local function handle_tl_tank_chain(state, event, flavor)
         return
     end
 
-    apply_tank_chain_damage(event, force, cache, flavor)
+    apply_tank_chain_damage(state, event, force, cache, flavor)
 end
 
 -- Exact effect-id dispatch table. `on_script_trigger_effect` should stay as close to a table
@@ -2427,6 +2675,7 @@ local SCRIPT_EFFECT_HANDLERS = {
 
 local function cleanup_legacy_helpers()
     destroy_legacy_lookup_entities()
+    destroy_stale_tesla_hidden_helpers()
 
     for _, surface in pairs(game.surfaces) do
         for _, entity in pairs(surface.find_entities_filtered({name = "tl-basic-tesla-coil-timer"})) do
@@ -2438,6 +2687,65 @@ local function cleanup_legacy_helpers()
 
     storage.tl_entity_lookup = nil
     storage.tl_index = nil
+
+    local state = storage.ei and storage.ei.tesla_legacy or nil
+    if state then
+        clear_legacy_helper_expiry_buckets(state)
+    end
+end
+
+function model.cleanup_tesla_helpers()
+    local state = ensure_state()
+    local result = new_cleanup_result()
+
+    destroy_stale_tesla_hidden_helpers(result)
+    prune_transient_helper_lookup_entries(result)
+    clear_legacy_helper_expiry_buckets(state, result)
+
+    return result
+end
+
+function model.cleanup_advanced_helpers()
+    return model.cleanup_tesla_helpers()
+end
+
+local function print_cleanup_command_feedback(command, message)
+    if command and command.player_index then
+        local player = game.get_player(command.player_index)
+        if player and player.valid then
+            player.print(message)
+        end
+        return
+    end
+
+    game.print(message)
+end
+
+local function command_has_admin_access(command)
+    if not command or not command.player_index then
+        return true
+    end
+
+    local player = game.get_player(command.player_index)
+    return player and player.valid and player.admin
+end
+
+local function handle_tesla_cleanup_command(command)
+    if not command_has_admin_access(command) then
+        return
+    end
+
+    local result = model.cleanup_tesla_helpers()
+    print_cleanup_command_feedback(
+        command,
+        "Tesla helper cleanup: destroyed "
+            .. tostring(result.hidden_helpers or 0)
+            .. " hidden helpers, pruned "
+            .. tostring(result.lookup_entries_pruned or 0)
+            .. " lookup refs, cleared "
+            .. tostring(result.expiry_item_count or 0)
+            .. " pending cleanup refs."
+    )
 end
 
 -- Event entrypoints: these are intentionally tiny adapters because base `control.lua`
@@ -2447,6 +2755,7 @@ function model.on_init()
     ensure_legacy_lookup_root()
     state.variant_sync_jobs = {}
     state.variant_sync_buckets = {}
+    state.legacy_helper_expiry_buckets = {}
     sync_all_force_caches(state)
     sync_all_variants(state)
     prune_state(state, game.tick)
@@ -2462,6 +2771,7 @@ function model.on_configuration_changed()
     state.burst_gates = {}
     state.variant_sync_jobs = {}
     state.variant_sync_buckets = {}
+    state.legacy_helper_expiry_buckets = {}
     cleanup_legacy_helpers()
     ensure_legacy_lookup_root()
     sync_all_force_caches(state)
@@ -2620,11 +2930,13 @@ function model.has_tick_work(_event)
 
     return (type(state.variant_sync_buckets) == "table" and next(state.variant_sync_buckets) ~= nil)
         or (type(state.variant_sync_jobs) == "table" and next(state.variant_sync_jobs) ~= nil)
+        or (type(state.legacy_helper_expiry_buckets) == "table" and next(state.legacy_helper_expiry_buckets) ~= nil)
 end
 
 function model.updater(event)
     local state = ensure_state()
     local tick = (event and event.tick) or game.tick or 0
+    update_legacy_helper_expiries(state, tick)
     update_variant_sync_jobs(state, tick)
 end
 
@@ -2660,10 +2972,20 @@ function model.get_runtime_status()
         variant_sync_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.variant_sync_buckets),
         variant_sync_bucket_items = ei_runtime_scheduler.delayed_item_count(state.variant_sync_buckets),
         variant_sync_last_surface_index_max = variant_sync_last_surface_index_max,
+        legacy_helper_expiry_bucket_count = ei_runtime_scheduler.delayed_bucket_count(state.legacy_helper_expiry_buckets),
+        legacy_helper_expiry_bucket_items = ei_runtime_scheduler.delayed_item_count(state.legacy_helper_expiry_buckets),
     }
 
     ei_runtime_scheduler.set_module_status("teslas-legacy", status)
     return status
+end
+
+if commands and commands.add_command then
+    commands.add_command(
+        TESLA_CLEANUP_COMMAND,
+        "Destroys stale hidden Tesla helper entities and clears their pending cleanup refs.",
+        handle_tesla_cleanup_command
+    )
 end
 
 return model

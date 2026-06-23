@@ -11,6 +11,7 @@
 --==============================================================================
 
 local ei_lib = require("lib/lib")
+local fluid_safety_config = require("lib/fluid-safety-config")
 local fluid_rupture_effects = require("scripts/control/fluid-rupture-effects")
 
 local model = {}
@@ -266,6 +267,9 @@ function model.on_entity_died(event)
         return
     end
     if not passes_damage_gate(event) then
+        return
+    end
+    if fluid_safety_config.is_ignored_entity(entity) then
         return
     end
 

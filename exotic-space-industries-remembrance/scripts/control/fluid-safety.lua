@@ -14,6 +14,7 @@ local model = {}
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local fluid_safety_config = require("lib/fluid-safety-config")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 local count_present_keys = ei_runtime_scheduler.table_count
 local MODULE_NAME = "fluid-safety"
@@ -2212,6 +2213,10 @@ function model.classify_entity(entity)
 end
 
 function model.counts_for_fluid_handling(entity)
+    if not entity or fluid_safety_config.is_ignored_entity(entity) then
+        return false
+    end
+
     if entity.type == "pipe" or entity.type == "storage-tank" or entity.type == "pipe-to-ground" then
         return true
     end
@@ -2366,10 +2371,12 @@ end
 
 function model.on_configuration_changed(event)
     local mod_changes_present = event and next(event.mod_changes or {}) ~= nil or false
-    if not mod_changes_present then
+    local startup_settings_changed = event and event.mod_startup_settings_changed == true or false
+    if not (mod_changes_present or startup_settings_changed) then
         return false
     end
 
+    fluid_safety_config.reset_cache()
     model.rebuild_fluid_runtime("configuration-changed")
     return true
 end

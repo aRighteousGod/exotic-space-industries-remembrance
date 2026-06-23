@@ -449,7 +449,7 @@ data:extend({
             {type = "item", name = "ei-ceramic", amount = 15},
             {type = "item", name = "plastic-bar", amount = 12},
             {type = "item", name = "low-density-structure", amount = 15},
-            {type = "item", name = "storage-tank", amount = 1},
+            {type = "item", name = "ei-tank-3", amount = 1},
             {type = "item", name = "fluid-wagon", amount = 1},
         },
         results = {{type = "item", name = "ei-advanced-fluid-wagon", amount = 1}},

@@ -4,6 +4,7 @@ local singularity_lance_config = require("lib/singularity-lance-config")
 local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
 local emerald_hover_tank_config = require("lib/emerald-apocalypse-hover-tank-config")
 local arc_furnace_light_config = require("lib/arc-furnace-light-config")
+local fluid_safety_config = require("lib/fluid-safety-config")
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
@@ -188,6 +189,7 @@ data:extend({
       allowed_values = {"lean", "standard", "cinematic", "unbounded"},
       order  = "a7ba",
   },
+  fluid_safety_config.startup_setting_definition(),
   {
       name = "ei-fulgora-day-length-variation-max-multiplier",
       type = "double-setting",

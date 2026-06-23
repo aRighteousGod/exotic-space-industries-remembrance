@@ -28,6 +28,12 @@ local CASE_SPECS = {
     fluid = {name = "lava", amount = 100},
   },
   {
+    id = "ignored-data-line",
+    entity_name = "tnd-pipe-name",
+    position = {4, 0},
+    fluid = {name = "ei-computing-power", amount = 100},
+  },
+  {
     id = "chemical-vessel",
     entity_name = "storage-tank",
     position = {16, 0},
@@ -261,6 +267,36 @@ local function collect_case_results(surface, force)
   return results
 end
 
+local function index_case_results(results)
+  local by_id = {}
+  for _, result in ipairs(results or {}) do
+    by_id[result.id] = result
+  end
+  return by_id
+end
+
+local function unit_table_has_key(tbl, unit_number)
+  if not unit_number or type(tbl) ~= "table" then
+    return false
+  end
+
+  return tbl[unit_number] ~= nil or tbl[tostring(unit_number)] ~= nil
+end
+
+local function unit_list_has_value(list, unit_number)
+  if not unit_number or type(list) ~= "table" then
+    return false
+  end
+
+  for _, value in pairs(list) do
+    if value == unit_number or tostring(value) == tostring(unit_number) then
+      return true
+    end
+  end
+
+  return false
+end
+
 local function case_has_fluid(result, fluid_name)
   for _, fluid in ipairs(result and result.fluids or {}) do
     if fluid.name == fluid_name and (fluid.amount or 0) > 0 then
@@ -272,13 +308,9 @@ local function case_has_fluid(result, fluid_name)
 end
 
 local function collect_validation(phase, results)
-  local by_id = {}
+  local by_id = index_case_results(results)
   local checks = {}
   local passed = true
-
-  for _, result in ipairs(results or {}) do
-    by_id[result.id] = result
-  end
 
   local function add_check(label, ok, detail)
     if not ok then
@@ -307,6 +339,12 @@ local function collect_validation(phase, results)
       "liquid=" .. tostring(case_has_fluid(by_id["cryo-line"], "ei-liquid-nitrogen")) .. ", gas=" .. tostring(case_has_fluid(by_id["cryo-line"], "ei-nitrogen-gas"))
     )
     add_check("thermal-line-destroyed", by_id["thermal-line"] and by_id["thermal-line"].exists == false, tostring(by_id["thermal-line"] and by_id["thermal-line"].exists))
+    add_check("ignored-data-line-preserved", by_id["ignored-data-line"] and by_id["ignored-data-line"].exists == true, tostring(by_id["ignored-data-line"] and by_id["ignored-data-line"].exists))
+    add_check(
+      "ignored-data-line-kept-data-fluid",
+      by_id["ignored-data-line"] and case_has_fluid(by_id["ignored-data-line"], "ei-computing-power"),
+      "data=" .. tostring(case_has_fluid(by_id["ignored-data-line"], "ei-computing-power"))
+    )
     add_check("chemical-vessel-destroyed", by_id["chemical-vessel"] and by_id["chemical-vessel"].exists == false, tostring(by_id["chemical-vessel"] and by_id["chemical-vessel"].exists))
   end
 
@@ -318,6 +356,42 @@ local function collect_validation(phase, results)
 
   return {
     phase = phase,
+    passed = passed,
+    checks = checks,
+  }
+end
+
+local function collect_rebuild_validation(rebuild_result)
+  local surface = ensure_surface()
+  local force = get_force()
+  local by_id = index_case_results(collect_case_results(surface, force))
+  local entries_by_unit = rebuild_result and rebuild_result.entries_by_unit or {}
+  local scan_units = rebuild_result and rebuild_result.scan_units or {}
+  local checks = {}
+  local passed = true
+
+  local function add_check(label, ok, detail)
+    if not ok then
+      passed = false
+    end
+    checks[#checks + 1] = {
+      label = label,
+      passed = ok == true,
+      detail = detail,
+    }
+  end
+
+  local data_line = by_id["data-line"]
+  local ignored_data_line = by_id["ignored-data-line"]
+  local data_unit = data_line and data_line.unit_number or nil
+  local ignored_unit = ignored_data_line and ignored_data_line.unit_number or nil
+
+  add_check("data-line-tracked-after-rebuild", unit_table_has_key(entries_by_unit, data_unit), "unit=" .. tostring(data_unit))
+  add_check("ignored-data-line-untracked-after-rebuild", not unit_table_has_key(entries_by_unit, ignored_unit), "unit=" .. tostring(ignored_unit))
+  add_check("ignored-data-line-not-scanned-after-rebuild", not unit_list_has_value(scan_units, ignored_unit), "unit=" .. tostring(ignored_unit))
+
+  return {
+    phase = "after-rebuild-action",
     passed = passed,
     checks = checks,
   }
@@ -393,6 +467,7 @@ local function run_action(action, current_tick)
       tick = current_tick,
       ok = ok,
       result = result,
+      validation = ok and type(result) == "table" and collect_rebuild_validation(result) or nil,
     })
     return
   end

@@ -774,6 +774,14 @@ data:extend({
                     scale = 0.7,
                 },
                 {
+                    filename = ei_path .. "graphics/entities/advanced-port-glow.png",
+                    width = 512,
+                    height = 512,
+                    scale = 0.7,
+                    draw_as_glow = true,
+                    blend_mode = "additive-soft",
+                },
+                {
                     filename = "__base__/graphics/entity/roboport/roboport-shadow.png",
                     width = 294,
                     height = 201,
@@ -783,17 +791,23 @@ data:extend({
                 },
             },
         },
-        base = {
-            filename = ei_robots_entity_path.."advanced-port.png",
-            width = 512,
-            height = 512,
-            scale = 0.7,
-        },
         base_patch = {
-            filename = ei_robots_entity_path.."advanced-port.png",
-            width = 512,
-            height = 512,
-            scale = 0.7,
+            layers = {
+                {
+                    filename = ei_robots_entity_path.."advanced-port.png",
+                    width = 512,
+                    height = 512,
+                    scale = 0.7,
+                },
+                {
+                    filename = ei_path .. "graphics/entities/advanced-port-glow.png",
+                    width = 512,
+                    height = 512,
+                    scale = 0.7,
+                    draw_as_glow = true,
+                    blend_mode = "additive-soft",
+                },
+            },
         },
         base_animation = {
             filename = ei_robots_entity_path.."/64x64_empty.png",
