@@ -62,6 +62,10 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-destill-lube"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-engine-unit-heavy-oil"
             }
         },
         unit = {

@@ -70,6 +70,7 @@ local recipes = {
 	"ei-emtpy-cryo-container",
 	"ei-green-circuit-waver",
 	"ei-red-circuit-waver",
+	"ei-engine-unit-heavy-oil",
 	"ei-electric-engine-lube",
 	"ei-advanced-motor",
 	"ei-advanced-motor-cryo",
