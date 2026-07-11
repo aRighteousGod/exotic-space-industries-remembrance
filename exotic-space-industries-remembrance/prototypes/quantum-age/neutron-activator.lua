@@ -17,7 +17,7 @@ data:extend({
         subgroup = "ei-nuclear-buildings",
         order = "c-c",
         place_result = "ei-neutron-activator",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-neutron-activator",

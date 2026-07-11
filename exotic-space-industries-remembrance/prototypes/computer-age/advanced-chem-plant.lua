@@ -17,7 +17,7 @@ data:extend({
         subgroup = "production-machine",
         order = "e[chemical-plant]-a",
         place_result = "ei-advanced-chem-plant",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-advanced-chem-plant",

@@ -17,7 +17,7 @@ data:extend({
 		subgroup = "production-machine",
 		order = "d-a-c-4",
 		place_result = "ei-cooler",
-		stack_size = 50,
+		stack_size = 10,
 	},
 	{
 		name = "ei-cooler",

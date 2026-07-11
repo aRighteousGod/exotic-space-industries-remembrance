@@ -17,7 +17,7 @@ data:extend({
         subgroup = "ei-labs",
         order = "b1",
         place_result = "ei-computer-core",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-computer-core",

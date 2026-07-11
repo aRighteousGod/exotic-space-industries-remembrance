@@ -17,7 +17,7 @@ data:extend({
         subgroup = "ei-alien-structures",
         order = "a-a",
         place_result = "ei-bio-chamber",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-bio-chamber",

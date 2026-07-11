@@ -17,7 +17,7 @@ data:extend({
         subgroup = "extraction-machine",
         order = "a[items]-a[stone-quarry]-b",
         place_result = "ei-excavator",
-        stack_size = 50
+        stack_size = 20
     },
     {
         name = "ei-excavator",

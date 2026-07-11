@@ -13,7 +13,7 @@ data:extend({
         subgroup = "ei-labs",
         order = "a3",
         place_result = "ei-big-lab",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-big-lab",

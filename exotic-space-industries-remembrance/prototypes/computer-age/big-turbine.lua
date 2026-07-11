@@ -17,7 +17,7 @@ data:extend({
         subgroup = "ei-nuclear-buildings",
         order = "c-f",
         place_result = "ei-big-turbine",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-big-turbine",

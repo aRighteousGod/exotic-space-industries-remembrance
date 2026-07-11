@@ -3,6 +3,24 @@ Version: 1.3.38
 Date: 6-23-2026
   Features:
     - Added a heavy-oil bulk Engine unit recipe, unlocked by Distill tower.
+  Changes:
+    - Heat chemical plant stack size: 50 -> 10.
+    - Advanced chemical plant stack size: 50 -> 10.
+    - Purifier stack size: 50 -> 10.
+    - Crystal grower stack size: 50 -> 10.
+    - Hypercooler stack size: 50 -> 10.
+    - Flesh Crucible stack size: 50 -> 10.
+    - Neuromarrow Engine stack size: 50 -> 10.
+    - Advanced oil refinery stack size: 50 -> 10.
+    - Advanced lab stack size: 50 -> 10.
+    - Computer core stack size: 50 -> 10.
+    - Quantum research computer stack size: 20 -> 10.
+    - High capacity turbine stack size: 50 -> 10.
+    - Neutron activator stack size: 50 -> 10.
+    - Deep drill stack size: 50 -> 20.
+    - Advanced deep drill stack size: 50 -> 20.
+    - Deep pumpjack stack size: 50 -> 20.
+    - Excavator stack size: 50 -> 20.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.37
 Date: 6-22-2026

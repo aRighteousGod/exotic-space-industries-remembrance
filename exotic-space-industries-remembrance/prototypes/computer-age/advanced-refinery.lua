@@ -17,7 +17,7 @@ data:extend({
         subgroup = "production-machine",
         order = "d[refinery]-a",
         place_result = "ei-advanced-refinery",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-advanced-refinery",

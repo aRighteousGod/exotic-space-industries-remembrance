@@ -17,7 +17,7 @@ data:extend({
         subgroup = "extraction-machine",
         order = "b[fluids]-c",
         place_result = "ei-deep-pumpjack",
-        stack_size = 50
+        stack_size = 20
     },
     {
         name = "ei-deep-pumpjack",

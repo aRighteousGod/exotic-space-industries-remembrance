@@ -17,7 +17,7 @@ data:extend({
         subgroup = "production-machine",
         order = "d-a-c-2",
         place_result = "ei-purifier",
-        stack_size = 50
+        stack_size = 10
     },
     {
         name = "ei-pure-iron",
