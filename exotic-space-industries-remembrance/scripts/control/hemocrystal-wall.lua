@@ -67,7 +67,7 @@ function model.check_global()
 end
 
 local function is_hemocrystal_wall(entity)
-    return entity ~= nil and entity.valid == true and entity.name == WALL_NAME
+    return ei_lib.entity_check(entity) and entity.name == WALL_NAME
 end
 
 local function get_entity_key(entity)
@@ -121,7 +121,7 @@ end
 
 function model.on_entity_damaged(event)
     local entity = event.entity
-    if entity.name ~= WALL_NAME then
+    if not is_hemocrystal_wall(entity) then
         return
     end
 
