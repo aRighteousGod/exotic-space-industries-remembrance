@@ -606,10 +606,10 @@ script.on_event(defines.events.on_tower_planted_seed, function(e)
     ei_randomized_tree_growth.on_tower_planted_seed(e)
 end)
 
+---@alias ESIRCommittedEntityRemovalEvent EventData.on_entity_died|EventData.script_raised_destroy|EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.on_space_platform_mined_entity
+
 script.on_event({
     defines.events.on_entity_died,
-	defines.events.on_pre_player_mined_item,
-	defines.events.on_robot_pre_mined,
     defines.events.script_raised_destroy
     }, function(e)
     if e.name == defines.events.on_entity_died then
@@ -635,10 +635,11 @@ script.on_event({
         ei_crystal_accumulator.on_robot_mined_entity(e)
     else
         ei_crystal_accumulator.on_space_platform_mined_entity(e)
-        -- Space platform mining has no separate pre-mined event. This event still
-        -- exposes the live entity just before destruction, so route teardown here.
-        on_destroyed_entity(e)
     end
+
+    -- Mined events are the first committed removal boundary: Factorio has already
+    -- collected the results, but the entity is still valid for registry/helper cleanup.
+    on_destroyed_entity(e)
 end)
 
 script.on_event(defines.events.on_entity_damaged, function(event)
@@ -1789,26 +1790,13 @@ function on_built_tile(e)
     ei_auric_inoculation_vat.on_built_tile(e)
 end
 
+---@param e ESIRCommittedEntityRemovalEvent
 function on_destroyed_entity(e)
-    -- Build/destroy symmetry matters because several modules need to undo registration,
-    -- spill/transfer items correctly, or distinguish pre-mining from after-the-fact death.
+    -- Shared teardown only receives committed removals: death, script destruction, or
+    -- a post-mined event. Cancellable pre-mine events must never mutate runtime state.
     if not e or not e["entity"] or not e["entity"].valid then
       return
     end
-
-    -- "pre" means a player, robot, or platform initiated the removal and the entity is
-    -- still present for live-neighborhood cleanup.
-    -- "past" means the entity is already being removed due to death or a script destroy.
-    if e["robot"] or e["player_index"] or e["platform"] then
-        e["destroy_type"] = "pre"
-    else
-        e["destroy_type"] = "past"
-    end
-
-    -- Some subsystems accept either a robot reference or a player index here because
-    -- they only need to know whether removed items should be handed back. Platform
-    -- mining moves buffered items into the platform after the event, so keep this nil.
-    local transfer = nil or e["robot"] or e["player_index"]
 
     if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
         ei_register.deregister_fluid_entity(e["entity"])
@@ -1819,18 +1807,18 @@ function on_destroyed_entity(e)
     end
 
     -- As with on_built_entity(), modules self-filter if the entity is irrelevant to them.
-    ei_fusion_reactor.on_destroyed_entity(e["entity"], e["destroy_type"])
+    ei_fusion_reactor.on_destroyed_entity(e["entity"])
     ei_combustion_turbine.on_destroyed_entity(e)
-    ei_beacon_overload.on_destroyed_entity(e["entity"], e["destroy_type"])
-    ei_neutron_collector.on_destroyed_entity(e["entity"], e["destroy_type"])
+    ei_beacon_overload.on_destroyed_entity(e["entity"])
+    ei_neutron_collector.on_destroyed_entity(e["entity"])
     ei_crystal_accumulator.on_destroyed_entity(e)
     ei_auric_inoculation_vat.on_destroyed_entity(e)
     ei_alien_spawner.on_destroyed_entity(e["entity"])
     ei_matter_stabilizer.on_destroyed_entity(e["entity"])
     ei_induction_matrix.on_destroyed_entity(e)
-    ei_black_hole.on_destroyed_entity(e["entity"], transfer)
+    ei_black_hole.on_destroyed_entity(e["entity"])
     ei_gate.on_destroyed_entity(e)
-    ei_fueler.on_destroyed_entity(e["entity"], transfer)
+    ei_fueler.on_destroyed_entity(e["entity"])
     em_trains.on_destroyed_entity(e["entity"])
     orbital_combinator.rem(e["entity"])
     orbital_logistics.on_destroyed_entity(e)

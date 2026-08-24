@@ -7,6 +7,9 @@ Date: 8-24-2026
     - Fixed Gaia resource map-generation sliders being overridden by per-resource placement settings.
     - Fixed inverted habitat masks that suppressed ammonia and relic debris generation.
     - Fixed existing Gaia surfaces not applying repaired map-generation settings; the legacy relic default is migrated without changing custom slider values.
+    - Fixed cancelled player and robot mining attempts running destructive entity teardown before removal was committed.
+    - Fixed Crystal accumulator mining snapshots leaking across cancelled attempts and replacing unrelated mining results; accumulator mining now changes only its own result stack.
+    - Fixed Gate mining manually creating an extra normal-quality Gate and destroying the engine-owned entity before its item and contents were transferred.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.38
 Date: 7-30-2026

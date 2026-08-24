@@ -3,7 +3,7 @@
 -- owns: gate runtime, GUI, selector flow, and remote dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
--- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, get_transfer_inv, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, transfer, transfer_valid, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
 -- storage_roots: storage.ei
 -- gui_ids: ei-gate-console
 -- remote_interfaces: none
@@ -1238,63 +1238,6 @@ function model.check_global_init()
         }
     end
 
-end
-
-
-function model.get_transfer_inv(transfer)
-    -- transfer is either a player index, a robot, or nil
-    -- needed to prevent unregistration when the transferer cant mine due to full inv
-
-    if not transfer then
-        return nil
-    end
-
-    if type(transfer) == "number" then
-        -- player index
-        local player = game.get_player(transfer)
-        return player and player.valid and player.get_main_inventory() or nil
-    end
-
-    if transfer.valid then
-        -- robot
-        local robot = transfer
-        return robot.get_inventory(defines.inventory.robot_cargo)
-    end
-
-    return nil
-
-end
-
-
-function model.transfer_valid(transfer)
-
-    local target_inv = model.get_transfer_inv(transfer)
-    
-    if not target_inv then
-        -- case for when destroyed by gun f.e. -> need to unregister
-        return true
-    end
-
-    -- check if target has space for gate item
-    if target_inv.can_insert({name = "ei-gate", count = 1}) then
-        target_inv.insert({name = "ei-gate", count = 1})
-        return true
-    end
-
-    return false
-
-end
-
-
-function model.transfer(transfer)
-
-    local target_inv = model.get_transfer_inv(transfer)
-    
-    if not target_inv then
-        return
-    end
-
-    target_inv.insert({name = "ei-gate", count = 1})
 end
 
 
@@ -3541,23 +3484,43 @@ function model.make_gate(container, event)
 end
 
 
+---@param gate LuaEntity|nil
+---@param container LuaEntity|nil
+---@param event ESIRCommittedEntityRemovalEvent
 function model.destroy_gate(gate, container, event)
+    local preserved_entity = event and event.entity or nil
+    gate = model.entity_check(gate) and gate or nil
+    container = model.entity_check(container) and container or nil
 
-    if not gate then
-        -- look for gate at container position
+    if not gate and container then
         gate = container.surface.find_entity("ei-gate", container.position)
+        gate = model.entity_check(gate) and gate or nil
     end
 
-    if not container then
-        -- look for container at gate position
+    if not container and gate then
         container = gate.surface.find_entity("ei-gate-container", gate.position)
-    end
-
-    if not gate or not container then
-        return
+        container = model.entity_check(container) and container or nil
     end
 
     local gate_unit = get_entity_unit_number(gate)
+    if not gate_unit and container then
+        -- Corrupt/orphan pairs can lose the hidden helper before the visible
+        -- container is removed. Recover the registry key by container identity so
+        -- proxy/render/runtime cleanup still happens on this committed removal.
+        local container_unit = get_entity_unit_number(container)
+        local gate_root = storage and storage.ei and storage.ei.gate or nil
+        local gate_registry = type(gate_root) == "table" and gate_root.gate or nil
+        for stored_gate_unit, gate_data in pairs(gate_registry or {}) do
+            local stored_container = gate_data and gate_data.container or nil
+            if stored_container == container
+            or (container_unit and get_entity_unit_number(stored_container) == container_unit) then
+                gate_unit = stored_gate_unit
+                gate = model.entity_check(gate_data.gate) and gate_data.gate or nil
+                break
+            end
+        end
+    end
+
     if not gate_unit then
         return
     end
@@ -3569,11 +3532,14 @@ function model.destroy_gate(gate, container, event)
         destroy_gate_glows(storage.ei.gate.gate[gate_unit])
     end
 
-    if model.entity_check(gate) then
+    -- The event source is owned by Factorio (or by the script that raised the
+    -- destroy event). Keep it valid for the rest of the shared teardown fan-out
+    -- and destroy only the paired counterpart.
+    if model.entity_check(gate) and gate ~= preserved_entity then
         gate.destroy()
     end
 
-    if model.entity_check(container) then
+    if model.entity_check(container) and container ~= preserved_entity then
         container.destroy()
     end
 
@@ -4945,10 +4911,10 @@ function model.on_built_entity(event)
 end
 
 
+---@param event ESIRCommittedEntityRemovalEvent
 function model.on_destroyed_entity(event)
 
     local entity = event and event.entity
-    local transfer = nil or (event and event.robot) or (event and event.player_index)
 
     if model.entity_check(entity) == false then
         return
@@ -4960,10 +4926,6 @@ function model.on_destroyed_entity(event)
     end
 
     if entity.name ~= "ei-gate" and entity.name ~= "ei-gate-container" then
-        return
-    end
-
-    if not model.transfer_valid(transfer) then
         return
     end
 

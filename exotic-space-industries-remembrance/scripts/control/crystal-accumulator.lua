@@ -515,10 +515,6 @@ end
 --   watch/open/screen maps:
 --     Cross indexes for the three player-facing surfaces: selected/opened entity,
 --     relative entity panel, and detachable screen readout.
---   pending_mining_*:
---     Pre-mine snapshots. Factorio gives the replacement buffer after the entity
---     is already being removed, so live-vs-husk mining result must be captured
---     during the pre-mined event and consumed during the mined event.
 --   scratch_*:
 --     Reused arrays for hot paths. They keep periodic surface service from
 --     allocating fresh transient tables every cycle.
@@ -575,12 +571,6 @@ local function build_runtime()
         watchers_by_surface = {},
         watchers_by_unit = {},
         open_by_player = {},
-
-        -- Mining buffers are only mutable after the mined event. These snapshots
-        -- carry the pre-mine decision across Factorio's two-stage mining flow.
-        pending_mining_by_unit = {},
-        pending_mining_by_player = {},
-        pending_mining_by_robot = {},
 
         -- Anchor and scratch storage are performance helpers. They are always
         -- derivable and should never encode player-facing irreversible state.
@@ -855,9 +845,12 @@ local function get_runtime()
     runtime.watchers_by_surface = runtime.watchers_by_surface or {}
     runtime.watchers_by_unit = runtime.watchers_by_unit or {}
     runtime.open_by_player = runtime.open_by_player or {}
-    runtime.pending_mining_by_unit = runtime.pending_mining_by_unit or {}
-    runtime.pending_mining_by_player = runtime.pending_mining_by_player or {}
-    runtime.pending_mining_by_robot = runtime.pending_mining_by_robot or {}
+    -- Pre-mine snapshots were transient aliases that could survive a cancelled
+    -- mining attempt and poison a later entity's result buffer. Post-mined events
+    -- still expose the live entity, so discard the legacy save shape outright.
+    runtime.pending_mining_by_unit = nil
+    runtime.pending_mining_by_player = nil
+    runtime.pending_mining_by_robot = nil
     runtime.last_status_tick = tonumber(runtime.last_status_tick) or 0
     runtime.scratch_unit_numbers = runtime.scratch_unit_numbers or {}
     runtime.scratch_stale_units = runtime.scratch_stale_units or {}
@@ -1670,11 +1663,17 @@ local function show_flying_text(surface, position, key)
     }
 end
 
--- Mining is a two-event operation. The pre-mine event still has the live entity
--- and its instability state; the mined event has the result buffer. These
--- snapshots carry the answer across that gap so mining a stabilized Gaia shell
--- and mining a damaged shell can produce different results deterministically.
-local function capture_pending_mining(record)
+-- Successful mined events still expose the live entity and its runtime record.
+-- Decide the replacement there so cancelled mining never leaves speculative state.
+---@class CrystalAccumulatorMiningResult
+---@field quality_name string|nil
+---@field source_item_name string
+---@field replacement_item_name string
+
+---@param record {entity: LuaEntity|nil, quality_name: string|nil, instability: number|nil}|nil
+---@param entity LuaEntity|nil
+---@return CrystalAccumulatorMiningResult|nil
+local function capture_mining_result(record, entity)
     if not record then
         return nil
     end
@@ -1683,99 +1682,25 @@ local function capture_pending_mining(record)
     -- prototype's mineable result. This enforces the design rule: only calm
     -- Gaia-stable shells mined on Gaia return a live crystal item; everything
     -- else collapses into a quality-preserving husk.
-    local entity = ei_lib.get_valid_entity(record.entity)
-    local unit_number = record.unit_number
-    local quality_name = entity and get_quality_name(entity) or record.quality_name
+    entity = ei_lib.get_valid_entity(entity) or ei_lib.get_valid_entity(record.entity)
+    if not entity then
+        return nil
+    end
+
+    local quality_name = get_quality_name(entity) or record.quality_name
     local can_return_live_item = entity_check(entity)
         and entity.name == GAIA_NAME
         and is_gaia_surface(entity.surface)
         and (record.instability or 0) < 25
 
     local husk_name = get_husk_name(record.instability or 0, false)
-    local snapshot = {
-        unit_number = unit_number,
+    local result = {
         quality_name = quality_name,
-        live_item_name = can_return_live_item and GAIA_NAME or nil,
-        husk_name = husk_name,
+        source_item_name = entity.name == GAIA_NAME and GAIA_NAME or BASE_NAME,
+        replacement_item_name = can_return_live_item and GAIA_NAME or husk_name,
     }
 
-    return snapshot
-end
-
--- Each snapshot can be reachable through three indexes at once: unit number,
--- player index, and robot unit number. Cleanup always removes every alias so a
--- later mined event cannot accidentally consume an old replacement decision.
-local function clear_pending_mining_snapshot(runtime, pending_snapshot)
-    if not pending_snapshot then
-        return
-    end
-
-    local pending_unit_number = pending_snapshot.unit_number
-    if pending_unit_number then
-        runtime.pending_mining_by_unit[pending_unit_number] = nil
-    end
-    for player_index, player_snapshot in pairs(runtime.pending_mining_by_player) do
-        if player_snapshot == pending_snapshot then
-            runtime.pending_mining_by_player[player_index] = nil
-        end
-    end
-    for robot_unit_number, robot_snapshot in pairs(runtime.pending_mining_by_robot) do
-        if robot_snapshot == pending_snapshot then
-            runtime.pending_mining_by_robot[robot_unit_number] = nil
-        end
-    end
-end
-
-local function store_pending_mining(runtime, event, snapshot)
-    if not snapshot then
-        return
-    end
-
-    -- The later mined event may arrive with different identifying information
-    -- depending on player/robot mining and engine timing. Store every alias we
-    -- can see now, then clear all aliases together when consumed.
-    local unit_number = snapshot.unit_number
-    clear_pending_mining_snapshot(runtime, runtime.pending_mining_by_unit[unit_number])
-    if event and event.player_index then
-        clear_pending_mining_snapshot(runtime, runtime.pending_mining_by_player[event.player_index])
-    end
-    if event and event.robot and event.robot.valid then
-        clear_pending_mining_snapshot(runtime, runtime.pending_mining_by_robot[event.robot.unit_number])
-    end
-    runtime.pending_mining_by_unit[unit_number] = snapshot
-    if event and event.player_index then
-        runtime.pending_mining_by_player[event.player_index] = snapshot
-    end
-    if event and event.robot and event.robot.valid then
-        runtime.pending_mining_by_robot[event.robot.unit_number] = snapshot
-    end
-end
-
-local function take_pending_mining(runtime, event)
-    local snapshot = nil
-    local entity = event and event.entity or nil
-    local unit_number = entity and get_unit_number(entity) or nil
-    -- Prefer unit number when Factorio still provides it; player and robot
-    -- indexes are fallbacks for the same pre-mine snapshot.
-    if unit_number then
-        snapshot = runtime.pending_mining_by_unit[unit_number]
-    end
-
-    if not snapshot and event and event.player_index then
-        snapshot = runtime.pending_mining_by_player[event.player_index]
-    end
-
-    if not snapshot and event and event.robot and event.robot.valid then
-        snapshot = runtime.pending_mining_by_robot[event.robot.unit_number]
-    end
-
-    if not snapshot then
-        return nil
-    end
-
-    clear_pending_mining_snapshot(runtime, snapshot)
-
-    return snapshot
+    return result
 end
 
 -- Registration is the single entrance for a live shell. It refreshes quality,
@@ -4064,11 +3989,11 @@ function model.on_repaired_entity(entity, event)
     end
 end
 
--- Destroy handling covers both final removal and the pre-mining half of the
--- Factorio mining lifecycle. Pre-mine events snapshot item/quality/buffer intent;
--- actual item replacement waits for the mined event where the buffer exists.
+-- Shared destroy handling is only called after removal is committed. Successful
+-- mining rewrites its result first, then arrives here to unregister the live shell.
+---@param event ESIRCommittedEntityRemovalEvent
 function model.on_destroyed_entity(event)
-    local entity = event and event.entity or event
+    local entity = event and event.entity or nil
     if not is_relevant_entity(entity) then
         return
     end
@@ -4079,13 +4004,7 @@ function model.on_destroyed_entity(event)
 
     if is_live_entity(entity) then
         local unit_number = get_unit_number(entity)
-        local record = unit_number and runtime.by_unit[unit_number] or nil
-        if not record then
-            return
-        end
-
-        if event and (event.name == defines.events.on_pre_player_mined_item or event.name == defines.events.on_robot_pre_mined) then
-            store_pending_mining(runtime, event, capture_pending_mining(record))
+        if not (unit_number and runtime.by_unit[unit_number]) then
             return
         end
 
@@ -4093,52 +4012,48 @@ function model.on_destroyed_entity(event)
     end
 end
 
--- The mined buffer is adjusted only after Factorio creates it. This lets unstable
--- shells return their correct live or husk item without fighting the engine's
--- normal mining result pipeline.
+-- Replace exactly the native shell result after Factorio creates the mined buffer.
+-- Other stacks may be container contents or another mod's additions and must survive.
+---@param event EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.on_space_platform_mined_entity
 local function finalize_mined_buffer(event)
-    local runtime = get_runtime()
-    local snapshot = take_pending_mining(runtime, event)
-    if not snapshot then
-        local entity = event and event.entity or nil
-        local unit_number = entity and get_unit_number(entity) or nil
-        local record = unit_number and runtime.by_unit[unit_number] or nil
-        if record and is_live_entity(entity) then
-            snapshot = capture_pending_mining(record)
-        end
-    end
-    if not snapshot then
+    local entity = event and event.entity or nil
+    local buffer = event and event.buffer or nil
+    if not (buffer and buffer.valid and is_live_entity(entity)) then
         return
     end
 
-    local unit_number = snapshot.unit_number
-    if unit_number and runtime.by_unit[unit_number] then
-        unregister_record(runtime, unit_number)
+    local runtime = get_runtime()
+    local unit_number = get_unit_number(entity)
+    local record = unit_number and runtime.by_unit[unit_number] or nil
+    local result = capture_mining_result(record, entity)
+    if not result or result.source_item_name == result.replacement_item_name then
+        return
     end
 
-    if event.buffer and event.buffer.valid then
-        local replacement_name = snapshot.live_item_name or snapshot.husk_name
-        local replacement_stack = replacement_name and make_item_stack(replacement_name, snapshot.quality_name, 1) or nil
-        if replacement_stack and event.buffer.can_insert(replacement_stack) then
-            event.buffer.clear()
-            event.buffer.insert(replacement_stack)
-        end
+    local source_stack = make_item_stack(result.source_item_name, result.quality_name, 1)
+    local replacement_stack = make_item_stack(result.replacement_item_name, result.quality_name, 1)
+    if buffer.remove(source_stack) ~= 1 then
+        return
     end
 
-    local surface = event and event.entity and event.entity.valid and event.entity.surface or nil
-    if surface and surface.valid then
-        queue_surface_viewers(runtime, surface.index, now_tick(event))
+    if buffer.insert(replacement_stack) ~= 1 then
+        -- A removed source stack guarantees room in normal operation. Restore it
+        -- if another handler or an unexpected inventory rule rejects the target.
+        buffer.insert(source_stack)
     end
 end
 
+---@param event EventData.on_player_mined_entity
 function model.on_player_mined_entity(event)
     finalize_mined_buffer(event)
 end
 
+---@param event EventData.on_robot_mined_entity
 function model.on_robot_mined_entity(event)
     finalize_mined_buffer(event)
 end
 
+---@param event EventData.on_space_platform_mined_entity
 function model.on_space_platform_mined_entity(event)
     finalize_mined_buffer(event)
 end
