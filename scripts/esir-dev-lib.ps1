@@ -1540,7 +1540,7 @@ function Get-EsirToolManifestData {
         wrapper        = [ordered]@{
             path    = 'scripts\invoke-esir-dev.ps1'
             library = 'scripts\esir-dev-lib.ps1'
-            tasks   = @('doctor', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
+            tasks   = @('doctor', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
         }
         dependency_wrapper = [ordered]@{
             path    = 'scripts\invoke-esir-dependency-intel.ps1'
@@ -1893,6 +1893,215 @@ function Invoke-EsirQcMode {
         helper_requirements = $helperRequirements
         encoding       = $encodingPass
         summary        = $summary
+    }
+}
+
+function Invoke-EsirGaiaResourceQc {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        [uint32[]]$Seeds,
+        [Nullable[int]]$PreviewSize,
+        [string]$FactorioPath
+    )
+
+    $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath -EnsureArtifactRoot
+    if (-not $context.factorio_exe) {
+        throw 'Factorio executable not found for Gaia resource QC.'
+    }
+
+    $presetPath = Join-Path $Paths.repo_root '.codex\skills\esir-dev\assets\gaia-resource-qc.json'
+    $preset = Read-EsirJson -Path $presetPath
+    if (-not $preset) {
+        throw "Gaia resource QC preset not found or invalid: $presetPath"
+    }
+
+    $effectiveSeeds = @(
+        if ($Seeds -and $Seeds.Count -gt 0) {
+            $Seeds | ForEach-Object { [uint32]$_ }
+        } else {
+            $preset.seeds | ForEach-Object { [uint32]$_ }
+        }
+    )
+    $effectivePreviewSize = if ($null -ne $PreviewSize) { [int]$PreviewSize } else { [int]$preset.preview_size }
+    if ($effectivePreviewSize -lt 256 -or $effectivePreviewSize -gt 8192) {
+        throw "Gaia resource QC preview size must be between 256 and 8192; got $effectivePreviewSize."
+    }
+
+    $planet = [string]$preset.planet
+    $targets = @($preset.resources | ForEach-Object { [string]$_ })
+    if (-not $planet -or $targets.Count -eq 0 -or $effectiveSeeds.Count -eq 0) {
+        throw "Gaia resource QC preset is missing its planet, resources, or seed matrix: $presetPath"
+    }
+
+    $minimumEntityCount = [int]$preset.minimum_entity_count
+    $syncResult = New-FactorioQCResult -Name 'gaia-resources'
+    $runMods = Sync-FactorioRunMods -Context $context -Result $syncResult
+    $targetAlternation = @($targets | ForEach-Object { [regex]::Escape($_) }) -join '|'
+    $runs = @()
+    $failures = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($seedValue in $effectiveSeeds) {
+        $seedText = [string]$seedValue
+        $config = New-FactorioWriteDataConfig -Context $context -Label "gaia-resource-$seedText"
+        $previewPath = Join-Path $context.artifact_root ("gaia-resource-{0}-{1}.png" -f $seedText, $effectivePreviewSize)
+        $stdoutPath = Join-Path $config.write_data_dir 'factorio-gaia-resource-stdout.txt'
+        $failureCountBeforeRun = $failures.Count
+
+        $process = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments @(
+            '--mod-directory', $runMods,
+            '--config', $config.config_path,
+            '--disable-audio',
+            '--generate-map-preview', $previewPath,
+            '--map-preview-size', [string]$effectivePreviewSize,
+            '--map-preview-planet', $planet,
+            '--map-gen-seed', $seedText,
+            '--report-quantities', ($targets -join ',')
+        ) -OutputPath $stdoutPath
+
+        if ($process.exit_code -ne 0) {
+            $failures.Add("seed ${seedText}: Factorio exited with code $($process.exit_code)") | Out-Null
+        }
+
+        $quantityByName = @{}
+        foreach ($line in $process.output) {
+            if ([string]$line -match "(?<name>$targetAlternation): totalEntityCount=(?<count>\d+), totalRichness=(?<richness>\d+)") {
+                $quantityByName[$Matches.name] = [ordered]@{
+                    entity_count = [uint64]$Matches.count
+                    richness = [uint64]$Matches.richness
+                }
+            }
+        }
+
+        $resourceRows = @()
+        foreach ($target in $targets) {
+            $measurement = $quantityByName[$target]
+            $entityCount = if ($measurement) { [uint64]$measurement.entity_count } else { $null }
+            $richness = if ($measurement) { [uint64]$measurement.richness } else { $null }
+            $present = $measurement -and $entityCount -ge $minimumEntityCount
+            if (-not $present) {
+                $observed = if ($null -eq $entityCount) { 'missing report' } else { "$entityCount entities" }
+                $failures.Add("seed ${seedText}: $target reported $observed") | Out-Null
+            }
+
+            $resourceRows += [ordered]@{
+                name = $target
+                entity_count = $entityCount
+                richness = $richness
+                present = [bool]$present
+            }
+        }
+
+        $runs += [ordered]@{
+            seed = $seedValue
+            status = if ($failures.Count -eq $failureCountBeforeRun) { 'ok' } else { 'failed' }
+            resources = $resourceRows
+            preview = if (Test-Path -LiteralPath $previewPath) { Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $previewPath } else { $null }
+            stdout = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $stdoutPath
+            config = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $config.config_path
+        }
+    }
+
+    $controlProbeRuns = @()
+    if ($preset.control_probe) {
+        $probeSeed = [uint32]$preset.control_probe.seed
+        $probeSeedText = [string]$probeSeed
+        $probePreviewSize = [int]$preset.control_probe.preview_size
+        $disabledResources = @($preset.control_probe.disabled_resources | ForEach-Object { [string]$_ })
+
+        foreach ($disabledResource in $disabledResources) {
+            if ($disabledResource -notin $targets) {
+                throw "Gaia resource QC control probe names an unknown resource: $disabledResource"
+            }
+
+            $controls = [ordered]@{}
+            $controls[$disabledResource] = [ordered]@{frequency = 0; size = 0; richness = 0}
+            $mapGenSettings = [ordered]@{autoplace_controls = $controls}
+            $mapGenSettingsPath = Join-Path $context.artifact_root ("gaia-resource-control-{0}.json" -f $disabledResource)
+            Write-FactorioQCTextFile -Path $mapGenSettingsPath -Value ($mapGenSettings | ConvertTo-Json -Depth 5)
+
+            $config = New-FactorioWriteDataConfig -Context $context -Label ("gaia-control-{0}" -f $disabledResource)
+            $previewPath = Join-Path $context.artifact_root ("gaia-control-{0}-{1}-{2}.png" -f $disabledResource, $probeSeedText, $probePreviewSize)
+            $stdoutPath = Join-Path $config.write_data_dir 'factorio-gaia-control-stdout.txt'
+            $failureCountBeforeRun = $failures.Count
+            $process = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments @(
+                '--mod-directory', $runMods,
+                '--config', $config.config_path,
+                '--disable-audio',
+                '--generate-map-preview', $previewPath,
+                '--map-preview-size', [string]$probePreviewSize,
+                '--map-preview-planet', $planet,
+                '--map-gen-seed', $probeSeedText,
+                '--map-gen-settings', $mapGenSettingsPath,
+                '--report-quantities', ($targets -join ',')
+            ) -OutputPath $stdoutPath
+
+            if ($process.exit_code -ne 0) {
+                $failures.Add("control probe ${disabledResource}: Factorio exited with code $($process.exit_code)") | Out-Null
+            }
+
+            $quantityByName = @{}
+            foreach ($line in $process.output) {
+                if ([string]$line -match "(?<name>$targetAlternation): totalEntityCount=(?<count>\d+), totalRichness=(?<richness>\d+)") {
+                    $quantityByName[$Matches.name] = [ordered]@{
+                        entity_count = [uint64]$Matches.count
+                        richness = [uint64]$Matches.richness
+                    }
+                }
+            }
+
+            $resourceRows = @()
+            foreach ($target in $targets) {
+                $measurement = $quantityByName[$target]
+                $entityCount = if ($measurement) { [uint64]$measurement.entity_count } else { $null }
+                $richness = if ($measurement) { [uint64]$measurement.richness } else { $null }
+                $isDisabledTarget = $target -eq $disabledResource
+                $passed = if ($isDisabledTarget) {
+                    $measurement -and $entityCount -eq 0
+                } else {
+                    $measurement -and $entityCount -ge $minimumEntityCount
+                }
+
+                if (-not $passed) {
+                    $expected = if ($isDisabledTarget) { '0 entities' } else { "at least $minimumEntityCount entity" }
+                    $observed = if ($null -eq $entityCount) { 'missing report' } else { "$entityCount entities" }
+                    $failures.Add("control probe ${disabledResource}: $target expected $expected, observed $observed") | Out-Null
+                }
+
+                $resourceRows += [ordered]@{
+                    name = $target
+                    entity_count = $entityCount
+                    richness = $richness
+                    expected = if ($isDisabledTarget) { 'disabled' } else { 'present' }
+                    passed = [bool]$passed
+                }
+            }
+
+            $controlProbeRuns += [ordered]@{
+                disabled_resource = $disabledResource
+                seed = $probeSeed
+                preview_size = $probePreviewSize
+                status = if ($failures.Count -eq $failureCountBeforeRun) { 'ok' } else { 'failed' }
+                resources = $resourceRows
+                map_gen_settings = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $mapGenSettingsPath
+                preview = if (Test-Path -LiteralPath $previewPath) { Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $previewPath } else { $null }
+                stdout = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $stdoutPath
+            }
+        }
+    }
+
+    return [ordered]@{
+        task = 'qc-gaia-resources'
+        overall_status = if ($failures.Count -eq 0) { 'ok' } else { 'failed' }
+        preset = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $presetPath
+        planet = $planet
+        preview_size = $effectivePreviewSize
+        minimum_entity_count = $minimumEntityCount
+        seeds = $effectiveSeeds
+        resources = $targets
+        run_mod_directory = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $runMods
+        runs = $runs
+        control_probes = $controlProbeRuns
+        failures = @($failures)
     }
 }
 
@@ -2826,6 +3035,8 @@ function Invoke-EsirTask {
         [Nullable[int]]$BenchmarkRuns,
         [Nullable[int]]$BenchmarkTicks,
         [Nullable[int]]$Seed,
+        [uint32[]]$Seeds,
+        [Nullable[int]]$PreviewSize,
         [string]$Planet,
         [string]$Pack,
         [string]$DependencyScope,
@@ -2855,6 +3066,7 @@ function Invoke-EsirTask {
         'qc-runtime' { return Invoke-EsirQcMode -Paths $Paths -Mode 'runtime' -SaveId $SaveId -SavePath $SavePath -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'runtime-benchmark' { return Invoke-EsirRuntimeBenchmark -Paths $Paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-preview' { return Invoke-EsirQcMode -Paths $Paths -Mode 'preview' -SaveId $SaveId -SavePath $SavePath -Seed $Seed -Planet $Planet -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
+        'qc-gaia-resources' { return Invoke-EsirGaiaResourceQc -Paths $Paths -Seeds $Seeds -PreviewSize $PreviewSize -FactorioPath $FactorioPath }
         'qc-assets' { return Invoke-EsirQcMode -Paths $Paths -Mode 'assets' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-package' { return Invoke-EsirQcMode -Paths $Paths -Mode 'package' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-full' { return Invoke-EsirQcMode -Paths $Paths -Mode 'full' -SaveId $SaveId -SavePath $SavePath -Seed $Seed -Planet $Planet -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }

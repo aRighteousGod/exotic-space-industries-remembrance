@@ -216,7 +216,7 @@ data:extend({
     {
         type = "noise-expression",
         name = "gaia_ammonia_habitat",
-        expression = "clamp(max(gaia_wet_mask * gaia_select(gaia_water_edge_mask, -1, 0.44, 0.16, 1, 0) * gaia_select(gaia_lushness, -1, 0.84, 0.2, 0.15, 1) * gaia_select(gaia_accent_noise, 0.24, 1.02, 0.22, 0, 1), 0.38 * gaia_wet_transition_mask * gaia_select(gaia_water_edge_mask, 0.18, 0.72, 0.18, 0, 1) * gaia_select(gaia_lushness, -1, 0.92, 0.18, 0.25, 1), 0.24 * gaia_wet_mask * gaia_select(gaia_lake_mask, 0.18, 1.0, 0.18, 0, 1) * gaia_select(gaia_water_edge_mask, -1, 0.56, 0.18, 1, 0)) * gaia_select(gaia_rock_biome_driver, -1, 0.64, 0.18, 0.25, 1) * gaia_land_mask, 0, 1)",
+        expression = "clamp(max(gaia_wet_mask * gaia_select(gaia_water_edge_mask, -1, 0.72, 0.18, 0.4, 1) * gaia_select(gaia_lushness, -1, 0.96, 0.2, 0.3, 1) * max(0.55, gaia_select(gaia_accent_noise, 0.12, 1.08, 0.24, 0, 1)), 0.78 * gaia_wet_transition_mask * gaia_select(gaia_lushness, -1, 1.04, 0.2, 0.35, 1), 0.52 * gaia_lake_mask * gaia_select(gaia_wetness, 0.18, 1.08, 0.2, 0.35, 1), 0.42 * gaia_meadow_mask * gaia_select(gaia_wetness, 0.38, 1.08, 0.18, 0, 1)) * gaia_select(gaia_rock_biome_driver, -1, 0.72, 0.2, 0.3, 1) * gaia_land_mask, 0, 1)",
     },
     {
         type = "noise-expression",
@@ -261,7 +261,7 @@ data:extend({
     {
         type = "noise-expression",
         name = "gaia_relic_debris_mask",
-        expression = "clamp(max(gaia_relic_shore_ruin_mask, gaia_relic_shoulder_ruin_mask) * gaia_select(gaia_water_mask, -1, 0.34, 0.12, 1, 0) * gaia_land_mask, 0, 1)",
+        expression = "clamp(max(gaia_relic_shore_ruin_mask, gaia_relic_shoulder_ruin_mask) * gaia_select(gaia_water_mask, -1, 0.34, 0.12, 0, 1) * gaia_land_mask, 0, 1)",
     },
     {
         type = "noise-expression",

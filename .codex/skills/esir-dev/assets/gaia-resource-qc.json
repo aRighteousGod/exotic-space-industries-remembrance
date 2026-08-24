@@ -1,0 +1,36 @@
+{
+  "format_version": 1,
+  "planet": "gaia",
+  "preview_size": 4096,
+  "minimum_entity_count": 1,
+  "seeds": [
+    1,
+    42,
+    1000,
+    424242,
+    8675309,
+    31415926,
+    1448790552,
+    2330146955
+  ],
+  "resources": [
+    "ei-morphium-patch",
+    "ei-phytogas-patch",
+    "ei-cryoflux-patch",
+    "ei-ammonia-patch",
+    "ei-coal-gas-patch",
+    "ei-gaia-relic-debris"
+  ],
+  "control_probe": {
+    "seed": 1000,
+    "preview_size": 2048,
+    "disabled_resources": [
+      "ei-morphium-patch",
+      "ei-phytogas-patch",
+      "ei-cryoflux-patch",
+      "ei-ammonia-patch",
+      "ei-coal-gas-patch",
+      "ei-gaia-relic-debris"
+    ]
+  }
+}

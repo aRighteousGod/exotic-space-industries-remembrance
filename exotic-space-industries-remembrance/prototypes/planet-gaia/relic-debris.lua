@@ -5,10 +5,10 @@ local function gaia_relic_debris_autoplace()
     local autoplace = resource_autoplace.resource_autoplace_settings{
         name = "ei-gaia-relic-debris",
         order = "x1",
-        base_density = 0.34,
+        base_density = 2.05,
         richness_multiplier = 1.18,
         richness_multiplier_distance_bonus = 1.25,
-        base_spots_per_km2 = 0.075,
+        base_spots_per_km2 = 0.75,
         has_starting_area_placement = true,
         random_spot_size_minimum = 0.18,
         random_spot_size_maximum = 0.7,

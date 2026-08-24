@@ -28,6 +28,16 @@ local function copy_value(value)
     return clone
 end
 
+---@param actual FrequencySizeRichness?
+---@param expected FrequencySizeRichness
+---@return boolean
+local function matches_frequency_size_richness(actual, expected)
+    return type(actual) == "table"
+        and actual.frequency == expected.frequency
+        and actual.size == expected.size
+        and actual.richness == expected.richness
+end
+
 --====================================================================================================
 --GAIA
 --====================================================================================================
@@ -193,6 +203,7 @@ end
 --SURFACE MIGRATION (for old worlds missing new autoplace controls)
 --====================================================================================================
 
+---@param surface LuaSurface?
 function model.migrate_gaia_surface(surface)
     if not (surface and surface.valid) then
         return
@@ -206,6 +217,7 @@ function model.migrate_gaia_surface(surface)
     -- Get the complete, current autoplace controls and settings
     local proper_controls = gaia_mapgen_data.get_autoplace_controls()
     local proper_settings = gaia_mapgen_data.get_autoplace_settings()
+    local legacy_resource_settings = gaia_mapgen_data.legacy_resource_entity_settings
 
     local needs_update = false
     local current_autoplace_settings = current_settings.autoplace_settings
@@ -228,6 +240,26 @@ function model.migrate_gaia_surface(surface)
         end
     end
 
+    if not needs_update then
+        local current_entity_settings = current_autoplace_settings and current_autoplace_settings.entity and current_autoplace_settings.entity.settings
+        for resource_name, legacy_settings in pairs(legacy_resource_settings) do
+            local current_entity_settings_for_resource = current_entity_settings and current_entity_settings[resource_name]
+            if current_entity_settings_for_resource == nil
+                or matches_frequency_size_richness(current_entity_settings_for_resource, legacy_settings)
+            then
+                needs_update = true
+                break
+            end
+        end
+    end
+
+    if not needs_update then
+        local current_relic_control = current_settings.autoplace_controls and current_settings.autoplace_controls["ei-gaia-relic-debris"]
+        if matches_frequency_size_richness(current_relic_control, legacy_resource_settings["ei-gaia-relic-debris"]) then
+            needs_update = true
+        end
+    end
+
     if needs_update then
         -- Ensure autoplace_controls exists
         if not current_settings.autoplace_controls then
@@ -236,9 +268,14 @@ function model.migrate_gaia_surface(surface)
 
         -- Update/add all required autoplace controls
         for control_name, control_settings in pairs(proper_controls) do
-                if not current_settings.autoplace_controls[control_name] then
+            if not current_settings.autoplace_controls[control_name] then
                 current_settings.autoplace_controls[control_name] = copy_value(control_settings)
             end
+        end
+
+        local current_relic_control = current_settings.autoplace_controls["ei-gaia-relic-debris"]
+        if matches_frequency_size_richness(current_relic_control, legacy_resource_settings["ei-gaia-relic-debris"]) then
+            current_settings.autoplace_controls["ei-gaia-relic-debris"] = copy_value(proper_controls["ei-gaia-relic-debris"])
         end
 
         -- Ensure autoplace_settings exists and has all required entities/decoratives
@@ -254,7 +291,11 @@ function model.migrate_gaia_surface(surface)
                     current_settings.autoplace_settings.entity.settings = {}
                 end
                 for entity_name, entity_settings in pairs(proper_settings.entity.settings) do
-                    if not current_settings.autoplace_settings.entity.settings[entity_name] then
+                    local current_entity_settings = current_settings.autoplace_settings.entity.settings[entity_name]
+                    local legacy_settings = legacy_resource_settings[entity_name]
+                    if current_entity_settings == nil
+                        or (legacy_settings and matches_frequency_size_richness(current_entity_settings, legacy_settings))
+                    then
                         current_settings.autoplace_settings.entity.settings[entity_name] = copy_value(entity_settings)
                     end
                 end
@@ -291,6 +332,9 @@ function model.migrate_gaia_surface(surface)
                 end
             end
         end
+
+        -- LuaSurface.map_gen_settings is copy-on-read; mutations take effect only after reassignment.
+        surface.map_gen_settings = current_settings
 
         ei_lib.crystal_echo("✧ [Gaia Awakening] — Updated Gaia's autoplace controls to current version")
     end

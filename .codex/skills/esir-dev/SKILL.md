@@ -28,6 +28,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `dependency-refresh|dependency-query|dependency-diff`: operate on the ESIR dependency catalog and optional local installed-mod enrichment
 - `preflight`: static syntax/reference/header/encoding sweeps without touching gameplay data
 - `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness
+- `qc-gaia-resources`: run the checked-in multi-seed Gaia resource matrix described in [`references/gaia-resource-qc.md`](./references/gaia-resource-qc.md)
 - `runtime-benchmark`: run save-catalog-backed runtime benchmarks, auto-staging helper mods declared for that save
 - `portal-scout`: build or refresh `.codex/esir/portal-shortlist.json`
 - `diff`: compare live source, seeded caches, package outputs, and shortlist freshness

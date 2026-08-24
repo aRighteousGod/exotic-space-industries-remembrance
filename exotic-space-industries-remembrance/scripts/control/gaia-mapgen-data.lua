@@ -17,24 +17,45 @@ local function copy_value(value)
 end
 
 -- Resource patch autoplace settings (from map-gen.lua)
+---@type string[]
+gaia_mapgen_data.resource_names = {
+    "ei-morphium-patch",
+    "ei-phytogas-patch",
+    "ei-cryoflux-patch",
+    "ei-ammonia-patch",
+    "ei-coal-gas-patch",
+    "ei-gaia-relic-debris",
+}
+
+-- Exact records copied into Gaia's entity whitelist before 1.3.39. Runtime
+-- repair may clear these signatures without erasing compatibility-mod values.
+gaia_mapgen_data.legacy_resource_entity_settings = {
+    ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
+    ["ei-phytogas-patch"] = {frequency = 2.4, size = 1.15, richness = 0.95},
+    ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
+    ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
+    ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
+    ["ei-gaia-relic-debris"] = {frequency = 0.14, size = 0.12, richness = 0.2},
+}
+
 gaia_mapgen_data.patch_controls = {
     ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
     ["ei-phytogas-patch"] = {frequency = 2.4, size = 1.15, richness = 0.95},
     ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
     ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
     ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
-    ["ei-gaia-relic-debris"] = {frequency = 0.14, richness = 0.2, size = 0.12},
+    ["ei-gaia-relic-debris"] = {frequency = 1, richness = 0.2, size = 0.2},
 }
 
 -- Entity autoplace settings (trees and boulders)
 gaia_mapgen_data.entity_settings = {
     -- Resource patches
-    ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
-    ["ei-phytogas-patch"] = {frequency = 2.4, size = 1.15, richness = 0.95},
-    ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
-    ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
-    ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
-    ["ei-gaia-relic-debris"] = {frequency = 0.14, richness = 0.2, size = 0.12},
+    ["ei-morphium-patch"] = {},
+    ["ei-phytogas-patch"] = {},
+    ["ei-cryoflux-patch"] = {},
+    ["ei-ammonia-patch"] = {},
+    ["ei-coal-gas-patch"] = {},
+    ["ei-gaia-relic-debris"] = {},
     -- Trees
     ["ei-gaia-tree-01"] = {frequency = 1.4, richness = 1, size = 0.85},
     ["ei-gaia-tree-02"] = {frequency = 1.15, richness = 1, size = 0.75},
@@ -93,6 +114,7 @@ gaia_mapgen_data.tile_settings = {
 }
 
 -- All autoplace controls (including terrain and resources)
+---@return table<string, FrequencySizeRichness>
 function gaia_mapgen_data.get_autoplace_controls()
     local controls = copy_value(gaia_mapgen_data.patch_controls)
     -- Terrain controls
@@ -108,6 +130,7 @@ function gaia_mapgen_data.get_autoplace_controls()
 end
 
 -- Complete autoplace settings with entity, decorative, and tile sections
+---@return AutoplaceSettings
 function gaia_mapgen_data.get_autoplace_settings()
     return {
         entity = {settings = copy_value(gaia_mapgen_data.entity_settings)},
@@ -116,6 +139,7 @@ function gaia_mapgen_data.get_autoplace_settings()
     }
 end
 
+---@return MapGenSettings
 function gaia_mapgen_data.get_map_gen_settings()
     local settings = {
         default_enable_all_autoplace_controls = false,

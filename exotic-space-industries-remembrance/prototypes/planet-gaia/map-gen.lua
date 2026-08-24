@@ -9,10 +9,14 @@ local gaia_patch_controls = {
     ["ei-cryoflux-patch"] = {frequency = 2.8, size = 0.68, richness = 1.4},
     ["ei-ammonia-patch"] = {frequency = 3.4, size = 0.86, richness = 1.05},
     ["ei-coal-gas-patch"] = {frequency = 2.2, size = 1.08, richness = 1.1},
-    ["ei-gaia-relic-debris"] = {frequency = 0.14, richness = 0.2, size = 0.12},
+    ["ei-gaia-relic-debris"] = {frequency = 1, richness = 0.2, size = 0.2},
 }
 
-local gaia_entity_settings = table.deepcopy(gaia_patch_controls)
+local gaia_entity_settings = {}
+for resource_name in pairs(gaia_patch_controls) do
+    -- Keep resources whitelisted while allowing their map-gen controls to drive placement.
+    gaia_entity_settings[resource_name] = {}
+end
 gaia_entity_settings["ei-gaia-tree-01"] = {frequency = 1.4, richness = 1, size = 0.85}
 gaia_entity_settings["ei-gaia-tree-02"] = {frequency = 1.15, richness = 1, size = 0.75}
 gaia_entity_settings["ei-gaia-tree-03"] = {frequency = 1.0, richness = 1, size = 0.65}
