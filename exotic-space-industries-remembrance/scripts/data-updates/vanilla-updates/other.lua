@@ -670,6 +670,12 @@ if pup and pup.effects then
         recipe = "ei-processing-unit-circuit-board",
         change = 0.1
     })
+    table.insert(pup.effects,
+    {
+        type = "change-recipe-productivity",
+        recipe = "ei-processing-unit-hydrofluoric",
+        change = 0.1
+    })
 end
 
 --add t1 steel ingot casting to steel productivity

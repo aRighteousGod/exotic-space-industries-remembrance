@@ -1360,7 +1360,7 @@ data:extend({
         type = "recipe",
         category = "crafting",
         additional_categories = {"electronics"},
-        energy_required = 10,
+        energy_required = 6,
         ingredients = {
             {type = "item", name = "ei-advanced-semiconductor", amount = 1},
             {type = "item", name = "ei-electronic-parts", amount = 1},
@@ -1368,7 +1368,7 @@ data:extend({
             {type = "item", name = "ei-circuit-board", amount = 1},
         },
         results = {
-            {type = "item", name = "processing-unit", amount = 2},
+            {type = "item", name = "processing-unit", amount = 4},
         },
         always_show_made_in = true,
         enabled = false,

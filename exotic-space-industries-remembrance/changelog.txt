@@ -4,6 +4,9 @@ Date: 8-24-2026
   Features:
     - Added a hydrofluoric-acid bulk Processing unit recipe for Simulation Age production.
   Changes:
+    - Quantum age Processing unit recipe crafting time: 10 -> 6s.
+    - Quantum age Processing unit recipe outputs: Processing unit 2 -> 4.
+    - Processing unit productivity now applies to the hydrofluoric bulk Processing unit recipe.
     - Rebalanced Gaia ammonia and relic debris distribution so both continue to appear beyond the central region while relic debris remains rare.
   Bugfixes:
     - Fixed Gaia resource map-generation sliders being overridden by per-resource placement settings.
