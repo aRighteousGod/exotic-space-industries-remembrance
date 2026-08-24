@@ -4462,3 +4462,70 @@ table.insert(data.raw["technology"]["space-platform-thruster"].effects, {type = 
 table.insert(data.raw["technology"]["space-platform-thruster"].effects, {type = "unlock-recipe", recipe = "ei-thruster-oxidizer"})
 table.insert(data.raw["technology"]["advanced-asteroid-processing"].effects, {type = "unlock-recipe", recipe = "ei-advanced-thruster-oxidizer"})
 
+local processing_unit = data.raw.item["processing-unit"]
+local hydrofluoric_acid = data.raw.fluid["ei-hydrofluoric-acid"]
+local processing_unit_bulk_icons = {
+    {
+        icon = processing_unit.icon,
+        icon_size = processing_unit.icon_size,
+        icon_mipmaps = processing_unit.icon_mipmaps,
+        scale = 0.7,
+        shift = {8, 8},
+    },
+    {
+        icon = hydrofluoric_acid.icon,
+        icon_size = hydrofluoric_acid.icon_size,
+        icon_mipmaps = hydrofluoric_acid.icon_mipmaps,
+        scale = 0.375,
+        shift = {-8, -8},
+        tint = {0.1875, 0.1875, 0.1875, 1},
+        floating = true,
+    },
+    {
+        icon = hydrofluoric_acid.icon,
+        icon_size = hydrofluoric_acid.icon_size,
+        icon_mipmaps = hydrofluoric_acid.icon_mipmaps,
+        scale = 0.25,
+        shift = {-8, -8},
+    },
+}
+
+data:extend({
+    {
+        type = "recipe",
+        name = "ei-processing-unit-hydrofluoric",
+        category = "crafting-with-fluid",
+        additional_categories = {"electronics-with-fluid"},
+        energy_required = 60,
+        icon_size = 64,
+        icons = processing_unit_bulk_icons,
+        ingredients = {
+            {type = "item", name = "ei-electronic-parts", amount = 10},
+            {type = "item", name = "ei-advanced-semiconductor", amount = 10},
+            {type = "item", name = "ei-simulation-data", amount = 40},
+            {type = "item", name = "ei-crushed-gold", amount = 80},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 100},
+        },
+        results = {{type = "item", name = "processing-unit", amount = 10}},
+        enabled = false,
+        always_show_made_in = true,
+        allow_decomposition = false,
+        main_product = "processing-unit",
+    },
+    {
+        type = "technology",
+        name = "ei-processing-unit-bulk",
+        icon_size = 64,
+        icons = processing_unit_bulk_icons,
+        prerequisites = {"processing-unit", "ei-purifier", "ei-advanced-computer-age-tech"},
+        effects = {{type = "unlock-recipe", recipe = "ei-processing-unit-hydrofluoric"}},
+        unit = {
+            count = 100,
+            ingredients = ei_data.science["advanced-computer-age"],
+            time = 20,
+        },
+        age = "advanced-computer-age",
+        order = "a-b-c[processing-unit-bulk]",
+    },
+})
+

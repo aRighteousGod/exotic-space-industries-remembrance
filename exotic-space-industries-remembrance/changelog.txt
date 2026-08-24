@@ -1,6 +1,8 @@
 ﻿---------------------------------------------------------------------------------------------------
 Version: 1.3.39
 Date: 8-24-2026
+  Features:
+    - Added a hydrofluoric-acid bulk Processing unit recipe for Simulation Age production.
   Changes:
     - Rebalanced Gaia ammonia and relic debris distribution so both continue to appear beyond the central region while relic debris remains rare.
   Bugfixes:
