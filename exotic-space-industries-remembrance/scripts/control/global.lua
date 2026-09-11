@@ -53,8 +53,15 @@ local function new_beacon_overload_runtime()
         enabled = ei_lib.config("beacon-overload") == true,
         tracked_machines = {},
         machine_counts = {},
+        tracked_beacons = {},
+        object_registrations = {},
+        machine_registration_numbers = {},
+        machine_beacon_units = {},
         overloaded_units = {},
         tracked_count = 0,
+        registered_beacon_count = 0,
+        registered_machine_count = 0,
+        relationship_count = 0,
         overloaded_count = 0,
         mode = nil,
         surface_queue = new_queue(),
@@ -63,6 +70,7 @@ local function new_beacon_overload_runtime()
         queued_units = {},
         queued_chunk_keys = {},
         processed_chunk_keys = {},
+        world_seed_tracked = false,
         tracked_refresh_cursor = nil,
         tracked_audit_cursor = nil,
         icon_audit_cursor = nil,
@@ -77,6 +85,7 @@ local function new_beacon_overload_runtime()
             last_heartbeat_tick = 0,
             last_reason = nil,
             last_status = {},
+            machine_queue_enqueues = 0,
         },
         compat = {
             machine_exclusions = {},
@@ -576,6 +585,18 @@ function ei_global.check_init(event)
     if not storage.ei.beacon_overload.machine_counts then
         storage.ei.beacon_overload.machine_counts = {}
     end
+    if not storage.ei.beacon_overload.tracked_beacons then
+        storage.ei.beacon_overload.tracked_beacons = {}
+    end
+    if not storage.ei.beacon_overload.object_registrations then
+        storage.ei.beacon_overload.object_registrations = {}
+    end
+    if not storage.ei.beacon_overload.machine_registration_numbers then
+        storage.ei.beacon_overload.machine_registration_numbers = {}
+    end
+    if not storage.ei.beacon_overload.machine_beacon_units then
+        storage.ei.beacon_overload.machine_beacon_units = {}
+    end
     if not storage.ei.beacon_overload.overloaded_units then
         storage.ei.beacon_overload.overloaded_units = {}
     end
@@ -585,6 +606,16 @@ function ei_global.check_init(event)
     if storage.ei.beacon_overload.overloaded_count == nil then
         storage.ei.beacon_overload.overloaded_count = 0
     end
+    if storage.ei.beacon_overload.registered_beacon_count == nil then
+        storage.ei.beacon_overload.registered_beacon_count = 0
+    end
+    if storage.ei.beacon_overload.registered_machine_count == nil then
+        storage.ei.beacon_overload.registered_machine_count = 0
+    end
+    if storage.ei.beacon_overload.relationship_count == nil then
+        storage.ei.beacon_overload.relationship_count = 0
+    end
+    storage.ei.beacon_overload.world_seed_tracked = storage.ei.beacon_overload.world_seed_tracked == true
     if storage.ei.beacon_overload.tracked_refresh_cursor == nil then
         storage.ei.beacon_overload.tracked_refresh_cursor = nil
     end
@@ -652,6 +683,9 @@ function ei_global.check_init(event)
     end
     if storage.ei.beacon_overload.debug.last_status == nil then
         storage.ei.beacon_overload.debug.last_status = {}
+    end
+    if storage.ei.beacon_overload.debug.machine_queue_enqueues == nil then
+        storage.ei.beacon_overload.debug.machine_queue_enqueues = 0
     end
 
     -- Migrate the legacy refresh queue into the new chunked schema if an older save is loaded.

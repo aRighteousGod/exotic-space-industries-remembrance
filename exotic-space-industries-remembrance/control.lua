@@ -119,6 +119,17 @@ local function register_exotic_industries_qc_remote()
             ei_singularity_lance.reset_runtime_state("scripted-research-qc", game and game.tick or 0)
             ei_emerald_apocalypse_hover_tank.reset_runtime_state("scripted-research-qc", game and game.tick or 0)
         end,
+        get_beacon_overload_qc_snapshot = function(machine_unit)
+            return ei_beacon_overload.get_qc_snapshot(machine_unit)
+        end,
+        set_beacon_overload_enabled_for_qc = function(enabled)
+            return ei_beacon_overload.set_enabled_for_qc(enabled)
+        end,
+        simulate_legacy_beacon_overload_state = function()
+            local before = ei_beacon_overload.reset_topology_for_qc()
+            ei_beacon_overload.refresh_all_overloads("qc-legacy-reseed")
+            return before
+        end,
         rebuild_orbital_logistics_runtime = function()
             orbital_logistics.rebuild_runtime_state("qc-remote", game and game.tick or 0)
         end,
@@ -602,6 +613,10 @@ script.on_event(defines.events.on_entity_cloned, function(e)
     on_cloned_entity(e)
 end)
 
+script.on_event(defines.events.script_raised_teleported, function(e)
+    ei_beacon_overload.on_script_raised_teleported(e)
+end)
+
 script.on_event(defines.events.on_tower_planted_seed, function(e)
     ei_randomized_tree_growth.on_tower_planted_seed(e)
 end)
@@ -806,6 +821,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_beacon_overload.on_object_destroyed(e)
     orbital_combinator.on_object_destroyed(e)
     ei_railgun_cooling.on_object_destroyed(e)
     ei_combustion_turbine.on_object_destroyed(e)

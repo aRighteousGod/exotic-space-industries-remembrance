@@ -1,4 +1,10 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.3.40
+Date: 9-10-2026
+  Features:
+  Bugfixes:
+    - Fixed beacon overload state not updating reliably when beacons or affected machines were built, mined, destroyed, cloned, teleported, fast-replaced, or removed during surface cleanup.
+---------------------------------------------------------------------------------------------------
 Version: 1.3.39
 Date: 8-24-2026
   Features:

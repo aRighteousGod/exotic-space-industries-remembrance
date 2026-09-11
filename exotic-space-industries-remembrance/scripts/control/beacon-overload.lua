@@ -3,7 +3,7 @@
 -- owns: beacon overload effects, icons, and rebuild/runtime state
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, configuration refresh, and queued refresh drain
--- forwarded_events: add_overload_effect, add_overload_icon, allows_effects, check_global, count_beacons, counts_for_overload, entity_check, get_debug_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, refresh_all_overloads, refresh_tracked_overloads, remove_overload_icon, set_debug_auto_arm, set_debug_enabled, update_all_machines_in_range, update_overload, updater
+-- forwarded_events: add_overload_effect, add_overload_icon, allows_effects, check_global, count_beacons, counts_for_overload, entity_check, get_debug_status, get_qc_snapshot, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, on_object_destroyed, on_script_raised_teleported, refresh_all_overloads, refresh_tracked_overloads, remove_overload_icon, reset_topology_for_qc, set_debug_auto_arm, set_debug_enabled, set_enabled_for_qc, update_all_machines_in_range, update_overload, updater
 -- storage_roots: storage.ei, storage.ei.beacon_overload
 -- gui_ids: none
 -- remote_interfaces: none
@@ -15,7 +15,9 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local OVERLOAD_THRESHOLD = 4
 local DEFAULT_MAX_BEACON_RANGE = ei_data.beacon_range or 6
-local RULES_SIGNATURE_VERSION = 2
+-- Version 3 adds the persisted beacon-to-machine topology. Bumping the rules
+-- signature makes the existing configuration-change rebuild seed legacy saves.
+local RULES_SIGNATURE_VERSION = 3
 local WORLD_BOOTSTRAP_CHUNK_DISCOVERY_PER_TICK = 1
 local WORLD_BOOTSTRAP_CHUNKS_PER_TICK = 4
 local TRACKED_REFRESH_BUDGET = 8
@@ -66,6 +68,15 @@ local REBUILD_MACHINE_TYPES = {
 
 local active_surface_scan = nil
 
+---@class ESIRBeaconOverloadBeaconRecord
+---@field registration_number uint64
+---@field surface_index uint
+---@field machine_units table<uint, true>
+
+---@class ESIRBeaconOverloadObjectRegistration
+---@field kind "beacon"|"machine"
+---@field unit_number uint
+
 local function new_queue_section()
     return ei_runtime_scheduler.ensure_queue(nil)
 end
@@ -107,9 +118,17 @@ local function ensure_state()
     local state = storage.ei.beacon_overload
     state.tracked_machines = state.tracked_machines or {}
     state.machine_counts = state.machine_counts or {}
+    state.tracked_beacons = state.tracked_beacons or {}
+    state.object_registrations = state.object_registrations or {}
+    state.machine_registration_numbers = state.machine_registration_numbers or {}
+    state.machine_beacon_units = state.machine_beacon_units or {}
     state.overloaded_units = state.overloaded_units or {}
     state.tracked_count = state.tracked_count or 0
+    state.registered_beacon_count = state.registered_beacon_count or 0
+    state.registered_machine_count = state.registered_machine_count or 0
+    state.relationship_count = state.relationship_count or 0
     state.overloaded_count = state.overloaded_count or 0
+    state.world_seed_tracked = state.world_seed_tracked == true
     state.tracked_refresh_cursor = state.tracked_refresh_cursor or nil
     state.tracked_audit_cursor = state.tracked_audit_cursor or nil
     state.icon_audit_cursor = state.icon_audit_cursor or nil
@@ -139,6 +158,7 @@ local function ensure_state()
     state.debug.last_reason = state.debug.last_reason or nil
     state.debug.last_status = state.debug.last_status or {}
     state.debug.phase_timings = state.debug.phase_timings or {}
+    state.debug.machine_queue_enqueues = state.debug.machine_queue_enqueues or 0
 
     if state.refresh and type(state.refresh) == "table" then
         local legacy = state.refresh
@@ -528,6 +548,7 @@ local function reset_refresh_queue(state)
     state.queued_units = {}
     state.queued_chunk_keys = {}
     state.processed_chunk_keys = {}
+    state.world_seed_tracked = false
     state.tracked_refresh_cursor = nil
     state.release_cursor = nil
 end
@@ -624,18 +645,35 @@ local function cleanup_icon_by_unit(unit_number)
     icons[unit_number] = nil
 end
 
-local function queue_machine_for_refresh(state, entity)
-    if not model.entity_check(entity) then
+local function queue_machine_unit_for_refresh(state, unit_number)
+    if not unit_number or state.queued_units[unit_number] then
         return
     end
 
-    local unit_number = get_entity_unit_number(entity)
-    if not unit_number or state.queued_units[unit_number] then
+    local entity = state.tracked_machines[unit_number]
+    if not model.entity_check(entity) then
         return
     end
 
     state.queued_units[unit_number] = true
     queue_push(state.machine_queue, unit_number)
+    state.debug.machine_queue_enqueues = (state.debug.machine_queue_enqueues or 0) + 1
+    if state.mode == nil then
+        -- Lifecycle events can arrive while the overload runtime is otherwise idle.
+        -- "machine" drains only this exact queue; it does not seed every tracked
+        -- machine and it never starts chunk or surface discovery.
+        state.mode = "machine"
+        state.last_reason = "topology-change"
+        state.debug.last_reason = state.last_reason
+    end
+end
+
+local function queue_machine_for_refresh(state, entity)
+    if not model.entity_check(entity) then
+        return
+    end
+
+    queue_machine_unit_for_refresh(state, get_entity_unit_number(entity))
 end
 
 local function clear_overloaded_flag(state, unit_number)
@@ -663,6 +701,111 @@ local function set_entity_active_safely(entity, active)
     return ok
 end
 
+local function register_destroyed_object(state, entity, kind)
+    if not model.entity_check(entity) or not script or not script.register_on_object_destroyed then
+        return nil
+    end
+
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
+        return nil
+    end
+
+    local ok, registration_number = pcall(script.register_on_object_destroyed, entity)
+    if not ok or not registration_number then
+        return nil
+    end
+
+    state.object_registrations[registration_number] = {
+        kind = kind,
+        unit_number = unit_number,
+    }
+    return registration_number
+end
+
+local function ensure_machine_registration(state, entity)
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
+        return nil
+    end
+
+    local registration_number = state.machine_registration_numbers[unit_number]
+    if registration_number then
+        state.object_registrations[registration_number] = {
+            kind = "machine",
+            unit_number = unit_number,
+        }
+        return registration_number
+    end
+
+    registration_number = register_destroyed_object(state, entity, "machine")
+    if registration_number then
+        state.machine_registration_numbers[unit_number] = registration_number
+        state.registered_machine_count = math.max(0, (state.registered_machine_count or 0) + 1)
+    end
+    return registration_number
+end
+
+local function unlink_machine_relationships(state, machine_unit)
+    local beacon_units = state.machine_beacon_units[machine_unit]
+    if not beacon_units then
+        return
+    end
+
+    for beacon_unit in pairs(beacon_units) do
+        local beacon_record = state.tracked_beacons[beacon_unit]
+        if beacon_record and beacon_record.machine_units[machine_unit] then
+            beacon_record.machine_units[machine_unit] = nil
+            state.relationship_count = math.max(0, (state.relationship_count or 0) - 1)
+        end
+    end
+    state.machine_beacon_units[machine_unit] = nil
+end
+
+local function link_machine_to_beacon(state, machine_unit, beacon_unit)
+    local beacon_record = state.tracked_beacons[beacon_unit]
+    if not machine_unit or not beacon_record then
+        return false
+    end
+
+    local beacon_units = state.machine_beacon_units[machine_unit]
+    if not beacon_units then
+        beacon_units = {}
+        state.machine_beacon_units[machine_unit] = beacon_units
+    end
+
+    if beacon_units[beacon_unit] and beacon_record.machine_units[machine_unit] then
+        return false
+    end
+
+    beacon_units[beacon_unit] = true
+    if not beacon_record.machine_units[machine_unit] then
+        beacon_record.machine_units[machine_unit] = true
+        state.relationship_count = math.max(0, (state.relationship_count or 0) + 1)
+    end
+    return true
+end
+
+local function replace_machine_relationships(state, machine_unit, beacon_units)
+    local previous = state.machine_beacon_units[machine_unit] or {}
+
+    for beacon_unit in pairs(previous) do
+        if not beacon_units[beacon_unit] then
+            local beacon_record = state.tracked_beacons[beacon_unit]
+            if beacon_record and beacon_record.machine_units[machine_unit] then
+                beacon_record.machine_units[machine_unit] = nil
+                state.relationship_count = math.max(0, (state.relationship_count or 0) - 1)
+            end
+        end
+    end
+
+    for beacon_unit in pairs(beacon_units) do
+        link_machine_to_beacon(state, machine_unit, beacon_unit)
+    end
+
+    state.machine_beacon_units[machine_unit] = next(beacon_units) and beacon_units or nil
+end
+
 local function track_machine(state, entity)
     if not model.entity_check(entity) then
         return false
@@ -678,6 +821,7 @@ local function track_machine(state, entity)
     end
 
     state.tracked_machines[unit_number] = entity
+    ensure_machine_registration(state, entity)
     return true
 end
 
@@ -693,6 +837,14 @@ local function remove_machine_tracking_by_unit(state, unit_number, entity, react
 
     if state.tracked_machines[unit_number] ~= nil then
         state.tracked_count = math.max(0, (state.tracked_count or 0) - 1)
+    end
+
+    unlink_machine_relationships(state, unit_number)
+    local registration_number = state.machine_registration_numbers[unit_number]
+    if registration_number then
+        state.machine_registration_numbers[unit_number] = nil
+        state.object_registrations[registration_number] = nil
+        state.registered_machine_count = math.max(0, (state.registered_machine_count or 0) - 1)
     end
 
     if state.tracked_refresh_cursor == unit_number then
@@ -754,11 +906,16 @@ local function build_debug_status(state, phase, reason, elapsed_text)
         enabled = state.enabled == true,
         auto_arm = state.debug.auto_arm == true,
         tracked_count = state.tracked_count or 0,
+        registered_beacon_count = state.registered_beacon_count or 0,
+        registered_machine_count = state.registered_machine_count or 0,
+        relationship_count = state.relationship_count or 0,
+        machine_queue_enqueues = state.debug.machine_queue_enqueues or 0,
         overloaded_count = state.overloaded_count or 0,
         surface_queue_length = queue_length(state.surface_queue),
         chunk_queue_length = queue_length(state.chunk_queue),
         machine_queue_length = queue_length(state.machine_queue),
         current_surface_index = current_surface_index(state),
+        world_seed_tracked = state.world_seed_tracked == true,
         tracked_refresh_cursor = state.tracked_refresh_cursor,
         tracked_audit_cursor = state.tracked_audit_cursor,
         icon_audit_cursor = state.icon_audit_cursor,
@@ -785,10 +942,12 @@ local function format_debug_status(snapshot)
         "enabled=" .. value_to_string(snapshot.enabled),
         "auto_arm=" .. value_to_string(snapshot.auto_arm),
         "tracked=" .. value_to_string(snapshot.tracked_count),
+        "registered(b=" .. value_to_string(snapshot.registered_beacon_count) .. ",m=" .. value_to_string(snapshot.registered_machine_count) .. ",e=" .. value_to_string(snapshot.relationship_count) .. ")",
+        "machine_enqueues=" .. value_to_string(snapshot.machine_queue_enqueues),
         "overloaded=" .. value_to_string(snapshot.overloaded_count),
         "queues(s=" .. value_to_string(snapshot.surface_queue_length) .. ",c=" .. value_to_string(snapshot.chunk_queue_length) .. ",m=" .. value_to_string(snapshot.machine_queue_length) .. ")",
         "surface=" .. value_to_string(snapshot.current_surface_index),
-        "cursors(tr=" .. value_to_string(snapshot.tracked_refresh_cursor) .. ",ta=" .. value_to_string(snapshot.tracked_audit_cursor) .. ",ia=" .. value_to_string(snapshot.icon_audit_cursor) .. ",re=" .. value_to_string(snapshot.release_cursor) .. ")",
+        "cursors(ws=" .. value_to_string(snapshot.world_seed_tracked) .. ",tr=" .. value_to_string(snapshot.tracked_refresh_cursor) .. ",ta=" .. value_to_string(snapshot.tracked_audit_cursor) .. ",ia=" .. value_to_string(snapshot.icon_audit_cursor) .. ",re=" .. value_to_string(snapshot.release_cursor) .. ")",
         "heartbeat=" .. value_to_string(snapshot.heartbeat_tick),
         "config_action=" .. value_to_string(snapshot.config_action),
         "rules=" .. value_to_string(snapshot.rules_signature),
@@ -953,6 +1112,7 @@ end
 local function queue_world_mode(state, reason)
     reset_refresh_queue(state)
     clear_active_surface_scan()
+    state.world_seed_tracked = next(state.tracked_machines) ~= nil
     state.tracked_refresh_cursor = nil
     set_work_mode(state, "world", reason)
     log_debug_status(state, "world-enqueue", reason, nil)
@@ -1063,13 +1223,12 @@ local function process_release_queue(state)
         if model.entity_check(entity) then
             if not set_entity_active_safely(entity, true) then
                 remove_machine_tracking_by_unit(state, unit_number, entity, false)
-                entity = nil
             end
         end
-        if entity then
-            cleanup_icon_by_unit(unit_number)
-            clear_overloaded_flag(state, unit_number)
-        end
+        -- Release bookkeeping even when the tracked entity is already absent.
+        -- An orphaned flag must not keep disabled-mode draining alive forever.
+        cleanup_icon_by_unit(unit_number)
+        clear_overloaded_flag(state, unit_number)
 
         state.release_cursor = next_key
         processed = processed + 1
@@ -1126,6 +1285,94 @@ local function beacon_counts_for_overload(state, entity)
     end
 
     return weight, range
+end
+
+local function ensure_beacon_registration(state, entity)
+    local weight = beacon_weight_for_overload(state, entity)
+    local unit_number = get_entity_unit_number(entity)
+    if not weight or not unit_number then
+        return nil
+    end
+
+    local record = state.tracked_beacons[unit_number]
+    if record then
+        record.surface_index = entity.surface.index
+        state.object_registrations[record.registration_number] = {
+            kind = "beacon",
+            unit_number = unit_number,
+        }
+        return record
+    end
+
+    local registration_number = register_destroyed_object(state, entity, "beacon")
+    if not registration_number then
+        return nil
+    end
+
+    ---@type ESIRBeaconOverloadBeaconRecord
+    record = {
+        registration_number = registration_number,
+        surface_index = entity.surface.index,
+        machine_units = {},
+    }
+    state.tracked_beacons[unit_number] = record
+    state.registered_beacon_count = math.max(0, (state.registered_beacon_count or 0) + 1)
+    return record
+end
+
+local function clear_beacon_relationships(state, beacon_unit, queue_machines)
+    local record = state.tracked_beacons[beacon_unit]
+    if not record then
+        return
+    end
+
+    for machine_unit in pairs(record.machine_units) do
+        local beacon_units = state.machine_beacon_units[machine_unit]
+        if beacon_units then
+            beacon_units[beacon_unit] = nil
+            if next(beacon_units) == nil then
+                state.machine_beacon_units[machine_unit] = nil
+            end
+        end
+        state.relationship_count = math.max(0, (state.relationship_count or 0) - 1)
+        if queue_machines then
+            queue_machine_unit_for_refresh(state, machine_unit)
+        end
+    end
+    record.machine_units = {}
+end
+
+local function remove_beacon_tracking_by_unit(state, beacon_unit, queue_machines)
+    local record = beacon_unit and state.tracked_beacons[beacon_unit] or nil
+    if not record then
+        return false
+    end
+
+    clear_beacon_relationships(state, beacon_unit, queue_machines)
+    state.object_registrations[record.registration_number] = nil
+    state.tracked_beacons[beacon_unit] = nil
+    state.registered_beacon_count = math.max(0, (state.registered_beacon_count or 0) - 1)
+    return true
+end
+
+local function clear_topology_graph(state)
+    state.tracked_beacons = {}
+    state.object_registrations = {}
+    state.machine_registration_numbers = {}
+    state.machine_beacon_units = {}
+    state.registered_beacon_count = 0
+    state.registered_machine_count = 0
+    state.relationship_count = 0
+end
+
+local function clear_beacon_graph(state)
+    for _, record in pairs(state.tracked_beacons) do
+        state.object_registrations[record.registration_number] = nil
+    end
+    state.tracked_beacons = {}
+    state.machine_beacon_units = {}
+    state.registered_beacon_count = 0
+    state.relationship_count = 0
 end
 
 local function chunk_generated(surface, chunk_x, chunk_y)
@@ -1276,53 +1523,63 @@ local function recount_machine_from_engine(state, entity)
         return entity.get_beacons()
     end)
     if not ok or type(beacons) ~= "table" then
-        return nil
+        return nil, nil
     end
 
     local total = 0
+    local beacon_units = {}
     for _, beacon in ipairs(beacons) do
         local weight = beacon_weight_for_overload(state, beacon)
         if weight then
             total = total + weight
+            local beacon_unit = get_entity_unit_number(beacon)
+            if beacon_unit and ensure_beacon_registration(state, beacon) then
+                beacon_units[beacon_unit] = true
+            end
         end
     end
 
-    return total
+    return total, beacon_units
 end
 
 local function recount_machine_spatial_fallback(state, entity)
     if not model.entity_check(entity) then
-        return 0
+        return 0, {}
     end
 
     local surface = entity.surface
     local bbox = entity.bounding_box
     if not (surface and bbox) then
-        return 0
+        return 0, {}
     end
 
     local search_area = expand_area(bbox, get_recount_search_range(state))
     local candidates = surface.find_entities_filtered { area = search_area, type = "beacon" }
 
     local total = 0
+    local beacon_units = {}
     for _, beacon in ipairs(candidates) do
         local weight, range = beacon_counts_for_overload(state, beacon)
         if weight and beacon.bounding_box and areas_overlap(expand_area(beacon.bounding_box, range), bbox) then
             total = total + weight
+            local beacon_unit = get_entity_unit_number(beacon)
+            if beacon_unit and ensure_beacon_registration(state, beacon) then
+                beacon_units[beacon_unit] = true
+            end
         end
     end
 
-    return total
+    return total, beacon_units
 end
 
 local function recount_machine(state, entity)
     if not model.entity_check(entity) then
-        return 0
+        return 0, {}
     end
 
-    local engine_count = recount_machine_from_engine(state, entity)
+    local engine_count, engine_beacon_units = recount_machine_from_engine(state, entity)
     if engine_count ~= nil then
-        return engine_count
+        return engine_count, engine_beacon_units
     end
 
     return recount_machine_spatial_fallback(state, entity)
@@ -1343,7 +1600,8 @@ local function process_machine_refresh(state, entity)
     end
 
     local unit_number = get_entity_unit_number(entity)
-    local count = recount_machine(state, entity)
+    local count, beacon_units = recount_machine(state, entity)
+    replace_machine_relationships(state, unit_number, beacon_units)
     state.machine_counts[unit_number] = count
     update_machine_state(state, entity, count > OVERLOAD_THRESHOLD)
 end
@@ -1483,6 +1741,77 @@ function model.get_debug_status()
     return build_debug_status(state, state.mode or "idle", state.last_reason, nil)
 end
 
+---@param machine_unit? uint
+---@return table
+function model.get_qc_snapshot(machine_unit)
+    local state = ensure_state()
+    local object_registration_count = 0
+    local queued_unit_count = 0
+    for _ in pairs(state.object_registrations) do
+        object_registration_count = object_registration_count + 1
+    end
+    for _ in pairs(state.queued_units) do
+        queued_unit_count = queued_unit_count + 1
+    end
+
+    local snapshot = {
+        enabled = is_overload_enabled(state),
+        tracked_count = state.tracked_count or 0,
+        registered_beacon_count = state.registered_beacon_count or 0,
+        registered_machine_count = state.registered_machine_count or 0,
+        relationship_count = state.relationship_count or 0,
+        machine_queue_enqueues = state.debug.machine_queue_enqueues or 0,
+        object_registration_count = object_registration_count,
+        overloaded_count = state.overloaded_count or 0,
+        machine_queue_length = queue_length(state.machine_queue),
+        queued_unit_count = queued_unit_count,
+    }
+
+    if machine_unit then
+        local linked_beacon_count = 0
+        for _ in pairs(state.machine_beacon_units[machine_unit] or {}) do
+            linked_beacon_count = linked_beacon_count + 1
+        end
+        snapshot.machine = {
+            unit_number = machine_unit,
+            tracked = state.tracked_machines[machine_unit] ~= nil,
+            weighted_count = state.machine_counts[machine_unit],
+            overloaded = state.overloaded_units[machine_unit] == true,
+            linked_beacon_count = linked_beacon_count,
+            queued = state.queued_units[machine_unit] == true,
+            registration_number = state.machine_registration_numbers[machine_unit],
+            icon_present = get_render_object(storage.ei.overload_icons[machine_unit]) ~= nil,
+        }
+    end
+
+    return snapshot
+end
+
+function model.reset_topology_for_qc()
+    local state = ensure_state()
+    clear_topology_graph(state)
+    return model.get_qc_snapshot()
+end
+
+---@param enabled boolean
+function model.set_enabled_for_qc(enabled)
+    local state = ensure_state()
+    set_overload_enabled_cache(state, enabled)
+    if not enabled then
+        clear_topology_graph(state)
+        if next(state.overloaded_units) ~= nil then
+            release_owned_overloads(state, "qc-disabled")
+        else
+            clear_refresh_mode(state)
+        end
+    else
+        refresh_rules_signature_cache(state)
+        clear_beacon_graph(state)
+        enqueue_world_rebuild(state, "qc-enabled")
+    end
+    return state.enabled
+end
+
 function model.allows_effects(entity)
     if not model.entity_check(entity) then
         return false
@@ -1527,7 +1856,8 @@ end
 
 function model.count_beacons(entity)
     local state = ensure_state()
-    return recount_machine(state, entity)
+    local count = recount_machine(state, entity)
+    return count
 end
 
 function model.refresh_all_overloads(reason)
@@ -1546,6 +1876,7 @@ function model.refresh_all_overloads(reason)
     end
 
     refresh_rules_signature_cache(state)
+    clear_beacon_graph(state)
     enqueue_world_rebuild(state, reason)
 end
 
@@ -1565,6 +1896,7 @@ function model.refresh_tracked_overloads(reason)
     end
 
     refresh_rules_signature_cache(state)
+    clear_beacon_graph(state)
     enqueue_tracked_refresh(state, reason)
 end
 
@@ -1591,6 +1923,10 @@ function model.update_all_machines_in_range(entity, _destroy_type, _beacon_value
     end
 
     state = state or ensure_state()
+    local beacon_unit = get_entity_unit_number(entity)
+    if not beacon_unit then
+        return
+    end
     local candidates = {}
     local seen = {}
 
@@ -1632,7 +1968,8 @@ function model.update_all_machines_in_range(entity, _destroy_type, _beacon_value
 
     for _, machine in ipairs(candidates) do
         if model.counts_for_overload(machine, state) then
-            if track_machine(state, machine) then
+            if ensure_beacon_registration(state, entity) and track_machine(state, machine) then
+                link_machine_to_beacon(state, get_entity_unit_number(machine), beacon_unit)
                 queue_machine_for_refresh(state, machine)
             end
         else
@@ -1750,6 +2087,7 @@ function model.on_configuration_changed(e)
         if not enabled then
             local rules_signature, max_counted_beacon_range = build_rules_signature(state)
             store_rules_signature(state, rules_signature, max_counted_beacon_range)
+            clear_topology_graph(state)
             if next(state.overloaded_units) ~= nil then
                 state.debug.last_config_action = "disabled-release"
                 release_owned_overloads(state, reason .. "-disabled")
@@ -1776,6 +2114,7 @@ function model.on_configuration_changed(e)
             store_rules_signature(state, rules_signature, max_counted_beacon_range)
             if rules_changed then
                 state.debug.last_config_action = "rebuild-rules-changed"
+                clear_beacon_graph(state)
                 enqueue_world_rebuild(state, reason)
             else
                 state.debug.last_config_action = "skip-rules-unchanged"
@@ -1849,6 +2188,10 @@ function model.updater(event)
         with_profiled_phase(state, "release", state.last_reason, function()
             return process_release_queue(state)
         end)
+    elseif enabled and state.mode == "machine" then
+        with_profiled_phase(state, "machine-recount", state.last_reason, function()
+            return process_machine_queue(state)
+        end)
     elseif enabled and state.mode == "tracked" then
         with_profiled_phase(state, "tracked-seeding", state.last_reason, function()
             return process_tracked_refresh_queue(state)
@@ -1857,6 +2200,16 @@ function model.updater(event)
             return process_machine_queue(state)
         end)
     elseif enabled and state.mode == "world" then
+        if state.world_seed_tracked then
+            with_profiled_phase(state, "tracked-seeding", state.last_reason, function()
+                local processed = process_tracked_refresh_queue(state)
+                if state.tracked_refresh_cursor == nil then
+                    state.world_seed_tracked = false
+                end
+                return processed
+            end)
+        end
+
         if queue_length(state.surface_queue) > 0 then
             with_profiled_phase(state, "chunk-discovery", state.last_reason, function()
                 return discover_surface_chunks(state, get_surface_discovery_budget())
@@ -1904,26 +2257,28 @@ function model.on_built_entity(entity)
 
     local state = ensure_state()
     local enabled = is_overload_enabled(state)
-    if maybe_machine and model.counts_for_overload(entity, state) then
-        if enabled then
-            process_machine_refresh(state, entity)
-        else
-            track_machine(state, entity)
-        end
-    end
-
-    if not is_beacon or not enabled then
+    if not enabled then
+        -- Configuration-change re-enable owns rediscovery. Lifecycle activity
+        -- while disabled must not recreate object registrations or graph edges.
         return
     end
 
-    local weight = beacon_weight_for_overload(state, entity)
-    if weight then
+    if maybe_machine and model.counts_for_overload(entity, state) then
+        process_machine_refresh(state, entity)
+    end
+
+    if not is_beacon then
+        return
+    end
+
+    local weight, range = beacon_counts_for_overload(state, entity)
+    if weight and range > 0 then
         model.update_all_machines_in_range(entity, nil, nil, state)
     end
 end
 
-function model.on_destroyed_entity(entity, destroy_type)
-    if not entity then
+function model.on_destroyed_entity(entity, _destroy_type)
+    if not model.entity_check(entity) then
         return
     end
 
@@ -1943,13 +2298,94 @@ function model.on_destroyed_entity(entity, destroy_type)
         cleanup_icon_by_unit(unit_number)
     end
 
-    if not is_beacon or not is_overload_enabled(state) then
+    if is_beacon and unit_number then
+        remove_beacon_tracking_by_unit(state, unit_number, is_overload_enabled(state))
+    end
+end
+
+---@param event EventData.on_object_destroyed
+function model.on_object_destroyed(event)
+    local registration_number = event and event.registration_number or nil
+    if not registration_number then
         return
     end
 
-    local weight = entity.valid and beacon_weight_for_overload(state, entity) or nil
-    if weight then
-        model.update_all_machines_in_range(entity, destroy_type, nil, state)
+    local state = ensure_state()
+    local registration = state.object_registrations[registration_number]
+    if not registration then
+        return
+    end
+
+    if registration.kind == "beacon" then
+        local record = state.tracked_beacons[registration.unit_number]
+        if record and record.registration_number == registration_number then
+            remove_beacon_tracking_by_unit(
+                state,
+                registration.unit_number,
+                is_overload_enabled(state)
+            )
+        else
+            state.object_registrations[registration_number] = nil
+        end
+    elseif registration.kind == "machine" then
+        if state.machine_registration_numbers[registration.unit_number] == registration_number then
+            remove_machine_tracking_by_unit(state, registration.unit_number, nil, false)
+        else
+            state.object_registrations[registration_number] = nil
+        end
+    else
+        state.object_registrations[registration_number] = nil
+    end
+end
+
+---@param event EventData.script_raised_teleported
+function model.on_script_raised_teleported(event)
+    local entity = event and event.entity or nil
+    if not model.entity_check(entity) then
+        return
+    end
+
+    local state = ensure_state()
+    local unit_number = get_entity_unit_number(entity)
+    if not unit_number then
+        return
+    end
+
+    local enabled = is_overload_enabled(state)
+    if not enabled then
+        if entity.type == "beacon" then
+            remove_beacon_tracking_by_unit(state, unit_number, false)
+        end
+        return
+    end
+
+    if entity.type == "beacon" then
+        if state.tracked_beacons[unit_number] then
+            clear_beacon_relationships(state, unit_number, true)
+        end
+
+        local weight, range = beacon_counts_for_overload(state, entity)
+        if not weight or range <= 0 then
+            remove_beacon_tracking_by_unit(state, unit_number, false)
+            return
+        end
+
+        model.update_all_machines_in_range(entity, nil, nil, state)
+        return
+    end
+
+    if not ELIGIBLE_MACHINE_TYPES[entity.type] then
+        return
+    end
+
+    if state.tracked_machines[unit_number] then
+        unlink_machine_relationships(state, unit_number)
+    end
+
+    if model.counts_for_overload(entity, state) then
+        process_machine_refresh(state, entity)
+    elseif state.tracked_machines[unit_number] or state.overloaded_units[unit_number] then
+        remove_machine_tracking_by_unit(state, unit_number, entity, true)
     end
 end
 

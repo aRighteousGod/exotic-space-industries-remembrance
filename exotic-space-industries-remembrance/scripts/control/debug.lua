@@ -74,6 +74,9 @@ local function get_status_snapshot()
         mode = state and state.mode or nil,
         reason = (debug_state.last_reason or (state and state.last_reason)) or nil,
         tracked_count = state and state.tracked_count or 0,
+        registered_beacon_count = state and state.registered_beacon_count or 0,
+        registered_machine_count = state and state.registered_machine_count or 0,
+        relationship_count = state and state.relationship_count or 0,
         overloaded_count = state and state.overloaded_count or 0,
         surface_queue = state and state.surface_queue or nil,
         chunk_queue = state and state.chunk_queue or nil,
@@ -98,6 +101,8 @@ local function format_status_summary(status)
         "auto_arm=" .. tostring(status.auto_arm and true or false),
         "mode=" .. tostring(status.mode or "idle"),
         "tracked=" .. tostring(status.tracked_count or 0),
+        "registered=" .. tostring(status.registered_beacon_count or 0) .. "/" .. tostring(status.registered_machine_count or 0),
+        "edges=" .. tostring(status.relationship_count or 0),
         "overloaded=" .. tostring(status.overloaded_count or 0),
         "queues=" .. tostring(surface_queue_length) .. "/" .. tostring(chunk_queue_length) .. "/" .. tostring(machine_queue_length),
     }
