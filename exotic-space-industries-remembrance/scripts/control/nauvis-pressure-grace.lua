@@ -3,18 +3,22 @@
 -- owns: Nauvis pressure grace milestone and pollution/evolution pressure
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: configuration changes, research-finished, and scheduled tick step 1
--- forwarded_events: has_tick_work, on_configuration_changed, on_research_finished, on_scripted_research_burst, updater
+-- forwarded_events: on_init, has_tick_work, on_configuration_changed, on_research_finished, on_scripted_research_burst, updater
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
 -- rebuild_on: startup settings, research progression, configuration changes
 --==============================================================================
 local ei_lib = require("lib/lib")
+local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local model = {}
 
 local CHECK_INTERVAL = 18000
+local STATE_SCHEMA_VERSION = 2
 local PROFILE_CLASSIC = "Classic"
 local PROFILE_EXTENDED = "Extended"
+local DIFFICULTY_MERCIFUL = "Merciful"
+local DIFFICULTY_IMPOSSIBLE = "Impossible"
 local PHASE_INACTIVE = "inactive"
 local POLLUTION_FACTOR_EPSILON = 0.000000000001
 
@@ -74,11 +78,121 @@ local PHASE_POLICIES = {
     },
 }
 
+---@type table<string, NauvisPressureGracePolicy>
+local MERCIFUL_CLASSIC_POLICIES = {
+    pre_steam = {
+        key = "merciful_classic_pre_steam",
+        milestone = 0,
+        evolution_target = 0.15,
+        max_reduction = 0.010,
+    },
+    steam_to_electricity = {
+        key = "merciful_classic_steam_to_electricity",
+        milestone = 1,
+        evolution_target = 0.30,
+        max_reduction = 0.008,
+    },
+    inactive = {
+        key = PHASE_INACTIVE,
+        milestone = 2,
+    },
+}
+
+---@type table<string, NauvisPressureGracePolicy>
+local MERCIFUL_EXTENDED_POLICIES = {
+    pre_steam = {
+        key = "merciful_extended_pre_steam",
+        milestone = 0,
+        evolution_target = 0.15,
+        max_reduction = 0.010,
+        pollution_factor_multiplier = 0.45,
+    },
+    steam_to_electricity = {
+        key = "merciful_extended_steam_to_electricity",
+        milestone = 1,
+        evolution_target = 0.30,
+        max_reduction = 0.008,
+        pollution_factor_multiplier = 0.55,
+    },
+    electricity_pre_power = {
+        key = "merciful_extended_electricity_pre_power",
+        milestone = 2,
+        evolution_target = 0.38,
+        max_reduction = 0.006,
+        pollution_factor_multiplier = 0.60,
+    },
+    electricity_pre_defense = {
+        key = "merciful_extended_electricity_pre_defense",
+        milestone = 2,
+        evolution_target = 0.44,
+        max_reduction = 0.005,
+        pollution_factor_multiplier = 0.68,
+    },
+    electricity_pre_computer = {
+        key = "merciful_extended_electricity_pre_computer",
+        milestone = 2,
+        evolution_target = 0.50,
+        max_reduction = 0.004,
+        pollution_factor_multiplier = 0.75,
+    },
+    computer_pre_branch = {
+        key = "merciful_extended_computer_pre_branch",
+        milestone = 3,
+        evolution_target = 0.60,
+        max_reduction = 0.003,
+        pollution_factor_multiplier = 0.82,
+    },
+    computer_one_branch = {
+        key = "merciful_extended_computer_one_branch",
+        milestone = 3,
+        evolution_target = 0.68,
+        max_reduction = 0.002,
+        pollution_factor_multiplier = 0.90,
+    },
+    computer_both_branches = {
+        key = "merciful_extended_computer_both_branches",
+        milestone = 3,
+        evolution_target = 0.75,
+        max_reduction = 0.001,
+        pollution_factor_multiplier = 0.95,
+    },
+    inactive = {
+        key = PHASE_INACTIVE,
+        milestone = 4,
+    },
+}
+
+---@class NauvisPressureGraceState
+---@field schema_version integer
+---@field last_run_tick uint
+---@field last_sync_tick uint|nil
+---@field profile "Classic"|"Extended"
+---@field enabled boolean
+---@field phase string|nil
+---@field milestone integer|nil
+---@field evolution_target number|nil
+---@field max_reduction number|nil
+---@field selected_difficulty string|nil
+---@field selected_policy string|nil
+---@field pollution_factor_base number|nil
+---@field pollution_factor_last_applied number|nil
+---@field pollution_factor_multiplier number|nil
+
+---@return NauvisPressureGraceState
 local function ensure_state()
     storage.ei = storage.ei or {}
     storage.ei.nauvis_pressure = storage.ei.nauvis_pressure or {}
 
     local state = storage.ei.nauvis_pressure
+    if state.schema_version ~= STATE_SCHEMA_VERSION then
+        -- Legacy active modifier fields are retained. A base without either active
+        -- marker was stale under schema 1 and must not become a future restore target.
+        if state.pollution_factor_last_applied == nil
+            and state.pollution_factor_multiplier == nil then
+            state.pollution_factor_base = nil
+        end
+        state.schema_version = STATE_SCHEMA_VERSION
+    end
     if state.last_run_tick == nil then
         state.last_run_tick = 0
     end
@@ -87,6 +201,11 @@ local function ensure_state()
     end
     if state.enabled == nil then
         state.enabled = true
+    end
+
+    if state.pollution_factor_last_applied == nil
+        and state.pollution_factor_multiplier == nil then
+        state.pollution_factor_base = nil
     end
 
     return state
@@ -156,25 +275,66 @@ local function set_pollution_factor(pollution_factor)
     return true
 end
 
+---@param state NauvisPressureGraceState
+local function clear_pollution_factor_state(state)
+    state.pollution_factor_base = nil
+    state.pollution_factor_last_applied = nil
+    state.pollution_factor_multiplier = nil
+end
+
+---@param left number|nil
+---@param right number|nil
+---@return boolean
+local function factors_match(left, right)
+    return ei_lib.is_valid_number(left)
+        and ei_lib.is_valid_number(right)
+        and math.abs(left - right) <= POLLUTION_FACTOR_EPSILON
+end
+
+---@param state NauvisPressureGraceState|nil
+---@return boolean
 local function restore_pollution_factor(state)
     state = state or ensure_state()
-
-    if (state.pollution_factor_last_applied ~= nil or state.pollution_factor_multiplier ~= nil)
-        and ei_lib.is_valid_number(state.pollution_factor_base) then
-        if set_pollution_factor(state.pollution_factor_base) then
-            state.pollution_factor_last_applied = nil
-            state.pollution_factor_multiplier = nil
-            return true
-        end
-
+    local has_active_modifier = state.pollution_factor_last_applied ~= nil
+        or state.pollution_factor_multiplier ~= nil
+    if not has_active_modifier then
+        clear_pollution_factor_state(state)
         return false
     end
 
-    state.pollution_factor_last_applied = nil
-    state.pollution_factor_multiplier = nil
-    return false
+    local current_factor = get_pollution_factor()
+    if not current_factor then
+        return false
+    end
+
+    local base_factor = state.pollution_factor_base
+    local owned_factor = state.pollution_factor_last_applied
+    if not ei_lib.is_valid_number(owned_factor)
+        and ei_lib.is_valid_number(base_factor)
+        and ei_lib.is_valid_number(state.pollution_factor_multiplier) then
+        owned_factor = base_factor * state.pollution_factor_multiplier
+    end
+
+    -- A different live value belongs to another mod or command. Preserve it rather
+    -- than restoring ESIR's stale baseline over an external mid-game decision.
+    if ei_lib.is_valid_number(owned_factor) and not factors_match(current_factor, owned_factor) then
+        clear_pollution_factor_state(state)
+        return true
+    end
+
+    if ei_lib.is_valid_number(base_factor) and not factors_match(current_factor, base_factor) then
+        if not set_pollution_factor(base_factor) then
+            return false
+        end
+    end
+
+    clear_pollution_factor_state(state)
+    return true
 end
 
+---@param policy NauvisPressureGracePolicy|nil
+---@param state NauvisPressureGraceState|nil
+---@return boolean
 local function apply_pollution_factor_multiplier(policy, state)
     state = state or ensure_state()
     local multiplier = policy and policy.pollution_factor_multiplier or nil
@@ -186,6 +346,19 @@ local function apply_pollution_factor_multiplier(policy, state)
     local current_factor = get_pollution_factor()
     if not current_factor then
         return false
+    end
+
+    local owned_factor = state.pollution_factor_last_applied
+    if not ei_lib.is_valid_number(owned_factor)
+        and ei_lib.is_valid_number(state.pollution_factor_base)
+        and ei_lib.is_valid_number(state.pollution_factor_multiplier) then
+        owned_factor = state.pollution_factor_base * state.pollution_factor_multiplier
+    end
+
+    if ei_lib.is_valid_number(owned_factor) and not factors_match(current_factor, owned_factor) then
+        -- Rebase on external edits so later policy changes never compound an already
+        -- scaled value and shutdown never overwrites someone else's current setting.
+        state.pollution_factor_base = current_factor
     end
 
     if not ei_lib.is_valid_number(state.pollution_factor_base) then
@@ -204,7 +377,10 @@ local function apply_pollution_factor_multiplier(policy, state)
     return true
 end
 
-local function resolve_phase_policy(force, profile)
+---@param force LuaForce|nil
+---@param profile "Classic"|"Extended"
+---@return NauvisPressureGracePolicy
+local function resolve_standard_phase_policy(force, profile)
     if not force or not force.valid or not force.technologies then
         return PHASE_POLICIES.inactive
     end
@@ -238,23 +414,88 @@ local function resolve_phase_policy(force, profile)
     return PHASE_POLICIES.pre_steam
 end
 
+---@param force LuaForce|nil
+---@param profile "Classic"|"Extended"
+---@return NauvisPressureGracePolicy
+local function resolve_merciful_phase_policy(force, profile)
+    if not force or not force.valid or not force.technologies then
+        return MERCIFUL_EXTENDED_POLICIES.inactive
+    end
+
+    if profile == PROFILE_CLASSIC then
+        if force_has_researched(force, "ei-electricity-age") then
+            return MERCIFUL_CLASSIC_POLICIES.inactive
+        end
+        if force_has_researched(force, "ei-steam-age") then
+            return MERCIFUL_CLASSIC_POLICIES.steam_to_electricity
+        end
+        return MERCIFUL_CLASSIC_POLICIES.pre_steam
+    end
+
+    if force_has_researched(force, "ei-quantum-age") then
+        return MERCIFUL_EXTENDED_POLICIES.inactive
+    end
+
+    if force_has_researched(force, "ei-computer-age") then
+        local advanced_branch = force_has_researched(force, "ei-advanced-computer-age-tech")
+        local alien_branch = force_has_researched(force, "ei-alien-computer-age-tech")
+        if advanced_branch and alien_branch then
+            return MERCIFUL_EXTENDED_POLICIES.computer_both_branches
+        end
+        if advanced_branch or alien_branch then
+            return MERCIFUL_EXTENDED_POLICIES.computer_one_branch
+        end
+        return MERCIFUL_EXTENDED_POLICIES.computer_pre_branch
+    end
+
+    if force_has_electric_defense(force) then
+        return MERCIFUL_EXTENDED_POLICIES.electricity_pre_computer
+    end
+    if force_has_researched(force, "ei-electricity-power") then
+        return MERCIFUL_EXTENDED_POLICIES.electricity_pre_defense
+    end
+    if force_has_researched(force, "ei-electricity-age") then
+        return MERCIFUL_EXTENDED_POLICIES.electricity_pre_power
+    end
+    if force_has_researched(force, "ei-steam-age") then
+        return MERCIFUL_EXTENDED_POLICIES.steam_to_electricity
+    end
+    return MERCIFUL_EXTENDED_POLICIES.pre_steam
+end
+
+---@param force LuaForce|nil
+---@param profile "Classic"|"Extended"
+---@param difficulty string
+---@return NauvisPressureGracePolicy
+local function resolve_phase_policy(force, profile, difficulty)
+    if difficulty == DIFFICULTY_MERCIFUL then
+        return resolve_merciful_phase_policy(force, profile)
+    end
+    return resolve_standard_phase_policy(force, profile)
+end
+
 local function refresh_player_force_policy()
     local state = ensure_state()
-    local policy = resolve_phase_policy(get_player_force(), state.profile)
+    local difficulty = storage.ei.enemy_difficulty or enemy_difficulty_config.default
+    local policy = resolve_phase_policy(get_player_force(), state.profile, difficulty)
 
     state.phase = policy.key
     state.milestone = policy.milestone
     state.evolution_target = policy.evolution_target
     state.max_reduction = policy.max_reduction
+    state.selected_difficulty = difficulty
+    state.selected_policy = policy.key
 
     return policy
 end
 
-local function sync_runtime_pressure(policy)
+---@param policy NauvisPressureGracePolicy|nil
+---@param event_or_tick table|uint|nil
+local function sync_runtime_pressure(policy, event_or_tick)
     local state = ensure_state()
-    state.last_sync_tick = game and game.tick or state.last_sync_tick
+    state.last_sync_tick = ei_lib.get_event_tick(event_or_tick)
 
-    if storage.ei.enemy_difficulty == "Impossible"
+    if storage.ei.enemy_difficulty == DIFFICULTY_IMPOSSIBLE
         or state.enabled == false
         or (policy and policy.key or PHASE_INACTIVE) == PHASE_INACTIVE then
         restore_pollution_factor(state)
@@ -265,9 +506,15 @@ local function sync_runtime_pressure(policy)
     return true
 end
 
+---@param event EventData.on_init
+function model.on_init(event)
+    local policy = refresh_player_force_policy()
+    return sync_runtime_pressure(policy, event)
+end
+
 function model.on_configuration_changed(event)
     local policy = refresh_player_force_policy()
-    sync_runtime_pressure(policy)
+    sync_runtime_pressure(policy, event)
 end
 
 function model.on_research_finished(event)
@@ -277,7 +524,7 @@ function model.on_research_finished(event)
     end
 
     local policy = refresh_player_force_policy()
-    return sync_runtime_pressure(policy)
+    return sync_runtime_pressure(policy, event)
 end
 
 function model.on_scripted_research_burst(force)
@@ -286,7 +533,7 @@ function model.on_scripted_research_burst(force)
     end
 
     local policy = refresh_player_force_policy()
-    return sync_runtime_pressure(policy)
+    return sync_runtime_pressure(policy, game and game.tick or 0)
 end
 
 function model.has_tick_work(event)
@@ -302,7 +549,7 @@ function model.has_tick_work(event)
     local needs_pressure_restore = state.pollution_factor_last_applied ~= nil
         or state.pollution_factor_multiplier ~= nil
 
-    if storage.ei.enemy_difficulty == "Impossible" or state.enabled == false then
+    if storage.ei.enemy_difficulty == DIFFICULTY_IMPOSSIBLE or state.enabled == false then
         return needs_pressure_restore
     end
 
@@ -328,7 +575,7 @@ function model.updater(event)
     end
 
     local policy = refresh_player_force_policy()
-    if not sync_runtime_pressure(policy) then
+    if not sync_runtime_pressure(policy, event) then
         return
     end
 

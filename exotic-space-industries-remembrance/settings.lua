@@ -5,6 +5,7 @@ local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
 local emerald_hover_tank_config = require("lib/emerald-apocalypse-hover-tank-config")
 local arc_furnace_light_config = require("lib/arc-furnace-light-config")
 local fluid_safety_config = require("lib/fluid-safety-config")
+local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
@@ -444,8 +445,8 @@ data:extend({
       name = "ei-enemy-difficulty",
       type = "string-setting",
       setting_type = "startup",
-      default_value = "Tempered",
-      allowed_values = {"Merciful", "Gentle", "Tempered", "Original", "Severe", "Nightmare", "Impossible"},
+      default_value = enemy_difficulty_config.default,
+      allowed_values = enemy_difficulty_config.copy_order(),
       order  = "c1g5b",
   },
   {

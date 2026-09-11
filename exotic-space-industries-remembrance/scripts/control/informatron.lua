@@ -10,6 +10,7 @@
 -- remote_interfaces: exotic-industries-informatron
 -- rebuild_on: Informatron page/content changes
 --==============================================================================
+local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local model = {}
 
 local function add_centered_sprite_row(element, sprites)
@@ -68,116 +69,8 @@ local function get_localized_startup_string_setting_value(setting_name, default_
     return {"string-mod-setting." .. setting_name .. "-" .. get_startup_string_setting_value(setting_name, default_value)}
 end
 
-local enemy_difficulty_doc_profiles = {
-    Merciful = {
-        unit_health = 0.55,
-        healing = 0.55,
-        armoured_health = 0.45,
-        armoured_resistance = 0.55,
-        damage = 0.65,
-        range = 0.90,
-        movement = 0.90,
-        attack_cooldown = 1.35,
-        spawner_health = 0.65,
-        spawner_healing = 0.65,
-        spawn_cooldown = 1.80,
-        owned_friend_caps = 0.60,
-    },
-    Gentle = {
-        unit_health = 0.70,
-        healing = 0.70,
-        armoured_health = 0.60,
-        armoured_resistance = 0.70,
-        damage = 0.78,
-        range = 0.93,
-        movement = 0.93,
-        attack_cooldown = 1.20,
-        spawner_health = 0.78,
-        spawner_healing = 0.78,
-        spawn_cooldown = 1.45,
-        owned_friend_caps = 0.75,
-    },
-    Tempered = {
-        unit_health = 0.82,
-        healing = 0.82,
-        armoured_health = 0.75,
-        armoured_resistance = 0.85,
-        damage = 0.88,
-        range = 0.96,
-        movement = 0.96,
-        attack_cooldown = 1.10,
-        spawner_health = 0.88,
-        spawner_healing = 0.88,
-        spawn_cooldown = 1.25,
-        owned_friend_caps = 0.85,
-    },
-    Original = {
-        unit_health = 1.00,
-        healing = 1.00,
-        armoured_health = 1.00,
-        armoured_resistance = 1.00,
-        damage = 1.00,
-        range = 1.00,
-        movement = 1.00,
-        attack_cooldown = 1.00,
-        spawner_health = 1.00,
-        spawner_healing = 1.00,
-        spawn_cooldown = 1.00,
-        owned_friend_caps = 1.00,
-    },
-    Severe = {
-        unit_health = 1.18,
-        healing = 1.15,
-        armoured_health = 1.30,
-        armoured_resistance = 1.15,
-        damage = 1.12,
-        range = 1.03,
-        movement = 1.04,
-        attack_cooldown = 0.92,
-        spawner_health = 1.15,
-        spawner_healing = 1.15,
-        spawn_cooldown = 0.85,
-        owned_friend_caps = 1.15,
-    },
-    Nightmare = {
-        unit_health = 1.40,
-        healing = 1.30,
-        armoured_health = 1.65,
-        armoured_resistance = 1.28,
-        damage = 1.25,
-        range = 1.06,
-        movement = 1.08,
-        attack_cooldown = 0.82,
-        spawner_health = 1.38,
-        spawner_healing = 1.30,
-        spawn_cooldown = 0.70,
-        owned_friend_caps = 1.35,
-    },
-    Impossible = {
-        unit_health = 1.75,
-        healing = 1.55,
-        armoured_health = 2.10,
-        armoured_resistance = 1.40,
-        damage = 1.42,
-        range = 1.10,
-        movement = 1.12,
-        attack_cooldown = 0.72,
-        spawner_health = 1.75,
-        spawner_healing = 1.50,
-        spawn_cooldown = 0.55,
-        owned_friend_caps = 1.60,
-    },
-}
-
-local enemy_difficulty_doc_order = {
-    "Merciful",
-    "Gentle",
-    "Tempered",
-    "Original",
-    "Severe",
-    "Nightmare",
-    "Impossible",
-}
+local enemy_difficulty_doc_profiles = enemy_difficulty_config.profiles
+local enemy_difficulty_doc_order = enemy_difficulty_config.order
 
 local function enemy_difficulty_locale(key)
     return {"exotic-industries-informatron."..key}
@@ -223,7 +116,8 @@ local function percent_term(multiplier, key)
 end
 
 local function tier_locale(name)
-    return enemy_difficulty_locale("enemy-difficulty-tier-"..string.lower(name))
+    local suffix = enemy_difficulty_config.locale_suffixes[name] or string.lower(name)
+    return enemy_difficulty_locale("enemy-difficulty-tier-"..suffix)
 end
 
 local function tier_caption(name)

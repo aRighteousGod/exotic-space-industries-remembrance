@@ -2,6 +2,7 @@
 Version: 1.3.40
 Date: 9-10-2026
   Features:
+    - Expanded the enemy difficulty ladder with Sheltered, Forgiving, and Lenient tiers. Merciful is now a near-peaceful stat floor with stronger optional Nauvis evolution grace through the selected Nauvis Pressure Grace Classic or Extended profiles, while Lenient preserves the former Merciful prototype balance.
   Bugfixes:
     - Fixed beacon overload state not updating reliably when beacons or affected machines were built, mined, destroyed, cloned, teleported, fast-replaced, or removed during surface cleanup.
 ---------------------------------------------------------------------------------------------------
