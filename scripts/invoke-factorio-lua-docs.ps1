@@ -4,6 +4,11 @@ param(
     [ValidateSet('refresh', 'query', 'status')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
+    [ValidateSet('installed', 'hosted')]
+    [string]$Source = 'installed',
+    [ValidatePattern('^\d+\.\d+\.\d+$')]
+    [string]$Version = '2.0.77',
+    [string]$DocsRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html',
     [string]$Query,
     [ValidateSet('runtime', 'prototype', 'auxiliary', 'wiki', 'all')]
     [string]$Stage = 'all',
@@ -21,7 +26,11 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'factorio-lua-docs-lib.ps1')
 
-$paths = Get-FactorioLuaDocsPaths -RepoRoot $RepoRoot -EnsureCacheRoot:($Task -eq 'refresh')
+if ($Source -eq 'hosted' -and $PSBoundParameters.ContainsKey('DocsRoot')) {
+    throw '-DocsRoot is only compatible with -Source installed.'
+}
+
+$paths = Get-FactorioLuaDocsPaths -RepoRoot $RepoRoot -Source $Source -Version $Version -DocsRoot $DocsRoot
 $result = switch ($Task) {
     'refresh' { Invoke-FactorioLuaDocsRefresh -Paths $paths }
     'query' { Invoke-FactorioLuaDocsQuery -Paths $paths -Query $Query -Stage $Stage -Kind $Kind -ExactName $ExactName -Limit $Limit -RefreshIfMissing:$RefreshIfMissing }
@@ -33,6 +42,8 @@ if ($AsJson) {
 } else {
     Write-Host 'Factorio Lua Docs'
     Write-Host "Repo: $($paths.repo_root)"
+    Write-Host "Source: $Source"
+    Write-Host "Version: $Version"
     Write-Host "Task: $Task"
     Write-Host "Overall: $($result.overall_status)"
     $result | ConvertTo-Json -Depth 32

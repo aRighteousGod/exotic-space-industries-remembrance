@@ -3,11 +3,12 @@
 Primary official sources:
 
 - API docs home/version selector: `https://lua-api.factorio.com/`
-- Runtime API docs: `https://lua-api.factorio.com/latest/index-runtime.html`
-- Prototype API docs: `https://lua-api.factorio.com/latest/index-prototype.html`
-- Auxiliary docs: `https://lua-api.factorio.com/latest/index-auxiliary.html`
-- Runtime JSON docs: `https://lua-api.factorio.com/latest/runtime-api.json`
-- Prototype JSON docs: `https://lua-api.factorio.com/latest/prototype-api.json`
+- Default installed documentation root: `C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html`
+- Runtime API docs: `https://lua-api.factorio.com/2.0.77/index-runtime.html`
+- Prototype API docs: `https://lua-api.factorio.com/2.0.77/index-prototype.html`
+- Auxiliary docs: `https://lua-api.factorio.com/2.0.77/index-auxiliary.html`
+- Runtime JSON docs: `https://lua-api.factorio.com/2.0.77/runtime-api.json`
+- Prototype JSON docs: `https://lua-api.factorio.com/2.0.77/prototype-api.json`
 
 Important auxiliary topics:
 
@@ -32,5 +33,6 @@ Official wiki topics covered by the cache:
 - data.raw
 - Tutorial:Modding tutorial
 
-Use the JSON docs for exact symbol lookup and the auxiliary/wiki pages for workflow guidance and examples.
-The `latest` channel can point at the newest experimental API while the local installed game is still on the newest stable release; compare the cache manifest with the local executable before updating skills based on installed `data/` files.
+Use the JSON docs for exact symbol lookup and the auxiliary/wiki pages for workflow guidance and examples. The wiki is unversioned and must be labeled as such; it is not evidence for version-sensitive API decisions.
+
+The wrapper defaults to installed Factorio 2.0.77 and verifies both JSON stages and `application_version` before replacing `.factorio-lua-docs-cache/2.0.77`. Hosted documents require an explicit source and exact numeric version. Never infer a `/latest/` URL, and never use the legacy flat 2.1.15 cache for the default profile.

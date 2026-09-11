@@ -15,15 +15,15 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task refresh
 ```
 
-Use `-Task status` to confirm the cached runtime/prototype application versions before answering version-sensitive API questions.
+These commands deliberately default to `-Source installed -Version 2.0.77` and read `C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html`. Use `-Task status` to confirm the source and cached runtime/prototype application versions before answering version-sensitive API questions.
 
 For `-Task query`, provide either `-Query` or `-ExactName`. Blank queries fail instead of returning arbitrary first entries.
-Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refresh` only when network/cache writes are acceptable.
+Cached queries are read-only by default. Installed refreshes never use the network. Use `-RefreshIfMissing` or `-Task refresh` only when a versioned cache write is acceptable.
 
 ## What This Skill Covers
 
-- runtime API docs from `lua-api.factorio.com`
-- prototype API docs from `lua-api.factorio.com`
+- installed runtime and prototype API JSON/HTML for Factorio 2.0.77 by default
+- exact-version hosted API docs from `lua-api.factorio.com` only when `-Source hosted` is explicit
 - auxiliary docs such as Data Lifecycle, Storage, Libraries, Migrations, Instrument Mode, and JSON doc formats
 - official wiki scripting topics such as Tutorial:Scripting, Script interfaces, Localisation, data.raw, Console, Scenario System, and Command line parameters
 
@@ -31,10 +31,11 @@ Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refre
 
 - Treat `lua-api.factorio.com` and official `wiki.factorio.com` pages as primary sources.
 - Prefer the machine-readable runtime and prototype JSON docs for exact symbol lookup.
-- Prefer local cached index results first, then open the official page when the question needs more detail, examples, or release-specific nuance.
-- Do not copy the whole docs corpus into checked-in repo files. Keep downloaded snapshots in the ignored cache at `.factorio-lua-docs-cache`.
-- The official docs are version-sensitive. Refresh when "latest" matters.
-- The `latest` docs can track experimental Factorio while the installed local game remains on stable. Compare `-Task status` with `factorio.exe --version` before updating installed-file surveys such as core lualib or vanilla prototype helper maps.
+- Prefer the installed, version-pinned cached index first, then open the exact versioned official page when the question needs more detail or examples.
+- Do not copy the whole docs corpus into checked-in repo files. Keep indexed snapshots in the ignored, versioned cache at `.factorio-lua-docs-cache/<version>`.
+- Treat the installed 2.0.77 documentation as the default ESIR authority. Never select, migrate, or reuse the legacy flat 2.1.15 cache implicitly.
+- Hosted lookup is opt-in: pass `-Source hosted -Version <exact-number>`. The version must be numeric; `latest` is rejected, and `-DocsRoot` is incompatible with hosted mode.
+- Compare `-Task status` with `factorio.exe --version` before updating installed-file surveys such as core lualib or vanilla prototype helper maps.
 - For command-line option questions, query the cached wiki topic first, then compare the official page with local `factorio.exe --help` when choosing flags for this workstation.
 - For language/runtime assumptions, use `factorio-lua-assumptions` first, then verify exact API claims here.
 - Return the exact official URL with your answer whenever practical.
@@ -51,6 +52,8 @@ Cached queries are read-only by default. Use `-RefreshIfMissing` or `-Task refre
   - `-Stage auxiliary -Query migrations`
   - `-Stage wiki -Query script interfaces`
   - `-Stage wiki -Query "Command line parameters"`
+- Explicit hosted profile:
+  - `-Source hosted -Version 2.0.77 -Task refresh`
 
 ## Sidecar Roles
 
