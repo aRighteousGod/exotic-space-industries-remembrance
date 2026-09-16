@@ -103,7 +103,7 @@ end
 ei_lib.set_prerequisites("automation-3",{"ei-advanced-motor","ei-computer-core","ei-advanced-computer-age-tech","ei-carbon-manipulation"})
 ei_lib.set_prerequisites("kovarex-enrichment-process",{"uranium-processing"})
 ei_lib.set_prerequisites("processing-unit",{"ei-computer-core","ei-electronic-parts","ei-advanced-semiconductor"})
-ei_lib.set_prerequisites("spidertron",{"processing-unit","ei-high-energy-crystal","ei-advanced-computer-age-tech"})
+ei_lib.set_prerequisites("spidertron",{"ei-spider-vehicles","processing-unit","ei-high-energy-crystal","ei-advanced-computer-age-tech","rocketry","carbon-fiber"})
 ei_lib.set_prerequisites("advanced-circuit",{"ei-insulated-wire","plastics","electronics","sulfur-processing"})
 ei_lib.set_prerequisites("plastics",{"ei-steam-oil-processing"})
 ei_lib.set_prerequisites("ei-electronic-parts",{"advanced-circuit"})
@@ -115,7 +115,21 @@ ei_lib.set_prerequisites("recycling",{"rocket-silo"})
 ei_lib.set_prerequisites("holmium-processing",{"recycling","planet-discovery-fulgora"})
 
 ei_lib.set_prerequisites("planet-discovery-castra",{"rocket-silo"})
-ei_lib.set_prerequisites("rocket-fuel",{"ei-computer-age"})
+ei_lib.set_prerequisites("rocket-fuel",{"ei-computer-age","ei-oxygen-gas"})
+
+-- Recipe inputs and science unlocks must remain reachable after age flattening.
+ei_lib.add_prerequisite("land-mine","explosives")
+ei_lib.add_prerequisite("follower-robot-count-1","defender")
+ei_lib.add_prerequisite("coal-liquefaction","metallurgic-science-pack")
+ei_lib.add_prerequisite("coal-liquefaction","space-science-pack")
+ei_lib.add_prerequisite("quality-module-3","ei-computing-unit")
+
+-- Simulation begins at mining tier 3 and the first consuming combat tier.
+ei_lib.add_prerequisite("mining-productivity-3","ei-advanced-computer-age-tech")
+ei_lib.add_prerequisite("physical-projectile-damage-4","ei-advanced-computer-age-tech")
+ei_lib.add_prerequisite("weapon-shooting-speed-4","ei-advanced-computer-age-tech")
+ei_lib.add_prerequisite("laser-weapons-damage-3","ei-advanced-computer-age-tech")
+ei_lib.add_prerequisite("laser-shooting-speed-4","ei-advanced-computer-age-tech")
 
 ei_lib.set_prerequisites("agriculture",{"planet-discovery-gleba"})
 ei_lib.set_prerequisites("heating-tower",{"planet-discovery-gleba"})
@@ -221,7 +235,7 @@ ei_lib.set_prerequisites("solar-panel-equipment",{"solar-energy","advanced-circu
 
 ei_lib.set_prerequisites("belt-immunity-equipment",{"advanced-circuit","modular-armor"})
 ei_lib.set_prerequisites("fission-reactor-equipment",{"processing-unit","power-armor","nuclear-power","low-density-structure"})
-ei_lib.set_prerequisites("discharge-defense",{"advanced-circuit","modular-armor","plastics"})
+ei_lib.set_prerequisites("discharge-defense-equipment",{"advanced-circuit","modular-armor","plastics"})
 ei_lib.set_prerequisites("energy-shield-equipment",{"advanced-circuit","ei-grower","modular-armor"})
 ei_lib.set_prerequisites("exoskeleton-equipment",{"advanced-circuit","modular-armor"})
 ei_lib.set_prerequisites("night-vision-equipment",{"advanced-circuit","modular-armor"})

@@ -371,8 +371,9 @@ local new_ingredients_table = {
         {type="item",name="ei-crushed-gold", amount=8},
     },
     ["spidertron"] = {
-        {type="item",name="tank", amount=1},
-        {type="item",name="ei-steel-mechanical-parts", amount=100},
+        {type="item",name="rocket-launcher", amount=4},
+        {type="item",name="ei-steel-mechanical-parts", amount=50},
+        {type="item",name="carbon-fiber", amount=50},
         {type="item",name="ei-advanced-motor", amount=100},
         {type="item",name="ei-high-energy-crystal", amount=40},
         {type="item",name="processing-unit", amount=40},

@@ -56,6 +56,7 @@ require("prototypes/loaders")
 require("prototypes/more-asteroids")
 require("prototypes/productivity")
 require("teslas_legacy.data")
+require("prototypes/spider-vehicles").declare()
 --====================================================================================================
 --COMPATIBILITY CODE
 --====================================================================================================

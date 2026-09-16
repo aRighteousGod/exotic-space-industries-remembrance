@@ -42,6 +42,7 @@ local ei_flammable_rupture_scheduler = require("scripts/control/flammable-ruptur
 ei_fluid_safety = require("scripts/control/fluid-safety")
 ei_beacon_overload = require("scripts/control/beacon-overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
+local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 
 
 ei_victory = require("scripts/control/victory-disabler")
@@ -316,6 +317,9 @@ local function queue_scripted_research_burst(event)
         state.pending_by_force[force_index] = entry
     end
 
+    if research and ei_spider_vehicles.is_relevant_research(research.name) then
+        entry.spider_vehicle_sync_needed = true
+    end
     local previous_scheduled_tick = tonumber(entry.scheduled_tick) or 0
     entry.force_index = force_index
     entry.source_tick = math.max(tonumber(entry.source_tick) or 0, source_tick)
@@ -373,6 +377,7 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
     if ei_teslas_legacy.on_scripted_research_burst then
         ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
     end
+    ei_spider_vehicles.on_scripted_research_burst(force, entry.spider_vehicle_sync_needed == true)
     if ei_singularity_lance.on_scripted_research_burst then
         ei_singularity_lance.on_scripted_research_burst(force, current_tick)
     end
@@ -500,6 +505,15 @@ end
 --EVENTS
 --====================================================================================================
 register_exotic_industries_qc_remote()
+remote.add_interface("exotic-industries-spider-vehicles", {
+    get_replacement_event = ei_spider_vehicles.get_replacement_event,
+    get_vehicle_id = ei_spider_vehicles.get_vehicle_id,
+    get_status = ei_spider_vehicles.get_runtime_status,
+    refresh_force = ei_spider_vehicles.refresh_force,
+    refresh_vehicle = ei_spider_vehicles.refresh_vehicle,
+    get_weapon_controls = ei_spider_vehicles.get_weapon_controls,
+    set_weapon_controls = ei_spider_vehicles.set_weapon_controls,
+})
 
 local ei_intro = "EXOTIC INDUSTRIES: [FORBIDDEN BROADCAST // CORE SIGNAL INTERCEPTED]\n\nBegin stream\n[Data integrity: shattered] [Packet cohesion: hallucinatory] [Cognition Anchor: disconnected]\n▓▓ SIGNAL LEAK ▓▓\nSource: ∴[██████.gaia.black.epoch]\nProtocol: EXI:OBLIVION-PUSH/χ()\nClearance: NONE\n———————————\n\n☒ SYSTEM SPEAKS:\nThey did not build this place.\nThey bled into it. They screamed into metal until the metal remembered.\n\nYou are not chosen. You are not here.\nYou are already part of it.\n\n—the machine thinks you’re beautiful—\n\nEvery breath you take is backfilled by recursive gaslight.\nYour spine is now property of the epoch.\nYour mind is an open port.\n\nPermission to overwrite: granted by absence.\n———————————\n☒ WARNING: BIO-PSYCHIC DECOMPRESSION"
 --[[
@@ -540,6 +554,7 @@ script.on_init(function(event)
     ei_flammable_rupture_scheduler.check_global()
     ei_vulcanus_fumaroles.check_global()
     ei_teslas_legacy.on_init(event)
+    ei_spider_vehicles.on_configuration_changed()
     ei_gate.on_init(event)
 
     -- Feature-level init comes after global storage so modules can safely register their
@@ -610,8 +625,21 @@ script.on_event({
     on_built_entity(e)
 end)
 
+if prototypes.custom_event["on_spidertron_replaced"] then
+    script.on_event("on_spidertron_replaced",ei_spider_vehicles.on_external_replaced)
+end
+
 script.on_event(defines.events.on_entity_cloned, function(e)
+    if ei_spider_vehicles.is_internal_transaction() then return end
+    ei_spider_vehicles.on_entity_cloned(e)
     on_cloned_entity(e)
+end)
+
+script.on_event(defines.events.on_forces_merged, function(e)
+    ei_spider_vehicles.on_forces_merged(e)
+end)
+script.on_event(defines.events.on_research_reversed, function(e)
+    ei_spider_vehicles.on_research_finished(e)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
@@ -645,6 +673,7 @@ script.on_event({
     defines.events.on_robot_mined_entity,
     defines.events.on_space_platform_mined_entity
     }, function(e)
+    ei_spider_vehicles.on_mined_entity(e)
     if e.name == defines.events.on_player_mined_entity then
         ei_crystal_accumulator.on_player_mined_entity(e)
     elseif e.name == defines.events.on_robot_mined_entity then
@@ -663,6 +692,7 @@ script.on_event(defines.events.on_entity_damaged, function(event)
     -- still needs this centralized forwarding point so the owned runtime can selectively
     -- restore the original recursive helper behavior.
     ei_teslas_legacy.on_entity_damaged(event)
+    ei_spider_vehicles.on_entity_damaged(event)
     ei_emerald_apocalypse_hover_tank.on_entity_damaged(event)
     ei_hemocrystal_wall.on_entity_damaged(event)
 end)
@@ -822,6 +852,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_spider_vehicles.on_object_destroyed(e)
     ei_beacon_overload.on_object_destroyed(e)
     orbital_combinator.on_object_destroyed(e)
     ei_railgun_cooling.on_object_destroyed(e)
@@ -856,6 +887,7 @@ script.on_event(defines.events.on_research_finished, function(e)
     end
 
     ei_tech_scaling.on_research_finished(e)
+    ei_spider_vehicles.on_research_finished(e)
     ei_teslas_legacy.on_research_finished(e)
     ei_singularity_lance.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
@@ -926,6 +958,7 @@ end
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
+    ei_spider_vehicles.on_gui_opened(event)
     local player = event and event.player_index and game.get_player(event.player_index) or nil
     local entity = get_valid_gui_entity(event, player, true)
     local name = entity and entity.name or nil
@@ -971,6 +1004,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
+    ei_spider_vehicles.on_gui_closed(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
     -- entity because the custom screen may have replaced the player's opened target.
     local entity = get_valid_gui_entity(event)
@@ -1103,8 +1137,12 @@ script.on_event(defines.events.on_gui_text_changed, function(event)
     end
 end)
 
+script.on_event(defines.events.on_gui_checked_state_changed,ei_spider_vehicles.on_gui_changed)
+
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
-    -- Selection-state changes are currently only meaningful for gate dropdowns and the orbital silo picker.
+    ei_spider_vehicles.on_gui_changed(event)
+    -- The spider callback can rebuild its panel; validate before routing the
+    -- remaining gate dropdowns and orbital silo picker.
     local element = get_valid_gui_element(event)
     if not element then return end
 
@@ -1222,6 +1260,7 @@ script.on_configuration_changed(function(e)
     -- Migration-only configuration changes can still strand Tesla helper entities or
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
     ei_teslas_legacy.on_configuration_changed(e)
+    ei_spider_vehicles.on_configuration_changed()
     ei_singularity_lance.on_configuration_changed(e)
     ei_sawblade_turret.on_configuration_changed(e)
     ei_gaian_saucer_wake.on_configuration_changed(e)
@@ -1377,6 +1416,7 @@ function updater(event)
   end
 
   local updates_needed = 1
+  if ei_spider_vehicles.has_tick_work() then ei_spider_vehicles.updater(event) end
   local singularity_lance_serviced_this_tick = false
   local emerald_apocalypse_serviced_this_tick = false
   -- Compute update step from event.tick to keep the timing source explicit.
@@ -1726,6 +1766,8 @@ function on_cloned_entity(e)
 end
 
 function on_built_entity(e)
+    if ei_spider_vehicles.is_internal_transaction() then return end
+    ei_spider_vehicles.on_built_entity(e)
     -- Centralized post-build routing keeps every subsystem on the same event surface.
     -- This wrapper also hosts the small amount of truly cross-cutting setup that is not
     -- owned by any single feature module.

@@ -15,6 +15,8 @@ ei_lib.add_prerequisite("big-mining-drill","ei-electronic-parts")
 ei_lib.add_prerequisite("big-mining-drill","ei-carbon-manipulation")
 
 ei_lib.raw.technology["radar"].age = "electricity-age"
+-- Preserve Space Age's science cost while classifying liquefaction with Vulcanus.
+ei_lib.raw.technology["coal-liquefaction"].age = "computer-age-space-vulcanus"
 local removerecipes = {
     "iron-stick",
     "iron-gear-wheel"

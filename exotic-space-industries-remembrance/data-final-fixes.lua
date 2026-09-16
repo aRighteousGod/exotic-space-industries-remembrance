@@ -208,3 +208,5 @@ end
 -- Weighted-tech badges are a pure icon pass, so they can run truly last after every other
 -- final tech rewrite has settled on its finished icon and science layout.
 require("scripts/data-final-updates/tech-weight-badges")
+-- Resolve the shared fleet variants after all source-body compatibility passes.
+require("prototypes/spider-vehicles").finalize()

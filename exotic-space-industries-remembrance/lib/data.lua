@@ -398,7 +398,7 @@ ei_data.add_to_sub_age["advanced-computer-age"] = {
     "physical-projectile-damage-4",
     "inserter-capacity-bonus-2",
     "logistics-3",
-    "mining-productivity-2",
+    "mining-productivity-3",
     "refined-flammables-5",
     "refined-flammables-6",
     "automation-3",
@@ -706,7 +706,7 @@ ei_data.tech_structure["computer-age"] = {
     "laser-weapons-damage-4",]]
     "logistics-3",
     "low-density-structure",
---    "mining-productivity-2",
+    "mining-productivity-2",
     "rocket-fuel",
     "rocket-silo",
     "rocketry",

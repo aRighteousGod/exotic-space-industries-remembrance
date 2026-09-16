@@ -17,6 +17,13 @@ local localMinimumFullUpdateTicks =  9 --default is 60
 local localMaximumFullUpdateTicks =  6003 --divides evenly
 data:extend({
   {
+      name = "ei-spider-range-aware-cycling",
+      type = "bool-setting",
+      setting_type = "startup",
+      default_value = true,
+      order = "spider-a",
+  },
+  {
       name = "ei-tech-scaling-maxCost",
       type = "string-setting",
       setting_type = "startup",

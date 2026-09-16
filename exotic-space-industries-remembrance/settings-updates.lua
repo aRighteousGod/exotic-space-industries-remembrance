@@ -114,6 +114,18 @@ force_string_values("ArmouredBiters", function(name)
   return string.match(name, "^ab%-.+%-armoured%-biter%-health$") ~= nil
     or string.match(name, "^ab%-.+%-armoured%-biter%-resistances$") ~= nil
 end, "100%")
+-- ESIR owns the assault loadout and progression; arachnophobia remains configurable.
+set_bool("assault_spidertron_V2","assault-spidertron-enable-friendly-fire",true)
+set_string("assault_spidertron_V2","assault-spidertron-use-enhancements-settings","mod-default")
+set_string("assault_spidertron_V2","assault-spidertron-enable-burner-engine","burner")
+set_string("assault_spidertron_V2","assault-spidertron-enable-burner-engine-smoke","yes")
+set_string("assault_spidertron_V2","assault-spidertron-tech-option","default")
+set_string("assault_spidertron_V2","assault-spidertron-cycle-weapons","yes")
+for weapon, enabled in pairs({mortar=false,["rocket-launcher"]=false,cannon=true,mg=true,flamer=true}) do
+  set_bool("assault_spidertron_V2","assault-spidertron-enable-gun-"..weapon,enabled)
+  set_string("assault_spidertron_V2","assault-spidertron-"..weapon.."-amount","1")
+end
+
 set_bool("zeus-wrath","zeus-wrath-friendly-fire",true)
 set_bool("zeus-wrath","zeus-wrath-friendly-fire-gun",true)
 
