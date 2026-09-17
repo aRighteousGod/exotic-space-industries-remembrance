@@ -18,17 +18,6 @@ ei_lib.recipe_add("rp-steam-roboport","ei-iron-beam",20)
 ei_lib.raw.roboport["rp-steam-roboport"].surface_conditions = {
     {property = "pressure",    min = 10},
 }
-local chests = {
-    ["rp-steam-logistic-chest-active-provider"] = 32,
-    ["rp-steam-logistic-chest-passive-provider"] = 32,
-    ["rp-steam-logistic-chest-storage"] = 32,
-    ["rp-steam-logistic-chest-buffer"] = 32,
-    ["rp-steam-logistic-chest-requester"] = 32,
-}
-for chest,capacity in pairs(chests) do
-    ei_lib.raw["logistic-container"][chest]["inventory_size"] = capacity
-end
-
 local steam_chest_upgrades = {
     ["rp-steam-logistic-chest-active-provider"] = "ei-2x2-container-pink",
     ["rp-steam-logistic-chest-passive-provider"] = "ei-2x2-container-red",

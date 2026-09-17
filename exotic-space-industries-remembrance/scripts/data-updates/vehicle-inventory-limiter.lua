@@ -3,10 +3,6 @@ ei_lib = require("lib/lib")
 ei_lib.raw["car"]["car"].inventory_size = 14
 ei_lib.raw["car"]["tank"].inventory_size = 16
 
-if mods["aai-programmable-vehicles"] then
-	ei_lib.raw["container"]["vehicle-depot-chest"].inventory_size = 18
-end
-
 if mods["aai-vehicles-hauler"] then
 	ei_lib.raw["car"]["vehicle-hauler"].inventory_size = 18
 end
@@ -25,4 +21,4 @@ if mods["aai-vehicles-ironclad"] then
 end 
 if mods["ironclad-gunboat-and-mortar-turret-fork"] then
 	ei_lib.raw["car"]["ironclad-gunboat"].inventory_size = 16
-end 
+end

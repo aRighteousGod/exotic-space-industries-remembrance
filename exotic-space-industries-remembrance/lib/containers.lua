@@ -170,11 +170,16 @@ function ei_containers_lib.add_bigger_containers()
 end
 
 
-function ei_containers_lib.make_all(size, typus, slots, time, animation, ingredients)
+---@param size integer Container footprint side length.
+---@param typus string|nil Filter/logistic variant; nil for ordinary storage.
+---@param time number Crafting time in seconds.
+---@param animation boolean
+---@param ingredients data.IngredientPrototype[]
+function ei_containers_lib.make_all(size, typus, time, animation, ingredients)
     -- build item, recipe, entity
     ei_containers_lib.make_recipe(size, typus, ingredients, time)
     ei_containers_lib.make_item(size, typus)
-    ei_containers_lib.make_container(size, slots, typus, animation)
+    ei_containers_lib.make_container(size, typus, animation)
 end
 
 function ei_containers_lib.make_recipe(size, typus, ingredients, time)
@@ -229,7 +234,10 @@ function ei_containers_lib.make_item(size, typus)
 end
 
 
-function ei_containers_lib.make_container(size, slots, typus, animation)
+---@param size integer Container footprint side length.
+---@param typus string|nil Filter/logistic variant; nil for ordinary storage.
+---@param animation boolean
+function ei_containers_lib.make_container(size, typus, animation)
     -- size can be 1 for 1x1, 2 for 2x2, 3 for 3x3, etc.
     -- type can be blue, red, pink, filter, green, yellow
 
@@ -312,7 +320,8 @@ function ei_containers_lib.make_container(size, slots, typus, animation)
 
     -- inventory
     container.minable.result = fullname
-    container.inventory_size = slots
+    -- Construction placeholder only; the final capacity pass owns all size tiers.
+    container.inventory_size = mod_entity_base.inventory_size
     -- next_upgrade
     container.next_upgrade = nil 
     -- animation

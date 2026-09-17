@@ -760,11 +760,6 @@ ei_lib.raw.roboport.roboport.charging_energy = "1MW"
 --x10 the constant roboport drain
 ei_lib.raw.roboport.roboport.energy_usage = "500kW"
 
---bring in line with ei-containers
-ei_lib.raw["container"]["wooden-chest"].inventory_size = 8
-ei_lib.raw["container"]["iron-chest"].inventory_size = 12
-ei_lib.raw["container"]["steel-chest"].inventory_size = 16
-
 ei_lib.patch_nested_value(
   data.raw["electric-turret"]["laser-turret"],
   "attack_parameters.ammo_type.action.action_delivery[1].max_length",

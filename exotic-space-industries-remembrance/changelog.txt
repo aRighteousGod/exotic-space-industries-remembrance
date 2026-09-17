@@ -2,6 +2,7 @@
 Version: 1.3.40
 Date: 9-10-2026
   Features:
+    - Added eight Container capacity profiles for vanilla, ESIR, steam, and modded storage, with every tier's slot count shown in the startup tooltip. Filtered and logistic variants share their size tier; quality bonuses remain unchanged.
     - Expanded the enemy difficulty ladder with Sheltered, Forgiving, and Lenient tiers. Merciful is now a near-peaceful stat floor with stronger optional Nauvis evolution grace through the selected Nauvis Pressure Grace Classic or Extended profiles, while Lenient preserves the former Merciful prototype balance.
     - The Walking Covenant: Industry learns to cross the wound. A three-legged scout carries the first signals through Computer age; Simulation arms the assault chassis with cannon, machine gun, and flame; Gleba binds carbon into the four-launcher Spidertron. Research inscribes the whole brood with stronger hulls, deeper stores, wider equipment grids, and more enduring fuel. Cannon, minigun, flame, and artillery receive their successive rites; rockets reach farther and fall faster, until Quantum gives the Doeworks barrage its fever and the wounded assault chassis its shroud of suppressing smoke. Silence a heavy mount, hold a chosen weapon, or entrust the firing liturgy to optional range-aware cycling. Through refit and recovery, cargo, equipment, commands, and memory endure. Assault Spidertron V2 joins the required dependencies; its arachnophobia toggle remains available.
   Changes:

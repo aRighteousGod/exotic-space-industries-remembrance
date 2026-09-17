@@ -134,33 +134,14 @@ local function k2so_upsert_prototypes(prototypes)
 end
 
 if k2so_startup_enabled("kr-containers") then
-    local container_sizes = {
-        ["container"] = {
-            ["kr-strongbox"] = 24,
-            ["kr-warehouse"] = 48,
-        },
-        ["logistic-container"] = {
-            ["kr-active-provider-strongbox"] = 24,
-            ["kr-buffer-strongbox"] = 24,
-            ["kr-passive-provider-strongbox"] = 24,
-            ["kr-requester-strongbox"] = 24,
-            ["kr-storage-strongbox"] = 24,
-            ["kr-active-provider-warehouse"] = 48,
-            ["kr-buffer-warehouse"] = 48,
-            ["kr-passive-provider-warehouse"] = 48,
-            ["kr-requester-warehouse"] = 48,
-            ["kr-storage-warehouse"] = 48,
-        },
-    }
-
-    for prototype_type, prototype_sizes in pairs(container_sizes) do
-        local prototype_bucket = data.raw[prototype_type]
-        if prototype_bucket then
-            for prototype_name, size in pairs(prototype_sizes) do
-                local prototype = prototype_bucket[prototype_name]
-                if prototype then
-                    prototype.inventory_size = size
-                end
+    local capacity_config = require("lib/container-capacity-config")
+    local capacity_profile = capacity_config.resolve()
+    for _, prototype_type in ipairs({"container", "logistic-container"}) do
+        for prototype_name, tier in pairs(capacity_config.k2so_tiers) do
+            -- Legacy medium/big prototypes retain their existing K2_CHANGES guard below.
+            if not prototype_name:find("container", 1, true) then
+                local prototype = data.raw[prototype_type] and data.raw[prototype_type][prototype_name]
+                if prototype then prototype.inventory_size = capacity_profile[tier] end
             end
         end
     end
@@ -307,7 +288,8 @@ local _td = table.deepcopy
 
 --CONSTANTS
 ------------------------------------------------------------------------------------------------------
-local ei_medium_container, ei_big_container = 32, 64
+local container_capacity = require("lib/container-capacity-config").resolve()
+local ei_medium_container, ei_big_container = container_capacity.medium, container_capacity.warehouse
 local ei_neo_speed = data.raw["transport-belt"]["transport-belt"].speed * 8
 
 local function convertTypePrototype(name, old_type, new_type)

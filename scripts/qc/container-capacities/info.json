@@ -1,0 +1,8 @@
+{
+  "name": "zzz-esir-container-qc",
+  "version": "1.0.0",
+  "title": "ESIR isolated container acceptance fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.0",
+  "dependencies": ["exotic-space-industries-remembrance", "? Krastorio2-spaced-out"]
+}

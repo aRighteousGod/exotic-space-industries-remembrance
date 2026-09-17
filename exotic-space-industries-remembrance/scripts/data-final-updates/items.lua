@@ -30,18 +30,6 @@ for _, item in pairs(data.raw.item) do
   if item.subgroup == "gun" then item.stack_size = 1 end
 end
 ]]
-local cap_size = {
-    "logistic-container",
-    "container"
-}
-for _,entity_class in pairs(cap_size) do
-    for _,entity in pairs(data.raw[entity_class]) do
-        if entity and entity.inventory_size > 64 then
-            entity.inventory_size = 64
-        end
-    end
-end
-
 --rocket stack size adjustments
 --from Rockets Launch Stacks @hopefuldecay
 -- Minimum amount of stacks a rocket should carry.

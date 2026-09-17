@@ -6,6 +6,8 @@ local emerald_hover_tank_config = require("lib/emerald-apocalypse-hover-tank-con
 local arc_furnace_light_config = require("lib/arc-furnace-light-config")
 local fluid_safety_config = require("lib/fluid-safety-config")
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
+local container_capacity_config = require("lib/container-capacity-config")
+data:extend({container_capacity_config.startup_setting_definition()})
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
