@@ -95,6 +95,13 @@ local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
     [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,
     [ei_emerald_apocalypse_hover_tank.charge_effect_id] = ei_emerald_apocalypse_hover_tank.on_script_trigger_effect,
 }
+---@param event EventData.on_script_trigger_effect
+local function on_spider_script_effect(event)
+    ei_spider_vehicles.on_script_trigger_effect(event)
+end
+for id in pairs(ei_spider_vehicles.script_effects) do
+    SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS[id] = on_spider_script_effect
+end
 
 local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
 
@@ -688,14 +695,24 @@ script.on_event({
 end)
 
 script.on_event(defines.events.on_entity_damaged, function(event)
-    -- Tesla legacy keeps the broad damage hook disabled in hybrid mode, but fidelity mode
-    -- still needs this centralized forwarding point so the owned runtime can selectively
-    -- restore the original recursive helper behavior.
-    ei_teslas_legacy.on_entity_damaged(event)
-    ei_spider_vehicles.on_entity_damaged(event)
-    ei_emerald_apocalypse_hover_tank.on_entity_damaged(event)
-    ei_hemocrystal_wall.on_entity_damaged(event)
-end)
+    -- Engine filters exclude unrelated hits before Lua dispatch. Electric hits
+    -- retain Tesla's recursive legacy handling; target-owned reactions follow it.
+    if event.damage_type.name == "electric" then ei_teslas_legacy.on_entity_damaged(event) end
+    local entity = event.entity
+    if not entity.valid then return end
+    if entity.type == "spider-vehicle" then
+        ei_spider_vehicles.on_entity_damaged(event)
+    elseif entity.name == "ei-emerald-apocalypse-hover-tank" then
+        ei_emerald_apocalypse_hover_tank.on_entity_damaged(event)
+    elseif entity.name == "ei-hemocrystal-wall" then
+        ei_hemocrystal_wall.on_entity_damaged(event)
+    end
+end, {
+    {filter="damage-type",type="electric"},
+    {filter="type",type="spider-vehicle"},
+    {filter="name",name="ei-emerald-apocalypse-hover-tank"},
+    {filter="name",name="ei-hemocrystal-wall"},
+})
 
 script.on_event(defines.events.on_train_changed_state, function(e)
     -- Steam train wheel updates are active-set driven, so train state changes wake parked
@@ -1416,7 +1433,6 @@ function updater(event)
   end
 
   local updates_needed = 1
-  if ei_spider_vehicles.has_tick_work() then ei_spider_vehicles.updater(event) end
   local singularity_lance_serviced_this_tick = false
   local emerald_apocalypse_serviced_this_tick = false
   -- Compute update step from event.tick to keep the timing source explicit.
@@ -1626,7 +1642,7 @@ function updater(event)
       end
   end
     ::skip::
-
+    if ei_spider_vehicles.has_tick_work(event) then ei_spider_vehicles.updater(event) end
    -- Essential updates that run every tick regardless of the scheduled branch above.
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.

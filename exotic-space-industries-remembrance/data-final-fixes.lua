@@ -210,5 +210,6 @@ end
 require("scripts/data-final-updates/tech-weight-badges")
 -- Resolve the shared fleet variants after all source-body compatibility passes.
 require("prototypes/spider-vehicles").finalize()
+require("scripts/data-final-updates/spider-overkill")
 -- Storage sizing follows every ESIR compatibility and prototype creation pass.
 require("scripts/data-final-updates/container-capacities")

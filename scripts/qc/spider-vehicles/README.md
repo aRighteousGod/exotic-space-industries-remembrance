@@ -22,7 +22,7 @@ Combat probes reproduce Factorio 2.0.77's native mixed-range stalls in both dire
 
 Use `-NativeCycling` to disable the startup setting in the isolated fixture. Both modes load the same 24,388 gameplay configuration names. GUI tests build actual native relative widgets and invoke ESIR's production callbacks through an interface appended only to the staged ESIR copy: Factorio cannot raise GUI events from a helper mod. They cover both occupied mount toggles, selected-weapon Hold, pending state, reattachment to the replacement and closure. They do not simulate mouse input or provide a rendered visual review. The fixture uses native player and construction-robot mining/build actions to exercise item-number preference transport.
 
-The normal fixture also covers full cargo deferral, compatible cargo merging, rare ammunition with a partial magazine, ammunition restoration, moving-vehicle deferral, target destruction and range changes, an emptied battery, cloning and preference preservation through a force change/research burst. Additional raw gun probes measure 30/24/18 smart rocket intervals, 60/48/36 Hold intervals and 30/24/18 native battery intervals. Doeworks' four reload tiers are checked independently.
+The normal fixture also covers full cargo deferral, compatible cargo merging, rare ammunition with a partial magazine, ammunition restoration, moving-vehicle deferral, target destruction and range changes, an emptied battery, cloning and preference preservation through a force change/research burst. Additional raw gun probes measure 30/24/18 smart rocket intervals, 60/48/36 Hold intervals and 30/24/18 native battery intervals. The artillery rocket launcher's four reload tiers are checked independently.
 
 Real save migration uses a separate eight-vehicle matrix because benchmark mode does not write saves. `-SaveFixture` starts a private local server on port 34198, saves into the isolated run directory, and stops only that process after the ZIP is readable. It checks all cycling/mount preference combinations across the two armed families, stable identities, Hold selection, quality, partial ammunition, cargo/trash, fuel/spent fuel, remaining fuel energy, equipment charge and logistic requests. Disabled mounts are re-enabled and disabled again after loading to verify remembered ammunition restoration. Run the initial save, switch off, then switch back on:
 
@@ -32,7 +32,16 @@ Real save migration uses a separate eight-vehicle matrix because benchmark mode 
 ./scripts/invoke-spider-vehicles-qc.ps1 -SkipDataCheck -SaveFixture -SavePath .factorio-qc/spider-vehicles-runtime/saves/spider-controls-native.zip
 ```
 
-For fleet measurements use `-PerformanceVehicles 100` or `500`, optionally `-PerformanceCombat` and `-NativeCycling`. The fixture measures ESIR's spider updater using LuaProfiler over 220 ticks after setup, records target-search and ammunition-sample counts, and measures acquisition latency after enemies appear. Profile time excludes native weapon simulation, the helper's measurements and other ESIR modules. The active-work predicate still runs when the updater has no work. The combat layout deliberately starts each vehicle on artillery with nearby and farther enemies, exercising mixed-range acquisition. Native and scripted runs can therefore perform different amounts of native combat work.
+Use `-Overkill` for the separate combat suite: default-Off controls, ammunition savings, all four predicted weapon groups, quality/research and resistance, moving/regenerating/destroyed targets, native alternative probes, lost-impact expiry, manual override, equipment lasers, and unsupported ammunition. `-Overkill -NativeCycling` verifies retained but inactive preferences and zero selector/prediction work. These are automated headless tests; no manual in-game verification is required.
+
+An active hold and its original expiry bucket have a separate real-save check. Keep the source and startup settings unchanged between these two commands, so this exercises an ordinary load rather than configuration migration:
+
+```powershell
+./scripts/invoke-spider-vehicles-qc.ps1 -SkipDataCheck -Overkill -SaveFixture -SavePath "$env:APPDATA/Factorio/saves/explode.zip"
+./scripts/invoke-spider-vehicles-qc.ps1 -SkipDataCheck -Overkill -SaveFixture -SavePath .factorio-qc/spider-vehicles-runtime/saves/spider-overkill-smart.zip
+```
+
+For fleet measurements use `-PerformanceVehicles 100` or `500`, optionally `-PerformanceCombat` and `-NativeCycling`. Add `-RocketPerformance` for loaded ordinary/artillery rocket vehicles and `-Overkill` to enable prevention on the fleet. The fixture measures ESIR's spider updater and launch/impact handler using LuaProfiler over 220 ticks after setup, records target-search and ammunition-sample counts, and measures acquisition latency after enemies appear. Profile time excludes native weapon simulation, the helper's measurements and other ESIR modules. The active-work predicate still runs when the updater has no work. The default combat layout deliberately starts each vehicle on artillery with nearby and farther enemies, exercising mixed-range acquisition. The rocket layout uses durable enemies 80 tiles east of each starting position to sustain in-flight reservations. Native and scripted runs can therefore perform different amounts of native combat work.
 
 # Runtime integration contract
 
@@ -46,7 +55,7 @@ The remote interface `exotic-industries-spider-vehicles` exposes:
 - `refresh_force(force)`: rebuild that force's researched configuration and queue its vehicles.
 - `get_status()`: diagnostics including replacement count, unexpected failures, queued work, and deferred vehicles.
 - `get_weapon_controls(entity)`: requested/effective controls, mount research availability and pending reasons.
-- `set_weapon_controls(entity, changes)`: validated per-vehicle cycling, mount and Hold-slot preferences; see the controls contract for fields and errors.
+- `set_weapon_controls(entity, changes)`: validated per-vehicle cycling, mount, Hold-slot and overkill preferences; see the controls contract for fields and errors.
 
 The replacement event supplies `old_unit_number`, `entity` (the new live vehicle), and `vehicle_id`. Native remote selections, occupants, the open vehicle window, and incoming spider follow links are repaired by ESIR. Other mods holding their own LuaEntity references or unit-number indexes must consume the event and update those references. Native cloning creates a new stable identity; research replacements retain the old one.
 
@@ -54,6 +63,8 @@ When Spidertron Enhancements is installed, ESIR also raises its shared `on_spide
 
 Replacement is transactional: the original survives while a temporary clone supplies native item metadata and the candidate receives explicit runtime state. Contents that do not fit, equipment removal orders, motion, temporary stickers, construction orders, active personal robots, and targeted logistic deliveries defer replacement. Delayed retries and smoke pulses use the shared runtime scheduler. There are no idle surface scans; initial/configuration discovery and replacement-time incoming-follow-link discovery are the explicit scan boundaries.
 
+Use `-Dispatch` with either startup mode for the UPS dispatch fixture. It sends 1,000 unrelated physical hits, 1,000 electric hits, and 2,000 unrelated script effects through the engine, and counts entry into the dispatcher and each damage owner. It also checks reactive smoke and a full-cargo refit: future smoke/retry buckets must not wake the native-mode updater before their deadlines. The fleet profiler includes the once-per-tick work predicate as well as the updater and spider observation callbacks; its report contains dispatch counters. These counters and timers exist only in the staged QC copy.
+
 Legacy assault cannon/MG/flamer slots are remapped. Rockets and artillery without an available mount are preserved in empty trunk slots; a full trunk defers conversion. Legacy grids are retained until runtime can check their contents. Expanded grids mine to hidden storage items with matching placement grids, preventing native item placement from discarding equipment. Selectable Gaian saucer recipe alternatives accept both expanded rocket storage items and name the required grid size.
 
-All upgrades use ordinary ESIR research declarations and automatic cost scaling. Twelve cumulative chassis stages combine with independent weapon branches and cycling bodies, producing 13 scout, 23,400 assault, and 975 rocket configurations. Doeworks is a fifth slot; ordinary rocket slots remain in their original positions. Arachnophobia remains an upstream player choice.
+All upgrades use ordinary ESIR research declarations and automatic cost scaling. Twelve cumulative chassis stages combine with independent weapon branches and cycling bodies, producing 13 scout, 23,400 assault, and 975 rocket configurations. The artillery rocket launcher occupies a fifth slot; ordinary rocket slots remain in their original positions. Arachnophobia remains an upstream player choice.

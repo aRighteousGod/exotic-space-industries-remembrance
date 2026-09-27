@@ -9,6 +9,7 @@
 --   on_research_finished, on_scripted_research_burst, on_configuration_changed,
 --   on_forces_merged, on_external_replaced, refresh_vehicle, on_entity_damaged,
 --   on_mined_entity, on_gui_opened, on_gui_closed, on_gui_changed, updater
+--   on_script_trigger_effect (optional launch/impact reservations)
 -- storage_roots: storage.ei.spider_vehicles
 -- gui_ids: ei-spider-weapon-console
 -- remote_interfaces: exotic-industries-spider-vehicles (registered by control.lua)
@@ -21,11 +22,22 @@ local util = require("util")
 local model = {}
 local transaction = false
 local SMART = settings.startup["ei-spider-range-aware-cycling"].value
+-- Build immutable exact-ID routing once per control load. Disabled startup mode
+-- installs no observation hooks and no spider handlers in the shared dispatcher.
+---@type table<string, {launch:boolean, name:string}>
+model.script_effects = {}
+if SMART then
+    for id in pairs(prototypes.mod_data[catalog.overkill.profiles.."-effects"].data) do
+        local launch=id:sub(1,#catalog.overkill.launch)==catalog.overkill.launch
+        model.script_effects[id]={launch=launch,name=id:sub(#(launch and catalog.overkill.launch or catalog.overkill.impact)+1)}
+    end
+end
 local GUI_NAME = "ei-spider-weapon-console"
-local reset_selection,refresh_gui,ammunition
+local reset_selection,refresh_gui,ammunition,release_overkill
 -- Immutable prototype facts are filled lazily and rebuilt when control loads.
 -- Fetching full attack/ammo action tables on every target refresh is expensive.
 local gun_profiles,ammo_profiles={},{}
+local impact_profiles
 local selector_tick,hostility_cache,target_cache
 -- Generated events must be recreated when control.lua loads, including save loads.
 local replacement_event = script.generate_event_name()
@@ -43,6 +55,14 @@ local replacement_event = script.generate_event_name()
 ---@field stowed_ammo {name:string?,quality:string?,filter:table?}?
 ---@field selection table? Cached slots/targets, current group and firing-turn counters.
 ---@field search_tick integer?
+---@field overkill_state ESIRSpiderOverkillState?
+
+---@class ESIRSpiderOverkillState
+---@field shots table<integer, table> Native shots, never synthetic projectiles.
+---@field targets table<any, table> Per-vehicle damage totals and reservation revisions.
+---@field blocked table<string, table> Failed native aiming probes, by weapon group.
+---@field next_id integer
+---@field targeting table? Requested native settings while effective settings are suppressed.
 
 ---@class ESIRSpiderState
 ---@field vehicles table<integer, ESIRSpiderRecord>
@@ -59,6 +79,7 @@ local replacement_event = script.generate_event_name()
 ---@field item_registrations table<integer, integer>
 ---@field selector table Active records, scheduled searches and diagnostics.
 ---@field gui table<integer, integer> Player index to stable vehicle identity.
+---@field overkill table Active reservation records, expiry buckets and counters.
 
 ---@return ESIRSpiderState
 local function state()
@@ -72,6 +93,7 @@ local function state()
     root.item_registrations=root.item_registrations or {}
     root.selector=root.selector or {active={},due={},queue=scheduler.ensure_queue(),searches=0,samples=0,max_searches=0,turns=0}
     root.gui=root.gui or {}
+    root.overkill=root.overkill or {active={},due={},launches=0,reserved=0,retired=0,expired=0,holds=0,samples=0,unsupported=0}
     return root
 end
 
@@ -79,6 +101,7 @@ end
 ---@return ESIRSpiderPreferences
 local function preferences(record)
     record.preferences=record.preferences or {cycling=true,special=true}
+    if record.preferences.overkill==nil then record.preferences.overkill=false end
     return record.preferences
 end
 
@@ -155,6 +178,7 @@ function model.on_built_entity(event)
         if saved and saved.family==record.family then
             record.preferences=table.deepcopy(saved.preferences)
             record.stowed_ammo=table.deepcopy(saved.stowed_ammo)
+            if saved.targeting then record.entity.vehicle_automatic_targeting_parameters=table.deepcopy(saved.targeting) end
             state().items[stack.item_number]=nil
         end
     end
@@ -170,6 +194,10 @@ function model.on_mined_entity(event)
     local unit=ei_lib.get_entity_unit_number(event.entity)
     local record=unit and state().vehicles[state().units[unit]]
     if not record or not event.buffer then return end
+    -- Native mining may already have serialized the temporarily suppressed
+    -- flags into the item. Carry the requested values with its stable identity.
+    local targeting=record.overkill_state and record.overkill_state.targeting
+    release_overkill(record,true)
     for index=1,#event.buffer do
         local stack=event.buffer[index]
         if stack.valid_for_read and stack.type=="item-with-entity-data" and stack.item_number then
@@ -177,7 +205,7 @@ function model.on_mined_entity(event)
             if place and catalog.family(place.name)==record.family then
                 local saved=table.deepcopy(preferences(record))
                 saved.selected_slot=event.entity.selected_gun_index
-                state().items[stack.item_number]={family=record.family,preferences=saved,stowed_ammo=table.deepcopy(record.stowed_ammo)}
+                state().items[stack.item_number]={family=record.family,preferences=saved,stowed_ammo=table.deepcopy(record.stowed_ammo),targeting=table.deepcopy(targeting)}
                 if stack.item then state().item_registrations[script.register_on_object_destroyed(stack.item)]=stack.item_number end
                 break
             end
@@ -191,6 +219,10 @@ function model.on_entity_cloned(event)
     local source_id=ei_lib.get_entity_unit_number(event.source)
     local original=source_id and state().vehicles[state().units[source_id]]
     if original then
+        -- A clone must not inherit a transient automatic-fire suppression.
+        if original.overkill_state and original.overkill_state.targeting then
+            record.entity.vehicle_automatic_targeting_parameters=table.deepcopy(original.overkill_state.targeting)
+        end
         record.smoke_ready=original.smoke_ready
         record.preferences=table.deepcopy(preferences(original))
         record.stowed_ammo=table.deepcopy(original.stowed_ammo)
@@ -209,6 +241,7 @@ function model.on_external_replaced(event)
     local original=root.vehicles[root.units[old_unit]]
     local replacement=register(destination)
     if not original or not replacement then return end
+    release_overkill(original,false,destination)
     if original.id~=replacement.id then
         root.vehicles[replacement.id]=nil
         root.queue.queued[replacement.id]=nil
@@ -235,6 +268,7 @@ function model.on_object_destroyed(event)
     local id=root.units[unit]
     root.units[unit]=nil
     if id then
+        root.overkill.active[id]=nil
         root.vehicles[id]=nil;root.queue.queued[id]=nil
         root.selector.active[id]=nil;root.selector.queue.queued[id]=nil
         for player_index,vehicle_id in pairs(root.gui) do
@@ -248,6 +282,7 @@ end
 function model.refresh_vehicle(entity)
     local record=register(entity)
     if record then
+        release_overkill(record,true)
         record.force_index=record.entity.force.index
         state().forces[record.force_index]=nil
         enqueue(record)
@@ -261,6 +296,8 @@ end
 
 function model.on_configuration_changed()
     local root=state()
+    for _,record in pairs(root.vehicles) do release_overkill(record,true) end
+    root.overkill={active={},due={},launches=0,reserved=0,retired=0,expired=0,holds=0,samples=0,unsupported=0}
     root.selector={active={},due={},queue=scheduler.ensure_queue(),searches=0,samples=0,max_searches=0,turns=0}
     -- Grandfather existing unlocks, without granting upgrades or unrelated ages.
     for _,force in pairs(game.forces) do
@@ -514,6 +551,8 @@ end
 ---@return boolean
 ---@return string?
 local function replace(record,target)
+    -- Copy requested targeting, never the temporary overkill hold, into refits.
+    release_overkill(record,false)
     local source=record.entity
     local reason=unsafe_reason(source)
     if reason then return false,reason end
@@ -621,18 +660,23 @@ local function smoke_pulse(pulse,tick)
     if pulse.remaining>0 then scheduler.delayed_schedule(state().pulses,tick+catalog.smoke.interval,pulse) end
 end
 
+---@param event EventData.on_entity_damaged
 function model.on_entity_damaged(event)
     if transaction then return end
     local entity=event.entity
-    if not ei_lib.entity_check(entity) or entity.type~="spider-vehicle" or catalog.is_proxy(entity.name) or catalog.family(entity.name)~="assault" or entity.health<=0 then return end
+    if not ei_lib.entity_check(entity) or entity.type~="spider-vehicle" then return end
+    local root=storage.ei and storage.ei.spider_vehicles
+    local record=root and root.vehicles[root.units[entity.unit_number]] or register(entity)
+    if not record or record.family~="assault" or record.suspended or event.tick<record.smoke_ready then return end
+    root=root or state()
+    local force=entity.force
+    local researched=root.forces[force.index]
+    if not researched then researched=catalog.researched_state(force);root.forces[force.index]=researched end
+    if not researched.smoke then return end
+    local health=entity.health
+    if health<=0 or (event.final_damage_amount<entity.max_health*0.05 and health>=entity.max_health*0.5) then return end
     local hostile=event.force or (ei_lib.entity_check(event.cause) and event.cause.force)
-    if not hostile or hostile==entity.force or entity.force.get_friend(hostile) or entity.force.get_cease_fire(hostile) then return end
-    local record=register(entity)
-    local root=state()
-    local researched=root.forces[entity.force.index] or catalog.researched_state(entity.force)
-    root.forces[entity.force.index]=researched
-    if not researched.smoke or event.tick<record.smoke_ready then return end
-    if event.final_damage_amount<entity.max_health*0.05 and entity.health>=entity.max_health*0.5 then return end
+    if not hostile or hostile==force or force.get_friend(hostile) or force.get_cease_fire(hostile) then return end
     if entity.get_inventory(defines.inventory.spider_trunk).remove{name=catalog.smoke.charge,count=1}~=1 then return end
     record.smoke_ready=event.tick+catalog.smoke.cooldown
     entity.surface.create_entity{name="ei-assault-smoke-cloud",position=entity.position,force=entity.force}
@@ -658,6 +702,7 @@ local function schedule_search(record,tick)
 end
 
 reset_selection=function(record,tick)
+    release_overkill(record,false)
     local root=state()
     root.selector.active[record.id]=nil
     record.selection=nil;record.search_tick=nil
@@ -676,10 +721,18 @@ end
 ---@param entity LuaEntity
 ---@return boolean enabled
 ---@return boolean manual
-local function automatic_targeting(entity)
+local function automatic_targeting(entity,record)
     local gunner
     if entity.driver_is_gunner then gunner=entity.get_driver() else gunner=entity.get_passenger() end
     local targeting=entity.vehicle_automatic_targeting_parameters
+    local held=record and record.overkill_state and record.overkill_state.targeting
+    if held then
+        -- Honor observable native control changes made while the overlay is up.
+        if targeting.auto_target_with_gunner or targeting.auto_target_without_gunner then
+            record.overkill_state.targeting=table.deepcopy(targeting)
+            entity.vehicle_automatic_targeting_parameters={auto_target_with_gunner=false,auto_target_without_gunner=false}
+        else targeting=held end
+    end
     if gunner and gunner.valid then
         local player=gunner.object_name=="LuaPlayer" and gunner or gunner.player
         local manual=player and player.shooting_state.state~=defines.shooting.not_shooting or false
@@ -746,11 +799,288 @@ local function target_in_range(entity,target,slot)
     return distance>=slot.minimum*slot.minimum and distance<=slot.maximum*slot.maximum
 end
 
+-- Overkill reservations exist only for opted-in scripted vehicles. Launch and
+-- impact observations own damage totals; the scheduler expires lost impacts.
+-- Cached selector targets are reused, never searched independently here.
+---@param record ESIRSpiderRecord
+---@return boolean
+local function overkill_enabled(record)
+    return SMART and preferences(record).overkill and selector_vehicle(record)
+end
+
+---@param record ESIRSpiderRecord
+---@param clear boolean?
+---@param destination LuaEntity? External boarding may already have copied settings.
+release_overkill=function(record,clear,destination)
+    local pending=record.overkill_state
+    if not pending then return end
+    if pending.targeting then
+        local entity=destination or record.entity
+        if ei_lib.entity_check(entity) then
+            local current=entity.vehicle_automatic_targeting_parameters
+            if not current.auto_target_with_gunner and not current.auto_target_without_gunner then
+                entity.vehicle_automatic_targeting_parameters=pending.targeting
+            end
+        end
+        pending.targeting=nil
+        if refresh_gui and not transaction and not destination then refresh_gui(record) end
+    end
+    if clear then
+        record.overkill_state=nil
+        local runtime=state().overkill
+        runtime.active[record.id]=nil
+        if not next(runtime.active) then runtime.due={} end
+    end
+end
+
+---@param record ESIRSpiderRecord
+local function hold_overkill(record)
+    local pending=record.overkill_state
+    if not pending or pending.targeting or not overkill_enabled(record) then return end
+    pending.targeting=table.deepcopy(record.entity.vehicle_automatic_targeting_parameters)
+    record.entity.vehicle_automatic_targeting_parameters={auto_target_with_gunner=false,auto_target_without_gunner=false}
+    state().overkill.holds=state().overkill.holds+1
+    refresh_gui(record)
+end
+
+---@param record ESIRSpiderRecord
+---@param target LuaEntity?
+---@return boolean
+local function overkill_covered(record,target)
+    local pending=record.overkill_state
+    if not pending or not ei_lib.entity_check(target) or not target.health then return false end
+    local reservation=pending.targets[target.unit_number or target]
+    return reservation~=nil and reservation.damage>=catalog.overkill.budget*target.health
+end
+
+---@param record ESIRSpiderRecord
+---@param group string
+---@return boolean
+local function overkill_blocked(record,group)
+    local pending=record.overkill_state
+    local blocked=pending and pending.blocked[group]
+    if not blocked then return false end
+    local target=pending.targets[blocked.key]
+    if target and target.revision==blocked.revision and overkill_covered(record,target.entity) then return true end
+    pending.blocked[group]=nil
+    return false
+end
+
+---@param record ESIRSpiderRecord
+---@param id integer
+---@param expired boolean?
+local function retire_shot(record,id,expired)
+    local pending=record.overkill_state
+    local shot=pending and pending.shots[id]
+    if not shot then return end
+    pending.shots[id]=nil
+    local target=pending.targets[shot.key]
+    if target then
+        target.damage=target.damage-shot.damage;target.shots[id]=nil
+        target.revision=target.revision+1
+        if not next(target.shots) then pending.targets[shot.key]=nil end
+    end
+    local counts=state().overkill
+    counts.retired=counts.retired+1
+    if expired then counts.expired=counts.expired+1 end
+end
+
+---@param amount number
+---@param resistance table?
+---@return number
+local function resisted_damage(amount,resistance)
+    local decrease=resistance and resistance.decrease or 0
+    local percent=resistance and resistance.percent or 0
+    if amount>decrease+1 then amount=amount-decrease
+    elseif amount>1 then amount=1/(decrease-amount+2)
+    else amount=1/(decrease+1) end
+    return math.max(0,amount*(1-percent))
+end
+
+---@param profile table
+---@param distance number
+---@return number
+local function flight_bound(profile,distance)
+    local speed,travel=profile.speed,0
+    for ticks=1,catalog.overkill.expiry-30 do
+        travel=travel+speed
+        if travel>=distance+2 then return ticks end
+        speed=speed+profile.acceleration
+        if profile.max_speed>0 then speed=math.min(speed,profile.max_speed) end
+    end
+    return catalog.overkill.expiry+1
+end
+
+---@param event EventData.on_script_trigger_effect
+function model.on_script_trigger_effect(event)
+    local effect=model.script_effects[event.effect_id]
+    if not effect then return end
+    local source=ei_lib.get_valid_entity(event.cause_entity) or ei_lib.get_valid_entity(event.source_entity)
+    if not source or source.type~="spider-vehicle" then return end
+    local unit=ei_lib.get_entity_unit_number(source)
+    local root=storage.ei and storage.ei.spider_vehicles
+    local record=root and unit and root.vehicles[root.units[unit]]
+    if not record or not overkill_enabled(record) then return end
+    if not effect.launch then
+        local pending=record.overkill_state
+        if not pending then return end
+        local payload=effect.name
+        local position=event.target_position or (ei_lib.entity_check(event.target_entity) and event.target_entity.position)
+        local candidate,ambiguous
+        for id,shot in pairs(pending.shots) do
+            if shot.payload==payload and event.tick>=shot.earliest then
+                local exact=event.target_entity and pending.targets[shot.key] and pending.targets[shot.key].entity==event.target_entity
+                local dx=position and position.x-shot.position.x or math.huge
+                local dy=position and position.y-shot.position.y or math.huge
+                if exact or dx*dx+dy*dy<=shot.tolerance*shot.tolerance then
+                    local previous=candidate and pending.shots[candidate]
+                    if previous and (previous.key~=shot.key or previous.damage~=shot.damage) then ambiguous=true end
+                    if not candidate or id<candidate then candidate=id end
+                end
+            end
+        end
+        -- Equal shots at the same target are interchangeable. Mixed damage or
+        -- overlapping target reservations need the safety expiry, not a guess.
+        if candidate and not ambiguous then retire_shot(record,candidate) end
+        return
+    end
+    local automatic,manual=automatic_targeting(record.entity,record)
+    if not automatic or manual then return end
+    local group=catalog.slot_group(record.family,record.entity.selected_gun_index)
+    if not catalog.overkill.groups[group] then
+        -- Instant bullets and flame streams contribute no predicted damage,
+        -- but native aiming can waste these alternative turns on covered targets.
+        local target=ei_lib.get_valid_entity(event.target_entity)
+        if (group=="mg" or group=="flamer") and overkill_covered(record,target) then
+            local pending=record.overkill_state
+            local key=target.unit_number or target
+            pending.blocked[group]={key=key,revision=pending.targets[key].revision}
+            if record.selection and record.selection.slots then
+                record.selection.overkill_dirty=true;root.selector.active[record.id]=true
+            end
+        end
+        return
+    end
+    root.overkill.launches=root.overkill.launches+1
+    local ammo_name=effect.name
+    local slot_index=record.entity.selected_gun_index
+    local loaded=record.entity.get_inventory(defines.inventory.spider_ammo)[slot_index]
+    local observed=record.selection and ((record.selection.slots and record.selection.slots[slot_index]) or
+        (record.selection.initial and record.selection.initial[slot_index]))
+    local observed_name=loaded.valid_for_read and loaded.name or (observed and observed.identity and observed.identity:match("^(.-)/"))
+    -- A later mod can clone an instrumented ammo prototype. Its inherited hook
+    -- must not silently assign the original ammunition's damage to the clone.
+    if observed_name~=ammo_name then root.overkill.unsupported=root.overkill.unsupported+1;return end
+    impact_profiles=impact_profiles or prototypes.mod_data[catalog.overkill.profiles].data
+    local profile=impact_profiles[ammo_name]
+    local target=ei_lib.get_valid_entity(event.target_entity)
+    if not target and event.target_position and record.selection then
+        for _,candidate in ipairs(record.selection.targets or {}) do
+            if ei_lib.entity_check(candidate) then
+                local box=candidate.bounding_box
+                local p=event.target_position
+                if p.x>=box.left_top.x and p.x<=box.right_bottom.x and p.y>=box.left_top.y and p.y<=box.right_bottom.y then
+                    if target then target=nil;break end
+                    target=candidate
+                end
+            end
+        end
+    end
+    if not profile or not target or not target.health or target.health<=0 or not target.destructible or not target.is_military_target or
+        target.force==source.force or source.force.get_friend(target.force) or source.force.get_cease_fire(target.force) or target.grid then
+        root.overkill.unsupported=root.overkill.unsupported+1;return
+    end
+    local p,q=source.position,target.position
+    local dx,dy=q.x-p.x,q.y-p.y
+    local distance=math.sqrt(dx*dx+dy*dy)
+    local travel=flight_bound(profile,distance+profile.scatter*math.sqrt(2))
+    if travel>catalog.overkill.expiry then root.overkill.unsupported=root.overkill.unsupported+1;return end
+    local damage_modifier=1
+    for name,gun in pairs(source.prototype.guns or {}) do
+        if name:match("^ei%-spider%-gun%-(%a+)%-")==group then damage_modifier=gun.attack_parameters.damage_modifier or 1;break end
+    end
+    local quality=prototypes.quality[event.quality or "normal"]
+    local multiplier=(quality and quality.default_multiplier or 1)*(1+source.force.get_ammo_damage_modifier(profile.category))*damage_modifier
+    local resistance=target.prototype.resistances or {}
+    local damage=0
+    for _,part in ipairs(profile.parts) do
+        -- Credit only splash whose core reaches the intended point throughout
+        -- the configured scatter. Peripheral/secondary damage stays unreserved.
+        if not part.radius or part.radius>=profile.scatter*math.sqrt(2) then
+            local amount=part.amount*(part.ignore_modifiers and 1 or multiplier)
+            if amount>0 then damage=damage+resisted_damage(amount,resistance[part.type])*(part.count or 1) end
+        end
+    end
+    if damage<=0 then root.overkill.unsupported=root.overkill.unsupported+1;return end
+    local pending=record.overkill_state
+    if not pending then pending={shots={},targets={},blocked={},next_id=0};record.overkill_state=pending end
+    local key=target.unit_number or target
+    local reservation=pending.targets[key]
+    if reservation and overkill_covered(record,target) then pending.blocked[group]={key=key,revision=reservation.revision} end
+    if not reservation then reservation={entity=target,damage=0,shots={},revision=0};pending.targets[key]=reservation end
+    pending.next_id=pending.next_id+1
+    local id=pending.next_id
+    local tolerance=math.max(1,profile.scatter*math.sqrt(2)+distance*profile.direction_deviation/2+1)
+    pending.shots[id]={key=key,damage=damage,payload=profile.payload,position={x=q.x,y=q.y},tolerance=tolerance,
+        fixed=profile.target_type~="entity",earliest=event.tick+math.max(1,math.floor(travel*0.5))}
+    reservation.damage=reservation.damage+damage;reservation.shots[id]=true
+    root.overkill.active[record.id]=true;root.overkill.reserved=root.overkill.reserved+1
+    scheduler.delayed_schedule(root.overkill.due,event.tick+catalog.overkill.expiry,{vehicle=record.id,shot=id,pending=pending})
+    if record.selection and record.selection.slots then
+        record.selection.overkill_dirty=true;root.selector.active[record.id]=true
+    elseif overkill_covered(record,target) then
+        -- Native targeting can fire before the vehicle's first budgeted search.
+        -- Hold that already-covered shot while the normal search queue catches up.
+        hold_overkill(record)
+    end
+end
+
+---@param tick integer
+local function update_overkill(tick)
+    if not SMART then return end
+    local root=state()
+    for _,entry in ipairs(scheduler.delayed_take_due(root.overkill.due,tick)) do
+        local record=root.vehicles[entry.vehicle]
+        if record and record.overkill_state==entry.pending then retire_shot(record,entry.shot,true) end
+    end
+    for id in pairs(root.overkill.active) do
+        local record=root.vehicles[id]
+        if not record then root.overkill.active[id]=nil
+        elseif not overkill_enabled(record) then release_overkill(record,true)
+        else
+            root.overkill.samples=root.overkill.samples+1
+            local pending=record.overkill_state
+            local automatic,manual=automatic_targeting(record.entity,record)
+            if manual or not automatic then release_overkill(record,true)
+            elseif pending then
+                for _,target in pairs(pending.targets) do
+                    local entity=target.entity
+                    if not ei_lib.entity_check(entity) or not entity.health or entity.health<=0 or entity.surface~=record.entity.surface or
+                        entity.force==record.entity.force or record.entity.force.get_friend(entity.force) or record.entity.force.get_cease_fire(entity.force) then
+                        for shot in pairs(target.shots) do retire_shot(record,shot) end
+                    else
+                        local position=entity.position
+                        for id in pairs(target.shots) do
+                            local shot=pending.shots[id]
+                            if shot.fixed then
+                                local dx,dy=position.x-shot.position.x,position.y-shot.position.y
+                                if dx*dx+dy*dy>shot.tolerance*shot.tolerance then retire_shot(record,id) end
+                            end
+                        end
+                    end
+                end
+                if not next(pending.shots) then release_overkill(record,true) end
+            end
+        end
+    end
+end
+
 ---@param record ESIRSpiderRecord
 ---@param slot table
 ---@return boolean
 local function slot_eligible(record,slot)
     if not slot then return false end
+    if overkill_blocked(record,slot.group) then return false end
     local selection=record.selection
     local total,identity
     if selection.observed_tick==selector_tick and selection.observed_index==slot.index then
@@ -759,13 +1089,14 @@ local function slot_eligible(record,slot)
         total,identity=ammunition(record.entity.get_inventory(defines.inventory.spider_ammo)[slot.index])
     end
     if total<=0 or identity~=slot.identity then return false end
-    if target_in_range(record.entity,slot.target,slot) then return true end
+    if target_in_range(record.entity,slot.target,slot) and not overkill_covered(record,slot.target) then return true end
     -- Reuse other cached enemies when the original target dies or moves. A slot
     -- found empty at the last search waits for the next bounded refresh.
-    if slot.target then
+    if slot.target or slot.overkill_filtered then
+        slot.overkill_filtered=record.preferences.overkill
         slot.target=nil
         for _,target in ipairs(record.selection.targets or {}) do
-            if target_in_range(record.entity,target,slot) then slot.target=target;return true end
+            if target_in_range(record.entity,target,slot) and not overkill_covered(record,target) then slot.target=target;return true end
         end
     end
     return false
@@ -788,6 +1119,7 @@ end
 ---@param record ESIRSpiderRecord
 ---@param slot table
 local function select_slot(record,slot)
+    release_overkill(record,false)
     record.entity.selected_gun_index=slot.index
     local total,identity=ammunition(record.entity.get_inventory(defines.inventory.spider_ammo)[slot.index])
     record.selection.sample={index=slot.index,total=total,identity=identity,cost=slot.cost}
@@ -812,6 +1144,14 @@ local function next_turn(record,after,tick)
         end
     end
     record.selection.turn=nil;record.selection.sample=nil
+    local pending=record.overkill_state
+    if pending then
+        local covered=false
+        for _,target in pairs(pending.targets) do
+            if overkill_covered(record,target.entity) then covered=true;break end
+        end
+        if covered then hold_overkill(record) else release_overkill(record,false) end
+    end
     return false
 end
 
@@ -822,16 +1162,23 @@ local function sample_turn(record,tick)
     -- Active membership is established by reset/search and cleared on every
     -- replacement or preference change; no prototype-name parsing is needed here.
     if not record.entity.valid or record.suspended or not record.preferences.cycling then selector.active[record.id]=nil;return end
-    local automatic,manual=automatic_targeting(record.entity)
+    local automatic,manual=automatic_targeting(record.entity,record)
     if not automatic then
         selector.active[record.id]=nil;record.selection=nil
         schedule_search(record,tick+(manual and 15 or 60))
         return
     end
     local selection=record.selection
-    if not selection then selector.active[record.id]=nil;return end
+    if not selection or not selection.slots then selector.active[record.id]=nil;return end
     selector.samples=selector.samples+1
     local turn,sample=selection.turn,selection.sample
+    if selection.overkill_dirty then
+        selection.overkill_dirty=nil
+        -- Re-evaluate before another fast native attack. The launch callback
+        -- owns reservations; ordinary turn accounting still observes real ammo.
+        local slot=selection.slots[record.entity.selected_gun_index]
+        if slot and not slot_eligible(record,slot) then next_turn(record,turn and turn.group,tick);return end
+    end
     if turn and sample then
         local total,identity=ammunition(record.entity.get_inventory(defines.inventory.spider_ammo)[sample.index])
         selection.observed_tick=tick;selection.observed_index=sample.index
@@ -874,7 +1221,7 @@ local function sample_turn(record,tick)
         if slot then select_slot(record,slot);return end
     end
     if not next_turn(record,turn and turn.group,tick) then
-        selector.active[record.id]=nil
+        selector.active[record.id]=record.overkill_state and record.overkill_state.targeting and true or nil
         schedule_search(record,tick+catalog.selection.idle_interval)
     end
 end
@@ -884,7 +1231,7 @@ end
 ---@return boolean searched
 local function search_targets(record,tick)
     if not selector_vehicle(record) then return false end
-    local automatic,manual=automatic_targeting(record.entity)
+    local automatic,manual=automatic_targeting(record.entity,record)
     if not automatic then
         state().selector.active[record.id]=nil;record.selection=nil
         schedule_search(record,tick+(manual and 15 or 60));return false
@@ -1001,7 +1348,7 @@ local function search_targets(record,tick)
         end
     end
     selection.initial=nil
-    local active=selection.turn~=nil
+    local active=selection.turn~=nil or (record.overkill_state and record.overkill_state.targeting~=nil)
     state().selector.active[record.id]=active and true or nil
     schedule_search(record,tick+(active and catalog.selection.active_interval or catalog.selection.idle_interval))
     return searched
@@ -1048,6 +1395,10 @@ function model.get_weapon_controls(entity)
     local effective=native and "native" or (selector_vehicle(record) and "smart" or "hold")
     local pending=record.suspended or entity.name~=desired_name(record)
     return {vehicle_id=record.id,cycling=prefs.cycling,special=prefs.special,selected_slot=entity.selected_gun_index,
+        overkill=prefs.overkill,effective_overkill=overkill_enabled(record),
+        holding_fire=record.overkill_state~=nil and record.overkill_state.targeting~=nil,
+        overkill_reason=prefs.overkill and ((not SMART or not prefs.cycling) and "requires-scripted-cycling" or
+            (not overkill_enabled(record) and "pending-mode" or (record.overkill_state and record.overkill_state.targeting and "damage-in-flight" or nil))) or nil,
         effective_mode=effective,effective_special=count>(record.family=="assault" and 3 or 4),
         requested_mode=prefs.cycling and (SMART and "smart" or "native") or "hold",smart_setting=SMART,
         special_unlocked=(researched[special] or 0)>0,pending=pending,
@@ -1055,7 +1406,7 @@ function model.get_weapon_controls(entity)
 end
 
 ---@param entity LuaEntity
----@param changes {cycling:boolean?,special:boolean?,selected_slot:integer?}
+---@param changes {cycling:boolean?,special:boolean?,selected_slot:integer?,overkill:boolean?}
 ---@return table? controls
 ---@return string? error
 function model.set_weapon_controls(entity,changes)
@@ -1063,7 +1414,7 @@ function model.set_weapon_controls(entity,changes)
     local record=register(entity)
     if not record or record.family=="scout" then return nil,"unsupported-vehicle" end
     for key,value in pairs(changes) do
-        if key=="cycling" or key=="special" then
+        if key=="cycling" or key=="special" or key=="overkill" then
             if type(value)~="boolean" then return nil,"invalid-boolean" end
         elseif key=="selected_slot" then
             if type(value)~="number" or value%1~=0 or value<1 or value>#entity.get_inventory(defines.inventory.spider_ammo) then return nil,"invalid-slot" end
@@ -1078,6 +1429,8 @@ function model.set_weapon_controls(entity,changes)
         prefs.cycling=changes.cycling
     end
     if changes.special~=nil then prefs.special=changes.special end
+    if changes.overkill~=nil then prefs.overkill=changes.overkill end
+    if not SMART or not prefs.cycling or not prefs.overkill then release_overkill(record,true) end
     if changes.selected_slot then
         prefs.selected_slot=changes.selected_slot
         entity.selected_gun_index=changes.selected_slot
@@ -1101,6 +1454,12 @@ local function build_gui(player,record)
     local function tags(action) return {parent_gui=GUI_NAME,action=action,vehicle_id=record.id} end
     content.add{type="checkbox",name="cycling",caption={"spider-vehicles.control-cycling"},state=controls.cycling,
         tooltip={"spider-vehicles.control-cycling-"..(SMART and "smart" or "native")},tags=tags("cycling")}
+    content.add{type="checkbox",name="overkill",caption={"spider-vehicles.control-overkill"},state=controls.overkill,
+        tooltip={"spider-vehicles.control-overkill-help"},tags=tags("overkill")}
+    if controls.overkill_reason then
+        local label=content.add{type="label",name="overkill_status",caption={"spider-vehicles.overkill-"..controls.overkill_reason}}
+        label.style.single_line=false;label.style.maximal_width=350
+    end
     content.add{type="checkbox",name="special",caption={"spider-vehicles.control-"..(record.family=="assault" and "artillery" or "doeworks")},state=controls.special,
         enabled=controls.special_unlocked,tooltip={"spider-vehicles.control-mount-help"},tags=tags("special")}
     if not controls.special_unlocked then content.add{type="label",caption={"spider-vehicles.control-locked"}} end
@@ -1155,13 +1514,18 @@ function model.on_gui_changed(event)
     if not record or not ei_lib.entity_check(record.entity) or not player or player.opened~=record.entity or player.force~=record.entity.force then return end
     local action=element.tags.action
     if action=="selected_slot" then model.set_weapon_controls(record.entity,{selected_slot=element.selected_index})
-    elseif action=="cycling" or action=="special" then model.set_weapon_controls(record.entity,{[action]=element.state}) end
+    elseif action=="cycling" or action=="special" or action=="overkill" then model.set_weapon_controls(record.entity,{[action]=element.state}) end
 end
 
-function model.has_tick_work()
+---@param event EventData.on_tick
+---@return boolean
+function model.has_tick_work(event)
     local root=storage.ei and storage.ei.spider_vehicles
-    return root and (scheduler.queue_length(root.queue)>0 or next(root.retries)~=nil or next(root.pulses)~=nil or
-        (SMART and root.selector and (next(root.selector.active)~=nil or next(root.selector.due)~=nil or scheduler.queue_length(root.selector.queue)>0))) or false
+    -- Future buckets must not wake the updater between retries, smoke pulses or
+    -- idle target refreshes. Buckets are consumed at their exact scheduled tick.
+    return root and (scheduler.queue_length(root.queue)>0 or root.retries[event.tick]~=nil or root.pulses[event.tick]~=nil or
+        (SMART and root.overkill and (next(root.overkill.active)~=nil or root.overkill.due[event.tick]~=nil)) or
+        (SMART and root.selector and (next(root.selector.active)~=nil or root.selector.due[event.tick]~=nil or scheduler.queue_length(root.selector.queue)>0))) or false
 end
 
 function model.updater(event)
@@ -1198,7 +1562,10 @@ function model.updater(event)
             end
         end
     end
-    update_selector(event.tick)
+    if SMART then
+        update_overkill(event.tick)
+        update_selector(event.tick)
+    end
 end
 
 function model.is_internal_transaction() return transaction end
@@ -1213,7 +1580,9 @@ function model.get_runtime_status()
     for _,record in pairs(root.vehicles) do if record.pending_reason then pending[record.id]=record.pending_reason end end
     return {vehicles=scheduler.table_count(root.vehicles),queued=scheduler.queue_length(root.queue),replacements=root.replacements,failures=root.failures,pending=pending,
         smart_setting=SMART,selector_searches=root.selector.searches,selector_samples=root.selector.samples,selector_turns=root.selector.turns,
-        selector_max_searches_per_tick=root.selector.max_searches,selector_active=scheduler.table_count(root.selector.active),stored_preferences=scheduler.table_count(root.items)}
+        selector_max_searches_per_tick=root.selector.max_searches,selector_active=scheduler.table_count(root.selector.active),stored_preferences=scheduler.table_count(root.items),
+        overkill={active=scheduler.table_count(root.overkill.active),launches=root.overkill.launches,reserved=root.overkill.reserved,
+            retired=root.overkill.retired,expired=root.overkill.expired,holds=root.overkill.holds,samples=root.overkill.samples,unsupported=root.overkill.unsupported}}
 end
 
 return model

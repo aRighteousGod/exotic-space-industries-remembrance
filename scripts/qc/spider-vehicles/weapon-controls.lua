@@ -75,7 +75,7 @@ function model.setup()
         else
             entity.grid.put{name="battery-equipment",position={0,0},quality="rare"}.energy=9876
         end
-        controls(entity,{cycling=true})
+        controls(entity,{cycling=true,overkill=case.parked or false})
         if case.partial then
             local ammo=entity.get_inventory(defines.inventory.spider_ammo)[4]
             ammo.count=2;ammo.ammo=7
@@ -122,6 +122,7 @@ function model.step(tick,check)
     elseif tick==200 then
         local clone=storage.control_clone
         check("controls-clone-preferences",status(clone).cycling==false and status(clone).selected_slot==2)
+        check("controls-clone-overkill",status(clone).overkill and not status(clone).effective_overkill)
         check("controls-clone-distinct-id",status(clone).vehicle_id~=rocket.id)
     elseif tick==250 then
         check("controls-assault-off",#assault.entity.get_inventory(defines.inventory.spider_ammo)==3 and not status(assault.entity).pending)
@@ -135,6 +136,8 @@ function model.step(tick,check)
         local before=status(assault.entity)
         local invalid,err=controls(assault.entity,{selected_slot=99})
         check("controls-invalid-slot",invalid==nil and err=="invalid-slot" and status(assault.entity).selected_slot==before.selected_slot)
+        invalid,err=controls(assault.entity,{overkill="yes"})
+        check("controls-invalid-overkill",invalid==nil and err=="invalid-boolean" and status(assault.entity).overkill==before.overkill)
         controls(storage.control_clone,{special=false})
     elseif tick==300 and game.get_player(1) then
         local player=game.get_player(1)
@@ -162,6 +165,7 @@ function model.step(tick,check)
         local entity=storage.control_rebuilt
         local result=status(entity)
         check("controls-native-player-rebuild",result and not result.cycling and not result.special and result.selected_slot==2 and not result.pending)
+        check("controls-player-rebuild-overkill",result and result.overkill and not result.effective_overkill)
         check("controls-consumed-item-cleanup",not remote.call("esir-spider-qc-controls","has_item_preference",storage.control_mined_number))
     elseif tick==320 and storage.control_rebuilt then
         local player=game.get_player(1)
@@ -186,6 +190,15 @@ function model.step(tick,check)
         local root=player.gui.relative["ei-spider-weapon-console"]
         check("controls-relative-gui",root~=nil and root.valid)
         local content=root.children[2].content
+        check("controls-gui-overkill-saved",content.overkill.state==true)
+        content.overkill.state=false
+        remote.call("esir-spider-qc-controls","change",{player_index=player.index,element=content.overkill})
+        check("controls-gui-overkill-off",not status(assault.entity).overkill)
+        content=player.gui.relative["ei-spider-weapon-console"].children[2].content
+        content.overkill.state=true
+        remote.call("esir-spider-qc-controls","change",{player_index=player.index,element=content.overkill})
+        check("controls-gui-overkill-on",status(assault.entity).overkill)
+        content=player.gui.relative["ei-spider-weapon-console"].children[2].content
         content.weapon.selected_index=3
         local changed=remote.call("esir-spider-qc-controls","change",{player_index=player.index,element=content.weapon})
         check("controls-gui-selected-slot",assault.entity.selected_gun_index==3,serpent.line(changed))
@@ -196,6 +209,7 @@ function model.step(tick,check)
         local player=game.get_player(1)
         check("controls-gui-mount-off",not status(assault.entity).effective_special)
         check("controls-occupied-artillery-gui",player.vehicle==assault.entity and player.opened==assault.entity and player.gui.relative["ei-spider-weapon-console"]~=nil)
+        check("controls-occupied-overkill-preference",status(assault.entity).overkill and player.gui.relative["ei-spider-weapon-console"].children[2].content.overkill.state)
         local content=player.gui.relative["ei-spider-weapon-console"].children[2].content
         content.cycling.state=true
         remote.call("esir-spider-qc-controls","change",{player_index=player.index,element=content.cycling})
@@ -266,6 +280,7 @@ function model.step(tick,check)
         local case=cases[14]
         local value=status(case.entity)
         check("controls-force-and-burst-preferences",value.vehicle_id==case.id and not value.pending and not value.cycling and not value.special and value.selected_slot==2 and value.effective_mode=="hold" and not value.effective_special)
+        check("controls-force-and-burst-overkill",value.overkill and not value.effective_overkill)
     elseif tick==550 and game.get_player(1) then
         if SMART then check("controls-resume-after-manual",cases[9].entity.selected_gun_index~=2) end
         local player=game.get_player(1)

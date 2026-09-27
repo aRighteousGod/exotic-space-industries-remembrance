@@ -15,7 +15,7 @@ function model.setup()
     port.get_inventory(defines.inventory.roboport_robot).insert{name="construction-robot",count=2}
     surface.create_entity{name="storage-chest",position={5,5000},force=force}
     local entity=surface.create_entity{name=catalog.configured_name("rocket",catalog.researched_state(force),{cycling=false,special=false},settings.startup["ei-spider-range-aware-cycling"].value),position={10,5000},force=force,raise_built=true}
-    remote.call(api,"set_weapon_controls",entity,{cycling=false,special=false,selected_slot=2})
+    remote.call(api,"set_weapon_controls",entity,{cycling=false,special=false,selected_slot=2,overkill=true})
     storage.robot_controls={port=port,entity=entity,id=remote.call(api,"get_vehicle_id",entity)}
 end
 function model.replaced(event)
@@ -50,6 +50,7 @@ function model.step(tick,check)
     elseif tick==480 and state.rebuilt and state.rebuilt.valid then
         local current=state.rebuilt and state.rebuilt.valid and remote.call(api,"get_weapon_controls",state.rebuilt)
         check("controls-native-robot-rebuild",current and not current.cycling and not current.special and current.selected_slot==2 and not current.pending)
+        check("controls-robot-rebuild-overkill",current and current.overkill and not current.effective_overkill)
         check("controls-native-robot-new-identity",current and current.vehicle_id~=state.id)
         local port=state.port
         local chest=port.surface.create_entity{name="passive-provider-chest",position={-8,5000},force=port.force}

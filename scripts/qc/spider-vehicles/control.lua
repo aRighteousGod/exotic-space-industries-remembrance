@@ -1,6 +1,8 @@
 -- Focused engine fixture; stage only in an isolated QC mod directory.
 local config=require("test-config")
+if config.dispatch then require("dispatch");return end
 if (config.performance or 0)>0 then require("performance");return end
+if config.overkill then require(config.save_fixture and "overkill-save" or "overkill");return end
 if config.save_fixture then require("save-controls");return end
 local catalog=require("__exotic-space-industries-remembrance__/lib/spider-vehicles")
 local interface="exotic-industries-spider-vehicles"
@@ -268,6 +270,7 @@ local function step(event)
     elseif tick==200 and prototypes.custom_event["on_spidertron_replaced"] then
         local clone=storage.vehicles[2].clone{position={5,20},surface=storage.vehicles[2].surface}
         storage.proxy_id=remote.call(interface,"get_vehicle_id",clone)
+        remote.call(interface,"set_weapon_controls",clone,{overkill=true})
         check("clone-new-identity",storage.proxy_id~=storage.identities[2])
         storage.proxy=clone.surface.create_entity{name=catalog.proxy_prefix..clone.name,position=clone.position,force=force,raise_built=true}
         script.raise_event("on_spidertron_replaced",{old_spidertron=clone,new_spidertron=storage.proxy})
@@ -275,12 +278,15 @@ local function step(event)
         force.technologies[catalog.weapon_technology("mg",4)].researched=false
     elseif tick==230 and storage.proxy then
         check("boarding-proxy-suspended",storage.proxy.valid and catalog.is_proxy(storage.proxy.name) and remote.call(interface,"get_vehicle_id",storage.proxy)==storage.proxy_id)
+        local controls=remote.call(interface,"get_weapon_controls",storage.proxy)
+        check("boarding-overkill-preference",controls.overkill and not controls.effective_overkill and not controls.holding_fire)
         storage.proxy_return=storage.proxy.surface.create_entity{name=storage.proxy.name:sub(#catalog.proxy_prefix+1),position=storage.proxy.position,force=force,raise_built=true}
         script.raise_event("on_spidertron_replaced",{old_spidertron=storage.proxy,new_spidertron=storage.proxy_return})
         storage.proxy.destroy{raise_destroy=true}
     elseif tick==250 and storage.proxy_return then
         check("disembark-latest-research",storage.proxy_return.name==expected("assault",force))
         check("disembark-identity",remote.call(interface,"get_vehicle_id",storage.proxy_return)==storage.proxy_id)
+        check("disembark-overkill-preference",remote.call(interface,"get_weapon_controls",storage.proxy_return).overkill)
         storage.proxy_return.get_inventory(defines.inventory.spider_trunk).insert{name=catalog.smoke.charge,count=1}
         storage.proxy_return.health=storage.proxy_return.max_health*0.4
         storage.proxy_return.damage(10,game.forces.enemy,"electric")

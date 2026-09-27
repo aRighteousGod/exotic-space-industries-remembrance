@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$SkipDataCheck,[string]$SavePath,[switch]$Arachnophobia,[switch]$WithPatrols,[switch]$NativeCycling,[ValidateSet(0,100,500)][int]$PerformanceVehicles=0,[switch]$PerformanceCombat,[switch]$SaveFixture)
+param([switch]$SkipDataCheck,[string]$SavePath,[switch]$Arachnophobia,[switch]$WithPatrols,[switch]$NativeCycling,[ValidateSet(0,100,500)][int]$PerformanceVehicles=0,[switch]$PerformanceCombat,[switch]$SaveFixture,[switch]$Overkill,[switch]$RocketPerformance,[switch]$Dispatch)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $factorio = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.exe'
@@ -28,7 +28,10 @@ $arachnoValue = $Arachnophobia.IsPresent.ToString().ToLowerInvariant()
 $smartValue = (-not $NativeCycling.IsPresent).ToString().ToLowerInvariant()
 $combatValue = $PerformanceCombat.IsPresent.ToString().ToLowerInvariant()
 $saveValue = $SaveFixture.IsPresent.ToString().ToLowerInvariant()
-"return {arachnophobia=$arachnoValue,smart=$smartValue,performance=$PerformanceVehicles,combat=$combatValue,save_fixture=$saveValue}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
+$overkillValue = $Overkill.IsPresent.ToString().ToLowerInvariant()
+$rocketValue = $RocketPerformance.IsPresent.ToString().ToLowerInvariant()
+$dispatchValue = $Dispatch.IsPresent.ToString().ToLowerInvariant()
+"return {arachnophobia=$arachnoValue,smart=$smartValue,performance=$PerformanceVehicles,combat=$combatValue,save_fixture=$saveValue,overkill=$overkillValue,rocket_performance=$rocketValue,dispatch=$dispatchValue}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
 $listPath = Join-Path $mods 'mod-list.json'
 $list = Get-Content -LiteralPath $listPath -Raw | ConvertFrom-Json
 $originalList = Get-Content -LiteralPath $listPath -Raw
@@ -70,7 +73,8 @@ try {
         $server | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $serverSettings -Encoding UTF8
         $mode=if ($NativeCycling) { 'native' } else { 'smart' }
         New-Item -ItemType Directory -Path (Join-Path $run 'saves') -Force | Out-Null
-        $savedPath=Join-Path $run "saves\spider-controls-$mode.zip"
+        $saveKind=if ($Overkill) { 'overkill' } else { 'controls' }
+        $savedPath=Join-Path $run "saves\spider-$saveKind-$mode.zip"
         $arguments=@('--start-server',('"'+$save+'"'),'--server-settings',('"'+$serverSettings+'"'),'--port','34198','--config',('"'+$configuration+'"'),'--mod-directory',('"'+$mods+'"'),'--disable-audio')
         $process=Start-Process -FilePath $factorio -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $run 'server-stdout.txt') -RedirectStandardError (Join-Path $run 'server-stderr.txt')
         try {

@@ -5,6 +5,14 @@ local function check(name,condition)
     assert(condition,"SPIDER_DATA_QC "..name)
     checked=checked+1
 end
+local smart=settings.startup["ei-spider-range-aware-cycling"].value
+local observations=data.raw["mod-data"][catalog.overkill.profiles.."-effects"].data
+local profiles=data.raw["mod-data"][catalog.overkill.profiles].data
+check("observation-hooks-startup-policy",smart and next(observations)~=nil or not smart and next(observations)==nil)
+check("prediction-profiles-startup-policy",smart and next(profiles)~=nil or not smart and next(profiles)==nil)
+for name,profile in pairs(profiles) do
+    check(name.."-exact-observation-routing",observations[catalog.overkill.launch..name] and observations[catalog.overkill.impact..profile.payload])
+end
 local function has_path(name,ancestor,seen)
     if name==ancestor then return true end
     seen=seen or {}
@@ -22,6 +30,27 @@ local function pack(name,ingredient)
     return false
 end
 local counts={scout=0,assault=0,rocket=0}
+-- Icon coverage is checked after every final pass, including cost badges.
+local icon_names={"ei-spider-vehicles","ei-assault-spidertron",catalog.smoke.technology}
+for level=1,12 do icon_names[#icon_names+1]="ei-spider-chassis-"..level end
+for _,branch in ipairs(catalog.branch_order) do
+    for level=1,#catalog.upgrade_names[branch] do icon_names[#icon_names+1]=catalog.weapon_technology(branch,level) end
+end
+local icon_signatures={}
+for _,name in ipairs(icon_names) do
+    local technology=data.raw.technology[name]
+    check(name.."-explicit-icons",technology.icons and #technology.icons>0)
+    check(name.."-not-vanilla-fallback",technology.icons[1].icon~="__base__/graphics/technology/spidertron.png")
+    local signature=serpent.line(technology.icons)
+    check(name.."-distinct-icon",not icon_signatures[signature])
+    icon_signatures[signature]=true
+end
+check("technology-icon-count",#icon_names==41)
+check("assault-upstream-icon",data.raw.technology["ei-assault-spidertron"].icons[1].icon=="__assault_spidertron_V2__/graphics/technology/assault_spidertron_tech.png")
+for level=1,4 do
+    local name=catalog.weapon_technology("doeworks",level)
+    check(name.."-research-title",data.raw.technology[name].localised_name[1]=="technology-name."..name)
+end
 for name,entity in pairs(data.raw["spider-vehicle"]) do
     local family=name:match("^ei%-spider%-(%a+)%-")
     if counts[family] then

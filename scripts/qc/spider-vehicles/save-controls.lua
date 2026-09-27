@@ -39,7 +39,7 @@ script.on_init(function()
     for _,family in ipairs({"assault","rocket"}) do
         for _,cycling in ipairs({false,true}) do
             for _,special in ipairs({false,true}) do
-                local prefs={cycling=cycling,special=special}
+                local prefs={cycling=cycling,special=special,overkill=special}
                 local entity=surface.create_entity{name=catalog.configured_name(family,catalog.researched_state(force),{cycling=cycling,special=true},settings.startup["ei-spider-range-aware-cycling"].value),position={0,#storage.saved_matrix*6},force=force,raise_built=true}
                 entity.vehicle_automatic_targeting_parameters={auto_target_with_gunner=false,auto_target_without_gunner=false}
                 if not cycling then prefs.selected_slot=2 end
@@ -89,6 +89,8 @@ script.on_event(defines.events.on_tick,function(event)
         local prefs=record.preferences
         check("save-identity-"..index,current.vehicle_id==record.id)
         check("save-preferences-"..index,current.cycling==prefs.cycling and current.special==prefs.special)
+        check("save-overkill-"..index,current.overkill==(prefs.overkill or false) and current.effective_overkill==
+            ((prefs.overkill or false) and prefs.cycling and settings.startup["ei-spider-range-aware-cycling"].value))
         check("save-mode-"..index,not current.pending and current.effective_mode==(prefs.cycling and (settings.startup["ei-spider-range-aware-cycling"].value and "smart" or "native") or "hold"))
         check("save-hold-slot-"..index,prefs.cycling or current.selected_slot==2)
         if loaded then check("save-full-state-"..index,fingerprint(record.entity)==record.fingerprint) end

@@ -56,6 +56,8 @@ model.smoke = {charge="ei-assault-smoke-charge",technology="ei-assault-smokescre
 model.turns = {cannon={shots=2},mg={ticks=120},flamer={ticks=180},artillery={shots=1},rocket={shots=4},doeworks={ticks=90}}
 model.groups = {assault={"cannon","mg","flamer","artillery"},rocket={"rocket","doeworks"}}
 model.selection = {active_interval=15,idle_interval=60,searches_per_tick=8}
+model.overkill = {budget=1.2,expiry=300,profiles="ei-spider-overkill",launch="ei-spider-shot:",impact="ei-spider-impact:",
+    groups={cannon=true,rocket=true,artillery=true,doeworks=true}}
 
 ---@param branch string
 ---@param level integer
@@ -109,6 +111,7 @@ end
 ---@field cycling boolean
 ---@field special boolean
 ---@field selected_slot integer?
+---@field overkill boolean
 
 ---@param family string
 ---@param researched table<string, integer|boolean>
