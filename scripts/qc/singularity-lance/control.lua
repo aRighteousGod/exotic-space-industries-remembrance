@@ -246,7 +246,7 @@ local function mechanics()
 end
 
 local function benchmark_setup()
-    call("configure",{qc_enabled=not config.baseline,profiling_enabled=config.profile})
+    call("configure",{qc_enabled=not config.baseline and not config.no_counters,profiling_enabled=config.profile})
     storage.lances={}
     storage.targets={}
     if config.scene~="no-lance" then
@@ -360,7 +360,7 @@ script.on_event(defines.events.on_tick,function(event)
             call("sync",storage.force)
         end
         if event.tick==120 then
-            call("configure",{reset=true,qc_enabled=not config.baseline,profiling_enabled=config.profile})
+            call("configure",{reset=true,qc_enabled=not config.baseline and not config.no_counters,profiling_enabled=config.profile})
             log("LANCE_BENCH WARMUP_COMPLETE")
         end
         if event.tick%300==0 then log("LANCE_BENCH SNAPSHOT "..helpers.table_to_json(call("snapshot"))) end

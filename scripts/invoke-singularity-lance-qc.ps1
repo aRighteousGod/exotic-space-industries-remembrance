@@ -4,7 +4,8 @@ param(
     [ValidateSet('no-lance','idle','direct','normal-power','dense','diagonal','research')][string]$Scene = 'dense',
     [ValidateSet('lean','standard','cinematic','maximal','unbounded')][string]$Fidelity = 'standard',
     [switch]$Baseline, [switch]$NoScaling, [switch]$Flatten, [switch]$Profile,
-    [int]$Ticks = 900, [int]$Runs = 5, [string]$SaveInput, [string]$BaselineSource
+    [int]$Ticks = 900, [int]$Runs = 5, [string]$SaveInput, [string]$BaselineSource,
+    [switch]$CurrentSource, [string]$RunName, [switch]$NoCounters
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
@@ -12,6 +13,13 @@ $exe = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.
 $label = if ($Baseline) { 'baseline' } else { 'candidate' }
 $run = Join-Path $repo ".factorio-qc\lance\$($label.Substring(0,1))-$($Mode.Substring(0,1))-$Scene-$Fidelity-$([int][bool]$NoScaling)$([int][bool]$Flatten)"
 if ($Profile) { $run += '-profile' }
+if ($CurrentSource) {
+    $currentLabel = if ($RunName) { $RunName } else { "$label-$Mode-$Scene-$Fidelity-$([int][bool]$NoScaling)$([int][bool]$Flatten)-p$([int][bool]$Profile)-c$([int][bool]$NoCounters)" }
+    if ($currentLabel -notmatch '^[A-Za-z0-9_-]+$') { throw 'RunName must be a simple directory name.' }
+    # Keep copied prototype paths below Windows PowerShell's MAX_PATH limit.
+    $run = Join-Path $repo ".factorio-qc\cu\l\$currentLabel"
+    if (Test-Path -LiteralPath $run) { throw 'Choose a fresh RunName to preserve current-source evidence.' }
+}
 $mods = Join-Path $run 'mods'
 New-Item -ItemType Directory -Path $mods -Force | Out-Null
 $seed = Join-Path $repo '.factorio-qc\fmqc\mods-live'
@@ -27,7 +35,10 @@ foreach ($pack in Get-ChildItem -LiteralPath $repo -Directory -Filter 'exotic-sp
     if (-not (Test-Path -LiteralPath $target)) { New-Item -ItemType Junction -Path $target -Target $pack.FullName | Out-Null }
 }
 $main = Join-Path $mods 'exotic-space-industries-remembrance'
-$source = if ($BaselineSource) { (Resolve-Path -LiteralPath $BaselineSource).Path } else { Join-Path $repo '.factorio-qc\singularity-lance\baseline-source' }
+$source = if ($BaselineSource) { (Resolve-Path -LiteralPath $BaselineSource).Path } elseif ($CurrentSource) {
+    if ($Baseline) { throw 'CurrentSource baseline requires an explicit BaselineSource snapshot.' }
+    Join-Path $repo 'exotic-space-industries-remembrance'
+} else { Join-Path $repo '.factorio-qc\singularity-lance\baseline-source' }
 $frozen = Test-Path -LiteralPath $source
 if (-not $frozen) {
     if ($Baseline) { throw 'A pre-change source snapshot is required for baseline measurements. Pass -BaselineSource.' }
@@ -40,7 +51,7 @@ foreach ($item in Get-ChildItem -LiteralPath $source) {
     } else { Copy-Item -LiteralPath $item.FullName -Destination $main -Recurse -Force }
 }
 $utf8 = New-Object Text.UTF8Encoding($false)
-if (-not $Baseline) {
+if (-not $Baseline -and -not $CurrentSource) {
     # Freeze unrelated development at the captured baseline for matched tests.
     $live = Join-Path $repo 'exotic-space-industries-remembrance'
     $owned = @('lib\singularity-lance-config.lua', 'scripts\control\singularity-lance.lua',
@@ -73,7 +84,8 @@ script.on_event({defines.events.on_pre_surface_deleted, defines.events.on_pre_su
 $helper = Join-Path $mods 'zzz-lance-upgrade-qc'
 New-Item -ItemType Directory -Path $helper -Force | Out-Null
 Copy-Item -Path "$repo\scripts\qc\singularity-lance\*" -Destination $helper -Force
-$cfg = "return {mode='$Mode',scene='$Scene',fidelity='$Fidelity',ticks=$Ticks,baseline=$($Baseline.ToString().ToLowerInvariant()),no_scaling=$($NoScaling.ToString().ToLowerInvariant()),flatten=$($Flatten.ToString().ToLowerInvariant()),profile=$($Profile.ToString().ToLowerInvariant())}"
+$legacyBaseline = $Baseline.IsPresent -and -not $CurrentSource.IsPresent
+$cfg = "return {mode='$Mode',scene='$Scene',fidelity='$Fidelity',ticks=$Ticks,baseline=$($legacyBaseline.ToString().ToLowerInvariant()),no_scaling=$($NoScaling.ToString().ToLowerInvariant()),flatten=$($Flatten.ToString().ToLowerInvariant()),profile=$($Profile.ToString().ToLowerInvariant()),no_counters=$($NoCounters.ToString().ToLowerInvariant())}"
 [IO.File]::WriteAllText("$helper\test-config.lua", $cfg, $utf8)
 $list = Get-Content -Raw "$seed\mod-list.json" | ConvertFrom-Json
 foreach ($mod in $list.mods) {

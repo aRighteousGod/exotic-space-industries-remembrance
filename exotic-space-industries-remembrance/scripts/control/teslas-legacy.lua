@@ -241,6 +241,12 @@ local function ensure_state()
     state.legacy_helper_expiry_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.legacy_helper_expiry_buckets)
     state.last_prune_tick = state.last_prune_tick or 0
 
+    -- The usual combat path has no research synchronization jobs to normalize.
+    -- Keep the empty table; nonempty and legacy jobs retain the full repair pass.
+    if next(state.variant_sync_jobs) == nil then
+        return state
+    end
+
     local normalized_variant_sync_jobs = {}
     for force_key, job in pairs(state.variant_sync_jobs) do
         if type(job) == "table" then

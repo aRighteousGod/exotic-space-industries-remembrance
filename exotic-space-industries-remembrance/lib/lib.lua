@@ -34,6 +34,21 @@ function ei_lib.is_valid_number(x)
     return type(x) == "number" and x == x and x ~= math.huge and x ~= -math.huge
 end
 
+---Snapshot scalar keys for a resumable traversal; exotic keys use caller fallback.
+---@param source table
+---@param before fun(a:number|string,b:number|string):boolean
+---@return (number|string)[]|nil
+function ei_lib.sorted_scalar_keys(source, before)
+    local keys = {}
+    for key in pairs(source) do
+        local kind = type(key)
+        if kind ~= "number" and kind ~= "string" then return nil end
+        keys[#keys + 1] = key
+    end
+    table.sort(keys, before)
+    return keys
+end
+
 function ei_lib.clean_nils(t)
   local ans = {}
   for _,v in pairs(t) do

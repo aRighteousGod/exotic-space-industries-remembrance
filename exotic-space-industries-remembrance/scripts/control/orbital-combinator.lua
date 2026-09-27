@@ -131,30 +131,46 @@ local function get_force_by_index(force_index)
 end
 
 
-local function next_collection_entry(collection, previous_key)
+function model._surface_demand.is_key_before(left, right)
+  if right == nil then
+    return true
+  end
+
+  local left_type = type(left)
+  local right_type = type(right)
+  if left_type == right_type and (left_type == "number" or left_type == "string") then
+    return left < right
+  end
+
+  local left_text = left_type .. ":" .. tostring(left)
+  local right_text = right_type .. ":" .. tostring(right)
+  return left_text < right_text
+end
+
+
+local function next_collection_entry(collection, previous_key, keys)
   if not collection then
     return nil, nil
   end
 
-  -- Reconcile and surface-audit cursors need a resumable traversal order across
-  -- both plain Lua tables and LuaCustomTable userdata. `next()` order is not a
-  -- stable resume contract, so we derive the smallest key greater than the
-  -- previous cursor each time instead.
-
-  local function is_key_before(left, right)
-    if right == nil then
-      return true
+  -- Audit probes share one sorted snapshot within the call. Live values still
+  -- decide whether an entry survives cleanup; other traversal paths keep their
+  -- original scan, including LuaCustomTables and non-scalar keys.
+  local is_key_before = model._surface_demand.is_key_before
+  if keys then
+    local low, high = 1, #keys + 1
+    if previous_key ~= nil then
+      while low < high do
+        local middle = math.floor((low + high) / 2)
+        if is_key_before(previous_key, keys[middle]) then high = middle
+        else low = middle + 1 end
+      end
     end
-
-    local left_type = type(left)
-    local right_type = type(right)
-    if left_type == right_type and (left_type == "number" or left_type == "string") then
-      return left < right
+    for index = low, #keys do
+      local key = keys[index]
+      if collection[key] ~= nil then return key, collection[key] end
     end
-
-    local left_text = left_type .. ":" .. tostring(left)
-    local right_text = right_type .. ":" .. tostring(right)
-    return left_text < right_text
+    return nil, nil
   end
 
   local next_key = nil
@@ -3395,6 +3411,7 @@ local function find_due_surface(current_tick, kind, advance_cursor)
   if total == 0 then
     return nil, nil
   end
+  local keys
 
   local cursor_name = kind == "hot"
     and "orbital_combinator_hot_surface_break_point"
@@ -3410,9 +3427,13 @@ local function find_due_surface(current_tick, kind, advance_cursor)
   local scanned = 0
 
   while scanned < total do
-    local surface_key, state = next_collection_entry(state_root, next_cursor)
+    -- Preserve the cheap early-hit path before preparing a longer traversal.
+    if scanned == 2 and total >= 8 then
+      keys = ei_lib.sorted_scalar_keys(state_root, model._surface_demand.is_key_before)
+    end
+    local surface_key, state = next_collection_entry(state_root, next_cursor, keys)
     if surface_key == nil then
-      surface_key, state = next_collection_entry(state_root, nil)
+      surface_key, state = next_collection_entry(state_root, nil, keys)
     end
     if surface_key == nil then
       if advance_cursor then
@@ -3421,7 +3442,7 @@ local function find_due_surface(current_tick, kind, advance_cursor)
       return nil, nil
     end
 
-    local resume_surface_key = next_collection_entry(state_root, surface_key)
+    local resume_surface_key = next_collection_entry(state_root, surface_key, keys)
     if advance_cursor then
       storage.ei[cursor_name] = resume_surface_key
     end
@@ -3585,6 +3606,7 @@ local function find_due_connection_audit_bank(current_tick, advance_cursor)
   end
 
   local cursor = storage.ei.orbital_combinator_connection_audit_break_point
+  local keys
   if cursor ~= nil and banks[cursor] == nil then
     cursor = nil
     if advance_cursor then
@@ -3595,9 +3617,12 @@ local function find_due_connection_audit_bank(current_tick, advance_cursor)
   local scanned = 0
 
   while scanned < total do
-    local bank_id, bank = next_collection_entry(banks, next_cursor)
+    if scanned == 2 and total >= 8 then
+      keys = ei_lib.sorted_scalar_keys(banks, model._surface_demand.is_key_before)
+    end
+    local bank_id, bank = next_collection_entry(banks, next_cursor, keys)
     if bank_id == nil then
-      bank_id, bank = next_collection_entry(banks, nil)
+      bank_id, bank = next_collection_entry(banks, nil, keys)
     end
     if bank_id == nil then
       if advance_cursor then

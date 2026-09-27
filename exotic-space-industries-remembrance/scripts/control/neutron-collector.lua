@@ -441,6 +441,13 @@ function model.check_global()
     -- 2. connected sources that still need low-lag active/inactive polling
     local function ensure_component(name, default, mark_rebuild)
         if runtime[name] == nil then
+            -- Construct table defaults only when repairing a missing component.
+            -- In particular, the 60 wire buckets are not scratch for each check.
+            if default == nil then
+                default = {}
+            elseif type(default) == "function" then
+                default = default()
+            end
             runtime[name] = default
             if mark_rebuild ~= false then
                 needs_rebuild = true
@@ -448,24 +455,24 @@ function model.check_global()
         end
     end
 
-    ensure_component("sources_by_unit", {})
-    ensure_component("collectors_by_unit", {})
-    ensure_component("connected_source_units", {})
-    ensure_component("connected_source_index_by_unit", {})
+    ensure_component("sources_by_unit")
+    ensure_component("collectors_by_unit")
+    ensure_component("connected_source_units")
+    ensure_component("connected_source_index_by_unit")
     ensure_component("connected_source_count", 0)
-    ensure_component("dirty_collector_queue", make_dirty_queue())
+    ensure_component("dirty_collector_queue", make_dirty_queue)
     ensure_component("dirty_collector_count", 0)
     ensure_component("poll_cursor", 1)
     ensure_component("prefer_poll_next", false)
     ensure_component("runtime_version", NEUTRON_RUNTIME_VERSION)
     ensure_component("needs_rebuild", false)
     ensure_component("runtime_rebuild_in_progress", false)
-    ensure_component("open_by_player", {}, false)
-    ensure_component("watchers_by_unit", {}, false)
-    ensure_component("gui_refresh_buckets", make_gui_refresh_buckets(), false)
+    ensure_component("open_by_player", nil, false)
+    ensure_component("watchers_by_unit", nil, false)
+    ensure_component("gui_refresh_buckets", make_gui_refresh_buckets, false)
     ensure_component("last_gui_service_tick", 0, false)
-    ensure_component("wire_output_buckets", make_wire_output_buckets(), false)
-    ensure_component("wire_output_index_by_unit", {}, false)
+    ensure_component("wire_output_buckets", make_wire_output_buckets, false)
+    ensure_component("wire_output_index_by_unit", nil, false)
 
     runtime.open_by_player = type(runtime.open_by_player) == "table" and runtime.open_by_player or {}
     runtime.watchers_by_unit = type(runtime.watchers_by_unit) == "table" and runtime.watchers_by_unit or {}

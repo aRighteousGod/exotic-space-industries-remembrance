@@ -84,15 +84,11 @@ local function raw_damage_ticks_have_due_work(current_tick)
         return false
     end
 
-    for due_tick, bucket in pairs(buckets) do
-        if type(bucket) == "table" and next(bucket) ~= nil then
-            if due_tick <= current_tick then
-                return true
-            end
-        end
+    -- nil means an old save or an invalidated cache; false means known empty.
+    if root.damage_tick_next_due_tick == nil then
+        root.damage_tick_next_due_tick = ei_runtime_scheduler.delayed_next_due_tick(buckets)
     end
-
-    return false
+    return root.damage_tick_next_due_tick ~= false and root.damage_tick_next_due_tick <= current_tick
 end
 
 local function raw_reforge_has_tick_work()
@@ -106,6 +102,7 @@ local function take_due_damage_ticks(buckets, current_tick)
         return due_entries
     end
 
+    local next_due_tick = false
     for due_tick, bucket in pairs(buckets) do
         if type(bucket) == "table" and next(bucket) ~= nil then
             if due_tick <= current_tick then
@@ -113,10 +110,12 @@ local function take_due_damage_ticks(buckets, current_tick)
                 for _, entry in pairs(bucket) do
                     due_entries[#due_entries + 1] = entry
                 end
+            elseif not next_due_tick or due_tick < next_due_tick then
+                next_due_tick = due_tick
             end
         end
     end
-
+    storage.ei.damage_tick_next_due_tick = next_due_tick
     return due_entries
 end
 
@@ -135,9 +134,11 @@ end
 
 local function ensure_damage_tick_buckets(current_tick)
     storage.ei = storage.ei or {}
+    if type(storage.ei.damage_tick_buckets) ~= "table" then storage.ei.damage_tick_next_due_tick = nil end
     storage.ei.damage_tick_buckets = ei_runtime_scheduler.ensure_delayed_buckets(storage.ei.damage_tick_buckets)
 
     if storage.ei.damage_ticks and #storage.ei.damage_ticks > 0 then
+        storage.ei.damage_tick_next_due_tick = nil
         for _, entry in ipairs(storage.ei.damage_ticks) do
             local due_tick = entry.update_tick or current_tick
             if due_tick < current_tick then
@@ -157,6 +158,10 @@ local function schedule_damage_tick(entry, due_tick, current_tick)
     local buckets = ensure_damage_tick_buckets(current_tick or (game and game.tick) or due_tick)
     entry.update_tick = due_tick
     ei_runtime_scheduler.delayed_schedule(buckets, due_tick, entry)
+    local earliest = storage.ei.damage_tick_next_due_tick
+    if earliest ~= nil and (earliest == false or due_tick < earliest) then
+        storage.ei.damage_tick_next_due_tick = due_tick
+    end
 end
 
 local function gaia_planet()

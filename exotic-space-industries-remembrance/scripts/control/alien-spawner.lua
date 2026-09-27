@@ -80,15 +80,11 @@ local function raw_spawner_has_due_work(current_tick)
         return false
     end
 
-    for due_tick, bucket in pairs(buckets) do
-        if type(bucket) == "table" and next(bucket) ~= nil then
-            if due_tick <= current_tick then
-                return true
-            end
-        end
+    -- nil means an old save or an invalidated cache; false means known empty.
+    if root.spawner_next_due_tick == nil then
+        root.spawner_next_due_tick = ei_runtime_scheduler.delayed_next_due_tick(buckets)
     end
-
-    return false
+    return root.spawner_next_due_tick ~= false and root.spawner_next_due_tick <= current_tick
 end
 
 local function take_due_spawner_jobs(buckets, current_tick)
@@ -97,6 +93,7 @@ local function take_due_spawner_jobs(buckets, current_tick)
         return due_jobs
     end
 
+    local next_due_tick = false
     for due_tick, bucket in pairs(buckets) do
         if type(bucket) == "table" and next(bucket) ~= nil then
             if due_tick <= current_tick then
@@ -104,10 +101,12 @@ local function take_due_spawner_jobs(buckets, current_tick)
                 for _, job in pairs(bucket) do
                     due_jobs[#due_jobs + 1] = job
                 end
+            elseif not next_due_tick or due_tick < next_due_tick then
+                next_due_tick = due_tick
             end
         end
     end
-
+    storage.ei.spawner_next_due_tick = next_due_tick
     return due_jobs
 end
 
@@ -118,9 +117,11 @@ end
 
 local function ensure_spawner_buckets(current_tick)
     storage.ei = storage.ei or {}
+    if type(storage.ei.spawner_buckets) ~= "table" then storage.ei.spawner_next_due_tick = nil end
     storage.ei.spawner_buckets = ei_runtime_scheduler.ensure_delayed_buckets(storage.ei.spawner_buckets)
 
     if storage.ei.spawner_queue and #storage.ei.spawner_queue > 0 then
+        storage.ei.spawner_next_due_tick = nil
         for _, spawner in ipairs(storage.ei.spawner_queue) do
             local due_tick = spawner.tick or current_tick
             if due_tick < current_tick then
@@ -138,6 +139,10 @@ end
 local function queue_spawner_job(job, current_tick)
     local buckets = ensure_spawner_buckets(current_tick)
     ei_runtime_scheduler.delayed_schedule(buckets, job.tick, job)
+    local earliest = storage.ei.spawner_next_due_tick
+    if earliest ~= nil and (earliest == false or job.tick < earliest) then
+        storage.ei.spawner_next_due_tick = job.tick
+    end
     ei_runtime_scheduler.bump_counter("alien-spawner", "queued", 1)
 end
 

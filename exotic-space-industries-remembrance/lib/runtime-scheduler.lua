@@ -379,6 +379,19 @@ function scheduler.delayed_bucket_count(buckets)
     return count_pairs(buckets)
 end
 
+---Earliest nonempty delayed bucket; false represents a known empty set.
+---@param buckets table<number,any>
+---@return number|false
+function scheduler.delayed_next_due_tick(buckets)
+    local earliest = false
+    for tick, bucket in pairs(buckets) do
+        if type(bucket) == "table" and next(bucket) ~= nil and (not earliest or tick < earliest) then
+            earliest = tick
+        end
+    end
+    return earliest
+end
+
 function scheduler.delayed_item_count(buckets)
     local count = 0
     if not buckets then

@@ -28,7 +28,7 @@ function model.suppress(surface, position, handheld, weapon_fires)
     local filter = handheld and {area={{position.x-1,position.y-1},{position.x+1,position.y+1}},type="fire"}
         or {position=position,radius=config.radius,type="fire"}
     for _,fire in pairs(surface.find_entities_filtered(filter)) do
-        if ei_lib.entity_check(fire) and (handheld or model.eligible(fire,weapon_fires==true)) then fire.destroy() end
+        if (handheld and ei_lib.entity_check(fire)) or (not handheld and model.eligible(fire,weapon_fires==true)) then fire.destroy() end
     end
 end
 

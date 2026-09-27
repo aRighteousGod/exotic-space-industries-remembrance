@@ -304,12 +304,19 @@ local function corridor_entry(entity, origin, ux, uy, length)
     if angle == 0 and (ux == 0 or uy == 0) then return math.max(0, along - along_extent) end
     local ax, ay = hx * (ex * ux + ey * uy), hx * (ex * vx + ey * vy)
     local cx, cy = hy * (-ey * ux + ex * uy), hy * (-ey * vx + ex * vy)
-    local xs = {along-ax-cx, along+ax-cx, along+ax+cx, along-ax+cx}
-    local ys = {across-ay-cy, across+ay-cy, across+ay+cy, across-ay+cy}
+    -- Keep the original corner arithmetic and edge order without allocating
+    -- two four-element tables for every secondary-target geometry check.
+    local x1,y1 = along-ax-cx,across-ay-cy
+    local x2,y2 = along+ax-cx,across+ay-cy
+    local x3,y3 = along+ax+cx,across+ay+cy
+    local x4,y4 = along-ax+cx,across-ay+cy
     local first, last = math.huge, -math.huge
     for i = 1, 4 do
-        local j = i % 4 + 1
-        local x, y, next_x, next_y = xs[i], ys[i], xs[j], ys[j]
+        local x,y,next_x,next_y
+        if i == 1 then x,y,next_x,next_y = x1,y1,x2,y2
+        elseif i == 2 then x,y,next_x,next_y = x2,y2,x3,y3
+        elseif i == 3 then x,y,next_x,next_y = x3,y3,x4,y4
+        else x,y,next_x,next_y = x4,y4,x1,y1 end
         if math.abs(y) <= half_width then first, last = math.min(first, x), math.max(last, x) end
         if y ~= next_y then
             for sign = -1, 1, 2 do

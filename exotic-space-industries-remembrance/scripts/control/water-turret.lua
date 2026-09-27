@@ -200,7 +200,8 @@ end
 local function sync_power(record)
     local helper,entity=record.power,record.entity
     if not ei_lib.entity_check(helper) then make_power(record);return end
-    if helper.surface~=entity.surface or helper.position.x~=entity.position.x or helper.position.y~=entity.position.y then
+    local helper_position,position=helper.position,entity.position
+    if helper.surface~=entity.surface or helper_position.x~=position.x or helper_position.y~=position.y then
         -- EEIs cannot use the cross-surface teleport API. Recreate also prevents
         -- carrying electrical charge to a disconnected destination.
         helper.destroy();make_power(record);return
@@ -242,11 +243,12 @@ local function firefight(record,tick)
         if ready(record) then
             state().counters.searches=state().counters.searches+1
             local best_distance
+            local position=entity.position
             for _,fire in pairs(entity.surface.find_entities_filtered{
-                position=entity.position,radius=entity.prototype.attack_parameters.range*entity.quality.range_multiplier,type="fire"}) do
+                position=position,radius=entity.prototype.attack_parameters.range*entity.quality.range_multiplier,type="fire"}) do
                 if firefighting.eligible(fire,record.weapon_fires) then
-                    local a,b=entity.position,fire.position
-                    local distance=(a.x-b.x)^2+(a.y-b.y)^2
+                    local b=fire.position
+                    local distance=(position.x-b.x)^2+(position.y-b.y)^2
                     if not best_distance or distance<best_distance then record.fire=fire;best_distance=distance end
                 end
             end
@@ -287,18 +289,30 @@ function model.updater(event)
     if not root or root.count==0 then return end
     local tick=event.tick
     -- Electrical checks are never deferred by the spatial-query budget.
-    for _,id in ipairs(scheduler.delayed_take_due(root.power_due,tick)) do
-        local record=root.records[id]
-        if record then
-            if ei_lib.entity_check(record.entity) then
-                sync_power(record);root.counters.power_checks=root.counters.power_checks+1
-                scheduler.delayed_schedule(root.power_due,tick+config.power_ticks,id)
-            else unregister(root,id) end
+    -- Missing buckets need no disposable result array. Present (even empty)
+    -- buckets and malformed legacy roots still take the scheduler repair path.
+    if type(root.power_due)~="table" or root.power_due[tick]~=nil then
+        for _,id in ipairs(scheduler.delayed_take_due(root.power_due,tick)) do
+            local record=root.records[id]
+            if record then
+                if ei_lib.entity_check(record.entity) then
+                    sync_power(record);root.counters.power_checks=root.counters.power_checks+1
+                    scheduler.delayed_schedule(root.power_due,tick+config.power_ticks,id)
+                else unregister(root,id) end
+            end
         end
     end
-    for _,id in ipairs(scheduler.delayed_take_due(root.fire_due,tick)) do
-        local record=root.records[id]
-        if record and record.next_fire==tick then scheduler.queue_push_unique(root.fire_queue,id) end
+    if type(root.fire_due)~="table" or root.fire_due[tick]~=nil then
+        for _,id in ipairs(scheduler.delayed_take_due(root.fire_due,tick)) do
+            local record=root.records[id]
+            if record and record.next_fire==tick then scheduler.queue_push_unique(root.fire_queue,id) end
+        end
+    end
+    local queue=root.fire_queue
+    if type(queue)=="table" and queue.head==1 and queue.tail==0
+        and type(queue.items)=="table" and next(queue.items)==nil
+        and type(queue.queued)=="table" and next(queue.queued)==nil then
+        return
     end
     for _=1,config.fire_budget do
         local id=scheduler.queue_pop(root.fire_queue)

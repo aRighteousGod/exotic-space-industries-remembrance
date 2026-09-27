@@ -1295,6 +1295,9 @@ script.on_configuration_changed(function(e)
     register_exotic_industries_qc_remote()
     ei_global.check_init(e)
     clear_scripted_research_burst_state()
+    -- Rebuild derived due minima lazily after migration/configuration changes.
+    storage.ei.damage_tick_next_due_tick = nil
+    storage.ei.spawner_next_due_tick = nil
     ei_surveyor_scope.check_global()
     ei_hemocrystal_wall.check_global()
     ei_randomized_tree_growth.check_global()

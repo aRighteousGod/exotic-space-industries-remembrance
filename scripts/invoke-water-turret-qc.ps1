@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$Baseline,[switch]$Save,[string]$SaveInput,[switch]$PlayerSave,[switch]$ForceConfig,[switch]$ReuseFixture,[switch]$DumpOnly,[switch]$Muzzle,[switch]$Visual,[int]$Performance=0,[string]$RunName)
+param([switch]$Baseline,[switch]$Save,[string]$SaveInput,[switch]$PlayerSave,[switch]$ForceConfig,[switch]$ReuseFixture,[switch]$DumpOnly,[switch]$Muzzle,[switch]$Visual,[int]$Performance=0,[string]$RunName,[string]$SourceRoot,[switch]$ReplayFixture)
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
 $factorio='C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.exe'
@@ -23,6 +23,10 @@ foreach($directory in Get-ChildItem -LiteralPath $repo -Directory -Filter 'exoti
 }
 $pack=Join-Path $mods 'exotic-space-industries-remembrance'
 $source=if($Baseline){Join-Path $repo '.factorio-qc\wtr-baseline-source\exotic-space-industries-remembrance'}else{Join-Path $repo 'exotic-space-industries-remembrance'}
+if($SourceRoot){
+    if($Baseline){throw 'SourceRoot compares current mechanics; it cannot be combined with the legacy Baseline switch.'}
+    $source=(Resolve-Path -LiteralPath $SourceRoot).Path
+}
 if(-not(Test-Path -LiteralPath (Join-Path $source 'info.json'))){throw 'Missing baseline source snapshot.'}
 New-Item -ItemType Directory -Path $pack -Force | Out-Null
 Get-ChildItem -LiteralPath $source | Copy-Item -Destination $pack -Recurse -Force
@@ -34,7 +38,7 @@ if($ForceConfig){
     $helperInfo.version='0.0.2'
     $helperInfo | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $helper 'info.json') -Encoding UTF8
 }
-"return {baseline=$($Baseline.IsPresent.ToString().ToLowerInvariant()),save=$($Save.IsPresent.ToString().ToLowerInvariant()),loaded=$(($SaveInput -and -not $PlayerSave).ToString().ToLowerInvariant()),player=$($PlayerSave.IsPresent.ToString().ToLowerInvariant()),muzzle=$($Muzzle.IsPresent.ToString().ToLowerInvariant()),visual=$($Visual.IsPresent.ToString().ToLowerInvariant()),performance=$Performance}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
+"return {baseline=$($Baseline.IsPresent.ToString().ToLowerInvariant()),save=$($Save.IsPresent.ToString().ToLowerInvariant()),loaded=$(($SaveInput -and -not $PlayerSave -and -not $ReplayFixture).ToString().ToLowerInvariant()),player=$($PlayerSave.IsPresent.ToString().ToLowerInvariant()),muzzle=$($Muzzle.IsPresent.ToString().ToLowerInvariant()),visual=$($Visual.IsPresent.ToString().ToLowerInvariant()),performance=$Performance}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
 if(-not $Baseline){
     Get-Content -LiteralPath (Join-Path $helper 'instrument.lua') -Raw | Add-Content -LiteralPath (Join-Path $pack 'control.lua') -Encoding UTF8
     $modulePath=Join-Path $pack 'scripts\control\water-turret.lua'

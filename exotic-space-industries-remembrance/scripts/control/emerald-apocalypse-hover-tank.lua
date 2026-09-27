@@ -493,6 +493,9 @@ local function new_counters()
     return orbital_shards.ensure_counters(counters)
 end
 
+-- Scalar defaults are immutable. Each runtime still owns its mutable counters.
+local COUNTER_DEFAULTS = new_counters()
+
 local function normalize_targeting_mode(mode)
     if mode == TARGETING_MODE_FOCUS_FIRE then
         return TARGETING_MODE_FOCUS_FIRE
@@ -616,7 +619,7 @@ local function ensure_runtime()
     runtime.qc = type(runtime.qc) == "table" and runtime.qc or {}
     runtime.qc.counters = type(runtime.qc.counters) == "table" and runtime.qc.counters or new_counters()
     orbital_shards.ensure_counters(runtime.qc.counters)
-    for key, value in pairs(new_counters()) do
+    for key, value in pairs(COUNTER_DEFAULTS) do
         if runtime.qc.counters[key] == nil then
             runtime.qc.counters[key] = value
         end

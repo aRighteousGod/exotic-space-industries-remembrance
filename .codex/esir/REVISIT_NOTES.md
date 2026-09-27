@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-09-26 | control-ups-followups | evidence-needed | The behavior-preserving UPS pass retains black-hole/induction GUI fallback polling, the lance's full target sort, and the 16-step scheduler. These remain candidates only if stronger fixtures demonstrate a worthwhile gain with identical service behavior.`
+  - `Files:` `scripts/qc/control-ups/README.md`, `scripts/control/black-hole.lua`, `scripts/control/induction-matrix.lua`, `scripts/control/singularity-lance.lua` under the main gameplay pack.
+  - `Next safe move:` add a real connected-player GUI cadence fixture and measure target-count distributions before attempting a tie-exact lance top-K selector. Any added scheduler slots must preserve existing derived intervals, budgets, ordering, and actual service ticks.
+
 - `2026-05-22 | rocket-launch-plume-locale | open | rocket launch pollution now has a selectable visual-style startup setting with English locale; supported non-English locale files still need idiomatic setting names, allowed-value labels, and descriptions.`
   - `Files:` `exotic-space-industries-remembrance/locale/en/lang_en.cfg`, `exotic-space-industries-remembrance/settings.lua`
   - `Next safe move:` add per-language translations for `ei-rocket-launch-pollution-visual-style` and its `hybrid`, `plume`, `cinematic`, and `spiral` values after the English copy is accepted.

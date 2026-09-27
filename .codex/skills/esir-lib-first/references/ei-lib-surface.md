@@ -12,6 +12,14 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 
 ## Function Families
 
+- Ordered probes: `sorted_scalar_keys(source, before)` snapshots number/string keys
+  with the caller's comparator, returning nil for non-scalar keys. Keep snapshots
+  within a single call, recheck live values after removal, and preserve cursor/wrap
+  rules. Callbacks must not add keys while traversing the snapshot.
+- Delayed queues: `runtime-scheduler.delayed_next_due_tick(buckets)` returns the
+  earliest nonempty bucket or false for a known empty set. A cached result must be
+  lowered on insertion, recomputed during draining, and invalidated after migration.
+
 - General utility:
   `endswith`, `startswith`, `contains`, `is_valid_number`, `clean_nils`, `copy_array`, `copy_preset`, `clamp`, `clamp_number`, `clamp_integer`, `unique_values_only`, `table_contains_value`, `patch_nested_value`, `get_random_different_value`, `table_to_string`, `switch_string`, `get_event_tick`, `config`, `getn`
 - Runtime entity safety:

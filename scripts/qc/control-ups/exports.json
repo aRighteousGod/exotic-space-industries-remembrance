@@ -1,0 +1,11 @@
+{
+  "neutron-collector": "",
+  "teslas-legacy": "model.qc_ensure = ensure_state",
+  "emerald-apocalypse-hover-tank": "model.qc_ensure = ensure_runtime",
+  "vulcanus-fumaroles": "",
+  "orbital-combinator": "model.qc_bank = find_due_connection_audit_bank; model.qc_surface = find_due_surface",
+  "water-turret": "",
+  "singularity-lance": "lance.qc_corridor = corridor_entry",
+  "gaia": "model.qc_ensure = ensure_damage_tick_buckets; model.qc_take = take_due_damage_ticks; model.qc_schedule = schedule_damage_tick",
+  "alien-spawner": "model.qc_ensure = ensure_spawner_buckets; model.qc_take = take_due_spawner_jobs; model.qc_schedule = queue_spawner_job"
+}

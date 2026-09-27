@@ -270,26 +270,16 @@ local function place_entity(surface, definition)
   return entity
 end
 
-local function place_power_backbone(surface, force)
-  local positions = {
-    {-24, -8},
-    {-4, -8},
-    {16, -8},
-    {36, -8},
-  }
-
-  for _, offset in ipairs(positions) do
-    place_entity(surface, {
-      name = "substation",
-      position = absolute_position(offset),
-      force = force,
-      raise_built = true,
-    })
-  end
-
+local function place_power_backbone(surface, force, position)
+  position = position or absolute_position({-28, -8})
   place_entity(surface, {
-    name = "electric-energy-interface",
-    position = absolute_position({-28, -8}),
+    name = "esir-orbital-qc-pole",
+    position = position,
+    force = force,
+  })
+  place_entity(surface, {
+    name = "esir-orbital-qc-source",
+    position = position,
     force = force,
   })
 end
@@ -569,7 +559,7 @@ local function place_transponder_for_platform(platform, force, state)
     return nil
   end
 
-  for _, existing in pairs(platform.surface.find_entities_filtered({name = "ei-platform-transponder"})) do
+  for _, existing in pairs(platform.surface.find_entities_filtered({name = {"ei-platform-transponder", "esir-orbital-qc-pole", "esir-orbital-qc-source"}})) do
     if existing.valid then
       existing.destroy({raise_destroy = false})
     end
@@ -579,6 +569,7 @@ local function place_transponder_for_platform(platform, force, state)
     x = platform.hub.position.x + 2,
     y = platform.hub.position.y + 2,
   }
+  place_power_backbone(platform.surface, force, position)
 
   local entity = place_entity(platform.surface, {
     name = "ei-platform-transponder",
@@ -772,16 +763,19 @@ end
 
 local function collect_gui_smoke(state, tick)
   local runtime = get_orbital_runtime_module()
+  -- Each mod owns a separate Lua environment; event routing works across it.
+  local interface = remote.interfaces["exotic-industries-qc"]
+  local runtime_present = runtime ~= nil or (interface and interface.get_orbital_logistics_qc_snapshot ~= nil) or false
   local player = get_qc_player()
   local force = get_force()
   local results = {
-    available = runtime ~= nil and player ~= nil,
-    runtime_present = runtime ~= nil,
+    available = runtime_present and player ~= nil,
+    runtime_present = runtime_present,
     player_present = player ~= nil,
     probes = {},
   }
 
-  if not (runtime and player and force) then
+  if not (runtime_present and player and force) then
     return results
   end
 
@@ -912,6 +906,8 @@ local function validate_gui_smoke(gui_smoke)
   validation.ok = #validation.errors == 0
   return validation
 end
+
+local validate_snapshot_baseline
 
 local function collect_runtime_snapshot(checkpoint_name, tick, state)
   local service_ok, service_result = service_runtime(256)
@@ -1046,7 +1042,7 @@ local function push_validation_error(validation, message)
   validation.errors[#validation.errors + 1] = message
 end
 
-local function validate_snapshot_baseline(snapshot, state)
+validate_snapshot_baseline = function(snapshot, state)
   local force = get_force()
   local force_index = force and force.index or nil
   local validation = {

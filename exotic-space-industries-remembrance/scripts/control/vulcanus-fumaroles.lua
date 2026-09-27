@@ -2314,6 +2314,12 @@ function model.has_tick_work(event)
         return next_surface_probe_tick <= 0 or tick >= next_surface_probe_tick
     end
 
+    -- All remaining service cadences are multiples of the 30-tick backfill
+    -- cadence. Bootstrap/eligibility probes above can still wake on any tick.
+    if tick % BACKFILL_PROCESS_TICKS ~= 0 then
+        return false
+    end
+
     if raw_queue_has_items(state.backfill_queue) then
         return tick % BACKFILL_PROCESS_TICKS == 0
     end
