@@ -4,7 +4,8 @@ Date: 9-10-2026
   Features:
     - Added eight Container capacity profiles for vanilla, ESIR, steam, and modded storage, with every tier's slot count shown in the startup tooltip. Filtered and logistic variants share their size tier; quality bonuses remain unchanged.
     - Expanded the enemy difficulty ladder with Sheltered, Forgiving, and Lenient tiers. Merciful is now a near-peaceful stat floor with stronger optional Nauvis evolution grace through the selected Nauvis Pressure Grace Classic or Extended profiles, while Lenient preserves the former Merciful prototype balance.
-    - The Walking Covenant: Industry learns to cross the wound. A three-legged scout carries the first signals through Computer age; Simulation arms the assault chassis with cannon, machine gun, and flame; Gleba binds carbon into the four-launcher Spidertron. Research inscribes the whole brood with stronger hulls, deeper stores, wider equipment grids, and more enduring fuel. Cannon, minigun, flame, and artillery receive their successive rites; rockets reach farther and fall faster, until Quantum gives the Doeworks barrage its fever and the wounded assault chassis its shroud of suppressing smoke. Silence a heavy mount, hold a chosen weapon, or entrust the firing liturgy to optional range-aware cycling. Through refit and recovery, cargo, equipment, commands, and memory endure. Assault Spidertron V2 joins the required dependencies; its arachnophobia toggle remains available.
+    - Assault Spidertron V2 joins the required dependencies.
+    - The Walking Covenant: Industry learns to cross the wound. A three-legged scout carries the first signals through Computer age; Simulation arms the assault chassis with cannon, machine gun, and flame; Gleba binds carbon into the four-launcher Spidertron. Research inscribes the whole brood with stronger hulls, deeper stores, wider equipment grids, and more enduring fuel. Cannon, minigun, flame, and artillery receive their successive rites; rockets reach farther and fall faster, until Quantum gives the artillery rocket barrage its fever and the wounded assault chassis its shroud of suppressing smoke. Silence a heavy mount, hold a chosen weapon, or entrust the firing liturgy to optional range-aware cycling. Through refit and recovery, cargo, equipment, commands, and memory endure.
   Changes:
     - Discharge defense now requires Advanced circuit and Modular armor, including Insulated wire through their prerequisites.
     - Land mines now requires Explosives.
@@ -117,7 +118,7 @@ Date: 6-16-2026
     - Rocket turret technology prerequisites: Additionally requires Military 4.
     - Artillery technology prerequisites: Additionally requires Military 5.
     - Atomic bomb technology prerequisites: Additionally requires Military 5.
-    - Directed energy ramp technology prerequisites: Additionally requires Military 5.
+    - Directed Explosive Energy Ramp technology prerequisites: Additionally requires Military 5.
     - Railgun technology prerequisites: Additionally requires Military 5.
     - Singularity Lance technology prerequisites: Additionally requires Military 5.
     - Emerald Apocalypse hover tank technology prerequisites: Additionally requires Military 5.
@@ -391,12 +392,12 @@ Date: 4-13-2026
     - Siege artillery rocket explosion damage: 300 -> 450
     - Artillery corrosive rocket added acid burst damage: 18 -> 48
     - Artillery cryo rocket added cold burst damage: 11 -> 24
-    - Doeworks Deer firing range / prepare range: 90 / unset -> 115 / 116.
+    - Rocket artillery turret firing range / prepare range: 90 / unset -> 115 / 116.
     - Rocket projectile acceleration: 0.01 -> 0.0125.
     - Atomic rocket projectile acceleration (plutonium + U-235): 0.005 -> 0.00625.
-    - Doeworks rocket travel speed by tier: standard and premium 0.6 -> 0.9, bad crate 0.3 -> 0.45, worse crate 0.4 -> 0.6.
-    - Doeworks cryo main payload damage type: Explosion -> Cold.
-    - Doeworks corrosive, cryo, and split atomic crates now release their matching branch payload effects instead of generic shell splashes.
+    - Artillery rocket travel speed by tier: standard and premium 0.6 -> 0.9, bad crate 0.3 -> 0.45, worse crate 0.4 -> 0.6.
+    - Cryo artillery rocket main payload damage type: Explosion -> Cold.
+    - Corrosive, cryo, and split atomic artillery rocket crates now release their matching branch payload effects instead of generic shell splashes.
     - Plasma turret wide area damage type: Explosive -> Plasma.
   Bugfixes:
     - Fixed a Vulcanus auric fumarole runtime crash where backfill could adopt an existing fumarole before Lua had bound the local dormant-clear helper, making `clear_dormant_chunk` resolve as nil during live chunk processing.

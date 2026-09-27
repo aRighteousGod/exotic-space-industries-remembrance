@@ -13,11 +13,34 @@ local ei_data = require("lib/data")
 local model = {}
 local simulation = "advanced-computer-age"
 local technology_specs = {}
+local icon_root = "__exotic-space-industries-remembrance__/graphics/technology/spider-vehicles/"
 
-local function add_technology(name, age, prerequisites, effects, icon)
+-- Technology layers use the 128px logical canvas. Keep both upper corners for
+-- the function/tier marks and the lower-right free for ESIR's cost badges.
+---@param subject string
+---@param size integer
+---@param modifier string?
+---@param tier integer?
+---@return data.IconData[]
+local function research_icons(subject, size, modifier, tier)
+    local icons = ei_lib.make_icons(subject,size,
+        modifier and (icon_root.."modifier-"..modifier..".png") or nil,128,0.30,{43,-43},nil,
+        {base_scale=110/size,base_shift={0,5}})
+    if tier then
+        icons[#icons+1]={icon=icon_root.."tier-"..tier..".png",icon_size=128,scale=0.28,shift={-43,-43}}
+    end
+    return icons
+end
+
+---@param name string
+---@param age string
+---@param prerequisites string[]
+---@param effects data.Modifier[]?
+---@param icons data.IconData[]
+local function add_technology(name, age, prerequisites, effects, icons)
     technology_specs[name] = {age=age,prerequisites=prerequisites}
     data:extend({{
-        type="technology",name=name,icon=icon or "__base__/graphics/technology/spidertron.png",icon_size=256,
+        type="technology",name=name,icons=icons,
         prerequisites=prerequisites,effects=effects or {{type="nothing",effect_description={"technology-description."..name}}},
         unit={count=100,time=20,ingredients=table.deepcopy(ei_data.science[age])},age=age,
         localised_name={"technology-name."..name},localised_description={"technology-description."..name},
@@ -93,18 +116,20 @@ function model.declare()
         target_movement_modifier=0.65,single_particle=true,
         animation={filename=ei_lib.empty_sprite(),width=64,height=64},
     }})
-    add_technology("ei-spider-vehicles","computer-age",{"ei-computer-age","ei-advanced-motor","ei-electronic-parts","radar"},{{type="unlock-recipe",recipe="ei-scout-spidertron"}})
-    add_technology("ei-assault-spidertron",simulation,{"ei-spider-vehicles","ei-advanced-computer-age-tech","tank","flamethrower","ei-high-energy-crystal","processing-unit"},{{type="unlock-recipe",recipe="ei-assault-spidertron"}})
+    add_technology("ei-spider-vehicles","computer-age",{"ei-computer-age","ei-advanced-motor","ei-electronic-parts","radar"},{{type="unlock-recipe",recipe="ei-scout-spidertron"}},
+        {{icon=icon_root.."scout.png",icon_size=256}})
+    add_technology("ei-assault-spidertron",simulation,{"ei-spider-vehicles","ei-advanced-computer-age-tech","tank","flamethrower","ei-high-energy-crystal","processing-unit"},{{type="unlock-recipe",recipe="ei-assault-spidertron"}},
+        {{icon="__assault_spidertron_V2__/graphics/technology/assault_spidertron_tech.png",icon_size=256}})
     for level=1,12 do
         local age=level<=2 and "computer-age" or (level<=6 and simulation or "quantum-age")
         local prerequisites={"ei-spider-vehicles"}
         if level>1 then prerequisites[#prerequisites+1]="ei-spider-chassis-"..(level-1) end
         if level==3 then prerequisites[#prerequisites+1]="ei-advanced-computer-age-tech" end
         if level==7 then prerequisites[#prerequisites+1]="ei-quantum-age" end
-        add_technology("ei-spider-chassis-"..level,age,prerequisites)
-        local technology=data.raw.technology["ei-spider-chassis-"..level]
         local axis=catalog.chassis[(level-1)%6+1]
         local tier=level<=6 and 1 or 2
+        add_technology("ei-spider-chassis-"..level,age,prerequisites,nil,research_icons(icon_root..axis..".png",256,nil,tier))
+        local technology=data.raw.technology["ei-spider-chassis-"..level]
         technology.localised_name={"spider-vehicles.chassis-upgrade",{"spider-vehicles.chassis-"..axis},tostring(tier)}
         local values={hull={1250,3500},cargo={60,100},fuel={3,4},efficiency={1.15},armor={5},grid={"6x4","10x6","12x6"}}
         if tier==2 then values={hull={1500,4000},cargo={80,120},fuel={4,6},efficiency={1.3},armor={10},grid={"6x6","10x8","12x8"}} end
@@ -122,15 +147,31 @@ function model.declare()
             if branch=="mg" and level<=2 then prerequisites[#prerequisites+1]=level==1 and "ei-minigun" or "ei-heavy-minigun" end
             if branch=="artillery" and level==1 then prerequisites[#prerequisites+1]="artillery" end
             if branch=="doeworks" and level==1 then prerequisites[#prerequisites+1]="dw-deer-tech" end
-            add_technology(catalog.weapon_technology(branch,level),age,prerequisites)
+            local subject=({cannon=data.raw.gun["tank-cannon"],mg=data.raw.technology[level==1 and "ei-minigun" or "ei-heavy-minigun"],
+                flamer=data.raw.gun.flamethrower,artillery=data.raw.ammo["artillery-shell"],
+                rocket=data.raw.ammo.rocket,
+                -- ESIR's ordnance bridge installs this artwork in data-updates;
+                -- use the same source now, before that later ammunition rewrite.
+                doeworks={icon=ei_temporary_rocket_item_path.."dw-deer-ammo-basic.png",icon_size=512}})[branch]
+            local upgrade=catalog.upgrade_names[branch][level]
+            local modifier=upgrade:gsub("%-%d+$","")
+            local tier=tonumber(upgrade:match("%-(%d+)$"))
+            if modifier=="minigun" or modifier=="heavy-minigun" then modifier="mount" end
+            -- Copy the first semantic art layer from the actual weapon/ammunition;
+            -- recipe/category badges must not be magnified into technology art.
+            local source=subject.icons and subject.icons[1] or subject
+            add_technology(catalog.weapon_technology(branch,level),age,prerequisites,nil,
+                research_icons(source.icon,source.icon_size or subject.icon_size or 64,modifier,tier))
             local technology=data.raw.technology[catalog.weapon_technology(branch,level)]
             local stats=catalog.weapons[branch][level+1]
             technology.localised_name={"spider-vehicles.weapon-upgrade",{"spider-vehicles.weapon-"..branch},{"spider-vehicles.upgrade-"..catalog.upgrade_names[branch][level]}}
+            if branch=="doeworks" then technology.localised_name={"technology-name."..technology.name} end
             technology.localised_description={"spider-vehicles.weapon-description",{"spider-vehicles.weapon-"..branch},tostring(stats[1]),tostring(stats[2]),tostring(stats[3])}
             technology.effects[1].effect_description=technology.localised_description
         end
     end
-    add_technology(catalog.smoke.technology,"quantum-age",{"ei-assault-spidertron","ei-spider-chassis-4","ei-quantum-age"},{{type="unlock-recipe",recipe=catalog.smoke.charge},{type="nothing",effect_description={"technology-description.ei-assault-smokescreen"}}})
+    add_technology(catalog.smoke.technology,"quantum-age",{"ei-assault-spidertron","ei-spider-chassis-4","ei-quantum-age"},{{type="unlock-recipe",recipe=catalog.smoke.charge},{type="nothing",effect_description={"technology-description.ei-assault-smokescreen"}}},
+        {{icon=icon_root.."smoke.png",icon_size=256}})
 end
 
 local function weapon_prototypes()
