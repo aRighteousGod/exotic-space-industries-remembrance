@@ -35,7 +35,7 @@ local function create_nothing_effect( name, formatted_modifier, current_bonus )
       type = "nothing",
       icon = get_modifier_icon(name),
       icon_size = 64,
-      effect_description = {name .. "-modifier", formatted_modifier, current_bonus},
+      effect_description = {"modifier-description." .. name .. "-modifier", formatted_modifier, current_bonus},
     }
   }
 end
