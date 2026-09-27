@@ -13,6 +13,31 @@ Use this reference after `$meshy-api` triggers and before making direct REST cal
 
 Verify current docs before adding new endpoint parameters. Meshy changes models, costs, and available task fields over time.
 
+## September 2026 Compatibility
+
+Verified 2026-09-25 against the official [changelog](https://docs.meshy.ai/en/api/changelog), [Image to 3D](https://docs.meshy.ai/en/api/image-to-3d), [Multi-Image to 3D](https://docs.meshy.ai/en/api/multi-image-to-3d), [Text to 3D](https://docs.meshy.ai/en/api/text-to-3d), [Auto Split](https://docs.meshy.ai/en/api/auto-split), and [pricing](https://docs.meshy.ai/en/api/pricing) pages.
+
+- Standard geometry: use explicit `meshy-7.1` for new high-detail tasks; `latest` now resolves to 7.1. `meshy-7` is a deprecated working alias. The retired `meshy-5` must be replaced with `meshy-6-lite` at the same price.
+- `geometry_resolution` replaces `ultra_mode`: `standard`, `2k`, or `4k`; requires 7.1/latest. Multi-image accepts only `standard` or `2k`. Legacy `ultra_mode: true` means `2k`. Geometry resolution is independent of texture resolution.
+- Smart Topology: `model_type: smart-topology`, `ai_model: meshy-t2`, `target_polycount: 100..15000` (default 4000), native triangle parts. Available for single-image and text preview, not multi-image. Omit topology/remesh/pre-remesh flags: the service ignores them. Do not promise quadrangulation or mechanical base/head separation merely because the model has parts.
+- Texture resolution: `2k`, `4k`, `8k`; 6-lite supports only 2k. Single-image textured costs: T2/6-lite 15 credits; 7.1/6 30 credits at 2k. 4k textures cost the same where supported; 8k adds 5. Nonstandard 7.1 geometry adds 5 credits independently. Recheck live pricing before spending.
+- Model support is endpoint-specific: Retexture still documents `meshy-7` and `latest` = 7, with explicit 7 required for multiview style input. Do not substitute 7.1 into Retexture based on the generation changelog.
+- `image_enhancement` supports 6/7.1/latest; `remove_lighting` currently supports only 6. Avoid obsolete symmetry hints (no effect) and do not assume `origin_at` applies without `auto_size`.
+- Auto Split accepts succeeded textured 6/7/7.1 models, but rebuilds surfaces and returns flat-colored, untextured parts. It does not preserve texture maps, is unsupported for T2/lowpoly, and costs 10 credits. Prefer local Blender separation for an already textured ESIR asset when its geometry permits it.
+- Image-to-image can take `input_task_id` instead of reference URLs. The GPT Image family adds `gpt-image-2-5-flare` and `gpt-image-2-5-sunburst`, plus 4:3 and 3:4 ratios. Use built-in image generation for ordinary Codex concept work unless the user chooses the Meshy image service.
+- Deleting `IN_PROGRESS` tasks now returns 409 and leaves them running. Only pending deletion refunds credits; wait for a terminal state before deleting a running task. Never describe an in-progress delete as a successful cancellation.
+
+The helper exposes the new generation flags and an `auto-split` endpoint key. Examples below are **dry runs**, requiring neither credentials nor credits:
+
+```powershell
+python .codex/skills/meshy-api/scripts/meshy_rest.py image-3d --image-url https://example.com/reference.png --ai-model meshy-7.1 --geometry-resolution 2k --should-texture --texture-resolution 2k --enable-pbr --target-format glb --dry-run
+python .codex/skills/meshy-api/scripts/meshy_rest.py image-3d --image-url https://example.com/reference.png --model-type smart-topology --ai-model meshy-t2 --target-polycount 15000 --should-texture --texture-resolution 2k --target-format glb --dry-run
+```
+
+The persistent global MCP installation is `C:/Users/Theorun/.codex/tools/meshy-mcp-server-esir`, version `0.5.2-esir.20260925.1`, selected by the existing global `meshy-mcp.cmd` launcher. Upstream/npm 0.5.2 did not yet cover these API changes, so this installation keeps the pinned upstream source, local patch, tests and maintenance notes in `ESIR-UPDATE.md`. Do not edit the transient npx cache. A fresh launcher handshake verifies the updated schemas; an already connected conversation may still expose old schemas until reconnect.
+
+Offline helper regression check: `python .codex/skills/meshy-api/scripts/test_meshy_rest.py`. It validates payloads and rejected model combinations with the HTTP transport disabled.
+
 ## Credentials And Safety
 
 - Use `MESHY_API_KEY` only.
@@ -65,6 +90,7 @@ The bundled REST helper uses these endpoint keys:
 | `text-image` | `/openapi/v1/text-to-image` | Generate 2D source images |
 | `image-image` | `/openapi/v1/image-to-image` | Transform source images |
 | `multi-color-print` | `/openapi/v1/print/multi-color` | Convert supported textured models to multi-color print output |
+| `auto-split` | `/openapi/v1/print/split` | Split supported geometry; source textures are not preserved |
 | `balance` | `/openapi/v1/balance` | Check remaining API credits |
 
 Documented public non-task helper:

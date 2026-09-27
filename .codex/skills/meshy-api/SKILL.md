@@ -21,6 +21,8 @@ Use this skill when a task needs Meshy.ai model, image, texture, rigging, animat
 
 ## Workflow
 
+Read [current API compatibility](references/api-workflows.md#september-2026-compatibility) before choosing models, geometry/texture resolution, Smart Topology, or Auto Split. This reference was checked against the official docs on 2026-09-25; recheck the changelog and pricing before a later paid run. Explicit model IDs make asset dossiers reproducible; `latest` is a moving alias.
+
 1. Clarify the desired output only if it affects cost, format, or irreversible deletion.
 2. Check whether Meshy MCP tools are available. If they are, use them for generate, status, download, and balance work.
 3. If MCP is not available, read `references/api-workflows.md`, then use the REST helper from the repo root.
@@ -28,6 +30,8 @@ Use this skill when a task needs Meshy.ai model, image, texture, rigging, animat
 5. For async tasks, create the task, record the task ID, poll or stream until a terminal status, then download any needed outputs before retention expires.
 6. Save task JSON next to downloaded outputs so the prompt, status, credit use, and source task stay inspectable.
 7. For assets generated manually in the Meshy web app, prefer the official DCC Bridge to Blender or a user-provided signed asset URL. Do not assume there is a public REST "My Assets" library endpoint; current official API docs expose task list/get/download and the public animation catalog, not a documented personal asset-library API.
+
+Honor the active MCP's cost-confirmation requirement: present the concrete request cost and wait for confirmation before submitting a paid task. If the loaded tool schema lags the installed server, verify a fresh MCP `tools/list` after restarting/reconnecting it. Do not send unsupported fields to the stale session or claim a disk update hot-reloaded it. The REST helper can be used with a reviewed dry-run payload when the required fields are not yet exposed by the active MCP.
 
 ## REST Helper
 

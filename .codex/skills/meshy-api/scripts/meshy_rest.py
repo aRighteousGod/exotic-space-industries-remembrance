@@ -34,7 +34,45 @@ ENDPOINTS = {
     "text-image": "/v1/text-to-image",
     "image-image": "/v1/image-to-image",
     "multi-color-print": "/v1/print/multi-color",
+    "auto-split": "/v1/print/split",
 }
+
+GENERATION_MODELS = ["meshy-6-lite", "meshy-6", "meshy-7", "meshy-7.1", "latest", "meshy-t2"]
+
+
+def add_generation_flags(parser: argparse.ArgumentParser, *, multi: bool = False) -> None:
+    parser.add_argument("--ai-model", choices=GENERATION_MODELS)
+    parser.add_argument("--model-type", choices=["standard", "smart-topology", "lowpoly"])
+    parser.add_argument("--geometry-resolution", choices=["standard", "2k"] if multi else ["standard", "2k", "4k"])
+    parser.add_argument("--topology", choices=["triangle", "quad"])
+
+
+def apply_generation_options(payload: dict[str, Any], args: argparse.Namespace, *, multi: bool = False) -> None:
+    for name in ("ai_model", "model_type", "geometry_resolution", "topology", "texture_resolution", "texture_prompt"):
+        value = getattr(args, name, None)
+        if value is not None:
+            payload[name] = value
+    smart = payload.get("model_type") == "smart-topology"
+    if smart:
+        if multi:
+            raise MeshyError("Smart Topology is supported only by single-image and text generation.")
+        payload.setdefault("ai_model", "meshy-t2")
+        if payload["ai_model"] != "meshy-t2":
+            raise MeshyError("Smart Topology requires meshy-t2.")
+        count = payload.get("target_polycount", 4000)
+        if not 100 <= count <= 15000:
+            raise MeshyError("Smart Topology target_polycount must be 100..15000.")
+        if any(key in payload for key in ("topology", "should_remesh")):
+            raise MeshyError("Smart Topology produces triangles directly; omit topology and remesh flags.")
+    elif payload.get("ai_model") == "meshy-t2":
+        raise MeshyError("meshy-t2 requires --model-type smart-topology.")
+    model = payload.get("ai_model", "latest")
+    if "geometry_resolution" in payload and (smart or model not in ("meshy-7.1", "latest")):
+        raise MeshyError("geometry_resolution requires standard Meshy 7.1/latest generation.")
+    if model == "meshy-6-lite" and payload.get("texture_resolution", "2k") != "2k":
+        raise MeshyError("meshy-6-lite supports only 2k textures.")
+    if payload.get("should_texture") is False and payload.get("enable_pbr"):
+        raise MeshyError("PBR requires textures; omit --enable-pbr with --no-should-texture.")
 
 
 class MeshyError(RuntimeError):
@@ -485,6 +523,7 @@ def command_text_3d_preview(args: argparse.Namespace) -> None:
         payload["should_remesh"] = True
     if args.target_polycount is not None:
         payload["target_polycount"] = args.target_polycount
+    apply_generation_options(payload, args)
     apply_target_formats(payload, args)
     if args.dry_run:
         print_dry_run("text-3d", payload)
@@ -505,6 +544,9 @@ def command_text_3d_refine(args: argparse.Namespace) -> None:
         payload["texture_prompt"] = args.texture_prompt
     if args.auto_size:
         payload["auto_size"] = True
+    for name in ("ai_model", "texture_resolution"):
+        if getattr(args, name, None) is not None:
+            payload[name] = getattr(args, name)
     apply_target_formats(payload, args)
     if args.dry_run:
         print_dry_run("text-3d", payload)
@@ -518,14 +560,15 @@ def command_image_3d(args: argparse.Namespace) -> None:
     payload: dict[str, Any] = {"image_url": args.image_url}
     if args.enable_pbr:
         payload["enable_pbr"] = True
-    if args.should_remesh:
-        payload["should_remesh"] = True
-    if args.should_texture:
-        payload["should_texture"] = True
+    if args.should_remesh is not None:
+        payload["should_remesh"] = args.should_remesh
+    if args.should_texture is not None:
+        payload["should_texture"] = args.should_texture
     if args.pose_mode:
         payload["pose_mode"] = args.pose_mode
     if args.target_polycount is not None:
         payload["target_polycount"] = args.target_polycount
+    apply_generation_options(payload, args)
     apply_target_formats(payload, args)
     if args.dry_run:
         print_dry_run("image-3d", payload)
@@ -536,15 +579,18 @@ def command_image_3d(args: argparse.Namespace) -> None:
 
 
 def command_multi_image_3d(args: argparse.Namespace) -> None:
+    if not 1 <= len(args.image_url) <= 4:
+        raise MeshyError("Provide 1..4 source images of the same object.")
     payload: dict[str, Any] = {"image_urls": args.image_url}
     if args.enable_pbr:
         payload["enable_pbr"] = True
-    if args.should_remesh:
-        payload["should_remesh"] = True
-    if args.should_texture:
-        payload["should_texture"] = True
+    if args.should_remesh is not None:
+        payload["should_remesh"] = args.should_remesh
+    if args.should_texture is not None:
+        payload["should_texture"] = args.should_texture
     if args.target_polycount is not None:
         payload["target_polycount"] = args.target_polycount
+    apply_generation_options(payload, args, multi=True)
     apply_target_formats(payload, args)
     if args.dry_run:
         print_dry_run("multi-image-3d", payload)
@@ -563,6 +609,8 @@ def command_text_image(args: argparse.Namespace) -> None:
         payload["aspect_ratio"] = args.aspect_ratio
     if args.generate_multi_view:
         payload["generate_multi_view"] = True
+    if args.remove_background:
+        payload["remove_background"] = True
     if args.dry_run:
         print_dry_run("text-image", payload)
         return
@@ -575,8 +623,15 @@ def command_image_image(args: argparse.Namespace) -> None:
     payload: dict[str, Any] = {
         "ai_model": args.ai_model,
         "prompt": args.prompt,
-        "reference_image_urls": args.reference_image_url,
     }
+    if args.input_task_id:
+        payload["input_task_id"] = args.input_task_id
+    else:
+        payload["reference_image_urls"] = args.reference_image_url
+    if args.aspect_ratio:
+        payload["aspect_ratio"] = args.aspect_ratio
+    if args.remove_background:
+        payload["remove_background"] = True
     if args.dry_run:
         print_dry_run("image-image", payload)
         return
@@ -632,6 +687,8 @@ def command_retexture(args: argparse.Namespace) -> None:
         payload["enable_pbr"] = True
     if args.enable_original_uv:
         payload["enable_original_uv"] = True
+    if args.texture_resolution:
+        payload["texture_resolution"] = args.texture_resolution
     apply_target_formats(payload, args)
     if args.dry_run:
         print_dry_run("retexture", payload)
@@ -702,7 +759,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     text3d = subparsers.add_parser("text-3d-preview", help="Create a Text-to-3D preview task.")
     text3d.add_argument("--prompt", required=True)
-    text3d.add_argument("--ai-model", default="latest")
+    add_generation_flags(text3d)
     text3d.add_argument("--negative-prompt")
     text3d.add_argument("--art-style")
     text3d.add_argument("--should-remesh", action="store_true")
@@ -716,6 +773,8 @@ def build_parser() -> argparse.ArgumentParser:
     refine.add_argument("--texture-prompt")
     refine.add_argument("--enable-pbr", action="store_true")
     refine.add_argument("--auto-size", action="store_true")
+    refine.add_argument("--ai-model", choices=GENERATION_MODELS)
+    refine.add_argument("--texture-resolution", choices=["2k", "4k", "8k"])
     add_target_format_flags(refine)
     add_common_async_flags(refine)
     refine.set_defaults(func=command_text_3d_refine)
@@ -723,8 +782,11 @@ def build_parser() -> argparse.ArgumentParser:
     image3d = subparsers.add_parser("image-3d", help="Create an Image-to-3D task.")
     image3d.add_argument("--image-url", required=True)
     image3d.add_argument("--enable-pbr", action="store_true")
-    image3d.add_argument("--should-remesh", action="store_true")
-    image3d.add_argument("--should-texture", action="store_true")
+    image3d.add_argument("--should-remesh", action=argparse.BooleanOptionalAction)
+    image3d.add_argument("--should-texture", action=argparse.BooleanOptionalAction)
+    add_generation_flags(image3d)
+    image3d.add_argument("--texture-resolution", choices=["2k", "4k", "8k"])
+    image3d.add_argument("--texture-prompt")
     image3d.add_argument("--pose-mode", choices=["a-pose", "t-pose"])
     image3d.add_argument("--target-polycount", type=int)
     add_target_format_flags(image3d)
@@ -734,8 +796,11 @@ def build_parser() -> argparse.ArgumentParser:
     multi_image = subparsers.add_parser("multi-image-3d", help="Create a Multi-Image-to-3D task.")
     multi_image.add_argument("--image-url", action="append", required=True, help="Image URL or data URI. Repeat 1-4 times.")
     multi_image.add_argument("--enable-pbr", action="store_true")
-    multi_image.add_argument("--should-remesh", action="store_true")
-    multi_image.add_argument("--should-texture", action="store_true")
+    multi_image.add_argument("--should-remesh", action=argparse.BooleanOptionalAction)
+    multi_image.add_argument("--should-texture", action=argparse.BooleanOptionalAction)
+    add_generation_flags(multi_image, multi=True)
+    multi_image.add_argument("--texture-resolution", choices=["2k", "4k", "8k"])
+    multi_image.add_argument("--texture-prompt")
     multi_image.add_argument("--target-polycount", type=int)
     add_target_format_flags(multi_image)
     add_common_async_flags(multi_image)
@@ -746,13 +811,18 @@ def build_parser() -> argparse.ArgumentParser:
     text_image.add_argument("--ai-model", default="nano-banana")
     text_image.add_argument("--aspect-ratio")
     text_image.add_argument("--generate-multi-view", action="store_true")
+    text_image.add_argument("--remove-background", action="store_true")
     add_common_async_flags(text_image)
     text_image.set_defaults(func=command_text_image)
 
     image_image = subparsers.add_parser("image-image", help="Create an Image-to-Image task.")
     image_image.add_argument("--prompt", required=True)
-    image_image.add_argument("--reference-image-url", action="append", required=True)
+    image_source = image_image.add_mutually_exclusive_group(required=True)
+    image_source.add_argument("--reference-image-url", action="append")
+    image_source.add_argument("--input-task-id")
     image_image.add_argument("--ai-model", default="nano-banana")
+    image_image.add_argument("--aspect-ratio")
+    image_image.add_argument("--remove-background", action="store_true")
     add_common_async_flags(image_image)
     image_image.set_defaults(func=command_image_image)
 
@@ -773,7 +843,8 @@ def build_parser() -> argparse.ArgumentParser:
     retexture.add_argument("--model-url")
     retexture.add_argument("--text-style-prompt")
     retexture.add_argument("--image-style-url")
-    retexture.add_argument("--ai-model")
+    retexture.add_argument("--ai-model", choices=["meshy-6-lite", "meshy-6", "meshy-7", "latest"])
+    retexture.add_argument("--texture-resolution", choices=["2k", "4k", "8k"])
     retexture.add_argument("--enable-pbr", action="store_true")
     retexture.add_argument("--enable-original-uv", action="store_true")
     add_target_format_flags(retexture)
