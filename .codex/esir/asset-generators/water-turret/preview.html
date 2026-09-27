@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESIR · Pipework Bastion</title>
+<style>body{margin:0;background:#14191b;color:#dce6e7;font:16px system-ui}main{max-width:1020px;margin:auto;padding:32px}h1{font-size:30px;letter-spacing:.02em;margin:0 0 8px}p{line-height:1.6;max-width:800px}a{color:#85d1df}section{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}canvas{background:#293034;max-width:100%;height:auto;border:1px solid #425052}aside{max-width:330px}label{display:block;margin:16px 0}input[type=range]{width:100%}button,select{font:inherit;padding:8px;background:#273f44;color:#eef8f8;border:1px solid #698b90;border-radius:4px}small{color:#aabcbf}.engine{width:100%;max-width:768px}output{font-variant-numeric:tabular-nums}</style>
+<main><h1>PIPEWORK BASTION</h1><p>Light blue / teal · 3×3 footprint · 64 aiming directions. The circular platform, turret head, backpack and its supply pipe rotate together. The lower plinth and external pipe connections stay fixed.</p>
+<section><canvas id="view" width="576" height="576"></canvas><aside>
+<label>Upper assembly <output id="angle">0°</output><input id="head" type="range" min="0" max="63" value="24"></label>
+<button id="play">Play rotation</button>
+<label>Placed base <select id="base"><option value="0">North</option><option value="1">East</option><option value="2">South</option><option value="3">West</option></select></label>
+<label><input id="grid" type="checkbox" checked> Show tile grid and pipe connection markers</label>
+<label>Owner trim <input id="color" type="color" value="#70b5ee"></label>
+<label><input id="native" type="checkbox"> Show at normal game scale</label>
+<p><small>Gold markers identify the adjacent pipe tiles. Factorio supplies the actual connector and cover graphics from the fluidbox positions. The grid and markers are review guides.</small></p>
+<p><a href="prepared-3x3/assembled.glb">Prepared 3D model</a> · <a href="colors/04-patina-teal.png">Selected concept</a> · <a href="art-qa.json">Asset checks</a></p>
+</aside></section>
+<p>The transparent body, shadow and force-color layers share one origin and canvas. Change the placed base while rotating the upper assembly to inspect their independence.</p>
+<details><summary>Factorio engine view</summary><p>Four base placements connected to ordinary pipes, with the same upper-assembly aiming direction.</p><a href="engine/pose-3.png"><img class="engine" src="engine/pose-3.png" loading="lazy" alt="Engine validation of the turret and pipe connections"></a></details>
+</main><script>
+const $=id=>document.getElementById(id),ctx=$('view').getContext('2d'),images=new Map();let playing=false,last=0;
+const get=path=>{if(!images.has(path)){const img=new Image();img.onload=draw;img.src=path;images.set(path,img)}return images.get(path)};
+const file=(role,pass,frame)=>`${role}/Render/${pass}/${String(frame+1).padStart(4,'0')}.png`;
+function layer(role,pass,frame){const image=get(file(role,pass,frame));if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0)}
+function draw(){const head=+$('head').value,base=+$('base').value;$('angle').value=`${(head*360/64).toFixed(1)}°`;
+ctx.clearRect(0,0,576,576);ctx.fillStyle='#293034';ctx.fillRect(0,0,576,576);
+if($('grid').checked){ctx.strokeStyle='#445053';ctx.lineWidth=1;ctx.beginPath();for(let p=0;p<=576;p+=64){ctx.moveTo(p,0);ctx.lineTo(p,576);ctx.moveTo(0,p);ctx.lineTo(576,p)}ctx.stroke();ctx.strokeStyle='#b7c6c6';ctx.strokeRect(192,192,192,192)}
+layer('base','Shadow',base);layer('head','Shadow',head);layer('base','Object',base);layer('head','Object',head);
+const mask=get(file('head','ColorMask',head));if(mask.complete&&mask.naturalWidth){const off=document.createElement('canvas');off.width=off.height=576;const c=off.getContext('2d');c.drawImage(mask,0,0);c.globalCompositeOperation='multiply';c.fillStyle=$('color').value;c.fillRect(0,0,576,576);c.globalCompositeOperation='destination-in';c.drawImage(mask,0,0);ctx.drawImage(off,0,0)}
+if($('grid').checked){ctx.strokeStyle='#e8bc70';ctx.lineWidth=2;for(const sign of [-1,1]){const x=288+(base%2?0:128*sign),y=288+(base%2?128*sign:0);ctx.strokeRect(x-24,y-24,48,48)}}
+$('view').style.width=$('native').checked?'288px':'576px';}
+for(const id of ['head','base','grid','color','native'])$(id).addEventListener('input',draw);
+$('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'Pause rotation':'Play rotation'};
+function tick(t){if(playing&&t-last>100){$('head').value=(+$('head').value+1)%64;last=t;draw()}requestAnimationFrame(tick)}draw();requestAnimationFrame(tick);
+</script></html>

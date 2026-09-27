@@ -1,0 +1,65 @@
+{
+  "asset_name": "water-turret-head",
+  "graphics_name": "water-turret-head",
+  "prototype_name": "ei-water-turret",
+  "kind": "entity",
+  "output_root": "output/meshy/water-turret/head",
+  "model_path": "output/meshy/water-turret/prepared-3x3/head.glb",
+  "blender": {
+    "exe": "C:/Program Files/Blender Foundation/Blender 5.1/blender.exe"
+  },
+  "factorio_render_preset": {
+    "blend": "factorioRenderingPreset_v4.blend",
+    "render_bundle": "Render.zip"
+  },
+  "meshy": {
+    "enabled": false
+  },
+  "render_static": {
+    "enabled": false
+  },
+  "render_procedural": {
+    "enabled": false
+  },
+  "render_preset": {
+    "enabled": true,
+    "preset_blend": "factorioRenderingPreset_v4.blend",
+    "input": "output/meshy/water-turret/prepared-3x3/head.glb",
+    "output_dir": "output/meshy/water-turret/head/Render",
+    "manifest": "output/meshy/water-turret/head/Render/factorio-preset-render-manifest.json",
+    "frames": 64,
+    "directions": 64,
+    "animation_frames": 1,
+    "grid": "8x8",
+    "ortho_scale": 9,
+    "initial_angle": 0,
+    "samples": 64,
+    "cycles_compute_device": "cuda",
+    "tile_size": 64,
+    "passes": [
+      "object",
+      "shadow",
+      "mask"
+    ],
+    "quality": "final",
+    "lighting_profile": "preset-default",
+    "pack_sheets": true,
+    "no_normalize": true,
+    "no_parent_to_rotation": false,
+    "preflight_margin": 0.12,
+    "auto_ortho_scale": false,
+    "auto_ortho_step": 1.04,
+    "auto_ortho_max": 12,
+    "fail_framing_risk": true,
+    "material_report": true,
+    "warn_alpha_materials": true,
+    "footprint_tiles": "3x3",
+    "auto_prep": false
+  },
+  "export": {
+    "enabled": false
+  },
+  "promotion": {
+    "enabled": false
+  }
+}

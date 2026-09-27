@@ -44,6 +44,8 @@ ei_beacon_overload = require("scripts/control/beacon-overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
+local ei_firefighting = require("scripts/control/firefighting")
+local ei_water_turret = require("scripts/control/water-turret")
 
 
 ei_victory = require("scripts/control/victory-disabler")
@@ -103,6 +105,9 @@ local function on_spider_script_effect(event)
 end
 for id in pairs(ei_spider_vehicles.script_effects) do
     SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS[id] = on_spider_script_effect
+end
+for _,id in ipairs(ei_firefighting.effects) do
+    SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS[id] = ei_firefighting.on_script_trigger_effect
 end
 
 local EXOTIC_INDUSTRIES_QC_REMOTE_NAME = "exotic-industries-qc"
@@ -565,6 +570,8 @@ script.on_init(function(event)
     ei_vulcanus_fumaroles.check_global()
     ei_teslas_legacy.on_init(event)
     ei_flamethrower_fuels.rebuild()
+    ei_water_turret.rebuild()
+    ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_gate.on_init(event)
 
@@ -642,12 +649,14 @@ end
 
 script.on_event(defines.events.on_entity_cloned, function(e)
     ei_flamethrower_fuels.on_built_entity(e)
+    ei_water_turret.on_built_entity(e)
     if ei_spider_vehicles.is_internal_transaction() then return end
     ei_spider_vehicles.on_entity_cloned(e)
     on_cloned_entity(e)
 end)
 
 script.on_event(defines.events.on_forces_merged, function(e)
+    ei_water_turret.on_forces_merged(e)
     ei_singularity_lance.on_forces_merged(e)
     ei_flamethrower_fuels.sync_force(e.destination)
     ei_spider_vehicles.on_forces_merged(e)
@@ -660,6 +669,7 @@ end)
 
 script.on_event(defines.events.on_player_setup_blueprint, function(e)
     -- Read the engine mapping before another subsystem rewrites blueprint entities.
+    ei_water_turret.on_blueprint(e)
     ei_flamethrower_fuels.on_blueprint(e)
 end)
 script.on_event(defines.events.on_force_created, function(e)
@@ -668,6 +678,7 @@ script.on_event(defines.events.on_force_created, function(e)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
+    ei_water_turret.on_teleported(e)
     ei_beacon_overload.on_script_raised_teleported(e)
 end)
 
@@ -714,6 +725,7 @@ end)
 
 script.on_event(defines.events.on_trigger_created_entity, function(event)
     ei_flamethrower_fuels.on_trigger_created_entity(event)
+    ei_firefighting.on_trigger_created_entity(event)
 end)
 
 script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, ei_singularity_lance.on_force_reset)
@@ -762,6 +774,7 @@ end
 if defines.events.on_pre_surface_deleted then
     script.on_event(defines.events.on_pre_surface_deleted, function(e)
         ei_singularity_lance.on_surface_deleted(e)
+        ei_water_turret.on_surface_deleted(e)
         if ei_auric_inoculation_vat.on_pre_surface_deleted then
             ei_auric_inoculation_vat.on_pre_surface_deleted(e)
         end
@@ -771,6 +784,7 @@ end
 if defines.events.on_pre_surface_cleared then
     script.on_event(defines.events.on_pre_surface_cleared, function(e)
         ei_singularity_lance.on_surface_deleted(e)
+        ei_water_turret.on_surface_deleted(e)
         if ei_auric_inoculation_vat.on_pre_surface_deleted then
             ei_auric_inoculation_vat.on_pre_surface_deleted(e)
         end
@@ -863,6 +877,7 @@ script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
 end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
+    ei_water_turret.on_settings_pasted(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
     ei_fusion_reactor.on_entity_settings_pasted(e)
     ei_combustion_turbine.on_entity_settings_pasted(e)
@@ -898,6 +913,7 @@ end)
 script.on_event(defines.events.on_object_destroyed, function(e)
     ei_singularity_lance.on_object_destroyed(e)
     ei_flamethrower_fuels.on_object_destroyed(e)
+    ei_water_turret.on_object_destroyed(e)
     ei_spider_vehicles.on_object_destroyed(e)
     ei_beacon_overload.on_object_destroyed(e)
     orbital_combinator.on_object_destroyed(e)
@@ -1005,6 +1021,7 @@ end
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
+    ei_water_turret.on_gui_opened(event)
     ei_spider_vehicles.on_gui_opened(event)
     local player = event and event.player_index and game.get_player(event.player_index) or nil
     local entity = get_valid_gui_entity(event, player, true)
@@ -1051,6 +1068,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
+    ei_water_turret.on_gui_closed(event)
     ei_spider_vehicles.on_gui_closed(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
     -- entity because the custom screen may have replaced the player's opened target.
@@ -1184,9 +1202,13 @@ script.on_event(defines.events.on_gui_text_changed, function(event)
     end
 end)
 
-script.on_event(defines.events.on_gui_checked_state_changed,ei_spider_vehicles.on_gui_changed)
+script.on_event(defines.events.on_gui_checked_state_changed,function(event)
+    ei_water_turret.on_gui_changed(event)
+    ei_spider_vehicles.on_gui_changed(event)
+end)
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+    ei_water_turret.on_gui_changed(event)
     ei_spider_vehicles.on_gui_changed(event)
     -- The spider callback can rebuild its panel; validate before routing the
     -- remaining gate dropdowns and orbital silo picker.
@@ -1306,6 +1328,10 @@ script.on_configuration_changed(function(e)
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
     ei_teslas_legacy.on_configuration_changed(e)
     ei_flamethrower_fuels.rebuild()
+    -- ConfigurationChangedData has no event tick in 2.0.77. Take one current
+    -- snapshot here; regular water-turret event paths pass event.tick through.
+    ei_water_turret.rebuild(game.tick)
+    ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_singularity_lance.on_configuration_changed(e)
     ei_sawblade_turret.on_configuration_changed(e)
@@ -1444,6 +1470,7 @@ end)
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
 function updater(event)
+  ei_water_turret.updater(event)
   -- updater() has two tiers:
   -- 1. a scheduled tier that spreads heavy per-entity work across a fixed cycle
   -- 2. a mandatory tier that still runs every tick for systems that depend on timers
@@ -1814,6 +1841,7 @@ end
 
 function on_built_entity(e)
     ei_flamethrower_fuels.on_built_entity(e)
+    ei_water_turret.on_built_entity(e)
     if ei_spider_vehicles.is_internal_transaction() then return end
     ei_spider_vehicles.on_built_entity(e)
     -- Centralized post-build routing keeps every subsystem on the same event surface.
@@ -1900,6 +1928,7 @@ end
 ---@param e ESIRCommittedEntityRemovalEvent
 function on_destroyed_entity(e)
     ei_flamethrower_fuels.on_destroyed_entity(e)
+    ei_water_turret.on_destroyed_entity(e)
     -- Shared teardown only receives committed removals: death, script destruction, or
     -- a post-mined event. Cancellable pre-mine events must never mutate runtime state.
     if not e or not e["entity"] or not e["entity"].valid then

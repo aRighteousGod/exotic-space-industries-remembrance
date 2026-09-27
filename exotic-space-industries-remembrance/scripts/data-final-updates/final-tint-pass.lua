@@ -697,7 +697,7 @@ local curated_recipe_tints = {
 		quaternary = { r = 0.250, g = 0.160, b = 0.150, a = 1.000 },
 	},
 
-	["extinguisher-ammo"] = {
+	["ei-extinguisher-ammo"] = {
 		primary = { r = 0.490, g = 0.480, b = 0.460, a = 1.000 },
 		secondary = { r = 0.550, g = 0.640, b = 0.680, a = 1.000 },
 		tertiary = { r = 0.647, g = 0.721, b = 0.309, a = 1.000 },

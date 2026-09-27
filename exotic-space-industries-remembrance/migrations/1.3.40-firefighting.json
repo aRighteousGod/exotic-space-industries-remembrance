@@ -1,0 +1,8 @@
+{
+  "item": [["extinguisher", "ei-extinguisher"], ["extinguisher-ammo", "ei-extinguisher-ammo"]],
+  "recipe": [["extinguisher", "ei-extinguisher"], ["extinguisher-ammo", "ei-extinguisher-ammo"], ["extinguisher-recycling", "ei-extinguisher-recycling"], ["extinguisher-ammo-recycling", "ei-extinguisher-ammo-recycling"]],
+  "technology": [["extinguisher", "ei-extinguisher"]],
+  "ammo-category": [["extinguisher", "ei-extinguisher"]],
+  "entity": [["handheld-extinguisher-stream", "ei-handheld-extinguisher-stream"]],
+  "trivial-smoke": [["extinguisher-smoke", "ei-extinguisher-smoke"]]
+}

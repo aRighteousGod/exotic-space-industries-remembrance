@@ -1,0 +1,12 @@
+{
+  "concept": 9,
+  "concept_revision": 2,
+  "palette": 4,
+  "name": "Patina Teal",
+  "user_description": "that last lighter blue version",
+  "file": "04-patina-teal.png",
+  "sha256": "de83c6266570a714d83bf0c11f0f786b8d2f51cd7af93bb69f5f0effe715a647",
+  "mechanical_intent": "The circular platform, head, backpack and its supply pipe rotate together. Only the lower plinth and external grid connections remain fixed.",
+  "selected_by_user": true,
+  "model_generation": "User approved highest detail including textures and regeneration for defective results: Meshy 7.1, 4k geometry, 8k textures, PBR, 40 credits per generation."
+}

@@ -25,7 +25,7 @@
         "atan-ash",
         "PollutionCombinator-JamieFork",
         "ch-concentrated-solar",
-        "extinguisher",
+        "! extinguisher",
         "doeworks-deer >= 0.3.0",
         "assault_spidertron_V2",
         "! Flammable_Oils_QUICKFIX",

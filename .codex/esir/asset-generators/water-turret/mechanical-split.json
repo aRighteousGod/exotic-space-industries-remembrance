@@ -1,0 +1,67 @@
+{
+  "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\output\\meshy\\water-turret\\source\\attempt-01.glb",
+  "source_sha256": "f9b54cc4a846b840491bed74b77aff1fc8f99534685aca114c26b439e8819c7a",
+  "raw_bearing_axis": [
+    0.054999999701976776,
+    -0.012000000104308128,
+    0.0
+  ],
+  "ground_z": -0.5461480021476746,
+  "base_cut_z": -0.255,
+  "head_cut_z": -0.235,
+  "north_axis": "+Y",
+  "initial_angle": 0,
+  "candidates": [
+    {
+      "footprint": 2,
+      "scale": 1.6596332571305343,
+      "bearing_axis": [
+        0,
+        0
+      ],
+      "seam_z": 0.511412672482612,
+      "muzzle_xyz": [
+        7.268934609783173e-08,
+        1.6689937114715576,
+        1.2383320331573486
+      ],
+      "base_objects": [
+        "stationary_ground_base",
+        "fixed_lower_race",
+        "fixed_dark_bearing_gap"
+      ],
+      "head_objects": [
+        "rotating_platform_head_backpack_pipe",
+        "rotating_turntable_lower_rim",
+        "rotating_turntable_platform",
+        "force_trim_rotating_backpack"
+      ]
+    },
+    {
+      "footprint": 3,
+      "scale": 2.5816517333141644,
+      "bearing_axis": [
+        0,
+        0
+      ],
+      "seam_z": 0.7955308238618409,
+      "muzzle_xyz": [
+        1.1286536505394906e-07,
+        2.596212387084961,
+        1.9262943267822266
+      ],
+      "base_objects": [
+        "stationary_ground_base",
+        "fixed_lower_race",
+        "fixed_dark_bearing_gap"
+      ],
+      "head_objects": [
+        "rotating_platform_head_backpack_pipe",
+        "rotating_turntable_lower_rim",
+        "rotating_turntable_platform",
+        "force_trim_rotating_backpack"
+      ]
+    }
+  ],
+  "ownership": "Ground base and external grid connections static; platform, head, backpack and its supply pipe rotate together."
+}

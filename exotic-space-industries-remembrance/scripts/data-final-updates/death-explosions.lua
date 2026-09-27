@@ -163,6 +163,7 @@ local family_assignments = {
     "ei-insulated-tank",
   },
   mechanical = {
+    "ei-water-turret",
     "ei-mechanical-inserter",
     "ei-mechanical-long-inserter",
     "ei-stone-well-pump",

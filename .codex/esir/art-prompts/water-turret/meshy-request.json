@@ -1,0 +1,16 @@
+{
+  "file_path": "C:/Users/Theorun/Documents/github/exotic-space-industries-remembrance/output/meshy/water-turret/colors/04-patina-teal.png",
+  "ai_model": "meshy-7.1",
+  "model_type": "standard",
+  "geometry_resolution": "4k",
+  "should_remesh": false,
+  "image_enhancement": false,
+  "should_texture": true,
+  "enable_pbr": true,
+  "texture_resolution": "8k",
+  "texture_prompt": "Preserve the reference's light blue-teal worn enamel armor, charcoal steel pipes, pale ivory identification trim and brushed silver fittings. Industrial paint with restrained edge wear. No text, decals, logos, glow, water or scenery. Keep the left backpack and curved supply pipe on the stationary lower circular base; the head and nozzle rotate above its bearing seam.",
+  "target_formats": ["glb"],
+  "alpha_thumbnail": true,
+  "multi_view_thumbnails": true,
+  "response_format": "json"
+}

@@ -43,6 +43,8 @@ require("prototypes/containers")
 
 require("prototypes/dark-age/dark-age")
 require("prototypes/steam-age/steam-age")
+require("prototypes/steam-age/extinguisher")
+require("prototypes/electricity-age/water-turret")
 require("prototypes/electricity-age/electricity-age")
 require("prototypes/computer-age/computer-age")
 require("prototypes/quantum-age/quantum-age")

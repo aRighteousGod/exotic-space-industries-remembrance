@@ -509,6 +509,15 @@ data:extend({
       default_value = true,
       order  = "e4",
   },
+  {
+      name = "ei-water-turret-fire-check-seconds",
+      type = "int-setting",
+      setting_type = "startup",
+      default_value = 2,
+      minimum_value = 1,
+      maximum_value = 30,
+      order = "d-water-turret",
+  },
   --this was used before the cyclic per tick entity updater was made
     {
         name = "ei_fueler_max_updates_per_tick",

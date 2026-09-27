@@ -177,6 +177,19 @@ return function(api)
         end,
     })
 
+    add(entries, api, "ei-water-turret", {
+        type = "fluid-turret",
+        hit = "entity",
+        sound = "turret",
+        simulation_factory = function()
+            return api.simulation.entity("ei-water-turret", turret_scene({
+                zoom = 1,
+                feed = "acid",
+                fluid = "water",
+            }))
+        end,
+    })
+
     add(entries, api, "ei-acidthrower-turret", {
         type = "fluid-turret",
         hit = "entity",
