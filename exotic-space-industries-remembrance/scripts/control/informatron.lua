@@ -560,9 +560,14 @@ function model.turrets(player_index, element)
 end
 
 function model.singularity_lance(player_index, element)
+    local config = require("lib/singularity-lance-config")
+    local runtime = require("scripts/control/singularity-lance")
+    local force = game.get_player(player_index).force
+    local current = runtime.get_force_snapshot(force)
     local function add_section(section_key, text_key)
         element.add{type = "label", caption = {"exotic-industries-informatron." .. section_key}, style = "heading_1_label"}
-        element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
+        local label = element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
+        label.style.single_line, label.style.maximal_width = false, 720
     end
     local fidelity_label = get_localized_startup_string_setting_value("ei-singularity-lance-visual-fidelity", "standard")
 
@@ -571,7 +576,40 @@ function model.singularity_lance(player_index, element)
     add_section("singularity-lance-2", "singularity-lance-text-2")
     add_section("singularity-lance-3", "singularity-lance-text-3")
     element.add{type = "label", caption = {"exotic-industries-informatron.singularity-lance-4"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.singularity-lance-text-4", fidelity_label}}
+    local fidelity_text = element.add{type = "label", caption = {"exotic-industries-informatron.singularity-lance-text-4", fidelity_label}}
+    fidelity_text.style.single_line, fidelity_text.style.maximal_width = false, 720
+    local function text(parent, caption)
+        local label = parent.add{type = "label", caption = caption}
+        label.style.single_line = false
+        label.style.maximal_width = 630
+        return label
+    end
+    text(element, {"lance-upgrades.force-values", current.multiplier, current.direct_damage,
+        current.direct_sustained_dps, config.range})
+    text(element, {"lance-upgrades.base-area", config.splash_damage * current.multiplier, config.splash_radius, config.splash_cap})
+    text(element, {"lance-upgrades.protection"})
+    text(element, {"lance-upgrades.rules"})
+    local rows = element.add{type = "table", column_count = 2}
+    rows.style.vertical_spacing = 16
+    for index, upgrade in ipairs(config.upgrades) do
+        local name = "ei-singularity-lance-" .. upgrade.key
+        local tech = force.technologies[name]
+        local icon = rows.add{type = "sprite", sprite = "technology/" .. name}
+        icon.style.width, icon.style.height = 80, 80
+        local detail = rows.add{type = "flow", direction = "vertical"}
+        text(detail, {"lance-upgrades.research-state", {"technology-name." .. name},
+            current.level >= index and {"lance-upgrades.active"} or {"lance-upgrades.locked"}})
+        text(detail, config.effect_description(index, current.multiplier))
+        text(detail, {"lance-upgrades.legend-" .. index})
+        local prerequisites = {"", {"lance-upgrades.prerequisites"}}
+        for _, required in ipairs(upgrade.prerequisites) do
+            prerequisites[#prerequisites + 1] = " [technology=" .. required .. "]"
+        end
+        text(detail, prerequisites)
+        local packs = {"", {"lance-upgrades.science"}}
+        for _, pack in pairs(tech.research_unit_ingredients) do packs[#packs + 1] = " [item=" .. pack.name .. "]" end
+        text(detail, packs)
+    end
 end
 
 function model.emerald_apocalypse_hover_tank(player_index, element)

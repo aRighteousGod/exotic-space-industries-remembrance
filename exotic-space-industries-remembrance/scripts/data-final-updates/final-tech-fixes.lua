@@ -482,6 +482,8 @@ end
 
 
 
+require("scripts/data-final-updates/singularity-lance-science")
+
 for i,v in pairs(data.raw.technology) do
   
   if ei_lib.config("no-tech-scaling") then

@@ -1,1858 +1,676 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: Singularity Lance runtime damage, chromatic beam witnesses, and QC telemetry
--- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: control.lua updater fan-out, startup visual-fidelity preset, shot trigger effects
--- forwarded_events: check_global, configure_qc, get_pending_work_count, get_qc_snapshot, get_runtime_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, refresh_runtime_state, reset_runtime_state, service_for_qc, updater
--- storage_roots: storage.ei.singularity_lance
--- gui_ids: none
--- remote_interfaces: debug/QC methods are registered by control.lua
--- rebuild_on: startup setting changes, laser damage research changes, scripted research bursts, runtime schema changes
+-- owns: paid lance transactions, force capabilities, registered lances, core cues
+-- loaded_by: control.lua; Informatron reads the force snapshot
+-- cadence: exact shot/lifecycle events; shared delayed buckets serviced by control
+-- storage_roots: storage.ei.singularity_lance (schema 11)
+-- forwarded_events: shot, build/clone, destruction, research/reset, diplomacy, force/surface lifecycle
+-- gui_ids: none (native custom status; Informatron owns the page)
+-- remote_interfaces: none (control.lua owns diagnostics)
+-- rebuild_on: initialization and configuration change; force caches on relevant research
+-- invariants: damage never follows visual budgets; no idle queries or wound sweeps
 --==============================================================================
-
-local ei_lib = require("lib/lib")
+local lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
-local singularity_lance_config = require("lib/singularity-lance-config")
+local c = require("lib/singularity-lance-config")
+local lance = {script_trigger_effect_id = "ei-singularity-lance-shot"}
+local NAME, VERSION = "ei-singularity-lance", 11
+local relevant_research = {[NAME] = true, ["laser-weapons-damage-6"] = true, ["laser-weapons-damage-7"] = true}
+for _, upgrade in ipairs(c.upgrades) do relevant_research[NAME .. "-" .. upgrade.key] = true end
 
-local singularity_lance = {}
+---@class LanceCapabilities
+---@field level integer
+---@field multiplier number
+---@field direct_damage number
+---@field direct_sustained_dps number
+---@field direct_burst_dps number
+---@field laser_damage_multiplier number Compatibility diagnostic alias for multiplier.
+---@field ammo_category string
+---@class LanceRecord
+---@field entity LuaEntity
+---@field force_index integer
+---@field surface_index integer
+---@field counter integer Paid-shot meter, independent of victims.
+---@field stacks integer
+---@field target LuaEntity?
+---@field wound_tick integer?
+---@field mark LuaRenderObject?
+---@field beam LuaRenderObject?
+---@field effective_range number? Immutable prototype/quality value; refreshed on configuration change.
+---@field wound_band integer?
+---@field beam_shape string?
+---@field beam_origin MapPosition?
+---@field beam_endpoint MapPosition?
+---@field last_decoration_tick integer?
+---@class LanceCollapse
+---@field force_index integer
+---@field surface_index integer
+---@field position MapPosition
+---@field primary LuaEntity?
+---@field source LuaEntity?
+---@field damage number
+---@field radius number
+---@field cap integer
+---@field testament boolean
+---@field warning LuaRenderObject?
+---@class LanceRuntime
+---@field version integer
+---@field lances table<integer,LanceRecord>
+---@field registrations table<integer,integer>
+---@field force_cache table<integer,LanceCapabilities>
+---@field buckets table<integer,LanceCollapse[]>
+---@field pending integer
+---@field next_due integer?
+---@field counters table<string,number>
+---@field visual_config table Resolved startup presentation preset; never controls damage.
+---@field qc_enabled boolean
+---@field profiling_enabled boolean
+---@field decoration_tick integer?
+---@field decorations integer?
 
---====================================================================================================
---CONSTANTS
---====================================================================================================
-
-local MODULE_NAME = "singularity-lance"
-local RUNTIME_VERSION = 10
-
-local TURRET_NAME = "ei-singularity-lance"
-local SHOT_EFFECT_ID = "ei-singularity-lance-shot"
-local BEAM_NAME = "ei-singularity-lance-beam"
-local IMPACT_BEAM_NAME = "ei-singularity-lance-impact-beam"
-local FIRE_STICKER_NAME = "ei-singularity-lance-fire-sticker"
-local HIT_FIRE_NAME = "ei-singularity-lance-hit-fire"
-local SCORCHMARK_NAME = "ei-singularity-lance-scorchmark"
-
-local BASE_DAMAGE = singularity_lance_config.direct_damage or 500
-local AOE_DAMAGE = singularity_lance_config.splash_damage or 125
-local AOE_RADIUS = singularity_lance_config.splash_radius or 1.5
-local RANGE = singularity_lance_config.range or 85
-local AMMO_DAMAGE_CATEGORY = singularity_lance_config.ammo_damage_category or "laser"
-local DAMAGE_TYPE = singularity_lance_config.damage_type or "laser"
-local SHOT_ENERGY_MJ = singularity_lance_config.shot_energy_mj or 125
-local INPUT_FLOW_LIMIT_MW = singularity_lance_config.input_flow_limit_mw or 400
-local DRAIN_MW = singularity_lance_config.drain_mw or 20
-local TICKS_PER_SECOND = singularity_lance_config.ticks_per_second or 60
-local ATTACK_COOLDOWN = singularity_lance_config.attack_cooldown or 1
-local SUSTAINED_SHOTS_PER_SECOND = SHOT_ENERGY_MJ > 0
-    and math.max(INPUT_FLOW_LIMIT_MW - DRAIN_MW, 0) / SHOT_ENERGY_MJ
-    or 0
-local BURST_SHOTS_PER_SECOND = TICKS_PER_SECOND / ATTACK_COOLDOWN
-local STATUS_GREEN = defines.entity_status_diode and defines.entity_status_diode.green or 1
-local VISUAL_SOURCE_OFFSET = {x = 0, y = -3.35}
-
-local TARGET_UPDATE_MS = 0.5
-local HARD_UPDATE_MS = 1.0
-local TIMING_SAMPLE_LIMIT = 120
-
---====================================================================================================
---RUNTIME STORAGE
---====================================================================================================
-
-local function new_counters()
-    -- Counters double as QC telemetry, so keep names stable and additive.
-    return {
-        shots = 0,
-        damage_jobs = 0,
-        damage_jobs_processed = 0,
-        damage_jobs_expired = 0,
-        damage_victims = 0,
-        direct_damage_applied = 0,
-        direct_damage_failed = 0,
-        direct_damage_rejected = 0,
-        direct_damage_amount = 0,
-        impact_effects_scheduled = 0,
-        impact_effects_applied = 0,
-        impact_effects_expired = 0,
-        impact_transactions = 0,
-        impact_transactions_delayed = 0,
-        impact_transactions_merged = 0,
-        impact_witnesses_rendered = 0,
-        impact_witnesses_dropped = 0,
-        impact_fallbacks = 0,
-        force_cache_refreshes = 0,
-        visual_jobs = 0,
-        visual_jobs_dropped = 0,
-        visual_jobs_expired = 0,
-        visual_jobs_retargeted = 0,
-        visual_slices = 0,
-        visual_slices_rendered = 0,
-        fires_created = 0,
-        fires_rejected = 0,
-        fires_skipped = 0,
-        scorchmarks_created = 0,
-        scorchmarks_rejected = 0,
-        scorchmarks_skipped = 0,
-        stickers_applied = 0,
-        stickers_rejected = 0,
-        stickers_skipped = 0,
-        invalid_events = 0,
-        refreshes = 0,
-    }
+local function destroy_cue(object)
+    if object and object.valid then object.destroy() end
 end
 
-local function new_runtime()
-    -- Runtime storage keeps durable ids/positions first; live LuaObjects are re-resolved
-    -- near use so save/load and destroyed-entity paths do not depend on stale handles.
-    return {
-        version = RUNTIME_VERSION,
-        damage_queue = scheduler.ensure_queue(nil),
-        impact_buckets = scheduler.ensure_delayed_buckets(nil),
-        visual_queue = scheduler.ensure_queue(nil),
-        force_cache = {},
-        impact_effect_count = 0,
-        impact_next_due_tick = 0,
-        impact_witness_tick = nil,
-        impact_witness_count = 0,
-        visual_fidelity = nil,
-        visual_config = singularity_lance_config.resolve(),
-        visual_slice_count = 0,
-        active_visual_jobs = 0,
-        active_visual_by_unit = {},
-        last_visual_endpoint_by_unit = {},
-        next_visual_job_id = 0,
-        visual_runtime_normalized = true,
-        last_shot_by_unit = {},
-        last_fire_by_unit = {},
-        last_fire_tick = nil,
-        last_sticker_tick = nil,
-        last_scorch_by_unit = {},
-        last_scorch_tick = nil,
-        profiling_enabled = false,
-        qc_enabled = false,
-        counters = new_counters(),
-        timings = {
-            last_ms = 0,
-            max_ms = 0,
-            average_ms = 0,
-            samples = {},
-            sample_index = 0,
-            sample_count = 0,
-            slow_updates = 0,
-        },
-    }
+local function reset_wound(record)
+    destroy_cue(record.mark)
+    record.mark, record.target, record.wound_tick, record.stacks, record.wound_band = nil, nil, nil, 0, nil
 end
 
-local function normalize_visual_runtime(runtime)
-    -- Older or externally reset queues may contain partially processed jobs. Rebuild the
-    -- derived active-job indexes from the queue instead of trusting stored totals.
-    local visual_queue = runtime.visual_queue
-    runtime.active_visual_by_unit = {}
+local function count(runtime, key, amount)
+    if runtime.qc_enabled then runtime.counters[key] = (runtime.counters[key] or 0) + (amount or 1) end
+end
 
-    if not visual_queue or not visual_queue.items then
-        runtime.visual_slice_count = 0
-        runtime.active_visual_jobs = 0
-        return
+local function profile_start(runtime)
+    return runtime.profiling_enabled and game.create_profiler() or nil
+end
+
+-- Transient QC timers never enter storage or affect mechanical decisions. Emit
+-- once per phase/tick, outside measured callbacks, rather than once per victim/shot.
+local profile_tick, phase_profiles
+local function profile_flush(tick)
+    if phase_profiles and profile_tick ~= tick then
+        for _, phase in ipairs({"shot-core", "shot", "mechanics", "impact-core", "decoration", "update-total"}) do
+            local profiler = phase_profiles[phase]
+            if profiler then log({"", "SINGULARITY_LANCE_PHASE phase=", phase, " tick=", profile_tick, " elapsed=", profiler}) end
+        end
+        phase_profiles, profile_tick = nil, nil
     end
+end
 
-    local active_visual_jobs = 0
-    local visual_slice_count = 0
-    for _, job in pairs(visual_queue.items) do
-        if type(job) == "table" then
-            job.source = nil
-            local remaining_slices = math.max(0, job.remaining_slices or 0)
-            if remaining_slices > 0 then
-                active_visual_jobs = active_visual_jobs + 1
-                visual_slice_count = visual_slice_count + remaining_slices
-                if job.source_unit_number then
-                    runtime.active_visual_by_unit[job.source_unit_number] = job
+local function profile_end(profiler, phase, tick)
+    if profiler then
+        profiler.stop()
+        phase_profiles, profile_tick = phase_profiles or {}, tick
+        if phase_profiles[phase] then phase_profiles[phase].add(profiler) else phase_profiles[phase] = profiler end
+    end
+end
+
+-- Diplomacy is read at every packet, never cached across ticks.
+---@param entity LuaEntity? Engine query results or already validated event/queued references.
+---@param force LuaForce?
+---@param selection_forces table<integer,boolean>?
+local function hostile(entity, force, selection_forces)
+    if not entity or not entity.valid or not force or not force.valid then return false end
+    local health = entity.health
+    if not health or health <= 0 or not entity.destructible then return false end
+    local other = entity.force
+    local index = other.index
+    -- Selection runs without damage callbacks: diplomacy is stable within this
+    -- single query. Actual damage always rechecks it without this scratch cache.
+    if selection_forces and selection_forces[index] ~= nil then return selection_forces[index] end
+    local allowed = index ~= force.index and other.name ~= "neutral" and force.name ~= "neutral"
+        and not force.get_friend(other) and not other.get_friend(force)
+        and not force.get_cease_fire(other) and not other.get_cease_fire(force)
+    if selection_forces then selection_forces[index] = allowed end
+    return allowed
+end
+
+local function damage(runtime, target, amount, force, source, primary)
+    if amount <= 0 or not hostile(target, force) then return 0 end
+    -- Internal packet references are LuaEntity-or-nil; generic event inputs are
+    -- validated with ei_lib at entry, avoiding repeated protected calls per victim.
+    if source and not source.valid then source = nil end
+    if source and source.surface ~= target.surface then source = nil end
+    local applied = target.damage(amount, force, c.damage_type, source)
+    count(runtime, primary and "direct_damage_amount" or "secondary_damage_amount", applied)
+    count(runtime, primary and "direct_damage_applied" or "secondary_packets")
+    return applied
+end
+
+---@return LanceRuntime
+local function new_runtime()
+    return {version = VERSION, lances = {}, registrations = {}, force_cache = {},
+        buckets = scheduler.ensure_delayed_buckets(nil), pending = 0, counters = {},
+        visual_config = c.resolve(), qc_enabled = false, profiling_enabled = false}
+end
+
+-- Settle legacy pending primaries once, preserving separate resistance applications.
+-- Active jobs are also indexed by a second table; visit each payload only once.
+local function settle_legacy(old, runtime)
+    if not old then return end
+    local seen = {}
+    local function settle(job, payload)
+        if not payload or seen[payload] then return end
+        seen[payload] = true
+        local source = job.source_unit_number and game.get_entity_by_unit_number(job.source_unit_number)
+        local force = source and source.valid and source.force or game.forces[job.force_index or 0]
+        local target = lib.get_valid_entity(payload.direct_target)
+            or (payload.direct_target_unit_number and game.get_entity_by_unit_number(payload.direct_target_unit_number))
+        if force and force.valid then
+            local amount = c.direct_damage * math.max(0, 1 + force.get_ammo_damage_modifier(c.ammo_damage_category))
+            for _ = 1, payload.damage_count or 1 do damage(runtime, target, amount, force, source, true) end
+        end
+    end
+    for _, job in pairs(old.visual_queue and old.visual_queue.items or {}) do settle(job, job.pending_impact) end
+    for _, job in pairs(old.active_visual_by_unit or {}) do settle(job, job.pending_impact) end
+    for _, bucket in pairs(old.impact_buckets or {}) do
+        for _, payload in pairs(bucket) do settle(payload, payload) end
+    end
+end
+
+---@return LanceRuntime
+local function state()
+    storage.ei = storage.ei or {}
+    local runtime = storage.ei.singularity_lance
+    if not runtime or runtime.version ~= VERSION then
+        local old = runtime
+        runtime = new_runtime()
+        storage.ei.singularity_lance = runtime
+        settle_legacy(old, runtime)
+    end
+    return runtime
+end
+
+---@param force LuaForce
+---@return LanceCapabilities
+local function build_capabilities(force)
+    local level = 0
+    local root = force.technologies[NAME]
+    if root and root.researched then
+        for index, upgrade in ipairs(c.upgrades) do
+            local tech = force.technologies[NAME .. "-" .. upgrade.key]
+            if not tech or not tech.researched then break end
+            level = index
+        end
+    end
+    local multiplier = math.max(0, 1 + force.get_ammo_damage_modifier(c.ammo_damage_category))
+    return {level = level, multiplier = multiplier, laser_damage_multiplier = multiplier,
+        ammo_category = c.ammo_damage_category, direct_damage = c.direct_damage * multiplier,
+        direct_sustained_dps = c.direct_sustained_dps * multiplier,
+        direct_burst_dps = c.direct_burst_dps * multiplier}
+end
+
+local function set_status(record, cache)
+    if lib.entity_check(record.entity) then
+        record.entity.custom_status = {diode = defines.entity_status_diode.green,
+            label = {"lance-upgrades.status", string.format("%.1f", cache.direct_sustained_dps),
+                cache.level == 0 and {"lance-upgrades.baseline"}
+                or {"technology-name." .. NAME .. "-" .. c.upgrades[cache.level].key}}}
+    end
+end
+
+local function sync_force(runtime, force)
+    if not force or not force.valid then return end
+    local cache, old = build_capabilities(force), runtime.force_cache[force.index]
+    if old and old.level == cache.level and old.multiplier == cache.multiplier then return old end
+    runtime.force_cache[force.index] = cache
+    count(runtime, "force_cache_refreshes")
+    for _, record in pairs(runtime.lances) do
+        if record.force_index == force.index then
+            if cache.level < 2 then reset_wound(record) end
+            if cache.level < 4 then record.counter = 0 end
+            set_status(record, cache)
+            count(runtime, "status_refreshes")
+        end
+    end
+    return cache
+end
+
+local function capabilities(runtime, force)
+    return runtime.force_cache[force.index] or sync_force(runtime, force)
+end
+
+---@param runtime LanceRuntime
+---@param entity LuaEntity?
+---@return LanceRecord?
+local function register(runtime, entity)
+    if not lib.entity_check(entity) or entity.name ~= NAME then return end
+    local id = entity.unit_number
+    local record = runtime.lances[id]
+    if not record then
+        record = {entity = entity, force_index = entity.force.index, surface_index = entity.surface.index,
+            counter = 0, stacks = 0}
+        runtime.lances[id] = record
+        runtime.registrations[script.register_on_object_destroyed(entity)] = id
+        set_status(record, capabilities(runtime, entity.force))
+    elseif record.force_index ~= entity.force.index then
+        -- LuaEntity.force assignment has no engine event. Reconcile on the next
+        -- lance interaction; the mark expires natively even if the lance stays idle.
+        reset_wound(record)
+        record.counter, record.force_index = 0, entity.force.index
+        set_status(record, capabilities(runtime, entity.force))
+    end
+    record.surface_index = entity.surface.index
+    if not record.effective_range then
+        record.effective_range = entity.prototype.attack_parameters.range * entity.quality.range_multiplier
+    end
+    return record
+end
+
+local function nearer(a, b)
+    if a.distance ~= b.distance then return a.distance < b.distance end
+    if a.id ~= b.id then return a.id < b.id end
+    if a.x ~= b.x then return a.x < b.x end
+    if a.y ~= b.y then return a.y < b.y end
+    return a.name < b.name
+end
+
+local function candidate(entity, distance)
+    local position = entity.position
+    return {entity = entity, distance = distance, id = entity.unit_number or 0,
+        x = position.x, y = position.y, name = entity.name}
+end
+
+local function area_damage(runtime, surface, force, position, primary, source, amount, radius, cap)
+    count(runtime, "area_queries")
+    local selected, selection_forces = {}, {}
+    for _, entity in pairs(surface.find_entities_filtered{position = position, radius = radius, is_military_target = true}) do
+        if entity ~= primary and hostile(entity, force, selection_forces) then
+            local p = entity.position
+            selected[#selected + 1] = candidate(entity, (p.x - position.x)^2 + (p.y - position.y)^2)
+        end
+    end
+    table.sort(selected, nearer)
+    for index = 1, math.min(cap, #selected) do damage(runtime, selected[index].entity, amount, force, source) end
+end
+
+-- Clip an oriented collision box to the incision strip. Its first surviving
+-- point determines victim order; projecting the whole box can put an off-ray
+-- corner ahead of a nearer enemy. The broad-phase query is never the final test.
+local function corridor_entry(entity, origin, ux, uy, length)
+    local box = entity.bounding_box
+    local left, right = box.left_top, box.right_bottom
+    local bx, by = (left.x + right.x) / 2 - origin.x, (left.y + right.y) / 2 - origin.y
+    local hx, hy = (right.x - left.x) / 2, (right.y - left.y) / 2
+    local angle = (box.orientation or 0) * 2 * math.pi
+    local ex, ey = math.cos(angle), math.sin(angle)
+    local vx, vy = -uy, ux
+    local half_width = c.axial.width / 2
+    local along, across = bx * ux + by * uy, bx * vx + by * vy
+    local along_extent = hx * math.abs(ex * ux + ey * uy) + hy * math.abs(-ey * ux + ex * uy)
+    local across_extent = hx * math.abs(ex * vx + ey * vy) + hy * math.abs(-ey * vx + ex * vy)
+    if along + along_extent < 0 or along - along_extent > length or math.abs(across) > half_width + across_extent then return end
+    if angle == 0 and (ux == 0 or uy == 0) then return math.max(0, along - along_extent) end
+    local ax, ay = hx * (ex * ux + ey * uy), hx * (ex * vx + ey * vy)
+    local cx, cy = hy * (-ey * ux + ex * uy), hy * (-ey * vx + ex * vy)
+    local xs = {along-ax-cx, along+ax-cx, along+ax+cx, along-ax+cx}
+    local ys = {across-ay-cy, across+ay-cy, across+ay+cy, across-ay+cy}
+    local first, last = math.huge, -math.huge
+    for i = 1, 4 do
+        local j = i % 4 + 1
+        local x, y, next_x, next_y = xs[i], ys[i], xs[j], ys[j]
+        if math.abs(y) <= half_width then first, last = math.min(first, x), math.max(last, x) end
+        if y ~= next_y then
+            for sign = -1, 1, 2 do
+                local fraction = (sign * half_width - y) / (next_y - y)
+                if fraction >= 0 and fraction <= 1 then
+                    local intersection = x + fraction * (next_x - x)
+                    first, last = math.min(first, intersection), math.max(last, intersection)
                 end
             end
         end
     end
-
-    runtime.visual_slice_count = visual_slice_count
-    runtime.active_visual_jobs = active_visual_jobs
-    runtime.visual_runtime_normalized = true
+    if first <= length and last >= 0 then return math.max(0, first) end
 end
 
-local function ensure_runtime()
-    storage.ei = storage.ei or {}
-
-    -- No released save compatibility is needed, but QC helpers can reset storage in
-    -- place. Version replacement keeps the hot-path fields predictable.
-    if not storage.ei.singularity_lance or storage.ei.singularity_lance.version ~= RUNTIME_VERSION then
-        storage.ei.singularity_lance = new_runtime()
-    end
-
-    local runtime = storage.ei.singularity_lance
-    runtime.damage_queue = scheduler.ensure_queue(runtime.damage_queue)
-    runtime.impact_buckets = scheduler.ensure_delayed_buckets(runtime.impact_buckets)
-    runtime.visual_queue = scheduler.ensure_queue(runtime.visual_queue)
-    runtime.force_cache = runtime.force_cache or {}
-    if runtime.impact_effect_count == nil then
-        runtime.impact_effect_count = scheduler.delayed_item_count(runtime.impact_buckets)
-    end
-    runtime.impact_next_due_tick = runtime.impact_next_due_tick or 0
-    runtime.impact_witness_count = runtime.impact_witness_count or 0
-    runtime.visual_config = runtime.visual_config or singularity_lance_config.resolve()
-    runtime.visual_fidelity = runtime.visual_fidelity
-        or runtime.visual_config.visual_fidelity
-        or singularity_lance_config.default_fidelity
-    runtime.counters = runtime.counters or new_counters()
-    for key, value in pairs(new_counters()) do
-        if runtime.counters[key] == nil then
-            runtime.counters[key] = value
+local function penetrate(runtime, surface, source, force, primary, origin, endpoint, amount, cap)
+    local dx, dy = endpoint.x - origin.x, endpoint.y - origin.y
+    local length = math.sqrt(dx * dx + dy * dy)
+    if length < 0.00001 then return end
+    local ux, uy, half = dx / length, dy / length, c.axial.width / 2
+    local selected, selection_forces = {}, {}
+    count(runtime, "penetration_queries")
+    for _, entity in pairs(surface.find_entities_filtered{area = {
+        {math.min(origin.x, endpoint.x) - half, math.min(origin.y, endpoint.y) - half},
+        {math.max(origin.x, endpoint.x) + half, math.max(origin.y, endpoint.y) + half}}, is_military_target = true}) do
+        if entity ~= primary and hostile(entity, force, selection_forces) then
+            local distance = corridor_entry(entity, origin, ux, uy, length)
+            if distance then selected[#selected + 1] = candidate(entity, distance) end
         end
     end
-    runtime.timings = runtime.timings or new_runtime().timings
-    runtime.last_shot_by_unit = runtime.last_shot_by_unit or {}
-    runtime.last_fire_by_unit = runtime.last_fire_by_unit or {}
-    runtime.last_sticker_by_unit = nil
-    runtime.last_scorch_by_unit = runtime.last_scorch_by_unit or {}
-    runtime.active_visual_by_unit = runtime.active_visual_by_unit or {}
-    runtime.last_visual_endpoint_by_unit = runtime.last_visual_endpoint_by_unit or {}
-    runtime.visual_slice_count = runtime.visual_slice_count or 0
-    runtime.active_visual_jobs = runtime.active_visual_jobs or 0
-    runtime.next_visual_job_id = runtime.next_visual_job_id or 0
-    if not runtime.visual_runtime_normalized then
-        normalize_visual_runtime(runtime)
-    end
-
-    return runtime
+    table.sort(selected, nearer)
+    for index = 1, math.min(cap, #selected) do damage(runtime, selected[index].entity, amount, force, source) end
 end
 
-local function reset_runtime()
-    storage.ei = storage.ei or {}
-    storage.ei.singularity_lance = new_runtime()
-    return storage.ei.singularity_lance
+local function animation(runtime, name, surface, position, ttl, scale)
+    count(runtime, "core_cues")
+    return rendering.draw_animation{animation = NAME .. "-" .. name, surface = surface, target = position,
+        time_to_live = ttl, animation_speed = 1, x_scale = scale or 1, y_scale = scale or 1,
+        render_layer = "light-effect"}
 end
 
---====================================================================================================
---HELPERS
---====================================================================================================
-
-local function get_tick(event)
-    local tick = ei_lib.get_event_tick(event)
-    if tick and tick > 0 then
-        return tick
+local function beam_cue(runtime, record, surface, origin, endpoint, level, testament)
+    local shape = testament and "testament" or level >= 1 and "axial" or "base"
+    local old_origin, old_endpoint = record.beam_origin, record.beam_endpoint
+    if record.beam and record.beam.valid and record.beam_shape == shape and old_origin and old_endpoint
+        and old_origin.x == origin.x and old_origin.y == origin.y
+        and old_endpoint.x == endpoint.x and old_endpoint.y == endpoint.y then
+        record.beam.time_to_live = runtime.visual_config.beam_duration_ticks
+        count(runtime, "core_cues_refreshed")
+        return
     end
-
-    return game and game.tick or 0
+    destroy_cue(record.beam)
+    local dx, dy = endpoint.x - origin.x, endpoint.y - origin.y
+    local length = math.sqrt(dx * dx + dy * dy)
+    if length < 0.00001 then record.beam = nil; return end
+    record.beam = rendering.draw_sprite{sprite = NAME .. "-beam-" .. shape,
+        surface = surface, target = {x = (origin.x + endpoint.x) / 2, y = (origin.y + endpoint.y) / 2},
+        orientation = (math.atan2(dy, dx) / (2 * math.pi)) % 1, x_scale = length / 8, y_scale = testament and 0.8 or 0.5,
+        time_to_live = runtime.visual_config.beam_duration_ticks, render_layer = "light-effect"}
+    record.beam_shape, record.beam_origin, record.beam_endpoint = shape, origin, endpoint
+    count(runtime, "core_cues")
 end
 
-local function raw_queue_has_items(queue)
-    if type(queue) ~= "table" or type(queue.items) ~= "table" then
-        return false
+local function wound_cue(runtime, record, target, force)
+    -- Secondary damage can synchronously trigger death effects or other mods'
+    -- damage handlers after the primary survived. Revalidate at presentation time.
+    if not lib.entity_check(record.entity) or not hostile(target, force) then
+        reset_wound(record)
+        return
     end
+    local band = record.stacks >= 5 and 3 or record.stacks >= 3 and 2 or 1
+    local sprite = NAME .. "-wound-" .. band
+    if record.mark and record.mark.valid then
+        if record.wound_band ~= band then record.mark.sprite = sprite end
+        record.mark.time_to_live = c.wound.timeout
+    else
+        record.mark = rendering.draw_sprite{sprite = sprite, target = {entity = target}, surface = target.surface,
+            time_to_live = c.wound.timeout, render_layer = "light-effect"}
+    end
+    record.wound_band = band
+    count(runtime, "wound_cues")
+end
 
-    local head = queue.head or 1
-    local tail = queue.tail or #queue.items
-    for index = head, tail do
-        if queue.items[index] ~= nil then
-            return true
+local function decorate(runtime, surface, position, tick, testament, source)
+    if runtime.visual_config.visual_fidelity == "lean" then return end
+    local id = lib.get_entity_unit_number(source)
+    local record = id and runtime.lances[id]
+    if not record or tick - (record.last_decoration_tick or -1000) < 90 then return end
+    if runtime.decoration_tick ~= tick then runtime.decoration_tick, runtime.decorations = tick, 0 end
+    local cap = runtime.visual_config.visual_fidelity == "standard" and 8 or 24
+    if runtime.decorations >= cap then count(runtime, "decorations_dropped"); return end
+    runtime.decorations = runtime.decorations + 1
+    record.last_decoration_tick = tick
+    surface.create_entity{name = "ei-singularity-lance-scorchmark", position = position}
+    if testament then surface.play_sound{path = NAME .. "-testament-sound", position = position, volume_modifier = 0.6} end
+    count(runtime, "decorations")
+end
+
+---@param event EventData.on_script_trigger_effect
+function lance.on_script_trigger_effect(event)
+    if event.effect_id ~= lance.script_trigger_effect_id then return end
+    local runtime = state()
+    if runtime.profiling_enabled then profile_flush(event.tick) end
+    local profiler = profile_start(runtime)
+    local source = lib.get_valid_entity(event.source_entity)
+    if not source or source.name ~= NAME then source = lib.get_valid_entity(event.cause_entity) end
+    if not source or source.name ~= NAME then count(runtime, "invalid_events"); return end
+    local tick, force, surface = event.tick, source.force, source.surface
+    local record = register(runtime, source)
+    local cache = capabilities(runtime, force)
+    count(runtime, "shots")
+    -- Consume the paid shot before checking its target. Victims never increment it.
+    local testament = false
+    if cache.level >= 4 then
+        record.counter = (record.counter + 1) % c.testament.interval
+        testament = record.counter == 0
+        if testament then count(runtime, "testament_shots") end
+    end
+    local target = lib.get_valid_entity(event.target_entity)
+    local aim = event.target_position or (target and target.position)
+    if not aim then reset_wound(record); profile_end(profiler, "shot", tick); return end
+    aim = {x = aim.x, y = aim.y}
+    local origin = source.position
+    local endpoint = {x = aim.x, y = aim.y}
+    local visual_endpoint = endpoint
+    if cache.level >= 1 then
+        local dx, dy = aim.x - origin.x, aim.y - origin.y
+        local length = math.sqrt(dx * dx + dy * dy)
+        local range = record.effective_range
+        if length > 0.00001 then
+            local reach = math.min(length + c.axial.reach, range)
+            endpoint = {x = origin.x + dx / length * reach, y = origin.y + dy / length * reach}
+            -- A native bounding-box hit may aim beyond the nominal center range.
+            -- Keep its direct beam intact while capping additional axial victims.
+            visual_endpoint = length > range and aim or endpoint
         end
     end
-
-    return false
-end
-
-local function get_perf_setting()
-    return ei_lib.clamp(tonumber(ei_lib.config("max_updates_per_tick")) or 10, 1, 100)
-end
-
-local function sync_visual_config(runtime)
-    if not runtime then return singularity_lance_config.resolve() end
-
-    local visual_config = singularity_lance_config.resolve()
-    runtime.visual_config = visual_config
-    runtime.visual_fidelity = visual_config.visual_fidelity
-    return visual_config
-end
-
-local function get_visual_config(runtime)
-    if not runtime then
-        return singularity_lance_config.resolve()
+    if record.target ~= target or not record.wound_tick or tick - record.wound_tick >= c.wound.timeout
+        or not hostile(target, force) or cache.level < 2 then reset_wound(record) end
+    local primary_amount = cache.direct_damage * (1 + record.stacks * c.wound.step)
+        * (testament and c.testament.primary_multiplier or 1)
+    local applied = damage(runtime, target, primary_amount, force, source, true)
+    local wound_updated = false
+    if cache.level >= 2 then
+        if applied > 0 and hostile(target, force) then
+            record.target, record.wound_tick = target, tick
+            record.stacks = math.min(c.wound.cap, record.stacks + 1)
+            wound_updated = true
+        elseif not hostile(target, force) then reset_wound(record) end
     end
-
-    if not runtime.visual_config or not runtime.visual_fidelity then
-        return sync_visual_config(runtime)
+    if cache.level >= 1 then
+        penetrate(runtime, surface, source, force, target, origin, endpoint, c.axial.damage * cache.multiplier,
+            testament and c.testament.axial_cap or c.axial.cap)
     end
-
-    return runtime.visual_config
-end
-
-local function get_slice_count(runtime)
-    return singularity_lance_config.get_slice_count(get_visual_config(runtime), get_perf_setting())
-end
-
-local function get_visual_job_cap(runtime)
-    return singularity_lance_config.get_visual_job_cap(get_visual_config(runtime), get_perf_setting())
-end
-
-local function get_update_limit_cap(runtime)
-    return singularity_lance_config.get_update_limit_cap(get_visual_config(runtime), get_perf_setting())
-end
-
-local function get_impact_witness_cap(runtime)
-    return singularity_lance_config.get_impact_witness_cap(get_visual_config(runtime), get_perf_setting())
-end
-
-local function queue_count(queue)
-    if scheduler.queue_item_count then
-        return scheduler.queue_item_count(queue)
+    local packet
+    if cache.level >= 3 then
+        local values = testament and c.testament or c.collapse
+        packet = {force_index = force.index, surface_index = surface.index, position = aim,
+            primary = target, source = source, damage = values.damage * cache.multiplier,
+            radius = values.radius, cap = values.cap, testament = testament}
+        local due = tick + c.collapse.delay
+        scheduler.delayed_schedule(runtime.buckets, due, packet)
+        runtime.pending = runtime.pending + 1
+        runtime.next_due = math.min(runtime.next_due or due, due)
+        count(runtime, "collapses_scheduled")
+    else
+        area_damage(runtime, surface, force, aim, target, source, c.splash_damage * cache.multiplier, c.splash_radius, c.splash_cap)
     end
-
-    return math.max(0, (queue.last or 0) - (queue.first or 1) + 1)
+    local visual_profiler = profile_start(runtime)
+    beam_cue(runtime, record, surface, origin, visual_endpoint, cache.level, testament)
+    -- A zero-damage hit neither builds nor refreshes an existing wound. Its old
+    -- timeout (and native mark TTL) still applies.
+    if wound_updated then wound_cue(runtime, record, record.target, force) end
+    if packet then packet.warning = animation(runtime, testament and "testament-warning" or "collapse-warning",
+        surface, aim, c.collapse.delay, packet.radius / 3) end
+    profile_end(visual_profiler, "shot-core", tick)
+    profile_end(profiler, "shot", tick)
 end
 
-local function shallow_position(position)
-    if not position then return nil end
-    return {x = position.x, y = position.y}
+function lance.has_tick_work(event)
+    local runtime = storage.ei and storage.ei.singularity_lance
+    return runtime and runtime.next_due and runtime.next_due <= (event and event.tick or game.tick) or false
 end
 
-local function get_surface(surface_index)
-    if not surface_index then return nil end
-    return game.surfaces[surface_index]
+function lance.get_pending_work_count()
+    local runtime = storage.ei and storage.ei.singularity_lance
+    return runtime and runtime.pending or 0
 end
 
-local function get_force(force_index)
-    if not force_index then return nil end
-    return game.forces[force_index]
-end
-
-local function format_damage_number(value)
-    value = tonumber(value) or 0
-    if value >= 100 or value % 1 == 0 then
-        return tostring(math.floor(value + 0.5))
+function lance.update(_limit, event)
+    local runtime, tick = state(), event and event.tick or game.tick
+    if not runtime.next_due or runtime.next_due > tick then return 0 end
+    if runtime.profiling_enabled then profile_flush(tick) end
+    local profiler, processed = profile_start(runtime), 0
+    local total_profiler = profile_start(runtime)
+    local due_packets = scheduler.delayed_take_due_through(runtime.buckets, tick)
+    -- Finish every paid packet before spending time on any presentation.
+    for _, packet in ipairs(due_packets) do
+        runtime.pending = runtime.pending - 1
+        local surface, force = game.surfaces[packet.surface_index], game.forces[packet.force_index]
+        destroy_cue(packet.warning)
+        if surface and force then
+            area_damage(runtime, surface, force, packet.position, packet.primary, packet.source, packet.damage, packet.radius, packet.cap)
+            count(runtime, "collapses_applied")
+        end
+        processed = processed + 1
     end
-
-    return string.format("%.1f", value)
-end
-
-local function build_force_cache(force)
-    -- The lance reads as chromatic magic, but mechanically follows the laser upgrade
-    -- category. Cache the force modifier so every shot does not pay a research lookup.
-    local modifier = 0
-
-    if force and force.valid then
-        local ok, value = pcall(function()
-            return force.get_ammo_damage_modifier(AMMO_DAMAGE_CATEGORY)
-        end)
-
-        if ok and ei_lib.is_valid_number(value) then
-            modifier = value
+    profile_end(profiler, "mechanics", tick)
+    for _, packet in ipairs(due_packets) do
+        local surface = game.surfaces[packet.surface_index]
+        if surface then
+            local visual = profile_start(runtime)
+            animation(runtime, packet.testament and "testament-impact" or "collapse-impact", surface, packet.position, 12, packet.radius / 3)
+            profile_end(visual, "impact-core", tick)
+            local decoration = profile_start(runtime)
+            decorate(runtime, surface, packet.position, tick, packet.testament, packet.source)
+            profile_end(decoration, "decoration", tick)
         end
     end
-
-    local multiplier = math.max(0, 1 + modifier)
-    return {
-        ammo_category = AMMO_DAMAGE_CATEGORY,
-        laser_damage_multiplier = multiplier,
-        direct_damage = BASE_DAMAGE * multiplier,
-        direct_burst_dps = BASE_DAMAGE * multiplier * BURST_SHOTS_PER_SECOND,
-        direct_sustained_dps = BASE_DAMAGE * multiplier * SUSTAINED_SHOTS_PER_SECOND,
-    }
+    runtime.next_due = nil
+    for due in pairs(runtime.buckets) do runtime.next_due = math.min(runtime.next_due or due, due) end
+    profile_end(total_profiler, "update-total", tick)
+    return processed
 end
 
-local function sync_force_cache(runtime, force)
-    if not runtime or not force or not force.valid then return nil end
-
-    runtime.force_cache = runtime.force_cache or {}
-    runtime.force_cache[force.index] = build_force_cache(force)
-    runtime.counters.force_cache_refreshes = (runtime.counters.force_cache_refreshes or 0) + 1
-
-    return runtime.force_cache[force.index]
+---@param event table Build, revival, or normalized clone event from control.lua.
+function lance.on_built_entity(event)
+    local entity = event.entity or event.destination or event.created_entity
+    if not entity or not entity.valid or entity.name ~= NAME then return end
+    return register(state(), entity)
 end
 
-local function sync_all_force_caches(runtime)
-    if not game or not game.forces then return end
+local function remove(runtime, id)
+    local record = runtime.lances[id]
+    if record then reset_wound(record); destroy_cue(record.beam); runtime.lances[id] = nil end
+end
 
-    runtime.force_cache = runtime.force_cache or {}
-    for _, force in pairs(game.forces) do
-        sync_force_cache(runtime, force)
+function lance.on_destroyed_entity(event)
+    local entity = event.entity
+    if lib.entity_check(entity) and entity.name == NAME then remove(state(), entity.unit_number) end
+end
+
+---@param event EventData.on_object_destroyed
+function lance.on_object_destroyed(event)
+    local runtime = state()
+    local id = runtime.registrations[event.registration_number]
+    if id then remove(runtime, id); runtime.registrations[event.registration_number] = nil end
+end
+
+---@param event EventData.on_pre_surface_deleted|EventData.on_pre_surface_cleared
+function lance.on_surface_deleted(event)
+    local runtime = state()
+    for id, record in pairs(runtime.lances) do if record.surface_index == event.surface_index then remove(runtime, id) end end
+    for due, bucket in pairs(runtime.buckets) do
+        for index = #bucket, 1, -1 do
+            if bucket[index].surface_index == event.surface_index then
+                destroy_cue(bucket[index].warning); table.remove(bucket, index); runtime.pending = runtime.pending - 1
+            end
+        end
+        if #bucket == 0 then runtime.buckets[due] = nil end
+    end
+    runtime.next_due = nil
+    for due in pairs(runtime.buckets) do runtime.next_due = math.min(runtime.next_due or due, due) end
+end
+
+function lance.on_diplomacy_changed()
+    local runtime = state()
+    for _, record in pairs(runtime.lances) do
+        if record.target and (not lib.entity_check(record.entity) or not hostile(record.target, record.entity.force)) then reset_wound(record) end
     end
 end
 
-local function get_force_cache(runtime, force)
-    if not force or not force.valid then
-        return build_force_cache(nil)
+---@param event EventData.on_forces_merged
+function lance.on_forces_merged(event)
+    local runtime = state()
+    for _, bucket in pairs(runtime.buckets) do
+        for _, packet in ipairs(bucket) do if packet.force_index == event.source_index then packet.force_index = event.destination.index end end
     end
-
-    runtime.force_cache = runtime.force_cache or {}
-    local cache = runtime.force_cache[force.index]
-    if not cache or cache.ammo_category ~= AMMO_DAMAGE_CATEGORY then
-        cache = sync_force_cache(runtime, force)
+    runtime.force_cache[event.source_index] = nil
+    for _, record in pairs(runtime.lances) do
+        if record.force_index == event.source_index then
+            reset_wound(record); record.counter, record.force_index = 0, event.destination.index
+            set_status(record, build_capabilities(event.destination))
+        end
     end
-
-    return cache or build_force_cache(force)
+    sync_force(runtime, event.destination)
+    lance.on_diplomacy_changed()
 end
 
-local function set_damage_status(entity, force_cache)
-    if not ei_lib.entity_check(entity) or entity.name ~= TURRET_NAME then
-        return false
-    end
-
-    force_cache = force_cache or build_force_cache(entity.force)
-    entity.custom_status = {
-        diode = STATUS_GREEN,
-        label = {
-            "entity-status.ei-singularity-lance-current-dps",
-            format_damage_number(force_cache.direct_sustained_dps),
-            {"damage-type-name."..DAMAGE_TYPE},
-        },
-    }
-
-    return true
+---@param event EventData.on_force_reset|EventData.on_technology_effects_reset|EventData.on_force_created
+function lance.on_force_reset(event)
+    sync_force(state(), event.force)
 end
 
-local function clear_damage_status(entity)
-    if ei_lib.entity_check(entity) and entity.name == TURRET_NAME then
-        entity.custom_status = nil
-    end
+---@param event EventData.on_research_finished|EventData.on_research_reversed
+function lance.on_research_finished(event)
+    local research = event.research
+    if research and relevant_research[research.name] then sync_force(state(), research.force) end
 end
 
-local function refresh_lance_damage_statuses(runtime, force)
-    if not game or not game.surfaces then return 0 end
+---@param force LuaForce
+function lance.on_scripted_research_burst(force)
+    sync_force(state(), force)
+end
 
-    local filter = {name = TURRET_NAME}
-    if force and force.valid then
-        filter.force = force.name
-    end
+function lance.get_force_snapshot(force)
+    return table.deepcopy(sync_force(state(), force))
+end
 
-    local updated = 0
+function lance.check_global()
+    local runtime = state()
+    runtime.visual_config = c.resolve()
+    for _, force in pairs(game.forces) do sync_force(runtime, force) end
+    -- One discovery pass at initialization/configuration only; never on research.
     for _, surface in pairs(game.surfaces) do
-        for _, entity in pairs(surface.find_entities_filtered(filter)) do
-            if set_damage_status(entity, get_force_cache(runtime, entity.force)) then
-                updated = updated + 1
-            end
-        end
+        for _, entity in pairs(surface.find_entities_filtered{name = NAME}) do register(runtime, entity) end
     end
-
-    return updated
-end
-
-local function get_shot_source(event)
-    -- Trigger effects can report the turret as either source or cause depending on the
-    -- prototype action chain. Accept only the actual lance entity.
-    local source = ei_lib.get_valid_entity(event.source_entity)
-    if source and source.name == TURRET_NAME then
-        return source
-    end
-
-    local cause = ei_lib.get_valid_entity(event.cause_entity)
-    if cause and cause.name == TURRET_NAME then
-        return cause
-    end
-
-    return nil
-end
-
-local function vector_to(source, target)
-    if not source or not target then return nil end
-
-    local x = target.x - source.x
-    local y = target.y - source.y
-    local length = math.sqrt(x * x + y * y)
-
-    if length <= 0.0001 then return nil end
-
-    return {
-        x = x / length,
-        y = y / length,
-    }, length
-end
-
-local function target_position_from_event(event, source)
-    -- Script trigger effects may arrive without a concrete target entity. In that case
-    -- cast along the turret direction so the visual ray still has a deterministic end.
-    if event.target_position then
-        return shallow_position(event.target_position)
-    end
-
-    if event.target_entity and event.target_entity.valid then
-        return shallow_position(event.target_entity.position)
-    end
-
-    local direction = source.direction or defines.direction.north
-    local orientation = direction / 8
-    local angle = orientation * math.pi * 2 - math.pi / 2
-
-    return {
-        x = source.position.x + math.cos(angle) * RANGE,
-        y = source.position.y + math.sin(angle) * RANGE,
-    }
-end
-
-local function get_direct_target(event, source)
-    local target = ei_lib.get_valid_entity(event.target_entity)
-    if not target or target == source then return nil end
-    if target.force and source.force and target.force == source.force then return nil end
-    if not target.health or target.health <= 0 then return nil end
-    return target
-end
-
-local function should_apply_fire_sticker(runtime, tick)
-    -- Fire/sticker/scorch witnesses are cosmetic load. Global and per-unit gates keep
-    -- the chromatic cut readable without multiplying entities during swarm fire.
-    local interval = get_visual_config(runtime).fire_sticker_global_interval or 0
-    if interval > 0 and runtime.last_sticker_tick and tick - runtime.last_sticker_tick < interval then
-        runtime.counters.stickers_skipped = runtime.counters.stickers_skipped + 1
-        return false
-    end
-
-    runtime.last_sticker_tick = tick
-    return true
-end
-
-local function apply_fire_sticker(runtime, source, target, tick)
-    if not target or not source.force then return end
-    if not should_apply_fire_sticker(runtime, tick) then return end
-
-    if not target.prototype or not target.prototype.sticker_box then
-        runtime.counters.stickers_rejected = runtime.counters.stickers_rejected + 1
-        return
-    end
-
-    local ok, sticker = pcall(function()
-        return target.surface.create_entity({
-            name = FIRE_STICKER_NAME,
-            position = target.position,
-            force = source.force,
-            source = source,
-            target = target,
-            cause = source,
-        })
-    end)
-
-    if not ok then
-        runtime.counters.stickers_rejected = runtime.counters.stickers_rejected + 1
-        return
-    end
-
-    if sticker then
-        runtime.counters.stickers_applied = runtime.counters.stickers_applied + 1
-    else
-        runtime.counters.stickers_rejected = runtime.counters.stickers_rejected + 1
+    for id, record in pairs(runtime.lances) do
+        if not lib.entity_check(record.entity) then remove(runtime, id)
+        else record.effective_range = nil; register(runtime, record.entity) end
     end
 end
+lance.on_configuration_changed = lance.check_global
 
-local function should_create_hit_fire(runtime, unit_number, tick)
-    local visual_config = get_visual_config(runtime)
-    local global_interval = visual_config.hit_fire_global_interval or 0
-    if global_interval > 0 and runtime.last_fire_tick and tick - runtime.last_fire_tick < global_interval then
-        runtime.counters.fires_skipped = runtime.counters.fires_skipped + 1
-        return false
-    end
-
-    if unit_number then
-        local unit_interval = visual_config.hit_fire_unit_interval or 0
-        local last_unit_tick = runtime.last_fire_by_unit[unit_number]
-        if unit_interval > 0 and last_unit_tick and tick - last_unit_tick < unit_interval then
-            runtime.counters.fires_skipped = runtime.counters.fires_skipped + 1
-            return false
-        end
-
-        runtime.last_fire_by_unit[unit_number] = tick
-    end
-
-    runtime.last_fire_tick = tick
-    return true
+function lance.get_runtime_status()
+    local runtime = state()
+    return {module = "singularity-lance", version = VERSION, pending = runtime.pending,
+        pending_due = lance.has_tick_work() and runtime.pending or 0, pending_damage = runtime.pending,
+        impact_next_due_tick = runtime.next_due or 0, pending_visual_slices = 0, active_visual_jobs = 0,
+        visual_fidelity = runtime.visual_config.visual_fidelity, counters = runtime.counters,
+        registered_lances = table_size(runtime.lances), profiling_enabled = runtime.profiling_enabled,
+        qc_enabled = runtime.qc_enabled, target_update_ms = 0.5, hard_update_ms = 1}
 end
 
-local function create_hit_fire(runtime, source, position, unit_number, tick)
-    if not source.surface or not source.force or not position then return end
-    if not should_create_hit_fire(runtime, unit_number, tick) then return end
-
-    local fire = source.surface.create_entity({
-        name = HIT_FIRE_NAME,
-        position = position,
-        force = source.force,
-    })
-
-    if fire then
-        runtime.counters.fires_created = runtime.counters.fires_created + 1
-    else
-        runtime.counters.fires_rejected = runtime.counters.fires_rejected + 1
-    end
-end
-
-local function should_create_scorchmark(runtime, unit_number, tick)
-    local visual_config = get_visual_config(runtime)
-    local global_interval = visual_config.scorchmark_global_interval or 0
-    if global_interval > 0 and runtime.last_scorch_tick and tick - runtime.last_scorch_tick < global_interval then
-        runtime.counters.scorchmarks_skipped = runtime.counters.scorchmarks_skipped + 1
-        return false
-    end
-
-    if unit_number then
-        local unit_interval = visual_config.scorchmark_unit_interval or 0
-        local last_unit_tick = runtime.last_scorch_by_unit[unit_number]
-        if unit_interval > 0 and last_unit_tick and tick - last_unit_tick < unit_interval then
-            runtime.counters.scorchmarks_skipped = runtime.counters.scorchmarks_skipped + 1
-            return false
-        end
-
-        runtime.last_scorch_by_unit[unit_number] = tick
-    end
-
-    runtime.last_scorch_tick = tick
-    return true
-end
-
-local function create_scorchmark(runtime, source, position, unit_number, tick)
-    if not source.surface or not position then return end
-    if not should_create_scorchmark(runtime, unit_number, tick) then return end
-
-    local scorchmark = source.surface.create_entity({
-        name = SCORCHMARK_NAME,
-        position = position,
-    })
-
-    if scorchmark then
-        runtime.counters.scorchmarks_created = runtime.counters.scorchmarks_created + 1
-    else
-        runtime.counters.scorchmarks_rejected = runtime.counters.scorchmarks_rejected + 1
-    end
-end
-
-local function is_splash_target(source, entity, direct_target)
-    if entity == direct_target or entity == source then return false end
-    -- find_entities_filtered returns live LuaEntity handles; keep this hot path pcall-free.
-    if not entity or entity.valid ~= true then return false end
-    if not entity.health or entity.health <= 0 then return false end
-    if entity.force and source.force and entity.force == source.force then return false end
-    return true
-end
-
-local function apply_splash_damage(runtime, source, center_position, direct_target)
-    if not source.surface or not source.force or not center_position then return end
-
-    runtime.counters.damage_jobs = runtime.counters.damage_jobs + 1
-
-    -- Keep splash as one laser damage call per victim. Splitting chromatic damage into
-    -- many types would multiply this hot path by victims * damage_types.
-    local force = source.force
-    local victims = source.surface.find_entities_filtered({
-        position = center_position,
-        radius = AOE_RADIUS,
-        is_military_target = true,
-    })
-
-    for index = 1, #victims do
-        local entity = victims[index]
-        if is_splash_target(source, entity, direct_target) then
-            local applied = entity.damage(AOE_DAMAGE, force, DAMAGE_TYPE, source, source)
-
-            if applied and applied > 0 then
-                runtime.counters.damage_victims = runtime.counters.damage_victims + 1
-            end
-        end
-    end
-
-    runtime.counters.damage_jobs_processed = runtime.counters.damage_jobs_processed + 1
-end
-
-local function offset_position(position, offset)
-    return {
-        x = position.x + offset.x,
-        y = position.y + offset.y,
-    }
-end
-
-local function clamp_target_position(source_position, target_position)
-    local axis, distance = vector_to(source_position, target_position)
-    if not axis then return nil end
-
-    local clamped_distance = math.min(distance, RANGE)
-    return {
-        x = source_position.x + axis.x * clamped_distance,
-        y = source_position.y + axis.y * clamped_distance,
-    }
-end
-
-local function lerp_position(from_position, to_position, fraction)
-    return {
-        x = from_position.x + (to_position.x - from_position.x) * fraction,
-        y = from_position.y + (to_position.y - from_position.y) * fraction,
-    }
-end
-
-local function consume_impact_witness_budget(runtime, tick)
-    -- Endpoint witnesses are capped per tick; fallback damage still happens when the
-    -- cap is exhausted, but the expensive visual echo is dropped.
-    if runtime.impact_witness_tick ~= tick then
-        runtime.impact_witness_tick = tick
-        runtime.impact_witness_count = 0
-    end
-
-    local impact_witness_cap = get_impact_witness_cap(runtime)
-    if impact_witness_cap and (runtime.impact_witness_count or 0) >= impact_witness_cap then
-        return false
-    end
-
-    runtime.impact_witness_count = (runtime.impact_witness_count or 0) + 1
-    return true
-end
-
-local function render_impact_witness(runtime, source, source_position, target_position, tick)
-    if not source.surface or not source.force then return false end
-    local axis = vector_to(source_position, target_position)
-    if not axis then return false end
-    local visual_config = get_visual_config(runtime)
-    local impact_witness_length = visual_config.impact_witness_length or 1.25
-
-    if not consume_impact_witness_budget(runtime, tick) then
-        runtime.counters.impact_witnesses_dropped = runtime.counters.impact_witnesses_dropped + 1
-        return false
-    end
-
-    local witness_start = {
-        x = target_position.x - axis.x * impact_witness_length,
-        y = target_position.y - axis.y * impact_witness_length,
-    }
-
-    local beam = source.surface.create_entity({
-        name = IMPACT_BEAM_NAME,
-        position = witness_start,
-        source_position = witness_start,
-        target_position = target_position,
-        duration = visual_config.impact_witness_duration_ticks or 8,
-        max_length = impact_witness_length + 1,
-        force = source.force,
-    })
-
-    if beam then
-        runtime.counters.impact_witnesses_rendered = runtime.counters.impact_witnesses_rendered + 1
-        return true
-    end
-
-    runtime.counters.impact_witnesses_dropped = runtime.counters.impact_witnesses_dropped + 1
-    return false
-end
-
-local function apply_direct_damage(runtime, source, target, force_cache, damage_count)
-    -- Multiple merged shots against the same live trace are folded into one damage call
-    -- so rapid retargeting does not fan out into repeated resistance/event work.
-    damage_count = math.max(1, math.floor(tonumber(damage_count) or 1))
-
-    if not source.force or not target then
-        runtime.counters.direct_damage_rejected = runtime.counters.direct_damage_rejected + damage_count
-        return false
-    end
-
-    if not ei_lib.entity_check(target)
-        or not target.surface
-        or target.surface ~= source.surface
-        or not target.health
-        or target.health <= 0
-        or (target.force and target.force == source.force)
-    then
-        runtime.counters.direct_damage_rejected = runtime.counters.direct_damage_rejected + damage_count
-        return false
-    end
-
-    local damage = (force_cache and force_cache.direct_damage or BASE_DAMAGE) * damage_count
-    local applied = target.damage(damage, source.force, DAMAGE_TYPE, source, source)
-
-    if applied and applied > 0 then
-        runtime.counters.direct_damage_applied = runtime.counters.direct_damage_applied + damage_count
-        runtime.counters.direct_damage_amount = runtime.counters.direct_damage_amount + (tonumber(applied) or 0)
-        return true
-    end
-
-    runtime.counters.direct_damage_failed = runtime.counters.direct_damage_failed + damage_count
-    return false
-end
-
-local function apply_fallback_damage(runtime, source, direct_target, damage_count)
-    -- Fallback is the safety rail: if a visual job is dropped, expired, or throttled,
-    -- preserve the mechanical alpha strike even when no witness is rendered.
-    damage_count = math.max(1, math.floor(tonumber(damage_count) or 1))
-    if not ei_lib.entity_check(source) or not source.force then
-        runtime.counters.direct_damage_rejected = runtime.counters.direct_damage_rejected + damage_count
-        return false
-    end
-
-    runtime.counters.impact_transactions = runtime.counters.impact_transactions + damage_count
-    runtime.counters.impact_fallbacks = runtime.counters.impact_fallbacks + damage_count
-
-    return apply_direct_damage(runtime, source, direct_target, get_force_cache(runtime, source.force), damage_count)
-end
-
-local function recalculate_impact_next_due_tick(runtime)
-    -- Delayed buckets are keyed by due tick. Recalculate only after bucket removal or
-    -- external normalization so the updater can cheaply skip non-due work.
-    local next_due_tick = 0
-    local item_count = 0
-
-    for due_tick, bucket in pairs(runtime.impact_buckets or {}) do
-        if type(bucket) == "table" and next(bucket) ~= nil then
-            item_count = item_count + #bucket
-
-            if next_due_tick == 0 or due_tick < next_due_tick then
-                next_due_tick = due_tick
-            end
-        end
-    end
-
-    runtime.impact_effect_count = item_count
-    runtime.impact_next_due_tick = next_due_tick
-    return next_due_tick
-end
-
-local function get_due_impact_count(runtime, tick)
-    if (runtime.impact_effect_count or 0) <= 0 then
-        return 0
-    end
-
-    local due_tick = runtime.impact_next_due_tick or 0
-    if due_tick <= 0 then
-        due_tick = recalculate_impact_next_due_tick(runtime)
-    end
-
-    if due_tick > 0 and due_tick <= tick then
-        return runtime.impact_effect_count or 0
-    end
-
-    return 0
-end
-
-local function apply_impact_effects(runtime, source, target_endpoint, direct_target, unit_number, tick, damage_count)
-    -- Impact effects are deliberately bundled: one endpoint resolves glow/fire/scorch,
-    -- direct damage, and the small splash ring after the visible ray arrives.
-    damage_count = math.max(1, math.floor(tonumber(damage_count) or 1))
-
-    local force_cache = get_force_cache(runtime, source.force)
-    create_hit_fire(runtime, source, target_endpoint, unit_number, tick)
-    create_scorchmark(runtime, source, target_endpoint, unit_number, tick)
-    apply_fire_sticker(runtime, source, direct_target, tick)
-    apply_direct_damage(runtime, source, direct_target, force_cache, damage_count)
-    apply_splash_damage(runtime, source, target_endpoint, direct_target)
-    runtime.counters.impact_effects_applied = runtime.counters.impact_effects_applied + damage_count
-end
-
-local function schedule_impact_effects(runtime, source, target_endpoint, direct_target, unit_number, tick, damage_count)
-    -- Store both unit numbers and opportunistic entity handles. The unit number is the
-    -- durable path; the handle only helps if it remains valid before the delay expires.
-    damage_count = math.max(1, math.floor(tonumber(damage_count) or 1))
-
-    local due_tick = tick + (get_visual_config(runtime).impact_effect_delay_ticks or 2)
-    scheduler.delayed_schedule(runtime.impact_buckets, due_tick, {
-        source_unit_number = ei_lib.get_entity_unit_number(source),
-        target_position = shallow_position(target_endpoint),
-        direct_target = direct_target,
-        direct_target_unit_number = ei_lib.get_entity_unit_number(direct_target),
-        unit_number = unit_number,
-        created_tick = tick,
-        due_tick = due_tick,
-        damage_count = damage_count,
-    })
-
-    runtime.impact_effect_count = (runtime.impact_effect_count or 0) + 1
-
-    if (runtime.impact_next_due_tick or 0) == 0 or due_tick < runtime.impact_next_due_tick then
-        runtime.impact_next_due_tick = due_tick
-    end
-
-    runtime.counters.impact_effects_scheduled = runtime.counters.impact_effects_scheduled + damage_count
-end
-
-local function apply_impact_transaction(runtime, source, source_position, target_position, direct_target, unit_number, tick, damage_count)
-    -- A transaction is one logical shot endpoint. It either renders a witness and
-    -- schedules the delayed payload, or immediately falls back to direct damage.
-    damage_count = math.max(1, math.floor(tonumber(damage_count) or 1))
-
-    local target_endpoint = clamp_target_position(source_position, target_position)
-    if not target_endpoint then
-        runtime.counters.invalid_events = runtime.counters.invalid_events + 1
-        return nil
-    end
-
-    runtime.counters.impact_transactions = runtime.counters.impact_transactions + damage_count
-
-    local witnessed = render_impact_witness(runtime, source, source_position, target_endpoint, tick)
-
-    if witnessed then
-        schedule_impact_effects(runtime, source, target_endpoint, direct_target, unit_number, tick, damage_count)
-    else
-        runtime.counters.impact_fallbacks = runtime.counters.impact_fallbacks + damage_count
-        apply_direct_damage(runtime, source, direct_target, get_force_cache(runtime, source.force), damage_count)
-    end
-
-    return target_endpoint
-end
-
-local function get_entity_by_unit_number(unit_number)
-    -- Unit-number lookups are wrapped because helper mods and old engine builds may
-    -- exercise this path under unusual startup/runtime combinations.
-    unit_number = tonumber(unit_number)
-    if not unit_number or not game or not game.get_entity_by_unit_number then
-        return nil
-    end
-
-    local ok, entity = pcall(function()
-        return game.get_entity_by_unit_number(unit_number)
-    end)
-
-    if ok then
-        return ei_lib.get_valid_entity(entity)
-    end
-
-    return nil
-end
-
-local function resolve_pending_source(job)
-    local source = get_entity_by_unit_number(job and job.source_unit_number)
-    if source and source.name == TURRET_NAME and source.force and source.surface then
-        return source
-    end
-
-    return nil
-end
-
-local function resolve_pending_target(impact)
-    if not impact then return nil end
-
-    local target = get_entity_by_unit_number(impact.direct_target_unit_number)
-    if target then
-        return target
-    end
-
-    return ei_lib.get_valid_entity(impact.direct_target)
-end
-
-local function apply_scheduled_impact_effects(runtime, impact, tick)
-    if not impact then return false end
-
-    local damage_count = math.max(1, math.floor(tonumber(impact.damage_count) or 1))
-    local source = get_entity_by_unit_number(impact.source_unit_number)
-    if not source or source.name ~= TURRET_NAME or not source.force or not source.surface then
-        runtime.counters.impact_effects_expired = runtime.counters.impact_effects_expired + damage_count
-        runtime.counters.direct_damage_rejected = runtime.counters.direct_damage_rejected + damage_count
-        return false
-    end
-
-    local target_endpoint = clamp_target_position(shallow_position(source.position), impact.target_position)
-        or impact.target_position
-        or shallow_position(source.position)
-
-    apply_impact_effects(
-        runtime,
-        source,
-        target_endpoint,
-        resolve_pending_target(impact),
-        impact.unit_number,
-        tick,
-        damage_count
-    )
-
-    return true
-end
-
-local function refresh_final_visual_endpoint(job)
-    -- Targets can move while the ray is travelling. Refresh only on the final slice so
-    -- the beam feels alive without turning every visual slice into a target lookup.
-    local impact = job and job.pending_impact
-    if not impact then return end
-
-    local target = resolve_pending_target(impact)
-    if not target or not target.position then return end
-
-    local target_endpoint = clamp_target_position(job.source_position, shallow_position(target.position))
-    if not target_endpoint then return end
-
-    job.to_position = target_endpoint
-    impact.target_position = shallow_position(target_endpoint)
-end
-
-local function build_pending_impact(source_position, target_position, direct_target, tick, damage_count)
-    return {
-        source_position = shallow_position(source_position),
-        target_position = shallow_position(target_position),
-        direct_target = direct_target,
-        direct_target_unit_number = ei_lib.get_entity_unit_number(direct_target),
-        created_tick = tick,
-        damage_count = math.max(1, math.floor(tonumber(damage_count) or 1)),
-    }
-end
-
-local function pending_target_matches(impact, direct_target)
-    if not impact then return false end
-
-    local target_unit_number = ei_lib.get_entity_unit_number(direct_target)
-    if impact.direct_target_unit_number and target_unit_number then
-        return impact.direct_target_unit_number == target_unit_number
-    end
-
-    return impact.direct_target and direct_target and impact.direct_target == direct_target
-end
-
-local function merge_pending_impact(runtime, job, direct_target, damage_count)
-    -- Rapid shots into the same target keep the current chromatic trace and accumulate
-    -- damage for the final endpoint instead of spawning parallel visual jobs.
-    local impact = job and job.pending_impact
-    if not impact or not pending_target_matches(impact, direct_target) then
-        return false
-    end
-
-    damage_count = math.max(1, math.floor(tonumber(damage_count) or 1))
-    impact.damage_count = math.max(1, math.floor(tonumber(impact.damage_count) or 1)) + damage_count
-    runtime.counters.impact_transactions_merged = runtime.counters.impact_transactions_merged + damage_count
-    return true
-end
-
-local function fallback_pending_impact(runtime, job)
-    -- Expired or retargeted jobs must not lose their mechanical hit. Drain the pending
-    -- payload before replacing or discarding the visual job.
-    local impact = job and job.pending_impact
-    if not impact then return false end
-
-    job.pending_impact = nil
-
-    local source = resolve_pending_source(job)
-    if not source then
-        runtime.counters.direct_damage_rejected = runtime.counters.direct_damage_rejected + math.max(1, math.floor(tonumber(impact.damage_count) or 1))
-        return false
-    end
-
-    return apply_fallback_damage(runtime, source, resolve_pending_target(impact), impact.damage_count)
-end
-
-local function apply_pending_impact(runtime, job, tick)
-    local impact = job and job.pending_impact
-    if not impact then return false end
-
-    job.pending_impact = nil
-
-    local source = resolve_pending_source(job)
-    if not source then
-        runtime.counters.direct_damage_rejected = runtime.counters.direct_damage_rejected + math.max(1, math.floor(tonumber(impact.damage_count) or 1))
-        return false
-    end
-
-    runtime.counters.impact_transactions_delayed = runtime.counters.impact_transactions_delayed + math.max(1, math.floor(tonumber(impact.damage_count) or 1))
-
-    return apply_impact_transaction(
-        runtime,
-        source,
-        impact.source_position or job.source_position or shallow_position(source.position),
-        impact.target_position or job.to_position,
-        resolve_pending_target(impact),
-        job.source_unit_number,
-        tick,
-        impact.damage_count
-    )
-end
-
-local function profiler_to_ms(profiler)
-    if not profiler then return nil end
-
-    local text = type(profiler) == "string" and profiler or tostring(profiler)
-    local value, unit = string.match(text, "([%d%.]+)%s*([mun]?s)")
-    value = tonumber(value)
-
-    if not value then return nil end
-    if unit == "s" then return value * 1000 end
-    if unit == "ms" then return value end
-    if unit == "us" then return value / 1000 end
-    if unit == "ns" then return value / 1000000 end
-
-    return value
-end
-
-local function record_timing(runtime, ms)
-    if not ms or ms < 0 then return end
-
-    local timings = runtime.timings
-    timings.last_ms = ms
-    timings.max_ms = math.max(timings.max_ms or 0, ms)
-
-    if ms > HARD_UPDATE_MS then
-        timings.slow_updates = (timings.slow_updates or 0) + 1
-    end
-
-    timings.sample_index = ((timings.sample_index or 0) % TIMING_SAMPLE_LIMIT) + 1
-    timings.samples[timings.sample_index] = ms
-    timings.sample_count = math.min(TIMING_SAMPLE_LIMIT, (timings.sample_count or 0) + 1)
-
-    local total = 0
-    local sorted = {}
-    for _, sample in pairs(timings.samples) do
-        total = total + sample
-        sorted[#sorted + 1] = sample
-    end
-
-    timings.average_ms = total / math.max(1, timings.sample_count)
-    table.sort(sorted)
-    timings.p95_ms = sorted[math.max(1, math.ceil(#sorted * 0.95))] or 0
-end
-
-local function profile_update(runtime, callback)
-    -- Profiling stays opt-in for QC/debug surfaces; ordinary saves avoid profiler
-    -- allocation unless the helper explicitly enables it.
-    if not runtime.profiling_enabled or not game.create_profiler then
-        return callback()
-    end
-
-    local profiler = game.create_profiler()
-    local result = callback()
-    profiler:stop()
-    runtime.timings.last_duration = tostring(profiler)
-    if tonumber(result) and tonumber(result) > 0 then
-        if runtime.qc_enabled then
-            log({"", "SINGULARITY_LANCE_PROFILE processed=", tostring(result), " pending=", tostring(singularity_lance.get_pending_work_count()), " elapsed=", profiler})
-        end
-        local elapsed_ms = profiler_to_ms(runtime.timings.last_duration)
-        if elapsed_ms then
-            record_timing(runtime, elapsed_ms)
-        end
-    end
-
+function lance.get_qc_snapshot()
+    profile_flush(nil)
+    local result, runtime = lance.get_runtime_status(), state()
+    result.force_cache = table.deepcopy(runtime.force_cache)
+    result.ammo_damage_category, result.damage_type = c.ammo_damage_category, c.damage_type
+    result.scripted_base_damage, result.spillover_victim_cap = c.direct_damage, c.splash_cap
+    result.meters = {}
+    for id, record in pairs(runtime.lances) do result.meters[id] = {counter = record.counter, stacks = record.stacks, wound_tick = record.wound_tick} end
     return result
 end
 
---====================================================================================================
---VISUALS
---====================================================================================================
-
-local function render_visual_slice(job)
-    -- A full attack ray is rendered as slices over time. Factorio beam prototypes handle
-    -- the local animation; this scheduler controls how much of the trace exists per tick.
-    local surface = get_surface(job.surface_index)
-    local force = get_force(job.force_index)
-    if not surface or not force or not force.valid then return false end
-
-    local fraction
-    if job.slice_count <= 1 then
-        fraction = 0.5
-    else
-        fraction = (job.next_slice - 1) / (job.slice_count - 1)
-    end
-
-    local target_position = lerp_position(job.from_position, job.to_position, fraction)
-    job.current_position = target_position
-
-    surface.create_entity({
-        name = BEAM_NAME,
-        position = job.eye_position,
-        source_position = job.eye_position,
-        target_position = target_position,
-        duration = (job.visual_config and job.visual_config.beam_duration_ticks) or 14,
-        max_length = RANGE + 8,
-        force = force,
-    })
-
-    return true
+function lance.configure_qc(options)
+    local runtime = state()
+    options = options or {}
+    if options.reset then runtime.counters = {} end
+    if options.qc_enabled ~= nil then runtime.qc_enabled = options.qc_enabled end
+    if options.profiling_enabled ~= nil then runtime.profiling_enabled = options.profiling_enabled end
+    return lance.get_qc_snapshot()
 end
 
-local function finish_visual_job(runtime, job, expired)
-    -- Finishing is responsible for accounting, endpoint memory, and last-chance damage
-    -- fallback. Callers should not adjust active visual totals themselves afterward.
-    if expired then
-        fallback_pending_impact(runtime, job)
-    end
-
-    runtime.visual_slice_count = math.max(0, runtime.visual_slice_count - math.max(0, job.remaining_slices or 0))
-    runtime.active_visual_jobs = math.max(0, runtime.active_visual_jobs - 1)
-    job.pending_impact = nil
-    job.remaining_slices = 0
-
-    local unit_number = job.source_unit_number
-    if unit_number then
-        if runtime.active_visual_by_unit and runtime.active_visual_by_unit[unit_number] == job then
-            runtime.active_visual_by_unit[unit_number] = nil
-        end
-
-        runtime.last_visual_endpoint_by_unit = runtime.last_visual_endpoint_by_unit or {}
-        runtime.last_visual_endpoint_by_unit[unit_number] = shallow_position(job.current_position or job.to_position)
-    end
-
-    if expired then
-        runtime.counters.visual_jobs_expired = runtime.counters.visual_jobs_expired + 1
-    end
+function lance.reset_runtime_state()
+    -- QC reset affects telemetry/meters only: paid collapses are irrevocable.
+    local runtime = state()
+    runtime.counters = {}
+    for _, record in pairs(runtime.lances) do reset_wound(record); record.counter = 0 end
+    lance.check_global()
+    return lance.get_runtime_status()
 end
-
-local function apply_visual_slice(runtime, job, tick)
-    -- The final slice is the authoritative arrival point: refresh moving targets, render
-    -- the last beam segment, then release the pending impact transaction.
-    if tick - job.created_tick > (get_visual_config(runtime).visual_job_ttl or 240) then
-        finish_visual_job(runtime, job, true)
-        return true
-    end
-
-    if job.remaining_slices <= 0 then
-        finish_visual_job(runtime, job, false)
-        return true
-    end
-
-    local final_slice = job.remaining_slices <= 1
-    if final_slice then
-        refresh_final_visual_endpoint(job)
-    end
-
-    local rendered = render_visual_slice(job)
-    if rendered then
-        runtime.counters.visual_slices_rendered = runtime.counters.visual_slices_rendered + 1
-    end
-
-    job.next_slice = job.next_slice + 1
-    job.remaining_slices = job.remaining_slices - 1
-    runtime.visual_slice_count = math.max(0, runtime.visual_slice_count - 1)
-
-    if final_slice then
-        apply_pending_impact(runtime, job, tick)
-    end
-
-    if job.remaining_slices > 0 then
-        scheduler.queue_push(runtime.visual_queue, job)
-    else
-        finish_visual_job(runtime, job, false)
-    end
-
-    return true
-end
-
-local function clear_visual_jobs_for_unit(runtime, unit_number)
-    if not unit_number then
-        return
-    end
-
-    runtime.active_visual_by_unit[unit_number] = nil
-    runtime.last_visual_endpoint_by_unit[unit_number] = nil
-
-    if not runtime.visual_queue or not runtime.visual_queue.items then
-        return
-    end
-
-    local cleared = 0
-    for index, job in pairs(runtime.visual_queue.items) do
-        if type(job) == "table" and job.source_unit_number == unit_number then
-            runtime.visual_slice_count = math.max(0, runtime.visual_slice_count - (job.remaining_slices or 0))
-            runtime.active_visual_jobs = math.max(0, runtime.active_visual_jobs - 1)
-            runtime.visual_queue.items[index] = nil
-            cleared = cleared + 1
-        end
-    end
-
-    if cleared > 0 then
-        scheduler.compact_queue(runtime.visual_queue, false)
-    end
-end
-
-local function enqueue_visual_job(runtime, source, source_position, target_position, direct_target, tick)
-    -- One live visual job per lance keeps the ray continuous. New shots retarget the
-    -- existing trace when possible; caps drop visuals but never the fallback hit.
-    local unit_number = ei_lib.get_entity_unit_number(source)
-    local target_endpoint = clamp_target_position(source_position, target_position)
-    if not target_endpoint then
-        runtime.counters.invalid_events = runtime.counters.invalid_events + 1
-        return false
-    end
-
-    local visual_config = get_visual_config(runtime)
-    local slice_count = get_slice_count(runtime)
-    local eye_position = offset_position(source_position, VISUAL_SOURCE_OFFSET)
-    local active_job = unit_number and runtime.active_visual_by_unit[unit_number] or nil
-
-    if type(active_job) == "table" and (active_job.remaining_slices or 0) > 0 then
-        local remaining_slices = math.max(1, math.floor(tonumber(active_job.remaining_slices) or 1))
-        fallback_pending_impact(runtime, active_job)
-        active_job.source_position = source_position
-        active_job.eye_position = eye_position
-        active_job.from_position = shallow_position(active_job.current_position or active_job.to_position or target_endpoint)
-        active_job.to_position = target_endpoint
-        active_job.force_index = source.force.index
-        active_job.surface_index = source.surface.index
-        active_job.visual_config = visual_config
-        active_job.created_tick = tick
-        active_job.slice_count = math.max(2, remaining_slices)
-        active_job.next_slice = 1
-        active_job.remaining_slices = remaining_slices
-        active_job.pending_impact = build_pending_impact(source_position, target_endpoint, direct_target, tick, 1)
-        runtime.counters.visual_jobs_retargeted = runtime.counters.visual_jobs_retargeted + 1
-        return true
-    elseif unit_number then
-        runtime.active_visual_by_unit[unit_number] = nil
-    end
-
-    local visual_job_cap = get_visual_job_cap(runtime)
-    if visual_job_cap and runtime.active_visual_jobs >= visual_job_cap then
-        if unit_number then
-            runtime.last_visual_endpoint_by_unit[unit_number] = shallow_position(target_endpoint)
-        end
-        runtime.counters.visual_jobs_dropped = runtime.counters.visual_jobs_dropped + 1
-        return false
-    end
-
-    local from_position = target_endpoint
-    if unit_number and runtime.last_visual_endpoint_by_unit[unit_number] then
-        from_position = shallow_position(runtime.last_visual_endpoint_by_unit[unit_number])
-    end
-
-    runtime.next_visual_job_id = runtime.next_visual_job_id + 1
-    runtime.active_visual_jobs = runtime.active_visual_jobs + 1
-    runtime.visual_slice_count = runtime.visual_slice_count + slice_count
-    runtime.counters.visual_jobs = runtime.counters.visual_jobs + 1
-    runtime.counters.visual_slices = runtime.counters.visual_slices + slice_count
-
-    scheduler.queue_push(runtime.visual_queue, {
-        id = runtime.next_visual_job_id,
-        source_unit_number = unit_number,
-        source_position = source_position,
-        eye_position = eye_position,
-        from_position = from_position,
-        to_position = target_endpoint,
-        current_position = shallow_position(from_position),
-        force_index = source.force.index,
-        surface_index = source.surface.index,
-        visual_config = visual_config,
-        created_tick = tick,
-        slice_count = slice_count,
-        next_slice = 1,
-        remaining_slices = slice_count,
-        pending_impact = build_pending_impact(source_position, target_endpoint, direct_target, tick, 1),
-    })
-
-    if unit_number then
-        runtime.active_visual_by_unit[unit_number] = runtime.visual_queue.items[runtime.visual_queue.tail]
-    end
-
-    return true
-end
-
---====================================================================================================
---EVENTS
---====================================================================================================
-
-function singularity_lance.check_global()
-    local runtime = ensure_runtime()
-    sync_visual_config(runtime)
-    sync_all_force_caches(runtime)
-    refresh_lance_damage_statuses(runtime)
-end
-
-function singularity_lance.reset_runtime_state()
-    local runtime = reset_runtime()
-    sync_visual_config(runtime)
-    sync_all_force_caches(runtime)
-    refresh_lance_damage_statuses(runtime)
-    return singularity_lance.get_runtime_status()
-end
-
-function singularity_lance.configure_qc(config)
-    local runtime = ensure_runtime()
-    config = config or {}
-
-    if config.reset then
-        runtime = reset_runtime()
-        sync_visual_config(runtime)
-        sync_all_force_caches(runtime)
-        refresh_lance_damage_statuses(runtime)
-    end
-
-    if config.profiling_enabled ~= nil then
-        runtime.profiling_enabled = config.profiling_enabled and true or false
-    end
-
-    if config.qc_enabled ~= nil then
-        runtime.qc_enabled = config.qc_enabled and true or false
-        runtime.profiling_enabled = runtime.qc_enabled or runtime.profiling_enabled
-    end
-
-    return singularity_lance.get_qc_snapshot(get_tick())
-end
-
-function singularity_lance.on_configuration_changed()
-    local runtime = ensure_runtime()
-    sync_visual_config(runtime)
-    sync_all_force_caches(runtime)
-    refresh_lance_damage_statuses(runtime)
-end
-
-function singularity_lance.on_research_finished(event)
-    if not event or not event.research or not event.research.force then
-        return
-    end
-
-    local runtime = ensure_runtime()
-    sync_force_cache(runtime, event.research.force)
-    refresh_lance_damage_statuses(runtime, event.research.force)
-end
-
-function singularity_lance.on_scripted_research_burst(force, _current_tick)
-    if not force or not force.valid then
-        return false
-    end
-
-    local runtime = ensure_runtime()
-    sync_force_cache(runtime, force)
-    refresh_lance_damage_statuses(runtime, force)
-    return true
-end
-
-function singularity_lance.on_built_entity(event)
-    local entity = event and event.entity or event
-    if not entity or not entity.valid or entity.name ~= TURRET_NAME then return end
-
-    local runtime = ensure_runtime()
-    set_damage_status(entity, get_force_cache(runtime, entity.force))
-end
-
-function singularity_lance.on_script_trigger_effect(event)
-    -- The prototype emits one trigger per shot. Runtime turns it into a moving visual
-    -- trace plus delayed impact payload, or direct fallback damage under load.
-    if event.effect_id ~= SHOT_EFFECT_ID then return end
-
-    local runtime = ensure_runtime()
-    local tick = get_tick(event)
-    local source = get_shot_source(event)
-
-    if not source or source.name ~= TURRET_NAME or not source.force or not source.surface then
-        runtime.counters.invalid_events = runtime.counters.invalid_events + 1
-        return
-    end
-
-    local unit_number = ei_lib.get_entity_unit_number(source)
-    local trace_allowed = true
-    if unit_number then
-        local last_tick = runtime.last_shot_by_unit[unit_number]
-        local min_shot_interval = get_visual_config(runtime).min_shot_interval or 0
-        if min_shot_interval > 0 and last_tick and tick - last_tick < min_shot_interval then
-            trace_allowed = false
-        else
-            runtime.last_shot_by_unit[unit_number] = tick
-        end
-    end
-
-    local source_position = shallow_position(source.position)
-    local target_position = target_position_from_event(event, source)
-
-    if not vector_to(source_position, target_position) then
-        runtime.counters.invalid_events = runtime.counters.invalid_events + 1
-        return
-    end
-
-    runtime.counters.shots = runtime.counters.shots + 1
-
-    local direct_target = get_direct_target(event, source)
-    if trace_allowed then
-        if enqueue_visual_job(runtime, source, source_position, target_position, direct_target, tick) then
-            return
-        end
-    elseif unit_number then
-        local active_job = runtime.active_visual_by_unit and runtime.active_visual_by_unit[unit_number] or nil
-        if merge_pending_impact(runtime, active_job, direct_target, 1) then
-            return
-        end
-    end
-
-    apply_fallback_damage(runtime, source, direct_target, 1)
-end
-
-function singularity_lance.on_destroyed_entity(event)
-    local entity = event and event.entity or event
-    if not entity or not entity.valid or entity.name ~= TURRET_NAME then return end
-
-    local runtime = ensure_runtime()
-    clear_damage_status(entity)
-    local unit_number = ei_lib.get_entity_unit_number(entity)
-    if unit_number then
-        runtime.last_shot_by_unit[unit_number] = nil
-        runtime.last_fire_by_unit[unit_number] = nil
-        runtime.last_scorch_by_unit[unit_number] = nil
-        clear_visual_jobs_for_unit(runtime, unit_number)
-    end
-end
-
---====================================================================================================
---UPDATER
---====================================================================================================
-
-local function take_due_impact_bucket(runtime, tick)
-    local due_tick = runtime.impact_next_due_tick or 0
-    if due_tick <= 0 then
-        due_tick = recalculate_impact_next_due_tick(runtime)
-    end
-
-    if due_tick <= 0 or due_tick > tick then
-        return nil, nil
-    end
-
-    local bucket = runtime.impact_buckets[due_tick]
-    runtime.impact_buckets[due_tick] = nil
-    if not bucket or next(bucket) == nil then
-        recalculate_impact_next_due_tick(runtime)
-        return nil, nil
-    end
-
-    return due_tick, bucket
-end
-
-local function update_impact_queue(runtime, limit, tick)
-    -- Impact buckets are processed under the shared update budget. Remainders are put
-    -- back on the same due tick so overload delays effects without dropping payloads.
-    local processed = 0
-    local needs_recalculate = false
-
-    while processed < limit do
-        local due_tick, bucket = take_due_impact_bucket(runtime, tick)
-        if not due_tick or not bucket then break end
-
-        local remaining = {}
-        for _, impact in ipairs(bucket) do
-            if processed < limit then
-                apply_scheduled_impact_effects(runtime, impact, tick)
-                runtime.impact_effect_count = math.max(0, (runtime.impact_effect_count or 0) - 1)
-                processed = processed + 1
-            else
-                remaining[#remaining + 1] = impact
-            end
-        end
-
-        if #remaining > 0 then
-            runtime.impact_buckets[due_tick] = remaining
-            runtime.impact_next_due_tick = due_tick
-            break
-        end
-
-        needs_recalculate = true
-    end
-
-    if needs_recalculate then
-        recalculate_impact_next_due_tick(runtime)
-    end
-
-    return processed
-end
-
-local function update_visual_queue(runtime, limit, tick)
-    -- Visual slices are ordinary scheduler queue items; each processed slice advances a
-    -- trace and may requeue itself until the ray reaches its endpoint.
-    local processed = 0
-
-    while processed < limit do
-        local job = scheduler.queue_pop(runtime.visual_queue)
-        if not job then break end
-
-        apply_visual_slice(runtime, job, tick)
-        processed = processed + 1
-    end
-
-    return processed
-end
-
-function singularity_lance.get_pending_work_count(event)
-    local runtime = ensure_runtime()
-    return (runtime.visual_slice_count or 0) + get_due_impact_count(runtime, get_tick(event))
-end
-
-function singularity_lance.has_tick_work(event)
-    local runtime = storage and storage.ei and storage.ei.singularity_lance or nil
-    if type(runtime) ~= "table" then
-        return false
-    end
-
-    if runtime.version ~= RUNTIME_VERSION then
-        return true
-    end
-
-    if (runtime.visual_slice_count or 0) > 0
-        or (runtime.active_visual_jobs or 0) > 0
-        or raw_queue_has_items(runtime.visual_queue)
-    then
-        return true
-    end
-
-    local impact_count = runtime.impact_effect_count or 0
-    if impact_count <= 0 then
-        return false
-    end
-
-    local next_due_tick = runtime.impact_next_due_tick or 0
-    return next_due_tick <= 0 or next_due_tick <= get_tick(event)
-end
-
-function singularity_lance.update(limit, event)
-    -- The updater alternates visual and impact work when both are pending, then lets the
-    -- visual-fidelity preset decide whether to drain aggressively or respect caps.
-    local runtime = ensure_runtime()
-    local tick = get_tick(event)
-    limit = math.max(1, tonumber(limit) or 1)
-    local update_limit_cap = get_update_limit_cap(runtime)
-    if update_limit_cap then
-        limit = math.min(limit, update_limit_cap)
-    elseif get_visual_config(runtime).drain_pending_work then
-        limit = math.max(limit, singularity_lance.get_pending_work_count(event))
-    end
-
-    return profile_update(runtime, function()
-        local pending_visual = runtime.active_visual_jobs or 0
-        if pending_visual <= 0 then
-            pending_visual = queue_count(runtime.visual_queue)
-        end
-        local pending_impacts = runtime.impact_effect_count or 0
-
-        if pending_visual <= 0 and pending_impacts <= 0 then
-            return 0
-        end
-
-        if pending_visual > 0 and pending_impacts > 0 and tick % 2 == 1 then
-            local visual_budget = get_visual_config(runtime).drain_pending_work and limit or 1
-            local visual_processed = update_visual_queue(runtime, visual_budget, tick)
-            if visual_processed >= limit then
-                return visual_processed
-            end
-
-            return visual_processed + update_impact_queue(runtime, limit - visual_processed, tick)
-        end
-
-        local processed = update_impact_queue(runtime, limit, tick)
-        if processed >= limit then
-            return processed
-        end
-
-        return processed + update_visual_queue(runtime, limit - processed, tick)
-    end)
-end
-
-function singularity_lance.service_for_qc(limit, event)
-    local runtime = ensure_runtime()
-    runtime.profiling_enabled = true
-    return singularity_lance.update(limit, event)
-end
-
---====================================================================================================
---STATUS
---====================================================================================================
-
-function singularity_lance.get_runtime_status()
-    -- Status is kept scheduler-compatible so QC helpers and debug commands can compare
-    -- visual budget, delayed effects, and timing without poking raw storage.
-    local runtime = ensure_runtime()
-    local pending_damage = queue_count(runtime.damage_queue) + (runtime.impact_effect_count or 0)
-    local pending_due = (runtime.visual_slice_count or 0) + get_due_impact_count(runtime, get_tick())
-    local timings = runtime.timings
-    local has_timing = (timings.sample_count or 0) > 0
-    local visual_preset = singularity_lance_config.runtime_snapshot(get_visual_config(runtime), get_perf_setting())
-
-    local status = {
-        module = MODULE_NAME,
-        visual_fidelity = visual_preset.visual_fidelity,
-        visual_preset = visual_preset,
-        pending = pending_damage + (runtime.visual_slice_count or 0),
-        pending_due = pending_due,
-        pending_damage = pending_damage,
-        pending_visual_slices = runtime.visual_slice_count or 0,
-        active_visual_jobs = runtime.active_visual_jobs or 0,
-        last_update_ms = has_timing and timings.last_ms or nil,
-        max_update_ms = has_timing and timings.max_ms or nil,
-        average_update_ms = has_timing and timings.average_ms or nil,
-        p95_update_ms = has_timing and timings.p95_ms or nil,
-        p95_ms = has_timing and timings.p95_ms or nil,
-        last_update_duration = timings.last_duration,
-        sample_count = timings.sample_count or 0,
-        slow_updates = timings.slow_updates or 0,
-        target_update_ms = TARGET_UPDATE_MS,
-        hard_update_ms = HARD_UPDATE_MS,
-        update_limit_cap = visual_preset.update_limit_cap,
-        impact_witness_cap = visual_preset.impact_witness_cap,
-        impact_next_due_tick = runtime.impact_next_due_tick or 0,
-        impact_witnesses_this_tick = runtime.impact_witness_count or 0,
-    }
-
-    scheduler.set_module_status(MODULE_NAME, status)
-    return status
-end
-
-function singularity_lance.get_qc_snapshot()
-    local runtime = ensure_runtime()
-    local status = singularity_lance.get_runtime_status()
-
-    status.counters = runtime.counters
-    status.profiling_enabled = runtime.profiling_enabled and true or false
-    status.qc_enabled = runtime.qc_enabled and true or false
-    status.slice_count = status.visual_preset.visual_drag_slices
-    status.damage_cap = status.visual_preset.impact_witness_cap
-    status.visual_job_cap = status.visual_preset.visual_job_cap
-    status.native_damage = 0
-    status.scripted_base_damage = BASE_DAMAGE
-    status.force_cache = runtime.force_cache
-    status.ammo_damage_category = AMMO_DAMAGE_CATEGORY
-    status.damage_type = DAMAGE_TYPE
-    status.impact_fire = HIT_FIRE_NAME
-    status.impact_scorchmark = SCORCHMARK_NAME
-    status.impact_beam = IMPACT_BEAM_NAME
-    status.spillover_damage = AOE_DAMAGE
-    status.spillover_radius = AOE_RADIUS
-    status.spillover_victim_cap = "uncapped"
-    status.range = RANGE
-    status.visual_beam_duration = status.visual_preset.beam_duration_ticks
-    status.impact_witness_duration = status.visual_preset.impact_witness_duration_ticks
-    status.impact_witness_length = status.visual_preset.impact_witness_length
-    status.impact_effect_delay_ticks = status.visual_preset.impact_effect_delay_ticks
-    status.impact_witness_cap = status.visual_preset.impact_witness_cap
-    status.visual_drag_slices = status.visual_preset.visual_drag_slices
-
-    return status
-end
-
---====================================================================================================
---COMMANDS
---====================================================================================================
-
-local function get_command_player(command)
-    if not command or not command.player_index then return nil end
-
-    local player = game.players[command.player_index]
-    if player and player.valid then
-        return player
-    end
-
-    return nil
-end
-
-local function command_print(command, message)
-    local player = get_command_player(command)
-    if player then
-        player.print(message)
-    else
-        log("[singularity-lance] " .. message)
-    end
-end
-
-local function count_live_turrets()
-    local count = 0
-
-    for _, surface in pairs(game.surfaces) do
-        if surface and surface.valid then
-            count = count + surface.count_entities_filtered({name = TURRET_NAME})
-        end
-    end
-
-    return count
-end
-
-local function count_enemy_targets(entity)
-    if not entity or not entity.valid or not entity.surface then return 0 end
-
-    local ok, count = pcall(function()
-        return entity.surface.count_entities_filtered({
-            position = entity.position,
-            radius = RANGE,
-            force = "enemy",
-        })
-    end)
-
-    if ok and count then
-        return count
-    end
-
-    return 0
-end
-
-local function format_energy(value)
-    value = tonumber(value) or 0
-
-    if value >= 1000000000 then
-        return string.format("%.2f GJ", value / 1000000000)
-    end
-
-    if value >= 1000000 then
-        return string.format("%.2f MJ", value / 1000000)
-    end
-
-    if value >= 1000 then
-        return string.format("%.2f kJ", value / 1000)
-    end
-
-    return tostring(math.floor(value)) .. " J"
-end
-
-local function get_entity_energy(entity)
-    if not entity or not entity.valid then return 0 end
-
-    local ok, energy = pcall(function()
-        return entity.energy
-    end)
-
-    if ok and energy then
-        return energy
-    end
-
-    return 0
-end
-
-function singularity_lance.refresh_runtime_state()
-    local runtime = reset_runtime()
-    sync_all_force_caches(runtime)
-    refresh_lance_damage_statuses(runtime)
-    runtime.counters.refreshes = runtime.counters.refreshes + 1
-
-    return {
-        turrets = count_live_turrets(),
-        status = singularity_lance.get_runtime_status(),
-    }
-end
-
-function singularity_lance.probe_selected_turret(command)
-    local runtime = ensure_runtime()
-    local player = get_command_player(command)
-    local selected = player and ei_lib.get_valid_entity(player.selected) or nil
-
-    if not selected or selected.name ~= TURRET_NAME then
-        return {
-            selected = false,
-            turrets = count_live_turrets(),
-            shots = runtime.counters.shots,
-            invalid_events = runtime.counters.invalid_events,
-        }
-    end
-
-    return {
-        selected = true,
-        unit_number = ei_lib.get_entity_unit_number(selected),
-        force = selected.force and selected.force.name or "?",
-        surface = selected.surface and selected.surface.name or "?",
-        status = selected.status,
-        energy = get_entity_energy(selected),
-        enemies_in_range = count_enemy_targets(selected),
-        shots = runtime.counters.shots,
-        invalid_events = runtime.counters.invalid_events,
-        pending_visual_slices = runtime.visual_slice_count or 0,
-        active_visual_jobs = runtime.active_visual_jobs or 0,
-    }
-end
-
-if commands and commands.add_command then
-    -- Console commands are intentionally read-only except for explicit refresh; they are
-    -- debug affordances for local saves and QC helper sessions.
-    commands.add_command("ei_singularity_lance_refresh", "Resets Singularity Lance runtime queues and reports live turret count.", function(command)
-        local result = singularity_lance.refresh_runtime_state()
-        command_print(command, "Singularity Lance runtime refreshed; live lances: " .. tostring(result.turrets or 0) .. ".")
-    end)
-
-    commands.add_command("ei_singularity_lance_probe", "Reports the selected Singularity Lance state and nearby enemy count.", function(command)
-        local result = singularity_lance.probe_selected_turret(command)
-        if not result.selected then
-            command_print(command, "No Singularity Lance selected. Live lances: " .. tostring(result.turrets or 0) .. ", shots: " .. tostring(result.shots or 0) .. ", invalid events: " .. tostring(result.invalid_events or 0) .. ".")
-            return
-        end
-
-        command_print(
-            command,
-            "Singularity Lance probe: unit="
-                .. tostring(result.unit_number or "?")
-                .. ", force=" .. tostring(result.force or "?")
-                .. ", surface=" .. tostring(result.surface or "?")
-                .. ", status=" .. tostring(result.status or "?")
-                .. ", energy=" .. format_energy(result.energy)
-                .. ", enemies_in_range=" .. tostring(result.enemies_in_range or 0)
-                .. ", shots=" .. tostring(result.shots or 0)
-                .. ", invalid_events=" .. tostring(result.invalid_events or 0)
-                .. ", active_visual_jobs=" .. tostring(result.active_visual_jobs or 0)
-                .. ", pending_visual_slices=" .. tostring(result.pending_visual_slices or 0)
-                .. "."
-        )
-    end)
-end
-
-return singularity_lance
+lance.service_for_qc = lance.update
+lance.refresh_runtime_state = lance.check_global
+return lance

@@ -13,6 +13,40 @@ singularity_lance_config.ammo_damage_category = "ei-singularity-lance"
 singularity_lance_config.direct_damage = 500
 singularity_lance_config.splash_damage = 125
 singularity_lance_config.splash_radius = 1.5
+singularity_lance_config.splash_cap = 8
+singularity_lance_config.axial = {width = 1, reach = 12, damage = 250, cap = 3}
+singularity_lance_config.wound = {step = 0.10, cap = 5, timeout = 120}
+singularity_lance_config.collapse = {delay = 30, damage = 250, radius = 3, cap = 8}
+singularity_lance_config.testament = {interval = 8, primary_multiplier = 2, axial_cap = 6,
+    damage = 500, radius = 4, cap = 12}
+singularity_lance_config.upgrades = {
+    {key = "axial-rupture", age = "alien-computer-age", science = "both-computer-age",
+        prerequisites = {"ei-singularity-lance"}},
+    {key = "wound-memory", age = "quantum-age", science = "quantum-age",
+        prerequisites = {"ei-singularity-lance-axial-rupture", "ei-quantum-age"}},
+    {key = "terminal-collapse", age = "exotic-age", science = "exotic-age",
+        prerequisites = {"ei-singularity-lance-wound-memory", "ei-exotic-age"}},
+    {key = "black-hole-testament", age = "black-hole-exotic-age", science = "black-hole-exotic-age",
+        prerequisites = {"ei-singularity-lance-terminal-collapse", "ei-black-hole"}},
+}
+
+-- Localised parameters are shared by technologies, static tooltips and Informatron.
+function singularity_lance_config.effect_description(index, multiplier)
+    local c = singularity_lance_config
+    multiplier = multiplier or 1
+    local description
+    if index == 1 then description = {"lance-upgrades.axial", c.axial.width, c.axial.reach, c.axial.cap, c.axial.damage * multiplier}
+    elseif index == 2 then description = {"lance-upgrades.wound", c.wound.step * 100, c.wound.step * c.wound.cap * 100, c.wound.timeout / 60}
+    elseif index == 3 then description = {"lance-upgrades.collapse", c.collapse.delay / 60, c.collapse.damage * multiplier, c.collapse.radius, c.collapse.cap}
+    else description = {"lance-upgrades.testament", c.testament.interval, c.testament.primary_multiplier,
+        c.testament.axial_cap, c.testament.damage * multiplier, c.testament.radius, c.testament.cap}
+    end
+    -- Prototype-stage LocalisedString parameters must be strings, including numbers.
+    for parameter = 2, #description do
+        if type(description[parameter]) == "number" then description[parameter] = tostring(description[parameter]) end
+    end
+    return description
+end
 singularity_lance_config.range = 85
 singularity_lance_config.attack_cooldown = 1
 singularity_lance_config.ticks_per_second = 60

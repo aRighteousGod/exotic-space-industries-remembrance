@@ -592,7 +592,7 @@ local function format_tooltip_number(value)
 end
 
 local function make_scripted_damage_tooltip_fields()
-    return {
+    local fields = {
         {
             name = "",
             value = {"custom-tooltip.ei-singularity-lance-scripted-header", {"custom-tooltip.ei-singularity-lance-scripted-title"}},
@@ -628,9 +628,19 @@ local function make_scripted_damage_tooltip_fields()
                 format_tooltip_number(SCRIPTED_SPLASH_DAMAGE),
                 {"damage-type-name."..SCRIPTED_DAMAGE_TYPE},
                 format_tooltip_number(SCRIPTED_SPLASH_RADIUS),
+                tostring(singularity_lance_config.splash_cap),
             },
         },
     }
+    for index, upgrade in ipairs(singularity_lance_config.upgrades) do
+        fields[#fields + 1] = {
+            name = {"lance-upgrades.research-row", {"technology-name.ei-singularity-lance-" .. upgrade.key}},
+            value = singularity_lance_config.effect_description(index),
+        }
+    end
+    fields[#fields + 1] = {name = {"lance-upgrades.protection-title"}, value = {"lance-upgrades.protection"}}
+    fields[#fields + 1] = {name = "", value = {"lance-upgrades.static-values"}}
+    return fields
 end
 
 local function make_scripted_damage_item_tooltip_fields()
@@ -706,8 +716,16 @@ singularity_fire_sticker.hidden = true
 singularity_fire_sticker.flags = {"not-on-map"}
 singularity_fire_sticker.duration_in_ticks = FIRE_STICKER_DURATION
 singularity_fire_sticker.damage_interval = FIRE_STICKER_DURATION
-singularity_fire_sticker.target_movement_modifier = 0.95
-singularity_fire_sticker.damage_per_tick = {amount = 1.25, type = "fire"}
+singularity_fire_sticker.target_movement_modifier = 1
+singularity_fire_sticker.vehicle_speed_modifier = 1
+singularity_fire_sticker.vehicle_friction_modifier = 1
+-- Discard any inherited ramps/caps as well as the ordinary movement modifier.
+for _, field in ipairs({"target_movement_modifier", "vehicle_speed_modifier", "vehicle_friction_modifier",
+    "target_movement_max", "vehicle_speed_max"}) do
+    singularity_fire_sticker[field .. "_from"], singularity_fire_sticker[field .. "_to"] = nil, nil
+end
+singularity_fire_sticker.target_movement_max, singularity_fire_sticker.vehicle_speed_max = nil, nil
+singularity_fire_sticker.damage_per_tick = {amount = 0, type = "fire"}
 singularity_fire_sticker.spread_fire_entity = nil
 singularity_fire_sticker.fire_spread_cooldown = nil
 singularity_fire_sticker.fire_spread_radius = nil
@@ -736,7 +754,7 @@ singularity_hit_fire.name = HIT_FIRE_NAME
 singularity_hit_fire.hidden = true
 singularity_hit_fire.hidden_in_factoriopedia = true
 singularity_hit_fire.flags = {"placeable-off-grid", "not-on-map"}
-singularity_hit_fire.damage_per_tick = {amount = 0.3, type = "fire"}
+singularity_hit_fire.damage_per_tick = {amount = 0, type = "fire"}
 singularity_hit_fire.maximum_damage_multiplier = 1
 singularity_hit_fire.damage_multiplier_increase_per_added_fuel = 0
 singularity_hit_fire.damage_multiplier_decrease_per_tick = 0
@@ -756,6 +774,7 @@ singularity_hit_fire.burnt_patch_pictures = nil
 singularity_hit_fire.emissions_per_second = nil
 singularity_hit_fire.tree_dying_factor = nil
 singularity_hit_fire.on_fuel_added_action = nil
+singularity_hit_fire.on_damage_tick_effect = nil
 singularity_hit_fire.smoke_source_pictures = nil
 singularity_hit_fire.flame_alpha = 0.88
 singularity_hit_fire.flame_alpha_deviation = 0.03
@@ -864,7 +883,7 @@ singularity_turret.attack_parameters.ammo_type = {
         action_delivery = {
             type = "beam",
             beam = TRIGGER_BEAM_NAME,
-            max_length = RANGE,
+            max_length = 0, -- Native targeting already includes quality and target bounds.
             duration = TRIGGER_BEAM_DURATION,
             source_offset = BEAM_SOURCE_OFFSET,
             add_to_shooter = true,
@@ -970,3 +989,5 @@ data:extend({
     singularity_impact_beam,
     singularity_trigger_beam,
 })
+
+require("prototypes/alien-system/singularity-lance-upgrades")

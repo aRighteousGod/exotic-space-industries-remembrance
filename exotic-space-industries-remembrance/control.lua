@@ -92,6 +92,7 @@ local ei_hemocrystal_wall = require("scripts/control/hemocrystal-wall")
 local ei_randomized_tree_growth = require("scripts/control/randomized-tree-growth")
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
+    [ei_singularity_lance.script_trigger_effect_id] = ei_singularity_lance.on_script_trigger_effect,
     [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,
     [ei_emerald_apocalypse_hover_tank.charge_effect_id] = ei_emerald_apocalypse_hover_tank.on_script_trigger_effect,
 }
@@ -643,10 +644,16 @@ script.on_event(defines.events.on_entity_cloned, function(e)
 end)
 
 script.on_event(defines.events.on_forces_merged, function(e)
+    ei_singularity_lance.on_forces_merged(e)
     ei_spider_vehicles.on_forces_merged(e)
 end)
 script.on_event(defines.events.on_research_reversed, function(e)
+    ei_singularity_lance.on_research_finished(e)
     ei_spider_vehicles.on_research_finished(e)
+end)
+
+script.on_event(defines.events.on_force_created, function(e)
+    ei_singularity_lance.on_force_reset(e)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
@@ -694,6 +701,9 @@ script.on_event({
     on_destroyed_entity(e)
 end)
 
+script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, ei_singularity_lance.on_force_reset)
+script.on_event({defines.events.on_force_friends_changed, defines.events.on_force_cease_fire_changed}, ei_singularity_lance.on_diplomacy_changed)
+
 script.on_event(defines.events.on_entity_damaged, function(event)
     -- Engine filters exclude unrelated hits before Lua dispatch. Electric hits
     -- retain Tesla's recursive legacy handling; target-owned reactions follow it.
@@ -736,6 +746,7 @@ end
 
 if defines.events.on_pre_surface_deleted then
     script.on_event(defines.events.on_pre_surface_deleted, function(e)
+        ei_singularity_lance.on_surface_deleted(e)
         if ei_auric_inoculation_vat.on_pre_surface_deleted then
             ei_auric_inoculation_vat.on_pre_surface_deleted(e)
         end
@@ -744,6 +755,7 @@ end
 
 if defines.events.on_pre_surface_cleared then
     script.on_event(defines.events.on_pre_surface_cleared, function(e)
+        ei_singularity_lance.on_surface_deleted(e)
         if ei_auric_inoculation_vat.on_pre_surface_deleted then
             ei_auric_inoculation_vat.on_pre_surface_deleted(e)
         end
@@ -869,6 +881,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_singularity_lance.on_object_destroyed(e)
     ei_spider_vehicles.on_object_destroyed(e)
     ei_beacon_overload.on_object_destroyed(e)
     orbital_combinator.on_object_destroyed(e)
@@ -1184,7 +1197,6 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 
     ei_teslas_legacy.on_script_trigger_effect(event)
     ei_railgun_cooling.on_script_trigger_effect(event)
-    ei_singularity_lance.on_script_trigger_effect(event)
     if event.effect_id == "ei-gate-remote" then
         ei_gate.used_remote(event)
     end
@@ -1257,7 +1269,6 @@ script.on_configuration_changed(function(e)
         ei_flammable_rupture_scheduler.check_global()
         ei_vulcanus_fumaroles.check_global()
         ei_railgun_cooling.check_global()
-        ei_singularity_lance.check_global()
         ei_sawblade_turret.check_global()
         ei_combustion_turbine.check_global()
         ei_emerald_apocalypse_hover_tank.check_global(configuration_tick)
@@ -1340,7 +1351,6 @@ script.on_configuration_changed(function(e)
         orbital_combinator.check_init()
         orbital_logistics.rebuild_runtime_state("configuration-changed", configuration_tick)
         ei_railgun_cooling.rebuild_runtime_state("configuration-changed", configuration_tick)
-        ei_singularity_lance.check_global()
         ei_sawblade_turret.check_global()
         ei_emerald_apocalypse_hover_tank.check_global(configuration_tick)
         ei_gaia.ensure_surface()
@@ -1614,7 +1624,7 @@ function updater(event)
               end
           end
       elseif ei_update_step == 13 then
-          -- Step 13 services Singularity Lance's lossy aim-trace visuals; direct alpha is script-owned.
+          -- All due paid collapses are serviced before optional lance decoration.
           local singularity_lance_has_work = ei_singularity_lance.has_tick_work(event)
           local singularity_lance_pending_work_count = singularity_lance_has_work
               and ei_singularity_lance.get_pending_work_count(event)

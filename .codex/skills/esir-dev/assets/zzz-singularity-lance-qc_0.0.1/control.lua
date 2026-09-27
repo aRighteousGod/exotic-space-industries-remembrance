@@ -302,7 +302,7 @@ local function configure_forces(force)
   enemy.set_cease_fire(force, false)
 
   pcall(function()
-    force.set_ammo_damage_modifier("laser", LASER_DAMAGE_MODIFIER)
+    force.set_ammo_damage_modifier("ei-singularity-lance", LASER_DAMAGE_MODIFIER)
   end)
 end
 

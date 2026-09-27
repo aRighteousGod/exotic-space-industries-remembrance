@@ -1,0 +1,768 @@
+{
+  "engine": "2.0.77",
+  "warmup_runs_discarded": 1,
+  "measurement": "Whole-game ms/update; five 720-tick runs after one full warmup run",
+  "counter_window": "Candidate counters at tick 600, reset after tick 120",
+  "scenes": {
+    "no-lance": {
+      "baseline": {
+        "all_run_means_ms": [
+          0.44,
+          0.427,
+          0.43,
+          0.429,
+          0.423,
+          0.447
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.429,
+        "mean_ms": 0.43119999999999997,
+        "min_ms": 0.423,
+        "max_ms": 0.447,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 0,
+          "damage_jobs": 0,
+          "damage_jobs_processed": 0,
+          "damage_jobs_expired": 0,
+          "damage_victims": 0,
+          "direct_damage_applied": 0,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 0,
+          "impact_effects_scheduled": 0,
+          "impact_effects_applied": 0,
+          "impact_effects_expired": 0,
+          "impact_transactions": 0,
+          "impact_transactions_delayed": 0,
+          "impact_transactions_merged": 0,
+          "impact_witnesses_rendered": 0,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 0,
+          "force_cache_refreshes": 5,
+          "visual_jobs": 0,
+          "visual_jobs_dropped": 0,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 0,
+          "visual_slices": 0,
+          "visual_slices_rendered": 0,
+          "fires_created": 0,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 0,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 0,
+          "stickers_applied": 0,
+          "stickers_rejected": 0,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          0.432,
+          0.458,
+          0.439,
+          0.444,
+          0.439,
+          0.442
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.442,
+        "mean_ms": 0.4444,
+        "min_ms": 0.439,
+        "max_ms": 0.458,
+        "runtime_sha256": "8ee0a769bb8562676e26eac9411911b853a6c875b2937fda856c73d359937302",
+        "counters": {},
+        "registered_lances": 0,
+        "pending_paid_collapses": 0
+      },
+      "median_change_percent": 3.0303030303030276
+    },
+    "idle": {
+      "baseline": {
+        "all_run_means_ms": [
+          0.457,
+          0.444,
+          0.466,
+          0.417,
+          0.41,
+          0.41
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.417,
+        "mean_ms": 0.4294,
+        "min_ms": 0.41,
+        "max_ms": 0.466,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 0,
+          "damage_jobs": 0,
+          "damage_jobs_processed": 0,
+          "damage_jobs_expired": 0,
+          "damage_victims": 0,
+          "direct_damage_applied": 0,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 0,
+          "impact_effects_scheduled": 0,
+          "impact_effects_applied": 0,
+          "impact_effects_expired": 0,
+          "impact_transactions": 0,
+          "impact_transactions_delayed": 0,
+          "impact_transactions_merged": 0,
+          "impact_witnesses_rendered": 0,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 0,
+          "force_cache_refreshes": 5,
+          "visual_jobs": 0,
+          "visual_jobs_dropped": 0,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 0,
+          "visual_slices": 0,
+          "visual_slices_rendered": 0,
+          "fires_created": 0,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 0,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 0,
+          "stickers_applied": 0,
+          "stickers_rejected": 0,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          0.435,
+          0.43,
+          0.454,
+          0.432,
+          0.453,
+          0.431
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.432,
+        "mean_ms": 0.44,
+        "min_ms": 0.43,
+        "max_ms": 0.454,
+        "runtime_sha256": "8ee0a769bb8562676e26eac9411911b853a6c875b2937fda856c73d359937302",
+        "counters": {},
+        "registered_lances": 96,
+        "pending_paid_collapses": 0
+      },
+      "median_change_percent": 3.597122302158273
+    },
+    "direct": {
+      "baseline": {
+        "all_run_means_ms": [
+          0.582,
+          0.523,
+          0.528,
+          0.535,
+          0.523,
+          0.525
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.525,
+        "mean_ms": 0.5268,
+        "min_ms": 0.523,
+        "max_ms": 0.535,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 480,
+          "damage_jobs": 59,
+          "damage_jobs_processed": 59,
+          "damage_jobs_expired": 0,
+          "damage_victims": 0,
+          "direct_damage_applied": 472,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 236000,
+          "impact_effects_scheduled": 471,
+          "impact_effects_applied": 471,
+          "impact_effects_expired": 0,
+          "impact_transactions": 472,
+          "impact_transactions_delayed": 471,
+          "impact_transactions_merged": 419,
+          "impact_witnesses_rendered": 59,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 1,
+          "force_cache_refreshes": 5,
+          "visual_jobs": 60,
+          "visual_jobs_dropped": 0,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 0,
+          "visual_slices": 420,
+          "visual_slices_rendered": 419,
+          "fires_created": 59,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 15,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 44,
+          "stickers_applied": 0,
+          "stickers_rejected": 59,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          0.582,
+          0.537,
+          0.53,
+          0.558,
+          0.532,
+          0.53
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.532,
+        "mean_ms": 0.5374,
+        "min_ms": 0.53,
+        "max_ms": 0.558,
+        "runtime_sha256": "8ee0a769bb8562676e26eac9411911b853a6c875b2937fda856c73d359937302",
+        "counters": {
+          "shots": 480,
+          "direct_damage_amount": 240000,
+          "direct_damage_applied": 480,
+          "area_queries": 480,
+          "core_cues_refreshed": 480
+        },
+        "registered_lances": 1,
+        "pending_paid_collapses": 0
+      },
+      "median_change_percent": 1.333333333333342
+    },
+    "normal-power": {
+      "baseline": {
+        "all_run_means_ms": [
+          0.76,
+          0.772,
+          1.0,
+          0.829,
+          0.789,
+          0.795
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.795,
+        "mean_ms": 0.837,
+        "min_ms": 0.772,
+        "max_ms": 1.0,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 1352,
+          "damage_jobs": 53,
+          "damage_jobs_processed": 53,
+          "damage_jobs_expired": 0,
+          "damage_victims": 477,
+          "direct_damage_applied": 1330,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 665000,
+          "impact_effects_scheduled": 55,
+          "impact_effects_applied": 53,
+          "impact_effects_expired": 0,
+          "impact_transactions": 1332,
+          "impact_transactions_delayed": 55,
+          "impact_transactions_merged": 0,
+          "impact_witnesses_rendered": 55,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 1277,
+          "force_cache_refreshes": 5,
+          "visual_jobs": 75,
+          "visual_jobs_dropped": 1029,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 248,
+          "visual_slices": 525,
+          "visual_slices_rendered": 413,
+          "fires_created": 53,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 15,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 38,
+          "stickers_applied": 0,
+          "stickers_rejected": 53,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          2.43,
+          2.302,
+          2.168,
+          2.22,
+          2.053,
+          2.036
+        ],
+        "measured_runs": 5,
+        "median_ms": 2.168,
+        "mean_ms": 2.1558,
+        "min_ms": 2.036,
+        "max_ms": 2.302,
+        "runtime_sha256": "4c720fe18e109d3315b3b7e62d5f02d4f2c94cf36c6a3cf039ee736d2d2c7f59",
+        "counters": {
+          "area_queries": 1359,
+          "secondary_damage_amount": 4284500,
+          "secondary_packets": 15608,
+          "collapses_applied": 1359,
+          "core_cues": 4063,
+          "decorations": 175,
+          "decorations_dropped": 848,
+          "shots": 1352,
+          "direct_damage_amount": 1137250,
+          "direct_damage_applied": 1352,
+          "penetration_queries": 1352,
+          "collapses_scheduled": 1352,
+          "wound_cues": 1352,
+          "testament_shots": 170
+        },
+        "registered_lances": 96,
+        "pending_paid_collapses": 78
+      },
+      "median_change_percent": 172.70440251572325
+    },
+    "dense": {
+      "baseline": {
+        "all_run_means_ms": [
+          6.357,
+          7.361,
+          6.858,
+          6.922,
+          6.839,
+          6.378
+        ],
+        "measured_runs": 5,
+        "median_ms": 6.858,
+        "mean_ms": 6.8716,
+        "min_ms": 6.378,
+        "max_ms": 7.361,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 46080,
+          "damage_jobs": 59,
+          "damage_jobs_processed": 59,
+          "damage_jobs_expired": 0,
+          "damage_victims": 531,
+          "direct_damage_applied": 45936,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 22968000,
+          "impact_effects_scheduled": 287,
+          "impact_effects_applied": 287,
+          "impact_effects_expired": 0,
+          "impact_transactions": 45936,
+          "impact_transactions_delayed": 287,
+          "impact_transactions_merged": 8215,
+          "impact_witnesses_rendered": 59,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 45649,
+          "force_cache_refreshes": 5,
+          "visual_jobs": 77,
+          "visual_jobs_dropped": 4560,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 1123,
+          "visual_slices": 539,
+          "visual_slices_rendered": 420,
+          "fires_created": 59,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 16,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 43,
+          "stickers_applied": 0,
+          "stickers_rejected": 59,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          60.794,
+          54.992,
+          55.49,
+          57.713,
+          112.742,
+          68.567
+        ],
+        "measured_runs": 5,
+        "median_ms": 57.713,
+        "mean_ms": 69.9008,
+        "min_ms": 54.992,
+        "max_ms": 112.742,
+        "runtime_sha256": "4c720fe18e109d3315b3b7e62d5f02d4f2c94cf36c6a3cf039ee736d2d2c7f59",
+        "counters": {
+          "area_queries": 46080,
+          "secondary_damage_amount": 145320000,
+          "secondary_packets": 529440,
+          "collapses_applied": 46080,
+          "core_cues": 103680,
+          "decorations": 568,
+          "shots": 46080,
+          "direct_damage_amount": 38880000,
+          "direct_damage_applied": 46080,
+          "penetration_queries": 46080,
+          "collapses_scheduled": 46080,
+          "core_cues_refreshed": 34560,
+          "wound_cues": 46080,
+          "testament_shots": 5760
+        },
+        "registered_lances": 96,
+        "pending_paid_collapses": 2880
+      },
+      "median_change_percent": 741.5427238261884
+    },
+    "diagonal": {
+      "baseline": {
+        "all_run_means_ms": [
+          6.442,
+          5.858,
+          5.196,
+          5.292,
+          5.36,
+          5.143
+        ],
+        "measured_runs": 5,
+        "median_ms": 5.292,
+        "mean_ms": 5.3698,
+        "min_ms": 5.143,
+        "max_ms": 5.858,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 46080,
+          "damage_jobs": 59,
+          "damage_jobs_processed": 59,
+          "damage_jobs_expired": 0,
+          "damage_victims": 0,
+          "direct_damage_applied": 45936,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 22968000,
+          "impact_effects_scheduled": 287,
+          "impact_effects_applied": 287,
+          "impact_effects_expired": 0,
+          "impact_transactions": 45936,
+          "impact_transactions_delayed": 287,
+          "impact_transactions_merged": 8215,
+          "impact_witnesses_rendered": 59,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 45649,
+          "force_cache_refreshes": 5,
+          "visual_jobs": 77,
+          "visual_jobs_dropped": 4560,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 1123,
+          "visual_slices": 539,
+          "visual_slices_rendered": 420,
+          "fires_created": 59,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 16,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 43,
+          "stickers_applied": 0,
+          "stickers_rejected": 59,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          23.601,
+          18.404,
+          18.484,
+          16.045,
+          17.122,
+          16.161
+        ],
+        "measured_runs": 5,
+        "median_ms": 17.122,
+        "mean_ms": 17.2432,
+        "min_ms": 16.045,
+        "max_ms": 18.484,
+        "runtime_sha256": "4c720fe18e109d3315b3b7e62d5f02d4f2c94cf36c6a3cf039ee736d2d2c7f59",
+        "counters": {
+          "area_queries": 46080,
+          "collapses_applied": 46080,
+          "core_cues": 103680,
+          "decorations": 568,
+          "shots": 46080,
+          "direct_damage_amount": 38880000,
+          "direct_damage_applied": 46080,
+          "penetration_queries": 46080,
+          "secondary_damage_amount": 9240000,
+          "secondary_packets": 36960,
+          "collapses_scheduled": 46080,
+          "core_cues_refreshed": 34560,
+          "wound_cues": 46080,
+          "testament_shots": 5760
+        },
+        "registered_lances": 96,
+        "pending_paid_collapses": 2880
+      },
+      "median_change_percent": 223.54497354497354
+    },
+    "research": {
+      "baseline": {
+        "all_run_means_ms": [
+          3.428,
+          3.02,
+          3.038,
+          2.98,
+          2.997,
+          2.976
+        ],
+        "measured_runs": 5,
+        "median_ms": 2.997,
+        "mean_ms": 3.0021999999999998,
+        "min_ms": 2.976,
+        "max_ms": 3.038,
+        "runtime_sha256": "0a09014322ea77a6d94e66d8828bcbfe87c19efb16273015c2d89f97693bf52e",
+        "counters": {
+          "shots": 0,
+          "damage_jobs": 0,
+          "damage_jobs_processed": 0,
+          "damage_jobs_expired": 0,
+          "damage_victims": 0,
+          "direct_damage_applied": 0,
+          "direct_damage_failed": 0,
+          "direct_damage_rejected": 0,
+          "direct_damage_amount": 0,
+          "impact_effects_scheduled": 0,
+          "impact_effects_applied": 0,
+          "impact_effects_expired": 0,
+          "impact_transactions": 0,
+          "impact_transactions_delayed": 0,
+          "impact_transactions_merged": 0,
+          "impact_witnesses_rendered": 0,
+          "impact_witnesses_dropped": 0,
+          "impact_fallbacks": 0,
+          "force_cache_refreshes": 813,
+          "visual_jobs": 0,
+          "visual_jobs_dropped": 0,
+          "visual_jobs_expired": 0,
+          "visual_jobs_retargeted": 0,
+          "visual_slices": 0,
+          "visual_slices_rendered": 0,
+          "fires_created": 0,
+          "fires_rejected": 0,
+          "fires_skipped": 0,
+          "scorchmarks_created": 0,
+          "scorchmarks_rejected": 0,
+          "scorchmarks_skipped": 0,
+          "stickers_applied": 0,
+          "stickers_rejected": 0,
+          "stickers_skipped": 0,
+          "invalid_events": 0,
+          "refreshes": 0
+        }
+      },
+      "candidate": {
+        "all_run_means_ms": [
+          0.419,
+          0.4,
+          0.408,
+          0.406,
+          0.418,
+          0.457
+        ],
+        "measured_runs": 5,
+        "median_ms": 0.408,
+        "mean_ms": 0.4178,
+        "min_ms": 0.4,
+        "max_ms": 0.457,
+        "runtime_sha256": "4c720fe18e109d3315b3b7e62d5f02d4f2c94cf36c6a3cf039ee736d2d2c7f59",
+        "counters": {},
+        "registered_lances": 96,
+        "pending_paid_collapses": 0
+      },
+      "median_change_percent": -86.38638638638638
+    }
+  },
+  "profiles": {
+    "c-b-dense-standard-00-profile": {
+      "shot-core": {
+        "mean_ms": 2.1280629166666665,
+        "p95_ms": 3.3039,
+        "max_ms": 11.922,
+        "ticks": 240
+      },
+      "shot": {
+        "mean_ms": 25.8476825,
+        "p95_ms": 46.2165,
+        "max_ms": 56.304,
+        "ticks": 240
+      },
+      "mechanics": {
+        "mean_ms": 26.414237083333333,
+        "p95_ms": 43.5159,
+        "max_ms": 58.5126,
+        "ticks": 240
+      },
+      "impact-core": {
+        "mean_ms": 0.5245325,
+        "p95_ms": 1.0129,
+        "max_ms": 10.4128,
+        "ticks": 240
+      },
+      "decoration": {
+        "mean_ms": 0.2455875,
+        "p95_ms": 0.4574,
+        "max_ms": 8.1546,
+        "ticks": 240
+      },
+      "update-total": {
+        "mean_ms": 27.47245,
+        "p95_ms": 45.299,
+        "max_ms": 59.9088,
+        "ticks": 240
+      },
+      "all-lance": {
+        "mean_ms": 53.3201325,
+        "p95_ms": 83.08770000000001,
+        "max_ms": 108.5716,
+        "ticks": 240
+      },
+      "shot-mechanics": {
+        "mean_ms": 23.719619583333333,
+        "p95_ms": 43.6107,
+        "max_ms": 53.2248,
+        "ticks": 240
+      }
+    },
+    "c-b-normal-power-standard-00-profile": {
+      "shot-core": {
+        "mean_ms": 0.06735833333333334,
+        "p95_ms": 0.154,
+        "max_ms": 3.4512,
+        "ticks": 240
+      },
+      "shot": {
+        "mean_ms": 0.8560933333333334,
+        "p95_ms": 1.8541,
+        "max_ms": 29.2601,
+        "ticks": 240
+      },
+      "mechanics": {
+        "mean_ms": 0.624745,
+        "p95_ms": 1.4865,
+        "max_ms": 19.1036,
+        "ticks": 240
+      },
+      "impact-core": {
+        "mean_ms": 0.01007625,
+        "p95_ms": 0.0317,
+        "max_ms": 0.285,
+        "ticks": 240
+      },
+      "decoration": {
+        "mean_ms": 0.005806666666666667,
+        "p95_ms": 0.012,
+        "max_ms": 0.1636,
+        "ticks": 240
+      },
+      "update-total": {
+        "mean_ms": 0.6467700041666666,
+        "p95_ms": 1.5615,
+        "max_ms": 19.6643,
+        "ticks": 240
+      },
+      "all-lance": {
+        "mean_ms": 1.5028633375,
+        "p95_ms": 17.1073,
+        "max_ms": 30.8216,
+        "ticks": 240
+      },
+      "shot-mechanics": {
+        "mean_ms": 0.7887350000000001,
+        "p95_ms": 1.7005000000000001,
+        "max_ms": 26.097,
+        "ticks": 240
+      }
+    }
+  },
+  "validation": {
+    "fidelities": {
+      "lean": {
+        "passed_assertions": 119,
+        "complete": true,
+        "secondary_destruction_regression": true
+      },
+      "standard": {
+        "passed_assertions": 119,
+        "complete": true,
+        "secondary_destruction_regression": true
+      },
+      "cinematic": {
+        "passed_assertions": 119,
+        "complete": true,
+        "secondary_destruction_regression": true
+      },
+      "maximal": {
+        "passed_assertions": 119,
+        "complete": true,
+        "secondary_destruction_regression": true
+      },
+      "unbounded": {
+        "passed_assertions": 119,
+        "complete": true,
+        "secondary_destruction_regression": true
+      }
+    },
+    "technology_variants": {
+      "00": {
+        "scaling": true,
+        "flattening": false,
+        "final_technology_records": [
+          "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+          "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+          "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+          "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+        ]
+      },
+      "01": {
+        "scaling": true,
+        "flattening": true,
+        "final_technology_records": [
+          "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+          "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+          "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+          "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+        ]
+      },
+      "10": {
+        "scaling": false,
+        "flattening": false,
+        "final_technology_records": [
+          "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+          "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+          "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+          "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+        ]
+      },
+      "11": {
+        "scaling": false,
+        "flattening": true,
+        "final_technology_records": [
+          "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+          "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+          "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+          "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+        ]
+      }
+    },
+    "counter_seven_reload": {
+      "passed_assertions": 3,
+      "complete": true
+    }
+  }
+}

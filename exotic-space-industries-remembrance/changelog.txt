@@ -2,6 +2,7 @@
 Version: 1.3.40
 Date: 9-10-2026
   Features:
+    - The Singularity Lance learns four successive rites: Axial Rupture, Wound Memory, Terminal Collapse, and Black-Hole Testament. A continuous incision opens the ray, repeated primary hits deepen its memory, delayed collapse replaces ordinary splash, and every eighth paid shot bears the final oath. Each upgrade has its own combat silhouette, technology emblem, tooltip, and force-aware Informatron entry.
     - Added eight Container capacity profiles for vanilla, ESIR, steam, and modded storage, with every tier's slot count shown in the startup tooltip. Filtered and logistic variants share their size tier; quality bonuses remain unchanged.
     - Expanded the enemy difficulty ladder with Sheltered, Forgiving, and Lenient tiers. Merciful is now a near-peaceful stat floor with stronger optional Nauvis evolution grace through the selected Nauvis Pressure Grace Classic or Extended profiles, while Lenient preserves the former Merciful prototype balance.
     - Assault Spidertron V2 joins the required dependencies.
@@ -20,6 +21,8 @@ Date: 9-10-2026
     - Laser damage 3 now requires Simulation science.
     - Laser shooting speed 4 now requires Simulation science.
   Bugfixes:
+    - Wound Memory revalidates the primary target and lance before drawing its mark, preventing an invalid-entity crash when a secondary hit triggers their destruction during the same shot. Already-paid collapse damage is preserved.
+    - Lance damage now resolves independently of decorative effects, protects friendly and neutral forces in every packet, scales guaranteed base splash with its ammunition research, and respects quality range and native bounding-box targeting. Cosmetic fire no longer deals incidental damage or slows targets; separate paid shots retain separate resistance calculations.
     - Fixed missing effect descriptions on scripted Tesla upgrade technologies in all seven languages.
     - Fixed inserters targeting the hidden railgun cooling assembler instead of loading the railgun. All coolant helper variants now exclude automated item handling while retaining fluoroketone input and output.
     - Fixed beacon overload state not updating reliably when beacons or affected machines were built, mined, destroyed, cloned, teleported, fast-replaced, or removed during surface cleanup.
