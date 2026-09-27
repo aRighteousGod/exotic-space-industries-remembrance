@@ -64,7 +64,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - When a patch leaves deferred implementation work, migration debt, upgrade hooks, or intentionally local behavior worth revisiting, add or update a short note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) in the same patch. Remove or close the note when the follow-up is done.
 - Runtime script files should keep useful comments by default: preserve or add the ESIR file-map header, state-machine summaries, lifecycle/cadence notes, storage ownership notes, Factorio/Lua caveats, and non-obvious invariants. Do not add comments that merely restate simple assignments or control flow.
 - Runtime scripts should strive to use `event.tick` over `game.tick` wherever an event context already provides the tick.
-- When editing non-English locale files, write bespoke idiomatic translations for the target language instead of mechanically mirroring the English text.
+- When editing non-English locale files, prefer accepted native-speaker wording and terminology, then extend that style idiomatically; follow `Locale Rules` below instead of mechanically mirroring English or retranslating native prose.
 - For entity-specific runtime GUI, prefer `player.gui.relative` first. Reach for `player.gui.screen` only when the panel is modal or intentionally detachable, and use `mod_gui` only for persistent global mod controls.
 - Default new runtime work to event-first control. Before adding `on_tick`, `on_nth_tick`, or a persistent queue, check whether explicit lifecycle hooks, delayed one-shots, or `script.register_on_object_destroyed` can express the behavior cleanly.
 
@@ -224,8 +224,11 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 ## Locale Rules
 
 - English locale remains the anchor for keys and gameplay meaning, but non-English locale edits should read as native, idiomatic game text in the target language rather than literal English calques.
+- Accepted native-speaker revisions are the preferred source for wording, terminology, names, register, and sentence structure. Reuse relevant expressions when adding or updating related entries; do not replace them with fresh synonyms, literal translations, or extra flavor merely to match English.
+- Before Japanese edits, read [Japanese locale wording](./references/japanese-locale-wording.md). The native revision credited to バルやん (`baruyan_sub`) in commit `2379c6fa6307910f6f18099babc018b14d00b9b6` is the reviewed baseline; later accepted native corrections take precedence. Check both `locale/ja/lang_ja.cfg` and the relevant JA sidecars for established usage.
 - Preserve gameplay meaning, tone, and Factorio-relevant terminology while allowing sentence structure, emphasis, and phrasing to change per language.
-- Do not use English placeholder text in non-English locale files unless the user explicitly asks for a temporary fallback.
+- Use current implementation and English to check mechanics, required keys, numbers, and semantic coverage. When facts change or a concrete error is found, make the smallest necessary correction while retaining native wording. Preserve required substitution tokens, rich-text references, and newline escapes; sentence order may change naturally.
+- Preserve intentional English names and labels in accepted native text (for example, JA difficulty names and `Classic` / `Extended(default)`). These are not placeholders. Do not introduce untranslated English fallback prose unless the user explicitly asks for it.
 - If a locale update cannot be finished confidently in the target language, say so and leave a follow-up note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) instead of shipping an obviously awkward literal translation.
 
 ## Runtime Entity Safety

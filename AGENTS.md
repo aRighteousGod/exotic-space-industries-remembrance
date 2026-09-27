@@ -42,7 +42,8 @@
 - Treat `exotic-space-industries-remembrance*/graphics/` as the shipping surface for approved assets, not scratch staging.
 - For runtime-tinted force/player color overlays, keep tint masks as separate neutral layers and wire them with Factorio-supported mask/tint fields. Route official tint questions through `factorio-lua-docs`.
 - For recipe icon readability, subgroup/order drift, Factoriopedia visibility, player-crafting visibility, or recipe signal cleanup, use `esir-recipe-icon-style`.
-- English locale is the gameplay anchor. Non-English locale edits should be idiomatic in the target language, not mechanical English calques.
+- English locale anchors keys and gameplay meaning. For wording, terminology, names, register, and sentence structure, prefer accepted native-speaker edits in the target locale over fresh translations or mechanical English calques.
+- For Japanese, use the native revision credited to バルやん (`baruyan_sub`) in commit `2379c6fa6307910f6f18099babc018b14d00b9b6` and subsequent accepted native corrections as the wording baseline. Read [Japanese locale wording](.codex/skills/esir-dev/references/japanese-locale-wording.md) before JA edits; reuse the relevant native terms across the main locale and sidecars, and preserve intentional English names. Update changed gameplay facts with the smallest necessary wording change rather than retranslating native prose.
 - When confidence in a locale update is not high enough to ship, leave a concise note in `.codex/esir/REVISIT_NOTES.md` instead of committing awkward placeholder text.
 
 ## Creative Voice
