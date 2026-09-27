@@ -1,0 +1,4 @@
+{
+  "gaia": "model.qc_ensure = ensure_damage_tick_buckets; model.qc_schedule = schedule_damage_tick; local qc_take_original = take_due_damage_ticks; take_due_damage_ticks = function(buckets, tick) local jobs = qc_take_original(buckets, tick); if model.qc_trace_due then model.qc_trace_due(tick, jobs) end; return jobs end",
+  "alien-spawner": "model.qc_ensure = ensure_spawner_buckets; model.qc_schedule = queue_spawner_job; local qc_take_original = take_due_spawner_jobs; take_due_spawner_jobs = function(buckets, tick) local jobs = qc_take_original(buckets, tick); if model.qc_trace_due then model.qc_trace_due(tick, jobs) end; return jobs end"
+}

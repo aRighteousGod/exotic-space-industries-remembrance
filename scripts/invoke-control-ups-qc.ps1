@@ -3,7 +3,9 @@ param(
     [Parameter(Mandatory=$true)][string]$RunName,
     [Parameter(Mandatory=$true)][string]$BaselineSource,
     [string]$SourceRoot, [switch]$Probe, [string]$Helper,
-    [int]$Ticks=3600, [int]$Runs=6, [string]$SaveInput, [switch]$ForceConfig
+    [int]$Ticks=3600, [int]$Runs=6, [string]$SaveInput, [switch]$ForceConfig,
+    [switch]$PrepareOnly, [string]$BridgePath, [string]$ExportsPath,
+    [string]$SeedModDirectory, [switch]$CaptureConfiguration
 )
 $ErrorActionPreference='Stop'
 if($ForceConfig -and (-not $Helper -or -not $SaveInput)){throw 'ForceConfig requires a helper and an existing fixture.'}
@@ -17,6 +19,7 @@ $source=if($SourceRoot){(Resolve-Path -LiteralPath $SourceRoot).Path}else{Join-P
 $baseline=(Resolve-Path -LiteralPath $BaselineSource).Path
 $seed=Join-Path $repo '.factorio-qc\singularity-lance\dependency-seed'
 if(-not(Test-Path -LiteralPath "$seed\mod-list.json")){$seed=Join-Path $repo '.factorio-qc\fmqc\mods-live'}
+if($SeedModDirectory){$seed=(Resolve-Path -LiteralPath $SeedModDirectory).Path}
 foreach($archive in Get-ChildItem -LiteralPath $seed -Filter '*.zip'){
     New-Item -ItemType HardLink -Path (Join-Path $mods $archive.Name) -Target $archive.FullName | Out-Null
 }
@@ -42,12 +45,15 @@ if($Helper){
     $list.mods=@($list.mods | Where-Object name -ne $info.name)+@([pscustomobject]@{name=$info.name;enabled=$true})
 }
 [IO.File]::WriteAllText("$mods\mod-list.json",($list | ConvertTo-Json -Depth 8),$utf8)
-if($Probe){
-    $exports=Get-Content -LiteralPath "$PSScriptRoot\qc\control-ups\exports.json" -Raw | ConvertFrom-Json
-    New-Item -ItemType Directory -Path "$main\qc-before" -Force | Out-Null
+if(Test-Path -LiteralPath "$seed\mod-settings.dat"){Copy-Item -LiteralPath "$seed\mod-settings.dat" -Destination "$mods\mod-settings.dat"}
+if($Probe -or $ExportsPath){
+    $exportFile=if($ExportsPath){(Resolve-Path -LiteralPath $ExportsPath).Path}else{"$PSScriptRoot\qc\control-ups\exports.json"}
+    $exports=Get-Content -LiteralPath $exportFile -Raw | ConvertFrom-Json
+    if($Probe){New-Item -ItemType Directory -Path "$main\qc-before" -Force | Out-Null}
     foreach($entry in $exports.PSObject.Properties){
         $name=$entry.Name
-        foreach($side in @('before','after')){
+        $sides=if($Probe){@('before','after')}else{@('after')}
+        foreach($side in $sides){
             $path=if($side -eq 'before'){"$baseline\scripts\control\$name.lua"}else{"$main\scripts\control\$name.lua"}
             $text=Get-Content -LiteralPath $path -Raw -Encoding UTF8
             $symbol=if($name -eq 'singularity-lance'){'lance'}else{'model'}
@@ -61,6 +67,8 @@ if($Probe){
             [IO.File]::WriteAllText($path,$text,$utf8)
         }
     }
+}
+if($Probe){
     Copy-Item -LiteralPath "$PSScriptRoot\qc\control-ups\suite.lua" -Destination "$main\qc-suite.lua"
     $names=($exports.PSObject.Properties.Name | ForEach-Object {"'$_'"}) -join ','
     $bridge=@"
@@ -80,16 +88,27 @@ end
 "@
     [IO.File]::AppendAllText("$main\control.lua","`n$bridge",$utf8)
 }
+if($CaptureConfiguration){
+    $control=Get-Content -LiteralPath "$main\control.lua" -Raw -Encoding UTF8
+    $capture="function __control_ups_register_config(handler) __control_ups_config = handler; script.on_configuration_changed(handler) end`nfunction __control_ups_register_load(handler) __control_ups_load = handler; script.on_load(handler) end`n"
+    $control=$control.Replace('script.on_configuration_changed(function(e)','__control_ups_register_config(function(e)')
+    $control=$control.Replace('script.on_load(function()','__control_ups_register_load(function()')
+    [IO.File]::WriteAllText("$main\control.lua",$capture+$control,$utf8)
+}
+if($BridgePath){[IO.File]::AppendAllText("$main\control.lua",("`n"+(Get-Content -LiteralPath $BridgePath -Raw -Encoding UTF8)), $utf8)}
 $hashes=@(Get-ChildItem -LiteralPath $source -Recurse -File | ForEach-Object {
     [ordered]@{path=$_.FullName.Substring($source.Length+1);sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
 })
-$manifest=[ordered]@{source=$source;baseline=$baseline;probe=[bool]$Probe;helper=$Helper;force_config=[bool]$ForceConfig;save_input=$SaveInput;ticks=$Ticks;runs=$Runs;files=$hashes;
+$manifest=[ordered]@{source=$source;baseline=$baseline;probe=[bool]$Probe;helper=$Helper;force_config=[bool]$ForceConfig;save_input=$SaveInput;ticks=$Ticks;runs=$Runs;files=$hashes;prepare_only=[bool]$PrepareOnly;bridge=$BridgePath;exports=$ExportsPath;seed=$seed;
+    bridge_sha256=if($BridgePath){(Get-FileHash -LiteralPath $BridgePath).Hash}else{$null};
+    exports_sha256=if($ExportsPath){(Get-FileHash -LiteralPath $ExportsPath).Hash}else{$null};
     dependencies=@(Get-ChildItem -LiteralPath $mods -File -Filter '*.zip' | ForEach-Object { @{name=$_.Name;sha256=(Get-FileHash -LiteralPath $_.FullName).Hash} })}
 [IO.File]::WriteAllText("$run\manifest.json",($manifest | ConvertTo-Json -Depth 8),$utf8)
 $config=Join-Path $run 'config.ini'
 [IO.File]::WriteAllText($config,"[path]`nread-data=__PATH__executable__/../../data`nwrite-data=$($run.Replace('\','/'))`n[other]`ncheck-updates=false`n",$utf8)
 $exe='C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.exe'
 function Invoke-Engine([string[]]$Extra,[string]$Tag){
+    if(Get-Process factorio -ErrorAction SilentlyContinue){throw 'Another Factorio process is running; QC engines must run sequentially.'}
     $arguments=@('--config',('"'+$config+'"'),'--mod-directory',('"'+$mods+'"'),'--disable-audio')+$Extra
     $process=Start-Process -FilePath $exe -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput "$run\$Tag-stdout.txt" -RedirectStandardError "$run\$Tag-stderr.txt"
     $process.Handle | Out-Null;$process.WaitForExit();$process.Refresh()
@@ -112,6 +131,7 @@ if($Helper){
     })
 }
 [IO.File]::WriteAllText("$run\manifest.json",($manifest | ConvertTo-Json -Depth 8),$utf8)
+if($PrepareOnly){Write-Output $run;return}
 Invoke-Engine @('--benchmark',('"'+$save+'"'),'--benchmark-ticks',"$Ticks",'--benchmark-runs',"$Runs") 'benchmark'
 if($Probe -and -not(Select-String -LiteralPath "$run\benchmark.log" -Pattern 'CONTROL_UPS ALL_COMPLETE' -Quiet)){throw 'Differential probes did not finish.'}
 Write-Output $run

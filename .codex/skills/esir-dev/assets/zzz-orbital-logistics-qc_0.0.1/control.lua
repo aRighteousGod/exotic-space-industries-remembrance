@@ -1250,7 +1250,13 @@ local function summarize_action_expectation(action_name, snapshot, state)
     summary.selector_c_target = selector_c_job and selector_c_job.target_platform_id or nil
     summary.selector_c_state = selector_c_job and selector_c_job.state or nil
     summary.uplink_b_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_b)
+    summary.uplink_a_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_a)
+    summary.selector_a_leased = selector_a_job and selector_a_job.leased or false
+    summary.selector_b_leased = selector_b_job and selector_b_job.leased or false
+    summary.selector_c_leased = selector_c_job and selector_c_job.leased or false
     summary.ok = summary.lease_count == 2
+      and summary.uplink_a_target == state.platform_ids["QC Alpha"]
+      and summary.selector_a_leased and summary.selector_b_leased and not summary.selector_c_leased
       and summary.selector_a_target == state.platform_ids["QC Alpha"]
       and summary.selector_b_target == state.platform_ids["QC Beta"]
       and summary.selector_c_state == "ready"
@@ -1262,7 +1268,9 @@ local function summarize_action_expectation(action_name, snapshot, state)
     summary.bound_silo_found = uplink and uplink.bound_silo_found or false
     summary.leased_job_id = uplink and uplink.leased_job_id or nil
     summary.blocked_reason = get_blocked_lane_reason(snapshot, force_index, SURFACE_NAME, state.entity_units.uplink_b)
-    summary.ok = summary.binding_silo_unit_number == nil
+    summary.uplink_a_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_a)
+    summary.ok = summary.lease_count == 1 and summary.uplink_a_target == state.platform_ids["QC Alpha"]
+      and summary.binding_silo_unit_number == nil
       and summary.bound_silo_found == false
       and summary.leased_job_id == nil
       and summary.blocked_reason == "missing-silo-binding"
@@ -1271,7 +1279,9 @@ local function summarize_action_expectation(action_name, snapshot, state)
     summary.binding_silo_unit_number = uplink and uplink.binding_silo_unit_number or nil
     summary.bound_silo_found = uplink and uplink.bound_silo_found or false
     summary.uplink_b_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_b)
-    summary.ok = summary.binding_silo_unit_number == state.entity_units.silo_b
+    summary.uplink_a_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_a)
+    summary.ok = summary.lease_count == 2 and summary.uplink_a_target == state.platform_ids["QC Alpha"]
+      and summary.binding_silo_unit_number == state.entity_units.silo_b
       and summary.bound_silo_found == true
       and summary.uplink_b_target == state.platform_ids["QC Gamma"]
   elseif action_name == "rebind-fairness-lane-second" then
@@ -1279,7 +1289,9 @@ local function summarize_action_expectation(action_name, snapshot, state)
     summary.binding_silo_unit_number = uplink and uplink.binding_silo_unit_number or nil
     summary.bound_silo_found = uplink and uplink.bound_silo_found or false
     summary.uplink_b_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_b)
-    summary.ok = summary.binding_silo_unit_number == state.entity_units.silo_b
+    summary.uplink_a_target = get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_a)
+    summary.ok = summary.lease_count == 2 and summary.uplink_a_target == state.platform_ids["QC Alpha"]
+      and summary.binding_silo_unit_number == state.entity_units.silo_b
       and summary.bound_silo_found == true
       and summary.uplink_b_target == state.platform_ids["QC Beta"]
   elseif action_name == "create-transponder-conflict" then
@@ -1340,7 +1352,7 @@ local function build_action_configuration(action_name, state)
   end
 
   if action_name == "prepare-fairness-rotation" then
-    if not platform_ids["QC Alpha"] or not platform_ids["QC Beta"] then
+    if not platform_ids["QC Alpha"] or not platform_ids["QC Beta"] or not platform_ids["QC Gamma"] then
       return nil, "missing-platform-id:fairness-bootstrap"
     end
 
@@ -1443,13 +1455,13 @@ local function build_action_configuration(action_name, state)
       selectors = {
         {
           unit_number = state.entity_units.selector_b,
-          mode = "policy",
-          manual_platform_id = false,
+          mode = "manual",
+          manual_platform_id = platform_ids["QC Beta"],
         },
         {
           unit_number = state.entity_units.selector_c,
-          mode = "policy",
-          manual_platform_id = false,
+          mode = "manual",
+          manual_platform_id = platform_ids["QC Gamma"],
         },
       },
       uplinks = {
@@ -1541,7 +1553,42 @@ local function perform_action(action_name, state)
     return false, build_error or "missing-config", nil
   end
 
+  local bootstrap
+  if action_name == "prepare-fairness-rotation" then
+    -- Establish the sticky Alpha lease before enabling the two policy contenders.
+    -- Previous retargeting can otherwise leave Gamma pinned to uplink A.
+    local bootstrap_config = {
+      selectors = {
+        {unit_number = state.entity_units.selector_a, mode = "manual", manual_platform_id = state.platform_ids["QC Alpha"]},
+        {unit_number = state.entity_units.selector_b, mode = "manual", manual_platform_id = false},
+        {unit_number = state.entity_units.selector_c, mode = "manual", manual_platform_id = false},
+      },
+      uplinks = {
+        {unit_number = state.entity_units.uplink_a, binding_silo_unit_number = state.entity_units.silo_a, binding_source = "qc", oversize_mode = "sticky"},
+        {unit_number = state.entity_units.uplink_b, binding_silo_unit_number = false, binding_source = "qc"},
+      },
+    }
+    local config_ok, config_result = configure_partial(bootstrap_config)
+    local service_ok, service_result = service_runtime(256)
+    local snapshot_ok, snapshot = pcall(remote.call, "exotic-industries-qc", "get_orbital_logistics_qc_snapshot")
+    local accepted = config_ok and service_ok and snapshot_ok
+    if config_ok then
+      for _, group in ipairs({"selectors", "uplinks"}) do
+        for _, item in pairs(config_result[group] or {}) do accepted = accepted and item.ok == true end
+      end
+    end
+    local a = snapshot_ok and get_snapshot_uplink(snapshot, state.entity_units.uplink_a) or nil
+    local b = snapshot_ok and get_snapshot_uplink(snapshot, state.entity_units.uplink_b) or nil
+    accepted = accepted and #(snapshot.leases or {}) == 1 and a and b
+      and a.leased_job_id == state.entity_units.selector_a
+      and get_uplink_lease_target_platform_id(snapshot, state.entity_units.uplink_a) == state.platform_ids["QC Alpha"]
+      and b.binding_silo_unit_number == nil and b.leased_job_id == nil
+    bootstrap = {ok = not not accepted, config = bootstrap_config, config_ok = config_ok, config_result = config_result,
+      service_ok = service_ok, service_result = service_result, snapshot_ok = snapshot_ok, snapshot = snapshot}
+    if not accepted then return false, bootstrap, config end
+  end
   local ok, result = configure_partial(config)
+  if bootstrap and ok then result.fairness_bootstrap = bootstrap end
   return ok, ok and result or tostring(result), config
 end
 

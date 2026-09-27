@@ -64,6 +64,19 @@ def orbital(path, report_baseline_failures=False):
             sample = row
         assert sample["service_ok"] and sample["snapshot_ok"] and sample["remote"]["present"], (path, sample)
         assert isinstance(sample["snapshot"], dict)
+        if relative in (360, 390) and not report_baseline_failures:
+            # Fairness must rotate fixed jobs; a policy can retarget between
+            # the helper's repeated service calls and invalidate this scenario.
+            jobs = {job["selector_unit_number"]: job
+                    for cohort in sample["snapshot"]["cohorts"] for job in cohort["jobs"]}
+            for label, platform, leased in (
+                ("selector_b", "QC Beta", relative == 390),
+                ("selector_c", "QC Gamma", relative == 360),
+            ):
+                job = jobs[build["entity_units"][label]]
+                assert job["mode"] == "manual", (path, relative, job)
+                assert job["target_platform_id"] == configured["platform_ids"][platform], (path, relative, job)
+                assert job["leased"] is leased, (path, relative, job)
         expected_errors = []
         if relative >= 120:
             expected_errors.append("coordinator-count:1/2")

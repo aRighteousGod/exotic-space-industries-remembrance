@@ -12,9 +12,9 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
-- `2026-09-26 | control-ups-followups | evidence-needed | The behavior-preserving UPS pass retains black-hole/induction GUI fallback polling, the lance's full target sort, and the 16-step scheduler. These remain candidates only if stronger fixtures demonstrate a worthwhile gain with identical service behavior.`
-  - `Files:` `scripts/qc/control-ups/README.md`, `scripts/control/black-hole.lua`, `scripts/control/induction-matrix.lua`, `scripts/control/singularity-lance.lua` under the main gameplay pack.
-  - `Next safe move:` add a real connected-player GUI cadence fixture and measure target-count distributions before attempting a tie-exact lance top-K selector. Any added scheduler slots must preserve existing derived intervals, budgets, ordering, and actual service ticks.
+- `2026-09-27 | control-ups-followups | open | Strict orbital fairness acceptance, real Gaia/alien queue serialization, and connected-player black-hole/induction lifecycle fixtures now exist. The populated-save benchmark did not demonstrate a whole-factory UPS gain: the candidate median was 1.92% slower, with overlapping ranges and mixed pair direction. Shipping runtime remains at the approved UPS pass.`
+  - `Files:` `scripts/qc/control-ups/followup-verification.md`, `scripts/qc/control-ups/README.md`, and the lifecycle/profile fixtures in that directory.
+  - `Next safe move:` prioritize a dispatcher-only saturation cutoff plus lazy fueler defaults, then fluid-service normalization/snapshot duplication. Use the GUI fixture before cadence-gating fallback scans or trimming induction empty work. Profile gate subphases before broader edits. Lance top-K still needs target distributions and exact sort-tie preservation; extra scheduler slots still require unchanged derived intervals, budgets, order, and actual service ticks.
 
 - `2026-05-22 | rocket-launch-plume-locale | open | rocket launch pollution now has a selectable visual-style startup setting with English locale; supported non-English locale files still need idiomatic setting names, allowed-value labels, and descriptions.`
   - `Files:` `exotic-space-industries-remembrance/locale/en/lang_en.cfg`, `exotic-space-industries-remembrance/settings.lua`

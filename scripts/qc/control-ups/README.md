@@ -93,3 +93,76 @@ failing assertion into successful acceptance; omit it for the normal strict gate
 
 The completed pass, accepted changes, measured results, and deliberately retained
 behavior are recorded in `verification.md`.
+The subsequent orbital, populated-save, queue-reload, and GUI evidence is recorded
+in [followup-verification.md](followup-verification.md).
+
+## Follow-up lifecycle and populated-save lanes
+
+`invoke-control-lifecycle-qc.ps1` stages the same selected source using private
+bridge/export files, preserving the original load/configuration callbacks. Its
+manifest records bridge/export hashes and actual lifecycle arguments. The helper
+mod is a version marker; `-ForceConfig` bumps only that staged helper version.
+Never edit a bridge between creating and ordinarily reloading its fixture save.
+
+For the Gaia/alien queue fixture, run `-Mode queue-save` on each source against
+the same empty input. This starts a local, unlisted, non-pausing server and saves
+pending real entity/surface references at relative tick 10. Then load each
+source's own `saves/control-ups-pending.zip` twice with `-Mode queue-load`, once
+normally and once with `-ForceConfig`. The seeded Gaia producer is deliberately
+fixture-only: ordinary new Gaia damage production remains empty in shipping code.
+
+```powershell
+python scripts/qc/control-ups/check-lifecycle.py queue <baseline-ordinary> <candidate-ordinary> <baseline-config> <candidate-config>
+```
+
+For GUI QC, use `-Mode gui -Ticks 420` with a saved player. `-HeadlessGui` uses
+ordinary benchmarking and **asserts real connected-player membership** before
+accepting native open/close routes, widget contents, refreshes, or orphan cleanup.
+This tests engine GUI semantics, not visual layout or mouse interaction.
+`-ClientGui` instead loads the disposable save in a hidden client, waits for the
+completion marker, validates its autosave ZIP, then stops only its own process.
+Benchmark mode does not write the requested autosave. If long staged graphics
+paths fail, `-GraphicsArchiveDirectory <installed-mods>` substitutes exact-version
+graphics ZIPs for staged junctions and records their hashes; shipping files are
+untouched. Both sources must use identical graphics inputs.
+
+Reload each genuine GUI autosave using `-HeadlessGui -Ticks 60`, both normally
+and with `-ForceConfig`. The black-hole repair follows the real configuration
+callback; matrix repair is explicitly exercised through its own rebuild helper.
+Compare initial runs together, ordinary resumes together, and configuration
+resumes together. Require `--expect-reload` for each resume comparison:
+
+```powershell
+python scripts/qc/control-ups/check-lifecycle.py gui <baseline> <candidate>
+python scripts/qc/control-ups/check-lifecycle.py gui <baseline-resume> <candidate-resume> --expect-reload
+```
+
+The populated comparison uses the immutable `_autosave9.zip` identified in the
+follow-up report. `prepare-populated-seed.py` reconstructs that save's 269 startup
+settings and exact dependency additions from its hash-guarded binary payload.
+It intentionally rejects other saves; the offsets are not a general decoder.
+Do not use the live `mod-settings.dat`, whose balance/scaling settings differ.
+
+```powershell
+python scripts/qc/control-ups/prepare-populated-seed.py `
+  --save "$env:APPDATA/Factorio/saves/_autosave9.zip" `
+  --base-seed .factorio-qc/singularity-lance/dependency-seed `
+  --installed-mods "$env:APPDATA/Factorio/mods" --output .factorio-qc/cu/pop-seed-new
+```
+
+Prepare two profiles with `invoke-control-ups-qc.ps1 -PrepareOnly`, identical
+`-SaveInput`/`-SeedModDirectory`, and baseline `-SourceRoot` only on the baseline.
+Supply no helper, bridge, or probe to this timing lane. Then run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/invoke-control-populated-benchmark.ps1 `
+  -BaselineRun <baseline-profile> -CandidateRun <candidate-profile>
+python scripts/qc/control-ups/analyze.py --alternating <baseline-profile> <candidate-profile>
+```
+
+This runs six pairs sequentially, alternates which source runs first in each
+pair, and discards pair zero. Every run starts from the same original save.
+Run a separate pair with `-BridgePath scripts/qc/control-ups/populated-profile.lua`
+for raw population/settings censuses and inclusive module attribution over ticks
+121 through 3600. Profiling timers overlap when wrapped functions call each other;
+never sum them or use that instrumented run as the whole-engine benchmark.
