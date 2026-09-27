@@ -1,0 +1,8 @@
+{
+  "name": "esir-flamethrower-proof",
+  "version": "0.0.1",
+  "title": "ESIR flamethrower replacement proof",
+  "author": "ESIR QC",
+  "factorio_version": "2.0",
+  "dependencies": ["base", "space-age"]
+}

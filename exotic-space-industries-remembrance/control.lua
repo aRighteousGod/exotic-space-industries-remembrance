@@ -29,7 +29,7 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
 ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
 ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
-ei_update_functions_length = 15 --# of entity updaters updater() goes through
+ei_update_functions_length = 16 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
 
@@ -43,6 +43,7 @@ ei_fluid_safety = require("scripts/control/fluid-safety")
 ei_beacon_overload = require("scripts/control/beacon-overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 local ei_spider_vehicles = require("scripts/control/spider-vehicles")
+local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
 
 
 ei_victory = require("scripts/control/victory-disabler")
@@ -386,6 +387,7 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
         ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
     end
     ei_spider_vehicles.on_scripted_research_burst(force, entry.spider_vehicle_sync_needed == true)
+    ei_flamethrower_fuels.sync_force(force)
     if ei_singularity_lance.on_scripted_research_burst then
         ei_singularity_lance.on_scripted_research_burst(force, current_tick)
     end
@@ -562,6 +564,7 @@ script.on_init(function(event)
     ei_flammable_rupture_scheduler.check_global()
     ei_vulcanus_fumaroles.check_global()
     ei_teslas_legacy.on_init(event)
+    ei_flamethrower_fuels.rebuild()
     ei_spider_vehicles.on_configuration_changed()
     ei_gate.on_init(event)
 
@@ -638,6 +641,7 @@ if prototypes.custom_event["on_spidertron_replaced"] then
 end
 
 script.on_event(defines.events.on_entity_cloned, function(e)
+    ei_flamethrower_fuels.on_built_entity(e)
     if ei_spider_vehicles.is_internal_transaction() then return end
     ei_spider_vehicles.on_entity_cloned(e)
     on_cloned_entity(e)
@@ -645,15 +649,22 @@ end)
 
 script.on_event(defines.events.on_forces_merged, function(e)
     ei_singularity_lance.on_forces_merged(e)
+    ei_flamethrower_fuels.sync_force(e.destination)
     ei_spider_vehicles.on_forces_merged(e)
 end)
 script.on_event(defines.events.on_research_reversed, function(e)
     ei_singularity_lance.on_research_finished(e)
+    ei_flamethrower_fuels.sync_force(e.research.force)
     ei_spider_vehicles.on_research_finished(e)
 end)
 
+script.on_event(defines.events.on_player_setup_blueprint, function(e)
+    -- Read the engine mapping before another subsystem rewrites blueprint entities.
+    ei_flamethrower_fuels.on_blueprint(e)
+end)
 script.on_event(defines.events.on_force_created, function(e)
     ei_singularity_lance.on_force_reset(e)
+    ei_flamethrower_fuels.sync_force(e.force)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
@@ -699,6 +710,10 @@ script.on_event({
     -- Mined events are the first committed removal boundary: Factorio has already
     -- collected the results, but the entity is still valid for registry/helper cleanup.
     on_destroyed_entity(e)
+end)
+
+script.on_event(defines.events.on_trigger_created_entity, function(event)
+    ei_flamethrower_fuels.on_trigger_created_entity(event)
 end)
 
 script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, ei_singularity_lance.on_force_reset)
@@ -882,6 +897,7 @@ end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
     ei_singularity_lance.on_object_destroyed(e)
+    ei_flamethrower_fuels.on_object_destroyed(e)
     ei_spider_vehicles.on_object_destroyed(e)
     ei_beacon_overload.on_object_destroyed(e)
     orbital_combinator.on_object_destroyed(e)
@@ -917,6 +933,7 @@ script.on_event(defines.events.on_research_finished, function(e)
     end
 
     ei_tech_scaling.on_research_finished(e)
+    ei_flamethrower_fuels.sync_force(e.research.force)
     ei_spider_vehicles.on_research_finished(e)
     ei_teslas_legacy.on_research_finished(e)
     ei_singularity_lance.on_research_finished(e)
@@ -1288,6 +1305,7 @@ script.on_configuration_changed(function(e)
     -- Migration-only configuration changes can still strand Tesla helper entities or
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
     ei_teslas_legacy.on_configuration_changed(e)
+    ei_flamethrower_fuels.rebuild()
     ei_spider_vehicles.on_configuration_changed()
     ei_singularity_lance.on_configuration_changed(e)
     ei_sawblade_turret.on_configuration_changed(e)
@@ -1420,7 +1438,7 @@ end)
 --HANDLERS
 --====================================================================================================
 
---60/9=x6.66 (rounded up to 7) executions/handler/second, ie 7 rounds of 10 updates per entity per 60ticks (default, customizable update length 9-6000 ticks)
+-- Each scheduled branch runs once per 16-tick cycle; entity budgets stay capped.
 -- ei_update_step is computed from event.tick to ensure multiplayer determinism.
 -- Keep ei_update_functions_length in sync with the explicit scheduler branches below.
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
@@ -1449,7 +1467,7 @@ function updater(event)
   local ei_update_step = (event.tick % ei_update_functions_length) + 1
    -- Hardcoded checks against ei_update_step are quick
    -- Whichever is less: max_updates_per_tick OR total of entities divided by the number of execution cycles
-   if ei_update_step < 7 then -- Reduces the average number of `if` checks
+   if ei_update_step <= 8 then -- Split the 16 scheduled steps evenly to reduce branch checks.
        if ei_update_step == 1 then
            -- Step 1 is the lightest branch and acts as a once-per-cycle sanity pass.
            -- Storage repairs stay unconditional; timer-driven work below is due-guarded.
@@ -1529,11 +1547,7 @@ function updater(event)
                   end
                end
            end
-       end
-   else -- Otherwise, ei_update_step is >= 7
-
-
-       if ei_update_step == 7 then
+       elseif ei_update_step == 7 then
            -- Step 7 advances gate state, transport, and receiver logic.
            local gate_pending_work_count = ei_gate.get_pending_work_count(event)
            if gate_pending_work_count > 0 then
@@ -1560,7 +1574,9 @@ function updater(event)
                    goto skip
                end
            end
-       elseif ei_update_step == 9 then
+       end
+   else -- Steps 9 through 16 form the second half of the cycle.
+       if ei_update_step == 9 then
            -- Step 9 handles EM chargers after train updates have had a chance to run.
            local charger_pending_work_count = em_trains.get_charger_pending_work_count(event)
            if charger_pending_work_count > 0 then
@@ -1648,6 +1664,11 @@ function updater(event)
           if emerald_has_work then
               ei_emerald_apocalypse_hover_tank.update(event)
               emerald_apocalypse_serviced_this_tick = true
+          end
+      elseif ei_update_step == 16 then
+          -- Step 16 services fuel checks and queued flamethrower replacements.
+          if ei_flamethrower_fuels.has_tick_work(event) then
+              ei_flamethrower_fuels.updater(event, ei_update_functions_length)
           end
       end
   end
@@ -1792,6 +1813,7 @@ function on_cloned_entity(e)
 end
 
 function on_built_entity(e)
+    ei_flamethrower_fuels.on_built_entity(e)
     if ei_spider_vehicles.is_internal_transaction() then return end
     ei_spider_vehicles.on_built_entity(e)
     -- Centralized post-build routing keeps every subsystem on the same event surface.
@@ -1877,6 +1899,7 @@ end
 
 ---@param e ESIRCommittedEntityRemovalEvent
 function on_destroyed_entity(e)
+    ei_flamethrower_fuels.on_destroyed_entity(e)
     -- Shared teardown only receives committed removals: death, script destruction, or
     -- a post-mined event. Cancellable pre-mine events must never mutate runtime state.
     if not e or not e["entity"] or not e["entity"].valid then

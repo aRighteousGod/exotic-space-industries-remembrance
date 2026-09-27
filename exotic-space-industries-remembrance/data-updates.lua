@@ -23,6 +23,7 @@ require("scripts/data-updates/tech-structure")
 -- apply vanilla patches
 require("scripts/data-updates/vanilla-patches")
 require("scripts/data-updates/flammable-fluids")
+require("prototypes/flamethrower-fuels")
 require("scripts/data-updates/rocket-ammo")
 require("scripts/data-updates/railgun-cooling")
 

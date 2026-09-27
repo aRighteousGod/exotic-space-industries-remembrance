@@ -213,3 +213,6 @@ require("prototypes/spider-vehicles").finalize()
 require("scripts/data-final-updates/spider-overkill")
 -- Storage sizing follows every ESIR compatibility and prototype creation pass.
 require("scripts/data-final-updates/container-capacities")
+require("scripts/data-final-updates/flamethrower-fuels")
+require("scripts/data-final-updates/thrower-performance")
+require("scripts/data-final-updates/flamethrower-overlap")
