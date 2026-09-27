@@ -1,0 +1,8 @@
+{
+  "name": "zzz-esir-railgun-qc",
+  "version": "1.0.0",
+  "author": "ESIR QC",
+  "title": "ESIR railgun coolant and inserter regression",
+  "factorio_version": "2.0",
+  "dependencies": ["exotic-space-industries-remembrance"]
+}

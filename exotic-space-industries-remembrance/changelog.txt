@@ -19,6 +19,7 @@ Date: 9-10-2026
     - Laser damage 3 now requires Simulation science.
     - Laser shooting speed 4 now requires Simulation science.
   Bugfixes:
+    - Fixed inserters targeting the hidden railgun cooling assembler instead of loading the railgun. All coolant helper variants now exclude automated item handling while retaining fluoroketone input and output.
     - Fixed beacon overload state not updating reliably when beacons or affected machines were built, mined, destroyed, cloned, teleported, fast-replaced, or removed during surface cleanup.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.39

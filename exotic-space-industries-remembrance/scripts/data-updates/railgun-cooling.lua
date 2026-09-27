@@ -83,6 +83,7 @@ local function make_hidden_proxy()
             icon_size = proxy_icon_size,
         },
     }
+    ---@type data.AssemblingMachinePrototype
     local proxy = table.deepcopy(base)
     proxy.name = PROXY_NAME
     proxy.icon = proxy_icon
@@ -95,6 +96,10 @@ local function make_hidden_proxy()
         "not-blueprintable",
         "not-upgradable",
         "not-repairable",
+        -- Hidden selection and an empty collision mask do not exclude inserter targets.
+        -- Keep the coolant ports' geometry, but leave all item handling to the turret.
+        "no-automated-item-insertion",
+        "no-automated-item-removal",
     }
     proxy.selectable_in_game = false
     proxy.allow_copy_paste = false
