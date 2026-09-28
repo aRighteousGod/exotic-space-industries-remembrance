@@ -3,7 +3,7 @@
 -- owns: fuel-specific turret replacement, bounded polling and fire overlap cleanup
 -- loaded_by: control.lua
 -- cadence: dispatcher step 16; at most B checks and B queue visits/service
---   overlap cleanup runs only on supported creation events, in either startup mode
+--   overlap cleanup runs only on supported creation events while adaptation is enabled
 -- forwarded_events: rebuild, on_built_entity, on_destroyed_entity, on_object_destroyed,
 --   on_blueprint, sync_force, has_tick_work, updater, on_trigger_created_entity
 -- storage_roots: storage.ei.flamethrower_fuels (records, units, registrations, queues)
@@ -27,6 +27,7 @@ local transaction=false
 -- Ground patches of the same prototype coexist; only different types compete.
 ---@param event EventData.on_trigger_created_entity
 function model.on_trigger_created_entity(event)
+    if not enabled then return end
     local incoming=ei_lib.get_valid_entity(event.entity)
     if not incoming then return end
     if catalog.fire_stickers[incoming.name] then

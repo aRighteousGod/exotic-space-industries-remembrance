@@ -1,6 +1,59 @@
 # Factorio 2.0.77 verification, 2026-09-24
 
+## Fuel-adaptation overlap gate, 2026-09-28
+
+Overlap cleanup now follows `ei-flamethrower-fuel-adaptation`, the startup
+checkbox for fuel-specific turret variants. Disabled mode skips the final
+prototype notification pass and registers the shared creation event directly
+with firefighting, without calling the flame cleanup handler. The handler also
+guards direct calls. No periodic work or saved-state migration was added; the
+thrower-performance dropdown remains independent.
+
+Fresh isolated Factorio 2.0.77 runs passed with the current 1.3.40 gameplay pack:
+
+| Performance profile | Fuel adaptation | Runtime checks | Overlap-handler calls |
+|---|---|---:|---:|
+| Original | Disabled | 77/77 | 0 |
+| Original | Enabled | 80/80 | 244 |
+| 16x | Disabled | 77/77 | 0 |
+| 16x | Enabled | 80/80 | 244 |
+
+Each run created and loaded a fixture save, then exercised 620 native ticks.
+The final prototype audit checked 1,326 fire and 27 sticker creation references
+per configuration: notifications were absent when disabled and present when
+enabled. Disabled runtime checks retained saved stickers and mixed ground fires,
+including inside the cleanup radius. Deliberately notified QC projectiles still
+exercised all 22 sticker and 22 ground-fire identities without entering flame
+cleanup. A fresh target avoids mistaking native sticker refresh for a missing
+creation event. Enabled checks preserved newest-effect cleanup, the same-type
+exception, unrelated effects, native refueling and damage intervals. Legacy
+extinguisher impacts worked in all four configurations, and all runs finished
+with no pending adaptation work.
+
+The pre-change Original/disabled fixture passed but recorded 242 overlap-handler
+calls. The revised fixture adds a fresh sticker target and a legacy extinguisher
+impact; its zero disabled calls prove that cleanup dispatch is bypassed, not a
+whole-engine timing improvement. No new UPS benchmark or rendered visual review
+was performed for this gate. The intermediate 2x/4x/8x profiles were not rerun.
+
+`preflight` passed Lua, Python and PowerShell syntax, requires, asset references,
+encoding, locale keys and pack versions. Only the existing module-header warnings
+for auric-inoculation-vat and emerald-apocalypse-hover-tank remained. All seven
+fuel-adaptation descriptions received one appended sentence, preserving existing
+wording; UTF-8, duplicate-key and scoped whitespace checks passed. The QC runner's
+instrumentation variable was renamed to avoid PowerShell's case-insensitive
+collision with its validated `Profile` parameter, and Lua source reads now specify
+UTF-8.
+
+Reproduce with `scripts/invoke-flamethrower-fuels-qc.ps1 -Overlap -Profile original`
+and `-Profile 16x`, each with and without `-Disabled`. Native logs and reports are
+under `.factorio-qc/fov/{on,off}-{original,16x}`; the earlier disabled baseline is
+`.factorio-qc/overlap-gate-baseline-original.json`.
+
 ## Fire overlap revision, 2026-09-25
+
+These historical results predate the fuel-adaptation gate above; disabled mode
+now preserves overlapping effects instead of enforcing the enabled cleanup rule.
 
 Same-type clarification: ground-fire cleanup now removes only different
 prototype names. Identical patches retain their native coexistence/refueling

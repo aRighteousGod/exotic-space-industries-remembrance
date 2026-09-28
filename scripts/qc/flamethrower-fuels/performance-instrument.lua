@@ -1,4 +1,11 @@
 -- Injected before return model in the staged runtime module only.
+local qc_overlap_calls=0
+local qc_overlap=model.on_trigger_created_entity
+model.on_trigger_created_entity=function(event)
+    qc_overlap_calls=qc_overlap_calls+1
+    return qc_overlap(event)
+end
+model.qc_overlap_calls=function() return qc_overlap_calls end
 local qc_timers
 local qc_desired=desired
 desired=function(entity)

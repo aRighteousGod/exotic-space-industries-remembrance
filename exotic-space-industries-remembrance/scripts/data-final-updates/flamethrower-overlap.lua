@@ -5,6 +5,9 @@
 -- cadence: data stage only; runtime cleanup lives in control/flamethrower-fuels
 --==============================================================================
 local catalog=require("lib/flamethrower-fuels")
+-- Disabled adaptation needs no overlap notifications, including for ammunition
+-- and saved/internal turret variants. Leave other features' trigger flags alone.
+if not settings.startup[catalog.setting].value then return end
 local visited={}
 
 -- Follow trigger tables, including other weapons referencing vanilla fire.

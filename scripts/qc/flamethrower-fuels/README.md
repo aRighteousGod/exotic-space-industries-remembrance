@@ -70,9 +70,9 @@ cover rollback and commit with an attached pipe, not just isolated turrets.
 The lifetime fixture uses native streams to repeatedly fuel fires. Its expiry
 observations include the unchanged burnt-patch tail, so initial and maximum
 lifetime comparisons subtract the crude reference and allow a ten-tick phase
-difference. Creation events now keep only the newest supported attached fire
-sticker and remove older supported ground fires of different prototype types
-within one tile of the incoming patch's centre. Same-type patches coexist. The
+difference. With fuel adaptation enabled, creation events keep only the newest
+supported attached fire sticker and remove older supported ground fires of
+different prototype types within one tile of the incoming patch's centre. Same-type patches coexist. The
 removed patch loses its heat/lifetime; same-patch native
 refueling still grows both. Tree fire, acid and unrelated effects are excluded.
 Separate patches farther than one tile apart can still damage the same target;
@@ -81,6 +81,10 @@ age tracking or extra periodic work is used. Saved overlaps are cleaned on the
 next supported creation event, without a map-wide migration scan.
 Refreshing an existing sticker or refueling a patch can reuse its entity without
 a creation event; an actual new effect triggers cleanup of saved overlaps.
+With `ei-flamethrower-fuel-adaptation` disabled, the final pass adds no overlap
+notifications and the dispatcher never calls the overlap handler. Existing and
+new mixed-fuel effects may coexist. This gate is independent of the performance
+profile; the shared legacy firefighting event route remains active.
 
 Run `-CreationProof` for the isolated 2.0.77 event/refueling proof, and `-Overlap
 -Profile original` (also `2x`, `4x`, `8x`, `16x`, each with and without `-Disabled`)
@@ -89,6 +93,9 @@ events, all supported effect identities, one-tile boundaries, saved effects,
 unrelated stickers/fires, native turrets, handheld/tank streams, rapid fuel
 alternation, heat/lifetime growth and the idle adaptation guard. These fixture
 runs use `.factorio-qc/fov` to keep staged paths within Windows path limits.
+Disabled runs assert absent native notification flags, retained mixed effects,
+zero overlap-handler calls even for deliberately notified QC projectiles, and
+working legacy extinguisher impacts. Enabled runs retain the cleanup assertions.
 
 ## Coverage limits
 

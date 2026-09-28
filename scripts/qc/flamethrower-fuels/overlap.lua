@@ -35,11 +35,14 @@ function module.install(config)
             return entity
         end
         storage.target=target({0,0})
+        -- A fresh target guarantees a creation event for every forced sticker
+        -- identity, even when disabled cleanup leaves saved stickers alive.
+        storage.hook_target=target({0,-40})
         storage.sticker_names={}
         for name in pairs(catalog.fire_stickers) do storage.sticker_names[#storage.sticker_names+1]=name end
         table.sort(storage.sticker_names)
         -- These overlapping effects are written into the fixture save, then
-        -- recovered on load before the first notified impact normalizes them.
+        -- recovered on load before testing cleanup or disabled coexistence.
         for _,name in ipairs{"ei-flame-diesel-ammo-sticker","ei-flame-petroleum-gas-ammo-sticker"} do
             surface.create_entity{name=name,position={0,0},target=storage.target,force="player"}
         end
@@ -58,6 +61,7 @@ function module.install(config)
             storage.same_type[index]={old=old,center=center}
         end
         storage.foreign_fire=surface.create_entity{name="overlap-qc-unrelated-fire",position={-165,0},force="player"}
+        storage.extinguished=surface.create_entity{name="fire-flame",position={-80,0},force="player"}
         storage.fed_target=target({60,0})
         storage.fed=surface.create_entity{name="fire-flame",position={60,0},force="player"}
         storage.unfed=surface.create_entity{name="fire-flame",position={70,0},force="player"}
@@ -83,13 +87,15 @@ function module.install(config)
         if not incoming.valid then return end
         local name=incoming.name
         if catalog.fire_stickers[name] then
-            check("one-sticker-after-each-event",supported_stickers(incoming.sticked_to)==1)
+            if config.enabled then check("one-sticker-after-each-event",supported_stickers(incoming.sticked_to)==1) end
             check("newest-sticker-survives",incoming.valid)
             storage.report.seen[name]=true
         elseif catalog.ground_fires[name] then
-            for _,other in pairs(incoming.surface.find_entities_filtered{position=incoming.position,radius=1,name=catalog.ground_fire_names}) do
-                local a,b=incoming.position,other.position
-                check("one-ground-type-after-each-event",other.name==incoming.name or (a.x-b.x)^2+(a.y-b.y)^2>1)
+            if config.enabled then
+                for _,other in pairs(incoming.surface.find_entities_filtered{position=incoming.position,radius=1,name=catalog.ground_fire_names}) do
+                    local a,b=incoming.position,other.position
+                    check("one-ground-type-after-each-event",other.name==incoming.name or (a.x-b.x)^2+(a.y-b.y)^2>1)
+                end
             end
             storage.report.seen[name]=true
         end
@@ -122,21 +128,25 @@ function module.install(config)
             for _,case in ipairs(storage.boundaries) do shot("fire-flame",case.center) end
             for _,case in ipairs(storage.same_type) do shot("fire-flame",case.center) end
         elseif elapsed==3 then
-            check("saved-stickers-cleaned",supported_stickers(storage.target)==1)
-            for index,case in ipairs(storage.boundaries) do check("distance-"..index,case.old.valid==(case.distance>1)) end
+            if config.enabled then check("saved-stickers-cleaned",supported_stickers(storage.target)==1)
+            else check("disabled-saved-stickers-retained",supported_stickers(storage.target)>1) end
+            for index,case in ipairs(storage.boundaries) do check("distance-"..index,case.old.valid==(not config.enabled or case.distance>1)) end
             for index,case in ipairs(storage.same_type) do check("same-type-retained-"..index,case.old.valid) end
             check("unrelated-sticker-retained",storage.unrelated.valid)
             check("tree-fire-retained",storage.tree.valid)
             check("unrelated-fire-retained",storage.foreign_fire.valid)
-            -- Multiple creation events within one tick; each event must leave
-            -- precisely its own new effect alive, regardless of engine order.
+            -- Multiple creation events within one tick; enabled cleanup leaves
+            -- only the newest effect, while disabled effects can coexist.
             for index=1,4 do
                 shot(storage.sticker_names[index],storage.target)
                 shot(catalog.ground_fire_names[index],{20,0})
             end
+            shot("legacy-extinguisher",{-80,0})
+        elseif elapsed==5 then
+            check("legacy-firefighting-still-dispatched",not storage.extinguished.valid)
         end
         if elapsed>=10 and elapsed<10+#storage.sticker_names then
-            shot(storage.sticker_names[elapsed-9],storage.target)
+            shot(storage.sticker_names[elapsed-9],storage.hook_target)
             shot(catalog.ground_fire_names[elapsed-9],{20,0})
         end
         if elapsed>=40 and elapsed<=400 then
@@ -162,7 +172,9 @@ function module.install(config)
             local hits=storage.report.settled_sticker_hits
             check("sticker-damage-resumes",#hits>1 and storage.report.sticker_damage>0)
             local expected=math.min(10*(tonumber(config.profile:match("%d+")) or 1),30)
-            for index=2,#hits do check("native-profile-sticker-interval",hits[index]-hits[index-1]==expected) end
+            if config.enabled then
+                for index=2,#hits do check("native-profile-sticker-interval",hits[index]-hits[index-1]==expected) end
+            end
             for name in pairs(catalog.fire_stickers) do check("sticker-hook-"..name,storage.report.seen[name]) end
             for name in pairs(catalog.ground_fires) do check("fire-hook-"..name,storage.report.seen[name]) end
             for index,case in ipairs(storage.turrets) do check("native-turret-fired-"..index,case.target.health<case.target.max_health) end
@@ -175,6 +187,8 @@ function module.install(config)
             for _,case in ipairs(storage.turrets) do case.entity.destroy() end
         elseif elapsed==610 then
             check("no-periodic-adaptation-work",not remote.call("esir-flame-qc","has_tick_work"))
+            storage.report.overlap_calls=remote.call("esir-flame-qc","overlap_calls")
+            check("overlap-dispatch-gated",(storage.report.overlap_calls>0)==config.enabled)
             storage.report.all_pass=true
             helpers.write_file("flamethrower-qc.json",helpers.table_to_json(storage.report),false)
         end

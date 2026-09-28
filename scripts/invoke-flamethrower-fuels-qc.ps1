@@ -44,9 +44,9 @@ if (-not ($Proof -or $CreationProof)) {
     "return {enabled=$enabled,budget=$Budget,performance=$Performance,transition=$transitionValue,combat=$combatValue,matrix=$matrixValue,effects=$effectsValue,visual=$visualValue,overlap=$overlapValue,profile='$Profile'}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
     Get-Content -LiteralPath (Join-Path $helper 'instrument.lua') -Raw | Add-Content -LiteralPath (Join-Path $pack 'control.lua') -Encoding UTF8
     $modulePath=Join-Path $pack 'scripts\control\flamethrower-fuels.lua'
-    $module=Get-Content -LiteralPath $modulePath -Raw
-    $profile=Get-Content -LiteralPath (Join-Path $helper 'performance-instrument.lua') -Raw
-    $module=$module.Replace('return model',($profile+"`nreturn model"))
+    $module=Get-Content -LiteralPath $modulePath -Raw -Encoding UTF8
+    $instrumentation=Get-Content -LiteralPath (Join-Path $helper 'performance-instrument.lua') -Raw -Encoding UTF8
+    $module=$module.Replace('return model',($instrumentation+"`nreturn model"))
     $module.Replace('assert(source.fluids_count==candidate.fluids_count', 'assert(not storage.ei.flame_qc_fail,"injected-rollback"); assert(source.fluids_count==candidate.fluids_count') | Set-Content -LiteralPath $modulePath -Encoding UTF8
     $list=Get-Content -LiteralPath (Join-Path $seed 'mod-list.json') -Raw | ConvertFrom-Json
     # Cached optional mods may predate the checkout's current incompatibilities.

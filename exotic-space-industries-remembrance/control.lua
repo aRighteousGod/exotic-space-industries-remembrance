@@ -723,10 +723,15 @@ script.on_event({
     on_destroyed_entity(e)
 end)
 
-script.on_event(defines.events.on_trigger_created_entity, function(event)
-    ei_flamethrower_fuels.on_trigger_created_entity(event)
-    ei_firefighting.on_trigger_created_entity(event)
-end)
+if settings.startup["ei-flamethrower-fuel-adaptation"].value then
+    script.on_event(defines.events.on_trigger_created_entity, function(event)
+        ei_flamethrower_fuels.on_trigger_created_entity(event)
+        ei_firefighting.on_trigger_created_entity(event)
+    end)
+else
+    -- Keep legacy extinguisher impacts active without a flame-cleanup dispatch.
+    script.on_event(defines.events.on_trigger_created_entity, ei_firefighting.on_trigger_created_entity)
+end
 
 script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, ei_singularity_lance.on_force_reset)
 script.on_event({defines.events.on_force_friends_changed, defines.events.on_force_cease_fire_changed}, ei_singularity_lance.on_diplomacy_changed)

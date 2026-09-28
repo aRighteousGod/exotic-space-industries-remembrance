@@ -7,4 +7,5 @@ remote.add_interface("esir-flame-qc",{
     sync_force=function(index) ei_flamethrower_fuels.sync_force(game.forces[index]) end,
     blueprint=function(index) ei_flamethrower_fuels.on_blueprint{player_index=index} end,
     profile=function(action) ei_flamethrower_fuels.qc_profile(action) end,
+    overlap_calls=function() return ei_flamethrower_fuels.qc_overlap_calls() end,
 })
