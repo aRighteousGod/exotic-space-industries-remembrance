@@ -15,6 +15,7 @@ local scheduler = require("lib/runtime-scheduler")
 local c = require("lib/singularity-lance-config")
 local lance = {script_trigger_effect_id = "ei-singularity-lance-shot"}
 local NAME, VERSION = "ei-singularity-lance", 11
+local art = c.presentation
 local relevant_research = {[NAME] = true, ["laser-weapons-damage-6"] = true, ["laser-weapons-damage-7"] = true}
 for _, upgrade in ipairs(c.upgrades) do relevant_research[NAME .. "-" .. upgrade.key] = true end
 
@@ -35,12 +36,13 @@ for _, upgrade in ipairs(c.upgrades) do relevant_research[NAME .. "-" .. upgrade
 ---@field target LuaEntity?
 ---@field wound_tick integer?
 ---@field mark LuaRenderObject?
----@field beam LuaRenderObject?
+---@field beam LuaEntity|LuaRenderObject? Old Sprite handle until presentation migration.
 ---@field effective_range number? Immutable prototype/quality value; refreshed on configuration change.
 ---@field wound_band integer?
 ---@field beam_shape string?
 ---@field beam_origin MapPosition?
 ---@field beam_endpoint MapPosition?
+---@field testament_hold_until integer?
 ---@field last_decoration_tick integer?
 ---@class LanceCollapse
 ---@field force_index integer
@@ -55,6 +57,7 @@ for _, upgrade in ipairs(c.upgrades) do relevant_research[NAME .. "-" .. upgrade
 ---@field warning LuaRenderObject?
 ---@class LanceRuntime
 ---@field version integer
+---@field presentation_revision integer?
 ---@field lances table<integer,LanceRecord>
 ---@field registrations table<integer,integer>
 ---@field force_cache table<integer,LanceCapabilities>
@@ -140,7 +143,7 @@ end
 
 ---@return LanceRuntime
 local function new_runtime()
-    return {version = VERSION, lances = {}, registrations = {}, force_cache = {},
+    return {version = VERSION, presentation_revision = art.revision, lances = {}, registrations = {}, force_cache = {},
         buckets = scheduler.ensure_delayed_buckets(nil), pending = 0, counters = {},
         visual_config = c.resolve(), qc_enabled = false, profiling_enabled = false}
 end
@@ -357,13 +360,16 @@ local function animation(runtime, name, surface, position, ttl, scale)
         render_layer = "light-effect"}
 end
 
-local function beam_cue(runtime, record, surface, origin, endpoint, level, testament)
+local function beam_cue(runtime, record, surface, origin, endpoint, level, testament, tick)
     local shape = testament and "testament" or level >= 1 and "axial" or "base"
     local old_origin, old_endpoint = record.beam_origin, record.beam_endpoint
-    if record.beam and record.beam.valid and record.beam_shape == shape and old_origin and old_endpoint
+    local same_shape = record.beam_shape == shape or (record.beam_shape == "testament"
+        and tick < (record.testament_hold_until or 0))
+    if record.beam and record.beam.valid and same_shape and old_origin and old_endpoint
         and old_origin.x == origin.x and old_origin.y == origin.y
         and old_endpoint.x == endpoint.x and old_endpoint.y == endpoint.y then
-        record.beam.time_to_live = runtime.visual_config.beam_duration_ticks
+        -- Native beams cannot refresh TTL. Reuse while alive so rapid fire does
+        -- not restart the animation every tick; the next shot replaces expiry.
         count(runtime, "core_cues_refreshed")
         return
     end
@@ -371,15 +377,16 @@ local function beam_cue(runtime, record, surface, origin, endpoint, level, testa
     local dx, dy = endpoint.x - origin.x, endpoint.y - origin.y
     local length = math.sqrt(dx * dx + dy * dy)
     if length < 0.00001 then record.beam = nil; return end
-    record.beam = rendering.draw_sprite{sprite = NAME .. "-beam-" .. shape,
-        surface = surface, target = {x = (origin.x + endpoint.x) / 2, y = (origin.y + endpoint.y) / 2},
-        orientation = (math.atan2(dy, dx) / (2 * math.pi)) % 1, x_scale = length / 8, y_scale = testament and 0.8 or 0.5,
-        time_to_live = runtime.visual_config.beam_duration_ticks, render_layer = "light-effect"}
+    local duration = math.max(runtime.visual_config.beam_duration_ticks, testament and art.testament_hold_ticks or 0)
+    record.beam = surface.create_entity{name = NAME .. "-beam" .. (shape == "base" and "" or "-" .. shape),
+        position = origin, source_position = origin, target_position = endpoint, duration = duration}
     record.beam_shape, record.beam_origin, record.beam_endpoint = shape, origin, endpoint
+    record.testament_hold_until = testament and tick + art.testament_hold_ticks or nil
     count(runtime, "core_cues")
 end
 
-local function wound_cue(runtime, record, target, force)
+---@param ttl integer? Remaining lifetime during presentation migration.
+local function wound_cue(runtime, record, target, force, ttl)
     -- Secondary damage can synchronously trigger death effects or other mods'
     -- damage handlers after the primary survived. Revalidate at presentation time.
     if not lib.entity_check(record.entity) or not hostile(target, force) then
@@ -387,16 +394,34 @@ local function wound_cue(runtime, record, target, force)
         return
     end
     local band = record.stacks >= 5 and 3 or record.stacks >= 3 and 2 or 1
-    local sprite = NAME .. "-wound-" .. band
+    local name = NAME .. "-wound-" .. band
+    local stronger = record.wound_band and band > record.wound_band
     if record.mark and record.mark.valid then
-        if record.wound_band ~= band then record.mark.sprite = sprite end
-        record.mark.time_to_live = c.wound.timeout
+        if record.wound_band ~= band then record.mark.animation = name end
+        record.mark.time_to_live = ttl or c.wound.timeout
     else
-        record.mark = rendering.draw_sprite{sprite = sprite, target = {entity = target}, surface = target.surface,
-            time_to_live = c.wound.timeout, render_layer = "light-effect"}
+        record.mark = rendering.draw_animation{animation = name, target = {entity = target}, surface = target.surface,
+            time_to_live = ttl or c.wound.timeout, animation_speed = art.wound_speed, render_layer = "light-effect"}
     end
     record.wound_band = band
     count(runtime, "wound_cues")
+    return stronger and not ttl
+end
+
+local function wound_crown(runtime, record, tick)
+    -- The band itself is core. A bounded crown pulse is optional decoration.
+    if runtime.visual_config.visual_fidelity ~= "lean" then
+        local target = record.target
+        if not lib.entity_check(target) then return end
+        if runtime.decoration_tick ~= tick then runtime.decoration_tick, runtime.decorations = tick, 0 end
+        local cap = runtime.visual_config.visual_fidelity == "standard" and 8 or 24
+        if runtime.decorations < cap then
+            runtime.decorations = runtime.decorations + 1
+            rendering.draw_animation{animation = NAME .. "-wound-crown", target = {entity = target}, surface = target.surface,
+                time_to_live = art.crown_ticks, animation_speed = 1, render_layer = "light-effect"}
+            count(runtime, "wound_crowns")
+        else count(runtime, "decorations_dropped") end
+    end
 end
 
 local function decorate(runtime, surface, position, tick, testament, source)
@@ -485,13 +510,18 @@ function lance.on_script_trigger_effect(event)
         area_damage(runtime, surface, force, aim, target, source, c.splash_damage * cache.multiplier, c.splash_radius, c.splash_cap)
     end
     local visual_profiler = profile_start(runtime)
-    beam_cue(runtime, record, surface, origin, visual_endpoint, cache.level, testament)
+    beam_cue(runtime, record, surface, origin, visual_endpoint, cache.level, testament, tick)
     -- A zero-damage hit neither builds nor refreshes an existing wound. Its old
     -- timeout (and native mark TTL) still applies.
-    if wound_updated then wound_cue(runtime, record, record.target, force) end
+    local stronger = wound_updated and wound_cue(runtime, record, record.target, force)
     if packet then packet.warning = animation(runtime, testament and "testament-warning" or "collapse-warning",
-        surface, aim, c.collapse.delay, packet.radius / 3) end
+        surface, aim, c.collapse.delay, packet.radius / art.collapse_reference_radius) end
     profile_end(visual_profiler, "shot-core", tick)
+    if stronger then
+        local decoration = profile_start(runtime)
+        wound_crown(runtime, record, tick)
+        profile_end(decoration, "decoration", tick)
+    end
     profile_end(profiler, "shot", tick)
 end
 
@@ -528,7 +558,8 @@ function lance.update(_limit, event)
         local surface = game.surfaces[packet.surface_index]
         if surface then
             local visual = profile_start(runtime)
-            animation(runtime, packet.testament and "testament-impact" or "collapse-impact", surface, packet.position, 12, packet.radius / 3)
+            animation(runtime, packet.testament and "testament-impact" or "collapse-impact", surface, packet.position,
+                art.impact_ticks, packet.radius / art.collapse_reference_radius)
             profile_end(visual, "impact-core", tick)
             local decoration = profile_start(runtime)
             decorate(runtime, surface, packet.position, tick, packet.testament, packet.source)
@@ -637,12 +668,28 @@ function lance.check_global()
         if not lib.entity_check(record.entity) then remove(runtime, id)
         else record.effective_range = nil; register(runtime, record.entity) end
     end
+    if runtime.presentation_revision ~= art.revision then
+        -- Upgrade only presentation. Schema 11 meters, paid delayed buckets and
+        -- due ticks must survive; never route this through legacy state replacement.
+        for _, record in pairs(runtime.lances) do
+            destroy_cue(record.beam); destroy_cue(record.mark)
+            record.beam, record.mark, record.beam_shape, record.wound_band = nil, nil, nil, nil
+            record.beam_origin, record.beam_endpoint, record.testament_hold_until = nil, nil, nil
+            local remaining = record.wound_tick and math.min(c.wound.timeout, c.wound.timeout - (game.tick - record.wound_tick)) or 0
+            if record.stacks > 0 and remaining > 0 then
+                wound_cue(runtime, record, record.target, record.entity.force, remaining)
+            else reset_wound(record) end
+        end
+        -- Warning prototypes retain their name, frame count and speed. Existing
+        -- Animation objects retain the correct phase, TTL and fixed aim point.
+        runtime.presentation_revision = art.revision
+    end
 end
 lance.on_configuration_changed = lance.check_global
 
 function lance.get_runtime_status()
     local runtime = state()
-    return {module = "singularity-lance", version = VERSION, pending = runtime.pending,
+    return {module = "singularity-lance", version = VERSION, presentation_revision = runtime.presentation_revision, pending = runtime.pending,
         pending_due = lance.has_tick_work() and runtime.pending or 0, pending_damage = runtime.pending,
         impact_next_due_tick = runtime.next_due or 0, pending_visual_slices = 0, active_visual_jobs = 0,
         visual_fidelity = runtime.visual_config.visual_fidelity, counters = runtime.counters,

@@ -50,13 +50,73 @@ if config.mode == "mechanics" then
     end)
 end
 
+local function presentation_checks()
+    local tick=game.tick
+    local s,t=rig(1)
+    shot(s,t,tick)
+    local cue=call("cues",s.unit_number)
+    check(cue.beam.valid and cue.beam.type=="beam" and cue.beam.name==NAME.."-beam-axial","native axial beam")
+    shot(s,t,tick)
+    check(call("cues",s.unit_number).beam==cue.beam,"same geometry reuses native beam without TTL setter")
+    local other=target(10,4)
+    shot(s,other,tick)
+    check(not cue.beam.valid,"retarget replaces old native beam")
+    check(storage.surface.count_entities_filtered{name={NAME.."-beam",NAME.."-beam-axial",NAME.."-beam-testament"}}==1,"one native core beam per lance")
+    s,t=rig(2); shot(s,t,tick)
+    cue=call("cues",s.unit_number)
+    check(cue.mark.type=="animation" and cue.mark.animation==NAME.."-wound-1","animated first wound band")
+    local mark=cue.mark
+    shot(s,t,tick); shot(s,t,tick)
+    cue=call("cues",s.unit_number)
+    check(cue.mark==mark and cue.mark.animation==NAME.."-wound-2","same mark changes to branching animation")
+    shot(s,t,tick); shot(s,t,tick)
+    cue=call("cues",s.unit_number)
+    check(cue.mark==mark and cue.mark.animation==NAME.."-wound-3","same mark changes to broken halo")
+    t.teleport{12,3}
+    check(cue.mark.target.entity==t,"wound uses engine-followed entity target")
+    s,t=rig(4)
+    for _=1,7 do shot(s,t,tick) end
+    local before=call("snapshot")
+    local old=call("old_presentation",s.unit_number,60)
+    call("check")
+    local migrated=call("snapshot"); cue=call("cues",s.unit_number)
+    check(migrated.version==11 and migrated.presentation_revision==2,"independent presentation revision")
+    check(meter(s).counter==7 and meter(s).stacks==5 and meter(s).wound_tick==old.wound_tick,"presentation migration preserves meters and wound timestamp")
+    check(migrated.pending==before.pending and migrated.impact_next_due_tick==before.impact_next_due_tick,"presentation migration preserves paid queues and due tick")
+    check(not old.beam.valid and not old.mark.valid,"migration destroys old Sprite handles")
+    check(cue.mark.type=="animation" and cue.mark.time_to_live==60,"migration restores remaining wound lifetime")
+    call("check")
+    check(call("cues",s.unit_number).mark==cue.mark,"presentation migration is idempotent")
+    close(shot(s,t,tick),1500,"eighth after presentation migration keeps full wound damage")
+    cue=call("cues",s.unit_number)
+    check(cue.shape=="testament" and cue.beam.name==NAME.."-beam-testament","native testament silhouette")
+    close(shot(s,t,tick+1),750,"ordinary shot during testament hold keeps ordinary damage")
+    check(call("cues",s.unit_number).beam==cue.beam,"same geometry preserves testament presentation hold")
+    other=target(15,3); shot(s,other,tick+2)
+    check(not cue.beam.valid,"new geometry interrupts testament hold")
+    local area=target(10,2)
+    call("service",tick+30)
+    close(10000000-area.health,2250,"migrated seven collapses and eighth resolve separately once")
+    call("service",tick+30)
+    close(10000000-area.health,2250,"repeat service cannot repeat migrated collapses")
+    s,t=rig(4); shot(s,t,tick)
+    call("old_presentation",s.unit_number,120); call("check")
+    check(meter(s).stacks==0 and call("cues",s.unit_number).mark==nil,"expired wound is not resurrected by presentation migration")
+    s,t=rig(4); shot(s,t,tick)
+    call("old_presentation",s.unit_number,30)
+    t.force=storage.force; call("check")
+    check(meter(s).stacks==0 and call("cues",s.unit_number).mark==nil,"newly protected wound is not recreated by migration")
+end
+
 local function mechanics()
     call("configure",{qc_enabled=true,profiling_enabled=false})
+    presentation_checks()
     local s,t = rig(0)
     local secondary=target(10,1)
     local friend=target(10,-1,nil,storage.force)
     local neutral=target(11,0,nil,game.forces.neutral)
     close(shot(s,t,1),500,"base primary")
+    check(call("cues",s.unit_number).beam.name==NAME.."-beam","baseline restores original native prismatic beam")
     close(10000000-secondary.health,125,"guaranteed base splash")
     close(friend.health,10000000,"same-force protected")
     close(neutral.health,10000000,"neutral protected")
@@ -343,7 +403,10 @@ script.on_event(defines.events.on_tick,function(event)
     if config.mode=="reload" then
         if not storage.reload_checked then
             storage.reload_checked=true
+            check(call("snapshot").presentation_revision==2,"old save runs presentation migration on configuration change")
             check(meter(storage.reload_source).counter==7,"counter seven survives save/load")
+            check(call("snapshot").pending==7,"old save preserves seven paid pending collapses")
+            check(call("cues",storage.reload_source.unit_number).mark.type=="animation","old save replaces Sprite wound with Animation")
             close(shot(storage.reload_source,storage.reload_target,event.tick),1500,"reloaded eighth includes wound")
             check(meter(storage.reload_source).counter==0,"reloaded eighth consumed once")
             log("LANCE_QC RELOAD_COMPLETE")
@@ -371,9 +434,18 @@ script.on_event(defines.events.on_tick,function(event)
     if storage.phase=="surface-delete" and event.tick==2 then
         check(call("snapshot").pending==0,"surface deletion cancels packet")
         local s,t=rig(3); storage.delayed_area=target(10,2); shot(s,t,event.tick)
+        storage.expiring_source,storage.expiring_target=s,t
+        storage.expiring_beam=call("cues",s.unit_number).beam
         storage.delay_due=event.tick+30; storage.phase="real-delay"
     end
-    if storage.phase=="real-delay" and event.tick==storage.delay_due-1 then close(storage.delayed_area.health,10000000,"central dispatcher waits until due tick") end
+    if storage.phase=="real-delay" and event.tick==storage.delay_due-1 then
+        close(storage.delayed_area.health,10000000,"central dispatcher waits until due tick")
+        if config.fidelity=="lean" or config.fidelity=="standard" then
+            check(not storage.expiring_beam.valid,"native beam expires without polling")
+            shot(storage.expiring_source,storage.expiring_target,event.tick)
+            check(call("cues",storage.expiring_source.unit_number).beam.valid,"same geometry creates fresh beam after native expiry")
+        end
+    end
     if storage.phase=="real-delay" and event.tick==storage.delay_due then
         close(10000000-storage.delayed_area.health,250,"central dispatcher executes exact due tick")
         local s,t=rig(0)
@@ -408,6 +480,8 @@ script.on_event(defines.events.on_tick,function(event)
     if storage.phase=="native-range" and storage.range_target.health<10000000 then
         storage.range_source.active=false
         close(10000000-storage.range_target.health,500,"native quality and bounding-box attack beyond center range")
+        local cue=call("cues",storage.range_source.unit_number)
+        check(cue.beam.valid and cue.endpoint.x>=storage.range_target.position.x,"native core beam retains approved reach beyond center range")
         storage.phase="complete"; log("LANCE_QC ALL_COMPLETE")
     end
 end)

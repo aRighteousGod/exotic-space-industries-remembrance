@@ -1,0 +1,215 @@
+{
+  "engine": "2.0.77",
+  "scope": "Presentation replacement; same four-upgrade mechanics",
+  "limits": [
+    "Headless timings exclude GPU/render cost.",
+    "Background development activity was not controlled.",
+    "The pre-existing 1 ms dense p95 objective is not established by whole-game means."
+  ],
+  "validation": {
+    "lean": {
+      "assertions": 146,
+      "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+    },
+    "standard": {
+      "assertions": 146,
+      "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+    },
+    "cinematic": {
+      "assertions": 144,
+      "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+    },
+    "maximal": {
+      "assertions": 144,
+      "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+    },
+    "unbounded": {
+      "assertions": 144,
+      "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+    },
+    "old_save_reload": {
+      "assertions": 6,
+      "counter_seven": true,
+      "pending_collapses": 7
+    },
+    "locale": "Seven languages: keys, duplicate entries, UTF-8 and localized parameters passed",
+    "final_data": "Cosmetic native beams, Wound/collapse contracts and layered technology icons passed"
+  },
+  "benchmarks": {
+    "direct": {
+      "ticks_per_run": 900,
+      "warmup_runs_discarded": 1,
+      "before": {
+        "all_run_means_ms": [
+          0.472,
+          0.439,
+          0.448,
+          0.432,
+          0.431,
+          0.435
+        ],
+        "median_ms": 0.435,
+        "min_ms": 0.431,
+        "max_ms": 0.448,
+        "runtime_sha256": "ef5d45e79e40d628a9cfd497dccbeb3f7383ea1ef65bf39ee7809b3c0f5d9fdf"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.438,
+          0.43,
+          0.435,
+          0.428,
+          0.437,
+          0.424
+        ],
+        "median_ms": 0.43,
+        "min_ms": 0.424,
+        "max_ms": 0.437,
+        "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+      },
+      "median_change_percent": -1.1494252873563204
+    },
+    "normal-power": {
+      "ticks_per_run": 600,
+      "warmup_runs_discarded": 1,
+      "before": {
+        "all_run_means_ms": [
+          2.055,
+          2.384,
+          2.034,
+          2.001,
+          2.007,
+          1.977
+        ],
+        "median_ms": 2.007,
+        "min_ms": 1.977,
+        "max_ms": 2.384,
+        "runtime_sha256": "ef5d45e79e40d628a9cfd497dccbeb3f7383ea1ef65bf39ee7809b3c0f5d9fdf"
+      },
+      "after": {
+        "all_run_means_ms": [
+          2.155,
+          2.17,
+          2.233,
+          2.145,
+          2.127,
+          2.153
+        ],
+        "median_ms": 2.153,
+        "min_ms": 2.127,
+        "max_ms": 2.233,
+        "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+      },
+      "median_change_percent": 7.274539113104139
+    },
+    "dense": {
+      "ticks_per_run": 600,
+      "warmup_runs_discarded": 1,
+      "before": {
+        "all_run_means_ms": [
+          49.945,
+          51.101,
+          49.708,
+          55.809,
+          55.704,
+          59.867
+        ],
+        "median_ms": 55.704,
+        "min_ms": 49.708,
+        "max_ms": 59.867,
+        "runtime_sha256": "ef5d45e79e40d628a9cfd497dccbeb3f7383ea1ef65bf39ee7809b3c0f5d9fdf"
+      },
+      "after": {
+        "all_run_means_ms": [
+          57.486,
+          54.314,
+          52.031,
+          51.731,
+          52.017,
+          50.885
+        ],
+        "median_ms": 52.017,
+        "min_ms": 50.885,
+        "max_ms": 54.314,
+        "runtime_sha256": "6cc847869551f4a57611654e2ece0a7f7a65c16689e5ad1cf8635b7577a36e3d"
+      },
+      "median_change_percent": -6.618914261094355
+    }
+  },
+  "profiles": {
+    "normal-power": {
+      "mechanics": {
+        "mean_ms": 0.6743625,
+        "p95_ms": 1.5502,
+        "max_ms": 25.7552
+      },
+      "impact-core": {
+        "mean_ms": 0.01112375,
+        "p95_ms": 0.033,
+        "max_ms": 0.4571
+      },
+      "decoration": {
+        "mean_ms": 0.006850833333333333,
+        "p95_ms": 0.0171,
+        "max_ms": 0.2859
+      },
+      "update-total": {
+        "mean_ms": 0.6987979166666667,
+        "p95_ms": 1.6434,
+        "max_ms": 26.6875
+      },
+      "shot-core": {
+        "mean_ms": 0.082069375,
+        "p95_ms": 0.2007,
+        "max_ms": 3.1759
+      },
+      "shot": {
+        "mean_ms": 0.876016875,
+        "p95_ms": 1.9126,
+        "max_ms": 33.0876
+      },
+      "all-lance-work": {
+        "mean_ms": 1.5748147916666668,
+        "p95_ms": 17.7767,
+        "max_ms": 35.077200000000005
+      }
+    },
+    "dense": {
+      "shot-core": {
+        "mean_ms": 1.8590816666666667,
+        "p95_ms": 2.7335,
+        "max_ms": 9.1457
+      },
+      "shot": {
+        "mean_ms": 23.483719583333333,
+        "p95_ms": 39.5121,
+        "max_ms": 56.745
+      },
+      "mechanics": {
+        "mean_ms": 24.137925833333334,
+        "p95_ms": 37.3141,
+        "max_ms": 59.6561
+      },
+      "impact-core": {
+        "mean_ms": 0.3954285416666667,
+        "p95_ms": 0.7769,
+        "max_ms": 1.2652
+      },
+      "decoration": {
+        "mean_ms": 0.17144667083333334,
+        "p95_ms": 0.3635,
+        "max_ms": 5.6154
+      },
+      "update-total": {
+        "mean_ms": 24.993531666666666,
+        "p95_ms": 39.1528,
+        "max_ms": 60.3784
+      },
+      "all-lance-work": {
+        "mean_ms": 48.47725125,
+        "p95_ms": 71.2952,
+        "max_ms": 97.53880000000001
+      }
+    }
+  }
+}

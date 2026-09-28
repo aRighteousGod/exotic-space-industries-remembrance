@@ -129,7 +129,7 @@ end
 local function make_prismatic_beam_animation(filename, glow_filename, width, height, frame_count, line_length, scale)
     scale = scale or 1
 
-    return {
+    local animation = {
         layers = {
             {
                 filename = PRISMATIC_BEAM_GRAPHICS_PATH..filename,
@@ -139,6 +139,7 @@ local function make_prismatic_beam_animation(filename, glow_filename, width, hei
                 line_length = line_length,
                 animation_speed = 0.55,
                 scale = scale,
+                draw_as_glow = true,
             },
             {
                 filename = PRISMATIC_BEAM_GRAPHICS_PATH..glow_filename,
@@ -153,6 +154,8 @@ local function make_prismatic_beam_animation(filename, glow_filename, width, hei
             },
         },
     }
+    if VISUAL_CONFIG.visual_fidelity == "lean" then animation.layers[2] = nil end
+    return animation
 end
 
 local function make_prismatic_beam_graphics_set(scale, options)

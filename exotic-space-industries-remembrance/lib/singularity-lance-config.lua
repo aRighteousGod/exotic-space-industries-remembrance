@@ -19,6 +19,11 @@ singularity_lance_config.wound = {step = 0.10, cap = 5, timeout = 120}
 singularity_lance_config.collapse = {delay = 30, damage = 250, radius = 3, cap = 8}
 singularity_lance_config.testament = {interval = 8, primary_multiplier = 2, axial_cap = 6,
     damage = 500, radius = 4, cap = 12}
+-- Production artwork contract; mechanics never read these presentation values.
+singularity_lance_config.presentation = {revision = 2, beam_frames = 16, beam_speed = 0.55,
+    beam_scale = 0.34, wound_size = 192, wound_frames = 24, wound_speed = 0.4,
+    wound_scale = 1 / 3, collapse_size = 256, warning_radius_fraction = 0.775,
+    collapse_reference_radius = 3, impact_ticks = 12, crown_ticks = 12, testament_hold_ticks = 12}
 singularity_lance_config.upgrades = {
     {key = "axial-rupture", age = "alien-computer-age", science = "both-computer-age",
         prerequisites = {"ei-singularity-lance"}},
