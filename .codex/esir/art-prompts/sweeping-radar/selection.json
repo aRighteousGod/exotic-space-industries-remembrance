@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "selected_by_user": true,
+  "selected_on": "2026-09-28",
+  "status": "selected-models-with-retained-256-facing-spritesheets",
+  "spritesheet_selection_on": "2026-09-29",
+  "selected_sprite_facings": 256,
+  "retain_individual_renders": true,
+  "sprite_motion_policy": "trail-completed-work",
+  "retention_authorization": "go with 256 and hold onto the renders so we can regenerate the spritesheets at different counts if needed",
+  "user_selection": "swap #3 with #1, actually; #8 remains the later chassis",
+  "generation_authorization": "you are cleared to pull assets from meshy with maximum detail generation",
+  "amendments": "Both upper assemblies physically rotate above stationary wired bases. S4 red core indicator and white panel faces glow.",
+  "assets": [
+    {
+      "number": 1,
+      "concept_id": "e1",
+      "title": "Split-Trough Watcher",
+      "prototype_name": "ei-sweeping-radar",
+      "age": "electricity-age",
+      "reference": "e1-split-trough-watcher.png",
+      "sha256": "57ba423471f9307c3548910a9947efc26e1f5d95a6da22a382c0e0123b80a4a2",
+      "rotation_required": true,
+      "rotating_parts": [
+        "split trough",
+        "receiver spine",
+        "U-shaped cradle",
+        "upper turntable"
+      ],
+      "fixed_parts": [
+        "lower plinth",
+        "drive housing",
+        "insulators",
+        "transformer",
+        "feet",
+        "external wires"
+      ],
+      "emissive_groups": [],
+      "model_animation_implemented": true,
+      "in_game_animation_implemented": false
+    },
+    {
+      "number": 8,
+      "concept_id": "s4",
+      "title": "Fourfold Interrogator",
+      "prototype_name": "ei-phased-array-radar",
+      "age": "advanced-computer-age",
+      "reference": "s4-fourfold-interrogator.png",
+      "sha256": "50440bd2a27273998fd91179c9dc067e8edf1905d8b1da59b7ce4d4e0acf2c97",
+      "rotation_required": true,
+      "rotating_parts": [
+        "four panels",
+        "radial support arms",
+        "upper central hub",
+        "red core indicator"
+      ],
+      "fixed_parts": [
+        "lower foundation",
+        "visible base wires",
+        "cable runs",
+        "feet",
+        "external connections"
+      ],
+      "emissive_groups": [
+        "emissive_core_red",
+        "emissive_panels_white"
+      ],
+      "model_animation_implemented": true,
+      "in_game_animation_implemented": false
+    }
+  ]
+}

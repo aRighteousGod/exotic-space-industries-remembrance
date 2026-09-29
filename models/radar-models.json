@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "storage": "Git LFS",
+  "assets": [
+    {
+      "asset": "sweeping-radar",
+      "files": {
+        "glb": {
+          "path": "models/sweeping-radar.glb",
+          "bytes": 159769972,
+          "sha256": "7bcf55b384b853e7c760dbe8e3c7e39ee62095ce19c8f9daeb0106dcff1cf366"
+        },
+        "blend": {
+          "path": "models/sweeping-radar.blend",
+          "bytes": 178809959,
+          "sha256": "0e5c44b275f19cc720bbd513115b312cb8114e4dbc6e5c7a8b942dde62b1e025"
+        }
+      },
+      "self_contained": true,
+      "rotation_check": "passed",
+      "mechanical_split": {
+        "asset": "sweeping-radar",
+        "source_sha256": "7bcf55b384b853e7c760dbe8e3c7e39ee62095ce19c8f9daeb0106dcff1cf366",
+        "source_faces": 2820202,
+        "seam_z": -0.1,
+        "central_fixed_radius": null,
+        "central_fixed_top": null,
+        "scale": 1.459023828610172,
+        "ground": -0.7367990016937256,
+        "rotor_lift": 0.01,
+        "groups": [
+          {
+            "name": "fixed_wired_base",
+            "vertices": 471197,
+            "faces": 871597,
+            "minimum": [
+              -0.8452942371368408,
+              -0.8164026141166687,
+              0.0
+            ],
+            "maximum": [
+              0.8305566310882568,
+              0.7870120406150818,
+              0.9558911323547363
+            ]
+          },
+          {
+            "name": "rotor_upper_assembly",
+            "vertices": 1113567,
+            "faces": 1948605,
+            "minimum": [
+              -1.3880175352096558,
+              -0.48957547545433044,
+              0.9229449033737183
+            ],
+            "maximum": [
+              1.3885383605957031,
+              0.7949360013008118,
+              2.160006046295166
+            ]
+          }
+        ],
+        "source_preserved": true,
+        "review_status": "pending-render-review",
+        "fixed_objects": [
+          "fixed_wired_base",
+          "fixed_bearing_race",
+          "fixed_bearing_gap"
+        ],
+        "rotating_objects": [
+          "rotor_upper_assembly",
+          "rotor_bearing_rim"
+        ],
+        "emission": false,
+        "rotor_swept_radius_tiles": 1.4
+      }
+    },
+    {
+      "asset": "phased-array-radar",
+      "files": {
+        "glb": {
+          "path": "models/phased-array-radar.glb",
+          "bytes": 167845524,
+          "sha256": "8239316631930f34d462d8a0e3d561ff7e78c32ebd71925c8945a16a09a2fd99"
+        },
+        "blend": {
+          "path": "models/phased-array-radar.blend",
+          "bytes": 188350551,
+          "sha256": "5ad14feec9a1a471b81069a834d771e0ec5d26f7c59d6c3148829557dbdfcc60"
+        }
+      },
+      "self_contained": true,
+      "rotation_check": "passed",
+      "mechanical_split": {
+        "asset": "phased-array-radar",
+        "source_sha256": "8239316631930f34d462d8a0e3d561ff7e78c32ebd71925c8945a16a09a2fd99",
+        "source_faces": 2961706,
+        "seam_z": -0.32,
+        "central_fixed_radius": 0.43,
+        "central_fixed_top": -0.005,
+        "scale": 1.4739891376611243,
+        "ground": -0.6789389848709106,
+        "rotor_lift": 0.045,
+        "groups": [
+          {
+            "name": "fixed_wired_base",
+            "vertices": 847364,
+            "faces": 1481174,
+            "minimum": [
+              -1.2801625728607178,
+              -1.277711272239685,
+              0.0
+            ],
+            "maximum": [
+              1.281023383140564,
+              1.2804263830184937,
+              1.0185338258743286
+            ]
+          },
+          {
+            "name": "rotor_upper_assembly",
+            "vertices": 866210,
+            "faces": 1480532,
+            "minimum": [
+              -1.3993772268295288,
+              -1.3974213600158691,
+              0.5120579600334167
+            ],
+            "maximum": [
+              1.3987184762954712,
+              1.397546648979187,
+              2.055546998977661
+            ]
+          }
+        ],
+        "source_preserved": true,
+        "review_status": "pending-render-review",
+        "fixed_objects": [
+          "fixed_wired_base",
+          "fixed_bearing_race",
+          "fixed_bearing_gap"
+        ],
+        "rotating_objects": [
+          "rotor_upper_assembly",
+          "rotor_bearing_rim",
+          "rotor_red_core_indicator"
+        ],
+        "emission": true,
+        "rotor_swept_radius_tiles": 1.4
+      }
+    }
+  ],
+  "notes": "Exact copies of selected maximum-detail GLBs and prepared animated Blender models. Superseded #3 and render frames remain local."
+}

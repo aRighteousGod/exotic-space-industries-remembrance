@@ -1,0 +1,24 @@
+{
+  "generator": "Built-in image_gen tool",
+  "purpose": "Original selected-image prompt provenance; approved motion amendments take precedence.",
+  "items": [
+    {
+      "id": "e1",
+      "file": "e1-split-trough-watcher.png",
+      "title": "Split-Trough Watcher",
+      "tier": "Sweeping Radar",
+      "detail": "Electricity Age mechanically swept radar. A broad shallow rectangular parabolic trough, visibly split along its center by a heavy receiving spine. Exposed riveted ribs and coarse copper mesh sit in a rotating U-shaped cradle above a squat gear-driven pedestal. A copper transformer and two ceramic insulators stand on the fixed base. Soot-black steel, oxidized copper, one amber indicator. The upper assembly clearly turns around one vertical bearing. Make the trough and visible mechanical rotation the dominant silhouette.",
+      "prompt": "Use case: stylized-concept. Asset type: ESIR Factorio machine concept, one standalone 2D painted illustration. Orthographic isometric view, compact 3-by-3-tile footprint, upper-left illumination and a readable lower-right cast shadow. Center the entire machine in a square composition with generous margins. Clear silhouette at gameplay zoom, worn industrial materials and deliberate mechanical construction, restrained occult-industrial character expressed through severe geometry. Isolated on a plain medium charcoal-grey background. All feet, wiring and moving parts must stay within the footprint. No text, labels, scenery, watermark, people, floating holograms or decorative magic. This is a concept illustration, not a finished spritesheet.\n\nSubject: Electricity Age mechanically swept radar. A broad shallow rectangular parabolic trough, visibly split along its center by a heavy receiving spine. Exposed riveted ribs and coarse copper mesh sit in a rotating U-shaped cradle above a squat gear-driven pedestal. A copper transformer and two ceramic insulators stand on the fixed base. Soot-black steel, oxidized copper, one amber indicator. The upper assembly clearly turns around one vertical bearing. Make the trough and visible mechanical rotation the dominant silhouette.",
+      "original": "C:\\Users\\Theorun\\.codex\\generated_images\\01a0ea41-2cfc-78c0-9266-d1af3f7b4022\\exec-02bf97a7-9114-4487-8e43-13f70053106c.png"
+    },
+    {
+      "id": "s4",
+      "file": "s4-fourfold-interrogator.png",
+      "title": "Fourfold Interrogator",
+      "tier": "Phased-Array Radar",
+      "detail": "Simulation Age fixed phased-array radar. Four thick upright antenna fins radiate from a central armored processor in a rigid cross arrangement. The outward faces have clearly patterned ceramic emitter grids, and copper heat sinks run along the rear edges. Short structural bridges lock each fin to the base; every component is stationary. A small deep-magenta light marks the central seam. Sharply divided silhouette: four industrial blades enclosing the signal-processing core. No weapon barrels or holograms.",
+      "prompt": "Use case: stylized-concept. Asset type: ESIR Factorio machine concept, one standalone 2D painted illustration. Orthographic isometric view, compact 3-by-3-tile footprint, upper-left illumination and a readable lower-right cast shadow. Center the entire machine in a square composition with generous margins. Clear silhouette at gameplay zoom, worn industrial materials and deliberate mechanical construction, restrained occult-industrial character expressed through severe geometry. Isolated on a plain medium charcoal-grey background. All feet, wiring and moving parts must stay within the footprint. No text, labels, scenery, watermark, people, floating holograms or decorative magic. This is a concept illustration, not a finished spritesheet.\n\nSubject: Simulation Age fixed phased-array radar. Four thick upright antenna fins radiate from a central armored processor in a rigid cross arrangement. The outward faces have clearly patterned ceramic emitter grids, and copper heat sinks run along the rear edges. Short structural bridges lock each fin to the base; every component is stationary. A small deep-magenta light marks the central seam. Sharply divided silhouette: four industrial blades enclosing the signal-processing core. No weapon barrels or holograms.",
+      "original": "C:\\Users\\Theorun\\.codex\\generated_images\\01a0ea41-2cfc-78c0-9266-d1af3f7b4022\\exec-51eaf23f-c337-4909-ba41-40edf6cb2be2.png"
+    }
+  ]
+}

@@ -278,6 +278,7 @@ function model.menu(player_index)
             gaian_saucer = 1,
             em_trains = 1,
             orbital_scanner = 1,
+            sweeping_radar = 1,
             cranes_and_belts = 1,
             loaders = 1,
             bots = 1,
@@ -992,6 +993,16 @@ function model.em_trains(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-text-3"}}
 end
 
+function model.sweeping_radar(player_index, element)
+    element.add{type="label",caption={"exotic-industries-informatron.sweeping_radar_title"},style="heading_1_label"}
+    local row=element.add{type="flow"}
+    row.add{type="sprite",sprite="item/ei-sweeping-radar"}
+    row.add{type="sprite",sprite="item/ei-phased-array-radar"}
+    local body=element.add{type="label",caption={"sweeping-radar.informatron-body"}}
+    body.style.single_line=false
+    body.style.maximal_width=720
+end
+
 function model.orbital_scanner(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text"}}
@@ -1502,6 +1513,9 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "orbital_scanner" then
         model.orbital_scanner(player_index, element)
+    end
+    if page_name == "sweeping_radar" then
+        model.sweeping_radar(player_index, element)
     end
 
     if page_name == "cranes_and_belts" then

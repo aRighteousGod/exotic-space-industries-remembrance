@@ -47,6 +47,8 @@ local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
 local ei_firefighting = require("scripts/control/firefighting")
 local ei_water_turret = require("scripts/control/water-turret")
+local ei_sweeping_radar = require("scripts/control/sweeping-radar")
+local ei_sweeping_radar_gui = require("scripts/control/sweeping-radar-gui")
 
 
 ei_victory = require("scripts/control/victory-disabler")
@@ -399,6 +401,7 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
     if ei_singularity_lance.on_scripted_research_burst then
         ei_singularity_lance.on_scripted_research_burst(force, current_tick)
     end
+    ei_sweeping_radar.on_scripted_research_burst(force, current_tick)
     if ei_informatron_messager.on_scripted_research_burst then
         ei_informatron_messager.on_scripted_research_burst(force)
     end
@@ -575,6 +578,7 @@ script.on_init(function(event)
     ei_flamethrower_fuels.rebuild()
     local support_rebuild_tick = game.tick
     ei_water_turret.rebuild(support_rebuild_tick)
+    ei_sweeping_radar.rebuild(support_rebuild_tick)
     ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_gate.on_init(event)
@@ -656,28 +660,33 @@ script.on_event(defines.events.on_entity_cloned, function(e)
 end)
 
 script.on_event(defines.events.on_forces_merged, function(e)
+    ei_sweeping_radar.on_forces_merged(e)
     ei_water_turret.on_forces_merged(e)
     ei_singularity_lance.on_forces_merged(e)
     ei_flamethrower_fuels.sync_force(e.destination)
     ei_spider_vehicles.on_forces_merged(e)
 end)
 script.on_event(defines.events.on_research_reversed, function(e)
+    ei_sweeping_radar.on_research_finished(e)
     ei_singularity_lance.on_research_finished(e)
     ei_flamethrower_fuels.sync_force(e.research.force)
     ei_spider_vehicles.on_research_finished(e)
 end)
 
 script.on_event(defines.events.on_player_setup_blueprint, function(e)
+    ei_sweeping_radar.on_blueprint(e)
     -- Read the engine mapping before another subsystem rewrites blueprint entities.
     ei_water_turret.on_blueprint(e)
     ei_flamethrower_fuels.on_blueprint(e)
 end)
 script.on_event(defines.events.on_force_created, function(e)
+    ei_sweeping_radar.on_force_changed(e)
     ei_singularity_lance.on_force_reset(e)
     ei_flamethrower_fuels.sync_force(e.force)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
+    ei_sweeping_radar.on_teleported(e)
     ei_water_turret.on_teleported(e)
     ei_beacon_overload.on_script_raised_teleported(e)
 end)
@@ -733,8 +742,18 @@ else
     script.on_event(defines.events.on_trigger_created_entity, ei_firefighting.on_trigger_created_entity)
 end
 
-script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, ei_singularity_lance.on_force_reset)
-script.on_event({defines.events.on_force_friends_changed, defines.events.on_force_cease_fire_changed}, ei_singularity_lance.on_diplomacy_changed)
+script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, function(event)
+    ei_singularity_lance.on_force_reset(event)
+    ei_sweeping_radar.on_force_changed(event)
+end)
+script.on_event({defines.events.on_force_friends_changed, defines.events.on_force_cease_fire_changed}, function(event)
+    ei_singularity_lance.on_diplomacy_changed(event)
+    ei_sweeping_radar.on_force_changed(event)
+end)
+script.on_event(defines.events.on_pre_build, ei_sweeping_radar.on_pre_build)
+script.on_event(defines.events.on_marked_for_upgrade, ei_sweeping_radar.on_marked_for_upgrade)
+script.on_event(defines.events.on_cancelled_upgrade, ei_sweeping_radar.on_cancelled_upgrade)
+script.on_event("ei-sweeping-radar-open", ei_sweeping_radar_gui.on_open_input)
 
 script.on_event(defines.events.on_entity_damaged, function(event)
     -- Engine filters exclude unrelated hits before Lua dispatch. Electric hits
@@ -882,6 +901,7 @@ script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
 end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
+    ei_sweeping_radar.on_settings_pasted(e)
     ei_water_turret.on_settings_pasted(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
     ei_fusion_reactor.on_entity_settings_pasted(e)
@@ -916,6 +936,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_sweeping_radar.on_object_destroyed(e)
     ei_singularity_lance.on_object_destroyed(e)
     ei_flamethrower_fuels.on_object_destroyed(e)
     ei_water_turret.on_object_destroyed(e)
@@ -954,6 +975,7 @@ script.on_event(defines.events.on_research_finished, function(e)
     end
 
     ei_tech_scaling.on_research_finished(e)
+    ei_sweeping_radar.on_research_finished(e)
     ei_flamethrower_fuels.sync_force(e.research.force)
     ei_spider_vehicles.on_research_finished(e)
     ei_teslas_legacy.on_research_finished(e)
@@ -1031,6 +1053,13 @@ script.on_event(defines.events.on_gui_opened, function(event)
     local entity = get_valid_gui_entity(event, player, true)
     local name = entity and entity.name or nil
 
+    -- Existing sessions still receive unrelated opens to clear stale panels and
+    -- cancel delayed radar opens before they can take focus back.
+    if name == "ei-sweeping-radar" or name == "ei-phased-array-radar"
+        or ei_sweeping_radar_gui.has_open_gui_session(event.player_index)
+    then
+        ei_sweeping_radar_gui.on_gui_opened(event)
+    end
     if name == "ei-water-turret" or ei_water_turret.has_open_gui_session(event.player_index) then
         ei_water_turret.on_gui_opened(event)
     end
@@ -1083,6 +1112,9 @@ script.on_event(defines.events.on_gui_closed, function(event)
     local name = entity and entity.name or nil
     local element_name = element and element.name or nil
 
+    if element_name == "ei_sweeping_radar_gui" then
+        ei_sweeping_radar_gui.on_gui_closed(event)
+    end
     if name == "ei-water-turret" or element_name == "ei-water-turret-console"
         or ei_water_turret.has_open_gui_session(event.player_index)
     then
@@ -1141,7 +1173,9 @@ script.on_event(defines.events.on_gui_click, function(event)
     local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
-    if parent_gui == "ei-neutron-collector-console" then
+    if parent_gui == "ei_sweeping_radar_gui" then
+        ei_sweeping_radar_gui.on_event(event)
+    elseif parent_gui == "ei-neutron-collector-console" then
         ei_neutron_collector.on_gui_click(event)
     elseif parent_gui == "ei-fusion-reactor-console" then
         ei_fusion_reactor.on_gui_click(event)
@@ -1234,7 +1268,9 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
     local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
-    if parent_gui == "ei-water-turret-console" then
+    if parent_gui == "ei_sweeping_radar_gui" then
+        ei_sweeping_radar_gui.on_event(event)
+    elseif parent_gui == "ei-water-turret-console" then
         ei_water_turret.on_gui_changed(event)
     elseif parent_gui == "ei-spider-weapon-console" then
         ei_spider_vehicles.on_gui_changed(event)
@@ -1352,9 +1388,10 @@ script.on_configuration_changed(function(e)
     ei_teslas_legacy.on_configuration_changed(e)
     ei_flamethrower_fuels.rebuild()
     -- ConfigurationChangedData has no event tick in 2.0.77. Take one current
-    -- snapshot here; regular water-turret event paths pass event.tick through.
+    -- snapshot here; regular water-turret and radar paths pass event.tick through.
     local support_rebuild_tick = game.tick
     ei_water_turret.rebuild(support_rebuild_tick)
+    ei_sweeping_radar.rebuild(support_rebuild_tick)
     ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_singularity_lance.on_configuration_changed(e)
@@ -1496,6 +1533,12 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
+  if ei_sweeping_radar.has_tick_work() then
+      ei_sweeping_radar.updater(event)
+  end
+  if ei_sweeping_radar_gui.has_tick_work() then
+      ei_sweeping_radar_gui.updater(event)
+  end
   ei_water_turret.updater(event)
   -- updater() has two tiers:
   -- 1. a scheduled tier that spreads heavy per-entity work across a fixed cycle
@@ -1823,6 +1866,7 @@ function on_cloned_entity(e)
     end
 
     -- Helper clones must be removed even during spider replacement transactions.
+    ei_sweeping_radar.on_built_entity(e)
     ei_flamethrower_fuels.on_built_entity(e)
     ei_water_turret.on_built_entity(e)
     if ei_spider_vehicles.is_internal_transaction() then return end
@@ -1882,6 +1926,7 @@ function on_built_entity(e)
       return
     end
 
+    ei_sweeping_radar.on_built_entity(e)
     ei_flamethrower_fuels.on_built_entity(e)
     ei_water_turret.on_built_entity(e)
     if ei_spider_vehicles.is_internal_transaction() then return end
@@ -1969,6 +2014,7 @@ function on_destroyed_entity(e)
       return
     end
 
+    ei_sweeping_radar.on_destroyed_entity(e)
     ei_flamethrower_fuels.on_destroyed_entity(e)
     ei_water_turret.on_destroyed_entity(e)
 

@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "date": "2026-09-29",
+  "status": "staged-256-facing-assets-verified",
+  "selected_models": {"sweeping-radar": 1, "phased-array-radar": 8},
+  "blender_version": "5.1.1",
+  "factorio_target": "2.0.77",
+  "master_headings_per_asset": 256,
+  "master_pass_pngs": 1280,
+  "master_png_format": "RGBA16",
+  "sheet_png_format": "RGBA8",
+  "export_counts": [256, 128, 64],
+  "render_process_exit_codes": [0, 0],
+  "resume_checks": {
+    "both_passed": true,
+    "master_checkpoint_hashes_unchanged": true,
+    "new_frames_rendered": 0,
+    "logs": ["output/meshy/sweeping-radar/resume-check.log", "output/meshy/phased-array-radar/resume-check.log"]
+  },
+  "packing": {
+    "all_six_variants_passed": true,
+    "compared_pass_frames": 2240,
+    "alpha_exact": true,
+    "visible_rgb_exact_after_rgba8_decode": true,
+    "master_hashes_and_rgba16_headers_verified": true,
+    "minimum_packed_alpha_margin_pixels": 12,
+    "page_order_and_master_subsets_verified": true,
+    "maximum_frames_per_page": 128,
+    "maximum_page_dimension_limit": 4096,
+    "standard_rgba16_fixture_and_corruption_detection_passed": true,
+    "independent_in_memory_asymmetric_anchor_fixture_passed": true
+  },
+  "archive": {
+    "path": "output/meshy/radar-production/radar-master-renders-256.zip",
+    "bytes": 116650401,
+    "sha256": "74540d2cdb05312f2c81d42d8945f58e0285b50ad7db55d5afc5d68e11008e25",
+    "crc_and_all_source_entry_hashes_verified": true,
+    "restore_relative_to": "output/meshy/"
+  },
+  "visual_review": {
+    "sampled_rotation_source_frames": [1,17,33,49,65,81,97,113,129,145,161,177,193,209,225,241],
+    "sampled_boundary_source_frames": [1,2,127,128,129,130,255,256],
+    "both_assets_reviewed": true,
+    "phased_array_glow_on_and_off_reviewed": true,
+    "blocking_rotation_or_packing_defects_found": false,
+    "limits": "Sampled static composites, not every intermediate heading or live playback. Bright additive panel faces and dense raw shadow masks need gameplay-zoom review under Factorio lighting."
+  },
+  "gallery": {
+    "path": "output/meshy/radar-production/spritesheets-review.html",
+    "embedded_manifests": true,
+    "static_links_exist": true,
+    "javascript_syntax_passed": true,
+    "interactive_review": false,
+    "interactive_review_reason": "CUA inventory returned no available browser."
+  },
+  "shipping_graphics_changed": false,
+  "live_runtime_integration": false,
+  "new_meshy_credit_spend": 0
+}

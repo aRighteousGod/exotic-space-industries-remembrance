@@ -1,0 +1,71 @@
+{
+  "completed_at": "2026-09-29T02:13:16.226864-05:00",
+  "selected_facings": 256,
+  "master_pass_frames": 1280,
+  "assets": [
+    {
+      "asset": "sweeping-radar",
+      "master_frames": 256,
+      "raw_pass_frames": 512,
+      "raw_bytes": 34060263,
+      "raw_directory": "output\\meshy\\sweeping-radar\\master-256\\Render",
+      "variants": {
+        "256": {
+          "png_bytes": 11632156,
+          "decoded_rgba_bytes": 90963968
+        },
+        "128": {
+          "png_bytes": 5871161,
+          "decoded_rgba_bytes": 45481984
+        },
+        "64": {
+          "png_bytes": 2964646,
+          "decoded_rgba_bytes": 22740992
+        }
+      }
+    },
+    {
+      "asset": "phased-array-radar",
+      "master_frames": 256,
+      "raw_pass_frames": 768,
+      "raw_bytes": 82024990,
+      "raw_directory": "output\\meshy\\phased-array-radar\\master-256\\Render",
+      "variants": {
+        "256": {
+          "png_bytes": 23535520,
+          "decoded_rgba_bytes": 148111360
+        },
+        "128": {
+          "png_bytes": 11885016,
+          "decoded_rgba_bytes": 74055680
+        },
+        "64": {
+          "png_bytes": 6010693,
+          "decoded_rgba_bytes": 37027840
+        }
+      }
+    }
+  ],
+  "combined_sizes": {
+    "256": {
+      "png_bytes": 35167676,
+      "decoded_rgba_bytes": 239075328
+    },
+    "128": {
+      "png_bytes": 17756177,
+      "decoded_rgba_bytes": 119537664
+    },
+    "64": {
+      "png_bytes": 8975339,
+      "decoded_rgba_bytes": 59768832
+    }
+  },
+  "retained_archive": {
+    "path": "output\\meshy\\radar-production\\radar-master-renders-256.zip",
+    "bytes": 116650401,
+    "sha256": "74540d2cdb05312f2c81d42d8945f58e0285b50ad7db55d5afc5d68e11008e25",
+    "all_entries_verified": true
+  },
+  "shipping_graphics_changed": false,
+  "live_runtime_integration": false
+}

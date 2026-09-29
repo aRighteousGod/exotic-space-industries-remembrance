@@ -1,0 +1,68 @@
+{
+  "created": "2026-09-28",
+  "authorization": "maximum detail generation; swap #3 with #1",
+  "expected_credits": 120,
+  "selected_pair": [
+    "e1",
+    "s4"
+  ],
+  "jobs": [
+    {
+      "key": "superseded-twin-screen",
+      "ai_model": "meshy-7.1",
+      "model_type": "standard",
+      "geometry_resolution": "4k",
+      "should_remesh": false,
+      "image_enhancement": false,
+      "should_texture": true,
+      "enable_pbr": true,
+      "texture_resolution": "8k",
+      "target_formats": [
+        "glb"
+      ],
+      "alpha_thumbnail": true,
+      "multi_view_thumbnails": true,
+      "response_format": "json",
+      "file_path": "C:/Users/Theorun/Documents/github/exotic-space-industries-remembrance/output/imagegen/sweeping-radar-concepts-20260928/e3-twin-screen-sentinel.png",
+      "texture_prompt": "Preserve the reference: paired rectangular wire-mesh antenna screens with heavy receiver bars, tarnished brass frames, weathered dark steel, central shaft, ceramic insulators and amber lamp. Exposed industrial engineering, restrained wear. Keep the two screens and their central crosshead visually distinct from the fixed motorized electrical base. No added ground, background, text, logos or scenery."
+    },
+    {
+      "key": "phased-array-radar",
+      "ai_model": "meshy-7.1",
+      "model_type": "standard",
+      "geometry_resolution": "4k",
+      "should_remesh": false,
+      "image_enhancement": false,
+      "should_texture": true,
+      "enable_pbr": true,
+      "texture_resolution": "8k",
+      "target_formats": [
+        "glb"
+      ],
+      "alpha_thumbnail": true,
+      "multi_view_thumbnails": true,
+      "response_format": "json",
+      "file_path": "C:/Users/Theorun/Documents/github/exotic-space-industries-remembrance/output/imagegen/sweeping-radar-concepts-20260928/s4-fourfold-interrogator.png",
+      "texture_prompt": "Preserve the reference: four upright antenna panels with ivory-white ceramic tile faces, dark metal frames, copper heat-sink ribs and an armored central processor. Red indicator on the upper central hub. The four panels and upper hub are one rotating assembly above a stationary wired base. Keep white tile faces and red indicator visually distinct for later emission masks. No added ground, background, text, logos, holograms or scenery."
+    },
+    {
+      "key": "sweeping-radar",
+      "ai_model": "meshy-7.1",
+      "model_type": "standard",
+      "geometry_resolution": "4k",
+      "should_remesh": false,
+      "image_enhancement": false,
+      "should_texture": true,
+      "enable_pbr": true,
+      "texture_resolution": "8k",
+      "target_formats": [
+        "glb"
+      ],
+      "alpha_thumbnail": true,
+      "multi_view_thumbnails": true,
+      "response_format": "json",
+      "file_path": "C:/Users/Theorun/Documents/github/exotic-space-industries-remembrance/output/imagegen/sweeping-radar-concepts-20260928/e1-split-trough-watcher.png",
+      "texture_prompt": "Preserve the reference: broad split parabolic trough with coarse copper mesh, dark riveted steel ribs, heavy center receiver spine and U-shaped cradle above an exposed ring gear. Oxidized copper transformer, paired pale ceramic insulators and amber lamp on a stationary heavy base. Preserve weathered industrial materials and readable large details. Trough, receiving spine and cradle form the rotating upper assembly. No added ground, scenery, text or logos."
+    }
+  ]
+}

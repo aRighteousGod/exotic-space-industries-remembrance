@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESIR radar spritesheets — 256 master facings</title>
+<style>
+:root{color-scheme:dark;font:16px/1.5 system-ui;background:#1d2225;color:#eeeae1}body{max-width:1160px;margin:auto;padding:28px}h1{font-size:28px;margin:0 0 8px}p{color:#c2ccce}a{color:#acdde5}main{display:grid;grid-template-columns:1fr 1fr;gap:22px}.radar{background:#293137;padding:20px;border:1px solid #4b5961}h2{font-size:22px;margin:0 0 8px}.view{background:#59605a;aspect-ratio:1}canvas{width:100%;height:100%;display:block}label{display:inline-block;margin:10px 12px 6px 0}button,select{font:inherit;padding:6px 10px;background:#34414a;color:inherit;border:1px solid #6a7c87}input{accent-color:#dfb073}input[type=range]{width:180px;vertical-align:middle}small{display:block;color:#b6c3c8;margin:10px 0}footer{border-top:1px solid #52616a;margin-top:25px;padding-top:15px}@media(max-width:740px){main{grid-template-columns:1fr}}
+</style></head><body>
+<h1>Radar spritesheets · 256 retained master facings</h1>
+<p>Inspect clockwise or counterclockwise movement at different speeds. The 128- and 64-facing sets use exact subsets of the same retained renders. Angles describe the source pose; in-game north calibration and scanning synchronization remain integration work.</p>
+<main><article class="radar" data-asset="sweeping-radar"><h2>#1 · Sweeping Radar</h2><p>Rotating trough and cradle; stationary wired base.</p></article>
+<article class="radar" data-asset="phased-array-radar"><h2>#8 · Phased-Array Radar</h2><p>Four panels and upper hub rotate; lower wires and base stay fixed.</p></article></main>
+<footer><p>Master files are preserved under each asset's <code>master-256/Render</code> directory. Packed files and per-frame verification are under <code>factorio-export/256</code>, <code>128</code>, and <code>64</code>.</p><p><a href="../../../.codex/esir/asset-generators/sweeping-radar/README.md">Repack and replay instructions</a> · <a href="spritesheet-completion.json">Asset sizes and validation</a> · <a href="radar-master-renders-256.zip">Retained master archive</a></p><p>Static rotation previews: <a href="sweeping-radar-rotation-review.png">Sweeping Radar</a> · <a href="phased-array-radar-rotation-review.png">Phased-Array Radar</a></p></footer>
+<script>
+async function start(card){
+  const asset=card.dataset.asset,root='../'+asset+'/factorio-export/';
+  card.insertAdjacentHTML('beforeend','<div class="view"><canvas width="384" height="384"></canvas></div><label>Facings <select><option>256</option><option>128</option><option>64</option></select></label><button>Play</button><label><input class="reverse" type="checkbox"> Reverse</label><label>Speed <input class="speed" type="range" min="1" max="120" value="30"> <output class="speed-value">30°/s</output></label><label>Heading <input class="heading" type="range" min="0" max="255" value="0"> <output class="heading-value">0°</output></label><small class="status">Loading…</small><p><a class="manifest">Sheet manifest</a> · <a class="checks">Pixel verification</a></p>');
+  const canvas=card.querySelector('canvas'),ctx=canvas.getContext('2d'),count=card.querySelector('select'),button=card.querySelector('button'),slider=card.querySelector('.heading'),speed=card.querySelector('.speed'),reverse=card.querySelector('.reverse');
+  let manifest,images={},angle=0,playing=false,previous=performance.now(),generation=0,glowEnabled=true;
+  if(asset==='phased-array-radar'){
+    const label=document.createElement('label');label.innerHTML='<input type="checkbox" checked> Glow';label.querySelector('input').onchange=e=>{glowEnabled=e.target.checked;draw();};card.querySelector('.status').before(label);
+  }
+  function draw(){
+    if(!manifest)return;
+    const frame=Math.floor(angle*manifest.facings/360)%manifest.facings;
+    ctx.clearRect(0,0,384,384);
+    for(const role of ['shadow','body','glow']){
+      const layer=manifest.layers[role];if(!layer||(role==='glow'&&!glowEnabled))continue;
+      const page=layer.pages.find(p=>p.output_start<=frame&&frame<=p.output_end),image=images[page.filename];
+      if(!image)continue;
+      const local=frame-page.output_start,w=page.frame_width,h=page.frame_height;
+      ctx.globalCompositeOperation=role==='glow'?'lighter':'source-over';
+      ctx.drawImage(image,(local%page.columns)*w,Math.floor(local/page.columns)*h,w,h,layer.crop[0],layer.crop[1],w,h);
+    }
+    ctx.globalCompositeOperation='source-over';slider.value=frame;
+    card.querySelector('.heading-value').value=(frame*360/manifest.facings).toFixed(1)+'°';
+  }
+  async function load(){
+    const request=++generation,base=root+count.value+'/';playing=false;button.textContent='Play';
+    card.querySelector('.status').textContent='Loading spritesheets…';
+    try{
+      const next=window.RADAR_SHEETS?.[asset]?.[count.value]||await(await fetch(base+'spritesheet-manifest.json')).json(),loaded={};
+      await Promise.all(Object.values(next.layers).flatMap(l=>l.pages).map(p=>new Promise((resolve,reject)=>{
+        const image=new Image();image.onload=()=>{loaded[p.filename]=image;resolve();};image.onerror=reject;image.src=base+p.filename;
+      })));
+      if(request!==generation)return;manifest=next;images=loaded;slider.max=next.facings-1;
+      card.querySelector('.status').textContent=next.facings+' facings · '+(next.png_bytes/1e6).toFixed(2)+' MB PNG · '+(next.decoded_rgba_bytes/2**20).toFixed(1)+' MiB decoded';
+      card.querySelector('.manifest').href=base+'spritesheet-manifest.json';card.querySelector('.checks').href=base+'verification.json';draw();
+    }catch(error){card.querySelector('.status').textContent='Could not load the selected spritesheets. Keep the gallery beside the asset folders; see the replay instructions.';}
+  }
+  count.onchange=load;button.onclick=()=>{playing=!playing;button.textContent=playing?'Pause':'Play';};
+  slider.oninput=()=>{angle=Number(slider.value)*360/Number(count.value);draw();};
+  speed.oninput=()=>card.querySelector('.speed-value').value=speed.value+'°/s';
+  function animate(now){const elapsed=Math.min((now-previous)/1000,.1);previous=now;if(playing){angle=(angle+(reverse.checked?-1:1)*Number(speed.value)*elapsed+360)%360;draw();}requestAnimationFrame(animate);}
+  await load();requestAnimationFrame(animate);
+}
+for(const card of document.querySelectorAll('.radar'))start(card);
+</script></body></html>

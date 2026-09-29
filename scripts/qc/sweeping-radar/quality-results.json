@@ -1,0 +1,2856 @@
+{
+  "factorio": "2.0.77 build 84539",
+  "esir": "1.3.40",
+  "date": "2026-09-29",
+  "performance_benchmarks": "Skipped at user request; no performance claim.",
+  "source_sha256": {
+    "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+    "scripts/control/sweeping-radar.lua": "c914398849d00d49b3ced449666ebef3226e751b4f5d8aca83c5821294a35b0f",
+    "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+    "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+  },
+  "runs": {
+    "quality": {
+      "directory": ".factorio-qc/radar/quality-heavy-balanced-final4",
+      "report": {
+        "all_pass": true,
+        "tests": [
+          {
+            "name": "quality-interpolation--10",
+            "pass": true
+          },
+          {
+            "name": "quality-interpolation-0.5",
+            "pass": true
+          },
+          {
+            "name": "quality-interpolation-2.5",
+            "pass": true
+          },
+          {
+            "name": "quality-interpolation-4.5",
+            "pass": true
+          },
+          {
+            "name": "quality-interpolation-100",
+            "pass": true
+          },
+          {
+            "name": "matrix-1",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "normal",
+              "profile": 1,
+              "maximum": 16,
+              "rate": 2,
+              "cost": 8000000
+            }
+          },
+          {
+            "name": "electrical-headroom-1",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-1",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-1",
+            "pass": true
+          },
+          {
+            "name": "matrix-2",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "uncommon",
+              "profile": 1,
+              "maximum": 17,
+              "rate": 2.2,
+              "cost": 7600000
+            }
+          },
+          {
+            "name": "electrical-headroom-2",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-2",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-2",
+            "pass": true
+          },
+          {
+            "name": "matrix-3",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "rare",
+              "profile": 1,
+              "maximum": 18,
+              "rate": 2.4,
+              "cost": 7200000
+            }
+          },
+          {
+            "name": "electrical-headroom-3",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-3",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-3",
+            "pass": true
+          },
+          {
+            "name": "matrix-4",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "epic",
+              "profile": 1,
+              "maximum": 19,
+              "rate": 2.7,
+              "cost": 6800000
+            }
+          },
+          {
+            "name": "electrical-headroom-4",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-4",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-4",
+            "pass": true
+          },
+          {
+            "name": "matrix-5",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "legendary",
+              "profile": 1,
+              "maximum": 20,
+              "rate": 3,
+              "cost": 6400000
+            }
+          },
+          {
+            "name": "electrical-headroom-5",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-5",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-5",
+            "pass": true
+          },
+          {
+            "name": "matrix-6",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "ei-radar-qc-level4",
+              "profile": 1,
+              "maximum": 19,
+              "rate": 2.85,
+              "cost": 6600000
+            }
+          },
+          {
+            "name": "electrical-headroom-6",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-6",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-6",
+            "pass": true
+          },
+          {
+            "name": "matrix-7",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "ei-radar-qc-level9",
+              "profile": 1,
+              "maximum": 20,
+              "rate": 3,
+              "cost": 6400000
+            }
+          },
+          {
+            "name": "electrical-headroom-7",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-7",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-7",
+            "pass": true
+          },
+          {
+            "name": "matrix-8",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "normal",
+              "profile": 1,
+              "maximum": 24,
+              "rate": 8,
+              "cost": 5000000
+            }
+          },
+          {
+            "name": "electrical-headroom-8",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-8",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-8",
+            "pass": true
+          },
+          {
+            "name": "matrix-9",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "uncommon",
+              "profile": 1,
+              "maximum": 25,
+              "rate": 8.8,
+              "cost": 4750000
+            }
+          },
+          {
+            "name": "electrical-headroom-9",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-9",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-9",
+            "pass": true
+          },
+          {
+            "name": "matrix-10",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "rare",
+              "profile": 1,
+              "maximum": 26,
+              "rate": 9.6,
+              "cost": 4500000
+            }
+          },
+          {
+            "name": "electrical-headroom-10",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-10",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-10",
+            "pass": true
+          },
+          {
+            "name": "matrix-11",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "epic",
+              "profile": 1,
+              "maximum": 27,
+              "rate": 10.8,
+              "cost": 4250000
+            }
+          },
+          {
+            "name": "electrical-headroom-11",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-11",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-11",
+            "pass": true
+          },
+          {
+            "name": "matrix-12",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "legendary",
+              "profile": 1,
+              "maximum": 28,
+              "rate": 12,
+              "cost": 4000000
+            }
+          },
+          {
+            "name": "electrical-headroom-12",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-12",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-12",
+            "pass": true
+          },
+          {
+            "name": "matrix-13",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "ei-radar-qc-level4",
+              "profile": 1,
+              "maximum": 27,
+              "rate": 11.4,
+              "cost": 4125000
+            }
+          },
+          {
+            "name": "electrical-headroom-13",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-13",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-13",
+            "pass": true
+          },
+          {
+            "name": "matrix-14",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "ei-radar-qc-level9",
+              "profile": 1,
+              "maximum": 28,
+              "rate": 12,
+              "cost": 4000000
+            }
+          },
+          {
+            "name": "electrical-headroom-14",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-14",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-14",
+            "pass": true
+          },
+          {
+            "name": "matrix-15",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "normal",
+              "profile": 2,
+              "maximum": 16,
+              "rate": 4,
+              "cost": 8000000
+            }
+          },
+          {
+            "name": "electrical-headroom-15",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-15",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-15",
+            "pass": true
+          },
+          {
+            "name": "matrix-16",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "uncommon",
+              "profile": 2,
+              "maximum": 17,
+              "rate": 4.4,
+              "cost": 7600000
+            }
+          },
+          {
+            "name": "electrical-headroom-16",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-16",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-16",
+            "pass": true
+          },
+          {
+            "name": "matrix-17",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "rare",
+              "profile": 2,
+              "maximum": 18,
+              "rate": 4.8,
+              "cost": 7200000
+            }
+          },
+          {
+            "name": "electrical-headroom-17",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-17",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-17",
+            "pass": true
+          },
+          {
+            "name": "matrix-18",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "epic",
+              "profile": 2,
+              "maximum": 19,
+              "rate": 5.4,
+              "cost": 6800000
+            }
+          },
+          {
+            "name": "electrical-headroom-18",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-18",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-18",
+            "pass": true
+          },
+          {
+            "name": "matrix-19",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "legendary",
+              "profile": 2,
+              "maximum": 20,
+              "rate": 6,
+              "cost": 6400000
+            }
+          },
+          {
+            "name": "electrical-headroom-19",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-19",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-19",
+            "pass": true
+          },
+          {
+            "name": "matrix-20",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "ei-radar-qc-level4",
+              "profile": 2,
+              "maximum": 19,
+              "rate": 5.7,
+              "cost": 6600000
+            }
+          },
+          {
+            "name": "electrical-headroom-20",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-20",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-20",
+            "pass": true
+          },
+          {
+            "name": "matrix-21",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "ei-radar-qc-level9",
+              "profile": 2,
+              "maximum": 20,
+              "rate": 6,
+              "cost": 6400000
+            }
+          },
+          {
+            "name": "electrical-headroom-21",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-21",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-21",
+            "pass": true
+          },
+          {
+            "name": "matrix-22",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "normal",
+              "profile": 2,
+              "maximum": 24,
+              "rate": 16,
+              "cost": 5000000
+            }
+          },
+          {
+            "name": "electrical-headroom-22",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-22",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-22",
+            "pass": true
+          },
+          {
+            "name": "matrix-23",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "uncommon",
+              "profile": 2,
+              "maximum": 25,
+              "rate": 17.6,
+              "cost": 4750000
+            }
+          },
+          {
+            "name": "electrical-headroom-23",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-23",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-23",
+            "pass": true
+          },
+          {
+            "name": "matrix-24",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "rare",
+              "profile": 2,
+              "maximum": 26,
+              "rate": 19.2,
+              "cost": 4500000
+            }
+          },
+          {
+            "name": "electrical-headroom-24",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-24",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-24",
+            "pass": true
+          },
+          {
+            "name": "matrix-25",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "epic",
+              "profile": 2,
+              "maximum": 27,
+              "rate": 21.6,
+              "cost": 4250000
+            }
+          },
+          {
+            "name": "electrical-headroom-25",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-25",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-25",
+            "pass": true
+          },
+          {
+            "name": "matrix-26",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "legendary",
+              "profile": 2,
+              "maximum": 28,
+              "rate": 24,
+              "cost": 4000000
+            }
+          },
+          {
+            "name": "electrical-headroom-26",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-26",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-26",
+            "pass": true
+          },
+          {
+            "name": "matrix-27",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "ei-radar-qc-level4",
+              "profile": 2,
+              "maximum": 27,
+              "rate": 22.8,
+              "cost": 4125000
+            }
+          },
+          {
+            "name": "electrical-headroom-27",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-27",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-27",
+            "pass": true
+          },
+          {
+            "name": "matrix-28",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "ei-radar-qc-level9",
+              "profile": 2,
+              "maximum": 28,
+              "rate": 24,
+              "cost": 4000000
+            }
+          },
+          {
+            "name": "electrical-headroom-28",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-28",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-28",
+            "pass": true
+          },
+          {
+            "name": "matrix-29",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "normal",
+              "profile": 3,
+              "maximum": 24,
+              "rate": 4,
+              "cost": 5600000
+            }
+          },
+          {
+            "name": "electrical-headroom-29",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-29",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-29",
+            "pass": true
+          },
+          {
+            "name": "matrix-30",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "uncommon",
+              "profile": 3,
+              "maximum": 25,
+              "rate": 4.4,
+              "cost": 5320000
+            }
+          },
+          {
+            "name": "electrical-headroom-30",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-30",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-30",
+            "pass": true
+          },
+          {
+            "name": "matrix-31",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "rare",
+              "profile": 3,
+              "maximum": 26,
+              "rate": 4.8,
+              "cost": 5040000
+            }
+          },
+          {
+            "name": "electrical-headroom-31",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-31",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-31",
+            "pass": true
+          },
+          {
+            "name": "matrix-32",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "epic",
+              "profile": 3,
+              "maximum": 27,
+              "rate": 5.4,
+              "cost": 4760000
+            }
+          },
+          {
+            "name": "electrical-headroom-32",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-32",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-32",
+            "pass": true
+          },
+          {
+            "name": "matrix-33",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "legendary",
+              "profile": 3,
+              "maximum": 28,
+              "rate": 6,
+              "cost": 4480000
+            }
+          },
+          {
+            "name": "electrical-headroom-33",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-33",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-33",
+            "pass": true
+          },
+          {
+            "name": "matrix-34",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "ei-radar-qc-level4",
+              "profile": 3,
+              "maximum": 27,
+              "rate": 5.7,
+              "cost": 4620000
+            }
+          },
+          {
+            "name": "electrical-headroom-34",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-34",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-34",
+            "pass": true
+          },
+          {
+            "name": "matrix-35",
+            "pass": true,
+            "detail": {
+              "name": "ei-sweeping-radar",
+              "quality": "ei-radar-qc-level9",
+              "profile": 3,
+              "maximum": 28,
+              "rate": 6,
+              "cost": 4480000
+            }
+          },
+          {
+            "name": "electrical-headroom-35",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-35",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-35",
+            "pass": true
+          },
+          {
+            "name": "matrix-36",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "normal",
+              "profile": 3,
+              "maximum": 32,
+              "rate": 16,
+              "cost": 3500000
+            }
+          },
+          {
+            "name": "electrical-headroom-36",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-36",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-36",
+            "pass": true
+          },
+          {
+            "name": "matrix-37",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "uncommon",
+              "profile": 3,
+              "maximum": 33,
+              "rate": 17.6,
+              "cost": 3325000
+            }
+          },
+          {
+            "name": "electrical-headroom-37",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-37",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-37",
+            "pass": true
+          },
+          {
+            "name": "matrix-38",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "rare",
+              "profile": 3,
+              "maximum": 34,
+              "rate": 19.2,
+              "cost": 3150000
+            }
+          },
+          {
+            "name": "electrical-headroom-38",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-38",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-38",
+            "pass": true
+          },
+          {
+            "name": "matrix-39",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "epic",
+              "profile": 3,
+              "maximum": 35,
+              "rate": 21.6,
+              "cost": 2975000
+            }
+          },
+          {
+            "name": "electrical-headroom-39",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-39",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-39",
+            "pass": true
+          },
+          {
+            "name": "matrix-40",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "legendary",
+              "profile": 3,
+              "maximum": 36,
+              "rate": 24,
+              "cost": 2800000
+            }
+          },
+          {
+            "name": "electrical-headroom-40",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-40",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-40",
+            "pass": true
+          },
+          {
+            "name": "matrix-41",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "ei-radar-qc-level4",
+              "profile": 3,
+              "maximum": 35,
+              "rate": 22.8,
+              "cost": 2887500
+            }
+          },
+          {
+            "name": "electrical-headroom-41",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-41",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-41",
+            "pass": true
+          },
+          {
+            "name": "matrix-42",
+            "pass": true,
+            "detail": {
+              "name": "ei-phased-array-radar",
+              "quality": "ei-radar-qc-level9",
+              "profile": 3,
+              "maximum": 36,
+              "rate": 24,
+              "cost": 2800000
+            }
+          },
+          {
+            "name": "electrical-headroom-42",
+            "pass": true
+          },
+          {
+            "name": "native-health-and-empty-copy-42",
+            "pass": true
+          },
+          {
+            "name": "quality-keeps-manual-range-42",
+            "pass": true
+          },
+          {
+            "name": "perimeter-above-32-valid",
+            "pass": true
+          },
+          {
+            "name": "native-standby-once-while-paused",
+            "pass": true,
+            "detail": {
+              "before": 15500000.000000019,
+              "after": 14500000.000000056
+            }
+          },
+          {
+            "name": "fixed-above-32-valid",
+            "pass": true
+          },
+          {
+            "name": "accepted-observation-paid-once",
+            "pass": true,
+            "detail": {
+              "energy": 5500000.000000045,
+              "paid": 8000000
+            }
+          },
+          {
+            "name": "starvation-suppresses-output",
+            "pass": true
+          },
+          {
+            "name": "invalid-inner-radius-pauses",
+            "pass": true
+          },
+          {
+            "name": "recovery-without-catchup",
+            "pass": true
+          },
+          {
+            "name": "robot-quality-downgrade-transfer",
+            "pass": true
+          },
+          {
+            "name": "downgrade-keeps-request-and-pauses-invalid",
+            "pass": true
+          },
+          {
+            "name": "quality-upgrade-restores-valid-request",
+            "pass": true
+          },
+          {
+            "name": "repaired-buffer-empty",
+            "pass": true
+          },
+          {
+            "name": "stale-helper-notification-keeps-repair",
+            "pass": true
+          },
+          {
+            "name": "ordinary-research-refresh",
+            "pass": true
+          },
+          {
+            "name": "scripted-research-refresh",
+            "pass": true
+          },
+          {
+            "name": "player-quality-legendary",
+            "pass": true,
+            "detail": {
+              "can_build": true,
+              "quality": "legendary",
+              "energy": 3000000,
+              "settings": {
+                "version": 1,
+                "mode": 3,
+                "speed": 100,
+                "policy": 1,
+                "contacts": 1,
+                "expiry": 30,
+                "run": 0,
+                "trigger": 0,
+                "modes": [
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 0,
+                    "stop": 0,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 0
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 0,
+                    "stop": 0,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 0,
+                    "stop": 0,
+                    "bearing": 0,
+                    "direction": 1
+                  }
+                ],
+                "overrides": {}
+              }
+            }
+          },
+          {
+            "name": "player-quality-normal",
+            "pass": true,
+            "detail": {
+              "can_build": true,
+              "quality": "normal",
+              "energy": 3000000,
+              "settings": {
+                "version": 1,
+                "mode": 3,
+                "speed": 100,
+                "policy": 1,
+                "contacts": 1,
+                "expiry": 30,
+                "run": 0,
+                "trigger": 0,
+                "modes": [
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 0,
+                    "stop": 0,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 0
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 0,
+                    "stop": 0,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 24,
+                    "near": 20,
+                    "start": 0,
+                    "stop": 0,
+                    "bearing": 0,
+                    "direction": 1
+                  }
+                ],
+                "overrides": {}
+              }
+            }
+          },
+          {
+            "name": "capability-readout",
+            "pass": true
+          },
+          {
+            "name": "saved-gui-gains-readout",
+            "pass": true
+          },
+          {
+            "name": "fixed-detects-beyond-32-excludes-outside-36",
+            "pass": true,
+            "detail": {
+              "count": 1,
+              "observations": 146,
+              "status": "scanning"
+            }
+          },
+          {
+            "name": "perimeter-detects-beyond-32-excludes-outside-36",
+            "pass": true,
+            "detail": {
+              "count": 1,
+              "observations": 164,
+              "status": "scanning"
+            }
+          },
+          {
+            "name": "wide-watch-does-not-generate",
+            "pass": true
+          }
+        ],
+        "matrix_cases": 42,
+        "maximum": {
+          "control": 4,
+          "geometry": 64,
+          "chart": 1,
+          "query": 1,
+          "snapshot": 1,
+          "aggregate": 2,
+          "maintenance": 1,
+          "publish": 2,
+          "generation": 0
+        }
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "c914398849d00d49b3ced449666ebef3226e751b4f5d8aca83c5821294a35b0f",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "acceptance": {
+      "directory": ".factorio-qc/radar/quality-acceptance-final",
+      "report": {
+        "all_pass": true,
+        "tests": [
+          {
+            "name": "geometry-complete-1",
+            "pass": true,
+            "detail": {
+              "cells": 21,
+              "steps": 430,
+              "missing": 0
+            }
+          },
+          {
+            "name": "geometry-complete-2",
+            "pass": true,
+            "detail": {
+              "cells": 9,
+              "steps": 418,
+              "missing": 0
+            }
+          },
+          {
+            "name": "geometry-complete-3",
+            "pass": true,
+            "detail": {
+              "cells": 6,
+              "steps": 415,
+              "missing": 0
+            }
+          },
+          {
+            "name": "geometry-complete-4",
+            "pass": true,
+            "detail": {
+              "cells": 9,
+              "steps": 418,
+              "missing": 0
+            }
+          },
+          {
+            "name": "geometry-complete-5",
+            "pass": true,
+            "detail": {
+              "cells": 9,
+              "steps": 418,
+              "missing": 0
+            }
+          },
+          {
+            "name": "fixed-and-sector-smaller",
+            "pass": true
+          },
+          {
+            "name": "contact-cap",
+            "pass": true
+          },
+          {
+            "name": "indexed-repeat-no-growth",
+            "pass": true
+          },
+          {
+            "name": "bounded-expiry-drains",
+            "pass": true
+          },
+          {
+            "name": "one-deadline-per-owner",
+            "pass": true
+          },
+          {
+            "name": "deadlines-ordered-and-drained",
+            "pass": true
+          },
+          {
+            "name": "empty-new-buffer",
+            "pass": true
+          },
+          {
+            "name": "quality-balanced-bonuses",
+            "pass": true
+          },
+          {
+            "name": "pulse-armed-no-work",
+            "pass": true
+          },
+          {
+            "name": "gui-opens",
+            "pass": true
+          },
+          {
+            "name": "gui-apply-arc",
+            "pass": true
+          },
+          {
+            "name": "gui-mode-preserves-geometry",
+            "pass": true
+          },
+          {
+            "name": "current-beam-atomic",
+            "pass": true,
+            "detail": 54
+          },
+          {
+            "name": "mode-progress-1",
+            "pass": true,
+            "detail": {
+              "observations": 119,
+              "passes": 5,
+              "status": "scanning"
+            }
+          },
+          {
+            "name": "mode-progress-2",
+            "pass": true,
+            "detail": {
+              "observations": 119,
+              "passes": 13,
+              "status": "scanning"
+            }
+          },
+          {
+            "name": "completed-pass-report",
+            "pass": true,
+            "detail": 1
+          },
+          {
+            "name": "mode-progress-3",
+            "pass": true,
+            "detail": {
+              "observations": 119,
+              "passes": 19,
+              "status": "scanning"
+            }
+          },
+          {
+            "name": "mode-progress-4",
+            "pass": true,
+            "detail": {
+              "observations": 9,
+              "passes": 1,
+              "status": "armed"
+            }
+          },
+          {
+            "name": "mode-progress-5",
+            "pass": true,
+            "detail": {
+              "observations": 119,
+              "passes": 19,
+              "status": "scanning"
+            }
+          },
+          {
+            "name": "pulse-exactly-one-pass",
+            "pass": true
+          },
+          {
+            "name": "watch-no-generation",
+            "pass": true,
+            "detail": 0
+          },
+          {
+            "name": "short-pulse-publication-ack",
+            "pass": true
+          },
+          {
+            "name": "held-trigger-no-rearm",
+            "pass": true
+          },
+          {
+            "name": "zero-speed-pauses",
+            "pass": true
+          },
+          {
+            "name": "resume-progress",
+            "pass": true
+          },
+          {
+            "name": "recent-expiry",
+            "pass": true,
+            "detail": 0
+          },
+          {
+            "name": "native-chart-executed",
+            "pass": true,
+            "detail": {
+              "players": 1
+            }
+          },
+          {
+            "name": "clone-settings",
+            "pass": true
+          },
+          {
+            "name": "clone-no-free-energy",
+            "pass": true,
+            "detail": 0
+          },
+          {
+            "name": "helper-repair",
+            "pass": true
+          },
+          {
+            "name": "helper-teardown",
+            "pass": true
+          },
+          {
+            "name": "blueprint-tags",
+            "pass": true
+          },
+          {
+            "name": "blueprint-revive",
+            "pass": true
+          },
+          {
+            "name": "blueprint-no-energy",
+            "pass": true
+          },
+          {
+            "name": "player-upgrade-settings",
+            "pass": true,
+            "detail": {
+              "can_build": true,
+              "built": true,
+              "settings": {
+                "version": 1,
+                "mode": 3,
+                "speed": 100,
+                "policy": 1,
+                "contacts": 1,
+                "expiry": 2,
+                "run": 1,
+                "trigger": 0,
+                "modes": [
+                  {
+                    "radius": 2,
+                    "near": 0,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 2,
+                    "near": 0,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 0
+                  },
+                  {
+                    "radius": 2,
+                    "near": 1,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 2,
+                    "near": 0,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 1
+                  },
+                  {
+                    "radius": 2,
+                    "near": 0,
+                    "start": 315,
+                    "stop": 45,
+                    "bearing": 0,
+                    "direction": 1
+                  }
+                ],
+                "overrides": {}
+              }
+            }
+          },
+          {
+            "name": "player-upgrade-energy-cap",
+            "pass": true
+          },
+          {
+            "name": "robot-upgrade-transaction",
+            "pass": true
+          },
+          {
+            "name": "query-overflow-sentinel",
+            "pass": true,
+            "detail": {
+              "peak": 128,
+              "overflow": true
+            }
+          },
+          {
+            "name": "zero-circuit-value",
+            "pass": true
+          },
+          {
+            "name": "positive-run-not-boolean",
+            "pass": true
+          },
+          {
+            "name": "removed-signal-safe",
+            "pass": true
+          },
+          {
+            "name": "unpowered-fleet-no-starvation",
+            "pass": true,
+            "detail": 0
+          },
+          {
+            "name": "unrelated-research-preserves-progress",
+            "pass": true
+          },
+          {
+            "name": "modded-hostile-detected",
+            "pass": true
+          },
+          {
+            "name": "asymmetric-friend-excluded",
+            "pass": true
+          },
+          {
+            "name": "hostility-restored",
+            "pass": true
+          },
+          {
+            "name": "cease-fire-excluded",
+            "pass": true
+          },
+          {
+            "name": "force-merge-helper-ownership",
+            "pass": true
+          },
+          {
+            "name": "same-surface-teleport",
+            "pass": true
+          },
+          {
+            "name": "teleport-helpers-and-report",
+            "pass": true
+          },
+          {
+            "name": "output-helper-repaired",
+            "pass": true
+          },
+          {
+            "name": "stale-gui-closes",
+            "pass": true
+          },
+          {
+            "name": "unraised-teleport-recovers",
+            "pass": true
+          },
+          {
+            "name": "surface-delete-teardown",
+            "pass": true
+          },
+          {
+            "name": "native-freezable",
+            "pass": true
+          },
+          {
+            "name": "frozen-pauses",
+            "pass": true,
+            "detail": "frozen"
+          },
+          {
+            "name": "thaw-resumes",
+            "pass": true,
+            "detail": "generation"
+          }
+        ],
+        "stage_maximum": {
+          "control": 4,
+          "geometry": 64,
+          "chart": 2,
+          "query": 2,
+          "snapshot": 129,
+          "aggregate": 64,
+          "maintenance": 64,
+          "publish": 2,
+          "generation": 1
+        }
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "26e19275c41be2bb1a4b695bec95a8988a3cbaa806cb35aeee6deffff676d01a",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "gate": {
+      "directory": ".factorio-qc/radar/quality-gate",
+      "report": {
+        "all_pass": true,
+        "tests": [
+          {
+            "name": "red-input",
+            "pass": true
+          },
+          {
+            "name": "green-output",
+            "pass": true
+          },
+          {
+            "name": "wire-isolation",
+            "pass": true
+          },
+          {
+            "name": "buffer-refill",
+            "pass": true,
+            "detail": 16000000
+          },
+          {
+            "name": "exact-joule-deduction",
+            "pass": true
+          },
+          {
+            "name": "zero-input",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-normal",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-uncommon",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-rare",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-epic",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-ei-radar-qc-level4",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-legendary",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-ei-radar-qc-level9",
+            "pass": true
+          },
+          {
+            "name": "no-native-chart-requests-quality-unknown",
+            "pass": true
+          },
+          {
+            "name": "no-native-events",
+            "pass": true,
+            "detail": 0
+          },
+          {
+            "name": "positive-control",
+            "pass": true,
+            "detail": 1199
+          }
+        ]
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "a4da554f66d282752cf96506a1f6acde82218b2d9749f763c6c402a3c2b11d9e",
+        "scripts/control/sweeping-radar-gui.lua": "534120cc684e545948d4147022d1b477dd3f9c45598f7af2f28d5cd9c270e791",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "paid_reload": {
+      "directory": ".factorio-qc/radar/quality-paid-reload-final",
+      "report": {
+        "all_pass": true,
+        "paid_once": true,
+        "settings": true,
+        "ordered": true,
+        "configured": false,
+        "observations": 1,
+        "paid": 5000000,
+        "cursor": 2,
+        "epoch": 3
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "26e19275c41be2bb1a4b695bec95a8988a3cbaa806cb35aeee6deffff676d01a",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "paid_configuration": {
+      "directory": ".factorio-qc/radar/quality-paid-config-final",
+      "report": {
+        "all_pass": true,
+        "paid_once": true,
+        "settings": true,
+        "ordered": true,
+        "configured": true,
+        "observations": 1,
+        "paid": 5000000,
+        "cursor": 2,
+        "epoch": 3
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "26e19275c41be2bb1a4b695bec95a8988a3cbaa806cb35aeee6deffff676d01a",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "generation_reload": {
+      "directory": ".factorio-qc/radar/quality-generation-reload",
+      "report": {
+        "all_pass": true,
+        "ordered": true,
+        "unpaid_before": true,
+        "paid_once": true,
+        "admitted": 23,
+        "queued": 3
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "a4da554f66d282752cf96506a1f6acde82218b2d9749f763c6c402a3c2b11d9e",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "energy_migration": {
+      "directory": ".factorio-qc/radar/quality-energy-migration-fixed",
+      "report": {
+        "all_pass": true,
+        "tests": [
+          {
+            "name": "migrated-capabilities-1",
+            "pass": true
+          },
+          {
+            "name": "expanded-buffer-keeps-joules-1",
+            "pass": true,
+            "capacity": 16000000,
+            "standby_per_tick": 16666.666666666668,
+            "energy": 496666.6666666677
+          },
+          {
+            "name": "migrated-capabilities-2",
+            "pass": true
+          },
+          {
+            "name": "expanded-buffer-keeps-joules-2",
+            "pass": true,
+            "capacity": 10000000,
+            "standby_per_tick": 33333.333333333336,
+            "energy": 0
+          }
+        ],
+        "no_free_energy": true,
+        "joules_preserved": true,
+        "loaded_energy": [
+          996666.6666666666,
+          995000
+        ],
+        "checkpoint": [
+          {
+            "energy": 1000000,
+            "maximum": 16,
+            "rate": 2,
+            "cost": 2000000
+          },
+          {
+            "energy": 1000000,
+            "maximum": 24,
+            "rate": 8,
+            "cost": 1000000
+          }
+        ]
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "26e19275c41be2bb1a4b695bec95a8988a3cbaa806cb35aeee6deffff676d01a",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    },
+    "visual": {
+      "directory": ".factorio-qc/radar/quality-visual-final",
+      "report": {
+        "all_pass": true,
+        "tests": [
+          {
+            "name": "linked-open-mode-1",
+            "pass": true
+          },
+          {
+            "name": "linked-open-mode-2",
+            "pass": true
+          },
+          {
+            "name": "linked-open-mode-3",
+            "pass": true
+          },
+          {
+            "name": "linked-open-mode-4",
+            "pass": true
+          },
+          {
+            "name": "linked-open-mode-5",
+            "pass": true
+          }
+        ],
+        "connected": true,
+        "resolution": {
+          "width": 1920,
+          "height": 1080
+        },
+        "scale": 1
+      },
+      "source_sha256": {
+        "lib/sweeping-radar-config.lua": "b71388839169d083f1d38d68403631ec90750b7a94658aa20fdee9c77b290a4c",
+        "scripts/control/sweeping-radar.lua": "26e19275c41be2bb1a4b695bec95a8988a3cbaa806cb35aeee6deffff676d01a",
+        "scripts/control/sweeping-radar-gui.lua": "255ce4e2769ac81064df4c2d38f7e1623082eaf21415635e2329f18f8fac9b02",
+        "prototypes/sweeping-radar.lua": "f7b32d562daa00295f3b368784fd229bdc3247fff2f87b8f23a5a09cc22f93b7"
+      }
+    }
+  },
+  "final_prototypes": {
+    "radars": {
+      "ei-sweeping-radar": {
+        "max_health": 250,
+        "collision_box": [
+          [
+            -1.2,
+            -1.2
+          ],
+          [
+            1.2,
+            1.2
+          ]
+        ],
+        "selection_box": [
+          [
+            -1.5,
+            -1.5
+          ],
+          [
+            1.5,
+            1.5
+          ]
+        ],
+        "next_upgrade": "ei-phased-array-radar",
+        "fast_replaceable_group": "ei-sweeping-radar",
+        "max_distance_of_sector_revealed": 0,
+        "max_distance_of_nearby_sector_revealed": 0,
+        "heating_energy": "300kW"
+      },
+      "ei-phased-array-radar": {
+        "max_health": 500,
+        "collision_box": [
+          [
+            -1.2,
+            -1.2
+          ],
+          [
+            1.2,
+            1.2
+          ]
+        ],
+        "selection_box": [
+          [
+            -1.5,
+            -1.5
+          ],
+          [
+            1.5,
+            1.5
+          ]
+        ],
+        "next_upgrade": null,
+        "fast_replaceable_group": "ei-sweeping-radar",
+        "max_distance_of_sector_revealed": 0,
+        "max_distance_of_nearby_sector_revealed": 0,
+        "heating_energy": "300kW"
+      }
+    },
+    "recipes": {
+      "ei-sweeping-radar": {
+        "type": "recipe",
+        "name": "ei-sweeping-radar",
+        "enabled": false,
+        "energy_required": 10,
+        "allow_productivity": false,
+        "ingredients": [
+          {
+            "type": "item",
+            "name": "radar",
+            "amount": 1
+          },
+          {
+            "type": "item",
+            "name": "advanced-circuit",
+            "amount": 8
+          },
+          {
+            "type": "item",
+            "name": "ei-electronic-parts",
+            "amount": 4
+          },
+          {
+            "type": "item",
+            "name": "ei-steel-mechanical-parts",
+            "amount": 10
+          },
+          {
+            "type": "item",
+            "name": "ei-insulated-wire",
+            "amount": 10
+          }
+        ],
+        "results": [
+          {
+            "type": "item",
+            "name": "ei-sweeping-radar",
+            "amount": 1
+          }
+        ],
+        "hide_from_signal_gui": false,
+        "allow_decomposition": true,
+        "unlock_results": true
+      },
+      "ei-phased-array-radar": {
+        "type": "recipe",
+        "name": "ei-phased-array-radar",
+        "enabled": false,
+        "energy_required": 20,
+        "allow_productivity": false,
+        "ingredients": [
+          {
+            "type": "item",
+            "name": "ei-sweeping-radar",
+            "amount": 1
+          },
+          {
+            "type": "item",
+            "name": "processing-unit",
+            "amount": 20
+          },
+          {
+            "type": "item",
+            "name": "ei-advanced-motor",
+            "amount": 8
+          },
+          {
+            "type": "item",
+            "name": "ei-steel-beam",
+            "amount": 8
+          },
+          {
+            "type": "item",
+            "name": "ei-simulation-data",
+            "amount": 40
+          },
+          {
+            "type": "item",
+            "name": "ei-high-energy-crystal",
+            "amount": 8
+          }
+        ],
+        "results": [
+          {
+            "type": "item",
+            "name": "ei-phased-array-radar",
+            "amount": 1
+          }
+        ],
+        "hide_from_signal_gui": false,
+        "allow_decomposition": true,
+        "unlock_results": true
+      }
+    },
+    "technologies": {
+      "ei-sweeping-radar": {
+        "type": "technology",
+        "name": "ei-sweeping-radar",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.9,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "radar",
+          "circuit-network",
+          "ei-electronic-parts"
+        ],
+        "effects": [
+          {
+            "type": "unlock-recipe",
+            "recipe": "ei-sweeping-radar"
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "electricity-age",
+        "hidden": false
+      },
+      "ei-phased-array-radar": {
+        "type": "technology",
+        "name": "ei-phased-array-radar",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.9,
+              0.65,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-sweeping-radar",
+          "ei-advanced-computer-age-tech",
+          "ei-high-energy-crystal"
+        ],
+        "effects": [
+          {
+            "type": "unlock-recipe",
+            "recipe": "ei-phased-array-radar"
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "advanced-computer-age",
+        "hidden": false
+      },
+      "ei-radar-range-1": {
+        "type": "technology",
+        "name": "ei-radar-range-1",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-sweeping-radar",
+          "ei-computer-age"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-range",
+              "2"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "computer-age",
+        "localised_name": [
+          "sweeping-radar.research-name-range",
+          "1"
+        ],
+        "hidden": false
+      },
+      "ei-radar-range-2": {
+        "type": "technology",
+        "name": "ei-radar-range-2",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-radar-range-1",
+          "ei-phased-array-radar"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-range",
+              "4"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "advanced-computer-age",
+        "localised_name": [
+          "sweeping-radar.research-name-range",
+          "2"
+        ],
+        "hidden": false
+      },
+      "ei-radar-range-3": {
+        "type": "technology",
+        "name": "ei-radar-range-3",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-radar-range-2",
+          "ei-quantum-age"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-range",
+              "8"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-quantum-age-tech",
+              1
+            ],
+            [
+              "space-science-pack",
+              1
+            ]
+          ]
+        },
+        "age": "quantum-age",
+        "localised_name": [
+          "sweeping-radar.research-name-range",
+          "3"
+        ],
+        "hidden": false
+      },
+      "ei-radar-capacity-1": {
+        "type": "technology",
+        "name": "ei-radar-capacity-1",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-sweeping-radar",
+          "ei-computer-age"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-capacity",
+              "25"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "computer-age",
+        "localised_name": [
+          "sweeping-radar.research-name-capacity",
+          "1"
+        ],
+        "hidden": false
+      },
+      "ei-radar-capacity-2": {
+        "type": "technology",
+        "name": "ei-radar-capacity-2",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-radar-capacity-1",
+          "ei-phased-array-radar"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-capacity",
+              "50"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "advanced-computer-age",
+        "localised_name": [
+          "sweeping-radar.research-name-capacity",
+          "2"
+        ],
+        "hidden": false
+      },
+      "ei-radar-capacity-3": {
+        "type": "technology",
+        "name": "ei-radar-capacity-3",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-radar-capacity-2",
+          "ei-quantum-age"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-capacity",
+              "100"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-quantum-age-tech",
+              1
+            ],
+            [
+              "space-science-pack",
+              1
+            ]
+          ]
+        },
+        "age": "quantum-age",
+        "localised_name": [
+          "sweeping-radar.research-name-capacity",
+          "3"
+        ],
+        "hidden": false
+      },
+      "ei-radar-efficiency-1": {
+        "type": "technology",
+        "name": "ei-radar-efficiency-1",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-sweeping-radar",
+          "ei-computer-age"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-efficiency",
+              "10"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "computer-age",
+        "localised_name": [
+          "sweeping-radar.research-name-efficiency",
+          "1"
+        ],
+        "hidden": false
+      },
+      "ei-radar-efficiency-2": {
+        "type": "technology",
+        "name": "ei-radar-efficiency-2",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-radar-efficiency-1",
+          "ei-phased-array-radar"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-efficiency",
+              "20"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 20,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ]
+          ]
+        },
+        "age": "advanced-computer-age",
+        "localised_name": [
+          "sweeping-radar.research-name-efficiency",
+          "2"
+        ],
+        "hidden": false
+      },
+      "ei-radar-efficiency-3": {
+        "type": "technology",
+        "name": "ei-radar-efficiency-3",
+        "icons": [
+          {
+            "icon": "__base__/graphics/technology/radar.png",
+            "icon_size": 256,
+            "tint": [
+              0.75,
+              0.85,
+              1
+            ]
+          }
+        ],
+        "prerequisites": [
+          "ei-radar-efficiency-2",
+          "ei-quantum-age"
+        ],
+        "effects": [
+          {
+            "type": "nothing",
+            "effect_description": [
+              "sweeping-radar.research-efficiency",
+              "30"
+            ]
+          }
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-quantum-age-tech",
+              1
+            ],
+            [
+              "space-science-pack",
+              1
+            ]
+          ]
+        },
+        "age": "quantum-age",
+        "localised_name": [
+          "sweeping-radar.research-name-efficiency",
+          "3"
+        ],
+        "hidden": false
+      }
+    },
+    "buffers": {
+      "ei-sweeping-radar": {
+        "energy_usage": "1000000W",
+        "energy_source": {
+          "type": "electric",
+          "usage_priority": "secondary-input",
+          "buffer_capacity": "16000000J",
+          "input_flow_limit": "64000000W",
+          "output_flow_limit": "0W",
+          "drain": "0W",
+          "render_no_power_icon": false,
+          "render_no_network_icon": false
+        }
+      },
+      "ei-phased-array-radar": {
+        "energy_usage": "2000000W",
+        "energy_source": {
+          "type": "electric",
+          "usage_priority": "secondary-input",
+          "buffer_capacity": "10000000J",
+          "input_flow_limit": "128000000W",
+          "output_flow_limit": "0W",
+          "drain": "0W",
+          "render_no_power_icon": false,
+          "render_no_network_icon": false
+        }
+      }
+    },
+    "standard_radar": {
+      "energy_usage": "1.2MW",
+      "energy_source": {
+        "type": "electric",
+        "usage_priority": "secondary-input"
+      },
+      "max_distance_of_sector_revealed": 14,
+      "max_distance_of_nearby_sector_revealed": 3
+    }
+  },
+  "preflight": {
+    "overall_status": "failed",
+    "checks": [
+      {
+        "name": "conceptual-blueprints",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "lua-syntax",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "python-syntax",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "powershell-syntax",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "encoding-health",
+        "status": "failed",
+        "errors": [
+          "scripts\\qc\\singularity-lance\\angular-results.json: mojibake-suspected [utf8]"
+        ],
+        "warnings": []
+      },
+      {
+        "name": "missing-requires",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "locale-duplicates",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "locale-missing",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "asset-references",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "pack-version-consistency",
+        "status": "ok",
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "module-headers",
+        "status": "warning",
+        "errors": [],
+        "warnings": [
+          "exotic-space-industries-remembrance\\scripts\\control\\auric-inoculation-vat.lua: missing forwarded_events:",
+          "exotic-space-industries-remembrance\\scripts\\control\\emerald-apocalypse-hover-tank.lua: missing storage_roots:, gui_ids:, remote_interfaces:, rebuild_on:"
+        ]
+      }
+    ]
+  },
+  "conceptual_model_audit": "ok",
+  "verification_scope": [
+    "Quality run matches the final production config, runtime, GUI, and prototypes.",
+    "Other runs retain their own staged source hashes; the final runtime adds the stale-helper identity guard, directly covered by the quality fixture.",
+    "English GUI screenshots were visually inspected for all five modes and remote view.",
+    "Robot upgrade tests exercise transactions/events, not a flying robot; no multiplayer synchronization claim."
+  ]
+}

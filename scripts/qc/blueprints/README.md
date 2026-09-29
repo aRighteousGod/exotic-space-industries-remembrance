@@ -71,14 +71,11 @@ assess behavior and inspect a rendered document to assess layout.
 
 ## Rollout evidence and limits
 
-The 2026-09-28 working-tree backfill accounts for 41 models, 94 owned sources,
-and two classified exceptions in a 96-file inventory. Its conservative runtime
-graph contains 93 files, including migrations. The independently published
-blueprint commit covers 40 models and 88 owned sources in a 90-file inventory
-(87 runtime dependencies): the sweeping-radar model and six new source files
-remain paired with their pending feature commit. The Lance feature commit
-updates its model to schema 14, including paid contacts and angular acquisition.
-These are observed counts, not audit constants.
+The 2026-09-28 backfill accounts for 41 models, 94 owned sources, and two
+classified exceptions in a 96-file inventory. The conservative runtime graph
+contains 93 files, including migrations. These are observed rollout counts,
+not audit constants. The Lance feature commit updates its model to schema 14,
+including paid contacts and angular acquisition.
 
 All 30 audit regression tests and five header/preflight
 support checks passed. All 41 Mermaid diagrams parsed successfully with Mermaid
