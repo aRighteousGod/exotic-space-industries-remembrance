@@ -586,6 +586,12 @@ function model.singularity_lance(player_index, element)
     end
     text(element, {"lance-upgrades.force-values", current.multiplier, current.direct_damage,
         current.direct_sustained_dps, config.range})
+    if current.level >= 2 then
+        text(element, {"lance-upgrades.status-wound", current.wound_first_damage, current.wound_max_damage})
+    end
+    if current.level >= 4 then
+        text(element, {"lance-upgrades.status-testament", config.testament.interval, config.testament.primary_multiplier})
+    end
     text(element, {"lance-upgrades.base-area", config.splash_damage * current.multiplier, config.splash_radius, config.splash_cap})
     text(element, {"lance-upgrades.protection"})
     text(element, {"lance-upgrades.rules"})

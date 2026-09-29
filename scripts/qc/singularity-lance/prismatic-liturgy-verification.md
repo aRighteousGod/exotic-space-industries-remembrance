@@ -152,3 +152,20 @@ No isolated graphical fixture was run, as requested. Confirm in actual gameplay:
 - Dense 96-lance combat: acceptable visual/GPU load, controlled bloom and tails.
 - Technology/Factoriopedia/Informatron: readable emblems at 64/32px, correct visual
   legend, no missing sprites or locale placeholders.
+
+## Follow-up: crystal muzzle, impact bloom and terrain lighting
+
+The visual source again uses the original crystal-eye offset `{0, -3.35}`;
+mechanical range, penetration geometry and beam endpoints are unchanged. Base,
+Axial and Testament beams retain the original 24-frame prismatic impact bloom.
+The unsupported beam `light` field is replaced by native `draw_as_light` ground
+masks, with strength and size derived from the existing fidelity profile. This
+adds no runtime light objects or polling and reuses existing shipped artwork.
+
+Factorio 2.0.77 passed 242 runtime assertions each in Lean and Standard, including
+96 new engine endpoint checks covering all three beam variants in eight directions
+at a translated, grid-snapped turret position. Final-data assertions verify the
+impact animation and all three terrain-light masks on four beam prototypes.
+`qc-assets` passed cleanly. Evidence is in `.factorio-qc/cu/l/lance-cues-<fidelity>`
+and `.factorio-qc/lance-cues-assets.log`. The benchmarks above predate this follow-up;
+night-time light spill, endpoint bloom strength and GPU cost remain manual checks.

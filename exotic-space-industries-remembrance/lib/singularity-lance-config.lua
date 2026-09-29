@@ -14,13 +14,18 @@ singularity_lance_config.direct_damage = 500
 singularity_lance_config.splash_damage = 125
 singularity_lance_config.splash_radius = 1.5
 singularity_lance_config.splash_cap = 8
-singularity_lance_config.axial = {width = 1, reach = 12, damage = 250, cap = 3}
-singularity_lance_config.wound = {step = 0.10, cap = 5, timeout = 120}
-singularity_lance_config.collapse = {delay = 30, damage = 250, radius = 3, cap = 8}
-singularity_lance_config.testament = {interval = 8, primary_multiplier = 2, axial_cap = 6,
-    damage = 500, radius = 4, cap = 12}
+singularity_lance_config.axial = {width = 2, reach = 24, damage = 500, cap = 5,
+    branch = {angle = 15, width = 1, reach = 18, damage = 250, cap = 3}}
+singularity_lance_config.wound = {step = 0.20, cap = 5, timeout = 120}
+singularity_lance_config.collapse = {delay = 30, damage = 600, radius = 4, cap = 10,
+    core_damage = 1000, core_radius = 1.5}
+singularity_lance_config.testament = {interval = 8, primary_multiplier = 4, axial_cap = 10, branch_cap = 6,
+    damage = 1200, radius = 6, cap = 16, core_damage = 2000, core_radius = 3,
+    echo = {delay = 60, damage = 1000, radius = 5, cap = 12}}
 -- Production artwork contract; mechanics never read these presentation values.
-singularity_lance_config.presentation = {revision = 2, beam_frames = 16, beam_speed = 0.55,
+singularity_lance_config.presentation = {revision = 3, beam_frames = 16, beam_speed = 0.55, branch_scale = 0.65,
+    beam_source_offset = {x = 0, y = -3.35}, -- Original crystal eye, in world-space tiles.
+    ground_light_reference_size = 36, -- Standard preset at vanilla light-mask scale.
     beam_scale = 0.34, wound_size = 192, wound_frames = 24, wound_speed = 0.4,
     wound_scale = 1 / 3, collapse_size = 256, warning_radius_fraction = 0.775,
     collapse_reference_radius = 3, impact_ticks = 12, crown_ticks = 12, testament_hold_ticks = 12}
@@ -40,11 +45,15 @@ function singularity_lance_config.effect_description(index, multiplier)
     local c = singularity_lance_config
     multiplier = multiplier or 1
     local description
-    if index == 1 then description = {"lance-upgrades.axial", c.axial.width, c.axial.reach, c.axial.cap, c.axial.damage * multiplier}
+    if index == 1 then description = {"lance-upgrades.axial", c.axial.width, c.axial.reach, c.axial.cap, c.axial.damage * multiplier,
+        c.axial.branch.angle, c.axial.branch.width, c.axial.branch.reach, c.axial.branch.cap, c.axial.branch.damage * multiplier}
     elseif index == 2 then description = {"lance-upgrades.wound", c.wound.step * 100, c.wound.step * c.wound.cap * 100, c.wound.timeout / 60}
-    elseif index == 3 then description = {"lance-upgrades.collapse", c.collapse.delay / 60, c.collapse.damage * multiplier, c.collapse.radius, c.collapse.cap}
+    elseif index == 3 then description = {"lance-upgrades.collapse", c.collapse.delay / 60, c.collapse.damage * multiplier,
+        c.collapse.radius, c.collapse.cap, c.collapse.core_damage * multiplier, c.collapse.core_radius}
     else description = {"lance-upgrades.testament", c.testament.interval, c.testament.primary_multiplier,
-        c.testament.axial_cap, c.testament.damage * multiplier, c.testament.radius, c.testament.cap}
+        c.testament.axial_cap, c.testament.damage * multiplier, c.testament.radius, c.testament.cap,
+        c.testament.branch_cap, c.testament.core_damage * multiplier, c.testament.core_radius,
+        c.testament.echo.delay / 60, c.testament.echo.damage * multiplier, c.testament.echo.radius, c.testament.echo.cap}
     end
     -- Prototype-stage LocalisedString parameters must be strings, including numbers.
     for parameter = 2, #description do

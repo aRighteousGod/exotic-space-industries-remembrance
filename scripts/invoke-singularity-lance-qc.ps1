@@ -4,7 +4,8 @@ param(
     [ValidateSet('no-lance','idle','direct','normal-power','dense','diagonal','research')][string]$Scene = 'dense',
     [ValidateSet('lean','standard','cinematic','maximal','unbounded')][string]$Fidelity = 'standard',
     [switch]$Baseline, [switch]$NoScaling, [switch]$Flatten, [switch]$Profile,
-    [int]$Ticks = 900, [int]$Runs = 5, [string]$SaveInput, [string]$BaselineSource,
+    [int]$Ticks = 900, [int]$Runs = 5, [string]$SaveInput, [string]$BaselineSource, [string]$FixtureSource,
+    [uint32]$MapSeed = 410728,
     [switch]$CurrentSource, [string]$RunName, [switch]$NoCounters
 )
 $ErrorActionPreference = 'Stop'
@@ -83,7 +84,8 @@ script.on_event({defines.events.on_pre_surface_deleted, defines.events.on_pre_su
 }
 $helper = Join-Path $mods 'zzz-lance-upgrade-qc'
 New-Item -ItemType Directory -Path $helper -Force | Out-Null
-Copy-Item -Path "$repo\scripts\qc\singularity-lance\*" -Destination $helper -Force
+$fixture = if ($FixtureSource) { (Resolve-Path -LiteralPath $FixtureSource).Path } else { Join-Path $repo 'scripts\qc\singularity-lance' }
+Copy-Item -Path "$fixture\*" -Destination $helper -Force
 $legacyBaseline = $Baseline.IsPresent -and -not $CurrentSource.IsPresent
 $cfg = "return {mode='$Mode',scene='$Scene',fidelity='$Fidelity',ticks=$Ticks,baseline=$($legacyBaseline.ToString().ToLowerInvariant()),no_scaling=$($NoScaling.ToString().ToLowerInvariant()),flatten=$($Flatten.ToString().ToLowerInvariant()),profile=$($Profile.ToString().ToLowerInvariant()),no_counters=$($NoCounters.ToString().ToLowerInvariant())}"
 [IO.File]::WriteAllText("$helper\test-config.lua", $cfg, $utf8)
@@ -98,7 +100,7 @@ foreach ($mod in $list.mods) {
 $list.mods += [pscustomobject]@{name='zzz-lance-upgrade-qc';enabled=$true}
 [IO.File]::WriteAllText("$mods\mod-list.json", ($list | ConvertTo-Json -Depth 8), $utf8)
 # The bridge exists only in the staged main pack, keeping test injection out of shipping code.
-$bridge = Get-Content -Raw "$repo\scripts\qc\singularity-lance\bridge.lua"
+$bridge = Get-Content -Raw "$fixture\bridge.lua"
 [IO.File]::AppendAllText("$main\control.lua", "`n$bridge", $utf8)
 $config = Join-Path $run 'config.ini'
 $forward = $run.Replace('\','/')
@@ -116,7 +118,7 @@ function Invoke-Engine([string[]]$Extra, [string]$Tag) {
 }
 if ($Mode -eq 'dump') { Invoke-Engine @('--dump-data') 'dump'; Write-Output $run; exit }
 $save = if ($SaveInput) { (Resolve-Path $SaveInput).Path } else { Join-Path $run 'fixture.zip' }
-if (-not $SaveInput) { Invoke-Engine @('--create', ('"'+$save+'"')) 'create' }
+if (-not $SaveInput) { Invoke-Engine @('--create', ('"'+$save+'"'), '--map-gen-seed', "$MapSeed") 'create' }
 if ($Mode -eq 'save') {
     New-Item -ItemType Directory -Path (Join-Path $run 'saves') -Force | Out-Null
     $serverSettings = Join-Path $run 'server-settings.json'

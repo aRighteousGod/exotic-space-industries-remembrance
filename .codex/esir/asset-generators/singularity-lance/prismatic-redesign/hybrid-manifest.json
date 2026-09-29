@@ -1,0 +1,116 @@
+{
+  "status": "passed",
+  "sequences": {
+    "collapse-concentrated-warning": {
+      "width": 256,
+      "height": 256,
+      "frames": 30,
+      "columns": 6,
+      "tile_x": false,
+      "outer_radius": 4,
+      "core_ratio": 0.375,
+      "core_radius_pixels": 37.2,
+      "layers": [
+        {
+          "file": "collapse-concentrated-warning.png",
+          "role": "semantic",
+          "sha256": "c71c4fbf3fb7bec075c38f22e520a67429e80fd9bbf46b09237c74376aae46d2"
+        },
+        {
+          "file": "collapse-concentrated-warning-glow.png",
+          "role": "glow",
+          "sha256": "1cf821081e3e4141db5e721e2eb05e045712f089ea7d4877f55fdefe30ee5ee0"
+        }
+      ]
+    },
+    "collapse-concentrated-impact": {
+      "width": 256,
+      "height": 256,
+      "frames": 12,
+      "columns": 6,
+      "tile_x": false,
+      "outer_radius": 4,
+      "core_ratio": 0.375,
+      "core_radius_pixels": 37.2,
+      "layers": [
+        {
+          "file": "collapse-concentrated-impact.png",
+          "role": "semantic",
+          "sha256": "be2d02ab3c1f73a02a4e3cb20a6c0e622fb87aa049d5f970b733dd7a5c37c348"
+        },
+        {
+          "file": "collapse-concentrated-impact-glow.png",
+          "role": "glow",
+          "sha256": "5eeb96d202a688bcb01be2257cb0bd8ea18d8f8e6494e468492149d3670f3210"
+        }
+      ]
+    },
+    "testament-concentrated-warning": {
+      "width": 256,
+      "height": 256,
+      "frames": 30,
+      "columns": 6,
+      "tile_x": false,
+      "outer_radius": 6,
+      "core_ratio": 0.5,
+      "core_radius_pixels": 49.6,
+      "layers": [
+        {
+          "file": "testament-concentrated-warning.png",
+          "role": "semantic",
+          "sha256": "b3d1ecf36774a87084bec17bc089a27c579a2c9ac3ac7c835655c194f3d7a46d"
+        },
+        {
+          "file": "testament-concentrated-warning-glow.png",
+          "role": "glow",
+          "sha256": "28f363d14b8b3397f9031d99e3e31d97d27883bc2295579c028e011195728519"
+        }
+      ]
+    },
+    "testament-concentrated-impact": {
+      "width": 256,
+      "height": 256,
+      "frames": 12,
+      "columns": 6,
+      "tile_x": false,
+      "outer_radius": 6,
+      "core_ratio": 0.5,
+      "core_radius_pixels": 49.6,
+      "layers": [
+        {
+          "file": "testament-concentrated-impact.png",
+          "role": "semantic",
+          "sha256": "38811f2d95111bce2c9e552d21438c3f4b0cf13e65e24eb1d4fbdd1e5f0cfe59"
+        },
+        {
+          "file": "testament-concentrated-impact-glow.png",
+          "role": "glow",
+          "sha256": "fb6e2f8c69661baa64e581400150f4915a01fde4128243bb48d5d49ca86eb872"
+        }
+      ]
+    }
+  },
+  "total_frames": 84,
+  "shipping_pngs": 8,
+  "rgba_atlas_bytes": 44040192,
+  "core_atlas_bytes": 22020096,
+  "warning_reference_radius_pixels": 99.2,
+  "source": "hybrid.py + unchanged production.py/generate.py",
+  "legacy_assets_written": false,
+  "echo_aliases": {
+    "echo-warning": "testament-warning",
+    "echo-impact": "testament-impact"
+  },
+  "timeline": {
+    "frames": 72,
+    "first_impact_tick": 30,
+    "echo_impact_tick": 60,
+    "preview_slowdown": 4,
+    "gameplay_ticks_per_second": 60
+  },
+  "qa": [
+    "unique semantic frames",
+    "finite semantic/glow edges",
+    "core marker opacity and visibility"
+  ]
+}

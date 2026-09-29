@@ -40,18 +40,41 @@ local function prismatic_animation(key, width, height, frames, columns, scale, s
     return {layers = lean and {semantic} or {glow, semantic}}
 end
 
--- Reuse the original native cosmetic beam's flags, width, light and empty ground
--- graphics. Periodic bodies keep the material density independent of shot length.
+-- Each upgraded material has its own source aperture. Retain the original impact
+-- bloom and native ground lighting; source position remains the crystal eye.
+-- Periodic bodies keep the material density independent of shot length.
 for _, shape in ipairs({"axial", "testament"}) do
     local beam = table.deepcopy(data.raw.beam["ei-singularity-lance-beam"])
     beam.name = "ei-singularity-lance-beam-" .. shape
     local body = prismatic_animation("beam-" .. shape .. "-body", 256, 96, art.beam_frames, 4, art.beam_scale, art.beam_speed)
     local head = prismatic_animation("beam-" .. shape .. "-head", 192, 160, art.beam_frames, 4, art.beam_scale, art.beam_speed)
     local tail = prismatic_animation("beam-" .. shape .. "-tail", 192, 160, art.beam_frames, 4, art.beam_scale, art.beam_speed)
-    beam.graphics_set.beam = {start = table.deepcopy(tail), ending = table.deepcopy(head),
+    local opening = prismatic_animation("beam-" .. shape .. "-start", 192, 160, art.beam_frames, 4, art.beam_scale, art.beam_speed)
+    beam.graphics_set.beam = {start = opening, ending = beam.graphics_set.beam.ending,
         head = head, tail = tail, body = {body}, render_layer = "projectile"}
     beam.action, beam.working_sound = nil, nil
     data:extend({beam})
+    local branch = table.deepcopy(beam)
+    branch.name = beam.name .. "-branch"
+    -- Native material and terrain masks narrow together. The inherited impact
+    -- bloom remains at its original scale on every segment endpoint.
+    for _, group in pairs({branch.graphics_set.beam, branch.graphics_set.ground}) do
+        for key, value in pairs(group or {}) do
+            if key ~= "ending" and type(value) == "table" then
+                local function narrow(animation)
+                    if animation.layers then for _, layer in ipairs(animation.layers) do narrow(layer) end
+                    elseif animation.filename then
+                        animation.scale = (animation.scale or 1) * art.branch_scale
+                        if animation.shift then
+                            animation.shift = {animation.shift[1] * art.branch_scale, animation.shift[2] * art.branch_scale}
+                        end
+                    else for _, part in ipairs(animation) do narrow(part) end end
+                end
+                narrow(value)
+            end
+        end
+    end
+    data:extend({branch})
 end
 for band = 1, 3 do
     local key = "wound-" .. band
@@ -62,10 +85,13 @@ end
 local crown = prismatic_animation("wound-crown", art.wound_size, art.wound_size, art.crown_ticks, 6, art.wound_scale, 1)
 crown.type, crown.name = "animation", "ei-singularity-lance-wound-crown"
 data:extend({crown})
-for _, key in ipairs({"collapse-warning", "collapse-impact", "testament-warning", "testament-impact"}) do
+for _, key in ipairs({"collapse-warning", "collapse-impact", "testament-warning", "testament-impact",
+    "collapse-concentrated-warning", "collapse-concentrated-impact", "testament-concentrated-warning",
+    "testament-concentrated-impact", "echo-warning", "echo-impact"}) do
     local warning = key:find("warning", 1, true)
     local scale = art.collapse_reference_radius * 32 / (art.collapse_size / 2 * art.warning_radius_fraction)
-    local prototype = prismatic_animation(key, art.collapse_size, art.collapse_size,
+    local filename = key:gsub("^echo%-", "testament-")
+    local prototype = prismatic_animation(filename, art.collapse_size, art.collapse_size,
         warning and c.collapse.delay or art.impact_ticks, 6, scale, 1)
     prototype.type, prototype.name = "animation", "ei-singularity-lance-" .. key
     data:extend({prototype})

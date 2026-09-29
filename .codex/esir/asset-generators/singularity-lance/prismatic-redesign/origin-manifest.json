@@ -1,0 +1,208 @@
+{
+  "frames": 16,
+  "frame_size": [
+    192,
+    160
+  ],
+  "columns": 4,
+  "animation_speed": 0.55,
+  "scale": 0.34,
+  "branch_scale": 0.65,
+  "rgba_atlas_bytes": 7864320,
+  "placement": "native BeamGraphicsSet.beam.start; no extra entities",
+  "manual": [
+    "crystal alignment",
+    "native start-to-body transition",
+    "fork brightness"
+  ],
+  "sequences": {
+    "axial": {
+      "layers": [
+        {
+          "file": "beam-axial-start.png",
+          "sha256": "a8361cfae166a044225a41c64b9bf425b776df4e87b7b526b967a65076e9f101"
+        },
+        {
+          "file": "beam-axial-start-glow.png",
+          "sha256": "a4cb3baca930c356c0f0501a2646fa8da95f3ddf135cca55e4fc637025d5c62c"
+        }
+      ],
+      "qa": [
+        {
+          "frame": 0,
+          "solid_height": 78,
+          "prior_tail_solid_height": 30
+        },
+        {
+          "frame": 1,
+          "solid_height": 78,
+          "prior_tail_solid_height": 29
+        },
+        {
+          "frame": 2,
+          "solid_height": 78,
+          "prior_tail_solid_height": 29
+        },
+        {
+          "frame": 3,
+          "solid_height": 79,
+          "prior_tail_solid_height": 28
+        },
+        {
+          "frame": 4,
+          "solid_height": 80,
+          "prior_tail_solid_height": 27
+        },
+        {
+          "frame": 5,
+          "solid_height": 79,
+          "prior_tail_solid_height": 27
+        },
+        {
+          "frame": 6,
+          "solid_height": 76,
+          "prior_tail_solid_height": 28
+        },
+        {
+          "frame": 7,
+          "solid_height": 76,
+          "prior_tail_solid_height": 30
+        },
+        {
+          "frame": 8,
+          "solid_height": 75,
+          "prior_tail_solid_height": 29
+        },
+        {
+          "frame": 9,
+          "solid_height": 77,
+          "prior_tail_solid_height": 28
+        },
+        {
+          "frame": 10,
+          "solid_height": 77,
+          "prior_tail_solid_height": 29
+        },
+        {
+          "frame": 11,
+          "solid_height": 79,
+          "prior_tail_solid_height": 29
+        },
+        {
+          "frame": 12,
+          "solid_height": 80,
+          "prior_tail_solid_height": 29
+        },
+        {
+          "frame": 13,
+          "solid_height": 79,
+          "prior_tail_solid_height": 27
+        },
+        {
+          "frame": 14,
+          "solid_height": 78,
+          "prior_tail_solid_height": 28
+        },
+        {
+          "frame": 15,
+          "solid_height": 76,
+          "prior_tail_solid_height": 29
+        }
+      ]
+    },
+    "testament": {
+      "layers": [
+        {
+          "file": "beam-testament-start.png",
+          "sha256": "bec530117b49d9e6e104c2c5d74e36219d9206e67dd6e35057111c29497ea117"
+        },
+        {
+          "file": "beam-testament-start-glow.png",
+          "sha256": "9fbe8673836e95933875728f81e8264817ce1004438387d0dda0d8a811ee71df"
+        }
+      ],
+      "qa": [
+        {
+          "frame": 0,
+          "solid_height": 88,
+          "prior_tail_solid_height": 35
+        },
+        {
+          "frame": 1,
+          "solid_height": 89,
+          "prior_tail_solid_height": 35
+        },
+        {
+          "frame": 2,
+          "solid_height": 89,
+          "prior_tail_solid_height": 35
+        },
+        {
+          "frame": 3,
+          "solid_height": 90,
+          "prior_tail_solid_height": 34
+        },
+        {
+          "frame": 4,
+          "solid_height": 87,
+          "prior_tail_solid_height": 33
+        },
+        {
+          "frame": 5,
+          "solid_height": 87,
+          "prior_tail_solid_height": 34
+        },
+        {
+          "frame": 6,
+          "solid_height": 85,
+          "prior_tail_solid_height": 31
+        },
+        {
+          "frame": 7,
+          "solid_height": 84,
+          "prior_tail_solid_height": 34
+        },
+        {
+          "frame": 8,
+          "solid_height": 87,
+          "prior_tail_solid_height": 34
+        },
+        {
+          "frame": 9,
+          "solid_height": 88,
+          "prior_tail_solid_height": 34
+        },
+        {
+          "frame": 10,
+          "solid_height": 89,
+          "prior_tail_solid_height": 35
+        },
+        {
+          "frame": 11,
+          "solid_height": 88,
+          "prior_tail_solid_height": 35
+        },
+        {
+          "frame": 12,
+          "solid_height": 87,
+          "prior_tail_solid_height": 33
+        },
+        {
+          "frame": 13,
+          "solid_height": 86,
+          "prior_tail_solid_height": 33
+        },
+        {
+          "frame": 14,
+          "solid_height": 84,
+          "prior_tail_solid_height": 32
+        },
+        {
+          "frame": 15,
+          "solid_height": 87,
+          "prior_tail_solid_height": 33
+        }
+      ]
+    }
+  }
+}

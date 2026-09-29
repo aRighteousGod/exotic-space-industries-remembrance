@@ -1,0 +1,1010 @@
+{
+  "engine": "2.0.77",
+  "runtime_schema": 12,
+  "map_seed": 410728,
+  "limits": [
+    "Gameplay visual acceptance is manual.",
+    "Headless timings omit GPU/render cost.",
+    "Whole-engine means include other enabled mods and fixture overhead.",
+    "Profile phases are nested; only shot plus update-total form the lance total."
+  ],
+  "validation": {
+    "hybrid-final2-lean": {
+      "assertions": 533,
+      "runtime_sha256": "d25d28447d308106b74e00d802f3a8fd962aadd653e21342d881e4f23fd86d7d",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final2-standard": {
+      "assertions": 533,
+      "runtime_sha256": "d25d28447d308106b74e00d802f3a8fd962aadd653e21342d881e4f23fd86d7d",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final2-cinematic": {
+      "assertions": 531,
+      "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final2-maximal": {
+      "assertions": 531,
+      "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final2-unbounded": {
+      "assertions": 531,
+      "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final-noscaling": {
+      "assertions": 533,
+      "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final-flatten": {
+      "assertions": 533,
+      "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-final-noscalingflatten": {
+      "assertions": 533,
+      "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+        "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+        "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ],
+      "overload_results": [
+        "LANCE_QC PASS visual overload first damage within engine rounding 1824018.5",
+        "LANCE_QC PASS visual overload total damage within engine rounding 1920030"
+      ]
+    },
+    "hybrid-reload11-01": {
+      "assertions": 20
+    },
+    "hybrid-reload12": {
+      "assertions": 20
+    }
+  },
+  "benchmarks": {
+    "no-lance": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.368,
+          0.366,
+          0.367,
+          0.402,
+          0.381,
+          0.367
+        ],
+        "median_ms": 0.367,
+        "min_ms": 0.366,
+        "max_ms": 0.402,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.374,
+          0.382,
+          0.391,
+          0.363,
+          0.364,
+          0.363
+        ],
+        "median_ms": 0.364,
+        "min_ms": 0.363,
+        "max_ms": 0.391,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -0.8174386920980936
+    },
+    "idle": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.397,
+          0.385,
+          0.39,
+          0.384,
+          0.389,
+          0.386
+        ],
+        "median_ms": 0.386,
+        "min_ms": 0.384,
+        "max_ms": 0.39,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.385,
+          0.388,
+          0.384,
+          0.378,
+          0.382,
+          0.376
+        ],
+        "median_ms": 0.382,
+        "min_ms": 0.376,
+        "max_ms": 0.388,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -1.0362694300518172
+    },
+    "direct": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.472,
+          0.453,
+          0.447,
+          0.45,
+          0.457,
+          0.463
+        ],
+        "median_ms": 0.453,
+        "min_ms": 0.447,
+        "max_ms": 0.463,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.458,
+          0.449,
+          0.474,
+          0.453,
+          0.451,
+          0.455
+        ],
+        "median_ms": 0.453,
+        "min_ms": 0.449,
+        "max_ms": 0.474,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 0.0
+    },
+    "normal-power": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          2.118,
+          2.17,
+          2.23,
+          2.093,
+          2.175,
+          2.123
+        ],
+        "median_ms": 2.17,
+        "min_ms": 2.093,
+        "max_ms": 2.23,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          4.396,
+          4.251,
+          4.351,
+          4.346,
+          4.42,
+          4.345
+        ],
+        "median_ms": 4.346,
+        "min_ms": 4.251,
+        "max_ms": 4.42,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 100.27649769585256
+    },
+    "dense": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          54.289,
+          53.676,
+          53.612,
+          52.471,
+          54.313,
+          52.714
+        ],
+        "median_ms": 53.612,
+        "min_ms": 52.471,
+        "max_ms": 54.313,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          87.275,
+          90.299,
+          89.321,
+          88.414,
+          87.064,
+          88.773
+        ],
+        "median_ms": 88.773,
+        "min_ms": 87.064,
+        "max_ms": 90.299,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 65.5841975677087
+    },
+    "diagonal": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          14.25,
+          14.48,
+          14.3,
+          14.211,
+          14.434,
+          14.32
+        ],
+        "median_ms": 14.32,
+        "min_ms": 14.211,
+        "max_ms": 14.48,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          29.393,
+          29.06,
+          28.78,
+          29.222,
+          29.871,
+          29.764
+        ],
+        "median_ms": 29.222,
+        "min_ms": 28.78,
+        "max_ms": 29.871,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 104.0642458100559
+    },
+    "research": {
+      "ticks_per_run": 600,
+      "discarded_full_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.397,
+          0.389,
+          0.399,
+          0.388,
+          0.385,
+          0.391
+        ],
+        "median_ms": 0.389,
+        "min_ms": 0.385,
+        "max_ms": 0.399,
+        "runtime_sha256": "aeb3980a58a7299038d36605823130170073d638ea37254e19e434e3cafb299b"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.439,
+          0.419,
+          0.4,
+          0.443,
+          0.39,
+          0.407
+        ],
+        "median_ms": 0.407,
+        "min_ms": 0.39,
+        "max_ms": 0.443,
+        "runtime_sha256": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 4.627249357326457
+    }
+  },
+  "profiles": {
+    "no-lance": {
+      "lance_total": {
+        "mean_ms": 0,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 0
+      },
+      "counters": {}
+    },
+    "idle": {
+      "lance_total": {
+        "mean_ms": 0,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 0
+      },
+      "counters": {}
+    },
+    "direct": {
+      "shot-core": {
+        "mean_ms": 0.00592125,
+        "median_ms": 0.0046,
+        "p95_ms": 0.0173,
+        "max_ms": 0.0456
+      },
+      "shot": {
+        "mean_ms": 0.06985395833333333,
+        "median_ms": 0.0677,
+        "p95_ms": 0.0844,
+        "max_ms": 0.1449
+      },
+      "lance_total": {
+        "mean_ms": 0.06985395833333333,
+        "median_ms": 0.0677,
+        "p95_ms": 0.0844,
+        "max_ms": 0.1449
+      },
+      "counters": {
+        "shots": 480,
+        "direct_damage_amount": 240000,
+        "direct_damage_applied": 480,
+        "area_queries": 480,
+        "core_cues_refreshed": 450,
+        "core_cues": 30
+      }
+    },
+    "normal-power": {
+      "collapse-first": {
+        "mean_ms": 0.79689125,
+        "median_ms": 0.0,
+        "p95_ms": 1.7502,
+        "max_ms": 31.9027
+      },
+      "mechanics": {
+        "mean_ms": 0.9593802083333334,
+        "median_ms": 0.0,
+        "p95_ms": 1.8241,
+        "max_ms": 42.5851
+      },
+      "impact-core": {
+        "mean_ms": 0.022694583333333334,
+        "median_ms": 0.0,
+        "p95_ms": 0.0375,
+        "max_ms": 4.0987
+      },
+      "decoration": {
+        "mean_ms": 0.008048541666666667,
+        "median_ms": 0.0,
+        "p95_ms": 0.037,
+        "max_ms": 0.313
+      },
+      "update-total": {
+        "mean_ms": 0.996811875,
+        "median_ms": 0.0,
+        "p95_ms": 1.8984,
+        "max_ms": 43.3521
+      },
+      "incision-selection": {
+        "mean_ms": 1.89479375,
+        "median_ms": 0.0,
+        "p95_ms": 4.1157,
+        "max_ms": 81.8541
+      },
+      "incision-damage": {
+        "mean_ms": 0.6119825,
+        "median_ms": 0.0,
+        "p95_ms": 1.2279,
+        "max_ms": 27.9428
+      },
+      "shot-core": {
+        "mean_ms": 0.17509687499999999,
+        "median_ms": 0.0,
+        "p95_ms": 0.4173,
+        "max_ms": 6.7051
+      },
+      "shot": {
+        "mean_ms": 2.8783939583333336,
+        "median_ms": 0.0,
+        "p95_ms": 6.233,
+        "max_ms": 117.2781
+      },
+      "collapse-echo": {
+        "mean_ms": 0.13762854166666666,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 41.6555
+      },
+      "lance_total": {
+        "mean_ms": 3.8752058333333332,
+        "median_ms": 0.0,
+        "p95_ms": 22.3038,
+        "max_ms": 118.9883
+      },
+      "counters": {
+        "area_queries": 1529,
+        "secondary_damage_amount": 21733500,
+        "secondary_packets": 26712,
+        "collapses_applied": 1529,
+        "first_collapses_applied": 1359,
+        "core_cues": 8459,
+        "decorations": 191,
+        "decorations_dropped": 982,
+        "shots": 1352,
+        "collapses_scheduled": 1352,
+        "direct_damage_amount": 1862000,
+        "direct_damage_applied": 1352,
+        "penetration_queries": 1352,
+        "central_packets": 7552,
+        "wound_cues": 1352,
+        "wound_crowns": 9,
+        "branch_packets": 3870,
+        "testament_shots": 170,
+        "echoes_scheduled": 170,
+        "echoes_applied": 170
+      }
+    },
+    "dense": {
+      "incision-selection": {
+        "mean_ms": 27.886284791666668,
+        "median_ms": 22.97175,
+        "p95_ms": 48.5009,
+        "max_ms": 63.0207
+      },
+      "incision-damage": {
+        "mean_ms": 14.562363333333334,
+        "median_ms": 13.00555,
+        "p95_ms": 24.6868,
+        "max_ms": 36.4918
+      },
+      "shot-core": {
+        "mean_ms": 3.274807291666667,
+        "median_ms": 2.5770999999999997,
+        "p95_ms": 6.8377,
+        "max_ms": 20.1739
+      },
+      "shot": {
+        "mean_ms": 52.09117979166667,
+        "median_ms": 45.60225,
+        "p95_ms": 76.4088,
+        "max_ms": 100.4212
+      },
+      "collapse-first": {
+        "mean_ms": 31.121344375,
+        "median_ms": 28.52695,
+        "p95_ms": 48.1625,
+        "max_ms": 60.9495
+      },
+      "mechanics": {
+        "mean_ms": 35.83521458333333,
+        "median_ms": 29.46705,
+        "p95_ms": 60.5195,
+        "max_ms": 100.9012
+      },
+      "impact-core": {
+        "mean_ms": 0.7871231270833333,
+        "median_ms": 0.43855,
+        "p95_ms": 2.8257,
+        "max_ms": 8.1344
+      },
+      "decoration": {
+        "mean_ms": 0.18653666875,
+        "median_ms": 0.14465,
+        "p95_ms": 0.2898,
+        "max_ms": 7.6369
+      },
+      "update-total": {
+        "mean_ms": 37.063467083333336,
+        "median_ms": 30.457,
+        "p95_ms": 62.2647,
+        "max_ms": 102.3498
+      },
+      "collapse-echo": {
+        "mean_ms": 3.863688333333333,
+        "median_ms": 0.0,
+        "p95_ms": 29.3333,
+        "max_ms": 55.8018
+      },
+      "lance_total": {
+        "mean_ms": 89.154646875,
+        "median_ms": 84.09740000000001,
+        "p95_ms": 126.2374,
+        "max_ms": 162.9194
+      },
+      "counters": {
+        "area_queries": 51840,
+        "secondary_damage_amount": 705360000,
+        "secondary_packets": 777120,
+        "collapses_applied": 51840,
+        "first_collapses_applied": 46080,
+        "core_cues": 126720,
+        "decorations": 568,
+        "shots": 46080,
+        "collapses_scheduled": 46080,
+        "direct_damage_amount": 63360000,
+        "direct_damage_applied": 46080,
+        "penetration_queries": 46080,
+        "central_packets": 258720,
+        "core_cues_refreshed": 161280,
+        "wound_cues": 46080,
+        "echoes_applied": 5760,
+        "testament_shots": 5760,
+        "echoes_scheduled": 5760
+      }
+    },
+    "diagonal": {
+      "incision-selection": {
+        "mean_ms": 11.870203125,
+        "median_ms": 10.3158,
+        "p95_ms": 21.9043,
+        "max_ms": 33.0875
+      },
+      "incision-damage": {
+        "mean_ms": 2.845859375,
+        "median_ms": 2.7358000000000002,
+        "p95_ms": 3.443,
+        "max_ms": 11.3502
+      },
+      "shot-core": {
+        "mean_ms": 2.8953689583333335,
+        "median_ms": 2.1195500000000003,
+        "p95_ms": 6.1507,
+        "max_ms": 23.8843
+      },
+      "shot": {
+        "mean_ms": 23.020215416666666,
+        "median_ms": 20.078249999999997,
+        "p95_ms": 41.5844,
+        "max_ms": 59.2769
+      },
+      "collapse-first": {
+        "mean_ms": 3.60575625,
+        "median_ms": 3.0932,
+        "p95_ms": 6.9953,
+        "max_ms": 13.7476
+      },
+      "mechanics": {
+        "mean_ms": 4.672925625,
+        "median_ms": 3.7067,
+        "p95_ms": 8.7505,
+        "max_ms": 17.0505
+      },
+      "impact-core": {
+        "mean_ms": 0.7543220875,
+        "median_ms": 0.43435,
+        "p95_ms": 2.6687,
+        "max_ms": 8.6346
+      },
+      "decoration": {
+        "mean_ms": 0.16833563125,
+        "median_ms": 0.12675,
+        "p95_ms": 0.2624,
+        "max_ms": 6.8042
+      },
+      "update-total": {
+        "mean_ms": 5.8392675,
+        "median_ms": 4.47905,
+        "p95_ms": 12.1646,
+        "max_ms": 23.1375
+      },
+      "collapse-echo": {
+        "mean_ms": 0.4353239583333333,
+        "median_ms": 0.0,
+        "p95_ms": 3.2463,
+        "max_ms": 10.3647
+      },
+      "lance_total": {
+        "mean_ms": 28.859482916666668,
+        "median_ms": 25.07675,
+        "p95_ms": 50.656000000000006,
+        "max_ms": 68.5907
+      },
+      "counters": {
+        "area_queries": 51840,
+        "secondary_damage_amount": 90480000,
+        "secondary_packets": 117600,
+        "collapses_applied": 51840,
+        "first_collapses_applied": 46080,
+        "core_cues": 126720,
+        "decorations": 568,
+        "shots": 46080,
+        "collapses_scheduled": 46080,
+        "direct_damage_amount": 63360000,
+        "direct_damage_applied": 46080,
+        "penetration_queries": 46080,
+        "central_packets": 65760,
+        "core_cues_refreshed": 161280,
+        "wound_cues": 46080,
+        "echoes_applied": 5760,
+        "testament_shots": 5760,
+        "echoes_scheduled": 5760
+      }
+    },
+    "research": {
+      "lance_total": {
+        "mean_ms": 0,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 0
+      },
+      "counters": {}
+    }
+  },
+  "wrapper_checks": {
+    "preflight-origin-material.json": {
+      "status": "warning",
+      "errors": [],
+      "warning_count": 2
+    },
+    "qc-fast.json": {
+      "status": "warning",
+      "errors": [],
+      "warning_count": 69
+    },
+    "qc-assets-origin-material.json": {
+      "status": "ok",
+      "errors": [],
+      "warning_count": 0
+    }
+  },
+  "source_opening": {
+    "benchmark_prototype_sha256": "43ac3505570b3f27ce5376a1b169da5a3a7223d4de2216a6cec17f7f7790cb01",
+    "final_prototype_sha256": "58d7570e8004ba2c1689b948e7de82efd3d0158e5574497812748c2a06ad7c2f",
+    "benchmark_limit": "Dedicated opening animations added after benchmark freeze; identical runtime and frame dimensions, no new entities or layers; 7.5 MiB additional RGBA atlas data.",
+    "runs": {
+      "lean": {
+        "assertions": 533,
+        "visual_prototypes": 6
+      },
+      "standard": {
+        "assertions": 533,
+        "visual_prototypes": 6
+      }
+    }
+  },
+  "locale": {
+    "languages": 7,
+    "entries": 490,
+    "parity": "passed"
+  },
+  "art": {
+    "legacy_pngs_unchanged": 36,
+    "new_pngs": 12,
+    "new_frames": 116,
+    "added_rgba_atlas_mib": 49.5
+  },
+  "origin_art": {
+    "new_pngs": 4,
+    "new_frames": 32,
+    "added_rgba_atlas_mib": 7.5,
+    "frame_size": [
+      192,
+      160
+    ],
+    "animation_speed": 0.55
+  },
+  "final_data_raw": {
+    "ei-singularity-lance-axial-rupture": {
+      "prerequisites": [
+        "ei-singularity-lance"
+      ],
+      "unit": {
+        "count": 10,
+        "time": 30,
+        "ingredients": [
+          [
+            "ei-dark-age-tech",
+            1
+          ],
+          [
+            "ei-steam-age-tech",
+            1
+          ],
+          [
+            "ei-electricity-age-tech",
+            1
+          ],
+          [
+            "ei-computer-age-tech",
+            1
+          ],
+          [
+            "ei-alien-computer-age-tech",
+            1
+          ],
+          [
+            "ei-advanced-computer-age-tech",
+            1
+          ],
+          [
+            "space-science-pack",
+            1
+          ]
+        ]
+      },
+      "effects": [
+        {
+          "type": "nothing",
+          "effect_description": [
+            "lance-upgrades.axial",
+            "2",
+            "24",
+            "5",
+            "500",
+            "15",
+            "1",
+            "18",
+            "3",
+            "250"
+          ]
+        }
+      ]
+    },
+    "ei-singularity-lance-wound-memory": {
+      "prerequisites": [
+        "ei-singularity-lance-axial-rupture",
+        "ei-quantum-age"
+      ],
+      "unit": {
+        "count": 10,
+        "time": 30,
+        "ingredients": [
+          [
+            "ei-dark-age-tech",
+            1
+          ],
+          [
+            "ei-steam-age-tech",
+            1
+          ],
+          [
+            "ei-electricity-age-tech",
+            1
+          ],
+          [
+            "ei-computer-age-tech",
+            1
+          ],
+          [
+            "ei-advanced-computer-age-tech",
+            1
+          ],
+          [
+            "ei-alien-computer-age-tech",
+            1
+          ],
+          [
+            "ei-quantum-age-tech",
+            1
+          ],
+          [
+            "space-science-pack",
+            1
+          ]
+        ]
+      },
+      "effects": [
+        {
+          "type": "nothing",
+          "effect_description": [
+            "lance-upgrades.wound",
+            "20",
+            "100",
+            "2"
+          ]
+        }
+      ]
+    },
+    "ei-singularity-lance-terminal-collapse": {
+      "prerequisites": [
+        "ei-singularity-lance-wound-memory",
+        "ei-exotic-age"
+      ],
+      "unit": {
+        "count": 10,
+        "time": 30,
+        "ingredients": [
+          [
+            "ei-dark-age-tech",
+            1
+          ],
+          [
+            "ei-steam-age-tech",
+            1
+          ],
+          [
+            "ei-electricity-age-tech",
+            1
+          ],
+          [
+            "ei-computer-age-tech",
+            1
+          ],
+          [
+            "ei-advanced-computer-age-tech",
+            1
+          ],
+          [
+            "ei-alien-computer-age-tech",
+            1
+          ],
+          [
+            "ei-quantum-age-tech",
+            1
+          ],
+          [
+            "ei-fusion-quantum-age-tech",
+            1
+          ],
+          [
+            "ei-exotic-age-tech",
+            1
+          ]
+        ]
+      },
+      "effects": [
+        {
+          "type": "nothing",
+          "effect_description": [
+            "lance-upgrades.collapse",
+            "0.5",
+            "600",
+            "4",
+            "10",
+            "1000",
+            "1.5"
+          ]
+        }
+      ]
+    },
+    "ei-singularity-lance-black-hole-testament": {
+      "prerequisites": [
+        "ei-singularity-lance-terminal-collapse",
+        "ei-black-hole"
+      ],
+      "unit": {
+        "count": 10,
+        "time": 30,
+        "ingredients": [
+          [
+            "ei-dark-age-tech",
+            1
+          ],
+          [
+            "ei-steam-age-tech",
+            1
+          ],
+          [
+            "ei-electricity-age-tech",
+            1
+          ],
+          [
+            "ei-computer-age-tech",
+            1
+          ],
+          [
+            "ei-advanced-computer-age-tech",
+            1
+          ],
+          [
+            "ei-alien-computer-age-tech",
+            1
+          ],
+          [
+            "ei-quantum-age-tech",
+            1
+          ],
+          [
+            "ei-fusion-quantum-age-tech",
+            1
+          ],
+          [
+            "ei-exotic-age-tech",
+            1
+          ],
+          [
+            "ei-black-hole-exotic-age-tech",
+            1
+          ]
+        ]
+      },
+      "effects": [
+        {
+          "type": "nothing",
+          "effect_description": [
+            "lance-upgrades.testament",
+            "8",
+            "4",
+            "10",
+            "1200",
+            "6",
+            "16",
+            "6",
+            "2000",
+            "3",
+            "1",
+            "1000",
+            "5",
+            "12"
+          ]
+        }
+      ]
+    }
+  },
+  "unrelated_dirty_files_preserved": 18,
+  "source_hashes": {
+    "exotic-space-industries-remembrance\\lib\\singularity-lance-config.lua": "480e5fc69bb0cfe56eb670875dc77240253a276e44de8f7c1b7dd8756ab8de31",
+    "exotic-space-industries-remembrance\\scripts\\control\\singularity-lance.lua": "69b8b5b5a1e47dfa0e08470a717fbdb61d24a3303c96fb16f80a1f654837c080",
+    "exotic-space-industries-remembrance\\scripts\\control\\informatron.lua": "5e3c12db0c029da83525d5198590107507a86ecf403569d17aaf61f4026f61ed",
+    "exotic-space-industries-remembrance\\prototypes\\alien-system\\singularity-lance-upgrades.lua": "58d7570e8004ba2c1689b948e7de82efd3d0158e5574497812748c2a06ad7c2f",
+    "scripts\\qc\\singularity-lance\\control.lua": "c6a2949c362a7eac477df3bf972d282d3e44464e7e60d78c2ba0d9e2c7f05e6c"
+  }
+}

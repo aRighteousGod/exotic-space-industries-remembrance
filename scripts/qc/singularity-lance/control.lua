@@ -61,7 +61,7 @@ local function presentation_checks()
     local other=target(10,4)
     shot(s,other,tick)
     check(not cue.beam.valid,"retarget replaces old native beam")
-    check(storage.surface.count_entities_filtered{name={NAME.."-beam",NAME.."-beam-axial",NAME.."-beam-testament"}}==1,"one native core beam per lance")
+    check(storage.surface.count_entities_filtered{type="beam"}==4,"four bounded native core beams per upgraded lance")
     s,t=rig(2); shot(s,t,tick)
     cue=call("cues",s.unit_number)
     check(cue.mark.type=="animation" and cue.mark.animation==NAME.."-wound-1","animated first wound band")
@@ -80,25 +80,25 @@ local function presentation_checks()
     local old=call("old_presentation",s.unit_number,60)
     call("check")
     local migrated=call("snapshot"); cue=call("cues",s.unit_number)
-    check(migrated.version==11 and migrated.presentation_revision==2,"independent presentation revision")
+    check(migrated.version==12 and migrated.presentation_revision==3,"independent presentation revision")
     check(meter(s).counter==7 and meter(s).stacks==5 and meter(s).wound_tick==old.wound_tick,"presentation migration preserves meters and wound timestamp")
     check(migrated.pending==before.pending and migrated.impact_next_due_tick==before.impact_next_due_tick,"presentation migration preserves paid queues and due tick")
     check(not old.beam.valid and not old.mark.valid,"migration destroys old Sprite handles")
     check(cue.mark.type=="animation" and cue.mark.time_to_live==60,"migration restores remaining wound lifetime")
     call("check")
     check(call("cues",s.unit_number).mark==cue.mark,"presentation migration is idempotent")
-    close(shot(s,t,tick),1500,"eighth after presentation migration keeps full wound damage")
+    close(shot(s,t,tick),4000,"eighth after presentation migration keeps full wound damage")
     cue=call("cues",s.unit_number)
     check(cue.shape=="testament" and cue.beam.name==NAME.."-beam-testament","native testament silhouette")
-    close(shot(s,t,tick+1),750,"ordinary shot during testament hold keeps ordinary damage")
+    close(shot(s,t,tick+1),1000,"ordinary shot during testament hold keeps ordinary damage")
     check(call("cues",s.unit_number).beam==cue.beam,"same geometry preserves testament presentation hold")
     other=target(15,3); shot(s,other,tick+2)
     check(not cue.beam.valid,"new geometry interrupts testament hold")
     local area=target(10,2)
     call("service",tick+30)
-    close(10000000-area.health,2250,"migrated seven collapses and eighth resolve separately once")
+    close(10000000-area.health,6200,"migrated seven collapses and eighth resolve separately once")
     call("service",tick+30)
-    close(10000000-area.health,2250,"repeat service cannot repeat migrated collapses")
+    close(10000000-area.health,6200,"repeat service cannot repeat migrated collapses")
     s,t=rig(4); shot(s,t,tick)
     call("old_presentation",s.unit_number,120); call("check")
     check(meter(s).stacks==0 and call("cues",s.unit_number).mark==nil,"expired wound is not resurrected by presentation migration")
@@ -108,9 +108,301 @@ local function presentation_checks()
     check(meter(s).stacks==0 and call("cues",s.unit_number).mark==nil,"newly protected wound is not recreated by migration")
 end
 
+local function crystal_origin_checks()
+    for _, n in ipairs({0,1,4}) do
+        for direction, delta in ipairs({{10,0},{6,8},{0,10},{-6,8},{-10,0},{-6,-8},{0,-10},{6,-8}}) do
+            local s,t=rig(n)
+            s.teleport{41,-27}
+            local base=s.position -- The turret snaps placement to its tile grid.
+            t.teleport{base.x+delta[1],base.y+delta[2]}
+            for _=1,n==4 and 8 or 1 do shot(s,t,game.tick) end
+            local beam=call("cues",s.unit_number).beam
+            local source, destination=beam.get_beam_source().position,beam.get_beam_target().position
+            local label="crystal muzzle level "..n.." direction "..direction
+            -- Compare the engine endpoints with the original approved crystal
+            -- eye and ground-space aim, independently of the production config.
+            close(source.x,base.x,label.." x")
+            close(source.y,base.y-3.35,label.." y")
+            local reach=1
+            close(destination.x,base.x+delta[1]*reach,label.." unchanged endpoint x")
+            close(destination.y,base.y+delta[2]*reach,label.." unchanged endpoint y")
+            if n>=1 then
+                local extensions=call("cues",s.unit_number).extensions
+                check(#extensions==3,label.." has forward incision and two branches")
+                for index,segment in ipairs(extensions) do
+                    local start=segment.beam.get_beam_source().position
+                    close(start.x,t.position.x,label.." joined fork "..index.." x")
+                    close(start.y,t.position.y,label.." joined fork "..index.." y")
+                end
+                local ending=extensions[1].beam.get_beam_target().position
+                close(ending.x,base.x+delta[1]*3.4,label.." forward reach x")
+                close(ending.y,base.y+delta[2]*3.4,label.." forward reach y")
+            end
+        end
+    end
+end
+
+
+-- Hybrid geometry fixtures position relative to the actual source after the
+-- engine snaps its placement; teleport targets to exact fixed-point positions.
+local function exact_target(x,y,name,force)
+    local e=target(x,y,name or "lance-qc-precise",force)
+    assert(e.teleport{x,y})
+    return e
+end
+local function relative_target(source,x,y,name,force)
+    local p=source.position
+    return exact_target(p.x+x,p.y+y,name,force)
+end
+local function hybrid_rig(n)
+    local s,t=rig(n)
+    t.destroy()
+    t=relative_target(s,10,0)
+    return s,t
+end
+local function prime_testament()
+    local s,t=hybrid_rig(4)
+    for i=1,7 do shot(s,t,i) end
+    call("service",37)
+    return s,t
+end
+local function hybrid_checks()
+    local s,t=hybrid_rig(1)
+    local nearest={}
+    for i=1,5 do nearest[i]=relative_target(s,i+1,0) end
+    local overlap=relative_target(s,12,.9)
+    local branch=relative_target(s,17,2)
+    local queries=call("snapshot").counters.penetration_queries or 0
+    shot(s,t,1)
+    for i=1,5 do close(10000000-nearest[i].health,500,"hybrid central nearest "..i) end
+    close(overlap.health,10000000,"central eligibility beyond cap cannot fall back to branch")
+    close(10000000-branch.health,250,"branch-only target receives weaker distinct packet")
+    check(call("snapshot").counters.penetration_queries==queries+1,"three incision rays use one spatial query")
+
+    s,t=hybrid_rig(1)
+    local cosine,sine=math.cos(math.pi/12),math.sin(math.pi/12)
+    local branches={}
+    for i=1,4 do
+        local distance,sign=i+5,i%2==1 and 1 or -1
+        branches[i]=relative_target(s,10+distance*cosine,sign*distance*sine)
+    end
+    shot(s,t,1)
+    for i=1,3 do close(10000000-branches[i].health,250,"nearest shared branch cap "..i) end
+    close(branches[4].health,10000000,"fourth branch target excluded across both sides")
+
+    s,t=hybrid_rig(1)
+    relative_target(s,10+6*cosine,6*sine)
+    relative_target(s,10+7*cosine,-7*sine)
+    local first=relative_target(s,10+9*cosine,9*sine)
+    local tied=relative_target(s,10+9*cosine,9*sine)
+    shot(s,t,1)
+    close(10000000-first.health,250,"equal branch travel uses lower unit-number tie")
+    close(tied.health,10000000,"equal branch travel excludes later entity")
+
+    s,t=hybrid_rig(1)
+    local grazing=relative_target(s,6,1.2)
+    local missed=relative_target(s,6,1.6)
+    local ending=relative_target(s,34,0)
+    local beyond=relative_target(s,35,0)
+    shot(s,t,1)
+    close(10000000-grazing.health,500,"two-tile central strip includes bounding-box graze")
+    close(missed.health,10000000,"central strip excludes wider miss")
+    close(10000000-ending.health,500,"central incision reaches twenty-four tiles past aim")
+    close(beyond.health,10000000,"central incision stops at configured endpoint")
+
+    for index,unit in ipairs({{1,0},{.6,.8},{0,1},{-.6,.8},{-1,0},{-.6,-.8},{0,-1},{.6,-.8}}) do
+        s,t=hybrid_rig(1)
+        local ux,uy=unit[1],unit[2]
+        t.teleport{s.position.x+10*ux,s.position.y+10*uy}
+        local central=relative_target(s,6*ux,6*uy)
+        local bx,by=ux*cosine-uy*sine,uy*cosine+ux*sine
+        local forked=relative_target(s,10*ux+8*bx,10*uy+8*by)
+        shot(s,t,1)
+        close(10000000-central.health,500,"central mechanical ray direction "..index)
+        close(10000000-forked.health,250,"branch mechanical ray direction "..index)
+    end
+
+    s,t=prime_testament()
+    branches={}
+    for i=1,7 do
+        local distance,sign=i+5,i%2==1 and 1 or -1
+        branches[i]=relative_target(s,10+distance*cosine,sign*distance*sine)
+    end
+    shot(s,t,100)
+    for i=1,6 do close(10000000-branches[i].health,250,"testament shared branch cap "..i) end
+    close(branches[7].health,10000000,"testament seventh branch candidate excluded")
+
+    s,t=hybrid_rig(1)
+    local friend_branch=relative_target(s,18,2,nil,storage.force)
+    local neutral_branch=relative_target(s,18,-2,nil,game.forces.neutral)
+    shot(s,t,1)
+    close(friend_branch.health,10000000,"friendly branch target protected")
+    close(neutral_branch.health,10000000,"neutral branch target protected")
+
+    s,t=hybrid_rig(1)
+    t.teleport{s.position.x+84,s.position.y}
+    local range=s.prototype.attack_parameters.range*s.quality.range_multiplier
+    shot(s,t,1)
+    local cue=call("cues",s.unit_number)
+    for _,segment in pairs(cue.extensions) do
+        local p=segment.beam.get_beam_target().position
+        check((p.x-s.position.x)^2+(p.y-s.position.y)^2<=range^2+.02,"all secondary endpoints remain in effective-range circle")
+    end
+    t.teleport{s.position.x+range+2,s.position.y}
+    shot(s,t,2)
+    check(next(call("cues",s.unit_number).extensions)==nil,"native-approved outside-center aim creates no out-of-range extensions")
+
+    s,t=hybrid_rig(3)
+    close(shot(s,t,100),600,"hybrid first-hit wound bonus")
+    local center=t.position
+    local core=exact_target(center.x,center.y+1.5)
+    local shell=exact_target(center.x,center.y+1.6)
+    local edge=exact_target(center.x,center.y+4)
+    local outside=exact_target(center.x,center.y+4.1)
+    call("service",129)
+    close(core.health,10000000,"core damage waits thirty ticks")
+    call("service",130)
+    close(10000000-core.health,1000,"core boundary receives only core damage")
+    close(10000000-shell.health,600,"outside core receives only shell damage")
+    close(10000000-edge.health,600,"outer boundary included")
+    close(outside.health,10000000,"outside shell excluded")
+    close(10000000-t.health,1600,"primary receives reserved core packet")
+    call("service",130)
+    close(10000000-core.health,1000,"collapse cannot be serviced twice")
+
+    s,t=hybrid_rig(3)
+    shot(s,t,100)
+    local area={}
+    for i=1,11 do area[i]=exact_target(t.position.x,t.position.y+2+i*.1) end
+    call("service",130)
+    for i=1,10 do close(10000000-area[i].health,600,"terminal secondary cap "..i) end
+    close(area[11].health,10000000,"terminal eleventh secondary excluded")
+    close(10000000-t.health,1600,"primary slot does not consume secondary cap")
+
+    s,t=hybrid_rig(3)
+    shot(s,t,100); shot(s,t,100)
+    local resisted=exact_target(t.position.x,t.position.y+2,"lance-qc-resistant")
+    call("service",130)
+    close(10000000-resisted.health,1000,"two paid shell packets preserve two flat resistances")
+
+    s,t=prime_testament()
+    local primary_before=t.health
+    close(shot(s,t,100),4000,"isolated fully wounded eighth primary")
+    local packets=call("packets")
+    check(#packets==2 and packets[1].due==130 and packets[2].due==160,"both paid pulses queued immediately at fixed ticks")
+    check(packets[1].echo_is_queued and packets[2].phase=="echo","first pulse links the already queued echo")
+    check(packets[1].include_primary and packets[2].include_primary,"both new pulses reserve the primary")
+    core=exact_target(t.position.x,t.position.y+2)
+    shell=exact_target(t.position.x,t.position.y+4)
+    edge=exact_target(t.position.x,t.position.y+5)
+    outside=exact_target(t.position.x,t.position.y+6.1)
+    call("service",129); close(core.health,10000000,"testament first pulse not early")
+    call("service",130)
+    close(10000000-core.health,2000,"testament concentrated core")
+    close(10000000-shell.health,1200,"testament outer shell")
+    close(10000000-edge.health,1200,"testament first shell reaches echo edge")
+    close(outside.health,10000000,"testament radius excludes outside target")
+    close(primary_before-t.health,6000,"testament primary plus first core")
+    check(call("snapshot").pending==1,"only paid echo remains after first impact")
+    packets=call("packets")
+    check(packets[1].warning.valid and packets[1].warning.time_to_live==30,"echo warning begins after first impact")
+    call("service",159); close(10000000-core.health,2000,"echo not early")
+    call("service",160)
+    close(primary_before-t.health,7000,"stationary full-wound testament sequence totals seven thousand")
+    close(10000000-core.health,3000,"echo adds one flat core packet")
+    close(10000000-shell.health,2200,"echo adds one flat shell packet")
+    close(10000000-edge.health,2200,"echo radius-five boundary included")
+    check(call("snapshot").pending==0,"echo consumed once")
+    call("service",160); close(primary_before-t.health,7000,"repeat echo service does not repeat damage")
+
+    s,t=prime_testament(); shot(s,t,100)
+    call("service",145)
+    packets=call("packets")
+    check(#packets==1 and packets[1].warning.valid,"late first service keeps queued echo")
+    close(packets[1].warning.time_to_live,15,"late warning keeps original echo deadline")
+    close(packets[1].warning.animation_offset,15,"late warning joins existing animation phase")
+    call("service",160)
+    s,t=prime_testament(); primary_before=t.health; shot(s,t,100)
+    local cues_before=call("snapshot").counters.core_cues
+    call("service",175)
+    close(primary_before-t.health,7000,"overdue service settles both paid packets")
+    check(call("snapshot").counters.core_cues==cues_before+2,"overdue pair creates impacts without resurrected warning")
+    check(#call("packets")==0,"overdue pair clears both buckets")
+
+    s,t=prime_testament(); primary_before=t.health; shot(s,t,100)
+    local aim={x=t.position.x,y=t.position.y}
+    t.teleport{aim.x+20,aim.y+20}
+    call("service",130)
+    close(primary_before-t.health,4000,"moving primary escapes fixed first collapse")
+    t.teleport(aim); call("service",160)
+    close(primary_before-t.health,5000,"returning primary can enter independently paid echo")
+
+    s,t=prime_testament(); primary_before=t.health; shot(s,t,100)
+    local friendly=exact_target(t.position.x,t.position.y+2,nil,storage.force)
+    local neutral=exact_target(t.position.x,t.position.y-2,nil,game.forces.neutral)
+    storage.enemy.set_friend(storage.force,true); call("service",130)
+    close(primary_before-t.health,4000,"changed reverse friendship protects first pulse")
+    storage.enemy.set_friend(storage.force,false); call("service",160)
+    close(primary_before-t.health,5000,"echo rechecks diplomacy independently")
+    close(friendly.health,10000000,"friendly protected from both testament pulses")
+    close(neutral.health,10000000,"neutral protected from both testament pulses")
+
+    s,t=prime_testament(); primary_before=t.health; shot(s,t,100)
+    call("service",130)
+    storage.enemy.set_cease_fire(storage.force,true)
+    call("service",160)
+    close(primary_before-t.health,6000,"new reverse cease-fire protects echo after first impact")
+    storage.enemy.set_cease_fire(storage.force,false)
+
+    s,t=prime_testament(); primary_before=t.health; shot(s,t,100)
+    call("service",130)
+    s.destroy{raise_destroy=true}; level(0)
+    storage.force.set_ammo_damage_modifier(NAME,1); call("sync",storage.force)
+    call("service",160)
+    close(primary_before-t.health,7000,"echo snapshots survive source removal research loss and multiplier change")
+    storage.force.set_ammo_damage_modifier(NAME,0); call("sync",storage.force)
+
+    s,t=hybrid_rig(4)
+    for i=1,7 do shot(s,t,i) end
+    local before=call("snapshot")
+    local identity=call("migrate_schema11")
+    check(identity.runtime and identity.lances and identity.registrations and identity.buckets,"schema-eleven migration is in-place")
+    check(meter(s).counter==7 and meter(s).stacks==5 and meter(s).wound_tick==7,"schema-eleven migration preserves all meters")
+    check(call("snapshot").pending==before.pending and call("snapshot").impact_next_due_tick==before.impact_next_due_tick,"schema-eleven migration preserves paid counts and due tick")
+    primary_before=t.health
+    local legacy_area=exact_target(t.position.x,t.position.y+2)
+    call("service",37)
+    close(10000000-legacy_area.health,1750,"migrated legacy packets retain old damage and count")
+    close(t.health,primary_before,"migrated legacy packets retain primary exclusion")
+    close(shot(s,t,100),4000,"counter-seven migration uses hybrid rules only on new shot")
+    check(#call("packets")==2,"new eighth after migration alone schedules echo")
+    call("check"); call("service",160)
+    close(10000000-legacy_area.health,4750,"legacy and new transactions keep separate snapshot rules")
+
+    s,t=hybrid_rig(4)
+    local crowded={s}
+    for i=2,96 do crowded[i]=entity(NAME,s.position,storage.force) end
+    for _,source in ipairs(crowded) do for _=1,8 do shot(source,t,100) end end
+    close(10000000-t.health,960000,"ninety-six overlapping lances retain separate primary packets")
+    check(call("snapshot").pending==864,"visual overload retains every first pulse and echo")
+    check(storage.surface.count_entities_filtered{type="beam"}==384,"rapid-fire overload remains bounded to four beams per lance")
+    local packets_before=call("snapshot").counters.secondary_packets
+    call("service",130)
+    -- Engine health arithmetic accumulates sub-point rounding at this scale;
+    -- count packets exactly and allow less than one tenth of a single packet.
+    check(math.abs(10000000-t.health-1824000)<64,"visual overload first damage within engine rounding "..(10000000-t.health))
+    check(call("snapshot").counters.secondary_packets-packets_before==768,"visual overload retains every first collapse")
+    call("service",160)
+    check(math.abs(10000000-t.health-1920000)<64,"visual overload total damage within engine rounding "..(10000000-t.health))
+    check(call("snapshot").counters.secondary_packets-packets_before==864,"visual overload retains every echo")
+    check(call("snapshot").pending==0,"overloaded mechanics drain completely")
+end
+
 local function mechanics()
     call("configure",{qc_enabled=true,profiling_enabled=false})
+    crystal_origin_checks()
     presentation_checks()
+    hybrid_checks()
     local s,t = rig(0)
     local secondary=target(10,1)
     local friend=target(10,-1,nil,storage.force)
@@ -125,27 +417,27 @@ local function mechanics()
     close(10000000-secondary.health,375,"splash multiplier")
     storage.force.set_ammo_damage_modifier(NAME,0); call("sync",storage.force)
     s,t=rig(2)
-    for index,value in ipairs({500,550,600,650,700,750,750}) do close(shot(s,t,index),value,"wound ramp "..index) end
-    close(shot(s,t,126),750,"wound below timeout")
-    close(shot(s,t,246),500,"wound exact timeout")
+    for index,value in ipairs({600,700,800,900,1000,1000,1000}) do close(shot(s,t,index),value,"wound ramp "..index) end
+    close(shot(s,t,126),1000,"wound below timeout")
+    close(shot(s,t,246),600,"wound exact timeout")
     local other=target(20,4)
-    close(shot(s,other,247),500,"retarget resets")
-    close(shot(s,t,248),500,"return target resets")
+    close(shot(s,other,247),600,"retarget resets")
+    close(shot(s,t,248),600,"return target resets")
     local immune=target(20,10,"lance-qc-immune")
     close(shot(s,immune,249),0,"immune primary")
     check(meter(s).stacks==0,"zero damage builds no wound")
     local sec=target(7,0)
     shot(s,t,250)
-    close(10000000-sec.health,250,"secondary has no wound multiplier")
+    close(10000000-sec.health,500,"secondary has no wound multiplier")
     s,t=rig(2); shot(s,t,1)
     storage.force.set_ammo_damage_modifier(NAME,-1); call("sync",storage.force)
     close(shot(s,t,2),0,"zero multiplier primary")
     check(meter(s).stacks==1 and meter(s).wound_tick==1,"zero damage neither builds nor refreshes existing wound")
     storage.force.set_ammo_damage_modifier(NAME,0); call("sync",storage.force)
-    close(shot(s,t,3),550,"positive hit resumes unexpired wound")
+    close(shot(s,t,3),700,"positive hit resumes unexpired wound")
     storage.force.set_ammo_damage_modifier(NAME,-1); call("sync",storage.force); shot(s,t,100)
     storage.force.set_ammo_damage_modifier(NAME,0); call("sync",storage.force)
-    close(shot(s,t,123),500,"zero hit does not postpone exact expiry")
+    close(shot(s,t,123),600,"zero hit does not postpone exact expiry")
     s,t=rig(3)
     storage.reentrant_secondary,storage.reentrant_destroy=target(6,0),t
     shot(s,t,1)
@@ -160,34 +452,34 @@ local function mechanics()
     check(not s.valid,"secondary reaction removes source before wound cue")
     check((call("snapshot").counters.wound_cues or 0)==cue_count,"destroyed source creates no wound cue")
     call("service",31)
-    close(10000000-reaction_area.health,250,"source reaction preserves paid collapse")
+    close(10000000-reaction_area.health,600,"source reaction preserves paid collapse")
     s,t=rig(1)
-    local victims={target(4,0),target(6,.7),target(12,0),target(14,0),target(23,0),target(8,1)}
+    local victims={target(2,0),target(3,0),target(4,0),target(5,0),target(6,0),target(14,0)}
     shot(s,t,1)
-    for i=1,3 do close(10000000-victims[i].health,250,"nearest axial "..i) end
-    for i=4,6 do close(victims[i].health,10000000,"axial cap/width/endpoint "..i) end
+    for i=1,5 do close(10000000-victims[i].health,500,"nearest axial "..i) end
+    close(victims[6].health,10000000,"central cap excludes sixth candidate")
     close(10000000-t.health,500,"primary excluded from axial and area")
     s,t=rig(1); t.teleport{10,10}
     local diagonal=target(6,6); local miss=target(6,8)
     shot(s,t,1)
-    close(10000000-diagonal.health,250,"diagonal inclusion")
+    close(10000000-diagonal.health,500,"diagonal inclusion")
     close(miss.health,10000000,"diagonal exact corridor")
     s,t=rig(1)
     local large=target(6,3.3,"lance-qc-large"); large.orientation=0
-    shot(s,t,1); close(10000000-large.health,250,"large bounding box intersects despite center miss")
+    shot(s,t,1); close(10000000-large.health,500,"large bounding box intersects despite center miss")
     large.orientation=.25
-    shot(s,t,2); close(10000000-large.health,250,"rotated box excludes false intersection")
+    shot(s,t,2); close(10000000-large.health,500,"rotated box excludes false intersection")
     s,t=rig(1)
-    large=target(5,3.3,"lance-qc-large"); large.orientation=.125
-    local near={target(2,0),target(3,0),target(4,0)}
+    large=target(7,3.3,"lance-qc-large"); large.orientation=.125
+    local near={target(2,0),target(3,0),target(4,0),target(5,0),target(6,0)}
     shot(s,t,1)
-    for i=1,3 do close(10000000-near[i].health,250,"nearest actual corridor entry "..i) end
+    for i=1,5 do close(10000000-near[i].health,500,"nearest actual corridor entry "..i) end
     close(large.health,10000000,"off-ray corner cannot consume nearer victim cap")
     s,t=rig(1); t.teleport{84,0}
     local edge=target(86,0); shot(s,t,1)
     close(edge.health,10000000,"ordinary range cap")
     s.destroy{raise_destroy=true}; s=entity(NAME,{0,0},storage.force,"legendary")
-    shot(s,t,2); close(10000000-edge.health,250,"quality overpenetration")
+    shot(s,t,2); close(10000000-edge.health,500,"quality overpenetration")
     local quality_range=s.prototype.attack_parameters.range*s.quality.range_multiplier
     local beyond=target(quality_range+1,0)
     t.teleport{139,0}; close(shot(s,t,3),500,"native-approved direct has no script clamp")
@@ -199,7 +491,7 @@ local function mechanics()
     check(call("snapshot").pending==1,"one collapse per shot")
     call("service",129); close(area.health,10000000,"collapse not early")
     t.teleport{30,30}; s.destroy{raise_destroy=true}; level(0)
-    call("service",130); close(10000000-area.health,250,"fixed collapse survives source and research loss")
+    call("service",130); close(10000000-area.health,600,"fixed collapse survives source and research loss")
     check(call("snapshot").pending==0,"collapse consumed once")
     s,t=rig(3); area=target(10,2)
     shot(s,t,200); storage.enemy.set_friend(storage.force,true)
@@ -212,9 +504,9 @@ local function mechanics()
     s,t=rig(4); area=target(10,2)
     for i=1,7 do shot(s,t,i) end
     check(meter(s).counter==7,"testament counter seven")
-    close(shot(s,t,8),1500,"eighth doubles full wound primary")
+    close(shot(s,t,8),4000,"eighth quadruples full wound primary")
     check(meter(s).counter==0,"eighth consumed")
-    call("service",38); close(10000000-area.health,2250,"seven ordinary plus one testament collapse")
+    call("service",38); close(10000000-area.health,6200,"seven ordinary plus one testament collapse")
     for i=9,15 do shot(s,t,i) end
     storage.enemy.set_friend(storage.force,true); shot(s,t,16)
     check(meter(s).counter==0,"protected eighth consumed")
@@ -222,25 +514,29 @@ local function mechanics()
     s,t=rig(4)
     for i=1,7 do shot(s,t,i) end
     local axial={}
-    for i=1,7 do axial[i]=target(1+i,0) end
+    for i=1,11 do axial[i]=target(2+i*.5,0) end
     shot(s,t,8)
-    for i=1,6 do close(10000000-axial[i].health,250,"testament axial cap "..i) end
-    close(axial[7].health,10000000,"testament axial seventh excluded")
+    for i=1,10 do close(10000000-axial[i].health,500,"testament axial cap "..i) end
+    close(axial[11].health,10000000,"testament axial eleventh excluded")
     s,t=rig(4)
     for i=1,7 do shot(s,t,i) end
     call("service",37)
     local area_targets={}
-    for i=1,13 do area_targets[i]=target(10,1+i*.1) end
-    shot(s,t,8); call("service",38)
-    for i=1,12 do close(10000000-area_targets[i].health,500,"testament collapse cap "..i) end
-    close(area_targets[13].health,10000000,"testament collapse thirteenth excluded")
+    shot(s,t,8)
+    for i=1,17 do area_targets[i]=exact_target(t.position.x,t.position.y+3.2+i*.1) end
+    call("service",38)
+    for i=1,16 do close(10000000-area_targets[i].health,1200,"testament collapse cap "..i) end
+    close(area_targets[17].health,10000000,"testament collapse seventeenth excluded")
+    call("service",68)
+    for i=1,12 do close(10000000-area_targets[i].health,2200,"testament echo shared nearest cap "..i) end
+    for i=13,16 do close(10000000-area_targets[i].health,1200,"testament echo excludes farther target "..i) end
     s,t=rig(4)
     for i=1,7 do shot(s,t,i) end
     call("service",37)
     t.destroy(); area=target(10,2)
     shot(s,nil,8,{x=10,y=0}); call("service",38)
     check(meter(s).counter==0,"invalid primary consumes eighth")
-    close(10000000-area.health,500,"paid collapse survives invalid primary")
+    close(10000000-area.health,2000,"paid collapse survives invalid primary")
     s,t=rig(3)
     local friendly_ray=target(6,0,nil,storage.force)
     local friendly_area=target(10,2,nil,storage.force)
@@ -258,7 +554,7 @@ local function mechanics()
     s,t=rig(4); shot(s,t,1)
     local owner=game.create_force("lance-qc-new-owner"); level(4,owner)
     s.force=owner
-    close(shot(s,t,2),500,"ownership change resets wound before next shot")
+    close(shot(s,t,2),600,"ownership change resets wound before next shot")
     check(meter(s).counter==1,"ownership change resets paid-shot counter")
     t.destructible=false
     close(shot(s,t,3),0,"indestructible primary protected")
@@ -291,13 +587,16 @@ local function mechanics()
     s,t=rig(3); area=target(10,2); shot(s,t,1)
     local destination=game.create_force("lance-qc-merged"); level(3,destination)
     game.merge_forces(storage.force,destination); storage.force=destination
-    call("service",31); close(10000000-area.health,250,"merge transfers paid collapse attribution")
+    call("service",31); close(10000000-area.health,600,"merge transfers paid collapse attribution")
     local old_surface=storage.surface
     local doomed=game.create_surface("lance-qc-doomed",{width=32,height=32})
     doomed.request_to_generate_chunks({0,0},1); doomed.force_generate_chunk_requests()
     storage.surface=doomed
+    level(4)
     s=entity(NAME,{0,0},storage.force); t=target(10,0)
-    shot(s,t,1); check(call("snapshot").pending==1,"doomed surface has packet")
+    for i=1,7 do shot(s,t,i) end
+    call("service",37)
+    shot(s,t,100); check(call("snapshot").pending==2,"doomed surface has first pulse and paid echo")
     game.delete_surface(doomed)
     storage.surface=old_surface
     storage.phase="surface-delete"
@@ -328,6 +627,7 @@ local function benchmark_setup()
     end
     storage.surface.create_entity{name="lance-qc-power",position={-60,-45},force=storage.force}
     storage.surface.create_entity{name="lance-qc-pole",position={0,0},force=storage.force}
+    storage.benchmark_population=storage.surface.count_entities_filtered{force=storage.enemy,is_military_target=true}
     log("LANCE_BENCH mode="..config.scene.." baseline="..tostring(config.baseline).." power="..(config.scene=="normal-power" and "shipped" or "artificial"))
 end
 
@@ -403,12 +703,33 @@ script.on_event(defines.events.on_tick,function(event)
     if config.mode=="reload" then
         if not storage.reload_checked then
             storage.reload_checked=true
-            check(call("snapshot").presentation_revision==2,"old save runs presentation migration on configuration change")
-            check(meter(storage.reload_source).counter==7,"counter seven survives save/load")
-            check(call("snapshot").pending==7,"old save preserves seven paid pending collapses")
-            check(call("cues",storage.reload_source.unit_number).mark.type=="animation","old save replaces Sprite wound with Animation")
-            close(shot(storage.reload_source,storage.reload_target,event.tick),1500,"reloaded eighth includes wound")
-            check(meter(storage.reload_source).counter==0,"reloaded eighth consumed once")
+            local s,t=storage.reload_source,storage.reload_target
+            local state=call("snapshot")
+            check(state.version==12 and state.presentation_revision==3,"saved lance runs schema and presentation migrations")
+            check(meter(s).counter==7 and meter(s).stacks==5,"counter seven and full wound survive save/load")
+            check(state.pending==7,"save preserves seven paid pending collapses")
+            check(call("cues",s.unit_number).mark.type=="animation","save retains valid animated wound")
+            local packets=call("packets")
+            check(#packets==7,"reload keeps every separate paid packet")
+            local legacy=not packets[1].include_primary
+            local due=packets[1].due
+            check(meter(s).wound_tick==due-30,"reload preserves original successful-hit timestamp")
+            for _,packet in ipairs(packets) do
+                check(packet.damage==(legacy and 250 or 600) and packet.radius==(legacy and 3 or 4)
+                    and not packet.echo_is_queued and packet.phase~="echo","reload preserves original packet snapshot")
+            end
+            call("check")
+            check(call("snapshot").pending==7 and meter(s).counter==7,"reload migration is idempotent")
+            local before=t.health
+            local area=exact_target(t.position.x,t.position.y+2)
+            call("service",due)
+            close(before-t.health,legacy and 0 or 7000,"saved packet primary eligibility preserved")
+            close(10000000-area.health,legacy and 1750 or 4200,"saved packet secondary damage preserved")
+            close(shot(s,t,due+1),4000,"reloaded eighth includes full hybrid wound")
+            check(meter(s).counter==0 and call("snapshot").pending==2,"reloaded eighth consumes counter and prepays echo")
+            call("service",due+61)
+            close(10000000-area.health,(legacy and 1750 or 4200)+3000,"old and new queued rules remain distinct")
+            check(call("snapshot").pending==0,"reloaded paid pulses settle exactly once")
             log("LANCE_QC RELOAD_COMPLETE")
         end
         return
@@ -428,11 +749,35 @@ script.on_event(defines.events.on_tick,function(event)
         end
         if event.tick%300==0 then log("LANCE_BENCH SNAPSHOT "..helpers.table_to_json(call("snapshot"))) end
         if config.profile and event.tick==config.ticks then call("snapshot") end -- flush final measured tick
+        if event.tick==config.ticks-1 then
+            local population=storage.surface.count_entities_filtered{force=storage.enemy,is_military_target=true}
+            check(population==storage.benchmark_population,"benchmark target population preserved "..population)
+        end
         return
     end
     if event.tick==1 and config.mode=="mechanics" then mechanics() end
     if storage.phase=="surface-delete" and event.tick==2 then
         check(call("snapshot").pending==0,"surface deletion cancels packet")
+        local s,t=hybrid_rig(4)
+        for _=1,8 do shot(s,t,event.tick) end
+        storage.merge_source,storage.merge_target=s,t
+        storage.merge_first_due,storage.merge_echo_due=event.tick+30,event.tick+60
+        storage.phase="merge-first"
+    end
+    if storage.phase=="merge-first" and event.tick==storage.merge_first_due then
+        check(call("snapshot").pending==1,"real dispatcher leaves one paid echo after first impacts")
+        storage.merge_health=storage.merge_target.health
+        local merged=game.create_force("lance-qc-hybrid-merged"); level(4,merged)
+        game.merge_forces(storage.force,merged); storage.force=merged
+        storage.phase="merge-await"
+    end
+    if storage.phase=="merge-await" and event.tick==storage.merge_first_due+1 then
+        check(call("packets")[1].force_index==storage.force.index,"real force merge transfers queued echo attribution")
+        storage.phase="merge-echo"
+    end
+    if storage.phase=="merge-echo" and event.tick==storage.merge_echo_due then
+        close(storage.merge_health-storage.merge_target.health,1000,"real merged echo retains snapshot damage")
+        check(call("snapshot").pending==0,"real echo consumes exact sixty-tick packet")
         local s,t=rig(3); storage.delayed_area=target(10,2); shot(s,t,event.tick)
         storage.expiring_source,storage.expiring_target=s,t
         storage.expiring_beam=call("cues",s.unit_number).beam
@@ -447,7 +792,7 @@ script.on_event(defines.events.on_tick,function(event)
         end
     end
     if storage.phase=="real-delay" and event.tick==storage.delay_due then
-        close(10000000-storage.delayed_area.health,250,"central dispatcher executes exact due tick")
+        close(10000000-storage.delayed_area.health,600,"central dispatcher executes exact due tick")
         local s,t=rig(0)
         s.energy=700000000; s.active=true
         storage.native_source,storage.native_target=s,t

@@ -223,7 +223,20 @@ local function make_prismatic_beam(name, width, light, graphics_set, working_sou
     local beam = table.deepcopy(data.raw.beam["laser-beam"])
     beam.name = name
     beam.width = width
-    beam.light = light
+    -- BeamPrototype has no LightDefinition field. Illuminate terrain through
+    -- the native ground animation layer, independently of the bright beam art.
+    beam.light = nil
+    local ground = table.deepcopy(data.raw.beam["laser-beam"].graphics_set.ground)
+    local size = light.size / singularity_lance_config.presentation.ground_light_reference_size
+    local intensity = math.min(1, light.intensity)
+    for _, part in ipairs({"head", "tail", "body"}) do
+        local mask = ground[part]
+        mask.scale = mask.scale * size
+        mask.tint = {r = light.color.r * intensity, g = light.color.g * intensity,
+            b = light.color.b * intensity, a = 1}
+        if mask.shift then mask.shift = {mask.shift[1] * size, mask.shift[2] * size} end
+    end
+    graphics_set.ground = ground
     beam.hidden = true
     beam.hidden_in_factoriopedia = true
     beam.damage_interval = 60
@@ -664,7 +677,7 @@ local singularity_beam = make_prismatic_beam(
         minimum_darkness = 0,
         color = PRISMATIC_BEAM_LIGHT_TINT,
     },
-    make_prismatic_beam_graphics_set(PRISMATIC_BEAM_SCALE),
+    make_prismatic_beam_graphics_set(PRISMATIC_BEAM_SCALE, {impact_ending = true}),
     nil
 )
 
