@@ -1,10 +1,14 @@
 -- blueprint: .codex/esir/blueprints/singularity-lance.md#contract
 --====================================================================================================
---SINGULARITY LANCE VISUAL FIDELITY CONFIG
+--SINGULARITY LANCE MECHANICS, PLAYER INFORMATION AND VISUAL FIDELITY
 --====================================================================================================
 
 local ei_lib = require("lib/lib")
 local singularity_lance_config = {}
+
+-- Single numerical authority for prototypes, paid runtime snapshots, localized
+-- tooltip parameters and Informatron. See docs/singularity-lance.md in the repo
+-- root for the full behavioral contract; presentation must not govern damage.
 
 singularity_lance_config.setting_name = "ei-singularity-lance-visual-fidelity"
 singularity_lance_config.default_fidelity = "standard"
@@ -15,17 +19,44 @@ singularity_lance_config.direct_damage = 500
 singularity_lance_config.splash_damage = 125
 singularity_lance_config.splash_radius = 1.5
 singularity_lance_config.splash_cap = 8
+-- Acquisition is mechanical, not a fidelity preset. At 6 degrees/tick a 90-degree
+-- turn takes 15 ticks and a half-turn 30; small corrections retain the 8-tick floor.
+-- Smoothstep eases both ends (peak speed is 1.5 times the nominal average).
+-- Full turns may queue, but 60 ticks bounds payment-to-contact latency; saturated
+-- turns accelerate rather than dropping paid shots or growing an unbounded queue.
+singularity_lance_config.acquisition = {
+    degrees_per_tick = 6, minimum_ticks = 8, first_ticks = 8,
+    maximum_wait_ticks = 60, easing = "smoothstep",
+}
+-- Shared deterministic emitter geometry: timing and presentation use the same eye.
+-- Secondary range/penetration still use the turret's ground-level firing position.
+singularity_lance_config.crystal_offset = {x = 0, y = -3.35}
+singularity_lance_config.contact_ticks = 8 -- Historical schema-13 acquisition only.
 singularity_lance_config.axial = {width = 2, reach = 24, damage = 500, cap = 5,
     branch = {angle = 15, width = 1, reach = 18, damage = 250, cap = 3}}
-singularity_lance_config.wound = {step = 0.20, cap = 5, timeout = 120}
+-- Successful contacts bank stacks for the next hit: 0%, 20%, ... 100% on hit six.
+singularity_lance_config.wound = {step = 0.20, cap = 5, timeout = 120, first_hit_stacks = 0}
 singularity_lance_config.collapse = {delay = 30, damage = 600, radius = 4, cap = 10,
     core_damage = 1000, core_radius = 1.5}
 singularity_lance_config.testament = {interval = 8, primary_multiplier = 4, axial_cap = 10, branch_cap = 6,
     damage = 1200, radius = 6, cap = 16, core_damage = 2000, core_radius = 3,
     echo = {delay = 60, damage = 1000, radius = 5, cap = 12}}
 -- Production artwork contract; mechanics never read these presentation values.
-singularity_lance_config.presentation = {revision = 3, beam_frames = 16, beam_speed = 0.55, branch_scale = 0.65,
-    beam_source_offset = {x = 0, y = -3.35}, -- Original crystal eye, in world-space tiles.
+singularity_lance_config.presentation = {revision = 4, beam_frames = 16, beam_speed = 0.55, branch_scale = 0.65,
+    beam_light_strength = 0.25, beam_light_color = {r = 0.72, g = 0.35, b = 1},
+    -- Native beam incarnations choose one artwork ribbon color for body/end light.
+    -- Keep the white seam in the artwork; colored terrain light stays saturated.
+    beam_light_palette = {
+        {r = 0, g = 225 / 255, b = 1}, -- Cyan
+        {r = 88 / 255, g = 77 / 255, b = 1}, -- Cobalt
+        {r = 1, g = 28 / 255, b = 192 / 255}, -- Magenta
+        {r = 160 / 255, g = 63 / 255, b = 1}, -- Violet
+        {r = 1, g = 112 / 255, b = 20 / 255}, -- Orange
+        {r = 1, g = 232 / 255, b = 58 / 255}, -- Gold
+    },
+    contact_flash_ticks = 5, contact_light_color = {r = 0.52, g = 0.95, b = 1},
+    afterglow_light_color = {r = 0.48, g = 0.88, b = 1},
+    beam_source_offset = singularity_lance_config.crystal_offset, -- Compatibility alias; shared geometry, not decoration.
     ground_light_reference_size = 36, -- Standard preset at vanilla light-mask scale.
     beam_scale = 0.34, wound_size = 192, wound_frames = 24, wound_speed = 0.4,
     wound_scale = 1 / 3, collapse_size = 256, warning_radius_fraction = 0.775,
@@ -42,6 +73,25 @@ singularity_lance_config.upgrades = {
 }
 
 -- Localised parameters are shared by technologies, static tooltips and Informatron.
+function singularity_lance_config.contact_description()
+    local acquisition = singularity_lance_config.acquisition
+    return {"lance-upgrades.contact", tostring(acquisition.minimum_ticks), tostring(acquisition.degrees_per_tick),
+        tostring(acquisition.maximum_wait_ticks), tostring(acquisition.maximum_wait_ticks / singularity_lance_config.ticks_per_second)}
+end
+
+-- Keep the native diode label bounded; exact values remain in Informatron.
+---@param value number
+---@return string
+function singularity_lance_config.format_status_number(value)
+    local scale, suffix = 1, ""
+    if value >= 1e12 then return string.format("%.2e", value) end
+    if value >= 1e9 then scale, suffix = 1e9, "G"
+    elseif value >= 1e6 then scale, suffix = 1e6, "M"
+    elseif value >= 1e3 then scale, suffix = 1e3, "k" end
+    local text = string.format("%.2f", value / scale):gsub("0+$", ""):gsub("%.$", "")
+    return text .. suffix
+end
+
 function singularity_lance_config.effect_description(index, multiplier)
     local c = singularity_lance_config
     multiplier = multiplier or 1

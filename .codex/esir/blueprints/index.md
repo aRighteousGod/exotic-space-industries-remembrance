@@ -53,7 +53,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Sawblade event-owned animation and sound gates](sawblade-turret.md#contract) | 1 |
 | [Shared runtime helper boundaries](shared-runtime-helpers.md#contract) | 6 |
 | [Shared runtime scheduler](runtime-scheduler.md#contract) | 1 |
-| [Singularity Lance paid shots, Wound meters, and delayed pulses](singularity-lance.md#contract) | 2 |
+| [Singularity Lance paid contacts, Wound context, and delayed pulses](singularity-lance.md#contract) | 2 |
 | [Spider progression, safe replacement, weapon controls, and reactive smoke](spider-vehicles.md#contract) | 3 |
 | [Startup, compatibility, diagnostics, and information interfaces](startup-and-integration.md#contract) | 6 |
 | [Steam train wheel helpers](steam-train.md#contract) | 1 |

@@ -1,0 +1,1709 @@
+{
+  "complete": false,
+  "engine": "2.0.77",
+  "schema": 14,
+  "seed": 410728,
+  "validation": {
+    "standard": {
+      "assertions": 798,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "lean": {
+      "assertions": 798,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "cinematic": {
+      "assertions": 797,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "maximal": {
+      "assertions": 797,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "unbounded": {
+      "assertions": 797,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "noscaling": {
+      "assertions": 798,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "flatten": {
+      "assertions": 798,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "both": {
+      "assertions": 798,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+        "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+        "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload11": {
+      "assertions": 20,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload12": {
+      "assertions": 20,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload13": {
+      "assertions": 20,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload13-flight": {
+      "assertions": 9,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload13-turn": {
+      "assertions": 8,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload14": {
+      "assertions": 20,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload14-flight": {
+      "assertions": 9,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "reload14-wide": {
+      "assertions": 8,
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    }
+  },
+  "benchmarks": {
+    "no-lance": {
+      "before": {
+        "all_run_means_ms": [
+          0.597,
+          0.607,
+          0.605,
+          0.591,
+          0.616,
+          0.595
+        ],
+        "median_ms": 0.605,
+        "min_ms": 0.591,
+        "max_ms": 0.616,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.703,
+          0.553,
+          0.643,
+          0.628,
+          0.672,
+          0.615
+        ],
+        "median_ms": 0.628,
+        "min_ms": 0.553,
+        "max_ms": 0.672,
+        "runtime_sha256": "c9d45a8d36c557f4c01e30d12d318089476578612a67eea0a0e0f7a7208159a9"
+      },
+      "median_change_percent": 3.8016528925619797,
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5
+    },
+    "idle": {
+      "before": {
+        "all_run_means_ms": [
+          0.651,
+          0.554,
+          0.705,
+          0.619,
+          0.679,
+          0.522
+        ],
+        "median_ms": 0.619,
+        "min_ms": 0.522,
+        "max_ms": 0.705,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.609,
+          0.672,
+          0.625,
+          0.592,
+          0.538,
+          0.593
+        ],
+        "median_ms": 0.593,
+        "min_ms": 0.538,
+        "max_ms": 0.672,
+        "runtime_sha256": "c9d45a8d36c557f4c01e30d12d318089476578612a67eea0a0e0f7a7208159a9"
+      },
+      "median_change_percent": -4.200323101777059,
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5
+    },
+    "direct": {
+      "before": {
+        "all_run_means_ms": [
+          0.98,
+          0.958,
+          0.906,
+          0.937,
+          0.892,
+          0.908
+        ],
+        "median_ms": 0.908,
+        "min_ms": 0.892,
+        "max_ms": 0.958,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.832,
+          0.96,
+          0.848,
+          1.049,
+          0.921,
+          0.905
+        ],
+        "median_ms": 0.921,
+        "min_ms": 0.848,
+        "max_ms": 1.049,
+        "runtime_sha256": "c9d45a8d36c557f4c01e30d12d318089476578612a67eea0a0e0f7a7208159a9"
+      },
+      "median_change_percent": 1.4317180616740144,
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5
+    },
+    "normal-power": {
+      "before": {
+        "all_run_means_ms": [
+          8.995,
+          8.651,
+          8.782,
+          8.586,
+          8.927,
+          9.016
+        ],
+        "median_ms": 8.782,
+        "min_ms": 8.586,
+        "max_ms": 9.016,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "after": {
+        "all_run_means_ms": [
+          9.253,
+          9.255,
+          9.112,
+          9.39,
+          9.154,
+          9.457
+        ],
+        "median_ms": 9.255,
+        "min_ms": 9.112,
+        "max_ms": 9.457,
+        "runtime_sha256": "c9d45a8d36c557f4c01e30d12d318089476578612a67eea0a0e0f7a7208159a9"
+      },
+      "median_change_percent": 5.386016852653164,
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5
+    }
+  },
+  "profiles": {},
+  "wrapper_checks": {
+    "preflight": {
+      "task": "preflight",
+      "overall_status": "warning",
+      "checks": [
+        {
+          "name": "conceptual-blueprints",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": {
+            "overall_status": "ok",
+            "counts": {
+              "runtime_dependencies": 93,
+              "runtime_inventory": 96,
+              "models": 41,
+              "owned_sources": 94,
+              "exceptions": 2,
+              "findings": 0
+            },
+            "sources": [
+              {
+                "file": "exotic-space-industries-remembrance/control.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/runtime-orchestration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/beacon-profile-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/beacon-overload.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/data.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/shared-runtime-helpers.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/echo-codex.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/startup-and-integration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/emerald-apocalypse-hover-tank-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/emerald-apocalypse.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/emerald-apocalypse-hover-tank-hover-offsets.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/emerald-apocalypse.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/enemy-difficulty-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/nauvis-pressure-grace.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/firefighting-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/firefighting-and-water-turret.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/flamethrower-fuels.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/flamethrower-fuel-adaptation.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/fluid-safety-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fluid-safety-and-ruptures.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/gaian-saucer-wake-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaian-saucer-wake.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/handle-wheels.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/shared-runtime-helpers.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/lib.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/shared-runtime-helpers.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/loaders.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/shared-runtime-helpers.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/rng.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/shared-runtime-helpers.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/runtime-scheduler.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/runtime-scheduler.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/singularity-lance-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/singularity-lance.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/spawner-presets.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/spider-vehicles.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/spider-vehicles.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/surface-anchor.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/shared-runtime-helpers.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/sweeping-radar-config.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sweeping-radar.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/sweeping-radar-contacts.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sweeping-radar.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/sweeping-radar-geometry.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sweeping-radar.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/sweeping-radar-timers.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sweeping-radar.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/tech-scaling-common.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/tech-scaling-shared.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/lib/tech-weighting.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/migrations/1.3.03.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/migrations/1.3.35.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/migrations/1.3.36.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/migrations/1.3.39.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/migrations/1.3.40.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/railgun-cooling.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/prototypes/planet-gaia/biomes.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/alien-spawner.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/alien-system.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/auric-inoculation-vat.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/auric-inoculation-vat.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/beacon-overload.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/beacon-overload.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/black-hole.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/black-hole.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/camp-fire.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/camp-fire.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/combustion-turbine.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/combustion-turbine.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/compat.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/startup-and-integration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/crystal-accumulator.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/crystal-accumulator.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/debug.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/startup-and-integration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/em-trains/charger.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/em-trains.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/em-trains.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/em-trains/informatron.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/em-trains.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/emerald-apocalypse-hover-tank.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/emerald-apocalypse.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/emerald-apocalypse-orbital-shards.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/emerald-apocalypse.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/event-handlers.lua",
+                "discovered_runtime": false,
+                "owner": null,
+                "exception": {
+                  "classification": "inactive",
+                  "reason": "Empty, unreferenced placeholder with no executable behavior."
+                }
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/firefighting.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/firefighting-and-water-turret.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/flamethrower-fuels.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/flamethrower-fuel-adaptation.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/flammable-fluids.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fluid-safety-and-ruptures.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/flammable-rupture-scheduler.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fluid-safety-and-ruptures.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/fluid-rupture-effects.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fluid-safety-and-ruptures.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/fluid-safety.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fluid-safety-and-ruptures.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/fueler/fueler.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fueler.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/fueler/informatron.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fueler.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/fulgora-day-length-variation.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fulgora-day-length.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/fusion-reactor.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/fusion-reactor.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/gaia-mapgen-data.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/gaia.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaia-and-alien-systems.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/gaian-saucer-wake.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gaian-saucer-wake.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/gate.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/gate.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/global.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/runtime-orchestration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/hemocrystal-wall.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/hemocrystal-wall.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/induction-matrix.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/induction-matrix.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/informatron-messager.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/startup-and-integration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/informatron.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/startup-and-integration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/matter-stabilizer.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/matter-stabilizer.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/milestone-preset.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/startup-and-integration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/mining-scars.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/mining-scars.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/more-asteroids-spawners.lua",
+                "discovered_runtime": false,
+                "owner": null,
+                "exception": {
+                  "classification": "data-only",
+                  "reason": "Data-stage helper imported by [more-asteroids.lua](../../../exotic-space-industries-remembrance/scripts/data-updates/more-asteroids.lua); its directory does not establish runtime ownership."
+                }
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/nauvis-pressure-grace.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/nauvis-pressure-grace.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/neutron-collector.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/neutron-collector.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/orbital-combinator.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/orbital-logistics.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/railgun-cooling.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/railgun-cooling.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/randomized-tree-growth.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/randomized-tree-growth.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/register-util.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/runtime-orchestration.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/rocket-launch-pollution.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/rocket-launch-pollution.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/sawblade-turret.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sawblade-turret.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/singularity-lance.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/singularity-lance.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/spider-vehicles.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/spider-vehicles.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/spidertron-limiter.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/spider-vehicles.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/steam-train.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/steam-train.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/surveyor-scope.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/surveyor-scope.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/sweeping-radar-gui.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sweeping-radar.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/sweeping-radar.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/sweeping-radar.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/tech-scaling.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/teslas-legacy.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/tesla-runtime.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/victory-disabler.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/research-and-progression.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/vulcanus-fumaroles.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/vulcanus-fumaroles.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/scripts/control/water-turret.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/firefighting-and-water-turret.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/teslas_legacy/config/research.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/tesla-runtime.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/teslas_legacy/config/settings.lua",
+                "discovered_runtime": true,
+                "owner": ".codex/esir/blueprints/tesla-runtime.md",
+                "exception": null
+              },
+              {
+                "file": "exotic-space-industries-remembrance/teslas_legacy/control.lua",
+                "discovered_runtime": false,
+                "owner": ".codex/esir/blueprints/tesla-runtime.md",
+                "exception": null
+              }
+            ],
+            "findings": []
+          }
+        },
+        {
+          "name": "lua-syntax",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": {
+            "tool_path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.tools\\lua-5.4.8\\luac54.exe",
+            "failures": [],
+            "skipped": false,
+            "scanned_count": 359
+          }
+        },
+        {
+          "name": "python-syntax",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": {
+            "tool_path": "C:\\Users\\Theorun\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "failures": [],
+            "skipped": false
+          }
+        },
+        {
+          "name": "powershell-syntax",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": null
+        },
+        {
+          "name": "encoding-health",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": {
+            "scanned_files": 1209,
+            "overall_status": "ok",
+            "findings": [],
+            "fixed_files": []
+          }
+        },
+        {
+          "name": "missing-requires",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": null
+        },
+        {
+          "name": "locale-duplicates",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": null
+        },
+        {
+          "name": "locale-missing",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": null
+        },
+        {
+          "name": "asset-references",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": null
+        },
+        {
+          "name": "pack-version-consistency",
+          "status": "ok",
+          "errors": [],
+          "warnings": [],
+          "details": null
+        },
+        {
+          "name": "module-headers",
+          "status": "warning",
+          "errors": [],
+          "warnings": [
+            "exotic-space-industries-remembrance\\scripts\\control\\auric-inoculation-vat.lua: missing forwarded_events:",
+            "exotic-space-industries-remembrance\\scripts\\control\\emerald-apocalypse-hover-tank.lua: missing storage_roots:, gui_ids:, remote_interfaces:, rebuild_on:"
+          ],
+          "details": [
+            {
+              "file": "exotic-space-industries-remembrance\\scripts\\control\\auric-inoculation-vat.lua",
+              "missing": [
+                "forwarded_events:"
+              ]
+            },
+            {
+              "file": "exotic-space-industries-remembrance\\scripts\\control\\emerald-apocalypse-hover-tank.lua",
+              "missing": [
+                "storage_roots:",
+                "gui_ids:",
+                "remote_interfaces:",
+                "rebuild_on:"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "qc-fast": {
+      "task": "qc-fast",
+      "overall_status": "warning",
+      "exit_code": 0,
+      "summary_path": ".factorio-qc\\fmqc\\latest-summary.json",
+      "save_selection": null,
+      "helper_requirements": null,
+      "encoding": {
+        "scanned_files": 1210,
+        "overall_status": "ok",
+        "findings": [],
+        "fixed_files": []
+      },
+      "summary": {
+        "mode": "fast",
+        "overall_status": "warning",
+        "repo_root": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance",
+        "factorio_exe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio\\bin\\x64\\factorio.exe",
+        "run_mod_directory": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\mods-live",
+        "is_esir": true,
+        "timestamp": "2026-09-29T01:30:20.2346008-05:00",
+        "results": [
+          {
+            "name": "fast",
+            "status": "warning",
+            "warnings": [
+              "Python syntax preflight: .codex\\esir\\asset-generators\\combustion_turbine_fluid_no_lamp.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\__pycache__\\\\combustion_turbine_fluid_no_lamp.cpython-313.pyc.2295198940448'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\brighten_emerald_apocalypse_object.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\brighten_emerald_apocalypse_object.cpython-313.pyc.2589501046528'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\build_apocalypse_charge_icon.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\build_apocalypse_charge_icon.cpython-313.pyc.1993101200720'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_crystal_glow_overlay_from_object.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_crystal_glow_overlay_from_object.cpython-313.pyc.2646028074752'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_death.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_death.cpython-313.pyc.2175270141696'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_effects.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_effects.cpython-313.pyc.1888940670720'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_effects_v2.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_effects_v2.cpython-313.pyc.2224861101824'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_icons.cpython-313.pyc.1687773200128'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_hover_emitter_offsets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_hover_emitter_offsets.cpython-313.pyc.2002256150272'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\inspect_emerald_apocalypse_hover_tank.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\inspect_emerald_apocalypse_hover_tank.cpython-313.pyc.2506562944768'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\isolate_emerald_crystal_overlay.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\isolate_emerald_crystal_overlay.cpython-313.pyc.2622240079616'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\prepare_emerald_apocalypse_hover_tank.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\prepare_emerald_apocalypse_hover_tank.cpython-313.pyc.1447352352512'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\render_apocalypse_charge_icon_turntable.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\render_apocalypse_charge_icon_turntable.cpython-313.pyc.1914048954112'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\emerald-apocalypse-orbital-shard\\prepare_emerald_apocalypse_orbital_shard.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-orbital-shard\\\\__pycache__\\\\prepare_emerald_apocalypse_orbital_shard.cpython-313.pyc.1940389372720'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\gaian-saucer\\body\\derive_dark_compact_glow_overlay.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\gaian-saucer\\\\body\\\\__pycache__\\\\derive_dark_compact_glow_overlay.cpython-313.pyc.2755488052176'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\gaian-saucer\\chromatic-wake\\generate_gaian_saucer_wake.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\gaian-saucer\\\\chromatic-wake\\\\__pycache__\\\\generate_gaian_saucer_wake.cpython-313.pyc.2278818444240'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\gaian-saucer\\death-rupture\\generate_gaian_saucer_death_rupture.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\gaian-saucer\\\\death-rupture\\\\__pycache__\\\\generate_gaian_saucer_death_rupture.cpython-313.pyc.1868601179904'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\military-5-fire\\generate_incinerator_forward_right_icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\generate_incinerator_forward_right_icons.cpython-313.pyc.2600681927632'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\military-5-fire\\generate_inferno_grenade_icons_blender.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\generate_inferno_grenade_icons_blender.cpython-313.pyc.2247498527696'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\military-5-fire\\pack_military5_assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\pack_military5_assets.cpython-313.pyc.2391276879136'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\military-5-fire\\render_military5_assets_blender.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\render_military5_assets_blender.cpython-313.pyc.1970370180048'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\derive-accent-layers.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\derive-accent-layers.cpython-313.pyc.3171976838432'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\generate-goliath-hid-headlights.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\generate-goliath-hid-headlights.cpython-313.pyc.2527253492688'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\generate-nuclear-train-icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\generate-nuclear-train-icons.cpython-313.pyc.1239183782864'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\inspect-rolling-stock-template.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\inspect-rolling-stock-template.cpython-313.pyc.2058613486544'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\pad-spritter-sheets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\pad-spritter-sheets.cpython-313.pyc.1549450050848'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\promote-nuclear-train-assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\promote-nuclear-train-assets.cpython-313.pyc.2668805419984'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\render-rolling-stock-template.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\render-rolling-stock-template.cpython-313.pyc.1198524855248'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\nuclear-trains\\validate-rolling-stock-spritter.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\validate-rolling-stock-spritter.cpython-313.pyc.2083241522128'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\offshore-pump-cap-mask\\generate_offshore_pump_cap_mask.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\offshore-pump-cap-mask\\\\__pycache__\\\\generate_offshore_pump_cap_mask.cpython-313.pyc.2435430937552'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\prediction-snare-mine\\derive_prediction_snare_assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\prediction-snare-mine\\\\__pycache__\\\\derive_prediction_snare_assets.cpython-313.pyc.2517293396944'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sawblade-turret\\analyze_sawblade_turret_components.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\analyze_sawblade_turret_components.cpython-313.pyc.1809240486864'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sawblade-turret\\compose_sawblade_turret_assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\compose_sawblade_turret_assets.cpython-313.pyc.2229364716496'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sawblade-turret\\export_sawblade_turret_roles.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\export_sawblade_turret_roles.cpython-313.pyc.2080973910992'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sawblade-turret\\prepare_sawblade_turret_model.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\prepare_sawblade_turret_model.cpython-313.pyc.1972290384848'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\base-render\\generate_singularity_lance_base.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\base-render\\\\__pycache__\\\\generate_singularity_lance_base.cpython-313.pyc.2918777306880'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\chromatic-afterburn\\generate_chromatic_afterburn.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\chromatic-afterburn\\\\__pycache__\\\\generate_chromatic_afterburn.cpython-313.pyc.2533331713792'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\crystal-link\\generate_crystal_link.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\crystal-link\\\\__pycache__\\\\generate_crystal_link.cpython-313.pyc.1799593456592'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\death-implosion\\generate_singularity_lance_death_implosion.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\death-implosion\\\\__pycache__\\\\generate_singularity_lance_death_implosion.cpython-313.pyc.2784785674032'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\icons\\generate_singularity_lance_icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\icons\\\\__pycache__\\\\generate_singularity_lance_icons.cpython-313.pyc.2285348647888'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-beam\\generate_prismatic_beam.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-beam\\\\__pycache__\\\\generate_prismatic_beam.cpython-313.pyc.1730779214800'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\generate.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\generate.cpython-313.pyc.2588512351184'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\hybrid.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\hybrid.cpython-313.pyc.2453117662160'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\origin.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\origin.cpython-313.pyc.2266897970128'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\production.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\production.cpython-313.pyc.1611079087056'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\validate.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\validate.cpython-313.pyc.1394187367376'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\validate_production.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\validate_production.cpython-313.pyc.3208066036688'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\rune-glow\\generate_singularity_lance_rune_glow.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\rune-glow\\\\__pycache__\\\\generate_singularity_lance_rune_glow.cpython-313.pyc.1539281272576'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\singularity-lance\\upgrades\\generate.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\upgrades\\\\__pycache__\\\\generate.cpython-313.pyc.2025716350240'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\check_review.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\check_review.cpython-313.pyc.1932440141088'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\check_rig.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\check_rig.cpython-313.pyc.1702212048368'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\inspect_blender.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\inspect_blender.cpython-313.pyc.3117093584160'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\inspect_glb.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\inspect_glb.cpython-313.pyc.1618134531568'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\pack_review.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\pack_review.cpython-313.pyc.2985465773552'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\prepare_radar.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\prepare_radar.cpython-313.pyc.1993138928928'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\render_radar.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\render_radar.cpython-313.pyc.1708135972128'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\sweeping-radar\\write_completion.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\write_completion.cpython-313.pyc.1995871911200'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\water-turret\\check-art.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\water-turret\\\\__pycache__\\\\check-art.cpython-313.pyc.2223760774640'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\water-turret\\prepare_model.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\water-turret\\\\__pycache__\\\\prepare_model.cpython-313.pyc.2613408595440'",
+              "Python syntax preflight: .codex\\esir\\asset-generators\\water-turret\\render_model.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\water-turret\\\\__pycache__\\\\render_model.cpython-313.pyc.2450499272176'",
+              "Python syntax preflight: .codex\\skills\\blender-procedural-animation\\scripts\\procedural_animation_sheet.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\blender-procedural-animation\\\\scripts\\\\__pycache__\\\\procedural_animation_sheet.cpython-313.pyc.2557335303120'",
+              "Python syntax preflight: .codex\\skills\\esir-asset-pipeline\\scripts\\run_asset_pipeline.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-asset-pipeline\\\\scripts\\\\__pycache__\\\\run_asset_pipeline.cpython-313.pyc.2071072701728'",
+              "Python syntax preflight: .codex\\skills\\esir-conceptual-blueprints\\scripts\\blueprint_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-conceptual-blueprints\\\\scripts\\\\__pycache__\\\\blueprint_audit.cpython-313.pyc.2840633441568'",
+              "Python syntax preflight: .codex\\skills\\esir-conceptual-blueprints\\scripts\\test_blueprint_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-conceptual-blueprints\\\\scripts\\\\__pycache__\\\\test_blueprint_audit.cpython-313.pyc.2728081259808'",
+              "Python syntax preflight: .codex\\skills\\esir-factorio-asset-export\\scripts\\export_factorio_asset.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-factorio-asset-export\\\\scripts\\\\__pycache__\\\\export_factorio_asset.cpython-313.pyc.2740129822544'",
+              "Python syntax preflight: .codex\\skills\\esir-item-icon-prep\\scripts\\build_factorio_item_icon.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-item-icon-prep\\\\scripts\\\\__pycache__\\\\build_factorio_item_icon.cpython-313.pyc.1991645560096'",
+              "Python syntax preflight: .codex\\skills\\esir-recipe-icon-style\\scripts\\companion_mod_probe.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\companion_mod_probe.cpython-313.pyc.2749005659424'",
+              "Python syntax preflight: .codex\\skills\\esir-recipe-icon-style\\scripts\\recipe_icon_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\recipe_icon_audit.cpython-313.pyc.1929012870432'",
+              "Python syntax preflight: .codex\\skills\\esir-recipe-icon-style\\scripts\\recipe_icon_batch.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\recipe_icon_batch.cpython-313.pyc.2082181053728'",
+              "Python syntax preflight: .codex\\skills\\esir-recipe-icon-style\\scripts\\render_recipe_icon_report.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\render_recipe_icon_report.cpython-313.pyc.2228085651280'",
+              "Python syntax preflight: .codex\\skills\\esir-runtime-gui\\scripts\\gui_pattern_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-runtime-gui\\\\scripts\\\\__pycache__\\\\gui_pattern_audit.cpython-313.pyc.1825065565472'",
+              "Python syntax preflight: .codex\\skills\\meshy-api\\scripts\\meshy_rest.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-api\\\\scripts\\\\__pycache__\\\\meshy_rest.cpython-313.pyc.2828549199344'",
+              "Python syntax preflight: .codex\\skills\\meshy-api\\scripts\\test_meshy_rest.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-api\\\\scripts\\\\__pycache__\\\\test_meshy_rest.cpython-313.pyc.2391193851376'",
+              "Python syntax preflight: .codex\\skills\\meshy-blender-spritesheet\\scripts\\render_factorio_preset.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-blender-spritesheet\\\\scripts\\\\__pycache__\\\\render_factorio_preset.cpython-313.pyc.2896958977872'",
+              "Python syntax preflight: .codex\\skills\\meshy-blender-spritesheet\\scripts\\render_spritesheet.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-blender-spritesheet\\\\scripts\\\\__pycache__\\\\render_spritesheet.cpython-313.pyc.2656013483296'",
+              "   0.521 Script @__exotic-space-industries-remembrance__/settings-updates.lua:32: EI set_int: Setting max-underground-distance not found in data.raw.int-setting",
+              "   0.521 Script @__exotic-space-industries-remembrance__/settings-updates.lua:4: EI set_bool: Setting multiply-costs not found in data.raw.bool-setting",
+              "   6.372 Script @__exotic-space-industries-remembrance__/scripts/data-updates/tech-structure.lua:17: Error: weapon-shooting-speed-7 not found in data.raw",
+              "   6.372 Script @__exotic-space-industries-remembrance__/scripts/data-updates/tech-structure.lua:68: Error: weapon-shooting-speed-7 not found in data.raw",
+              "   6.377 Script @__exotic-space-industries-remembrance__/scripts/data-updates/tech-structure.lua:158: Error: mining-productivity-4 not found in data.raw",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-0 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-1 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-2 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-3 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-4 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-5 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-6 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-7 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-8 had invalid target",
+              "   6.383 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-9 had invalid target",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '1' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '1' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '2' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '2' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '3' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '3' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '4' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '4' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '5' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '5' missing in category 'recipe'.",
+              "   6.772 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'quality-unknown-atan-air-scrubber' missing in category 'furnace'.",
+              "   6.780 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'accumulator-v2' missing in category 'technology'.",
+              "   6.847 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'ei-legacy-tesla-family' missing in category 'ammo-category'.",
+              "   6.847 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'ei-legacy-tesla-turret' missing in category 'ammo-category'.",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-0",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-1",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-2",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-3",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-4",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-5",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-6",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-7",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-8",
+              "   7.531 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-9",
+              "   7.544 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for nsb-filler-recipe",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-0 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-1 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-2 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-3 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-4 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-5 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-6 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-7 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-8 had invalid target",
+              "   7.548 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-9 had invalid target",
+              "   7.621 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe nsb-filler-recipe had invalid target",
+              "   7.660 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'steel-gear-wheel' missing in category 'recipe'.",
+              "   7.660 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'kr-steel-gear-wheel' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '1' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '1' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '2' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '2' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '3' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '3' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '4' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '4' missing in category 'recipe'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '5' missing in category 'item'.",
+              "   6.495 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '5' missing in category 'recipe'.",
+              "   6.772 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'quality-unknown-atan-air-scrubber' missing in category 'furnace'.",
+              "   6.780 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'accumulator-v2' missing in category 'technology'.",
+              "   6.847 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'ei-legacy-tesla-family' missing in category 'ammo-category'.",
+              "   6.847 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'ei-legacy-tesla-turret' missing in category 'ammo-category'.",
+              "   7.660 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'steel-gear-wheel' missing in category 'recipe'.",
+              "   7.660 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'kr-steel-gear-wheel' missing in category 'recipe'."
+            ],
+            "errors": [],
+            "notes": [
+              "Seeding run-mod directory from cache: output\\tesla-run-mods"
+            ],
+            "findings": [],
+            "artifacts": {
+              "run_mod_directory": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\mods-live",
+              "luac": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.tools\\lua-5.4.8\\luac54.exe",
+              "python": "C:\\Users\\Theorun\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+              "config": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\factorio-fast-20260929-012658.ini",
+              "write_data": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\fast-run-data-20260929-012658",
+              "log": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\fast-run-data-20260929-012658\\factorio-current.log",
+              "stdout": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\fast-run-data-20260929-012658\\factorio-stdout.txt",
+              "data_raw_dump": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\fast-run-data-20260929-012658\\script-output\\data-raw-dump.json"
+            }
+          }
+        ]
+      }
+    },
+    "qc-runtime": {
+      "task": "qc-runtime",
+      "overall_status": "warning",
+      "exit_code": 0,
+      "summary_path": ".factorio-qc\\fmqc\\latest-summary.json",
+      "save_selection": {
+        "id": "fueler-smoke",
+        "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fueler-smoke.zip",
+        "reason": "catalog-default",
+        "entry": {
+          "id": "fueler-smoke",
+          "path": ".factorio-qc\\fueler-smoke.zip",
+          "kind": "smoke-save",
+          "purpose": "Fueler runtime and preview smoke coverage",
+          "tags": [
+            "runtime",
+            "preview",
+            "smoke",
+            "fueler"
+          ],
+          "preferred_for": [
+            "qc-runtime",
+            "qc-preview"
+          ],
+          "helper_mods": [],
+          "mods_source": "live-repo-via-qc-sync",
+          "notes": "Primary smoke save shipped in ignored QC artifact space."
+        }
+      },
+      "helper_requirements": null,
+      "encoding": {
+        "scanned_files": 1210,
+        "overall_status": "ok",
+        "findings": [],
+        "fixed_files": []
+      },
+      "summary": {
+        "mode": "runtime",
+        "overall_status": "warning",
+        "repo_root": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance",
+        "factorio_exe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio\\bin\\x64\\factorio.exe",
+        "run_mod_directory": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\mods-live",
+        "is_esir": true,
+        "timestamp": "2026-09-29T01:31:28.1371031-05:00",
+        "results": [
+          {
+            "name": "runtime",
+            "status": "warning",
+            "warnings": [
+              "   0.444 Script @__exotic-space-industries-remembrance__/settings-updates.lua:32: EI set_int: Setting max-underground-distance not found in data.raw.int-setting",
+              "   0.444 Script @__exotic-space-industries-remembrance__/settings-updates.lua:4: EI set_bool: Setting multiply-costs not found in data.raw.bool-setting",
+              "   5.818 Script @__exotic-space-industries-remembrance__/scripts/data-updates/tech-structure.lua:17: Error: weapon-shooting-speed-7 not found in data.raw",
+              "   5.818 Script @__exotic-space-industries-remembrance__/scripts/data-updates/tech-structure.lua:68: Error: weapon-shooting-speed-7 not found in data.raw",
+              "   5.822 Script @__exotic-space-industries-remembrance__/scripts/data-updates/tech-structure.lua:158: Error: mining-productivity-4 not found in data.raw",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-0 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-1 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-2 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-3 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-4 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-5 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-6 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-7 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-8 had invalid target",
+              "   5.825 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-9 had invalid target",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '1' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '1' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '2' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '2' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '3' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '3' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '4' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '4' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '5' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype '5' missing in category 'recipe'.",
+              "   6.124 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'quality-unknown-atan-air-scrubber' missing in category 'furnace'.",
+              "   6.130 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'accumulator-v2' missing in category 'technology'.",
+              "   6.186 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'ei-legacy-tesla-family' missing in category 'ammo-category'.",
+              "   6.186 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'ei-legacy-tesla-turret' missing in category 'ammo-category'.",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-0",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-1",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-2",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-3",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-4",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-5",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-6",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-7",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-8",
+              "   6.844 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for parameter-9",
+              "   6.854 Script @__exotic-space-industries-remembrance__/lib/lib.lua:898: fix recipe got invalid target for nsb-filler-recipe",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-0 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-1 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-2 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-3 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-4 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-5 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-6 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-7 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-8 had invalid target",
+              "   6.858 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe parameter-9 had invalid target",
+              "   6.913 Script @__exotic-space-industries-remembrance__/lib/lib.lua:842: recipe nsb-filler-recipe had invalid target",
+              "   6.951 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'steel-gear-wheel' missing in category 'recipe'.",
+              "   6.951 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: âŒ Prototype 'kr-steel-gear-wheel' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '1' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '1' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '2' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '2' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '3' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '3' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '4' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '4' missing in category 'recipe'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '5' missing in category 'item'.",
+              "   5.912 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype '5' missing in category 'recipe'.",
+              "   6.124 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'quality-unknown-atan-air-scrubber' missing in category 'furnace'.",
+              "   6.130 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'accumulator-v2' missing in category 'technology'.",
+              "   6.186 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'ei-legacy-tesla-family' missing in category 'ammo-category'.",
+              "   6.186 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'ei-legacy-tesla-turret' missing in category 'ammo-category'.",
+              "   6.951 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'steel-gear-wheel' missing in category 'recipe'.",
+              "   6.951 Script @__exotic-space-industries-remembrance__/lib/lib.lua:728: ei_lib.raw: ❌ Prototype 'kr-steel-gear-wheel' missing in category 'recipe'."
+            ],
+            "errors": [],
+            "notes": [
+              "Seeding run-mod directory from cache: output\\tesla-run-mods"
+            ],
+            "findings": [],
+            "artifacts": {
+              "run_mod_directory": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\mods-live",
+              "save": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fueler-smoke.zip",
+              "control_review": {
+                "on_init": 1,
+                "on_load": 1,
+                "on_configuration_changed": 1,
+                "on_event": 67,
+                "on_nth_tick": 0
+              },
+              "config": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\factorio-runtime-20260929-013042.ini",
+              "write_data": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\runtime-run-data-20260929-013042",
+              "log": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\runtime-run-data-20260929-013042\\factorio-current.log",
+              "stdout": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\runtime-run-data-20260929-013042\\factorio-stdout.txt"
+            }
+          }
+        ]
+      }
+    },
+    "qc-assets": {
+      "task": "qc-assets",
+      "overall_status": "warning",
+      "exit_code": 0,
+      "summary_path": ".factorio-qc\\fmqc\\latest-summary.json",
+      "save_selection": null,
+      "helper_requirements": null,
+      "encoding": {
+        "scanned_files": 1210,
+        "overall_status": "ok",
+        "findings": [],
+        "fixed_files": []
+      },
+      "summary": {
+        "mode": "assets",
+        "overall_status": "warning",
+        "repo_root": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance",
+        "factorio_exe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio\\bin\\x64\\factorio.exe",
+        "run_mod_directory": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\fmqc\\mods-live",
+        "is_esir": true,
+        "timestamp": "2026-09-29T01:32:40.2680999-05:00",
+        "results": [
+          {
+            "name": "assets",
+            "status": "warning",
+            "warnings": [
+              "Python syntax issue: .codex\\esir\\asset-generators\\combustion_turbine_fluid_no_lamp.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\__pycache__\\\\combustion_turbine_fluid_no_lamp.cpython-313.pyc.1659733310752'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\brighten_emerald_apocalypse_object.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\brighten_emerald_apocalypse_object.cpython-313.pyc.2762584309504'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\build_apocalypse_charge_icon.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\build_apocalypse_charge_icon.cpython-313.pyc.2675597364560'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_crystal_glow_overlay_from_object.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_crystal_glow_overlay_from_object.cpython-313.pyc.2203547942656'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_death.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_death.cpython-313.pyc.1713984126720'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_effects.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_effects.cpython-313.pyc.2434619293440'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_effects_v2.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_effects_v2.cpython-313.pyc.1769171468032'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_emerald_apocalypse_icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_emerald_apocalypse_icons.cpython-313.pyc.2847822987008'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\generate_hover_emitter_offsets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\generate_hover_emitter_offsets.cpython-313.pyc.1641706241792'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\inspect_emerald_apocalypse_hover_tank.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\inspect_emerald_apocalypse_hover_tank.cpython-313.pyc.1969976131328'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\isolate_emerald_crystal_overlay.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\isolate_emerald_crystal_overlay.cpython-313.pyc.1981791551232'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\prepare_emerald_apocalypse_hover_tank.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\prepare_emerald_apocalypse_hover_tank.cpython-313.pyc.2770490900224'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-hover-tank\\render_apocalypse_charge_icon_turntable.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-hover-tank\\\\__pycache__\\\\render_apocalypse_charge_icon_turntable.cpython-313.pyc.2963804733184'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\emerald-apocalypse-orbital-shard\\prepare_emerald_apocalypse_orbital_shard.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\emerald-apocalypse-orbital-shard\\\\__pycache__\\\\prepare_emerald_apocalypse_orbital_shard.cpython-313.pyc.2801500037936'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\gaian-saucer\\body\\derive_dark_compact_glow_overlay.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\gaian-saucer\\\\body\\\\__pycache__\\\\derive_dark_compact_glow_overlay.cpython-313.pyc.2707037746128'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\gaian-saucer\\chromatic-wake\\generate_gaian_saucer_wake.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\gaian-saucer\\\\chromatic-wake\\\\__pycache__\\\\generate_gaian_saucer_wake.cpython-313.pyc.1762230399952'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\gaian-saucer\\death-rupture\\generate_gaian_saucer_death_rupture.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\gaian-saucer\\\\death-rupture\\\\__pycache__\\\\generate_gaian_saucer_death_rupture.cpython-313.pyc.2247477575424'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\military-5-fire\\generate_incinerator_forward_right_icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\generate_incinerator_forward_right_icons.cpython-313.pyc.1180434166736'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\military-5-fire\\generate_inferno_grenade_icons_blender.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\generate_inferno_grenade_icons_blender.cpython-313.pyc.1552945378256'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\military-5-fire\\pack_military5_assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\pack_military5_assets.cpython-313.pyc.2089483664672'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\military-5-fire\\render_military5_assets_blender.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\military-5-fire\\\\__pycache__\\\\render_military5_assets_blender.cpython-313.pyc.2222892577744'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\derive-accent-layers.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\derive-accent-layers.cpython-313.pyc.1724553133344'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\generate-goliath-hid-headlights.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\generate-goliath-hid-headlights.cpython-313.pyc.1778531496912'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\generate-nuclear-train-icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\generate-nuclear-train-icons.cpython-313.pyc.2053619643344'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\inspect-rolling-stock-template.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\inspect-rolling-stock-template.cpython-313.pyc.2132859352016'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\pad-spritter-sheets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\pad-spritter-sheets.cpython-313.pyc.2200736070944'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\promote-nuclear-train-assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\promote-nuclear-train-assets.cpython-313.pyc.2669391705040'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\render-rolling-stock-template.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\render-rolling-stock-template.cpython-313.pyc.2420723282896'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\nuclear-trains\\validate-rolling-stock-spritter.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\nuclear-trains\\\\__pycache__\\\\validate-rolling-stock-spritter.cpython-313.pyc.2970102199248'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\offshore-pump-cap-mask\\generate_offshore_pump_cap_mask.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\offshore-pump-cap-mask\\\\__pycache__\\\\generate_offshore_pump_cap_mask.cpython-313.pyc.2689784476624'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\prediction-snare-mine\\derive_prediction_snare_assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\prediction-snare-mine\\\\__pycache__\\\\derive_prediction_snare_assets.cpython-313.pyc.1624451576784'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sawblade-turret\\analyze_sawblade_turret_components.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\analyze_sawblade_turret_components.cpython-313.pyc.1521589679056'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sawblade-turret\\compose_sawblade_turret_assets.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\compose_sawblade_turret_assets.cpython-313.pyc.2155882542032'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sawblade-turret\\export_sawblade_turret_roles.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\export_sawblade_turret_roles.cpython-313.pyc.2077886444496'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sawblade-turret\\prepare_sawblade_turret_model.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sawblade-turret\\\\__pycache__\\\\prepare_sawblade_turret_model.cpython-313.pyc.2762921735120'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\base-render\\generate_singularity_lance_base.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\base-render\\\\__pycache__\\\\generate_singularity_lance_base.cpython-313.pyc.2511055044352'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\chromatic-afterburn\\generate_chromatic_afterburn.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\chromatic-afterburn\\\\__pycache__\\\\generate_chromatic_afterburn.cpython-313.pyc.1442848194304'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\crystal-link\\generate_crystal_link.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\crystal-link\\\\__pycache__\\\\generate_crystal_link.cpython-313.pyc.1477879919568'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\death-implosion\\generate_singularity_lance_death_implosion.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\death-implosion\\\\__pycache__\\\\generate_singularity_lance_death_implosion.cpython-313.pyc.2382322413360'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\icons\\generate_singularity_lance_icons.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\icons\\\\__pycache__\\\\generate_singularity_lance_icons.cpython-313.pyc.1237070181328'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-beam\\generate_prismatic_beam.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-beam\\\\__pycache__\\\\generate_prismatic_beam.cpython-313.pyc.2746258158544'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\generate.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\generate.cpython-313.pyc.2504740631504'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\hybrid.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\hybrid.cpython-313.pyc.1867352437712'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\origin.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\origin.cpython-313.pyc.2056995795920'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\production.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\production.cpython-313.pyc.2318594667472'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\validate.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\validate.cpython-313.pyc.1733273318352'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\prismatic-redesign\\validate_production.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\prismatic-redesign\\\\__pycache__\\\\validate_production.cpython-313.pyc.2294513660880'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\rune-glow\\generate_singularity_lance_rune_glow.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\rune-glow\\\\__pycache__\\\\generate_singularity_lance_rune_glow.cpython-313.pyc.2110882266880'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\singularity-lance\\upgrades\\generate.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\singularity-lance\\\\upgrades\\\\__pycache__\\\\generate.cpython-313.pyc.2353484889376'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\check_review.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\check_review.cpython-313.pyc.2690484305184'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\check_rig.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\check_rig.cpython-313.pyc.1900947936752'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\inspect_blender.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\inspect_blender.cpython-313.pyc.1410731179296'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\inspect_glb.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\inspect_glb.cpython-313.pyc.1611326127600'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\pack_review.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\pack_review.cpython-313.pyc.2100369456624'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\prepare_radar.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\prepare_radar.cpython-313.pyc.2590926208288'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\render_radar.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\render_radar.cpython-313.pyc.2697449602336'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\sweeping-radar\\write_completion.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\sweeping-radar\\\\__pycache__\\\\write_completion.cpython-313.pyc.2440201993504'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\water-turret\\check-art.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\water-turret\\\\__pycache__\\\\check-art.cpython-313.pyc.2082118342128'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\water-turret\\prepare_model.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\water-turret\\\\__pycache__\\\\prepare_model.cpython-313.pyc.1846971956720'",
+              "Python syntax issue: .codex\\esir\\asset-generators\\water-turret\\render_model.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\esir\\\\asset-generators\\\\water-turret\\\\__pycache__\\\\render_model.cpython-313.pyc.2724759764464'",
+              "Python syntax issue: .codex\\skills\\blender-procedural-animation\\scripts\\procedural_animation_sheet.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\blender-procedural-animation\\\\scripts\\\\__pycache__\\\\procedural_animation_sheet.cpython-313.pyc.2573012431824'",
+              "Python syntax issue: .codex\\skills\\esir-asset-pipeline\\scripts\\run_asset_pipeline.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-asset-pipeline\\\\scripts\\\\__pycache__\\\\run_asset_pipeline.cpython-313.pyc.2635404377376'",
+              "Python syntax issue: .codex\\skills\\esir-conceptual-blueprints\\scripts\\blueprint_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-conceptual-blueprints\\\\scripts\\\\__pycache__\\\\blueprint_audit.cpython-313.pyc.2312048114976'",
+              "Python syntax issue: .codex\\skills\\esir-conceptual-blueprints\\scripts\\test_blueprint_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-conceptual-blueprints\\\\scripts\\\\__pycache__\\\\test_blueprint_audit.cpython-313.pyc.1175432822048'",
+              "Python syntax issue: .codex\\skills\\esir-factorio-asset-export\\scripts\\export_factorio_asset.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-factorio-asset-export\\\\scripts\\\\__pycache__\\\\export_factorio_asset.cpython-313.pyc.1723299329872'",
+              "Python syntax issue: .codex\\skills\\esir-item-icon-prep\\scripts\\build_factorio_item_icon.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-item-icon-prep\\\\scripts\\\\__pycache__\\\\build_factorio_item_icon.cpython-313.pyc.2094300232992'",
+              "Python syntax issue: .codex\\skills\\esir-recipe-icon-style\\scripts\\companion_mod_probe.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\companion_mod_probe.cpython-313.pyc.2230947314976'",
+              "Python syntax issue: .codex\\skills\\esir-recipe-icon-style\\scripts\\recipe_icon_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\recipe_icon_audit.cpython-313.pyc.1965186383136'",
+              "Python syntax issue: .codex\\skills\\esir-recipe-icon-style\\scripts\\recipe_icon_batch.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\recipe_icon_batch.cpython-313.pyc.2755849649440'",
+              "Python syntax issue: .codex\\skills\\esir-recipe-icon-style\\scripts\\render_recipe_icon_report.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-recipe-icon-style\\\\scripts\\\\__pycache__\\\\render_recipe_icon_report.cpython-313.pyc.2515817461584'",
+              "Python syntax issue: .codex\\skills\\esir-runtime-gui\\scripts\\gui_pattern_audit.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\esir-runtime-gui\\\\scripts\\\\__pycache__\\\\gui_pattern_audit.cpython-313.pyc.2918789578016'",
+              "Python syntax issue: .codex\\skills\\meshy-api\\scripts\\meshy_rest.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-api\\\\scripts\\\\__pycache__\\\\meshy_rest.cpython-313.pyc.2204647069168'",
+              "Python syntax issue: .codex\\skills\\meshy-api\\scripts\\test_meshy_rest.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-api\\\\scripts\\\\__pycache__\\\\test_meshy_rest.cpython-313.pyc.2334750053872'",
+              "Python syntax issue: .codex\\skills\\meshy-blender-spritesheet\\scripts\\render_factorio_preset.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-blender-spritesheet\\\\scripts\\\\__pycache__\\\\render_factorio_preset.cpython-313.pyc.2654873450320'",
+              "Python syntax issue: .codex\\skills\\meshy-blender-spritesheet\\scripts\\render_spritesheet.py: [Errno 13] Permission denied: 'C:\\\\Users\\\\Theorun\\\\Documents\\\\github\\\\exotic-space-industries-remembrance\\\\.codex\\\\skills\\\\meshy-blender-spritesheet\\\\scripts\\\\__pycache__\\\\render_spritesheet.cpython-313.pyc.2124024282400'"
+            ],
+            "errors": [],
+            "notes": [
+              "Media validation is structural only in v1; no perceptual audio review is performed."
+            ],
+            "findings": [],
+            "artifacts": {
+              "pillow_version": "11.3.0"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "limits": [
+    "Manual gameplay review remains outstanding.",
+    "Headless benchmarks exclude GPU/render cost; whole-engine timings include other mods and fixture work.",
+    "Profiler phases are nested. Only shot + update-total represent total lance work."
+  ],
+  "direct_investigation": {},
+  "locale": {
+    "languages": 7,
+    "entries": 504,
+    "parity": "passed"
+  },
+  "live_final_prototypes": {
+    "dump": ".factorio-qc\\fmqc\\fast-run-data-20260929-012658\\script-output\\data-raw-dump.json",
+    "records": {
+      "native": {
+        "range": 85,
+        "cooldown": 1,
+        "energy_consumption": "125MJ",
+        "buffer_capacity": "700MJ",
+        "input_flow_limit": "400MW",
+        "drain": "20MW"
+      },
+      "ei-singularity-lance": {
+        "prerequisites": [
+          "ei-crystal-accumulator",
+          "ei-oxygen-difluoride-alien",
+          "ei-bio-electronic-parts",
+          "ei-bio-high-energy-crystal",
+          "ei-cryodust",
+          "ei-computing-unit",
+          "laser-weapons-damage-5",
+          "military-5"
+        ],
+        "unit": {
+          "count": 10,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "space-science-pack",
+              1
+            ]
+          ],
+          "time": 30
+        }
+      },
+      "ei-singularity-lance-axial-rupture": {
+        "prerequisites": [
+          "ei-singularity-lance"
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "space-science-pack",
+              1
+            ]
+          ]
+        }
+      },
+      "ei-singularity-lance-wound-memory": {
+        "prerequisites": [
+          "ei-singularity-lance-axial-rupture",
+          "ei-quantum-age"
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-quantum-age-tech",
+              1
+            ],
+            [
+              "space-science-pack",
+              1
+            ]
+          ]
+        }
+      },
+      "ei-singularity-lance-terminal-collapse": {
+        "prerequisites": [
+          "ei-singularity-lance-wound-memory",
+          "ei-exotic-age"
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-quantum-age-tech",
+              1
+            ],
+            [
+              "ei-fusion-quantum-age-tech",
+              1
+            ],
+            [
+              "ei-exotic-age-tech",
+              1
+            ]
+          ]
+        }
+      },
+      "ei-singularity-lance-black-hole-testament": {
+        "prerequisites": [
+          "ei-singularity-lance-terminal-collapse",
+          "ei-black-hole"
+        ],
+        "unit": {
+          "count": 10,
+          "time": 30,
+          "ingredients": [
+            [
+              "ei-dark-age-tech",
+              1
+            ],
+            [
+              "ei-steam-age-tech",
+              1
+            ],
+            [
+              "ei-electricity-age-tech",
+              1
+            ],
+            [
+              "ei-computer-age-tech",
+              1
+            ],
+            [
+              "ei-advanced-computer-age-tech",
+              1
+            ],
+            [
+              "ei-alien-computer-age-tech",
+              1
+            ],
+            [
+              "ei-quantum-age-tech",
+              1
+            ],
+            [
+              "ei-fusion-quantum-age-tech",
+              1
+            ],
+            [
+              "ei-exotic-age-tech",
+              1
+            ],
+            [
+              "ei-black-hole-exotic-age-tech",
+              1
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "source_sha256": {
+    "exotic-space-industries-remembrance\\scripts\\control\\singularity-lance.lua": "c9d45a8d36c557f4c01e30d12d318089476578612a67eea0a0e0f7a7208159a9",
+    "exotic-space-industries-remembrance\\lib\\singularity-lance-config.lua": "18d1bdbb43a65bad8706b47fa5589be8a2b98f6ed9ff2745db593ce2f6d32c09",
+    "exotic-space-industries-remembrance\\lib\\runtime-scheduler.lua": "6ffc6a883e56c184c876a1335de2842b3918f8f6455aea87669a62c036964239"
+  }
+}

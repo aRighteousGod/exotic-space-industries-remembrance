@@ -1,0 +1,1002 @@
+{
+  "engine": "2.0.77",
+  "schema": 13,
+  "seed": 410728,
+  "timing_ticks": {
+    "contact": 8,
+    "first": 38,
+    "echo": 68
+  },
+  "validation": {
+    "sweep2-verified-standard": {
+      "assertions": 610,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-lean": {
+      "assertions": 610,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-cinematic": {
+      "assertions": 609,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-maximal": {
+      "assertions": 609,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-unbounded": {
+      "assertions": 609,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-noscaling": {
+      "assertions": 610,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-singularity-lance-axial-rupture,ei-quantum-age",
+        "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-wound-memory,ei-exotic-age",
+        "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-flatten": {
+      "assertions": 610,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+        "name=ei-singularity-lance-terminal-collapse count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+        "name=ei-singularity-lance-black-hole-testament count=10 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-verified-both": {
+      "assertions": 610,
+      "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+      "technology_rows": [
+        "name=ei-singularity-lance-axial-rupture count=700 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-alien-computer-age-tech,ei-advanced-computer-age-tech,space-science-pack,ei-singularity-lance",
+        "name=ei-singularity-lance-wound-memory count=800 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-quantum-age-tech,ei-steam-age-tech,space-science-pack prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,space-science-pack,ei-singularity-lance-axial-rupture",
+        "name=ei-singularity-lance-terminal-collapse count=900 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-singularity-lance-wound-memory",
+        "name=ei-singularity-lance-black-hole-testament count=1000 time=30 packs=ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-black-hole-exotic-age-tech,ei-computer-age-tech,ei-dark-age-tech,ei-electricity-age-tech,ei-exotic-age-tech,ei-fusion-quantum-age-tech,ei-quantum-age-tech,ei-steam-age-tech prerequisites=ei-dark-age,ei-steam-age,ei-electricity-age,ei-computer-age,ei-advanced-computer-age-tech,ei-alien-computer-age-tech,ei-quantum-age,ei-fusion-data,ei-exotic-age,ei-black-hole-exploration,ei-singularity-lance-terminal-collapse,ei-black-hole"
+      ]
+    },
+    "sweep2-reload11": {
+      "assertions": 20
+    },
+    "sweep2-reload12": {
+      "assertions": 20
+    },
+    "sweep2-reload13": {
+      "assertions": 20
+    },
+    "sweep2-reload-flight": {
+      "assertions": 9
+    }
+  },
+  "benchmarks": {
+    "no-lance": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.408,
+          0.549,
+          0.543,
+          0.417,
+          0.438,
+          0.422
+        ],
+        "median_ms": 0.438,
+        "min_ms": 0.417,
+        "max_ms": 0.549,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.469,
+          0.379,
+          0.379,
+          0.37,
+          0.367,
+          0.377
+        ],
+        "median_ms": 0.377,
+        "min_ms": 0.367,
+        "max_ms": 0.379,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -13.926940639269404
+    },
+    "idle": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.519,
+          0.446,
+          0.423,
+          0.427,
+          0.561,
+          0.402
+        ],
+        "median_ms": 0.427,
+        "min_ms": 0.402,
+        "max_ms": 0.561,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.398,
+          0.422,
+          0.413,
+          0.415,
+          0.383,
+          0.396
+        ],
+        "median_ms": 0.413,
+        "min_ms": 0.383,
+        "max_ms": 0.422,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -3.2786885245901676
+    },
+    "direct": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.488,
+          0.494,
+          0.478,
+          0.481,
+          0.485,
+          0.476
+        ],
+        "median_ms": 0.481,
+        "min_ms": 0.476,
+        "max_ms": 0.494,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.521,
+          0.537,
+          0.545,
+          0.557,
+          0.539,
+          0.557
+        ],
+        "median_ms": 0.545,
+        "min_ms": 0.537,
+        "max_ms": 0.557,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 13.305613305613328
+    },
+    "normal-power": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          5.052,
+          4.998,
+          4.814,
+          4.688,
+          4.718,
+          4.942
+        ],
+        "median_ms": 4.814,
+        "min_ms": 4.688,
+        "max_ms": 4.998,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          4.869,
+          5.025,
+          5.064,
+          4.516,
+          4.674,
+          4.438
+        ],
+        "median_ms": 4.674,
+        "min_ms": 4.438,
+        "max_ms": 5.064,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -2.9081844619858632
+    },
+    "dense": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          103.355,
+          104.485,
+          103.263,
+          102.868,
+          105.644,
+          102.839
+        ],
+        "median_ms": 103.263,
+        "min_ms": 102.839,
+        "max_ms": 105.644,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          93.666,
+          95.42,
+          96.99,
+          95.97,
+          95.407,
+          94.183
+        ],
+        "median_ms": 95.42,
+        "min_ms": 94.183,
+        "max_ms": 96.99,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -7.595169615447938
+    },
+    "diagonal": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          35.014,
+          33.535,
+          29.702,
+          36.087,
+          35.702,
+          32.082
+        ],
+        "median_ms": 33.535,
+        "min_ms": 29.702,
+        "max_ms": 36.087,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          34.939,
+          34.376,
+          35.182,
+          35.394,
+          34.637,
+          35.378
+        ],
+        "median_ms": 35.182,
+        "min_ms": 34.376,
+        "max_ms": 35.394,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": 4.911286715372021
+    },
+    "research": {
+      "ticks_per_run": 600,
+      "discarded_warmup_runs": 1,
+      "measured_runs": 5,
+      "before": {
+        "all_run_means_ms": [
+          0.49,
+          0.481,
+          0.411,
+          0.429,
+          0.405,
+          0.583
+        ],
+        "median_ms": 0.429,
+        "min_ms": 0.405,
+        "max_ms": 0.583,
+        "runtime_sha256": "306c4d23081ce81562824704f0a63d8278a045681e78ef9e1b73bce31f0ad63a"
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.407,
+          0.407,
+          0.405,
+          0.401,
+          0.401,
+          0.407
+        ],
+        "median_ms": 0.405,
+        "min_ms": 0.401,
+        "max_ms": 0.407,
+        "runtime_sha256": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f"
+      },
+      "technology_prices_science_prerequisites_unchanged": true,
+      "median_change_percent": -5.594405594405583
+    }
+  },
+  "profiles": {
+    "no-lance": {
+      "lance_total": {
+        "mean_ms": 0,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 0
+      },
+      "counters": {},
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    },
+    "idle": {
+      "lance_total": {
+        "mean_ms": 0,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 0
+      },
+      "counters": {},
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    },
+    "direct": {
+      "shot-core": {
+        "mean_ms": 0.005260416666666667,
+        "median_ms": 0.0046,
+        "p95_ms": 0.0079,
+        "max_ms": 0.021
+      },
+      "shot": {
+        "mean_ms": 0.020891252083333332,
+        "median_ms": 0.0194,
+        "p95_ms": 0.0278,
+        "max_ms": 0.0804
+      },
+      "contact": {
+        "mean_ms": 0.069175625,
+        "median_ms": 0.06705,
+        "p95_ms": 0.0855,
+        "max_ms": 0.1634
+      },
+      "sweep": {
+        "mean_ms": 0.0038352083333333333,
+        "median_ms": 0.0037,
+        "p95_ms": 0.0045,
+        "max_ms": 0.0178
+      },
+      "contact-light": {
+        "mean_ms": 0.014729179166666667,
+        "median_ms": 0.0144,
+        "p95_ms": 0.0179,
+        "max_ms": 0.0374
+      },
+      "mechanics": {
+        "mean_ms": 0.0789445875,
+        "median_ms": 0.0762,
+        "p95_ms": 0.1001,
+        "max_ms": 0.1763
+      },
+      "update-total": {
+        "mean_ms": 0.11228625,
+        "median_ms": 0.1083,
+        "p95_ms": 0.1379,
+        "max_ms": 0.2096
+      },
+      "lance_total": {
+        "mean_ms": 0.13317750208333334,
+        "median_ms": 0.12815,
+        "p95_ms": 0.1656,
+        "max_ms": 0.29000000000000004
+      },
+      "counters": {
+        "contact_target_reads": 480,
+        "direct_damage_amount": 240000,
+        "direct_damage_applied": 480,
+        "area_queries": 480,
+        "contacts_applied": 480,
+        "core_cues": 20,
+        "contact_lights": 960,
+        "shots": 480,
+        "contacts_scheduled": 480,
+        "core_cues_refreshed": 460
+      },
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    },
+    "normal-power": {
+      "shot": {
+        "mean_ms": 0.06833333333333333,
+        "median_ms": 0.0,
+        "p95_ms": 0.1773,
+        "max_ms": 3.0726
+      },
+      "sweep": {
+        "mean_ms": 0.13839229166666667,
+        "median_ms": 0.0,
+        "p95_ms": 0.6254,
+        "max_ms": 3.8345
+      },
+      "mechanics": {
+        "mean_ms": 3.47378625,
+        "median_ms": 0.0,
+        "p95_ms": 21.0634,
+        "max_ms": 104.2103
+      },
+      "update-total": {
+        "mean_ms": 3.831947083333333,
+        "median_ms": 0.0,
+        "p95_ms": 22.0846,
+        "max_ms": 113.2218
+      },
+      "collapse-first": {
+        "mean_ms": 0.8689479166666667,
+        "median_ms": 0.0,
+        "p95_ms": 1.7387,
+        "max_ms": 51.9646
+      },
+      "impact-core": {
+        "mean_ms": 0.019805208333333334,
+        "median_ms": 0.0,
+        "p95_ms": 0.0443,
+        "max_ms": 2.543
+      },
+      "decoration": {
+        "mean_ms": 0.007761041666666667,
+        "median_ms": 0.0,
+        "p95_ms": 0.0141,
+        "max_ms": 0.4151
+      },
+      "incision-selection": {
+        "mean_ms": 1.7355183333333333,
+        "median_ms": 0.0,
+        "p95_ms": 3.4481,
+        "max_ms": 69.213
+      },
+      "incision-damage": {
+        "mean_ms": 0.58415166875,
+        "median_ms": 0.0,
+        "p95_ms": 1.1055,
+        "max_ms": 29.1596
+      },
+      "shot-core": {
+        "mean_ms": 0.14917125,
+        "median_ms": 0.0,
+        "p95_ms": 0.292,
+        "max_ms": 9.0961
+      },
+      "contact": {
+        "mean_ms": 2.482616458333333,
+        "median_ms": 0.0,
+        "p95_ms": 4.9329,
+        "max_ms": 96.9232
+      },
+      "contact-light": {
+        "mean_ms": 0.019681666666666667,
+        "median_ms": 0.0,
+        "p95_ms": 0.0465,
+        "max_ms": 1.0861
+      },
+      "collapse-echo": {
+        "mean_ms": 0.09759708333333333,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 22.2313
+      },
+      "lance_total": {
+        "mean_ms": 3.9002804166666665,
+        "median_ms": 0.0,
+        "p95_ms": 22.0846,
+        "max_ms": 113.2218
+      },
+      "counters": {
+        "shots": 1352,
+        "contacts_scheduled": 1352,
+        "collapses_scheduled": 1352,
+        "contact_target_reads": 10277,
+        "core_cues": 8067,
+        "sweep_steps": 9002,
+        "core_cues_refreshed": 8925,
+        "area_queries": 1445,
+        "secondary_damage_amount": 20651500,
+        "secondary_packets": 25289,
+        "collapses_applied": 1445,
+        "first_collapses_applied": 1275,
+        "decorations": 176,
+        "decorations_dropped": 937,
+        "direct_damage_amount": 1785000,
+        "direct_damage_applied": 1275,
+        "penetration_queries": 1275,
+        "central_packets": 7167,
+        "contacts_applied": 1275,
+        "branch_packets": 3672,
+        "wound_cues": 1275,
+        "wound_crowns": 9,
+        "contact_lights": 2550,
+        "testament_shots": 170,
+        "echoes_scheduled": 170,
+        "echoes_applied": 170
+      },
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    },
+    "dense": {
+      "incision-selection": {
+        "mean_ms": 27.168746458333334,
+        "median_ms": 21.5075,
+        "p95_ms": 53.9112,
+        "max_ms": 88.4528
+      },
+      "incision-damage": {
+        "mean_ms": 13.404052916666666,
+        "median_ms": 11.69435,
+        "p95_ms": 22.5288,
+        "max_ms": 34.8168
+      },
+      "shot-core": {
+        "mean_ms": 4.6295045833333335,
+        "median_ms": 3.9195,
+        "p95_ms": 10.9995,
+        "max_ms": 22.5944
+      },
+      "shot": {
+        "mean_ms": 1.8668145833333334,
+        "median_ms": 1.5574,
+        "p95_ms": 2.6141,
+        "max_ms": 15.1581
+      },
+      "contact": {
+        "mean_ms": 46.728569375,
+        "median_ms": 39.0556,
+        "p95_ms": 76.6594,
+        "max_ms": 138.0789
+      },
+      "sweep": {
+        "mean_ms": 0.23358417083333333,
+        "median_ms": 0.196,
+        "p95_ms": 0.2799,
+        "max_ms": 13.0171
+      },
+      "contact-light": {
+        "mean_ms": 0.7952008354166666,
+        "median_ms": 0.77515,
+        "p95_ms": 0.9366,
+        "max_ms": 2.2785
+      },
+      "collapse-first": {
+        "mean_ms": 29.971932708333334,
+        "median_ms": 27.39595,
+        "p95_ms": 48.7163,
+        "max_ms": 73.1307
+      },
+      "mechanics": {
+        "mean_ms": 81.260568125,
+        "median_ms": 72.19274999999999,
+        "p95_ms": 120.8651,
+        "max_ms": 212.4662
+      },
+      "impact-core": {
+        "mean_ms": 0.6944052145833334,
+        "median_ms": 0.4414,
+        "p95_ms": 1.5774,
+        "max_ms": 10.2958
+      },
+      "decoration": {
+        "mean_ms": 0.16138604583333332,
+        "median_ms": 0.13269999999999998,
+        "p95_ms": 0.2779,
+        "max_ms": 0.9732
+      },
+      "update-total": {
+        "mean_ms": 88.551746875,
+        "median_ms": 79.00305,
+        "p95_ms": 127.6508,
+        "max_ms": 221.7551
+      },
+      "collapse-echo": {
+        "mean_ms": 3.678564375,
+        "median_ms": 0.0,
+        "p95_ms": 27.8576,
+        "max_ms": 54.5381
+      },
+      "lance_total": {
+        "mean_ms": 90.41856145833333,
+        "median_ms": 80.80314999999999,
+        "p95_ms": 129.7045,
+        "max_ms": 223.3102
+      },
+      "counters": {
+        "area_queries": 51840,
+        "secondary_damage_amount": 705360000,
+        "secondary_packets": 777120,
+        "collapses_applied": 51840,
+        "first_collapses_applied": 46080,
+        "contact_target_reads": 46080,
+        "direct_damage_amount": 63360000,
+        "direct_damage_applied": 46080,
+        "penetration_queries": 46080,
+        "central_packets": 258720,
+        "contacts_applied": 46080,
+        "core_cues": 247680,
+        "core_cues_refreshed": 40320,
+        "wound_cues": 46080,
+        "contact_lights": 92160,
+        "shots": 46080,
+        "contacts_scheduled": 46080,
+        "collapses_scheduled": 46080,
+        "echoes_applied": 5760,
+        "testament_shots": 5760,
+        "echoes_scheduled": 5760,
+        "decorations": 576
+      },
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    },
+    "diagonal": {
+      "incision-selection": {
+        "mean_ms": 11.13294125,
+        "median_ms": 9.33035,
+        "p95_ms": 24.2829,
+        "max_ms": 38.5143
+      },
+      "incision-damage": {
+        "mean_ms": 2.748875625,
+        "median_ms": 2.6496000000000004,
+        "p95_ms": 3.4747,
+        "max_ms": 11.3328
+      },
+      "shot-core": {
+        "mean_ms": 4.985552916666666,
+        "median_ms": 4.13985,
+        "p95_ms": 12.0403,
+        "max_ms": 18.4376
+      },
+      "shot": {
+        "mean_ms": 2.1394675,
+        "median_ms": 1.5503,
+        "p95_ms": 6.545,
+        "max_ms": 16.2487
+      },
+      "contact": {
+        "mean_ms": 19.182904791666665,
+        "median_ms": 16.8151,
+        "p95_ms": 36.3688,
+        "max_ms": 53.7556
+      },
+      "sweep": {
+        "mean_ms": 0.20856229583333333,
+        "median_ms": 0.1958,
+        "p95_ms": 0.2857,
+        "max_ms": 0.5077
+      },
+      "contact-light": {
+        "mean_ms": 0.80101166875,
+        "median_ms": 0.77965,
+        "p95_ms": 0.9401,
+        "max_ms": 1.895
+      },
+      "collapse-first": {
+        "mean_ms": 3.758640833333333,
+        "median_ms": 3.3358499999999998,
+        "p95_ms": 6.2611,
+        "max_ms": 13.7605
+      },
+      "mechanics": {
+        "mean_ms": 24.10687375,
+        "median_ms": 21.144350000000003,
+        "p95_ms": 44.926,
+        "max_ms": 59.6971
+      },
+      "impact-core": {
+        "mean_ms": 0.7119387520833333,
+        "median_ms": 0.41825,
+        "p95_ms": 2.3026,
+        "max_ms": 10.9282
+      },
+      "decoration": {
+        "mean_ms": 0.19276729166666667,
+        "median_ms": 0.12625,
+        "p95_ms": 0.2717,
+        "max_ms": 8.8433
+      },
+      "update-total": {
+        "mean_ms": 31.779932708333334,
+        "median_ms": 27.695549999999997,
+        "p95_ms": 56.4997,
+        "max_ms": 81.0601
+      },
+      "collapse-echo": {
+        "mean_ms": 0.482134375,
+        "median_ms": 0.0,
+        "p95_ms": 3.7439,
+        "max_ms": 14.8279
+      },
+      "lance_total": {
+        "mean_ms": 33.919400208333336,
+        "median_ms": 29.32585,
+        "p95_ms": 62.9872,
+        "max_ms": 82.5257
+      },
+      "counters": {
+        "area_queries": 51840,
+        "secondary_damage_amount": 90480000,
+        "secondary_packets": 117600,
+        "collapses_applied": 51840,
+        "first_collapses_applied": 46080,
+        "contact_target_reads": 46080,
+        "direct_damage_amount": 63360000,
+        "direct_damage_applied": 46080,
+        "penetration_queries": 46080,
+        "central_packets": 65760,
+        "contacts_applied": 46080,
+        "core_cues": 247680,
+        "core_cues_refreshed": 40320,
+        "wound_cues": 46080,
+        "contact_lights": 92160,
+        "shots": 46080,
+        "contacts_scheduled": 46080,
+        "collapses_scheduled": 46080,
+        "echoes_applied": 5760,
+        "testament_shots": 5760,
+        "echoes_scheduled": 5760,
+        "decorations": 576
+      },
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    },
+    "research": {
+      "lance_total": {
+        "mean_ms": 0,
+        "median_ms": 0.0,
+        "p95_ms": 0,
+        "max_ms": 0
+      },
+      "counters": {},
+      "phase_window_ticks": [
+        120,
+        599
+      ],
+      "counter_window_note": "Counters reset at tick120 after that tick work; last snapshot is tick600."
+    }
+  },
+  "wrapper_checks": {
+    "preflight-final": {
+      "status": "warning",
+      "checks": [
+        {
+          "name": "conceptual-blueprints",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "lua-syntax",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "python-syntax",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "powershell-syntax",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "encoding-health",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "missing-requires",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "locale-duplicates",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "locale-missing",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "asset-references",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "pack-version-consistency",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        },
+        {
+          "name": "module-headers",
+          "status": "warning",
+          "errors": [],
+          "warning_count": 2
+        }
+      ]
+    },
+    "qc-fast": {
+      "status": "warning",
+      "checks": [
+        {
+          "name": "fast",
+          "status": "warning",
+          "errors": [],
+          "warning_count": 70
+        }
+      ]
+    },
+    "qc-assets": {
+      "status": "ok",
+      "checks": [
+        {
+          "name": "assets",
+          "status": "ok",
+          "errors": [],
+          "warning_count": 0
+        }
+      ]
+    },
+    "qc-runtime": {
+      "status": "warning",
+      "checks": [
+        {
+          "name": "runtime",
+          "status": "warning",
+          "errors": [],
+          "warning_count": 69
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Gameplay and native tooltip appearance require manual review.",
+    "Headless timings omit GPU and rendering cost.",
+    "Whole-engine measurements include other mods and fixture overhead.",
+    "Phase profiles are nested: sum only shot and update-total for total lance work."
+  ],
+  "direct_investigation": {
+    "direct": {
+      "before": {
+        "all_run_means_ms": [
+          0.462,
+          0.49,
+          0.495,
+          0.485,
+          0.524,
+          0.486
+        ],
+        "median_ms": 0.49,
+        "min_ms": 0.485,
+        "max_ms": 0.524
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.522,
+          0.564,
+          0.546,
+          0.533,
+          0.56,
+          0.557
+        ],
+        "median_ms": 0.557,
+        "min_ms": 0.533,
+        "max_ms": 0.564
+      },
+      "median_change_percent": 13.67346938775511
+    },
+    "no-lance": {
+      "before": {
+        "all_run_means_ms": [
+          0.398,
+          0.397,
+          0.383,
+          0.386,
+          0.381,
+          0.414
+        ],
+        "median_ms": 0.386,
+        "min_ms": 0.381,
+        "max_ms": 0.414
+      },
+      "after": {
+        "all_run_means_ms": [
+          0.378,
+          0.398,
+          0.383,
+          0.412,
+          0.397,
+          0.383
+        ],
+        "median_ms": 0.397,
+        "min_ms": 0.383,
+        "max_ms": 0.412
+      },
+      "median_change_percent": 2.849740932642497
+    },
+    "baseline_lance_profile": {
+      "mean_ms": 0.07672958333333334,
+      "median_ms": 0.072,
+      "p95_ms": 0.1018,
+      "max_ms": 0.3441
+    }
+  },
+  "locale": {
+    "languages": 7,
+    "entries": 504,
+    "parity": "passed"
+  },
+  "dispatch": "One exact-ID lance owner; unrelated effects excluded before entering the module.",
+  "source_sha256": {
+    "exotic-space-industries-remembrance\\scripts\\control\\singularity-lance.lua": "a23d7a683354a5ed0e1fd16ec3838f4b547acf26c3e93a07dfd6ed4d049d174f",
+    "exotic-space-industries-remembrance\\lib\\singularity-lance-config.lua": "00324530c2e314f21716af9bed4abca18c9d73cf112e78b274a53f7cdd55361f",
+    "exotic-space-industries-remembrance\\prototypes\\alien-system\\singularity-lance.lua": "9b31053f4553969a418a9c23a1176d997ea0551149ca9e6c74dfbc8c2c0a6b1c",
+    "scripts\\qc\\singularity-lance\\control.lua": "cca7d15e7852a045eecf609e3619bf9b163d066b6d760d2682b61f7f57c90cda",
+    "scripts\\qc\\singularity-lance\\sweep-cases.lua": "46c916cce8e329eda57544774a92f04dcf4fe290d807fef361e8d338d23f3322"
+  }
+}

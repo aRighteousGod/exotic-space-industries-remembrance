@@ -1,3 +1,4 @@
+local lance_fixture_config = require("lib/singularity-lance-config")
 remote.add_interface("lance-fixture", {
     shot = function(source, target, position, tick)
         ei_singularity_lance.on_script_trigger_effect{effect_id = "ei-singularity-lance-shot", source_entity = source,
@@ -10,10 +11,22 @@ remote.add_interface("lance-fixture", {
     configure = function(options) return ei_singularity_lance.configure_qc(options) end,
     legacy = function(value) storage.ei.singularity_lance = value; ei_singularity_lance.check_global() end,
     check = function(tick) ei_singularity_lance.check_global(tick and {tick = tick} or nil) end,
+    latest_contact = function(id)
+        local record = storage.ei.singularity_lance.lances[id]
+        local contact = record.contact_tail or ei_runtime_scheduler.queue_peek_last(record.contacts)
+        if not contact then return end
+        return {due=contact.due, fired_tick=contact.fired_tick, nominal=contact.nominal_turn_ticks,
+            compressed=contact.compressed_turn, same=contact.same_target, first=contact.first_acquisition,
+            angular=contact.policy~=nil, position=contact.position,
+            collapse_due=contact.collapse and contact.collapse.due,
+            echo_due=contact.collapse and contact.collapse.echo and contact.collapse.echo.due}
+    end,
     cues = function(id)
         local record = storage.ei.singularity_lance.lances[id]
         return {beam = record.beam, mark = record.mark, shape = record.beam_shape,
-            endpoint = record.beam_endpoint, band = record.wound_band, extensions = record.extensions}
+            endpoint = record.beam_endpoint, band = record.wound_band, extensions = record.extensions,
+            flash = record.flash, afterglow = record.afterglow, queued = ei_runtime_scheduler.queue_length(record.contacts),
+            logical = record.logical_aim and record.logical_aim.position}
     end,
     packets = function()
         local buckets=storage.ei.singularity_lance.buckets
@@ -23,12 +36,20 @@ remote.add_interface("lance-fixture", {
             for index,packet in ipairs(bucket) do
                 result[#result+1]={due=due,index=index,phase=packet.phase,damage=packet.damage,
                     core_damage=packet.core_damage,radius=packet.radius,cap=packet.cap,
-                    include_primary=packet.include_primary,warning=packet.warning,force_index=packet.force_index,
+                    include_primary=packet.include_primary,warning=packet.warning,force_index=packet.force_index,position=packet.position,
                     echo_is_queued=packet.echo and queued[packet.echo] or false}
             end
         end
         table.sort(result,function(a,b) return a.due==b.due and a.index<b.index or a.due<b.due end)
         return result
+    end,
+    compact = function(value) return lance_fixture_config.format_status_number(value) end,
+    unrelated_effect = function(tick)
+        ei_singularity_lance.on_script_trigger_effect{effect_id="lance-fixture-unrelated",tick=tick}
+    end,
+    presentation_refresh = function(tick)
+        storage.ei.singularity_lance.presentation_revision = nil
+        ei_singularity_lance.check_global{tick=tick}
     end,
     migrate_schema11 = function()
         -- Synthetic identity check complements the actual old-save reload.

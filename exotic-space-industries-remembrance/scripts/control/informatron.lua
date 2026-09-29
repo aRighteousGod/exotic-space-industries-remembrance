@@ -588,6 +588,7 @@ function model.singularity_lance(player_index, element)
     end
     text(element, {"lance-upgrades.force-values", current.multiplier, current.direct_damage,
         current.direct_sustained_dps, config.range})
+    text(element, config.contact_description())
     if current.level >= 2 then
         text(element, {"lance-upgrades.status-wound", current.wound_first_damage, current.wound_max_damage})
     end

@@ -1,12 +1,12 @@
 [CmdletBinding()]
 param(
     [ValidateSet('mechanics','benchmark','visual','dump','save','reload')][string]$Mode = 'mechanics',
-    [ValidateSet('no-lance','idle','direct','normal-power','dense','diagonal','research')][string]$Scene = 'dense',
+    [ValidateSet('no-lance','idle','direct','normal-power','dense','diagonal','research','wide-native','wide-burst')][string]$Scene = 'dense',
     [ValidateSet('lean','standard','cinematic','maximal','unbounded')][string]$Fidelity = 'standard',
     [switch]$Baseline, [switch]$NoScaling, [switch]$Flatten, [switch]$Profile,
     [int]$Ticks = 900, [int]$Runs = 5, [string]$SaveInput, [string]$BaselineSource, [string]$FixtureSource,
     [uint32]$MapSeed = 410728,
-    [switch]$CurrentSource, [string]$RunName, [switch]$NoCounters
+    [switch]$CurrentSource, [string]$RunName, [switch]$NoCounters, [switch]$InFlight, [switch]$WideFlight
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
@@ -87,7 +87,7 @@ New-Item -ItemType Directory -Path $helper -Force | Out-Null
 $fixture = if ($FixtureSource) { (Resolve-Path -LiteralPath $FixtureSource).Path } else { Join-Path $repo 'scripts\qc\singularity-lance' }
 Copy-Item -Path "$fixture\*" -Destination $helper -Force
 $legacyBaseline = $Baseline.IsPresent -and -not $CurrentSource.IsPresent
-$cfg = "return {mode='$Mode',scene='$Scene',fidelity='$Fidelity',ticks=$Ticks,baseline=$($legacyBaseline.ToString().ToLowerInvariant()),no_scaling=$($NoScaling.ToString().ToLowerInvariant()),flatten=$($Flatten.ToString().ToLowerInvariant()),profile=$($Profile.ToString().ToLowerInvariant()),no_counters=$($NoCounters.ToString().ToLowerInvariant())}"
+$cfg = "return {mode='$Mode',scene='$Scene',fidelity='$Fidelity',ticks=$Ticks,baseline=$($legacyBaseline.ToString().ToLowerInvariant()),no_scaling=$($NoScaling.ToString().ToLowerInvariant()),flatten=$($Flatten.ToString().ToLowerInvariant()),profile=$($Profile.ToString().ToLowerInvariant()),no_counters=$($NoCounters.ToString().ToLowerInvariant()),in_flight=$($InFlight.ToString().ToLowerInvariant()),wide_flight=$($WideFlight.ToString().ToLowerInvariant())}"
 [IO.File]::WriteAllText("$helper\test-config.lua", $cfg, $utf8)
 $list = Get-Content -Raw "$seed\mod-list.json" | ConvertFrom-Json
 foreach ($mod in $list.mods) {

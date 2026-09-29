@@ -52,8 +52,21 @@ if not config.baseline then
             local mask=beam.graphics_set.ground[part]
             assert(mask.draw_as_light and not mask.draw_as_glow and mask.scale>0
                 and mask.tint.r>0 and mask.tint.g>0 and mask.tint.b>0,name.." missing terrain light "..part)
+            if suffix~="-impact-beam" then
+                local strength=math.min(1,({lean=.60,standard=.85,cinematic=1,maximal=1.20,unbounded=1.45})[config.fidelity])*.25
+                assert(math.abs(mask.tint.r-.72*strength)<.000001 and math.abs(mask.tint.g-.35*strength)<.000001
+                    and math.abs(mask.tint.b-strength)<.000001,name.." lost subdued violet terrain light")
+            end
         end
         log("LANCE_VISUAL_CONTRACT PASS "..name.." matching source material, original bloom and native terrain lighting")
+    end
+    for _, light in ipairs({"contact-light","afterglow-light"}) do
+        local p=data.raw.explosion["ei-singularity-lance-"..light]
+        assert(p and not p.created_effect and not p.created_smoke and p.light_intensity_factor_final==0,"light must fade without damage")
+        assert(p.animations[1].repeat_count==(light=="contact-light" and 5 or
+            ({lean=14,standard=30,cinematic=45,maximal=90,unbounded=180})[config.fidelity]),"native light duration")
+        local rgb=light=="contact-light" and {.52,.95,1} or {.48,.88,1}
+        assert(p.light.color.r==rgb[1] and p.light.color.g==rgb[2] and p.light.color.b==rgb[3],"cyan contact palette")
     end
     for _, key in ipairs({"collapse-concentrated-warning","collapse-concentrated-impact",
         "testament-concentrated-warning","testament-concentrated-impact","echo-warning","echo-impact"}) do
@@ -127,7 +140,7 @@ for _, pair in ipairs({{"unit","behemoth-biter"},{"turret","behemoth-worm-turret
     visual.resistances = {}
     data:extend({visual})
 end
-if config.mode == "benchmark" and config.scene ~= "normal-power" then
+if config.mode == "benchmark" and config.scene ~= "normal-power" and config.scene ~= "wide-native" then
     -- Explicit artificial firing stress, separate from shipped-power results.
     local turret = data.raw["electric-turret"]["ei-singularity-lance"]
     turret.attack_parameters.ammo_type.energy_consumption = "1J"

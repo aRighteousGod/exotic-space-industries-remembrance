@@ -1,5 +1,5 @@
 <a id="contract"></a>
-# Singularity Lance paid shots, Wound meters, and delayed pulses
+# Singularity Lance paid contacts, Wound context, and delayed pulses
 
 ## Implementation sources
 
@@ -8,75 +8,43 @@
 
 ## Ownership and behavior
 
-The implemented runtime uses schema 12. `lib/singularity-lance-config.lua` owns
-mechanical coefficients, upgrade descriptions, and presentation presets.
-Native firing pays energy and emits exactly `ei-singularity-lance-shot`.
-`lance.on_script_trigger_effect` consumes that paid shot, snapshots delayed
-damage, applies the immediate primary and incision packets, and then presents
-the result. Visual fidelity and decoration budgets never govern damage.
+This is the current schema-14 angular-sweep model. Repository-root `docs/singularity-lance.md` is the detailed mechanics/maintenance contract; `lib/singularity-lance-config.lua` remains the numerical authority for prototypes, paid snapshots, localization and presentation. Do not reconstruct older timing from historical QC reports.
 
-`storage.ei.singularity_lance` owns registered lances, object registrations,
-force capability caches, per-lance Testament counters and Wound state, delayed
-collapse/echo buckets, the derived next-due tick, and presentation handles.
-The current implementation has no acquisition FIFO or delayed primary contact.
+Native firing pays energy and emits exactly `ei-singularity-lance-shot`; admission snapshots one paid transaction and all applicable deadlines. `storage.ei.singularity_lance` owns registered lances, force capabilities, mechanical delayed packets, per-lance FIFO contact waypoints, shared Wound contexts and presentation handles. Damage is independent of visual fidelity and decorative budgets.
 
 ```mermaid
 flowchart LR
-  Shot[Native paid shot at tick T] --> Meter[Advance Testament meter]
-  Meter --> Snap[Snapshot and queue paid pulses]
-  Snap --> Direct[Immediate primary and incision]
-  Direct --> Wound[Advance Wound on positive primary damage]
-  Snap --> Collapse[Collapse at T + 30]
-  Snap --> Echo[Testament echo at T + 60]
-  Direct --> Cue[Core cues and bounded decoration]
+  Paid[Native paid shot at tick T] --> Snap[Immutable coefficients and packet deadlines]
+  Snap --> FIFO[Per-lance acquisition FIFO]
+  FIFO --> Contact[Reserved contact C within T + 8 to T + 60]
+  Contact --> Direct[Primary and incision; baseline splash if applicable]
+  Contact --> Fixed[Finalize fixed pulse position]
+  Snap --> Collapse[Collapse at C + 30]
+  Snap --> Echo[Testament echo at C + 60]
+  Fixed --> Collapse
+  Fixed --> Echo
+  Context[Shared Wound context] --> Direct
 ```
 
 <a id="tick-flow"></a>
 ## Tick flow and deadlines
 
-The shot callback supplies `event.tick`; primary damage occurs during that
-callback. Collapse and Testament echo deadlines are fixed at firing, currently
-+30 and +60 ticks. Their aim and coefficients are snapshotted before immediate
-damage can invoke callbacks that change research, ownership, or source validity.
-`lance.update` takes due buckets through its supplied execution tick. Step 13
-is opportunistic; preserve the dispatcher's every-tick due-work fallback and
-serviced-this-tick guard. Separate paid packets retain separate resistance
-applications. Status/rebuild helpers use supplied ticks when available and
-resolve existing `game.tick` fallbacks at unticked boundaries.
+All deadlines are fixed at firing: angle-dependent contact C; collapse C+30; Testament echo C+60. Arrival does not enqueue new damage deadlines. `event.tick` drives admission/service; eventless init/config/status boundaries retain fallback. Step 13 is opportunistic: preserve the every-tick fallback and serviced-this-tick guard. Queued paid shots remain separate, in due/insertion order; only presentation may coalesce.
 
-Wound is per lance and target: positive primary damage builds/refreshes it;
-zero damage does neither. Changing target, losing hostility or capability,
-or reaching an elapsed interval of at least 120 ticks resets the meter.
-Testament counts every eighth paid shot before target validation. These timing
-rules describe implemented behavior, not a pending sweep design.
+Admission uses queued planned aim and cached tail deadline P, or the last logical contact heading when empty. For tick T, nominal D=max(8,ceil(angle/6)); retarget reserves min(T+60,max(T+8,P+1,max(T,P)+D)). Same valid non-null target/force/surface omits the D term. First acquisition takes eight ticks. Old reservations beyond a newly reduced cap are grandfathered, never overtaken. Synthetic saturation may share due ticks while preserving insertion order. Logical aim and tail never depend on beam handles or cosmetic rebuilds.
+
+Presentation rotates about shared crystal offset (0,-3.35), interpolating radius separately with smoothstep. Shortest arc, clockwise 180-degree ties, continuously unwrapped moving bearings; target movement never extends the deadline. Only active FIFO heads are tracked. Reuse one native main beam plus three extensions, retracting extensions during acquisition. No afterimage stack or idle tracking.
+
+Middle/end terrain lighting samples the beam artwork's six saturated ribbon colors when a native beam needs creating. Keep that color through endpoint moves; contact flash/afterglow match the main endpoint. The crystal-side tail stays violet. A lazily created, saved `light_random` generator belongs only to presentation and never consumes gameplay RNG; it adds no scheduler work or entity handles. Palette prototype variants reuse existing masks/artwork and preserve fidelity scaling and finite light lifetimes.
+
+Wound advances on positive primary damage only: the first hit is unmodified, the second gains +20%, and the sixth reaches +100%. Each earned stack prepares the next contact; the five-stack halo signals that the next hit is ready for +100%. It uses a 120-contact-tick inclusive expiry boundary and shares context among shots paid before earlier contacts land. The first-hit policy is snapshotted at payment; older queued contacts retain their original first-hit bonus. Testament counts every eighth paid shot even if its primary later disappears. Targets may move during acquisition; contact finalizes geometry before damage callbacks, then pulses remain fixed.
 
 <a id="lifecycle"></a>
 ## Lifecycle and invariants
 
-Source removal clears the registration and live cues but leaves paid delayed
-damage intact. Surface clear/deletion removes that surface's records and
-packets and recomputes the next due tick. Force merge transfers delayed packet
-attribution, resets live meters/cues, and refreshes capabilities. Research
-refresh clears Wound when capability falls below its required level and resets
-the Testament counter when its capability is lost. Friendship or cease-fire in
-either direction, same force, and neutral ownership protect targets; hostility
-is rechecked immediately before damage. Revalidate entities after damage
-callbacks before rendering.
-
-Initialization/configuration performs discovery and repairs presentation while
-preserving current paid packets and deadlines. Schema 11 upgrades in place:
-existing packets remain legacy packets and gain neither stronger core damage
-nor echoes. Older unsupported schemas use `settle_legacy` to settle pending
-primary payloads once. Ordinary save/load preserves serialized meters and
-queues; idle lances do not search or sweep wounds.
+Source removal clears live registrations/cues but preserves paid damage. Loss of Wound capability, source removal, or ownership changes detach the live Wound context; already-paid contacts retain their snapshotted coefficients and shared context. Research changes that retain Wound capability preserve the live context. Surface clear/deletion cancels only matching packets/FIFO entries; force merge transfers attribution. Friendship/cease-fire in either direction, same force, and neutral ownership protect targets, rechecked immediately before every damage call. Revalidate entities and live context after callbacks before rendering or publishing state. Ordinary save/load preserves meters, contexts and packets; idle lances do not search or sweep wounds.
 
 <a id="verification"></a>
-## Verification and limits
+## Verification and maintenance
 
-Use the [Lance QC driver](../../../scripts/invoke-singularity-lance-qc.ps1) and
-[fixture guidance](../../../scripts/qc/singularity-lance/README.md). Cover
-separate resistance packets, fixed +30/+60 deadlines, Wound's expiry boundary,
-zero-damage hits, source removal, surface cancellation, force/research changes,
-legacy schema repair, and save/reload continuation. This model was reviewed
-against its source; cited historical reports are not a fresh engine,
-multiplayer, or performance pass for the blueprint commit.
+Reuse current-source modes in `scripts/invoke-singularity-lance-qc.ps1` and `scripts/qc/singularity-lance/README.md`; distinguish angular evidence from historical schema-13 reports. Test polar geometry/angle wrapping, timing/queue compression, separate resistance packets, contact-relative pulses, target death/movement, Wound reset/zero damage, source removal, surface cancellation, force/research changes and actual save/reload. The explicit 11/12/13/14 migration chain preserves old paid work; schema-13 contacts retain legacy interpolation. The generic event-tick fixture explicitly has no targeted Lance checks.

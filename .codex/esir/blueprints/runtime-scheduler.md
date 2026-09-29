@@ -7,6 +7,12 @@
 
 ## Behavior and ownership
 
+`queue_peek_last` reads the final non-nil stored FIFO value without removing it or
+touching uniqueness membership. Domain/membership liveness belongs to the caller.
+Sparse canceled tails may require a backward walk; owners
+such as the lance cache their tail on admission and use this helper for migration
+or lifecycle repair, not every shot.
+
 `scheduler` provides queue operations, delayed buckets, counters, status snapshots, and optional telemetry. It registers no events and owns no gameplay cadence. Feature queues and bucket tables belong to their callers; only status/counter/telemetry records live beneath `storage.ei.runtime_scheduler`.
 
 ```mermaid

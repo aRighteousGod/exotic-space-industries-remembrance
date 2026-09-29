@@ -76,6 +76,27 @@ for _, shape in ipairs({"axial", "testament"}) do
     end
     data:extend({branch})
 end
+-- Reuse native light masks and all existing artwork. Only middle/end illumination
+-- changes color; the crystal-side tail keeps its subdued violet tint. Selecting a
+-- variant on natural creation avoids rebuilding a live beam just to recolor it.
+local light_strength = math.min(1, c.resolve().visual_beam_light_intensity) * art.beam_light_strength
+for index, color in ipairs(art.beam_light_palette) do
+    for _, suffix in ipairs({"", "-axial", "-testament", "-axial-branch", "-testament-branch"}) do
+        local beam = table.deepcopy(data.raw.beam["ei-singularity-lance-beam" .. suffix])
+        beam.name = beam.name .. "-light-" .. index
+        for _, part in ipairs({"body", "head"}) do
+            beam.graphics_set.ground[part].tint = {r = color.r * light_strength,
+                g = color.g * light_strength, b = color.b * light_strength, a = 1}
+        end
+        data:extend({beam})
+    end
+    for _, suffix in ipairs({"-contact-light", "-afterglow-light"}) do
+        local light = table.deepcopy(data.raw.explosion["ei-singularity-lance" .. suffix])
+        light.name = light.name .. "-" .. index
+        light.light.color = table.deepcopy(color)
+        data:extend({light})
+    end
+end
 for band = 1, 3 do
     local key = "wound-" .. band
     local prototype = prismatic_animation(key, art.wound_size, art.wound_size, art.wound_frames, 6, art.wound_scale, art.wound_speed)

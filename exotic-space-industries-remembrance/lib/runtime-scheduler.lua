@@ -3,7 +3,7 @@
 -- owns: shared runtime queue, delayed bucket, telemetry, and status helpers
 -- loaded_by: control.lua and runtime control modules on demand
 -- cadence: helper calls only; no top-level events
--- forwarded_events: audit_queue, bump_counter, clear_queue, compact_queue, delayed_bucket_count, delayed_item_count, delayed_schedule, delayed_take_due, delayed_take_due_through, ensure_delayed_buckets, ensure_module_state, ensure_queue, get_module_status, log_snapshot, queue_item_count, queue_length, queue_peek, queue_pop, queue_pop_matching, queue_pop_queued, queue_push, queue_push_unique, queue_remove_value, set_module_status, status_snapshot, table_count, telemetry_enabled, write_telemetry
+-- forwarded_events: audit_queue, bump_counter, clear_queue, compact_queue, delayed_bucket_count, delayed_item_count, delayed_schedule, delayed_take_due, delayed_take_due_through, ensure_delayed_buckets, ensure_module_state, ensure_queue, get_module_status, log_snapshot, queue_item_count, queue_length, queue_peek, queue_peek_last, queue_pop, queue_pop_matching, queue_pop_queued, queue_push, queue_push_unique, queue_remove_value, set_module_status, status_snapshot, table_count, telemetry_enabled, write_telemetry
 -- storage_roots: storage.ei.runtime_scheduler and caller-owned queue tables
 -- gui_ids: none
 -- remote_interfaces: none
@@ -233,6 +233,19 @@ function scheduler.queue_peek(queue)
     queue.head = 1
     queue.tail = 0
     return nil
+end
+
+---Read the last non-nil FIFO value without removing it or changing uniqueness state.
+---Membership and domain liveness remain the caller's responsibility.
+---Use for lifecycle repair; hot-path owners can cache their last pushed payload.
+---@param queue table?
+---@return any
+function scheduler.queue_peek_last(queue)
+    if not queue or not queue.items then return nil end
+    for index = queue.tail or 0, queue.head or 1, -1 do
+        local value = queue.items[index]
+        if value ~= nil then return value end
+    end
 end
 
 function scheduler.queue_pop(queue, unique_key)

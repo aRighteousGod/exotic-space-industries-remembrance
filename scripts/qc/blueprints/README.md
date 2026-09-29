@@ -76,9 +76,9 @@ and two classified exceptions in a 96-file inventory. Its conservative runtime
 graph contains 93 files, including migrations. The independently published
 blueprint commit covers 40 models and 88 owned sources in a 90-file inventory
 (87 runtime dependencies): the sweeping-radar model and six new source files
-remain paired with their pending feature commit. The published Lance model
-describes committed schema 12; its schema-13 revision stays with the pending
-Lance work. These are observed counts, not audit constants.
+remain paired with their pending feature commit. The Lance feature commit
+updates its model to schema 14, including paid contacts and angular acquisition.
+These are observed counts, not audit constants.
 
 All 30 audit regression tests and five header/preflight
 support checks passed. All 41 Mermaid diagrams parsed successfully with Mermaid

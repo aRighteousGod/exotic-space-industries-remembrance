@@ -60,7 +60,6 @@ local LANCE_CRYSTAL_LINK_GRAPHICS_PATH = LANCE_GRAPHICS_PATH.."crystal-link/"
 local PRISMATIC_BEAM_GRAPHICS_PATH = LANCE_GRAPHICS_PATH.."beam/"
 local PRISMATIC_BEAM_SCALE = 0.34
 local PRISMATIC_IMPACT_BEAM_SCALE = 0.42
-local PRISMATIC_BEAM_LIGHT_TINT = {r = 1.0, g = 0.58, b = 0.24, a = 0.82}
 local PRISMATIC_IMPACT_LIGHT_TINT = {r = 0.52, g = 0.95, b = 1.0, a = 0.95}
 local AFTERBURN_GRAPHICS_PATH = LANCE_GRAPHICS_PATH.."afterburn/"
 local AFTERBURN_LIGHT_TINT = {r = 0.48, g = 0.88, b = 1.0, a = 0.90}
@@ -613,6 +612,7 @@ local function make_scripted_damage_tooltip_fields()
             name = "",
             value = {"custom-tooltip.ei-singularity-lance-scripted-header", {"custom-tooltip.ei-singularity-lance-scripted-title"}},
         },
+        {name = {"lance-upgrades.contact-title"}, value = singularity_lance_config.contact_description()},
         {
             name = {"custom-tooltip.ei-singularity-lance-direct-hit"},
             value = {
@@ -672,10 +672,10 @@ local singularity_beam = make_prismatic_beam(
     BEAM_NAME,
     VISUAL_CONFIG.visual_beam_width,
     {
-        intensity = VISUAL_CONFIG.visual_beam_light_intensity,
+        intensity = math.min(1, VISUAL_CONFIG.visual_beam_light_intensity) * singularity_lance_config.presentation.beam_light_strength,
         size = VISUAL_CONFIG.visual_beam_light_size,
         minimum_darkness = 0,
-        color = PRISMATIC_BEAM_LIGHT_TINT,
+        color = singularity_lance_config.presentation.beam_light_color,
     },
     make_prismatic_beam_graphics_set(PRISMATIC_BEAM_SCALE, {impact_ending = true}),
     nil
@@ -695,6 +695,28 @@ local singularity_impact_beam = make_prismatic_beam(
     }),
     make_beam_working_sound(IMPACT_SOUND_VARIATIONS, VISUAL_CONFIG.impact_sound_cap, 0.50)
 )
+
+-- Native finite light curves restore contact illumination without damaging fire,
+-- stickers, or a Lua fade loop. Animation duration owns the explosion lifetime.
+local function contact_light(name, ticks, color, peak_end)
+    local animation = util.empty_sprite()
+    animation.frame_count, animation.repeat_count, animation.animation_speed = 1, ticks, 1
+    return {type = "explosion", name = NAME .. name, flags = {"not-on-map"},
+        hidden = true, hidden_in_factoriopedia = true, animations = {animation},
+        rotate = false, scale = 1, scale_deviation = 0, scale_animation_speed = false,
+        light = {intensity = math.min(1, VISUAL_CONFIG.hit_fire_light_intensity),
+            size = VISUAL_CONFIG.hit_fire_light_size, color = color, minimum_darkness = 0},
+        light_intensity_factor_initial = 1, light_intensity_factor_final = 0,
+        light_intensity_peak_start_progress = 0, light_intensity_peak_end_progress = peak_end,
+        light_size_factor_initial = 1, light_size_factor_final = 1,
+        light_size_peak_start_progress = 0, light_size_peak_end_progress = 1}
+end
+data:extend({
+    contact_light("-contact-light", singularity_lance_config.presentation.contact_flash_ticks,
+        singularity_lance_config.presentation.contact_light_color, 0.2),
+    contact_light("-afterglow-light", VISUAL_CONFIG.hit_fire_duration,
+        singularity_lance_config.presentation.afterglow_light_color, 0),
+})
 
 local singularity_trigger_beam = table.deepcopy(data.raw.beam["laser-beam"])
 singularity_trigger_beam.name = TRIGGER_BEAM_NAME

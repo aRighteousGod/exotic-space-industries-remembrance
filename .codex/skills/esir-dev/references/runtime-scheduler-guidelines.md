@@ -35,6 +35,7 @@ Prefer these shared helpers before inventing local queue code:
 - `ensure_queue`
 - `compact_queue`
 - `queue_peek`
+- `queue_peek_last` (last non-nil stored value; caller owns membership/domain liveness; use for lifecycle repair, cache tails in hot admission paths)
 - `queue_push`
 - `queue_push_unique`
 - `queue_pop`
