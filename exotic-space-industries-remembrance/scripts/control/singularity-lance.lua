@@ -828,8 +828,11 @@ function lance.get_force_snapshot(force)
     return table.deepcopy(sync_force(state(), force))
 end
 
-function lance.check_global()
-    local runtime = state()
+---@param event ConfigurationChangedData|{tick: uint}|nil
+function lance.check_global(event)
+    -- Init/configuration callbacks may have no event tick. Capture that fallback
+    -- once; event-owned rebuilds must use their supplied tick for every record.
+    local runtime, tick = state(), event and event.tick or game.tick
     runtime.visual_config = c.resolve()
     for _, force in pairs(game.forces) do sync_force(runtime, force) end
     -- One discovery pass at initialization/configuration only; never on research.
@@ -846,7 +849,7 @@ function lance.check_global()
         for _, record in pairs(runtime.lances) do
             reset_beams(record); destroy_cue(record.mark)
             record.mark, record.wound_band = nil, nil
-            local remaining = record.wound_tick and math.min(c.wound.timeout, c.wound.timeout - (game.tick - record.wound_tick)) or 0
+            local remaining = record.wound_tick and math.min(c.wound.timeout, c.wound.timeout - (tick - record.wound_tick)) or 0
             if record.stacks > 0 and remaining > 0 then
                 wound_cue(runtime, record, record.target, record.entity.force, remaining)
             else reset_wound(record) end
@@ -858,19 +861,21 @@ function lance.check_global()
 end
 lance.on_configuration_changed = lance.check_global
 
-function lance.get_runtime_status()
+---@param tick uint? Supplied by event-owned telemetry; omitted by eventless diagnostics.
+function lance.get_runtime_status(tick)
     local runtime = state()
     return {module = "singularity-lance", version = VERSION, presentation_revision = runtime.presentation_revision, pending = runtime.pending,
-        pending_due = lance.has_tick_work() and runtime.pending or 0, pending_damage = runtime.pending,
+        pending_due = runtime.next_due and runtime.next_due <= (tick or game.tick) and runtime.pending or 0, pending_damage = runtime.pending,
         impact_next_due_tick = runtime.next_due or 0, pending_visual_slices = 0, active_visual_jobs = 0,
         visual_fidelity = runtime.visual_config.visual_fidelity, counters = runtime.counters,
         registered_lances = table_size(runtime.lances), profiling_enabled = runtime.profiling_enabled,
         qc_enabled = runtime.qc_enabled, target_update_ms = 0.5, hard_update_ms = 1}
 end
 
-function lance.get_qc_snapshot()
+---@param tick uint? Forward the diagnostic caller's clock when available.
+function lance.get_qc_snapshot(tick)
     profile_flush(nil)
-    local result, runtime = lance.get_runtime_status(), state()
+    local result, runtime = lance.get_runtime_status(tick), state()
     result.force_cache = table.deepcopy(runtime.force_cache)
     result.ammo_damage_category, result.damage_type = c.ammo_damage_category, c.damage_type
     result.scripted_base_damage, result.spillover_victim_cap = c.direct_damage, c.splash_cap

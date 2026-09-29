@@ -479,7 +479,7 @@ local function flush_due_scripted_research_bursts(current_tick, state)
     return did_flush
 end
 
-local function refresh_runtime_telemetry_snapshot()
+local function refresh_runtime_telemetry_snapshot(current_tick)
     if not ei_runtime_scheduler.telemetry_enabled() then
         return
     end
@@ -509,7 +509,7 @@ local function refresh_runtime_telemetry_snapshot()
 
     for _, module_ref in ipairs(modules) do
         if module_ref and module_ref.get_runtime_status then
-            pcall(module_ref.get_runtime_status, game and game.tick or 0, false)
+            pcall(module_ref.get_runtime_status, current_tick, false)
         end
     end
 
@@ -1789,7 +1789,7 @@ function updater(event)
     --[[
     leave this disabled
     if event.tick % 600 == 0 then
-        refresh_runtime_telemetry_snapshot()
+        refresh_runtime_telemetry_snapshot(event.tick)
     end
     ]]
    --======================================================================

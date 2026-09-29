@@ -50,8 +50,7 @@ if config.mode == "mechanics" then
     end)
 end
 
-local function presentation_checks()
-    local tick=game.tick
+local function presentation_checks(tick)
     local s,t=rig(1)
     shot(s,t,tick)
     local cue=call("cues",s.unit_number)
@@ -106,16 +105,24 @@ local function presentation_checks()
     call("old_presentation",s.unit_number,30)
     t.force=storage.force; call("check")
     check(meter(s).stacks==0 and call("cues",s.unit_number).mark==nil,"newly protected wound is not recreated by migration")
+    s,t=rig(4); shot(s,t,tick)
+    call("old_presentation",s.unit_number,60); call("check",tick+15)
+    check(call("cues",s.unit_number).mark.time_to_live==45,"presentation rebuild uses supplied event tick instead of game tick")
+    call("old_presentation",s.unit_number,60); call("check",tick+60)
+    check(meter(s).stacks==0 and call("cues",s.unit_number).mark==nil,"event-tick rebuild expires wound at exact timeout")
+    s,t=rig(3); shot(s,t,tick)
+    check(call("snapshot",tick+29).pending_due==0,"status uses supplied tick before packet is due")
+    check(call("snapshot",tick+30).pending_due==1,"status uses supplied tick on packet due tick")
 end
 
-local function crystal_origin_checks()
+local function crystal_origin_checks(tick)
     for _, n in ipairs({0,1,4}) do
         for direction, delta in ipairs({{10,0},{6,8},{0,10},{-6,8},{-10,0},{-6,-8},{0,-10},{6,-8}}) do
             local s,t=rig(n)
             s.teleport{41,-27}
             local base=s.position -- The turret snaps placement to its tile grid.
             t.teleport{base.x+delta[1],base.y+delta[2]}
-            for _=1,n==4 and 8 or 1 do shot(s,t,game.tick) end
+            for _=1,n==4 and 8 or 1 do shot(s,t,tick) end
             local beam=call("cues",s.unit_number).beam
             local source, destination=beam.get_beam_source().position,beam.get_beam_target().position
             local label="crystal muzzle level "..n.." direction "..direction
@@ -398,10 +405,10 @@ local function hybrid_checks()
     check(call("snapshot").pending==0,"overloaded mechanics drain completely")
 end
 
-local function mechanics()
+local function mechanics(tick)
     call("configure",{qc_enabled=true,profiling_enabled=false})
-    crystal_origin_checks()
-    presentation_checks()
+    crystal_origin_checks(tick)
+    presentation_checks(tick)
     hybrid_checks()
     local s,t = rig(0)
     local secondary=target(10,1)
@@ -755,7 +762,7 @@ script.on_event(defines.events.on_tick,function(event)
         end
         return
     end
-    if event.tick==1 and config.mode=="mechanics" then mechanics() end
+    if event.tick==1 and config.mode=="mechanics" then mechanics(event.tick) end
     if storage.phase=="surface-delete" and event.tick==2 then
         check(call("snapshot").pending==0,"surface deletion cancels packet")
         local s,t=hybrid_rig(4)
