@@ -1,0 +1,66 @@
+{
+  "facings": 256,
+  "pages": 10,
+  "files": [
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/sweeping-radar/sweeping-radar-body.png",
+      "bytes": 4452199,
+      "sha256": "3f7a88a2fb326c68d3b358d14e2034c773f058e34c90cc1a61b41e55dd2cd616"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/sweeping-radar/sweeping-radar-body_1.png",
+      "bytes": 5905496,
+      "sha256": "96cc4ac8e8b842c6b5c60972ae1a2429681cd8f9e7ca378df63a7c5ceaa0a4a4"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/sweeping-radar/sweeping-radar-shadow.png",
+      "bytes": 654046,
+      "sha256": "bdb5282341c655b6acc41d47df788cdef6b129be7ebdc0ebde25fab34050646d"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/sweeping-radar/sweeping-radar-shadow_1.png",
+      "bytes": 620415,
+      "sha256": "62635eb09791881be67fc268d8392124c4e1ff3aeadab53f74f9562b1d3b5419"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/phased-array-radar/phased-array-radar-body.png",
+      "bytes": 6556113,
+      "sha256": "ef1ab3bcb18f4889a19c48f98f76f0963874952b264879b49d8b1ad2c9250356"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/phased-array-radar/phased-array-radar-body_1.png",
+      "bytes": 6580404,
+      "sha256": "768972433a6eb18cf6a88109d9865a0f1653bf63c213bba7679fa9899d53c756"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/phased-array-radar/phased-array-radar-glow.png",
+      "bytes": 4819363,
+      "sha256": "b3808acb74947614412b768324fb67d13953c6ac35583a9f54d58de335d8c8cf"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/phased-array-radar/phased-array-radar-glow_1.png",
+      "bytes": 4819691,
+      "sha256": "ea2b0fb5d289f6753266fd3e5dbb91c524b6e558fd29e04681cb2c424a467684"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/phased-array-radar/phased-array-radar-shadow.png",
+      "bytes": 381356,
+      "sha256": "72c3e216c7036a310af9b679de0db6017f6bb9526b2b5c815c8b6531168a6a64"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/entities/phased-array-radar/phased-array-radar-shadow_1.png",
+      "bytes": 378593,
+      "sha256": "18748271606c37ca6a2605d4f626d0f58f7b4a54fc04a600f78299f7a8587f80"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/items/sweeping-radar.png",
+      "bytes": 26879,
+      "sha256": "3d6cda43bdd786ebaf4a7dd87fa16bef36323fbf92b2899a4ea836679da7af2e"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/graphics/items/phased-array-radar.png",
+      "bytes": 30604,
+      "sha256": "8acf33870acc06a1c8980526adc381f20dfdc5add9406e4f1bc3b12c1f05dee9"
+    }
+  ]
+}

@@ -1,0 +1,4336 @@
+{
+  "factorio": "2.0.77",
+  "reports": {
+    "headless": {
+      "all_pass": true,
+      "tests": [
+        {
+          "name": "body-created-both",
+          "pass": true
+        },
+        {
+          "name": "glow-only-advanced",
+          "pass": true
+        },
+        {
+          "name": "ghost-preview",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-0",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-0",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-1",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-1",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-2",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-2",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-3",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-3",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-4",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-4",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-5",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-5",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-6",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-6",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-7",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-7",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-8",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-8",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-9",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-9",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-10",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-10",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-11",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-11",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-12",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-12",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-13",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-13",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-14",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-14",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-15",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-15",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-16",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-16",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-17",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-17",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-18",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-18",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-19",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-19",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-20",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-20",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-21",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-21",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-22",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-22",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-23",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-23",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-24",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-24",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-25",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-25",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-26",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-26",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-27",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-27",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-28",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-28",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-29",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-29",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-30",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-30",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-31",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-31",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-32",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-32",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-33",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-33",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-34",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-34",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-35",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-35",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-36",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-36",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-37",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-37",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-38",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-38",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-39",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-39",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-40",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-40",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-41",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-41",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-42",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-42",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-43",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-43",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-44",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-44",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-45",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-45",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-46",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-46",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-47",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-47",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-48",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-48",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-49",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-49",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-50",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-50",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-51",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-51",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-52",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-52",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-53",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-53",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-54",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-54",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-55",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-55",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-56",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-56",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-57",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-57",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-58",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-58",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-59",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-59",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-60",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-60",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-61",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-61",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-62",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-62",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-63",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-63",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-64",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-64",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-65",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-65",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-66",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-66",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-67",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-67",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-68",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-68",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-69",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-69",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-70",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-70",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-71",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-71",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-72",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-72",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-73",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-73",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-74",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-74",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-75",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-75",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-76",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-76",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-77",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-77",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-78",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-78",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-79",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-79",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-80",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-80",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-81",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-81",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-82",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-82",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-83",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-83",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-84",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-84",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-85",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-85",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-86",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-86",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-87",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-87",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-88",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-88",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-89",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-89",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-90",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-90",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-91",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-91",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-92",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-92",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-93",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-93",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-94",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-94",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-95",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-95",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-96",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-96",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-97",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-97",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-98",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-98",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-99",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-99",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-100",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-100",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-101",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-101",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-102",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-102",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-103",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-103",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-104",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-104",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-105",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-105",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-106",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-106",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-107",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-107",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-108",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-108",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-109",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-109",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-110",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-110",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-111",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-111",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-112",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-112",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-113",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-113",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-114",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-114",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-115",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-115",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-116",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-116",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-117",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-117",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-118",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-118",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-119",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-119",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-120",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-120",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-121",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-121",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-122",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-122",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-123",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-123",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-124",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-124",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-125",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-125",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-126",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-126",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-127",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-127",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-128",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-128",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-129",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-129",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-130",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-130",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-131",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-131",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-132",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-132",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-133",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-133",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-134",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-134",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-135",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-135",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-136",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-136",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-137",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-137",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-138",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-138",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-139",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-139",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-140",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-140",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-141",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-141",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-142",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-142",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-143",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-143",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-144",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-144",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-145",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-145",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-146",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-146",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-147",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-147",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-148",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-148",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-149",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-149",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-150",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-150",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-151",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-151",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-152",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-152",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-153",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-153",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-154",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-154",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-155",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-155",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-156",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-156",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-157",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-157",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-158",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-158",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-159",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-159",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-160",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-160",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-161",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-161",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-162",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-162",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-163",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-163",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-164",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-164",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-165",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-165",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-166",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-166",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-167",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-167",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-168",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-168",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-169",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-169",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-170",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-170",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-171",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-171",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-172",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-172",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-173",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-173",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-174",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-174",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-175",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-175",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-176",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-176",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-177",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-177",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-178",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-178",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-179",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-179",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-180",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-180",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-181",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-181",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-182",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-182",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-183",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-183",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-184",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-184",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-185",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-185",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-186",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-186",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-187",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-187",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-188",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-188",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-189",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-189",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-190",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-190",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-191",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-191",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-192",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-192",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-193",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-193",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-194",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-194",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-195",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-195",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-196",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-196",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-197",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-197",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-198",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-198",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-199",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-199",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-200",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-200",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-201",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-201",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-202",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-202",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-203",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-203",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-204",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-204",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-205",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-205",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-206",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-206",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-207",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-207",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-208",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-208",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-209",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-209",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-210",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-210",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-211",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-211",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-212",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-212",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-213",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-213",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-214",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-214",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-215",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-215",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-216",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-216",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-217",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-217",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-218",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-218",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-219",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-219",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-220",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-220",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-221",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-221",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-222",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-222",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-223",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-223",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-224",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-224",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-225",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-225",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-226",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-226",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-227",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-227",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-228",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-228",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-229",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-229",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-230",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-230",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-231",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-231",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-232",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-232",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-233",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-233",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-234",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-234",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-235",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-235",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-236",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-236",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-237",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-237",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-238",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-238",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-239",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-239",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-240",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-240",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-241",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-241",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-242",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-242",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-243",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-243",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-244",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-244",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-245",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-245",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-246",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-246",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-247",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-247",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-248",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-248",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-249",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-249",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-250",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-250",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-251",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-251",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-252",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-252",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-253",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-253",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-254",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-254",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-255",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-255",
+          "pass": true
+        },
+        {
+          "name": "clockwise-halfway",
+          "pass": true
+        },
+        {
+          "name": "counterclockwise-halfway",
+          "pass": true
+        },
+        {
+          "name": "cross-north-clockwise",
+          "pass": true
+        },
+        {
+          "name": "cross-north-counterclockwise",
+          "pass": true
+        },
+        {
+          "name": "no-animation-overshoot",
+          "pass": true
+        },
+        {
+          "name": "paused-powered-glow",
+          "pass": true
+        },
+        {
+          "name": "pause-holds-pose",
+          "pass": true
+        },
+        {
+          "name": "outage-holds-pose",
+          "pass": true
+        },
+        {
+          "name": "outage-glow-off",
+          "pass": true
+        },
+        {
+          "name": "recovery-glow",
+          "pass": true
+        },
+        {
+          "name": "recovery-no-catchup",
+          "pass": true
+        },
+        {
+          "name": "bounded-render-repair",
+          "pass": true
+        },
+        {
+          "name": "upgrade-teardown",
+          "pass": true
+        },
+        {
+          "name": "upgrade-recreates-art",
+          "pass": true
+        },
+        {
+          "name": "ghost-teardown",
+          "pass": true
+        },
+        {
+          "name": "cross-surface-clone-art",
+          "pass": true
+        },
+        {
+          "name": "same-surface-teleport-follows-entity",
+          "pass": true
+        },
+        {
+          "name": "clone-has-independent-art",
+          "pass": true
+        },
+        {
+          "name": "clone-art-teardown",
+          "pass": true
+        },
+        {
+          "name": "surface-deletion-clears-art",
+          "pass": true
+        },
+        {
+          "name": "native-frozen-glow-off",
+          "pass": true
+        },
+        {
+          "name": "real-observations-drive-animation",
+          "pass": true
+        },
+        {
+          "name": "native-scanning-still-disabled",
+          "pass": true
+        },
+        {
+          "name": "fixed-bearing-settles",
+          "pass": true
+        },
+        {
+          "name": "mining-destruction-teardown",
+          "pass": true
+        }
+      ]
+    },
+    "graphical": {
+      "all_pass": true,
+      "tests": [
+        {
+          "name": "body-created-both",
+          "pass": true
+        },
+        {
+          "name": "glow-only-advanced",
+          "pass": true
+        },
+        {
+          "name": "ghost-preview",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-0",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-0",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-1",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-1",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-2",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-2",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-3",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-3",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-4",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-4",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-5",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-5",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-6",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-6",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-7",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-7",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-8",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-8",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-9",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-9",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-10",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-10",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-11",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-11",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-12",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-12",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-13",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-13",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-14",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-14",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-15",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-15",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-16",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-16",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-17",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-17",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-18",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-18",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-19",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-19",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-20",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-20",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-21",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-21",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-22",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-22",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-23",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-23",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-24",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-24",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-25",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-25",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-26",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-26",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-27",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-27",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-28",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-28",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-29",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-29",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-30",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-30",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-31",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-31",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-32",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-32",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-33",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-33",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-34",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-34",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-35",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-35",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-36",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-36",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-37",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-37",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-38",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-38",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-39",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-39",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-40",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-40",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-41",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-41",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-42",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-42",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-43",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-43",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-44",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-44",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-45",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-45",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-46",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-46",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-47",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-47",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-48",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-48",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-49",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-49",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-50",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-50",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-51",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-51",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-52",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-52",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-53",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-53",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-54",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-54",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-55",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-55",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-56",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-56",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-57",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-57",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-58",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-58",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-59",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-59",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-60",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-60",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-61",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-61",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-62",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-62",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-63",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-63",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-64",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-64",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-65",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-65",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-66",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-66",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-67",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-67",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-68",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-68",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-69",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-69",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-70",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-70",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-71",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-71",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-72",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-72",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-73",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-73",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-74",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-74",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-75",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-75",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-76",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-76",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-77",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-77",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-78",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-78",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-79",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-79",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-80",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-80",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-81",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-81",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-82",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-82",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-83",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-83",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-84",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-84",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-85",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-85",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-86",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-86",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-87",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-87",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-88",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-88",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-89",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-89",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-90",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-90",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-91",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-91",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-92",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-92",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-93",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-93",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-94",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-94",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-95",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-95",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-96",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-96",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-97",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-97",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-98",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-98",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-99",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-99",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-100",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-100",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-101",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-101",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-102",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-102",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-103",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-103",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-104",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-104",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-105",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-105",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-106",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-106",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-107",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-107",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-108",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-108",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-109",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-109",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-110",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-110",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-111",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-111",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-112",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-112",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-113",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-113",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-114",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-114",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-115",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-115",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-116",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-116",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-117",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-117",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-118",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-118",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-119",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-119",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-120",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-120",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-121",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-121",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-122",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-122",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-123",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-123",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-124",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-124",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-125",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-125",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-126",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-126",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-127",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-127",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-128",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-128",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-129",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-129",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-130",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-130",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-131",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-131",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-132",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-132",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-133",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-133",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-134",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-134",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-135",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-135",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-136",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-136",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-137",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-137",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-138",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-138",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-139",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-139",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-140",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-140",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-141",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-141",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-142",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-142",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-143",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-143",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-144",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-144",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-145",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-145",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-146",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-146",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-147",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-147",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-148",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-148",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-149",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-149",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-150",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-150",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-151",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-151",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-152",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-152",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-153",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-153",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-154",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-154",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-155",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-155",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-156",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-156",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-157",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-157",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-158",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-158",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-159",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-159",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-160",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-160",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-161",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-161",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-162",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-162",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-163",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-163",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-164",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-164",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-165",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-165",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-166",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-166",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-167",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-167",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-168",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-168",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-169",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-169",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-170",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-170",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-171",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-171",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-172",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-172",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-173",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-173",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-174",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-174",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-175",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-175",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-176",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-176",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-177",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-177",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-178",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-178",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-179",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-179",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-180",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-180",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-181",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-181",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-182",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-182",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-183",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-183",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-184",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-184",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-185",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-185",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-186",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-186",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-187",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-187",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-188",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-188",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-189",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-189",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-190",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-190",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-191",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-191",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-192",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-192",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-193",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-193",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-194",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-194",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-195",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-195",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-196",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-196",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-197",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-197",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-198",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-198",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-199",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-199",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-200",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-200",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-201",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-201",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-202",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-202",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-203",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-203",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-204",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-204",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-205",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-205",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-206",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-206",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-207",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-207",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-208",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-208",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-209",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-209",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-210",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-210",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-211",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-211",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-212",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-212",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-213",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-213",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-214",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-214",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-215",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-215",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-216",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-216",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-217",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-217",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-218",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-218",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-219",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-219",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-220",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-220",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-221",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-221",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-222",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-222",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-223",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-223",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-224",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-224",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-225",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-225",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-226",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-226",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-227",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-227",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-228",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-228",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-229",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-229",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-230",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-230",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-231",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-231",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-232",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-232",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-233",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-233",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-234",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-234",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-235",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-235",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-236",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-236",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-237",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-237",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-238",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-238",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-239",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-239",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-240",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-240",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-241",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-241",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-242",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-242",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-243",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-243",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-244",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-244",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-245",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-245",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-246",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-246",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-247",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-247",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-248",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-248",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-249",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-249",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-250",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-250",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-251",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-251",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-252",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-252",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-253",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-253",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-254",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-254",
+          "pass": true
+        },
+        {
+          "name": "ei-sweeping-radar-frame-255",
+          "pass": true
+        },
+        {
+          "name": "ei-phased-array-radar-frame-255",
+          "pass": true
+        },
+        {
+          "name": "clockwise-halfway",
+          "pass": true
+        },
+        {
+          "name": "counterclockwise-halfway",
+          "pass": true
+        },
+        {
+          "name": "cross-north-clockwise",
+          "pass": true
+        },
+        {
+          "name": "cross-north-counterclockwise",
+          "pass": true
+        },
+        {
+          "name": "no-animation-overshoot",
+          "pass": true
+        },
+        {
+          "name": "paused-powered-glow",
+          "pass": true
+        },
+        {
+          "name": "pause-holds-pose",
+          "pass": true
+        },
+        {
+          "name": "outage-holds-pose",
+          "pass": true
+        },
+        {
+          "name": "outage-glow-off",
+          "pass": true
+        },
+        {
+          "name": "recovery-glow",
+          "pass": true
+        },
+        {
+          "name": "recovery-no-catchup",
+          "pass": true
+        },
+        {
+          "name": "bounded-render-repair",
+          "pass": true
+        },
+        {
+          "name": "upgrade-teardown",
+          "pass": true
+        },
+        {
+          "name": "upgrade-recreates-art",
+          "pass": true
+        },
+        {
+          "name": "ghost-teardown",
+          "pass": true
+        },
+        {
+          "name": "cross-surface-clone-art",
+          "pass": true
+        },
+        {
+          "name": "same-surface-teleport-follows-entity",
+          "pass": true
+        },
+        {
+          "name": "clone-has-independent-art",
+          "pass": true
+        },
+        {
+          "name": "clone-art-teardown",
+          "pass": true
+        },
+        {
+          "name": "surface-deletion-clears-art",
+          "pass": true
+        },
+        {
+          "name": "native-frozen-glow-off",
+          "pass": true
+        },
+        {
+          "name": "real-observations-drive-animation",
+          "pass": true
+        },
+        {
+          "name": "native-scanning-still-disabled",
+          "pass": true
+        },
+        {
+          "name": "fixed-bearing-settles",
+          "pass": true
+        },
+        {
+          "name": "mining-destruction-teardown",
+          "pass": true
+        }
+      ]
+    }
+  },
+  "benchmarks_run": false
+}

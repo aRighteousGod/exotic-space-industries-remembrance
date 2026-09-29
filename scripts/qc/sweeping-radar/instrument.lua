@@ -1,8 +1,31 @@
 -- Appended to the STAGED ESIR control.lua only, never shipped remote interfaces.
 local radar_qc_geometry=require("lib/sweeping-radar-geometry")
 local radar_qc_configuration=require("__zzz-esir-radar-qc__/test-config")
+local radar_qc_visuals=require("scripts/control/sweeping-radar-visuals")
 if radar_qc_configuration.baseline then ei_sweeping_radar.updater=function() end end
 remote.add_interface("esir_radar_qc",{
+    visual=function(tick,entity)
+        local r=ei_sweeping_radar.get_record(entity)
+        local v=r and r.visual
+        if not v then return {} end
+        return {heading=v.heading,frame=v.frame,body=v.body,glow=v.glow,surface=v.surface,
+            animation=v.body and v.body.valid and v.body.animation,offset=v.body and v.body.valid and v.body.animation_offset,
+            delta=v.delta,started=v.started,duration=v.duration,completed_tick=v.completed_tick}
+    end,
+    visual_probe=function(tick,entity,heading,reverse,duration,elapsed)
+        local r=assert(ei_sweeping_radar.get_record(entity))
+        r.visual.delta=nil;r.visual.serviced=nil;r.running=true;r.ready=true
+        r.visual.epoch=r.epoch;r.visual.reverse=reverse;r.reverse=reverse
+        r.effective.mode=1;r.effective.speed=100
+        r.heading=heading;radar_qc_visuals.completed(r,tick)
+        r.visual.duration=duration or 1;r.visual.started=tick-(elapsed or 1)
+        r.power.energy=r.power.electric_buffer_size
+        radar_qc_visuals.service(r,tick)
+    end,
+    ghost_visual=function(tick,entity)
+        local root=ei_sweeping_radar.get_state()
+        return root.ghost_art and root.ghost_art[entity.unit_number]
+    end,
     settings=function(tick,entity,settings)
         local record=assert(ei_sweeping_radar.get_record(entity),"radar registration missing")
         ei_sweeping_radar.set_settings(record,settings,tick)

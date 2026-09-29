@@ -38,6 +38,16 @@ config.hardware = {
         input=128000000, buffer=10000000, health=500, tint={0.9,0.65,1}, tier=2},
 }
 config.names = {"ei-sweeping-radar", "ei-phased-array-radar"}
+-- Retained master frames are clockwise. North is the trough's open face and
+-- the array's marked panel axis; the fourfold array itself is symmetric.
+config.art = {
+    ["ei-sweeping-radar"]={asset="sweeping-radar",north=192,body_height=224,body_shift=-0.875,shadow_width=264,shadow_shift=0.9375},
+    ["ei-phased-array-radar"]={asset="phased-array-radar",north=0,body_height=240,body_shift=-0.75,shadow_width=280,shadow_shift=0.6875,glow=true},
+}
+config.art_frames=256
+config.art_page_frames=128
+config.art_revision=2
+config.art_max_trail_ticks=60
 config.budget = {control=4, geometry=64, observation=2, aggregate=64,
     maintenance=64, publish=2, viewer=1, jobs=32, generation_jobs=16,
     generation_interval=30,generation_timeout=3600}

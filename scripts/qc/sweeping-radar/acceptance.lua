@@ -106,7 +106,7 @@ script.on_event(defines.events.on_tick,function(event)
     local t=event.tick-storage.started
     local fleet=call("snapshot")
     local last=fleet.last
-    for key,limit in pairs{control=4,geometry=64,chart=2,query=2,snapshot=258,aggregate=64,maintenance=64,publish=2,generation=1} do
+    for key,limit in pairs{control=4,visual=4,geometry=64,chart=2,query=2,snapshot=258,aggregate=64,maintenance=64,publish=2,generation=1} do
         local value=last[key] or 0
         storage.maximum[key]=math.max(storage.maximum[key] or 0,value)
         assert(value<=limit,"stage exceeded: "..key)

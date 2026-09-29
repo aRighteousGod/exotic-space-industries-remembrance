@@ -4,7 +4,7 @@ Approved selection: **#1 / E1 Split-Trough Watcher** for `ei-sweeping-radar`, an
 
 ## Current deliverable
 
-Maximum-detail Meshy originals, UV-preserving animated Blender models, 256-facing final-quality master renders and staged spritesheets. The chosen export is **256 facings**; 128 and 64 are exact repacks retained for comparison. The shipping prototypes still use placeholder radar art. Live runtime-render lifecycle integration is separate from this asset export.
+Maximum-detail Meshy originals, UV-preserving animated Blender models, 256-facing final-quality master renders and spritesheets. The chosen export is **256 facings**, now integrated into both shipping radar chassis; 128 and 64 remain exact repacks retained for comparison. The main mod ships the ten selected body/shadow/glow pages (35,167,676 bytes), with matching inventory icons in the main pack. See [runtime art contract](../../blueprints/sweeping-radar.md#art) and [engine verification](../../../../scripts/qc/sweeping-radar/art-validation.md).
 
 ## Final renders and repacking
 
@@ -79,7 +79,7 @@ The isolated fixture in `output/meshy/radar-production/orientation-qc/` tested a
 
 The second fixture used an invisible shell and `rendering.draw_animation` with `animation_speed=0`. Selected offsets 0, 16, 32 and 48 stayed selected after five ticks, while the radar remained disabled. Engine screenshots show different headings. Results are preserved with this generator as `feasibility/native-orientation-result.json` and `feasibility/rendered-orientation-result.json`.
 
-Production integration should therefore select pre-rendered frames through the existing bounded radar service, updating only changed headings and power visibility. The chosen motion policy is to trail completed work. Keep native scans disabled. Live interpolation, segment transitions, north calibration, lifecycle teardown/repair, pause/reversal/fixed-bearing behavior, save/reload, powered glow behavior, and whole-engine overhead checks remain integration work. The earlier fixture proves frozen-frame rendering, not those production behaviors.
+Production now selects pre-rendered frames through the existing four control visits per tick, updating only changed headings and power visibility. The chosen motion policy trails completed work; native scans remain disabled. `lib/sweeping-radar-config.lua` records north as zero-based source index 192 for the trough and 0 for the fourfold array; indices then increase clockwise. Body/shadow use two 128-frame animations, with separate Phased-array additive glow at matching offsets. Native animation speed is zero, so delayed service cannot overshoot a completed heading. See the linked integration verification for the newer engine checks; the earlier feasibility fixture alone proved only frozen-frame rendering. Performance benchmarks were skipped at the user's request.
 
 ## Known review limits
 

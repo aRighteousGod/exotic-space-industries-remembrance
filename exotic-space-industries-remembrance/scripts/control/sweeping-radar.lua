@@ -12,6 +12,7 @@ local config=require("lib/sweeping-radar-config")
 local geometry=require("lib/sweeping-radar-geometry")
 local contacts=require("lib/sweeping-radar-contacts")
 local timers=require("lib/sweeping-radar-timers")
+local visuals=require("scripts/control/sweeping-radar-visuals")
 local scheduler=require("lib/runtime-scheduler")
 local valid=ei_lib.entity_check
 local RED=defines.wire_connector_id.circuit_red
@@ -33,6 +34,7 @@ local GREEN=defines.wire_connector_id.circuit_green
 ---@field retired ESIRRadarContactSet?
 ---@field epoch integer
 ---@field heading number
+---@field visual ESIRRadarVisual?
 ---@field status string
 ---@field next_poll integer
 ---@field next_scan integer
@@ -171,6 +173,7 @@ end
 -- Never collect an unbounded trail of discarded sets. A reset waits for the
 -- previous retired generation to drain; only the newest request is retained.
 local function request_reset(root,record,tick)
+    visuals.hold(record)
     record.epoch=record.epoch+1
     cancel_job(root,record)
     record.reset_pending=true
@@ -260,6 +263,7 @@ end
 local function unregister(root,id)
     local record=root.records[id]
     if not record then return end
+    visuals.destroy(record)
     cancel_job(root,record)
     clear_output(record)
     root.registrations[record.registration]=nil
@@ -308,6 +312,24 @@ end
 function model.on_built_entity(event)
     local entity=ei_lib.get_valid_entity(event.destination or event.entity)
     if not entity then return end
+    local placement=entity.name:match("^(ei%-.-radar)%-placement$")
+    if placement and config.hardware[placement] then
+        local health=entity.health
+        local replacement=entity.surface.create_entity{name=placement,position=entity.position,
+            force=entity.force,quality=entity.quality,direction=entity.direction,
+            fast_replace=true,spill=false,create_build_effect_smoke=false}
+        if not replacement then return end
+        replacement.health=health
+        entity=replacement
+        if event.destination then event.destination=entity else event.entity=entity end
+    end
+    if event.destination and config.art[entity.name:match("^(ei%-.-radar)%-visual%-") or ""] then
+        entity.destroy();return
+    end
+    if entity.type=="entity-ghost" then
+        if config.art[entity.ghost_name] then visuals.ghost(state(),entity) end
+        return
+    end
     if event.destination and (entity.name==config.output or entity.name==config.names[1].."-power" or entity.name==config.names[2].."-power") then
         entity.destroy();return
     end
@@ -370,6 +392,13 @@ function model.on_object_destroyed(event)
     local root=storage.ei and storage.ei.sweeping_radar
     local registration=root and root.registrations[event.registration_number]
     if not registration then return end
+    if registration.kind=="ghost-art" then
+        local ghost=root.ghost_art and root.ghost_art[registration.id]
+        if ghost and ghost.object.valid then ghost.object.destroy() end
+        if root.ghost_art then root.ghost_art[registration.id]=nil end
+        root.registrations[event.registration_number]=nil
+        return
+    end
     local record=root.records[registration.id]
     root.registrations[event.registration_number]=nil
     if not record then return end
@@ -434,6 +463,7 @@ function model.rebuild(tick)
     -- Discovery is configuration/init only, never steady-state scanning.
     for _,surface in pairs(game.surfaces) do
         for _,entity in pairs(surface.find_entities_filtered{name=config.names}) do register(entity,tick) end
+        for _,entity in pairs(surface.find_entities_filtered{type="entity-ghost",ghost_name=config.names}) do visuals.ghost(root,entity) end
     end
 end
 
@@ -594,6 +624,7 @@ end
 local function advance(root,record,tick,observed)
     if observed then
         record.heading=record.job.cell.angle
+        visuals.completed(record,tick)
         record.observations=record.observations+1
         record.pass_observations=record.pass_observations+1
         root.counters.observations=root.counters.observations+1
@@ -805,11 +836,13 @@ function model.updater(event)
     local root=state()
     local tick=event.tick
     root.tick=tick
-    root.last={control=0,geometry=0,chart=0,query=0,snapshot=0,aggregate=0,maintenance=0,publish=0,generation=0}
+    root.last={control=0,visual=0,geometry=0,chart=0,query=0,snapshot=0,aggregate=0,maintenance=0,publish=0,generation=0}
     for _=1,config.budget.control do
         local record=next_record(root,"control")
         if not record then break end
-        if valid(record.entity) then service_control(root,record,tick);refresh_lanes(root,record)
+        if valid(record.entity) then
+            service_control(root,record,tick);refresh_lanes(root,record)
+            if visuals.service(record,tick) then root.last.visual=root.last.visual+1 end
         else unregister(root,root.order[root.cursors.control]) end
         root.last.control=root.last.control+1
     end

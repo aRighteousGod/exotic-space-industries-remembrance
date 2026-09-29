@@ -58,7 +58,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Startup, compatibility, diagnostics, and information interfaces](startup-and-integration.md#contract) | 6 |
 | [Steam train wheel helpers](steam-train.md#contract) | 1 |
 | [Surveyor inventory scope and zoom restoration](surveyor-scope.md#contract) | 1 |
-| [Sweeping radar paid observations, quality, reports, and GUI](sweeping-radar.md#contract) | 6 |
+| [Sweeping radar paid observations, quality, reports, and GUI](sweeping-radar.md#contract) | 7 |
 | [Tesla combat, research variants, and helper lifetime](tesla-runtime.md#contract) | 4 |
 | [Vulcanus auric fumarole lifecycle](vulcanus-fumaroles.md#contract) | 1 |
 

@@ -5,6 +5,7 @@
 -- cadence: data stage; scripted scanning has no native omnidirectional coverage
 --==============================================================================
 local config = require("lib/sweeping-radar-config")
+local art = require("prototypes/sweeping-radar-art")
 local icon="__base__/graphics/icons/radar.png"
 local recipes={
     {{"radar",1},{"advanced-circuit",8},{"ei-electronic-parts",4},
@@ -12,16 +13,16 @@ local recipes={
     {{config.names[1],1},{"processing-unit",20},{"ei-advanced-motor",8},
         {"ei-steel-beam",8},{"ei-simulation-data",40},{"ei-high-energy-crystal",8}},
 }
-local function technology(name, prerequisites, age, effects, time, tint)
-    return {type="technology",name=name,icons={{icon="__base__/graphics/technology/radar.png",
-        icon_size=256,tint=tint}},prerequisites=prerequisites,
+local function technology(name, prerequisites, age, effects, time, chassis)
+    return {type="technology",name=name,icons={{icon=ei_path.."graphics/items/"..config.art[chassis].asset..".png",
+        icon_size=128,icon_mipmaps=3}},prerequisites=prerequisites,
         effects=effects,unit={count=100,time=time,ingredients=ei_data.science[age]},age=age}
 end
 for tier,name in ipairs(config.names) do
     local hardware=config.hardware[name]
     local radar=table.deepcopy(data.raw.radar.radar)
     radar.name=name
-    radar.icons={{icon=icon,icon_size=64,tint=hardware.tint}}
+    radar.icons={{icon=ei_path.."graphics/items/"..config.art[name].asset..".png",icon_size=128,icon_mipmaps=3}}
     radar.icon=nil
     radar.minable={mining_time=0.5,result=name}
     radar.max_health=hardware.health
@@ -39,21 +40,32 @@ for tier,name in ipairs(config.names) do
     radar.factoriopedia_simulation=nil
     radar.radius_minimap_visualisation_color={0,0,0,0}
     radar.localised_description={"sweeping-radar.description",tostring(hardware.range),tostring(hardware.rate)}
-    radar.pictures.layers[1].tint=hardware.tint
+    radar.pictures={filename="__core__/graphics/empty.png",width=1,height=1,direction_count=1}
+    radar.placeable_position_visualization=nil
+    radar.placeable_by={item=name,count=1}
+    radar.water_reflection=nil
+    radar.drawing_box_vertical_extension=2
     radar.additional_pastable_entities=config.names
     local ingredients={}
     for _,ingredient in ipairs(recipes[tier]) do
         ingredients[#ingredients+1]={type="item",name=ingredient[1],amount=ingredient[2]}
     end
-    data:extend({radar,
+    -- The placement-only chassis supplies the native cursor preview. The build
+    -- handler fast-replaces it with the canonical scripted radar immediately.
+    local placement=table.deepcopy(radar)
+    placement.name=name.."-placement"
+    placement.hidden=true;placement.hidden_in_factoriopedia=true
+    placement.localised_name={"entity-name."..name}
+    placement.pictures=table.deepcopy(art[name]);placement.pictures.direction_count=1
+    data:extend({radar,placement,
         {type="item",name=name,icons=table.deepcopy(radar.icons),subgroup="defensive-structure",
-            order="d[radar]-"..tier,stack_size=50,place_result=name},
+            order="d[radar]-"..tier,stack_size=50,place_result=placement.name},
         {type="recipe",name=name,enabled=false,energy_required=tier*10,allow_productivity=false,
             ingredients=ingredients,results={{type="item",name=name,amount=1}}},
         technology(name,tier==1 and {"radar","circuit-network","ei-electronic-parts"}
             or {config.names[1],"ei-advanced-computer-age-tech","ei-high-energy-crystal"},
             tier==1 and "electricity-age" or "advanced-computer-age",
-            {{type="unlock-recipe",recipe=name}},20,hardware.tint),
+            {{type="unlock-recipe",recipe=name}},20,name),
         {type="electric-energy-interface",name=name.."-power",localised_name={"entity-name."..name},
             flags={"not-on-map","placeable-off-grid","not-blueprintable","not-deconstructable","not-flammable"},
             hidden=true,hidden_in_factoriopedia=true,selectable_in_game=false,
@@ -98,7 +110,7 @@ for _,branch in ipairs(config.branches) do
             {{type="nothing",effect_description={"sweeping-radar.research-"..branch,
                 tostring(branch=="range" and config.range_bonus[level+1] or branch=="capacity"
                     and (config.rate_bonus[level+1]-1)*100 or (1-config.energy_bonus[level+1])*100)}}},
-            level==3 and 30 or 20,{0.75,0.85,1})
+            level==3 and 30 or 20,config.names[level==1 and 1 or 2])
         tech.localised_name={"sweeping-radar.research-name-"..branch,tostring(level)}
         data:extend({tech})
     end

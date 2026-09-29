@@ -186,6 +186,11 @@ one millisecond” release claim.
 
 ## Validation scope
 
+See [art-validation.md](art-validation.md) for the integrated 256-facing models,
+icons, bounded animation service and focused engine/image checks. `-Fixture art`
+checks the render/lifecycle contract; `art-visual` captures day/night views and
+native inventory icons using a connected-player fixture.
+
 See `quality-validation.md` for the Heavy/Balanced functional results, and
 `validation.md` / `results.json` for the earlier measurements. Tests cover engine
 prototype loading, stage caps, all modes, overflow/expiry, hostility, native

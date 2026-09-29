@@ -59,6 +59,9 @@ local WEIGHTING_RULES = {
         chain_roots = {
             "follower-robot-count",
             "upgrade-shells",
+            "ei-radar-range",
+            "ei-radar-capacity",
+            "ei-radar-efficiency",
             "ei-emerald-shard-manifold",
             "ei-emerald-reload-litany",
             "ei-emerald-verdict-aperture",

@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([string]$RunName='gate',[ValidateSet('gate','acceptance','quality','energy-migration','benchmark','persistence','generation-persistence','visual')][string]$Fixture='gate',
+param([string]$RunName='gate',[ValidateSet('gate','acceptance','quality','energy-migration','benchmark','persistence','generation-persistence','visual','art','art-save','art-visual')][string]$Fixture='gate',
     [switch]$DumpOnly,[int]$Ticks=1300,[switch]$ReuseFixture,[string]$SaveInput,
     [int]$Population=1,[string]$Workload='warm',[int]$MeasureTicks=2400,[switch]$SingleCase,[switch]$SpreadOut,[switch]$Baseline,[switch]$Profile,
     [switch]$Save,[switch]$Visual,[switch]$ForceConfig,[string]$GraphicsArchiveDirectory,[string]$SourceRoot)

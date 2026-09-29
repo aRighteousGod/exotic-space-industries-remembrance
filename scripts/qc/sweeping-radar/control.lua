@@ -6,4 +6,5 @@ elseif config.fixture=="benchmark" then require("benchmark")
 elseif config.fixture=="persistence" then require("persistence")
 elseif config.fixture=="generation-persistence" then require("generation-persistence")
 elseif config.fixture=="visual" then require("visual")
+elseif config.fixture=="art" or config.fixture=="art-save" or config.fixture=="art-visual" then require("art")
 else require("acceptance") end
