@@ -9,6 +9,7 @@ local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local container_capacity_config = require("lib/container-capacity-config")
 data:extend({container_capacity_config.startup_setting_definition()})
 data:extend({require("lib/thrower-performance-config").startup_setting_definition()})
+data:extend({require("lib/beacon-profile-config").startup_setting_definition()})
 -- Tesla's Legacy now rides EI's main settings stage instead of owning a separate entry point.
 -- Requiring the vendored settings here keeps the public setting list in one place and avoids
 -- making the embedded TL module look like an independent top-level mod again.
@@ -249,7 +250,6 @@ data:extend({
       setting_type = "startup",
       default_value = true,
       order  = "b1",
-      hidden = true, --Disabling it concurrently with the EI beacon buffs is dishonorable.
   },
   {
       name = "ei-em_train_glow",

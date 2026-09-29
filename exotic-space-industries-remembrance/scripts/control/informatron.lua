@@ -11,6 +11,7 @@
 -- rebuild_on: Informatron page/content changes
 --==============================================================================
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
+local beacon_profile_config = require("lib/beacon-profile-config")
 local model = {}
 
 local function add_centered_sprite_row(element, sprites)
@@ -1117,6 +1118,12 @@ end
 
 function model.beacon_overhaul(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.beacon-overhaul"}, style = "heading_1_label"}
+    local mode = element.add{type = "label", caption = beacon_profile_config.mode_description()}
+    mode.style.single_line = false
+    mode.style.maximal_width = 720
+    local profiles = element.add{type = "label", caption = beacon_profile_config.tooltip()}
+    profiles.style.single_line = false
+    profiles.style.maximal_width = 720
     element.add{type = "label", caption = {"exotic-industries-informatron.beacon-overhaul-text"}}
 
     local image_container = element.add{type = "flow"}
