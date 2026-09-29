@@ -17,6 +17,7 @@
 -- rebuild_on: init, configuration change, platform topology changes, scanner
 --             topology changes, and helper repair/rebuild passes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/orbital-combinator.md#contract
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local model = {}

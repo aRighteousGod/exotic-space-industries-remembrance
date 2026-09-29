@@ -13,6 +13,7 @@
 -- remote_interfaces: none; Informatron is called outward from the relative GUI shortcut
 -- rebuild_on: configuration change, railgun build/destroy/rotation, platform state changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/railgun-cooling.md#contract
 
 local model = {}
 

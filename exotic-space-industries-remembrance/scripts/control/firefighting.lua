@@ -6,6 +6,7 @@
 -- forwarded_events: on_script_trigger_effect, on_trigger_created_entity, cleanup_legacy
 -- storage_roots: none
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/firefighting-and-water-turret.md#contract
 local ei_lib = require("lib/lib")
 local config = require("lib/firefighting-config")
 local flames = require("lib/flamethrower-fuels")

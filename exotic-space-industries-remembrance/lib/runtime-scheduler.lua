@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: runtime scheduler schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/runtime-scheduler.md#contract
 
 local scheduler = {}
 
@@ -288,6 +289,8 @@ function scheduler.queue_pop_matching(queue, predicate)
     return nil
 end
 
+-- blueprint-ref: .codex/esir/blueprints/runtime-scheduler.md#contract
+-- This variant treats the caller's queued membership table as the live set.
 function scheduler.queue_pop_queued(queue)
     queue = scheduler.ensure_queue(queue)
     return scheduler.queue_pop_matching(queue, function(value)
@@ -349,6 +352,8 @@ function scheduler.delayed_take_due(buckets, tick)
     return bucket or {}
 end
 
+-- blueprint-ref: .codex/esir/blueprints/runtime-scheduler.md#tick-flow
+-- Catch up skipped service ticks without substituting another clock source.
 function scheduler.delayed_take_due_through(buckets, current_tick)
     buckets = scheduler.ensure_delayed_buckets(buckets)
     local due_ticks = {}

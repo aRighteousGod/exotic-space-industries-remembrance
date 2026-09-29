@@ -10,6 +10,7 @@
 -- remote_interfaces: exotic-industries-informatron
 -- rebuild_on: Informatron page/content changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local beacon_profile_config = require("lib/beacon-profile-config")
 local model = {}

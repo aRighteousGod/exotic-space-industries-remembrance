@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 local tech_weighting = {}
 
 local BUCKET_WEIGHT = {

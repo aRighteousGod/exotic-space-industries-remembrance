@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 local function get_technology(force, name)
     if not (force and force.valid) then return nil end
     return force.technologies and force.technologies[name] or nil

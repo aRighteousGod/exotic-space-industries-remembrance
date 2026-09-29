@@ -9,6 +9,7 @@
 -- remote_interfaces: exotic-industries
 -- rebuild_on: mod changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local model = {}
 
 --====================================================================================================

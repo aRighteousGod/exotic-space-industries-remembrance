@@ -32,7 +32,7 @@ The Lua baseline was rechecked against the official Factorio 2.0.77 Libraries an
 
 - Before adding a shared-looking helper, inspect `exotic-space-industries-remembrance/lib/lib.lua` and prefer `ei_lib`.
 - Before adding runtime queue, delayed bucket, tick, or telemetry plumbing, inspect `exotic-space-industries-remembrance/lib/runtime-scheduler.lua`.
-- Inside event callbacks, prefer `event.tick` and pass it down call chains instead of reading `game.tick` again.
+- Propagate supplied `event.tick` through timing-dependent call chains. A payload's existence does not prove it supplies a tick: configuration-change data does not. Read `game.tick` only at a game-available boundary without a supplied tick, never during top-level loading or `on_load`; see the [tick-source contract](../../esir-dev/references/runtime-scheduler-guidelines.md#tick-source).
 - Keep `control.lua` as the top-level dispatcher. Feature modules may own local state and cadence, but should not grow parallel top-level scheduling surfaces.
 
 ## Official Source Pointers

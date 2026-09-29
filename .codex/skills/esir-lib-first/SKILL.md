@@ -11,6 +11,8 @@ Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-i
 
 ## Working Rules
 
+- Before substantively changing shared behavior, read and update its owner model through [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md).
+- `ei_lib.get_event_tick` normalizes a supplied number/event tick and otherwise returns zero; it never reads `game.tick`. Follow the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source) instead of treating this helper as a clock or inventing another local wrapper.
 - Reuse an existing `ei_lib` function when it already covers the need.
 - If the gap is small and the behavior is broadly useful, extend or harden `ei_lib` instead of adding another file-local helper.
 - Do not add `*_if_present` wrappers around `ei_lib.add_unlock_recipe`; it already nil-guards missing techs and recipes and leaves the caller cleaner when used directly.

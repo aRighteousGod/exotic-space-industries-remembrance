@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/firefighting-and-water-turret.md#contract
 -- Shared prototype/runtime identities and balance for ESIR firefighting.
 local model = {
     gun = "ei-extinguisher",

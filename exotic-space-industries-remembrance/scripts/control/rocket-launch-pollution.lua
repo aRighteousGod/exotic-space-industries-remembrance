@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes, configuration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/rocket-launch-pollution.md#contract
 --[[
 Rocket launch pollution and visual exhaust lifecycle
 

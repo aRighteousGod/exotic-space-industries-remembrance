@@ -8,14 +8,16 @@ Use this when editing queued runtime modules under `exotic-space-industries-reme
 - `lib/runtime-scheduler.lua` is the shared helper spine for queue math, delayed buckets, counters, status snapshots, and gated telemetry.
 - Feature modules own their local state and semantics, but should not duplicate generic scheduler plumbing that the shared library already provides.
 - A scheduler migration is not complete if shared helper semantics changed but the skill/reference guidance still describes the old behavior.
+- Before changing a scheduling/state contract, use [esir-conceptual-blueprints](../../esir-conceptual-blueprints/SKILL.md) and update the owning model with its source commentary in the same patch.
 
 ## Tick Source
 
-- Runtime scripts should strive to use `event.tick` over `game.tick` wherever possible.
-- In event handlers, prefer `event.tick`.
-- In `on_tick`, use the incoming tick from the callback and pass it through downstream helpers instead of reading `game.tick` again.
-- Use `game.tick` only in contexts that do not have an event object, such as status helpers, load-time repair helpers, or utility functions called outside an event callback.
-- If you feel tempted to add `get_event_tick()` or another "current tick" helper in a feature module, stop and justify why `event.tick` or the shared scheduler state is not enough.
+- When a callback supplies `event.tick`, including `on_tick` and `on_nth_tick`, pass that numeric tick through every timing-dependent helper, GUI/status update, and scheduled-work call. A helper without an event parameter still has event context when its caller can supply the tick; do not reread `game.tick` in that chain.
+- Resolve `game.tick` once at a runtime entry boundary that supplies no tick and where `game` is available, such as initialization, configuration changes, migrations, commands, or remote calls. Prefer an explicitly supplied numeric tick even at these entry points, and pass the resolved value onward.
+- `ConfigurationChangedData` does not supply a tick. Top-level loading and `on_load` cannot read `game.tick`; defer world work to an appropriate lifecycle/event boundary. These contracts were checked against the installed Factorio 2.0.77 API documentation.
+- Preserve tick zero as a valid supplied timestamp. `ei_lib.get_event_tick` is an input normalizer: it returns the supplied number, a table's `tick`, or zero, and never reads `game.tick`. It cannot distinguish absent input from a supplied zero. Do not use its zero result as evidence of a real current tick or as a missing-value test for a fallback.
+- For delayed work, distinguish the original event tick, due tick, and current execution tick. Service normally propagates its callback tick; retain origin timestamps only where feature semantics require them.
+- Preserve existing explicit-tick/fallback interfaces and identify remaining deviations in the owner model. Do not create a new file-local current-time wrapper or change shared helper semantics as a side effect of documentation work.
 
 ## Runtime Entity Safety
 

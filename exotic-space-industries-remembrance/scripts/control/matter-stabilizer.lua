@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, entity topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/matter-stabilizer.md#contract
 local model = {}
 ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")

@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: tile topology changes, entity topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/induction-matrix.md#contract
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number

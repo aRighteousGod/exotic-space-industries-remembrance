@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup settings, research progression, configuration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/nauvis-pressure-grace.md#contract
 local ei_lib = require("lib/lib")
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local model = {}

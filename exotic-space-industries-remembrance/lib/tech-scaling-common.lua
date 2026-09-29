@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 local tech_scaling_common = {}
 
 tech_scaling_common.INTERNAL_MULTIPLIER_CAP = 1000

@@ -9,3 +9,4 @@
 -- remote_interfaces: none
 -- rebuild_on: page/content changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/em-trains.md#contract

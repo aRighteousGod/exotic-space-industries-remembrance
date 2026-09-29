@@ -116,7 +116,8 @@ local function set_researched(force, names)
   end
 end
 
-local function build_world(state)
+---@param current_tick uint Supplied callback tick or captured no-tick boundary time.
+local function build_world(state, current_tick)
   if state.built then
     return
   end
@@ -158,28 +159,29 @@ local function build_world(state)
   local ok_reset, reset_result = call_main_qc("reset_emerald_apocalypse_hover_tank_runtime", "emerald-doctrine-qc")
   local ok_configure, configure_result = call_main_qc("configure_emerald_apocalypse_hover_tank_qc", {enabled = true})
   state.built = true
-  state.base_tick = game.tick
+  state.base_tick = current_tick
   write_record{
     event = "built",
-    tick = game.tick,
+    tick = current_tick,
     tank_unit_number = state.tank_unit_number,
     reset = {ok = ok_reset, result = reset_result},
     configure = {ok = ok_configure, result = configure_result},
   }
 end
 
-local function checkpoint(state)
-  local relative_tick = game.tick - (state.base_tick or 0)
+---@param current_tick uint Preserve the service callback time through remote QC calls.
+local function checkpoint(state, current_tick)
+  local relative_tick = current_tick - (state.base_tick or 0)
   local target_tick = CHECKPOINTS[state.checkpoint_index]
   if not target_tick or relative_tick < target_tick then
     return
   end
 
-  local ok_service, service_result = call_main_qc("service_emerald_apocalypse_hover_tank_qc", 4096, game.tick)
-  local ok_snapshot, snapshot = call_main_qc("get_emerald_apocalypse_hover_tank_qc_snapshot", game.tick)
+  local ok_service, service_result = call_main_qc("service_emerald_apocalypse_hover_tank_qc", 4096, current_tick)
+  local ok_snapshot, snapshot = call_main_qc("get_emerald_apocalypse_hover_tank_qc_snapshot", current_tick)
   write_record{
     event = "checkpoint",
-    tick = game.tick,
+    tick = current_tick,
     relative_tick = relative_tick,
     service = {ok = ok_service, result = service_result},
     snapshot_ok = ok_snapshot,
@@ -192,19 +194,19 @@ end
 script.on_init(function()
   local state = ensure_state()
   state.built = false
-  build_world(state)
+  build_world(state, game.tick)
 end)
 
 script.on_configuration_changed(function()
   local state = ensure_state()
   state.built = false
-  build_world(state)
+  build_world(state, game.tick)
 end)
 
-script.on_event(defines.events.on_tick, function()
+script.on_event(defines.events.on_tick, function(event)
   local state = ensure_state()
-  build_world(state)
-  checkpoint(state)
+  build_world(state, event.tick)
+  checkpoint(state, event.tick)
 end)
 
 remote.add_interface(HELPER_REMOTE, {
@@ -212,7 +214,7 @@ remote.add_interface(HELPER_REMOTE, {
     local state = ensure_state()
     state.built = false
     state.checkpoint_index = 1
-    build_world(state)
+    build_world(state, game.tick)
     return true
   end,
   snapshot = function()

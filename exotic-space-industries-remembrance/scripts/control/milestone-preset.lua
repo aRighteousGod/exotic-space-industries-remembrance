@@ -9,6 +9,7 @@
 -- remote_interfaces: exotic-industries-milestones
 -- rebuild_on: progression or milestone changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 --====================================================================================================
 --PRESET FOR MILESTONE MOD
 --====================================================================================================

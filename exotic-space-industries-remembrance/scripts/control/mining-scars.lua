@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: resource prototype changes, scar prototype changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/mining-scars.md#contract
 --====================================================================================================
 -- MINING SCARS MODULE
 -- originally from Mining scars by Mylon

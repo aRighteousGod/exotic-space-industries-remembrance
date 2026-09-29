@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, Vulcanus resource prototype changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/vulcanus-fumaroles.md#contract
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 

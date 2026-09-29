@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 local gaia_planet = game.planets["gaia"]
 if not gaia_planet then
     return

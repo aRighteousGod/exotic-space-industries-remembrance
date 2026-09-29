@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes, prototype changes, runtime schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/gaian-saucer-wake.md#contract
 
 local model = {}
 local ei_lib = require("lib/lib")

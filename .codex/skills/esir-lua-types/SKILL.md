@@ -43,6 +43,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task pre
 
 ## Working Rules
 
+- When signatures or state shapes change a substantive system contract, update the owner model through [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md). Type explicit tick arguments without losing their event origin; follow the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source).
 - Match existing Factorio LuaLS style: `---@param name Type description`, `---@return Type|nil`, and narrow `---@class` records placed near the data they describe.
 - For runtime modules, annotate persistent `storage` shapes, module-owned state tables, and exported handler signatures before adding scattered local annotations.
 - For GUI handlers, type the event payload and any `tags` table shape used for routing.

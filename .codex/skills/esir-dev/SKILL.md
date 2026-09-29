@@ -18,6 +18,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `esir-dependency-intel` for dependency declarations, compatibility touchpoints, remote interfaces, and local installed-mod enrichment
 - `factorio-lua-assumptions`, `factorio-lua-docs`, `factorio-core-lualib`, and `factorio-vanilla-prototype-libs` for Factorio Lua lifecycle/API truth, bundled core helper routing, and vanilla prototype helper routing
 - `esir-lib-first`, `esir-lua-types`, `esir-runtime-gui`, and `esir-research-events` for ESIR Lua helper reuse, LuaLS annotations, runtime GUI house style, and research-event burst dispatch
+- `esir-conceptual-blueprints` for maintained subsystem models, source commentary backlinks, and structural coverage
 - `esir-asset-pipeline`, `meshy-api`, `meshy-blender-spritesheet`, `blender-procedural-animation`, `esir-factorio-asset-export`, and `esir-item-icon-prep` for the generated-art-to-Factorio asset path
 - `esir-recipe-icon-style` for recipe icon readability, companion-baseline drift, visibility, sorting, and signal cleanup audits
 
@@ -26,7 +27,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `doctor`: verify repo shape, engine paths, Factorio/Firefox discovery, and pack topology
 - `manifest-refresh`: regenerate checked-in manifests under `.codex/esir/`, including the dependency catalog
 - `dependency-refresh|dependency-query|dependency-diff`: operate on the ESIR dependency catalog and optional local installed-mod enrichment
-- `preflight`: static syntax/reference/header/encoding sweeps without touching gameplay data
+- `preflight`: static syntax/reference/header/encoding and conceptual-blueprint coverage sweeps without touching gameplay data
 - `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness
 - `qc-gaia-resources`: run the checked-in multi-seed Gaia resource matrix described in [`references/gaia-resource-qc.md`](./references/gaia-resource-qc.md)
 - `runtime-benchmark`: run save-catalog-backed runtime benchmarks, auto-staging helper mods declared for that save
@@ -61,9 +62,10 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Encoding detection is part of `preflight` and the `qc-*` wrapper surface. Pass `-FixEncoding` when you want the harness to rewrite non-UTF-8 or repaired mojibake sources as UTF-8.
 - Keep commentary current during ESIR work. As context changes, say what you are inspecting, what you are changing next, and what you verified; do not go quiet through long repo-specific work.
 - When a shared helper surface changes in a way future Codex runs should follow, update the matching skill/reference guidance in the same patch.
+- Before adding systems or substantively changing behavior, lifecycle, state ownership, scheduling, or cross-file/stage contracts, use [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md). Read the owning model in [the blueprint index](../../esir/blueprints/index.md) and reconcile model, commentary, and implementation in the same patch. Small wording, formatting, and cosmetic edits do not require a new model.
 - When a patch leaves deferred implementation work, migration debt, upgrade hooks, or intentionally local behavior worth revisiting, add or update a short note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) in the same patch. Remove or close the note when the follow-up is done.
 - Runtime script files should keep useful comments by default: preserve or add the ESIR file-map header, state-machine summaries, lifecycle/cadence notes, storage ownership notes, Factorio/Lua caveats, and non-obvious invariants. Do not add comments that merely restate simple assignments or control flow.
-- Runtime scripts should strive to use `event.tick` over `game.tick` wherever an event context already provides the tick.
+- When a callback supplies `event.tick`, pass it through timing-dependent helpers; follow the precise [tick-source contract](references/runtime-scheduler-guidelines.md#tick-source) for boundaries without a supplied tick.
 - When editing non-English locale files, prefer accepted native-speaker wording and terminology, then extend that style idiomatically; follow `Locale Rules` below instead of mechanically mirroring English or retranslating native prose.
 - For entity-specific runtime GUI, prefer `player.gui.relative` first. Reach for `player.gui.screen` only when the panel is modal or intentionally detachable, and use `mod_gui` only for persistent global mod controls.
 - Default new runtime work to event-first control. Before adding `on_tick`, `on_nth_tick`, or a persistent queue, check whether explicit lifecycle hooks, delayed one-shots, or `script.register_on_object_destroyed` can express the behavior cleanly.
@@ -72,6 +74,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 
 Use these specialist skills early instead of letting `esir-dev` absorb the whole task:
 
+- [`esir-conceptual-blueprints`](../esir-conceptual-blueprints/SKILL.md): subsystem design/reference models, code commentary backlinks, lifecycle/state/timing contracts, and full runtime structural coverage.
 - [`esir-dependency-intel`](../esir-dependency-intel/SKILL.md): dependency declarations, remote interfaces, dependency touchpoints, planet/content integrations, and local installed-mod presence.
 - [`factorio-lua-assumptions`](../factorio-lua-assumptions/SKILL.md): Lua sandbox, lifecycle, storage, `require()`, deterministic runtime behavior, `data.raw` versus runtime state, and LuaObject validity.
 - [`factorio-lua-docs`](../factorio-lua-docs/SKILL.md): official Factorio runtime, prototype, auxiliary, and wiki scripting docs, including `apply_runtime_tint`, `tint_as_overlay`, `LuaEntity.color`, `LuaPlayer.color`, and rolling-stock color behavior.
@@ -188,6 +191,7 @@ Start non-mutating with the companion probe and recipe audit before planning sou
 Default ESIR runtime/control edits should leave helpful comments in place and add them where the next maintainer or agent would otherwise have to reconstruct intent from event wiring.
 
 - Keep or add the `ESIR FILE MAP` header for substantial runtime modules: `owns`, `loaded_by`, `cadence`, forwarded events, `storage_roots`, GUI IDs, remote interfaces, and rebuild triggers.
+- Keep `-- blueprint: ...#contract` immediately after the generated header so synchronization preserves it. Use `-- blueprint-ref: ...#anchor` beside non-obvious invariants. Follow [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md) for reciprocal source lists and model maintenance; do not treat link checks as behavioral verification.
 - Add short orientation comments before dense state machines, lifecycle repair paths, scheduler/backstop logic, proxy-entity ownership, telemetry mirrors, migration/rebuild behavior, and Factorio API caveats.
 - Prefer comments that explain why a runtime invariant exists, what owns a piece of derived state, or which event boundary keeps the module cheap.
 - Avoid decorative comments and comments that only translate obvious Lua syntax. If a helper name can carry the meaning cleanly, prefer the name.
@@ -277,9 +281,8 @@ When touching queued runtime/control code, treat [`exotic-space-industries-remem
 See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-guidelines.md) for the repo-specific scheduler conventions Codex should check before adding new runtime queue logic.
 
 - `on_tick` or scheduled service is a backstop, not the first instinct. Before adding a new cadence, check [references/event-first-runtime.md](./references/event-first-runtime.md) and be explicit about which invariant events alone cannot maintain.
-- Runtime scripts should strive to use `event.tick` over `game.tick` wherever possible.
-- In `on_tick` and other event callbacks, prefer `event.tick` and pass it through call chains instead of re-reading `game.tick`.
-- Only fall back to `game.tick` when there is no event context, such as status helpers, load-time repair helpers, or utility functions called outside an event callback.
+- When a callback supplies `event.tick`, pass it through timing-dependent calls, including status/GUI helpers that do not themselves accept an event object. Do not reread `game.tick` inside that chain.
+- Resolve `game.tick` once at a game-available entry boundary lacking a supplied tick, such as init, configuration change, migration, command, or remote calls. Configuration-change data has no tick. Never read `game.tick` in top-level loading or `on_load`; see the canonical [tick-source contract](references/runtime-scheduler-guidelines.md#tick-source).
 - Do not add duplicate local tick helpers, queue-length helpers, delayed-bucket walkers, telemetry gates, or status-snapshot plumbing if `runtime-scheduler.lua` already covers the need.
 - Prefer `ensure_queue`, `queue_peek`, `queue_push`, `queue_push_unique`, `queue_pop`, `queue_pop_matching`, `queue_pop_queued`, `queue_remove_value`, `clear_queue`, `queue_length`, `queue_item_count`, `audit_queue`, and `compact_queue` over ad hoc `head/tail/items` logic.
 - If a module intentionally leaves tombstoned values in `queue.items` and treats `queue.queued` as the live-set, do not swap in plain `queue_pop` blindly. Prefer `queue_pop_queued` or another compatible shared helper.

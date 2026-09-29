@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: Gaia mapgen changes, Gaia prototype changes, configuration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 

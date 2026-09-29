@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 -- Runtime data dump for Gaia map generation settings
 -- This mirrors the data stage definitions and provides complete map_gen_settings for applying to surfaces
 -- Used for old world migrations and surface reforging

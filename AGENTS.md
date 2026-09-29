@@ -26,15 +26,17 @@
 - Use `esir-lua-types` when edits touch function signatures, runtime state, option tables, GUI tags, scheduler payloads, prototype records, module exports, or editor-facing LuaLS annotations.
 - Use `esir-runtime-gui` for entity-bound GUI work, relative panels, GUI tags, stale-root teardown, and entity-open lifecycle.
 - Use `esir-research-events` before changing research completion receivers, scripted research burst handling, force-wide refresh hooks, or `event.by_script` behavior.
+- Use [esir-conceptual-blueprints](.codex/skills/esir-conceptual-blueprints/SKILL.md) before adding systems or substantively changing behavior, lifecycle, state ownership, scheduling, or cross-file/stage contracts. Read the relevant model in [the blueprint index](.codex/esir/blueprints/index.md), then reconcile the model, source commentary, and code in the same patch. Small wording, formatting, and cosmetic edits do not require a new model.
 
 ## Runtime And Control
 - Default new runtime work to event-first control. Start from exact lifecycle hooks before adding `on_tick`, `on_nth_tick`, queues, or periodic scans.
 - Keep `control.lua` as the only top-level dispatcher. Feature modules may own local state and cadence, but should not create parallel scheduling surfaces.
-- Prefer `event.tick` inside event handlers and pass it through call chains. Use `game.tick` only when there is no event context.
+- When a callback supplies `event.tick`, pass it through every timing-dependent call chain. A helper without an event parameter still has event context when its caller can supply the tick. Read `game.tick` once only at a game-available boundary without a supplied tick; never during top-level loading or `on_load`. Follow the [tick-source contract](.codex/skills/esir-dev/references/runtime-scheduler-guidelines.md#tick-source), including unticked configuration-change payloads and valid tick zero.
 - Treat `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` as the first-choice helper layer for queues, delayed buckets, counters, status snapshots, telemetry gates, and tick plumbing.
 - Do not duplicate scheduler helpers, queue walkers, delayed-bucket loops, telemetry channels, or status plumbing already covered by the shared scheduler.
 - Validate `LuaEntity` objects before dereferencing, especially across stored, queued, delayed, generic, or cross-event state. Use `ei_lib.entity_check`, `ei_lib.get_valid_entity`, and `ei_lib.get_entity_unit_number` as appropriate.
 - Keep runtime script comments useful: preserve or add file-map headers, cadence notes, storage ownership notes, lifecycle summaries, and non-obvious invariants. Avoid comments that merely restate Lua syntax.
+- Keep the file-level `-- blueprint: ...#contract` marker immediately after the generated file-map block, with `-- blueprint-ref: ...#anchor` at non-obvious invariant boundaries. Preflight checks coverage and reciprocal links; source review must still verify that each model describes actual behavior.
 - If a shared helper surface changes in a way future agents should follow, update the matching skill/reference guidance in the same patch.
 
 ## Assets, Locale, And Content

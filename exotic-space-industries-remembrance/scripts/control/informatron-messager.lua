@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: progression text changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local model = {}
 
 local PAGE_RESEARCH = {

@@ -15,6 +15,7 @@
 -- remote_interfaces: exotic-industries-spider-vehicles (registered by control.lua)
 -- rebuild_on: init/configuration change; force research changes invalidate targets
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/spider-vehicles.md#contract
 local catalog = require("lib/spider-vehicles")
 local scheduler = require("lib/runtime-scheduler")
 local ei_lib = require("lib/lib")

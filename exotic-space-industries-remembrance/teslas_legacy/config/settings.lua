@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/tesla-runtime.md#contract
 local function get_sound_volume(setting_name)
   return settings.startup[setting_name].value / 100
 end

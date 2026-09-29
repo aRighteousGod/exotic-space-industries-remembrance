@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, entity topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fueler.md#contract
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number

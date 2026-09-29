@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 local FINITE_TECH = "electric-weapons-damage-4"
 local REPEATABLE_TECH = "electric-weapons-damage-5"
 local LEGACY_REPEATABLE_LEVEL = 4

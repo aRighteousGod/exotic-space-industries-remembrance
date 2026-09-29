@@ -9,6 +9,7 @@
 -- remote_interfaces: exotic-industries-bvs
 -- rebuild_on: init, configuration change
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 -- disable vanilla victory condition by rocket launch
 
 local victory_disabler = {}

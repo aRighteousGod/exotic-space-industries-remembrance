@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/emerald-apocalypse.md#contract
 --====================================================================================================
 -- EMERALD APOCALYPSE HOVER TANK HOVER VISUAL FIDELITY CONFIG
 --====================================================================================================

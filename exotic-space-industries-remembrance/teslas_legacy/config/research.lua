@@ -1,4 +1,5 @@
-﻿function get_research_array()
+﻿-- blueprint: .codex/esir/blueprints/tesla-runtime.md#contract
+function get_research_array()
   -- these values are also presented in the cocalization file as hard coded values.
   -- if you change them here, thes should be changed there as well
   return {

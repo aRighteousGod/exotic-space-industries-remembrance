@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#contract
 -- Shared startup/data/runtime contract for flamethrower fuel identity and balance.
 ---@class ESIRFlameFuel
 ---@field id string

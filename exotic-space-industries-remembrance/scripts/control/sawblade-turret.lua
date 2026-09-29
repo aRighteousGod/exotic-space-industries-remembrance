@@ -10,6 +10,7 @@
 -- remote_interfaces: none
 -- rebuild_on: runtime schema changes, animation prototype changes, attack sound duration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/sawblade-turret.md#contract
 
 local model = {}
 

@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/tesla-runtime.md#contract
 -- Upstream Tesla's Legacy runtime is intentionally inactive here.
 --
 -- Keep this file inert:

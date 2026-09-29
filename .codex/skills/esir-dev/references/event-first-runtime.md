@@ -2,6 +2,8 @@
 
 Use this reference when a runtime system might be able to avoid steady-state UPS cost by reacting only to real state transitions.
 
+Use [esir-conceptual-blueprints](../../esir-conceptual-blueprints/SKILL.md) to persist the transition model, state ownership, and justification for bounded work in the owning subsystem model. Follow the [tick-source contract](runtime-scheduler-guidelines.md#tick-source) through event and helper chains.
+
 ## Core rule
 
 Prefer pure event wiring when a module can fully respond to discrete lifecycle changes. Use scheduler work only for fairness rotation, backlog draining, live-set scans, or eventual-consistency repair that events alone cannot cover.

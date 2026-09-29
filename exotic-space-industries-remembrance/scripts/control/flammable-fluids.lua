@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: runtime prototype changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fluid-safety-and-ruptures.md#contract
 
 local ei_lib = require("lib/lib")
 local fluid_safety_config = require("lib/fluid-safety-config")

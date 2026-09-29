@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes, configuration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fulgora-day-length.md#contract
 --originally from Tougher Lightning Storms by thesixthroc
 --now modified to add smooth variation in Fulgora's day length each cycle, with checks to avoid abrupt changes during dark or unstable-light conditions
 

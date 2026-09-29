@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: configuration change, beacon-machine topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
 
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")

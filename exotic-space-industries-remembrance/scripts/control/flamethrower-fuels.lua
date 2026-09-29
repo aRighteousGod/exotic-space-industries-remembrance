@@ -11,6 +11,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init/configuration change; never mutate storage during on_load
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#contract
 local ei_lib=require("lib/lib")
 local scheduler=require("lib/runtime-scheduler")
 local catalog=require("lib/flamethrower-fuels")

@@ -10,6 +10,7 @@
 -- rebuild_on: initialization and configuration change; force caches on relevant research
 -- invariants: damage never follows visual budgets; no idle queries or wound sweeps
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/singularity-lance.md#contract
 local lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
 local c = require("lib/singularity-lance-config")

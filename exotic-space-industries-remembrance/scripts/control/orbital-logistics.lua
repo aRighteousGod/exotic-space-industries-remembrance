@@ -17,6 +17,7 @@
 -- rebuild_on: init, configuration change, admin rescan, and cohort entity churn
 -- remote_interfaces: exposed indirectly through control.lua QC hooks
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/orbital-logistics.md#contract
 
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")

@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/runtime-orchestration.md#contract
 -- Init storage variables for Exotic Industries
 ei_lib = require("lib/lib")
 ei_echo_codex = require("lib/echo-codex")

@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup settings, prototype changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 -- Count visible, non-repeatable technologies with thematic weighting discounts applied to
 -- refinement-heavy branches, then use that total to set technology_price_multiplier.
 

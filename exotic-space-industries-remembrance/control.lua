@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/runtime-orchestration.md#contract
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 require("util")
 -- control.lua is the top-level runtime coordinator for the mod.
@@ -307,6 +308,8 @@ local function get_pending_scripted_research_burst_state()
     return state
 end
 
+-- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#lifecycle
+-- Coalesce by force while retaining normal-research flush ordering and shared ownership.
 local function queue_scripted_research_burst(event)
     local research = event and event.research or nil
     local force = research and research.force or nil
@@ -1477,6 +1480,8 @@ end)
 -- Keep ei_update_functions_length in sync with the explicit scheduler branches below.
 local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
 
+-- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
+-- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
   ei_water_turret.updater(event)
   -- updater() has two tiers:

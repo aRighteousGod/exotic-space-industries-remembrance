@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes, init, configuration migration
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 -- Echo Codex Generator: A ritual system of dynamic proclamation
 ei_lib = require("lib/lib")
 echo_codex = {}

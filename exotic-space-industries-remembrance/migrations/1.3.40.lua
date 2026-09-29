@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/railgun-cooling.md#contract
 -- Prototype item-handling flags exclude new targets, but saved inserters retain
 -- their previous target references. Repair those once without rebuilding coolant
 -- helpers or discarding their fluid buffers. Scan inserters so custom reach works too.

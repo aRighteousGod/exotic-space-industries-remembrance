@@ -8,6 +8,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, prototype schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/auric-inoculation-vat.md#contract
 
 local model = {}
 model.DEFAULT_DUE_ACTIVATION_LIMIT = 32

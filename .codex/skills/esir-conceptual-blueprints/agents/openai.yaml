@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Conceptual Blueprints"
+  short_description: "Maintain ESIR design models and source backlinks"
+  default_prompt: "Use $esir-conceptual-blueprints to reconcile the subsystem model, source commentary, and structural coverage."

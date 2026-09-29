@@ -12,6 +12,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init and configuration change
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/surveyor-scope.md#contract
 
 ---@class SurveyorScopePlayerState
 ---@field active boolean

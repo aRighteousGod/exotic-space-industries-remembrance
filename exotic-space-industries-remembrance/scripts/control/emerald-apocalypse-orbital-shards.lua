@@ -15,6 +15,7 @@
 -- remote_interfaces: none
 -- rebuild_on: hover tank runtime schema changes, prototype changes, QC reset
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/emerald-apocalypse.md#contract
 
 local shards = {}
 

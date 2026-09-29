@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, entity topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/camp-fire.md#contract
 -- campfire
 local model = {}
 ei_lib = require("lib/lib")

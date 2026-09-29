@@ -34,7 +34,8 @@ rg -n "on_research_finished|on_scripted_research_burst|by_script|scripted_resear
 
 - If a module gets `on_research_finished`, update its file-map `forwarded_events` comment and decide on the burst hook in the same patch.
 - Do not add parallel research dispatchers, ad hoc tick queues, `on_nth_tick` burst drains, or bypasses around `storage.ei.scripted_research_burst`.
-- Use `event.tick` in event callbacks and pass `current_tick` through burst work when timing matters. Fall back to `game.tick` only outside event context.
+- Use supplied `event.tick` and pass `current_tick` through burst work, status, and GUI consumers. Resolve a fallback only at a game-available boundary lacking a supplied tick; follow the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source).
+- Use [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md) to keep research dispatch, derived-state ownership, and burst timing models synchronized with substantive changes.
 - Use `esir-lua-types` when adding or changing research handler signatures, burst option payloads, or storage shapes.
 - Use `factorio-lua-assumptions` before applying generic Lua event/storage advice to Factorio runtime code.
 

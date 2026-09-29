@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: configuration change
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/tesla-runtime.md#contract
 -- Tesla's Legacy runtime for EI.
 --
 -- This module owns all live Tesla scripting after the internalization work. The vendored
@@ -2775,6 +2776,8 @@ function model.on_init()
     prune_state(state, game.tick)
 end
 
+-- blueprint-ref: .codex/esir/blueprints/tesla-runtime.md#lifecycle
+-- Loading must not perform world repair or obtain game.tick; preserve the inert hook.
 function model.on_load()
 end
 

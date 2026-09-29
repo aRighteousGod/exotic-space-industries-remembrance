@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 -- Remove Gaia's legacy per-entity resource overrides so autoplace controls can
 -- drive future chunks. Existing chunks and their resource entities are untouched.
 

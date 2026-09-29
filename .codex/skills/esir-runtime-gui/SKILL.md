@@ -40,6 +40,7 @@ python .codex/skills/esir-runtime-gui/scripts/gui_pattern_audit.py --repo-root .
 
 ## Working Rules
 
+- Use [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md) when changing GUI lifecycle, ownership, or cross-module contracts. Pass the event's tick through timing-dependent refresh/status helpers using the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source).
 - Prefer relative-only for simple entity consoles. Add screen fallback only when the workflow genuinely needs detachment, modal behavior, proxy/core context, or anchor failure handling.
 - Treat hybrid GUI modules as advanced patterns, not starter templates. `orbital-logistics.lua`, `crystal-accumulator.lua`, and `neutron-collector.lua` are useful when fallback behavior is intentional.
 - Use `tags` for intent and context; avoid parsing captions, names, or localized strings to decide behavior.

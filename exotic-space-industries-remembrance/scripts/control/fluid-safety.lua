@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: entity registration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fluid-safety-and-ruptures.md#contract
 
 local model = {}
 local ei_data = require("lib/data")

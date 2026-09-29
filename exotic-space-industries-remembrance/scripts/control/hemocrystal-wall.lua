@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: wall regen cadence or storage schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/hemocrystal-wall.md#contract
 
 local ei_lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")

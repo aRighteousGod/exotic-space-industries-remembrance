@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init/configuration change; no storage mutation during on_load
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/firefighting-and-water-turret.md#contract
 local ei_lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
 local config = require("lib/firefighting-config")

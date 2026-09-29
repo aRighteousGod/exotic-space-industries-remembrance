@@ -7,6 +7,7 @@
 -- storage_roots: none
 -- rebuild_on: data/control reload
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/spider-vehicles.md#contract
 local model = {}
 model.proxy_prefix="spidertron-enhancements-dummy-"
 

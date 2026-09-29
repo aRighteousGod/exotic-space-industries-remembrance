@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: owner-specific behavior changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/shared-runtime-helpers.md#contract
 -- store data like switch tables and other constants/parameters here
 -- excluding global table stuff
 -- can be used in data stage AND in control

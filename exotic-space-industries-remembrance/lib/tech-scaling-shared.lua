@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 local tech_scaling_shared = {}
 
 local MAX_TECH_PRICE_MULTIPLIER = 1000

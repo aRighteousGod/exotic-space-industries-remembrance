@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 -- same concept as ei_data but only contains spwaner presets
 
 local model = {}

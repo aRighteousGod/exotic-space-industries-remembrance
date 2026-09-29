@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: loader prototype changes, loader layout changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/shared-runtime-helpers.md#contract
 --[[
 
 ei_loaders_lib.lua

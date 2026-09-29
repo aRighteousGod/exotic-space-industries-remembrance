@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes, configuration changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fluid-safety-and-ruptures.md#contract
 
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")

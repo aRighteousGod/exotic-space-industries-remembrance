@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 local model = {}
 
 local function merge_tile_groups(...)

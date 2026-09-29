@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: planted plant event behavior changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/randomized-tree-growth.md#contract
 local ei_lib = require("lib/lib")
 
 local model = {}

@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, entity topology changes, research changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/em-trains.md#contract
 local model = {}
 ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")

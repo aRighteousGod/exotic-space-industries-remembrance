@@ -25,6 +25,7 @@
 -- remote_interfaces: debug/QC methods are expected to be registered by control.lua
 -- rebuild_on: runtime schema changes, prototype changes, QC reset, configuration change
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/emerald-apocalypse.md#contract
 
 local model = {}
 

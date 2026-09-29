@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: startup setting changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fluid-safety-and-ruptures.md#contract
 
 local config = {}
 

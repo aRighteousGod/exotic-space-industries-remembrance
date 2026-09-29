@@ -12,6 +12,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, turbine build/destroy/shell swap
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/combustion-turbine.md#contract
 
 local model = {}
 

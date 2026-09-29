@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/shared-runtime-helpers.md#contract
 local public = {}
 
 local BASE_HEIGHT_THRESHOLD = 0.1

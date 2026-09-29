@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: space-location cache schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/shared-runtime-helpers.md#contract
 
 local surface_anchor = {}
 local ei_lib = require("lib/lib")

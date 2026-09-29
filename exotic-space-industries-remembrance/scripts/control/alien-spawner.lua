@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: Gaia mapgen changes, Gaia content changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 
 local model = {}
 ei_rng = require("lib/rng")

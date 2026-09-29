@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: owner-specific behavior changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/shared-runtime-helpers.md#contract
 -- commonly used functions for the mod
 
 local ei_lib = {}
@@ -285,6 +286,8 @@ function ei_lib.switch_string(switch_table, string)
     return nil
 end
 
+-- blueprint-ref: .codex/esir/blueprints/shared-runtime-helpers.md#tick-flow
+-- Input normalization only: absent input and a supplied tick zero both return zero.
 function ei_lib.get_event_tick(event)
     if type(event) == "number" then
         return event

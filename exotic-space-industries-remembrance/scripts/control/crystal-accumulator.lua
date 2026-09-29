@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: crystal shell prototype changes, resonance profile schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/crystal-accumulator.md#contract
 
 local mod_gui = require("mod-gui")
 local ei_lib = require("lib/lib")

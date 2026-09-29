@@ -4,6 +4,7 @@
 -- loaded_by: settings.lua, data-final beacon profiles, Informatron
 -- cadence: startup/data stage and on-demand help; no persistent state
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
 local ei_lib = require("lib/lib")
 
 ---@alias BeaconProfileName "gentle"|"vanilla"|"strict"|"harsh"|"severe"|"saturating"

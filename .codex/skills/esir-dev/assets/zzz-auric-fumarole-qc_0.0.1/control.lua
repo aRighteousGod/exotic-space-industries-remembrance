@@ -488,11 +488,12 @@ local function prepare_vulcanus_surface()
     return nil
 end
 
-local function build_report()
+---@param current_tick uint Time supplied by the reporting callback.
+local function build_report(current_tick)
     local surface = game.surfaces["vulcanus"]
     if not (surface and surface.valid) then
         return {
-            "tick=" .. game.tick,
+            "tick=" .. current_tick,
             "vulcanus=missing",
             "surfaces=" .. table.concat(get_surface_names(), ", "),
         }
@@ -560,13 +561,13 @@ local function build_report()
     local previous_total = state.previous_auric_total or #aurics
     local delta_from_start = quadrant_delta(auric_quadrants, state.start_auric_quadrants)
     local delta_from_previous = quadrant_delta(auric_quadrants, previous_quadrants)
-    local relative_tick = game.tick - (state.start_tick or 0)
+    local relative_tick = current_tick - (state.start_tick or 0)
     update_population_sample_state(state, #aurics)
     local band_targets, total_target = get_band_targets(generated_chunks.eligible)
     local quota = update_quota_sample_state(state, auric_bands, band_targets, #aurics, total_target, relative_tick)
 
     local lines = {
-        "tick=" .. game.tick,
+        "tick=" .. current_tick,
         "vulcanus_chunks_all=" .. band_summary(chunks.all),
         "vulcanus_chunks_eligible=" .. band_summary(chunks.eligible),
         "vulcanus_chunks_eligible_axes=" .. axis_summary(chunks.eligible_axes),
@@ -651,14 +652,16 @@ local function write_file(path, contents, append)
     end
 end
 
-local function write_report()
-    local lines = build_report()
+---@param current_tick uint
+local function write_report(current_tick)
+    local lines = build_report(current_tick)
     write_file(REPORT_PATH, table.concat(lines, "\n") .. "\n---\n", true)
 end
 
-local function reset_report_window()
+---@param current_tick uint Supplied tick, including zero, or captured lifecycle boundary time.
+local function reset_report_window(current_tick)
     local state = ensure_state()
-    state.start_tick = game.tick
+    state.start_tick = current_tick
     state.start_auric_quadrants = nil
     state.start_auric_total = nil
     state.previous_auric_quadrants = nil
@@ -685,26 +688,28 @@ local function reset_report_window()
 end
 
 script.on_init(function()
+    local current_tick = game.tick
     prepare_vulcanus_surface()
-    reset_report_window()
+    reset_report_window(current_tick)
 end)
 
 script.on_configuration_changed(function()
+    local current_tick = game.tick
     prepare_vulcanus_surface()
-    reset_report_window()
+    reset_report_window(current_tick)
 end)
 
 script.on_event(defines.events.on_tick, function(event)
     local state = ensure_state()
     if not state.start_tick then
         prepare_vulcanus_surface()
-        reset_report_window()
+        reset_report_window(event.tick)
         state = ensure_state()
     end
 
     local start_tick = state.start_tick or event.tick
     local relative_tick = event.tick - start_tick
     if REPORT_OFFSETS[relative_tick] then
-        write_report()
+        write_report(event.tick)
     end
 end)

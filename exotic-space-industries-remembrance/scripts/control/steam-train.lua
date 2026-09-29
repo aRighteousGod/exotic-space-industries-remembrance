@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, entity topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/steam-train.md#contract
 local steam_train = {}
 
 local WheelControl = require("lib/handle-wheels.lua")

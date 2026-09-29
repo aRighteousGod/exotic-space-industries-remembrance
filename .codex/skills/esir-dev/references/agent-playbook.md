@@ -151,7 +151,8 @@ Use for:
 Use for:
 
 - checking event-registration, event-order, and deterministic-runtime assumptions before control-stage changes
-- reviewing whether `event.tick` can be passed through instead of rereading `game.tick`
+- reviewing whether supplied callback ticks reach every timing-dependent helper, including GUI/status calls, and whether no-tick fallbacks occur only at game-available boundaries; check the canonical scheduler tick-source contract
+- tracing model/source agreement through `blueprint` and `blueprint-ref` comments; structural coverage alone does not verify lifecycle, state, or timing semantics
 - spotting RNG or iteration-order assumptions that need Factorio-specific handling
 
 ## `runtime-api explorer`

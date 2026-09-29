@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: owner-specific behavior changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/shared-runtime-helpers.md#contract
 --linear congruential generator rng generator for use outside of events, or for high performance
 ei_rng = {}
 

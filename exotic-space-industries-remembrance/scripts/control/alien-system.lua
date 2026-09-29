@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: alien-system prototype changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
 local ei_data = require("lib/data")
 local model = {}
 

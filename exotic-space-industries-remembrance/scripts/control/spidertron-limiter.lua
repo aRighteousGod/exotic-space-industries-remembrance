@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: owner-specific behavior changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/spider-vehicles.md#contract
 local model = {}
 
 local function get_requested_item_name(slot)

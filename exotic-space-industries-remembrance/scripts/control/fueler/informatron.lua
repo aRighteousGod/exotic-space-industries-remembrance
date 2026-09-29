@@ -9,6 +9,7 @@
 -- remote_interfaces: exotic-industries-fueler-informatron
 -- rebuild_on: page/content changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/fueler.md#contract
 local model = {}
 
 --====================================================================================================

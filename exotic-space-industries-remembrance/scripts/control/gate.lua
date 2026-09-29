@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, configuration change, gate topology changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/gate.md#contract
 local model = {}
 ei_rng = require("lib/rng")
 local ei_lib = require("lib/lib")

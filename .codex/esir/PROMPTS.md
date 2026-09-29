@@ -4,6 +4,7 @@ Use these as repo-local prompt starters when you want Codex to grab the right su
 
 ## Structure
 
+- "Use `$esir-conceptual-blueprints` to read the owning model, reconcile it with current source, and update its commentary backlinks and preflight coverage."
 - "Use `$esir-dev` and refresh the ESIR manifests before you touch runtime code."
 - "Use `$esir-lib-first` before adding any helper to an ESIR Lua file; check whether `ei_lib` already covers it or should be hardened."
 - "Use `$factorio-lua-assumptions` before applying normal Lua advice to Factorio control/data code."

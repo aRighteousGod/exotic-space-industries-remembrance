@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: entity schema changes, GUI schema changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/black-hole.md#contract
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_valid_entity = ei_lib.get_valid_entity

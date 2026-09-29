@@ -2616,6 +2616,33 @@ function Get-EsirOverallStatus {
     return 'ok'
 }
 
+function Test-EsirConceptualBlueprints {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        [Parameter(Mandatory = $true)]$Context
+    )
+
+    $auditPath = Join-Path $Paths.repo_root '.codex\skills\esir-conceptual-blueprints\scripts\blueprint_audit.py'
+    if (-not $Context.python_exe -or -not (Test-Path -LiteralPath $auditPath)) {
+        return New-EsirCheckResult -Name 'conceptual-blueprints' -Status 'failed' -Errors @('Required blueprint coverage check could not run: Python or blueprint_audit.py is missing.')
+    }
+
+    try {
+        # -B keeps the required read-only audit from writing protected skill caches.
+        $auditOutput = @(& $Context.python_exe -B $auditPath --repo-root $Paths.repo_root --format json 2>&1 | ForEach-Object { "$_" })
+        $auditExitCode = $LASTEXITCODE
+        $audit = ($auditOutput -join "`n") | ConvertFrom-Json
+        if ($auditExitCode -ne 0 -or $audit.overall_status -ne 'ok') {
+            $auditErrors = @($audit.findings | ForEach-Object { '{0}:{1} [{2}] {3} {4}' -f $_.file, $_.line, $_.code, $_.target, $_.message })
+            if ($auditErrors.Count -eq 0) { $auditErrors = @("Blueprint audit failed with exit code $auditExitCode.") }
+            return New-EsirCheckResult -Name 'conceptual-blueprints' -Status 'failed' -Errors $auditErrors -Details $audit
+        }
+        return New-EsirCheckResult -Name 'conceptual-blueprints' -Status 'ok' -Details $audit
+    } catch {
+        return New-EsirCheckResult -Name 'conceptual-blueprints' -Status 'failed' -Errors @("Required blueprint coverage check could not complete: $($_.Exception.Message)")
+    }
+}
+
 function Invoke-EsirPreflight {
     param(
         [Parameter(Mandatory = $true)]$Paths,
@@ -2626,6 +2653,8 @@ function Invoke-EsirPreflight {
 
     $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath
     $checks = @()
+
+    $checks += Test-EsirConceptualBlueprints -Paths $Paths -Context $context
 
     $lua = Test-EsirReachableLuaFiles -Paths $Paths -Context $context
     $checks += New-EsirCheckResult -Name 'lua-syntax' -Status $(if ($lua.skipped) { 'skipped' } elseif (@($lua.failures).Count -gt 0) { 'failed' } else { 'ok' }) -Errors @($lua.failures | ForEach-Object { '{0}: {1}' -f (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $_.file), $_.error }) -Details $lua

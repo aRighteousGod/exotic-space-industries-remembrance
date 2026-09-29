@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: runtime rebuild
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local model = {}
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")

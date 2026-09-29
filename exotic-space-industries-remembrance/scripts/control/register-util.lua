@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: init, entity rebuilds
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/runtime-orchestration.md#contract
 --[[
 ==============storage structure================================
 storage.ei = storage.ei

@@ -23,7 +23,7 @@ The Lua baseline should be checked against the official Libraries and functions 
 4. For ESIR edits, then apply the repo rules:
    - inspect `exotic-space-industries-remembrance/lib/lib.lua` and prefer `ei_lib`
    - use `exotic-space-industries-remembrance/lib/runtime-scheduler.lua` for shared runtime queue/tick plumbing
-   - prefer `event.tick` over `game.tick` inside event callbacks
+   - propagate supplied `event.tick` through timing-dependent calls; use the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source) for callbacks without ticks and never read `game.tick` during top-level loading or `on_load`
    - keep `control.lua` as the only top-level dispatcher
 
 ## Default Stance

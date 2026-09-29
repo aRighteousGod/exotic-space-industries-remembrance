@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: GUI schema changes, EM train runtime changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/em-trains.md#contract
 local mod_gui = require("mod-gui")
 local model = {}
 local GUI_NAME = "ei_mod-gui"
