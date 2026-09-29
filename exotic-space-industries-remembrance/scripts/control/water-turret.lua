@@ -381,6 +381,14 @@ function model.on_blueprint(event)
     end
 end
 
+---@param player_index integer
+---@return boolean
+function model.has_open_gui_session(player_index)
+    local player=game.get_player(player_index)
+    local gui=player and player.gui.relative[GUI]
+    return gui~=nil and gui.valid
+end
+
 ---@param event table
 function model.on_gui_closed(event)
     local player=game.get_player(event.player_index)

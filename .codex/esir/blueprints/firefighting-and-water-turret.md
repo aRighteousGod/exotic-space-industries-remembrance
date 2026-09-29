@@ -35,6 +35,8 @@ Builds and events pass `event.tick`. Power checks reschedule exactly +15 ticks a
 
 The 40k/30k electrical thresholds provide hysteresis. Circuit disable, recipe disable, freezing, deconstruction, and another script's inhibit prevent scripted firing. `owns_inhibit` ensures this module clears only the disable it acquired. Teleport rebinds/recreates the helper without transferring stored charge across disconnected locations. Object destruction, surface deletion, force merge, cloning, blueprint/settings paste and rebuild repair record ownership. Rebuild preserves preferences, releases owned inhibits, recreates empty helpers, and tears down stale relative panels. Manual and water fire policies must remain different.
 
+`has_open_gui_session` lets central GUI routing preserve stale-panel cleanup when another GUI opens or closes. Widget changes route by the water console's parent tag. Clone dispatch must still reach hidden power helpers so their copied instances are removed.
+
 <a id="verification"></a>
 ## Verification and maintenance
 

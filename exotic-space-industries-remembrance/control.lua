@@ -573,7 +573,8 @@ script.on_init(function(event)
     ei_vulcanus_fumaroles.check_global()
     ei_teslas_legacy.on_init(event)
     ei_flamethrower_fuels.rebuild()
-    ei_water_turret.rebuild()
+    local support_rebuild_tick = game.tick
+    ei_water_turret.rebuild(support_rebuild_tick)
     ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_gate.on_init(event)
@@ -651,10 +652,6 @@ if prototypes.custom_event["on_spidertron_replaced"] then
 end
 
 script.on_event(defines.events.on_entity_cloned, function(e)
-    ei_flamethrower_fuels.on_built_entity(e)
-    ei_water_turret.on_built_entity(e)
-    if ei_spider_vehicles.is_internal_transaction() then return end
-    ei_spider_vehicles.on_entity_cloned(e)
     on_cloned_entity(e)
 end)
 
@@ -1029,12 +1026,14 @@ end
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
-    ei_water_turret.on_gui_opened(event)
     ei_spider_vehicles.on_gui_opened(event)
     local player = event and event.player_index and game.get_player(event.player_index) or nil
     local entity = get_valid_gui_entity(event, player, true)
     local name = entity and entity.name or nil
 
+    if name == "ei-water-turret" or ei_water_turret.has_open_gui_session(event.player_index) then
+        ei_water_turret.on_gui_opened(event)
+    end
     ei_crystal_accumulator.on_gui_opened(event)
     if name == "ei-auric-inoculation-vat"
     or (ei_auric_inoculation_vat.has_open_gui_session and ei_auric_inoculation_vat.has_open_gui_session(event.player_index)) then
@@ -1076,7 +1075,6 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
-    ei_water_turret.on_gui_closed(event)
     ei_spider_vehicles.on_gui_closed(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
     -- entity because the custom screen may have replaced the player's opened target.
@@ -1085,6 +1083,11 @@ script.on_event(defines.events.on_gui_closed, function(event)
     local name = entity and entity.name or nil
     local element_name = element and element.name or nil
 
+    if name == "ei-water-turret" or element_name == "ei-water-turret-console"
+        or ei_water_turret.has_open_gui_session(event.player_index)
+    then
+        ei_water_turret.on_gui_closed(event)
+    end
     ei_crystal_accumulator.on_gui_closed(event)
     if name == "ei-auric-inoculation-vat"
     or element_name == "ei-auric-inoculation-vat-console"
@@ -1210,23 +1213,32 @@ script.on_event(defines.events.on_gui_text_changed, function(event)
     end
 end)
 
-script.on_event(defines.events.on_gui_checked_state_changed,function(event)
-    ei_water_turret.on_gui_changed(event)
-    ei_spider_vehicles.on_gui_changed(event)
-end)
-
-script.on_event(defines.events.on_gui_selection_state_changed, function(event)
-    ei_water_turret.on_gui_changed(event)
-    ei_spider_vehicles.on_gui_changed(event)
-    -- The spider callback can rebuild its panel; validate before routing the
-    -- remaining gate dropdowns and orbital silo picker.
+script.on_event(defines.events.on_gui_checked_state_changed, function(event)
     local element = get_valid_gui_element(event)
     if not element then return end
 
     local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
-    if parent_gui == "ei-gate-console" then
+    if parent_gui == "ei-water-turret-console" then
+        ei_water_turret.on_gui_changed(event)
+    elseif parent_gui == "ei-spider-weapon-console" then
+        ei_spider_vehicles.on_gui_changed(event)
+    end
+end)
+
+script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+    local element = get_valid_gui_element(event)
+    if not element then return end
+
+    local parent_gui = element.tags and element.tags.parent_gui
+    if not parent_gui then return end
+
+    if parent_gui == "ei-water-turret-console" then
+        ei_water_turret.on_gui_changed(event)
+    elseif parent_gui == "ei-spider-weapon-console" then
+        ei_spider_vehicles.on_gui_changed(event)
+    elseif parent_gui == "ei-gate-console" then
         ei_gate.on_gui_selection_state_changed(event)
     elseif parent_gui == "ei-orbital-logistics-console" then
         orbital_logistics.on_gui_selection_state_changed(event)
@@ -1341,7 +1353,8 @@ script.on_configuration_changed(function(e)
     ei_flamethrower_fuels.rebuild()
     -- ConfigurationChangedData has no event tick in 2.0.77. Take one current
     -- snapshot here; regular water-turret event paths pass event.tick through.
-    ei_water_turret.rebuild(game.tick)
+    local support_rebuild_tick = game.tick
+    ei_water_turret.rebuild(support_rebuild_tick)
     ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_singularity_lance.on_configuration_changed(e)
@@ -1809,6 +1822,15 @@ function on_cloned_entity(e)
         return
     end
 
+    -- Helper clones must be removed even during spider replacement transactions.
+    ei_flamethrower_fuels.on_built_entity(e)
+    ei_water_turret.on_built_entity(e)
+    if ei_spider_vehicles.is_internal_transaction() then return end
+    ei_spider_vehicles.on_entity_cloned(e)
+    -- Fuel adaptation may replace a ghost and update the event's destination.
+    destination = ei_lib.get_valid_entity(e.destination)
+    if not destination then return end
+
     local clone_event = {}
     for key, value in pairs(e) do
         clone_event[key] = value
@@ -1853,16 +1875,17 @@ function on_cloned_entity(e)
 end
 
 function on_built_entity(e)
-    ei_flamethrower_fuels.on_built_entity(e)
-    ei_water_turret.on_built_entity(e)
-    if ei_spider_vehicles.is_internal_transaction() then return end
-    ei_spider_vehicles.on_built_entity(e)
     -- Centralized post-build routing keeps every subsystem on the same event surface.
     -- This wrapper also hosts the small amount of truly cross-cutting setup that is not
     -- owned by any single feature module.
     if not e or not e["entity"] or not e["entity"].valid then
       return
     end
+
+    ei_flamethrower_fuels.on_built_entity(e)
+    ei_water_turret.on_built_entity(e)
+    if ei_spider_vehicles.is_internal_transaction() then return end
+    ei_spider_vehicles.on_built_entity(e)
 
     -- Entities registered here participate in shared fluid handling managed by register-util.
     if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
@@ -1940,13 +1963,14 @@ end
 
 ---@param e ESIRCommittedEntityRemovalEvent
 function on_destroyed_entity(e)
-    ei_flamethrower_fuels.on_destroyed_entity(e)
-    ei_water_turret.on_destroyed_entity(e)
     -- Shared teardown only receives committed removals: death, script destruction, or
     -- a post-mined event. Cancellable pre-mine events must never mutate runtime state.
     if not e or not e["entity"] or not e["entity"].valid then
       return
     end
+
+    ei_flamethrower_fuels.on_destroyed_entity(e)
+    ei_water_turret.on_destroyed_entity(e)
 
     if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
         ei_register.deregister_fluid_entity(e["entity"])

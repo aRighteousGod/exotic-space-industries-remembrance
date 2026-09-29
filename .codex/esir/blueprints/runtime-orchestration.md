@@ -13,6 +13,8 @@
 
 `on_built_entity`, `on_cloned_entity`, `on_destroyed_entity`, tile handlers, filtered script effects, research handlers, and GUI handlers forward into the appropriate systems. GUI routing uses valid elements/entities and stable parent tags. Registration filters and handler order are part of the contract: adding one receiver must not displace another owner of the same event.
 
+Water-turret GUI opens and closes use entity ownership or an existing player session, so unrelated events still clear stale relative panels. Widget changes use exclusive parent-tag branches. Entity wrappers validate before feature fan-out; clone helper cleanup runs before the spider transaction guard and revalidates the destination before shared clone setup. Force, research, blueprint and object-destruction callbacks remain shared fan-out.
+
 ```mermaid
 flowchart TD
   E[Factorio lifecycle and entity events] --> C[control.lua dispatcher]
@@ -43,7 +45,7 @@ flowchart TD
 
 Water-turret service precedes the scheduled tier. Arrivals and due scripted research also flush before the selected lane. Mandatory services are guarded by module work predicates; Lance and Emerald carry per-tick flags so their scheduled and mandatory paths do not double-service the same work. Emerald hot presentation remains a separate path. The periodic telemetry heartbeat is currently commented out, not an active 600-tick registration.
 
-Use the original callback tick through downstream work. Current init/configuration callers are not uniform: some use `event and event.tick or 0`, while water-turret configuration rebuilds explicitly read `game.tick`. These are existing boundary call sites, not evidence that every lifecycle callback supplies a tick; this model does not claim they have been repaired.
+Use the original callback tick through downstream work. Water-turret rebuilds receive one `game.tick` snapshot at each init/configuration boundary. Other init/configuration callers are not uniform: some still use `event and event.tick or 0`. These are existing boundary call sites, not evidence that every lifecycle callback supplies a tick; this model does not claim they have been repaired.
 
 <a id="lifecycle"></a>
 ## Lifecycle and cross-system state
