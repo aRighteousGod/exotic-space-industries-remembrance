@@ -53,14 +53,15 @@ for level=1,4 do
 end
 for name,entity in pairs(data.raw["spider-vehicle"]) do
     local family=name:match("^ei%-spider%-(%a+)%-")
-    if counts[family] then
+    if counts[family] and name~=catalog.placement_name(family) then
         counts[family]=counts[family]+1
         local chassis=tonumber(name:match("%-h(%d+)"))
         local profile=catalog.profiles[family]
         local tier=catalog.grid_tier(chassis)
         local grid=data.raw["equipment-grid"][entity.equipment_grid]
         check(name.."-grid",grid.width==profile.grids[tier][1] and grid.height==profile.grids[tier][2])
-        check(name.."-mining",entity.minable.result==catalog.stored_item(family,tier))
+        check(name.."-mining",entity.minable.result==profile.item)
+        check(name.."-canonical-ghost",entity.placeable_by.item==profile.item and entity.placeable_by.count==1)
         check(name.."-hidden",entity.hidden and entity.hidden_in_factoriopedia)
         check(name.."-cycling",entity.automatic_weapon_cycling==(catalog.mode(name)=="native"))
         if mods.SpidertronEnhancements then
@@ -83,7 +84,32 @@ check("upstream-tech-disabled",data.raw.technology.assault_spidertron_tech.hidde
 check("upstream-recipe-disabled",data.raw.recipe.assault_spidertron.hidden and data.raw.recipe.assault_spidertron.enabled==false)
 for tier=2,3 do
     local name="ei-gaian-saucer-stored-spidertron-"..tier
-    check(name.."-selectable",data.raw.recipe[name].hidden==false)
+    check(name.."-legacy-hidden",data.raw.recipe[name].hidden==true and data.raw.recipe[name].hide_from_player_crafting==true)
+    for _,technology in pairs(data.raw.technology) do
+        for _,effect in ipairs(technology.effects or {}) do
+            check(name.."-no-new-unlock",effect.type~="unlock-recipe" or effect.recipe~=name)
+        end
+    end
+end
+local saucer=data.raw.recipe["ei-gaian-saucer"]
+local scout=false
+for _,ingredient in ipairs(saucer.ingredients) do scout=scout or (ingredient.name or ingredient[1])=="ei-scout-spidertron" end
+check("saucer-canonical-scout",scout and not saucer.hidden)
+local visible={ ["ei-gaian-saucer"]=0,["ei-scout-spidertron"]=0,assault_spidertron=0,spidertron=0 }
+for _,candidate in pairs(data.raw.recipe) do
+    if not candidate.hidden then
+        for _,result in ipairs(candidate.results or {}) do
+            if visible[result.name] then visible[result.name]=visible[result.name]+1 end
+        end
+    end
+end
+for name,count in pairs(visible) do check(name.."-one-selectable-recipe",count==1) end
+for _,family in ipairs(catalog.families) do
+    local profile=catalog.profiles[family]
+    local placement=data.raw["spider-vehicle"][catalog.placement_name(family)]
+    check(family.."-canonical-placement",data.raw["item-with-entity-data"][profile.item].place_result==placement.name)
+    check(family.."-legacy-ghost-placement",data.raw["spider-vehicle"][profile.source].placeable_by.item==profile.item)
+    check(family.."-placement-grid",placement.equipment_grid=="ei-spider-grid-"..family.."-3" and placement.hidden)
 end
 check("smoke-visuals-harmless",data.raw["smoke-with-trigger"]["ei-assault-smoke-cloud"].action==nil and data.raw["smoke-with-trigger"]["ei-assault-smoke-bank"].action==nil)
 for _,branch in ipairs(catalog.branch_order) do

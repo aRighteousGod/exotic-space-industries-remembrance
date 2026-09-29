@@ -6,6 +6,7 @@
 - [spider-vehicles.lua](../../../exotic-space-industries-remembrance/scripts/control/spider-vehicles.lua)
 - [spidertron-limiter.lua](../../../exotic-space-industries-remembrance/scripts/control/spidertron-limiter.lua)
 - [spider-vehicles.lua](../../../exotic-space-industries-remembrance/lib/spider-vehicles.lua)
+- [spider-vehicles.lua](../../../exotic-space-industries-remembrance/prototypes/spider-vehicles.lua)
 
 ## Ownership and behavior
 
@@ -37,7 +38,16 @@ Build/clone/mining/item destruction, research (including coalesced scripted burs
 
 When range-aware cycling is disabled, exact observation hooks and selector service are absent while native behavior and reactive smoke remain. Compatibility proxy suspension and replacement handoff are ownership contracts, not dead code to simplify away.
 
+<a id="canonical-items"></a>
+## Canonical items and equipment handoff
+
+Every gameplay variant mines to its family's public item. Each public item places a hidden maximum-grid transport body; these three bodies (and matching optional boarding proxies) are outside the 24,388 gameplay configurations. Explicit placement ingredients also let robots revive gameplay-variant ghosts with the canonical item. Old tier-specific items remain hidden and placeable, and normalize when mined again. The Gaian saucer has one selectable recipe using the public scout item; old alternative recipe IDs remain hidden for configured machines and receive no new research unlocks.
+
+Factorio moves equipment from a consumed vehicle item into the entity only when grid prototype names match. During player or robot build events, runtime copies the consumed item into a temporary native inventory only when those names differ. A matching native swap can leave blueprint ghosts in the consumed item; these are not carried equipment to restore. The transport body is inactive, unmineable, inoperable, and indestructible until the existing replacement queue restores equipment and commits a researched gameplay body. A ghost may create a gameplay body directly; if its grid is too small for the snapshot, it first transitions through the transport body. Restored equipment fulfills matching blueprint ghosts while retaining additional native requests. The snapshot preserves quality, position, charge, shields, equipment ghosts, and equipment burner state; native item metadata and the existing transactional replacement preserve the remaining vehicle state and preferences.
+
+If equipment exceeds the receiving force's researched grid, placement first commits a gameplay body with the carried grid tier. Capacity checks include quality bonuses and then defer the downgrade until equipment fits. No equipment is ejected and no permanent off-item equipment bank is introduced. Clones copy pending native snapshots; completion and record destruction dispose of them. No new event dispatcher, recurring scan, or scheduler is added.
+
 <a id="verification"></a>
 ## Verification and maintenance
 
-Source inspection only. Use `scripts/invoke-spider-vehicles-qc.ps1` and `scripts/qc/spider-vehicles/README.md` for migration, replacement, controls, dispatch, reservations and persistence cases. Preserve inventory/equipment/burner/health/control data across replacement; verify deferred retries and zero selector counters in disabled mode. The limiter additionally needs mixed fuel categories, nonitem slots, and nonmanual sections.
+Use `scripts/invoke-spider-vehicles-qc.ps1` and `scripts/qc/spider-vehicles/README.md` for migration, replacement, controls, dispatch, reservations and persistence cases. The focused `-CanonicalItems -SavePath <player-save>` mode covers native player/robot mining and rebuilding, all family/grid pairs, legacy items, quality-expanded grids, and safe downgrade deferral; it does not rerun combat or fleet benchmarks. Preserve inventory/equipment/burner/health/control data across replacement; verify deferred retries and zero selector counters in disabled mode. The limiter additionally needs mixed fuel categories, nonitem slots, and nonmanual sections.

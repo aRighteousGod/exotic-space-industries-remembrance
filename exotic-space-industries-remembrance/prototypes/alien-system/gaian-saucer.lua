@@ -348,7 +348,7 @@ data:extend({
             }
         },
         ingredients = {
-            {type = "item", name = "spidertron", amount = 1},
+            {type = "item", name = "ei-scout-spidertron", amount = 1},
             {type = "item", name = "low-density-structure", amount = 50},
             {type = "item", name = "ei-computing-unit", amount = 40},
             {type = "item", name = "ei-high-energy-crystal", amount = 80},
@@ -366,7 +366,7 @@ data:extend({
         type = "technology",
         icon = tech_icon_path,
         icon_size = 256,
-        prerequisites = {"ei-neodymium-magnet", "spidertron", "ei-computing-unit"},
+        prerequisites = {"ei-neodymium-magnet", "ei-spider-vehicles", "ei-computing-unit"},
         effects = {
             {
                 type = "unlock-recipe",

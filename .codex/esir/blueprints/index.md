@@ -54,7 +54,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Shared runtime helper boundaries](shared-runtime-helpers.md#contract) | 6 |
 | [Shared runtime scheduler](runtime-scheduler.md#contract) | 1 |
 | [Singularity Lance paid contacts, Wound context, and delayed pulses](singularity-lance.md#contract) | 2 |
-| [Spider progression, safe replacement, weapon controls, and reactive smoke](spider-vehicles.md#contract) | 3 |
+| [Spider progression, safe replacement, weapon controls, and reactive smoke](spider-vehicles.md#contract) | 4 |
 | [Startup, compatibility, diagnostics, and information interfaces](startup-and-integration.md#contract) | 6 |
 | [Steam train wheel helpers](steam-train.md#contract) | 1 |
 | [Surveyor inventory scope and zoom restoration](surveyor-scope.md#contract) | 1 |

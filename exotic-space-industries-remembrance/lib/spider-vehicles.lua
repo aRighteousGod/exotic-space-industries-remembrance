@@ -81,6 +81,12 @@ function model.stored_item(family, tier)
 end
 
 ---@param family string
+---@return string
+function model.placement_name(family)
+    return "ei-spider-"..family.."-placement"
+end
+
+---@param family string
 ---@param state table<string, integer>
 ---@param mode "native"|"hold"|"smart"?
 ---@return string

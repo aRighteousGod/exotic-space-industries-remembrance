@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$SkipDataCheck,[string]$SavePath,[switch]$Arachnophobia,[switch]$WithPatrols,[switch]$NativeCycling,[ValidateSet(0,100,500)][int]$PerformanceVehicles=0,[switch]$PerformanceCombat,[switch]$SaveFixture,[switch]$Overkill,[switch]$RocketPerformance,[switch]$Dispatch)
+param([switch]$SkipDataCheck,[string]$SavePath,[switch]$Arachnophobia,[switch]$WithPatrols,[switch]$NativeCycling,[ValidateSet(0,100,500)][int]$PerformanceVehicles=0,[switch]$PerformanceCombat,[switch]$SaveFixture,[switch]$Overkill,[switch]$RocketPerformance,[switch]$Dispatch,[switch]$CanonicalItems)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $factorio = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.exe'
@@ -31,7 +31,8 @@ $saveValue = $SaveFixture.IsPresent.ToString().ToLowerInvariant()
 $overkillValue = $Overkill.IsPresent.ToString().ToLowerInvariant()
 $rocketValue = $RocketPerformance.IsPresent.ToString().ToLowerInvariant()
 $dispatchValue = $Dispatch.IsPresent.ToString().ToLowerInvariant()
-"return {arachnophobia=$arachnoValue,smart=$smartValue,performance=$PerformanceVehicles,combat=$combatValue,save_fixture=$saveValue,overkill=$overkillValue,rocket_performance=$rocketValue,dispatch=$dispatchValue}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
+$canonicalValue = $CanonicalItems.IsPresent.ToString().ToLowerInvariant()
+"return {arachnophobia=$arachnoValue,smart=$smartValue,performance=$PerformanceVehicles,combat=$combatValue,save_fixture=$saveValue,overkill=$overkillValue,rocket_performance=$rocketValue,dispatch=$dispatchValue,canonical_items=$canonicalValue}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
 $listPath = Join-Path $mods 'mod-list.json'
 $list = Get-Content -LiteralPath $listPath -Raw | ConvertFrom-Json
 $originalList = Get-Content -LiteralPath $listPath -Raw

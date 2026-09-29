@@ -7,6 +7,7 @@
 -- storage_roots: none
 -- rebuild_on: data stage reload
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/spider-vehicles.md#contract
 local catalog = require("lib/spider-vehicles")
 local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
@@ -237,7 +238,8 @@ local function configure_chassis(body, family, level)
     for _,resistance in ipairs(body.resistances or {}) do
         if resistance.type=="physical" or resistance.type=="explosion" then resistance.percent=math.min(90,(resistance.percent or 0)+armor) end
     end
-    body.minable={mining_time=1,result=catalog.stored_item(family,tier)}
+    body.minable={mining_time=1,result=profile.item}
+    body.placeable_by={item=profile.item,count=1}
     body.allow_remote_driving=true
     body.next_upgrade=nil
     body.localised_name={"entity-name."..profile.item}
@@ -347,6 +349,7 @@ function model.finalize()
             end
         end
         local public=data.raw["spider-vehicle"][profile.source]
+        public.placeable_by={item=profile.item,count=1}
         if family=="scout" then configure_chassis(public,family,0) end
         if family=="scout" then public.guns={} end
         -- Preserve legacy body capacities until runtime can inspect their contents.
@@ -355,26 +358,35 @@ function model.finalize()
             public.hidden=true
             public.hidden_in_factoriopedia=true
             public.guns={"assault_spidertron-mortar","assault_spidertron_rocket_launcher","assault_spidertron_cannon","assault_spidertron-mg","assault_spidertron-flamer"}
-            -- Legacy mined items can contain a full 10x6 grid. Let native placement
-            -- restore that grid before the runtime safely resolves the ESIR chassis.
-            data.raw["item-with-entity-data"][profile.item].place_result=profile.source
-        elseif family=="rocket" then
-            data.raw["item-with-entity-data"][profile.item].place_result=profile.source
-        else
-            data.raw["item-with-entity-data"][profile.item].place_result=catalog.variant_name(family,{})
         end
+        -- blueprint-ref: .codex/esir/blueprints/spider-vehicles.md#canonical-items
+        -- Native mining keeps the actual grid in the item. A transport body
+        -- admits every tier; the build handler restores mismatched grid names.
+        local placement=table.deepcopy(data.raw["spider-vehicle"][catalog.variant_name(family,{chassis=12})])
+        placement.name=catalog.placement_name(family)
+        data:extend({placement})
+        local proxy_source=data.raw["spider-vehicle"][catalog.proxy_prefix..catalog.variant_name(family,{chassis=12})]
+        if proxy_source then
+            local proxy=table.deepcopy(proxy_source)
+            proxy.name=catalog.proxy_prefix..placement.name
+            data:extend({proxy})
+        end
+        local item=data.raw["item-with-entity-data"][profile.item]
+        item.place_result=placement.name
+        item.flags=item.flags or {}
+        if not ei_lib.contains(item.flags,"primary-place-result") then item.flags[#item.flags+1]="primary-place-result" end
     end
-    -- Mined expanded-grid rocket spiders remain valid saucer construction inputs.
+    -- Keep old recipe IDs for configured machines, without selectable duplicates.
     for tier=2,3 do
         local recipe=table.deepcopy(data.raw.recipe["ei-gaian-saucer"])
         recipe.name="ei-gaian-saucer-stored-spidertron-"..tier
-        recipe.hidden=false
+        recipe.hidden=true
+        recipe.hide_from_player_crafting=true
         recipe.hidden_in_factoriopedia=true
         recipe.auto_recycle=false
-        recipe.localised_name={"spider-vehicles.stored-saucer-recipe",{"entity-name.ei-gaian-saucer"},data.raw["item-with-entity-data"][catalog.stored_item("rocket",tier)].localised_name}
+        recipe.localised_name={"spider-vehicles.stored-saucer-recipe",{"entity-name.ei-gaian-saucer"},data.raw["item-with-entity-data"][catalog.stored_item("scout",tier)].localised_name}
         data:extend({recipe})
-        ei_lib.recipe_swap(recipe.name,"spidertron",catalog.stored_item("rocket",tier))
-        ei_lib.add_unlock_recipe("ei-gaian-saucer",recipe.name)
+        ei_lib.recipe_swap(recipe.name,"ei-scout-spidertron",catalog.stored_item("scout",tier))
     end
 end
 

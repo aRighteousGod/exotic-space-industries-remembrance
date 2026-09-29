@@ -57,6 +57,7 @@ local replacement_event = script.generate_event_name()
 ---@field selection table? Cached slots/targets, current group and firing-turn counters.
 ---@field search_tick integer?
 ---@field overkill_state ESIRSpiderOverkillState?
+---@field placement {item:LuaInventory?,active:boolean,minable:boolean,operable:boolean,destructible:boolean}? Temporary native item copy until the placement body is resolved.
 
 ---@class ESIRSpiderOverkillState
 ---@field shots table<integer, table> Native shots, never synthetic projectiles.
@@ -133,6 +134,11 @@ local function register(entity)
     if record then preferences(record);return record end
     root.next_id=root.next_id+1
     record={id=root.next_id,entity=entity,family=family,force_index=entity.force.index,smoke_ready=0,suspended=catalog.is_proxy(entity.name)}
+    if entity.name==catalog.placement_name(family) then
+        record.placement={active=entity.active,minable=entity.minable,operable=entity.operable,destructible=entity.destructible}
+        -- Await the shared replacement queue without exposing transport capacity.
+        entity.active=false;entity.minable=false;entity.operable=false;entity.destructible=false
+    end
     root.vehicles[record.id]=record
     root.units[entity.unit_number]=record.id
     root.registrations[script.register_on_object_destroyed(entity)]=entity.unit_number
@@ -170,11 +176,27 @@ function model.on_scripted_research_burst(force,relevant)
     if relevant then model.refresh_force(force) end
 end
 
+---@param event EventData.on_built_entity|EventData.on_robot_built_entity|EventData.script_raised_built|EventData.script_raised_revive
 function model.on_built_entity(event)
     local record=register(event.entity or event.created_entity)
     if not record then return end
     local function restore(stack)
         if not stack or not stack.valid_for_read then return end
+        local place=stack.prototype.place_result
+        if not place or catalog.family(place.name)~=record.family then return end
+        -- blueprint-ref: .codex/esir/blueprints/spider-vehicles.md#canonical-items
+        -- Matching grids have already moved into the entity; mismatched grids
+        -- remain in this temporary consumed item. A matching-grid robot build
+        -- can leave blueprint ghosts in the consumed item after the native swap.
+        if stack.grid and stack.grid.prototype.name~=record.entity.grid.prototype.name then
+            if not record.placement then
+                local entity=record.entity
+                record.placement={active=entity.active,minable=entity.minable,operable=entity.operable,destructible=entity.destructible}
+                entity.active=false;entity.minable=false;entity.operable=false;entity.destructible=false
+            end
+            record.placement.item=game.create_inventory(1)
+            assert(record.placement.item[1].set_stack(stack),"spider-placement-snapshot")
+        end
         local saved=stack.item_number and state().items[stack.item_number]
         if saved and saved.family==record.family then
             record.preferences=table.deepcopy(saved.preferences)
@@ -227,6 +249,14 @@ function model.on_entity_cloned(event)
         record.smoke_ready=original.smoke_ready
         record.preferences=table.deepcopy(preferences(original))
         record.stowed_ammo=table.deepcopy(original.stowed_ammo)
+        if original.placement then
+            record.placement=record.placement or {}
+            for _,key in ipairs({"active","minable","operable","destructible"}) do record.placement[key]=original.placement[key] end
+            if original.placement.item then
+                record.placement.item=game.create_inventory(1)
+                assert(record.placement.item[1].set_stack(original.placement.item[1]),"spider-placement-clone")
+            end
+        end
     end
     enqueue(record)
 end
@@ -269,6 +299,8 @@ function model.on_object_destroyed(event)
     local id=root.units[unit]
     root.units[unit]=nil
     if id then
+        local record=root.vehicles[id]
+        if record and record.placement and record.placement.item then record.placement.item.destroy() end
         root.overkill.active[id]=nil
         root.vehicles[id]=nil;root.queue.queued[id]=nil
         root.selector.active[id]=nil;root.selector.queue.queued[id]=nil
@@ -317,7 +349,9 @@ function model.on_configuration_changed()
         end
     end
     for id,record in pairs(root.vehicles) do
-        if not ei_lib.entity_check(record.entity) then root.vehicles[id]=nil
+        if not ei_lib.entity_check(record.entity) then
+            if record.placement and record.placement.item then record.placement.item.destroy() end
+            root.vehicles[id]=nil
         else record.selection=nil;record.search_tick=nil end
     end
     for _,player in pairs(game.players) do model.on_gui_opened{player_index=player.index,entity=ei_lib.get_valid_entity(player.opened)} end
@@ -357,6 +391,35 @@ local function copy_burner(source,destination)
     destination.currently_burning=source.currently_burning
     destination.remaining_burning_fuel=source.remaining_burning_fuel
     destination.heat=source.heat
+end
+
+---@param source LuaEquipmentGrid
+---@param destination LuaEquipmentGrid
+---@param merge boolean? Keep additional native blueprint equipment during placement.
+local function copy_equipment(source,destination,merge)
+    for _,equipment in ipairs(source.equipment) do
+        local ghost=equipment.type=="equipment-ghost"
+        local restored=destination.get(equipment.position)
+        -- Robot revival can leave the blueprint's matching equipment ghosts
+        -- in the body while the real equipment remains in the consumed item.
+        if restored and not ghost and restored.type=="equipment-ghost" and restored.ghost_name==equipment.name and restored.quality==equipment.quality then
+            destination.take{position=restored.position}
+            restored=nil
+        end
+        if not restored then
+            restored=destination.put{name=ghost and equipment.ghost_name or equipment.name,position=equipment.position,quality=equipment.quality,ghost=ghost}
+        end
+        assert(restored and restored.name==equipment.name and restored.quality==equipment.quality,
+            "equipment-state: "..equipment.name.."/"..equipment.type.."/"..equipment.quality.name.." -> "..(restored and restored.name.."/"..restored.type.."/"..restored.quality.name or "missing"))
+        if ghost then assert(restored.ghost_name==equipment.ghost_name,"equipment-ghost")
+        else
+            restored.energy=equipment.energy
+            if equipment.max_shield>0 then restored.shield=equipment.shield end
+            copy_burner(equipment.burner,restored.burner)
+        end
+    end
+    if not merge then assert(#source.equipment==#destination.equipment,"equipment-count") end
+    destination.inhibit_movement_bonus=source.inhibit_movement_bonus
 end
 
 -- The upstream five-slot layout differs from ESIR's three/four-slot layout.
@@ -443,8 +506,10 @@ local function prepare_replacement(source,target,record)
     local prototype=prototypes.entity[target]
     assert(prototype,"missing-variant")
     local grid=prototype.grid_prototype
+    local width=grid.width+source.quality.equipment_grid_width_bonus
+    local height=grid.height+source.quality.equipment_grid_height_bonus
     for _,equipment in ipairs(source.grid.equipment) do
-        assert(equipment.position.x+equipment.shape.width<=grid.width and equipment.position.y+equipment.shape.height<=grid.height,"grid-capacity")
+        assert(equipment.position.x+equipment.shape.width<=width and equipment.position.y+equipment.shape.height<=height,"grid-capacity")
         -- Native mining resolves removal orders; keep the source until that work ends.
         assert(not equipment.to_be_removed,"equipment-removal")
     end
@@ -472,21 +537,7 @@ local function prepare_replacement(source,target,record)
         assert(candidate,"create-failed")
         -- Native item placement restores equipment only when the grid prototype
         -- matches. Rebuild missing equipment before cargo (inventory bonuses).
-        for _,equipment in ipairs(source.grid.equipment) do
-            local ghost=equipment.type=="equipment-ghost"
-            local restored=candidate.grid.get(equipment.position)
-            if not restored then
-                restored=candidate.grid.put{name=ghost and equipment.ghost_name or equipment.name,position=equipment.position,quality=equipment.quality,ghost=ghost}
-            end
-            assert(restored and restored.name==equipment.name and restored.quality==equipment.quality,"equipment-state")
-            if ghost then assert(restored.ghost_name==equipment.ghost_name,"equipment-ghost")
-            else
-                restored.energy=equipment.energy
-                if equipment.max_shield>0 then restored.shield=equipment.shield end
-                copy_burner(equipment.burner,restored.burner)
-            end
-        end
-        assert(#source.grid.equipment==#candidate.grid.equipment,"equipment-count")
+        copy_equipment(source.grid,candidate.grid)
         for _,inventory_id in ipairs(inventory_ids) do
             if inventory_id~=defines.inventory.spider_ammo then
                 copy_inventory(source.get_inventory(inventory_id),candidate.get_inventory(inventory_id))
@@ -690,7 +741,7 @@ end
 ---@param record ESIRSpiderRecord
 ---@return boolean
 local function selector_vehicle(record)
-    if not SMART or record.suspended or record.family=="scout" or not preferences(record).cycling or not ei_lib.entity_check(record.entity) then return false end
+    if not SMART or record.suspended or record.placement or record.family=="scout" or not preferences(record).cycling or not ei_lib.entity_check(record.entity) then return false end
     local mode=catalog.mode(record.entity.name)
     return record.family=="assault" and mode=="hold" or record.family=="rocket" and mode=="smart"
 end
@@ -1531,6 +1582,57 @@ function model.has_tick_work(event)
         (SMART and root.selector and (next(root.selector.active)~=nil or root.selector.due[event.tick]~=nil or scheduler.queue_length(root.selector.queue)>0))) or false
 end
 
+-- blueprint-ref: .codex/esir/blueprints/spider-vehicles.md#canonical-items
+---@param record ESIRSpiderRecord
+---@param tick MapTick
+---@return boolean
+---@return string?
+---@return boolean?
+local function finish_placement(record,tick)
+    local placement=record.placement
+    local source=record.entity
+    local saved_grid=placement.item and placement.item[1].grid
+    if saved_grid then
+        -- Blueprint ghosts may create a smaller gameplay body directly. Move
+        -- its native metadata to the transport body before restoring equipment.
+        if saved_grid.width>source.grid.width or saved_grid.height>source.grid.height then
+            -- Requeue after this commit so each attempt still replaces once.
+            return replace(record,catalog.placement_name(record.family),tick)
+        end
+        local ok,err=pcall(copy_equipment,saved_grid,source.grid,true)
+        if not ok then return false,"placement-equipment: "..tostring(err),true end
+    end
+    local target=desired_name(record)
+    local grid=prototypes.entity[target].grid_prototype
+    local width=grid.width+source.quality.equipment_grid_width_bonus
+    local height=grid.height+source.quality.equipment_grid_height_bonus
+    for _,equipment in ipairs(source.grid.equipment) do
+        if equipment.position.x+equipment.shape.width>width or equipment.position.y+equipment.shape.height>height then
+            -- Keep the carried grid, not the larger transport body's grid, when
+            -- the receiving force lacks research. The usual downgrade retries
+            -- resume after this safe body takes ownership of the equipment.
+            local carried=(saved_grid or source.grid).prototype
+            local configuration=table.deepcopy(state().forces[source.force.index])
+            for tier,dimensions in ipairs(catalog.profiles[record.family].grids) do
+                if dimensions[1]>=carried.width and dimensions[2]>=carried.height then
+                    configuration.chassis=math.max(configuration.chassis,(tier-1)*6)
+                    break
+                end
+            end
+            target=catalog.configured_name(record.family,configuration,preferences(record),SMART)
+            break
+        end
+    end
+    local ok,reason,unexpected=replace(record,target,tick)
+    if not ok then return false,reason,unexpected end
+    for _,key in ipairs({"active","minable","operable","destructible"}) do record.entity[key]=placement[key] end
+    if placement.item then placement.item.destroy() end
+    record.placement=nil
+    reset_selection(record,tick)
+    refresh_gui(record)
+    return true
+end
+
 function model.updater(event)
     local root=state()
     for _,id in ipairs(scheduler.delayed_take_due(root.retries,event.tick)) do
@@ -1544,8 +1646,11 @@ function model.updater(event)
         local record=root.vehicles[id]
         if record and not record.suspended and ei_lib.entity_check(record.entity) then
             local target=desired_name(record)
-            if record.entity.name~=target then
-                local ok,reason,unexpected=replace(record,target,event.tick)
+            if record.placement or record.entity.name~=target then
+                local ok,reason,unexpected
+                if record.placement then ok,reason,unexpected=finish_placement(record,event.tick)
+                else ok,reason,unexpected=replace(record,target,event.tick) end
+                if ok and record.entity.name~=desired_name(record) then enqueue(record) end
                 if not ok then
                     if reason~=record.pending_reason then
                         log("ESIR spider upgrade deferred ("..record.entity.unit_number.."): "..tostring(reason))

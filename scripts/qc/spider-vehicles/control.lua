@@ -1,5 +1,6 @@
 -- Focused engine fixture; stage only in an isolated QC mod directory.
 local config=require("test-config")
+if config.canonical_items then require("canonical-items");return end
 if config.dispatch then require("dispatch");return end
 if (config.performance or 0)>0 then require("performance");return end
 if config.overkill then require(config.save_fixture and "overkill-save" or "overkill");return end
@@ -203,7 +204,7 @@ local function step(event)
         check("mine-expanded",rocket.mine{inventory=inventory})
         local item
         for index=1,#inventory do
-            if inventory[index].valid_for_read and inventory[index].name==catalog.stored_item("rocket",3) then item=inventory[index];break end
+            if inventory[index].valid_for_read and inventory[index].name==catalog.profiles.rocket.item then item=inventory[index];break end
         end
         check("stored-item",item~=nil)
         check("stored-energy",item.grid.get({11,6}).energy==98765)

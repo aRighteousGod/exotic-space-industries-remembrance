@@ -55,6 +55,7 @@ local WEIGHTING_RULES = {
             "ei-steampunk-lamp",
             "ei-emerald-target-verdict",
             "ei-emerald-apocalypse-recursion",
+            "ei-assault-smokescreen",
         },
         chain_roots = {
             "follower-robot-count",
@@ -82,6 +83,13 @@ local WEIGHTING_RULES = {
             "ei-dielectric-rupture-",
             "ei-bridge-coupling-",
             "ei-reactance-overdrive-",
+            "ei-spider-chassis-",
+            "ei-spider-cannon-",
+            "ei-spider-mg-",
+            "ei-spider-flamer-",
+            "ei-spider-artillery-",
+            "ei-spider-rocket-",
+            "ei-spider-doeworks-",
         },
     },
 }

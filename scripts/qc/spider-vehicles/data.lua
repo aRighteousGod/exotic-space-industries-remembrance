@@ -23,3 +23,13 @@ dispatch.created_effect={type="direct",action_delivery={type="instant",target_ef
     {type="script",effect_id="ei-spider-shot:esir-spider-qc-unregistered"},
 }}}
 data:extend({dispatch})
+-- A tiny burner fixture exposes nested fuel/spent-fuel preservation in all grids.
+local generator=table.deepcopy(data.raw["generator-equipment"]["fission-reactor-equipment"] or data.raw["generator-equipment"]["fusion-reactor-equipment"])
+generator.name="esir-spider-qc-generator"
+generator.shape={width=1,height=1,type="full"}
+generator.power="1W"
+generator.burner={type="burner",fuel_categories={"chemical"},fuel_inventory_size=1,burnt_inventory_size=1,effectivity=1}
+local generator_item=table.deepcopy(data.raw.item["solar-panel-equipment"])
+generator_item.name=generator.name
+generator_item.place_as_equipment_result=generator.name
+data:extend({generator,generator_item})
