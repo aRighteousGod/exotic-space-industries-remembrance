@@ -254,7 +254,7 @@ function model.on_external_replaced(event)
     original.force_index=destination.force.index
     original.suspended=catalog.is_proxy(destination.name)
     original.pending_reason=nil
-    reset_selection(original,game.tick)
+    reset_selection(original,event.tick)
     enqueue(original)
 end
 
@@ -550,7 +550,8 @@ end
 ---@param target string
 ---@return boolean
 ---@return string?
-local function replace(record,target)
+---@param tick MapTick
+local function replace(record,target,tick)
     -- Copy requested targeting, never the temporary overkill hold, into refits.
     release_overkill(record,false)
     local source=record.entity
@@ -627,12 +628,12 @@ local function replace(record,target)
     end
     transaction=false
     root.replacements=root.replacements+1
-    reset_selection(record,game.tick)
+    reset_selection(record,tick)
     -- Moving occupants and destroying the source can close its native window.
     -- Rebind the relative panel explicitly after the new identity is committed;
     -- assigning player.opened does not guarantee an on_gui_opened callback.
     for _,link in ipairs(links.players) do
-        if link.opened then model.on_gui_opened{player_index=link.player.index,entity=candidate} end
+        if link.opened then model.on_gui_opened{player_index=link.player.index,entity=candidate,tick=tick} end
     end
     refresh_gui(record)
     script.raise_script_built{entity=candidate}
@@ -1409,7 +1410,8 @@ end
 ---@param changes {cycling:boolean?,special:boolean?,selected_slot:integer?,overkill:boolean?}
 ---@return table? controls
 ---@return string? error
-function model.set_weapon_controls(entity,changes)
+---@param tick MapTick|nil Current GUI event tick; remote callers may omit it.
+function model.set_weapon_controls(entity,changes,tick)
     if type(changes)~="table" then return nil,"invalid-controls" end
     local record=register(entity)
     if not record or record.family=="scout" then return nil,"unsupported-vehicle" end
@@ -1435,7 +1437,7 @@ function model.set_weapon_controls(entity,changes)
         prefs.selected_slot=changes.selected_slot
         entity.selected_gun_index=changes.selected_slot
     end
-    enqueue(record);reset_selection(record,game.tick);refresh_gui(record)
+    enqueue(record);reset_selection(record,tick or game.tick);refresh_gui(record)
     return model.get_weapon_controls(entity)
 end
 
@@ -1513,8 +1515,8 @@ function model.on_gui_changed(event)
     local player=game.get_player(event.player_index)
     if not record or not ei_lib.entity_check(record.entity) or not player or player.opened~=record.entity or player.force~=record.entity.force then return end
     local action=element.tags.action
-    if action=="selected_slot" then model.set_weapon_controls(record.entity,{selected_slot=element.selected_index})
-    elseif action=="cycling" or action=="special" or action=="overkill" then model.set_weapon_controls(record.entity,{[action]=element.state}) end
+    if action=="selected_slot" then model.set_weapon_controls(record.entity,{selected_slot=element.selected_index},event.tick)
+    elseif action=="cycling" or action=="special" or action=="overkill" then model.set_weapon_controls(record.entity,{[action]=element.state},event.tick) end
 end
 
 ---@param event EventData.on_tick
@@ -1542,7 +1544,7 @@ function model.updater(event)
         if record and not record.suspended and ei_lib.entity_check(record.entity) then
             local target=desired_name(record)
             if record.entity.name~=target then
-                local ok,reason,unexpected=replace(record,target)
+                local ok,reason,unexpected=replace(record,target,event.tick)
                 if not ok then
                     if reason~=record.pending_reason then
                         log("ESIR spider upgrade deferred ("..record.entity.unit_number.."): "..tostring(reason))

@@ -1039,7 +1039,8 @@ local function profiler_elapsed_ms(elapsed_text)
     return nil
 end
 
-local function with_profiled_phase(state, phase, reason, fn)
+---@param current_tick MapTick|nil Configuration rebuilds do not receive an event tick.
+local function with_profiled_phase(state, phase, reason, current_tick, fn)
     local profiler = nil
     if state.debug and state.debug.enabled and game and game.create_profiler then
         profiler = game.create_profiler()
@@ -1059,7 +1060,7 @@ local function with_profiled_phase(state, phase, reason, fn)
             ms = profiler_elapsed_ms(elapsed_text),
             work = result1,
             extra = { reason = reason },
-            tick = game and game.tick or 0,
+            tick = current_tick or (game and game.tick) or 0,
         }
         local snapshot = log_debug_status(state, phase, reason, elapsed_text)
         local elapsed_ms = profiler_elapsed_ms(elapsed_text)
@@ -2076,7 +2077,7 @@ function model.on_configuration_changed(e)
     state.debug.last_config_action = nil
     log_debug_status(state, "config-change-entry", reason, nil)
 
-    with_profiled_phase(state, "config-change", reason, function()
+    with_profiled_phase(state, "config-change", reason, nil, function()
         local previous_enabled = state.enabled == true
         local enabled = sync_overload_enabled_cache(state)
         local mod_changes_present = e and next(e.mod_changes or {}) ~= nil or false
@@ -2185,23 +2186,23 @@ function model.updater(event)
     end
 
     if state.mode == "release" then
-        with_profiled_phase(state, "release", state.last_reason, function()
+        with_profiled_phase(state, "release", state.last_reason, tick, function()
             return process_release_queue(state)
         end)
     elseif enabled and state.mode == "machine" then
-        with_profiled_phase(state, "machine-recount", state.last_reason, function()
+        with_profiled_phase(state, "machine-recount", state.last_reason, tick, function()
             return process_machine_queue(state)
         end)
     elseif enabled and state.mode == "tracked" then
-        with_profiled_phase(state, "tracked-seeding", state.last_reason, function()
+        with_profiled_phase(state, "tracked-seeding", state.last_reason, tick, function()
             return process_tracked_refresh_queue(state)
         end)
-        with_profiled_phase(state, "machine-recount", state.last_reason, function()
+        with_profiled_phase(state, "machine-recount", state.last_reason, tick, function()
             return process_machine_queue(state)
         end)
     elseif enabled and state.mode == "world" then
         if state.world_seed_tracked then
-            with_profiled_phase(state, "tracked-seeding", state.last_reason, function()
+            with_profiled_phase(state, "tracked-seeding", state.last_reason, tick, function()
                 local processed = process_tracked_refresh_queue(state)
                 if state.tracked_refresh_cursor == nil then
                     state.world_seed_tracked = false
@@ -2211,21 +2212,21 @@ function model.updater(event)
         end
 
         if queue_length(state.surface_queue) > 0 then
-            with_profiled_phase(state, "chunk-discovery", state.last_reason, function()
+            with_profiled_phase(state, "chunk-discovery", state.last_reason, tick, function()
                 return discover_surface_chunks(state, get_surface_discovery_budget())
             end)
         end
 
-        with_profiled_phase(state, "chunk-scan", state.last_reason, function()
+        with_profiled_phase(state, "chunk-scan", state.last_reason, tick, function()
             return process_chunk_queue(state)
         end)
-        with_profiled_phase(state, "machine-recount", state.last_reason, function()
+        with_profiled_phase(state, "machine-recount", state.last_reason, tick, function()
             return process_machine_queue(state)
         end)
     end
 
     if state.mode == nil and tick % IDLE_AUDIT_INTERVAL_TICKS == 0 then
-        with_profiled_phase(state, "idle-audit", state.last_reason, function()
+        with_profiled_phase(state, "idle-audit", state.last_reason, tick, function()
             return queue_idle_audits(state)
         end)
     end

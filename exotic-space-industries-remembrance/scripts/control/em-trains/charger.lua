@@ -540,7 +540,7 @@ local function normalize_glow_pool(entry, slot_count)
     return pool, slots
 end
 
-local function take_next_glow_slot(entry, slot_count)
+local function take_next_glow_slot(entry, slot_count, current_tick)
     local pool, slots = normalize_glow_pool(entry, slot_count)
     if not pool or not slots then
         return nil
@@ -551,7 +551,7 @@ local function take_next_glow_slot(entry, slot_count)
 
     local slot = {
         renders = {},
-        tick = game and game.tick or 0,
+        tick = resolve_runtime_tick(current_tick),
     }
     slots[slot_index] = slot
     pool.next_slot = (slot_index % pool.slot_count) + 1
@@ -608,7 +608,7 @@ function model.ensure_train_grace_reserve(train, train_entry, current_tick)
         train.burner.remaining_burning_fuel = required_reserve
     end
 
-    ei_draw_train_glow(train)
+    ei_draw_train_glow(train, nil, current_tick)
     return true
 end
 
@@ -1754,7 +1754,7 @@ function model.update_train(train, current_tick)
         train_entry.research_rollout_tick = nil
     end
 
-    local state = model.find_charger(train)
+    local state = model.find_charger(train, current_tick)
     local status
 
     if ei_lib.is_valid_number(state) and state > 0 then
@@ -1766,14 +1766,14 @@ function model.update_train(train, current_tick)
         else
             train_entry.grace_until_tick = 0
         end
-        status = model.set_burner(train, state)
+        status = model.set_burner(train, state, current_tick)
     elseif model.ensure_train_grace_reserve(train, train_entry, current_tick) then
         -- Grace keeps the train alive briefly, but it is still degraded operation
         -- rather than true charger-backed propulsion.
         status = "warning"
     else
         train_entry.grace_until_tick = 0
-        status = model.set_burner(train, 0)
+        status = model.set_burner(train, 0, current_tick)
     end
 
     model.render_status_rings(train,status,8,10)
@@ -1835,7 +1835,8 @@ function model.cast_beam(charger, train)
     end
 end
 
-function ei_draw_train_glow(train, params)
+---@param current_tick MapTick|nil
+function ei_draw_train_glow(train, params, current_tick)
 	if not (train and train.valid) or not storage.ei.em_train_glow then return end
     local train_id = get_entity_unit_number(train)
     local train_entry = train_id and storage.ei_emt and storage.ei_emt.trains and storage.ei_emt.trains[train_id] or nil
@@ -1891,7 +1892,7 @@ function ei_draw_train_glow(train, params)
 	local intensity = math.random(glow_params.intensity_range[1],glow_params.intensity_range[2])
     intensity = intensity/100
 
-    local slot = take_next_glow_slot(train_entry, get_train_glow_slot_count())
+    local slot = take_next_glow_slot(train_entry, get_train_glow_slot_count(), current_tick)
     if not slot then
         return
     end
@@ -1932,7 +1933,8 @@ function ei_draw_train_glow(train, params)
 end
 
 
-function model.set_burner(train, state)
+---@param current_tick MapTick|nil
+function model.set_burner(train, state, current_tick)
     if not train or not train.burner then return "error" end
     if not ei_lib.is_valid_number(state) or state <= 0 then
         train.burner.remaining_burning_fuel = 0
@@ -1948,11 +1950,12 @@ function model.set_burner(train, state)
     train.burner.currently_burning = fuel_prototype
     train.burner.remaining_burning_fuel = fuel_value * state
     if not train.burner.remaining_burning_fuel then return "warning" end
-    ei_draw_train_glow(train)
+    ei_draw_train_glow(train, nil, current_tick)
     return "working"
 end
 
-function ei_draw_charger_glow(charger, overrides)
+---@param current_tick MapTick|nil
+function ei_draw_charger_glow(charger, overrides, current_tick)
     if not (charger and charger.valid) or not storage.ei.em_charger_glow then return end
     local charger_id = get_entity_unit_number(charger)
     local charger_entry = charger_id and storage.ei_emt and storage.ei_emt.chargers and storage.ei_emt.chargers[charger_id] or nil
@@ -2080,7 +2083,7 @@ function ei_draw_charger_glow(charger, overrides)
     local intensity = math.random(glow_set.intensity_min,glow_set.intensity_max)
     intensity = intensity/100
     --game.print("index: "..color_index.." color: "..tostring(color).." scale: "..scale.." intensity: "..intensity)
-    local slot = take_next_glow_slot(charger_entry, get_charger_glow_slot_count())
+    local slot = take_next_glow_slot(charger_entry, get_charger_glow_slot_count(), current_tick)
     if not slot then
         return
     end
@@ -2122,7 +2125,8 @@ function ei_draw_charger_glow(charger, overrides)
         })
  end
 
-function model.has_enough_energy(charger, train)
+---@param current_tick MapTick|nil
+function model.has_enough_energy(charger, train, current_tick)
 
     if not model.entity_check(charger) or not charger or not charger.energy  then
         return 0
@@ -2147,7 +2151,7 @@ function model.has_enough_energy(charger, train)
 
     if energy >= total_needed then
         charger.energy = charger.energy - total_needed
-        ei_draw_charger_glow(charger,false)
+        ei_draw_charger_glow(charger,false,current_tick)
         --game.print("dec")
         return 1
     end
@@ -2160,7 +2164,8 @@ function model.has_enough_energy(charger, train)
 end
 
 
-function model.find_charger(train)
+---@param current_tick MapTick|nil
+function model.find_charger(train, current_tick)
     if not train or not train.surface or not train.position.x or not train.position.y then return 0 end
 
     local surface_index = ei_lib.get_surface_index(train.surface)
@@ -2178,7 +2183,7 @@ function model.find_charger(train)
         local charger = charger_entry and charger_entry.entity or nil
         if model.entity_check(charger) and charger_entry.surface_index == surface_index then
             if ei_lib.is_within_range_squared(train.position, charger.position, max_range_sqr) then
-                parts = parts + model.has_enough_energy(charger, train)
+                parts = parts + model.has_enough_energy(charger, train, current_tick)
                 if parts >= 1 then
                     local status = "working"
                     model.cast_beam(charger, train)

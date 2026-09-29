@@ -1231,7 +1231,7 @@ function orbital_power.destroy(scanner)
 end
 
 
-function orbital_power.rebuild_all()
+function orbital_power.rebuild_all(current_tick)
   local sensor_root = orbital_power.get_sensor_root()
   local power_state_root = orbital_power.get_state_root()
   local seed_root = orbital_power.get_seed_root()
@@ -1249,8 +1249,8 @@ function orbital_power.rebuild_all()
   end
 
   for unit_number, scanner in pairs(storage.ei.orbital_combinators or {}) do
-    orbital_power.ensure(scanner)
-    local live_state = orbital_power.get_live_state(scanner)
+    orbital_power.ensure(scanner, current_tick)
+    local live_state = orbital_power.get_live_state(scanner, current_tick)
     power_state_root[unit_number] = live_state
     set_scanner_custom_power_status(scanner, live_state)
   end
@@ -1617,7 +1617,8 @@ local function entity_has_external_circuit_connection(entity)
 end
 
 
-function model.check_init(rebuild_banks)
+---@param current_tick MapTick|nil
+function model.check_init(rebuild_banks, current_tick)
   if not storage.ei then
     storage.ei = {}
   end
@@ -1750,23 +1751,24 @@ function model.check_init(rebuild_banks)
   end
 
   if needs_platform_rebuild and game then
-    rebuild_platform_cache_from_world(game and game.tick or 0)
+    rebuild_platform_cache_from_world(current_tick or (game and game.tick) or 0)
   end
 
   if rebuild_banks then
     if ei_lib.getn(storage.ei.orbital_combinators) == 0 then
       rebuild_registry_from_world()
     end
-    model.rebuild_banks()
+    model.rebuild_banks(current_tick)
   end
 end
 
 
-function model.rebuild_banks()
-  model.check_init(false)
+---@param current_tick MapTick|nil
+function model.rebuild_banks(current_tick)
+  current_tick = current_tick or (game and game.tick) or 0
+  model.check_init(false, current_tick)
   sanitize_registered_entities()
-  orbital_power.rebuild_all()
-  local current_tick = game and game.tick or 0
+  orbital_power.rebuild_all(current_tick)
 
   local grouped_entities = {}
   local old_banks = storage.ei.orbital_combinator_banks or {}
@@ -1911,7 +1913,7 @@ function model.rebuild_banks()
     enqueue_dirty_bank(bank_id)
     enqueue_bank_audit(bank_id)
     enqueue_cold_surface(bank.force_index, bank.surface_name)
-    if is_bank_hot(bank, game and game.tick or 0) then
+    if is_bank_hot(bank, current_tick) then
       enqueue_hot_surface(bank.force_index, bank.surface_name)
     end
   end
@@ -1922,26 +1924,28 @@ function model.rebuild_banks()
 end
 
 
-function model.add(entity)
+---@param current_tick MapTick|nil
+function model.add(entity, current_tick)
   if not is_registered_scanner(entity) then
     return
   end
 
-  model.check_init(false)
+  model.check_init(false, current_tick)
   storage.ei.orbital_combinators[entity.unit_number] = entity
-  model.rebuild_banks()
+  model.rebuild_banks(current_tick)
 end
 
 
-function model.rem(entity)
+---@param current_tick MapTick|nil
+function model.rem(entity, current_tick)
   if not entity or not entity.valid or entity.name ~= ORBITAL_COMBINATOR_NAME or not entity.unit_number then
     return
   end
 
-  model.check_init(false)
+  model.check_init(false, current_tick)
   orbital_power.destroy(entity)
   storage.ei.orbital_combinators[entity.unit_number] = nil
-  model.rebuild_banks()
+  model.rebuild_banks(current_tick)
 end
 
 
@@ -3114,7 +3118,7 @@ local function audit_bank_power_state(bank, current_tick, wake_on_change)
   end
 
   if state_changed and orbital_gui.refresh_open_players then
-    orbital_gui.refresh_open_players()
+    orbital_gui.refresh_open_players(current_tick)
   end
 
   if layout_changed and wake_on_change then
@@ -3177,7 +3181,7 @@ get_platform_cached_mode_filters = function(entry, mode)
 end
 
 
-local function build_surface_snapshot(force, surface, mode)
+local function build_surface_snapshot(force, surface, mode, current_tick)
   local platforms = {}
   local platform_cache = storage.ei.orbital_combinator_platform_cache
   local normalized_mode = normalize_mode(mode)
@@ -3218,7 +3222,7 @@ local function build_surface_snapshot(force, surface, mode)
   end
 
   local signature = string.format("%08x", hash)
-  orbital_probe.record_surface_index(game and game.tick or 0, "build_surface_snapshot", force.index, surface.name, {
+  orbital_probe.record_surface_index(current_tick or (game and game.tick) or 0, "build_surface_snapshot", force.index, surface.name, {
     mode = normalized_mode,
     generation_token = get_generation_token(force.index, surface.name, normalized_mode),
     snapshot_platform_indices = snapshot_platform_indices,
@@ -3236,7 +3240,7 @@ local function build_surface_snapshot(force, surface, mode)
 end
 
 
-local function get_surface_snapshot(force, surface, mode)
+local function get_surface_snapshot(force, surface, mode, current_tick)
   local normalized_mode = normalize_mode(mode)
   local generation_token = get_generation_token(force.index, surface.name, normalized_mode)
   local cache_key = table.concat({
@@ -3248,7 +3252,7 @@ local function get_surface_snapshot(force, surface, mode)
   local snapshot_cache = get_snapshot_cache_root()
   local cache_hit = snapshot_cache[cache_key] ~= nil
   if not cache_hit then
-    snapshot_cache[cache_key] = build_surface_snapshot(force, surface, normalized_mode)
+    snapshot_cache[cache_key] = build_surface_snapshot(force, surface, normalized_mode, current_tick)
   end
   local snapshot = snapshot_cache[cache_key]
   snapshot.probe_cache_hit = cache_hit
@@ -3289,7 +3293,7 @@ local function collect_surface_bank_activity(force_index, surface_name, current_
       activity.has_banks = true
 
       if current_tick >= ((bank.last_connection_audit_tick or 0) + BANK_CONNECTION_AUDIT_INTERVAL) then
-        local members = get_bank_members(bank)
+        local members = get_bank_members(bank, current_tick)
         if members and #members > 0 then
           audit_bank_wired_state(bank, members, current_tick)
         end
@@ -3656,9 +3660,9 @@ local function service_bank_connection_audit(current_tick)
       return true
     end
 
-    local queued_members = get_bank_members(queued_bank)
+    local queued_members = get_bank_members(queued_bank, current_tick)
     if not queued_members or #queued_members == 0 then
-      model.rebuild_banks()
+      model.rebuild_banks(current_tick)
       return false
     end
 
@@ -3672,9 +3676,9 @@ local function service_bank_connection_audit(current_tick)
     return false
   end
 
-  local members = get_bank_members(bank)
+  local members = get_bank_members(bank, current_tick)
   if not members or #members == 0 then
-    model.rebuild_banks()
+    model.rebuild_banks(current_tick)
     return false
   end
 
@@ -3859,12 +3863,12 @@ local function get_member_slot_capacity(entity)
 end
 
 
-get_bank_members = function(bank)
+get_bank_members = function(bank, current_tick)
   local members = {}
   local layout_members = {}
   local min_capacity = nil
   local power_state_root = orbital_power.get_state_root()
-  local current_tick = game and game.tick or 0
+  current_tick = current_tick or (game and game.tick) or 0
   local probe = orbital_probe.should_record(current_tick, {bank = bank})
   local member_states = probe and {} or nil
   local active_member_count = 0
@@ -4317,7 +4321,7 @@ function model.update_orbital_bank(bank, current_tick)
   current_tick = current_tick or (game and game.tick) or 0
   audit_bank_power_state(bank, current_tick, false)
   local probe = orbital_probe.should_record(current_tick, {bank = bank})
-  local members, layout_members, page_capacity = get_bank_members(bank)
+  local members, layout_members, page_capacity = get_bank_members(bank, current_tick)
   if not members or #members == 0 then
     if probe then
       orbital_probe.record(probe, current_tick, "update_orbital_bank", {
@@ -4340,7 +4344,7 @@ function model.update_orbital_bank(bank, current_tick)
       orbital_probe.bump_cause(probe, "bank_lost_active_members")
       orbital_probe.bump_cause(probe, "layout_became_zero_or_blank")
     end
-    model.rebuild_banks()
+    model.rebuild_banks(current_tick)
     return false
   end
 
@@ -4352,7 +4356,7 @@ function model.update_orbital_bank(bank, current_tick)
   end
   audit_bank_wired_state(bank, members, current_tick)
   local generation_token = get_bank_generation_token(bank, anchor)
-  local snapshot = get_surface_snapshot(anchor.force, anchor.surface, get_bank_mode(bank))
+  local snapshot = get_surface_snapshot(anchor.force, anchor.surface, get_bank_mode(bank), current_tick)
   local surface_snapshot_cache_hit = snapshot and snapshot.probe_cache_hit == true or false
   local input_signature = build_bank_input_signature(bank, members, snapshot)
   local snapshot_platform_count = snapshot and #snapshot.platforms or 0
@@ -4563,7 +4567,7 @@ function orbital_gui.get_player_open_scanner(player_index)
 end
 
 
-function orbital_gui.get_bank_power_summary(bank)
+function orbital_gui.get_bank_power_summary(bank, current_tick)
   local powered_members = 0
   local low_power_members = 0
   local unpowered_members = 0
@@ -4573,8 +4577,8 @@ function orbital_gui.get_bank_power_summary(bank)
     local scanner = storage.ei.orbital_combinators and storage.ei.orbital_combinators[unit_number] or nil
     local state = orbital_power.normalize_state(state_root[unit_number])
     if is_registered_scanner(scanner) then
-      orbital_power.ensure(scanner)
-      state = orbital_power.get_live_state(scanner)
+      orbital_power.ensure(scanner, current_tick)
+      state = orbital_power.get_live_state(scanner, current_tick)
       state_root[unit_number] = state
       set_scanner_custom_power_status(scanner, state)
     end
@@ -4591,7 +4595,7 @@ function orbital_gui.get_bank_power_summary(bank)
 end
 
 
-function orbital_gui.set_player_open_gui(player_index, unit_number)
+function orbital_gui.set_player_open_gui(player_index, unit_number, current_tick)
   local open_gui_by_player = storage.ei.orbital_combinator_open_gui_by_player
   local previous_unit_number = open_gui_by_player[player_index]
   if previous_unit_number == unit_number then
@@ -4608,7 +4612,7 @@ function orbital_gui.set_player_open_gui(player_index, unit_number)
     local next_bank = model.get_bank_for_unit_number(unit_number)
     if next_bank then
       next_bank.open_gui_count = (next_bank.open_gui_count or 0) + 1
-      wake_bank(next_bank, game and game.tick or 0)
+      wake_bank(next_bank, current_tick or (game and game.tick) or 0)
     end
   else
     open_gui_by_player[player_index] = nil
@@ -4751,7 +4755,7 @@ function orbital_gui.build(player)
 end
 
 
-function orbital_gui.refresh_player(player)
+function orbital_gui.refresh_player(player, current_tick)
   if not player or not player.valid then
     return
   end
@@ -4769,7 +4773,7 @@ function orbital_gui.refresh_player(player)
   end
 
   if bank then
-    local members = get_bank_members(bank)
+    local members = get_bank_members(bank, current_tick)
     if members then
       for _, member in ipairs(members) do
         if entity_has_external_circuit_connection(member.entity) then
@@ -4804,12 +4808,12 @@ function orbital_gui.refresh_player(player)
   local output_power_status = power_flow["output-power-status"]
   local scanner_power_state = POWER_STATE_UNPOWERED
   if is_registered_scanner(scanner) then
-    orbital_power.ensure(scanner)
-    scanner_power_state = orbital_power.get_live_state(scanner)
+    orbital_power.ensure(scanner, current_tick)
+    scanner_power_state = orbital_power.get_live_state(scanner, current_tick)
     orbital_power.get_state_root()[scanner.unit_number] = scanner_power_state
     set_scanner_custom_power_status(scanner, scanner_power_state)
   end
-  local powered_members, low_power_members, unpowered_members = orbital_gui.get_bank_power_summary(bank)
+  local powered_members, low_power_members, unpowered_members = orbital_gui.get_bank_power_summary(bank, current_tick)
 
   if power_status then
     if scanner_power_state == POWER_STATE_POWERED then
@@ -4844,7 +4848,7 @@ function orbital_gui.refresh_player(player)
 end
 
 
-function orbital_gui.refresh_open_players()
+function orbital_gui.refresh_open_players(current_tick)
   local open_gui_by_player = storage.ei.orbital_combinator_open_gui_by_player
   if not open_gui_by_player or next(open_gui_by_player) == nil then
     return
@@ -4853,7 +4857,7 @@ function orbital_gui.refresh_open_players()
   for player_index, _ in pairs(open_gui_by_player) do
     local player = game.get_player(player_index)
     if player then
-      orbital_gui.refresh_player(player)
+      orbital_gui.refresh_player(player, current_tick)
     end
   end
 end
@@ -4912,10 +4916,10 @@ model.dump_probe = model.dump_probe_records
 model.probe_dump = model.dump_probe_records
 
 
-function model.get_runtime_status()
-  model.check_init(false)
-
-  local current_tick = game and game.tick or 0
+---@param current_tick MapTick|nil
+function model.get_runtime_status(current_tick)
+  current_tick = current_tick or (game and game.tick) or 0
+  model.check_init(false, current_tick)
   local bank_count = storage.ei.orbital_combinator_bank_count or 0
   if bank_count == 0 then
     return {
@@ -5030,9 +5034,10 @@ function model.get_surface_platform_indices(force_index, surface_name)
 end
 
 
-function model.get_surface_snapshot(force, surface, mode)
-  model.check_init(false)
-  return get_surface_snapshot(force, surface, mode)
+---@param current_tick MapTick|nil
+function model.get_surface_snapshot(force, surface, mode, current_tick)
+  model.check_init(false, current_tick)
+  return get_surface_snapshot(force, surface, mode, current_tick)
 end
 
 
@@ -5248,7 +5253,7 @@ end
 
 
 function model.on_gui_opened(event)
-  model.check_init(false)
+  model.check_init(false, event.tick)
 
   local player = game.get_player(event.player_index)
   if not player then
@@ -5262,8 +5267,8 @@ function model.on_gui_opened(event)
     return
   end
 
-  orbital_gui.set_player_open_gui(player.index, entity.unit_number)
-  orbital_gui.refresh_player(player)
+  orbital_gui.set_player_open_gui(player.index, entity.unit_number, event.tick)
+  orbital_gui.refresh_player(player, event.tick)
 end
 
 
@@ -5323,7 +5328,7 @@ function model.on_gui_click(event)
   model._surface_demand.rebuild(event.tick or (game and game.tick) or 0)
   clear_snapshot_cache()
   wake_bank(bank, event.tick or (game and game.tick) or 0)
-  orbital_gui.refresh_open_players()
+  orbital_gui.refresh_open_players(event.tick)
 end
 
 

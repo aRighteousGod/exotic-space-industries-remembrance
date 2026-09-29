@@ -406,7 +406,8 @@ end
 ---@param silo_unit_number uint|nil
 ---@param kind "plume"|"spiral"|nil
 ---@return uint removed_count
-local function remove_launch_smoke_jobs_for_silo(state, silo_unit_number, kind)
+---@param current_tick MapTick
+local function remove_launch_smoke_jobs_for_silo(state, silo_unit_number, kind, current_tick)
   if not silo_unit_number then
     return 0
   end
@@ -440,7 +441,7 @@ local function remove_launch_smoke_jobs_for_silo(state, silo_unit_number, kind)
 
   state.launch_smoke_count = #jobs
   if removed_count > 0 then
-    refresh_launch_smoke_summary(state, game and game.tick or 0)
+    refresh_launch_smoke_summary(state, current_tick)
   end
   return removed_count
 end
@@ -448,8 +449,9 @@ end
 ---@param state table
 ---@param silo_unit_number uint|nil
 ---@return uint removed_count
-local function remove_plume_jobs_for_silo(state, silo_unit_number)
-  return remove_launch_smoke_jobs_for_silo(state, silo_unit_number, "plume")
+---@param current_tick MapTick
+local function remove_plume_jobs_for_silo(state, silo_unit_number, current_tick)
+  return remove_launch_smoke_jobs_for_silo(state, silo_unit_number, "plume", current_tick)
 end
 
 ---@param state table
@@ -732,7 +734,7 @@ end
 ---@param skip_existing_clear boolean|nil
 local function queue_launch_plume(state, surface, pos, silo_unit_number, pollution, current_tick, skip_existing_clear)
   if not skip_existing_clear then
-    remove_plume_jobs_for_silo(state, silo_unit_number)
+    remove_plume_jobs_for_silo(state, silo_unit_number, current_tick)
   end
   state.launch_smoke = state.launch_smoke or {}
   current_tick = math.max(0, math.floor(tonumber(current_tick) or 0))
@@ -1049,9 +1051,9 @@ local function spawn_launch_smoke_spiral(
   local SMOKE_NAME = "smoke"
   local random = math.random
 
-  state = state or ensure_launch_state(game and game.tick or 0)
-  state.launch_smoke = state.launch_smoke or {}
   current_tick = math.max(0, math.floor(tonumber(current_tick) or (game and game.tick) or 0))
+  state = state or ensure_launch_state(current_tick)
+  state.launch_smoke = state.launch_smoke or {}
   start_tick = math.max(0, math.floor(tonumber(start_tick) or current_tick))
   stop_tick = normalize_smoke_tick(stop_tick)
   fade_out_ticks = stop_tick and math.max(0, math.floor(tonumber(fade_out_ticks) or 0)) or nil
@@ -1464,7 +1466,7 @@ local function apply_confirmed_launch(job)
   local state = ensure_launch_state(job.tick or (game and game.tick) or 0)
   -- Ordered launch owns the visual smoke sequence. Confirmation only stops the
   -- ascending plume and applies gameplay consequences so aborted orders cannot pollute.
-  remove_plume_jobs_for_silo(state, job.silo_unit_number)
+  remove_plume_jobs_for_silo(state, job.silo_unit_number, job.tick)
 
   local pollution = tonumber(job.pollution) or 0
   surface.pollute(job.position, pollution)
@@ -1699,7 +1701,7 @@ local function cleanup_stale_pending_launches(current_tick)
     local pending = entry and entry.silo_unit_number and state.pending_launches_by_silo[entry.silo_unit_number] or nil
     if pending and pending.expected_tick == entry.expected_tick then
       state.pending_launches_by_silo[entry.silo_unit_number] = nil
-      remove_launch_smoke_jobs_for_silo(state, entry.silo_unit_number, nil)
+      remove_launch_smoke_jobs_for_silo(state, entry.silo_unit_number, nil, current_tick)
       ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_canceled", 1)
     end
   end
@@ -1747,7 +1749,7 @@ local function queue_rocket_liftoff_wrath(silo, pollution, event)
   local cleanup_tick = nil
 
   if pad_exhaust_profile or uses_plume then
-    remove_launch_smoke_jobs_for_silo(state, silo.unit_number, nil)
+    remove_launch_smoke_jobs_for_silo(state, silo.unit_number, nil, event.tick)
     cleanup_tick = event.tick + PLUME_MAX_TRAIL_TICKS + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS
   end
 

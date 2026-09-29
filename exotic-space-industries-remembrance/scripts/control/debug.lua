@@ -216,7 +216,8 @@ local function print_runtime_status(player, message)
     game.print(message)
 end
 
-local function get_runtime_status_snapshot()
+---@param current_tick MapTick
+local function get_runtime_status_snapshot(current_tick)
     local ei_state = storage and storage.ei or {}
     local fueler = storage and storage.ei and storage.ei.fueler_rt or {}
     local matter_runtime = ei_state.matter_runtime or {}
@@ -339,7 +340,6 @@ local function get_runtime_status_snapshot()
         local queued_vat_count = ei_runtime_scheduler.table_count(auric_runtime.due_tick_by_unit)
         local auric_ready_queue_count = tonumber(auric_runtime.ready_queue_count)
             or ei_runtime_scheduler.table_count(auric_runtime.ready_queue and auric_runtime.ready_queue.queued)
-        local current_tick = game and game.tick or 0
         local auric_due_vat_count = auric_ready_queue_count
         for unit_number, due_tick in pairs(auric_runtime.due_tick_by_unit or {}) do
             if due_tick and due_tick <= current_tick
@@ -537,7 +537,7 @@ local function get_runtime_status_snapshot()
             capped = ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.counters and ei_state.gaian_saucer_wake.counters.capped or 0,
             invalid_purges = ei_state.gaian_saucer_wake and ei_state.gaian_saucer_wake.counters and ei_state.gaian_saucer_wake.counters.invalid_purges or 0,
         }),
-        auric_inoculation_vat = capture_runtime_module_status("auric-inoculation-vat", ei_auric_inoculation_vat, get_auric_fallback_status, game and game.tick or 0, false),
+        auric_inoculation_vat = capture_runtime_module_status("auric-inoculation-vat", ei_auric_inoculation_vat, get_auric_fallback_status, current_tick, false),
         vulcanus = capture_runtime_module_status("vulcanus-fumaroles", ei_vulcanus_fumaroles, {
             active = ei_lib.getn(vulcanus.active),
             dormant = ei_lib.getn(vulcanus.dormant_chunks),
@@ -772,7 +772,7 @@ local function handle_orbital_scanner_probe_command(cmd)
             ticks = ORBITAL_SCANNER_PROBE_DEFAULT_TICKS
         end
 
-        local status = runtime.arm_probe(scanner, game.tick + ticks, game.tick)
+        local status = runtime.arm_probe(scanner, cmd.tick + ticks, cmd.tick)
         if status then
             player.print("Orbital scanner probe armed for " .. tostring(ticks) .. " ticks on scanner " .. tostring(scanner.unit_number) .. ".")
             player.print("Probe status: " .. format_orbital_probe_counters(get_orbital_probe_counters(status)))
@@ -788,7 +788,7 @@ local function handle_orbital_scanner_probe_command(cmd)
             return
         end
 
-        local status = runtime.get_probe_status(game.tick)
+        local status = runtime.get_probe_status(cmd.tick)
         player.print(table.concat({
             "Orbital scanner probe",
             "enabled=" .. tostring(status and status.enabled == true),
@@ -808,7 +808,7 @@ local function handle_orbital_scanner_probe_command(cmd)
             return
         end
 
-        local dump = dump_helper(game.tick)
+        local dump = dump_helper(cmd.tick)
         local records = dump and dump.records or {}
         local written, output_file = write_orbital_probe_dump(records)
         player.print(table.concat({
@@ -857,13 +857,13 @@ local function handle_runtime_status_command(cmd)
         local detailed = parameter == "auric-detail"
         local auric_status = nil
         if ei_auric_inoculation_vat and ei_auric_inoculation_vat.get_runtime_status then
-            local ok, status = pcall(ei_auric_inoculation_vat.get_runtime_status, game and game.tick or 0, detailed)
+            local ok, status = pcall(ei_auric_inoculation_vat.get_runtime_status, cmd.tick, detailed)
             if ok then
                 auric_status = status
             end
         end
         if not auric_status then
-            local snapshot = get_runtime_status_snapshot()
+            local snapshot = get_runtime_status_snapshot(cmd.tick)
             auric_status = snapshot.extra and snapshot.extra.auric_inoculation_vat or {}
         end
         print_runtime_status(player, format_auric_status_summary(auric_status))
@@ -876,7 +876,7 @@ local function handle_runtime_status_command(cmd)
         return
     end
 
-    local snapshot = get_runtime_status_snapshot()
+    local snapshot = get_runtime_status_snapshot(cmd.tick)
     print_runtime_status(player, format_runtime_status_summary(snapshot))
     ei_runtime_scheduler.log_snapshot("debug-command", snapshot.extra)
 end
@@ -949,12 +949,12 @@ commands.add_command("rescan_orbital_logistics", "Queues an orbital logistics co
         return
     end
     if runtime.request_runtime_rescan then
-        runtime.request_runtime_rescan("admin-command", game and game.tick or 0)
+        runtime.request_runtime_rescan("admin-command", cmd.tick)
         player.print("Orbital logistics runtime rescan queued.")
         return
     end
     if runtime.rebuild_runtime_state then
-        runtime.rebuild_runtime_state("admin-command", game and game.tick or 0)
+        runtime.rebuild_runtime_state("admin-command", cmd.tick)
         player.print("Orbital logistics runtime rebuilt.")
         return
     end

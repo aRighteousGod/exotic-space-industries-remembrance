@@ -407,7 +407,7 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
         end
     end
     if ei_nauvis_pressure_grace.on_scripted_research_burst then
-        ei_nauvis_pressure_grace.on_scripted_research_burst(force)
+        ei_nauvis_pressure_grace.on_scripted_research_burst(force, current_tick)
     end
     if ei_emerald_apocalypse_hover_tank.on_scripted_research_burst then
         ei_emerald_apocalypse_hover_tank.on_scripted_research_burst(force, current_tick)
@@ -1048,7 +1048,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
         or name == "ei-combustion-turbine-fluid"
         or name == ei_combustion_turbine.fluid_open_proxy_name
     then
-        ei_combustion_turbine.open_gui(player --[[@as LuaPlayer]], entity)
+        ei_combustion_turbine.open_gui(player --[[@as LuaPlayer]], entity, event)
     elseif ei_induction_matrix.core[name] or ei_induction_matrix.proxy[name] then
         ei_induction_matrix.open_gui(player --[[@as LuaPlayer]])
     elseif name == "ei-black-hole" then
@@ -1060,7 +1060,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
     elseif is_orbital_logistics_terminal_name(name) then
         orbital_logistics.open_gui(player, entity)
     elseif name == "railgun-turret" then
-        ei_railgun_cooling.open_gui(player, entity)
+        ei_railgun_cooling.open_gui(player, entity, event)
     elseif name == ei_emerald_apocalypse_hover_tank.tank_name then
         ei_emerald_apocalypse_hover_tank.on_gui_opened(event)
     elseif name == "ei-fueler" then
@@ -1533,10 +1533,10 @@ function updater(event)
            -- Step 3 spends neutron budget on two queues:
            -- dirty collectors that need a full retarget/recompute, and connected sources
            -- that still need low-lag active-state polling.
-           local neutron_work_count = ei_neutron_collector.get_pending_work_count()
+           local neutron_work_count = ei_neutron_collector.get_pending_work_count(event)
            if neutron_work_count > 0 then
                updates_needed = math.max(1, math.min(math.ceil(neutron_work_count / divisor), ei_maxEntityUpdates))
-               ei_neutron_collector.update(updates_needed)
+                ei_neutron_collector.update(updates_needed, event)
            end
 
        elseif ei_update_step == 4 then
@@ -1816,7 +1816,7 @@ function on_cloned_entity(e)
         ei_register.register_fluid_entity(destination)
     end
 
-    ei_fusion_reactor.on_built_entity(destination)
+    ei_fusion_reactor.on_built_entity(destination, e)
     ei_combustion_turbine.on_built_entity(clone_event)
     ei_beacon_overload.on_built_entity(destination)
     ei_neutron_collector.on_built_entity(destination)
@@ -1829,7 +1829,7 @@ function on_cloned_entity(e)
     ei_loaders_lib.on_built_entity(destination)
     ei_fueler.on_built_entity(destination)
     em_trains.on_built_entity(destination)
-    orbital_combinator.add(destination)
+    orbital_combinator.add(destination, e.tick)
     orbital_logistics.on_built_entity(clone_event)
     ei_railgun_cooling.on_built_entity(clone_event)
     ei_camp_fire.on_built_entity(clone_event)
@@ -1899,7 +1899,7 @@ function on_built_entity(e)
     -- Feature fan-out starts here. Most modules simply inspect the entity and return if
     -- it is not theirs, so it is safe for the central dispatcher to call them in sequence.
 
-    ei_fusion_reactor.on_built_entity(e["entity"])
+    ei_fusion_reactor.on_built_entity(e["entity"], e)
     ei_combustion_turbine.on_built_entity(e)
     ei_beacon_overload.on_built_entity(e["entity"])
     ei_neutron_collector.on_built_entity(e["entity"])
@@ -1914,7 +1914,7 @@ function on_built_entity(e)
     ei_loaders_lib.on_built_entity(e["entity"])
     ei_fueler.on_built_entity(e["entity"])
     em_trains.on_built_entity(e["entity"])
-    orbital_combinator.add(e["entity"])
+    orbital_combinator.add(e["entity"], e.tick)
     orbital_logistics.on_built_entity(e)
     ei_railgun_cooling.on_built_entity(e)
     ei_steam_train.on_built_entity(e)
@@ -1965,7 +1965,7 @@ function on_destroyed_entity(e)
     ei_gate.on_destroyed_entity(e)
     ei_fueler.on_destroyed_entity(e["entity"])
     em_trains.on_destroyed_entity(e["entity"])
-    orbital_combinator.rem(e["entity"])
+    orbital_combinator.rem(e["entity"], e.tick)
     orbital_logistics.on_destroyed_entity(e)
     ei_railgun_cooling.on_destroyed_entity(e)
     ei_camp_fire.on_destroyed_entity(e)

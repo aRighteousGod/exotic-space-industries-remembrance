@@ -786,17 +786,19 @@ function model.update_gui(player, snapshot)
     flow["heat-debt-bar"].caption = {"exotic-industries.railgun-cooling-gui-heat-debt", round_amount(snapshot.heat_debt or 0)}
 end
 
-function model.open_gui(player, entity)
+---@param event_or_tick EventData|MapTick|nil
+function model.open_gui(player, entity, event_or_tick)
     if not (player and player.valid) then return end
     local runtime = get_runtime()
     local turret = ei_lib.get_valid_entity(entity) or get_opened_railgun(player)
     if not (turret and turret.name == RAILGUN_NAME) then model.close_gui(player) return end
-    local record = register_turret(runtime, turret, game and game.tick or 0)
+    local tick = now_tick(event_or_tick or (game and game.tick) or 0)
+    local record = register_turret(runtime, turret, tick)
     if not record then model.close_gui(player) return end
     local root = get_gui_root(player)
     if root then root.destroy() end
     runtime.open_by_player[player.index] = record.unit_number
-    model.update_gui(player, model.get_gui_snapshot(record, game and game.tick or 0))
+    model.update_gui(player, model.get_gui_snapshot(record, tick))
 end
 
 function model.close_gui(player)

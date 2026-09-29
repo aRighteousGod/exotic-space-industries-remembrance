@@ -1290,7 +1290,8 @@ function model.apply_collector_animation(collector_entry, direction_count)
 end
 
 
-function model.refresh_collector(runtime, collector_entry, show_feedback, exclude)
+---@param event_or_tick EventData|MapTick|nil
+function model.refresh_collector(runtime, collector_entry, show_feedback, exclude, event_or_tick)
     local entity = collector_entry and collector_entry.entity or nil
     if not model.entity_check(entity) then
         model.unregister_collector(runtime, collector_entry)
@@ -1353,12 +1354,13 @@ function model.refresh_collector(runtime, collector_entry, show_feedback, exclud
         model.show_resolution_text(entity, result)
     end
 
-    model.queue_gui_refresh_for_unit(collector_entry.unit_number, now_tick() + GUI_REFRESH_DELAY)
+    model.queue_gui_refresh_for_unit(collector_entry.unit_number, now_tick(event_or_tick) + GUI_REFRESH_DELAY)
     return true
 end
 
 
-function model.process_dirty_collectors(runtime, budget)
+---@param event_or_tick EventData|MapTick|nil
+function model.process_dirty_collectors(runtime, budget, event_or_tick)
     local processed = 0
 
     while processed < budget do
@@ -1367,7 +1369,7 @@ function model.process_dirty_collectors(runtime, budget)
             break
         end
 
-        model.refresh_collector(runtime, collector_entry, false)
+        model.refresh_collector(runtime, collector_entry, false, nil, event_or_tick)
         processed = processed + 1
     end
 
@@ -1408,7 +1410,8 @@ function model.service_wire_proxy_outputs(runtime, event_or_tick)
 end
 
 
-function model.poll_source(runtime, source_unit)
+---@param event_or_tick EventData|MapTick|nil
+function model.poll_source(runtime, source_unit, event_or_tick)
     local source_entry = runtime.sources_by_unit[source_unit]
     if not source_entry then
         model.remove_connected_source(runtime, source_unit)
@@ -1453,7 +1456,7 @@ function model.poll_source(runtime, source_unit)
             end
 
             model.update_wire_proxy_signals(runtime, collector_entry)
-            model.queue_gui_refresh_for_unit(collector_unit, now_tick() + GUI_REFRESH_DELAY)
+            model.queue_gui_refresh_for_unit(collector_unit, now_tick(event_or_tick) + GUI_REFRESH_DELAY)
         end
     end
 
@@ -1465,7 +1468,8 @@ function model.poll_source(runtime, source_unit)
 end
 
 
-function model.poll_connected_sources(runtime, budget)
+---@param event_or_tick EventData|MapTick|nil
+function model.poll_connected_sources(runtime, budget, event_or_tick)
     local processed = 0
 
     while processed < budget and (runtime.connected_source_count or 0) > 0 do
@@ -1480,7 +1484,7 @@ function model.poll_connected_sources(runtime, budget)
         end
 
         if source_unit ~= nil then
-            model.poll_source(runtime, source_unit)
+            model.poll_source(runtime, source_unit, event_or_tick)
             processed = processed + 1
         else
             break
@@ -1581,7 +1585,8 @@ function model.get_connected_source_count()
 end
 
 
-function model.get_pending_work_count()
+---@param event_or_tick EventData|MapTick|nil
+function model.get_pending_work_count(event_or_tick)
     local runtime = model.ensure_runtime_ready()
     if not runtime then
         return 0
@@ -1589,12 +1594,13 @@ function model.get_pending_work_count()
 
     return (runtime.dirty_collector_count or 0)
         + (runtime.connected_source_count or 0)
-        + get_due_wire_output_count(runtime)
-        + model.get_due_gui_refresh_count(runtime)
+        + get_due_wire_output_count(runtime, event_or_tick)
+        + model.get_due_gui_refresh_count(runtime, event_or_tick)
 end
 
 
-function model.update_neutron_collector(entity, exclude, show_feedback)
+---@param event_or_tick EventData|MapTick|nil
+function model.update_neutron_collector(entity, exclude, show_feedback, event_or_tick)
     local runtime = model.ensure_runtime_ready()
     if not runtime or runtime.runtime_rebuild_in_progress then
         return false
@@ -1606,7 +1612,7 @@ function model.update_neutron_collector(entity, exclude, show_feedback)
     end
 
     model.clear_queued_collector(runtime, collector_entry)
-    return model.refresh_collector(runtime, collector_entry, show_feedback == true, exclude)
+    return model.refresh_collector(runtime, collector_entry, show_feedback == true, exclude, event_or_tick)
 end
 
 
@@ -2290,7 +2296,8 @@ function model.update_gui(player, snapshot)
 end
 
 
-function model.open_gui(player)
+---@param event_or_tick EventData|MapTick|nil
+function model.open_gui(player, event_or_tick)
     if not (player and player.valid) then
         return
     end
@@ -2312,7 +2319,7 @@ function model.open_gui(player)
         return
     end
 
-    model.update_neutron_collector(entity, nil, false)
+    model.update_neutron_collector(entity, nil, false, event_or_tick)
     collector_entry = runtime.collectors_by_unit[collector_entry.unit_number]
     if not collector_entry then
         model.close_gui(player)
@@ -2344,7 +2351,7 @@ end
 
 
 function model.on_gui_opened(event)
-    model.open_gui(game.get_player(event.player_index))
+    model.open_gui(game.get_player(event.player_index), event)
 end
 
 
@@ -2379,7 +2386,7 @@ function model.on_gui_click(event)
         return
     end
 
-    if not model.update_neutron_collector(entity, nil, false) then
+    if not model.update_neutron_collector(entity, nil, false, event) then
         model.close_gui(player)
         return
     end
@@ -2493,13 +2500,15 @@ function model.service_gui_refreshes(event_or_tick, runtime)
 end
 
 
-function model.update(budget)
+---@param event_or_tick EventData|MapTick|nil
+function model.update(budget, event_or_tick)
     local runtime = model.ensure_runtime_ready()
     if not runtime or runtime.runtime_rebuild_in_progress then
         return false
     end
 
-    local gui_refreshed = model.service_gui_refreshes(nil, runtime)
+    local tick = now_tick(event_or_tick)
+    local gui_refreshed = model.service_gui_refreshes(tick, runtime)
 
     budget = math.max(0, math.floor(budget or 1))
     if budget <= 0 then
@@ -2508,7 +2517,7 @@ function model.update(budget)
 
     local dirty_count = runtime.dirty_collector_count or 0
     local connected_count = runtime.connected_source_count or 0
-    local wire_due_count = get_due_wire_output_count(runtime)
+    local wire_due_count = get_due_wire_output_count(runtime, tick)
     if dirty_count <= 0 and connected_count <= 0 and wire_due_count <= 0 then
         return gui_refreshed
     end
@@ -2530,23 +2539,23 @@ function model.update(budget)
     local dirty_budget = budget - reserved_poll_budget
     local dirty_processed = 0
     if dirty_budget > 0 then
-        dirty_processed = model.process_dirty_collectors(runtime, dirty_budget)
+        dirty_processed = model.process_dirty_collectors(runtime, dirty_budget, tick)
     end
 
     local remaining_budget = budget - dirty_processed
     local poll_processed = 0
     if remaining_budget > 0 and connected_count > 0 then
-        poll_processed = model.poll_connected_sources(runtime, remaining_budget)
+        poll_processed = model.poll_connected_sources(runtime, remaining_budget, tick)
     end
 
     remaining_budget = budget - dirty_processed - poll_processed
     if remaining_budget > 0 then
-        dirty_processed = dirty_processed + model.process_dirty_collectors(runtime, remaining_budget)
+        dirty_processed = dirty_processed + model.process_dirty_collectors(runtime, remaining_budget, tick)
     end
 
     local wire_processed = 0
     if budget > 0 then
-        wire_processed = model.service_wire_proxy_outputs(runtime, game and game.tick or nil)
+        wire_processed = model.service_wire_proxy_outputs(runtime, tick)
     end
 
     if connected_count > 0 and dirty_count > 0 and budget == 1 then

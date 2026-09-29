@@ -1,0 +1,5 @@
+{
+  "teslas-legacy": "model.tick_qc = {remember = remember_recent_hit, take = take_recent_hit, burst = can_spawn_burst, burst_ttl = BURST_GATE_TTL}",
+  "fluid-safety": "model.tick_qc = {warn = maybe_log_segment_warning}",
+  "em-trains/charger": "model.tick_qc = {glow = take_next_glow_slot}"
+}

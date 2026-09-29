@@ -234,8 +234,8 @@ local function next_member_wrapped(tbl, key)
     return next_member_after(tbl, key) or next_member_after(tbl, nil)
 end
 
-local function maybe_log_segment_warning(segment, tick_field, window_ticks, message)
-    local tick = (game and game.tick) or 0
+local function maybe_log_segment_warning(segment, tick_field, window_ticks, message, tick)
+    tick = tick or (game and game.tick) or 0
     if segment and segment[tick_field] and (tick - segment[tick_field]) < window_ticks then
         return
     end
@@ -247,7 +247,7 @@ local function maybe_log_segment_warning(segment, tick_field, window_ticks, mess
     fluid_log(message)
 end
 
-local function log_segment_loop_guard(function_name, segment_id, member_count, status, fluid_name)
+local function log_segment_loop_guard(function_name, segment_id, member_count, status, fluid_name, tick)
     fluid_log(
         string.format(
             "loop guard tripped function=%s segment=%s members=%s status=%s fluid=%s tick=%s",
@@ -256,7 +256,7 @@ local function log_segment_loop_guard(function_name, segment_id, member_count, s
             tostring(member_count),
             tostring(status),
             tostring(fluid_name),
-            tostring((game and game.tick) or 0)
+            tostring(tick or (game and game.tick) or 0)
         )
     )
 end
@@ -767,7 +767,7 @@ local function add_runtime_entry(runtime, entity)
     return entry
 end
 
-local function get_segment_representative(runtime, segment_id)
+local function get_segment_representative(runtime, segment_id, tick)
     local segment = runtime.segments[segment_id]
     if not segment then
         return nil, nil
@@ -786,7 +786,7 @@ local function get_segment_representative(runtime, segment_id)
     while unit_number do
         iterations = iterations + 1
         if iterations > loop_limit then
-            log_segment_loop_guard("get_segment_representative", segment_id, member_count, segment.status, nil)
+            log_segment_loop_guard("get_segment_representative", segment_id, member_count, segment.status, nil, tick)
             runtime.segments[segment_id] = nil
             return nil, nil
         end
@@ -819,8 +819,9 @@ local function get_segment_representative(runtime, segment_id)
                 tostring(segment_id),
                 tostring(member_count),
                 tostring(segment.status),
-                tostring((game and game.tick) or 0)
-            )
+                tostring(tick or (game and game.tick) or 0)
+            ),
+            tick
         )
     end
 
@@ -860,7 +861,7 @@ local function get_entity_target_fluid_amount(entity, fluid_name)
     return 0
 end
 
-local function get_segment_member_profile(runtime, segment_id)
+local function get_segment_member_profile(runtime, segment_id, tick)
     local profile = {
         total_count = 0,
         normal_count = 0,
@@ -882,7 +883,7 @@ local function get_segment_member_profile(runtime, segment_id)
     while unit_number do
         iterations = iterations + 1
         if iterations > loop_limit then
-            log_segment_loop_guard("get_segment_member_profile", segment_id, member_count, segment.status, nil)
+            log_segment_loop_guard("get_segment_member_profile", segment_id, member_count, segment.status, nil, tick)
             return profile
         end
 
@@ -986,15 +987,15 @@ local function select_effective_segment_fluid(fluid_contents, member_profile)
     return nil, 0, FLUID_STATUS_EMPTY
 end
 
-local function read_segment_fluid(runtime, segment_id)
-    local representative_entry = get_segment_representative(runtime, segment_id)
+local function read_segment_fluid(runtime, segment_id, tick)
+    local representative_entry = get_segment_representative(runtime, segment_id, tick)
     if not representative_entry then
         return nil, 0, FLUID_STATUS_EMPTY
     end
 
     local entity = representative_entry.entity
     local fluid_contents = read_entity_segment_contents(entity)
-    local member_profile = get_segment_member_profile(runtime, segment_id)
+    local member_profile = get_segment_member_profile(runtime, segment_id, tick)
     return select_effective_segment_fluid(fluid_contents, member_profile)
 end
 
@@ -1099,7 +1100,7 @@ local function prefer_destroy_candidate(candidate_entry, candidate_priority, can
     return (candidate_entry.unit_number or math.huge) < (best_entry.unit_number or math.huge)
 end
 
-local function find_segment_replacement_entry(runtime, segment_id, excluded_unit_number, preferred_unit_number)
+local function find_segment_replacement_entry(runtime, segment_id, excluded_unit_number, preferred_unit_number, tick)
     local segment = runtime.segments[segment_id]
     if not segment then
         return nil
@@ -1126,7 +1127,7 @@ local function find_segment_replacement_entry(runtime, segment_id, excluded_unit
     while unit_number do
         iterations = iterations + 1
         if iterations > loop_limit then
-            log_segment_loop_guard("find_segment_replacement_entry", segment_id, member_count, segment.status, nil)
+            log_segment_loop_guard("find_segment_replacement_entry", segment_id, member_count, segment.status, nil, tick)
             return nil
         end
 
@@ -1148,7 +1149,7 @@ local function find_segment_replacement_entry(runtime, segment_id, excluded_unit
     return best_entry
 end
 
-local function build_segment_breach_plan(runtime, segment_id, status)
+local function build_segment_breach_plan(runtime, segment_id, status, tick)
     local segment = runtime.segments[segment_id]
     if not segment then
         return nil
@@ -1171,7 +1172,7 @@ local function build_segment_breach_plan(runtime, segment_id, status)
     while unit_number do
         iterations = iterations + 1
         if iterations > loop_limit then
-            log_segment_loop_guard("build_segment_breach_plan", segment_id, member_count, status, nil)
+            log_segment_loop_guard("build_segment_breach_plan", segment_id, member_count, status, nil, tick)
             return plan
         end
 
@@ -1229,8 +1230,8 @@ local function drain_entity_fluid(entity)
     return fluid_name, amount
 end
 
-local function drain_segment_fluid(runtime, segment_id, fluid_name)
-    local representative_entry = get_segment_representative(runtime, segment_id)
+local function drain_segment_fluid(runtime, segment_id, fluid_name, tick)
+    local representative_entry = get_segment_representative(runtime, segment_id, tick)
     if not representative_entry then
         return fluid_name, 0, nil
     end
@@ -1507,7 +1508,7 @@ local function apply_breach_context(runtime, segment_id, segment, context, tick)
     local replacement_entry = context.replacement_entry or context.entry
     local replacement_amount = nil
     if context.drain_mode == "segment" then
-        local drained_name, drained_amount, representative_entry = drain_segment_fluid(runtime, segment_id, context.fluid_name)
+        local drained_name, drained_amount, representative_entry = drain_segment_fluid(runtime, segment_id, context.fluid_name, tick)
         if drained_name then
             context.fluid_name = drained_name
             context.incompatible_name = context.incompatible_name or drained_name
@@ -1852,7 +1853,7 @@ local function destroy_offending_entity(runtime, segment_id, segment, entry, sta
     end
 
     if segment_id and not skip_aftermath and not replacement_entry then
-        replacement_entry = find_segment_replacement_entry(runtime, segment_id, entry.unit_number, replacement_unit)
+        replacement_entry = find_segment_replacement_entry(runtime, segment_id, entry.unit_number, replacement_unit, tick)
     end
 
     local context = resolve_breach_context(segment_id, segment, entry, status, incompatible_name, {
@@ -1956,7 +1957,7 @@ local function process_segment_violations(runtime, segment_id, status, incompati
     end
 
     tick = tick or (game and game.tick) or 0
-    breach_plan = breach_plan or build_segment_breach_plan(runtime, segment_id, status)
+    breach_plan = breach_plan or build_segment_breach_plan(runtime, segment_id, status, tick)
     local shared_breach = nil
     local anchor_unit = nil
 
@@ -1997,7 +1998,7 @@ local function process_segment_violations(runtime, segment_id, status, incompati
     while current_unit and processed < SEGMENT_MEMBER_ACTION_BUDGET do
         iterations = iterations + 1
         if iterations > loop_limit then
-            log_segment_loop_guard("process_segment_violations", segment_id, member_count, status, incompatible_name)
+            log_segment_loop_guard("process_segment_violations", segment_id, member_count, status, incompatible_name, tick)
             current_unit = nil
             break
         end
@@ -2062,7 +2063,8 @@ local function process_segment_violations(runtime, segment_id, status, incompati
                     tostring(get_segment_member_count(segment)),
                     tostring(segment.requeue_window_count),
                     tostring(tick)
-                )
+                ),
+                tick
             )
         end
         model.enqueue_dirty_segment(segment_id)
@@ -2076,7 +2078,7 @@ local function process_segment_violations(runtime, segment_id, status, incompati
 end
 
 local function audit_segment(runtime, segment_id, tick)
-    local fluid_name, amount, status = read_segment_fluid(runtime, segment_id)
+    local fluid_name, amount, status = read_segment_fluid(runtime, segment_id, tick)
     local segment = runtime.segments[segment_id]
     if not segment then
         return false
@@ -2092,7 +2094,7 @@ local function audit_segment(runtime, segment_id, tick)
     end
 
     if status == FLUID_STATUS_CRYO_NITROGEN or status == FLUID_STATUS_CRYO_OXYGEN then
-        local breach_plan = build_segment_breach_plan(runtime, segment_id, status)
+        local breach_plan = build_segment_breach_plan(runtime, segment_id, status, tick)
         local normal_entry = breach_plan and breach_plan.normal_entry or nil
         if normal_entry then
             local context = resolve_breach_context(segment_id, segment, normal_entry, status, fluid_name, {
@@ -2119,7 +2121,8 @@ local function audit_segment(runtime, segment_id, tick)
                     tostring(fluid_name),
                     tostring(get_segment_member_count(segment)),
                     tostring(tick)
-                )
+                ),
+                tick
             )
         end
         process_segment_violations(runtime, segment_id, status, fluid_name, amount, breach_plan, tick)

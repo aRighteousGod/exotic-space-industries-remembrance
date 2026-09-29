@@ -1459,7 +1459,7 @@ local function remember_recent_hit(state, event, hit_kind, force, ttl)
 
     local target = get_effect_target(event)
     local record = {
-        tick = game.tick,
+        tick = event.tick,
         hit_kind = hit_kind,
         force_name = force.name,
         surface_index = surface.index,
@@ -1498,12 +1498,12 @@ local function clear_recent_hit(state, record, unit_number, position_key)
     end
 end
 
-local function take_recent_hit(state, entity, expected_hit_kind, allow_position_fallback)
+---@param tick MapTick Current death event tick, not the earlier hit record tick.
+local function take_recent_hit(state, entity, expected_hit_kind, allow_position_fallback, tick)
     if not entity or not entity.valid then
         return nil
     end
 
-    local tick = game.tick
     local unit_number = get_entity_unit_number(entity)
     local position_key = make_position_key(entity.surface.index, entity.position)
     local record = unit_number and state.recent_hits_by_unit[unit_number] or nil
@@ -1542,7 +1542,8 @@ local function take_recent_hit(state, entity, expected_hit_kind, allow_position_
     return nil
 end
 
-local function can_spawn_burst(state, gate_kind, surface_index, position)
+---@param tick MapTick
+local function can_spawn_burst(state, gate_kind, surface_index, position, tick)
     local position_key = make_position_key(surface_index, position)
     if not position_key then
         return false
@@ -1550,11 +1551,11 @@ local function can_spawn_burst(state, gate_kind, surface_index, position)
 
     local gate_key = gate_kind .. ":" .. position_key
     local last_tick = state.burst_gates[gate_key]
-    if last_tick and game.tick - last_tick <= BURST_GATE_TTL then
+    if last_tick and tick - last_tick <= BURST_GATE_TTL then
         return false
     end
 
-    state.burst_gates[gate_key] = game.tick
+    state.burst_gates[gate_key] = tick
     return true
 end
 
@@ -1573,7 +1574,7 @@ local function maybe_spawn_fire_and_explosion(state, event, force, cache, salt)
 
     local target = get_effect_target(event)
     local target_unit = get_entity_unit_number(target) or 0
-    local roll = random_unit(game.tick, surface.index, target_unit, salt)
+    local roll = random_unit(event.tick, surface.index, target_unit, salt)
 
     if roll < cache.research.flames.probability then
         create_runtime_entity(surface, position, cache.names.fire, force, event)
@@ -1595,7 +1596,7 @@ local function maybe_spawn_multi_zap(state, event, force, cache, gate_kind)
         return
     end
 
-    if not can_spawn_burst(state, gate_kind, surface.index, position) then
+    if not can_spawn_burst(state, gate_kind, surface.index, position, event.tick) then
         return
     end
 
@@ -1605,7 +1606,7 @@ local function maybe_spawn_multi_zap(state, event, force, cache, gate_kind)
 
     local target = get_effect_target(event)
     local target_unit = get_entity_unit_number(target) or 0
-    if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, gate_kind) then
+    if not passes_roll(cache.research.multi_zap.probability, event.tick, surface.index, target_unit, gate_kind) then
         return
     end
 
@@ -1629,7 +1630,7 @@ local function maybe_spawn_bridge_burst(state, event, force, cache, bridge_kind)
     end
 
     local gate_kind = "bridge-" .. bridge_kind
-    if not can_spawn_burst(state, gate_kind, surface.index, position) then
+    if not can_spawn_burst(state, gate_kind, surface.index, position, event.tick) then
         return
     end
 
@@ -1640,7 +1641,7 @@ local function maybe_spawn_bridge_burst(state, event, force, cache, bridge_kind)
     end
 
     local target_unit = get_entity_unit_number(target) or 0
-    if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, gate_kind) then
+    if not passes_roll(cache.research.multi_zap.probability, event.tick, surface.index, target_unit, gate_kind) then
         return
     end
 
@@ -1665,7 +1666,7 @@ local function maybe_spawn_single_zap_fire(event, force, cache, salt)
 
     local target = get_effect_target(event)
     local target_unit = get_entity_unit_number(target) or 0
-    if not passes_roll(cache.research.flames.probability / 2, game.tick, surface.index, target_unit, salt) then
+    if not passes_roll(cache.research.flames.probability / 2, event.tick, surface.index, target_unit, salt) then
         return
     end
 
@@ -1679,7 +1680,7 @@ local function maybe_spawn_basic_chain_burst(state, event, force, cache)
         return
     end
 
-    if not can_spawn_burst(state, "basic-doctrine-burst", surface.index, position) then
+    if not can_spawn_burst(state, "basic-doctrine-burst", surface.index, position, event.tick) then
         return
     end
 
@@ -1698,7 +1699,7 @@ local function maybe_spawn_basic_chain_burst(state, event, force, cache)
 
     local target = get_effect_target(event)
     local target_unit = get_entity_unit_number(target) or 0
-    if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, salt) then
+    if not passes_roll(cache.research.multi_zap.probability, event.tick, surface.index, target_unit, salt) then
         return
     end
 
@@ -1719,7 +1720,7 @@ local function maybe_spawn_basic_exotic_branch(state, event, force, cache)
         return
     end
 
-    if not can_spawn_burst(state, "basic-exotic-branch", surface.index, position) then
+    if not can_spawn_burst(state, "basic-exotic-branch", surface.index, position, event.tick) then
         return
     end
 
@@ -1737,7 +1738,7 @@ local function maybe_spawn_tank_chain_burst(state, event, force, cache)
         return
     end
 
-    if not can_spawn_burst(state, "tank-doctrine-burst", surface.index, position) then
+    if not can_spawn_burst(state, "tank-doctrine-burst", surface.index, position, event.tick) then
         return
     end
 
@@ -1756,7 +1757,7 @@ local function maybe_spawn_tank_chain_burst(state, event, force, cache)
 
     local target = get_effect_target(event)
     local target_unit = get_entity_unit_number(target) or 0
-    if not passes_roll(cache.research.multi_zap.probability, game.tick, surface.index, target_unit, salt) then
+    if not passes_roll(cache.research.multi_zap.probability, event.tick, surface.index, target_unit, salt) then
         return
     end
 
@@ -1767,12 +1768,13 @@ end
 -- They always layer on top of the restored TL single-zap/aftershock flow instead of
 -- replacing it, so fidelity keeps the original cadence and hybrid still gets a distinct
 -- final overcharge family.
-local function maybe_spawn_advanced_exotic_execution_storm(state, surface, position, force, cache, subject)
+---@param tick MapTick
+local function maybe_spawn_advanced_exotic_execution_storm(state, surface, position, force, cache, subject, tick)
     if not cache or not cache.exotic_convergence or not surface or not position then
         return
     end
 
-    if not can_spawn_burst(state, "advanced-exotic-execution", surface.index, position) then
+    if not can_spawn_burst(state, "advanced-exotic-execution", surface.index, position, tick) then
         return
     end
 
@@ -1780,7 +1782,7 @@ local function maybe_spawn_advanced_exotic_execution_storm(state, surface, posit
         return
     end
 
-    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.advanced_chain_exotic, force, subject, game.tick)
+    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.advanced_chain_exotic, force, subject, tick)
     if cache.names.advanced_exotic_impact then
         create_visual(surface, position, cache.names.advanced_exotic_impact, subject)
     end
@@ -1789,12 +1791,13 @@ end
 -- The tank only gets a partial exotic capstone, tied directly to its volatility model.
 -- Positive overcharge spikes and vaporization events can kick off this extra stormfront
 -- discharge, but ordinary tank hits still lean on the existing TL/reactance behavior.
-local function maybe_spawn_tank_exotic_stormfront(state, surface, position, force, cache, subject)
+---@param tick MapTick
+local function maybe_spawn_tank_exotic_stormfront(state, surface, position, force, cache, subject, tick)
     if not cache or not cache.exotic_convergence or not surface or not position then
         return
     end
 
-    if not can_spawn_burst(state, "tank-exotic-stormfront", surface.index, position) then
+    if not can_spawn_burst(state, "tank-exotic-stormfront", surface.index, position, tick) then
         return
     end
 
@@ -1802,7 +1805,7 @@ local function maybe_spawn_tank_exotic_stormfront(state, surface, position, forc
         return
     end
 
-    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.tank_chain_exotic, force, subject, game.tick)
+    create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.tank_chain_exotic, force, subject, tick)
 end
 
 -- Harmonics/doctrine techs can modernize the TL coil follow-up model, but only when the
@@ -1826,7 +1829,7 @@ local function apply_damage_modulation(event, target, force, cache, salt)
         return 0
     end
 
-    local roll = random_unit(game.tick, get_entity_unit_number(target) or 0, target.health, salt)
+    local roll = random_unit(event.tick, get_entity_unit_number(target) or 0, target.health, salt)
     local overdrive_scale = 1 + (0.15 * cache.levels.reactance_overdrive)
     local min_multiplier = math.max(0.1, 1 - ((1 - modulation.minimal) * overdrive_scale))
     local max_multiplier = 1 + ((modulation.maximal - 1) * overdrive_scale)
@@ -1859,7 +1862,7 @@ local function apply_vaporization(event, target, force, cache, salt)
         return false
     end
 
-    if not passes_roll(cache.research.volatility.probability, game.tick, get_entity_unit_number(target) or 0, salt) then
+    if not passes_roll(cache.research.volatility.probability, event.tick, get_entity_unit_number(target) or 0, salt) then
         return false
     end
 
@@ -1996,7 +1999,8 @@ local function get_force_from_record(record)
     return game.forces[record.force_name]
 end
 
-local function handle_legacy_aftershock(state, dead_entity, record)
+---@param tick MapTick Current death event tick.
+local function handle_legacy_aftershock(state, dead_entity, record, tick)
     local force = get_force_from_record(record)
     if not force then
         return
@@ -2009,12 +2013,12 @@ local function handle_legacy_aftershock(state, dead_entity, record)
 
     local surface = dead_entity.surface
     local position = dead_entity.position
-    maybe_spawn_advanced_exotic_execution_storm(state, surface, position, force, cache, record)
-    if not can_spawn_burst(state, "legacy-aftershock", surface.index, position) then
+    maybe_spawn_advanced_exotic_execution_storm(state, surface, position, force, cache, record, tick)
+    if not can_spawn_burst(state, "legacy-aftershock", surface.index, position, tick) then
         return
     end
 
-    if not passes_roll(cache.research.single_zap.probability, game.tick, get_entity_unit_number(dead_entity) or 0, "legacy-aftershock") then
+    if not passes_roll(cache.research.single_zap.probability, tick, get_entity_unit_number(dead_entity) or 0, "legacy-aftershock") then
         return
     end
 
@@ -2035,16 +2039,17 @@ local function handle_legacy_aftershock(state, dead_entity, record)
     end
 
     if use_doctrine_chain then
-        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, game.tick)
+        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, tick)
         return
     end
 
     for _ = 1, cache.research.single_zap.count do
-        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, game.tick)
+        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, tick)
     end
 end
 
-local function handle_bridge_turret_aftershock(state, dead_entity, record)
+---@param tick MapTick Current death event tick.
+local function handle_bridge_turret_aftershock(state, dead_entity, record, tick)
     local force = get_force_from_record(record)
     if not force then
         return
@@ -2058,19 +2063,19 @@ local function handle_bridge_turret_aftershock(state, dead_entity, record)
     local surface = dead_entity.surface
     local position = dead_entity.position
     if cache.exotic_convergence
-        and can_spawn_burst(state, "bridge-aftershock-exotic", surface.index, position)
+        and can_spawn_burst(state, "bridge-aftershock-exotic", surface.index, position, tick)
         -- The aftershock follows the same rule: if the local cluster has already collapsed,
         -- do not wake a follow-up helper from a corpse alone.
         and bridge_has_other_enemy_in_range(surface, position, cache.ranges.bridge_aftershock_exotic, force, dead_entity)
     then
-        create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.bridge_aftershock_exotic, force, record, game.tick)
+        create_runtime_hidden_land_mine_helper(state, surface, position, cache.names.bridge_aftershock_exotic, force, record, tick)
     end
 
-    if not can_spawn_burst(state, "bridge-aftershock", surface.index, position) then
+    if not can_spawn_burst(state, "bridge-aftershock", surface.index, position, tick) then
         return
     end
 
-    if not passes_roll(cache.research.single_zap.probability, game.tick, get_entity_unit_number(dead_entity) or 0, "bridge-aftershock") then
+    if not passes_roll(cache.research.single_zap.probability, tick, get_entity_unit_number(dead_entity) or 0, "bridge-aftershock") then
         return
     end
 
@@ -2085,7 +2090,7 @@ local function handle_bridge_turret_aftershock(state, dead_entity, record)
         return
     end
 
-    create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, game.tick)
+    create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, record, tick)
 end
 
 local function handle_critical_text(event)
@@ -2220,7 +2225,8 @@ local function maybe_spawn_fidelity_basic_overlay(state, event, force, cache)
     maybe_spawn_basic_exotic_branch(state, event, force, cache)
 end
 
-local function maybe_spawn_fidelity_advanced_overlay(state, surface, position, force, cache, subject)
+---@param tick MapTick
+local function maybe_spawn_fidelity_advanced_overlay(state, surface, position, force, cache, subject, tick)
     if not cache or (cache.harmonics_level < 2 and cache.levels.dielectric_rupture <= 0 and not cache.exotic_convergence) then
         return
     end
@@ -2233,7 +2239,7 @@ local function maybe_spawn_fidelity_advanced_overlay(state, surface, position, f
     end
 
     if has_enemy_in_range(surface, position, helper_range, force) then
-        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, subject, game.tick)
+        create_runtime_hidden_land_mine_helper(state, surface, position, helper_name, force, subject, tick)
     end
 end
 
@@ -2276,6 +2282,7 @@ local function run_exact_legacy_basic_hit(state, event, force, cache)
         and not ei_lib.startswith(event.cause.name, "tl-basic-tesla-coil-single-zap")
     then
         maybe_spawn_fidelity_basic_overlay(state, {
+            tick = event.tick,
             target_entity = target,
             source_entity = event.cause,
             cause_entity = event.cause,
@@ -2348,10 +2355,11 @@ local function run_exact_legacy_tank_hit(state, event, force, cache)
             cause_entity = event.cause,
             target_position = position,
             surface_index = surface and surface.index or nil,
-        })
+        }, event.tick)
     end
 
     maybe_spawn_fidelity_tank_overlay(state, {
+        tick = event.tick,
         target_entity = event.entity and event.entity.valid and event.entity or nil,
         source_entity = event.cause,
         cause_entity = event.cause,
@@ -2391,12 +2399,12 @@ local function run_exact_legacy_advanced_kill(state, event, force, cache)
     if spawned_original_aftershock then
         maybe_spawn_fidelity_advanced_overlay(state, surface, position, force, cache, {
             cause_entity = event.cause,
-        })
+        }, event.tick)
     end
 
     maybe_spawn_advanced_exotic_execution_storm(state, surface, position, force, cache, {
         cause_entity = event.cause,
-    })
+    }, event.tick)
 end
 
 local function handle_tl_basic_hit(state, event)
@@ -2483,7 +2491,7 @@ local function handle_tl_tank_hit(state, event)
     end
 
     if vaporized or extra_damage > 0 then
-        maybe_spawn_tank_exotic_stormfront(state, surface, position, force, cache, event)
+        maybe_spawn_tank_exotic_stormfront(state, surface, position, force, cache, event, event.tick)
     end
 end
 
@@ -2831,7 +2839,7 @@ function model.on_script_trigger_effect(event)
     end
 
     local state = ensure_state()
-    prune_state(state, game.tick)
+    prune_state(state, event.tick)
     handler(state, event)
 end
 
@@ -2841,7 +2849,7 @@ function model.on_entity_died(event)
     end
 
     local state = ensure_state()
-    prune_state(state, game.tick)
+    prune_state(state, event.tick)
 
     if BEHAVIOR_MODE == "legacy-fidelity"
         and event.cause
@@ -2862,17 +2870,17 @@ function model.on_entity_died(event)
     -- and require an exact unit-number match instead of the looser position fallback.
     local died_to_electric = event.damage_type and event.damage_type.name == "electric"
     if died_to_electric then
-        local bridge_record = take_recent_hit(state, event.entity, "bridge-turret", false)
+        local bridge_record = take_recent_hit(state, event.entity, "bridge-turret", false, event.tick)
         if bridge_record then
-            handle_bridge_turret_aftershock(state, event.entity, bridge_record)
+            handle_bridge_turret_aftershock(state, event.entity, bridge_record, event.tick)
             return
         end
     end
 
     if died_to_electric then
-        local legacy_record = take_recent_hit(state, event.entity, "legacy-advanced", true)
+        local legacy_record = take_recent_hit(state, event.entity, "legacy-advanced", true, event.tick)
         if legacy_record then
-            handle_legacy_aftershock(state, event.entity, legacy_record)
+            handle_legacy_aftershock(state, event.entity, legacy_record, event.tick)
         end
     end
 end
@@ -2890,7 +2898,7 @@ function model.on_entity_damaged(event)
     end
 
     local state = ensure_state()
-    prune_state(state, game.tick)
+    prune_state(state, event.tick)
 
     local force = event.cause.force
     local cache = get_force_cache(state, force)

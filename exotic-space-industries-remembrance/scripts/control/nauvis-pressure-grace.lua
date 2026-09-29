@@ -527,13 +527,14 @@ function model.on_research_finished(event)
     return sync_runtime_pressure(policy, event)
 end
 
-function model.on_scripted_research_burst(force)
+---@param current_tick MapTick|nil
+function model.on_scripted_research_burst(force, current_tick)
     if force and not is_player_force(force) then
         return false
     end
 
     local policy = refresh_player_force_policy()
-    return sync_runtime_pressure(policy, game and game.tick or 0)
+    return sync_runtime_pressure(policy, current_tick or (game and game.tick) or 0)
 end
 
 function model.has_tick_work(event)

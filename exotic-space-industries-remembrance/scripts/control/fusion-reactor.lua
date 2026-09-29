@@ -787,7 +787,8 @@ function model.update(limit, event)
     return processed > 0
 end
 
-function model.on_built_entity(entity)
+---@param event_or_tick EventData|MapTick|nil
+function model.on_built_entity(entity, event_or_tick)
     if model.entity_check(entity) == false then
         return
     end
@@ -802,7 +803,7 @@ function model.on_built_entity(entity)
         entity.set_recipe(build_recipe_name(entry.manual_selection))
     end
     entity.recipe_locked = true
-    service_reactor_entry(entry, game and game.tick or 0)
+    service_reactor_entry(entry, event_or_tick or (game and game.tick) or 0)
 end
 
 function model.on_destroyed_entity(entity, destroy_type)
@@ -1147,7 +1148,8 @@ function model.update_gui(player)
     agents["circuit-agent"].caption = {"exotic-industries.fusion-reactor-gui-circuit-agent", signal_cache.circuit_agent}
 end
 
-function model.update_recipe(player)
+---@param event_or_tick EventData|MapTick|nil
+function model.update_recipe(player, event_or_tick)
     local entry = get_entry_for_player(player)
     local root = player and player.gui.relative[GUI_NAME] or nil
     if not (entry and root) then
@@ -1162,7 +1164,7 @@ function model.update_recipe(player)
         injection_rate = model.slider_array[control["injection-rate-slider"].slider_value],
     })
 
-    service_reactor_entry(entry, game and game.tick or 0)
+    service_reactor_entry(entry, event_or_tick or (game and game.tick) or 0)
 end
 
 function model.close_gui(player)
@@ -1217,7 +1219,7 @@ function model.on_gui_click(event)
 
     if action == "set-fuel" then
         event.element.parent.tags = {selected = event.element.tags.fuel_name}
-        model.update_recipe(player)
+        model.update_recipe(player, event)
     elseif action == "set-control-source" and entry then
         entry.control_source = normalize_control_source(event.element.tags.control_source)
         service_reactor_entry(entry, event)
@@ -1247,7 +1249,7 @@ function model.on_gui_value_changed(event)
     local action = event.element.tags.action
     local player = game.get_player(event.player_index)
     if action == "set-temperature" or action == "set-injection-rate" then
-        model.update_recipe(player)
+        model.update_recipe(player, event)
         player.play_sound{path = "utility/list_box_click"}
     end
 end

@@ -316,7 +316,7 @@ local function collect_open_players(runtime, unit_number)
     return players
 end
 
-local function retarget_open_players(runtime, player_indexes, unit_number, entity)
+local function retarget_open_players(runtime, player_indexes, unit_number, entity, event_or_tick)
     for _, player_index in ipairs(player_indexes or {}) do
         runtime.open_by_player[player_index] = unit_number
         local player = game and game.get_player(player_index) or nil
@@ -325,9 +325,9 @@ local function retarget_open_players(runtime, player_indexes, unit_number, entit
                 player.opened = entity
             end)
             if is_open_proxy(entity) then
-                runtime.proxy_open_tick_by_player[player_index] = game and game.tick or 0
+                runtime.proxy_open_tick_by_player[player_index] = now_tick(event_or_tick)
             end
-            local root = model.update_gui(player, entity)
+            local root = model.update_gui(player, entity, event_or_tick)
             if is_open_proxy(entity) and root and root.valid then
                 pcall(function()
                     player.opened = root
@@ -569,7 +569,7 @@ local function register_turbine(runtime, entity, event_or_tick)
     return record
 end
 
-local function resolve_turbine_entity(entity, runtime)
+local function resolve_turbine_entity(entity, runtime, event_or_tick)
     if is_turbine(entity) then
         return entity
     end
@@ -593,7 +593,7 @@ local function resolve_turbine_entity(entity, runtime)
         force = entity.force,
     }) do
         if is_turbine(candidate) then
-            record = register_turbine(runtime, candidate, game and game.tick or 0)
+            record = register_turbine(runtime, candidate, event_or_tick)
             if record then
                 record.proxy = entity
                 record.proxy_unit_number = proxy_unit_number
@@ -610,9 +610,9 @@ local function resolve_turbine_entity(entity, runtime)
     return nil
 end
 
-local function get_opened_turbine(player, runtime)
+local function get_opened_turbine(player, runtime, event_or_tick)
     local opened = ei_lib.get_valid_entity(player and player.opened)
-    local opened_turbine = resolve_turbine_entity(opened, runtime)
+    local opened_turbine = resolve_turbine_entity(opened, runtime, event_or_tick)
     if opened_turbine then
         return opened_turbine
     end
@@ -690,7 +690,7 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
                 and restored_record.mode == MODE_FLUID
                 and ei_lib.get_valid_entity(restored_record.proxy)
                 or restored
-            retarget_open_players(runtime, open_players, restored_unit_number, restored_opened_entity)
+            retarget_open_players(runtime, open_players, restored_unit_number, restored_opened_entity, event_or_tick)
         else
             for _, open_player_index in ipairs(open_players) do
                 close_gui_for_player(runtime, open_player_index)
@@ -718,7 +718,7 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
         and new_record.mode == MODE_FLUID
         and ei_lib.get_valid_entity(new_record.proxy)
         or replacement
-    retarget_open_players(runtime, open_players, new_unit_number, opened_entity)
+    retarget_open_players(runtime, open_players, new_unit_number, opened_entity, event_or_tick)
 
     return replacement
 end
@@ -931,18 +931,20 @@ local function build_gui(player, entity, record, force_screen)
     return root
 end
 
-function model.update_gui(player, entity)
+---@param event_or_tick EventData|MapTick|nil
+function model.update_gui(player, entity, event_or_tick)
+    event_or_tick = event_or_tick or (game and game.tick) or 0
     local runtime = get_runtime()
     local opened_entity = ei_lib.get_valid_entity(entity)
     local opened_via_proxy = is_open_proxy(opened_entity)
-    entity = resolve_turbine_entity(opened_entity, runtime)
-        or get_opened_turbine(player, runtime)
+    entity = resolve_turbine_entity(opened_entity, runtime, event_or_tick)
+        or get_opened_turbine(player, runtime, event_or_tick)
     if not is_turbine(entity) then
         model.close_gui(player)
         return nil
     end
 
-    local record = register_turbine(runtime, entity, game and game.tick or 0)
+    local record = register_turbine(runtime, entity, event_or_tick)
     if not record then
         model.close_gui(player)
         return nil
@@ -995,30 +997,32 @@ function model.update_gui(player, entity)
     return root
 end
 
-function model.open_gui(player, entity)
+---@param event_or_tick EventData|MapTick|nil
+function model.open_gui(player, entity, event_or_tick)
+    event_or_tick = event_or_tick or (game and game.tick) or 0
     if not (player and player.valid) then
         return
     end
     local runtime = get_runtime()
     local opened_entity = ei_lib.get_valid_entity(entity)
     local opened_via_proxy = is_open_proxy(opened_entity)
-    entity = resolve_turbine_entity(opened_entity, runtime)
-        or get_opened_turbine(player, runtime)
+    entity = resolve_turbine_entity(opened_entity, runtime, event_or_tick)
+        or get_opened_turbine(player, runtime, event_or_tick)
     if not is_turbine(entity) then
         model.close_gui(player)
         return
     end
 
-    local record = register_turbine(runtime, entity, game and game.tick or 0)
+    local record = register_turbine(runtime, entity, event_or_tick)
     if not record then
         model.close_gui(player)
         return
     end
     runtime.open_by_player[player.index] = record.unit_number
     if opened_via_proxy then
-        runtime.proxy_open_tick_by_player[player.index] = game and game.tick or 0
+        runtime.proxy_open_tick_by_player[player.index] = now_tick(event_or_tick)
     end
-    local root = model.update_gui(player, opened_entity or entity)
+    local root = model.update_gui(player, opened_entity or entity, event_or_tick)
     if opened_via_proxy and root and root.valid then
         pcall(function()
             player.opened = root
@@ -1076,7 +1080,7 @@ function model.on_gui_click(event)
     end
 
     local runtime = get_runtime()
-    local entity = get_opened_turbine(player, runtime)
+    local entity = get_opened_turbine(player, runtime, event)
     if not is_turbine(entity) then
         model.close_gui(player)
         return
@@ -1084,7 +1088,7 @@ function model.on_gui_click(event)
 
     local replacement = model.swap_to_mode(entity, element.tags.mode, event, player.index)
     if is_turbine(replacement) then
-        model.update_gui(player, replacement)
+        model.update_gui(player, replacement, event)
     else
         model.close_gui(player)
     end
@@ -1163,8 +1167,8 @@ end
 
 function model.on_entity_settings_pasted(event)
     local runtime = get_runtime()
-    local source = resolve_turbine_entity(event and event.source or nil, runtime)
-    local destination = resolve_turbine_entity(event and event.destination or nil, runtime)
+    local source = resolve_turbine_entity(event and event.source or nil, runtime, event)
+    local destination = resolve_turbine_entity(event and event.destination or nil, runtime, event)
     if not (is_turbine(source) and is_turbine(destination)) then
         return
     end
