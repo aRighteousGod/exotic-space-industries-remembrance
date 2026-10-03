@@ -3,7 +3,7 @@
 -- owns: agricultural tower planted-plant growth jitter
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: on_tower_planted_seed
--- forwarded_events: check_global, on_destroyed_entity, on_tower_planted_seed
+-- forwarded_events: check_global, on_destroyed_entity, on_tower_planted_seed, repair_runtime_state
 -- storage_roots: storage.ei.randomized_tree_growth
 -- gui_ids: none
 -- remote_interfaces: none
@@ -164,6 +164,25 @@ function model.on_destroyed_entity(event_or_entity)
     if pending_offsets_by_tower then
         pending_offsets_by_tower[unit_number] = nil
     end
+end
+
+-- blueprint-ref: .codex/esir/blueprints/randomized-tree-growth.md#admin-repair
+-- Prune only dead towers; pending inverse offsets for live streams must survive.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local runtime=model.check_global()
+    local live={}
+    for _,surface in pairs(game.surfaces) do
+        for _,tower in pairs(surface.find_entities_filtered{type="agricultural-tower"}) do
+            local unit=ei_lib.get_entity_unit_number(tower)
+            if unit then live[unit]=true end
+        end
+    end
+    for unit in pairs(runtime.pending_offsets_by_tower) do
+        if not live[unit] then runtime.pending_offsets_by_tower[unit]=nil end
+    end
+    return true
 end
 
 return model

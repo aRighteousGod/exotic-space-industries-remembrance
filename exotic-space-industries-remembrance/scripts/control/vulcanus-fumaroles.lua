@@ -3,7 +3,7 @@
 -- owns: auric fumarole runtime generation, depletion, and afterglow cleanup
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, configuration-changed, chunk generation, resource depletion, and gated cleanup/probe ticks
--- forwarded_events: check_global, has_tick_work, is_vulcanus_surface, on_chunk_generated, on_configuration_changed, on_init, on_resource_depleted, updater
+-- forwarded_events: check_global, has_tick_work, is_vulcanus_surface, on_chunk_generated, on_configuration_changed, on_init, on_resource_depleted, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -2462,5 +2462,14 @@ commands.add_command(
         print_command_feedback(command, {"description.auric-fumarole-rescan-success", queued})
     end
 )
+
+-- blueprint-ref: .codex/esir/blueprints/vulcanus-fumaroles.md#admin-repair
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    model.check_global()
+    rebuild_all_vulcanus_backfill()
+    return true
+end
 
 return model

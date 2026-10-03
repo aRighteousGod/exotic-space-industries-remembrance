@@ -26,10 +26,10 @@ The main every-tick path calls the module only when records exist. Each call per
 <a id="lifecycle"></a>
 ## Lifecycle and cleanup
 
-Build handling converts the placement entity as required and registers the resulting locomotive. Train-state changes wake relevant locomotives. Invalid/missing wheel helpers are repaired; destruction removes both helpers and all queue indices. Init/configuration rebuild clears stale wheel/placement artifacts from surfaces, then recreates helpers for live locomotives. Height transitions must not display both helper layers incorrectly.
+Build handling converts the placement entity as required and registers the resulting locomotive. Script-raised placement preserves the wrapper's explicit force; player and robot event attribution continue to override that fallback. Train-state changes wake relevant locomotives. Invalid/missing wheel helpers are repaired; destruction removes both helpers and all queue indices. Init/configuration rebuild clears stale wheel/placement artifacts from surfaces, then recreates helpers for live locomotives. Height transitions must not display both helper layers incorrectly.
 
 <a id="verification"></a>
 ## Verification contract
 
-Test ground/elevated tracks and ramps, motion/reversal, brief/long stops, teleport/surface change, independently destroyed wheels, locomotive removal, and rebuild. Check helper counts and queue membership in runtime QC; inspect actual wheel alignment and visibility in game because headless validity checks cannot verify sprite placement.
+Test script-raised wrapper placement for a selected force alongside player and robot placement. Test ground/elevated tracks and ramps, motion/reversal, brief/long stops, teleport/surface change, independently destroyed wheels, locomotive removal, and rebuild. Check helper counts and queue membership in runtime QC; inspect actual wheel alignment and visibility in game because headless validity checks cannot verify sprite placement.
 The wheel utility is owned by [shared runtime helpers](shared-runtime-helpers.md#contract); this module owns its entities and lifecycle.

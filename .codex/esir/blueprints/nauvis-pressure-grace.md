@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Nauvis pressure grace and difficulty policy
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` refreshes the current progression policy using the supplied boundary tick. It retains original pollution-factor restoration state and progression rather than resetting the grace root.
+
 ## Implementation sources
 
 - [nauvis-pressure-grace.lua](../../../exotic-space-industries-remembrance/scripts/control/nauvis-pressure-grace.lua)

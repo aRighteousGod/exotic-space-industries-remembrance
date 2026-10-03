@@ -20,6 +20,9 @@ from source and does not trust generated manifests or installed mod selection.
 
 | Model | Owned source files |
 | --- | ---: |
+| [Administration tools](admin-tools.md#contract) | 9 |
+| [Administration runtime registry](admin-runtime-registry.md#contract) | 1 |
+| [Shared camera windows](camera-windows.md#contract) | 1 |
 | [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 1 |
 | [Balanced agricultural growth jitter](randomized-tree-growth.md#contract) | 1 |
 | [Beacon overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 2 |

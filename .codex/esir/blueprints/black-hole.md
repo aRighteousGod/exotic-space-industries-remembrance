@@ -27,6 +27,11 @@ The gated every-tick `update(event)` services registered holes and separately ca
 
 Build/destruction of pylons dirties nearby hole caches. Hole registration initializes a complete record; rebuild reconciles it against the world. Removal cleans animation/helpers and any supported inventory transfer. Cached references are validated during use. Falling below required containment resets stage/progress and warns the player; GUI stage advancement must use the same canonical record.
 
+<a id="gui-refresh"></a>
+## GUI refresh ownership
+
+`storage.ei.black_hole_gui_by_player` records current viewers. Open/close, joined/left/removed-player hooks and configuration reconciliation own membership; only the one-time reconciliation scans connected players. Existing 30-tick live display refresh visits registered viewers, shares one snapshot per viewed hole and writes only changed captions/progress/style. Opening and manual stage advancement refresh immediately. Local presentation snapshots reset naturally on load; gameplay records and economics are unchanged.
+
 <a id="verification"></a>
 ## Verification contract
 

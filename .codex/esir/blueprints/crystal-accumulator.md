@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Crystal accumulator resonance
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` re-registers live shells in place and rebuilds surface aggregates/frontiers. Instability, energy history, cooldowns and frozen state remain on each existing record; missing scheduling is repaired without replacing valid paid state.
+
 ## Implementation sources
 
 - [crystal-accumulator.lua](../../../exotic-space-industries-remembrance/scripts/control/crystal-accumulator.lua)

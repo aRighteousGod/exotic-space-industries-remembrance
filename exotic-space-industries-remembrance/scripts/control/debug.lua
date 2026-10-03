@@ -968,94 +968,16 @@ commands.add_command("reforge_gaia", "Destroy and recreate Gaia's surface from t
     if not surface then return end
     player.teleport({0, 0}, surface)
 end)
-commands.add_command("goto-gaia", "Teleport to Gaia's surface", function(cmd)
-    local player = game.get_player(cmd.player_index)
-    if not player or not player.admin then return end
-    local surface = ei_gaia.create_gaia()
-    if not surface then return end
-    local position = {0, 0}  -- center of the world
-    player.teleport(position, surface)
-    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Gaia’s crust.")
-    log(player.name.." used goto-gaia")
-end)
-
-commands.add_command("goto-fulgora", "Teleport to Fulgoras's surface", function(cmd)
-    local player = game.get_player(cmd.player_index)
-    if not player or not player.admin then return end
-    local planet = game.planets["fulgora"]
-    local surface = planet and planet.surface
-    if not surface then
-        game.planets["fulgora"]:create_surface("fulgora")
-        ei_lib.crystal_echo("✈ [Astral Transit] - Fulgora shakes off the dust of ages.")
-        return
-    end
-    local position = {0, 0}  -- center of the world
-    player.teleport(position, surface)
-    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Fulgora's crust.")
-    log(player.name.." used goto-fulgora")
-end)
-
-commands.add_command("goto-vulcanus", "Teleport to Vulcanus's surface", function(cmd)
-    local player = game.get_player(cmd.player_index)
-    if not player or not player.admin then return end
-    local planet = game.planets["vulcanus"]
-    local surface = planet and planet.surface
-    if not surface then
-        game.planets["vulcanus"]:create_surface("vulcanus")
-        ei_lib.crystal_echo("✈ [Astral Transit] - Vulcanus erupts into existence.")
-        return
-    end
-    local position = {0, 0}  -- center of the world
-    player.teleport(position, surface)
-    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Vulcanus' crust.")
-    log(player.name.." used goto-vulcanus")
-end)
-
-commands.add_command("goto-gleba", "Teleport to Gleba's surface", function(cmd)
-    local player = game.get_player(cmd.player_index)
-    if not player or not player.admin then return end
-    local planet = game.planets["gleba"]
-    local surface = planet and planet.surface
-    if not surface then
-        game.planets["gleba"]:create_surface("gleba")
-        ei_lib.crystal_echo("✈ [Astral Transit] - Gleba awakens from its slumber.")
-        return
-    end
-    local position = {0, 0}  -- center of the world
-    player.teleport(position, surface)
-    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Gleba's crust.")
-    log(player.name.." used goto-gleba")
-end)
-commands.add_command("goto-aquilo", "Teleport to Aquillo's surface", function(cmd)
-    local player = game.get_player(cmd.player_index)
-    if not player or not player.admin then return end
-    local planet = game.planets["aquilo"]
-    local surface = planet and planet.surface
-    if not surface then
-        game.planets["aquilo"]:create_surface("aquilo")
-        ei_lib.crystal_echo("✈ [Astral Transit] - Aquilo shivers into being.")
-        return
-    end
-    local position = {0, 0}  -- center of the world
-    player.teleport(position, surface)
-    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Aquilo's crust.")
-    log(player.name.." used goto-aquilo")
-end)
-commands.add_command("goto-nauvis", "Teleport to Nauvis' surface", function(cmd)
-    local player = game.get_player(cmd.player_index)
-    if not player or not player.admin then return end
-    local planet = game.planets["nauvis"]
-    local surface = planet and planet.surface
-    if not surface then
-        game.planets["nauvis"]:create_surface("nauvis")
-        ei_lib.crystal_echo("✈ [Astral Transit] - Nauvis radiates with life once more.")
-        return
-    end
-    local position = {0, 0}  -- center of the world
-    player.teleport(position, surface)
-    ei_lib.crystal_echo("✈ [Astral Transit] — " .. player.name .. " arrives upon Nauvis' crust.")
-    log(player.name.." used goto-nauvis")
-end)
-
+local admin_travel=require("scripts/control/admin/players")
+for _,planet in ipairs({"gaia","fulgora","vulcanus","gleba","aquilo","nauvis"}) do
+    local destination=planet
+    commands.add_command("goto-"..destination,"Teleport safely to "..destination,function(cmd)
+        local player=cmd.player_index and game.get_player(cmd.player_index)
+        if not (player and player.admin) then return end
+        local ok,message=admin_travel.travel_legacy(player,destination,cmd.tick)
+        if message then player.print(message) end
+        log("[ESIR travel] "..player.name.." -> "..destination..": "..tostring(ok))
+    end)
+end
 
 return model

@@ -4,7 +4,7 @@
 -- loaded_by: control.lua
 -- cadence: dispatcher step 16; at most B checks and B queue visits/service
 --   overlap cleanup runs only on supported creation events while adaptation is enabled
--- forwarded_events: rebuild, on_built_entity, on_destroyed_entity, on_object_destroyed,
+-- forwarded_events: rebuild, on_built_entity, on_destroyed_entity, on_object_destroyed,, repair_runtime_state
 --   on_blueprint, sync_force, has_tick_work, updater, on_trigger_created_entity
 -- storage_roots: storage.ei.flamethrower_fuels (records, units, registrations, queues)
 -- gui_ids: none; replacements defer while the entity GUI is open
@@ -414,6 +414,21 @@ function model.get_status()
     local root=storage.ei and storage.ei.flamethrower_fuels
     return {enabled=enabled,budget=budget,replacement_budget=replacement_budget,count=root and root.count or 0,
         pending=root and (scheduler.queue_length(root.replacements)+scheduler.delayed_item_count(root.retries)) or 0,counters=root and root.counters or {}}
+end
+
+-- blueprint-ref: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#admin-repair
+-- Reuse stable identities and live replacement/retry queues instead of deleting the root.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local names={catalog.base_turret}
+    for _,fuel in ipairs(catalog.fuels) do names[#names+1]=fuel.turret end
+    for _,surface in pairs(game.surfaces) do
+        for _,entity in pairs(surface.find_entities_filtered{name=names}) do model.on_built_entity{entity=entity,tick=tick} end
+        for _,entity in pairs(surface.find_entities_filtered{type="entity-ghost",ghost_name=names}) do model.on_built_entity{entity=entity,tick=tick} end
+    end
+    for _,force in pairs(game.forces) do model.sync_force(force) end
+    return true
 end
 
 return model

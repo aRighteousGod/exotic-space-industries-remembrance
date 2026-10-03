@@ -3,7 +3,7 @@
 -- owns: research-finished messaging
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: research-finished
--- forwarded_events: notify, on_research_finished, on_scripted_research_burst
+-- forwarded_events: notify, on_research_finished, on_scripted_research_burst, repair_runtime_state
 -- storage_roots: storage.ei.informatron_messager
 -- gui_ids: exotic-industries.message-informatron
 -- remote_interfaces: none
@@ -159,6 +159,18 @@ function model.on_scripted_research_burst(force)
     end
 
     return false
+end
+
+-- blueprint-ref: .codex/esir/blueprints/startup-and-integration.md#admin-repair
+-- Reconcile notification ownership without announcing historical pages again.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local state=ensure_state()
+    for force_index in pairs(state.notified_by_force) do
+        if not game.forces[force_index] then state.notified_by_force[force_index]=nil end
+    end
+    return true
 end
 
 return model

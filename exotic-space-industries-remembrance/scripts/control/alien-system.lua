@@ -3,7 +3,7 @@
 -- owns: alien-system build, selection, and GUI click dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, selected-area, and GUI click dispatch
--- forwarded_events: apply_effects, check_init, enable_alien, entity_check, exit_confirm, get_button_sprite, get_button_tags, get_prerequisites, get_tier, get_total_height, get_unlocked_state, is_unlocked, make_confirm_gui, make_tiers, on_built_entity, on_gui_click, on_player_selected_area, repair_artifact, select_alien, set_unlocked, swap_gui, try_select_alien, update_informatron, update_tier_status
+-- forwarded_events: apply_effects, check_init, enable_alien, entity_check, exit_confirm, get_button_sprite, get_button_tags, get_prerequisites, get_tier, get_total_height, get_unlocked_state, is_unlocked, make_confirm_gui, make_tiers, on_built_entity, on_gui_click, on_player_selected_area, repair_artifact, select_alien, set_unlocked, swap_gui, try_select_alien, update_informatron, update_tier_status, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: ei-alien-gui
 -- remote_interfaces: none
@@ -722,5 +722,19 @@ function model.on_player_selected_area(event)
 
 end
 
+
+-- blueprint-ref: .codex/esir/blueprints/gaia-and-alien-systems.md#admin-repair
+-- Preserve force currency/unlocks; discard only stale confirmation screens.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    storage.ei=storage.ei or {}
+    model.check_init()
+    for _,player in pairs(game.players) do
+        local root=player.gui.screen["ei-alien-confirm-console"]
+        if root then root.destroy() end
+    end
+    return true
+end
 
 return model

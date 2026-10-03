@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Spider progression, safe replacement, weapon controls, and reactive smoke
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` performs discovery and research-cache reconciliation independently of configuration migrations. It retains live stable identities, preferences, smoke cooldowns, ammunition reservations and pending work; no grandfather technology grants are replayed.
+
 ## Implementation sources
 
 - [spider-vehicles.lua](../../../exotic-space-industries-remembrance/scripts/control/spider-vehicles.lua)
@@ -38,6 +43,8 @@ Build/clone/mining/item destruction, research (including coalesced scripted burs
 
 When range-aware cycling is disabled, exact observation hooks and selector service are absent while native behavior and reactive smoke remain. Compatibility proxy suspension and replacement handoff are ownership contracts, not dead code to simplify away.
 
+Central GUI routing accepts spider-vehicle entities or players with an existing session (`has_open_gui_session`), preserving stale-panel teardown and the module's transaction guard. Widget changes route exclusively by the spider console's parent tag; the handler may rebuild its source element.
+
 <a id="canonical-items"></a>
 ## Canonical items and equipment handoff
 
@@ -51,3 +58,8 @@ If equipment exceeds the receiving force's researched grid, placement first comm
 ## Verification and maintenance
 
 Use `scripts/invoke-spider-vehicles-qc.ps1` and `scripts/qc/spider-vehicles/README.md` for migration, replacement, controls, dispatch, reservations and persistence cases. The focused `-CanonicalItems -SavePath <player-save>` mode covers native player/robot mining and rebuilding, all family/grid pairs, legacy items, quality-expanded grids, and safe downgrade deferral; it does not rerun combat or fleet benchmarks. Preserve inventory/equipment/burner/health/control data across replacement; verify deferred retries and zero selector counters in disabled mode. The limiter additionally needs mixed fuel categories, nonitem slots, and nonmanual sections.
+
+<a id="gui-refresh-cost"></a>
+## GUI refresh cost
+
+Spider weapon panels retain their roots while the vehicle entity and ammo-slot layout remain unchanged. Dynamic controls and optional readouts use named elements, visibility changes, and a scalar displayed-state signature. Native vehicle replacement or a legacy layout rebuilds once. Pending retries and weapon-control events reuse the same panel; no GUI polling is introduced.

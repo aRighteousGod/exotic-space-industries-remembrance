@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Vulcanus auric fumarole lifecycle
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` explicitly rebuilds eligibility backfill on all eligible Vulcanus surfaces. Existing active deposits, history and cooldown policy remain owned by the normal rescan implementation.
+
 ## Implementation sources
 
 - [vulcanus-fumaroles.lua](../../../exotic-space-industries-remembrance/scripts/control/vulcanus-fumaroles.lua)

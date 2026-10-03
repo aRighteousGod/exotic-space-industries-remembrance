@@ -13,6 +13,12 @@
 -- commonly used functions for the mod
 
 local ei_lib = {}
+-- Runtime-safe at load time; caller policy remains outside this reusable GUI service.
+local camera_window = require("lib/camera-window")
+ei_lib.camera_window = camera_window
+ei_lib.camera_open = camera_window.open
+ei_lib.camera_close = camera_window.close
+ei_lib.camera_close_owner = camera_window.close_owner
 local quality_level_bounds_cache = nil
 
 --====================================================================================================

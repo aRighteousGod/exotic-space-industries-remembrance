@@ -23,6 +23,11 @@ flowchart LR
 
 Dispatcher step 3 obtains pending work and passes both a bounded budget and the event to `update`. Pending work includes dirty collectors, connected sources, due wire outputs, and GUI deadlines. `now_tick` uses `ei_lib.get_event_tick`; absent input normalizes to zero, so the written `or game.tick` fallback is unreachable under Lua truthiness. Preserve explicitly supplied ticks and establish real no-tick boundary time before normalization in future changes. Preserve dirty/poll alternation, deduplication, stable candidate ordering, and the 60-tick wire bucket phase. Recipe/animation changes are conditional on resolved output.
 
+Due GUI viewers share one read-only display snapshot per collector within a
+service pass. Existing dirty buckets, per-session signatures and native gameplay
+updates retain their ownership; the display cache is neither persisted nor polled
+when no viewers are due.
+
 <a id="lifecycle"></a>
 ## Lifecycle and cleanup
 
@@ -32,3 +37,10 @@ Build/destroy/settings-paste and fusion recipe changes invalidate affected bindi
 ## Verification contract
 
 The [event tick fixture](../../../scripts/qc/event-tick/README.md) documents supplied-tick GUI deadline and budget checks; the [control UPS fixture](../../../scripts/qc/control-ups/README.md) covers additional parity work. Exercise loss/replacement of the preferred source, circuit disablement, changing fusion recipes, reload, and destruction while queued. Historical reports are evidence for their recorded sources, not new validation of this blueprint.
+
+<a id="closed-gui"></a>
+## Closed GUI scheduling
+
+GUI service reads existing viewer ownership before initializing or touching scheduling
+state. With no viewers it clears stale delayed buckets once, then retains the empty
+bucket identity and last GUI service tick during subsequent gameplay updates.

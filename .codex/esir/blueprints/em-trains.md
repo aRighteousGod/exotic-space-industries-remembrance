@@ -34,3 +34,20 @@ Entity and rail lifecycle updates registries, spatial membership, and affected r
 ## Verification contract
 
 The [event tick fixture](../../../scripts/qc/event-tick/README.md) contains EM glow timestamp checks. Exercise equal/unequal surface populations, research bursts, rail changes, charger power loss, locomotive grace fuel, quality, entity removal, reload, and access loss with an open panel. Do not equate local function timings with factory UPS.
+
+<a id="gui-refresh-cost"></a>
+## GUI refresh cost
+
+Dirty EM panel refresh builds one scalar summary per viewed surface and shares it among viewers. Direct registry counts avoid temporary entity arrays. Each panel retains a scalar signature and skips unchanged caption assignments. Closed panels perform no registry summary work; no polling is introduced.
+
+<a id="admin-repair"></a>
+## Administrator repair
+
+The admin registry calls `repair_runtime_state(reason,tick)`. It rebuilds derived
+charger/train registration and rendering while preserving each still-valid native
+locomotive's earned, unexpired `grace_until_tick`. The deadline is copied back only
+when the rebuilt record refers to the same live locomotive. It does not restore
+old queues, research rollout generations or rendering handles. Native burner fuel
+remains owned by the locomotive. Legacy reset/rebuild entry points keep their
+existing semantics. The active preservation fixture checks two repairs followed
+by an out-of-coverage train update in the same tick.

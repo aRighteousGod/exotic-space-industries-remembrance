@@ -3,8 +3,8 @@
 -- owns: shared contextual fluid rupture and vent effect construction
 -- loaded_by: exotic-space-industries-remembrance\scripts\control\flammable-fluids.lua, scripts\control\fluid-safety.lua
 -- cadence: on-demand job creation only
--- forwarded_events: queue_effect, queue_vent
--- storage_roots: none
+-- forwarded_events: admin_has_work, queue_effect, queue_effect_at, queue_vent
+-- storage_roots: storage.ei.flammable_ruptures.admin_effect_job_id
 -- gui_ids: none
 -- remote_interfaces: none
 -- rebuild_on: runtime prototype changes
@@ -896,14 +896,14 @@ local function select_secondary_mix(rupture, primary_family, profile)
     return selected
 end
 
-local function build_damage_rings(entity, nearby_entities, ring_count, explosion_radius, explosion_damage)
+local function build_damage_rings(entity, nearby_entities, ring_count, explosion_radius, explosion_damage, source_position)
     local damage_rings = {}
-    local source_position = entity and entity.position or nil
+    source_position = source_position or (entity and entity.position or nil)
     for index = 1, ring_count do
         damage_rings[index] = {}
     end
 
-    if explosion_radius <= 0 or explosion_damage <= 0 then
+    if not source_position or explosion_radius <= 0 or explosion_damage <= 0 then
         return damage_rings
     end
 
@@ -1299,8 +1299,9 @@ local function get_ground_overlay_position(entity, carrier_class)
     }
 end
 
-local function maybe_spawn_ground_overlay(entity, surface_context, style, spec)
-    if not (entity and entity.valid and style and style.ground_overlay_sprite and rendering) then
+local function maybe_spawn_ground_overlay(entity, surface_context, style, spec, target_surface, source_position)
+    target_surface = entity and entity.valid and entity.surface or target_surface
+    if not (target_surface and target_surface.valid and style and style.ground_overlay_sprite and rendering) then
         return
     end
     if not surface_context or surface_context.is_platform then
@@ -1312,7 +1313,7 @@ local function maybe_spawn_ground_overlay(entity, surface_context, style, spec)
         return
     end
 
-    local position = get_ground_overlay_position(entity, spec and spec.carrier_class)
+    local position = source_position or get_ground_overlay_position(entity, spec and spec.carrier_class)
     if not position then
         return
     end
@@ -1323,7 +1324,7 @@ local function maybe_spawn_ground_overlay(entity, surface_context, style, spec)
         render_object = rendering.draw_sprite{
             sprite = style.ground_overlay_sprite,
             target = position,
-            surface = entity.surface,
+            surface = target_surface,
             render_layer = "radius-visualization",
             time_to_live = math.max(1, tonumber(style.ground_overlay_ttl) or LAVA_GROUND_PATCH_TTL),
             x_scale = scale,
@@ -1551,6 +1552,95 @@ function model.queue_vent(entity, spec, tick)
     local rupture_job = build_vent_job(entity, spec)
     rupture_scheduler.begin_rupture(rupture_job, tick or (game and game.tick) or 0)
     return true
+end
+
+---@return boolean
+function model.admin_has_work()
+    local state = storage and storage.ei and storage.ei.flammable_ruptures
+    return state ~= nil and state.admin_effect_job_id ~= nil
+        and state.jobs ~= nil and state.jobs[state.admin_effect_job_id] ~= nil
+end
+
+---Approximate direct-damage radius; secondary fires can spread farther.
+---@param energy_mj number
+---@return number|nil
+function model.peek_location_radius(energy_mj)
+    if energy_mj~=20 and energy_mj~=100 and energy_mj~=500 then return nil end
+    local radius=get_explosion_metrics(energy_mj)
+    return radius
+end
+
+---Build a real environmental rupture without inventing a source LuaEntity.
+---The owning administrator service handles access; this adapter owns bounded effects.
+---@param surface LuaSurface
+---@param position MapPosition
+---@param spec table
+---@param tick MapTick
+---@return boolean,integer|nil,string|nil
+function model.queue_effect_at(surface, position, spec, tick)
+    if model.admin_has_work() or not (surface and surface.valid and spec and position) then
+        return false, nil, "A rupture is already active or the target is invalid."
+    end
+    local x, y = position.x or position[1], position.y or position[2]
+    local energy = tonumber(spec.energy_mj or spec.total_energy_mj)
+    if not ei_lib.is_valid_number(x) or not ei_lib.is_valid_number(y)
+        or (energy ~= 20 and energy ~= 100 and energy ~= 500) then
+        return false, nil, "Invalid rupture coordinates or energy."
+    end
+    local origin = {x=x, y=y}
+    if not surface.is_chunk_generated({math.floor(x/32), math.floor(y/32)}) then
+        return false, nil, "The target chunk is not generated."
+    end
+    spec = shallow_copy(spec)
+    if spec.effect_family == "lava" then
+        spec.effect_family, spec.effect_variant = "thermal", "lava"
+    end
+    local style = get_effect_style(spec)
+    if not style then return false, nil, "Unknown rupture family." end
+    spec.source_force_name = "neutral"
+    spec.allow_pipeline_fire = false
+    spec.carrier_class = "line"
+    spec.severity = energy == 20 and "small" or (energy == 100 and "medium" or "large")
+    local rupture = {total_energy_mj=energy, total_pollution=0,
+        family_share={[spec.effect_family]=1},
+        dominant={family=spec.effect_family, fluid_name=spec.effect_variant or spec.effect_family, energy_mj=energy}}
+    local surface_context = get_surface_context(surface)
+    local class_bias = get_entity_class_bias(nil, "line")
+    local explosion_radius, explosion_damage = get_explosion_metrics(energy)
+    local visual_radius = math.max(explosion_radius, 0.5) * class_bias.visual_scale
+        * math.max(0.2, tonumber(style.visual_radius_scale) or 1)
+    local profile = rupture_scheduler.get_fidelity_profile(visual_radius)
+    if profile.mode ~= "lean" then
+        profile = rupture_scheduler.get_fidelity_profile(visual_radius, "standard")
+    end
+    local nearby = surface.find_entities_filtered{
+        position=origin, radius=explosion_radius+0.5+DAMAGE_SEARCH_PADDING, limit=513}
+    if #nearby > 512 then
+        return false, nil, "Too many nearby targets (limit 512); choose a smaller rupture."
+    end
+    local rings = {}
+    for index=1,profile.ring_count do rings[index]=new_ring() end
+    local effects = get_effect_settings(spec, style)
+    effects.effect_family = spec.effect_family
+    local fire_name = get_platform_fire_name(style, surface_context)
+    local weights = build_primary_layers(rings, profile, rupture, style, fire_name,
+        class_bias, visual_radius, surface_context, effects)
+    build_secondary_layers(rings, profile, rupture, spec.effect_family, class_bias,
+        visual_radius, weights, surface_context, effects)
+    local damage_rings = build_damage_rings(nil, nearby, profile.ring_count,
+        explosion_radius, explosion_damage, origin)
+    for index=1,profile.ring_count do rings[index].damage_victims=damage_rings[index] end
+    local job = {mode=profile.mode, damage_type=style.damage_type, source_force_name="neutral",
+        surface_index=surface.index, surface_kind=surface_context.is_platform and "platform" or "planetary",
+        pollution_enabled=surface_context.has_pollutant, position=origin,
+        ring_count=profile.ring_count, rings=rings, child_jobs={}}
+    -- No carrier/pipe-network owner or fabricated source entity; no child explosions.
+    -- All rings run through the existing scheduler, starting after the GUI action.
+    local id = rupture_scheduler.queue_rupture(job, ei_lib.get_event_tick(tick)+1)
+    if not id then return false, nil, "Rupture scheduler rejected the job." end
+    storage.ei.flammable_ruptures.admin_effect_job_id = id
+    maybe_spawn_ground_overlay(nil, surface_context, style, spec, surface, origin)
+    return true, id
 end
 
 return model

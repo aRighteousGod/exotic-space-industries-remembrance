@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Emerald Apocalypse charge, doctrine, motion, and orbital shards
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` refreshes force caches and re-registers live tanks without replacing the runtime root. Active charges, delayed work, cooldowns, drift and player doctrine settings survive. Missing entities use ordinary owner cleanup.
+
 ## Implementation sources
 
 - [emerald-apocalypse-hover-tank.lua](../../../exotic-space-industries-remembrance/scripts/control/emerald-apocalypse-hover-tank.lua)
@@ -45,3 +50,8 @@ Build/clone/destruction registration, driver changes and equipment events mainta
 ## Verification and maintenance
 
 Source inspection only. The `esir-dev/references/emerald-doctrine-qc-helper.md` fixture supplies deterministic doctrine snapshots through existing runtime QC methods, but explicitly does not replace feel/visual checks. Verify consumed/refunded charges, wind-up and cooldown, equipment restoration, doctrine changes mid-charge, per-tank toggles, source destruction, reload, shield reprisal, terrain eligibility and both targeting modes. Add separate visual review for drift, shard motion, and emitter-offset fidelity.
+
+<a id="gui-refresh-cost"></a>
+## GUI refresh cost
+
+Emerald control events compare a scalar signature containing all displayed shard/doctrine values before rewriting captions, styles, and button tags. Existing missing-section migration still rebuilds once. These readouts remain event driven; no refresh cadence is introduced.

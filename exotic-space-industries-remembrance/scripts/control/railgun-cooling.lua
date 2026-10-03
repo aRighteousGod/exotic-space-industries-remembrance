@@ -4,7 +4,7 @@
 --       hot-shot visuals, turret status, and railgun relative GUI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy/rotate/script-trigger, scheduled tick step 11, and GUI hooks
--- forwarded_events: check_global, get_pending_work_count, get_runtime_status, get_qc_snapshot,
+-- forwarded_events: check_global, get_pending_work_count, get_runtime_status, get_qc_snapshot,, repair_runtime_state
 --                   on_built_entity, on_destroyed_entity, on_gui_click, on_object_destroyed,
 --                   on_player_left_game, on_player_rotated_entity, on_script_trigger_effect,
 --                   on_space_platform_changed_state, rebuild_runtime_state, update
@@ -26,6 +26,8 @@ local scheduler = require("lib/runtime-scheduler")
 
 local MODULE_NAME = "railgun-cooling"
 local GUI_NAME = "ei-railgun-cooling-console"
+---@type table<uint32, table>
+local gui_snapshots = {}
 local RAILGUN_NAME = "railgun-turret"
 local PROXY_NAME = "ei-railgun-cooling-proxy"
 local DIAGONAL_PROXY_NAMES = {
@@ -539,16 +541,20 @@ local function ensure_proxy(runtime, record)
 end
 
 local function update_open_guis(record, current_tick)
+    -- blueprint-ref: .codex/esir/blueprints/railgun-cooling.md#gui-refresh
     local runtime = get_runtime()
-    local snapshot = model.get_gui_snapshot(record, current_tick)
+    -- Closed turrets have no GUI reads, fluid snapshots, captions or elapsed-time work.
+    local snapshot
     for player_index, unit_number in pairs(runtime.open_by_player) do
         if unit_number == record.unit_number then
             local player = game and game.get_player(player_index) or nil
             local opened = get_opened_railgun(player)
-            if opened and opened.unit_number == unit_number then
+            if player and player.connected and opened and opened.unit_number == unit_number then
+                if not snapshot then snapshot = model.get_gui_snapshot(record, current_tick) end
                 model.update_gui(player, snapshot)
             else
                 runtime.open_by_player[player_index] = nil
+                gui_snapshots[player_index] = nil
                 local root = get_gui_root(player)
                 if root then root.destroy() end
             end
@@ -573,6 +579,7 @@ local function unregister_record(runtime, unit_number, keep_proxy)
     for player_index, opened_unit_number in pairs(runtime.open_by_player) do
         if opened_unit_number == unit_number then
             runtime.open_by_player[player_index] = nil
+            gui_snapshots[player_index] = nil
             local player = game and game.get_player(player_index) or nil
             local root = get_gui_root(player)
             if root then root.destroy() end
@@ -773,18 +780,39 @@ function model.update_gui(player, snapshot)
     if not flow then
         return
     end
+    local previous = gui_snapshots[player.index]
+    if not previous or previous.root ~= root then previous = {} end
     local cold_capacity = math.max(1, tonumber(snapshot.cold_buffer_capacity) or BUFFER_CAPACITY)
     local hot_capacity = math.max(1, tonumber(snapshot.hot_buffer_capacity) or BUFFER_CAPACITY)
-    flow["state-label"].caption = {"exotic-industries.railgun-cooling-gui-block-state", snapshot.state}
-    flow["surface-profile-label"].caption = {"exotic-industries.railgun-cooling-gui-surface-profile", {"exotic-industries.railgun-cooling-profile-" .. snapshot.profile_key}}
-    flow["last-shot-label"].caption = snapshot.seconds_since_last_shot and {"exotic-industries.railgun-cooling-gui-last-shot", snapshot.seconds_since_last_shot} or {"exotic-industries.railgun-cooling-gui-last-shot-never"}
-    flow["afterglow-label"].caption = {"exotic-industries.railgun-cooling-gui-afterglow", snapshot.afterglow_seconds or 0}
-    flow["cold-buffer-bar"].value = ei_lib.clamp((snapshot.cold_buffer or 0) / cold_capacity, 0, 1)
-    flow["cold-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-cold-buffer", round_amount(snapshot.cold_buffer or 0), round_amount(cold_capacity)}
-    flow["hot-buffer-bar"].value = ei_lib.clamp((snapshot.hot_buffer or 0) / hot_capacity, 0, 1)
-    flow["hot-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-hot-buffer", round_amount(snapshot.hot_buffer or 0), round_amount(hot_capacity)}
-    flow["heat-debt-bar"].value = ei_lib.clamp((snapshot.heat_debt or 0) / MAX_HEAT_DEBT, 0, 1)
-    flow["heat-debt-bar"].caption = {"exotic-industries.railgun-cooling-gui-heat-debt", round_amount(snapshot.heat_debt or 0)}
+    local state_key = snapshot.state and snapshot.state[1]
+    if previous.state ~= state_key then flow["state-label"].caption = {"exotic-industries.railgun-cooling-gui-block-state", snapshot.state} end
+    if previous.profile ~= snapshot.profile_key then
+        flow["surface-profile-label"].caption = {"exotic-industries.railgun-cooling-gui-surface-profile", {"exotic-industries.railgun-cooling-profile-" .. snapshot.profile_key}}
+    end
+    if previous.root ~= root or previous.last_shot ~= snapshot.seconds_since_last_shot then
+        flow["last-shot-label"].caption = snapshot.seconds_since_last_shot and {"exotic-industries.railgun-cooling-gui-last-shot", snapshot.seconds_since_last_shot} or {"exotic-industries.railgun-cooling-gui-last-shot-never"}
+    end
+    local afterglow = snapshot.afterglow_seconds or 0
+    if previous.afterglow ~= afterglow then flow["afterglow-label"].caption = {"exotic-industries.railgun-cooling-gui-afterglow", afterglow} end
+    local cold = round_amount(snapshot.cold_buffer or 0)
+    local hot = round_amount(snapshot.hot_buffer or 0)
+    local debt = round_amount(snapshot.heat_debt or 0)
+    local cold_ratio = ei_lib.clamp((snapshot.cold_buffer or 0) / cold_capacity, 0, 1)
+    local hot_ratio = ei_lib.clamp((snapshot.hot_buffer or 0) / hot_capacity, 0, 1)
+    local debt_ratio = ei_lib.clamp((snapshot.heat_debt or 0) / MAX_HEAT_DEBT, 0, 1)
+    if previous.cold_ratio ~= cold_ratio then flow["cold-buffer-bar"].value = cold_ratio end
+    if previous.cold ~= cold or previous.cold_capacity ~= cold_capacity then
+        flow["cold-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-cold-buffer", cold, round_amount(cold_capacity)}
+    end
+    if previous.hot_ratio ~= hot_ratio then flow["hot-buffer-bar"].value = hot_ratio end
+    if previous.hot ~= hot or previous.hot_capacity ~= hot_capacity then
+        flow["hot-buffer-bar"].caption = {"exotic-industries.railgun-cooling-gui-hot-buffer", hot, round_amount(hot_capacity)}
+    end
+    if previous.debt_ratio ~= debt_ratio then flow["heat-debt-bar"].value = debt_ratio end
+    if previous.debt ~= debt then flow["heat-debt-bar"].caption = {"exotic-industries.railgun-cooling-gui-heat-debt", debt} end
+    gui_snapshots[player.index] = {root = root, state = state_key, profile = snapshot.profile_key,
+        last_shot = snapshot.seconds_since_last_shot, afterglow = afterglow, cold = cold, hot = hot, debt = debt,
+        cold_capacity = cold_capacity, hot_capacity = hot_capacity, cold_ratio = cold_ratio, hot_ratio = hot_ratio, debt_ratio = debt_ratio}
 end
 
 ---@param event_or_tick EventData|MapTick|nil
@@ -805,6 +833,7 @@ end
 function model.close_gui(player)
     if not (player and player.valid) then return end
     get_runtime().open_by_player[player.index] = nil
+    gui_snapshots[player.index] = nil
     local root = get_gui_root(player)
     if root then root.destroy() end
 end
@@ -988,6 +1017,41 @@ end
 
 function model.get_qc_snapshot(current_tick)
     return model.get_runtime_status(current_tick)
+end
+
+-- blueprint-ref: .codex/esir/blueprints/railgun-cooling.md#admin-repair
+-- Keep live debt/deadlines and correctly bound coolant helpers; reconstruct only indexes.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason, tick)
+    local runtime = get_runtime()
+    for unit, record in pairs(runtime.turrets_by_unit) do
+        if not ei_lib.entity_check(record.turret) then unregister_record(runtime, unit) end
+    end
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered{name = RAILGUN_NAME}) do
+            local previous = runtime.turrets_by_unit[entity.unit_number]
+            local old_proxy = previous and ei_lib.get_valid_entity(previous.proxy)
+            local cold = old_proxy and get_fluidbox_contents(old_proxy, 1)
+            local hot = old_proxy and get_fluidbox_contents(old_proxy, 2)
+            local record = register_turret(runtime, entity, tick)
+            if record then
+                if old_proxy and record.proxy ~= old_proxy and ei_lib.entity_check(record.proxy) then
+                    if cold then set_fluid_amount(record.proxy, 1, cold.name, cold.amount, cold.temperature) end
+                    if hot then set_fluid_amount(record.proxy, 2, hot.name, hot.amount, hot.temperature) end
+                    sanitize_proxy_buffers(record.proxy)
+                end
+                if (record.heat_debt or 0) > 0.001 or record.proxy_missing then
+                    schedule_recovery(runtime, record.unit_number,
+                        runtime.recovery_pending_by_unit[record.unit_number] or tick + RECOVERY_INTERVAL_TICKS)
+                end
+            end
+        end
+    end
+    recalculate_next_due_tick(runtime)
+    runtime.last_admin_repair_reason = reason
+    runtime.last_admin_repair_tick = tick
+    return true
 end
 
 return model

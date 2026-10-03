@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Startup, compatibility, diagnostics, and information interfaces
 
+<a id="admin-repair"></a>
+## Admin repair
+
+Arrival repair normalizes pending players and the saved wave due minimum without replaying arrival rewards/effects. Informatron notification repair prunes only nonexistent force ownership, retaining delivered-page history. Admin registry diagnostics remain separate from mutating legacy status getters.
+
 ## Implementation sources
 
 - [echo-codex.lua](../../../exotic-space-industries-remembrance/lib/echo-codex.lua)

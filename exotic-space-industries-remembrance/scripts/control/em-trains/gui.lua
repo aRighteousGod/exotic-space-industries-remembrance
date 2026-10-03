@@ -325,7 +325,8 @@ end
 
 
 ---@param player LuaPlayer|nil
-function model.update_mod_gui(player)
+---@param data table|nil Shared scalar surface summary for this dirty refresh.
+function model.update_mod_gui(player, data)
     if not (player and player.valid) then
         return
     end
@@ -337,9 +338,13 @@ function model.update_mod_gui(player)
 
     if not player.gui.left[GUI_NAME] then return end
 
-    local data = model.get_data(player.surface)
+    data = data or model.get_data(player.surface)
 
     local root = player.gui.left[GUI_NAME]
+    local signature = table.concat({data.chargers,data.rails,data.trains,data.charger_efficiency,
+        data.acc_level,data.speed_level,data.speed_total}, ":")
+    if root.tags.summary_signature == signature then return end
+    local tags = root.tags; tags.summary_signature = signature; root.tags = tags
     local chargers_flow = root["main-container"]["chargers-flow"]
     local trains_flow = root["main-container"]["trains-flow"]
     local stats_flow = root["main-container"]["stats-flow"]
@@ -367,27 +372,16 @@ function model.get_data(surface)
     surface = surface or game.get_surface(1)
     local data = {}
     
-    -- charger info
-    local surface_chargers = {}
-    for charger_id, charger_data in pairs(storage.ei_emt.chargers) do
-        if charger_data.surface == surface then
-            table.insert(surface_chargers, charger_data)
+    -- Count directly: panel refresh never needs temporary registry copies.
+    data.chargers, data.trains, data.rails = 0, 0, 0
+    for _, charger in pairs(storage.ei_emt.chargers) do
+        if charger.surface == surface then
+            data.chargers = data.chargers + 1
+            data.rails = data.rails + charger.rail_count
         end
     end
-    data.chargers = #surface_chargers
-
-    -- train info
-    local trains = {}
-    for train_id, train_data in pairs(storage.ei_emt.trains) do
-        if train_data.surface == surface then
-            table.insert(trains, train_data)
-        end
-    end
-    data.trains = #trains
-
-    data.rails = 0
-    for _, charger in ipairs(surface_chargers) do
-        data.rails = data.rails + charger.rail_count
+    for _, train in pairs(storage.ei_emt.trains) do
+        if train.surface == surface then data.trains = data.trains + 1 end
     end
 
     data.charger_efficiency = storage.ei_emt.buffs.charger_efficiency
@@ -413,9 +407,16 @@ function model.updater()
         return
     end
 
+    -- blueprint-ref: .codex/esir/blueprints/em-trains.md#gui-refresh-cost
+    -- Share a surface readout for this dirty event; unopened panels do no registry work.
+    local summaries = {}
     for _, player in pairs(game.connected_players) do
         model.sync_mod_button(player)
-        model.update_mod_gui(player)
+        if player.gui.left[GUI_NAME] then
+            local surface_index = player.surface.index
+            summaries[surface_index] = summaries[surface_index] or model.get_data(player.surface)
+            model.update_mod_gui(player, summaries[surface_index])
+        end
     end
 
     storage.ei_emt.gui.dirty = false

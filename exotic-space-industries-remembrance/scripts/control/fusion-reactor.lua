@@ -3,7 +3,7 @@
 -- owns: fusion reactor GUI, manual/circuit control, and circuit telemetry proxy
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, scheduled tick step, GUI open/close/click/value-change, configuration rebuild
--- forwarded_events: check_global, close_gui, entity_check, get_pending_work_count, on_built_entity, on_configuration_changed, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_gui_value_changed, on_player_left_game, open_gui, rebuild_runtime_state, update, update_gui, update_recipe
+-- forwarded_events: check_global, close_gui, entity_check, get_pending_work_count, on_built_entity, on_configuration_changed, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_gui_value_changed, on_player_left_game, open_gui, rebuild_runtime_state, reconcile_gui_player, repair_runtime_state, update, update_gui, update_recipe
 -- storage_roots: storage.ei.fusion_reactor
 -- gui_ids: ei-fusion-reactor-console
 -- remote_interfaces: none
@@ -18,6 +18,8 @@ local FUSION_RUNTIME_VERSION = 1
 local FUSION_REACTOR_NAME = "ei-fusion-reactor"
 local FUSION_WIRE_PROXY_NAME = "ei-fusion-reactor-circuit-interface"
 local GUI_NAME = "ei-fusion-reactor-console"
+---@type table<uint32, table>
+local gui_snapshots = {}
 local WIRE_SCAN_INTERVAL_TICKS = 60
 local DEFAULT_SELECTION = {
     fuel_1 = "ei-heated-deuterium",
@@ -426,9 +428,9 @@ local function update_open_guis_for_unit(unit_number)
     for player_index, open_unit in pairs(runtime.open_by_player) do
         if open_unit == unit_number then
             local player = game.get_player(player_index)
-            if player then
-                model.update_gui(player)
-            end
+            if player and player.connected then
+                model.update_gui(player, runtime.reactors_by_unit[unit_number])
+            else runtime.open_by_player[player_index] = nil; gui_snapshots[player_index] = nil end
         end
     end
 end
@@ -1082,20 +1084,32 @@ function model.open_gui(player)
     model.update_gui(player)
 end
 
-function model.update_gui(player)
+function model.update_gui(player, known_entry)
+    -- blueprint-ref: .codex/esir/blueprints/fusion-reactor.md#gui-refresh
     if not player then
         return
     end
 
     local root = player.gui.relative[GUI_NAME]
-    local entry = get_entry_for_player(player)
-    if not (root and entry) then
+    local entry = known_entry or get_entry_for_player(player)
+    if not (root and entry and model.entity_check(entry.entity)
+        and ei_lib.get_valid_entity(player.opened) == entry.entity) then
         model.close_gui(player)
         return
     end
 
     local selection = normalize_selection(entry.effective_selection or entry.manual_selection)
     local manual_selection = normalize_selection(entry.manual_selection)
+    -- Discrete control/agent state owns presentation. Repeated reactor service
+    -- cannot rewrite sliders or fuel controls while this state is unchanged.
+    local snapshot = {root = root, unit = entry.unit_number,
+        fuel_1 = selection.fuel_1, fuel_2 = selection.fuel_2,
+        temperature = selection.temperature, injection_rate = selection.injection_rate,
+        corrected = selection.corrected == true,
+        manual_fuel_1 = manual_selection.fuel_1, manual_fuel_2 = manual_selection.fuel_2,
+        manual_temperature = manual_selection.temperature, manual_injection_rate = manual_selection.injection_rate,
+        source = entry.control_source, wired = entry.wire_proxy_wired == true}
+    if cache_matches(gui_snapshots[player.index], snapshot) then return end
     local metrics = get_selection_metrics(selection)
     local main_container = root["main-container"]
     local status = main_container["status-flow"]
@@ -1147,6 +1161,7 @@ function model.update_gui(player)
     agents["thermal-agent"].caption = {"exotic-industries.fusion-reactor-gui-thermal-agent", signal_cache.thermal_agent}
     agents["coolant-agent"].caption = {"exotic-industries.fusion-reactor-gui-coolant-agent", signal_cache.coolant_agent}
     agents["circuit-agent"].caption = {"exotic-industries.fusion-reactor-gui-circuit-agent", signal_cache.circuit_agent}
+    gui_snapshots[player.index] = snapshot
 end
 
 ---@param event_or_tick EventData|MapTick|nil
@@ -1175,6 +1190,7 @@ function model.close_gui(player)
 
     local runtime = get_runtime()
     runtime.open_by_player[player.index] = nil
+    gui_snapshots[player.index] = nil
     if player.gui.relative[GUI_NAME] then
         player.gui.relative[GUI_NAME].destroy()
     end
@@ -1187,6 +1203,17 @@ end
 function model.on_player_left_game(player_index)
     local runtime = get_runtime()
     runtime.open_by_player[player_index] = nil
+    gui_snapshots[player_index] = nil
+end
+
+function model.reconcile_gui_player(player_index)
+    local player = game.get_player(player_index)
+    if not (player and player.connected and player.gui.relative[GUI_NAME]) then return end
+    local entry = get_entry_for_player(player)
+    if not entry then model.close_gui(player); return end
+    get_runtime().open_by_player[player_index] = entry.unit_number
+    gui_snapshots[player_index] = nil
+    model.update_gui(player, entry)
 end
 
 local function apply_preset(entry, preset)
@@ -1253,6 +1280,35 @@ function model.on_gui_value_changed(event)
         model.update_recipe(player, event)
         player.play_sound{path = "utility/list_box_click"}
     end
+end
+
+-- blueprint-ref: .codex/esir/blueprints/fusion-reactor.md#admin-repair
+-- Admin repair reconciles indexes/helpers in place; manual circuit preferences survive.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason, tick)
+    local runtime = get_runtime()
+    runtime.reactor_units = {}
+    runtime.reactor_unit_index = {}
+    runtime.update_cursor = 0
+    for unit, entry in pairs(runtime.reactors_by_unit) do
+        if not model.entity_check(entry.entity) then
+            model.destroy_wire_proxy(entry)
+            runtime.reactors_by_unit[unit] = nil
+        end
+    end
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered{name = FUSION_REACTOR_NAME}) do
+            local entry = model.register_reactor(runtime, entity)
+            if entry then
+                model.ensure_wire_proxy(entry)
+                model.update_wire_proxy_signals(entry, tick)
+            end
+        end
+    end
+    runtime.last_admin_repair_reason = reason
+    runtime.last_admin_repair_tick = tick
+    return true
 end
 
 return model

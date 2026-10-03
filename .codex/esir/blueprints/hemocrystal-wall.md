@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Hemocrystal wall event-started regeneration
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` reconstructs due buckets from living damaged-wall records and discovers otherwise untracked damaged walls. Native health and valid future deadlines survive; overdue work resumes on a future tick.
+
 ## Implementation sources
 
 - [hemocrystal-wall.lua](../../../exotic-space-industries-remembrance/scripts/control/hemocrystal-wall.lua)

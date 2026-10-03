@@ -3,7 +3,7 @@
 -- owns: camp-fire periodic fire spawning
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy and scheduled tick step 1
--- forwarded_events: has_tick_work, on_built_entity, on_destroyed_entity, updater
+-- forwarded_events: has_tick_work, on_built_entity, on_destroyed_entity, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -73,6 +73,23 @@ function model.updater(event)
             storage.ei.campfire[id] = nil
         end
     end
+end
+
+-- blueprint-ref: .codex/esir/blueprints/camp-fire.md#admin-repair
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    storage.ei=storage.ei or {}
+    local found={}
+    for _,surface in pairs(game.surfaces) do
+        for _,entity in pairs(surface.find_entities_filtered{name="ei-camp-fire"}) do
+            local unit=ei_lib.get_entity_unit_number(entity)
+            if unit then found[unit]=entity end
+        end
+    end
+    storage.ei.campfire=found
+    -- Preserve the last emission tick so inspection/repair cannot trigger extra fire.
+    return true
 end
 
 return model

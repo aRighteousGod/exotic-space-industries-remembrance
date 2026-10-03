@@ -3,7 +3,7 @@
 -- owns: queued flammable rupture ring execution and runtime status
 -- loaded_by: exotic-space-industries-remembrance\control.lua, scripts/control/flammable-fluids.lua
 -- cadence: on-demand job creation and due ring ticks
--- forwarded_events: begin_rupture, check_global, get_fidelity_profile, get_runtime_status, has_tick_work, queue_rupture, updater
+-- forwarded_events: begin_rupture, check_global, get_fidelity_profile, get_runtime_status, has_tick_work, queue_rupture, updater, repair_runtime_state
 -- storage_roots: storage.ei.flammable_ruptures
 -- gui_ids: none
 -- remote_interfaces: none
@@ -88,8 +88,10 @@ local function get_mode()
     return mode
 end
 
-function model.get_fidelity_profile(visual_radius)
-    local mode = get_mode()
+---@param visual_radius number
+---@param requested_mode string|nil Optional caller ceiling; omitted preserves configured fidelity.
+function model.get_fidelity_profile(visual_radius, requested_mode)
+    local mode = requested_mode and MODE_PROFILES[requested_mode] and requested_mode or get_mode()
     local profile = shallow_copy(MODE_PROFILES[mode])
     if profile.dynamic_ring_count then
         profile.ring_count = math.max(profile.ring_count or 8, math.ceil((visual_radius or 0) / 8))
@@ -594,6 +596,16 @@ function model.get_runtime_status()
 
     ei_runtime_scheduler.set_module_status(MODULE_NAME, status)
     return status
+end
+
+-- blueprint-ref: .codex/esir/blueprints/fluid-safety-and-ruptures.md#admin-repair
+-- Preserve every paid ring and rebuild only its cached admission/count metadata.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local state=model.check_global()
+    refresh_cached_counts(state)
+    return true
 end
 
 return model

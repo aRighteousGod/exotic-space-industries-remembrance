@@ -3,8 +3,8 @@
 -- owns: black hole GUI and runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, GUI dispatch, and every-tick runtime updates
--- forwarded_events: apply_output, built_extractor_pylon, built_injector_pylon, change_stage, check_battery, check_init, close_gui, ensure_runtime_defaults, entity_check, get_data, get_extractor_pylons_in_range, get_injector_pylons_in_range, get_mass, get_power, get_relative_stage_progress, get_stage, get_stage_progress, get_transfer_inv, has_tick_work, invoke_victory, make_energy, make_output, make_stage_picture, mark_nearby_black_holes_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_opened, open_gui, rebuild_runtime_state, refresh_nearby_pylons, register_black_hole, set_stage_progress, transfer_valid, unregister_black_hole, update, update_battery, update_black_hole, update_black_holes, update_gui, update_mass, update_player_guis, update_stage
--- storage_roots: storage.ei
+-- forwarded_events: apply_output, built_extractor_pylon, built_injector_pylon, change_stage, check_battery, check_init, close_gui, ensure_runtime_defaults, entity_check, get_data, get_extractor_pylons_in_range, get_injector_pylons_in_range, get_mass, get_power, get_relative_stage_progress, get_stage, get_stage_progress, get_transfer_inv, has_tick_work, invoke_victory, make_energy, make_output, make_stage_picture, mark_nearby_black_holes_dirty, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_opened, on_player_left_game, open_gui, rebuild_gui_viewers, rebuild_runtime_state, reconcile_gui_player, refresh_nearby_pylons, register_black_hole, set_stage_progress, transfer_valid, unregister_black_hole, update, update_battery, update_black_hole, update_black_holes, update_gui, update_mass, update_player_guis, update_stage
+-- storage_roots: storage.ei.black_hole, storage.ei.black_hole_gui_by_player
 -- gui_ids: ei-black-hole-console
 -- remote_interfaces: none
 -- rebuild_on: entity schema changes, GUI schema changes
@@ -22,6 +22,9 @@ local BLACK_HOLE_RADIUS = 20
 -- do not persist forever, but steady-state black holes avoid scanning every tick.
 local BLACK_HOLE_CACHE_REFRESH_TICKS = 300
 local BLACK_HOLE_GUI_REFRESH_TICKS = 30
+-- Presentation snapshots are disposable; persistent viewer identity survives reload.
+---@type table<uint32, table>
+local gui_snapshots = {}
 local INJECTOR_MIN_ENERGY = 10 * 1000 * 1000
 local GIGA = 1000 * 1000 * 1000
 
@@ -1003,18 +1006,8 @@ function model.has_tick_work(_event)
         return true
     end
 
-    if game and type(game.connected_players) == "table" then
-        for _, player in pairs(game.connected_players) do
-            if player.gui
-                and player.gui.relative
-                and player.gui.relative["ei-black-hole-console"]
-            then
-                return true
-            end
-        end
-    end
-
-    return false
+    local viewers = storage and storage.ei and storage.ei.black_hole_gui_by_player
+    return viewers ~= nil and next(viewers) ~= nil
 end
 
 
@@ -1150,7 +1143,11 @@ end
 ------------------------------------------------------------------------------------------------------
 
 function model.open_gui(player)
-
+    if not (player and player.valid) then return end
+    local opened = get_valid_entity(player.opened)
+    if not opened or opened.name ~= BLACK_HOLE_NAME then model.close_gui(player); return end
+    model.check_init()
+    storage.ei.black_hole_gui_by_player = storage.ei.black_hole_gui_by_player or {}
     if player.gui.relative["ei-black-hole-console"] then
         model.close_gui(player)
     end
@@ -1291,13 +1288,19 @@ function model.open_gui(player)
 
     end
 
+    storage.ei.black_hole_gui_by_player[player.index] = opened.unit_number
+    model.update_gui(player, model.get_data(opened.unit_number))
 end
 
 
 function model.update_player_guis()
-
-    for _, player in pairs(game.connected_players) do
-        if player.gui.relative["ei-black-hole-console"] then
+    -- blueprint-ref: .codex/esir/blueprints/black-hole.md#gui-refresh
+    local viewers = storage.ei and storage.ei.black_hole_gui_by_player
+    if not viewers or next(viewers) == nil then return end
+    local snapshots = {}
+    for player_index in pairs(viewers) do
+        local player = game.get_player(player_index)
+        if player and player.connected and player.gui.relative["ei-black-hole-console"] then
             local entity = get_valid_entity(player.opened)
             if not entity or entity.name ~= BLACK_HOLE_NAME then
                 model.close_gui(player)
@@ -1306,10 +1309,14 @@ function model.update_player_guis()
                 if not unit then
                     model.close_gui(player)
                 else
-                    local data = model.get_data(unit)
+                    local data = snapshots[unit]
+                    if not data then data = model.get_data(unit); snapshots[unit] = data end
+                    viewers[player_index] = unit
                     model.update_gui(player, data)
                 end
             end
+        elseif player then model.close_gui(player)
+        else viewers[player_index] = nil; gui_snapshots[player_index] = nil
         end
     end
 
@@ -1414,6 +1421,10 @@ end
 function model.update_gui(player, data)
 
     local root = player.gui.relative["ei-black-hole-console"]
+    if not (root and root.valid and data) then return end
+    local previous = gui_snapshots[player.index]
+    if not previous or previous.root ~= root then previous = {} end
+    local old = previous.data or {injectors = {}, extractors = {}, stage = {}, stage_progress = {}}
     local status = root["main-container"]["status-flow"]
     local control = root["main-container"]["control-flow"]
 
@@ -1427,47 +1438,40 @@ function model.update_gui(player, data)
     local control_button = control["control-button"]
 
     -- Update status
-    mass.caption = {"exotic-industries.black-hole-gui-status-mass", string.format("%.1f", data.mass/100)}
-    power.caption = {"exotic-industries.black-hole-gui-status-power", string.format("%.1f", data.power)} -- in GW
+    local mass_text = string.format("%.1f", data.mass/100)
+    local power_text = string.format("%.1f", data.power)
+    if previous.mass ~= mass_text then mass.caption = {"exotic-industries.black-hole-gui-status-mass", mass_text} end
+    if previous.power ~= power_text then power.caption = {"exotic-industries.black-hole-gui-status-power", power_text} end
 
-    injectors.caption = {"exotic-industries.black-hole-gui-status-injectors", data.injectors.caption, data.injectors.max}
-    injectors.value = data.injectors.value
-    if data.injectors.value == 1 then
-        injectors.style = "ei_status_progressbar"
-    else
-        injectors.style = "ei_status_progressbar_red"
+    if old.injectors.caption ~= data.injectors.caption or old.injectors.max ~= data.injectors.max then
+        injectors.caption = {"exotic-industries.black-hole-gui-status-injectors", data.injectors.caption, data.injectors.max}
+    end
+    if old.injectors.value ~= data.injectors.value then
+        injectors.value = data.injectors.value
+    end
+    if old.injectors.value == nil or (old.injectors.value == 1) ~= (data.injectors.value == 1) then
+        injectors.style = data.injectors.value == 1 and "ei_status_progressbar" or "ei_status_progressbar_red"
     end
 
-    extractors.caption = {"exotic-industries.black-hole-gui-status-extractors", data.extractors.caption, data.extractors.max}
-    extractors.value = data.extractors.value
+    if old.extractors.caption ~= data.extractors.caption or old.extractors.max ~= data.extractors.max then
+        extractors.caption = {"exotic-industries.black-hole-gui-status-extractors", data.extractors.caption, data.extractors.max}
+    end
+    if old.extractors.value ~= data.extractors.value then extractors.value = data.extractors.value end
 
     -- Update control
-    stage.caption = {"exotic-industries.black-hole-gui-control-stage", data.stage.caption}
-    stage.value = data.stage.value
+    if old.stage.caption ~= data.stage.caption then stage.caption = {"exotic-industries.black-hole-gui-control-stage", data.stage.caption} end
+    if old.stage.value ~= data.stage.value then stage.value = data.stage.value end
 
-    stage_progress.caption = {"exotic-industries.black-hole-gui-control-stage-progress", string.format("%.1f", data.stage_progress.caption)}
-    stage_progress.value = data.stage_progress.value
+    local progress_text = string.format("%.1f", data.stage_progress.caption)
+    if previous.progress ~= progress_text then stage_progress.caption = {"exotic-industries.black-hole-gui-control-stage-progress", progress_text} end
+    if old.stage_progress.value ~= data.stage_progress.value then stage_progress.value = data.stage_progress.value end
 
     -- Update control button
-    if data.control_button == 1 then
-        control_button.caption = {"exotic-industries.black-hole-gui-control-control-button-1"}
-        control_button.style = "ei_green_button"
-    elseif data.control_button == 2 then
-        control_button.caption = {"exotic-industries.black-hole-gui-control-control-button-2"}
-        control_button.style = "ei_button"
-    elseif data.control_button == 3 then
-        control_button.caption = {"exotic-industries.black-hole-gui-control-control-button-3"}
-        control_button.style = "ei_green_button"
-    elseif data.control_button == 4 then
-        control_button.caption = {"exotic-industries.black-hole-gui-control-control-button-4"}
-        control_button.style = "ei_button"
-    elseif data.control_button == 5 then
-        control_button.caption = {"exotic-industries.black-hole-gui-control-control-button-5"}
-        control_button.style = "ei_button"
+    if old.control_button ~= data.control_button then
+        control_button.caption = {"exotic-industries.black-hole-gui-control-control-button-" .. data.control_button}
+        control_button.style = (data.control_button == 1 or data.control_button == 3) and "ei_green_button" or "ei_button"
     end
-
-
-
+    gui_snapshots[player.index] = {root = root, data = data, mass = mass_text, power = power_text, progress = progress_text}
 end
 
 
@@ -1490,11 +1494,14 @@ function model.change_stage(player)
 
     -- otherwise set it to 1
     model.set_stage_progress(unit, 1)
+    model.update_gui(player, model.get_data(unit))
 
 end
 
 
 function model.on_gui_click(event)
+    if not (event and event.element and event.element.valid
+        and event.element.tags.parent_gui == "ei-black-hole-console") then return end
     if event.element.tags.action == "control-start" then
         model.change_stage(game.get_player(event.player_index))
     elseif event.element.tags.action == "goto-informatron" then
@@ -1508,9 +1515,41 @@ end
 
 
 function model.close_gui(player)
+    if not (player and player.valid) then return end
+    local viewers = storage.ei and storage.ei.black_hole_gui_by_player
+    if viewers then viewers[player.index] = nil end
+    gui_snapshots[player.index] = nil
     if player.gui.relative["ei-black-hole-console"] then
         player.gui.relative["ei-black-hole-console"].destroy()
     end
+end
+
+-- Lifecycle-only reconciliation handles pre-registry saves without a periodic scan.
+function model.reconcile_gui_player(player_index)
+    local player = game.get_player(player_index)
+    if not (player and player.connected) then return end
+    local root = player.gui.relative["ei-black-hole-console"]
+    local entity = get_valid_entity(player.opened)
+    if root and entity and entity.name == BLACK_HOLE_NAME then
+        model.check_init()
+        storage.ei.black_hole_gui_by_player = storage.ei.black_hole_gui_by_player or {}
+        storage.ei.black_hole_gui_by_player[player_index] = entity.unit_number
+        gui_snapshots[player_index] = nil
+        model.update_gui(player, model.get_data(entity.unit_number))
+    else model.close_gui(player) end
+end
+
+function model.rebuild_gui_viewers()
+    model.check_init()
+    storage.ei.black_hole_gui_by_player = {}
+    gui_snapshots = {}
+    for _, player in pairs(game.connected_players) do model.reconcile_gui_player(player.index) end
+end
+
+function model.on_player_left_game(player_index)
+    local viewers = storage.ei and storage.ei.black_hole_gui_by_player
+    if viewers then viewers[player_index] = nil end
+    gui_snapshots[player_index] = nil
 end
 
 

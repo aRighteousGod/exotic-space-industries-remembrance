@@ -3,7 +3,7 @@
 -- owns: water turret registry, electrical interlock, local fire discovery and modes
 -- loaded_by: control.lua (sole dispatcher)
 -- cadence: exact 15-tick power guards; staggered fire searches, max 32 jobs/tick
--- forwarded_events: build/remove/clone/teleport/force/surface/blueprint/GUI/rebuild
+-- forwarded_events: build/remove/clone/teleport/force/surface/blueprint/GUI/rebuild, repair_runtime_state
 -- storage_roots: storage.ei.water_turret
 -- gui_ids: ei-water-turret-console (relative turret GUI)
 -- remote_interfaces: none
@@ -398,21 +398,29 @@ end
 
 ---@param event EventData.on_gui_opened
 function model.on_gui_opened(event)
-    model.on_gui_closed(event)
     local player=game.get_player(event.player_index)
     local record=record_for(event.entity)
-    if not (player and record and player.force==record.entity.force) then return end
-    local root=player.gui.relative.add{type="frame",name=GUI,direction="vertical",
+    if not (player and record and player.force==record.entity.force) then model.on_gui_closed(event);return end
+    -- blueprint-ref: .codex/esir/blueprints/firefighting-and-water-turret.md#gui-refresh-cost
+    local previous=player.gui.relative[GUI]
+    local content=previous and previous.body and previous.body.content
+    if content and previous.tags.unit==record.entity.unit_number then
+        if content.mode.selected_index~=record.mode then content.mode.selected_index=record.mode end
+        if content.weapon_fires.state~=record.weapon_fires then content.weapon_fires.state=record.weapon_fires end
+        return
+    end
+    model.on_gui_closed(event)
+    local root=player.gui.relative.add{type="frame",name=GUI,direction="vertical",tags={unit=record.entity.unit_number},
         anchor={gui=defines.relative_gui_type.turret_gui,position=defines.relative_gui_position.right}}
     local title=root.add{type="flow",direction="horizontal"}
     title.add{type="label",caption={"entity-name.ei-water-turret"},style="frame_title"}
     title.add{type="empty-widget",style="ei_titlebar_nondraggable_spacer"}
-    local body=root.add{type="frame",style="inside_shallow_frame",direction="vertical"}
-    local flow=body.add{type="flow",style="ei_inner_content_flow",direction="vertical"}
+    local body=root.add{type="frame",name="body",style="inside_shallow_frame",direction="vertical"}
+    local flow=body.add{type="flow",name="content",style="ei_inner_content_flow",direction="vertical"}
     flow.add{type="label",caption={"water-turret.mode"}}
-    flow.add{type="drop-down",items={{"water-turret.enemy-first"},{"water-turret.fire-first"},{"water-turret.fire-only"}},
+    flow.add{type="drop-down",name="mode",items={{"water-turret.enemy-first"},{"water-turret.fire-first"},{"water-turret.fire-only"}},
         selected_index=record.mode,tags={parent_gui=GUI,action="mode",unit=record.entity.unit_number}}
-    flow.add{type="checkbox",state=record.weapon_fires,caption={"water-turret.extinguish-weapon-fires"},
+    flow.add{type="checkbox",name="weapon_fires",state=record.weapon_fires,caption={"water-turret.extinguish-weapon-fires"},
         tooltip={"water-turret.extinguish-weapon-fires-description"},
         tags={parent_gui=GUI,action="weapon-fires",unit=record.entity.unit_number}}
 end
@@ -432,4 +440,31 @@ function model.on_gui_changed(event)
     elseif element.tags.action=="weapon-fires" then preferences.weapon_fires=element.state end
     set_preferences(record,preferences,event.tick)
 end
+-- blueprint-ref: .codex/esir/blueprints/firefighting-and-water-turret.md#admin-repair
+-- Live power helpers and fire-policy preferences are authoritative; never empty them for repair.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local root=state()
+    for id,record in pairs(root.records) do
+        if not ei_lib.entity_check(record.entity) then unregister(root,id) end
+    end
+    for _,surface in pairs(game.surfaces) do
+        for _,entity in pairs(surface.find_entities_filtered{name=config.turret}) do register(entity,tick) end
+    end
+    root.power_due={}
+    root.fire_due={}
+    root.fire_queue=scheduler.clear_queue(root.fire_queue)
+    root.count=0
+    for id,record in pairs(root.records) do
+        root.count=root.count+1
+        sync_power(record)
+        scheduler.delayed_schedule(root.power_due,tick+1+(id%config.power_ticks),id)
+        schedule_fire(record,math.max(tick+1,tonumber(record.next_fire) or tick+1))
+    end
+    root.last_admin_repair_reason=reason
+    root.last_admin_repair_tick=tick
+    return true
+end
+
 return model

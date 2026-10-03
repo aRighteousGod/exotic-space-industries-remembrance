@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Sweeping radar paid observations, quality, reports, and GUI
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` prunes invalid owners, reconciles existing helpers, and discovers missing radar records. Existing manual geometry, paid jobs, output/contact buffers, trigger history and valid stored helper energy survive.
+
 ## Implementation sources
 
 - [sweeping-radar.lua](../../../exotic-space-industries-remembrance/scripts/control/sweeping-radar.lua)
@@ -91,3 +96,8 @@ Render references survive ordinary saves. Destruction/upgrades tear them down; i
 ## Verification and maintenance
 
 Reuse `scripts/invoke-sweeping-radar-qc.ps1` and its README, acceptance, quality, energy-migration, persistence and fairness fixtures. Test held-high triggers, pause after payment, generation timeout, exact per-stage caps, deadline cancellation, many radars rejoining fairness lists, report truncation/expiry, blueprint/upgrade energy, ordinary reload and interrupted GUI opens. The quality matrix covers both chassis, native and modded qualities, no/capacity-only/all research, native standby, starvation/recovery and Watch geometry beyond 32 chunks. The generic event-tick fixture explicitly does not target this radar. Operation caps are not wall-time guarantees; the Heavy/Balanced update does not introduce a new performance claim. Results and validation limits live in the QC documentation.
+
+<a id="gui-refresh-cost"></a>
+## GUI refresh cost
+
+Radar screens retain static coverage rendering until geometry, entity position/surface, or handle validity changes. Beam movement replaces only the two private beam lines, leaving coverage handles intact. Unchanged beams create no rendering objects. Capability and metric captions compare their displayed scalar signatures before assignment. Existing one-viewer-per-tick, 15-tick minimum service and unapplied manual fields are preserved. Saved viewers without signatures migrate at their next existing service.

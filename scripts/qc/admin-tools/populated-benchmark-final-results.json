@@ -1,0 +1,114 @@
+{
+  "source": {
+    "baseline": {
+      "profile": ".factorio-qc/cu/g/ap4b",
+      "files": 740,
+      "source_tree_sha256": "EFE66CE74E08BE2109CC05EDAFE8B378F43C624FE17E37237B0388FD72530D46",
+      "profile_manifest_sha256": "A629342C14BBEA1FFF6C6ECB1066F628241E42D6CC110CF64EF1109BD695BF4E",
+      "all_source_and_dependency_hashes_verified_after_timing": true,
+      "fixture_sha256": "02A517D4FAD391352FEA946D320C2F96B2C276F0B20C93C44A2D0B2D3186AC9F",
+      "mod_list_initial_sha256": "4D8A13A660E83C9C7740DCBD8338C12B55341EA7629339C411AAC50D0A34B364",
+      "mod_settings_initial_sha256": "3AB13D4E2C5BEAD43ACB41E9726A3E83906AB005D5583B9DBF1A4EF56AA523A0",
+      "mod_list_after_sha256": "4D8A13A660E83C9C7740DCBD8338C12B55341EA7629339C411AAC50D0A34B364",
+      "mod_settings_after_sha256": "3AB13D4E2C5BEAD43ACB41E9726A3E83906AB005D5583B9DBF1A4EF56AA523A0",
+      "key_source_hashes": {
+        "control.lua": "4338EF74D72B25A12BA4FDECA28897672FF23118D3B8C88867F2BF767F94404C",
+        "scripts/control/neutron-collector.lua": "30E08DB6AABC51198A3B849ED3DAD28D24F04A4E9A0EDFE0ABF6D4FA90D0EF6F",
+        "scripts/control/matter-stabilizer.lua": "FEB08E8AE0BA071C306AB7D94079AC596B84EF282C32C70993E083C28AE28630"
+      }
+    },
+    "candidate": {
+      "profile": ".factorio-qc/cu/g/ap4c",
+      "files": 763,
+      "source_tree_sha256": "55837AC1B8E118DF01E3BD36225CD64AE07C7055551366B5E46F9BE69BE38F6E",
+      "profile_manifest_sha256": "12D029EFA6566BB031CD1ADC61A26D246AE8850CF844E073188E88A937853B39",
+      "all_source_and_dependency_hashes_verified_after_timing": true,
+      "fixture_sha256": "02A517D4FAD391352FEA946D320C2F96B2C276F0B20C93C44A2D0B2D3186AC9F",
+      "mod_list_initial_sha256": "4D8A13A660E83C9C7740DCBD8338C12B55341EA7629339C411AAC50D0A34B364",
+      "mod_settings_initial_sha256": "3AB13D4E2C5BEAD43ACB41E9726A3E83906AB005D5583B9DBF1A4EF56AA523A0",
+      "mod_list_after_sha256": "4D8A13A660E83C9C7740DCBD8338C12B55341EA7629339C411AAC50D0A34B364",
+      "mod_settings_after_sha256": "7EC675C26F04B365B3176E240A4063162B0043907F36E695EBD6C104E147E042",
+      "key_source_hashes": {
+        "control.lua": "779D7B3C33ACF881A070A861A44B3FE9B948EF4E2B9928558315B145477AB43A",
+        "scripts/control/admin/gui.lua": "73647E1DDAC1F1EA9D0985D5CD6625AA159349CBD81169429099C5AE8E6CD151",
+        "scripts/control/admin/players.lua": "E19AA268289B00E17254D6BEB56243AE4051704145A13C62F0B6EC3A9207C5C5",
+        "scripts/control/neutron-collector.lua": "AAC36AC0275F5965B9E89961A00952D2B5C4A1C322811F2495832455D8E11D1D",
+        "scripts/control/matter-stabilizer.lua": "32CBF40C8E3C5271F64BC8FEE8E42DE3A6F0C8C014A94A7B7665557C3AE47614"
+      }
+    }
+  },
+  "alternating": {
+    "baseline": {
+      "ticks": 3600,
+      "warmup_runs": 1,
+      "measured_runs": 3,
+      "warmup_ms_per_tick": 14.928925,
+      "ms_per_tick": [
+        14.684362777777777,
+        14.665449444444445,
+        14.19652
+      ],
+      "median_ms_per_tick": 14.665449444444445,
+      "min_ms_per_tick": 14.19652,
+      "max_ms_per_tick": 14.684362777777777,
+      "sample_stddev_ms_per_tick": 0.27635819566723274,
+      "checksum": "3238346446"
+    },
+    "candidate": {
+      "ticks": 3600,
+      "warmup_runs": 1,
+      "measured_runs": 3,
+      "warmup_ms_per_tick": 15.032260555555554,
+      "ms_per_tick": [
+        15.090583333333333,
+        14.465135555555555,
+        14.462792222222223
+      ],
+      "median_ms_per_tick": 14.465135555555555,
+      "min_ms_per_tick": 14.462792222222223,
+      "max_ms_per_tick": 15.090583333333333,
+      "sample_stddev_ms_per_tick": 0.3617808022197035,
+      "checksum": "2771648898"
+    },
+    "median_reduction_percent": 1.365889873663384,
+    "paired_reduction_percent": [
+      -2.7663478606664516,
+      1.365889873663384,
+      -1.875616152565729
+    ]
+  },
+  "pair_order": [
+    {
+      "pair": 0,
+      "warmup": true,
+      "order": [
+        "baseline",
+        "candidate"
+      ]
+    },
+    {
+      "pair": 1,
+      "warmup": false,
+      "order": [
+        "candidate",
+        "baseline"
+      ]
+    },
+    {
+      "pair": 2,
+      "warmup": false,
+      "order": [
+        "baseline",
+        "candidate"
+      ]
+    },
+    {
+      "pair": 3,
+      "warmup": false,
+      "order": [
+        "candidate",
+        "baseline"
+      ]
+    }
+  ]
+}

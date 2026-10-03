@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Railgun coolant proxies, heat debt, and recovery
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` retains live heat-debt records, deadlines and correctly bound coolant proxies. When a mismatched proxy must be replaced, its two fluid contents transfer to the new helper within prototype capacity; invalid owners use normal teardown.
+
 ## Implementation sources
 
 - [railgun-cooling.lua](../../../exotic-space-industries-remembrance/scripts/control/railgun-cooling.lua)
@@ -35,6 +40,11 @@ Handlers pass event/numeric tick through `now_tick`; eventless callers keep its 
 Build/clone/rotation create or align proxies; destruction registration repairs missing helpers or removes turret ownership. Platform state changes invalidate the relevant surface profile. Rebuild removes old records/orphan proxies and recreates helpers, so do not use it as a fluid-preserving substitute for the dedicated migration.
 
 Migration `1.3.40.lua` repairs cached inserter drop targets that still point at coolant helpers. It scans actual inserters, resolves a railgun intersecting the drop tile, and retargets or clears that target without rebuilding helpers or discarding coolant. Prototype item-handling exclusions and this saved-target migration solve different lifecycle cases.
+
+<a id="gui-refresh"></a>
+## GUI refresh ownership
+
+Existing `open_by_player` continues to own viewers. GUI fluid/time snapshots are constructed lazily only after finding a connected matching viewer, then shared across those viewers. Captions, fluid/debt bars and profile/state fields write only when their displayed value changes. Existing shot/recovery cadence and live-time refresh behavior remain unchanged; no healthy-turret tick work is added. Local render snapshots are disposable and close/destruction clears them.
 
 <a id="verification"></a>
 ## Verification and maintenance

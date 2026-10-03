@@ -3,7 +3,7 @@
 -- owns: victory screen disabling and Better Victory Screen bridge
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init
--- forwarded_events: add_interface, check_init, count_value, init, return_value
+-- forwarded_events: add_interface, check_init, count_value, init, return_value, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: exotic-industries-bvs
@@ -100,5 +100,17 @@ function victory_disabler.return_value(subvalue)
 
 end
 
+
+-- blueprint-ref: .codex/esir/blueprints/research-and-progression.md#admin-repair
+-- Reconnect optional victory integrations while retaining completion and cumulative statistics.
+---@param reason string
+---@param tick MapTick
+function victory_disabler.repair_runtime_state(reason,tick)
+    storage.ei=storage.ei or {}
+    victory_disabler.check_init()
+    victory_disabler.init()
+    victory_disabler.add_interface()
+    return true
+end
 
 return victory_disabler

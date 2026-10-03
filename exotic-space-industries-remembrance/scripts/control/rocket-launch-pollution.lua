@@ -3,7 +3,7 @@
 -- owns: rocket launch pollution, launch retaliation, and visual smoke queues
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: ordered-launch visual queueing, confirmed-launch consequences, and due-tick smoke/cleanup work
--- forwarded_events: has_tick_work, on_rocket_launch_ordered, on_rocket_launched, updater
+-- forwarded_events: has_tick_work, on_rocket_launch_ordered, on_rocket_launched, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -1566,6 +1566,10 @@ local function has_apex_launch_pressure(evo, pollution)
 end
 
 try_form_retaliation = function(surface, position, pollution)
+  -- Native peace/no-enemies controls also silence ESIR-initiated retaliation orders.
+  if not (surface and surface.valid) or surface.peaceful_mode or surface.no_enemies_mode then
+    return false
+  end
   if not is_impossible_difficulty() then
     return false
   end
@@ -1860,6 +1864,17 @@ function model.get_runtime_status()
 
   ei_runtime_scheduler.set_module_status("rocket-launch-pollution", status)
   return status
+end
+
+-- blueprint-ref: .codex/esir/blueprints/rocket-launch-pollution.md#admin-repair
+-- Recompute queue summaries only; confirmed pollution and queued effects are never replayed.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local state=ensure_launch_state(tick)
+    refresh_launch_smoke_summary(state,tick)
+    refresh_pending_cleanup_summary(state)
+    return true
 end
 
 return model

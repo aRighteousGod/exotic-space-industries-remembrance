@@ -1,0 +1,97 @@
+{
+  "all_pass": true,
+  "checks": [
+    {
+      "name": "pending census temporarily gates area tools",
+      "ok": true
+    },
+    {
+      "name": "census respects 64 records and one chunk per tick",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "legacy native last_user attributed and unknown map instance excluded",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "completed census enables natural and own area tools",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "known robot-built entity without surviving owner is protected",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "foreign deconstruction mark cancelled and prior last_user restored",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "foreign deconstruction cancellation restores original order",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "foreign initial upgrade cancelled",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "foreign replacement upgrade preserves previous target",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "foreign upgrade cancellation restores original target",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "own deconstruction mark and cancellation remain native",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "unknown script/map instance remains available",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "natural tree remains available to area deconstruction",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "target-only permissions preserve natural shooting item use and wiring",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "denied native entity GUI cannot recreate companion panel",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "watcher notices another last user on stationary selection",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "invalid direct entity handle retains native object name",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "removing final restriction leaves no census or watcher work",
+      "ok": true,
+      "detail": "true"
+    }
+  ],
+  "players": 1,
+  "connected": 1,
+  "version": "2.0.77"
+}

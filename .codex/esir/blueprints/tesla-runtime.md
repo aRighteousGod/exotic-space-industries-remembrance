@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Tesla combat, research variants, and helper lifetime
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` refreshes force caches and variants while retaining hit attribution, burst gates and queued expiry jobs. It does not route through configuration-change root resets.
+
 ## Implementation sources
 
 - [teslas-legacy.lua](../../../exotic-space-industries-remembrance/scripts/control/teslas-legacy.lua)

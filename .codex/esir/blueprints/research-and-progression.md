@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Research scaling, progression migrations, and victory
 
+<a id="admin-repair"></a>
+## Admin repair
+
+Victory `repair_runtime_state` restores optional victory integration callbacks without clearing completion flags or accumulated statistics. Intentional `victory_reset` remains a separate explicit gameplay action.
+
 ## Implementation sources
 
 - [tech-scaling.lua](../../../exotic-space-industries-remembrance/scripts/control/tech-scaling.lua)

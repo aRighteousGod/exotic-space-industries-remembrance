@@ -3,7 +3,7 @@
 -- owns: Fulgora day-length variation
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: gated every tick while Fulgora exists
--- forwarded_events: has_tick_work, updater
+-- forwarded_events: has_tick_work, on_admin_daytime_changed, updater, repair_runtime_state
 -- storage_roots: storage.ei, storage.fulgora_day_length_variation
 -- gui_ids: none
 -- remote_interfaces: none
@@ -37,7 +37,8 @@ function model.has_tick_work(event)
 		return false
 	end
 
-	return game and game.surfaces and game.surfaces["fulgora"] ~= nil
+	local surface = game and game.surfaces and game.surfaces["fulgora"]
+	return surface ~= nil and not surface.freeze_daytime
 end
 
 function model.updater(event)
@@ -46,7 +47,7 @@ function model.updater(event)
 	end
 
 	local surface = game.surfaces["fulgora"]
-	if not surface then
+	if not surface or surface.freeze_daytime then
 		return
 	end
 
@@ -132,6 +133,42 @@ function model.updater(event)
 	variation_state.last_applied_cycle = variation_state.cycle_index
     --game.print("fulgora day length changed to " .. math.floor(new_ticks / 60) .. " minutes (" .. string.format("%.0f", day_length_multiplier * 100) .. "% of standard)")
 	schedule_next_check(variation_state, event.tick)
+end
+
+-- blueprint-ref: .codex/esir/blueprints/fulgora-day-length.md#admin-repair
+-- Refresh configuration without rolling a new day length or repeating the current cycle.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    storage.ei=storage.ei or {}
+    local current=storage.ei.fulgora_day_length_variation
+    if type(current)~="table" then current={};storage.ei.fulgora_day_length_variation=current end
+    current.max_multiplier=ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
+    current.min_multiplier=ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
+    current.cycle_index=tonumber(current.cycle_index) or 0
+    current.next_check_tick=tonumber(current.next_check_tick) or tick
+    local surface=game.surfaces.fulgora
+    if surface then current.last_daytime=surface.daytime end
+    return true
+end
+
+---Resynchronize observation after an explicit time edit; preserve cycle/bounds.
+---@param surface LuaSurface
+---@param tick MapTick
+function model.on_admin_daytime_changed(surface, tick)
+    if not (surface and surface.valid and surface.name == "fulgora") then return end
+    storage.ei = storage.ei or {}
+    local state = storage.ei.fulgora_day_length_variation or {}
+    storage.ei.fulgora_day_length_variation = state
+    state.max_multiplier = state.max_multiplier or ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
+    state.min_multiplier = state.min_multiplier or ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
+    state.cycle_index = state.cycle_index or 0
+    state.last_daytime = surface.daytime
+    state.last_darkness = surface.darkness
+    state.pending_since_tick = nil
+    state.next_check_tick = ei_lib.get_event_tick(tick) + CHECK_INTERVAL
+    -- An admin rewind is not a completed natural cycle. Resume on the next wrap.
+    state.last_applied_cycle = state.cycle_index
 end
 
 return model

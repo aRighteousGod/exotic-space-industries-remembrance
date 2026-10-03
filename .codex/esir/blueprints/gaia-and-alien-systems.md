@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Gaia surfaces, alien presets, and artifact progression
 
+<a id="admin-repair"></a>
+## Admin repair
+
+Gaia and alien-spawner `repair_runtime_state` normalize delayed work and recalculate due minima without recreating surfaces, replaying chunks, restarting decay lifetimes or resetting legendary history. Alien-system repair preserves per-force currency/unlocks and closes stale confirmation screens.
+
 ## Implementation sources
 
 - [gaia.lua](../../../exotic-space-industries-remembrance/scripts/control/gaia.lua)
@@ -55,6 +60,13 @@ Chunk work derives deadlines from `event.tick + 1`; lifetime registration derive
 Old flat decay/spawner queues are normalized into bucket structures by the owning modules. Configuration handling invalidates derived due minima so persisted work remains discoverable. Missing/invalid entities are skipped at lifetime consumption; surface deletion/rebinding must also account for queued surface references and feature-owned helpers.
 
 Migration `1.3.03` associates the existing legacy Gaia surface when the current planet lacks one; it does not rename the legacy space location. Migration `1.3.39` removes exact legacy resource overrides and preserves customized settings/nonmatching overrides. Its map-generation changes affect future chunks, not regeneration of existing terrain. Keep ordinary migration repair separate from the intentional reforge command.
+
+The optional admin observer is installed through `set_surface_ready_handler` at
+control load. Gaia invokes it only after association, distinguishing new creation
+and reforge from rebinding an existing legacy surface. This preserves explicit
+planet policies through staging and lets the default peaceful setting affect new
+surfaces without changing existing ones. The observer creates no independent
+scheduler and Gaia retains its creation/reforge ownership.
 
 <a id="verification"></a>
 ## Verification and limits

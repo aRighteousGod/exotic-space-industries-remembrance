@@ -3,7 +3,7 @@
 -- owns: Nauvis pressure grace milestone and pollution/evolution pressure
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: configuration changes, research-finished, and scheduled tick step 1
--- forwarded_events: on_init, has_tick_work, on_configuration_changed, on_research_finished, on_scripted_research_burst, updater
+-- forwarded_events: on_init, has_tick_work, on_configuration_changed, on_research_finished, on_scripted_research_burst, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -608,6 +608,15 @@ function model.updater(event)
 
     local next_evolution = current - math.min(current - target, max_reduction)
     enemy_force.set_evolution_factor(next_evolution, nauvis)
+end
+
+-- blueprint-ref: .codex/esir/blueprints/nauvis-pressure-grace.md#admin-repair
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local policy=refresh_player_force_policy()
+    sync_runtime_pressure(policy,tick)
+    return true
 end
 
 return model

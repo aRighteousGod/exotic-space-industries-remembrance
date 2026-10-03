@@ -3,8 +3,8 @@
 -- owns: induction matrix GUI, runtime, and tile hooks
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, tile changes, GUI dispatch, and every-tick runtime updates
--- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_sorted_lookup_names, has_tick_work, is_core, lookup_tile_for_entity, mark_dirty, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_gui_click, open_gui, queue_tile_render, rebuild_runtime_state, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
--- storage_roots: storage.ei
+-- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_sorted_lookup_names, has_tick_work, is_core, lookup_tile_for_entity, mark_dirty, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_gui_click, on_player_left_game, open_gui, queue_tile_render, rebuild_gui_viewers, rebuild_runtime_state, reconcile_gui_player, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
+-- storage_roots: storage.ei.induction_matrix, storage.ei.induction_matrix_gui_by_player
 -- gui_ids: ei-induction-matrix-console
 -- remote_interfaces: none
 -- rebuild_on: tile topology changes, entity topology changes
@@ -13,6 +13,8 @@
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
+---@type table<uint32, table>
+local gui_snapshots = {}
 -- induction-matrix.lua owns the runtime behavior of the matrix multistructure.
 --
 -- The high-level model is:
@@ -107,20 +109,8 @@ local function raw_has_numeric_matrix_core(core)
 end
 
 local function raw_matrix_gui_open()
-    if not game or type(game.connected_players) ~= "table" then
-        return false
-    end
-
-    for _, player in pairs(game.connected_players) do
-        if player.gui
-            and player.gui.screen
-            and player.gui.screen["ei-induction-matrix-console"]
-        then
-            return true
-        end
-    end
-
-    return false
+    local viewers = storage and storage.ei and storage.ei.induction_matrix_gui_by_player
+    return viewers ~= nil and next(viewers) ~= nil
 end
 
 --====================================================================================================
@@ -619,10 +609,14 @@ function model.retag_matrix_guis(old_id, new_id)
         return
     end
 
-    for _, player in pairs(game.connected_players) do
-        local root = model.get_gui(player)
-        if root and root.tags.matrix_id == old_id then
+    local viewers = storage.ei and storage.ei.induction_matrix_gui_by_player
+    for player_index, matrix_id in pairs(viewers or {}) do
+        local player = game.get_player(player_index)
+        local root = player and model.get_gui(player)
+        if matrix_id == old_id and root and root.tags.matrix_id == old_id then
             root.tags = {matrix_id = new_id}
+            viewers[player_index] = new_id
+            gui_snapshots[player_index] = nil
         end
     end
 
@@ -2551,9 +2545,15 @@ end
 function model.open_gui(player)
     -- The GUI may be opened from either the visible core or the hidden proxy, so it always
     -- resolves back to matrix_id first and then anchors the camera against the real core.
-    if model.get_gui(player) then
-        model.update_gui(player)
-        return
+    local existing = model.get_gui(player)
+    if existing then
+        if player.opened == existing then
+            storage.ei.induction_matrix_gui_by_player = storage.ei.induction_matrix_gui_by_player or {}
+            storage.ei.induction_matrix_gui_by_player[player.index] = existing.tags.matrix_id
+            model.update_gui(player)
+            return
+        end
+        model.close_gui(player)
     end
 
     local entity = player.opened_gui_type == defines.gui_type.entity and player.opened --[[@as LuaEntity]]
@@ -2564,6 +2564,7 @@ function model.open_gui(player)
     if model.entity_check(core) == false then
         return
     end
+    storage.ei.induction_matrix_gui_by_player = storage.ei.induction_matrix_gui_by_player or {}
 
     local root = player.gui.screen.add{
         type = "frame",
@@ -2700,23 +2701,44 @@ function model.open_gui(player)
     player.opened = root
 
     -- Verify that root is still valid since another mod may have destroyed it
-    if root.valid then model.update_gui(player) end
+    if root.valid then
+        storage.ei.induction_matrix_gui_by_player[player.index] = matrix_id
+        model.update_gui(player)
+    end
 end
 
 
 function model.update_player_guis()
+    -- blueprint-ref: .codex/esir/blueprints/induction-matrix.md#gui-refresh
     -- GUI refresh is intentionally separate from the actual data recomputation. By running
     -- it on a lower cadence the matrix can keep its state current every tick without
     -- rebuilding GUI captions/bars for every connected player every tick.
 
-    for _, player in pairs(game.connected_players) do
-        if player.gui.screen["ei-induction-matrix-console"] then
-            if not player.opened or not player.opened.valid then
+    local viewers = storage.ei and storage.ei.induction_matrix_gui_by_player
+    if not viewers or next(viewers) == nil then return end
+    local snapshots = {}
+    for player_index in pairs(viewers) do
+        local player = game.get_player(player_index)
+        local root = player and player.connected and model.get_gui(player)
+        if root then
+            if player.opened ~= root then
                 model.close_gui(player)
                 goto continue
             end
-
-            model.update_gui(player)
+            local matrix_id = root.tags.matrix_id
+            local core = model.get_core_entity(matrix_id)
+            if not model.entity_check(core) then model.close_gui(player); goto continue end
+            local snapshot = snapshots[matrix_id]
+            if not snapshot then
+                snapshot = {capacity = model.get_matrix_capacity(matrix_id),
+                    power = model.get_matrix_current_stored_power(matrix_id),
+                    max_io = model.get_matrix_max_IO(matrix_id)}
+                snapshots[matrix_id] = snapshot
+            end
+            viewers[player_index] = matrix_id
+            model.update_gui(player, snapshot)
+        elseif player then model.close_gui(player)
+        else viewers[player_index] = nil; gui_snapshots[player_index] = nil
         end
 
         ::continue::
@@ -2726,44 +2748,85 @@ end
 
 ---Updates the induction matrix GUI.
 ---@param player LuaPlayer Player
-function model.update_gui(player)
+function model.update_gui(player, snapshot)
     -- GUI values are derived from getters rather than cached from the open event so the
     -- window always reflects the latest matrix id/state, even across core swaps.
     local root = model.get_gui(player)
     if not root then return end
 
     local matrix_id = root.tags.matrix_id
+    local core = model.get_core_entity(matrix_id)
+    if not model.entity_check(core) then model.close_gui(player); return end
+    local camera = root["main-container"]["console-flow"]["camera-frame"].camera
+    if camera.surface_index ~= core.surface.index then camera.surface_index = core.surface.index end
+    local camera_position = camera.position
+    if camera_position.x ~= core.position.x or camera_position.y ~= core.position.y then camera.position = core.position end
 
     local info = root["main-container"]["console-flow"] --[[@as LuaGuiElement]]
 
     local max_et = info["max-et-flow"]["max-et-value"]
     local stored_power = info["capacity-flow"]["stored-power-value"]
 
-    local max_power = model.get_matrix_capacity(matrix_id)
-    local current_power = model.get_matrix_current_stored_power(matrix_id)
+    local max_power = snapshot and snapshot.capacity or model.get_matrix_capacity(matrix_id)
+    local current_power = snapshot and snapshot.power or model.get_matrix_current_stored_power(matrix_id)
+    local max_io = snapshot and snapshot.max_io or model.get_matrix_max_IO(matrix_id)
     local rounded_max_power = model.to_wire_signal_value(max_power)
     local rounded_current_power = model.to_wire_signal_value(current_power)
 
-    max_et.caption = string.format("[font=default-bold]%.0f MW[/font]", model.get_matrix_max_IO(matrix_id))
-
-    stored_power.caption = string.format("[font=default-bold]%d/%d MJ[/font]", rounded_current_power, rounded_max_power)
-    if max_power == 0 then 
-        stored_power.value = 0
-    else
-        stored_power.value = current_power/max_power 
+    local previous = gui_snapshots[player.index]
+    if not previous or previous.root ~= root or previous.matrix_id ~= matrix_id then previous = {} end
+    local max_text = string.format("[font=default-bold]%.0f MW[/font]", max_io)
+    if previous.max_text ~= max_text then max_et.caption = max_text end
+    if previous.current ~= rounded_current_power or previous.capacity ~= rounded_max_power then
+        stored_power.caption = string.format("[font=default-bold]%d/%d MJ[/font]", rounded_current_power, rounded_max_power)
     end
+    local ratio = max_power == 0 and 0 or current_power/max_power
+    if previous.ratio ~= ratio then stored_power.value = ratio end
+    gui_snapshots[player.index] = {root = root, matrix_id = matrix_id, max_text = max_text,
+        current = rounded_current_power, capacity = rounded_max_power, ratio = ratio}
 
 end
 
 function model.close_gui(player)
     -- Close is idempotent so callers can safely use it from stale-opened checks.
+    if not (player and player.valid) then return end
+    local viewers = storage.ei and storage.ei.induction_matrix_gui_by_player
+    if viewers then viewers[player.index] = nil end
+    gui_snapshots[player.index] = nil
     local root = player.gui.screen["ei-induction-matrix-console"]
     if root then root.destroy() end
+end
+
+function model.reconcile_gui_player(player_index)
+    local player = game.get_player(player_index)
+    if not (player and player.connected) then return end
+    local root = model.get_gui(player)
+    if root and player.opened == root and model.entity_check(model.get_core_entity(root.tags.matrix_id)) then
+        storage.ei.induction_matrix_gui_by_player = storage.ei.induction_matrix_gui_by_player or {}
+        storage.ei.induction_matrix_gui_by_player[player_index] = root.tags.matrix_id
+        gui_snapshots[player_index] = nil
+        model.update_gui(player)
+    else model.close_gui(player) end
+end
+
+function model.rebuild_gui_viewers()
+    model.check_global_init()
+    storage.ei.induction_matrix_gui_by_player = {}
+    gui_snapshots = {}
+    for _, player in pairs(game.connected_players) do model.reconcile_gui_player(player.index) end
+end
+
+function model.on_player_left_game(player_index)
+    local viewers = storage.ei and storage.ei.induction_matrix_gui_by_player
+    if viewers then viewers[player_index] = nil end
+    gui_snapshots[player_index] = nil
 end
 
 ---Handles buttons clicks for the induction matrix GUI.
 ---@param event EventData.on_gui_click Event data
 function model.on_gui_click(event)
+    if not (event and event.element and event.element.valid
+        and event.element.tags.parent_gui == "ei-induction-matrix-console") then return end
     -- Buttons are tag-driven:
     -- - close-gui: destroy the local window
     -- - goto-informatron: open the related documentation page

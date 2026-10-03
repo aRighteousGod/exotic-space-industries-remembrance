@@ -96,6 +96,48 @@ local ei_emerald_apocalypse_hover_tank_drones = require("scripts/control/emerald
 local ei_surveyor_scope = require("scripts/control/surveyor-scope")
 local ei_hemocrystal_wall = require("scripts/control/hemocrystal-wall")
 local ei_randomized_tree_growth = require("scripts/control/randomized-tree-growth")
+local ei_admin_tools = require("scripts/control/admin-tools")
+ei_admin_tools.configure({
+    ["auric-inoculation-vat"]=ei_auric_inoculation_vat,["beacon-overload"]=ei_beacon_overload,
+    ["black-hole"]=ei_black_hole,["camp-fire"]=ei_camp_fire,["combustion-turbine"]=ei_combustion_turbine,
+    ["crystal-accumulator"]=ei_crystal_accumulator,["em-trains"]=em_trains,
+    ["emerald-apocalypse"]=ei_emerald_apocalypse_hover_tank,["flamethrower-fuels"]=ei_flamethrower_fuels,
+    ["fluid-safety"]=ei_fluid_safety,["flammable-ruptures"]=ei_flammable_rupture_scheduler,
+    ["rupture-effects"]=require("scripts/control/fluid-rupture-effects"),["fueler"]=ei_fueler,
+    ["fulgora-day-length"]=ei_fulgora_day_length_variation,["fusion-reactor"]=ei_fusion_reactor,
+    gaia=ei_gaia,gate=ei_gate,["hemocrystal-wall"]=ei_hemocrystal_wall,
+    ["induction-matrix"]=ei_induction_matrix,["matter-stabilizer"]=ei_matter_stabilizer,
+    ["neutron-collector"]=ei_neutron_collector,["orbital-combinator"]=orbital_combinator,
+    ["orbital-logistics"]=orbital_logistics,["railgun-cooling"]=ei_railgun_cooling,
+    ["randomized-tree-growth"]=ei_randomized_tree_growth,["rocket-launch-pollution"]=ei_rocket_launch_pollution,
+    ["singularity-lance"]=ei_singularity_lance,["sawblade-turret"]=ei_sawblade_turret,
+    ["gaian-saucer-wake"]=ei_gaian_saucer_wake,["spider-vehicles"]=ei_spider_vehicles,
+    ["spidertron-limiter"]=ei_spidertron_limiter,["steam-train"]=ei_steam_train,
+    ["surveyor-scope"]=ei_surveyor_scope,["sweeping-radar"]=ei_sweeping_radar,
+    ["tech-scaling"]=ei_tech_scaling,victory=ei_victory,["water-turret"]=ei_water_turret,
+    ["firefighting"]=ei_firefighting,["nauvis-pressure-grace"]=ei_nauvis_pressure_grace,
+    ["alien-system"]=ei_alien_system,["alien-spawner"]=ei_alien_spawner,
+    ["teslas-legacy"]=ei_teslas_legacy,["vulcanus-fumaroles"]=ei_vulcanus_fumaroles,
+    arrival=ei_echo_codex,["informatron-messager"]=ei_informatron_messager,
+    ["admin-tools"]=ei_admin_tools,
+})
+ei_admin_tools.register_commands()
+script.on_event(defines.events.on_gui_elem_changed,ei_admin_tools.on_gui_change)
+script.on_event(defines.events.on_gui_confirmed,ei_admin_tools.on_gui_change)
+script.on_event(defines.events.on_research_started,ei_admin_tools.on_research_started)
+script.on_event(defines.events.on_chunk_charted,ei_admin_tools.on_chunk_charted)
+script.on_event(defines.events.on_surface_created,ei_admin_tools.on_surface_created)
+script.on_event(defines.events.on_surface_deleted,ei_admin_tools.on_surface_deleted)
+script.on_event(defines.events.on_biter_base_built,ei_admin_tools.on_biter_base_built)
+script.on_event(defines.events.on_pre_player_left_game,ei_admin_tools.on_player_left_game)
+script.on_event(defines.events.on_pre_player_removed,ei_admin_tools.on_player_removed)
+script.on_event(defines.events.on_permission_group_edited,ei_admin_tools.on_permission_group_edited)
+script.on_event(defines.events.on_permission_group_deleted,ei_admin_tools.on_permission_group_deleted)
+script.on_event({defines.events.on_player_display_resolution_changed,defines.events.on_player_display_scale_changed},function(event)
+    ei_admin_tools.on_display_changed(event)
+    ei_lib.camera_window.on_display_changed(event)
+end)
+script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},ei_admin_tools.on_player_event)
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
     [ei_singularity_lance.script_trigger_effect_id] = ei_singularity_lance.on_script_trigger_effect,
@@ -633,6 +675,9 @@ script.on_init(function(event)
     ei_lib.crystal_echo("✧ [Awakened Triumph] — Gaias shell stands firm, yet the dreams murmur endures…")
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…")
     ei_echo_codex.queue_players(game.players)
+    ei_admin_tools.on_configuration_changed(event and event.tick or game.tick)
+    ei_black_hole.rebuild_gui_viewers()
+    ei_induction_matrix.rebuild_gui_viewers()
 end)
 
 --ENTITY RELATED
@@ -660,6 +705,7 @@ script.on_event(defines.events.on_entity_cloned, function(e)
 end)
 
 script.on_event(defines.events.on_forces_merged, function(e)
+    ei_admin_tools.on_forces_merged(e)
     ei_sweeping_radar.on_forces_merged(e)
     ei_water_turret.on_forces_merged(e)
     ei_singularity_lance.on_forces_merged(e)
@@ -751,8 +797,16 @@ script.on_event({defines.events.on_force_friends_changed, defines.events.on_forc
     ei_sweeping_radar.on_force_changed(event)
 end)
 script.on_event(defines.events.on_pre_build, ei_sweeping_radar.on_pre_build)
-script.on_event(defines.events.on_marked_for_upgrade, ei_sweeping_radar.on_marked_for_upgrade)
-script.on_event(defines.events.on_cancelled_upgrade, ei_sweeping_radar.on_cancelled_upgrade)
+script.on_event(defines.events.on_marked_for_upgrade,function(event)
+    if ei_admin_tools.on_area_order(event) then return end
+    ei_sweeping_radar.on_marked_for_upgrade(event)
+end)
+script.on_event(defines.events.on_cancelled_upgrade,function(event)
+    if ei_admin_tools.on_area_order(event) then return end
+    ei_sweeping_radar.on_cancelled_upgrade(event)
+end)
+script.on_event({defines.events.on_marked_for_deconstruction,defines.events.on_cancelled_deconstruction},ei_admin_tools.on_area_order)
+script.on_event(defines.events.on_player_flipped_entity,ei_admin_tools.on_entity_interaction)
 script.on_event("ei-sweeping-radar-open", ei_sweeping_radar_gui.on_open_input)
 
 script.on_event(defines.events.on_entity_damaged, function(event)
@@ -834,6 +888,7 @@ script.on_event(defines.events.on_console_command, function(e)
 end)
 
 script.on_event(defines.events.on_player_selected_area, function(e)
+    if ei_admin_tools.on_selected_area(e) then return end
     -- Selection tools are shared by a few systems, so the raw event is fanned out here.
     ei_alien_spawner.on_player_selected_area(e)
     ei_alien_system.on_player_selected_area(e)
@@ -841,10 +896,12 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 end)
 
 script.on_event(defines.events.on_player_alt_selected_area, function(e)
+    if ei_admin_tools.on_selected_area(e) then return end
     ei_crystal_accumulator.on_player_alt_selected_area(e)
 end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(e)
+    ei_admin_tools.on_selected_entity_changed(e)
     -- Selection-change handlers are lightweight enough to dispatch directly every time.
     -- Matter stabilizers use them for hover diagnostics.
     ei_matter_stabilizer.on_selected_entity_changed(e)
@@ -852,6 +909,7 @@ script.on_event(defines.events.on_selected_entity_changed, function(e)
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
+    ei_admin_tools.on_cursor_changed(e)
     -- Cursor changes matter for systems that temporarily replace the player's held item
     -- with a tool/selector and need to clean up when the cursor changes.
     ei_matter_stabilizer.on_player_cursor_stack_changed(e)
@@ -878,6 +936,7 @@ script.on_event(defines.events.on_player_changed_position, function(e)
 end)
 
 script.on_event(defines.events.on_player_changed_surface, function(e)
+    ei_admin_tools.on_player_event(e)
     if ei_auric_inoculation_vat.on_player_changed_surface then
         ei_auric_inoculation_vat.on_player_changed_surface(e)
     end
@@ -901,6 +960,7 @@ script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
 end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
+    ei_admin_tools.on_entity_interaction(e)
     ei_sweeping_radar.on_settings_pasted(e)
     ei_water_turret.on_settings_pasted(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
@@ -920,6 +980,7 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
 end)
 
 script.on_event(defines.events.on_player_rotated_entity, function(e)
+    ei_admin_tools.on_entity_interaction(e)
     ei_railgun_cooling.on_player_rotated_entity(e)
 end)
 
@@ -936,6 +997,8 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_admin_tools.on_object_destroyed(e)
+    ei_lib.camera_window.on_object_destroyed(e)
     ei_sweeping_radar.on_object_destroyed(e)
     ei_singularity_lance.on_object_destroyed(e)
     ei_flamethrower_fuels.on_object_destroyed(e)
@@ -993,6 +1056,7 @@ end)
 --WORLD RELATED
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_chunk_generated, function(e)
+    ei_admin_tools.on_chunk_generated(e)
     ei_alien_spawner.on_chunk_generated(e)
     ei_vulcanus_fumaroles.on_chunk_generated(e)
 end)
@@ -1048,7 +1112,7 @@ end
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
-    ei_spider_vehicles.on_gui_opened(event)
+    if ei_admin_tools.on_gui_opened(event) then return end
     local player = event and event.player_index and game.get_player(event.player_index) or nil
     local entity = get_valid_gui_entity(event, player, true)
     local name = entity and entity.name or nil
@@ -1062,6 +1126,11 @@ script.on_event(defines.events.on_gui_opened, function(event)
     end
     if name == "ei-water-turret" or ei_water_turret.has_open_gui_session(event.player_index) then
         ei_water_turret.on_gui_opened(event)
+    end
+    if (entity and entity.type == "spider-vehicle")
+        or ei_spider_vehicles.has_open_gui_session(event.player_index)
+    then
+        ei_spider_vehicles.on_gui_opened(event)
     end
     ei_crystal_accumulator.on_gui_opened(event)
     if name == "ei-auric-inoculation-vat"
@@ -1104,7 +1173,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
-    ei_spider_vehicles.on_gui_closed(event)
+    ei_admin_tools.on_gui_closed(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
     -- entity because the custom screen may have replaced the player's opened target.
     local entity = get_valid_gui_entity(event)
@@ -1119,6 +1188,11 @@ script.on_event(defines.events.on_gui_closed, function(event)
         or ei_water_turret.has_open_gui_session(event.player_index)
     then
         ei_water_turret.on_gui_closed(event)
+    end
+    if (entity and entity.type == "spider-vehicle") or element_name == "ei-spider-weapon-console"
+        or ei_spider_vehicles.has_open_gui_session(event.player_index)
+    then
+        ei_spider_vehicles.on_gui_closed(event)
     end
     ei_crystal_accumulator.on_gui_closed(event)
     if name == "ei-auric-inoculation-vat"
@@ -1165,6 +1239,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_click, function(event)
+    if ei_admin_tools.on_gui_click(event) then return end
     -- Button clicks are dispatched by the parent GUI tag, which keeps the actual button
     -- names free to stay local to each feature's UI code.
     local element = get_valid_gui_element(event)
@@ -1220,6 +1295,7 @@ script.on_event(defines.events.on_gui_click, function(event)
 end)
 
 script.on_event(defines.events.on_gui_value_changed, function(event)
+    if ei_admin_tools.on_gui_change(event) then return end
     -- Only a subset of custom UIs use sliders/value widgets, so this stays narrow.
     local element = get_valid_gui_element(event)
     if not element then return end
@@ -1235,6 +1311,7 @@ script.on_event(defines.events.on_gui_value_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_text_changed, function(event)
+    if ei_admin_tools.on_gui_change(event) then return end
     -- Text-entry side panels opt into this explicitly so draft typing stays local.
     local element = get_valid_gui_element(event)
     if not element then return end
@@ -1248,6 +1325,7 @@ script.on_event(defines.events.on_gui_text_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_checked_state_changed, function(event)
+    if ei_admin_tools.on_gui_change(event) then return end
     local element = get_valid_gui_element(event)
     if not element then return end
 
@@ -1262,6 +1340,7 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+    if ei_admin_tools.on_gui_change(event) then return end
     local element = get_valid_gui_element(event)
     if not element then return end
 
@@ -1298,6 +1377,9 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 end)
 
 script.on_event(defines.events.on_player_left_game, function(event)
+    ei_admin_tools.on_player_left_game(event)
+    ei_black_hole.on_player_left_game(event.player_index)
+    ei_induction_matrix.on_player_left_game(event.player_index)
     -- Gate remote state is player-bound, so disconnects need explicit cleanup.
     ei_fusion_reactor.on_player_left_game(event.player_index)
     ei_combustion_turbine.on_player_left_game(event.player_index)
@@ -1314,6 +1396,9 @@ script.on_event(defines.events.on_player_left_game, function(event)
 end)
 
 script.on_event(defines.events.on_player_removed, function(event)
+    ei_admin_tools.on_player_removed(event)
+    ei_black_hole.on_player_left_game(event.player_index)
+    ei_induction_matrix.on_player_left_game(event.player_index)
     -- Removed players do not always pass through disconnect cleanup, so clear any
     -- player-indexed auric GUI and placement-guide state directly.
     ei_combustion_turbine.on_player_left_game(event.player_index)
@@ -1323,6 +1408,7 @@ script.on_event(defines.events.on_player_removed, function(event)
 end)
 
 script.on_event(defines.events.on_player_died, function(event)
+    ei_admin_tools.on_player_event(event)
     ei_surveyor_scope.on_player_died(event)
 end)
 
@@ -1361,7 +1447,8 @@ script.on_configuration_changed(function(e)
     local mod_changes_present = next(e.mod_changes or {}) ~= nil
     local startup_settings_changed = e.mod_startup_settings_changed
 
-    local configuration_tick = e and e.tick or 0
+    local configuration_tick = e and e.tick or game.tick
+    ei_admin_tools.on_configuration_changed(configuration_tick)
 
     if mod_changes_present or startup_settings_changed then
         ei_flammable_rupture_scheduler.check_global()
@@ -1468,6 +1555,8 @@ script.on_configuration_changed(function(e)
     -- configuration-changed event.
     ei_tech_scaling.init()
     em_trains_gui.mark_dirty()
+    ei_black_hole.rebuild_gui_viewers()
+    ei_induction_matrix.rebuild_gui_viewers()
 end)
 
 script.on_load(function()
@@ -1492,6 +1581,10 @@ script.on_event(
         em_trains_gui.on_player_ready(event.player_index)
         ei_auric_inoculation_vat.on_player_ready(event.player_index, event)
         ei_surveyor_scope.on_player_ready(event.player_index)
+        ei_admin_tools.on_player_event(event)
+        ei_black_hole.reconcile_gui_player(event.player_index)
+        ei_induction_matrix.reconcile_gui_player(event.player_index)
+        ei_fusion_reactor.reconcile_gui_player(event.player_index)
     end
 )
 
@@ -1505,6 +1598,7 @@ script.on_event(
         -- the character entity, and armor changes can add or remove burner-backed equipment grids.
         ei_fueler.on_player_ready(event.player_index)
         ei_surveyor_scope.on_player_controller_changed(event)
+        ei_admin_tools.on_player_event(event)
     end
 )
 
@@ -1518,6 +1612,10 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
         em_trains_gui.on_player_ready(player.index)
         ei_auric_inoculation_vat.on_player_ready(player.index, _event)
         ei_surveyor_scope.on_player_ready(player.index)
+        ei_admin_tools.on_player_event{player_index=player.index,name=_event.name,tick=_event.tick}
+        ei_black_hole.reconcile_gui_player(player.index)
+        ei_induction_matrix.reconcile_gui_player(player.index)
+        ei_fusion_reactor.reconcile_gui_player(player.index)
     end
 end)
 
@@ -1533,6 +1631,8 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
+  if ei_admin_tools.has_tick_work(event.tick) then ei_admin_tools.updater(event) end
+  if ei_lib.camera_window.has_tick_work(event.tick) then ei_lib.camera_window.updater(event.tick) end
   if ei_sweeping_radar.has_tick_work() then
       ei_sweeping_radar.updater(event)
   end
@@ -1769,7 +1869,9 @@ function updater(event)
       end
   end
     ::skip::
-    if ei_spider_vehicles.has_tick_work(event) then ei_spider_vehicles.updater(event) end
+    if ei_spider_vehicles.has_tick_work(event) then
+        ei_spider_vehicles.updater(event)
+    end
    -- Essential updates that run every tick regardless of the scheduled branch above.
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.
@@ -1925,6 +2027,8 @@ function on_built_entity(e)
     if not e or not e["entity"] or not e["entity"].valid then
       return
     end
+
+    ei_admin_tools.on_built_entity(e)
 
     ei_sweeping_radar.on_built_entity(e)
     ei_flamethrower_fuels.on_built_entity(e)

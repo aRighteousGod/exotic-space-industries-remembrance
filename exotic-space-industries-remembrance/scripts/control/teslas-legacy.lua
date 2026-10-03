@@ -3,7 +3,7 @@
 -- owns: hybrid Tesla legacy runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, load, configuration-changed, combat, research, build, destroy, script triggers, and console command
--- forwarded_events: cleanup_tesla_helpers, get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater
+-- forwarded_events: cleanup_tesla_helpers, get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater, repair_runtime_state
 -- storage_roots: storage.ei, storage.tl_entity_lookup, storage.tl_index
 -- gui_ids: none
 -- remote_interfaces: none
@@ -3003,6 +3003,19 @@ if commands and commands.add_command then
         "Destroys stale hidden Tesla helper entities and clears their pending cleanup refs.",
         handle_tesla_cleanup_command
     )
+end
+
+-- blueprint-ref: .codex/esir/blueprints/tesla-runtime.md#admin-repair
+-- Retain hit attribution, burst gates and expiry jobs while repairing caches/variants.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local state=ensure_state()
+    ensure_legacy_lookup_root()
+    sync_all_force_caches(state)
+    sync_all_variants(state)
+    prune_state(state,tick)
+    return true
 end
 
 return model

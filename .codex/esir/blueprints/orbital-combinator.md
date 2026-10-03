@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Orbital scanner banks and demand caches
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` unconditionally discovers scanners before rebuilding banks, platform caches and demand indexes. This repairs a partially missing registry while preserving per-unit scanner modes.
+
 ## Implementation sources
 
 - [orbital-combinator.lua](../../../exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua)
@@ -31,3 +36,8 @@ Build/removal/settings paste, logistic-slot changes, platform movement, rocket/c
 ## Verification contract
 
 The [control UPS fixture](../../../scripts/qc/control-ups/README.md) includes scanner traversal and cached-count parity. Test demand-mode transitions, power loss, cargo lifecycle, platform deletion/replacement, multiple banks, hot/cold fairness, and ordinary/configuration reload. Check bridge payloads and actual circuit filters, not only queue counts.
+
+<a id="gui-refresh-cost"></a>
+## GUI refresh cost
+
+Scanner power/mode changes refresh viewers of the affected bank. During one fanout, power and wiring summaries are computed once per bank and shared among viewers; no summary survives the event. Individual scanner power is read from the just-refreshed bank state. Unchanged modes, captions and power counts skip GUI assignments. The bank service remains the only scheduling owner.

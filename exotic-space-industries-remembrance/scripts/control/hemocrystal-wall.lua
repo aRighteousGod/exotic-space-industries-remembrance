@@ -3,7 +3,7 @@
 -- owns: event-started regeneration fallback for ei-hemocrystal-wall
 -- loaded_by: control.lua
 -- cadence: on_entity_damaged schedules delayed one-shots; on_tick only services due buckets
--- forwarded_events: check_global, get_runtime_status, has_tick_work, on_configuration_changed, on_entity_damaged, on_destroyed_entity, updater
+-- forwarded_events: check_global, get_runtime_status, has_tick_work, on_configuration_changed, on_entity_damaged, on_destroyed_entity, updater, repair_runtime_state
 -- storage_roots: storage.ei.hemocrystal_wall
 -- gui_ids: none
 -- remote_interfaces: none
@@ -217,6 +217,34 @@ function model.get_runtime_status(current_tick)
         heal_interval = HEAL_INTERVAL,
         heal_amount = HEAL_AMOUNT,
     }
+end
+
+-- blueprint-ref: .codex/esir/blueprints/hemocrystal-wall.md#admin-repair
+-- Rebuild delayed indexes from records, retaining valid deadlines and native health.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local runtime=model.check_global()
+    runtime.due_buckets={}
+    runtime.next_due_tick=0
+    for key,record in pairs(runtime.records_by_key) do
+        local entity=record.entity
+        if not is_hemocrystal_wall(entity) or not entity.health or entity.health>=entity.max_health then
+            runtime.records_by_key[key]=nil
+        else
+            local due=math.max(tick+1,tonumber(record.due_tick) or tick+HEAL_INTERVAL)
+            record.due_tick=nil
+            schedule_record(runtime,record,due)
+        end
+    end
+    for _,surface in pairs(game.surfaces) do
+        for _,entity in pairs(surface.find_entities_filtered{name=WALL_NAME}) do
+            if entity.health and entity.health>0 and entity.health<entity.max_health then
+                model.on_entity_damaged{entity=entity,final_health=entity.health,tick=tick}
+            end
+        end
+    end
+    return true
 end
 
 return model

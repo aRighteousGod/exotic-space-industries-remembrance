@@ -3,7 +3,7 @@
 -- owns: Surveyor rifle inventory zoom limits
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: player inventory/lifecycle/controller events
--- forwarded_events: check_global, refresh_player, on_player_ready,
+-- forwarded_events: check_global, refresh_player, on_player_ready,, repair_runtime_state
 --                   on_player_gun_inventory_changed, on_player_controller_changed,
 --                   on_player_died, on_player_left_game, on_player_removed,
 --                   on_configuration_changed
@@ -267,6 +267,20 @@ function model.on_configuration_changed(_event)
     for _, player in pairs(game.connected_players) do
         model.refresh_player(player.index)
     end
+end
+
+-- blueprint-ref: .codex/esir/blueprints/surveyor-scope.md#admin-repair
+-- Preserve saved zoom limits on failed restoration, unlike unconditional config cleanup.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local runtime=model.check_global()
+    for index in pairs(runtime.players) do
+        local player=game.get_player(index)
+        restore_scope(runtime,index,player)
+    end
+    for _,player in pairs(game.connected_players) do model.refresh_player(player.index) end
+    return true
 end
 
 return model

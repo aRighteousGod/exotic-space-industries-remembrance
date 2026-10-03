@@ -53,3 +53,10 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - For copy helpers, distinguish intent: use `ei_lib.copy_array` for dense sequence copies and `ei_lib.copy_preset` for shallow visual-fidelity/config preset snapshots with `visual_fidelity` and `setting_name` metadata. Use `recursive_copy` and `recursive_insert` only for in-place prototype/data merges.
 - Prefer `ei_lib.clamp_number(...)` or `ei_lib.clamp_integer(...)` when normalizing settings, budgets, caps, ratios, or optional maximums. Keep `ei_lib.clamp(x, lo, hi)` for values that are already known numbers.
 - For startup preset/config module style, see [preset-config-pattern.md](./preset-config-pattern.md).
+# Shared runtime cameras
+
+`ei_lib.camera_open(player, options, tick)` opens an owner-scoped movable camera.
+`camera_close(viewer_index, owner, id)` and `camera_close_owner(owner, viewer_index?)`
+close only that caller's windows. `ei_lib.camera_window` owns event/due handlers;
+control.lua forwards them. Access control belongs to the caller. Pass explicit
+event ticks and choose native entity attachment before scripted position polling.

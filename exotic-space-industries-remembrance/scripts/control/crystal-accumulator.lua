@@ -3,7 +3,7 @@
 -- owns: crystal accumulator resonance runtime, shell swaps, mining override, and UI
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: scheduled surface service plus dirty UI refresh
--- forwarded_events: check_global, get_pending_work_count, has_surface_tick_work, has_tick_work, has_ui_tick_work, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_closed, on_gui_opened, on_player_alt_selected_area, on_player_left_game, on_player_mined_entity, on_repaired_entity, on_robot_mined_entity, on_selected_entity_changed, on_space_platform_changed_state, on_space_platform_mined_entity, rebuild_runtime_state, service_ui, update, update_ui
+-- forwarded_events: check_global, get_pending_work_count, has_surface_tick_work, has_tick_work, has_ui_tick_work, on_built_entity, on_destroyed_entity, on_gui_click, on_gui_closed, on_gui_opened, on_player_alt_selected_area, on_player_left_game, on_player_mined_entity, on_repaired_entity, on_robot_mined_entity, on_selected_entity_changed, on_space_platform_changed_state, on_space_platform_mined_entity, rebuild_runtime_state, service_ui, update, update_ui, repair_runtime_state
 -- storage_roots: storage.ei.crystal_accumulator
 -- gui_ids: ei-crystal-accumulator-console, ei-crystal-accumulator-console-screen, ei-crystal-accumulator-strip
 -- remote_interfaces: none
@@ -4307,6 +4307,35 @@ function model.on_player_alt_selected_area(event)
     elseif #relevant_entities > printed then
         player.print({"exotic-industries.crystal-accumulator-inspect-overflow", printed, (#relevant_entities - printed)})
     end
+end
+
+-- blueprint-ref: .codex/esir/blueprints/crystal-accumulator.md#admin-repair
+-- Registration retains each live shell's instability, energy history and cooldown.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason, tick)
+    local runtime = get_runtime()
+    for unit, record in pairs(runtime.by_unit) do
+        if not is_live_entity(record.entity) then unregister_record(runtime, unit) end
+    end
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in ipairs(surface.find_entities_filtered{name = LIVE_NAME_LIST}) do
+            local existing = runtime.by_unit[get_unit_number(entity)]
+            register_record(runtime, entity, tick, nil, {skip_schedule = existing ~= nil, skip_viewers = true})
+        end
+    end
+    rebuild_surface_aggregates(runtime)
+    for surface_index in pairs(runtime.units_by_surface) do
+        if not runtime.surface_due_tick_by_surface[surface_index]
+            and not (runtime.surface_queue.queued and runtime.surface_queue.queued[surface_index]) then
+            schedule_surface(runtime,surface_index,tick+1)
+        end
+    end
+    rebuild_surface_due_frontier(runtime)
+    rebuild_player_ui(runtime, tick)
+    runtime.last_admin_repair_reason = reason
+    runtime.last_admin_repair_tick = tick
+    return true
 end
 
 return model

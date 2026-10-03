@@ -28,6 +28,11 @@ The main dispatcher calls the gated local `update(event)` each tick. It processe
 
 Build/destroy/tile replacement can split, merge, or invalidate matrix membership. Duplicate cores and old IDs require explicit reconciliation, including GUI tags and proxy mappings. Init/configuration repair rebuilds live topology and scheduler metadata. Deferred renders and invalid cores must be cleaned even after the last ordinary component is removed.
 
+<a id="gui-refresh"></a>
+## GUI refresh ownership
+
+`storage.ei.induction_matrix_gui_by_player` records current viewers separately from resettable matrix topology. Open/close, joined/left/removed-player hooks and configuration reconciliation own membership; only the one-time reconciliation scans connected players. Existing 15-tick live energy display visits registered viewers and shares each matrix's snapshot. Core retags update viewer identity; invalid cores close the console; camera surface/position follows the current core. Captions and progress values write only on change; topology and native energy simulation retain their existing cadence.
+
 <a id="verification"></a>
 ## Verification contract
 

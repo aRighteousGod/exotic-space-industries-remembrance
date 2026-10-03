@@ -26,7 +26,9 @@ end
 
 local function destroy_overlays(viewer)
     for _,object in ipairs(viewer.renders or {}) do if object.valid then object.destroy() end end
-    viewer.renders={}
+    for _,object in ipairs(viewer.beam_renders or {}) do if object.valid then object.destroy() end end
+    viewer.renders={};viewer.beam_renders={}
+    viewer.coverage_signature=nil;viewer.beam_signature=nil
 end
 
 function gui.close(player_index)
@@ -51,12 +53,11 @@ local function choices(key)
 end
 
 local function refresh_overlay(player,viewer,record)
-    destroy_overlays(viewer)
     local g=record.geometry
-    if not g then return end
+    if not g then destroy_overlays(viewer);return end
     local entity=record.entity
-    local function line(a,b,color,render_mode)
-        viewer.renders[#viewer.renders+1]=rendering.draw_line{color=color,width=2,
+    local function line(list,a,b,color,render_mode)
+        list[#list+1]=rendering.draw_line{color=color,width=2,
             from=a,to=b,surface=entity.surface,players={player.index},render_mode=render_mode}
     end
     local function point(angle,distance,side)
@@ -64,9 +65,20 @@ local function refresh_overlay(player,viewer,record)
         return {x=entity.position.x+math.sin(a)*distance+math.cos(a)*(side or 0),
             y=entity.position.y-math.cos(a)*distance+math.sin(a)*(side or 0)}
     end
-    for _,render_mode in ipairs{"game","chart"} do
+    -- blueprint-ref: .codex/esir/blueprints/sweeping-radar.md#gui-refresh-cost
+    -- Static coverage survives beam movement. Existing save viewers lazily migrate here.
+    local signature=table.concat({entity.surface.index,entity.position.x,entity.position.y,
+        g.mode,g.near,g.far,g.start,g.width,g.bearing},":")
+    local coverage_valid=viewer.coverage_signature==signature
+    if coverage_valid then
+        for _,object in ipairs(viewer.renders or {}) do if not object.valid then coverage_valid=false;break end end
+    end
+    if not coverage_valid then
+        for _,object in ipairs(viewer.renders or {}) do if object.valid then object.destroy() end end
+        viewer.renders={};viewer.coverage_signature=signature
+        for _,render_mode in ipairs{"game","chart"} do
         if g.mode==5 then
-            for _,side in ipairs{-16,16} do line(point(g.bearing,g.near,side),point(g.bearing,g.far,side),{0.3,0.8,1,0.7},render_mode) end
+            for _,side in ipairs{-16,16} do line(viewer.renders,point(g.bearing,g.near,side),point(g.bearing,g.far,side),{0.3,0.8,1,0.7},render_mode) end
         else
             for _,radius in ipairs{g.far,g.near} do
                 if radius>0 then
@@ -77,13 +89,24 @@ local function refresh_overlay(player,viewer,record)
                 end
             end
             if g.width<360 then
-                for _,angle in ipairs{g.start,g.start+g.width} do line(point(angle,g.near),point(angle,g.far),{0.3,0.8,1,0.7},render_mode) end
+                for _,angle in ipairs{g.start,g.start+g.width} do line(viewer.renders,point(angle,g.near),point(angle,g.far),{0.3,0.8,1,0.7},render_mode) end
             end
         end
-        -- Geometry changes invalidate the previous direction. An armed new pulse
-        -- has coverage, but no completed beam to display yet.
-        if (record.pass_observations or 0)>0 or record.report.valid then
-            line(point(record.heading,g.near),point(record.heading,g.far),{0.6,1,0.3,0.9},render_mode)
+        end
+    end
+    -- Only the two beam lines change when a completed observation moves the beam.
+    local show=(record.pass_observations or 0)>0 or record.report.valid
+    local beam_signature=signature..":"..tostring(show)..":"..tostring(record.heading)
+    local beam_valid=viewer.beam_signature==beam_signature
+    if beam_valid then
+        for _,object in ipairs(viewer.beam_renders or {}) do if not object.valid then beam_valid=false;break end end
+    end
+    if beam_valid then return end
+    for _,object in ipairs(viewer.beam_renders or {}) do if object.valid then object.destroy() end end
+    viewer.beam_renders={};viewer.beam_signature=beam_signature
+    if show then
+        for _,render_mode in ipairs{"game","chart"} do
+            line(viewer.beam_renders,point(record.heading,g.near),point(record.heading,g.far),{0.6,1,0.3,0.9},render_mode)
         end
     end
 end
@@ -96,6 +119,7 @@ local function refresh(player,viewer,record,tick)
     local capabilities=frame.body.capabilities
     if not capabilities then
         capabilities=frame.body.add{type="label",name="capabilities",caption=""}
+        viewer.capability_signature=nil
         capabilities.style.single_line=false;capabilities.style.maximal_width=860
     end
     local hardware=config.hardware[record.entity.name]
@@ -106,14 +130,18 @@ local function refresh(player,viewer,record,tick)
     local count=record.geometry and record.geometry.count or 0
     local estimate=effective and count/math.max(0.001,record.rate*effective.speed/100) or 0
     local requested=(record.rate or hardware.rate)*(effective and effective.speed or record.settings.speed)/100
-    capabilities.caption={"sweeping-radar.capabilities",record.entity.quality.localised_name,
+    local capability_caption={"sweeping-radar.capabilities",record.entity.quality.localised_name,
         tostring(record.quality_range or 0),string.format("%.0f",((record.quality_rate or 1)-1)*100),
         string.format("%.0f",(1-(record.quality_energy or 1))*100),
         string.format("%.2f",(record.cost or hardware.joules)/1000000),string.format("%.2f",requested),
         string.format("%.2f",hardware.idle/1000000),string.format("%.2f",hardware.input/1000000),
         string.format("%.2f",(hardware.idle+(record.cost or hardware.joules)*requested)/1000000),
         string.format("%.2f",record.rate or hardware.rate)}
-    frame.body.metrics.caption={"sweeping-radar.metrics",
+    local capability_signature=record.entity.quality.name..":"..table.concat(capability_caption,":",3)
+    if viewer.capability_signature~=capability_signature then
+        capabilities.caption=capability_caption;viewer.capability_signature=capability_signature
+    end
+    local metric_caption={"sweeping-radar.metrics",
         {"sweeping-radar.status-"..record.status},tostring(record.maximum or hardware.range),
         string.format("%.2f",rate),tostring(count),string.format("%.1f",estimate),
         record.pass_ticks and string.format("%.1f",record.pass_ticks/60) or "—",
@@ -123,6 +151,11 @@ local function refresh(player,viewer,record,tick)
         report.valid and tostring(report.count) or "—",tostring(report.age),tostring(report.contact_age),
         not report.valid and {"sweeping-radar.unavailable"} or report.incomplete and {"sweeping-radar.incomplete"} or {"sweeping-radar.complete"},
         tostring(report.sample_age)}
+    local metric_signature=record.status..":"..table.concat(metric_caption,":",3,13)..":"
+        ..tostring(report.valid)..":"..tostring(report.incomplete)..":"..tostring(report.sample_age)
+    if viewer.metric_signature~=metric_signature then
+        frame.body.metrics.caption=metric_caption;viewer.metric_signature=metric_signature
+    end
     refresh_overlay(player,viewer,record)
 end
 

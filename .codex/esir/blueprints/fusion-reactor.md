@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Fusion reactor control and telemetry
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` reconstructs dense indexes and missing wire helpers in place. Manual selection, circuit-control choice, effective recipe and live fluid/inventory contents survive; repair does not apply a new selection.
+
 ## Implementation sources
 
 - [fusion-reactor.lua](../../../exotic-space-industries-remembrance/scripts/control/fusion-reactor.lua)
@@ -26,6 +31,11 @@ The staggered dispatcher supplies a budget/event to `update`; service walks the 
 ## Lifecycle and cleanup
 
 Init/configuration rebuild destroys old/orphan wire proxies and reconstructs reactor entries from current world recipes. Build registers and services immediately; settings paste carries control settings through normalization. Destruction removes registry membership, proxy, and affected GUI sessions. Rebuild currently reconstructs control entries rather than promising preservation of every historical GUI choice.
+
+<a id="gui-refresh"></a>
+## GUI refresh ownership
+
+`open_by_player` remains the viewer owner. Reactor service supplies its existing entry to viewers, avoiding registration/recipe discovery per viewer. GUI writes depend on normalized effective/manual selections, control source and wire state; identical state leaves sliders and fuel controls untouched. Local render snapshots are disposable and close/leave clears them. Reconcile an existing console on player join so a saved window resumes subscriptions. Recipe, collector and circuit service behavior is unchanged.
 
 <a id="verification"></a>
 ## Verification contract

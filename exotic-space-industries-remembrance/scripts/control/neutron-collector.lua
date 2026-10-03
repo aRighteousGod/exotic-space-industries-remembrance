@@ -2428,8 +2428,19 @@ end
 
 
 function model.service_gui_refreshes(event_or_tick, runtime)
-    runtime = runtime or model.ensure_runtime_ready()
-    if not runtime or runtime.runtime_rebuild_in_progress then
+    runtime = runtime or (storage and storage.ei and storage.ei.neutron_runtime)
+    if type(runtime) ~= "table" or runtime.runtime_rebuild_in_progress then
+        return false
+    end
+
+    -- blueprint-ref: .codex/esir/blueprints/neutron-collector.md#closed-gui
+    -- Closed panels do not initialize state, replace empty queues or advance a
+    -- GUI-only timestamp. A stale delayed bucket is discarded once.
+    local viewers = runtime.open_by_player
+    if type(viewers) ~= "table" or next(viewers) == nil then
+        if type(runtime.gui_refresh_buckets) == "table" and next(runtime.gui_refresh_buckets) ~= nil then
+            runtime.gui_refresh_buckets = make_gui_refresh_buckets()
+        end
         return false
     end
 
@@ -2439,11 +2450,6 @@ function model.service_gui_refreshes(event_or_tick, runtime)
     end
 
     runtime.last_gui_service_tick = tick
-
-    if next(runtime.open_by_player) == nil then
-        runtime.gui_refresh_buckets = make_gui_refresh_buckets()
-        return false
-    end
 
     local due_ticks = {}
     for bucket_tick, _ in pairs(runtime.gui_refresh_buckets) do
@@ -2467,6 +2473,9 @@ function model.service_gui_refreshes(event_or_tick, runtime)
     end
 
     local refreshed = false
+    -- Due viewers of one collector share the same display projection in this
+    -- service pass. The cache never outlives the event or drives simulation.
+    local snapshots_by_unit = {}
     for player_index, _ in pairs(due_players) do
         local session = runtime.open_by_player[player_index]
         if session and session.pending_tick and session.pending_tick <= tick then
@@ -2481,7 +2490,11 @@ function model.service_gui_refreshes(event_or_tick, runtime)
                 if not collector_entry or not model.entity_check(collector_entry.entity) then
                     model.clear_gui_session(runtime, player_index, true)
                 else
-                    local snapshot = model.get_gui_snapshot(runtime, collector_entry)
+                    local snapshot = snapshots_by_unit[session.unit_number]
+                    if snapshot == nil then
+                        snapshot = model.get_gui_snapshot(runtime, collector_entry) or false
+                        snapshots_by_unit[session.unit_number] = snapshot
+                    end
                     if not snapshot then
                         model.clear_gui_session(runtime, player_index, true)
                     else

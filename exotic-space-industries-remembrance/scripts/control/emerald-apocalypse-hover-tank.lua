@@ -7,7 +7,7 @@
 -- cadence: build/destroy/clone/drive/equipment/script-trigger/damage events plus
 --          control.lua update fan-out for delayed charge/cold targeting, and
 --          every-tick hot shard visual motion
--- forwarded_events: check_global, rebuild_runtime_state, on_built_entity,
+-- forwarded_events: check_global, rebuild_runtime_state, on_built_entity,, repair_runtime_state
 --                   on_cloned_entity, on_destroyed_entity, on_object_destroyed,
 --                   on_player_driving_changed_state, on_player_placed_equipment,
 --                   on_player_removed_equipment,
@@ -2340,6 +2340,18 @@ function model.update_gui(player, current_tick)
         gui.build(player, entity, readout, current_tick)
         return true
     end
+
+    -- blueprint-ref: .codex/esir/blueprints/emerald-apocalypse.md#gui-refresh-cost
+    local displayed={unit_number,active_count,max_count,targeting_mode,format_damage_number(readout.swarm_dps),
+        readout.damage_type or DAMAGE_TYPE,model.format_seconds_from_ticks(doctrine_readout.charge_ticks or CHARGE_TICKS),
+        model.format_seconds_from_ticks(doctrine_readout.post_fire_cooldown or POST_FIRE_COOLDOWN),
+        tostring(doctrine_readout.recursion_unlocked)}
+    for _,option in ipairs(DOCTRINE.toggle_options) do
+        displayed[#displayed+1]=tostring(doctrine_readout.toggles and doctrine_readout.toggles[option]==true)
+    end
+    local signature=table.concat(displayed,":")
+    if root.tags.summary_signature==signature then return true end
+    local tags=root.tags;tags.summary_signature=signature;root.tags=tags
 
     local status_flow = main["status-flow"]
     if status_flow then
@@ -5516,5 +5528,27 @@ model.visual_prototypes = {
     shield_pulse = SHIELD_PULSE_ANIMATION,
     terrain_spiral_tile = TERRAIN_SPIRAL_TILE,
 }
+
+-- blueprint-ref: .codex/esir/blueprints/emerald-apocalypse.md#admin-repair
+-- Repair must retain paid wind-ups, pulse queues, cooldowns, drift and doctrine settings.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason, tick)
+    reset_hover_visual_config_cache()
+    local runtime = ensure_runtime()
+    orbital_shards.sync_all_force_caches(runtime, tick)
+    model.sync_all_doctrine_force_caches(runtime, tick)
+    for unit, record in pairs(runtime.tanks_by_unit) do
+        if not is_tank(record.entity) then remove_record(runtime, unit, "invalid") end
+    end
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered{name = TANK_NAME}) do register_tank(runtime, entity, tick) end
+    end
+    refresh_orbital_shard_damage_statuses(runtime, nil, tick)
+    gui.prune_orphaned_tank_settings(runtime)
+    runtime.last_admin_repair_reason = reason
+    runtime.last_admin_repair_tick = tick
+    return true
+end
 
 return model

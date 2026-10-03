@@ -3,7 +3,7 @@
 -- owns: EM train and charger runtime, buffs, rebuilds, and research hooks
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init/config rebuild, build/destroy, research-finished, and scheduled tick steps 8 and 9
--- forwarded_events: activate_surface, adjust_surface_count, allocate_surface_budgets, animate_range, apply_buffs, build_charger_entry, build_train_entry, cast_beam, charger_updater, check_buffs, check_global, clear_legacy_runtime_fields, compact_queue, deactivate_surface, dequeue_surface_unit, deregister_all_chargers, deregister_all_trains, enqueue_surface_unit, ensure_runtime_ready, ensure_surface_queue, ensure_train_grace_reserve, entity_check, find_charger, fix_toggle_range, get_charger_pending_work_count, get_charger_power_usage, get_charger_transfer_factor, get_charger_upkeep_factor, get_chunk_bucket, get_entity_name_list, get_existing_entity_name_list, get_item_fuel_value, get_locomotive_demand_factor, get_locomotive_grace_ticks, get_normalized_quality_factor, get_rail_count, get_selected_em_fuel_prototype, get_surface_charger_set, get_surface_scheduler_state, get_train_fuel_fraction, get_train_pending_work_count, has_charger_tick_work, has_enough_energy, has_train_tick_work, index_charger, invalidate_runtime_state, is_em_train, on_built_entity, on_destroyed_entity, on_research_finished, on_scripted_research_burst, printBuffStatus, process_surface_quota, process_surface_scheduler, que_charger, que_train, rebuild_runtime_state, register_charger, register_que_charger, register_que_train, register_train, reinitialize_chargers, reinitialize_trains, remove_charger_entry, remove_train_entry, render_status_rings, requeue_surface_unit, reset_surface_scheduler, return_buffs, set_burner, toggle_range_highlight, train_updater, unindex_charger, unregister_charger, unregister_train, update_charger, update_charger_from_rail, update_chargers, update_rail_counts, update_train, update_trains
+-- forwarded_events: activate_surface, adjust_surface_count, allocate_surface_budgets, animate_range, apply_buffs, build_charger_entry, build_train_entry, cast_beam, charger_updater, check_buffs, check_global, clear_legacy_runtime_fields, compact_queue, deactivate_surface, dequeue_surface_unit, deregister_all_chargers, deregister_all_trains, enqueue_surface_unit, ensure_runtime_ready, ensure_surface_queue, ensure_train_grace_reserve, entity_check, find_charger, fix_toggle_range, get_charger_pending_work_count, get_charger_power_usage, get_charger_transfer_factor, get_charger_upkeep_factor, get_chunk_bucket, get_entity_name_list, get_existing_entity_name_list, get_item_fuel_value, get_locomotive_demand_factor, get_locomotive_grace_ticks, get_normalized_quality_factor, get_rail_count, get_selected_em_fuel_prototype, get_surface_charger_set, get_surface_scheduler_state, get_train_fuel_fraction, get_train_pending_work_count, has_charger_tick_work, has_enough_energy, has_train_tick_work, index_charger, invalidate_runtime_state, is_em_train, on_built_entity, on_destroyed_entity, on_research_finished, on_scripted_research_burst, printBuffStatus, process_surface_quota, process_surface_scheduler, que_charger, que_train, rebuild_runtime_state, register_charger, register_que_charger, register_que_train, register_train, reinitialize_chargers, reinitialize_trains, remove_charger_entry, remove_train_entry, render_status_rings, repair_runtime_state, requeue_surface_unit, reset_surface_scheduler, return_buffs, set_burner, toggle_range_highlight, train_updater, unindex_charger, unregister_charger, unregister_train, update_charger, update_charger_from_rail, update_chargers, update_rail_counts, update_train, update_trains
 -- storage_roots: storage.ei, storage.ei_emt
 -- gui_ids: none
 -- remote_interfaces: none
@@ -1683,6 +1683,37 @@ function model.rebuild_runtime_state(reason)
 
     model.fix_toggle_range()
     em_trains_gui.mark_dirty()
+end
+
+-- blueprint-ref: .codex/esir/blueprints/em-trains.md#admin-repair
+-- Registration tables and rendering are derived; an earned out-of-mesh grace
+-- deadline belongs to the live locomotive and survives an administrator repair.
+---@param reason string
+---@param current_tick MapTick
+---@return boolean
+---@return string?
+function model.repair_runtime_state(reason, current_tick)
+    model.check_global()
+    if storage.ei_emt.runtime_rebuild_in_progress then
+        return false, "An EM runtime rebuild is already in progress."
+    end
+    local grace_by_unit = {}
+    for unit, entry in pairs(storage.ei_emt.trains) do
+        local entity = type(entry) == "table" and entry.entity
+        local deadline = type(entry) == "table" and entry.grace_until_tick
+        if model.entity_check(entity) and model.is_em_train(entity.name)
+            and ei_lib.is_valid_number(deadline) and deadline > current_tick then
+            grace_by_unit[unit] = {entity = entity, deadline = deadline}
+        end
+    end
+    model.rebuild_runtime_state(reason)
+    for unit, preserved in pairs(grace_by_unit) do
+        local entry = storage.ei_emt.trains[unit]
+        if entry and model.entity_check(entry.entity) and entry.entity == preserved.entity then
+            entry.grace_until_tick = preserved.deadline
+        end
+    end
+    return true
 end
 
 function model.update_chargers(budget, current_tick)

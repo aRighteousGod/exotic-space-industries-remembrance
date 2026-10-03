@@ -1149,7 +1149,22 @@ end
 
 
 function model.service_due_gui_refreshes(event_tick)
-    local gui_state = model.get_gui_state()
+    local gui_state = storage and storage.ei and storage.ei.matter_stabilizer_gui
+    if type(gui_state) ~= "table" then return end
+    -- blueprint-ref: .codex/esir/blueprints/matter-stabilizer.md#closed-gui
+    -- Read existing GUI ownership first: gameplay service with no viewers must
+    -- neither initialize GUI state nor replace already empty scheduling tables.
+    local viewers = gui_state.open_by_player
+    if type(viewers) ~= "table" or next(viewers) == nil then
+        if type(gui_state.refresh_buckets) == "table" and next(gui_state.refresh_buckets) ~= nil then
+            gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
+        end
+        if gui_state.next_refresh_tick ~= nil and gui_state.next_refresh_tick ~= 0 then
+            gui_state.next_refresh_tick = 0
+        end
+        return
+    end
+    gui_state = model.get_gui_state()
     local tick = now_tick(event_tick)
     if gui_state.last_gui_service_tick == tick then
         local next_refresh_tick = tonumber(gui_state.next_refresh_tick) or recalculate_gui_next_refresh_tick(gui_state)
@@ -1159,12 +1174,6 @@ function model.service_due_gui_refreshes(event_tick)
     end
 
     gui_state.last_gui_service_tick = tick
-
-    if next(gui_state.open_by_player) == nil then
-        gui_state.refresh_buckets = ei_runtime_scheduler.ensure_delayed_buckets(nil)
-        gui_state.next_refresh_tick = 0
-        return
-    end
 
     local next_refresh_tick = tonumber(gui_state.next_refresh_tick) or recalculate_gui_next_refresh_tick(gui_state)
     if next_refresh_tick <= 0 or next_refresh_tick > tick then

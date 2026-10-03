@@ -5,7 +5,7 @@
 -- cadence: exact lifecycle/research events; two queued replacements per tick;
 --          unsafe retries after 120 ticks; six delayed smoke pulses;
 --          optional active shot bookkeeping, 15/60-tick local target refreshes (8/tick)
--- forwarded_events: on_built_entity, on_entity_cloned, on_object_destroyed,
+-- forwarded_events: on_built_entity, on_entity_cloned, on_object_destroyed,, repair_runtime_state
 --   on_research_finished, on_scripted_research_burst, on_configuration_changed,
 --   on_forces_merged, on_external_replaced, refresh_vehicle, on_entity_damaged,
 --   on_mined_entity, on_gui_opened, on_gui_closed, on_gui_changed, updater
@@ -1495,41 +1495,65 @@ end
 
 ---@param player LuaPlayer
 ---@param record ESIRSpiderRecord
+-- blueprint-ref: .codex/esir/blueprints/spider-vehicles.md#gui-refresh-cost
 local function build_gui(player,record)
-    local previous=player.gui.relative[GUI_NAME]
-    if previous then previous.destroy() end
     local controls=model.get_weapon_controls(record.entity)
-    local root=player.gui.relative.add{type="frame",name=GUI_NAME,direction="vertical",
-        anchor={gui=defines.relative_gui_type.spider_vehicle_gui,position=defines.relative_gui_position.right}}
-    local title=root.add{type="flow",direction="horizontal"}
-    title.add{type="label",style="frame_title",caption={"spider-vehicles.controls-title"}}
-    title.add{type="empty-widget",style="ei_titlebar_nondraggable_spacer"}
-    local content=root.add{type="frame",direction="vertical",style="inside_shallow_frame"}.add{type="flow",name="content",direction="vertical",style="ei_inner_content_flow"}
-    local function tags(action) return {parent_gui=GUI_NAME,action=action,vehicle_id=record.id} end
-    content.add{type="checkbox",name="cycling",caption={"spider-vehicles.control-cycling"},state=controls.cycling,
-        tooltip={"spider-vehicles.control-cycling-"..(SMART and "smart" or "native")},tags=tags("cycling")}
-    content.add{type="checkbox",name="overkill",caption={"spider-vehicles.control-overkill"},state=controls.overkill,
-        tooltip={"spider-vehicles.control-overkill-help"},tags=tags("overkill")}
-    if controls.overkill_reason then
-        local label=content.add{type="label",name="overkill_status",caption={"spider-vehicles.overkill-"..controls.overkill_reason}}
-        label.style.single_line=false;label.style.maximal_width=350
+    local slot_count=#record.entity.get_inventory(defines.inventory.spider_ammo)
+    local root=player.gui.relative[GUI_NAME]
+    local content=root and root.body and root.body.content
+    if root and (not content or root.tags.unit~=record.entity.unit_number or root.tags.slots~=slot_count) then
+        root.destroy();root=nil
     end
-    content.add{type="checkbox",name="special",caption={"spider-vehicles.control-"..(record.family=="assault" and "artillery" or "doeworks")},state=controls.special,
-        enabled=controls.special_unlocked,tooltip={"spider-vehicles.control-mount-help"},tags=tags("special")}
-    if not controls.special_unlocked then content.add{type="label",caption={"spider-vehicles.control-locked"}} end
-    local choices={}
-    for slot=1,#record.entity.get_inventory(defines.inventory.spider_ammo) do
-        choices[slot]={"spider-vehicles.control-slot",tostring(slot),{"spider-vehicles.weapon-"..catalog.slot_group(record.family,slot)}}
-    end
-    content.add{type="drop-down",name="weapon",items=choices,selected_index=controls.selected_slot or 1,visible=not controls.cycling,enabled=not controls.cycling,tags=tags("selected_slot")}
-    content.add{type="label",caption={"spider-vehicles.control-effective",{"spider-vehicles.mode-"..controls.effective_mode},{"spider-vehicles.state-"..(controls.effective_special and "on" or "off")}}}
-    if controls.pending then
-        local reason=controls.pending_reason
-        if reason~="moving" and reason~="active-robots" and reason~="logistic-delivery" and reason~="mount-ammo-space" and reason~="boarding" then reason="other" end
-        local label=content.add{type="label",caption={"spider-vehicles.control-pending",{"spider-vehicles.pending-"..reason}}}
-        label.style.single_line=false;label.style.maximal_width=350
+    if not root then
+        root=player.gui.relative.add{type="frame",name=GUI_NAME,direction="vertical",
+            tags={unit=record.entity.unit_number,slots=slot_count},
+            anchor={gui=defines.relative_gui_type.spider_vehicle_gui,position=defines.relative_gui_position.right}}
+        local title=root.add{type="flow",direction="horizontal"}
+        title.add{type="label",style="frame_title",caption={"spider-vehicles.controls-title"}}
+        title.add{type="empty-widget",style="ei_titlebar_nondraggable_spacer"}
+        content=root.add{type="frame",name="body",direction="vertical",style="inside_shallow_frame"}.add{type="flow",name="content",direction="vertical",style="ei_inner_content_flow"}
+        local function tags(action) return {parent_gui=GUI_NAME,action=action,vehicle_id=record.id} end
+        content.add{type="checkbox",name="cycling",caption={"spider-vehicles.control-cycling"},state=controls.cycling,
+            tooltip={"spider-vehicles.control-cycling-"..(SMART and "smart" or "native")},tags=tags("cycling")}
+        content.add{type="checkbox",name="overkill",caption={"spider-vehicles.control-overkill"},state=controls.overkill,
+            tooltip={"spider-vehicles.control-overkill-help"},tags=tags("overkill")}
+        local overkill=content.add{type="label",name="overkill_status",caption=""}
+        overkill.style.single_line=false;overkill.style.maximal_width=350
+        content.add{type="checkbox",name="special",caption={"spider-vehicles.control-"..(record.family=="assault" and "artillery" or "doeworks")},state=controls.special,
+            enabled=controls.special_unlocked,tooltip={"spider-vehicles.control-mount-help"},tags=tags("special")}
+        content.add{type="label",name="locked_note",caption={"spider-vehicles.control-locked"}}
+        local choices={}
+        for slot=1,slot_count do
+            local group=catalog.slot_group(record.family,slot)
+            -- Upstream chassis can expose extra slots before the queued native replacement.
+            -- Retain numeric indices so choosing one cannot target a different weapon.
+            choices[slot]={"spider-vehicles.control-slot",tostring(slot),group and {"spider-vehicles.weapon-"..group} or record.entity.localised_name}
+        end
+        content.add{type="drop-down",name="weapon",items=choices,selected_index=controls.selected_slot or 1,tags=tags("selected_slot")}
+        content.add{type="label",name="effective",caption=""}
+        local pending=content.add{type="label",name="pending",caption=""}
+        pending.style.single_line=false;pending.style.maximal_width=350
     end
     state().gui[player.index]=record.id
+    local reason=controls.pending_reason
+    if reason~="moving" and reason~="active-robots" and reason~="logistic-delivery" and reason~="mount-ammo-space" and reason~="boarding" then reason="other" end
+    local signature=table.concat({tostring(controls.cycling),tostring(controls.overkill),tostring(controls.overkill_reason),
+        tostring(controls.special),tostring(controls.special_unlocked),tostring(controls.selected_slot),
+        tostring(controls.effective_mode),tostring(controls.effective_special),tostring(controls.pending),reason},":")
+    if root.tags.summary_signature==signature then return end
+    local tags=root.tags;tags.summary_signature=signature;root.tags=tags
+    if content.cycling.state~=controls.cycling then content.cycling.state=controls.cycling end
+    if content.overkill.state~=controls.overkill then content.overkill.state=controls.overkill end
+    if content.special.state~=controls.special then content.special.state=controls.special end
+    if content.special.enabled~=controls.special_unlocked then content.special.enabled=controls.special_unlocked end
+    content.overkill_status.visible=controls.overkill_reason~=nil
+    if controls.overkill_reason then content.overkill_status.caption={"spider-vehicles.overkill-"..controls.overkill_reason} end
+    content.locked_note.visible=not controls.special_unlocked
+    content.weapon.visible=not controls.cycling;content.weapon.enabled=not controls.cycling
+    if content.weapon.selected_index~=(controls.selected_slot or 1) then content.weapon.selected_index=controls.selected_slot or 1 end
+    content.effective.caption={"spider-vehicles.control-effective",{"spider-vehicles.mode-"..controls.effective_mode},{"spider-vehicles.state-"..(controls.effective_special and "on" or "off")}}
+    content.pending.visible=controls.pending==true
+    if controls.pending then content.pending.caption={"spider-vehicles.control-pending",{"spider-vehicles.pending-"..reason}} end
 end
 
 refresh_gui=function(record)
@@ -1542,6 +1566,17 @@ refresh_gui=function(record)
     end
 end
 
+---@param player_index integer
+---@return boolean
+function model.has_open_gui_session(player_index)
+    local root=storage.ei and storage.ei.spider_vehicles
+    if root and root.gui and root.gui[player_index]~=nil then return true end
+    local player=game.get_player(player_index)
+    local gui=player and player.gui.relative[GUI_NAME]
+    return gui~=nil and gui.valid
+end
+
+---@param event EventData.on_gui_opened
 function model.on_gui_opened(event)
     if transaction then return end
     local player=game.get_player(event.player_index)
@@ -1691,6 +1726,36 @@ function model.get_runtime_status()
         selector_max_searches_per_tick=root.selector.max_searches,selector_active=scheduler.table_count(root.selector.active),stored_preferences=scheduler.table_count(root.items),
         overkill={active=scheduler.table_count(root.overkill.active),launches=root.overkill.launches,reserved=root.overkill.reserved,
             retired=root.overkill.retired,expired=root.overkill.expired,holds=root.overkill.holds,samples=root.overkill.samples,unsupported=root.overkill.unsupported}}
+end
+
+-- blueprint-ref: .codex/esir/blueprints/spider-vehicles.md#admin-repair
+-- Manual discovery is independent of legacy technology migrations and paid-shot reservations.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    if transaction then return false,"A spider replacement is in progress." end
+    local root=state()
+    for _,force in pairs(game.forces) do model.refresh_force(force) end
+    for _,surface in pairs(game.surfaces) do
+        for _,entity in ipairs(surface.find_entities_filtered{type="spider-vehicle"}) do
+            local record=register(entity)
+            if record then enqueue(record) end
+        end
+    end
+    for id,record in pairs(root.vehicles) do
+        if not ei_lib.entity_check(record.entity) then
+            if record.placement and record.placement.item then record.placement.item.destroy() end
+            root.vehicles[id]=nil
+            root.queue.queued[id]=nil
+            root.selector.active[id]=nil
+            root.selector.queue.queued[id]=nil
+            root.overkill.active[id]=nil
+        end
+    end
+    for unit,id in pairs(root.units) do if not root.vehicles[id] then root.units[unit]=nil end end
+    root.last_admin_repair_reason=reason
+    root.last_admin_repair_tick=tick
+    return true
 end
 
 return model

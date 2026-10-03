@@ -3,7 +3,7 @@
 -- owns: Gaia alien spawning, queues, and selection tooling
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: chunk generation, selected area, console command, destroy hooks, and every-tick queue update
--- forwarded_events: count_flowers, dump, entity_check, entity_select, gaia_tile_family, get_spawn_position, give_tool, has_tick_work, is_gaia_surface, is_gaia_tree_name, on_chunk_generated, on_destroyed_entity, on_player_selected_area, prepare_entities, que_preset, resolve_gaia_tree_name, select_preset, spawn_entities, spawn_guardian, spawn_preset, spawn_tiles, tile_select, update
+-- forwarded_events: count_flowers, dump, entity_check, entity_select, gaia_tile_family, get_spawn_position, give_tool, has_tick_work, is_gaia_surface, is_gaia_tree_name, on_chunk_generated, on_destroyed_entity, on_player_selected_area, prepare_entities, que_preset, resolve_gaia_tree_name, select_preset, spawn_entities, spawn_guardian, spawn_preset, spawn_tiles, tile_select, update, repair_runtime_state
 -- storage_roots: storage.ei, storage.gaia_surfaces
 -- gui_ids: none
 -- remote_interfaces: none
@@ -978,6 +978,16 @@ function model.on_destroyed_entity(entity)
         end
     end
 
+end
+
+-- blueprint-ref: .codex/esir/blueprints/gaia-and-alien-systems.md#admin-repair
+-- Queue repair never respawns old chunks or resets legendary/flower progression.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local buckets=ensure_spawner_buckets(tick)
+    storage.ei.spawner_next_due_tick=ei_runtime_scheduler.delayed_next_due_tick(buckets)
+    return true
 end
 
 return model

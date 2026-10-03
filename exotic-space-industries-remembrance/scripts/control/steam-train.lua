@@ -389,7 +389,8 @@ function steam_train.on_built_entity(e)
 	if e.entity.name == PLACEMENT_ENTITY_NAME then
 		-- The placement entity exists only to provide the custom build-time visuals; runtime
 		-- always swaps it to the real locomotive immediately.
-		local force = game.forces.neutral
+		-- Script-raised placement carries its selected force on the wrapper itself.
+		local force = e.entity.force or game.forces.neutral
 		if e.player_index then
 			local player = game.get_player(e.player_index)
 			force = player and player.force or force

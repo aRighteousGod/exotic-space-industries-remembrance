@@ -3,7 +3,7 @@
 -- owns: Gaia runtime, spawn command, build hooks, and reforge behavior
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: console command, build hooks, scheduled tick step 1, and every-tick Gaia updates
--- forwarded_events: create_drop, create_gaia, degrade_building, destroy_building, ensure_surface, entity_check, has_damage_tick_work, has_reforge_tick_work, has_tick_work, migrate_gaia_surface, on_built_entity, reforge_gaia_surface, reforge_on_tick, register_entity, remove_search_tick, spawn_command, swap_entity, update, update_entity_lifetimes
+-- forwarded_events: create_drop, create_gaia, degrade_building, destroy_building, ensure_surface, entity_check, has_damage_tick_work, has_reforge_tick_work, has_tick_work, migrate_gaia_surface, on_built_entity, reforge_gaia_surface, reforge_on_tick, register_entity, remove_search_tick, spawn_command, swap_entity, update, update_entity_lifetimes, repair_runtime_state
 -- storage_roots: storage.ei, storage.gaia_surfaces
 -- gui_ids: none
 -- remote_interfaces: none
@@ -16,6 +16,14 @@ local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local gaia_mapgen_data = require("scripts/control/gaia-mapgen-data")
 
 local model = {}
+-- Optional observer is installed at control-load time; Gaia retains creation and
+-- reforge ownership. A bound staging surface has no planetary identity earlier.
+local surface_ready_handler
+
+---@param handler fun(surface: LuaSurface, newly_created: boolean)
+function model.set_surface_ready_handler(handler)
+    surface_ready_handler = handler
+end
 
 local function copy_value(value)
     if type(value) ~= "table" then
@@ -367,6 +375,7 @@ function model.ensure_surface()
         storage.gaia_surfaces[legacy_surface.name] = true
         storage.gaia_surfaces["gaia"] = true
         planet.associate_surface(legacy_surface)
+        if surface_ready_handler then surface_ready_handler(legacy_surface, false) end
         ei_lib.crystal_echo("Gaia surface rebound from legacy name")
         -- Migrate old surface to have new autoplace controls
         model.migrate_gaia_surface(legacy_surface)
@@ -379,6 +388,7 @@ function model.ensure_surface()
             storage.gaia_surfaces = storage.gaia_surfaces or {}
             storage.gaia_surfaces[created.name] = true
             storage.gaia_surfaces["gaia"] = true
+            if surface_ready_handler then surface_ready_handler(created, true) end
             ei_lib.crystal_echo("Gaia surface created")
             return created
         end
@@ -392,6 +402,7 @@ function model.ensure_surface()
         storage.gaia_surfaces = storage.gaia_surfaces or {}
         storage.gaia_surfaces[created.name] = true
         storage.gaia_surfaces["gaia"] = true
+        if surface_ready_handler then surface_ready_handler(created, true) end
         ei_lib.crystal_echo("Gaia surface created (manual create_surface + planet association)")
         return created
     end
@@ -550,7 +561,7 @@ fail_reforge = function(state, message)
     return nil
 end
 
-local function complete_reforge(state, surface)
+local function complete_reforge(state, surface, newly_created)
     if not (state and surface and surface.valid) then
         return nil
     end
@@ -559,6 +570,7 @@ local function complete_reforge(state, surface)
     update_gaia_surface_registry("Gaia", false)
     update_gaia_surface_registry(surface.name, true)
     update_gaia_surface_registry("gaia", true)
+    if surface_ready_handler then surface_ready_handler(surface, newly_created == true) end
 
     if state.teleport_when_done and state.request_player_index then
         local player = game.get_player(state.request_player_index)
@@ -870,7 +882,7 @@ function model.reforge_on_tick(event)
 
         model.migrate_gaia_surface(rebuilt_surface)
         ei_lib.crystal_echo("✧ [Resurrection] — Gaia's new surface has taken the canonical name and the planet bond is restored.")
-        complete_reforge(state, rebuilt_surface)
+        complete_reforge(state, rebuilt_surface, true)
         return
     end
 end
@@ -1195,5 +1207,22 @@ function model.get_runtime_status()
     return status
 end
 
+
+-- blueprint-ref: .codex/esir/blueprints/gaia-and-alien-systems.md#admin-repair
+-- Reconcile delayed work metadata without recreating surfaces or restarting decay clocks.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local buckets=ensure_damage_tick_buckets(tick)
+    storage.ei.damage_tick_next_due_tick=ei_runtime_scheduler.delayed_next_due_tick(buckets)
+    storage.gaia_surfaces=storage.gaia_surfaces or {}
+    for name in pairs(storage.gaia_surfaces) do
+        if not game.surfaces[name] then storage.gaia_surfaces[name]=nil end
+    end
+    for _,surface in pairs(game.surfaces) do
+        if surface.planet and surface.planet.name=="gaia" then storage.gaia_surfaces[surface.name]=true end
+    end
+    return true
+end
 
 return model

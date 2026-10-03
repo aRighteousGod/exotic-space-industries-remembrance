@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Impact firefighting and powered water-turret service
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` preserves live water-turret preferences, pulse deadlines and valid power helpers/joules. It rediscovers turrets and rebuilds derived power/fire admission buckets without clearing authoritative records.
+
 ## Implementation sources
 
 - [firefighting.lua](../../../exotic-space-industries-remembrance/scripts/control/firefighting.lua)
@@ -41,3 +46,8 @@ The 40k/30k electrical thresholds provide hysteresis. Circuit disable, recipe di
 ## Verification and maintenance
 
 Source inspection only. Reuse `scripts/invoke-water-turret-qc.ps1` and its README for native combat, fire modes, power/circuit interlocks, exact water use, protected weapon fires, acid exclusion, helper lifetime, save/load and visual muzzle cases. Per-module timing profiles are not whole-engine UPS or multiplayer proof.
+
+<a id="gui-refresh-cost"></a>
+## GUI refresh cost
+
+Water-turret preference events retain the same-entity relative GUI root and update only changed dropdown/checkbox properties. Entity changes and legacy unnamed layouts rebuild once. Viewer validation and existing event routing remain authoritative; no polling is introduced.

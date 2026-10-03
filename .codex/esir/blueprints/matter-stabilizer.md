@@ -31,3 +31,10 @@ Init/configuration changes and the admin rescan rebuild world-derived links and 
 ## Verification contract
 
 Review the [control UPS fixture](../../../scripts/qc/control-ups/README.md) and its lifecycle/GUI cases before changing dispatch or queue behavior. Test stabilizer insertion/removal, multiple surfaces, idle-to-crafting transitions, invalid queued entities, rebuild with open consoles, and player departure. Compare risk inputs and serviced order as well as visible effects. This model records source behavior; it adds no engine-run claim.
+
+<a id="closed-gui"></a>
+## Closed GUI scheduling
+
+Closed GUI service does not initialize its GUI root, replace empty buckets or update
+the last GUI service tick. Stale delayed buckets and their due frontier are cleared
+once before returning to a read-only empty-viewer path.

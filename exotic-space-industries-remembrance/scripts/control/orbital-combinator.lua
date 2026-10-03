@@ -7,7 +7,7 @@
 -- cadence: init/config, build/destroy, logistic slot change, settings paste,
 --          platform state change, cargo pod lifecycle, object destroyed, gui,
 --          and scheduled hot/cold work via control.lua step 5
--- forwarded_events: add, check_init, entity_check, get_bank_count, on_cargo_pod_delivered_cargo, on_cargo_pod_finished_ascending, on_cargo_pod_started_ascending, on_destroyed_entity, on_entity_logistic_slot_changed, on_entity_settings_pasted, on_gui_click, on_gui_closed, on_gui_opened, on_object_destroyed, on_rocket_launch_ordered, on_space_platform_changed_state, rebuild_banks, rem, update, update_orbital_bank
+-- forwarded_events: add, check_init, entity_check, get_bank_count, on_cargo_pod_delivered_cargo, on_cargo_pod_finished_ascending, on_cargo_pod_started_ascending, on_destroyed_entity, on_entity_logistic_slot_changed, on_entity_settings_pasted, on_gui_click, on_gui_closed, on_gui_opened, on_object_destroyed, on_rocket_launch_ordered, on_space_platform_changed_state, rebuild_banks, rem, update, update_orbital_bank, repair_runtime_state
 -- storage_roots: storage.ei orbital_combinators, bank state, mode-by-unit,
 --                power sensor/state caches, platform cache, surface demand state,
 --                scheduler queues, optional probe diagnostics, and read-only
@@ -3119,7 +3119,7 @@ local function audit_bank_power_state(bank, current_tick, wake_on_change)
   end
 
   if state_changed and orbital_gui.refresh_open_players then
-    orbital_gui.refresh_open_players(current_tick)
+    orbital_gui.refresh_open_players(current_tick, bank)
   end
 
   if layout_changed and wake_on_change then
@@ -4756,7 +4756,8 @@ function orbital_gui.build(player)
 end
 
 
-function orbital_gui.refresh_player(player, current_tick)
+---@param summaries table|nil Bank summaries shared only within this refresh fanout.
+function orbital_gui.refresh_player(player, current_tick, summaries)
   if not player or not player.valid then
     return
   end
@@ -4773,28 +4774,35 @@ function orbital_gui.refresh_player(player, current_tick)
     return
   end
 
-  if bank then
-    local members = get_bank_members(bank, current_tick)
-    if members then
-      for _, member in ipairs(members) do
-        if entity_has_external_circuit_connection(member.entity) then
-          bank_wired = true
-          break
-        end
+  -- blueprint-ref: .codex/esir/blueprints/orbital-combinator.md#gui-refresh-cost
+  -- One power/wiring read per bank in this fanout; no cache survives the event.
+  local summary = bank and summaries and summaries[bank.id]
+  if not summary then
+    summary = {powered=0,low=0,unpowered=0,wired=false}
+    if bank then
+      local members = get_bank_members(bank, current_tick)
+      for _, member in ipairs(members or EMPTY_FILTERS) do
+        if entity_has_external_circuit_connection(member.entity) then summary.wired=true;break end
       end
+      summary.powered,summary.low,summary.unpowered=orbital_gui.get_bank_power_summary(bank,current_tick)
+      bank.wired=summary.wired
+      if summaries then summaries[bank.id]=summary end
     end
-    bank.wired = bank_wired
   end
+  bank_wired=summary.wired
 
   for _, mode_name in ipairs({MODE_REQUESTS, MODE_ON_THE_WAY, MODE_NEED}) do
     local button = mode_flow["mode-" .. mode_name]
     if button then
-      button.style = mode_name == mode and "ei_green_button" or "button"
-      button.enabled = mode_name ~= mode
+      local enabled = mode_name ~= mode
+      if button.enabled ~= enabled or root.tags.last_mode == nil then
+        button.style = enabled and "button" or "ei_green_button"
+        button.enabled = enabled
+      end
     end
   end
 
-  if wire_note then
+  if wire_note and root.tags.bank_wired ~= bank_wired then
     wire_note.caption = bank_wired
       and {"exotic-industries.orbital-scanner-gui-wire-live"}
       or {"exotic-industries.orbital-scanner-gui-wire-unwired"}
@@ -4809,14 +4817,13 @@ function orbital_gui.refresh_player(player, current_tick)
   local output_power_status = power_flow["output-power-status"]
   local scanner_power_state = POWER_STATE_UNPOWERED
   if is_registered_scanner(scanner) then
-    orbital_power.ensure(scanner, current_tick)
-    scanner_power_state = orbital_power.get_live_state(scanner, current_tick)
-    orbital_power.get_state_root()[scanner.unit_number] = scanner_power_state
-    set_scanner_custom_power_status(scanner, scanner_power_state)
+    -- The shared bank summary just refreshed every member's live power state.
+    scanner_power_state = orbital_power.normalize_state(orbital_power.get_state_root()[scanner.unit_number])
   end
-  local powered_members, low_power_members, unpowered_members = orbital_gui.get_bank_power_summary(bank, current_tick)
+  local powered_members, low_power_members, unpowered_members = summary.powered,summary.low,summary.unpowered
+  local previous = root.tags
 
-  if power_status then
+  if power_status and previous.power_state ~= scanner_power_state then
     if scanner_power_state == POWER_STATE_POWERED then
       power_status.caption = {"exotic-industries.orbital-scanner-gui-power-status-powered"}
     elseif scanner_power_state == POWER_STATE_LOW_POWER then
@@ -4825,7 +4832,7 @@ function orbital_gui.refresh_player(player, current_tick)
       power_status.caption = {"exotic-industries.orbital-scanner-gui-power-status-unpowered"}
     end
   end
-  if bank_power_status then
+  if bank_power_status and (previous.powered ~= powered_members or previous.low ~= low_power_members or previous.unpowered ~= unpowered_members) then
     bank_power_status.caption = {
       "",
       {"exotic-industries.orbital-scanner-gui-power-bank-state-title"},
@@ -4837,7 +4844,7 @@ function orbital_gui.refresh_player(player, current_tick)
       {"exotic-industries.orbital-scanner-gui-power-bank-state-unpowered", unpowered_members},
     }
   end
-  if output_power_status then
+  if output_power_status and previous.power_state ~= scanner_power_state then
     if scanner_power_state == POWER_STATE_POWERED then
       output_power_status.caption = {"exotic-industries.orbital-scanner-gui-power-output-live"}
     elseif scanner_power_state == POWER_STATE_LOW_POWER then
@@ -4846,19 +4853,26 @@ function orbital_gui.refresh_player(player, current_tick)
       output_power_status.caption = {"exotic-industries.orbital-scanner-gui-power-output-suppressed"}
     end
   end
+  if previous.last_mode~=mode or previous.bank_wired~=bank_wired or previous.power_state~=scanner_power_state
+    or previous.powered~=powered_members or previous.low~=low_power_members or previous.unpowered~=unpowered_members then
+    previous.last_mode=mode;previous.bank_wired=bank_wired;previous.power_state=scanner_power_state
+    previous.powered=powered_members;previous.low=low_power_members;previous.unpowered=unpowered_members
+    root.tags=previous
+  end
 end
 
 
-function orbital_gui.refresh_open_players(current_tick)
+function orbital_gui.refresh_open_players(current_tick, affected_bank)
   local open_gui_by_player = storage.ei.orbital_combinator_open_gui_by_player
   if not open_gui_by_player or next(open_gui_by_player) == nil then
     return
   end
 
-  for player_index, _ in pairs(open_gui_by_player) do
-    local player = game.get_player(player_index)
-    if player then
-      orbital_gui.refresh_player(player, current_tick)
+  local summaries = {}
+  for player_index, unit_number in pairs(open_gui_by_player) do
+    if not affected_bank or model.get_bank_for_unit_number(unit_number) == affected_bank then
+      local player = game.get_player(player_index)
+      if player then orbital_gui.refresh_player(player, current_tick, summaries) end
     end
   end
 end
@@ -5329,7 +5343,7 @@ function model.on_gui_click(event)
   model._surface_demand.rebuild(event.tick or (game and game.tick) or 0)
   clear_snapshot_cache()
   wake_bank(bank, event.tick or (game and game.tick) or 0)
-  orbital_gui.refresh_open_players(event.tick)
+  orbital_gui.refresh_open_players(event.tick, bank)
 end
 
 
@@ -5420,5 +5434,19 @@ function model.get_mode_name_need()
   return MODE_NEED
 end
 
+
+-- blueprint-ref: .codex/esir/blueprints/orbital-combinator.md#admin-repair
+-- Unlike check_init(true), manual repair also rediscovers a partially missing registry.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    model.check_init(false,tick)
+    rebuild_registry_from_world()
+    sanitize_registered_entities()
+    rebuild_platform_cache_from_world(tick)
+    model.rebuild_banks(tick)
+    model._surface_demand.rebuild(tick)
+    return true
+end
 
 return model

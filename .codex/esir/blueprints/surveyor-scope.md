@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Surveyor inventory scope and zoom restoration
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` attempts normal zoom restoration before reevaluating connected players. A failed restoration retains the saved original limits for later retry rather than dropping that state.
+
 ## Implementation sources
 
 - [surveyor-scope.lua](../../../exotic-space-industries-remembrance/scripts/control/surveyor-scope.lua)

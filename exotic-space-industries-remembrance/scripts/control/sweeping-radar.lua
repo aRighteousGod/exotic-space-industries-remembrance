@@ -3,7 +3,7 @@
 -- owns: storage.ei.sweeping_radar; chassis/helpers, paid scan jobs, contact reports
 -- loaded_by: control.lua (sole dispatcher); sweeping-radar-gui reads this model
 -- cadence: globally bounded independent stages, fair cursors, no elapsed-time debt
--- forwarded_events: build/remove/clone/blueprint/paste/teleport/force/research
+-- forwarded_events: build/remove/clone/blueprint/paste/teleport/force/research, repair_runtime_state
 -- rebuild_on: init/configuration change; ordinary loads resume persisted cursors
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/sweeping-radar.md#contract
@@ -899,4 +899,18 @@ function model.updater(event)
     scheduler.set_module_status("sweeping-radar",{radars=#root.order,jobs=root.jobs,
         observations=root.counters.observations,generated=root.counters.generated})
 end
+-- blueprint-ref: .codex/esir/blueprints/sweeping-radar.md#admin-repair
+-- Discovery preserves paid jobs, report buffers, geometry and helper joules.
+---@param reason string
+---@param tick MapTick
+function model.repair_runtime_state(reason,tick)
+    local root=state()
+    for id,record in pairs(root.records) do
+        if not valid(record.entity) then unregister(root,id)
+        else sync_helpers(root,record,tick) end
+    end
+    model.rebuild(tick)
+    return true
+end
+
 return model

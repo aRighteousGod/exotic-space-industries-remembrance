@@ -3,7 +3,7 @@
 -- owns: startup/configuration messaging, arrival-wave rendering, and visual settings mirrors
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, configuration-changed, on_load, and guarded on_tick arrival-wave rendering
--- forwarded_events: on_init, on_configuration_changed, on_load, on_tick, has_tick_work, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned
+-- forwarded_events: on_init, on_configuration_changed, on_load, on_tick, has_tick_work, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned, repair_runtime_state
 -- storage_roots: storage.ei.arrival_waves, storage.ei.arrival_waves_next_due_tick, storage.ei.pending_arrivals, storage.ei.lamp_removals, storage.ei.que_*, storage.ei.em_*_glow*, storage.ei.rocket_launch_pollution, storage.ei.fulgora_day_length_variation, storage.ei.nauvis_pressure
 -- gui_ids: none
 -- remote_interfaces: none
@@ -725,5 +725,16 @@ function echo_codex.sigil_cleanup()
   end
 end
 ]]
+
+-- blueprint-ref: .codex/esir/blueprints/startup-and-integration.md#admin-repair
+-- Rebuild admission metadata without replaying arrivals or awarding equipment again.
+---@param reason string
+---@param tick MapTick
+function echo_codex.repair_runtime_state(reason,tick)
+    local pending=ensure_pending_arrivals()
+    for index in pairs(pending) do if not game.get_player(index) then pending[index]=nil end end
+    recalculate_next_arrival_wave_tick(ensure_arrival_waves())
+    return true
+end
 
 return echo_codex

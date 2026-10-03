@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Balanced agricultural growth jitter
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` removes pending offsets only for towers absent from the world. Inverse balancing offsets for live tower/plant streams survive, and existing plant growth times are untouched.
+
 ## Implementation sources
 
 - [randomized-tree-growth.lua](../../../exotic-space-industries-remembrance/scripts/control/randomized-tree-growth.lua)

@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Flamethrower fuel variants and replacement transactions
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` rediscovers turrets/ghosts and synchronizes derived force modifiers using existing stable registration. It retains the live runtime root and replacement/retry work rather than using configuration rebuild's root replacement.
+
 ## Implementation sources
 
 - [flamethrower-fuels.lua](../../../exotic-space-industries-remembrance/scripts/control/flamethrower-fuels.lua)

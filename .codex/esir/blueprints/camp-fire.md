@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Camp-fire registration and periodic fire emission
 
+<a id="admin-repair"></a>
+## Admin repair
+
+`repair_runtime_state` reconstructs campfire membership from live entities. It preserves `campfire_last_run_tick` so a repair cannot produce an extra fire-emission batch.
+
 ## Implementation sources
 
 - [camp-fire.lua](../../../exotic-space-industries-remembrance/scripts/control/camp-fire.lua)
