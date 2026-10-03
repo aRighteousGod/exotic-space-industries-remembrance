@@ -17,6 +17,13 @@ Arrival repair normalizes pending players and the saved wave due minimum without
 
 ## Behavior and ownership
 
+Informatron presents [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract)
+using shared stage-neutral configurations; these pages own no combat effects.
+`compat.warn_combat_overlap` prints independent optional-counterpart warnings
+through the [combat overlap contract](combat-doctrines.md#overlap) on native
+singleplayer initialization and multiplayer join. Other player-entry hooks do
+not repeat those warnings; disabled integrated features produce no warning.
+
 This group owns presentation/integration boundaries, not feature mechanics. `echo-codex.handle_global_settings` synchronizes startup-derived runtime settings. Player entry queues the arrival ritual until a character exists. Informatron and Milestones expose stable remote interfaces; `informatron-messager` announces newly relevant pages. `compat` bridges optional mods and accepts Gaia-surface/beacon-overload overrides. `debug` exposes explicit diagnostic and repair commands.
 
 ```mermaid

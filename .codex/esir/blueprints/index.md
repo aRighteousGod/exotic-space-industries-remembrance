@@ -26,6 +26,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 1 |
 | [Balanced agricultural growth jitter](randomized-tree-growth.md#contract) | 1 |
 | [Beacon overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 2 |
+| [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 5 |
 | [Black hole containment and extraction](black-hole.md#contract) | 1 |
 | [Camp-fire registration and periodic fire emission](camp-fire.md#contract) | 1 |
 | [Combustion turbine shell switching](combustion-turbine.md#contract) | 1 |

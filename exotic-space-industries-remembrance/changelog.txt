@@ -2,6 +2,8 @@
 Version: 1.3.40
 Date: 9-10-2026
   Features:
+    - Pyric Radiance lends the furnace's witness to the night: ten startup doctrines shape thermal fire, stream, explosion, projectile, muzzle and launch illumination while preserving fuel colors and authored special effects. Enabled by default with Tempered; maps, fire spread, night vision and the day cycle retain their existing behavior.
+    - Ballistic Divergence gives the shot an oath, not a certainty: bullets, shotgun pellets and bullet-firing robots follow native trajectories with ten startup doctrines for flight, scatter, magazine capacity and terrain protection. Enabled by default with Tempered and unchanged bullet capacity. Piercing and uranium magazines continue through killed targets; exotic rounds preserve their full single-impact payload. Own-force entities do not intercept shots; other allied forces and neutral terrain can be hit. Loading with an enabled integrated doctrine and its standalone counterpart displays a warning; both remain permitted.
     - Added a default-disabled startup setting enabling an administration console: enable and use /ei-admin. Organized pages cover planetary settings, travel, player modes, moderation and timed jail, bounded world creation and chunk tools, research, speed, pure runtime diagnostics, and preservation-aware repair commands. Optional new-player interaction restrictions protect direct interactions with other players' last-used buildings while leaving natural entities usable. Existing console aliases remain available while the toolkit is disabled.
     - Added detached player/entity cameras through the shared ei_lib camera window API, with native entity tracking, independent zoom, and resolution-aware windows.
     - Added Sweeping and Phased-array radars in Electricity and Simulation age, with finite range, capacity, and efficiency research. Five sweep modes, saved arc geometry, Survey/Watch operation, three contact-report policies, red-wire controls, green-wire reports, and a screen interface share deterministic work budgets across ticks. Actual refresh speed reflects power and fleet load; beam overlays follow completed observations. Standard radars remain available.
@@ -770,7 +772,7 @@ Date: 3-6-2026
   Bugfixes:
     - Fixed that Minigun turret and Combat shotgun turret damage upgrade descriptions were missing localisation keys.
     - Fixed that Tesla tank health override wasn't applying (2000 -> 5000).
-    - Fixed that Compound rounds magazine didn't receive size buff when Distant Misfires mod was active.
+    - Fixed that Compound rounds magazine didn't receive its size buff with the standalone trajectory counterpart active.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.95
 Date: 3-5-2026
@@ -1805,7 +1807,7 @@ Version: 1.2.34
 Date: 8-15-2025
   Features:
     - Added Celestial weather by @Varaxia to optional dependencies—adds toggleable on-going weather effects including sandstorms, snowstorms, dust, fire particles and acid rain to Fulgora, Aquilo, Vulcanus, Moshine, Corrundum, Frozeta, Paracelsin, Lemures, Nix, Muluna and Lignumis.
-    - Added Blood & Gore by @OwnlyMe to optional dependencies—Adds customizable blood & gore effects to Biters, aesthetically highly synergistic with Distant misfires. NOTE: Can affect FPS/UPS with default settings, recommend reducing all "... duration" values and "Guts - particle mult" below default values to balance spectacle with performance.
+    - Added Blood & Gore by @OwnlyMe to optional dependencies—Adds customizable blood & gore effects to Biters, aesthetically complementary to physical bullet trajectories. NOTE: Can affect FPS/UPS with default settings, recommend reducing all "... duration" values and "Guts - particle mult" below default values to balance spectacle with performance.
     - Added Nicer Fuel Glow by @Grillex to optional dependencies—provides differentiation of glow effects based on source and/or fuel type to Boilers, Furnaces, Burner inserters, and Refineries.
     - Added Realistic Heat Glow by @max2344 to optional dependencies—increases heat glow saturation with heat pipes temperature.
     - Added Vehicle Physics by @0wnlyMe to optional dependencies—allows for vehicles to drift and handle in a more weighted manner.
@@ -3118,7 +3120,7 @@ Date: 4-15-2025
   Changes:
     - EM trains will now reinitialize on configuration change, this mitigates certain somewhat intangible issues.
     - EM trains updater no longer loops buffs each tick. Now they are checked on configuration change and finishing research.
-    - Diurnal Dynamics, Distant Misfires, Fire Lights, Visible Pollution, Light Overhaul, Pro Flashlight, and Overloaded Trains added to optional dependencies. Diurnal Dynamics provides for darker, 50% longer nights and space platforms which darken with distance from the sun. Distant Misfires transforms projectiles into physically simulated entities capable of missing. Fire lights adds lights and/or glow effects to all projectiles, fires, etc. Visible Pollution adds a visible smog cloud which affects gameplay by obscuring solar panels and reducing their output, incentivizing solar builds away from your main pollution clouds. Light Overhaul provides an improved flashlight, increases nighttime contrast, and reduces the desaturation of nightvision. Pro Flashlight causes you to aim your flashlight at highlighted entities when standing still. Overloaded Trains will cause the weight of cargo to affect train acceleration, top speed and deceleration. These can impact UPS and are removable at any time.
+    - Diurnal Dynamics, standalone trajectory and illumination counterparts, Visible Pollution, Light Overhaul, Pro Flashlight, and Overloaded Trains added to optional dependencies. Diurnal Dynamics provides for darker, 50% longer nights and space platforms which darken with distance from the sun. The trajectory counterpart transforms projectiles into physically simulated entities capable of missing; the illumination counterpart adds lights and glow to projectiles and fires. Visible Pollution adds a visible smog cloud which affects gameplay by obscuring solar panels and reducing their output, incentivizing solar builds away from your main pollution clouds. Light Overhaul provides an improved flashlight, increases nighttime contrast, and reduces the desaturation of nightvision. Pro Flashlight causes you to aim your flashlight at highlighted entities when standing still. Overloaded Trains will cause the weight of cargo to affect train acceleration, top speed and deceleration. These can impact UPS and are removable at any time.
   Bugfixes:
     - Lithium chloride recipe restored and added to Lithium technology
     - EM train charger properly counts nearby tiles-Overlaps will double charge.

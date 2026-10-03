@@ -2782,28 +2782,6 @@
                                                  ]
                         },
                         {
-                            "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-distant-misfires-lua:prototype-integration",
-                            "category":  "prototype-integration",
-                            "phase":  "data-final-updates",
-                            "direction":  "bridge",
-                            "mod_names":  [
-                                              "distant-misfires"
-                                          ],
-                            "guard_mods":  [
-                                               "distant-misfires"
-                                           ],
-                            "source_files":  [
-                                                 "exotic-space-industries-remembrance\\scripts\\data-final-updates\\distant-misfires.lua"
-                                             ],
-                            "touchpoints":  [
-                                                "data.raw",
-                                                "mods"
-                                            ],
-                            "purpose":  "Data-stage compatibility touchpoints in distant-misfires",
-                            "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
-                        },
-                        {
                             "id":  "exotic-space-industries-remembrance-scripts-data-final-updates-death-explosions-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-final-updates",

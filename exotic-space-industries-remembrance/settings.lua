@@ -10,6 +10,8 @@ local container_capacity_config = require("lib/container-capacity-config")
 data:extend({container_capacity_config.startup_setting_definition()})
 data:extend({require("lib/thrower-performance-config").startup_setting_definition()})
 data:extend({require("lib/beacon-profile-config").startup_setting_definition()})
+data:extend(require("lib/pyric-radiance-config").startup_setting_definitions())
+data:extend(require("lib/ballistic-divergence-config").startup_setting_definitions())
 data:extend({
   {type="bool-setting", name="ei-admin-tools-enabled", setting_type="startup", default_value=false, order="zz-admin-a"},
   {type="bool-setting", name="ei-admin-new-planets-peaceful", setting_type="runtime-global", default_value=false, order="zz-admin-b"},

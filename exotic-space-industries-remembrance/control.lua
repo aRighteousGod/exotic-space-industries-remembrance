@@ -1572,6 +1572,9 @@ script.on_event(
     defines.events.on_player_respawned
   },
     function(event)
+        if event.name == defines.events.on_player_joined_game then
+            ei_compat.warn_combat_overlap(event.player_index)
+        end
         -- Route all player-entry paths through the pending queue so init, save-load joins,
         -- reconnects, cutscene exits, and respawns can share one character-ready arrival ritual.
         -- `on_player_joined_game` is the MP-safe load/reconnect path; avoid deriving gameplay
@@ -1609,6 +1612,7 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
     ei_echo_codex.queue_players(game.connected_players)
     ei_fueler.mark_players_dirty()
     for _, player in pairs(game.connected_players) do
+        ei_compat.warn_combat_overlap(player.index)
         em_trains_gui.on_player_ready(player.index)
         ei_auric_inoculation_vat.on_player_ready(player.index, _event)
         ei_surveyor_scope.on_player_ready(player.index)

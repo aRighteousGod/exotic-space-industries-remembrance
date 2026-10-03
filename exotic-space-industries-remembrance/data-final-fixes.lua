@@ -19,7 +19,6 @@ require("scripts/data-final-updates/set-menu-background")
 
 -- =======================================================================================
 require("scripts/data-final-updates/assembler-reskin")
-require("scripts/data-final-updates/distant-misfires")
 require("scripts/data-final-updates/camp-fire")
 require("scripts/data-final-updates/flare-stack")
 require("scripts/data-final-updates/final-tech-fixes")
@@ -210,6 +209,8 @@ end
 require("scripts/data-final-updates/tech-weight-badges")
 -- Resolve the shared fleet variants after all source-body compatibility passes.
 require("prototypes/spider-vehicles").finalize()
+-- Ballistic payload conversion precedes immediate spider launch observations.
+require("scripts/data-final-updates/ballistic-divergence")
 require("scripts/data-final-updates/spider-overkill")
 -- Storage sizing follows every ESIR compatibility and prototype creation pass.
 require("scripts/data-final-updates/container-capacities")
@@ -217,3 +218,5 @@ require("scripts/data-final-updates/flamethrower-fuels")
 require("scripts/data-final-updates/thrower-performance")
 require("scripts/data-final-updates/flamethrower-overlap")
 require("scripts/data-final-updates/beacon-profiles")
+-- Illuminate final fuel aliases and generated projectiles exactly once.
+require("scripts/data-final-updates/pyric-radiance")

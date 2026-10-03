@@ -13,6 +13,8 @@
 -- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local beacon_profile_config = require("lib/beacon-profile-config")
+local pyric_radiance_config = require("lib/pyric-radiance-config")
+local ballistic_divergence_config = require("lib/ballistic-divergence-config")
 local model = {}
 
 local function add_centered_sprite_row(element, sprites)
@@ -259,6 +261,8 @@ function model.menu(player_index)
             rocket_ammo_schema = 1,
             flammable_ruptures = 1,
             turrets = 1,
+            pyric_radiance = 1,
+            ballistic_divergence = 1,
             singularity_lance = 1,
             emerald_apocalypse_hover_tank = 1,
         },
@@ -386,6 +390,27 @@ function model.overall(player_index, element)
 
     element.add{type = "label", caption = {"exotic-industries-informatron.biters"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.biters-text"}}
+end
+
+---@param element LuaGuiElement
+---@param id string
+---@param config table
+local function add_combat_doctrine_page(element, id, config)
+    element.add{type="label",caption={"exotic-industries-informatron."..id},style="heading_1_label"}
+    add_wrapped_label(element, {"exotic-industries-informatron."..id.."-text"}, 920)
+    add_wrapped_label(element, {"combat-doctrines.selected",
+        {"string-mod-setting."..config.setting_name.."-"..config.resolve().visual_fidelity},
+        {config.enabled() and "combat-doctrines.on" or "combat-doctrines.off"}}, 920)
+    for _, name in ipairs(config.allowed_values) do add_wrapped_label(element, config.describe(name), 920) end
+    add_wrapped_label(element, {"combat-doctrines.credit"}, 920)
+end
+
+function model.pyric_radiance(player_index, element)
+    add_combat_doctrine_page(element, "pyric-radiance", pyric_radiance_config)
+end
+
+function model.ballistic_divergence(player_index, element)
+    add_combat_doctrine_page(element, "ballistic-divergence", ballistic_divergence_config)
 end
 
 function model.ages_and_tech(player_index, element)

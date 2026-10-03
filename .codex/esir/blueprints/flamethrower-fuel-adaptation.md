@@ -13,6 +13,9 @@
 
 ## Ownership and behavior
 
+[Pyric Radiance](combat-doctrines.md#thermal) runs after final fuel/performance
+aliases and preserves their accepted flame palettes and mechanical fields.
+
 The shared catalog owns fuel identities, native damage/lifetime parameters, hidden turret names, ammunition unlocks, and exact weapon-fire/sticker sets. Runtime selects the matching native turret prototype from the actual fuel and performs a guarded replacement. It does not synthesize firing or damage. The private firing buffer takes precedence over connected supply fluid, and an empty buffer/supply retains the current appearance.
 
 `storage.ei.flamethrower_fuels` owns stable records, current unit and destruction-registration maps, scan/replacement queues, retry buckets, and counters. Stable record identity survives prototype replacement. A transaction flag prevents the module from treating its own temporary entities as independent builds/removals.

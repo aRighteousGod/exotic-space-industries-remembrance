@@ -63,6 +63,10 @@ New-save initialization creates shared storage before feature rebuilds, then syn
 
 `on_load` currently invokes only the Tesla module's local-load hook. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
 
+Optional [combat overlap warnings](combat-doctrines.md#overlap) share this dispatcher.
+Only multiplayer join and connected-player singleplayer init call the compatibility
+warning receiver; creation, respawn and cutscene events keep their existing routes.
+
 `storage.ei.scripted_research_burst` owns `pending_by_force`, `due_buckets`, and `next_due_tick`. `queue_scripted_research_burst` coalesces scripted completions per force until after the latest source tick. Old bucket entries may remain, so flushing deduplicates force IDs and validates the live pending entry. Normal research flushes that force's pending burst first. Burst consumers refresh force-derived state; they must not assume one representative technology describes the whole batch.
 
 Shared registries are paired: fluid insertion/removal adjusts membership and counts; master/slave setup and teardown maintain both directions and destroy owned helpers where requested. Serialized LuaEntity references need renewed validity checks at consumption. Do not revive dormant beacon scaffolding simply because generic registry support exists.

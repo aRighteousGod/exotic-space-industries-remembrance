@@ -1,9 +1,9 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: compatibility init and configuration checks
+-- owns: compatibility init/configuration checks and combat overlap load warnings
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: init and configuration-changed
--- forwarded_events: check_init, nth_tick
+-- cadence: init, configuration-changed and player load-entry events
+-- forwarded_events: check_init, nth_tick, warn_combat_overlap
 -- storage_roots: storage.gaia_surfaces
 -- gui_ids: none
 -- remote_interfaces: exotic-industries
@@ -11,6 +11,24 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local model = {}
+local combat_dependencies = require("lib/combat-doctrines-dependencies")
+local pyric_radiance = require("lib/pyric-radiance-config")
+local ballistic_divergence = require("lib/ballistic-divergence-config")
+
+-- blueprint-ref: .codex/esir/blueprints/combat-doctrines.md#overlap
+-- Native player-entry hooks cover SP loads and MP joins without on_load access,
+-- persistent warning state, respawn repetition or a polling surface.
+---@param player_index integer
+function model.warn_combat_overlap(player_index)
+    local player = game.get_player(player_index)
+    if not player or not player.valid or not player.connected then return end
+    if pyric_radiance.enabled() and script.active_mods[combat_dependencies.pyric_radiance] then
+        player.print({"combat-doctrines.overlap-warning", {"exotic-industries-informatron.pyric-radiance"}})
+    end
+    if ballistic_divergence.enabled() and script.active_mods[combat_dependencies.ballistic_divergence] then
+        player.print({"combat-doctrines.overlap-warning", {"exotic-industries-informatron.ballistic-divergence"}})
+    end
+end
 
 --====================================================================================================
 --MOD COMPATIBILITY
