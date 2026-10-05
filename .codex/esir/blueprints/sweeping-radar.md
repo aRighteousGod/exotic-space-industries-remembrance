@@ -95,6 +95,8 @@ Render references survive ordinary saves. Destruction/upgrades tear them down; i
 <a id="verification"></a>
 ## Verification and maintenance
 
+Updater status records pass their supplied callback tick to the shared scheduler; observation fallback does not reread the clock in this path. Gameplay lanes, caps, fairness and visual cadence are unchanged.
+
 Reuse `scripts/invoke-sweeping-radar-qc.ps1` and its README, acceptance, quality, energy-migration, persistence and fairness fixtures. Test held-high triggers, pause after payment, generation timeout, exact per-stage caps, deadline cancellation, many radars rejoining fairness lists, report truncation/expiry, blueprint/upgrade energy, ordinary reload and interrupted GUI opens. The quality matrix covers both chassis, native and modded qualities, no/capacity-only/all research, native standby, starvation/recovery and Watch geometry beyond 32 chunks. The generic event-tick fixture explicitly does not target this radar. Operation caps are not wall-time guarantees; the Heavy/Balanced update does not introduce a new performance claim. Results and validation limits live in the QC documentation.
 
 <a id="gui-refresh-cost"></a>

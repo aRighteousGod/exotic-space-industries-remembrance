@@ -389,7 +389,6 @@ local function queue_scripted_research_burst(event)
 
     if entry.tesla_variant_sync_needed ~= true
         and research
-        and ei_teslas_legacy.is_variant_sync_research
         and ei_teslas_legacy.is_variant_sync_research(research.name)
     then
         entry.tesla_variant_sync_needed = true
@@ -432,34 +431,22 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
         return true
     end
 
-    if ei_tech_scaling.on_scripted_research_burst then
-        ei_tech_scaling.on_scripted_research_burst(force)
-    end
-    if ei_teslas_legacy.on_scripted_research_burst then
-        ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
-    end
+    -- Required module exports are called directly; capability probing belongs to
+    -- optional integrations and the heterogeneous diagnostic collector below.
+    ei_tech_scaling.on_scripted_research_burst(force)
+    ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
     ei_spider_vehicles.on_scripted_research_burst(force, entry.spider_vehicle_sync_needed == true)
     ei_flamethrower_fuels.sync_force(force)
-    if ei_singularity_lance.on_scripted_research_burst then
-        ei_singularity_lance.on_scripted_research_burst(force, current_tick)
-    end
+    ei_singularity_lance.on_scripted_research_burst(force, current_tick)
     ei_sweeping_radar.on_scripted_research_burst(force, current_tick)
-    if ei_informatron_messager.on_scripted_research_burst then
-        ei_informatron_messager.on_scripted_research_burst(force)
+    ei_informatron_messager.on_scripted_research_burst(force)
+    local em_train_buffs_changed = em_trains.on_scripted_research_burst(force) == true
+    if em_train_buffs_changed
+    or em_trains_gui.force_has_access(force) then
+        em_trains_gui.mark_dirty()
     end
-    if em_trains.on_scripted_research_burst then
-        local em_train_buffs_changed = em_trains.on_scripted_research_burst(force) == true
-        if em_train_buffs_changed
-        or (em_trains_gui.force_has_access and em_trains_gui.force_has_access(force)) then
-            em_trains_gui.mark_dirty()
-        end
-    end
-    if ei_nauvis_pressure_grace.on_scripted_research_burst then
-        ei_nauvis_pressure_grace.on_scripted_research_burst(force, current_tick)
-    end
-    if ei_emerald_apocalypse_hover_tank.on_scripted_research_burst then
-        ei_emerald_apocalypse_hover_tank.on_scripted_research_burst(force, current_tick)
-    end
+    ei_nauvis_pressure_grace.on_scripted_research_burst(force, current_tick)
+    ei_emerald_apocalypse_hover_tank.on_scripted_research_burst(force, current_tick)
 
     return true
 end
@@ -561,7 +548,7 @@ local function refresh_runtime_telemetry_snapshot(current_tick)
         end
     end
 
-    ei_runtime_scheduler.write_telemetry("runtime-heartbeat", ei_runtime_scheduler.status_snapshot())
+    ei_runtime_scheduler.write_telemetry("runtime-heartbeat", ei_runtime_scheduler.status_snapshot(nil, current_tick), false, current_tick)
 end
 
 --====================================================================================================
@@ -853,9 +840,7 @@ if defines.events.on_pre_surface_deleted then
     script.on_event(defines.events.on_pre_surface_deleted, function(e)
         ei_singularity_lance.on_surface_deleted(e)
         ei_water_turret.on_surface_deleted(e)
-        if ei_auric_inoculation_vat.on_pre_surface_deleted then
-            ei_auric_inoculation_vat.on_pre_surface_deleted(e)
-        end
+        ei_auric_inoculation_vat.on_pre_surface_deleted(e)
     end)
 end
 
@@ -863,9 +848,7 @@ if defines.events.on_pre_surface_cleared then
     script.on_event(defines.events.on_pre_surface_cleared, function(e)
         ei_singularity_lance.on_surface_deleted(e)
         ei_water_turret.on_surface_deleted(e)
-        if ei_auric_inoculation_vat.on_pre_surface_deleted then
-            ei_auric_inoculation_vat.on_pre_surface_deleted(e)
-        end
+        ei_auric_inoculation_vat.on_pre_surface_deleted(e)
     end)
 end
 
@@ -914,9 +897,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
     -- with a tool/selector and need to clean up when the cursor changes.
     ei_matter_stabilizer.on_player_cursor_stack_changed(e)
     ei_gate.on_player_cursor_stack_changed(e)
-    if ei_auric_inoculation_vat.on_player_cursor_stack_changed then
-        ei_auric_inoculation_vat.on_player_cursor_stack_changed(e)
-    end
+    ei_auric_inoculation_vat.on_player_cursor_stack_changed(e)
 end)
 
 if defines.events.on_player_gun_inventory_changed then
@@ -926,28 +907,18 @@ if defines.events.on_player_gun_inventory_changed then
 end
 
 script.on_event(defines.events.on_player_changed_position, function(e)
-    if ei_auric_inoculation_vat.on_player_changed_position
-    and (
-        not ei_auric_inoculation_vat.has_active_placement_guide
-        or ei_auric_inoculation_vat.has_active_placement_guide(e.player_index)
-    ) then
+    if ei_auric_inoculation_vat.has_active_placement_guide(e.player_index) then
         ei_auric_inoculation_vat.on_player_changed_position(e)
     end
 end)
 
 script.on_event(defines.events.on_player_changed_surface, function(e)
     ei_admin_tools.on_player_event(e)
-    if ei_auric_inoculation_vat.on_player_changed_surface then
-        ei_auric_inoculation_vat.on_player_changed_surface(e)
-    end
+    ei_auric_inoculation_vat.on_player_changed_surface(e)
 end)
 
 script.on_event(defines.events.on_player_toggled_alt_mode, function(e)
-    if ei_auric_inoculation_vat.on_player_toggled_alt_mode
-    and (
-        not ei_auric_inoculation_vat.has_active_placement_guide
-        or ei_auric_inoculation_vat.has_active_placement_guide(e.player_index)
-    ) then
+    if ei_auric_inoculation_vat.has_active_placement_guide(e.player_index) then
         ei_auric_inoculation_vat.on_player_toggled_alt_mode(e)
     end
 end)
@@ -1134,7 +1105,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
     end
     ei_crystal_accumulator.on_gui_opened(event)
     if name == "ei-auric-inoculation-vat"
-    or (ei_auric_inoculation_vat.has_open_gui_session and ei_auric_inoculation_vat.has_open_gui_session(event.player_index)) then
+    or ei_auric_inoculation_vat.has_open_gui_session(event.player_index) then
         ei_auric_inoculation_vat.on_gui_opened(event)
     end
 
@@ -1166,9 +1137,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
     elseif name == "ei-fueler" then
         ei_fueler.open_gui(player)
     elseif name == "ei-exotic-assembler" then
-        if ei_matter_stabilizer and ei_matter_stabilizer.open_gui then
-            ei_matter_stabilizer.open_gui(player --[[@as LuaPlayer]], event)
-        end
+        ei_matter_stabilizer.open_gui(player --[[@as LuaPlayer]], event)
     end
 end)
 
@@ -1197,7 +1166,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
     ei_crystal_accumulator.on_gui_closed(event)
     if name == "ei-auric-inoculation-vat"
     or element_name == "ei-auric-inoculation-vat-console"
-    or (ei_auric_inoculation_vat.has_open_gui_session and ei_auric_inoculation_vat.has_open_gui_session(event.player_index)) then
+    or ei_auric_inoculation_vat.has_open_gui_session(event.player_index) then
         ei_auric_inoculation_vat.on_gui_closed(event)
     end
 
@@ -1232,9 +1201,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
     elseif name == "ei-fueler" then
         ei_fueler.close_gui(game.get_player(event.player_index))
     elseif name == "ei-exotic-assembler" or element_name == "ei-exotic-assembler-console" then
-        if ei_matter_stabilizer and ei_matter_stabilizer.close_gui then
-            ei_matter_stabilizer.close_gui(game.get_player(event.player_index))
-        end
+        ei_matter_stabilizer.close_gui(game.get_player(event.player_index))
     end
 end)
 
@@ -1275,9 +1242,7 @@ script.on_event(defines.events.on_gui_click, function(event)
     elseif parent_gui == "ei-fueler-console" then
         ei_fueler.on_gui_click(event)
     elseif parent_gui == "ei-exotic-assembler-console" then
-        if ei_matter_stabilizer and ei_matter_stabilizer.on_gui_click then
-            ei_matter_stabilizer.on_gui_click(event)
-        end
+        ei_matter_stabilizer.on_gui_click(event)
     elseif parent_gui == "ei-crystal-accumulator-console" then
         ei_crystal_accumulator.on_gui_click(event)
     elseif parent_gui == "ei-crystal-accumulator-strip" then

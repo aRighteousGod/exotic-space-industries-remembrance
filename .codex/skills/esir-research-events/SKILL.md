@@ -5,6 +5,8 @@ description: "Use when adding, refactoring, auditing, or testing ESIR runtime co
 
 # ESIR Research Events
 
+Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for required calls and force/hint/tick contracts. Keep diagnostic capabilities distinct from required research fan-out.
+
 Use this skill before changing research-aware runtime code. ESIR has a deliberate UPS saver for `event.by_script` research floods, so normal research handling and scripted burst handling must be designed together.
 
 ## Dispatch Model

@@ -28,6 +28,8 @@ The Lua baseline should be checked against the official Libraries and functions 
 
 ## Default Stance
 
+Apply [runtime development standards](../esir-dev/references/runtime-development-standards.md) after establishing Factorio semantics; ordinary module dot calls, intentional self methods and engine API calls are distinct.
+
 - Do not assume standard Lua libraries exist.
 - Do not assume top-level module state persists through save/load.
 - Do not move values between startup/data and runtime by plain Lua variables.

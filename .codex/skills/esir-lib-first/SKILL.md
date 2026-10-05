@@ -11,6 +11,8 @@ Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-i
 
 ## Working Rules
 
+- Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for UPS defaults and module calls. Compare mutation, allocation, stage and ordering semantics; preserve specialized read-only probes when initializing shared helpers do not fit.
+
 - Before substantively changing shared behavior, read and update its owner model through [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md).
 - `ei_lib.get_event_tick` normalizes a supplied number/event tick and otherwise returns zero; it never reads `game.tick`. Follow the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source) instead of treating this helper as a clock or inventing another local wrapper.
 - Reuse an existing `ei_lib` function when it already covers the need.

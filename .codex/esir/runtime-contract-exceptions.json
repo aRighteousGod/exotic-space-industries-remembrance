@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "exceptions": [
+    {
+      "file": "exotic-space-industries-remembrance/lib/handle-wheels.lua",
+      "rule": "signature",
+      "symbol": "apply_wheels",
+      "expected": {
+        "parameters": [
+          "locomotive"
+        ],
+        "form": ":"
+      },
+      "reason": "Intentional self-based wheel helper; steam-train uses colon calls."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/lib/handle-wheels.lua",
+      "rule": "signature",
+      "symbol": "get_height_mode",
+      "expected": {
+        "parameters": [
+          "locomotive"
+        ],
+        "form": ":"
+      },
+      "reason": "Intentional self-based wheel helper."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/lib/handle-wheels.lua",
+      "rule": "signature",
+      "symbol": "update_wheel_position",
+      "expected": {
+        "parameters": [
+          "locomotive",
+          "wheels",
+          "height_mode",
+          "previous_height_mode"
+        ],
+        "form": ":"
+      },
+      "reason": "Intentional self-based wheel helper and internal self calls."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/lib/camera-window.lua",
+      "rule": "signature",
+      "symbol": "has_tick_work",
+      "expected": {
+        "parameters": [
+          "tick"
+        ],
+        "form": "."
+      },
+      "reason": "Clock-only due guard."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/lib/camera-window.lua",
+      "rule": "signature",
+      "symbol": "updater",
+      "expected": {
+        "parameters": [
+          "tick"
+        ],
+        "form": "."
+      },
+      "reason": "Clock-only shared camera service."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/admin-tools.lua",
+      "rule": "signature",
+      "symbol": "has_tick_work",
+      "expected": {
+        "parameters": [
+          "tick"
+        ],
+        "form": "."
+      },
+      "reason": "Clock-only predicate paired with an event updater."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/sweeping-radar.lua",
+      "rule": "signature",
+      "symbol": "has_tick_work",
+      "expected": {
+        "parameters": [],
+        "form": "."
+      },
+      "reason": "Pure population guard needs no event."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/sweeping-radar-gui.lua",
+      "rule": "signature",
+      "symbol": "has_tick_work",
+      "expected": {
+        "parameters": [],
+        "form": "."
+      },
+      "reason": "Population/session guard needs no event."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/water-turret.lua",
+      "rule": "signature",
+      "symbol": "updater",
+      "expected": {
+        "parameters": [
+          "event"
+        ],
+        "form": "."
+      },
+      "reason": "Inline cheap idle and exact-deadline guard; no duplicate external predicate."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/auric-inoculation-vat.lua",
+      "rule": "signature",
+      "symbol": "updater",
+      "expected": {
+        "parameters": [
+          "limit",
+          "event"
+        ],
+        "form": "."
+      },
+      "reason": "Existing budget-first bounded service."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/flamethrower-fuels.lua",
+      "rule": "signature",
+      "symbol": "updater",
+      "expected": {
+        "parameters": [
+          "event",
+          "service_interval"
+        ],
+        "form": "."
+      },
+      "reason": "Existing service interval controls overdue catch-up; preserve argument order."
+    },
+    {
+      "file": "exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua",
+      "rule": "signature",
+      "symbol": "updater",
+      "expected": {
+        "parameters": [],
+        "form": "."
+      },
+      "reason": "Dirty-driven GUI service has no clock argument."
+    }
+  ]
+}

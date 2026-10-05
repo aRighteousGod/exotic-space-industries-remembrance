@@ -21,7 +21,7 @@ Prefer pure event wiring when a module can fully respond to discrete lifecycle c
 
 ## Nonstandard Beacons pattern
 
-The best local reference for this pattern is the current dependency copy of `zzz-nonstandard-beacons` under `output/tesla-run-mods` or the Factorio mods directory. Treat that dependency copy as an external pattern reference, not as ESIR source of truth.
+Prefer the current ESIR examples below and [runtime development standards](runtime-development-standards.md). A locally installed `zzz-nonstandard-beacons` copy may be an optional external pattern reference; ignored output copies are not preferred implementation templates or ESIR authority.
 
 What to copy from it:
 

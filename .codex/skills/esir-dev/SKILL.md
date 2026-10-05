@@ -261,6 +261,8 @@ For deeper runtime GUI creation, style standardization, and read-only audits, us
 
 ## Event-First Runtime Design
 
+Use [runtime development standards](references/runtime-development-standards.md) as the common UPS and module-call contract. Preserve event, entity, budget-first and clock-only families; call required exports directly and retain optional/diagnostic capability checks. Preflight returns the structural audit in `advisory_checks` without changing pass/fail even under `-Strict`.
+
 Use this when designing or refactoring low-UPS runtime control. The default question is not "what cadence should this run on?" but "what exact state transitions actually matter?"
 
 See [references/event-first-runtime.md](./references/event-first-runtime.md) before adding new scheduler work or reviving old master/slave runtime patterns.
@@ -284,13 +286,14 @@ See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-
 - When a callback supplies `event.tick`, pass it through timing-dependent calls, including status/GUI helpers that do not themselves accept an event object. Do not reread `game.tick` inside that chain.
 - Resolve `game.tick` once at a game-available entry boundary lacking a supplied tick, such as init, configuration change, migration, command, or remote calls. Configuration-change data has no tick. Never read `game.tick` in top-level loading or `on_load`; see the canonical [tick-source contract](references/runtime-scheduler-guidelines.md#tick-source).
 - Do not add duplicate local tick helpers, queue-length helpers, delayed-bucket walkers, telemetry gates, or status-snapshot plumbing if `runtime-scheduler.lua` already covers the need.
-- Prefer `ensure_queue`, `queue_peek`, `queue_push`, `queue_push_unique`, `queue_pop`, `queue_pop_matching`, `queue_pop_queued`, `queue_remove_value`, `clear_queue`, `queue_length`, `queue_item_count`, `audit_queue`, and `compact_queue` over ad hoc `head/tail/items` logic.
+- Prefer `ensure_queue`, `queue_peek`, `queue_peek_last`, `queue_push`, `queue_push_unique`, `queue_pop`, `queue_pop_matching`, `queue_pop_queued`, `queue_remove_value`, `clear_queue`, `queue_length`, `queue_item_count`, `audit_queue`, and `compact_queue` over ad hoc `head/tail/items` logic. Sparse tail walks belong in repair; hot admission should cache tails. Initializing shared queries do not replace deliberately read-only probes.
 - If a module intentionally leaves tombstoned values in `queue.items` and treats `queue.queued` as the live-set, do not swap in plain `queue_pop` blindly. Prefer `queue_pop_queued` or another compatible shared helper.
 - If a module keeps queue liveness in module-owned state instead of `queue.queued`, prefer `queue_pop_matching` or another compatible shared helper over reviving a private dequeue loop.
-- Prefer `ensure_delayed_buckets`, `delayed_schedule`, `delayed_take_due`, `delayed_bucket_count`, and `delayed_item_count` over bespoke delayed-tick tables.
+- Prefer `ensure_delayed_buckets`, `delayed_schedule`, `delayed_take_due`, `delayed_take_due_through`, `delayed_next_due_tick`, `delayed_bucket_count`, and `delayed_item_count` over bespoke delayed-tick tables. Exact and overdue catch-up drains differ; cached deadlines must track insertion, draining and lifecycle repair.
 - Keep `control.lua` as the only top-level dispatcher. Modules should own their local queues and cadence decisions, but should not grow parallel top-level scheduling surfaces.
 - If a runtime module exports counters, status, or debug data, prefer `ensure_module_state`, `bump_counter`, `set_module_status`, `get_module_status`, `status_snapshot`, and the shared `/ei_runtime_status` flow instead of inventing a second telemetry channel.
 - Heartbeat telemetry is default-off for release. Any periodic status polling must be gated so disabled telemetry is truly cheap.
+- Pass callback ticks as optional final arguments to scheduler counters, status, snapshots, telemetry and logging. Omission preserves legacy clock fallback. `telemetry_enabled()` initializes scheduler state and is not a read-only probe.
 - Use `write_telemetry` only behind a cheap gate, and keep `log_snapshot` for deliberate debug/QC paths rather than routine tick work.
 - A new helper should only be added when `runtime-scheduler.lua` cannot express the behavior cleanly. Duplicating tick code or queue code is a design smell in this repo now.
 - `runtime-scheduler.lua` stays entity-agnostic. If queued or delayed work carries `LuaEntity` payloads, modules must validate those payloads on dequeue, not just when they are enqueued.

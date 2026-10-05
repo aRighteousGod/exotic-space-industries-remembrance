@@ -36,7 +36,7 @@ flowchart LR
 <a id="tick-flow"></a>
 ## Tick flow
 
-Queue and bucket operations use caller-supplied values and ticks. The feature should pass its callback's `event.tick` rather than obtain a second clock value. The current observational APIs—`bump_counter`, `set_module_status`, `status_snapshot`, and `write_telemetry`—stamp records with private `now_tick()`, which reads `game.tick` when available. They currently expose no tick parameter. This is an existing interface limitation, not an instruction to add more hidden clock reads.
+Queue and bucket operations use caller-supplied values and ticks. Pass the callback tick through observation APIs too: `bump_counter`, `set_module_status`, `status_snapshot`, `write_telemetry`, and `log_snapshot` accept an optional trailing numeric tick. Supplied zero is valid and bypasses clock access. Omission preserves the legacy `game.tick` or zero fallback. `log_snapshot` resolves one tick for both nested snapshot and telemetry; existing unticked callers remain compatibility debt, not a precedent for new event callers. No state schema or migration changes.
 
 <a id="lifecycle"></a>
 ## Lifecycle and failure boundaries
@@ -45,11 +45,11 @@ Queue and bucket operations use caller-supplied values and ticks. The feature sh
 
 Queues are payload-agnostic. They do not validate LuaEntity handles, remove helper entities, enforce a feature's fairness policy, or bound total backlog. Those obligations remain with the caller. `clear_queue` resets queue state; feature teardown must separately release domain objects and registrations.
 
-`write_telemetry` ordinarily requires the enable flag; explicit forced snapshots may bypass it. `log_snapshot` is an intentional diagnostic operation. Do not add a periodic writer merely because the helper exists.
+`write_telemetry` ordinarily requires the enable flag; explicit forced snapshots may bypass it. Disabled writes return before clock lookup, encoding and I/O but still normalize the scheduler root. `telemetry_enabled()` is also initializing, not a pure state peek. `log_snapshot` is an intentional diagnostic operation. Do not add a periodic writer merely because the helper exists.
 
 <a id="verification"></a>
 ## Verification and limits
 
 The [scheduler guidance](../../skills/esir-dev/references/runtime-scheduler-guidelines.md) defines reuse policy; keep it synchronized with interface changes. The [control queue lifecycle fixture](../../../scripts/qc/control-ups/queue-save.lua) and [lifecycle checker](../../../scripts/qc/control-ups/check-lifecycle.py) supply regression entrypoints.
 
-Verify sparse queues, unique-key cleanup, stale membership rejection, stable compaction order, exact versus overdue buckets, empty due minima, save/load continuation, and disabled telemetry. Source inspection establishes these contracts; no new engine run or standalone helper test result is asserted here.
+Verify sparse queues, unique-key cleanup, stale membership rejection, stable compaction order, exact versus overdue buckets, empty due minima, save/load continuation, and disabled telemetry. The [runtime contract fixture](../../../scripts/qc/runtime-contracts/README.md) additionally checks explicit and legacy timestamps, consistent nested logging, return identity and disabled encoding/I/O in the installed engine. Timestamp acceptance does not establish queue/save parity or a UPS gain.

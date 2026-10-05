@@ -29,6 +29,7 @@
 - Use [esir-conceptual-blueprints](.codex/skills/esir-conceptual-blueprints/SKILL.md) before adding systems or substantively changing behavior, lifecycle, state ownership, scheduling, or cross-file/stage contracts. Read the relevant model in [the blueprint index](.codex/esir/blueprints/index.md), then reconcile the model, source commentary, and code in the same patch. Small wording, formatting, and cosmetic edits do not require a new model.
 
 ## Runtime And Control
+- Follow [runtime development standards](.codex/skills/esir-dev/references/runtime-development-standards.md) for UPS defaults, explicit module-call families, required exports, idle-path exceptions, and evidence. Preflight's runtime contract audit is advisory even under `-Strict`.
 - Default new runtime work to event-first control. Start from exact lifecycle hooks before adding `on_tick`, `on_nth_tick`, queues, or periodic scans.
 - Keep `control.lua` as the only top-level dispatcher. Feature modules may own local state and cadence, but should not create parallel scheduling surfaces.
 - When a callback supplies `event.tick`, pass it through every timing-dependent call chain. A helper without an event parameter still has event context when its caller can supply the tick. Read `game.tick` once only at a game-available boundary without a supplied tick; never during top-level loading or `on_load`. Follow the [tick-source contract](.codex/skills/esir-dev/references/runtime-scheduler-guidelines.md#tick-source), including unticked configuration-change payloads and valid tick zero.

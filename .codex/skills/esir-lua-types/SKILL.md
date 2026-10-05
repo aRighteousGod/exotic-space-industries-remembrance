@@ -43,6 +43,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task pre
 
 ## Working Rules
 
+- Type the families in [runtime development standards](../esir-dev/references/runtime-development-standards.md), including budgets, numeric ticks, entity adapters and returns; do not infer native event inputs from `on_*` names alone.
+
 - When signatures or state shapes change a substantive system contract, update the owner model through [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md). Type explicit tick arguments without losing their event origin; follow the [tick-source contract](../esir-dev/references/runtime-scheduler-guidelines.md#tick-source).
 - Match existing Factorio LuaLS style: `---@param name Type description`, `---@return Type|nil`, and narrow `---@class` records placed near the data they describe.
 - For runtime modules, annotate persistent `storage` shapes, module-owned state tables, and exported handler signatures before adding scattered local annotations.

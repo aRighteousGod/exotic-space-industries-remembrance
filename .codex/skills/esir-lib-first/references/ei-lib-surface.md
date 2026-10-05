@@ -24,6 +24,10 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
   `endswith`, `startswith`, `contains`, `is_valid_number`, `clean_nils`, `copy_array`, `copy_preset`, `clamp`, `clamp_number`, `clamp_integer`, `unique_values_only`, `table_contains_value`, `patch_nested_value`, `get_random_different_value`, `table_to_string`, `switch_string`, `get_event_tick`, `config`, `getn`
 - Runtime entity safety:
   `entity_check`, `get_valid_entity`, `get_entity_unit_number`, `get_normalized_quality_factor`
+- Runtime count and spatial utility:
+  `count_sequence`, `get_surface_index`, `get_chunk_coordinate`, `get_chunk_coordinates`, `get_chunk_coverage`, `is_within_range_squared`
+- Item/quality/stack adapters:
+  `get_item_prototypes`, `get_quality_prototypes`, `get_quality_level_bounds`, `try_get_stack_field`, `copy_localised_string`, `get_quality_name`, `make_item_with_quality_id`, `make_item_stack_definition`, `entity_can_take_health_damage`
 - Prototype and raw access:
   `modify_data_raw`, `raw`, `recursive_copy`, `recursive_insert`, `set_properties`, `set_custom_tooltip_fields`
 - Localization and prototype text:
@@ -38,7 +42,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 ## House Notes
 
 - `startswith` and `starts_with` already both exist. Do not add a third spelling.
-- `lerp_color` and `rgb_to_hex` are each defined twice later in the file. If you touch them, update carefully and confirm which definition wins.
+- Follow [runtime development standards](../../esir-dev/references/runtime-development-standards.md) before consolidating hot helpers: mutation, allocation, stage and ordering semantics must match. Current `lerp_color` and `rgb_to_hex` each have one definition.
 - Prefer `ei_lib.raw` or `ei_lib.modify_data_raw` before open-coded `data.raw` mutation when the operation is a shared mutation pattern rather than a one-off prototype tweak.
 - Prefer `ei_lib.set_custom_tooltip_fields(prototype, fields, opts)` before direct `prototype.custom_tooltip_fields = ...`; pass `opts.append = true` when adding a section to a prototype that may already have tooltip rows.
 - For scripted weapon/turret/vehicle readouts, pair prototype `custom_tooltip_fields` with runtime `entity.custom_status` only after `ei_lib.entity_check`; see [combat-readout-pattern.md](./combat-readout-pattern.md).

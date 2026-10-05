@@ -4,6 +4,8 @@ Use this when editing queued runtime modules under `exotic-space-industries-reme
 
 ## First Principles
 
+- Follow [runtime development standards](runtime-development-standards.md) for cheap admission, explicit module-call families, semantic helper reuse and performance evidence.
+
 - `control.lua` remains the single top-level dispatcher.
 - `lib/runtime-scheduler.lua` is the shared helper spine for queue math, delayed buckets, counters, status snapshots, and gated telemetry.
 - Feature modules own their local state and semantics, but should not duplicate generic scheduler plumbing that the shared library already provides.
@@ -66,12 +68,22 @@ Prefer these delayed-bucket helpers before inventing local delayed tick tables:
 - `ensure_delayed_buckets`
 - `delayed_schedule`
 - `delayed_take_due`
+- `delayed_take_due_through`
+- `delayed_next_due_tick`
 - `delayed_bucket_count`
 - `delayed_item_count`
+
+`delayed_take_due` consumes the exact bucket. `delayed_take_due_through` drains overdue buckets in due-tick then insertion order for services that may skip ticks. Do not substitute one for the other without preserving catch-up policy.
+
+`delayed_next_due_tick` returns the earliest nonempty bucket or false for known emptiness. Cached minima must be lowered on insertion, recomputed after draining and invalidated/rebuilt during lifecycle repair; nil/uninitialized and false/empty are different states.
 
 If a module still carries a legacy flat queue, migrate it into delayed buckets and keep the compatibility drain clearly temporary.
 
 ## Status And Telemetry
+
+- `bump_counter(module, counter, delta, current_tick)`, `set_module_status(module, status, current_tick)`, `status_snapshot(extra, current_tick)`, `write_telemetry(tag, payload, force, current_tick)` and `log_snapshot(tag, extra, current_tick)` accept optional trailing numeric ticks. Supplied zero is valid; omitted ticks retain legacy game-available fallback. Logging resolves one tick for its nested snapshot and write.
+- `telemetry_enabled()` and status getters still normalize/create shared state. They are not pure hot-path peeks. Disabled telemetry avoids payload encoding and I/O; gate collection before building payloads.
+- `queue_length` is index span; `queue_item_count` scans non-nil entries and initializes queue shape. Neither silently replaces the other's budget semantics or a non-initializing local probe.
 
 - Use `ensure_module_state` and `bump_counter` for module-level counters or QC bookkeeping.
 - Use `set_module_status` for shared runtime status.

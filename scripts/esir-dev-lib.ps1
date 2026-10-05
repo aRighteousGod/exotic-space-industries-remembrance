@@ -2643,6 +2643,35 @@ function Test-EsirConceptualBlueprints {
     }
 }
 
+function Test-EsirRuntimeContractAdvice {
+    param(
+        [Parameter(Mandatory = $true)]$Paths,
+        [Parameter(Mandatory = $true)]$Context
+    )
+
+    $auditPath = Join-Path $Paths.repo_root '.codex\skills\esir-dev\scripts\runtime_contract_audit.py'
+    $result = [ordered]@{ name = 'runtime-contracts'; blocking = $false; run_status = 'unavailable'; error = $null; details = $null }
+    if (-not $Context.python_exe -or -not (Test-Path -LiteralPath $auditPath)) {
+        $result.error = 'Runtime contract advisory unavailable: Python or auditor is missing.'
+        return $result
+    }
+
+    try {
+        $auditOutput = @(& $Context.python_exe -B $auditPath --repo-root $Paths.repo_root --format json 2>&1 | ForEach-Object { "$_" })
+        $auditExitCode = $LASTEXITCODE
+        if ($auditExitCode -ne 0) { throw "Auditor exited $auditExitCode`: $($auditOutput -join [Environment]::NewLine)" }
+        $audit = ($auditOutput -join "`n") | ConvertFrom-Json
+        if ($null -eq $audit -or $audit.run_status -ne 'ok' -or $audit.blocking -ne $false -or $null -eq $audit.findings) {
+            throw 'Auditor returned an invalid advisory report.'
+        }
+        $result.run_status = 'ok'
+        $result.details = $audit
+    } catch {
+        $result.error = "Runtime contract advisory unavailable: $($_.Exception.Message)"
+    }
+    return $result
+}
+
 function Invoke-EsirPreflight {
     param(
         [Parameter(Mandatory = $true)]$Paths,
@@ -2686,10 +2715,13 @@ function Invoke-EsirPreflight {
     $headerFindings = Test-EsirHeaderPresence -Paths $Paths
     $checks += New-EsirCheckResult -Name 'module-headers' -Status $(if (@($headerFindings).Count -gt 0) { 'warning' } else { 'ok' }) -Warnings @($headerFindings | ForEach-Object { '{0}: missing {1}' -f $_.file, ($_.missing -join ', ') }) -Details $headerFindings
 
+    # Advisory findings and tooling failures stay outside $checks, including Strict.
+    $advisoryChecks = @(Test-EsirRuntimeContractAdvice -Paths $Paths -Context $context)
     return [ordered]@{
         task           = 'preflight'
         overall_status = Get-EsirOverallStatus -Checks $checks -Strict:$Strict
         checks         = $checks
+        advisory_checks = $advisoryChecks
     }
 }
 

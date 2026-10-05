@@ -44,7 +44,7 @@ These helpers do not register tick callbacks. Timed feature work passes `event.t
 
 Shared data/constants survive through normal module reloading rather than persisted Lua locals. Entity and surface caches belong to consumers and must be rebuilt or invalidated through those consumers' configuration and destruction paths. Wheel helper cleanup belongs to steam-train teardown. Loader snapping acts on the current world rather than maintaining another persistent index.
 
-Helper behavior changes affect runtime and potentially data-stage users. Search all callers before modifying defaults, return shapes, stage guards, RNG outputs, or geometry. Preserve existing shared interfaces unless a coordinated migration is part of the change.
+Helper behavior changes affect runtime and potentially data-stage users. Search all callers before modifying defaults, return shapes, stage guards, RNG outputs, or geometry. Preserve existing shared interfaces unless a coordinated migration is part of the change. Follow the [runtime development standards](../../skills/esir-dev/references/runtime-development-standards.md): ordinary module calls use dots, intentional self methods such as wheel helpers retain colons, and reuse must preserve mutation/allocation semantics rather than mechanically replace read-only probes.
 
 <a id="verification"></a>
 ## Verification and limits

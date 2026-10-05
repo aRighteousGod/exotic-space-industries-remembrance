@@ -17,7 +17,13 @@ local RUNTIME_STATE_VERSION = 1
 local TELEMETRY_FILE = "ei-runtime-scheduler.jsonl"
 local MAX_COMPACT_HEAD = 256
 
-local function now_tick()
+-- blueprint-ref: .codex/esir/blueprints/runtime-scheduler.md#tick-flow
+-- Explicit observation timestamps follow the caller's event; omitted arguments
+-- retain the legacy game-available boundary fallback, including tick zero.
+local function now_tick(current_tick)
+    if type(current_tick) == "number" then
+        return current_tick
+    end
     return game and game.tick or 0
 end
 
@@ -132,12 +138,17 @@ function scheduler.ensure_module_state(module_name)
     return root.modules[module_name]
 end
 
-function scheduler.bump_counter(module_name, counter_name, delta)
+---@param module_name string
+---@param counter_name string
+---@param delta number|nil
+---@param current_tick MapTick|nil Supplied callback tick; omission retains clock fallback.
+---@return number
+function scheduler.bump_counter(module_name, counter_name, delta, current_tick)
     local module_state = scheduler.ensure_module_state(module_name)
     local counters = module_state.counters
     delta = delta or 1
     counters[counter_name] = (counters[counter_name] or 0) + delta
-    module_state.last_tick = now_tick()
+    module_state.last_tick = now_tick(current_tick)
     return counters[counter_name]
 end
 
@@ -437,10 +448,14 @@ function scheduler.audit_queue(queue)
     }
 end
 
-function scheduler.set_module_status(module_name, status)
+---@param module_name string
+---@param status table|nil
+---@param current_tick MapTick|nil
+---@return table
+function scheduler.set_module_status(module_name, status, current_tick)
     local module_state = scheduler.ensure_module_state(module_name)
     module_state.status = status or {}
-    module_state.last_tick = now_tick()
+    module_state.last_tick = now_tick(current_tick)
     return module_state.status
 end
 
@@ -453,10 +468,13 @@ function scheduler.table_count(tbl)
     return count_pairs(tbl)
 end
 
-function scheduler.status_snapshot(extra)
+---@param extra table|nil
+---@param current_tick MapTick|nil
+---@return table Shared records are referenced, not deep copied.
+function scheduler.status_snapshot(extra, current_tick)
     local root = scheduler.ensure_root()
     local snapshot = {
-        tick = now_tick(),
+        tick = now_tick(current_tick),
         version = root.version,
         modules = root.modules,
         counters = root.counters,
@@ -470,14 +488,19 @@ function scheduler.status_snapshot(extra)
     return snapshot
 end
 
-function scheduler.write_telemetry(tag, payload, force)
+---@param tag string
+---@param payload any
+---@param force boolean|nil Explicit diagnostics may bypass the enable flag.
+---@param current_tick MapTick|nil
+---@return boolean
+function scheduler.write_telemetry(tag, payload, force, current_tick)
     local root = scheduler.ensure_root()
     if not force and not (root.telemetry and root.telemetry.enabled) then
         return false
     end
 
     local record = {
-        tick = now_tick(),
+        tick = now_tick(current_tick),
         tag = tag,
         payload = payload,
     }
@@ -491,15 +514,20 @@ function scheduler.write_telemetry(tag, payload, force)
     return false
 end
 
-function scheduler.log_snapshot(tag, extra)
-    local snapshot = scheduler.status_snapshot(extra)
+---@param tag string|nil
+---@param extra table|nil
+---@param current_tick MapTick|nil
+---@return table
+function scheduler.log_snapshot(tag, extra, current_tick)
+    current_tick = now_tick(current_tick)
+    local snapshot = scheduler.status_snapshot(extra, current_tick)
     if serpent and serpent.block then
         log("[ESIR runtime-scheduler] " .. tostring(tag or "snapshot") .. " " .. serpent.block(snapshot, {sortkeys = true}))
     else
         log("[ESIR runtime-scheduler] snapshot requested, serpent unavailable")
     end
 
-    scheduler.write_telemetry(tag or "snapshot", snapshot, true)
+    scheduler.write_telemetry(tag or "snapshot", snapshot, true, current_tick)
     return snapshot
 end
 

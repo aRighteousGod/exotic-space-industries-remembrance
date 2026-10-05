@@ -897,7 +897,7 @@ function model.updater(event)
         if not transfer or transfer.expires<tick then remove_transfer(root,key) end
     end
     scheduler.set_module_status("sweeping-radar",{radars=#root.order,jobs=root.jobs,
-        observations=root.counters.observations,generated=root.counters.generated})
+        observations=root.counters.observations,generated=root.counters.generated},tick)
 end
 -- blueprint-ref: .codex/esir/blueprints/sweeping-radar.md#admin-repair
 -- Discovery preserves paid jobs, report buffers, geometry and helper joules.

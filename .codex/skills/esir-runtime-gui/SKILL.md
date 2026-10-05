@@ -5,6 +5,8 @@ description: "Create, review, and standardize ESIR runtime GUI code. Use when Co
 
 # ESIR Runtime GUI
 
+Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for required calls, cheap admission and tick context. Preserve session cleanup when unrelated entities open.
+
 Use this skill before adding or refactoring ESIR runtime GUI. Keep it focused on GUI surface choice, layout vocabulary, event routing, and migration hygiene; use `esir-dev`, `factorio-lua-assumptions`, and `esir-lib-first` for broader runtime, Factorio Lua, or helper-surface decisions.
 
 ## Default Workflow
