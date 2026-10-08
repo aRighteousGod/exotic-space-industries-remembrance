@@ -9,7 +9,7 @@ local config = {
     selector = "ei-admin-location-selector",
     version = 1,
     pages = {
-        {id="planets", group="world"}, {id="chunks", group="world"},
+        {id="planets", group="world"}, {id="chunks", group="world"}, {id="ecology", group="world"},
         {id="players", group="players"}, {id="moderation", group="players"},
         {id="creation", group="sandbox"}, {id="fluids", group="sandbox"},
         {id="enemies", group="sandbox"}, {id="effects", group="sandbox"},

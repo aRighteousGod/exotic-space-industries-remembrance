@@ -15,6 +15,7 @@ local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local beacon_profile_config = require("lib/beacon-profile-config")
 local pyric_radiance_config = require("lib/pyric-radiance-config")
 local ballistic_divergence_config = require("lib/ballistic-divergence-config")
+local terrain_evolution = require("scripts/control/terrain-evolution")
 local model = {}
 
 local function add_centered_sprite_row(element, sprites)
@@ -271,6 +272,7 @@ function model.menu(player_index)
             auric_fumarole = 1,
             auric_inoculation_vat = 1,
             mining_scars = 1,
+            terrain_evolution = 1,
             asteroid_variants = 1,
             fulgora_day_variation = 1,
             artifacts = 1,
@@ -758,6 +760,7 @@ function model.auric_inoculation_vat(player_index, element)
 end
 
 function model.mining_scars(player_index, element)
+    element.add{type="label",caption={"ei-terrain.mining-note"}}
     element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars-text"}}
 
@@ -1026,6 +1029,20 @@ function model.sweeping_radar(player_index, element)
     local body=element.add{type="label",caption={"sweeping-radar.informatron-body"}}
     body.style.single_line=false
     body.style.maximal_width=720
+end
+
+function model.terrain_evolution(player_index,element)
+    for _,key in ipairs({"overview","protections","calendar","performance"}) do
+        element.add{type="label",caption={"ei-terrain."..key}}
+    end
+    local player=game.get_player(player_index)
+    if player then
+        local status=terrain_evolution.snapshot(player.surface,game.tick)
+        local cfg=status.effective
+        element.add{type="label",caption={"ei-terrain.effective",{"ei-terrain.status-"..status.status},
+            cfg and {"string-mod-setting.ei-terrain-performance-"..cfg.performance} or "-",
+            cfg and {"string-mod-setting.ei-terrain-intensity-"..cfg.intensity} or "-"}}
+    end
 end
 
 function model.orbital_scanner(player_index, element)
@@ -1490,6 +1507,7 @@ function model.page_content(page_name, player_index, element)
     if page_name == "mining_scars" then
         model.mining_scars(player_index, element)
     end
+    if page_name == "terrain_evolution" then model.terrain_evolution(player_index,element) end
 
     if page_name == "asteroid_variants" then
         model.asteroid_variants(player_index, element)

@@ -9,6 +9,11 @@
 
 ## Behavior and boundaries
 
+Terrain evolution is a due-guarded global service outside the unchanged sixteen
+slots. Exact resource/death/tile/chunk/surface/settings events feed bounded
+admission and ownership invalidation. Calendar service is subordinate to this
+owner; Fulgora's independent controller is never wrapped or replaced.
+
 `control.lua` owns Factorio event registrations and dispatch order. Feature modules own gameplay state and local service decisions. `ei_global.init` seeds `storage.ei`; `ei_global.check_init` fills missing or older structures without replacing valid feature state. `register-util` supplies fluid registration, collector registration, update counts, and legacy master/slave bookkeeping; it is not an independent scheduler.
 
 Required research, Auric player/surface/session, and matter GUI exports are called directly. Their capability probes are removed while event availability, placement relevance, session cleanup, receiver order and payloads remain intact. Heterogeneous diagnostic status probing stays optional. [Runtime development standards](../../skills/esir-dev/references/runtime-development-standards.md) describe the existing event/entity/budget/clock families rather than a universal adapter. Heartbeat observation stamps receive the same supplied tick; the heartbeat remains inactive unless explicitly registered.
@@ -63,7 +68,7 @@ Use the original callback tick through downstream work. Water/radar rebuilds sha
 
 New-save initialization creates shared storage before feature rebuilds, then synchronizes compatibility, victory, settings, and arrival work. Configuration changes repair global storage and clear the pending scripted-research burst state, invalidate derived due minima, and perform both unconditional and mod-change-gated feature rebuilds. Preserve those distinctions: migration-only loads still rebuild systems with unconditional repair.
 
-`on_load` currently invokes only the Tesla module's local-load hook. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
+`on_load` invokes the terrain owner's local self-write reset and the Tesla module's local-load hook. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
 
 Optional [combat overlap warnings](combat-doctrines.md#overlap) share this dispatcher.
 Only multiplayer join and connected-player singleplayer init call the compatibility

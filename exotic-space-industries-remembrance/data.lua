@@ -100,3 +100,4 @@ for _,tile in pairs(data.raw.tile) do
 end
 
 -- ei_lib.sb(alien_biomes_priority_tiles)
+require("prototypes/terrain-evolution")

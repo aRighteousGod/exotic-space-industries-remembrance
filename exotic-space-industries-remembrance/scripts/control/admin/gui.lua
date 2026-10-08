@@ -546,7 +546,9 @@ end
 
 local function build_page(parent,id,session,player,tick)
     heading(parent,"page-"..id)
-    if id=="planets" then
+    if id=="ecology" then
+        context.ecology.build(parent,session,player,tick)
+    elseif id=="planets" then
         caption(parent,"planet-policy-note","ei_admin_muted")
         actions(parent,{{"planet_peaceful",{enabled=true}},{"planet_peaceful_off",{operation="planet_peaceful",enabled=false}},
             {"planet_spawning",{enabled=true}},{"planet_spawning_off",{operation="planet_spawning",enabled=false}},
@@ -650,6 +652,7 @@ function model.refresh(index,tick,snapshot)
     local signature=serpent.line(target_summary)
     if session.summary_signature~=signature then session.summary.caption=target_summary;session.summary_signature=signature end
     if session.page=="diagnostics" then refresh_diagnostics(session,player,tick) end
+    if session.page=="ecology" then context.ecology.refresh(session,player,tick) end
     if session.page=="players" then sync_travel_destinations(session) end
     if session.page=="enemies" and session.mixture_label and session.mixture_label.valid then
         sync_catalog(session,"enemy",session.drafts.enemy_catalog=="advanced" and "advanced_enemies" or "enemies",session.drafts.enemy_search)
@@ -773,11 +776,11 @@ function model.open(player,page,tick)
     if not valid_page then page=session.page or "planets" end
     -- An older saved console lacks the optional timer controls. This is a real
     -- structural change; close preserves its location/drafts before rebuilding.
-    if session.root and session.root.valid and not (session.auto_refresh_button and session.auto_refresh_button.valid) then
+    if session.root and session.root.valid and not (session.auto_refresh_button and session.auto_refresh_button.valid and session.nav and session.nav.ecology and session.nav.ecology.valid) then
         model.close(player.index,true)
     end
     if not (session.root and session.root.valid) then
-        session.fields={};session.choices={};session.pages={};session.nav={};session.diagnostics=nil
+        session.fields={};session.choices={};session.pages={};session.nav={};session.diagnostics=nil;session.ecology=nil
         session.target_signatures={};session.summary_signature=nil;session.readout_signature=nil
         session.catalog_signatures={};session.availability={};session.layout_signature=nil
         session.active_jobs_signature=nil
@@ -888,6 +891,7 @@ function model.on_gui_change(event)
     if not (element and element.valid and element.tags.parent_gui==GUI) then return false end
     local player=game.get_player(event.player_index);if not common.authorize(player) then return true end
     local session=session_for(player.index);if not session then return true end
+    if context.ecology.on_gui_change(event,session) then model.refresh(player.index,event.tick);return true end
     local id=element.tags.field;if not id then return true end
     if element.type=="textfield" then session.drafts[id]=element.text
     elseif element.type=="choose-elem-button" then session.drafts[id]=element.elem_value
@@ -913,6 +917,7 @@ function model.on_gui_click(event)
     local t=element.tags;local session=session_for(player.index)
     if t.action=="open" then model.open(player,nil,event.tick);return true end
     if not session then return true end
+    if context.ecology.on_gui_click(event,session) then model.refresh(player.index,event.tick);return true end
     if t.action=="close" then model.close(player.index)
     elseif t.action=="page" then model.open(player,t.page,event.tick)
     elseif t.action=="refresh" then model.refresh(player.index,event.tick)

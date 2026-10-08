@@ -37,3 +37,9 @@ bio oil by Kil_Jaeden
 orbital request combinator icon from Orbital Request Combinator by @Skjolbir
 
 auric inoculation vat graphic from hurricane046
+
+Terrain ecology behavioral reference: TerrainEvolution by Cheshirrski and
+TerrainEvolution2 by MeteorSwarm / Nicholas Gower (Factorio 2.0 release 1.0.3,
+commit 58abf0fb90f4654200f0c5ad48bf0a89c80465f0). ESIR uses its own bounded
+runtime and planetary ownership rules; no upstream runtime source is copied.
+https://github.com/nicholasgower/TerrainEvolution2

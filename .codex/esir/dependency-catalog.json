@@ -9,6 +9,22 @@
                          },
     "declared_dependencies":  [
                                   {
+                                      "mod_name":  "TerrainEvolution",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
+                                      "mod_name":  "TerrainEvolution2",
+                                      "dependency_kind":  "optional",
+                                      "constraint":  null,
+                                      "declared_by_pack":  "exotic-space-industries-remembrance",
+                                      "declared_in":  "exotic-space-industries-remembrance\\info.json",
+                                      "pack_role":  "primary gameplay and runtime pack"
+                                  },
+                                  {
                                       "mod_name":  "maraxsis",
                                       "dependency_kind":  "hidden-optional",
                                       "constraint":  null,
@@ -2306,6 +2322,9 @@
                             "pack_role":  "primary gameplay and runtime pack",
                             "source_pack":  "exotic-space-industries-remembrance",
                             "event_hooks":  [
+                                                "on_chunk_deleted",
+                                                "on_runtime_mod_setting_changed",
+                                                "on_surface_cleared",
                                                 "on_built_entity",
                                                 "on_cargo_pod_delivered_cargo",
                                                 "on_cargo_pod_finished_ascending",

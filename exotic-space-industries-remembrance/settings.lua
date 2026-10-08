@@ -538,3 +538,5 @@ data:extend({
         hidden = true
     },
 })
+-- ESIR-owned ecology switches and finite work budgets.
+data:extend(require("lib/terrain-evolution-config").definitions)

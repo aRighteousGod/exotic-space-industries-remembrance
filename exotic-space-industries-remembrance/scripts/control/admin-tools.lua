@@ -11,6 +11,8 @@ local world=require("scripts/control/admin/world")
 local registry=require("scripts/control/admin/registry")
 local targeting=require("scripts/control/admin/targeting")
 local restrictions=require("scripts/control/admin/restrictions")
+local ecology=require("scripts/control/admin/ecology")
+local terrain_config=require("lib/terrain-evolution-config")
 local model={}
 local owners
 local PLAYER_ACTIONS={travel=true,set_spawn=true,cheat=true,invulnerable=true,god=true,kick=true,ban=true,unban=true,promote=true,demote=true,jail=true,release=true}
@@ -62,6 +64,8 @@ end
 
 function model.configure(modules)
     owners=modules
+    ecology.configure{runtime=modules["terrain-evolution"],schema=terrain_config.schema,
+        resolve_surface=model.resolve_surface,execute=model.execute,changed=changed}
     modules.gaia.set_surface_ready_handler(model.on_planet_surface_ready)
     local ctx={enabled=common.enabled,state=common.state,valid_entity=lib.get_valid_entity,scheduler=scheduler,
         notify=common.notify,changed=changed,resolve_surface=model.resolve_surface,modules=modules,
@@ -69,7 +73,7 @@ function model.configure(modules)
     players.configure(ctx);world.configure(ctx);registry.configure(ctx)
     targeting.configure{resolve_surface=model.resolve_surface,hidden=function(player) gui.close(player.index) end,
         finished=function(player,tick) if common.authorize(player) then gui.open(player,nil,tick) end end}
-    gui.configure{planets=model.planets,world=world,registry=registry,execute=model.execute,diagnostics=model.diagnostics,
+    gui.configure{planets=model.planets,world=world,registry=registry,execute=model.execute,diagnostics=model.diagnostics,ecology=ecology,
         begin_target=function(player,kind,session,tick) local ok,message=targeting.begin(player,kind,session,tick);if not ok then common.notify(player.index,message) end end,
         cancel_target=targeting.cancel,
         inspect=function(player,id,tick) local ok,message=registry.start_inspection(player,id,tick);common.notify(player.index,message);gui.result(player.index,message,tick) end,
@@ -100,6 +104,8 @@ function model.execute(actor,action,args,tick)
     if not allowed then common.notify(actor and actor.index,message);return false,message end
     local ok,job
     if action=="repair" then ok,message=registry.repair(actor,args.module_id,tick)
+    elseif action=="ecology_override" or action=="ecology_inherit" or action=="ecology_reset" or action=="ecology_phase" then
+        ok,message=ecology.execute(actor,action,args,tick)
     elseif PLAYER_ACTIONS[action] then
         targeting.cancel(actor,tick,true)
         ok,message=players.execute(actor,action,args,tick)

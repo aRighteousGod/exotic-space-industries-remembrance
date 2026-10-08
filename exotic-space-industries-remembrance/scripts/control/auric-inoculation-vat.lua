@@ -5286,4 +5286,11 @@ function model.on_player_left_game(player_index, event_or_tick)
     end
 end
 
+-- Pure ownership probe for other terrain writers; never initializes vat state.
+-- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#lifecycle
+function model.is_terrain_claimed(surface_index, x, y)
+    local runtime = storage.ei and storage.ei.auric_inoculation_vat
+    return runtime and runtime.claims_by_tile and runtime.claims_by_tile[get_tile_key(surface_index, x, y)] ~= nil or false
+end
+
 return model

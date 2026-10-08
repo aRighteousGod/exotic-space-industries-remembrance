@@ -593,9 +593,14 @@ function model.get_spawn_position(area)
 end
 
 
+local preset_protection_handler
+function model.set_preset_protection_handler(handler)
+    preset_protection_handler=handler
+end
 function model.spawn_preset(preset, surface, pos, tiles, tick, old_index)
     
     if presets.entity_presets[preset] then
+        if preset_protection_handler then preset_protection_handler(surface,presets.entity_presets[preset],pos,tick) end
 
         if tiles then
             model.spawn_tiles(presets.entity_presets[preset], surface, pos)

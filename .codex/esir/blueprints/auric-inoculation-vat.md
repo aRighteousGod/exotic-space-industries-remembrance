@@ -3,6 +3,9 @@
 
 ## Implementation sources
 
+The pure is_terrain_claimed(surface_index,x,y) probe exposes existing basin
+claims to the ecology guard without creating state or changing vat lifecycle.
+
 - [auric-inoculation-vat.lua](../../../exotic-space-industries-remembrance/scripts/control/auric-inoculation-vat.lua)
 
 ## Ownership and reference flow

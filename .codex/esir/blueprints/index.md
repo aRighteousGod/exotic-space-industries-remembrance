@@ -20,7 +20,7 @@ from source and does not trust generated manifests or installed mod selection.
 
 | Model | Owned source files |
 | --- | ---: |
-| [Administration tools](admin-tools.md#contract) | 9 |
+| [Administration tools](admin-tools.md#contract) | 10 |
 | [Administration runtime registry](admin-runtime-registry.md#contract) | 1 |
 | [Shared camera windows](camera-windows.md#contract) | 1 |
 | [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 1 |
@@ -46,6 +46,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Induction matrix topology and power](induction-matrix.md#contract) | 1 |
 | [Matter stabilizer containment](matter-stabilizer.md#contract) | 1 |
 | [Mining scar event path](mining-scars.md#contract) | 1 |
+| [Planetary terrain evolution](terrain-evolution.md#contract) | 5 |
 | [Nauvis pressure grace and difficulty policy](nauvis-pressure-grace.md#contract) | 2 |
 | [Neutron collector source binding](neutron-collector.md#contract) | 1 |
 | [Orbital logistics cohorts and leases](orbital-logistics.md#contract) | 1 |

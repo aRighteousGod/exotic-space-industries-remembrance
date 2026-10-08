@@ -8,6 +8,10 @@ Gaia and alien-spawner `repair_runtime_state` normalize delayed work and recalcu
 
 ## Implementation sources
 
+Authored preset placement notifies the configured terrain-protection callback
+before either placement phase. Bounds are retained conservatively; surviving
+artifact anchors classify legacy sites through budgeted ecology searches.
+
 - [gaia.lua](../../../exotic-space-industries-remembrance/scripts/control/gaia.lua)
 - [gaia-mapgen-data.lua](../../../exotic-space-industries-remembrance/scripts/control/gaia-mapgen-data.lua)
 - [alien-system.lua](../../../exotic-space-industries-remembrance/scripts/control/alien-system.lua)

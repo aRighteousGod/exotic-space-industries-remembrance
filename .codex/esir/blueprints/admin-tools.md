@@ -12,8 +12,15 @@
 - [world.lua](../../../exotic-space-industries-remembrance/scripts/control/admin/world.lua)
 - [targeting.lua](../../../exotic-space-industries-remembrance/scripts/control/admin/targeting.lua)
 - [restrictions.lua](../../../exotic-space-industries-remembrance/scripts/control/admin/restrictions.lua)
+- [ecology.lua](../../../exotic-space-industries-remembrance/scripts/control/admin/ecology.lua)
 
 ## Access and ownership
+
+The Ecology page edits validated per-surface overrides through the terrain owner.
+Global settings remain sufficient; surface selection never creates a surface.
+Inheritance/reset affect configuration only. Calendar controls preserve Fulgora's
+independent ownership. Effective values, compatibility and diagnostics are read
+only for an open page; drafts survive navigation without authorizing mutations.
 
 The startup switch `ei-admin-tools-enabled` defaults false. The coordinator gates the
 console, new commands and mutation services; existing legacy commands retain their

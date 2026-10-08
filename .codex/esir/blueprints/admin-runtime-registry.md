@@ -7,6 +7,9 @@
 
 ## Ownership and public interface
 
+Terrain ecology has an explicit diagnostic owner entry for its dense work/history
+sets and calendar records. It has no destructive reset or generic repair action.
+
 The admin control owner injects already-loaded module references through `configure`.
 The static registry maps every existing runtime source to a gameplay owner, helper,
 stateless adapter or documented inactive/data-only exception. Only explicit stateful

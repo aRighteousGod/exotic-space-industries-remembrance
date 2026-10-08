@@ -23,6 +23,7 @@ local model = {
 }
 model.modes = {"enemy-first", "fire-first", "fire-only"}
 model.thermal_fires = {
+    ["ei-ecology-fire"] = true,
     ["fire-flame-on-tree"] = true,
     ["ei-oil-fire-flame"] = true,
     ["ei-oil-platform-fire-flame"] = true,

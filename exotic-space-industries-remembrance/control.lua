@@ -73,6 +73,7 @@ ei_loaders_lib = require("lib/loaders")
 ei_rocket_launch_pollution = require("scripts/control/rocket-launch-pollution")
 ei_fulgora_day_length_variation = require("scripts/control/fulgora-day-length-variation")
 ei_mining_scars = require("scripts/control/mining-scars")
+local ei_terrain_evolution = require("scripts/control/terrain-evolution")
 ei_vulcanus_fumaroles = require("scripts/control/vulcanus-fumaroles")
 local ei_nauvis_pressure_grace = require("scripts/control/nauvis-pressure-grace")
 
@@ -120,13 +121,24 @@ ei_admin_tools.configure({
     ["teslas-legacy"]=ei_teslas_legacy,["vulcanus-fumaroles"]=ei_vulcanus_fumaroles,
     arrival=ei_echo_codex,["informatron-messager"]=ei_informatron_messager,
     ["admin-tools"]=ei_admin_tools,
+    ["terrain-evolution"]=ei_terrain_evolution,
 })
 ei_admin_tools.register_commands()
+ei_terrain_evolution.configure{vat=ei_auric_inoculation_vat,gaia=ei_alien_spawner}
+ei_alien_spawner.set_preset_protection_handler(function(surface,preset,position)
+    ei_terrain_evolution.protect_preset(preset,surface,position)
+end)
 script.on_event(defines.events.on_gui_elem_changed,ei_admin_tools.on_gui_change)
 script.on_event(defines.events.on_gui_confirmed,ei_admin_tools.on_gui_change)
 script.on_event(defines.events.on_research_started,ei_admin_tools.on_research_started)
 script.on_event(defines.events.on_chunk_charted,ei_admin_tools.on_chunk_charted)
-script.on_event(defines.events.on_surface_created,ei_admin_tools.on_surface_created)
+script.on_event(defines.events.on_surface_created,function(event)
+    ei_admin_tools.on_surface_created(event)
+    ei_terrain_evolution.on_surface_created(event)
+end)
+script.on_event(defines.events.on_runtime_mod_setting_changed,ei_terrain_evolution.on_settings_changed)
+script.on_event(defines.events.on_chunk_deleted,ei_terrain_evolution.on_chunk_deleted)
+script.on_event(defines.events.on_surface_cleared,ei_terrain_evolution.on_surface_created)
 script.on_event(defines.events.on_surface_deleted,ei_admin_tools.on_surface_deleted)
 script.on_event(defines.events.on_biter_base_built,ei_admin_tools.on_biter_base_built)
 script.on_event(defines.events.on_pre_player_left_game,ei_admin_tools.on_player_left_game)
@@ -663,6 +675,7 @@ script.on_init(function(event)
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…")
     ei_echo_codex.queue_players(game.players)
     ei_admin_tools.on_configuration_changed(event and event.tick or game.tick)
+    ei_terrain_evolution.initialize(event and event.tick or game.tick)
     ei_black_hole.rebuild_gui_viewers()
     ei_induction_matrix.rebuild_gui_viewers()
 end)
@@ -737,6 +750,7 @@ script.on_event({
     if e.name == defines.events.on_entity_died then
         ei_teslas_legacy.on_entity_died(e)
         ei_flammable_fluids.on_entity_died(e)
+        ei_terrain_evolution.on_entity_died(e)
     end
     if e.name == defines.events.on_entity_died or e.name == defines.events.script_raised_destroy then
         -- Orbital cargo tracking only cares about already-tracked objects here, so the
@@ -838,6 +852,7 @@ end
 
 if defines.events.on_pre_surface_deleted then
     script.on_event(defines.events.on_pre_surface_deleted, function(e)
+        ei_terrain_evolution.on_surface_deleted(e)
         ei_singularity_lance.on_surface_deleted(e)
         ei_water_turret.on_surface_deleted(e)
         ei_auric_inoculation_vat.on_pre_surface_deleted(e)
@@ -846,6 +861,7 @@ end
 
 if defines.events.on_pre_surface_cleared then
     script.on_event(defines.events.on_pre_surface_cleared, function(e)
+        ei_terrain_evolution.on_surface_clearing(e)
         ei_singularity_lance.on_surface_deleted(e)
         ei_water_turret.on_surface_deleted(e)
         ei_auric_inoculation_vat.on_pre_surface_deleted(e)
@@ -1027,6 +1043,7 @@ end)
 --WORLD RELATED
 ------------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_chunk_generated, function(e)
+    ei_terrain_evolution.on_chunk_generated(e)
     ei_admin_tools.on_chunk_generated(e)
     ei_alien_spawner.on_chunk_generated(e)
     ei_vulcanus_fumaroles.on_chunk_generated(e)
@@ -1413,6 +1430,7 @@ script.on_configuration_changed(function(e)
     local startup_settings_changed = e.mod_startup_settings_changed
 
     local configuration_tick = e and e.tick or game.tick
+    ei_terrain_evolution.initialize(configuration_tick)
     ei_admin_tools.on_configuration_changed(configuration_tick)
 
     if mod_changes_present or startup_settings_changed then
@@ -1525,6 +1543,7 @@ script.on_configuration_changed(function(e)
 end)
 
 script.on_load(function()
+    ei_terrain_evolution.on_load()
     ei_teslas_legacy.on_load()
 end)
 
@@ -1600,6 +1619,8 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
+  -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling
+  if ei_terrain_evolution.has_tick_work(event.tick) then ei_terrain_evolution.updater(event) end
   if ei_admin_tools.has_tick_work(event.tick) then ei_admin_tools.updater(event) end
   if ei_lib.camera_window.has_tick_work(event.tick) then ei_lib.camera_window.updater(event.tick) end
   if ei_sweeping_radar.has_tick_work() then
@@ -1990,6 +2011,7 @@ function on_cloned_entity(e)
 end
 
 function on_built_entity(e)
+    ei_terrain_evolution.on_entity_built(e)
     -- Centralized post-build routing keeps every subsystem on the same event surface.
     -- This wrapper also hosts the small amount of truly cross-cutting setup that is not
     -- owned by any single feature module.
@@ -2073,8 +2095,9 @@ function on_built_entity(e)
 end
 
 function on_built_tile(e)
-    -- Tile events only matter to the induction matrix right now, but they stay wrapped
-    -- here for consistency with the entity dispatcher pattern.
+    ei_terrain_evolution.on_tiles_changed(e)
+    -- Shared tile dispatch updates ecological ownership before notifying the
+    -- induction matrix and Auric basin consumers.
     ei_induction_matrix.on_built_tile(e)
     ei_auric_inoculation_vat.on_built_tile(e)
 end
@@ -2128,6 +2151,7 @@ function on_destroyed_entity(e)
 end
 
 function on_destroyed_tile(e)
+    ei_terrain_evolution.on_tiles_changed(e)
     ei_induction_matrix.on_destroyed_tile(e)
     ei_auric_inoculation_vat.on_destroyed_tile(e)
 end
