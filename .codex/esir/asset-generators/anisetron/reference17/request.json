@@ -1,0 +1,21 @@
+{
+  "source_image": "C:/Users/Theorun/Documents/1righteousgod/ANISETRON 17.png",
+  "source_image_sha256": "b892560fb45538f3231624b3152a5967cab384f96daade0778f07a119a6e7d35",
+  "completed_task_id": "01a109e4-32e3-76e7-b8b3-7188f94993a1",
+  "source_glb_sha256": "6e866e9d537e330fe2e20ddc89ccd071955562f0eca114db4dc2e4999a706bfc",
+  "consumed_credits": 40,
+  "user_authorization": "cost authorized proceed with generation",
+  "parameters": {
+    "ai_model": "meshy-7.1",
+    "model_type": "standard",
+    "geometry_resolution": "4k",
+    "texture_resolution": "8k",
+    "should_texture": true,
+    "enable_pbr": true,
+    "should_remesh": false,
+    "image_enhancement": false,
+    "target_formats": ["glb"],
+    "alpha_thumbnail": true,
+    "multi_view_thumbnails": true
+  }
+}

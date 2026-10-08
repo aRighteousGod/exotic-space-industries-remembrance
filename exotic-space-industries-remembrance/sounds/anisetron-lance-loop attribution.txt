@@ -1,0 +1,4 @@
+ANISETRON firing loop derives from Pulsar.wav by wcoltd.
+Source: https://freesound.org/s/440783/ -- License: Creative Commons 0.
+Uses the existing ESIR singularity-lance-beam-2.ogg and -3.ogg voices.
+Replay: .codex/esir/asset-generators/anisetron/reference17/build_firing_loop.py

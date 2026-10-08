@@ -301,6 +301,7 @@ ei_lib.raw["mining-drill"]["electric-mining-drill"] = {
 -- turn spidertron into a burner vehicle
 local spider_energy_source_exceptions = {
     ["ei-gaian-saucer"] = true,
+    ["ei-anisetron"] = true,
 }
 
 for _, spider in pairs(data.raw["spider-vehicle"]) do

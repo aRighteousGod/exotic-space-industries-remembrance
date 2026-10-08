@@ -40,3 +40,16 @@ entity.custom_status = {
 - Refresh caches and statuses on `check_global`, rebuild/configuration change, build/register, `on_research_finished`, and `on_scripted_research_burst` if scripted research can affect the value.
 - Prefer `event.tick` or an explicit `current_tick` passed through the call chain; use `game.tick` only from helpers without an event context.
 - Keep base tooltip values and current runtime status values intentionally distinct: tooltips teach the payload, status lines report the live force-tuned number.
+
+## Shared Lance packets and artwork
+
+For consumers of Singularity Lance mechanics, use
+`lib/singularity-lance-payload.lua` for validated damage, incision geometry,
+Wound primary resolution and fixed collapse/echo packet construction. Bind
+telemetry adapters once at load. Payment, persistent contexts, target locks and
+deadline queues remain with the consuming controller; snapshot coefficients at
+payment and do not let visual delivery govern damage.
+
+Use `lib/singularity-lance-art.lua` for baseline and upgrade material factories.
+Pass explicit paths, scales and glow/fidelity inputs; avoid cloning another
+weapon's already-mutated final prototype as a configuration authority.

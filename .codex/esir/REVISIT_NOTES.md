@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-10-06 | anisetron-native-range | engine boundary | Factorio 2.0.77 automatic acquisition misses oversized targets at some diagonal box-distance boundaries, dependent on absolute chunk position. Manual native fire accepts the same geometry; 368/384 assertions pass in the range matrix. Retain native payment and the approved range.`
+  - `Files:` `scripts/qc/anisetron-inheritance/range.lua`, `options-range-probe.lua`, and [current verification](../../scripts/qc/anisetron-inheritance/verification.md).
+  - `Next safe move:` rerun the isolated translated-geometry probe when the engine changes. Do not introduce synthetic openers or range inflation. Current visual evidence is representative engine captures plus unchanged approved sheet hashes; a fresh two-pixel muzzle certificate across all 128 headings is not claimed.
+
 - `2026-09-28 | runtime-blueprint-discrepancies | open | The runtime models record remaining implementation differences: absent tick input can normalize to zero before an unreachable game.tick fallback; scheduler observation APIs now accept explicit ticks in touched callers, while unticked compatibility callers retain game.tick fallback; ei_rng.float accepts range arguments but returns an unscaled normalized value.`
   - `Files:` `.codex/esir/blueprints/runtime-orchestration.md`, `runtime-scheduler.md`, `neutron-collector.md`, `combustion-turbine.md`, `fluid-safety-and-ruptures.md`, `mining-scars.md`, and `shared-runtime-helpers.md` under the same blueprint directory.
   - `Next safe move:` trace each affected caller and intended contract before a separate behavior patch. For timing, preserve tick zero and test supplied ticks different from game.tick at init/configuration, event, GUI, and delayed-service boundaries. Check RNG callers before changing range semantics. The mining resource/drill mismatch is resolved by the event-local coverage adapter documented in `mining-scars.md`. The models also preserve deliberate legacy behavior such as the Gaia job overdue cutoff and identify the alien confirmation eligibility boundary for future review.

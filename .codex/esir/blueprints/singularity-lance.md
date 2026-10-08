@@ -5,6 +5,8 @@
 
 - [singularity-lance.lua](../../../exotic-space-industries-remembrance/scripts/control/singularity-lance.lua)
 - [singularity-lance-config.lua](../../../exotic-space-industries-remembrance/lib/singularity-lance-config.lua)
+- [shared packet mechanics](../../../exotic-space-industries-remembrance/lib/singularity-lance-payload.lua)
+- [shared artwork factories](../../../exotic-space-industries-remembrance/lib/singularity-lance-art.lua)
 
 ## Ownership and behavior
 
@@ -31,6 +33,15 @@ flowchart LR
 
 All deadlines are fixed at firing: angle-dependent contact C; collapse C+30; Testament echo C+60. Arrival does not enqueue new damage deadlines. `event.tick` drives admission/service; eventless init/config/status boundaries retain fallback. Step 13 is opportunistic: preserve the every-tick fallback and serviced-this-tick guard. Queued paid shots remain separate, in due/insertion order; only presentation may coalesce.
 
+Both production sites call `updater(event)` behind `has_tick_work(event)`. The
+former limit argument was ignored; removing its pending-count/budget calculation
+does not remove a functioning cap. Each service still resolves all due paid
+packets and active sweeps, while optional decoration uses its own visual budget.
+Pending-count and status exports remain available to diagnostics. Staged fixtures
+retain their remote argument shape through `service_for_qc(legacy_limit, event)`:
+the legacy limit is explicitly ignored, the event is forwarded, and the processed
+packet count is returned. No paid state or timing migration accompanies the rename.
+
 Admission uses queued planned aim and cached tail deadline P, or the last logical contact heading when empty. For tick T, nominal D=max(8,ceil(angle/6)); retarget reserves min(T+60,max(T+8,P+1,max(T,P)+D)). Same valid non-null target/force/surface omits the D term. First acquisition takes eight ticks. Old reservations beyond a newly reduced cap are grandfathered, never overtaken. Synthetic saturation may share due ticks while preserving insertion order. Logical aim and tail never depend on beam handles or cosmetic rebuilds.
 
 Presentation rotates about shared crystal offset (0,-3.35), interpolating radius separately with smoothstep. Shortest arc, clockwise 180-degree ties, continuously unwrapped moving bearings; target movement never extends the deadline. Only active FIFO heads are tracked. Reuse one native main beam plus three extensions, retracting extensions during acquisition. No afterimage stack or idle tracking.
@@ -48,3 +59,11 @@ Source removal clears live registrations/cues but preserves paid damage. Loss of
 ## Verification and maintenance
 
 Reuse current-source modes in `scripts/invoke-singularity-lance-qc.ps1` and `scripts/qc/singularity-lance/README.md`; distinguish angular evidence from historical schema-13 reports. Test polar geometry/angle wrapping, timing/queue compression, separate resistance packets, contact-relative pulses, target death/movement, Wound reset/zero damage, source removal, surface cancellation, force/research changes and actual save/reload. The explicit 11/12/13/14 migration chain preserves old paid work; schema-13 contacts retain legacy interpolation. The generic event-tick fixture explicitly has no targeted Lance checks.
+
+## Shared cathedral consumer
+
+ANISETRON uses the pure packet and artwork factories under its own paid controller,
+state, native ammunition, targeting and visual fidelity. The helper extraction
+preserves this turret's damage selection/order, baseline splash, Wound policy,
+geometry and deadlines. Callers provide telemetry adapters once at module load;
+no helper closures enter storage. See the [cathedral contract](anisetron.md#inheritance).

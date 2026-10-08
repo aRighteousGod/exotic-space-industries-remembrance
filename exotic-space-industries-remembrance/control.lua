@@ -92,6 +92,7 @@ local ei_railgun_cooling = require("scripts/control/railgun-cooling")
 local ei_singularity_lance = require("scripts/control/singularity-lance")
 local ei_sawblade_turret = require("scripts/control/sawblade-turret")
 local ei_gaian_saucer_wake = require("scripts/control/gaian-saucer-wake")
+local ei_anisetron = require("scripts/control/anisetron")
 local ei_emerald_apocalypse_hover_tank = require("scripts/control/emerald-apocalypse-hover-tank")
 local ei_emerald_apocalypse_hover_tank_drones = require("scripts/control/emerald-apocalypse-orbital-shards")
 local ei_surveyor_scope = require("scripts/control/surveyor-scope")
@@ -152,6 +153,7 @@ end)
 script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},ei_admin_tools.on_player_event)
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
+    [ei_anisetron.script_trigger_effect_id] = ei_anisetron.on_script_trigger_effect,
     [ei_singularity_lance.script_trigger_effect_id] = ei_singularity_lance.on_script_trigger_effect,
     [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,
     [ei_emerald_apocalypse_hover_tank.charge_effect_id] = ei_emerald_apocalypse_hover_tank.on_script_trigger_effect,
@@ -450,6 +452,7 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
     ei_spider_vehicles.on_scripted_research_burst(force, entry.spider_vehicle_sync_needed == true)
     ei_flamethrower_fuels.sync_force(force)
     ei_singularity_lance.on_scripted_research_burst(force, current_tick)
+    ei_anisetron.on_scripted_research_burst(force, current_tick)
     ei_sweeping_radar.on_scripted_research_burst(force, current_tick)
     ei_informatron_messager.on_scripted_research_burst(force)
     local em_train_buffs_changed = em_trains.on_scripted_research_burst(force) == true
@@ -619,6 +622,7 @@ script.on_init(function(event)
     ei_flamethrower_fuels.rebuild()
     local support_rebuild_tick = game.tick
     ei_water_turret.rebuild(support_rebuild_tick)
+    ei_anisetron.rebuild_visuals(support_rebuild_tick)
     ei_sweeping_radar.rebuild(support_rebuild_tick)
     ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
@@ -709,12 +713,14 @@ script.on_event(defines.events.on_forces_merged, function(e)
     ei_sweeping_radar.on_forces_merged(e)
     ei_water_turret.on_forces_merged(e)
     ei_singularity_lance.on_forces_merged(e)
+    ei_anisetron.on_forces_merged(e)
     ei_flamethrower_fuels.sync_force(e.destination)
     ei_spider_vehicles.on_forces_merged(e)
 end)
 script.on_event(defines.events.on_research_reversed, function(e)
     ei_sweeping_radar.on_research_finished(e)
     ei_singularity_lance.on_research_finished(e)
+    ei_anisetron.on_research_finished(e)
     ei_flamethrower_fuels.sync_force(e.research.force)
     ei_spider_vehicles.on_research_finished(e)
 end)
@@ -728,12 +734,14 @@ end)
 script.on_event(defines.events.on_force_created, function(e)
     ei_sweeping_radar.on_force_changed(e)
     ei_singularity_lance.on_force_reset(e)
+    ei_anisetron.on_force_reset(e)
     ei_flamethrower_fuels.sync_force(e.force)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
     ei_sweeping_radar.on_teleported(e)
     ei_water_turret.on_teleported(e)
+    ei_anisetron.on_teleported(e)
     ei_beacon_overload.on_script_raised_teleported(e)
 end)
 
@@ -791,10 +799,12 @@ end
 
 script.on_event({defines.events.on_force_reset, defines.events.on_technology_effects_reset}, function(event)
     ei_singularity_lance.on_force_reset(event)
+    ei_anisetron.on_force_reset(event)
     ei_sweeping_radar.on_force_changed(event)
 end)
 script.on_event({defines.events.on_force_friends_changed, defines.events.on_force_cease_fire_changed}, function(event)
     ei_singularity_lance.on_diplomacy_changed(event)
+    ei_anisetron.on_diplomacy_changed(event)
     ei_sweeping_radar.on_force_changed(event)
 end)
 script.on_event(defines.events.on_pre_build, ei_sweeping_radar.on_pre_build)
@@ -818,6 +828,8 @@ script.on_event(defines.events.on_entity_damaged, function(event)
     if not entity.valid then return end
     if entity.type == "spider-vehicle" then
         ei_spider_vehicles.on_entity_damaged(event)
+        -- blueprint-ref: .codex/esir/blueprints/anisetron.md#mobility
+        if entity.valid and entity.name == "ei-anisetron" then ei_anisetron.on_entity_damaged(event) end
     elseif entity.name == "ei-emerald-apocalypse-hover-tank" then
         ei_emerald_apocalypse_hover_tank.on_entity_damaged(event)
     elseif entity.name == "ei-hemocrystal-wall" then
@@ -854,6 +866,7 @@ if defines.events.on_pre_surface_deleted then
     script.on_event(defines.events.on_pre_surface_deleted, function(e)
         ei_terrain_evolution.on_surface_deleted(e)
         ei_singularity_lance.on_surface_deleted(e)
+        ei_anisetron.on_surface_deleted(e)
         ei_water_turret.on_surface_deleted(e)
         ei_auric_inoculation_vat.on_pre_surface_deleted(e)
     end)
@@ -863,6 +876,7 @@ if defines.events.on_pre_surface_cleared then
     script.on_event(defines.events.on_pre_surface_cleared, function(e)
         ei_terrain_evolution.on_surface_clearing(e)
         ei_singularity_lance.on_surface_deleted(e)
+        ei_anisetron.on_surface_deleted(e)
         ei_water_turret.on_surface_deleted(e)
         ei_auric_inoculation_vat.on_pre_surface_deleted(e)
     end)
@@ -988,6 +1002,7 @@ script.on_event(defines.events.on_object_destroyed, function(e)
     ei_lib.camera_window.on_object_destroyed(e)
     ei_sweeping_radar.on_object_destroyed(e)
     ei_singularity_lance.on_object_destroyed(e)
+    ei_anisetron.on_object_destroyed(e)
     ei_flamethrower_fuels.on_object_destroyed(e)
     ei_water_turret.on_object_destroyed(e)
     ei_spider_vehicles.on_object_destroyed(e)
@@ -1031,6 +1046,7 @@ script.on_event(defines.events.on_research_finished, function(e)
     ei_teslas_legacy.on_research_finished(e)
     ei_singularity_lance.on_research_finished(e)
     ei_informatron_messager.on_research_finished(e)
+    ei_anisetron.on_research_finished(e)
     local em_train_buffs_changed = em_trains.on_research_finished(e) == true
     if em_train_buffs_changed
     or (e and e.research and e.research.name == "ei_em-trains") then
@@ -1467,6 +1483,7 @@ script.on_configuration_changed(function(e)
     ei_singularity_lance.on_configuration_changed(e)
     ei_sawblade_turret.on_configuration_changed(e)
     ei_gaian_saucer_wake.on_configuration_changed(e)
+    ei_anisetron.rebuild_visuals(configuration_tick)
     ei_emerald_apocalypse_hover_tank.on_configuration_changed(configuration_tick)
     ei_surveyor_scope.on_configuration_changed(e)
     ei_hemocrystal_wall.on_configuration_changed(e)
@@ -1828,13 +1845,8 @@ function updater(event)
       elseif ei_update_step == 13 then
           -- All due paid collapses are serviced before optional lance decoration.
           local singularity_lance_has_work = ei_singularity_lance.has_tick_work(event)
-          local singularity_lance_pending_work_count = singularity_lance_has_work
-              and ei_singularity_lance.get_pending_work_count(event)
-              or 0
           if singularity_lance_has_work then
-              singularity_lance_pending_work_count = math.max(1, singularity_lance_pending_work_count)
-              updates_needed = math.max(1, math.min(math.ceil(singularity_lance_pending_work_count / divisor), ei_maxEntityUpdates))
-              ei_singularity_lance.update(updates_needed, event)
+              ei_singularity_lance.updater(event)
               singularity_lance_serviced_this_tick = true
           end
       elseif ei_update_step == 14 then
@@ -1867,7 +1879,7 @@ function updater(event)
    -- delayed to a once-per-cycle slot.
     if not singularity_lance_serviced_this_tick
     and ei_singularity_lance.has_tick_work(event) then
-        ei_singularity_lance.update(1, event)
+        ei_singularity_lance.updater(event)
     end
 
     -- Cold Emerald work stays separate from the hot shard visual pass below:
@@ -1939,6 +1951,11 @@ function updater(event)
     if ei_hemocrystal_wall.has_tick_work(event) then
         ei_hemocrystal_wall.updater(event)
     end
+    -- blueprint-ref: .codex/esir/blueprints/anisetron.md#dispatch
+    -- Preserve the former on_tick tail order, including every goto skip path.
+    if ei_anisetron.has_tick_work(event) then
+        ei_anisetron.updater(event)
+    end
     --[[
     leave this disabled
     if event.tick % 600 == 0 then
@@ -1961,6 +1978,8 @@ function on_cloned_entity(e)
     ei_sweeping_radar.on_built_entity(e)
     ei_flamethrower_fuels.on_built_entity(e)
     ei_water_turret.on_built_entity(e)
+    ei_anisetron.on_built_entity(e)
+    if not ei_lib.entity_check(e.destination) then return end
     if ei_spider_vehicles.is_internal_transaction() then return end
     ei_spider_vehicles.on_entity_cloned(e)
     -- Fuel adaptation may replace a ghost and update the event's destination.
@@ -2024,6 +2043,8 @@ function on_built_entity(e)
     ei_sweeping_radar.on_built_entity(e)
     ei_flamethrower_fuels.on_built_entity(e)
     ei_water_turret.on_built_entity(e)
+    ei_anisetron.on_built_entity(e)
+    if not ei_lib.entity_check(e.entity) then return end
     if ei_spider_vehicles.is_internal_transaction() then return end
     ei_spider_vehicles.on_built_entity(e)
 
@@ -2143,6 +2164,7 @@ function on_destroyed_entity(e)
     ei_singularity_lance.on_destroyed_entity(e)
     ei_sawblade_turret.on_destroyed_entity(e)
     ei_gaian_saucer_wake.on_destroyed_entity(e)
+    ei_anisetron.on_destroyed_entity(e)
     ei_emerald_apocalypse_hover_tank.on_destroyed_entity(e)
     ei_hemocrystal_wall.on_destroyed_entity(e)
     ei_randomized_tree_growth.on_destroyed_entity(e)

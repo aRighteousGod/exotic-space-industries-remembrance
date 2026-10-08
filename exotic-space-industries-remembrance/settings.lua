@@ -336,6 +336,7 @@ data:extend({
   },
   singularity_lance_config.startup_setting_definition(),
   gaian_saucer_wake_config.startup_setting_definition(),
+  require("lib/anisetron-visual-config").startup_setting_definition(),
   emerald_hover_tank_config.startup_setting_definition(),
   arc_furnace_light_config.startup_setting_definition(),
   {

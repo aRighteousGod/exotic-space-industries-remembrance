@@ -28,6 +28,8 @@ require("crystal-accumulator")
 require("farstation")
 -- add gaian saucer
 require("gaian-saucer")
+-- add processional cathedral after its native hover chassis
+require("anisetron")
 -- add singularity lance
 require("singularity-lance")
 -- add other

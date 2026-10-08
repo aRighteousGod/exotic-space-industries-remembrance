@@ -1,6 +1,6 @@
 -- Finite capabilities; all prices remain owned by final-tech-fixes.
 local c = require("lib/singularity-lance-config")
-local path = "__exotic-space-industries-remembrance__/graphics/singularity-lance-upgrades/"
+local path = ei_path.."graphics/singularity-lance-upgrades/"
 local art_path = path .. "prismatic-liturgy/"
 local art = c.presentation
 for index, upgrade in ipairs(c.upgrades) do
@@ -30,29 +30,17 @@ for _, key in ipairs({"beam-base", "beam-axial", "beam-testament", "wound-1", "w
         layers = lean and {layer} or {glow, layer}}})
 end
 
----@return data.Animation
+local artwork = require("lib/singularity-lance-art")
 local function prismatic_animation(key, width, height, frames, columns, scale, speed)
-    local semantic = {filename = art_path .. key .. ".png", width = width, height = height,
-        frame_count = frames, line_length = columns, scale = scale, animation_speed = speed,
-        flags = {"no-crop"}, draw_as_glow = true}
-    local glow = table.deepcopy(semantic)
-    glow.filename, glow.blend_mode = art_path .. key .. "-glow.png", "additive-soft"
-    return {layers = lean and {semantic} or {glow, semantic}}
+    return artwork.upgrade_animation(art_path, not lean, key, width, height, frames, columns, scale, speed)
 end
 
 -- Each upgraded material has its own source aperture. Retain the original impact
 -- bloom and native ground lighting; source position remains the crystal eye.
 -- Periodic bodies keep the material density independent of shot length.
 for _, shape in ipairs({"axial", "testament"}) do
-    local beam = table.deepcopy(data.raw.beam["ei-singularity-lance-beam"])
+    local beam = artwork.material(data.raw.beam["ei-singularity-lance-beam"], art_path, art, shape, not lean)
     beam.name = "ei-singularity-lance-beam-" .. shape
-    local body = prismatic_animation("beam-" .. shape .. "-body", 256, 96, art.beam_frames, 4, art.beam_scale, art.beam_speed)
-    local head = prismatic_animation("beam-" .. shape .. "-head", 192, 160, art.beam_frames, 4, art.beam_scale, art.beam_speed)
-    local tail = prismatic_animation("beam-" .. shape .. "-tail", 192, 160, art.beam_frames, 4, art.beam_scale, art.beam_speed)
-    local opening = prismatic_animation("beam-" .. shape .. "-start", 192, 160, art.beam_frames, 4, art.beam_scale, art.beam_speed)
-    beam.graphics_set.beam = {start = opening, ending = beam.graphics_set.beam.ending,
-        head = head, tail = tail, body = {body}, render_layer = "projectile"}
-    beam.action, beam.working_sound = nil, nil
     data:extend({beam})
     local branch = table.deepcopy(beam)
     branch.name = beam.name .. "-branch"
@@ -118,4 +106,4 @@ for _, key in ipairs({"collapse-warning", "collapse-impact", "testament-warning"
     data:extend({prototype})
 end
 data:extend({{type = "sound", name = "ei-singularity-lance-testament-sound",
-    variations = {{filename = "__exotic-space-industries-remembrance-graphics-4__/sounds/singularity-lance-beam-3.ogg", volume = 0.7}}}})
+    variations = {{filename = ei_sounds_4_path.."singularity-lance-beam-3.ogg", volume = 0.7}}}})

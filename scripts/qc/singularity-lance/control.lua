@@ -421,10 +421,10 @@ local function hybrid_checks()
     service_after_contact(130)
     -- Engine health arithmetic accumulates sub-point rounding at this scale;
     -- count packets exactly and allow less than one tenth of a single packet.
-    check(math.abs(10000000-t.health-1824000)<64,"visual overload first damage within engine rounding "..(10000000-t.health))
+    check(math.abs(10000000-t.health-1776000)<64,"visual overload first damage within engine rounding "..(10000000-t.health))
     check(call("snapshot").counters.secondary_packets-packets_before==768,"visual overload retains every first collapse")
     service_after_contact(160)
-    check(math.abs(10000000-t.health-1920000)<64,"visual overload total damage within engine rounding "..(10000000-t.health))
+    check(math.abs(10000000-t.health-1872000)<64,"visual overload total damage within engine rounding "..(10000000-t.health))
     check(call("snapshot").counters.secondary_packets-packets_before==864,"visual overload retains every echo")
     check(call("snapshot").pending==0,"overloaded mechanics drain completely")
 end

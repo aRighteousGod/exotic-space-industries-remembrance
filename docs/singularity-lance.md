@@ -244,6 +244,13 @@ exact contact deadlines. `pending` counts contacts plus first-collapse and echo
 packets, not victims or only collapses. `pending_contacts` and `sweep_count` expose
 the mechanical acquisition queue and active visual transitions separately.
 
+Both production calls use `updater(event)`, guarded by `has_tick_work(event)`.
+The removed step-13 pending-count/limit calculation never capped paid delivery;
+all due packets and active sweeps retain their existing service. Diagnostic
+pending-count exports remain. Staged QC calls use
+`service_for_qc(legacy_limit, event)`, which ignores the compatibility limit,
+forwards the event and returns the actual processed packet count.
+
 ## Presentation and lighting
 
 Keep at most **one main native beam and three incision extensions per lance**.
@@ -365,3 +372,14 @@ Lean/Standard, crystal opening/alignment, smooth sweeps, compressed bursts,
 connected forks, contact/damage agreement, full warnings, prismatic middle/end lighting,
 96-lance readability, moving enemies/worms/spawners, and tooltip/lore/diode layout
 at ordinary/enlarged UI scales. Engine tests alone do not certify appearance.
+
+## ANISETRON inheritance
+
+`lib/singularity-lance-payload.lua` and `lib/singularity-lance-art.lua` expose the
+shared packet and material factories. The turret retains its existing payment,
+state, timing and baseline splash. ANISETRON uses those factories under its own
+native ammunition controller: crown-only upgrades, proportional secondary damage,
+paid research/quality snapshots and independently budgeted presentation. Shared
+helpers own no persistent state or event registration. See the
+[cathedral contract](../.codex/esir/blueprints/anisetron.md#inheritance) and its
+[native regression fixture](../scripts/qc/anisetron-inheritance/README.md).

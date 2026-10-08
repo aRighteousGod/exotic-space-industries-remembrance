@@ -1,0 +1,1 @@
+-- Intentionally empty: clean physics clones do not enter paid/visual owners.

@@ -30,9 +30,10 @@ micro-optimizations. A shared helper call is not automatically cheaper.
   meaning, deadlines and cleanup. Cadence, latency, budget or gameplay changes
   require a separate design decision. Keep the sixteen-slot dispatcher and
   mandatory tier unless that decision changes them.
-- Define budget units and exceptions. Lance's legacy limit does not cap due
-  paid packets; mechanical delivery precedes presentation limits. A limit
-  parameter is not automatically a universal hard cap.
+- Define budget units and exceptions. Lance's production `updater(event)` has no
+  limit parameter; only `service_for_qc(legacy_limit, event)` retains the ignored
+  compatibility argument. Mechanical delivery precedes presentation limits.
+  A limit parameter is not automatically a universal hard cap.
 
 ## Module invocation contract
 

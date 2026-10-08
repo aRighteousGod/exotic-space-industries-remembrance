@@ -70,11 +70,35 @@ New-save initialization creates shared storage before feature rebuilds, then syn
 
 `on_load` invokes the terrain owner's local self-write reset and the Tesla module's local-load hook. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
 
+[ANISETRON](anisetron.md#weapon) receives its paid crystal-charge effect through
+the exclusive script-effect map. Its guarded `updater(event)` is the last mandatory
+service inside the central updater, after Hemocrystal walls and beyond `skip`.
+This preserves the former outer callback tail order. Its read-only work predicate
+admits paid owners, due mobility checks, movement visuals/repair, Wound marks and
+due committed effects; permanent memories alone remain idle. The Lance retains
+its guarded step-13 call and every-tick fallback with the once-per-tick flag; both
+call `updater(event)` without an unused limit calculation. Exact build, clone and
+committed removal hooks maintain the separate
+visual registry; initialization and configuration changes rebuild derived
+decoration while preserving serialized paid FIFOs and deadlines. No parallel
+dispatcher owns either service.
+ANISETRON's exact hidden voice cleanup runs in early build/clone routing, before
+the Spidertron internal-transaction guard; a destroyed copied helper stops further
+fan-out, while ordinary vehicle registration remains idempotent.
+The existing raised-teleport route resets ANISETRON movement samples and handles
+without replacing its paid burst state.
+
 Optional [combat overlap warnings](combat-doctrines.md#overlap) share this dispatcher.
 Only multiplayer join and connected-player singleplayer init call the compatibility
 warning receiver; creation, respawn and cutscene events keep their existing routes.
 
 `storage.ei.scripted_research_burst` owns `pending_by_force`, `due_buckets`, and `next_due_tick`. `queue_scripted_research_burst` coalesces scripted completions per force until after the latest source tick. Old bucket entries may remain, so flushing deduplicates force IDs and validates the live pending entry. Normal research flushes that force's pending burst first. Burst consumers refresh force-derived state; they must not assume one representative technology describes the whole batch.
+
+ANISETRON's Lance inheritance joins the existing normal/reversed research,
+coalesced scripted-research, force reset/merge, diplomacy, object destruction and
+surface cleanup routes. It owns cathedral memory and committed pulses separately
+from the Lance turret. Capability refreshes preserve paid snapshots and deadlines;
+configuration rebuilds replace derived cues without replacing paid queues.
 
 Shared registries are paired: fluid insertion/removal adjusts membership and counts; master/slave setup and teardown maintain both directions and destroy owned helpers where requested. Serialized LuaEntity references need renewed validity checks at consumption. Do not revive dormant beacon scaffolding simply because generic registry support exists.
 
