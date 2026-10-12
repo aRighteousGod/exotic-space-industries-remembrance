@@ -1,6 +1,7 @@
 local config=require("test-config")
 local muzzle=config.muzzle and require("muzzle")
 local visual=config.visual and require("visual")
+local turning=require("turning")
 local run_started
 local function check(name,pass,detail)
     storage.results[name]={pass=pass==true,detail=detail}
@@ -228,6 +229,7 @@ script.on_event(defines.events.on_tick,function(event)
         end
         return
     end
+    turning.update(event.tick,check)
     local c=storage.cases
     for name in pairs(storage.powered) do
         local entity=c[name]

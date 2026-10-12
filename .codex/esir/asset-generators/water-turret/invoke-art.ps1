@@ -37,12 +37,12 @@ if($Stage -in @('Export','All')){
     foreach($role in @('base','head')){
         $grid=if($role -eq 'head'){'8x8'}else{'4x1'}
         $field=if($role -eq 'head'){'prepared_animation'}else{'graphics_set'}
-        & python $exporter render-bundle --asset-name "water-turret-$role" --bundle "$root/$role/Render" --pack-raw-frames --grid $grid --preset-manifest "$root/$role/Render/factorio-preset-render-manifest.json" --output-dir "$root/$role/factorio-export" --prototype-kind turret --snippet-template turret --target-field $field --target-prototype-type fluid-turret --target-prototype-name ei-water-turret --prototype-mode entity --scale 0.5 --shift 0,0
+        & python $exporter render-bundle --asset-name "water-turret-$role" --bundle "$root/$role/Render" --pack-raw-frames --grid $grid --preset-manifest "$root/$role/Render/factorio-preset-render-manifest.json" --output-dir "$root/$role/factorio-export" --factorio-var 'ei_graphics_6_path..[[graphics/entities/water-turret/]]' --prototype-kind turret --snippet-template turret --target-field $field --target-prototype-type fluid-turret --target-prototype-name ei-water-turret --prototype-mode entity --scale 0.5 --shift 0,0
         if($LASTEXITCODE -ne 0){throw "Export failed: $role"}
     }
-    & python $exporter icon --asset-name water-turret --source "$root/icon/Render/Object/0001.png" --output-dir "$root/icon/factorio-export" --target-prototype-name ei-water-turret --canvas-size 128 --fit-size 120 --mip-sizes 64,32
+    & python $exporter icon --asset-name water-turret --source "$root/icon/Render/Object/0001.png" --output-dir "$root/icon/factorio-export" --factorio-var 'ei_graphics_6_path..[[graphics/items/]]' --target-prototype-name ei-water-turret --canvas-size 128 --fit-size 120 --mip-sizes 64,32
     if($LASTEXITCODE -ne 0){throw 'Item icon export failed.'}
-    & python $exporter icon --asset-name water-turret-technology --source "$root/icon/Render/Object/0001.png" --output-dir "$root/technology/factorio-export" --target-prototype-name ei-water-turret --prototype-kind technology --canvas-size 256 --fit-size 240 --mip-sizes 128
+    & python $exporter icon --asset-name water-turret-technology --source "$root/icon/Render/Object/0001.png" --output-dir "$root/technology/factorio-export" --factorio-var 'ei_graphics_6_path..[[graphics/technology/]]' --target-prototype-name ei-water-turret --prototype-kind technology --canvas-size 256 --fit-size 240 --mip-sizes 128
     if($LASTEXITCODE -ne 0){throw 'Technology icon export failed.'}
     Copy-Item -LiteralPath (Join-Path $source 'preview.html') -Destination (Join-Path $root 'index.html') -Force
     & python (Join-Path $source 'check-art.py')

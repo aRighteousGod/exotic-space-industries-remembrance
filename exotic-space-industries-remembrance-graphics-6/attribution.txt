@@ -1,0 +1,15 @@
+Exotic Space Industries: Remembrance - Graphics 6
+
+Project author: aRighteousGod.
+Project contributor attribution follows the main pack's CREDITS.md and CONTRIBUTORS.md.
+See LICENSE.md for the project license text.
+
+A. S. H. Sentry water-turret artwork: selected concept 9, light blue/teal,
+reconstructed with Meshy 7.1 and rendered through the ESIR Blender/Factorio
+asset pipeline. Meshy task: 01a0dbbe-601e-7336-8d16-33d112e20d1a.
+Source GLB SHA256:
+f9b54cc4a846b840491bed74b77aff1fc8f99534685aca114c26b439e8819c7a.
+The fixed plinth and rotating platform/head/backpack/pipe retain separate body,
+shadow and owner-mask layers. Full provenance accompanies the entity sheets.
+Durable replay instructions:
+.codex/esir/asset-generators/water-turret/README-source.md

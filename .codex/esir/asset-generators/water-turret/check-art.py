@@ -32,7 +32,7 @@ for role,count,columns in [('base',4,4),('head',64,8)]:
         report['passed']=report['passed'] and neutral and not export_differences and (not bounds or min(bounds)>=8)
     report['roles'][role]=result
 for name,size in [('items/water-turret.png',(224,128)),('technology/water-turret.png',(256,256))]:
-    assert Image.open(Path('exotic-space-industries-remembrance/graphics')/name).size==size
+    assert Image.open(Path('exotic-space-industries-remembrance-graphics-6/graphics')/name).size==size
 (root/'art-qa.json').write_text(json.dumps(report,indent=2))
 print(json.dumps(report,indent=2))
 assert report['passed']

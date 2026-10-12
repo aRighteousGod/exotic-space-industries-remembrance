@@ -102,6 +102,15 @@ found a second color transform in Blender's sheet writer. `--pack-raw-frames`
 preserves the reviewed frame colors. The technology icon uses the exporter's
 256-square preview; the item uses the 224x128 strip containing 128/64/32 mips.
 
+The shipping family belongs to `exotic-space-industries-remembrance-graphics-6`:
+five entity sheets and provenance under `graphics/entities/water-turret/`, the
+item strip at `graphics/items/water-turret.png`, and the 256-square research icon
+at `graphics/technology/water-turret.png`. Main-pack prototypes use
+`ei_graphics_6_path`. Replay exports stay in ignored staging; both disabled
+promotion specs explicitly target Graphics 6 so later promotion cannot recreate
+the retired main-pack graphics. Preserve the research preview-to-icon mapping
+above; the staged technology mip strip is not the shipping research PNG.
+
 The neutral backpack identification strip is a separate mesh. The preset's
 Color Mask layer keeps Normal as a holdout for proper occlusion; Colored is
 indirect-only in body/shadow passes. The icon render keeps the neutral strip.

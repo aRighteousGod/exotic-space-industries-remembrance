@@ -55,6 +55,8 @@ alongside other engine work and are not an isolated performance comparison.
 ## Replay and review
 
 The durable art generator is `.codex/esir/asset-generators/water-turret/`.
+Shipping sprites, masks, shadows, icons and provenance belong to Graphics 6;
+the main pack owns their prototypes and gameplay. Replay exports remain staged.
 Run `invoke-art.ps1` there from the repository root. Original source model,
 task responses and prepared blends remain in `output/meshy/water-turret/`.
 Open `output/meshy/water-turret/index.html` for independent base/head controls,
@@ -66,3 +68,63 @@ compatibility checks, build/lint, fresh global-launcher discovery, and 13 REST
 helper checks. One Meshy 7.1 generation consumed 40 credits; no paid regeneration
 was needed. The 8K texture option returned an 8192 base-color map and 4096 PBR
 auxiliary maps, all retained in the original source model.
+
+## Smooth suppression aiming, 2026-10-12
+
+The turret advances its weapon orientation along the shortest wrapped arc before
+launching scripted suppression. The native prototype and script share a 0.02-turn
+step. Misaligned shots reuse the bounded fire queue at the next tick, without
+spending water or adding persistent aiming state. Queue backlog slows movement
+rather than increasing a step; enemy-first acquisition and readiness still gate
+every continuation. Ground direction and external pipe connections stay fixed.
+
+The registered `smooth-turn-20261012` profile passed all 114 cases over 2,200
+updates in Factorio 2.0.77. The original 66 player/runtime cases passed alongside
+48 orientation cases: multi-tick travel, both wrap directions, a half-turn,
+alignment before one 15-water pulse, target cancellation, power-loss/resume,
+idle enemy-first aiming, and fixed bases/ports. The sampled long turn took 19
+steps and the half-turn took 25. These are automated engine checks, not manual
+visual review, multiplayer, or a saturated-fleet performance measurement.
+
+Reproduce with the existing runner and a fresh run name:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 `
+  -RunName smooth-turn-20261012 `
+  -SaveInput .factorio-qc/wtr/final-player/fixture.zip -PlayerSave
+```
+
+Evidence is under `.factorio-qc/wtr/smooth-turn-20261012/`; the registered run ID
+is `fda3f5976f9042b0ac826c394f5ced65`. The first fixture attempt exposed a nil
+comparison in its blackout assertion, and the next used too short an observation
+window for existing search/power deadlines. Both fixture issues were corrected;
+the production turning code was unchanged across the successful rerun.
+
+The run record is closed and pinned. Its retention snapshot was rejected because
+the legacy runner stages graphics companion junctions; engine acceptance passed,
+and the evidence remains protected rather than traversing those linked folders.
+
+Touched Lua syntax and whitespace checks passed. The full blueprint audit reports
+only an unrelated missing `acidthrower-pressure-jet.md#dispersion` anchor. The
+preflight wrapper could not finish enumerating another task's long generated
+minigun output path. Neither result is a water-turret engine failure.
+
+## Graphics 6 relocation, 2026-10-12
+
+Moved the five base/head/shadow/mask sheets, both icons and `PROVENANCE.md`
+to `exotic-space-industries-remembrance-graphics-6/graphics/`, preserving every
+file byte-for-byte. The original main-pack copies were retired. The prototype
+uses `ei_graphics_6_path`; the existing required Graphics 6 dependency covers
+the assets. QA icon paths, generated Lua snippet paths and both disabled
+promotion destinations now point at Graphics 6. Research still uses the
+256-square preview and the item retains its 128/64/32 mip strip.
+
+The `graphics6-20261012` profile passed all 114 cases over 2,200 updates in
+Factorio 2.0.77, including the new final-data assertions for all seven PNG paths.
+SHA-256 checks matched all eight moved files; PNG validity/dimensions, Lua,
+Python, PowerShell and JSON syntax, and scoped whitespace checks passed.
+No image data or animation layout changed. Move manifest and engine evidence:
+`.factorio-qc/wtr/graphics6-20261012/`, registered run
+`dfaad68c164b44f6bb3f29b081315d73`. Its task-created companion junctions were
+unlinked after validation without touching source packs, allowing a successful
+retention snapshot and closeout. Rerunning the fixture recreates those links.

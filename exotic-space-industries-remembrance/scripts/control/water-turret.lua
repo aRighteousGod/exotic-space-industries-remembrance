@@ -2,7 +2,7 @@
 -- ESIR FILE MAP
 -- owns: water turret registry, electrical interlock, local fire discovery and modes
 -- loaded_by: control.lua (sole dispatcher)
--- cadence: exact 15-tick power guards; staggered fire searches, max 32 jobs/tick
+-- cadence: exact 15-tick power guards; staggered fire/aim jobs, max 32 jobs/tick
 -- forwarded_events: build/remove/clone/teleport/force/surface/blueprint/GUI/rebuild, repair_runtime_state
 -- storage_roots: storage.ei.water_turret
 -- gui_ids: ei-water-turret-console (relative turret GUI)
@@ -259,17 +259,30 @@ local function firefight(record,tick)
     local target=ei_lib.get_valid_entity(entity.shooting_target)
     if record.fire and ready(record) and not (record.mode==1 and target) and tick>=record.next_pulse
         and entity.get_fluid_count("water")>=config.pulse_water then
+        local a,b=entity.position,record.fire.position
+        -- blueprint-ref: .codex/esir/blueprints/firefighting-and-water-turret.md#suppression-aim
+        -- Advance the upper assembly along the shortest arc before spending water.
+        -- Retained targets reuse the existing bounded queue; delayed jobs never
+        -- multiply the step by elapsed ticks and cause another visible snap.
+        local dx,dy=b.x-a.x,b.y-a.y+config.muzzle_height
+        if dx==0 and dy==0 then
+            local angle=entity.orientation*2*math.pi
+            dx,dy=math.sin(angle),-math.cos(angle)
+        else
+            local orientation=(math.atan2(dy,dx)/(2*math.pi)+0.25)%1
+            local delta=(orientation-entity.orientation+0.5)%1-0.5
+            if math.abs(delta)>config.rotation_speed then
+                entity.orientation=(entity.orientation+(delta>0 and config.rotation_speed or -config.rotation_speed))%1
+                schedule_fire(record,tick+1)
+                return
+            end
+            entity.orientation=orientation
+        end
         local removed=entity.remove_fluid{name="water",amount=config.pulse_water}
         if removed>=config.pulse_water then
-            local a,b=entity.position,record.fire.position
             -- Aim from the elevated pivot, matching native stream attack geometry.
             -- apply_projection maps screen direction onto the 45-degree render's
             -- elliptical tip path. Keep the physical muzzle even for close fires.
-            local dx,dy=b.x-a.x,b.y-a.y+config.muzzle_height
-            if dx==0 and dy==0 then
-                local angle=entity.orientation*2*math.pi
-                dx,dy=math.sin(angle),-math.cos(angle)
-            else entity.orientation=(math.atan2(dy,dx)/(2*math.pi)+0.25)%1 end
             local factor=config.muzzle_length/math.sqrt(dx*dx+2*dy*dy)
             local stream=entity.surface.create_entity{
                 name=(record.weapon_fires and config.all_effect or config.protect_effect).."-stream",

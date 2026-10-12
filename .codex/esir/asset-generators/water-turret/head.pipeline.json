@@ -57,9 +57,11 @@
     "auto_prep": false
   },
   "export": {
-    "enabled": false
+    "enabled": false,
+    "factorio_var": "ei_graphics_6_path..[[graphics/entities/water-turret/]]"
   },
   "promotion": {
-    "enabled": false
+    "enabled": false,
+    "graphics_destination": "exotic-space-industries-remembrance-graphics-6/graphics/entities/water-turret"
   }
 }

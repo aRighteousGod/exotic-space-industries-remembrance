@@ -13,6 +13,7 @@ local model = {
     radius = 1.5,
     pulse_water = 15,
     pulse_ticks = 60,
+    rotation_speed = 0.02,
     power_ticks = 15,
     power_start = 40000,
     power_stop = 30000,

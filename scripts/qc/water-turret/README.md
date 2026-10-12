@@ -33,6 +33,14 @@ real relative GUI elements through the production handlers, settings paste,
 blueprint tags and ghost revival, stale elements and foreign-force editing.
 It is an automated handler/widget check, not a visual or mouse-input test.
 
+Ordinary acceptance also samples real turret orientations while suppressing
+fires. It checks bounded multi-tick shortest-arc turns, wraparound in both
+directions, alignment before water consumption, exactly one pulse, fixed base
+direction/pipe connections, cancelled targets, blackout/resume, and enemy-first
+aiming when no native enemy target is present. Existing enemy acquisition and
+priority cases continue to cover native combat. Aiming uses the normal saved
+fire deadlines/queue; the fixture introduces no production test interface.
+
 ## Save transitions
 
 The development baseline is preserved in
@@ -78,6 +86,11 @@ reload both verify that scheduled power guards resume.
 ## Art handoff
 
 Gameplay is now wired to the generated base/head, shadow and owner-mask sheets.
+The complete shipping family is in `exotic-space-industries-remembrance-graphics-6/graphics/`,
+with entity sheets/provenance in `entities/water-turret/` and icons in `items/`
+and `technology/`. The main pack owns prototype and runtime behavior.
+Final-data assertions require all seven shipping PNGs to resolve through
+Graphics 6, including the base, rotating head, shadows, mask and both icons.
 The selected reference is `output/meshy/water-turret/concepts/09-pipework-bastion-v2.png`:
 the left backpack pipe enters the circular platform. The latest user decision
 makes that platform, backpack, pipe and head one rotating assembly; only the

@@ -51,6 +51,14 @@
                         "role":  "graphics and sound-effect companion assets"
                     },
                     {
+                        "id":  "exotic-space-industries-remembrance-graphics-6",
+                        "folder":  "exotic-space-industries-remembrance-graphics-6",
+                        "type":  "graphics-pack",
+                        "info_json":  "exotic-space-industries-remembrance-graphics-6\\info.json",
+                        "deploy_script":  "graphics6_process.ps1",
+                        "role":  "graphics companion assets"
+                    },
+                    {
                         "id":  "exotic-space-industries-remembrance-soundtrack-1",
                         "folder":  "exotic-space-industries-remembrance-soundtrack-1",
                         "type":  "soundtrack-pack",

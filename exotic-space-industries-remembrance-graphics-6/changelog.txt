@@ -1,0 +1,7 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2026-10-11
+  Changes:
+    - Moved the complete A. S. H. Sentry water-turret base, head, shadows, owner-mask, item and research icons into Graphics 6 without changing their image data.
+    - Kept prototype definitions, animation timing and gameplay in the main ESIR pack.
+---------------------------------------------------------------------------------------------------

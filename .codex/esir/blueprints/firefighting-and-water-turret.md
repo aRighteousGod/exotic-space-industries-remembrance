@@ -24,7 +24,8 @@ flowchart LR
   Guard --> Native[Native enemy attack]
   Guard --> Search[Bounded local fire search]
   Mode[GUI or blueprint preferences] --> Search
-  Search --> Pulse[Spend water and launch policy stream]
+  Search --> Aim[Turn upper assembly toward retained fire]
+  Aim --> Pulse[Spend water and launch policy stream when aligned]
   Pulse --> Impact[Exact impact effect]
   Handheld[Handheld impact] --> Impact
   Impact --> Suppress[Firefighting suppression]
@@ -34,6 +35,13 @@ flowchart LR
 ## Tick flow and deadlines
 
 Builds and events pass `event.tick`. Power checks reschedule exactly +15 ticks and are not deferred by the fire-query budget. Fire deadlines wake a shared queue; at most 32 queue entries are consumed per tick, including tombstones. Initial discovery is staggered by unit number. A retained valid fire uses 60-tick pulse cadence; no target uses the configured seconds-to-ticks search interval. A pulse consumes 15 water and refunds it if stream creation fails. Rebuild accepts a tick or resolves `game.tick` at that eventless boundary.
+
+<a id="suppression-aim"></a>
+## Suppression aiming
+
+Before a due suppression pulse, the upper assembly turns toward the fire using the existing elevated-pivot geometry. Each serviced aiming job advances at most `config.rotation_speed` (0.02 turns), along the shortest wrapped arc. Misaligned turrets reschedule through the existing fire deadline and queue for the following tick; they retain the valid target and do not consume water or create a stream. A queue backlog slows turning rather than increasing the angular step. The 32-job budget includes aiming continuations, and a valid target avoids another spatial search.
+
+Every continuation rechecks fire validity/range, readiness, water and enemy-first native targeting. Alignment releases one ordinary suppression pulse; the 60-tick cooldown starts at launch. Power loss, an external inhibit or a native enemy-first target pauses scripted aiming/firing. No separate animation loop or persistent aiming state is added. Save/load retains the existing fire deadlines/queue; rebuild, teleport, preference changes and removal use their existing target/queue cleanup. Only weapon orientation changes: the ground direction and pipe collars remain fixed. The prototype and scripted turn step share the config value.
 
 <a id="lifecycle"></a>
 ## Lifecycle and invariants

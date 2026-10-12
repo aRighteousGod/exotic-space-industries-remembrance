@@ -5,8 +5,8 @@
 -- cadence: data stage; control/water-turret owns power and firefighting
 --==============================================================================
 local config = require("lib/firefighting-config")
-local icon = "__exotic-space-industries-remembrance__/graphics/items/water-turret.png"
-local art = "__exotic-space-industries-remembrance__/graphics/entities/water-turret/"
+local icon = ei_graphics_6_path.."graphics/items/water-turret.png"
+local art = ei_graphics_6_path.."graphics/entities/water-turret/"
 
 -- The native combat payload has no damage, fire or global targeting changes.
 local stream = table.deepcopy(data.raw.stream["ei-handheld-extinguisher-stream"])
@@ -42,7 +42,7 @@ turret.fast_replaceable_group = nil
 turret.next_upgrade = nil
 turret.factoriopedia_simulation = nil
 turret.turret_base_has_direction = true
-turret.rotation_speed = 0.02
+turret.rotation_speed = config.rotation_speed
 turret.preparing_speed = 1
 turret.folding_speed = 1
 turret.prepare_range = config.range
@@ -116,7 +116,7 @@ data:extend({
             {type="item",name="pipe",amount=10},{type="item",name="steel-plate",amount=10}},
         results={{type="item",name=config.turret,amount=1}}},
     {type="technology",name=config.turret,
-        icon="__exotic-space-industries-remembrance__/graphics/technology/water-turret.png",icon_size=256,
+        icon=ei_graphics_6_path.."graphics/technology/water-turret.png",icon_size=256,
         prerequisites={config.gun,"fluid-handling","ei-electricity-power","gun-turret"},
         unit={count=100,time=20,ingredients=ei_data.science["electricity-age"]},
         effects={{type="unlock-recipe",recipe=config.turret}},age="electricity-age",order="e-c-c"},

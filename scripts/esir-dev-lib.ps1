@@ -1459,6 +1459,7 @@ function Get-EsirPackManifestData {
         'exotic-space-industries-remembrance-graphics-3'   = 'graphics3_process.ps1'
         'exotic-space-industries-remembrance-graphics-4'   = 'graphics4_process.ps1'
         'exotic-space-industries-remembrance-graphics-5'   = 'graphics5_process.ps1'
+        'exotic-space-industries-remembrance-graphics-6'   = 'graphics6_process.ps1'
         'exotic-space-industries-remembrance-soundtrack-1' = 'soundtrack1_process.ps1'
         'exotic-space-industries-remembrance-soundtrack-2' = 'soundtrack2_process.ps1'
     }
@@ -1595,7 +1596,7 @@ function Get-EsirToolManifestData {
             '.codex\esir\asset-import-plan.json',
             '.codex\esir\dependency-catalog.json'
         )
-        legacy_scripts = @('process.ps1', 'graphics1_process.ps1', 'graphics2_process.ps1', 'graphics3_process.ps1', 'graphics4_process.ps1', 'graphics5_process.ps1', 'soundtrack1_process.ps1', 'soundtrack2_process.ps1')
+        legacy_scripts = @('process.ps1', 'graphics1_process.ps1', 'graphics2_process.ps1', 'graphics3_process.ps1', 'graphics4_process.ps1', 'graphics5_process.ps1', 'graphics6_process.ps1', 'soundtrack1_process.ps1', 'soundtrack2_process.ps1')
         artifacts      = @('.factorio-qc', 'output')
         global_shim    = [ordered]@{
             root_kind = 'global-skill'
@@ -2381,7 +2382,7 @@ function Get-EsirHeaderTargets {
             $targets.Add((Join-Path $Paths.repo_root $entry.path)) | Out-Null
         }
     }
-    foreach ($legacy in @('process.ps1', 'graphics1_process.ps1', 'graphics2_process.ps1', 'graphics3_process.ps1', 'graphics4_process.ps1', 'graphics5_process.ps1', 'soundtrack1_process.ps1', 'soundtrack2_process.ps1')) {
+    foreach ($legacy in @('process.ps1', 'graphics1_process.ps1', 'graphics2_process.ps1', 'graphics3_process.ps1', 'graphics4_process.ps1', 'graphics5_process.ps1', 'graphics6_process.ps1', 'soundtrack1_process.ps1', 'soundtrack2_process.ps1')) {
         $targets.Add((Join-Path $Paths.repo_root $legacy)) | Out-Null
     }
 
