@@ -173,7 +173,9 @@ def validate_emission(repo, acceptance, base, emitter):
     candidate = root / mapping["graphics_data_filename"]
     require(sha(candidate) == mapping.get("graphics_data_sha256"), "Emitted candidate Lua changed")
     art = read(root / "graphics-data.json")
-    require(candidate.read_text(encoding="utf-8") == DRAFT_HEADER + "return " + emitter.lua(art) + "\n",
+    binding = mapping.get("graphics_data_path_binding")
+    require(binding in (None, "ei_graphics_6_path"), "Unexpected Graphics 6 path binding")
+    require(candidate.read_text(encoding="utf-8") == DRAFT_HEADER + "return " + emitter.lua(art, graphics_6_paths=binding is not None) + "\n",
             "Candidate Lua and JSON do not represent the exact same deterministic emitted table")
     request = read(root / "emit-input.json")
     provenance = art["provenance"]
@@ -446,7 +448,7 @@ def write_outputs(repo, output, emitter, mapping, final, receipt):
     example = library_metadata(final)
     header = ("-- Native-calibrated full atlas; staged integration still requires final load/package gates.\n"
               "-- blueprint: .codex/esir/blueprints/minigun-turret-graphics.md#contract\n")
-    lua_text = header + "return " + emitter.lua(final) + "\n"
+    lua_text = header + "return " + emitter.lua(final, graphics_6_paths=True) + "\n"
     example_text = EXAMPLE_HEADER + "return " + emitter.lua(example) + "\n"
     payloads = {"graphics-data.lua": lua_text.encode("utf-8"),
                 "graphics-data.json": (json.dumps(final, indent=2, allow_nan=False) + "\n").encode("utf-8"),
@@ -454,6 +456,7 @@ def write_outputs(repo, output, emitter, mapping, final, receipt):
     result = copy.deepcopy(mapping)
     result["frozen_profile_contract"] = final
     result["graphics_data_filename"] = "graphics-data.lua"
+    result["graphics_data_path_binding"] = "ei_graphics_6_path"
     result["graphics_data_sha256"] = hashlib.sha256(payloads["graphics-data.lua"]).hexdigest()
     result["support_artifacts"] = [{"source": str(output / "hd-example-graphics-data.lua"),
         "pack": PACKS["hd"], "profile": "hd", "path": "lib/graphics-data.lua",

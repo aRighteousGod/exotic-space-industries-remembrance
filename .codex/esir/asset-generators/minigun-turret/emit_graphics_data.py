@@ -72,7 +72,7 @@ def color_chunks(payload):
     return result
 
 
-def lua(value, depth=0):
+def lua(value, depth=0, *, graphics_6_paths=False):
     if value is None:
         return "nil"
     if isinstance(value, bool):
@@ -82,14 +82,17 @@ def lua(value, depth=0):
         return repr(value)
     if isinstance(value, str):
         require(all(ord(c) >= 32 for c in value), "Control characters in Lua string")
+        prefix = "__" + PACKS["sd"] + "__/"
+        if graphics_6_paths and value.startswith(prefix):
+            return "ei_graphics_6_path.." + json.dumps(value[len(prefix):], ensure_ascii=False)
         return json.dumps(value, ensure_ascii=False)
     if isinstance(value, list):
-        return "{" + ", ".join(lua(item, depth + 1) for item in value) + "}"
+        return "{" + ", ".join(lua(item, depth + 1, graphics_6_paths=graphics_6_paths) for item in value) + "}"
     if isinstance(value, dict):
         rows = []
         for key, item in value.items():
             name = key if re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", key) else "[" + lua(key) + "]"
-            rows.append("    " * (depth + 1) + name + " = " + lua(item, depth + 1) + ",")
+            rows.append("    " * (depth + 1) + name + " = " + lua(item, depth + 1, graphics_6_paths=graphics_6_paths) + ",")
         return "{\n" + "\n".join(rows) + "\n" + "    " * depth + "}"
     raise TypeError(type(value))
 
@@ -586,9 +589,11 @@ class Emitter:
                   "-- blueprint: .codex/esir/blueprints/minigun-turret-graphics.md#contract\n"
                   "-- Muzzle lookup/effect-height values are preserved uncalibrated proposals.\n"
                   "-- Production promotion and native gates are separate from this emitter.\n")
-        (output / filename).write_text(header + "return " + lua(art) + "\n", encoding="utf-8")
+        bind_graphics_6 = self.args.mode == "production"
+        (output / filename).write_text(header + "return " + lua(art, graphics_6_paths=bind_graphics_6) + "\n", encoding="utf-8")
         (output / "graphics-data.json").write_text(json.dumps(art, indent=2) + "\n", encoding="utf-8")
         artifact_map["graphics_data_filename"] = filename
+        artifact_map["graphics_data_path_binding"] = "ei_graphics_6_path" if bind_graphics_6 else None
         artifact_map["graphics_data_sha256"] = sha((output / filename).read_bytes())
         # Reuse documentation is unloaded in the asset-only HD mod. Keep its
         # generated profile self-contained; only explicit SD shadow fallback

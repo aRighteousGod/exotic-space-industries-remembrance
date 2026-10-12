@@ -25,8 +25,8 @@ views fill the other 248 directions. A full result uses `direction_count=256`.
 `--mode production` requires all 256 real directions and writes staged
 `graphics-data.lua` with these shipping roots:
 
-- Complete SD: `__exotic-space-industries-remembrance-graphics-6__/`.
-- HD: `__e-s-i-r-minigun-turret-graphics-hd__/`.
+- Complete SD: `ei_graphics_6_path`, followed by the pack-relative asset path.
+- HD: `__minigun-turret-HD__/`.
 - Entity sheets: `graphics/entities/gatling-turret/`.
 - Item and technology icons: `graphics/items/gatling-turret.png` and
   `graphics/techs/gatling-turret.png`.
@@ -35,6 +35,12 @@ All SD base, upper, rotor, icons and shadows stay in Graphics 6. File capacity
 comes from actual atlas metadata; there is no direction128 package boundary.
 Each direction retains all 28 physical poses in its original file. Pilot files retain their genuine eight-view contents
 and helper-local paths; their package totals are not a full-family budget.
+
+The main production Lua uses `ei_graphics_6_path` for every Graphics 6 asset;
+its JSON and artifact map retain the fully resolved strings. Fixture paths and
+the self-contained HD library keep their independent owner roots. The map records
+`graphics_data_path_binding` so finalization can reproduce either historical
+literal Lua or newly emitted constant-based Lua without rewriting old evidence.
 
 The production-shaped result remains an unaccepted proposal. It records source,
 render-configuration, compiler, emitter, input-manifest and anchor hashes.
