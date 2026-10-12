@@ -2,3 +2,9 @@
 /models/sweeping-radar.blend filter=lfs diff=lfs merge=lfs -text
 /models/phased-array-radar.glb filter=lfs diff=lfs merge=lfs -text
 /models/phased-array-radar.blend filter=lfs diff=lfs merge=lfs -text
+/models/acidthrower.glb filter=lfs diff=lfs merge=lfs -text
+/models/anisetron.glb filter=lfs diff=lfs merge=lfs -text
+/models/anisetron.blend filter=lfs diff=lfs merge=lfs -text
+/models/anisetron-preparation.json -text whitespace=cr-at-eol
+/models/minigun-turret.glb filter=lfs diff=lfs merge=lfs -text
+/models/minigun-turret.blend filter=lfs diff=lfs merge=lfs -text

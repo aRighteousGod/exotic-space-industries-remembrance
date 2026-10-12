@@ -1,0 +1,207 @@
+{
+  "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\output\\meshy\\anisetron\\reference17\\anisetron17-max-detail.glb",
+  "source_sha256": "6e866e9d537e330fe2e20ddc89ccd071955562f0eca114db4dc2e4999a706bfc",
+  "source_vertices": 546599,
+  "source_faces": 1031452,
+  "preserved_source_faces": 1031452,
+  "source_geometry_sha256": "fd36d722978e91e823c57f507460b9b8b12bf32fdc12f945e2309d8bfdb98351",
+  "prepared_triangle_geometry_sha256": "b1dbbf35fc7a75be12c4e4ce5aa80b539e693c5fce4cdc007b83f3d8e0209e22",
+  "source_face_uv_sha256": "07cf6d4379bfdc5fd1538ce0e59bbcbf7f8367a8d2d45aee4030b909b4ba8598",
+  "preservation": {
+    "unique_source_face_ids": true,
+    "prepared_triangle_geometry_exact": true,
+    "face_uv_exact": true,
+    "architecture_pbr_unchanged": true,
+    "normal_transform_max_error": 0.0012291669845581055
+  },
+  "source_pbr": {
+    "nodes": [
+      {
+        "name": "Principled BSDF",
+        "type": "ShaderNodeBsdfPrincipled"
+      },
+      {
+        "name": "Material Output",
+        "type": "ShaderNodeOutputMaterial"
+      },
+      {
+        "name": "Image Texture",
+        "type": "ShaderNodeTexImage",
+        "image": "Image_0",
+        "size": [
+          8192,
+          8192
+        ],
+        "colorspace": "sRGB",
+        "packed": true
+      },
+      {
+        "name": "Separate Color",
+        "type": "ShaderNodeSeparateColor"
+      },
+      {
+        "name": "Image Texture.001",
+        "type": "ShaderNodeTexImage",
+        "image": "Image_1",
+        "size": [
+          4096,
+          4096
+        ],
+        "colorspace": "Non-Color",
+        "packed": true
+      },
+      {
+        "name": "Normal Map",
+        "type": "ShaderNodeNormalMap"
+      },
+      {
+        "name": "Image Texture.002",
+        "type": "ShaderNodeTexImage",
+        "image": "Image_2",
+        "size": [
+          4096,
+          4096
+        ],
+        "colorspace": "Non-Color",
+        "packed": true
+      }
+    ],
+    "links": [
+      [
+        "Principled BSDF",
+        "BSDF",
+        "Material Output",
+        "Surface"
+      ],
+      [
+        "Image Texture",
+        "Color",
+        "Principled BSDF",
+        "Base Color"
+      ],
+      [
+        "Separate Color",
+        "Blue",
+        "Principled BSDF",
+        "Metallic"
+      ],
+      [
+        "Separate Color",
+        "Green",
+        "Principled BSDF",
+        "Roughness"
+      ],
+      [
+        "Image Texture.001",
+        "Color",
+        "Separate Color",
+        "Color"
+      ],
+      [
+        "Normal Map",
+        "Normal",
+        "Principled BSDF",
+        "Normal"
+      ],
+      [
+        "Image Texture.002",
+        "Color",
+        "Normal Map",
+        "Color"
+      ]
+    ]
+  },
+  "source_origin": [
+    -0.00019401311874389648,
+    -0.00025400519371032715,
+    -0.9478200078010559
+  ],
+  "prepared_yaw_degrees": 180,
+  "uniform_scale": 4.939079761505127,
+  "projected_tiles": {
+    "width": 5.982356071472168,
+    "height": 8.0
+  },
+  "bounds_tiles": {
+    "min": [
+      -2.6908552646636963,
+      -1.9550261497497559,
+      0.0
+    ],
+    "max": [
+      2.690854787826538,
+      1.9550261497497559,
+      9.374269485473633
+    ]
+  },
+  "roles": {
+    "cathedral_facade_crystal": "facade-crystal",
+    "cathedral_architecture": "architecture",
+    "cathedral_keel_crystals": "keel-crystal",
+    "cathedral_top_crystal": "top-crystal",
+    "force_trim_crest": "owner-mask"
+  },
+  "role_faces": {
+    "architecture": 854438,
+    "top-crystal": 48042,
+    "facade-crystal": 29772,
+    "keel-crystal": 98824,
+    "owner-mask": 376
+  },
+  "anchors": {
+    "top_crystal": [
+      0.023337071761488914,
+      -0.16175490617752075,
+      9.374269485473633
+    ],
+    "facade": [
+      0.006949956528842449,
+      1.7834967374801636,
+      4.178755283355713
+    ],
+    "keel_left": [
+      -1.6922916173934937,
+      1.5121290683746338,
+      0.758608341217041
+    ],
+    "keel_center": [
+      -0.0009531690157018602,
+      1.5805795192718506,
+      0.0
+    ],
+    "keel_right": [
+      1.6964457035064697,
+      1.5133190155029297,
+      0.7621049880981445
+    ]
+  },
+  "hover_height": 1.8,
+  "direction_count": 128,
+  "front_axis": "+Y",
+  "initial_angle": 0,
+  "native_phase": "N rear, S facade; clockwise directions",
+  "selection": {
+    "cyan_difference": 0.018,
+    "cyan_minimum": 0.045,
+    "top_z": [
+      0.61,
+      1
+    ],
+    "facade_z": [
+      0.32,
+      0.64
+    ],
+    "keel_z": [
+      0,
+      0.23
+    ],
+    "crest_center": [
+      1.461755394935608,
+      1.8710566759109497,
+      2.408153772354126
+    ],
+    "crest_radius": 0.13,
+    "emission_strength": 0.65
+  },
+  "geometry_policy": "Every original triangle/UV retained exactly after recorded uniform transform; no geometry added."
+}

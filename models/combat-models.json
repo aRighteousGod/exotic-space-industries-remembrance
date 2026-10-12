@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "archived_on": "2026-10-12",
+  "assets": [
+    {
+      "asset": "oathbreaker-saw",
+      "selection": "Final preserved-texture source; already tracked and unchanged",
+      "dossier": ".codex/esir/asset-generators/sawblade-turret/README.md",
+      "files": [
+        {
+          "path": "models/oathbreaker-saw.glb",
+          "role": "original-source",
+          "source": "C:/Users/Theorun/Documents/Development/Meshy_AI_circular_saw_defensiv_0506203053_texture.glb",
+          "bytes": 44826144,
+          "sha256": "da097903c4e1cdc943748740d611b6d409f278fd7d6739f335c048c2045247bd",
+          "git_lfs": false
+        }
+      ]
+    },
+    {
+      "asset": "anisetron",
+      "selection": "Reference 17; prepared-v2; 128 directions",
+      "dossier": ".codex/esir/asset-generators/anisetron/reference17/README.md",
+      "provenance": "Completed render manifest uses this prepared scene; all 11 current shipping PNGs match the promotion hashes",
+      "files": [
+        {
+          "path": "models/anisetron.glb",
+          "role": "original-source",
+          "source": "output/meshy/anisetron/reference17/anisetron17-max-detail.glb",
+          "bytes": 101800988,
+          "sha256": "6e866e9d537e330fe2e20ddc89ccd071955562f0eca114db4dc2e4999a706bfc",
+          "git_lfs": true
+        },
+        {
+          "path": "models/anisetron.blend",
+          "role": "prepared-render-input",
+          "source": "output/meshy/anisetron/reference17/prepared-v2/anisetron17.blend",
+          "bytes": 124614389,
+          "sha256": "8f1e349716576d2049f090ed23e9d768db19d893db29fc1c63517ff7eb674651",
+          "git_lfs": true
+        },
+        {
+          "path": "models/anisetron-preparation.json",
+          "role": "prepared-render-metadata",
+          "source": "output/meshy/anisetron/reference17/prepared-v2/anisetron17.json",
+          "bytes": 4971,
+          "sha256": "51f21d9487f02cb30c2c69493b5cd290b71c1a9e4aa64c6d8c26c4cd35544c08",
+          "git_lfs": false
+        }
+      ]
+    },
+    {
+      "asset": "minigun-turret",
+      "selection": "Prototype 2, exposed cradle; final separated render input",
+      "dossier": ".codex/esir/asset-generators/minigun-turret/README.md",
+      "render_configuration_hash": "cf3ce7c1dd28cfac34287644f62c2ca620194255e9121b140d85303616fc4b4e",
+      "provenance": "Completed full render binds both model hashes; current shipping graphics-data.lua binds the same render configuration hash",
+      "final_driver_setup": "Applied at render time by render_separated.py and separated_contract.py; saved input scene remains unchanged",
+      "files": [
+        {
+          "path": "models/minigun-turret.glb",
+          "role": "original-source",
+          "source": "output/meshy/minigun-prototypes/prototype-2/source/model.glb",
+          "bytes": 109176008,
+          "sha256": "453a8f5b75fd16630803d698293222cf9e07a3e1cecb1f7c3b40434d75008f59",
+          "git_lfs": true
+        },
+        {
+          "path": "models/minigun-turret.blend",
+          "role": "prepared-render-input",
+          "source": "output/meshy/minigun-prototypes/prototype-2/handoff-256/prepared/minigun-render-scene.blend",
+          "bytes": 216574391,
+          "sha256": "54119b0892f2b610a60a62b7b9abcbf61eb15e3b379e79498b9fc46c30a8bdf7",
+          "git_lfs": true
+        }
+      ]
+    },
+    {
+      "asset": "acidthrower",
+      "selection": "Existing models/acidthrower.glb, original revision-03 input; preserved as supplied",
+      "dossier": ".codex/esir/asset-generators/acidthrower-turret/revision-03/README.md",
+      "files": [
+        {
+          "path": "models/acidthrower.glb",
+          "role": "original-source",
+          "source": "D:/CodexArtifacts/esir-acidthrower-20261009/revision-03/source/acidthrower-prototype-2.glb",
+          "bytes": 39148148,
+          "sha256": "257f4beadb591807487fbfd1b70ff7f1b02c3e38c284068cbbee38c6ce3e4c17",
+          "git_lfs": true
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "copied_files_match_source_sha256": true,
+    "glb_version": 2,
+    "glb_images_and_buffers_embedded": true,
+    "prepared_blender_scenes_opened_with": "Blender 5.1.1",
+    "prepared_blender_scenes_images_packed": true,
+    "prepared_blender_scenes_linked_libraries": 0,
+    "shipping_art_and_gameplay_changed": false
+  }
+}

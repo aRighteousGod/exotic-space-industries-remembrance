@@ -10,7 +10,7 @@ the Phased-array file also contains white-panel and red-core emission.
 | Sweeping radar | [sweeping-radar.glb](sweeping-radar.glb) | [sweeping-radar.blend](sweeping-radar.blend) |
 | Phased-array radar | [phased-array-radar.glb](phased-array-radar.glb) | [phased-array-radar.blend](phased-array-radar.blend) |
 
-Only these four paths use Git LFS. Install Git LFS and run `git lfs pull` after
+These four radar paths use Git LFS. Install Git LFS and run `git lfs pull` after
 cloning if they contain pointer text instead of model data. No existing model
 history is migrated. File sizes, SHA-256 hashes, mechanical partitions and
 self-contained/rotation verification are in [radar-models.json](radar-models.json).
