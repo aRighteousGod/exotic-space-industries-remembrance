@@ -37,6 +37,7 @@
         "~ zzz-nonstandard-beacons",
         "! Railguns-Require-Fluoroketone",
 
+        "? minigun-turret-HD >= 1.0.0",
         "? distant-misfires",
         "? fire-lights",
         "? diurnal-dynamics",

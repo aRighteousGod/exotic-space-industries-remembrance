@@ -1,0 +1,8 @@
+{
+  "name": "zzz-esir-minigun-firing",
+  "version": "0.2.0",
+  "title": "Disposable minigun native lifecycle fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.0",
+  "dependencies": ["base", "space-age", "exotic-space-industries-remembrance"]
+}

@@ -1,0 +1,1 @@
+return {entity_name='minigun-turret-hd',technology_name='minigun-turret-hd',directions={0,32,64,96,128,160,192,224},lineage={scope='standalone rename; approved native sprites and launch map retained'}}

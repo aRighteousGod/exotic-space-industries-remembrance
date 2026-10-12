@@ -48,6 +48,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Induction matrix topology and power](induction-matrix.md#contract) | 1 |
 | [Matter stabilizer containment](matter-stabilizer.md#contract) | 1 |
 | [Mining scar event path](mining-scars.md#contract) | 1 |
+| [Minigun turret separated native graphics](minigun-turret-graphics.md#contract) | 3 |
 | [Planetary terrain evolution](terrain-evolution.md#contract) | 5 |
 | [Nauvis pressure grace and difficulty policy](nauvis-pressure-grace.md#contract) | 2 |
 | [Neutron collector source binding](neutron-collector.md#contract) | 1 |

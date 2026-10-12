@@ -1,6 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2026-10-11
+  Features:
+    - Added the complete standard-resolution minigun turret color, shadow, item and research families for ESIR 1.3.42.
   Changes:
     - Added revision-03 acidthrower machine sheets, liquid pressure-jet effects and item/research icons.
     - Moved the complete A. S. H. Sentry water-turret base, head, shadows, owner-mask, item and research icons into Graphics 6 without changing their image data.
