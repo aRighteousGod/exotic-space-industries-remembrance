@@ -13,3 +13,18 @@ The fixed plinth and rotating platform/head/backpack/pipe retain separate body,
 shadow and owner-mask layers. Full provenance accompanies the entity sheets.
 Durable replay instructions:
 .codex/esir/asset-generators/water-turret/README-source.md
+
+Acidthrower revision 03 / Exotic Space Industries: Remembrance - Graphics 6
+
+Project author: aRighteousGod. Original acidthrower authors: DarkNova and Beathoven.
+Selected source: the user's acidthrower prototype 2, reconstructed with Meshy
+and separated/rendered through the ESIR Blender/Factorio pipeline.
+Complete model SHA256:
+4dcaaa053de76f109ae31ff202eba0178c932d36f03e63bdcdc11622356908d0.
+Liquid effects are deterministic local Blender geometry. The attached corrosion
+sticker references Factorio's base-game acid artwork and is not copied here.
+See LICENSE.md and the main pack's CREDITS.md/CONTRIBUTORS.md.
+
+Durable reproduction and validation instructions:
+.codex/esir/asset-generators/acidthrower-turret/revision-03/README.md
+.codex/esir/asset-generators/acidthrower-turret/revision-03/pressure-jet/README.md

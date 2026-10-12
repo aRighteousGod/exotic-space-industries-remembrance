@@ -1,0 +1,35 @@
+{
+  "approved_credits": 80,
+  "balance_before": 1154,
+  "balance_after": 1074,
+  "first": {
+    "task_id": "01a11d4e-da36-7533-8456-548c257d7675",
+    "cost": 40,
+    "status": "SUCCEEDED",
+    "file": "upper-attempt-01.glb"
+  },
+  "selected": {
+    "task_id": "01a11d54-914b-71d8-999c-62527661d785",
+    "cost": 40,
+    "status": "SUCCEEDED",
+    "file": "upper-refined.glb",
+    "sha256": "11eed7c4933ebcc337041d470f8c36bfcc05891527680d9e550f7d82a8b2d444"
+  },
+  "request": {
+    "file_path": "D:/CodexArtifacts/esir-acidthrower-20261008/revision-02/source/upper-reference-refined.png",
+    "ai_model": "meshy-7.1",
+    "model_type": "standard",
+    "geometry_resolution": "4k",
+    "texture_resolution": "8k",
+    "enable_pbr": true,
+    "should_texture": true,
+    "should_remesh": false,
+    "image_enhancement": false,
+    "target_formats": [
+      "glb"
+    ],
+    "multi_view_thumbnails": true,
+    "alpha_thumbnail": true,
+    "response_format": "json"
+  }
+}

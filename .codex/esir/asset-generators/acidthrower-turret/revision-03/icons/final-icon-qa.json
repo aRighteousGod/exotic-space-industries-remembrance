@@ -1,0 +1,52 @@
+{
+  "all_pass": true,
+  "factorio_version": "2.0.77",
+  "dump": "D:\\CodexArtifacts\\esir-acidthrower-20261009\\revision-03\\icons\\qc\\fast-run-data-20261010-175931\\script-output\\data-raw-dump.json",
+  "dump_bytes": 2047593299,
+  "engine_errors": [],
+  "fast_qc_status": "warning",
+  "warning_count": 88,
+  "item": {
+    "icon": "__exotic-space-industries-remembrance-graphics-3__/graphics/items/acid-turret.png",
+    "icon_size": 128,
+    "icon_mipmaps": 3,
+    "place_result": "ei-acidthrower-turret"
+  },
+  "fluid-turret": {
+    "icon": "__exotic-space-industries-remembrance-graphics-3__/graphics/items/acid-turret.png",
+    "icon_size": 128,
+    "icon_mipmaps": 3
+  },
+  "technology_icons": [
+    {
+      "icon": "__exotic-space-industries-remembrance-graphics-3__/graphics/tech/acid-turret.png",
+      "icon_size": 256
+    }
+  ],
+  "recipe": {
+    "icon": null,
+    "icons": null,
+    "icon_size": null,
+    "results": [
+      {
+        "type": "item",
+        "name": "ei-acidthrower-turret",
+        "amount": 1
+      }
+    ]
+  },
+  "item_png": {
+    "size": [
+      224,
+      128
+    ],
+    "sha256": "b14342b607ebcef6669e74eeec14d6b7b2b51d6af773d0a167e3353ca444e226"
+  },
+  "technology_png": {
+    "size": [
+      256,
+      256
+    ],
+    "sha256": "81bac33a2b66dc67ce3d431b9fd62dff425a4acfbc3614e14a1ceca715a52542"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "source": "D:\\CodexArtifacts\\esir-acidthrower-20261009\\revision-03\\icons\\renders\\Object\\0002.png",
+  "selected_frame": 2,
+  "all_pass": true,
+  "icons": {
+    "acid-turret-item.png": {
+      "size": [
+        224,
+        128
+      ],
+      "alpha_bounds": [
+        5,
+        1,
+        224,
+        113
+      ],
+      "sha256": "b14342b607ebcef6669e74eeec14d6b7b2b51d6af773d0a167e3353ca444e226"
+    },
+    "acid-turret-technology.png": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bounds": [
+        10,
+        30,
+        246,
+        226
+      ],
+      "sha256": "81bac33a2b66dc67ce3d431b9fd62dff425a4acfbc3614e14a1ceca715a52542"
+    }
+  },
+  "item_mip_sizes": [
+    128,
+    64,
+    32
+  ]
+}

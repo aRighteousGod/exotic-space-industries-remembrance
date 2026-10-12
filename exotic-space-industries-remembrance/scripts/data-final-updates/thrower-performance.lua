@@ -4,6 +4,7 @@
 -- loaded_by: data-final-fixes.lua, after fuel variants and compatibility passes
 -- cadence: data stage only; no runtime handlers, storage or scripted damage
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/acidthrower-pressure-jet.md#contract
 local config = require("lib/thrower-performance-config")
 local fuels = require("lib/flamethrower-fuels")
 local profile = config.resolve()
@@ -130,5 +131,13 @@ for _, name in ipairs(turret_names) do
         -- Traverse only ammo delivery; never scale attack.damage_modifier, fuel
         -- bonuses, ground-fire DPS or the native research/quality multipliers.
         if attack.ammo_type then turret_deliveries(attack.ammo_type, attack.cooldown) end
+        -- blueprint-ref: .codex/esir/blueprints/acidthrower-pressure-jet.md#late-profiles
+        -- A fast, short stream can land before its next sparse particle. Refresh
+        -- at the particle cadence so native stream replacement retains that rate.
+        -- Halve fluid per refresh too; keep the timeout already resolved above.
+        if name == "ei-acidthrower-turret" and factor >= 8 then
+            attack.cooldown = attack.cooldown / 2
+            attack.fluid_consumption = attack.fluid_consumption / 2
+        end
     end
 end

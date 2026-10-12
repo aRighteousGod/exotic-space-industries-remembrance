@@ -20,6 +20,7 @@ from source and does not trust generated manifests or installed mod selection.
 
 | Model | Owned source files |
 | --- | ---: |
+| [Acidthrower native pressure jet and late thrower profiles](acidthrower-pressure-jet.md#contract) | 4 |
 | [Administration tools](admin-tools.md#contract) | 10 |
 | [Administration runtime registry](admin-runtime-registry.md#contract) | 1 |
 | [ANISETRON processional cathedral, Lance inheritance and visual resonance](anisetron.md#contract) | 10 |
