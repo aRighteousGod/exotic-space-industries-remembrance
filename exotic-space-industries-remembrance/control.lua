@@ -138,7 +138,11 @@ script.on_event(defines.events.on_surface_created,function(event)
     ei_terrain_evolution.on_surface_created(event)
 end)
 script.on_event(defines.events.on_runtime_mod_setting_changed,ei_terrain_evolution.on_settings_changed)
-script.on_event(defines.events.on_chunk_deleted,ei_terrain_evolution.on_chunk_deleted)
+script.on_event(defines.events.on_chunk_deleted,function(event)
+    ei_terrain_evolution.on_chunk_deleted(event)
+    ei_water_turret.on_chunk_deleted(event)
+end)
+script.on_event(defines.events.on_surface_imported,ei_water_turret.on_surface_imported)
 script.on_event(defines.events.on_surface_cleared,ei_terrain_evolution.on_surface_created)
 script.on_event(defines.events.on_surface_deleted,ei_admin_tools.on_surface_deleted)
 script.on_event(defines.events.on_biter_base_built,ei_admin_tools.on_biter_base_built)
@@ -153,6 +157,7 @@ end)
 script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},ei_admin_tools.on_player_event)
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
+    [ei_water_turret.created_effect] = ei_water_turret.on_fire_created,
     [ei_anisetron.script_trigger_effect_id] = ei_anisetron.on_script_trigger_effect,
     [ei_singularity_lance.script_trigger_effect_id] = ei_singularity_lance.on_script_trigger_effect,
     [ei_sawblade_turret.script_trigger_effect_id] = ei_sawblade_turret.on_script_trigger_effect,

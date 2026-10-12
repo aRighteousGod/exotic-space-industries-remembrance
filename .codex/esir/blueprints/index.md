@@ -44,7 +44,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Gaian saucer wake registration and bounded visual emission](gaian-saucer-wake.md#contract) | 2 |
 | [Gate transport and receiver selection](gate.md#contract) | 1 |
 | [Hemocrystal wall event-started regeneration](hemocrystal-wall.md#contract) | 1 |
-| [Impact firefighting and powered water-turret service](firefighting-and-water-turret.md#contract) | 3 |
+| [Impact firefighting and powered water-turret service](firefighting-and-water-turret.md#contract) | 5 |
 | [Induction matrix topology and power](induction-matrix.md#contract) | 1 |
 | [Matter stabilizer containment](matter-stabilizer.md#contract) | 1 |
 | [Mining scar event path](mining-scars.md#contract) | 1 |

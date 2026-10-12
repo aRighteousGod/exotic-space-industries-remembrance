@@ -221,3 +221,5 @@ require("scripts/data-final-updates/flamethrower-overlap")
 require("scripts/data-final-updates/beacon-profiles")
 -- Illuminate final fuel aliases and generated projectiles exactly once.
 require("scripts/data-final-updates/pyric-radiance")
+-- Observe completed fire variants without depending on fuel-overlap cleanup.
+require("scripts/data-final-updates/water-turret-fires")

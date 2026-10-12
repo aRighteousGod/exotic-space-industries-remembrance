@@ -518,12 +518,11 @@ data:extend({
       order  = "e4",
   },
   {
-      name = "ei-water-turret-fire-check-seconds",
-      type = "int-setting",
+      name = "ei-water-turret-fire-targeting",
+      type = "string-setting",
       setting_type = "startup",
-      default_value = 2,
-      minimum_value = 1,
-      maximum_value = 30,
+      default_value = "first-nearby",
+      allowed_values = {"first-nearby", "nearest"},
       order = "d-water-turret",
   },
   --this was used before the cyclic per tick entity updater was made

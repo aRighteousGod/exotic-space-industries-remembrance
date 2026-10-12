@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param([switch]$Baseline,[switch]$Save,[string]$SaveInput,[switch]$PlayerSave,[switch]$ForceConfig,[switch]$ReuseFixture,[switch]$DumpOnly,[switch]$Muzzle,[switch]$Visual,[int]$Performance=0,[string]$RunName,[string]$SourceRoot,[switch]$ReplayFixture)
+param([switch]$Baseline,[switch]$Save,[string]$SaveInput,[switch]$PlayerSave,[switch]$ForceConfig,[switch]$ReuseFixture,[switch]$DumpOnly,[switch]$Muzzle,[switch]$Visual,[int]$Performance=0,[string]$RunName,[string]$SourceRoot,[switch]$ReplayFixture,[switch]$Creation,[switch]$Index,[switch]$DisableAdaptation,[switch]$Transition,
+    [ValidateSet('first-nearby','nearest')][string]$Targeting='first-nearby',
+    [ValidateSet('dry','wet','dense','dispersed','burst')][string]$PerformanceScene='dry')
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
 $factorio='C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.exe'
@@ -38,7 +40,7 @@ if($ForceConfig){
     $helperInfo.version='0.0.2'
     $helperInfo | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $helper 'info.json') -Encoding UTF8
 }
-"return {baseline=$($Baseline.IsPresent.ToString().ToLowerInvariant()),save=$($Save.IsPresent.ToString().ToLowerInvariant()),loaded=$(($SaveInput -and -not $PlayerSave -and -not $ReplayFixture).ToString().ToLowerInvariant()),player=$($PlayerSave.IsPresent.ToString().ToLowerInvariant()),muzzle=$($Muzzle.IsPresent.ToString().ToLowerInvariant()),visual=$($Visual.IsPresent.ToString().ToLowerInvariant()),performance=$Performance}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
+"return {baseline=$($Baseline.IsPresent.ToString().ToLowerInvariant()),save=$($Save.IsPresent.ToString().ToLowerInvariant()),loaded=$(($SaveInput -and -not $PlayerSave -and -not $ReplayFixture).ToString().ToLowerInvariant()),player=$($PlayerSave.IsPresent.ToString().ToLowerInvariant()),muzzle=$($Muzzle.IsPresent.ToString().ToLowerInvariant()),visual=$($Visual.IsPresent.ToString().ToLowerInvariant()),performance=$Performance,creation=$($Creation.IsPresent.ToString().ToLowerInvariant()),index=$($Index.IsPresent.ToString().ToLowerInvariant()),targeting='$Targeting',adaptation=$( (-not $DisableAdaptation.IsPresent).ToString().ToLowerInvariant()),transition=$($Transition.IsPresent.ToString().ToLowerInvariant()),scene='$PerformanceScene'}" | Set-Content -LiteralPath (Join-Path $helper 'test-config.lua') -Encoding ASCII
 if(-not $Baseline){
     Get-Content -LiteralPath (Join-Path $helper 'instrument.lua') -Raw | Add-Content -LiteralPath (Join-Path $pack 'control.lua') -Encoding UTF8
     $modulePath=Join-Path $pack 'scripts\control\water-turret.lua'
@@ -110,8 +112,9 @@ if($Save){
         Write-Output "Visual fixture: $run\script-output\water-art"
     }finally{if(-not $process.HasExited){Stop-Process -Id $process.Id}}
 }else{
-    $ticks=if($Performance -ne 0){7200}else{2200}
-    & $factorio --benchmark $fixture --benchmark-ticks $ticks --benchmark-runs 1 --config $config --mod-directory $mods --disable-audio 2>&1 | Out-File -FilePath (Join-Path $run 'benchmark.txt') -Encoding utf8
+    $ticks=if($Performance -ne 0){8200}elseif($Index){7200}else{2200}
+    $timingArgs=if($Performance -ne 0){@('--benchmark-verbose','all')}else{@()}
+    & $factorio --benchmark $fixture --benchmark-ticks $ticks --benchmark-runs 1 @timingArgs --config $config --mod-directory $mods --disable-audio 2>&1 | Out-File -FilePath (Join-Path $run 'benchmark.txt') -Encoding utf8
     if($LASTEXITCODE -ne 0){throw "Runtime fixture failed: $run\benchmark.txt"}
     $report=Join-Path $run 'script-output\water-qc.json'
     if(-not(Test-Path -LiteralPath $report) -or (Get-Item -LiteralPath $report).LastWriteTime -lt $started){throw "Missing fresh report: $report"}

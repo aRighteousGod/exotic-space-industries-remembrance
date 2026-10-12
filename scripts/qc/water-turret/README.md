@@ -4,10 +4,15 @@ Run against installed Factorio **2.0.77**. `invoke-water-turret-qc.ps1` stages a
 gameplay pack, linked dependency archives and graphics companions under
 `.factorio-qc/wtr/`. It never changes the installed mod list or original saves.
 The standalone `extinguisher` is enabled only in the old baseline profile.
+Current event-index acceptance and paired timing evidence are in [RESULTS.md](RESULTS.md).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -DumpOnly
 powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1
+powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Creation -RunName birth
+powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Creation -DisableAdaptation -RunName birth-off
+powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Index -RunName index
+powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Index -Targeting nearest -RunName nearest
 powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -PlayerSave -SaveInput '<disposable player save>' -RunName player
 powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Performance -1
 powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Performance 1000
@@ -16,10 +21,53 @@ powershell -ExecutionPolicy Bypass -File scripts/invoke-water-turret-qc.ps1 -Vis
 ```
 
 `-ReuseFixture` skips creation of an existing untouched fixture save; benchmark
-mode never writes its runtime changes back. Performance profiles use an actual
-electrical grid and record only the water module's update time over 6,000 warmed
-ticks in `script-output/water-profile.txt`. Run timing profiles separately from
-other Factorio work. `-1` is the empty-registry comparison.
+mode never writes its runtime changes back. Performance profiles use actual
+electrical grids and record 6,000 ticks after 2,000 ticks of bootstrap/warmup.
+`water-profile.txt` measures the updater; `water-events-profile.txt` measures
+creation/destruction receivers. `benchmark.txt` includes per-tick engine timing.
+Run timing profiles separately from other Factorio work. `-1` is an empty-registry
+comparison. `-PerformanceScene` selects `dry`, `wet`, `dense`, `dispersed` or `burst`;
+use 128 turrets for a matched five-scene comparison (the dispersed fixture limit).
+`-SourceRoot` accepts a captured main-pack snapshot. Keep non-water sources and
+dependencies identical, and compare warmed engine rows, excluding setup.
+Instrumentation overhead remains in engine timing; synthetic single runs are not
+a general UPS guarantee.
+
+Register an absent run payload through `scripts/esir-housekeeping.ps1` before
+using a new task prefix under `.factorio-qc/wtr/`. Close only that task's run after
+evidence review. This legacy runner creates graphics companion junctions; unlink
+only those exact task-owned links, nonrecursively, before managed closeout.
+
+## Event index and aiming acceptance
+
+The `-Creation` gate tests every supported final fire prototype through silent
+scripted creation, native stream impacts, natural tree and sticker spread, merged
+refuelling, stable destruction identities and preservation of prior creation
+effects. The engine returns nil for fire cloning; the report calls that path
+unsupported. Final-data assertions require exactly one private creation hook per
+supported prototype and none on excluded fires. Repeat with adaptation on and off.
+
+The `-Index` fixture drives production registration/events with 192 aimers,
+including five-tick-or-longer service gaps, alignment, fresh cooldowns, observed
+blackout/resume, service budgets, both targeting modes, dense compaction, exact
+radius rejection inside covered chunks, negative chunk deletion, coverage
+expansion, notified fire movement, import-helper reconciliation and surface
+teardown. It checks zero recurring queries and cold acquisition after settling.
+The import case invokes the production handler; it is not an export/import round
+trip. There is no production QC remote interface.
+
+`-Index -Save` saves queued aiming at tick 1210. For an ordinary reload, benchmark
+that save with the **same staged mod files and config**, without restaging:
+
+```powershell
+& $factorio --benchmark "$run/saves/water-transition.zip" --benchmark-ticks 7200 --benchmark-runs 1 --config "$run/config.ini" --mod-directory "$run/mods" --disable-audio
+```
+
+Changing the fixture/config checksum may trigger configuration repair, which
+intentionally resets derived state and aim credit. `-Transition -Save -SourceRoot
+'<pre-index main pack>'` prepares an old-schema save; load it with `-Transition
+-SaveInput '<saved ZIP>'` to check preservation of preferences, pulse deadlines
+and valid helpers/joules while initializing fresh checkpoints.
 
 The runtime cases cover native enemy acquisition, zero damage, friendly exclusion,
 single/repeated/expired slow, measured water consumption, mode priorities,
@@ -39,7 +87,7 @@ directions, alignment before water consumption, exactly one pulse, fixed base
 direction/pipe connections, cancelled targets, blackout/resume, and enemy-first
 aiming when no native enemy target is present. Existing enemy acquisition and
 priority cases continue to cover native combat. Aiming uses the normal saved
-fire deadlines/queue; the fixture introduces no production test interface.
+hot/cold queues and elapsed checkpoints; the fixture introduces no production test interface.
 
 ## Save transitions
 

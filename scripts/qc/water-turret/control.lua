@@ -1,4 +1,8 @@
 local config=require("test-config")
+if config.transition then require("transition");return end
+if config.creation then require("creation");return end
+if config.index then require("index");return end
+if config.performance~=0 then require("performance");return end
 local muzzle=config.muzzle and require("muzzle")
 local visual=config.visual and require("visual")
 local turning=require("turning")
@@ -62,15 +66,6 @@ local function setup()
         return entity
     end
     local c=storage.cases
-    if config.performance~=0 then
-        local count=math.max(0,config.performance)
-        for i=1,count do turret("idle-"..i,-250+((i-1)%50)*4,-40+math.floor((i-1)/50)*4,1,0,false) end
-        if count>0 then
-            for _,x in ipairs{-260,-200,-140,-80,-20} do surface.create_entity{name="esir-water-qc-pole",position={x,0},force="player"} end
-            surface.create_entity{name="esir-water-qc-source",position={-260,0},force="player"}
-        end
-        return
-    end
     c.combat=turret("combat",-350,0)
     c.enemy=enemy(-350,-12)
     c.enemy_first_fire=fire(surface,{-350,10})
@@ -214,21 +209,6 @@ script.on_event(defines.events.on_tick,function(event)
         if tick==10 then report();if config.save then game.server_save("water-transition") end end
         return
     end
-    if config.performance~=0 then
-        if tick==1000 then call("start_profile") end
-        if tick==7000 then
-            local state=call("state")
-            local expected=math.max(0,config.performance)
-            local powered=0
-            for _,record in pairs(state and state.records or {}) do if record.powered then powered=powered+1 end end
-            check("idle-registry",(state and state.count or 0)==expected)
-            check("idle-power",powered==expected,powered)
-            check("idle-cadence",expected==0 or state.counters.searches<=expected*60,state and state.counters)
-            check("profile-calls",call("profile")==6000)
-            report()
-        end
-        return
-    end
     turning.update(event.tick,check)
     local c=storage.cases
     for name in pairs(storage.powered) do
@@ -326,10 +306,11 @@ script.on_event(defines.events.on_tick,function(event)
         check("helper-teardown",not storage.clone_helper.valid)
         local pos=c.circuit.position
         local old=rec(c.circuit)
+        local energy=old.power.energy
         call("rebuild")
         check("rebuild-preferences",rec(c.protected).mode==3 and rec(c.protected).weapon_fires)
-        check("rebuild-empty-power",rec(c.circuit).power.energy==0)
-        check("rebuild-old-helper-gone",not old.power.valid)
+        check("rebuild-preserves-power",rec(c.circuit).power.energy==energy)
+        check("rebuild-preserves-helper",old.power.valid and rec(c.circuit).power==old.power)
         report()
         if config.save then game.server_save("water-transition") end
     end

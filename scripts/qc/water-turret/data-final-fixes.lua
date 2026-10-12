@@ -1,5 +1,21 @@
 if not data.raw["fluid-turret"]["ei-water-turret"] then return end
 local turret=data.raw["fluid-turret"]["ei-water-turret"]
+local config=require("__exotic-space-industries-remembrance__/lib/firefighting-config")
+if config.created_effect then
+    local flames=require("__exotic-space-industries-remembrance__/lib/flamethrower-fuels")
+    local function count_effect(value,id)
+        if type(value)~="table" then return 0 end
+        local count=value.type=="script" and value.effect_id==id and 1 or 0
+        for _,v in pairs(value) do if type(v)=="table" then count=count+count_effect(v,id) end end
+        return count
+    end
+    for name,fire in pairs(data.raw.fire) do
+        local supported=config.thermal_fires[name] or flames.ground_fires[name]
+        assert(count_effect(fire.created_effect,config.created_effect)==(supported and 1 or 0),"fire-birth-hook: "..name)
+    end
+    assert(not settings.startup["ei-water-turret-fire-check-seconds"],"obsolete-search-setting")
+    assert(settings.startup[config.targeting_setting].value==require("test-config").targeting,"target-setting")
+end
 assert(turret.rotation_speed==0.02,"water-turn-speed")
 local graphics="__exotic-space-industries-remembrance-graphics-6__/graphics/"
 local seen={}
