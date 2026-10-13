@@ -7,7 +7,7 @@
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
--- rebuild_on: init, configuration change, Vulcanus resource prototype changes
+-- rebuild_on: initial bootstrap, module runtime/eligibility version changes, explicit admin repair
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/vulcanus-fumaroles.md#contract
 local ei_lib = require("lib/lib")
@@ -324,15 +324,21 @@ local function ensure_surface_band_queues(root, surface_index)
     return queues
 end
 
+-- blueprint-ref: .codex/esir/blueprints/vulcanus-fumaroles.md#lifecycle
 function model.check_global()
     local state = get_state()
+    -- Capture invalidation before stamping versions or filling missing roots.
+    -- Registration/closure maintain counts between migrations and explicit repairs.
+    local runtime_changed = state.runtime_version ~= FUMAROLE_RUNTIME_VERSION
+    local eligibility_changed = state.eligibility_version ~= ELIGIBILITY_VERSION
+    local needs_active_recount = runtime_changed or eligibility_changed or state.active_band_counts == nil
 
-    if state.runtime_version ~= FUMAROLE_RUNTIME_VERSION then
+    if runtime_changed then
         state.runtime_version = FUMAROLE_RUNTIME_VERSION
         state.pending_eligibility_refresh = true
     end
 
-    if state.eligibility_version ~= ELIGIBILITY_VERSION then
+    if eligibility_changed then
         state.eligibility_version = ELIGIBILITY_VERSION
         state.pending_eligibility_refresh = true
         state.generated_band_counts = {}
@@ -405,7 +411,9 @@ function model.check_global()
         ensure_surface_band_queues(state.dormant_band_queues, surface_index)
     end
 
-    rebuild_active_band_counts(state)
+    if needs_active_recount then
+        rebuild_active_band_counts(state)
+    end
 
     if not state.backfill_bootstrapped and state_has_runtime_evidence(state) then
         state.backfill_bootstrapped = true
@@ -749,7 +757,7 @@ rebuild_active_band_counts = function(state)
     for _, record in pairs(state.active) do
         local surface = game and game.surfaces and game.surfaces[record.surface_index] or nil
         if model.is_vulcanus_surface(surface) then
-            local band_name = record.band_name or get_chunk_band_name(record.chunk_x, record.chunk_y)
+            local band_name = get_chunk_band_name(record.chunk_x, record.chunk_y)
             record.band_name = band_name
             increment_active_band_count(state, record.surface_index, band_name)
         end
@@ -1556,9 +1564,14 @@ local function finalize_closure(state, record, reason, current_tick)
     local surface = game.surfaces[record.surface_index]
     local position = record.position or get_chunk_center(record.chunk_x, record.chunk_y)
     local band_name = record.band_name or get_chunk_band_name(record.chunk_x, record.chunk_y)
+    local tracked = state.active[record.key] == record
 
-    remove_active_bucket_entry(state, record.surface_index, record.chunk_x, record.chunk_y)
-    decrement_active_band_count(state, record.surface_index, band_name)
+    -- Depletion can supply a synthetic, untracked record. Its effects/cooldown
+    -- still apply, but it never contributed to the active index or band count.
+    if tracked then
+        remove_active_bucket_entry(state, record.surface_index, record.chunk_x, record.chunk_y)
+        decrement_active_band_count(state, record.surface_index, band_name)
+    end
 
     if ei_lib.entity_check(record.entity) then
         pcall(function()
@@ -1580,7 +1593,9 @@ local function finalize_closure(state, record, reason, current_tick)
         register_dormant_candidate(state, surface, record.chunk_x, record.chunk_y, current_tick)
     end
 
-    state.active[record.key] = nil
+    if tracked then
+        state.active[record.key] = nil
+    end
     refresh_active_floor_state(state, current_tick)
 end
 
@@ -2255,12 +2270,11 @@ function model.on_init(_event)
     bootstrap_generated_chunks(false)
 end
 
-function model.on_configuration_changed(event)
+---@param _event ConfigurationChangedData
+function model.on_configuration_changed(_event)
     model.check_global()
-    if next(event.mod_changes or {}) ~= nil then
-        -- Real config changes should rebuild the pending queue even if the saved runtime sentinel matches.
-        get_state().pending_eligibility_refresh = true
-    end
+    -- Module versions own invalidation; unrelated mod/config changes must not
+    -- restart a saved backfill or supersede its rebuild-monitor generation.
     bootstrap_generated_chunks(false)
 end
 
@@ -2453,11 +2467,13 @@ commands.add_command(
                 return
             end
 
+            rebuild_active_band_counts(get_state())
             local queued = rebuild_backfill_surface(player.surface)
             print_command_feedback(command, {"description.auric-fumarole-rescan-success", queued})
             return
         end
 
+        rebuild_active_band_counts(get_state())
         local queued = rebuild_all_vulcanus_backfill()
         print_command_feedback(command, {"description.auric-fumarole-rescan-success", queued})
     end
@@ -2468,6 +2484,7 @@ commands.add_command(
 ---@param tick MapTick
 function model.repair_runtime_state(reason,tick)
     model.check_global()
+    rebuild_active_band_counts(get_state())
     rebuild_all_vulcanus_backfill()
     return true
 end
