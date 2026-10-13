@@ -92,7 +92,7 @@ local turret =
   {
     type = "fluid-turret",
 	  name = "ei-acidthrower-turret",
-	  icon = "__exotic-space-industries-remembrance-graphics-6__/graphics/items/acid-turret.png",
+	  icon = ei_graphics_6_path.."graphics/items/acid-turret.png",
 	  icon_size = 128,
 	  icon_mipmaps = 3,
     flags = {"placeable-player", "player-creation"},
@@ -263,7 +263,7 @@ require("prototypes/steam-age/acid-turret/pressure-jet")
 	{
 		type = "item",
 		name = "ei-acidthrower-turret",
-		icon = "__exotic-space-industries-remembrance-graphics-6__/graphics/items/acid-turret.png",
+		icon = ei_graphics_6_path.."graphics/items/acid-turret.png",
 		icon_size = 128,
 		icon_mipmaps = 3,
 		subgroup = "defensive-structure",
@@ -290,7 +290,7 @@ require("prototypes/steam-age/acid-turret/pressure-jet")
   {
     name = "ei-acidthrower-turret",
     type = "technology",
-    icon = "__exotic-space-industries-remembrance-graphics-6__/graphics/techs/acid-turret.png",
+    icon = ei_graphics_6_path.."graphics/techs/acid-turret.png",
     icon_size = 256,
     prerequisites = {"sulfur-processing","flammables","engine"},
     effects = {

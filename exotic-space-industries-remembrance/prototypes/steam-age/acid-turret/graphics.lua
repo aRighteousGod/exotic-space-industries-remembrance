@@ -5,15 +5,17 @@
 -- cadence: data stage only; native turret states control the accent glow
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/acidthrower-pressure-jet.md#contract
-local art = "__exotic-space-industries-remembrance-graphics-6__/graphics/entities/acidthrower-turret/"
+local art = ei_graphics_6_path.."graphics/entities/acidthrower-turret/"
 local facings = {"north", "east", "south", "west"}
 local projection = math.sqrt(0.5)
 -- Blender coordinates: +Y is north. Height is already baked into the head
 -- frames; only the fixed bearing's horizontal displacement belongs in shift.
 local bearing_x, bearing_y = 0.0014700282, 0.6423900127
--- Fit to the dark outlet/side-rim centres in the shipping atlas, independently
--- of the old model anchor. The height change raises the origin 0.74 native px.
-local muzzle_height = 0.87555 * projection
+-- One rotating outlet fitted to all nine user-selected grey-nozzle marks:
+-- acidthrower-grey-outlet-20261013-v1 (full atlas pixels, not rounded tiles).
+-- Liquid-frame registration belongs in pressure-jet.lua.
+local muzzle_height = 0.886152416900 * projection
+local muzzle_length = 0.854090101414
 -- Art-only fit: move the complete assembly 5.76 native pixels rearward so
 -- its existing sidewall meets the original vanilla covers. No atlas edit.
 local rear_offset = 0.18
@@ -112,8 +114,8 @@ return function(turret)
     for _,facing in ipairs(facings) do
         attack.gun_center_shift[facing] = {shifts[facing][1], shifts[facing][2]-muzzle_height}
     end
-    -- The lip is slightly ahead of the old bore anchor. Keep the native source
-    -- at the opening instead of burying the first visible bead in the sleeve.
-    attack.gun_barrel_length = 0.835
+    -- The nine marked grey openings establish this single rotating source.
+    -- The ribbon's intrinsic extent is tuned separately in pressure-jet.lua.
+    attack.gun_barrel_length = muzzle_length
     attack.ammo_type.action.action_delivery.source_offset = {0,0}
 end

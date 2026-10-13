@@ -1,0 +1,233 @@
+{
+  "calibration_id": "acidthrower-grey-outlet-20261013-v1",
+  "atlas_sha256": "a9d05dd5c9fce9e70b465dc933fd9a7783634ceeb83353ca1440714a45217105",
+  "model": "x=L*sin(frame*tau/256); y=-sqrt(.5)*(L*cos(frame*tau/256)+H)",
+  "barrel_length_tiles": 0.8540901014140113,
+  "muzzle_height_tiles": 0.8861524168995684,
+  "projected_height_tiles": 0.6266043831545334,
+  "objective": "minimise maximum marked-pose error in native pixels",
+  "least_squares_reference": {
+    "barrel_length_tiles": 0.8522661884140112,
+    "muzzle_height_tiles": 0.8808844438995684
+  },
+  "rms_native_pixels": 0.6483438210130249,
+  "max_native_pixels": 0.9371385926449658,
+  "points": [
+    {
+      "view": "ESE",
+      "label": "Angled right (ESE)",
+      "placement": "E",
+      "head_frame": 86,
+      "head_pixel": [
+        174.42,
+        108.87
+      ],
+      "relative_to_bearing_tiles": [
+        0.73,
+        -0.3
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        174.8849609920532,
+        107.76826747556635
+      ],
+      "residual_native_pixels": [
+        0.2324804960266107,
+        -0.5508662622168288
+      ],
+      "error_native_pixels": 0.5979137227740461
+    },
+    {
+      "view": "E",
+      "label": "East / right",
+      "placement": "E",
+      "head_frame": 64,
+      "head_pixel": [
+        181.69,
+        89.5
+      ],
+      "relative_to_bearing_tiles": [
+        0.84,
+        -0.6
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        182.66176649049672,
+        87.89731947810986
+      ],
+      "residual_native_pixels": [
+        0.4858832452483597,
+        -0.8013402609450679
+      ],
+      "error_native_pixels": 0.9371385926449658
+    },
+    {
+      "view": "S",
+      "label": "South / down",
+      "placement": "S",
+      "head_frame": 128,
+      "head_pixel": [
+        127.66,
+        126.16
+      ],
+      "relative_to_bearing_tiles": [
+        -0.01,
+        -0.03
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        128.0,
+        126.54902523517569
+      ],
+      "residual_native_pixels": [
+        0.1700000000000017,
+        0.1945126175878471
+      ],
+      "error_native_pixels": 0.2583314893714598
+    },
+    {
+      "view": "SE",
+      "label": "Southeast / down-right",
+      "placement": "E",
+      "head_frame": 103,
+      "head_pixel": [
+        159.57,
+        119.75
+      ],
+      "relative_to_bearing_tiles": [
+        0.49,
+        -0.13
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        159.4746929025975,
+        119.49836710749051
+      ],
+      "residual_native_pixels": [
+        -0.04765354870124838,
+        -0.12581644625474553
+      ],
+      "error_native_pixels": 0.13453861472453
+    },
+    {
+      "view": "NE",
+      "label": "Northeast / up-right",
+      "placement": "E",
+      "head_frame": 25,
+      "head_pixel": [
+        160.5,
+        56.43
+      ],
+      "relative_to_bearing_tiles": [
+        0.51,
+        -1.12
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        159.4746929025975,
+        56.296271848729205
+      ],
+      "residual_native_pixels": [
+        -0.5126535487012518,
+        -0.06686407563539731
+      ],
+      "error_native_pixels": 0.5169956146879419
+    },
+    {
+      "view": "W",
+      "label": "West / left",
+      "placement": "W",
+      "head_frame": 192,
+      "head_pixel": [
+        74.57,
+        89.31
+      ],
+      "relative_to_bearing_tiles": [
+        -0.83,
+        -0.6
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        73.33823350950328,
+        87.89731947810986
+      ],
+      "residual_native_pixels": [
+        -0.6158832452483551,
+        -0.7063402609450691
+      ],
+      "error_native_pixels": 0.93713858954244
+    },
+    {
+      "view": "N",
+      "label": "North / up",
+      "placement": "N",
+      "head_frame": 0,
+      "head_pixel": [
+        127.82,
+        47.38
+      ],
+      "relative_to_bearing_tiles": [
+        0,
+        -1.26
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        128.0,
+        49.24561372104404
+      ],
+      "residual_native_pixels": [
+        0.09000000000000341,
+        0.9328068605220174
+      ],
+      "error_native_pixels": 0.937138537803746
+    },
+    {
+      "view": "SW",
+      "label": "Southwest / down-left",
+      "placement": "S",
+      "head_frame": 153,
+      "head_pixel": [
+        97.6,
+        119.38
+      ],
+      "relative_to_bearing_tiles": [
+        -0.48,
+        -0.13
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        96.5253070974025,
+        119.49836710749052
+      ],
+      "residual_native_pixels": [
+        -0.5373464512987454,
+        0.05918355374526385
+      ],
+      "error_native_pixels": 0.5405958765633284
+    },
+    {
+      "view": "NW",
+      "label": "Northwest / up-left",
+      "placement": "W",
+      "head_frame": 231,
+      "head_pixel": [
+        95.76,
+        56.27
+      ],
+      "relative_to_bearing_tiles": [
+        -0.5,
+        -1.12
+      ],
+      "source_pixel_scale": 0.5,
+      "fitted_head_pixel": [
+        96.5253070974025,
+        56.296271848729205
+      ],
+      "residual_native_pixels": [
+        0.38265354870124924,
+        0.013135924364600982
+      ],
+      "error_native_pixels": 0.3828789506391959
+    }
+  ]
+}

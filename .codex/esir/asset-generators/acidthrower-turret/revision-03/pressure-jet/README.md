@@ -1,8 +1,47 @@
 # Acidthrower revision 03 / pressure jet
 
+## Approved short ribbon / 2026-10-13
+
+The current production origin and 32-pixel ribbon crop follow the nine
+user-selected grey-nozzle marks and canonical turning captures. All shipping
+art stays in Graphics 6; this revision changes prototype registration and frame
+selection, not PNGs. See [origin-calibration/README.md](origin-calibration/README.md)
+for the fit, rejected half-length offsets, short-ribbon refinements and replay.
+The older reports below do not establish continuous nozzle attachment.
+
 Artifact root: `D:/CodexArtifacts/esir-acidthrower-20261009/revision-03/pressure-jet`.
 All heavy render, cache, fixture, screenshot and benchmark writes belong on D:.
 No Meshy task, model change or machine-sprite regeneration is involved.
+
+## Dispersion-03 / grey nozzle and softer onset / 2026-10-12
+
+The current repair is in `pressure-jet.lua`: native animation registration puts
+the visible liquid at the grey cylinder's opening ahead of the ivory housing.
+Flecks begin at 12 percent flight, grow from 0.05 to 1 over their 12-tick lifetime,
+fade in for eight ticks and out for four. Source frequency drops from 0.8 to
+0.59 to compensate for the longer emitting path; late profiles still divide it.
+No PNG, model, damaging cadence or runtime handler changes are needed.
+
+Final evidence: `D:/CodexArtifacts/esir-acidthrower-20261012/dispersion-03-soft`.
+The earlier `dispersion-03` sibling preserves a rejected, too-prominent onset.
+See [DISPERSION-03-VALIDATION.md](DISPERSION-03-VALIDATION.md) for measured results.
+The replay baseline must include the approved 35-percent wet flecks, not the
+older no-dispersion jet or lobbed flame:
+
+```powershell
+$jetRoot='D:/CodexArtifacts/esir-acidthrower-20261012/dispersion-03-soft'
+python -B scripts/qc/acid-jet/build_baseline.py --root $jetRoot `
+  --source-data D:/CodexArtifacts/esir-acidthrower-20261012/delivery-3409af86/qc/original-visual/script-output/final-data.json `
+  --source-art exotic-space-industries-remembrance-graphics-6/graphics/entities/acidthrower-turret/pressure-jet
+& ./scripts/invoke-acid-jet-qc.ps1 -ArtifactRoot $jetRoot -Visual -Profiles original `
+  -SeedMods D:/CodexArtifacts/esir-acidthrower-20261009/revision-03/pressure-jet/dispersion-02/qc/mods
+& ./scripts/invoke-acid-jet-qc.ps1 -ArtifactRoot $jetRoot -ProbeOnly -Profiles 2x,4x,8x,16x `
+  -SeedMods D:/CodexArtifacts/esir-acidthrower-20261009/revision-03/pressure-jet/dispersion-02/qc/mods
+python -B scripts/qc/acid-jet/review_dispersion.py --root $jetRoot --profiles original
+python -B scripts/qc/acid-jet/review_onset.py $jetRoot --out "$jetRoot/onset"
+```
+
+The sections below preserve historical settings and validation for dispersion-02.
 
 ## Dispersion-02 / 2026-10-12
 
@@ -69,9 +108,9 @@ reaching the existing radius-three footprint, without a persistent puddle.
 The Blender generator creates the liquid geometry locally, through the existing
 Factorio preset at 64 source pixels per tile with separate Object/Shadow passes.
 The 16-frame spine is 64x32; 16-frame particles are 32x32; the 24-frame splash is
-512x512. Runtime scale 0.5 yields 32 native pixels per tile. The spine's short
-intrinsic extent prevents its native connecting segment from extending backward
-over the turret. The original 256-pixel draft and selected comparison captures
+512x512. Runtime scale 0.5 yields 32 native pixels per tile. The former 64-pixel intrinsic extent still overdraws the grey barrel in current
+canonical captures; production now selects a central 32-pixel window. The
+original 256-pixel draft and selected comparison captures
 are retained under `iterations/initial-wire`.
 
 | Shipping file | Role |

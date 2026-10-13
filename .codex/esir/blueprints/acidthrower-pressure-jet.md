@@ -43,10 +43,27 @@ The existing 9–38 tile range, 96-degree aiming sector, rotation speed, machine
 graphics, placement shifts, secondary draw order, sound and active-only machine
 glow remain owned by the existing turret definition and graphics module.
 
-The native muzzle now uses barrel length 0.835 and projected height
-`0.87555 * sqrt(0.5)`. Independent shipping-atlas outlet measurements and native
-source markers drive this small lip/height correction; model anchors alone do
-not establish visible alignment. Bearing and placement shifts remain unchanged.
+The native muzzle uses barrel length `0.854090101414` and projected height
+`0.886152416900 * sqrt(0.5)`. One rotating origin fits all nine user-selected
+grey-nozzle openings in `acidthrower-grey-outlet-20261013-v1`; the maximum marked
+pose error is 0.94 native pixels. Bearing, machine scale and placement shifts
+remain unchanged. The grey cylindrical opening ahead of the ivory housing is
+the reference, not the stored model anchor.
+
+The user-approved short ribbon samples the central 32 pixels of each existing
+64x32 source cell through sixteen animation stripes. Its unchanged Graphics-6
+sheet retains all sixteen animated liquid profiles. Animation shifts remain
+2.25 native pixels for the spine and 1.35 for the droplet. The native spine
+transform amplifies longitudinal artwork shifts, so adding half a ribbon is
+not a fixed on-screen correction. Keep the physical launch at the fitted tip.
+
+Canonical turning tests under the active Original profile reproduce the former
+backward overdraw and favour the 32-pixel crop. Nearby widths, small shifts and
+the no-crop flag offer no consistent improvement. Some native emission phases
+still show a brief gap; this accepted visual tradeoff does not certify one-pixel
+ribbon attachment in every frame. Do not add particles or a runtime controller
+to conceal it. Source-effect markers measure stream creation/replacement only.
+See the [calibration dossier](../asset-generators/acidthrower-turret/revision-03/pressure-jet/origin-calibration/README.md).
 
 <a id='dispersion'></a>
 ## Downrange liquid breakup and wet corrosion
@@ -55,10 +72,17 @@ The original narrow connected ribbon remains intact. Native scale/playback
 probes did not establish reliable travel-age widening: scale-per-part changed
 the relative sizes inside an emitted burst rather than providing the desired
 downrange envelope. Therefore the stream starts cosmetic trivial-smoke flecks
-at projectile progress 0.35. The normal-blend animation contains separated wet
+at projectile progress 0.12. The normal-blend animation contains separated wet
 beads, not smoke artwork. The 12-tick effect has no wind, movement, vertical
-velocity, light, action or damage. Its source frequency is 0.8 under Original,
+velocity, light, action or damage. It grows from scale 0.05 to 1 over its whole
+lifetime, fades in for eight ticks and fades out for four, with no opaque plateau.
+This gives earlier, smaller and fainter visible breakup; stationary clusters do
+not implement deterministic growth with each projectile's distance. Sustained
+native captures, rather than startup alone, establish the softened onset.
+Its source frequency is 0.59 under Original,
 divided by the existing late performance factor. No damaging emission is added.
+The longer emitting path is compensated: `0.59 * (1 - 0.12) = 0.5192`, below
+the former `0.8 * (1 - 0.35) = 0.52` nominal source budget. Lifetime stays fixed.
 The ordinary smoke-quality graphics opt-out remains active. Sparse segments and
 visual clipping are acceptable at higher performance factors; never increase
 cosmetic density or runtime work to conceal them.
@@ -125,6 +149,11 @@ lobbed flame. Both sides include the approved 8x/16x refresh fix. Flight parity
 allows one tick for the small physical muzzle correction; damage/fluid parity
 has no legacy restoration exception. Small/large/moving sticker fixtures check
 refresh and expiry after the final landing plus the 900-tick lifetime.
+Dispersion-03 instead freezes the already approved wet flecks too, including
+their image, source frequency and lifecycle. Its visible-attachment review
+measures actual green pixels against the grey outlet across twelve poses.
+Clean/marked captures are different emission phases: compare matching phases,
+and preserve deliberate cadence gaps instead of adding particles to hide them.
 
 Visual fixtures cover four placement facings, nominal ranges 9/24/38, centre and
 sector edges, daylight/night, moving targets, retargeting and shutdown. Tiny

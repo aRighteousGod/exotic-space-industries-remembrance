@@ -1,0 +1,55 @@
+<div id="acid-origin-compare-v1">
+  <div class="viz-controls">
+    <label class="form-label">Pose<select class="form-select" data-pose></select></label>
+    <label class="form-check"><input class="form-check-input" type="checkbox" data-marker><span class="form-check-label">Show fitted opening</span></label>
+    <label class="form-check"><input class="form-check-input" type="checkbox" data-native><span class="form-check-label">Native size</span></label>
+  </div>
+  <div class="viz-row"><button class="btn" type="button" data-play>Play sequence</button><span class="tabular-nums" data-tick></span></div>
+  <label class="form-label">Captured firing frame<input class="form-range" type="range" min="0" max="15" value="0" data-frame></label>
+  <div class="comparison-grid" data-panels></div>
+  <style>
+    #acid-origin-compare-v1 .comparison-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+    #acid-origin-compare-v1 figure{margin:0;min-width:0}
+    #acid-origin-compare-v1 figcaption{color:var(--foreground);margin-bottom:8px;font-weight:500}
+    #acid-origin-compare-v1 .capture{position:relative;width:256px;max-width:100%}
+    #acid-origin-compare-v1 .capture img{display:block;width:100%;image-rendering:pixelated}
+    #acid-origin-compare-v1 .capture svg{position:absolute;inset:0;width:100%;height:100%;color:var(--orange);pointer-events:none}
+    #acid-origin-compare-v1 .native .capture{width:64px}
+    @media(max-width:460px){#acid-origin-compare-v1 .comparison-grid{grid-template-columns:1fr}}
+  </style>
+  <script type="application/json" data-images>__COMPARISON_DATA__</script>
+  <script>
+  (()=>{
+    const root=document.getElementById('acid-origin-compare-v1');
+    const data=JSON.parse(root.querySelector('[data-images]').textContent);
+    const pose=root.querySelector('[data-pose]'), frame=root.querySelector('[data-frame]');
+    const marker=root.querySelector('[data-marker]'), native=root.querySelector('[data-native]');
+    const panels=root.querySelector('[data-panels]'), play=root.querySelector('[data-play]');
+    let timer=null;
+    data.groups.forEach((g,i)=>{const o=document.createElement('option');o.value=i;o.textContent=g.label;pose.append(o)});
+    data.labels.forEach(label=>{
+      const fig=document.createElement('figure'),caption=document.createElement('figcaption');caption.textContent=label;
+      const box=document.createElement('div');box.className='capture';
+      const img=document.createElement('img');img.alt=label+' at the grey nozzle opening';box.append(img);
+      box.insertAdjacentHTML('beforeend','<svg viewBox="0 0 128 112" aria-label="Fitted grey opening"><circle cx="64" cy="56" r="3" fill="none" stroke="currentColor" stroke-width="1"/></svg>');
+      fig.append(caption,box);panels.append(fig);
+    });
+    function render(){
+      const group=data.groups[Number(pose.value)];frame.max=group.frames.length-1;
+      frame.value=Math.min(Number(frame.value),group.frames.length-1);
+      const capture=group.frames[Number(frame.value)];
+      panels.querySelectorAll('img').forEach((im,i)=>im.src=capture.images[i]);
+      panels.querySelectorAll('svg').forEach(s=>s.style.display=marker.checked?'block':'none');
+      panels.classList.toggle('native',native.checked);
+      root.querySelector('[data-tick]').textContent='Tick '+capture.tick+' · Original profile · Factorio 2.0.77';
+    }
+    function save(){if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{pose:data.groups[Number(pose.value)].label,tick:data.groups[Number(pose.value)].frames[Number(frame.value)].tick},privateContent:{pose:Number(pose.value),frame:Number(frame.value),marker:marker.checked,native:native.checked}}).catch(()=>{});}
+    function restore(state){const s=state?.privateContent;if(!s)return;if(data.groups[s.pose])pose.value=s.pose;frame.value=s.frame||0;marker.checked=!!s.marker;native.checked=!!s.native;render();}
+    function stop(){clearInterval(timer);timer=null;play.textContent='Play sequence';}
+    [pose,frame,marker,native].forEach(el=>el.addEventListener('input',()=>{stop();render();save();}));
+    play.addEventListener('click',()=>{if(timer){stop();return;}frame.value=0;render();play.textContent='Pause';timer=setInterval(()=>{if(Number(frame.value)>=Number(frame.max)){stop();save();return;}frame.value=Number(frame.value)+1;render();},120);});
+    window.addEventListener('openai:set_globals',e=>restore(e.detail?.globals?.widgetState));
+    render();restore(window.openai?.widgetState);
+  })();
+  </script>
+</div>

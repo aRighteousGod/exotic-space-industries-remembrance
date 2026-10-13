@@ -1,0 +1,127 @@
+<div id="acid-origin-picker">
+  <style>
+    #acid-origin-picker .acid-stage {display:block;width:100%;height:auto;max-height:450px;touch-action:manipulation;background:var(--muted);margin:12px 0;}
+    #acid-origin-picker .acid-stage image {image-rendering:pixelated;}
+    #acid-origin-picker .acid-mark {stroke:var(--viz-series-1);fill:none;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none;}
+    #acid-origin-picker .acid-halo {stroke:var(--background);fill:none;stroke-width:4;vector-effect:non-scaling-stroke;pointer-events:none;}
+    #acid-origin-picker .acid-step {display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+    #acid-origin-picker .acid-step .form-label {flex:1;min-width:180px;}
+    #acid-origin-picker .acid-coordinates {display:flex;gap:12px;flex-wrap:wrap;}
+    #acid-origin-picker .acid-coordinates .form-label {flex:1;min-width:110px;}
+    #acid-origin-picker .acid-result {margin-top:10px;}
+    #acid-origin-picker details {margin-top:12px;}
+  </style>
+  <div class="acid-step">
+    <label class="form-label">Turret view
+      <select class="form-select" id="acid-view" aria-label="Turret view"></select>
+    </label>
+    <span id="acid-count" class="text-small tabular-nums" aria-live="polite">0 of 9 marked</span>
+  </div>
+  <svg id="acid-stage" class="acid-stage cursor-interaction" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Enlarged acidthrower head. Click the exact point where the stream should begin.">
+    <title>Mark the intended stream origin on the grey barrel tip</title>
+    <image id="acid-base" width="320" height="320"></image>
+    <image id="acid-head" width="256" height="256"></image>
+    <g id="acid-selection" visibility="hidden">
+      <circle class="acid-halo" cx="0" cy="0" r="2.2"></circle>
+      <path class="acid-halo" d="M-5 0H-2.8 M2.8 0H5 M0-5V-2.8 M0 2.8V5"></path>
+      <circle class="acid-mark" cx="0" cy="0" r="2.2"></circle>
+      <path class="acid-mark" d="M-5 0H-2.8 M2.8 0H5 M0-5V-2.8 M0 2.8V5"></path>
+    </g>
+  </svg>
+  <div class="viz-row">
+    <button class="btn" id="acid-previous" type="button">Previous view</button>
+    <button class="btn" id="acid-next" type="button">Next view</button>
+    <button class="btn btn-ghost" id="acid-clear" type="button" disabled>Clear this mark</button>
+    <span id="acid-status" class="text-small" aria-live="polite">Unmarked</span>
+  </div>
+  <details>
+    <summary class="text-small">Fine positioning</summary>
+    <div class="acid-coordinates">
+      <label class="form-label">Horizontal point<input class="form-control" id="acid-x" type="number" min="0" max="256" step="0.25" disabled></label>
+      <label class="form-label">Vertical point<input class="form-control" id="acid-y" type="number" min="0" max="256" step="0.25" disabled></label>
+    </div>
+  </details>
+  <div class="viz-row acid-result">
+    <button class="btn btn-primary" type="button" id="acid-send" disabled>Send marked points</button>
+  </div>
+  <div id="acid-send-status" class="text-small" role="status"></div>
+  <details id="acid-fallback" hidden>
+    <summary>Selection text</summary>
+    <label class="form-label">Paste this into the conversation if sending is unavailable<textarea id="acid-export" class="form-control" rows="5" readonly></textarea></label>
+  </details>
+  <script type="application/json" id="acid-origin-data">__ACID_DATA__</script>
+  <script>
+    (()=>{
+      const root=document.getElementById('acid-origin-picker');
+      const data=JSON.parse(root.querySelector('#acid-origin-data').textContent);
+      const poses=data.poses, selector=root.querySelector('#acid-view'), stage=root.querySelector('#acid-stage');
+      const base=root.querySelector('#acid-base'), head=root.querySelector('#acid-head'), marker=root.querySelector('#acid-selection');
+      const count=root.querySelector('#acid-count'), status=root.querySelector('#acid-status'), send=root.querySelector('#acid-send');
+      const xInput=root.querySelector('#acid-x'), yInput=root.querySelector('#acid-y');
+      const round=n=>Math.round(n*100)/100;
+      let index=0, marks={};
+      poses.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.label;selector.append(o)});
+      function payload(){return {calibration_id:data.calibration_id,atlas_sha256:data.atlas_sha256,points:poses.filter(p=>marks[p.id]).map(p=>({view:p.id,label:p.label,placement:p.placement,head_frame:p.head_frame,head_pixel:marks[p.id],relative_to_bearing_tiles:marks[p.id].map(v=>round((v-128)/64)),source_pixel_scale:.5}))}}
+      function persist(){
+        const api=window.openai;
+        if(api&&api.setWidgetState) Promise.resolve(api.setWidgetState({modelContent:payload(),privateContent:{version:1,view:poses[index].id,marks}})).catch(()=>{});
+      }
+      function update(){
+        const p=poses[index], m=marks[p.id];
+        selector.value=p.id;
+        base.setAttribute('href',data.bases[p.placement]);base.setAttribute('x',p.base_offset[0]);base.setAttribute('y',p.base_offset[1]);
+        head.setAttribute('href',p.image);head.setAttribute('x',p.head_offset[0]);head.setAttribute('y',p.head_offset[1]);
+        stage.setAttribute('viewBox',p.viewbox.join(' '));
+        stage.setAttribute('aria-label',p.label+'. Click the exact point where the stream should begin.');
+        marker.setAttribute('visibility',m?'visible':'hidden');
+        if(m)marker.setAttribute('transform',`translate(${m[0]+p.head_offset[0]} ${m[1]+p.head_offset[1]})`);
+        xInput.disabled=yInput.disabled=!m;xInput.value=m?m[0]:'';yInput.value=m?m[1]:'';
+        root.querySelector('#acid-clear').disabled=!m;
+        status.textContent=m?'Your outlet marked':'Unmarked';
+        const n=Object.keys(marks).length;count.textContent=`${n} of ${poses.length} marked`;send.disabled=n===0;
+        root.querySelector('#acid-previous').disabled=index===0;
+        root.querySelector('#acid-next').disabled=index===poses.length-1;
+        selector.querySelectorAll('option').forEach((o,i)=>{o.textContent=poses[i].label+(marks[poses[i].id]?' — marked':'')});
+      }
+      function mark(x,y){
+        if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>256||y<0||y>256)return;
+        marks[poses[index].id]=[round(x),round(y)];update();persist();
+      }
+      stage.addEventListener('click',event=>{
+        const ctm=stage.getScreenCTM();if(!ctm)return;
+        const q=new DOMPoint(event.clientX,event.clientY).matrixTransform(ctm.inverse());
+        const p=poses[index];mark(q.x-p.head_offset[0],q.y-p.head_offset[1]);
+      });
+      xInput.addEventListener('change',()=>mark(Number(xInput.value),Number(yInput.value)));
+      yInput.addEventListener('change',()=>mark(Number(xInput.value),Number(yInput.value)));
+      selector.addEventListener('change',()=>{index=poses.findIndex(p=>p.id===selector.value);update();persist()});
+      root.querySelector('#acid-previous').addEventListener('click',()=>{index=Math.max(0,index-1);update();persist()});
+      root.querySelector('#acid-next').addEventListener('click',()=>{index=Math.min(poses.length-1,index+1);update();persist()});
+      root.querySelector('#acid-clear').addEventListener('click',()=>{delete marks[poses[index].id];update();persist()});
+      function restore(state){
+        if(!state)return;
+        const m=state.modelContent, priv=state.privateContent;
+        if(m?.calibration_id!==data.calibration_id||m?.atlas_sha256!==data.atlas_sha256)return;
+        marks={};
+        for(const p of m.points||[]){if(poses.some(v=>v.id===p.view)&&Array.isArray(p.head_pixel)&&p.head_pixel.length===2&&p.head_pixel.every(v=>Number.isFinite(v)&&v>=0&&v<=256))marks[p.view]=p.head_pixel;}
+        const restored=poses.findIndex(p=>p.id===priv?.view);if(restored>=0)index=restored;
+        update();
+      }
+      send.addEventListener('click',async()=>{
+        const prompt='Use these user-selected acidthrower barrel-tip points to calibrate the stream origin. They refer to the grey nozzle opening, ahead of the ivory housing. Fit one rotating origin from these marks and show the fitted attachment against the marked poses before any additional direction requests. Then test the canonical turret while turning at the active performance profile; earlier static helper checks did not match my in-game screenshot.\n'+JSON.stringify(payload());
+        const message=root.querySelector('#acid-send-status');
+        send.disabled=true;
+        try{
+          if(!window.openai?.sendFollowUpMessage)throw new Error('Host sending unavailable');
+          await window.openai.sendFollowUpMessage({prompt,title:'Use these barrel-tip marks'});
+          message.textContent='Marked points sent.';
+        }catch(error){
+          root.querySelector('#acid-fallback').hidden=false;root.querySelector('#acid-fallback').open=true;
+          root.querySelector('#acid-export').value=prompt;message.textContent='Sending is unavailable here. Copy the selection text below.';
+        }finally{send.disabled=Object.keys(marks).length===0}
+      });
+      update();restore(window.openai?.widgetState);
+      window.addEventListener('openai:set_globals',event=>restore(event.detail?.globals?.widgetState));
+    })();
+  </script>
+</div>

@@ -1,4 +1,5 @@
 local config=require("test-config")
+if config.origin_probe then require("origin-probe-data");return end
 if config.dispersion_probe then require("dispersion-probe-data");return end
 local baseline=config.pressure_baseline and require("baseline/contract")
 local factor=config.profile=="original" and 1 or tonumber(config.profile:match("%d+"))
@@ -18,10 +19,11 @@ assert(stream.action[2].type=="direct" and stream.action[2].action_delivery.targ
 assert(original.attack_parameters.range==38 and original.attack_parameters.min_range==9)
 assert(original.graphics_set.base_visualisation[1].render_layer=="object" and original.gun_animation_secondary_draw_order==4)
 assert(source.particle_horizontal_speed==.85 and alias.particle_horizontal_speed==.85)
-assert(source.progress_to_create_smoke==.35 and stream.progress_to_create_smoke==.35)
-assert(source.smoke_sources[1].frequency==.8 and stream.smoke_sources[1].frequency==.8/factor)
+assert(source.progress_to_create_smoke==.12 and stream.progress_to_create_smoke==.12)
+assert(source.smoke_sources[1].frequency==.59 and stream.smoke_sources[1].frequency==.59/factor)
 local flecks=data.raw["trivial-smoke"]["ei-acid-pressure-flecks"]
 assert(flecks.duration==12 and not flecks.affected_by_wind and flecks.movement_slow_down_factor==0)
+assert(flecks.fade_in_duration==8 and flecks.spread_duration==12 and flecks.start_scale==.05 and flecks.end_scale==1)
 assert(flecks.animation.blend_mode=="normal" and not flecks.animation.draw_as_glow and not flecks.animation.draw_as_light)
 local retired={fire={"ei-acid-flame","ei-fire-flame-small","ei-acid-flame-small","ei-acid-flame-on-tree"},
     ["trivial-smoke"]={"ei-acid-smoke","ei-acid-smoke-without-glow","ei-soft-acid-smoke","ei-acid-smoke-on-adding-fuel"},
@@ -60,7 +62,15 @@ for _,variant in ipairs{"old","new"} do
             turret.attack_parameters.gun_center_shift=table.deepcopy(baseline.attack.gun_center_shift)
             turret.attack_parameters.ammo_type.action.action_delivery.source_offset=table.deepcopy(baseline.source_offset)
             for key,value in pairs(baseline.stream) do jet[key]=table.deepcopy(value) end
-            jet.smoke_sources=nil;jet.progress_to_create_smoke=nil
+            if baseline.flecks then
+                local frozen_flecks=table.deepcopy(baseline.flecks)
+                frozen_flecks.name=turret.name.."-flecks"
+                data:extend{frozen_flecks}
+                jet.smoke_sources[1].name=frozen_flecks.name
+                jet.smoke_sources[1].frequency=baseline.stream.smoke_sources[1].frequency/factor
+            else
+                jet.smoke_sources=nil;jet.progress_to_create_smoke=nil
+            end
             local coating=table.deepcopy(data.raw.sticker[jet.action[1].action_delivery.target_effects[1].sticker])
             coating.name=turret.name.."-sticker";coating.animation=table.deepcopy(baseline.sticker_animation)
             data:extend{coating}

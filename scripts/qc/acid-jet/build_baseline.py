@@ -12,12 +12,15 @@ args=p.parse_args();out=args.root/'baseline';out.mkdir(parents=True,exist_ok=Tru
 d=json.loads(args.source_data.read_text())
 keys=['spine_animation','particle','shadow','particle_start_scale','particle_scale_per_part',
     'width','particle_loop_frame_count','particle_loop_exit_threshold','particle_fade_out_threshold',
-    'particle_fade_out_duration','particle_end_alpha']
+    'particle_fade_out_duration','particle_end_alpha','smoke_sources','progress_to_create_smoke']
 stream={k:d['resolved'][k] for k in keys if k in d['resolved']}
 assert stream['spine_animation']['width']==64 and stream['spine_animation']['frame_count']==16,'Use the approved FINAL 64px ribbon snapshot'
 files=[]
-for kind in ['spine_animation','particle','shadow']:
-    a=stream[kind];name=a['filename'].split('/')[-1];source=args.source_art/name;destination=out/name
+flecks=d.get('flecks') if stream.get('smoke_sources') else None
+animations=[stream[kind] for kind in ['spine_animation','particle','shadow']]
+if flecks:animations.append(flecks['animation'])
+for a in animations:
+    name=a['filename'].split('/')[-1];source=args.source_art/name;destination=out/name
     pixels=Image.open(source)
     assert pixels.width==a['width']*a['line_length']
     assert pixels.height==a['height']*((a['frame_count']+a['line_length']-1)//a['line_length'])
@@ -29,6 +32,7 @@ for kind in ['spine_animation','particle','shadow']:
 contract={'attack':{k:d['turret']['attack_parameters'][k] for k in ['gun_barrel_length','gun_center_shift']},
     'source_offset':d['turret']['attack_parameters']['ammo_type']['action']['action_delivery']['source_offset'],
     'stream':stream,'sticker_animation':d['sticker']['animation']}
+if flecks:contract['flecks']=flecks
 animation=contract['sticker_animation']
 if not animation['filename'].startswith('__base__/'):
     name=animation['filename'].split('/')[-1]

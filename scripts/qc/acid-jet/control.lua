@@ -1,4 +1,5 @@
 local config=require("test-config")
+if config.origin_probe then require("origin-probe-control");return end
 if config.dispersion_probe then require("dispersion-probe-control");return end
 local directions={defines.direction.north,defines.direction.east,defines.direction.south,defines.direction.west}
 local warmup,measured=1800,7200

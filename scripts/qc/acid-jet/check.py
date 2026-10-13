@@ -17,6 +17,17 @@ for name in ('source','resolved','alias'):
     jet=data[name]
     assert jet['particle_horizontal_speed']==.85 and jet['particle_vertical_acceleration']==.00025
     assert jet['particle_buffer_size']==120 and jet['action'][0]['radius']==3
+    assert jet['progress_to_create_smoke']==.12
+factor=1 if report['profile']=='original' else int(report['profile'][:-1])
+assert data['source']['smoke_sources'][0]['frequency']==.59
+for name in ('resolved','alias'):
+    assert data[name]['smoke_sources'][0]['frequency']==.59/factor
+flecks=data['flecks']
+assert (flecks['duration'],flecks['fade_in_duration'],flecks['spread_duration'])==(12,8,12)
+assert (flecks['start_scale'],flecks['end_scale'])==(.05,1)
+# Compare expected source work over normalized flight, not just frequency:
+# an earlier start otherwise creates more cosmetic smoke at the same cadence.
+assert .59*(1-.12)<=.8*(1-.35)
 assert data['turret']['attack_parameters']['lead_target_for_projectile_speed']==.85
 assert sum(len(names) for names in data['retired'].values())==10
 assert data['poison']['animation']['filename'].endswith('/acid-flame/spark.png')

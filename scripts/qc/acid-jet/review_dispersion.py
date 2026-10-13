@@ -21,13 +21,38 @@ shifts=[(bearing_x,-bearing_y+.18),(bearing_y-.18,bearing_x),
         (-bearing_x,bearing_y-.18),(-bearing_y+.18,-bearing_x)]
 html=['<!doctype html><meta charset="utf-8"><title>Acidthrower liquid dispersion</title>',
     '<style>body{background:#1b1f21;color:#eee;font:16px system-ui;margin:24px}img{max-width:100%;image-rendering:pixelated}a{color:#afcf78}details{margin:20px 0}.native{max-width:none}button{padding:8px}</style>',
-    '<h1>Acidthrower / wet corrosion and controlled dispersion</h1>',
+    '<h1>Acidthrower / nozzle attachment and liquid breakup</h1>',
     '<p>Fresh Factorio 2.0.77 captures. Approved pressure jet above, revised liquid breakup below. Cyan muzzle markers show actual native launch positions. No machine image was regenerated.</p>',
+    '<p>The attachment report measures actual green ribbon pixels against the grey cylindrical outlet ahead of the ivory housing. Clean and marked captures are separate emission phases; sparse phase gaps are retained.</p>',
     '<button onclick="document.querySelectorAll(\'img\').forEach(i=>i.classList.toggle(\'native\'))">Toggle native pixels / fit window</button>']
-metrics=[];muzzles=[]
+metrics=[];muzzles=[];attachments=[]
 
 def world_to_screen(pos,centre,size,zoom=1):
     return (np.array([pos['x'],pos['y']])-centre)*32*zoom+np.array(size)/2
+
+def ribbon_attachment(row,path,marked):
+    """Measure real green pixels, not only the native source marker.
+
+    Clean/marked captures are different emission phases. Never subtract them:
+    a sparse phase can legitimately have no liquid in the first six pixels.
+    """
+    im=Image.open(path).convert('RGB');a=np.asarray(im,dtype=float);zoom=4
+    centre=np.array([row['position']['x'],row['position']['y']-.3])
+    start=world_to_screen(row['last_source_position'],centre,im.size,zoom)
+    theta=row['last_launch_orientation']*2*math.pi
+    along=np.array([math.sin(theta),-math.cos(theta)]);normal=np.array([-along[1],along[0]])
+    y,x=np.indices(a.shape[:2]);xy=np.stack([x-start[0],y-start[1]],axis=-1)
+    u=xy@along;w=xy@normal
+    green=(a[:,:,1]>45)&(a[:,:,1]>a[:,:,0]*1.15)&(a[:,:,1]>a[:,:,2]*1.8)
+    near=green&(u>-16)&(u<25)&(np.abs(w)<20)
+    frame,ax,ay,visible=outlets[(row['facing'],row['angle'])]
+    relative=np.array(shifts[row['facing']-1])+np.array([ax-128,ay-128])/64
+    outlet=relative*32*zoom+np.array(im.size)/2+np.array([0,.3*32*zoom])
+    pixels=np.column_stack((x[near],y[near]));corridor=green&(u>=-16)&(u<=128)&(np.abs(w)<16)
+    return {'key':row['key'],'marked':marked,'visible_bore':visible,
+        'mean_transverse_pixels':float(w[near].mean()/zoom) if near.any() else None,
+        'nearest_liquid_to_grey_outlet_pixels':float(np.linalg.norm(pixels-outlet,axis=1).min()/zoom) if near.any() else None,
+        'first_liquid_along_pixels':float(u[corridor].min()/zoom) if corridor.any() else None}
 
 def widths(row,path,night):
     im=Image.open(path).convert('RGB');a=np.asarray(im,dtype=float)
@@ -139,6 +164,10 @@ for profile in args.profiles:
                 'marked_frame':frame,'engine_frame_estimate':actual_frame,'visible_bore':visible,
                 'manual_source_pixel':[x,y],'error_native_pixels':float(np.linalg.norm(actual-expected)*32),
                 'actual_relative':actual.tolist(),'marked_relative':expected.tolist()})
+        if row['distance']==24:
+            for marked in (False,True):
+                name=f'muzzle-{row["facing"]}-{row["angle"]}-{row["variant"]}'+('-marked' if marked else '')+'.png'
+                attachments.append({'profile':profile,**ribbon_attachment(row,captures/name,marked)})
     html.append('<details><summary>Every native capture</summary><ul>')
     for name in report['captures']:html.append(f'<li><a href="../qc/{profile}-visual/script-output/captures/{name}.png">{name}</a></li>')
     html.append('</ul></details>')
@@ -148,7 +177,7 @@ for r in before:
     path=Path('exotic-space-industries-remembrance-graphics-6/graphics/entities/acidthrower-turret')/Path(r['Path']).name
     hashes.append({'file':str(path),'unchanged':hashlib.sha256(path.read_bytes()).hexdigest().upper()==r['Hash']})
 assert len(hashes)==7 and all(r['unchanged'] for r in hashes)
-result={'matrix_widths':metrics,'outlet_measurements':muzzles,'machine_hashes':hashes,
+result={'matrix_widths':metrics,'outlet_measurements':muzzles,'visible_ribbon_attachment':attachments,'machine_hashes':hashes,
     'manual_measurement_uncertainty_source_pixels':{'visible_bores':1,'inferred_caps':2}}
 (root/'dispersion-visual-qa.json').write_text(json.dumps(result,indent=2))
 (gallery/'index.html').write_text('\n'.join(html),encoding='utf-8')

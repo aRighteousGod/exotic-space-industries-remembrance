@@ -1,0 +1,141 @@
+{
+  "calibration_id": "acidthrower-grey-outlet-20261013-v1",
+  "atlas_sha256": "a9d05dd5c9fce9e70b465dc933fd9a7783634ceeb83353ca1440714a45217105",
+  "points": [
+    {
+      "view": "ESE",
+      "label": "Angled right (ESE)",
+      "placement": "E",
+      "head_frame": 86,
+      "head_pixel": [
+        174.42,
+        108.87
+      ],
+      "relative_to_bearing_tiles": [
+        0.73,
+        -0.3
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "E",
+      "label": "East / right",
+      "placement": "E",
+      "head_frame": 64,
+      "head_pixel": [
+        181.69,
+        89.5
+      ],
+      "relative_to_bearing_tiles": [
+        0.84,
+        -0.6
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "S",
+      "label": "South / down",
+      "placement": "S",
+      "head_frame": 128,
+      "head_pixel": [
+        127.66,
+        126.16
+      ],
+      "relative_to_bearing_tiles": [
+        -0.01,
+        -0.03
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "SE",
+      "label": "Southeast / down-right",
+      "placement": "E",
+      "head_frame": 103,
+      "head_pixel": [
+        159.57,
+        119.75
+      ],
+      "relative_to_bearing_tiles": [
+        0.49,
+        -0.13
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "NE",
+      "label": "Northeast / up-right",
+      "placement": "E",
+      "head_frame": 25,
+      "head_pixel": [
+        160.5,
+        56.43
+      ],
+      "relative_to_bearing_tiles": [
+        0.51,
+        -1.12
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "W",
+      "label": "West / left",
+      "placement": "W",
+      "head_frame": 192,
+      "head_pixel": [
+        74.57,
+        89.31
+      ],
+      "relative_to_bearing_tiles": [
+        -0.83,
+        -0.6
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "N",
+      "label": "North / up",
+      "placement": "N",
+      "head_frame": 0,
+      "head_pixel": [
+        127.82,
+        47.38
+      ],
+      "relative_to_bearing_tiles": [
+        0,
+        -1.26
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "SW",
+      "label": "Southwest / down-left",
+      "placement": "S",
+      "head_frame": 153,
+      "head_pixel": [
+        97.6,
+        119.38
+      ],
+      "relative_to_bearing_tiles": [
+        -0.48,
+        -0.13
+      ],
+      "source_pixel_scale": 0.5
+    },
+    {
+      "view": "NW",
+      "label": "Northwest / up-left",
+      "placement": "W",
+      "head_frame": 231,
+      "head_pixel": [
+        95.76,
+        56.27
+      ],
+      "relative_to_bearing_tiles": [
+        -0.5,
+        -1.12
+      ],
+      "source_pixel_scale": 0.5
+    }
+  ]
+}
