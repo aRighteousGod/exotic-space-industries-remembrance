@@ -9,6 +9,9 @@ Date: 2026-10-13
 Version: 1.3.42
 Date: 2026-10-12
   Changes:
+    - Updated entity presentation for the Gaian Hierophant, sweeping radars, spider fleet, Prediction Snare and Incinerator. Hidden operating bodies retain the matching chassis hit effects and interaction sounds; new Factoriopedia scenes show their own machinery.
+    - Gaian Hierophant deaths now show the Singularity Lance's implosion sprite and glow alongside their alien death profile.
+    - Updated custom death explosions for the Gaian Hierophant, spider fleet, sweeping radars, Prediction Snare mines, Incinerators, fluid turbines, crystal resonance shells and fuel-adapted flamethrowers. Hidden gameplay variants inherit their canonical death effects; Incinerator expiry retains its native debris and voices.
     - Minigun turrets eject casings from the right receiver in a short rearward arc. Spent casings settle nearby and fade after four seconds.
     - Centered the minigun foundation within its placement box. Sprites, shadows, muzzle flashes and casing outlets share the adjustment.
     - Bound Ballistic Divergence bullet, Defender and shotgun travel to compatible active weapon reach plus a doctrine allowance of 0 to 16 tiles. Distance variation stays inside that allowance; parked Surveyor guns no longer inflate reach. Preserved targeting ranges, pellet cones and payloads, native expiry and saved shots. Updated doctrine tooltips and Informatron in all seven locales.

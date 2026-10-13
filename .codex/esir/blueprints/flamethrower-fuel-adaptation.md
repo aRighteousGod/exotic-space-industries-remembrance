@@ -13,6 +13,10 @@
 
 ## Ownership and behavior
 
+[Native death profiles](death-explosions.md#inheritance) assign the canonical
+flamethrower a chemical death before fuel shells are generated. Hidden operational
+turrets inherit its death fields along with the native body.
+
 [Pyric Radiance](combat-doctrines.md#thermal) runs after final fuel/performance
 aliases and preserves their accepted flame palettes and mechanical fields.
 

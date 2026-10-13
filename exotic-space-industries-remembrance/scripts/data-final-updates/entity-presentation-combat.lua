@@ -10,6 +10,8 @@
 -- rebuild_on: data-final-updates reload, prototype cache rebuild
 --==============================================================================
 
+-- blueprint: .codex/esir/blueprints/entity-presentation.md#contract
+
 local function prototype_exists(prototype_type, name)
     if not data or not data.raw then
         return true
@@ -68,6 +70,7 @@ local function vehicle_scene(opts)
         camera_zoom = opts.zoom or 0.72,
         camera_position = {opts.camera_x or 0, opts.camera_y or 0},
         direction = opts.direction or EAST,
+        orientation = opts.orientation,
         ammo = opts.ammo,
         power = opts.feed == "electric",
         active = true,
@@ -340,6 +343,34 @@ return function(api)
             zoom = 0.95,
             force_simulation = true,
         },
+        {
+            name = "ei-anisetron",
+            type = "spider-vehicle",
+            zoom = 0.72,
+            camera_y = -4.0,
+            orientation = 0.125,
+            force_simulation = true,
+        },
+        {
+            name = "ei-scout-spidertron",
+            type = "spider-vehicle",
+            zoom = 1.35,
+            camera_y = -0.5,
+            force_simulation = true,
+        },
+        {
+            name = "assault_spidertron",
+            type = "spider-vehicle",
+            zoom = 0.72,
+            camera_y = -0.5,
+            operational = true,
+            force_simulation = true,
+        },
+        {
+            name = "spidertron",
+            type = "spider-vehicle",
+            zoom = 1.3,
+        },
     }
 
     for _, vehicle in ipairs(vehicles) do
@@ -347,12 +378,41 @@ return function(api)
             type = vehicle.type or "car",
             hit = "entity",
             sound = "car_door",
+            operational = vehicle.operational,
             force = vehicle.force_simulation and force_simulation or nil,
             simulation_factory = function()
                 return api.simulation.entity(vehicle.name, vehicle_scene(vehicle))
             end,
         })
     end
+
+    -- No targets are needed to show these bodies; their real attack/activation
+    -- payloads and the native robot lifetime remain prototype-owned.
+    add(entries, api, "ei-prediction-snare-mine", {
+        type = "land-mine",
+        hit = "entity",
+        simulation = api.simulation.entity("ei-prediction-snare-mine", {
+            camera_zoom = 2.2,
+            init_update_count = 150,
+        }),
+    })
+    add(entries, api, "ei-incinerator", {
+        type = "combat-robot",
+        hit = "flying_robot",
+        simulation = api.simulation.entity("ei-incinerator", {
+            camera_position = {0, -0.7},
+            camera_zoom = 2.2,
+            init_update_count = 30,
+            -- blueprint-ref: .codex/esir/blueprints/entity-presentation.md#scenes
+            -- The preview remains alive; gameplay expiry is left untouched.
+            update = [[
+                for _, robot in pairs(game.surfaces[1].find_entities_filtered{name = "ei-incinerator"}) do
+                    robot.time_to_live = 10800
+                    game.simulation.camera_position = {robot.position.x, robot.position.y - 0.7}
+                end
+            ]],
+        }),
+    })
 
     return entries
 end

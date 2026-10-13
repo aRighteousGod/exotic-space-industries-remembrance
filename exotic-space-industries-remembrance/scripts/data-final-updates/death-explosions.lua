@@ -1,3 +1,13 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: scoped native death profiles, bespoke cores, and coverage diagnostics
+-- loaded_by: data-final-fixes.lua before spider and flamethrower shell generation
+-- cadence: once per data-final-fixes stage; no runtime state or dispatcher
+-- forwarded_events: none
+-- storage_roots: none
+-- rebuild_on: data stage reload
+--==============================================================================
+-- blueprint: .codex/esir/blueprints/death-explosions.md#contract
 local util = require("util")
 local explosion_animations = require("__base__.prototypes.entity.explosion-animations")
 local particle_animations = require("__base__.prototypes.particle-animations")
@@ -14,6 +24,7 @@ local entity_types = {
   "boiler",
   "burner-generator",
   "cargo-wagon",
+  "combat-robot",
   "constant-combinator",
   "construction-robot",
   "container",
@@ -32,6 +43,7 @@ local entity_types = {
   "inserter",
   "lab",
   "lamp",
+  "land-mine",
   "loader-1x1",
   "locomotive",
   "logistic-container",
@@ -72,6 +84,22 @@ local helper_prefixes = {
   "ei-induction-matrix-core-",
 }
 
+-- blueprint-ref: .codex/esir/blueprints/death-explosions.md#operational-bodies
+-- Hidden inventory entries can still be real, selectable gameplay bodies.
+-- Capsule deployment also makes the Incinerator operational without an item
+-- placement flag. Keep these exceptions exact so sensors/proxies stay excluded.
+local operational_exact = {
+  ["assault_spidertron"] = true,
+  ["ei-combustion-turbine-fluid"] = true,
+  ["ei-crystal-accumulator-low"] = true,
+  ["ei-crystal-accumulator-surged"] = true,
+  ["ei-incinerator"] = true,
+  ["ei-phased-array-radar-placement"] = true,
+  ["ei-scout-spidertron"] = true,
+  ["ei-sweeping-radar-placement"] = true,
+  ["spidertron"] = true,
+}
+
 local dependency_exact_inclusions = {
   ["accumulator"] = true,
   ["plated-wall"] = true,
@@ -85,11 +113,13 @@ local dependency_prefix_inclusions = {
 }
 
 local micro_types = {
+  ["combat-robot"] = true,
   ["construction-robot"] = true,
   ["electric-pole"] = true,
   ["gate"] = true,
   ["heat-pipe"] = true,
   ["inserter"] = true,
+  ["land-mine"] = true,
   ["loader-1x1"] = true,
   ["logistic-robot"] = true,
   ["pipe"] = true,
@@ -172,7 +202,9 @@ local family_assignments = {
     "ei-camp-fire",
     "ei-coke-furnace",
     "ei-combustion-turbine",
+    "ei-combustion-turbine-fluid",
     "ei-fueler",
+    "ei-incinerator",
     "ei-steampunk-lamp",
   },
   steam = {
@@ -229,6 +261,7 @@ local family_assignments = {
     "ei-loader",
     "ei-loader-base",
     "ei-military-loader",
+    "ei-scout-spidertron",
     "ei-turbo-loader",
   },
   signal = {
@@ -241,19 +274,27 @@ local family_assignments = {
     "ei-fission-facility",
     "ei-high-temperature-reactor",
     "ei-orbital-combinator",
+    "ei-phased-array-radar",
+    "ei-phased-array-radar-placement",
+    "ei-prediction-snare-mine",
+    "ei-sweeping-radar",
+    "ei-sweeping-radar-placement",
   },
   ballistic = {
+    "assault_spidertron",
     "ei-auto-shotgun-turret",
     "ei-cannon-turret",
     "ei-cannon-turret-mk1",
     "ei-gatling-turret",
     "ei-shotgun-turret",
+    "spidertron",
   },
   sawblade = {
     "ei-sawblade-turret",
   },
   chemical = {
     "ei-acidthrower-turret",
+    "flamethrower-turret",
   },
   quantum = {
     "ei-accelerator",
@@ -287,8 +328,11 @@ local family_assignments = {
   alien = {
     "ei-alien-beacon",
     "ei-alien-stabilizer",
+    "ei-anisetron",
     "ei-crystal-accumulator",
     "ei-crystal-accumulator-gaia",
+    "ei-crystal-accumulator-low",
+    "ei-crystal-accumulator-surged",
     "ei-farstation",
     "ei-gaia-pump",
     "ei-gaian-saucer",
@@ -433,6 +477,7 @@ local generic_dying_explosions = {
   ["construction-robot-explosion"] = true,
   ["decider-combinator-explosion"] = true,
   ["display-panel-explosion"] = true,
+  ["destroyer-robot-explosion"] = true,
   ["electric-furnace-explosion"] = true,
   ["electric-mining-drill-explosion"] = true,
   ["flamethrower-turret-explosion"] = true,
@@ -441,6 +486,7 @@ local generic_dying_explosions = {
   ["heat-pipe-explosion"] = true,
   ["inserter-explosion"] = true,
   ["lamp-explosion"] = true,
+  ["land-mine-explosion"] = true,
   ["laser-turret-explosion"] = true,
   ["logistic-robot-explosion"] = true,
   ["long-handed-inserter-explosion"] = true,
@@ -457,6 +503,7 @@ local generic_dying_explosions = {
   ["roboport-explosion"] = true,
   ["small-explosion"] = true,
   ["solar-panel-explosion"] = true,
+  ["spidertron-explosion"] = true,
   ["steel-furnace-explosion"] = true,
   ["stone-furnace-explosion"] = true,
   ["storage-chest-explosion"] = true,
@@ -482,6 +529,7 @@ local nuclear_locomotive_delayed_trigger_name = "ei-death-explosion-nuclear-loco
 local gaian_saucer_death_explosion_name = "ei-gaian-saucer-death-explosion"
 local gaian_saucer_death_graphics_path = ei_graphics_entity_4_path.."gaian-saucer/death/"
 local singularity_lance_death_explosion_name = "ei-singularity-lance-death-explosion"
+local anisetron_lance_death_visual_name = "ei-anisetron-lance-death-visual"
 local singularity_lance_death_graphics_path = ei_graphics_entity_4_path.."singularity-lance/death/"
 local em_charger_death_explosion_name = "ei-em-charger-death-explosion"
 local em_charger_pink_shard_particle_name = "ei-em-charger-pink-crystal-shard-particle"
@@ -622,8 +670,11 @@ local function positive_area(proto)
   return width and height and width > 0 and height > 0
 end
 
-local function visible_candidate(name, proto)
-  if not proto or is_hidden(proto) or is_helper_name(name) then
+---@param name string
+---@param proto data.EntityWithHealthPrototype?
+---@return boolean
+local function death_candidate(name, proto)
+  if not proto or is_helper_name(name) then
     return false
   end
 
@@ -631,7 +682,11 @@ local function visible_candidate(name, proto)
     return false
   end
 
-  if not is_placeable(proto) or not positive_area(proto) then
+  if not operational_exact[name] and (is_hidden(proto) or not is_placeable(proto)) then
+    return false
+  end
+
+  if not positive_area(proto) then
     return false
   end
 
@@ -1138,6 +1193,15 @@ local function effects_for_family(family, bucket_key)
 end
 
 local function effects_for_exact(name, bucket_key)
+  if name == "ei-anisetron" then
+    return {
+      {
+        type = "create-explosion",
+        entity_name = anisetron_lance_death_visual_name,
+      },
+    }
+  end
+
   if name == "ei-auric-inoculation-vat" then
     return {
       make_smoke_burst(10, 1.35, 0.018, bucket_key),
@@ -2044,7 +2108,26 @@ local function generate_explosions()
   table.insert(prototypes, make_nuclear_locomotive_delayed_trigger())
   table.insert(prototypes, make_em_charger_death_explosion())
   table.insert(prototypes, make_gaian_saucer_death_explosion())
-  table.insert(prototypes, make_singularity_lance_death_explosion())
+  local lance_death = make_singularity_lance_death_explosion()
+  table.insert(prototypes, lance_death)
+  -- blueprint-ref: .codex/esir/blueprints/death-explosions.md#anisetron-visual
+  -- The cathedral keeps its alien aftermath and borrows only the Lance's
+  -- base/glow collapse animation and shrinking motion.
+  ---@type data.ExplosionPrototype
+  local anisetron_death_visual = {
+    type = "explosion",
+    name = anisetron_lance_death_visual_name,
+    flags = {"not-on-map"},
+    hidden = true,
+    subgroup = "explosions",
+    order = "z[ei-death]-anisetron-lance-visual",
+    height = lance_death.height,
+    animations = table.deepcopy(lance_death.animations),
+    scale_out_duration = lance_death.scale_out_duration,
+    scale_end = lance_death.scale_end,
+    scale_animation_speed = lance_death.scale_animation_speed,
+  }
+  table.insert(prototypes, anisetron_death_visual)
   table.insert(prototypes, make_emerald_apocalypse_hover_tank_death_explosion())
 
   data:extend(prototypes)
@@ -2116,6 +2199,18 @@ local function is_scoped_dependency(name, exact_family_map)
 end
 
 local function family_from_heuristics(name, prototype, entity_type)
+  if entity_type == "land-mine" then
+    return "ballistic"
+  end
+
+  if entity_type == "combat-robot" then
+    return "electric-logistics"
+  end
+
+  if entity_type == "radar" then
+    return "signal"
+  end
+
   if entity_type == "wall" or entity_type == "gate" then
     return "fortified"
   end
@@ -2425,6 +2520,21 @@ local function apply_family(name, prototype, entity_type, family, assignment_log
   local rolling_stock_core = rolling_stock_cores[entity_type]
   local exact_override = exact_dying_explosion_overrides[name]
 
+  -- Base installs falling debris and voices through a separate expiry action.
+  -- Add the same cosmetic core on timeout while retaining that native aftermath.
+  if name == "ei-incinerator" then
+    local expiry_action = prototype.destroy_action
+    local expiry_delivery = expiry_action and expiry_action.action_delivery
+    local expiry_effects = expiry_delivery and expiry_delivery.source_effects
+    if expiry_effects then
+      expiry_delivery.source_effects = expiry_effects.type and {expiry_effects} or expiry_effects
+      table.insert(expiry_delivery.source_effects, {
+        type = "create-explosion",
+        entity_name = target_explosion,
+      })
+    end
+  end
+
   if exact_override then
     prototype.dying_explosion = exact_override
     assignment_log[name] = {
@@ -2536,7 +2646,7 @@ local function audit_logs(exact_family_map, assignment_log, prefix_hits)
   local leftovers = {}
   for _, entity_type in pairs(entity_types) do
     for name, prototype in pairs(data.raw[entity_type] or {}) do
-      if visible_candidate(name, prototype) and (is_owned_name(name) or is_scoped_dependency(name, exact_family_map)) then
+      if death_candidate(name, prototype) and (is_owned_name(name) or is_scoped_dependency(name, exact_family_map)) then
         local generic_or_missing = prototype.dying_explosion == nil or is_generic_dying_explosion(prototype.dying_explosion)
         local supplemented = assignment_log[name] and assignment_log[name].mode == "supplement"
 
@@ -2549,7 +2659,7 @@ local function audit_logs(exact_family_map, assignment_log, prefix_hits)
 
   table.sort(leftovers)
   if #leftovers > 0 then
-    log("EI death explosion audit: scoped visible prototypes still generic or missing after pass -> " .. table.concat(leftovers, ", "))
+    log("EI death explosion audit: scoped operational prototypes still generic or missing after pass -> " .. table.concat(leftovers, ", "))
   end
 end
 
@@ -2568,7 +2678,7 @@ local prefix_hits = {}
 
 for _, entity_type in pairs(entity_types) do
   for name, prototype in pairs(data.raw[entity_type] or {}) do
-    if visible_candidate(name, prototype) then
+    if death_candidate(name, prototype) then
       local family, source, source_key = family_for_prototype(name, prototype, entity_type, exact_family_map)
       if family then
         if source == "prefix" and source_key then

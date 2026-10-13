@@ -51,6 +51,7 @@ Use for:
 - prototype header-metadata suggestions
 - checking whether data-updates global mutation passes or data-final progression passes overwrite the prototype surface being edited
 - checking whether relevant entity, item, fuel, recipe, tech, asset, or effect changes should also update `scripts/data-final-updates/final-tint-pass.lua`, `fuel-glow.lua`, `item-glow-overlays.lua`, `death-explosions.lua`, `tech-weight-badges.lua`, or the `entity-presentation*` registry modules
+- using [esir-entity-presentation](../../esir-entity-presentation/SKILL.md) to map affected canonical bodies, placement entities, hidden operational variants, generated clones, and helpers; report death and player-facing presentation decisions separately, including final-field evidence, exclusions, and unverified assumptions
 
 ## `combat-readout explorer`
 

@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-10-13 | entity-presentation-companions | open | Existing machine scene factories supply companions/main_first options, but make_entity_simulation does not consume them. New radar previews explicitly create their native visual helpers in post_init.`
+  - `Files:` `exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation.lua`, `entity-presentation-machines.lua`, `.codex/esir/blueprints/entity-presentation.md`.
+  - `Next safe move:` inspect the affected legacy scenes before adding companion support to the shared factory; verify placement order, inventory/power setup and native captures without forcing unrelated presentation fields.
+
 - `2026-10-06 | anisetron-native-range | engine boundary | Factorio 2.0.77 automatic acquisition misses oversized targets at some diagonal box-distance boundaries, dependent on absolute chunk position. Manual native fire accepts the same geometry; 368/384 assertions pass in the range matrix. Retain native payment and the approved range.`
   - `Files:` `scripts/qc/anisetron-inheritance/range.lua`, `options-range-probe.lua`, and [current verification](../../scripts/qc/anisetron-inheritance/verification.md).
   - `Next safe move:` rerun the isolated translated-geometry probe when the engine changes. Do not introduce synthetic openers or range inflation. Current visual evidence is representative engine captures plus unchanged approved sheet hashes; a fresh two-pixel muzzle certificate across all 128 headings is not claimed.

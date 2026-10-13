@@ -19,6 +19,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `factorio-lua-assumptions`, `factorio-lua-docs`, `factorio-core-lualib`, and `factorio-vanilla-prototype-libs` for Factorio Lua lifecycle/API truth, bundled core helper routing, and vanilla prototype helper routing
 - `esir-lib-first`, `esir-lua-types`, `esir-runtime-gui`, and `esir-research-events` for ESIR Lua helper reuse, LuaLS annotations, runtime GUI house style, and research-event burst dispatch
 - `esir-conceptual-blueprints` for maintained subsystem models, source commentary backlinks, and structural coverage
+- `esir-entity-presentation` for custom death coverage, hit effects, interaction sounds, Factoriopedia scenes, and operational variant inheritance
 - `esir-asset-pipeline`, `meshy-api`, `meshy-blender-spritesheet`, `blender-procedural-animation`, `esir-factorio-asset-export`, and `esir-item-icon-prep` for the generated-art-to-Factorio asset path
 - `esir-recipe-icon-style` for recipe icon readability, companion-baseline drift, visibility, sorting, and signal cleanup audits
 
@@ -75,6 +76,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 Use these specialist skills early instead of letting `esir-dev` absorb the whole task:
 
 - [`esir-conceptual-blueprints`](../esir-conceptual-blueprints/SKILL.md): subsystem design/reference models, code commentary backlinks, lifecycle/state/timing contracts, and full runtime structural coverage.
+- [`esir-entity-presentation`](../esir-entity-presentation/SKILL.md): required death and player-facing presentation decisions for entity additions/removals/renames, relevant prototype changes, and shipping entity asset integration; includes hidden operational variants and generated clones.
 - [`esir-dependency-intel`](../esir-dependency-intel/SKILL.md): dependency declarations, remote interfaces, dependency touchpoints, planet/content integrations, and local installed-mod presence.
 - [`factorio-lua-assumptions`](../factorio-lua-assumptions/SKILL.md): Lua sandbox, lifecycle, storage, `require()`, deterministic runtime behavior, `data.raw` versus runtime state, and LuaObject validity.
 - [`factorio-lua-docs`](../factorio-lua-docs/SKILL.md): official Factorio runtime, prototype, auxiliary, and wiki scripting docs, including `apply_runtime_tint`, `tint_as_overlay`, `LuaEntity.color`, `LuaPlayer.color`, and rolling-stock color behavior.
@@ -142,10 +144,12 @@ Data-final is where many earlier prototype declarations are deliberately overwri
 
 When a patch adds, renames, removes, or materially changes visible ESIR entities, items, fuels, reactor fuels, recipe visuals, technology weight markers, death effects, sound cues, hit effects, or render-bundle roles, treat the late presentation passes as update candidates instead of leaving them to drift.
 
+For affected entities, including hidden operational bodies and generated variants, use [esir-entity-presentation](../esir-entity-presentation/SKILL.md) to resolve both death coverage and player-facing presentation. Record each as updated, inherited and verified, or intentionally excluded, with evidence and any pending checks. An explicit registry entry is not required when suitable inheritance is verified.
+
 - [`final-tint-pass.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/final-tint-pass.lua): curated recipe `crafting_machine_tint` for generic and cross-cutting recipe families.
 - [`fuel-glow.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/fuel-glow.lua): `fuel_glow_color`, burner/reactor light flicker, reactor default glow colors, and high-temperature reactor recipe glow.
 - [`item-glow-overlays.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/item-glow-overlays.lua): startup-controlled item picture glow/light flattening for ESIR items and modified vanilla science packs.
-- [`death-explosions.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/death-explosions.lua): dynamic family assignments, bespoke `dying_explosion` prototypes, particles, shards, delayed effects, and audits for visible prototypes.
+- [`death-explosions.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/death-explosions.lua): dynamic family/footprint assignments, bespoke deaths, supplements, separate expiry effects, and scoped operational-body audits. Check canonical assignment before generated variants and verify inherited final fields; see the [death contract](../../esir/blueprints/death-explosions.md#contract).
 - [`entity-presentation.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation.lua), [`entity-presentation-machines.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation-machines.lua), and [`entity-presentation-combat.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation-combat.lua): player-placeable entity presentation registry entries, hit effects, open/close sounds, Factoriopedia simulations, machine/logistics groups, combat, rolling stock, and vehicles.
 - [`tech-weight-badges.lua`](../../../exotic-space-industries-remembrance/scripts/data-final-updates/tech-weight-badges.lua) and [`lib/tech-weighting.lua`](../../../exotic-space-industries-remembrance/lib/tech-weighting.lua): final technology icon marker overlays for weighted or repeated research chains.
 - If one of these modules is intentionally not changed after a relevant source edit, make that choice explicit in the final report or a nearby code comment when it prevents future confusion.

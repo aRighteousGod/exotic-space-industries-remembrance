@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR Entity Presentation"
+  short_description: "Check entity death effects, sounds, and Factoriopedia"
+  default_prompt: "Use $esir-entity-presentation to reconcile death coverage and player-facing presentation for the affected ESIR entities."

@@ -42,7 +42,6 @@ require("teslas_legacy/final_overlay_ei")
 require("scripts/data-final-updates/compatibility")
 require("scripts/data-final-updates/compatibility-lignumis")
 require("scripts/data-final-updates/compatibility-muluna")
-require("scripts/data-final-updates/death-explosions")
 
 -- =======================================================================================
 
@@ -210,6 +209,9 @@ end
 -- final tech rewrite has settled on its finished icon and science layout.
 require("scripts/data-final-updates/tech-weight-badges")
 -- Resolve the shared fleet variants after all source-body compatibility passes.
+-- Resolve deaths on canonical bodies first; hidden fleet/fuel shells inherit
+-- them, while compatibility boarding proxies retain their separate source.
+require("scripts/data-final-updates/death-explosions")
 require("prototypes/spider-vehicles").finalize()
 -- Ballistic payload conversion precedes immediate spider launch observations.
 require("scripts/data-final-updates/ballistic-divergence")

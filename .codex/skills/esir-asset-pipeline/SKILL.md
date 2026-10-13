@@ -36,6 +36,7 @@ For requested indexed PNGs or 256-color derivatives, use [esir-png-quantize](../
 8. Enable `registry` to update the manifest-backed asset index with hashes, roles, QA status, and manual review fields; use the `registry` command to browse or mark queue status.
 9. Use `batch` for sequential variant runs and `estimate` before expensive render batches.
 10. Use the disabled-by-default `promotion` step only for dry-run copy/patch plans unless the user explicitly approves execution. `promotion` is excluded from `--steps all`; run it by name when needed.
+11. When shipping entity assets or integrating prototypes is authorized, use [esir-entity-presentation](../esir-entity-presentation/SKILL.md) to reconcile custom death effects, hit effects, interaction sounds, Factoriopedia scenes, and variant inheritance. Draft-only work ends with staged evidence and integration notes; it does not trigger gameplay edits.
 
 ## Commands
 

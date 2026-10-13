@@ -10,6 +10,10 @@
 -- rebuild_on: visible machine/logistics prototype changes
 --==============================================================================
 
+-- blueprint: .codex/esir/blueprints/entity-presentation.md#contract
+
+local radar_config = require("lib/sweeping-radar-config")
+
 local NORTH = 0
 local EAST = 4
 local SOUTH = 8
@@ -948,6 +952,53 @@ return function(api)
 
     for _, entry in ipairs(holos) do
         add_entry(entries, api, entry.name, "assembling-machine", "entity", "electric_network", holo_scene(simulation, entry.name, entry))
+    end
+
+    -- blueprint-ref: .codex/esir/blueprints/entity-presentation.md#scenes
+    -- Radar bodies are deliberately empty: the native visual helper supplies
+    -- their authored body/shadow/glow without loading gameplay scripts.
+    for _, name in ipairs(radar_config.names) do
+        local art = radar_config.art[name]
+        local page = math.floor(art.north / radar_config.art_page_frames) + 1
+        local variation = art.north % radar_config.art_page_frames + 1
+        local visual_name = name .. "-visual-" .. page .. (art.glow and "-lit" or "")
+        add_entry(entries, api, name, "radar", "entity", "electric_large", api.simulation.entity(name, {
+            camera_position = {0, -0.8},
+            camera_zoom = 1.15,
+            direction = NORTH,
+            init_update_count = 30,
+            post_init = string.format([[
+                local visual = surface.create_entity{name = %q, position = main_entity.position, force = "player"}
+                visual.graphics_variation = %d
+                visual.destructible = false
+                visual.operable = false
+            ]], visual_name, variation),
+        }), force_simulation)
+    end
+
+    -- These bodies were copied before the canonical presentation pass. Resolve
+    -- their hit/sounds lazily, after earlier entries have filled the source.
+    local operational_bodies = {
+        {"generator", "ei-combustion-turbine-fluid", "burner-generator", "ei-combustion-turbine"},
+        {"electric-energy-interface", "ei-crystal-accumulator-low", "electric-energy-interface", "ei-crystal-accumulator"},
+        {"electric-energy-interface", "ei-crystal-accumulator-surged", "electric-energy-interface", "ei-crystal-accumulator"},
+        {"radar", "ei-sweeping-radar-placement", "radar", "ei-sweeping-radar"},
+        {"radar", "ei-phased-array-radar-placement", "radar", "ei-phased-array-radar"},
+    }
+    for _, body in ipairs(operational_bodies) do
+        local kind, name, source_kind, source_name = body[1], body[2], body[3], body[4]
+        entries[#entries + 1] = api.entity(name, {
+            type = kind,
+            operational = true,
+            hit = function()
+                local source = data.raw[source_kind] and data.raw[source_kind][source_name]
+                return source and source.damaged_trigger_effect
+            end,
+            sound = function()
+                local source = data.raw[source_kind] and data.raw[source_kind][source_name]
+                return source and {open = source.open_sound, close = source.close_sound}
+            end,
+        })
     end
 
     return entries

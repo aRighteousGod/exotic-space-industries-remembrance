@@ -10,6 +10,8 @@
 -- rebuild_on: entity presentation registry or Base presentation helper changes
 --==============================================================================
 
+-- blueprint: .codex/esir/blueprints/entity-presentation.md#contract
+
 local sounds = require("__base__.prototypes.entity.sounds")
 local hit_effects = require("__base__.prototypes.entity.hit-effects")
 
@@ -403,6 +405,9 @@ local function append_entity_inventory_setup(lines, variable_name, opts)
     end
 end
 
+---@param opts table Scene options; `update` runs only inside the native preview.
+---@param lines string[]
+---@return data.SimulationDefinition
 local function make_simulation(opts, lines)
     local simulation = {
         init = table.concat(lines, "\n"),
@@ -430,6 +435,10 @@ local function make_simulation(opts, lines)
 
     if init_update_count ~= nil then
         simulation.init_update_count = init_update_count
+    end
+
+    if type(opts.update) == "string" then
+        simulation.update = opts.update
     end
 
     return simulation
@@ -578,6 +587,22 @@ local api = {
     simulation = {},
 }
 
+---@class EiEntityPresentationOptions
+---@field type string|nil
+---@field prototype_type string|nil
+---@field hit string|table|function|false|nil
+---@field damaged_trigger_effect table|function|nil
+---@field sound string|table|function|false|nil
+---@field open_sound table|nil
+---@field close_sound table|nil
+---@field simulation data.SimulationDefinition|function|nil
+---@field factoriopedia_simulation data.SimulationDefinition|function|nil
+---@field force table<string, boolean>|nil Override only selected presentation fields.
+---@field operational boolean|nil Admit an explicitly registered hidden selectable body.
+
+---@param name string
+---@param opts EiEntityPresentationOptions|nil
+---@return table
 function api.entity(name, opts)
     opts = opts or {}
 
@@ -588,6 +613,7 @@ function api.entity(name, opts)
         sound = opts.sound,
         simulation = opts.simulation or opts.factoriopedia_simulation,
         force = opts.force,
+        operational = opts.operational,
     }
 
     if opts.open_sound or opts.close_sound then
@@ -642,7 +668,14 @@ local function has_placeable_item(prototype)
     return place_result_names[prototype.name] == true
 end
 
-local function is_player_facing(prototype)
+local function is_player_facing(prototype, operational)
+    -- blueprint-ref: .codex/esir/blueprints/entity-presentation.md#operational
+    -- Exact registry opt-ins cover real hidden bodies without admitting helpers
+    -- or changing their visibility/Factoriopedia alternative.
+    if operational == true and prototype.selectable_in_game ~= false then
+        return true
+    end
+
     if prototype.hidden == true or prototype.hidden_in_factoriopedia == true then
         return false
     end
@@ -726,7 +759,7 @@ local function apply_entry(entry)
     end
 
     local prototype = find_prototype(entry)
-    if not prototype or not is_player_facing(prototype) then
+    if not prototype or not is_player_facing(prototype, entry.operational) then
         return
     end
 
