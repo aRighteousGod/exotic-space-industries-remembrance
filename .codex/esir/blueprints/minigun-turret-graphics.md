@@ -6,13 +6,15 @@
 - [gatling-turret.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/gatling-turret.lua)
 - [graphics.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/gatling-turret/graphics.lua)
 - [graphics-data.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/gatling-turret/graphics-data.lua)
+- [HD graphics library](../../../minigun-turret-HD/lib/graphics.lua)
+- [Standalone turret](../../../minigun-turret-HD/prototypes/minigun-turret.lua)
+- [Standalone research bonuses](../../../minigun-turret-HD/data-final-fixes.lua)
 
-The generated owner must come from the evidence-bound finalizer together with
-its receipt. Install these three sources and their approved asset families in
-one integration; do not create placeholder metadata to satisfy the ownership list.
-
-The HD companion code is maintained separately: `lib/graphics.lua`,
-`prototypes/minigun-turret.lua` and `data-final-fixes.lua` belong to that mod.
+The original geometry owner comes from the evidence-bound finalizer. The
+[indexed HD derivative](../asset-generators/minigun-turret/INDEXED-HD.md) reuses
+that geometry with separate quantization and native receipts. Install matching
+metadata and asset families together; do not treat lossy pixels as original
+lossless-finalizer output.
 
 ## Scope and integration status
 
@@ -49,10 +51,14 @@ representation is a complete all-caster mask for each direction and physical
 pose, separately at SD and HD density. Base/upper shadow passes remain source
 evidence; failed residual decomposition is not part of this candidate. Generated metadata
 owns exact image paths, dimensions, stable crops, shifts and pose maps. The
-renderer and native tables share 256 directions with yaw `-360*d/256`, index
-`d=0..255`, canonical forward `+Y`. SD32 scale 1 and HD64 scale 0.5 preserve the
-same world size and shifts. Base, upper and rotor recomposition must match the
-assembled reference, including occlusion and seam repairs. No pitch, recoil,
+factories apply the shared presentation offset described below to copied leaves
+and launch coordinates; source metadata keeps its original render registration.
+The renderer and native tables share 256 directions with yaw `-360*d/256`, index
+`d=0..255`, canonical forward `+Y`. The original SD32 scale 1 and HD64 scale 0.5
+sources preserve the same world size. Both current profiles use HD64 scale 0.5;
+the default applies one shared 256-entry RGBA palette without dithering. Original
+lossless base, upper and rotor recomposition matches the assembled reference;
+the derivative separately checks quantization, occlusion and seam behavior. No pitch, recoil,
 deployment, glow or force-color layer is introduced.
 
 The rotor correction may be stored as four vertical spatial strips, each a
@@ -61,6 +67,24 @@ mechanical rotor, with ordinary source-over blending and crop-derived child
 shifts. Exact center-pixel reconstruction and native fractional/zoom comparisons
 must both pass; no assumed seam safety follows from cutting an RGBA frame.
 Atlas dimensions remain bounded by 4096 pixels.
+
+<a id="registration"></a>
+## Placement-box registration
+
+The visible foundation's alpha-bounds midpoint is approximately 5.5 standard
+pixels north of the entity position. The actual contact footprint is only about
+1.67 pixels north; most apparent bias comes from the rendered base's height.
+Both graphics factories lower the complete assembly by `6/32` screen-space tiles
+(six SD pixels, twelve HD source pixels) to center the visible foundation.
+This is a presentation adjustment, not a new ground anchor or collision box.
+
+Apply the offset once to every copied foundation, upper, rotor and shadow leaf,
+and to the Y coordinate of all 256 copied launch-map entries. Leave their X
+coordinates, direction indices, native launch fields and casing-relative offsets
+unchanged. Reapplying a factory must not accumulate the offset. Source atlas
+metadata, PNGs, item/research icons and the 3x3 selection box remain unchanged.
+The short native before/after fixture covers both densities at cardinal headings;
+the original full-direction firing evidence remains the relative-alignment basis.
 
 <a id="animation-state"></a>
 ## Native animation state
@@ -81,8 +105,11 @@ and save/load behavior must pass the focused engine gate before acceptance.
 <a id="profile-selection"></a>
 ## Enabled texture profile and dependency boundary
 
-Main ESIR 1.3.42 requires Graphics 6 >= 1.0.0. Graphics 6 owns all SD32 base/upper,
-rotor colors, item/research icons and complete SD shadows. Graphics 4 and 5 retain
+Main ESIR 1.3.43 requires Graphics 6 >= 1.0.1. Graphics 6 owns all indexed HD64
+base/upper/rotor colors, indexed HD icons and unchanged complete HD shadows.
+The `sd` metadata key is retained as the default-package slot, not a density.
+The old 84-file SD set and layout are protected in the minigun holding dossier.
+Graphics 4 and 5 retain
 their existing 1.0.0 content and receive no new minigun assets.
 Each file contains whole contiguous direction groups and all 28 physical poses.
 Its direction capacity comes from generated profile metadata; neither 32 files
@@ -101,20 +128,27 @@ with equal piercing-round damage (8). Keep attacking_speed 20; a tested 0.9
 animation speed instead produced 30 shots and was rejected. Both modes use the same native graphics
 library and calibrated launch map. No runtime animation handler is added.
 Main metadata selects assets using enabled-mod presence from `mods`; HD absent
-or disabled selects the complete SD family in Graphics 6.
+or disabled selects the complete indexed HD family in Graphics 6.
+
+Every Graphics 6 filename and icon in the main generated Lua is derived from
+`ei_graphics_6_path`, initialized by `lib/paths.lua` before prototype loading.
+The derivative copies the finalized HD layout into the default slot and changes
+only its namespace. Centering and all calibrated launch fields remain unchanged.
+The original finalizer/PNG evidence stays immutable; derivative receipts identify
+the quantized pixels separately. The standalone HD library retains its own root.
 
 ```mermaid
 flowchart LR
-    ESIR["Main ESIR 1.3.42"] -->|"requires >=1.0.0"| G6["Graphics 6: complete SD colors, shadows and icons"]
+    ESIR["Main ESIR 1.3.43"] -->|"requires >=1.0.1"| G6["Graphics 6: indexed HD colors/icons, lossless HD shadows"]
     ESIR -->|"optional >=1.0.0"| HD["minigun-turret-HD"]
     HD -->|"requires >=2.0.77"| BASE["base"]
 ```
 
 Enabled HD selects all HD64 colors and HD icons. Its fixed major-1 profile
 provides the complete combined HD shadow family: the measured complete archive
-fits below 256,000,000 bytes. A later complete SD fallback would
-reference Graphics 6 directly, with no SD asset copies inside HD, and would need
-its own native/budget qualification. The failed residual masks cannot supply a
+fits below 256,000,000 bytes. The selected default also retains all HD shadows;
+SD is now a retained source backup rather than a shipping shadow fallback.
+Any future fallback needs its own native/budget qualification. Failed residual masks cannot supply a
 partial-family fallback. Do not mix resolutions across directions or states. Freeze the
 major-1 path and shadow-tier contract after measurement. An unsupported HD major
 must fail clearly instead of silently using potentially incompatible metadata.
@@ -159,8 +193,9 @@ finalizer/integration workflow; Lua shape checks are not a cryptographic audit.
 Explicit fixture construction may use uncalibrated metadata and fewer actual
 render directions while retaining all 256 launch tuples.
 
-`graphics.apply` copies the tested map without projection, interpolation or
-rounding. Its `native_launch_contract` separately records `present` and `value`
+`graphics.apply` copies the tested map and adds the common presentation offset
+without projection, interpolation or rounding. Its `native_launch_contract`
+separately records `present` and `value`
 for `projectile_center`, `projectile_creation_distance`, and
 `apply_projection_to_projectile_creation_position`. Absent fields become nil;
 present false/zero values remain false/zero. This preserves the effective native
@@ -170,6 +205,38 @@ The factory owns only these launch fields and the visual state/timing tables;
 the turret definition retains native attacking speed 20, cooldown, damage
 bonuses, shell particles, connector, ranges and ammunition behavior. The user
 owns connector placement and it is unchanged by this integration.
+
+<a id="casing-ejection"></a>
+## Native receiver casing ejection
+
+The gameplay owner copies vanilla `shell-particle` into a turret-specific
+optimized particle. Only its name, 240-tick lifetime, 60-tick fade and 0.6 ground
+movement modifier change. The standalone copy is registered only without main;
+other weapons keep their existing particle definition. No runtime handler or
+persistent casing entities are introduced.
+
+The designated outlet is canonical `(0.43,-0.85,1.65)` on the gun-right receiver
+lip, behind the cradle arm and forward of the rear drum. It belongs to the yawing
+upper, independently of rotor phase. Native shell offsets start at the calibrated
+launch reference. Distance `3.331004451991`, orientation `0.482194244912` and
+particle height `0.918880365094` move that reference back to the receiver. These
+values depend on the approved launch map and common SD/HD registration; changing
+either requires recalibrating the outlet. `use_source_position=false` is explicit:
+the true-mode probe crashes installed 2.0.77 shooting logic for this ammo turret.
+
+Direction `105/360`, deviation `0.025`, speed `0.06` with deviation `0.008`,
+vertical speed `0.01` and tumble `0.2` with deviation `0.04` produce a short
+right/rear discharge, a fall and a brief slide. Native shots emit the particles;
+spinning without shots emits none. The graphics factory continues to own only
+graphics, native transitions and launch fields. Main and standalone gameplay
+definitions carry matching casing values, except their private particle names.
+
+The focused basis probe found all eight receiver origins within 1.25 SD pixels,
+including native aiming/quantization. Actual casing bursts and a still-colored
+flight marker provide the short native acceptance evidence. Preserve all 256
+launch tuples, combat rates and production PNGs. The durable
+[casing handoff](../asset-generators/minigun-turret/CASING-EJECTION.md) records
+geometry, reproducible fixtures, scoped package lineage and review evidence.
 
 <a id="verification"></a>
 ## Verification and evidence limits

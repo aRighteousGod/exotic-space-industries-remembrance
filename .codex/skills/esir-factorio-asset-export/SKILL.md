@@ -7,6 +7,8 @@ description: "Use when Codex should stage Meshy/Blender spritesheets, animated s
 
 Use this skill after `$meshy-blender-spritesheet`, `$meshy-api`, or any other art workflow has produced source art that should become a Factorio/ESIR asset draft.
 
+For requested palette reduction, use [esir-png-quantize](../esir-png-quantize/SKILL.md) to stage indexed PNGs and original-versus-converted comparisons while preserving atlas dimensions and registration. This exporter retains ownership of export and promotion; general compression requests do not authorize lossy conversion.
+
 ## Hard Rules
 
 - Stage generated assets under `output/meshy/<asset>/factorio-export/` unless the user explicitly gives another staging path.

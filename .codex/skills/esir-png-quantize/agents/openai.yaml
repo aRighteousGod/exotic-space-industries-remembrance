@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESIR PNG Quantize"
+  short_description: "Convert sprite groups to shared 256-color palettes"
+  default_prompt: "Use $esir-png-quantize to stage shared-palette PNG conversions and compare them with the original artwork."

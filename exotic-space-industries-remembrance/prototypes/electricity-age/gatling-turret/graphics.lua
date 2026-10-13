@@ -1,6 +1,6 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: minigun SD/HD profile selection, native state layers and muzzle metadata
+-- owns: minigun default/full-color profile selection, native states and muzzle metadata
 -- loaded_by: prototypes/electricity-age/gatling-turret.lua
 -- cadence: data stage only; native turret states own all animation progress
 --==============================================================================
@@ -34,7 +34,8 @@
 ---@class ESIRMinigunGraphicsData
 ---@field schema string
 ---@field hd_major integer
----@field profiles {sd: ESIRMinigunGraphicsProfile, hd: ESIRMinigunGraphicsProfile}
+---@field profiles {sd: ESIRMinigunGraphicsProfile, hd: ESIRMinigunGraphicsProfile} sd is the default package slot; both profiles now use 64 px/tile.
+---@field artwork_derivative? table Indexed default provenance; original finalizer receipts describe the full-color source.
 ---@field projectile_creation_parameters data.CircularProjectileCreationSpecification
 ---@field preparing_ticks integer
 ---@field folding_ticks integer
@@ -60,6 +61,12 @@
 
 ---@type ESIRMinigunGraphicsFactory
 local factory = {}
+
+-- blueprint-ref: .codex/esir/blueprints/minigun-turret-graphics.md#registration
+-- Center the visible foundation in its placement box. Apply this screen-space
+-- offset once to every copied color/shadow leaf and to the calibrated launch map.
+-- The source atlas metadata remains registered to the original render anchor.
+local entity_shift_y = 6 / 32
 
 -- Defer generated asset loading until construction so isolated fixtures can use
 -- helper-local metadata without promoting pilot sheets into shipping graphics.
@@ -220,6 +227,7 @@ function factory.create(metadata, enabled_mods, options)
     ---@return data.RotatedAnimation
     local function state_layer(source, sequence, repetitions)
         local layer = table.deepcopy(source)
+        layer.shift = {source.shift[1], source.shift[2] + entity_shift_y}
         layer.direction_count = direction_count
         layer.apply_projection = true
         layer.counterclockwise = false
@@ -268,13 +276,18 @@ function factory.create(metadata, enabled_mods, options)
     end
 
     function graphics.creation_parameters()
-        return table.deepcopy(art.projectile_creation_parameters)
+        local parameters = table.deepcopy(art.projectile_creation_parameters)
+        for _, entry in ipairs(parameters) do
+            entry[2][2] = entry[2][2] + entity_shift_y
+        end
+        return parameters
     end
 
     function graphics.apply(turret)
         assert(turret.attack_parameters and turret.attack_parameters.type == "projectile",
             "ESIR minigun graphics: expected projectile attack parameters")
         local base = table.deepcopy(profile.base)
+        base.shift = {profile.base.shift[1], profile.base.shift[2] + entity_shift_y}
         -- A fixed base is an ordinary Animation, independent of gun direction.
         base.direction_count = nil
         base.apply_projection = nil
@@ -290,6 +303,7 @@ function factory.create(metadata, enabled_mods, options)
         }}
         if profile.shadow_representation == "alpha_over_residual" then
             local base_shadow = table.deepcopy(profile.shadows.base)
+            base_shadow.shift = {profile.shadows.base.shift[1], profile.shadows.base.shift[2] + entity_shift_y}
             base_shadow.direction_count = nil
             base_shadow.apply_projection = nil
             base_shadow.counterclockwise = nil
@@ -319,8 +333,8 @@ function factory.create(metadata, enabled_mods, options)
         turret.folding_speed_secondary = 1 / art.folding_ticks
 
         -- blueprint-ref: .codex/esir/blueprints/minigun-turret-graphics.md#muzzle-alignment
-        -- Copy the exact measured table. Re-projecting it or guessing default
-        -- center/distance values would invalidate the native firing evidence.
+        -- Preserve the measured geometry and native launch fields, translating
+        -- the copied lookup by the same presentation offset as every sprite.
         turret.attack_parameters.projectile_creation_parameters = graphics.creation_parameters()
         if art.native_launch_contract then
             for _, key in ipairs(launch_fields) do

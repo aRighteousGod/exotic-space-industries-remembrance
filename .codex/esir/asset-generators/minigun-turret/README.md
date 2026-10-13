@@ -6,26 +6,27 @@ The user selected **prototype 2, the exposed cradle**, on 2026-10-09.
 The current implementation contract is [the separated native graphics handoff](HANDOFF-SEPARATED.md):
 256 aiming directions, 28 physical rotor poses, 12-frame native spin-up,
 18-frame spin-down, and the selected 90-degree running exposure. Graphics 6
-owns the complete SD family; `e-s-i-r-minigun-turret-graphics-hd` supplies HD colors,
-icons and the complete combined HD shadow family. Actual native flash and first-tracer
-alignment remains an independent promotion gate. Connector placement is user-owned.
+owns the indexed HD64 default family and all lossless HD shadows. The optional
+`minigun-turret-HD` retains full-color HD artwork. The current derivative workflow
+is [INDEXED-HD.md](INDEXED-HD.md); original render/firing evidence remains immutable.
+Connector placement is user-owned.
 
-Main lists the HD pack first among optional dependencies. The HD pack is base-only
-and offers GPL-3.0-or-later reuse documentation and an unloaded example turret,
-allowing other mods to use its graphics without depending on ESIR.
+Main lists the HD pack first among optional dependencies. Without main, HD adds
+a standalone turret with base-game or Space Age progression. It also offers
+GPL-3.0-or-later reuse documentation and an unloaded example turret.
 
 Resume first from [the current operational status](../../../../output/minigun-implementation/STATUS.md)
 and [live render snapshot](../../../../output/minigun-implementation/render-status.json).
-The full render is in progress; use that status before starting any heavy work.
+The full render is complete; use the operational status instead of restarting it.
 [The 2026-10-11 progress record](PROGRESS-2026-10-11.md) preserves the earlier evidence.
 The production-quality eight-direction/28-pose pilot, icons, native layout/timing,
 full pilot color reconstruction and image-reviewed firing calibration are complete.
 Reuse those results. Serial-profile color/shadow reference selectors and strict
 aggregates, compact firing controls and immutable capture retention, lossless
 optimization application, and [finalization](FINALIZATION.md) are installed.
-Their offline checks do not replace the pending final256 native, visual, consumer
-and whole-archive gates. Failed residual shadows stay historical; the current
-candidate uses complete combined ground masks in SD and HD.
+The original full-direction native color/shadow/firing evidence is retained.
+The indexed derivative uses its own focused visual/native/archive checks.
+Failed residual shadows stay historical; both current profiles use complete HD masks.
 
 The installed [firing fixture](firing-fixture/README.md) now rechecks declared
 projectile routes, moving-shot image approvals and retained heading measurements.

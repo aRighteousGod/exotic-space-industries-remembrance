@@ -6,6 +6,16 @@
 local graphics = require("prototypes/electricity-age/gatling-turret/graphics").create()
 local icons = graphics.icons()
 
+-- blueprint-ref: .codex/esir/blueprints/minigun-turret-graphics.md#casing-ejection
+-- This particle belongs to the turret; other weapons retain vanilla casing life.
+---@type data.ParticlePrototype
+local shell_particle = table.deepcopy(data.raw["optimized-particle"]["shell-particle"])
+shell_particle.name = "ei-gatling-shell-particle"
+shell_particle.life_time = 240
+shell_particle.fade_away_duration = 60
+shell_particle.movement_modifier_when_on_ground = 0.6
+data:extend({shell_particle})
+
 data:extend({
 	{
 		name = "ei-gatling-turret",
@@ -92,14 +102,21 @@ data:extend({
 			cooldown = 0.25,
 			rotate_penalty = 14.0,
 			shell_particle = {
-				name = "shell-particle",
-				direction_deviation = 40,
-				speed = 0.3,
-				speed_deviation = 0.05,
-				center = { -0.07, 1 },
-				creation_distance = -2,
+				name = "ei-gatling-shell-particle",
+				-- Native offsets start at the calibrated launch point. Move back to
+				-- the gun-right receiver lip, then apply its separate particle height.
+				direction = 105 / 360,
+				direction_deviation = 0.025,
+				speed = 0.06,
+				speed_deviation = 0.008,
+				center = { 0, 0 },
+				creation_distance = 3.331004451991,
+				creation_distance_orientation = 0.482194244912,
+				use_source_position = false,
+				height = 0.918880365094,
+				vertical_speed = 0.01,
 				starting_frame_speed = 0.2,
-				starting_frame_speed_deviation = 0.1,
+				starting_frame_speed_deviation = 0.04,
 			},
 			range = 32,
 			min_range = 4,

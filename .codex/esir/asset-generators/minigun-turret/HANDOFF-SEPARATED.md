@@ -1,18 +1,24 @@
-> Current package identity: `minigun-turret-HD` 1.0.0; main 1.3.42.
+> Current packages: main 1.3.43 + Graphics 6 1.0.1; optional `minigun-turret-HD` 1.0.0.
+> Default artwork is now indexed HD64 with all unchanged HD shadows; `sd` is a
+> legacy profile-slot name. See [the derivative contract](INDEXED-HD.md).
 > The HD pack supplies standalone content without main, with base/Space Age progression.
 > Standalone full bullet damage is retained; cooldown 1 / 0.9 produces 54 shots versus the original's 60 per second in the native steady test. The original .25 cooldown is capped at one shot per tick.
 > The public reuse API is `lib/graphics.lua`; historical render/firing evidence is retained.
 > Current scoped delivery and verification are recorded in `output/minigun-implementation/STATUS.md`.
+> Native casing ejection has its own [receiver calibration contract](CASING-EJECTION.md).
+> Casings use a private four-second vanilla particle; the launch map and rotor
+> atlases remain the approved production data. Changing launch registration also
+> requires recalibrating the receiver outlet.
 
 # Minigun prototype 2: separated native graphics handoff
 
-Status: approved implementation contract, integrating in the worktree. This is
-not a release; the scoped native evidence below does not complete acceptance.
+Status: original rendering and integration completed. The indexed-HD derivative
+is implemented and validated separately; the rendering gates below are historical
+source requirements, not a pending render queue or an indexed-pixel certificate.
 Resume first from [the current operational status](../../../../output/minigun-implementation/STATUS.md)
 and its [live render snapshot](../../../../output/minigun-implementation/render-status.json).
-The full production render is in progress; use its recorded supervisor, journal
-and source pins rather than a frozen remaining-direction count. Do not start a
-second engine while it runs. [The 2026-10-11 progress record](PROGRESS-2026-10-11.md)
+The full production render is retained; use the operational status for current
+work. Do not restart rendering. [The 2026-10-11 progress record](PROGRESS-2026-10-11.md)
 preserves the completed pilot evidence. Reuse its verified passes and existing
 icons; do not restart the eight-direction pilot.
 The old rig, pilot and timing reports remain historical evidence; their earlier

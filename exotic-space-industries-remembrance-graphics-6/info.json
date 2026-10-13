@@ -1,11 +1,11 @@
 {
     "name": "exotic-space-industries-remembrance-graphics-6",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "Exotic Space Industries: Remembrance Graphics 6",
     "author": "aRighteousGod",
     "factorio_version": "2.0",
     "license": "GPL-3.0-or-later",
-    "description": "A. S. H. Sentry water-turret graphics for Exotic Space Industries: Remembrance, including fixed base and rotating head sheets, shadows, owner-color mask, item icon and research icon. Required by the main gameplay pack. Includes acidthrower machine sheets, liquid effects and item/research icons. Includes the complete standard-resolution minigun turret sprites, shadows and item/research icons.",
+    "description": "A. S. H. Sentry water-turret graphics for Exotic Space Industries: Remembrance, including fixed base and rotating head sheets, shadows, owner-color mask, item icon and research icon. Required by the main gameplay pack. Includes acidthrower machine sheets, liquid effects and item/research icons. Includes the complete minigun turret sprites at 64 pixels per tile with indexed colors, lossless shadows and item/research icons.",
     "dependencies": [
         "base >= 2.0.0"
     ]

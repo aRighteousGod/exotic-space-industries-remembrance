@@ -33,5 +33,5 @@ Minigun turret: prototype image 2, reconstructed with Meshy 7.1 and rendered
 through the separated Blender/Factorio asset pipeline. Author: aRighteousGod.
 Meshy task: 01a123b7-0507-7520-84dd-5fcce51bb408.
 Source GLB SHA256: 453a8f5b75fd16630803d698293222cf9e07a3e1cecb1f7c3b40434d75008f59.
-This pack supplies the complete standard-resolution color, shadow and icon set.
+This pack supplies indexed color artwork at 64 pixels per tile, lossless full-resolution shadows and indexed item/research icons.
 Generation and validation: .codex/esir/asset-generators/minigun-turret/HANDOFF-SEPARATED.md.

@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2026-10-13
+  Graphics:
+    - Replaced the standard-resolution minigun sprites with 64-pixel-per-tile artwork using a shared 256-color palette. Kept all full-resolution shadows and updated the item and research icons.
+  Compatibility:
+    - The new minigun layout requires ESIR 1.3.43 or later. Update both packs together.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2026-10-11
   Features:

@@ -7,6 +7,8 @@ description: "Use when Codex should orchestrate a full ESIR asset pipeline from 
 
 Use this skill when an asset needs a reproducible end-to-end dossier instead of isolated commands. It coordinates `$meshy-api`, `$meshy-blender-spritesheet`, `$blender-procedural-animation`, and `$esir-factorio-asset-export`.
 
+For requested indexed PNGs or 256-color derivatives, use [esir-png-quantize](../esir-png-quantize/SKILL.md) as an optional staged conversion and comparison step. Keep related layers/frames in shared palette groups and special layers unchanged by default; PNG compression alone does not imply permission for lossy conversion.
+
 ## Hard Rules
 
 - Default generated artifacts to ignored `output/meshy/<asset>/`.
