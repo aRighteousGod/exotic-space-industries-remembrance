@@ -19,6 +19,7 @@ require("scripts/data-final-updates/set-menu-background")
 
 -- =======================================================================================
 require("scripts/data-final-updates/assembler-reskin")
+require("scripts/data-final-updates/ballistic-divergence-compatibility")
 require("scripts/data-final-updates/camp-fire")
 require("scripts/data-final-updates/flare-stack")
 require("scripts/data-final-updates/final-tech-fixes")

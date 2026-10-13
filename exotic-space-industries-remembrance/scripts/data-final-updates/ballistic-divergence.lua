@@ -8,6 +8,7 @@
 -- Independently implemented ESIR combat doctrines; concept credit: DataCpt.
 local config = require("lib/ballistic-divergence-config")
 local ei_lib = require("lib/lib")
+local parked_weapons = require("lib/surveyor-weapons-config")
 local doctrine, enabled = config.resolve(), config.enabled()
 local aliases, exclusions = {}, {}
 local consumers = {bullet={}, ["shotgun-shell"]={}}
@@ -51,6 +52,8 @@ end
 ---@param prototype table
 ---@param source_type string
 local function register_shooter(prototype, source_type)
+    -- Hidden mount guns remain active; only the parked catalog is excluded.
+    if prototype.hidden and ei_lib.table_contains_value(parked_weapons, prototype.name) then return end
     local attack = prototype.attack_parameters
     if not attack then return end
     for category, list in pairs(consumers) do
@@ -69,18 +72,17 @@ for _, turret in pairs(data.raw["ammo-turret"] or {}) do register_shooter(turret
 ---@param category string
 ---@param kind table
 ---@param attack table|nil Inline robot attack parameters.
----@param original_range number
 ---@return number
-local function flight_baseline(category, kind, attack, original_range)
-    local baseline = math.max(category == "bullet" and 30 or 0, original_range or 0)
+local function flight_baseline(category, kind, attack)
+    -- Incoming delivery distances describe old flight, never acquisition reach.
+    local baseline = category == "bullet" and 30 or 1
     if attack then
-        return math.max(baseline, (attack.range or 0) * (kind.range_modifier or 1) * quality_range + muzzle_allowance(attack))
+        return math.max(baseline, (attack.range or 0) * (kind.range_modifier or 1) + muzzle_allowance(attack))
     end
     for _, consumer in ipairs(consumers[category]) do
         -- The engine falls back to the first source branch when no exact match
         -- exists. Cover every compatible consumer conservatively for each branch.
-            baseline = math.max(baseline, (consumer.attack.range or 0) * (kind.range_modifier or 1)
-                * quality_range + consumer.margin)
+        baseline = math.max(baseline, (consumer.attack.range or 0) * (kind.range_modifier or 1) + consumer.margin)
     end
     return baseline
 end
@@ -97,6 +99,7 @@ local function has_script(effects)
 end
 
 ---@param kind table
+---@param category string
 ---@return boolean
 local function supported(kind, category)
     if not kind.action or kind.target_filter then return false end
@@ -143,7 +146,7 @@ local function bullet_projectile(id, effects, ammo_name)
     elseif ammo_name == "uranium-rounds-magazine" then color = {r=0.4,g=1,b=0.3} end
     return {
         type="projectile", name=id, flags={"not-on-map"}, hidden=true,
-        collision_box={{-0.05,-0.25},{0.05,0.25}}, acceleration=0, direction_only=true,
+        collision_box={{-0.05,-0.25},{0.05,0.25}}, acceleration=0, max_speed=1, direction_only=true,
         force_condition="not-same", hit_at_collision_position=true,
         hit_collision_mask={layers={object=true,player=true,trigger_target=true,train=true},not_colliding_with_itself=true},
         piercing_damage=(ammo_name == "piercing-rounds-magazine" or ammo_name == "uranium-rounds-magazine")
@@ -165,21 +168,32 @@ end
 ---@return boolean changed
 ---@return boolean all_supported
 local function transform_kind(owner, category, kind, branch, attack)
-    if not supported(kind, category) then
+    local structure_supported = supported(kind, category)
+    if not structure_supported then
         exclusions[owner..":"..branch] = true
         if category == "bullet" then uniform_bullets = false end
-        return false, false
     end
-    -- An external pellet cone can exceed the native travel interval under a
-    -- doctrine. Preserve the whole branch, but still declare its saved helpers.
-    local valid_range = true
+    -- Keep saved helpers for rejected movement too. A stationary/decelerating
+    -- external pellet cannot rely on distance expiry for a bounded lifetime.
+    local valid_range = structure_supported
     for _, action in ipairs(entries(kind.action)) do
         for _, delivery in ipairs(entries(action.action_delivery)) do
             local deviation = range_deviation(delivery, category)
-            if deviation < 0 or deviation >= 2 then valid_range = false end
+            if not ei_lib.is_valid_number(deviation) or deviation < 0 then valid_range = false end
+            if category == "shotgun-shell" and delivery.type == "projectile" then
+                local original = data.raw.projectile[delivery.projectile] or {}
+                local speed = delivery.starting_speed or 0
+                local variation = delivery.starting_speed_deviation or 0
+                local motion = original.speed_modifier or {1,1}
+                if not ei_lib.is_valid_number(speed) or not ei_lib.is_valid_number(variation)
+                    or speed - math.abs(variation) <= 0 or (original.acceleration or 0) < 0
+                    or (original.max_speed or 1) <= 0 or (motion.x or motion[1] or 1) <= 0
+                    or (motion.y or motion[2] or 1) <= 0 then valid_range = false end
+            end
         end
     end
     if enabled and not valid_range then exclusions[owner..":"..branch] = true end
+    if category == "bullet" and not valid_range then uniform_bullets = false end
     local changed = false
     for ai, action in ipairs(entries(kind.action)) do
         for di, delivery in ipairs(entries(action.action_delivery)) do
@@ -187,25 +201,32 @@ local function transform_kind(owner, category, kind, branch, attack)
             local projectile
             if delivery.type == "instant" and delivery.target_effects and category == "bullet" then
                 projectile = bullet_projectile(id, delivery.target_effects, owner)
-            elseif delivery.type == "projectile" then
+            elseif delivery.type == "projectile" and data.raw.projectile[delivery.projectile] then
                 projectile = table.deepcopy(data.raw.projectile[delivery.projectile])
                 projectile.name, projectile.hidden = id, true
                 projectile.force_condition = "not-same"
-                if category == "bullet" then projectile.direction_only = true end
-                if category == "bullet" and (delivery.starting_speed ~= 1 or (delivery.starting_speed_deviation or 0) ~= 0
-                    or (projectile.acceleration or 0) ~= 0 or (projectile.max_speed or 1) < 1) then uniform_bullets = false end
+                if category == "bullet" then
+                    projectile.direction_only, projectile.acceleration, projectile.max_speed = true, 0, 1
+                    projectile.turning_speed_increases_exponentially_with_projectile_speed = false
+                    projectile.speed_modifier = {1,1}
+                    projectile.collision_box = {{-0.05,-0.25},{0.05,0.25}}
+                end
             end
             if projectile then
                 aliases[#aliases+1] = projectile
                 if enabled and valid_range then
-                    local deviation = range_deviation(delivery, category)
-                    delivery.max_range = flight_baseline(category, kind, attack,
-                        delivery.max_range or (delivery.type == "projectile" and 1000 or 0))
-                        * doctrine.flight / (1 - deviation / 2)
+                    -- blueprint-ref: .codex/esir/blueprints/combat-doctrines.md#travel
+                    -- Native deviation is symmetric about max_range. Keep its
+                    -- lower endpoint at required reach. The engine scales travel
+                    -- by firing-weapon quality, so normalize the physical budget.
+                    local baseline = flight_baseline(category, kind, attack)
+                    local extra = doctrine.overtravel_tiles / quality_range
+                    local deviation = math.min(range_deviation(delivery, category), 2 * extra / (2 * baseline + extra))
+                    delivery.max_range = baseline / (1 - deviation / 2)
                     delivery.range_deviation = deviation
                     if category == "bullet" then
                         delivery.direction_deviation = 0.16 * doctrine.scatter
-                        if delivery.type == "instant" then delivery.starting_speed = 1 end
+                        delivery.starting_speed, delivery.starting_speed_deviation = 1, 0
                     end
                     if delivery.type == "instant" then delivery.target_effects = nil end
                     delivery.type, delivery.projectile = "projectile", id
@@ -225,7 +246,7 @@ end
 ---@return boolean all_supported
 local function transform_types(owner, category, ammo_types, attack)
     local all_supported = true
-    local kinds = ammo_types.action and {ammo_types} or ammo_types
+    local kinds = ammo_types[1] and ammo_types or {ammo_types}
     for index, kind in ipairs(kinds) do
         local _, branch_supported = transform_kind(owner, category, kind, index, attack)
         if not branch_supported then all_supported = false end
@@ -245,19 +266,7 @@ local robot_leading = {}
 for name, robot in pairs(data.raw["combat-robot"] or {}) do
     local attack = robot.attack_parameters
     if attack and accepts(attack, "bullet") and attack.ammo_type then
-        local own_uniform = true
-        for _, kind in ipairs(attack.ammo_type.action and {attack.ammo_type} or attack.ammo_type) do
-            for _, action in ipairs(entries(kind.action)) do
-                for _, delivery in ipairs(entries(action.action_delivery)) do
-                    if delivery.type == "projectile" then
-                        local p = data.raw.projectile[delivery.projectile]
-                        if delivery.starting_speed ~= 1 or (delivery.starting_speed_deviation or 0) ~= 0
-                            or not p or (p.acceleration or 0) ~= 0 or (p.max_speed or 1) < 1 then own_uniform = false end
-                    end
-                end
-            end
-        end
-        if transform_types("robot-"..name, "bullet", attack.ammo_type, attack) and own_uniform then
+        if transform_types("robot-"..name, "bullet", attack.ammo_type, attack) then
             robot_leading[#robot_leading+1] = attack
         end
     end

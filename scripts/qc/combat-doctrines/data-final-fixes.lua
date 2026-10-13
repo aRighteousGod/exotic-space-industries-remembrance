@@ -7,10 +7,6 @@ local b,r=bp.resolve(),rp.resolve()
 assert(b.visual_fidelity==test["ballistic-divergence"] and r.visual_fidelity==test["pyric-radiance"],
     "QC startup doctrine must resolve to the requested name")
 local be,re=bp.enabled(),rp.enabled()
-if test.mode=="overlap" then
-    log("COMBAT_DOCTRINES_DATA_QC coexistence prototypes loaded; "..test.phase)
-    return
-end
 local count=0
 local function check(pass,message) count=count+1;assert(pass,"Combat doctrines QC: "..message) end
 local function eq(a,c)
@@ -21,16 +17,163 @@ local function eq(a,c)
     return true
 end
 local function list(node) return node and (node.type and {node} or node) or {} end
+-- Independent coverage oracle: delivery.max_range is deliberately not an input.
+local function required_reach(category,kind,inline)
+    local quality=1
+    for _,q in pairs(data.raw.quality) do quality=math.max(quality,q.range_multiplier or math.min(1+.1*q.level,3)) end
+    local baseline=category=="bullet" and 30 or 1
+    local function cover(attack)
+        if not attack then return end
+        if not inline and attack.ammo_category~=category then
+            local found=false
+            for _,c in ipairs(attack.ammo_categories or {}) do if c==category then found=true end end
+            if not found then return end
+        end
+        local function length(v) return math.sqrt((v.x or v[1] or 0)^2+(v.y or v[2] or 0)^2) end
+        local offset=0
+        for _,v in ipairs(attack.projectile_creation_offsets or {}) do offset=math.max(offset,length(v)) end
+        for _,p in ipairs(attack.projectile_creation_parameters or {}) do offset=math.max(offset,length(p[2] or {})) end
+        baseline=math.max(baseline,(attack.range or 0)*(kind.range_modifier or 1)
+            +2+length(attack.projectile_center or {})+math.abs(attack.projectile_creation_distance or 0)+offset)
+    end
+    if inline then cover(inline) else
+        local parked={['ei-surveyor-carbine']=true,['ei-surveyor-rifle']=true,['ei-surveyor-cannon']=true,['ei-adaptive-surveyor']=true}
+        for name,g in pairs(snap.before.gun) do if not (g.hidden and parked[name]) then cover(g.attack_parameters) end end
+        for _,t in pairs(snap.before['ammo-turret']) do cover(t.attack_parameters) end
+    end
+    return baseline,quality
+end
+local function bounded(delivery,category,kind,original,inline)
+    if test['legacy-travel'] then return end
+    local baseline,quality=required_reach(category,kind,inline)
+    local requested=category=='bullet' and .4*b.scatter or (original.range_deviation or 0)*b.shotgun_variation
+    local deviation=math.min(requested,2*b.overtravel_tiles/(2*quality*baseline+b.overtravel_tiles))
+    check(math.abs(delivery.range_deviation-deviation)<1e-9,'constrained distance variation')
+    check(math.abs(delivery.max_range*(1-deviation/2)-baseline)<1e-7,'minimum required travel')
+    check(quality*delivery.max_range*(1+deviation/2)<=quality*baseline+b.overtravel_tiles+1e-7,'maximum additional travel at highest quality')
+end
+local dependencies=require("__exotic-space-industries-remembrance__/lib/combat-doctrines-dependencies")
+if not mods[dependencies.ballistic_divergence] then
+    check(eq(snap.compatibility_before,snap.compatibility_after),"absent counterpart leaves ammunition intact")
+end
+if test.mode=="overlap" then
+    local function projectile_delivery(ammo)
+        for _,action in ipairs(list(ammo.ammo_type.action)) do
+            for _,delivery in ipairs(list(action.action_delivery)) do
+                if delivery.type=="projectile" then return delivery end
+            end
+        end
+    end
+    local uranium=snap.compatibility_before["uranium-rounds-magazine"]
+    local uranium_delivery=projectile_delivery(uranium)
+    check(uranium_delivery~=nil,"standalone uranium trajectory exists")
+    for _,name in ipairs{"ei-compound-ammo","ei-corrosive-ammo","ei-cryo-ammo","ei-oxyfluoride-ammo",
+        "ei-morphium-ammo","ei-hexafluoride-ammo","ei-arc-ammo","ei-neutron-ammo"} do
+        local original=snap.compatibility_before[name]
+        local expected=table.deepcopy(original)
+        local expected_delivery=projectile_delivery(expected)
+        check(expected_delivery~=nil,name.." authored exotic trajectory exists")
+        expected.magazine_size=uranium.magazine_size
+        expected.ammo_type.target_type=uranium.ammo_type.target_type or expected.ammo_type.target_type
+        for _,field in ipairs{"starting_speed","direction_deviation","range_deviation","max_range"} do
+            if uranium_delivery[field]~=nil then expected_delivery[field]=uranium_delivery[field] end
+        end
+        check(eq(snap.compatibility_after[name],expected),name.." restored scalars preserve complete payload and projectile identity")
+        local baseline=snap.before.ammo[name]
+        check(baseline.magazine_size==snap.compatibility_after[name].magazine_size
+            and eq(baseline.ammo_type,snap.compatibility_after[name].ammo_type),name.." compatibility precedes integrated conversion")
+        local current=table.deepcopy(data.raw.ammo[name])
+        if settings.startup["ei-spider-range-aware-cycling"].value then
+            local actions=list(current.ammo_type.action)
+            local observation={type="direct",show_in_tooltip=false,action_delivery={type="instant",
+                target_effects={{type="script",effect_id="ei-spider-shot:"..name,show_in_tooltip=false}}}}
+            check(eq(actions[#actions],observation),name.." immediate spider discharge observation")
+            table.remove(actions)
+            current.ammo_type.action=actions
+        end
+        if be then
+            check(current.magazine_size==math.ceil(baseline.magazine_size*b.magazine),name.." capacity scales once")
+            local old_delivery=projectile_delivery(baseline)
+            local delivery=projectile_delivery(current)
+            local projectile=data.raw.projectile[delivery.projectile]
+            check(delivery.projectile:find("ei-ballistic-divergence-",1,true)==1,name.." integrated private trajectory")
+            check(eq(projectile.action,data.raw.projectile[old_delivery.projectile].action),name.." complete exotic impact payload")
+            check(projectile.force_condition=="not-same",name.." integrated force policy")
+            check(delivery.direction_deviation==.16*b.scatter,name.." angular scatter")
+            bounded(delivery,'bullet',baseline.ammo_type,old_delivery)
+            check(delivery.starting_speed==1 and delivery.starting_speed_deviation==0
+                and projectile.acceleration==0 and projectile.max_speed==1,name.." normalized bullet speed")
+            local clean=table.deepcopy(current)
+            clean.magazine_size=baseline.magazine_size
+            clean.ammo_type.target_type=baseline.ammo_type.target_type
+            local clean_delivery=projectile_delivery(clean)
+            for _,field in ipairs{"projectile","direction_deviation","range_deviation","max_range","starting_speed","starting_speed_deviation"} do
+                clean_delivery[field]=old_delivery[field]
+            end
+            check(eq(clean,baseline),name.." launch effects, speed and ammunition metadata preserved")
+        else
+            check(eq(current,baseline),name.." disabled integration preserves standalone compatibility")
+        end
+    end
+    if be then
+        for name,ammo in pairs(snap.before.ammo) do
+            if ammo.ammo_category=='bullet' or ammo.ammo_category=='shotgun-shell' then
+                local originals=ammo.ammo_type[1] and ammo.ammo_type or {ammo.ammo_type}
+                local current=data.raw.ammo[name].ammo_type
+                local currents=current[1] and current or {current}
+                for bi,kind in ipairs(originals) do
+                    for ai,action in ipairs(list(kind.action)) do
+                        for di,d in ipairs(list(action.action_delivery)) do
+                            if d.type=='projectile' or (d.type=='instant' and d.target_effects) then
+                                local delivery=list(list(currents[bi].action)[ai].action_delivery)[di]
+                                check(delivery.type=='projectile' and delivery.projectile:find('ei-ballistic-divergence-',1,true)==1,name..' overlap native limit ownership')
+                                bounded(delivery,ammo.ammo_category,kind,d)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        local old=snap.before['combat-robot'].defender.attack_parameters
+        local current=data.raw['combat-robot'].defender.attack_parameters
+        bounded(list(list(current.ammo_type.action)[1].action_delivery)[1],'bullet',old.ammo_type,
+            list(list(old.ammo_type.action)[1].action_delivery)[1],old)
+    end
+    log("COMBAT_DOCTRINES_DATA_QC "..count.." standalone compatibility checks; 15 ammunition; "..test.phase)
+    return
+end
 local names={}
 local payloads=0
 if test.mode=="compatibility" then
     local prefix="ei-combat-doctrines-qc-"
+    check(eq(data.raw.ammo[prefix..'empty'],snap.before.ammo[prefix..'empty']),'empty unsupported ammunition preserves capacity and metadata')
     local original=snap.before.ammo[prefix.."wide-shotgun"].ammo_type.action.action_delivery
     local current=data.raw.ammo[prefix.."wide-shotgun"].ammo_type.action.action_delivery
     local id="ei-ballistic-divergence-"..prefix.."wide-shotgun-1-1-1"
     check(data.raw.projectile[id]~=nil,"wide external shotgun stable helper")
-    if be and .6*b.shotgun_variation<2 then check(current.projectile==id,"supported external shotgun conversion")
-    else check(eq(current,original),"unsafe external shotgun remains intact") end
+    if be then
+        check(current.projectile==id,"wide external shotgun conversion")
+        bounded(current,'shotgun-shell',snap.before.ammo[prefix.."wide-shotgun"].ammo_type,original)
+    else check(eq(current,original),"disabled external shotgun remains intact") end
+    for _,suffix in ipairs{'stalled-shotgun','scripted'} do
+        local old=snap.before.ammo[prefix..suffix]
+        local new=table.deepcopy(data.raw.ammo[prefix..suffix])
+        if suffix=='scripted' and settings.startup['ei-spider-range-aware-cycling'].value then
+            local actions=list(new.ammo_type.action)
+            local last=actions[#actions]
+            check(last.action_delivery.target_effects[1].effect_id=='ei-spider-shot:'..new.name,'later spider observation ownership')
+            table.remove(actions);new.ammo_type.action=old.ammo_type.action.type and actions[1] or actions
+        end
+        check(eq(new,old),suffix..' preserved unsupported branch and capacity')
+        check(data.raw.projectile['ei-ballistic-divergence-'..prefix..suffix..'-1-1-1']~=nil,suffix..' saved helper identity')
+    end
+    local inherited=list(data.raw.ammo[prefix..'inherited-range'].ammo_type.action)[1].action_delivery
+    if be then
+        local p=data.raw.projectile[inherited.projectile]
+        check(inherited.starting_speed==1 and inherited.starting_speed_deviation==0 and p.acceleration==0 and p.max_speed==1
+            and not p.turning_speed_increases_exponentially_with_projectile_speed,'inherited bullet motion normalized')
+        bounded(inherited,'bullet',snap.before.ammo[prefix..'inherited-range'].ammo_type,snap.before.ammo[prefix..'inherited-range'].ammo_type.action.action_delivery)
+    end
     local old=snap.before.ammo[prefix.."branches"]
     local new=data.raw.ammo[prefix.."branches"]
     check(new.magazine_size==old.magazine_size,"partial support preserves whole-item capacity")
@@ -94,15 +237,17 @@ for name,original in pairs(snap.before.ammo) do
                                 -- Fuel/performance finalizers own later aliases in
                                 -- both the original pellet and its private copy.
                                 check(eq(projectile.action,data.raw.projectile[delivery.projectile].action),name.." existing projectile payload")
-                                check(d.direction_deviation==delivery.direction_deviation and d.starting_speed==delivery.starting_speed
-                                    and d.starting_speed_deviation==delivery.starting_speed_deviation,name.." native cone/speed")
+                                if original.ammo_category=='shotgun-shell' then
+                                    check(d.direction_deviation==delivery.direction_deviation and d.starting_speed==delivery.starting_speed
+                                        and d.starting_speed_deviation==delivery.starting_speed_deviation,name.." native cone/speed")
+                                end
                                 check(eq(d.target_effects,delivery.target_effects),name.." delivery payload")
                             end
-                            local dev=original.ammo_category=="bullet" and .4*b.scatter or (delivery.range_deviation or 0)*b.shotgun_variation
-                            check(d.range_deviation==dev and dev<2,name.." range variation")
-                            local expected_min=original.ammo_category=="bullet" and 30 or (delivery.max_range or 1000)
-                            check(d.max_range>=expected_min*b.flight/(1-dev/2),name.." original travel coverage")
-                            check(d.max_range*(1-dev/2)>=90*1.5*b.flight,name.." finalized quality range")
+                            bounded(d,original.ammo_category,oldtype,delivery)
+                            if original.ammo_category=='bullet' and not test['legacy-travel'] then
+                                check(d.starting_speed==1 and d.starting_speed_deviation==0
+                                    and projectile.acceleration==0 and projectile.max_speed==1,name.." constant bullet speed")
+                            end
                         else
                             check(eq(d,delivery),name.." disabled delivery")
                         end
@@ -124,6 +269,7 @@ if be then
     local d=list(list(defender.ammo_type.action)[1].action_delivery)[1]
     local old=list(list(olddef.ammo_type.action)[1].action_delivery)[1]
     check(eq(data.raw.projectile[d.projectile].action.action_delivery.target_effects,old.target_effects),"Defender own impact")
+    bounded(d,'bullet',olddef.ammo_type,old,olddef)
 end
 for _,kind in ipairs{"tree","simple-entity"} do
     for name,old in pairs(snap.before[kind]) do
@@ -150,6 +296,10 @@ end
 for kind,rows in pairs(snap.visual) do
     for name,old in pairs(rows) do
         local current=data.raw[kind][name]
+        if kind=='fire' then
+            -- The suppression owner appends lifecycle notifications after radiance.
+            old.created_effect=table.deepcopy(current.created_effect)
+        end
         if not re then check(eq(current,old),kind.."/"..name.." disabled radiance")
         elseif not eq(old,current) then
             local clean=table.deepcopy(current)
@@ -178,7 +328,7 @@ for kind,rows in pairs(snap.visual) do
 end
 table.sort(names)
 log("COMBAT_DOCTRINES_DATA_QC "..count.." checks; "..#names.." ammunition; "..payloads.." payloads; "..test.phase)
-if test.mode~="firing" and test.mode~=nil then return end
+if test.mode~="firing" and test.mode~="range-limits" and test.mode~=nil then return end
 
 -- Disposable observations added only AFTER production assertions. Headless
 -- source flashes explicitly bypass visibility for entity-count verification.

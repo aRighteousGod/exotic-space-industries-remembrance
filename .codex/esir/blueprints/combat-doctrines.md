@@ -15,16 +15,21 @@ warnings use the integrated names and leave both counterparts loadable.
 - [combat-doctrines-dependencies.lua](../../../exotic-space-industries-remembrance/lib/combat-doctrines-dependencies.lua)
 - [pyric-radiance.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/pyric-radiance.lua)
 - [ballistic-divergence.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/ballistic-divergence.lua)
+- [ballistic-divergence-compatibility.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/ballistic-divergence-compatibility.lua)
+- [surveyor-weapons-config.lua](../../../exotic-space-industries-remembrance/lib/surveyor-weapons-config.lua)
+- [hide-surveyor-weapons.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/hide-surveyor-weapons.lua)
 
 ## Ownership and flow
 
 Configs own scalars; private effects and flight coverage are data-stage derivatives.
+The optional standalone trajectory bridge runs early after assembler reskin.
 Ballistics runs after fleet finalization and before spider observations. Radiance
 runs last after fuel/performance aliases. Informatron reads stage-neutral configs.
 
 ```mermaid
 flowchart LR
   S[Startup doctrines] --> B[Native ballistic conversion]
+  C[Optional standalone compatibility] --> B
   F[Final spider fleet] --> B
   B --> O[Immediate spider observations]
   O --> V[Final fuel and performance effects]
@@ -32,6 +37,22 @@ flowchart LR
   S --> L
   S --> I[Tooltips and Informatron]
 ```
+
+<a id="standalone-bridge"></a>
+## Standalone trajectory compatibility
+
+The early optional bridge synchronizes all eight exotic magazines with the
+standalone counterpart's uranium magazine capacity and first projectile delivery.
+It copies target type, starting speed, angular/range deviation and maximum travel
+when those fields exist, preserving each exotic projectile and complete payload.
+The historical Surveyor restoration remains inactive. Counterpart detection reads
+the shared dependency metadata; no integrated toggle gates this compatibility.
+
+The late Ballistic Divergence pass treats that restored result as its baseline.
+Enabled doctrines apply their capacity multiplier once and derive their own
+scatter/travel; disabled integration preserves the standalone compatibility result.
+The overlap fixture snapshots both sides of the early bridge and the late
+conversion boundary, including a Saturation capacity case.
 
 <a id="payloads"></a>
 ## Payload preservation
@@ -52,15 +73,49 @@ killed targets; a surviving target stops the projectile regardless of remaining
 budget, as confirmed by the engine fixture and the
 [Factorio developer explanation](https://forums.factorio.com/viewtopic.php?p=619879).
 Exotic rounds remain single-impact.
-Flight is `baseline * flight_multiplier / (1 - range_deviation/2)`, deviation below
-2. Coverage includes final compatible ranges, ammo modifiers, quality and muzzle
-allowance. A doctrine that would raise an external branch's deviation to 2 or
-higher leaves that complete branch intact, reports the exclusion once, and still
-declares its private helpers so saved identities do not depend on doctrine.
 Acquisition range/cooldown/damage modifiers stay native. Terrain floors
 preserve stronger resistance and affect all physical damage sources.
 Rock eligibility includes the native rock-classification flag, covering Gaia
 boulders, plus legacy rock names for compatible prototypes without that flag.
+
+<a id="travel"></a>
+## Bounded native travel
+
+The hiding owner and ballistic pass share the pure parked Surveyor catalog.
+Hidden active vehicle/spider mount guns remain compatible consumers; only hidden
+catalog weapons are excluded. The shared baseline `B` covers compatible active
+weapon acquisition range, ammunition range modifiers and muzzle allowance,
+with normal-quality floors of 30 tiles for bullets and 1 for pellets.
+Incoming delivery distances, including the implicit 1,000-tile default, never
+raise this baseline. Defender uses its own attack parameters.
+
+Doctrines supply fixed `overtravel_tiles` budgets: 0, 2, 0, 3, 8, 5, 6, 8, 11, 16.
+Factorio 2.0.77 also scales native delivery travel by firing-weapon quality `q`;
+mixed ammo/weapon probes confirm weapon ownership, including handheld guns.
+For physical budget `O` and maximum supported multiplier `Q`, requested bullet
+deviation is `0.40 * scatter`; pellets request their authored range deviation
+times the shotgun variation multiplier. Effective deviation is
+`min(requested, 2*O/(2*Q*B+O))`; delivery `max_range` is `B/(1-deviation/2)`.
+The physical interval starts at `q*B` and ends no farther than `q*B + q/Q*O`.
+Its global upper endpoint is `Q*B+O`; conservative scaling of muzzle allowance
+covers every quality's acquisition reach. Incoming ranges remain irrelevant,
+including when requested pellet deviation exceeds 2. At zero budget,
+distance variation is zero; angular bullet scatter and native pellet cones stay
+independent. Compatible weapons share a ceiling rather than receiving per-turret
+limits. Objects inside it remain valid collisions.
+
+With current maximum quality multiplier 1.5, bullets use baseline 49.7 and pellets
+21.41875. Maximum-quality ceilings are 77.55/90.55 and 35.128125/48.128125 tiles
+for Tempered/Terminal Barrage respectively. Defender retains its 30-tile normal
+floor, so its maximum-quality ceilings are 48/61. This engine-backed correction
+keeps the doctrine table's physical tile budgets unchanged.
+
+Private bullets have speed/max speed 1, zero acceleration and launch-speed variation.
+Pellets preserve native cone, count, geometry, speed, penetration and payloads.
+Unsupported structures and non-progressing/decelerating external pellets retain
+their branch and receive one exclusion report. Feasible original deliveries still
+declare private helpers. Native expiry owns missed-round cleanup; no runtime scan
+is added. A missing original projectile cannot supply a faithful saved helper.
 
 <a id="thermal"></a>
 ## Thermal boundary
@@ -86,6 +141,8 @@ Saved native stacks can retain more remaining rounds than a newly reduced magazi
 capacity; do not resize or refill them. Engine transitions verify their exact
 remaining-round consumption. Disabled sticker/flash helpers retain stable names
 with zero light intensity, while saved projectile helpers retain impact payloads.
+New travel bounds apply when rounds launch. Already launched native projectiles
+finish with saved distances and payloads; no migration deletes or respawns them.
 The native transition fixture saves a fired legendary projectile with ammunition
 and turret damage bonuses; disabled/Tempered rebuilds retain its single 45-damage
 impact and exact saved magazine consumption. Both selections remain saved while

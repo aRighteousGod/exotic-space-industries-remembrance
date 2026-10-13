@@ -10,6 +10,8 @@ local function stacks()
 end
 local function record()
     storage.transition_report={phase=test.phase,stacks=stacks(),tick=game.tick,
+        source_legacy_travel=storage.source_legacy_travel==true,
+        saved_target_distance=storage.saved_target_distance,
         ballistic=settings.startup["ei-ballistic-divergence"].value,
         doctrine=settings.startup["ei-ballistic-divergence-preset"].value,
         pyric_doctrine=settings.startup["ei-pyric-radiance-preset"].value,
@@ -23,6 +25,20 @@ local function record()
         end
     end
     if test.phase~="transition-reload" then assert(storage.transition_report.inflight,"Saved private projectile did not survive") end
+    if test.phase=='transition-tempered' and storage.source_legacy_travel then
+        local kind=prototypes.item['firearm-magazine'].get_ammo_type('turret')
+        local found=false
+        for _,action in ipairs(kind.action.type and {kind.action} or kind.action) do
+            for _,d in ipairs(action.action_delivery.type and {action.action_delivery} or action.action_delivery) do
+                if d.type=='projectile' then
+                    local ceiling=d.max_range*(1+(d.range_deviation or 0)/2)*prototypes.quality.legendary.range_multiplier
+                    assert(storage.saved_target_distance>ceiling+16,'Saved receiver must exceed the new native travel ceiling')
+                    storage.transition_report.new_travel_ceiling=ceiling;found=true
+                end
+            end
+        end
+        assert(found,'Current saved-shot comparison must find its native delivery')
+    end
     if test.phase=="transition-off" or test.phase=="transition-reload" then
         assert(storage.transition_report.doctrine=="terminal-barrage" and storage.transition_report.pyric_doctrine=="apotheosis","Disabled toggles lost their selected doctrines")
     end
@@ -45,6 +61,7 @@ local function record()
     end
 end
 script.on_init(function()
+    storage.source_legacy_travel=test['legacy-travel']==true
     local surface=game.create_surface("combat-transition",{autoplace_controls={},autoplace_settings={entity={treat_missing_as_default=false}}})
     surface.request_to_generate_chunks({60,20},3);surface.force_generate_chunk_requests()
     local tiles={};for x=-20,140 do for y=-10,65 do tiles[#tiles+1]={name="refined-concrete",position={x,y}} end end
@@ -78,6 +95,10 @@ script.on_event(defines.events.on_tick,function(event)
         local projectiles=storage.stash.surface.find_entities_filtered{type="projectile",name="ei-ballistic-divergence-firearm-magazine-1-1-1"}
         if #projectiles==0 then assert(event.tick<60,"Native transition shot did not launch");return end
         storage.inflight=projectiles[1];storage.awaiting_launch=nil
+        if storage.source_legacy_travel then
+            storage.flight_target.teleport({200,0})
+            storage.saved_target_distance=200
+        end
     end
     if storage.needs_record or storage.recorded_phase~=test.phase then
         storage.needs_record=nil;storage.recorded_phase=test.phase;record()

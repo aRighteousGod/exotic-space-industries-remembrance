@@ -8,7 +8,7 @@
 local ei_lib = require("lib/lib")
 
 ---@class BallisticDivergenceDoctrine
----@field flight number
+---@field overtravel_tiles integer Maximum travel beyond compatible weapon reach.
 ---@field scatter number
 ---@field magazine number
 ---@field shotgun_variation number
@@ -20,16 +20,16 @@ config.allowed_values = {"needle-oath", "measured-volleys", "breach-doctrine", "
     "fortress-oath", "wildfire-doctrine", "crossfire", "saturation", "terminal-barrage"}
 ---@type table<string, BallisticDivergenceDoctrine>
 config.profiles = {
-    ["needle-oath"] = {flight=1, scatter=0, magazine=1, shotgun_variation=1, terrain=false},
-    ["measured-volleys"] = {flight=1.10, scatter=0.25, magazine=1, shotgun_variation=1, terrain=true},
-    ["breach-doctrine"] = {flight=1, scatter=0.75, magazine=1.25, shotgun_variation=2, terrain=false},
-    tempered = {flight=1.25, scatter=0.50, magazine=1, shotgun_variation=1.50, terrain=false},
-    ["distant-thunder"] = {flight=1.75, scatter=0.35, magazine=1, shotgun_variation=1.50, terrain=false},
-    ["fortress-oath"] = {flight=1.40, scatter=0.65, magazine=1.50, shotgun_variation=2, terrain=true},
-    ["wildfire-doctrine"] = {flight=1.50, scatter=1, magazine=1.75, shotgun_variation=4, terrain=true},
-    crossfire = {flight=1.75, scatter=1.25, magazine=1.50, shotgun_variation=3, terrain=false},
-    saturation = {flight=2, scatter=1.50, magazine=2, shotgun_variation=3, terrain=true},
-    ["terminal-barrage"] = {flight=2.50, scatter=2, magazine=3, shotgun_variation=4, terrain=false},
+    ["needle-oath"] = {overtravel_tiles=0, scatter=0, magazine=1, shotgun_variation=1, terrain=false},
+    ["measured-volleys"] = {overtravel_tiles=2, scatter=0.25, magazine=1, shotgun_variation=1, terrain=true},
+    ["breach-doctrine"] = {overtravel_tiles=0, scatter=0.75, magazine=1.25, shotgun_variation=2, terrain=false},
+    tempered = {overtravel_tiles=3, scatter=0.50, magazine=1, shotgun_variation=1.50, terrain=false},
+    ["distant-thunder"] = {overtravel_tiles=8, scatter=0.35, magazine=1, shotgun_variation=1.50, terrain=false},
+    ["fortress-oath"] = {overtravel_tiles=5, scatter=0.65, magazine=1.50, shotgun_variation=2, terrain=true},
+    ["wildfire-doctrine"] = {overtravel_tiles=6, scatter=1, magazine=1.75, shotgun_variation=4, terrain=true},
+    crossfire = {overtravel_tiles=8, scatter=1.25, magazine=1.50, shotgun_variation=3, terrain=false},
+    saturation = {overtravel_tiles=11, scatter=1.50, magazine=2, shotgun_variation=3, terrain=true},
+    ["terminal-barrage"] = {overtravel_tiles=16, scatter=2, magazine=3, shotgun_variation=4, terrain=false},
 }
 
 ---@return boolean
@@ -52,7 +52,7 @@ end
 function config.describe(name)
     local p = config.resolve(name)
     return {"", {"ballistic-divergence.row", {"string-mod-setting."..config.setting_name.."-"..name},
-        tostring(p.flight), tostring(p.scatter), tostring(p.magazine), tostring(p.shotgun_variation),
+        tostring(p.overtravel_tiles), tostring(p.scatter), tostring(p.magazine), tostring(p.shotgun_variation),
         {p.terrain and "combat-doctrines.on" or "combat-doctrines.off"}},
         {"string-mod-setting-description."..config.setting_name.."-"..name}, "\n"}
 end

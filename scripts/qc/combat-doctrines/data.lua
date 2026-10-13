@@ -6,6 +6,10 @@ local target = {type="simple-entity-with-owner",name="ei-combat-doctrines-qc-tar
     picture={filename="__core__/graphics/empty.png",width=1,height=1}}
 if require("test-config")["miss-scene"] then target.collision_box={{-1,-.25},{1,.25}};target.selection_box=target.collision_box end
 data:extend{target}
+local miss=table.deepcopy(target)
+miss.name='ei-combat-doctrines-qc-miss-target'
+miss.collision_mask={layers={}}
+data:extend{miss}
 local wide=table.deepcopy(target)
 wide.name="ei-combat-doctrines-qc-range-target"
 wide.collision_box={{-1,-80},{1,80}}
@@ -16,7 +20,7 @@ fragile.name="ei-combat-doctrines-qc-fragile-target"
 fragile.max_health=5
 fragile.is_military_target=false
 data:extend{fragile}
-for _, category in ipairs{"bullet", "shotgun-shell"} do
+for _, category in ipairs(require('test-config')['range-limits'] and {} or {"bullet", "shotgun-shell"}) do
     local turret=table.deepcopy(data.raw["ammo-turret"]["gun-turret"])
     turret.name="ei-combat-doctrines-qc-"..category
     turret.attack_parameters=table.deepcopy(data.raw.gun[category == "bullet" and "submachine-gun" or "combat-shotgun"].attack_parameters)
@@ -58,5 +62,21 @@ if require("test-config").mode=="compatibility" then
     action.probability=.7;action.repeat_count=2
     action.action_delivery={table.deepcopy(action.action_delivery),table.deepcopy(action.action_delivery)}
     action.action_delivery[2].target_effects[1].damage.amount=3
-    data:extend{wide,branches,dual}
+    local stalled=table.deepcopy(wide)
+    stalled.name='ei-combat-doctrines-qc-stalled-shotgun'
+    stalled.ammo_type.action.action_delivery.starting_speed=0
+    stalled.ammo_type.action.action_delivery.starting_speed_deviation=0
+    local scripted=table.deepcopy(dual)
+    scripted.name='ei-combat-doctrines-qc-scripted'
+    scripted.ammo_type.action.action_delivery[1].target_effects[#scripted.ammo_type.action.action_delivery[1].target_effects+1]={type='script',effect_id='ei-combat-qc-unsupported'}
+    local moving=table.deepcopy(data.raw.projectile['shotgun-pellet'])
+    moving.name='ei-combat-doctrines-qc-inherited-motion'
+    moving.acceleration=.01;moving.max_speed=.2;moving.turning_speed_increases_exponentially_with_projectile_speed=true
+    local inherited=table.deepcopy(dual)
+    inherited.name='ei-combat-doctrines-qc-inherited-range'
+    inherited.ammo_type.action={type='direct',action_delivery={type='projectile',projectile=moving.name,starting_speed=.1,starting_speed_deviation=.05}}
+    local empty=table.deepcopy(dual)
+    empty.name='ei-combat-doctrines-qc-empty'
+    empty.ammo_type={target_type='entity'}
+    data:extend{wide,branches,dual,stalled,scripted,moving,inherited,empty}
 end

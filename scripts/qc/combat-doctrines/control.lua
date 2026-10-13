@@ -1,4 +1,7 @@
 local test=require("test-config")
+if test.mode=="range-limits" then require("range-limits");return end
+if test.mode=="range-performance" then require("range-performance");return end
+if test.mode=="locales" then require("locales");return end
 if test.mode=="overlap" then require("overlap");return end
 if test.mode=="visual" then require("visual");return end
 if test.mode=="performance" or test.mode=="rendering" then require("performance");return end

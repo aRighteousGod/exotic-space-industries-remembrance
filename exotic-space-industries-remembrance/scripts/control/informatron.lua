@@ -1479,6 +1479,14 @@ function model.page_content(page_name, player_index, element)
         model.turrets(player_index, element)
     end
 
+    if page_name == "pyric_radiance" then
+        model.pyric_radiance(player_index, element)
+    end
+
+    if page_name == "ballistic_divergence" then
+        model.ballistic_divergence(player_index, element)
+    end
+
     if page_name == "singularity_lance" then
         model.singularity_lance(player_index, element)
     end

@@ -9,13 +9,9 @@
 -- remote_interfaces: none
 -- rebuild_on: data-final prototype reload
 --==============================================================================
-
-local surveyor_weapon_names = {
-    "ei-surveyor-carbine",
-    "ei-surveyor-rifle",
-    "ei-surveyor-cannon",
-    "ei-adaptive-surveyor",
-}
+-- blueprint: .codex/esir/blueprints/combat-doctrines.md#contract
+-- blueprint-ref: .codex/esir/blueprints/combat-doctrines.md#travel
+local surveyor_weapon_names = require("lib/surveyor-weapons-config")
 
 for _, name in ipairs(surveyor_weapon_names) do
     local gun = data.raw.gun and data.raw.gun[name]

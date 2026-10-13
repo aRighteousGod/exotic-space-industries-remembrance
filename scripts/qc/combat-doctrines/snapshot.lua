@@ -1,4 +1,7 @@
 local module = {}
+function module.compatibility(stage)
+    module["compatibility_"..stage]=table.deepcopy(data.raw.ammo)
+end
 function module.ballistics()
     data.combat_doctrines_qc=module
     module.before={}
