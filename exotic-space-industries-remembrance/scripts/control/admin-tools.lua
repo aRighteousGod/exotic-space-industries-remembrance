@@ -59,6 +59,7 @@ function model.diagnostics(id,tick,player_index)
     end
     local inspection=player_index and registry.get_inspection(player_index)
     if inspection and (not id or inspection.id==id) then result.inspection=inspection end
+    result.rebuilds=scheduler.peek_rebuilds(tick,id)
     return result
 end
 
@@ -232,6 +233,9 @@ function model.on_gui_opened(event) return restrictions.on_gui_opened(event) end
 function model.on_selected_entity_changed(event) restrictions.on_player_event(event) end
 function model.on_gui_click(event) return gui.on_gui_click(event) or lib.camera_window.on_gui_click(event) end
 function model.on_gui_change(event) return gui.on_gui_change(event) end
+function model.has_rebuild_viewer(index) return gui.has_rebuild_viewer(index) end
+function model.has_rebuild_viewers() return gui.has_rebuild_viewers() end
+function model.refresh_rebuild_activity(index,tick,snapshot) return gui.refresh_rebuild_activity(index,tick,snapshot) end
 function model.on_gui_closed(event) restrictions.on_gui_closed(event);gui.on_gui_closed(event);lib.camera_window.on_gui_closed(event) end
 function model.on_built_entity(event) restrictions.on_built_entity(event) end
 function model.on_object_destroyed(event) restrictions.on_object_destroyed(event) end

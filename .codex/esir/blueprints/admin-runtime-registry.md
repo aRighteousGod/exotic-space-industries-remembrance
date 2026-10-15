@@ -55,3 +55,8 @@ state unchanged. With no requested inspection, open and closed admin menus cause
 zero registry service work. Inspect large collections to verify the 64-entry budget,
 cancel and revoke admin rights mid-job, remove cursor entries between slices, and
 save/reload with pending work. Test preservation while each mechanic is active.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+The monitor is classified infrastructure with no repair action. Registry repairs record their synchronous request callback and accepted/failed result; deferred owners separately report eventual completion. An accepted repair request does not claim asynchronous work finished. Existing confirmation and authorization gates remain authoritative.

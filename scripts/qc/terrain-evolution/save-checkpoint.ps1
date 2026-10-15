@@ -1,13 +1,13 @@
 [CmdletBinding()]
-param([string]$RunName='save-release')
+param([string]$RunName='save-release',[string]$OutputRoot,[switch]$NoPersistenceBridge)
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$run=Join-Path $repo (".factorio-qc/terrain-evolution/$RunName")
+$run=if($OutputRoot){[IO.Path]::GetFullPath($OutputRoot)}else{Join-Path $repo (".factorio-qc/terrain-evolution/$RunName")}
 if(Get-Process factorio -ErrorAction SilentlyContinue){throw 'Close other Factorio fixtures before starting the server.'}
 $mods=Join-Path $run 'mods'
 $main=Join-Path $mods 'exotic-space-industries-remembrance/control.lua'
 $bridge=Get-Content -LiteralPath (Join-Path $repo 'scripts/qc/terrain-evolution/persistence-bridge.lua') -Raw -Encoding UTF8
-if((Get-Content -LiteralPath $main -Raw) -notmatch 'local persistence_terrain='){
+if(-not $NoPersistenceBridge -and (Get-Content -LiteralPath $main -Raw) -notmatch 'local persistence_terrain='){
     [IO.File]::AppendAllText($main,"`n$bridge",[Text.UTF8Encoding]::new($false))
 }
 New-Item -ItemType Directory -Path (Join-Path $run 'saves') -Force | Out-Null

@@ -4,6 +4,7 @@
 -- loaded_by: control.lua and runtime control modules on demand
 -- cadence: helper calls only; no top-level events
 -- forwarded_events: audit_queue, bump_counter, clear_queue, compact_queue, delayed_bucket_count, delayed_item_count, delayed_schedule, delayed_take_due, delayed_take_due_through, ensure_delayed_buckets, ensure_module_state, ensure_queue, get_module_status, log_snapshot, queue_item_count, queue_length, queue_peek, queue_peek_last, queue_pop, queue_pop_matching, queue_pop_queued, queue_push, queue_push_unique, queue_remove_value, set_module_status, status_snapshot, table_count, telemetry_enabled, write_telemetry
+--   begin_rebuild, update_rebuild, finish_rebuild, report_rebuild, peek_rebuilds, peek_rebuild_state
 -- storage_roots: storage.ei.runtime_scheduler and caller-owned queue tables
 -- gui_ids: none
 -- remote_interfaces: none
@@ -529,6 +530,217 @@ function scheduler.log_snapshot(tag, extra, current_tick)
 
     scheduler.write_telemetry(tag or "snapshot", snapshot, true, current_tick)
     return snapshot
+end
+
+-- blueprint-ref: .codex/esir/blueprints/runtime-scheduler.md#rebuild-reporting
+-- Observation only: owners retain their work, membership, budgets and deadlines.
+---@class EiRebuildDetails
+---@field reason string|nil
+---@field phase string|nil
+---@field state 'queued'|'running'|'waiting'|nil
+---@field completed number|nil
+---@field total number|false|nil False explicitly clears an unknown denominator.
+---@field unit string|nil
+---@field waiting_reason string|false|nil
+---@field force_index uint|nil
+---@field surface_index uint|nil
+---@field synchronous boolean|nil
+---@field eta_blocked boolean|nil Suppress rate estimates while any member is externally blocked.
+---@class EiRebuildRecord: EiRebuildDetails
+---@field state 'queued'|'running'|'waiting'|'finished'
+---@field total number|nil
+---@field waiting_reason string|nil
+---@field id integer
+---@field generation integer
+---@field owner string
+---@field operation string
+---@field scope string|number
+---@field start_tick MapTick
+---@field updated_tick MapTick
+---@field end_tick MapTick|nil
+---@field outcome string|nil
+---@field eta_ticks number|nil
+---@field progress_tick MapTick
+---@field key string|nil Internal active-key identity, omitted from public snapshots.
+---@field samples {tick:MapTick,completed:number}[]|nil
+---@class EiRebuildSnapshot
+---@field active EiRebuildRecord[]
+---@field history EiRebuildRecord[]
+---@field revision integer
+---@field public_count integer
+---@field episode integer
+---@field episode_started_tick MapTick|nil
+---@field snapshot_tick MapTick
+---@class EiRebuildRegistry
+---@field active table<integer,EiRebuildRecord>
+---@field keys table<string,integer>
+---@field history EiRebuildRecord[]
+---@field history_cursor integer
+---@field history_count integer
+---@field next_id integer
+---@field revision integer
+---@field transition_revision integer
+---@field public_count integer
+---@field episode integer
+---@field episode_started_tick MapTick|nil
+---@field episode_ended_tick MapTick|nil
+---@field previous_episode_started_tick MapTick|nil
+
+local REBUILD_FIELDS={"reason","phase","state","completed","total","unit","waiting_reason","force_index","surface_index","synchronous","eta_blocked"}
+local function rebuild_state()
+    local root=scheduler.ensure_root()
+    root.rebuilds=root.rebuilds or {active={},keys={},history={},history_cursor=0,history_count=0,
+        next_id=0,revision=0,transition_revision=0,public_count=0,episode=0}
+    return root.rebuilds
+end
+
+---Pure admission read; never initializes storage (including during on_load).
+---@return EiRebuildRegistry|nil
+function scheduler.peek_rebuild_state()
+    local root=storage.ei and storage.ei.runtime_scheduler
+    return root and root.rebuilds
+end
+
+local function public_rebuild(record)
+    return not record.synchronous and (record.state=="queued" or record.state=="running")
+end
+
+local function rebuild_transition(root,before,after,tick)
+    if before==after then return end
+    root.public_count=root.public_count+(after and 1 or -1)
+    if after and root.public_count==1 then
+        if root.episode_ended_tick==tick then root.episode_started_tick=root.previous_episode_started_tick
+        else root.episode=root.episode+1;root.episode_started_tick=tick end
+    elseif root.public_count==0 then
+        root.episode_ended_tick=tick;root.previous_episode_started_tick=root.episode_started_tick;root.episode_started_tick=nil
+    end
+    root.transition_revision=root.transition_revision+1
+end
+
+local function rebuild_sample(record,tick,reset)
+    if reset or not record.samples then record.samples={{tick=tick,completed=record.completed}};return end
+    local samples=record.samples
+    if tick-samples[#samples].tick>=60 then
+        samples[#samples+1]={tick=tick,completed=record.completed}
+    end
+    while #samples>1 and tick-samples[1].tick>300 do table.remove(samples,1) end
+end
+
+---@param id integer|nil
+---@param changes EiRebuildDetails
+---@param tick MapTick
+---@return boolean
+function scheduler.update_rebuild(id,changes,tick)
+    local root=scheduler.peek_rebuild_state();local record=root and root.active[id]
+    if not record then return false end
+    local before=public_rebuild(record)
+    local phase,total,state,completed,eta_blocked=record.phase,record.total,record.state,record.completed,record.eta_blocked
+    for _,field in ipairs(REBUILD_FIELDS) do
+        local value=changes[field]
+        if value~=nil then
+            if value==false and (field=="total" or field=="waiting_reason") then record[field]=nil
+            else record[field]=value end
+        end
+    end
+    record.completed=math.max(0,record.completed or 0)
+    if record.total then record.total=math.max(record.completed,record.total) end
+    record.updated_tick=tick
+    if record.completed~=completed then record.progress_tick=tick end
+    rebuild_sample(record,tick,phase~=record.phase or total~=record.total or state~=record.state or eta_blocked~=record.eta_blocked or record.completed<completed)
+    rebuild_transition(root,before,public_rebuild(record),tick)
+    root.revision=root.revision+1
+    return true
+end
+
+---@param id integer|nil
+---@param outcome string|nil
+---@param tick MapTick
+---@return boolean
+function scheduler.finish_rebuild(id,outcome,tick)
+    local root=scheduler.peek_rebuild_state();local record=root and root.active[id]
+    if not record then return false end
+    rebuild_transition(root,public_rebuild(record),false,tick)
+    root.active[id]=nil
+    if root.keys[record.key]==id then root.keys[record.key]=nil end
+    record.outcome=outcome or "completed";record.end_tick=tick;record.updated_tick=tick
+    if record.outcome=="completed" and record.total then record.completed=record.total end
+    record.state="finished";record.samples=nil
+    root.history_cursor=root.history_cursor%32+1
+    root.history[root.history_cursor]=record;root.history_count=math.min(32,root.history_count+1)
+    root.revision=root.revision+1;root.transition_revision=root.transition_revision+1
+    return true
+end
+
+---@param owner string
+---@param operation string
+---@param scope string|number|nil
+---@param details EiRebuildDetails
+---@param tick MapTick
+---@return integer
+function scheduler.begin_rebuild(owner,operation,scope,details,tick)
+    local root=rebuild_state();scope=scope or "global"
+    local key=owner.."|"..operation.."|"..tostring(scope)
+    if root.keys[key] then scheduler.finish_rebuild(root.keys[key],"superseded",tick) end
+    root.next_id=root.next_id+1
+    local id=root.next_id
+    local record={id=id,generation=id,key=key,owner=owner,operation=operation,scope=scope,
+        state="waiting",phase="preparing",completed=0,start_tick=tick,updated_tick=tick,progress_tick=tick}
+    root.active[id]=record;root.keys[key]=id
+    local initial={state="running"}
+    for _,field in ipairs(REBUILD_FIELDS) do if details[field]~=nil then initial[field]=details[field] end end
+    scheduler.update_rebuild(id,initial,tick)
+    root.transition_revision=root.transition_revision+1
+    return id
+end
+
+---Owner convenience for legacy-save adoption at an existing batch boundary.
+---@param owner string
+---@param operation string
+---@param scope string|number|nil
+---@param id integer|nil
+---@param details EiRebuildDetails|nil
+---@param tick MapTick
+---@return integer|nil
+function scheduler.report_rebuild(owner,operation,scope,id,details,tick)
+    if not details then scheduler.finish_rebuild(id,"completed",tick);return nil end
+    if scheduler.update_rebuild(id,details,tick) then return id end
+    -- A retained retired ID is a stale publisher, not a new admission. In
+    -- particular it must never supersede the replacement under the same key.
+    if id~=nil and scheduler.peek_rebuild_state() then return id end
+    return scheduler.begin_rebuild(owner,operation,scope,details,tick)
+end
+
+local function rebuild_copy(record,tick)
+    local copy={}
+    for key,value in pairs(record) do if key~="samples" and key~="key" then copy[key]=value end end
+    if record.total and record.total>record.completed and public_rebuild(record) and not record.eta_blocked
+        and tick-record.progress_tick<300 and record.samples then
+        local samples=record.samples;local first,last=samples[1],samples[#samples]
+        if first and last and tick-first.tick<=300 and last.tick-first.tick>=60 and last.completed>first.completed then
+            copy.eta_ticks=math.ceil((record.total-record.completed)*(last.tick-first.tick)/(last.completed-first.completed))
+        end
+    end
+    return copy
+end
+
+---Pure detached scalar snapshots; never invokes owners or audits their queues.
+---@param tick MapTick
+---@param owner string|nil
+---@return EiRebuildSnapshot
+function scheduler.peek_rebuilds(tick,owner)
+    local root=scheduler.peek_rebuild_state()
+    local result={active={},history={},revision=root and root.revision or 0,public_count=root and root.public_count or 0,
+        episode=root and root.episode or 0,episode_started_tick=root and root.episode_started_tick,snapshot_tick=tick}
+    if not root then return result end
+    for _,record in pairs(root.active) do
+        if not owner or record.owner==owner then result.active[#result.active+1]=rebuild_copy(record,tick) end
+    end
+    table.sort(result.active,function(a,b)return a.id<b.id end)
+    for offset=0,root.history_count-1 do
+        local record=root.history[(root.history_cursor-offset-1)%32+1]
+        if not owner or record.owner==owner then result.history[#result.history+1]=rebuild_copy(record,tick) end
+    end
+    return result
 end
 
 return scheduler

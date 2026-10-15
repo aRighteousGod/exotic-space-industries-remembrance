@@ -1,21 +1,24 @@
 [CmdletBinding()]
-param([string]$RunName='gui-1')
+param([string]$RunName='gui-1',[string]$OutputRoot,[ValidateRange(120,900)][int]$TimeoutSeconds=420)
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$run=Join-Path $repo (".factorio-qc/terrain-evolution/$RunName")
+$run=if($OutputRoot){[IO.Path]::GetFullPath($OutputRoot)}else{Join-Path $repo (".factorio-qc/terrain-evolution/$RunName")}
 if(Get-Process factorio -ErrorAction SilentlyContinue){throw 'Run Factorio fixtures sequentially.'}
 $env:SteamAppId='427520';$env:SteamGameId='427520'
+. (Join-Path $PSScriptRoot '../rebuild-monitor/viewport.ps1')
 $exe='C:/Program Files (x86)/Steam/steamapps/common/Factorio/bin/x64/factorio.exe'
 $arguments=@('--load-game',(Join-Path $run 'fixture.zip'),'--config',(Join-Path $run 'config.ini'),
-    '--mod-directory',(Join-Path $run 'mods'),'--disable-audio','--disable-migration-window','--window-size','1280x720')
+    '--mod-directory',(Join-Path $run 'mods'),'--disable-audio','--disable-migration-window','--window-size','1280x720',
+    '--graphics-quality','medium','--video-memory-usage','low','--single-thread-loading')
 $quoted=@($arguments|ForEach-Object {'"'+$_+'"'})
 $started=Get-Date
 $process=Start-Process -FilePath $exe -ArgumentList $quoted -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput (Join-Path $run 'client-release.txt') -RedirectStandardError (Join-Path $run 'client-release-error.txt')
 $process.Handle|Out-Null
 try{
-    $deadline=(Get-Date).AddSeconds(180);$passed=$false
+    $deadline=(Get-Date).AddSeconds($TimeoutSeconds);$passed=$false;$resized=$false
     while(-not $process.HasExited -and (Get-Date) -lt $deadline){
+        if(-not $resized){$resized=[RebuildViewport]::Resize($process.Id)}
         $report=Join-Path $run 'script-output/terrain-admin-qc.json'
         if((Test-Path $report) -and (Get-Item $report).LastWriteTime -gt $started){
             $result=Get-Content $report -Raw -Encoding UTF8|ConvertFrom-Json

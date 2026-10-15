@@ -36,9 +36,13 @@ define("active","boolean",true)
 define("intensity","enum","restrained",nil,nil,{"restrained","standard","severe","custom"})
 define("performance","enum","lean",nil,nil,{"ultra-low","low","lean","balanced","detailed","high-fidelity","ultra-high-fidelity","custom"},false)
 define("custom_rate_multiplier","number",1,0.05,4)
+-- All ecology switches default on; contained fire keeps native spread selectable.
 for _,key in ipairs({"degradation","recovery","mining_scars","tree_stress","tree_regrowth","thermal_scars","seasonal_daylight"}) do define(key,"boolean",true) end
-for _,key in ipairs({"mining_recovery","aging","rot","flood","drought","cliffs","blood","paving","seasonal_ecology"}) do define(key,"boolean",false) end
-define("wildfire","enum","off",nil,nil,{"off","contained","spreading"})
+for _,key in ipairs({"mining_recovery","aging","rot","flood","drought","cliffs","blood","paving","seasonal_ecology"}) do define(key,"boolean",true) end
+define("wildfire","enum","contained",nil,nil,{"off","contained","spreading"})
+define("periodic_mining_scars","boolean",true)
+define("periodic_mining_seconds","integer",300,30,86400)
+define("periodic_mining_probability","number",0.1,0,1)
 for _,planet in ipairs(model.planets) do define("planet_"..planet,"boolean",true,nil,nil,nil,false) end
 local numbers={
     {"pollution_high",100,1,100000},{"pollution_low",25,0,99999},

@@ -97,7 +97,11 @@ function tests.run(terrain,calendar)
 
         local f_parameters=fulgora.daytime_parameters
         local f_rotation=fulgora.ticks_per_day
-        check("fulgora-phase-rejected",calendar.set_phase(root,fulgora,.25,tick)==false)
+        check("fulgora-ecological-phase-accepted-without-daylight-write",
+            calendar.set_phase(root,fulgora,.25,tick)==true
+            and math.abs(calendar.phase(root,fulgora,tick)-.25)<1e-12
+            and same(fulgora.daytime_parameters,f_parameters)
+            and fulgora.ticks_per_day==f_rotation)
         -- A stale legacy record must not defeat the hard exclusion on release.
         root.calendar.records[fulgora.index]={surface=fulgora,baseline=baseline,last=f_parameters,
             phase=.25,epoch=tick,distance=25}
@@ -177,14 +181,24 @@ function tests.run(terrain,calendar)
         check("new-history-after-regeneration-can-recover",#root.history.items==0
             and surface.get_tile(history.x,history.y).name==history.origin)
 
-        -- Configure disable must detach active token references, preserving only history.
+        -- V2 disablement pauses accepted work and its chunk identities intact.
         root,entry=fresh()
         terrain.enqueue_scar(surface,{x=848,y=768},"wake",tick);step(root)
         check("token-disable-fixture-has-active",#root.active.items>0)
+        local active_count,tokens=#root.active.items,entry.chunk_tokens
         for _,e in pairs(root.surfaces) do e.overrides.active=false end
         terrain.initialize(tick)
         entry=root.surfaces[surface.index]
-        check("disable-detaches-active-tokens",#root.active.items==0 and count(entry.chunk_tokens)==0)
+        check("disable-preserves-paused-active-tokens",#root.active.items==active_count
+            and entry.chunk_tokens==tokens and root.enabled_surfaces==0)
+        local changed,no_work=root.counters.changed or 0,true
+        for _=1,4 do
+            step(root)
+            local service=root.last_service
+            if service and service.tick==tick then no_work=no_work and service.searches==0 and service.writes==0 end
+        end
+        check("disabled-service-admits-no-mutation-or-search",(root.counters.changed or 0)==changed
+            and no_work and #root.active.items==active_count)
 
         -- Clearing terrain preserves the surviving surface's orbital identity.
         root,entry=fresh();surface.daytime_parameters=baseline

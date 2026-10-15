@@ -22,6 +22,7 @@ from source and does not trust generated manifests or installed mod selection.
 | --- | ---: |
 | [Acidthrower native pressure jet and late thrower profiles](acidthrower-pressure-jet.md#contract) | 4 |
 | [Administration tools](admin-tools.md#contract) | 10 |
+| [Rebuild activity monitor](rebuild-monitor.md#contract) | 1 |
 | [Administration runtime registry](admin-runtime-registry.md#contract) | 1 |
 | [ANISETRON processional cathedral, Lance inheritance and visual resonance](anisetron.md#contract) | 10 |
 | [Shared camera windows](camera-windows.md#contract) | 1 |
@@ -49,9 +50,9 @@ from source and does not trust generated manifests or installed mod selection.
 | [Impact firefighting and powered water-turret service](firefighting-and-water-turret.md#contract) | 5 |
 | [Induction matrix topology and power](induction-matrix.md#contract) | 1 |
 | [Matter stabilizer containment](matter-stabilizer.md#contract) | 1 |
-| [Mining scar event path](mining-scars.md#contract) | 1 |
+| [Mining scar events and working-drill opportunities](mining-scars.md#contract) | 1 |
 | [Minigun turret separated native graphics](minigun-turret-graphics.md#contract) | 3 |
-| [Planetary terrain evolution](terrain-evolution.md#contract) | 5 |
+| [Planetary ecology, native alerts and field reports](terrain-evolution.md#contract) | 10 |
 | [Nauvis pressure grace and difficulty policy](nauvis-pressure-grace.md#contract) | 2 |
 | [Neutron collector source binding](neutron-collector.md#contract) | 1 |
 | [Orbital logistics cohorts and leases](orbital-logistics.md#contract) | 1 |

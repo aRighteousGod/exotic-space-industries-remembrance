@@ -126,3 +126,13 @@ attachment follows movement without a Lua position loop; only visible cameras
 that require a remote/god view fallback schedule position reads. The shared
 dispatcher already routes camera lifecycle and display-size events. Closing one
 owner's windows leaves other features' cameras intact.
+
+## Rebuild activity
+
+All players receive a top-left rebuild button whenever ESIR has queued or active reconstruction. It names the active modules and toggles a small draggable window. The window opens automatically after two simulation seconds; closing it suppresses automatic reopening for that activity episode. Position and dismissal survive saving. It leaves machine windows, the console, cursor and keyboard focus intact. This public monitor works with admin tools disabled.
+
+Each row shows its module, phase, processed work, a progress bar when the total is known, and an approximate remaining duration in **game time**. Lower UPS increases real waiting time. Discovery and changing work may show “Estimating…” or “Discovering…”. An explicitly externally blocked job disappears from public activity until it resumes.
+
+Diagnostics adds **Rebuild activity** and **Recent rebuilds**, filtered by the selected owner. These show the trigger, detailed scope, counts, elapsed game time, estimate or waiting reason, and the last 32 terminal results. Synchronous repair callbacks are identified explicitly because their blocking duration cannot be measured by simulation ticks. An accepted repair request is separate from completion of deferred reconstruction. Only the activity section refreshes automatically; the existing general auto-refresh preference and admin gates are preserved.
+
+Ecology publishes at most four finite operations: migration, bootstrap, revalidation and maintenance. Its bootstrap fixes surface membership at admission and stops each traversal at iterator exhaustion or 100,000 yielded visits; reaching the limit does not certify full coverage. Ordinary ecology observations, recovery and mining requests remain in Ecology Advanced, alongside paused maintenance details. Ordinary charging, firefighting, radar scans, combat, placement maintenance, world-edit jobs and inspections remain outside this monitor. It adds no pause, cancel, restart, scheduling or CPU-profiling controls.

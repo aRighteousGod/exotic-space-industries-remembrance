@@ -5,6 +5,11 @@
 
 - [mining-scars.lua](../../../exotic-space-industries-remembrance/scripts/control/mining-scars.lua)
 
+## Related ecology sources
+
+- [terrain-evolution.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-evolution.lua)
+- [terrain-ecology-work.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-ecology-work.lua)
+
 ## Ownership and reference flow
 
 The mining owner forwards finite-resource depletion to the bounded
@@ -16,7 +21,24 @@ patch radius 3 and probability 0.7 remain configurable defaults.
 One immediate local coverage query per tick examines at most 32 named drills.
 Native mining_area accounts for quality. Resource categories and finite deposits
 are checked before admitting a coalesced cosmetic descriptor. Saturation skips
-new effects; it never starts a broad drill registry or catch-up scan.
+new admissions rather than deleting accepted requests. Deferred qualification
+retains exact position, resource category, event tick and up to four chunk tokens;
+it never needs the depleted entity to survive. Saturated local results subdivide
+boundedly. Accepted/partly applied mining requests have no age expiry.
+
+An event-maintained registry adds independent periodic scars from working drills.
+It retains the four approved names, capped at 4,096 identities globally, including
+valid idle drills. Creation, revival, cloning, committed removal, death, registered
+destruction, teleportation and surface/configuration lifecycle maintain membership.
+Native mining targets must be valid finite resources on the drill's surface.
+At most min(4, configured history allowance) cached checks per service spend remaining
+candidate work and perform no entity searches. Initial deadlines are deterministic;
+late visits get one opportunity. Defaults are 10% per 300 base seconds (600 under
+Restrained before seasonal modulation), independently of patch probability 0.7.
+Old-save discovery shares H query grants with hazards and reports limited coverage
+when capped results/candidate allowance cannot verify a whole chunk.
+Effective surface disablement stops queries, periodic checks, admission and writes;
+accepted requests pause. Cheap membership maintenance may continue.
 
 <a id="tick-flow"></a>
 ## Tick flow
@@ -30,8 +52,9 @@ Gleba target midland-cracked-lichen-dark. Final loaded prototypes determine edge
 
 The shared guarded application path protects infrastructure, resources, paving,
 liquids, hidden layers, foundations, cultivated flora, Auric claims and Gaia sites.
-Permanent mining removes older ecological recovery claims. Opt-in mining recovery
-starts at the pre-mining tile, then records repeated mining steps exactly.
+Mining recovery defaults on, starting at the pre-mining tile and recording repeated
+mining steps exactly. Disabling recovery makes new mining damage permanent and
+removes older ecological recovery claims. Earlier unrecorded scars cannot be reconstructed.
 
 <a id="verification"></a>
 ## Verification

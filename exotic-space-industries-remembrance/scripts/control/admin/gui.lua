@@ -1,4 +1,5 @@
 -- blueprint: .codex/esir/blueprints/admin-tools.md#contract
+-- blueprint-ref: .codex/esir/blueprints/admin-tools.md#rebuild-reporting
 -- Persistent page trees preserve drafts, focused controls and scroll positions.
 -- Refresh is explicit/invalidation-driven, with optional visible-only timed refresh.
 local config=require("lib/admin-tools-config")
@@ -6,6 +7,7 @@ local common=require("scripts/control/admin/common")
 local mod_gui=require("__core__/lualib/mod-gui")
 local lib=require("lib/lib")
 local scheduler=require("lib/runtime-scheduler")
+local rebuild_monitor=require("scripts/control/rebuild-monitor")
 local model={}
 local context
 local GUI=config.gui
@@ -380,6 +382,45 @@ local function diagnostic_caption(diagnostic,key,element,value)
     if diagnostic.signatures[key]~=signature then element.caption=value;diagnostic.signatures[key]=signature end
 end
 
+-- Shared monitor cadence; this updates only the visible activity projection.
+local function refresh_rebuild_caption(session,snapshot)
+    local diagnostic=session.diagnostics
+    if not diagnostic then return end
+    local selected=session.module_id
+    local element=selected and diagnostic.rebuild_detail or diagnostic.rebuild_overview
+    if not (element and element.valid) then return end
+    local view=snapshot
+    if selected then
+        view={}
+        for key,value in pairs(snapshot) do view[key]=value end
+        view.active={};view.history={}
+        for _,record in ipairs(snapshot.active) do if record.owner==selected then view.active[#view.active+1]=record end end
+        for _,record in ipairs(snapshot.history) do if record.owner==selected then view.history[#view.history+1]=record end end
+    end
+    diagnostic_caption(diagnostic,selected and "rebuild-detail" or "rebuild-overview",element,rebuild_monitor.activity_caption(view,true))
+end
+
+function model.has_rebuild_viewer(index)
+    local root=common.peek();local session=root and root.sessions[index]
+    return root~=nil and root.rebuild_watch~=nil and root.rebuild_watch[index]==true
+        and session~=nil and session.page=="diagnostics"
+        and session.root~=nil and session.root.valid and session.root.visible or false
+end
+
+function model.has_rebuild_viewers()
+    local root=common.peek()
+    return root~=nil and root.rebuild_watch~=nil and next(root.rebuild_watch)~=nil or false
+end
+
+function model.refresh_rebuild_activity(index,tick,snapshot)
+    if not model.has_rebuild_viewer(index) then return false end
+    local player=game.get_player(index)
+    if not common.authorize(player) then model.close(index,true);return false end
+    if not player.connected then model.close(index);return false end
+    refresh_rebuild_caption(session_for(index),snapshot)
+    return true
+end
+
 -- Factorio permits 20 parameters per LocalisedString. Keep long metric/inspection
 -- lists as shallow concatenation groups instead of crossing that native limit.
 local function diagnostic_join(parts)
@@ -464,6 +505,8 @@ local function build_diagnostics(parent,session)
     diagnostic.overview_cancel=button(toolbar,"cancel-inspection","cancel-inspection")
     caption(diagnostic.overview,"diag-overview-note","ei_admin_muted")
     diagnostic.overview_activity=caption(diagnostic.overview,"diag-inspection-idle","ei_admin_muted")
+    heading(diagnostic.overview,"diag-rebuilds")
+    diagnostic.rebuild_overview=caption(diagnostic.overview,"diag-not-sampled")
     for _,owner in ipairs(context.registry.list()) do
         local r=row(diagnostic.overview,"diagnostic-owner")
         local body=r.add{type="flow",direction="vertical"}
@@ -482,6 +525,8 @@ local function build_diagnostics(parent,session)
     diagnostic.inspect=button(toolbar,"deep-inspect","deep-inspect")
     diagnostic.cancel=button(toolbar,"cancel-inspection","cancel-inspection")
     diagnostic.activity=caption(diagnostic.detail,"diag-inspection-idle","ei_admin_muted")
+    heading(diagnostic.detail,"diag-rebuilds")
+    diagnostic.rebuild_detail=caption(diagnostic.detail,"diag-not-sampled")
     for _,key in ipairs({"fields","cached","counters","inspection"}) do
         heading(diagnostic.detail,"diag-"..key)
         diagnostic.values[key]=caption(diagnostic.detail,"diag-not-sampled")
@@ -525,6 +570,7 @@ local function refresh_diagnostics(session,player,tick)
     diagnostic_caption(diagnostic,"overview-activity",diagnostic.overview_activity,activity)
     diagnostic.inspect.enabled=selected and not active
     diagnostic.cancel.enabled=active~=nil;diagnostic.overview_cancel.enabled=active~=nil
+    refresh_rebuild_caption(session,snapshot.rebuilds or scheduler.peek_rebuilds(tick))
 end
 
 local function sync_travel_destinations(session)
@@ -776,7 +822,10 @@ function model.open(player,page,tick)
     if not valid_page then page=session.page or "planets" end
     -- An older saved console lacks the optional timer controls. This is a real
     -- structural change; close preserves its location/drafts before rebuilding.
-    if session.root and session.root.valid and not (session.auto_refresh_button and session.auto_refresh_button.valid and session.nav and session.nav.ecology and session.nav.ecology.valid) then
+    if session.root and session.root.valid and not (session.auto_refresh_button and session.auto_refresh_button.valid
+        and session.nav and session.nav.ecology and session.nav.ecology.valid
+        and (not session.diagnostics or (session.diagnostics.rebuild_overview and session.diagnostics.rebuild_overview.valid
+            and session.diagnostics.rebuild_detail and session.diagnostics.rebuild_detail.valid))) then
         model.close(player.index,true)
     end
     if not (session.root and session.root.valid) then
@@ -816,6 +865,8 @@ function model.open(player,page,tick)
         if session.location then root.location=session.location else session.center_pending=true end
     end
     session.root.visible=true;session.page=page
+    state.rebuild_watch=state.rebuild_watch or {}
+    state.rebuild_watch[player.index]=page=="diagnostics" and true or nil
     if not session.pages[page] then
         local pane=session.content.add{type="scroll-pane",direction="vertical"}
         pane.horizontal_scroll_policy="never";pane.vertical_scroll_policy="auto-and-reserve-space"
@@ -828,6 +879,7 @@ function model.open(player,page,tick)
     player.opened=session.root
     model.refresh(player.index,tick)
     if not session.auto_due_tick then schedule_auto_refresh(player.index,session,tick) end
+    rebuild_monitor.watch_player(player.index,tick)
 end
 
 function model.close(index,destroy)
@@ -840,6 +892,7 @@ function model.close(index,destroy)
     end
     session.confirm=nil
     local root=common.peek();if root and root.ui_watch then root.ui_watch[index]=nil;if not next(root.ui_watch) then root.ui_due_tick=nil end end
+    if root and root.rebuild_watch then root.rebuild_watch[index]=nil end
     if session.confirm_frame and session.confirm_frame.valid then session.confirm_frame.visible=false end
     local player=game.get_player(index)
     if player and player.opened==session.root then player.opened=nil end

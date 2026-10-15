@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([int]$Ticks=3600,[int]$Runs=6,[switch]$ReuseBaseline)
+param([int]$Ticks=3600,[int]$Runs=6,[switch]$ReuseBaseline,[string]$BeforeRoot,[string]$AfterRoot,[string]$ResultPath,[switch]$Checkpoint)
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $base=Join-Path $repo '.factorio-qc/terrain-evolution'
@@ -7,9 +7,10 @@ $exe='C:/Program Files (x86)/Steam/steamapps/common/Factorio/bin/x64/factorio.ex
 if(Get-Process factorio -ErrorAction SilentlyContinue){throw 'Close other Factorio fixtures before timing.'}
 $rows=@()
 foreach($label in @('factory-before','factory-after')){
-    $run=Join-Path $base $label
+    $run=if($label -eq 'factory-before' -and $BeforeRoot){[IO.Path]::GetFullPath($BeforeRoot)}elseif($label -eq 'factory-after' -and $AfterRoot){[IO.Path]::GetFullPath($AfterRoot)}else{Join-Path $base $label}
+    $save=if($Checkpoint){Join-Path $run 'saves/terrain-lifecycle-checkpoint.zip'}else{Join-Path $run 'fixture.zip'}
     if(-not ($ReuseBaseline -and $label -eq 'factory-before')){
-        & $exe --benchmark ($run+'/fixture.zip') --benchmark-ticks $Ticks --benchmark-runs $Runs --config ($run+'/config.ini') --mod-directory ($run+'/mods') --disable-audio --disable-migration-window 2>&1 | Out-File ($run+'/timing.txt') -Encoding UTF8
+        & $exe --benchmark $save --benchmark-ticks $Ticks --benchmark-runs $Runs --config ($run+'/config.ini') --mod-directory ($run+'/mods') --disable-audio --disable-migration-window 2>&1 | Out-File ($run+'/timing.txt') -Encoding UTF8
         if($LASTEXITCODE -ne 0){throw "Benchmark failed: $run/timing.txt"}
     }
     $log=Get-Content ($run+'/timing.txt') -Raw -Encoding UTF8
@@ -25,6 +26,7 @@ foreach($label in @('factory-before','factory-after')){
 }
 $regression=100*($rows[1].median_ms_per_tick/$rows[0].median_ms_per_tick-1)
 $result=@{ticks=$Ticks;runs=$Runs;warmup_runs=1;regression_percent=$regression;pass=$regression -le 2;sources=$rows}
-$result|ConvertTo-Json -Depth 6 | Set-Content ($base+'/factory-comparison.json') -Encoding UTF8
+$destination=if($ResultPath){$ResultPath}else{$base+'/factory-comparison.json'}
+$result|ConvertTo-Json -Depth 6 | Set-Content $destination -Encoding UTF8
 $result|ConvertTo-Json -Depth 6
 if(-not $result.pass){throw 'Terrain Evolution factory regression exceeded the 2% release gate.'}

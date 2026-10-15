@@ -113,7 +113,11 @@ local function mining_case(index, check)
     local saturated=counter(surface,"mining_saturated")
     for _, resource in ipairs(resources) do call("depleted",resource) end
     local admitted=call("pending")-before
-    check_result(check,"mining-attribution-"..spec.id,spec.expected and admitted==1 or not spec.expected and admitted==0,{
+    -- V2 keeps bounded deferred qualification requests when the immediate
+    -- coverage query is spent. A burst may therefore admit several descriptors.
+    local expected_admissions=spec.mass and admitted>=1 and admitted<=math.min(#resources,16)
+        or not spec.mass and admitted==1
+    check_result(check,"mining-attribution-"..spec.id,spec.expected and expected_admissions or not spec.expected and admitted==0,{
         admitted=admitted,queries=counter(surface,"mining_queries")-queries,resource=name,
         quality=drill.quality.name,mining_area=box,target=target,
     })
@@ -171,8 +175,8 @@ local function planet_case(index,check)
     check_result(check,"planet-admitted-"..spec.name,call("enqueue",surface.index,p,"thermal"))
     if spec.name=="fulgora" then
         r.fulgora_day=surface.daytime_parameters;r.fulgora_ticks=surface.ticks_per_day
-        check_result(check,"fulgora-calendar-excluded",call("calendar",surface.index).status=="excluded")
-        check_result(check,"fulgora-phase-rejected",not call("phase",surface.index,.25))
+        check_result(check,"fulgora-daylight-not-owned",not call("calendar",surface.index).owns_daylight)
+        check_result(check,"fulgora-ecological-phase-accepted",call("phase",surface.index,.25)==true)
     end
 end
 local function protections(check)

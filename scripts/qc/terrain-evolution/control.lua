@@ -24,7 +24,22 @@ script.on_event(defines.events.on_tick,function(event)
         check("default-lean",cfg.performance=="lean" and cfg.interval==16 and cfg.search_interval==32 and cfg.writes==4 and cfg.histories==4 and cfg.searches==1)
         check("default-restrained",cfg.intensity=="restrained")
         check("default-seasonal-daylight",cfg.seasonal_daylight==true)
-        check("hazards-off",cfg.wildfire=="off" and not cfg.aging and not cfg.flood and not cfg.paving)
+        local defaults_on=true
+        for _,value in pairs(cfg) do if type(value)=="boolean" then defaults_on=defaults_on and value end end
+        check("ecology-defaults-on",defaults_on and cfg.wildfire=="contained")
+        local native_defaults=true
+        for name,setting in pairs(settings.global) do
+            if name:match("^ei%-terrain%-") and type(setting.value)=="boolean" then native_defaults=native_defaults and setting.value end
+        end
+        check("native-ecology-defaults-on",native_defaults and settings.global["ei-terrain-wildfire"].value=="contained")
+        local loaded_settings={}
+        for name,setting in pairs(settings.global) do
+            if name:match("^ei%-terrain%-") then loaded_settings[name]=setting.value end
+        end
+        helpers.write_file("terrain-defaults-snapshot.json",helpers.table_to_json{
+            engine_version=script.active_mods.base,startup=settings.startup["ei-terrain-evolution-enabled"].value,
+            settings=loaded_settings,effective=cfg,transitions=call("compile"),
+        },false)
         local _,errors=call("resolve",{pollution_low=200,pollution_high=100})
         check("threshold-validation",#errors>0)
         _,errors=call("resolve",{interval=0,tree_stress="yes"})
@@ -45,7 +60,12 @@ script.on_event(defines.events.on_tick,function(event)
         end
         storage.day_baseline=surface.daytime_parameters;storage.day_ticks=surface.ticks_per_day
         surface.freeze_daytime=false;surface.always_day=false
-        for _,pair in ipairs({{"degradation",false},{"tree_stress",false},{"tree_regrowth",false},{"recovery",false},{"hazard_radius",1},{"protection_buffer",0},{"mining_radius",0},{"mining_patch_radius",1},{"mining_probability",1},{"clean_seconds",1},{"recovery_seconds",1}}) do
+        -- Loaded defaults are checked above. Isolate the scar/recovery phase from
+        -- other query consumers so its fixed deadline does not test hazard coverage.
+        for _,pair in ipairs({{"degradation",false},{"tree_stress",false},{"tree_regrowth",false},{"recovery",false},
+            {"aging",false},{"rot",false},{"flood",false},{"drought",false},{"cliffs",false},
+            {"blood",false},{"paving",false},{"seasonal_ecology",false},{"wildfire","off"},
+            {"hazard_radius",1},{"protection_buffer",0},{"mining_radius",0},{"mining_patch_radius",1},{"mining_probability",1},{"clean_seconds",1},{"recovery_seconds",1}}) do
             check("override-"..pair[1],call("override",surface.index,pair[1],pair[2]))
         end
         local ok=call("override",surface.index,"performance","detailed")

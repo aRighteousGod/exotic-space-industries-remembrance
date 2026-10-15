@@ -13,6 +13,14 @@ Terrain evolution is a due-guarded global service outside the unchanged sixteen
 slots. Exact resource/death/tile/chunk/surface/settings events feed bounded
 admission and ownership invalidation. Calendar service is subordinate to this
 owner; Fulgora's independent controller is never wrapped or replaced.
+The ecology drill registry receives build, revive, clone, committed removal,
+registered destruction and raised teleport events through this dispatcher.
+Personal alert settings route separately from the runtime-global terrain schema.
+The native-alert and open-viewer presentation services have independent cheap
+due guards here; neither registers another tick dispatcher. The Ecology screen
+follows player surface/controller events, including remote viewing. Finite
+ecology work reports through the shared rebuild registry rather than scheduling
+through the presentation monitor.
 
 `control.lua` owns Factorio event registrations and dispatch order. Feature modules own gameplay state and local service decisions. `ei_global.init` seeds `storage.ei`; `ei_global.check_init` fills missing or older structures without replacing valid feature state. `register-util` supplies fluid registration, collector registration, update counts, and legacy master/slave bookkeeping; it is not an independent scheduler.
 
@@ -68,7 +76,7 @@ Use the original callback tick through downstream work. Water/radar rebuilds sha
 
 New-save initialization creates shared storage before feature rebuilds, then synchronizes compatibility, victory, settings, and arrival work. Configuration changes repair global storage and clear the pending scripted-research burst state, invalidate derived due minima, and perform both unconditional and mod-change-gated feature rebuilds. Preserve those distinctions: migration-only loads still rebuild systems with unconditional repair.
 
-`on_load` invokes the terrain owner's local self-write reset and the Tesla module's local-load hook. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
+`on_load` invokes the terrain owner's local self-write reset and deferred-adoption flag, and the Tesla module's local-load hook. Terrain adoption resumes at an ordinary service boundary; no persistent migration work occurs during `on_load`. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
 
 [ANISETRON](anisetron.md#weapon) receives its paid crystal-charge effect through
 the exclusive script-effect map. Its guarded `updater(event)` is the last mandatory
@@ -108,3 +116,8 @@ Shared registries are paired: fluid insertion/removal adjusts membership and cou
 Use the checked-in [control lifecycle driver](../../../scripts/invoke-control-lifecycle-qc.ps1) and [queue-save fixture](../../../scripts/qc/control-ups/queue-save.lua) for queue continuation across save/load and configuration repair; the [GUI lifecycle fixture](../../../scripts/qc/control-ups/gui-lifecycle.lua) covers routed GUI transitions. The [scripted research helper](../../skills/esir-dev/references/scripted-research-qc-helper.md) exercises burst fan-out separately from normal research.
 
 Acceptance must preserve slot order, derived budgets, actual service ticks, no-work guards, ordinary research, scripted floods, GUI closure, entity removal, and save/load continuation. These are available verification surfaces, not a claim of a fresh engine or multiplayer pass for this documentation rollout.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+`control.lua` loads `rebuild-monitor` independently of admin enablement. A cheap pure predicate admits transition/due work before the existing owner services. Presentation shares a scalar snapshot and serves at most eight viewers per tick, refreshing captions no more than once per 60 ticks. GUI clicks, player entry/exit/removal, configuration, resolution and scale events forward through this sole dispatcher. Feature modules add no event registrations or load-time storage mutations.

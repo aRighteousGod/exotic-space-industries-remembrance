@@ -1,7 +1,12 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.43
 Date: 2026-10-13
+  Changes:
+    - Reworked Terrain Evolution with fair bounded processing, sustained observation, preserved recovery ownership and finite rebuild reporting. Eligible working quarries can now leave periodic scars; accepted depletion requests pause on disabled surfaces and no longer expire because of age. Saved settings and explicit surface overrides are preserved.
+    - Added a public Ecology window with Simple field reports, Advanced diagnostics and personal Alerts preferences. Selected incidents use Factorio's native alerts window and require currently visible chunks unless an administrator explicitly enables the visibility override.
+    - Enabled all Terrain Evolution ecology modules by default, including recovery for future mining scars, destructive tree aging/decay, shoreline changes, cliff weathering, blood effects, paving corrosion and seasonal ecology. Wildfire defaults to Contained. Restrained intensity, Lean processing, terrain protections and Fulgora's independent daylight controller remain; saved settings and surface overrides retain their selected values.
   Graphics:
+    - The Ecology launcher is now a saturated mechanical tree whose foliage follows the viewed surface's season: lime, emerald, amber-red and cyan. Fulgora's ecological season does not alter its independent daylight controller.
     - Minigun turrets now use 64-pixel-per-tile artwork with a shared 256-color palette and full-resolution shadows by default. The optional Minigun Turret HD pack retains the original full-color artwork.
   Compatibility:
     - Requires Graphics 6 version 1.0.1 or later for the new minigun sprite layout.

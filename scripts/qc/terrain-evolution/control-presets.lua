@@ -19,7 +19,7 @@ local function start_case(index,tick)
     local state=remote.call("ei-terrain-preset-qc","select",name,values)
     storage.cfg=state.config;storage.pass=state.pass;storage.samples=state.samples
     storage.service_tick=nil;storage.query_tick=nil;storage.lanes={};storage.services=0;storage.grants=0
-    storage.deadline=tick+math.max(24*state.config.interval,6*state.config.search_interval)
+    storage.deadline=tick+math.max(48*state.config.interval,24*state.config.search_interval)
     check(name..":selected",state.config.performance==name)
 end
 local function initialize() storage.results={};storage.start=game.tick;storage.index=0;storage.done=false end
@@ -44,14 +44,15 @@ script.on_event(defines.events.on_tick,function(event)
         if last.search_allowance>0 then
             if storage.query_tick then check(name..":search-cadence",event.tick-storage.query_tick>=cfg.search_interval) end
             check(name..":grant-size",last.search_allowance==cfg.searches)
-            storage.query_tick=event.tick;storage.grants=storage.grants+1;storage.lanes[last.query_lane]=true
+            storage.query_tick=event.tick;storage.grants=storage.grants+1
+            for lane in pairs(last.granted_lanes or {}) do storage.lanes[lane]=true end
         else check(name..":no-intermediate-search",last.searches==0) end
         storage.pass=state.pass;storage.samples=state.samples
     end
     if event.tick>=storage.deadline then
         check(name..":services-observed",storage.services>=6)
         check(name..":queries-observed",storage.grants>=4)
-        check(name..":all-priorities",storage.lanes[0] and storage.lanes[1] and storage.lanes[2])
+        check(name..":all-priorities",storage.lanes.R and storage.lanes.T and storage.lanes.E and storage.lanes.S and storage.lanes.G and storage.lanes.H)
         start_case(storage.index+1,event.tick)
     end
     if not storage.done and event.tick-storage.start>=options.ticks-2 then

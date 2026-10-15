@@ -1,4 +1,5 @@
 -- blueprint: .codex/esir/blueprints/runtime-orchestration.md#contract
+-- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#rebuild-reporting
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 require("util")
 -- control.lua is the top-level runtime coordinator for the mod.
@@ -74,6 +75,8 @@ ei_rocket_launch_pollution = require("scripts/control/rocket-launch-pollution")
 ei_fulgora_day_length_variation = require("scripts/control/fulgora-day-length-variation")
 ei_mining_scars = require("scripts/control/mining-scars")
 local ei_terrain_evolution = require("scripts/control/terrain-evolution")
+local ei_terrain_alerts = require("scripts/control/terrain-alerts")
+local ei_terrain_gui = require("scripts/control/terrain-gui")
 ei_vulcanus_fumaroles = require("scripts/control/vulcanus-fumaroles")
 local ei_nauvis_pressure_grace = require("scripts/control/nauvis-pressure-grace")
 
@@ -99,6 +102,12 @@ local ei_surveyor_scope = require("scripts/control/surveyor-scope")
 local ei_hemocrystal_wall = require("scripts/control/hemocrystal-wall")
 local ei_randomized_tree_growth = require("scripts/control/randomized-tree-growth")
 local ei_admin_tools = require("scripts/control/admin-tools")
+local ei_rebuild_monitor = require("scripts/control/rebuild-monitor")
+ei_rebuild_monitor.configure{
+    admin_viewer=ei_admin_tools.has_rebuild_viewer,
+    admin_viewers=ei_admin_tools.has_rebuild_viewers,
+    admin_refresh=ei_admin_tools.refresh_rebuild_activity,
+}
 ei_admin_tools.configure({
     ["auric-inoculation-vat"]=ei_auric_inoculation_vat,["beacon-overload"]=ei_beacon_overload,
     ["black-hole"]=ei_black_hole,["camp-fire"]=ei_camp_fire,["combustion-turbine"]=ei_combustion_turbine,
@@ -125,7 +134,11 @@ ei_admin_tools.configure({
     ["terrain-evolution"]=ei_terrain_evolution,
 })
 ei_admin_tools.register_commands()
-ei_terrain_evolution.configure{vat=ei_auric_inoculation_vat,gaia=ei_alien_spawner}
+ei_terrain_evolution.configure{vat=ei_auric_inoculation_vat,gaia=ei_alien_spawner,effect=ei_terrain_alerts.record_effect}
+ei_terrain_alerts.configure{valid=ei_terrain_evolution.receipt_valid,retain=ei_terrain_evolution.retain_receipt,release=ei_terrain_evolution.release_receipt,
+    maintenance_begin=ei_terrain_evolution.maintenance_begin,maintenance_update=ei_terrain_evolution.maintenance_update}
+ei_terrain_gui.configure{terrain=ei_terrain_evolution,alerts=ei_terrain_alerts,
+    open_admin=function(player,tick) ei_admin_tools.open(player,"ecology",tick) end}
 ei_alien_spawner.set_preset_protection_handler(function(surface,preset,position)
     ei_terrain_evolution.protect_preset(preset,surface,position)
 end)
@@ -136,15 +149,26 @@ script.on_event(defines.events.on_chunk_charted,ei_admin_tools.on_chunk_charted)
 script.on_event(defines.events.on_surface_created,function(event)
     ei_admin_tools.on_surface_created(event)
     ei_terrain_evolution.on_surface_created(event)
+    ei_terrain_gui.on_surface_event(event)
 end)
-script.on_event(defines.events.on_runtime_mod_setting_changed,ei_terrain_evolution.on_settings_changed)
+script.on_event(defines.events.on_runtime_mod_setting_changed,function(event)
+    ei_terrain_evolution.on_settings_changed(event)
+    ei_terrain_alerts.on_settings_changed(event)
+    ei_terrain_gui.on_settings_changed(event)
+end)
+script.on_event(defines.events.on_gui_selected_tab_changed,ei_terrain_gui.on_gui_change)
+script.on_event(defines.events.on_surface_renamed,function(event) ei_terrain_alerts.on_surface_renamed(event);ei_terrain_gui.on_surface_event(event) end)
 script.on_event(defines.events.on_chunk_deleted,function(event)
     ei_terrain_evolution.on_chunk_deleted(event)
     ei_water_turret.on_chunk_deleted(event)
 end)
-script.on_event(defines.events.on_surface_imported,ei_water_turret.on_surface_imported)
+script.on_event(defines.events.on_surface_imported,function(event)
+    ei_water_turret.on_surface_imported(event)
+    ei_terrain_evolution.on_surface_created(event)
+    ei_terrain_gui.on_surface_event(event)
+end)
 script.on_event(defines.events.on_surface_cleared,ei_terrain_evolution.on_surface_created)
-script.on_event(defines.events.on_surface_deleted,ei_admin_tools.on_surface_deleted)
+script.on_event(defines.events.on_surface_deleted,function(event) ei_admin_tools.on_surface_deleted(event);ei_terrain_gui.on_surface_event(event) end)
 script.on_event(defines.events.on_biter_base_built,ei_admin_tools.on_biter_base_built)
 script.on_event(defines.events.on_pre_player_left_game,ei_admin_tools.on_player_left_game)
 script.on_event(defines.events.on_pre_player_removed,ei_admin_tools.on_player_removed)
@@ -152,9 +176,15 @@ script.on_event(defines.events.on_permission_group_edited,ei_admin_tools.on_perm
 script.on_event(defines.events.on_permission_group_deleted,ei_admin_tools.on_permission_group_deleted)
 script.on_event({defines.events.on_player_display_resolution_changed,defines.events.on_player_display_scale_changed},function(event)
     ei_admin_tools.on_display_changed(event)
+    ei_rebuild_monitor.on_display_changed(event)
+    ei_terrain_gui.on_display_changed(event)
     ei_lib.camera_window.on_display_changed(event)
 end)
-script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},ei_admin_tools.on_player_event)
+script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},function(event)
+    ei_admin_tools.on_player_event(event)
+    ei_terrain_alerts.on_player_event(event)
+    ei_terrain_gui.on_player_event(event)
+end)
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
     [ei_water_turret.created_effect] = ei_water_turret.on_fire_created,
@@ -684,7 +714,10 @@ script.on_init(function(event)
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…")
     ei_echo_codex.queue_players(game.players)
     ei_admin_tools.on_configuration_changed(event and event.tick or game.tick)
+    ei_rebuild_monitor.on_configuration_changed(event and event.tick or game.tick)
     ei_terrain_evolution.initialize(event and event.tick or game.tick)
+    ei_terrain_alerts.initialize(event and event.tick or game.tick)
+    ei_terrain_gui.initialize(event and event.tick or game.tick)
     ei_black_hole.rebuild_gui_viewers()
     ei_induction_matrix.rebuild_gui_viewers()
 end)
@@ -744,6 +777,7 @@ script.on_event(defines.events.on_force_created, function(e)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
+    ei_terrain_evolution.on_teleported(e)
     ei_sweeping_radar.on_teleported(e)
     ei_water_turret.on_teleported(e)
     ei_anisetron.on_teleported(e)
@@ -950,6 +984,8 @@ end)
 script.on_event(defines.events.on_player_changed_surface, function(e)
     ei_admin_tools.on_player_event(e)
     ei_auric_inoculation_vat.on_player_changed_surface(e)
+    ei_terrain_gui.on_player_event(e)
+    ei_terrain_alerts.on_player_event(e)
 end)
 
 script.on_event(defines.events.on_player_toggled_alt_mode, function(e)
@@ -1003,6 +1039,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_terrain_evolution.on_object_destroyed(e)
     ei_admin_tools.on_object_destroyed(e)
     ei_lib.camera_window.on_object_destroyed(e)
     ei_sweeping_radar.on_object_destroyed(e)
@@ -1180,6 +1217,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
+    if ei_terrain_gui.on_gui_closed(event) then return end
     ei_admin_tools.on_gui_closed(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
     -- entity because the custom screen may have replaced the player's opened target.
@@ -1244,7 +1282,9 @@ script.on_event(defines.events.on_gui_closed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_click, function(event)
+    if ei_terrain_gui.on_gui_click(event) then return end
     if ei_admin_tools.on_gui_click(event) then return end
+    if ei_rebuild_monitor.on_gui_click(event) then return end
     -- Button clicks are dispatched by the parent GUI tag, which keeps the actual button
     -- names free to stay local to each feature's UI code.
     local element = get_valid_gui_element(event)
@@ -1328,6 +1368,7 @@ script.on_event(defines.events.on_gui_text_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_checked_state_changed, function(event)
+    if ei_terrain_gui.on_gui_change(event) then return end
     if ei_admin_tools.on_gui_change(event) then return end
     local element = get_valid_gui_element(event)
     if not element then return end
@@ -1380,6 +1421,9 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 end)
 
 script.on_event(defines.events.on_player_left_game, function(event)
+    ei_terrain_gui.on_player_left(event)
+    ei_terrain_alerts.on_player_event(event)
+    ei_rebuild_monitor.on_player_left_game(event)
     ei_admin_tools.on_player_left_game(event)
     ei_black_hole.on_player_left_game(event.player_index)
     ei_induction_matrix.on_player_left_game(event.player_index)
@@ -1399,6 +1443,9 @@ script.on_event(defines.events.on_player_left_game, function(event)
 end)
 
 script.on_event(defines.events.on_player_removed, function(event)
+    ei_terrain_gui.on_player_removed(event)
+    ei_terrain_alerts.on_player_removed(event)
+    ei_rebuild_monitor.on_player_removed(event)
     ei_admin_tools.on_player_removed(event)
     ei_black_hole.on_player_left_game(event.player_index)
     ei_induction_matrix.on_player_left_game(event.player_index)
@@ -1451,8 +1498,11 @@ script.on_configuration_changed(function(e)
     local startup_settings_changed = e.mod_startup_settings_changed
 
     local configuration_tick = e and e.tick or game.tick
-    ei_terrain_evolution.initialize(configuration_tick)
+    ei_terrain_evolution.initialize(configuration_tick,"configuration")
+    ei_terrain_alerts.initialize(configuration_tick)
+    ei_terrain_gui.initialize(configuration_tick)
     ei_admin_tools.on_configuration_changed(configuration_tick)
+    ei_rebuild_monitor.on_configuration_changed(configuration_tick)
 
     if mod_changes_present or startup_settings_changed then
         ei_flammable_rupture_scheduler.check_global()
@@ -1586,6 +1636,9 @@ script.on_event(
         -- `on_player_joined_game` is the MP-safe load/reconnect path; avoid deriving gameplay
         -- work from `on_load`, which also runs for peers connecting to a live session.
         ei_echo_codex.queue_arrival(event.player_index)
+        ei_rebuild_monitor.on_player_event(event)
+        ei_terrain_alerts.on_player_event(event)
+        ei_terrain_gui.on_player_event(event)
         ei_fueler.on_player_ready(event.player_index)
         em_trains_gui.on_player_ready(event.player_index)
         ei_auric_inoculation_vat.on_player_ready(event.player_index, event)
@@ -1608,6 +1661,8 @@ script.on_event(
         ei_fueler.on_player_ready(event.player_index)
         ei_surveyor_scope.on_player_controller_changed(event)
         ei_admin_tools.on_player_event(event)
+        ei_terrain_gui.on_player_event(event)
+        ei_terrain_alerts.on_player_event(event)
     end
 )
 
@@ -1619,6 +1674,9 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
     ei_fueler.mark_players_dirty()
     for _, player in pairs(game.connected_players) do
         ei_compat.warn_combat_overlap(player.index)
+        ei_rebuild_monitor.on_player_event{player_index=player.index,tick=_event.tick}
+        ei_terrain_alerts.on_player_event{player_index=player.index,tick=_event.tick}
+        ei_terrain_gui.on_player_event{player_index=player.index,tick=_event.tick}
         em_trains_gui.on_player_ready(player.index)
         ei_auric_inoculation_vat.on_player_ready(player.index, _event)
         ei_surveyor_scope.on_player_ready(player.index)
@@ -1641,8 +1699,12 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
+  if ei_rebuild_monitor.has_tick_work(event.tick) then ei_rebuild_monitor.updater(event) end
   -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling
   if ei_terrain_evolution.has_tick_work(event.tick) then ei_terrain_evolution.updater(event) end
+  if ei_terrain_alerts.has_tick_work(event.tick) then ei_terrain_alerts.updater(event) end
+  if ei_terrain_gui.has_tick_work(event.tick) then ei_terrain_gui.updater(event) end
+  if ei_terrain_gui.launcher_has_tick_work(event.tick) then ei_terrain_gui.launcher_updater(event) end
   if ei_admin_tools.has_tick_work(event.tick) then ei_admin_tools.updater(event) end
   if ei_lib.camera_window.has_tick_work(event.tick) then ei_lib.camera_window.updater(event.tick) end
   if ei_sweeping_radar.has_tick_work() then
@@ -1978,6 +2040,7 @@ function on_cloned_entity(e)
     if not destination or not destination.valid then
         return
     end
+    ei_terrain_evolution.on_entity_built(e)
 
     -- Helper clones must be removed even during spider replacement transactions.
     ei_sweeping_radar.on_built_entity(e)
@@ -2136,6 +2199,7 @@ function on_destroyed_entity(e)
       return
     end
 
+    ei_terrain_evolution.on_entity_removed(e)
     ei_sweeping_radar.on_destroyed_entity(e)
     ei_flamethrower_fuels.on_destroyed_entity(e)
     ei_water_turret.on_destroyed_entity(e)

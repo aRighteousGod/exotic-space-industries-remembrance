@@ -1,15 +1,17 @@
 [CmdletBinding()]
-param([string]$RunName='native',[switch]$Disabled,[switch]$DumpOnly,[int]$Ticks=2800,[uint32]$MapSeed=42,[string]$SaveInput,[string]$SourceRoot,
-    [string]$Scenario,[string]$HelperRoot,[string]$SeedMods,[switch]$PrepareOnly,[switch]$Bare,[switch]$Lifecycle,[switch]$Checkpoint,[switch]$Guards,[switch]$GlebaFire,[switch]$Presets,
-    [ValidateSet('TerrainEvolution','TerrainEvolution2','diurnal-dynamics')][string]$Compatibility)
+param([string]$RunName='native',[switch]$Disabled,[switch]$DumpOnly,[switch]$DumpAfter,[int]$Ticks=2800,[uint32]$MapSeed=42,[string]$SaveInput,[string]$SourceRoot,
+    [string]$Scenario,[string]$HelperRoot,[string]$SeedMods,[string]$OutputRoot,[switch]$AllowRunningFactorio,
+    [switch]$PrepareOnly,[switch]$Bare,[switch]$Lifecycle,[switch]$Checkpoint,[switch]$Guards,[switch]$GlebaFire,[switch]$Wildfire,[switch]$Presets,[switch]$V2,[switch]$TraceEcology,
+    [ValidateSet('TerrainEvolution','TerrainEvolution2','diurnal-dynamics')][string]$Compatibility,
+    [ValidateRange(0,35000)][int]$TraceOffsetTicks=0)
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
-$run=Join-Path $repo ".factorio-qc/terrain-evolution/$RunName"
+$run=if($OutputRoot){[IO.Path]::GetFullPath($OutputRoot)}else{Join-Path $repo ".factorio-qc/terrain-evolution/$RunName"}
 $mods=Join-Path $run 'mods'
 $seed=Join-Path $repo '.factorio-qc/fmqc/mods-live'
 if($SeedMods){$seed=(Resolve-Path -LiteralPath $SeedMods).Path}
 $factorio='C:/Program Files (x86)/Steam/steamapps/common/Factorio/bin/x64/factorio.exe'
-if(($DumpOnly -or -not $SaveInput -or -not $PrepareOnly) -and (Get-Process factorio -ErrorAction SilentlyContinue)){
+if(-not $AllowRunningFactorio -and ($DumpOnly -or -not $SaveInput -or -not $PrepareOnly) -and (Get-Process factorio -ErrorAction SilentlyContinue)){
     throw 'Run Factorio fixtures sequentially; another Factorio process is active.'
 }
 New-Item -ItemType Directory -Path $mods -Force | Out-Null
@@ -31,6 +33,7 @@ foreach($assets in @('graphics','sounds')){
     if(-not(Test-Path -LiteralPath $assetSource -PathType Container)){
         if($assets -eq 'sounds'){continue}
         $assetSource=Join-Path $repo 'exotic-space-industries-remembrance/graphics'
+        if(-not(Test-Path -LiteralPath $assetSource -PathType Container)){continue}
     }
     $target=Join-Path $main $assets
     if(-not(Test-Path -LiteralPath $target)){New-Item -ItemType Junction -Path $target -Target $assetSource | Out-Null}
@@ -46,7 +49,7 @@ if($HelperRoot){Get-ChildItem -LiteralPath $HelperRoot -File | Copy-Item -Destin
 if($Scenario){Copy-Item -LiteralPath $Scenario -Destination (Join-Path $helper 'control.lua') -Force}
 if($Checkpoint){Copy-Item -LiteralPath (Join-Path $helper 'persistence-control.lua') -Destination (Join-Path $helper 'control.lua') -Force}
 $utf8=[Text.UTF8Encoding]::new($false)
-[IO.File]::WriteAllText((Join-Path $helper 'options.lua'),"return {disabled=$($Disabled.IsPresent.ToString().ToLowerInvariant()),ticks=$Ticks}",$utf8)
+[IO.File]::WriteAllText((Join-Path $helper 'options.lua'),"return {disabled=$($Disabled.IsPresent.ToString().ToLowerInvariant()),ticks=$Ticks,trace_offset=$TraceOffsetTicks}",$utf8)
 $bridgeName=if($HelperRoot){'instrument.lua'}else{'bridge.lua'}
 if(-not $Bare){
     $bridge=Get-Content -LiteralPath (Join-Path $helper $bridgeName) -Raw -Encoding UTF8
@@ -60,18 +63,30 @@ if(-not $Bare){
         [IO.File]::AppendAllText((Join-Path $main 'control.lua'),"`n"+[IO.File]::ReadAllText((Join-Path $helper 'preset-bridge.lua')),$utf8)
         Copy-Item -LiteralPath (Join-Path $helper 'control-presets.lua') -Destination (Join-Path $helper 'control.lua') -Force
     }
-    if($Guards -or $GlebaFire){
+    if($Guards -or $GlebaFire -or $Wildfire -or $V2){
         $runtime=Join-Path $main 'scripts/control/terrain-evolution.lua'
         $body=[IO.File]::ReadAllText($runtime)
-        $export='model._qc={propose=propose,commit=commit,hazards=hazards,recover_tiles=recover_tiles,active=active,entity_event=entity_event,service_events=service_events}'+"`nreturn model"
+        $export='model._qc={propose=propose,commit=commit,hazards=hazards,recover_tiles=recover_tiles,active=active,entity_event=entity_event,service_events=service_events,service_class=service_class,sample_observation=function(r,b,t) return work.sample_observation(r,b,t,sample) end}'+"`nreturn model"
         if(([regex]::Matches($body,'(?m)^return model\s*$')).Count -ne 1){throw 'Unexpected terrain module return shape.'}
         [IO.File]::WriteAllText($runtime,[regex]::Replace($body,'(?m)^return model\s*$',$export),$utf8)
-        $fixturePrefix=if($GlebaFire){'gleba-fire'}else{'guard'}
+        $fixturePrefix=if($V2){'v2'}elseif($Wildfire){'wildfire'}elseif($GlebaFire){'gleba-fire'}else{'guard'}
         [IO.File]::AppendAllText((Join-Path $main 'control.lua'),"`n"+[IO.File]::ReadAllText((Join-Path $helper ($fixturePrefix+'-bridge.lua'))),$utf8)
         Copy-Item -LiteralPath (Join-Path $helper ($fixturePrefix+'-control.lua')) -Destination (Join-Path $helper 'control.lua') -Force
     }
 }
 $list=Get-Content -LiteralPath (Join-Path $seed 'mod-list.json') -Raw | ConvertFrom-Json
+if($TraceEcology){
+    $runtime=Join-Path $main 'scripts/control/terrain-evolution.lua'
+    $body=[IO.File]::ReadAllText($runtime)
+    $iteratorPattern='(?m)^            if not entry\.iterator or not entry\.iterator\.valid then entry\.iterator=entry\.surface\.get_chunks\(\) end\r?\n            local chunk=entry\.iterator\(\)\r?$'
+    if(([regex]::Matches($body,$iteratorPattern)).Count -ne 1){throw 'Unexpected ecology iterator trace boundary'}
+    $iteratorTrace=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'qc/terrain-evolution/trace-discovery-primitives.lua')).TrimEnd()
+    $body=[regex]::Replace($body,$iteratorPattern,[Text.RegularExpressions.MatchEvaluator]{param($match) $iteratorTrace})
+    $trace=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'qc/terrain-evolution/trace-runtime.lua'))
+    $marker='function model.updater(event)'
+    if(([regex]::Matches($body,[regex]::Escape($marker))).Count -ne 1){throw 'Unexpected trace insertion boundary'}
+    [IO.File]::WriteAllText($runtime,$body.Replace($marker,$trace+"`n"+$marker),$utf8)
+}
 $list.mods=@($list.mods | Where-Object name -ne 'zzz-esir-terrain-qc')
 foreach($mod in $list.mods){if($mod.name -match 'qc|benchmark' -or $mod.name -in @('TerrainEvolution','TerrainEvolution2','diurnal-dynamics','extinguisher')){$mod.enabled=$false}}
 $list.mods+=@{name=(Split-Path $helper -Leaf);enabled=(-not $Bare)}
@@ -106,3 +121,8 @@ if(-not(Test-Path -LiteralPath $report) -or (Get-Item -LiteralPath $report).Last
 $result=Get-Content -LiteralPath $report -Raw | ConvertFrom-Json
 [pscustomobject]@{all_pass=$result.all_pass;count=$result.count;failed=@($result.cases.PSObject.Properties | Where-Object {-not $_.Value.pass} | ForEach-Object Name);report=$report} | ConvertTo-Json -Depth 5
 if(-not $result.all_pass){throw "Acceptance failed: $report"}
+if($DumpAfter){
+    & $factorio --dump-data --config $ini --mod-directory $mods --disable-audio 2>&1 | Out-File (Join-Path $run 'dump.txt') -Encoding utf8
+    if($LASTEXITCODE -ne 0){throw "Final data load failed: $run/dump.txt"}
+    Write-Output "Final data: $run/script-output/data-raw-dump.json"
+}

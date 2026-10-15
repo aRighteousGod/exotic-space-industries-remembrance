@@ -8,6 +8,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[3]
 LOCALES = ROOT / "exotic-space-industries-remembrance/locale"
 LANGUAGES = ("en", "fr", "ja", "pl", "ru", "zh-CN", "zh-TW")
+SIDECARS = ("terrain-evolution.cfg", "ecology-v2.cfg")
 
 
 def entries(path, strict=True):
@@ -36,14 +37,19 @@ def tokens(value):
 
 
 def audit():
-    english = entries(LOCALES / "en/terrain-evolution.cfg")
+    english = {}
+    for name in SIDECARS:
+        english.update(entries(LOCALES / "en" / name))
     anchors = {}
     for path in (LOCALES / "en").glob("*.cfg"):
         anchors.update(entries(path, strict=False))
     report = {}
     for language in LANGUAGES:
-        path = LOCALES / language / "terrain-evolution.cfg"
-        values = entries(path)
+        values = {}
+        for name in SIDECARS:
+            addition = entries(LOCALES / language / name)
+            assert not values.keys() & addition.keys(), (language, name)
+            values.update(addition)
         assert not english.keys() - values.keys(), f"Missing terrain keys: {language}"
         assert not values.keys() - anchors.keys(), f"Missing English anchors: {language}"
         for key, value in english.items():
@@ -53,8 +59,8 @@ def audit():
                 # Japanese naturally says 'per one service'; that 1 is not a cap.
                 translated = translated.replace("\u51e6\u74061\u56de\u3042\u305f\u308a", "per service")
                 assert sorted(re.findall(r"\d+", translated)) == sorted(re.findall(r"\d+", value)), (language, key)
-        for sibling in path.parent.glob("*.cfg"):
-            if sibling != path:
+        for sibling in (LOCALES / language).glob("*.cfg"):
+            if sibling.name not in SIDECARS:
                 assert not values.keys() & entries(sibling, strict=False).keys(), sibling
         report[language] = {"keys": len(values), "pass": True}
     source = """local c=dofile('exotic-space-industries-remembrance/lib/terrain-evolution-config.lua')
@@ -65,6 +71,11 @@ for _,r in ipairs(c.schema) do
         print('string-mod-setting.'..r.setting_name..'-'..v)
         print('string-mod-setting-description.'..r.setting_name..'-'..v)
     end
+end
+local alerts=dofile('exotic-space-industries-remembrance/lib/terrain-alert-config.lua')
+for _,r in ipairs(alerts.schema) do
+    print('mod-setting-name.'..r.name)
+    print('mod-setting-description.'..r.name)
 end"""
     required = subprocess.check_output(
         [str(ROOT / ".tools/lua-5.4.8/lua54.exe"), "-e", source],

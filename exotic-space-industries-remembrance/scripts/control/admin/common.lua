@@ -18,6 +18,7 @@ local model = {}
 ---@field world table|nil Bounded creation/chart/generation jobs and explicit planet policies.
 ---@field inspection table|nil One bounded read-only registry inspection.
 ---@field ui_watch table<uint,boolean>|nil Visible countdown/progress sessions only.
+---@field rebuild_watch table<uint,boolean>|nil Visible Diagnostics sessions eligible for activity-only refresh.
 ---@field ui_due_tick MapTick|nil
 ---@field auto_refresh_buckets table<MapTick,uint[]>|nil Optional visible-only refresh ownership.
 ---@field auto_refresh_due_tick MapTick|nil Cached earliest due refresh; absent when idle.

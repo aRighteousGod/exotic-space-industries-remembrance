@@ -10,7 +10,9 @@
 -- rebuild_on: none; module owners repair their own authoritative state
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/admin-runtime-registry.md#contract
+-- blueprint-ref: .codex/esir/blueprints/admin-runtime-registry.md#rebuild-reporting
 local lib=require("lib/lib")
+local scheduler=require("lib/runtime-scheduler")
 local model={}
 local context
 local INSPECTION_BUDGET=64
@@ -66,6 +68,7 @@ local DEFINITIONS={
 }
 DEFINITIONS[#DEFINITIONS+1]={id="admin-tools",label="Administration console and jobs",blueprint="admin-tools",root="ei.admin_tools",repair="repair_runtime_state",call="repair",fields={"version","speed_before","restriction_tracking.tracked_count","restriction_tracking.census.started_tick","restriction_tracking.census.examined","restriction_tracking.census.chunks","restriction_tracking.completed_tick","restriction_tracking.examined","restriction_tracking.chunks"},collections={"sessions","world.jobs","modes","jails","restrictions","restriction_tracking.records"},sources={"exotic-space-industries-remembrance/scripts/control/admin-tools.lua","exotic-space-industries-remembrance/scripts/control/admin/common.lua","exotic-space-industries-remembrance/scripts/control/admin/gui.lua","exotic-space-industries-remembrance/scripts/control/admin/world.lua","exotic-space-industries-remembrance/scripts/control/admin/players.lua","exotic-space-industries-remembrance/scripts/control/admin/targeting.lua","exotic-space-industries-remembrance/scripts/control/admin/restrictions.lua","exotic-space-industries-remembrance/lib/admin-tools-config.lua"}}
 DEFINITIONS[#DEFINITIONS+1]={id="camera-windows",label="Shared camera windows",blueprint="camera-windows",root="ei_camera_windows",call="helper",fields={"next_due"},collections={"windows","by_target"},sources={"exotic-space-industries-remembrance/lib/camera-window.lua"}}
+DEFINITIONS[#DEFINITIONS+1]={id="rebuild-monitor",label="Rebuild activity",blueprint="rebuild-monitor",root="ei.rebuild_monitor",call="infrastructure",fields={"next_due","next_cycle","transition"},collections={"players"},sources={"exotic-space-industries-remembrance/scripts/control/rebuild-monitor.lua"}}
 DEFINITIONS[#DEFINITIONS+1]={id="terrain-evolution",label="Terrain ecology and calendar",blueprint="terrain-evolution",root="ei.terrain_evolution",call="infrastructure",fields={"version","next_tick","enabled_surfaces","compatibility","counters.services","counters.saturated"},collections={"active.items","pending.items","history.items","trees.items","calendar.records"},sources={"exotic-space-industries-remembrance/scripts/control/terrain-evolution.lua","exotic-space-industries-remembrance/scripts/control/terrain-calendar.lua"}}
 local BY_ID={}
 for _,entry in ipairs(DEFINITIONS) do BY_ID[entry.id]=entry end
@@ -227,6 +230,9 @@ function model.repair(actor,id,tick)
     local action=owner and owner[entry.repair]
     if type(action)~="function" then return false,"Repair provider unavailable: "..id.."." end
     local reason="admin-repair"
+    -- Dispatch completion is distinct from any bounded job the owner admits.
+    local activity=scheduler.begin_rebuild(id,"admin-repair-request","global",
+        {reason=reason,phase="repair-request",state="running",completed=0,total=1,unit="requests",synchronous=true},tick)
     local ok,result,detail
     if entry.call=="none" then ok,result,detail=pcall(action)
     elseif entry.call=="reason" then ok,result,detail=pcall(action,reason)
@@ -234,6 +240,8 @@ function model.repair(actor,id,tick)
     elseif entry.call=="eventonly" then ok,result,detail=pcall(action,{tick=tick})
     else ok,result,detail=pcall(action,reason,tick) end
     local success=ok and result~=false
+    scheduler.update_rebuild(activity,{phase=success and "request-accepted" or "request-failed",completed=success and 1 or 0},tick)
+    scheduler.finish_rebuild(activity,success and "completed" or "failed",tick)
     message=success and ("Repair requested: "..entry.label..".")
         or ("Repair failed: "..tostring(ok and detail or result)..".")
     local admin=context.state()

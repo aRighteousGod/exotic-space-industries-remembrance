@@ -253,3 +253,8 @@ permissions, surface policies, native effects, chunk ownership and save/reload.
 The repository preflight checks syntax, locales, source ownership and backlinks.
 GUI checks require connected viewers and multiple scales. Mocked budget assertions
 are supporting evidence, not engine or whole-UPS measurements.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Diagnostics adds Rebuild activity and Recent rebuilds with selected-owner filtering. Activity-only refresh rechecks authorization and preserves the general auto-refresh preference. Public presentation is independently available with admin tools disabled.

@@ -106,3 +106,8 @@ These are strong signs that the edit should be rethought:
 
 - Name runtime modules for what they actually do now, not for the historical feature that happened to host the first version.
 - Example: `fluid-safety.lua` is the fluid safety runtime; it is not a "powered beacon" module anymore.
+## Rebuild observation
+
+Sustained reconstruction owners publish scalar progress using `begin_rebuild`, `update_rebuild`, and `finish_rebuild` with the explicit callback tick. Keep the returned generation ID in owner state; replacement invalidates stale reports. `report_rebuild` may adopt legacy ongoing work at its next existing service boundary. Reporting never drives gameplay or audits queues. Count skipped work while retiring existing items; unknown discovery totals stay unknown. Dedicated generation membership must separate rebuilds from ordinary queues. Finish only after retries and subsequent stages retire.
+
+Use pure `peek_rebuilds(tick, owner)` for presentation. The shared monitor handles eight viewers/tick and 60-tick refreshes, with no scheduled idle work. ETA uses a 300-tick rolling simulation-time window with samples 60 ticks apart, reset on phase/total/generation changes. Owner-confirmed external waits suppress public visibility. Keep detailed scope in admin Diagnostics and retain only 32 terminal results.

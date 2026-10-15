@@ -16,7 +16,7 @@ local lib=require("lib/lib")
 local policy=require("lib/terrain-policy")
 local model={}
 local function eligible(surface)
-    return policy.planet(surface)~=nil and surface.planet.name~="fulgora"
+    return surface.valid and policy.planet(surface)~=nil
 end
 local function matches(a,b)
     if not a or not b then return false end
@@ -25,11 +25,13 @@ local function matches(a,b)
 end
 local function phase_at(r,tick) return (r.phase+(r.period and (tick-r.epoch)/r.period or 0))%1 end
 local function release_record(r)
-    if eligible(r.surface) and r.baseline and r.last and matches(r.surface.daytime_parameters,r.last) then r.surface.daytime_parameters=r.baseline end
+    if eligible(r.surface) and r.surface.planet.name~="fulgora" and r.baseline and r.last and matches(r.surface.daytime_parameters,r.last) then r.surface.daytime_parameters=r.baseline end
     r.baseline=nil;r.last=nil;r.suspended=nil
 end
 local function blocker()
-    for _,name in ipairs({"diurnal-dynamics","TerrainEvolution2","TerrainEvolution"}) do if script.active_mods[name] then return name end end
+    if script.active_mods["diurnal-dynamics"] then return "diurnal-dynamics" end
+    if script.active_mods["TerrainEvolution2"] then return "TerrainEvolution2" end
+    if script.active_mods["TerrainEvolution"] then return "TerrainEvolution" end
 end
 ---@param baseline table Native four-boundary tuple.
 ---@param phase number
@@ -106,6 +108,9 @@ function model.service(root,tick,resolve_config)
     local period=math.max(1,math.floor(c.reference_day*(cfg.year_days or 360)*(math.max(r.distance,0.001)/c.reference_distance)^1.5))
     if r.period~=period then r.phase=phase_at(r,tick);r.epoch=tick;r.period=period end
     r.tilt=cfg.tilt or 23.5;r.latitude=cfg.latitude or 45
+    -- Ecological phase exists on Fulgora; none of its daylight fields are read,
+    -- acquired or restored by this owner, even during disablement/migration.
+    if r.surface.planet.name=="fulgora" then r.baseline=nil;r.last=nil;r.status="independent";return true end
     if c.blocker or not cfg.enabled or not cfg.seasonal_daylight then
         release_record(r);r.status=c.blocker or "disabled";return true
     end
@@ -127,6 +132,14 @@ end
 function model.release_surface(root,index)
     local r=root.calendar and root.calendar.records[index]
     if r then release_record(r);r.status="released" end
+end
+---@param root table Owner state; initialized calendar records are cached.
+---@param surface LuaSurface
+---@param tick MapTick
+---@return number?
+function model.phase(root,surface,tick)
+    local r=root.calendar and root.calendar.records[surface.index]
+    if r and r.surface==surface then return phase_at(r,tick) end
 end
 function model.snapshot(root,surface,tick)
     if not eligible(surface) then return {status="excluded"} end

@@ -45,11 +45,12 @@ with DUMP.open('rb') as handle,mmap.mmap(handle.fileno(),0,access=mmap.ACCESS_RE
         'max_edge_path':max_path,'cycles':cycles}
     fire=record('fire','ei-ecology-fire')
     selected=['name','initial_lifetime','maximum_lifetime','lifetime_increase_by','maximum_spread_count',
-        'spawn_entity','tree_dying_factor','spread_delay','spread_delay_deviation','on_fuel_added_action',
+        'spawn_entity','tree_dying_factor','burnt_patch_lifetime','spread_delay','spread_delay_deviation','on_fuel_added_action',
         'on_damage_tick_effect','damage_per_tick','emissions_per_second']
     report['contained_fire']={k:fire.get(k,'<absent>') for k in selected}
     report['contained_fire']['contract_pass']=fire.get('maximum_spread_count')==0 and fire.get('spawn_entity') is None \
-        and fire.get('initial_lifetime')==600 and fire.get('maximum_lifetime')==600 and fire.get('lifetime_increase_by')==0
+        and fire.get('initial_lifetime')==600 and fire.get('maximum_lifetime')==600 and fire.get('lifetime_increase_by')==0 \
+        and fire.get('burnt_patch_lifetime')==0
     report['planets']={}
     for name in ['nauvis','gaia','vulcanus','gleba','fulgora','aquilo']:
         planet=record('planet',name)
@@ -65,6 +66,14 @@ with DUMP.open('rb') as handle,mmap.mmap(handle.fileno(),0,access=mmap.ACCESS_RE
     report['tree_allowlist']={'declared_count':len(natural),'present_count':len(natural & tree_names),'missing':sorted(natural-tree_names)}
     drills=['ei-burner-quarry','ei-steam-quarry','ei-electric-quarry','big-mining-drill']
     report['drills']={n:n in set(names('mining-drill')) for n in drills}
+    anchor=record('simple-entity-with-owner','ei-ecology-alert-anchor')
+    report['alert_anchor']={'present':anchor is not None,'contract_pass':bool(anchor and not anchor.get('selectable_in_game',True)
+        and not anchor.get('collision_mask',{}).get('layers') and 'not-on-map' in anchor.get('flags',[]))}
+    report['seasonal_sprites']={}
+    for season in ['spring','summer','autumn','winter']:
+        sprite=record('sprite','ei-ecology-tree-'+season)
+        report['seasonal_sprites'][season]=bool(sprite and sprite.get('size')==128
+            and sprite.get('filename')=='__exotic-space-industries-remembrance-graphics-6__/graphics/gui/ecology-tree-'+season+'.png')
 
 def locale(path):
     values={};duplicates=[];section='';raw=path.read_bytes();text=raw.decode('utf-8-sig')
@@ -100,12 +109,13 @@ for code in ['en','fr','ja','pl','ru','zh-CN','zh-TW']:
     result['other_file_duplicates']=overlaps
     report['locales'][code]=result
 
-out=ROOT/'.factorio-qc/terrain-evolution/final-data-audit.json'
+out=Path(sys.argv[2]) if len(sys.argv)>2 else ROOT/'.factorio-qc/terrain-evolution/final-data-audit.json'
 out.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 locale_errors={code:sum(len(values[key]) for key in ('missing_keys','unanchored_extra_keys','duplicates',
     'suspicious_encoding','parameter_mismatches','other_file_duplicates')) for code,values in report['locales'].items()}
 passed=not missing_target and not cycles and report['contained_fire']['contract_pass'] \
-    and not report['tree_allowlist']['missing'] and all(report['drills'].values()) and not any(locale_errors.values())
+    and not report['tree_allowlist']['missing'] and all(report['drills'].values()) and not any(locale_errors.values()) and report['alert_anchor']['contract_pass'] \
+    and all(report['seasonal_sprites'].values())
 print(json.dumps({'all_pass':passed,'report':str(out),'loaded_edges':len(valid),'missing_targets':len(missing_target),
     'tree_allowlist':report['tree_allowlist'],'locale_errors':locale_errors},indent=2))
 if not passed:raise SystemExit(1)

@@ -53,3 +53,12 @@ Queues are payload-agnostic. They do not validate LuaEntity handles, remove help
 The [scheduler guidance](../../skills/esir-dev/references/runtime-scheduler-guidelines.md) defines reuse policy; keep it synchronized with interface changes. The [control queue lifecycle fixture](../../../scripts/qc/control-ups/queue-save.lua) and [lifecycle checker](../../../scripts/qc/control-ups/check-lifecycle.py) supply regression entrypoints.
 
 Verify sparse queues, unique-key cleanup, stale membership rejection, stable compaction order, exact versus overdue buckets, empty due minima, save/load continuation, and disabled telemetry. The [runtime contract fixture](../../../scripts/qc/runtime-contracts/README.md) additionally checks explicit and legacy timestamps, consistent nested logging, return identity and disabled encoding/I/O in the installed engine. Timestamp acceptance does not establish queue/save parity or a UPS gain.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+The scheduler stores rebuild records in `storage.ei.runtime_scheduler.rebuilds`. `begin_rebuild`, `update_rebuild`, and `finish_rebuild` require an explicit callback tick, including zero. `report_rebuild` adopts existing owner work at its next batch boundary. Each owner/operation/scope admission receives a fresh generation ID; replacement retires the previous ID as superseded, and stale updates cannot complete its replacement. Active/waiting records persist alongside a ring of 32 terminal results.
+
+`peek_rebuild_state` and detached `peek_rebuilds(tick, owner)` are pure: no initialization, owner status calls, queue audits, or world enumeration. Owners count completed and skipped items in their existing processors. Unknown discovery totals stay unknown. Reporting never drives gameplay.
+
+ETA uses completed units per simulation tick: a rolling 300-tick window, at least two samples 60 ticks apart. Phase, total, state or ETA-blocked changes reset samples; new generations start fresh. Unknown totals, external waits, and 300 ticks without progress withdraw the estimate. Synchronous callbacks explicitly mark duration unavailable. The public episode spans queued/running asynchronous work; waiting-only work ends it, and resumption starts a new episode. Same-tick replacement preserves continuity.

@@ -761,6 +761,7 @@ end
 
 function model.mining_scars(player_index, element)
     element.add{type="label",caption={"ei-terrain.mining-note"}}
+    element.add{type="label",caption={"ei-terrain.mining-v2-note"}}
     element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.mining-scars-text"}}
 
@@ -1032,7 +1033,7 @@ function model.sweeping_radar(player_index, element)
 end
 
 function model.terrain_evolution(player_index,element)
-    for _,key in ipairs({"overview","protections","calendar","performance"}) do
+    for _,key in ipairs({"overview","protections","calendar","performance","controls","v2-coverage"}) do
         element.add{type="label",caption={"ei-terrain."..key}}
     end
     local player=game.get_player(player_index)

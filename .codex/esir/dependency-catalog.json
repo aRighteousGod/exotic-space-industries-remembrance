@@ -3216,6 +3216,59 @@
                             "runtime_refs":  [
                                                  "orbital_logistics"
                                              ]
-                        }
+                        },
+            {
+                "id": "exotic-space-industries-remembrance-scripts-control-terrain-calendar-lua:runtime-integration",
+                "category": "runtime-integration",
+                "phase": "runtime",
+                "direction": "bridge",
+                "mod_names": [
+                    "diurnal-dynamics",
+                    "TerrainEvolution",
+                    "TerrainEvolution2"
+                ],
+                "guard_mods": [
+                    "diurnal-dynamics",
+                    "TerrainEvolution",
+                    "TerrainEvolution2"
+                ],
+                "source_files": [
+                    "exotic-space-industries-remembrance\\scripts\\control\\terrain-calendar.lua"
+                ],
+                "touchpoints": [
+                    "mods",
+                    "script.active_mods"
+                ],
+                "purpose": "Runtime compatibility touchpoints in terrain-calendar",
+                "pack_role": "primary gameplay and runtime pack",
+                "source_pack": "exotic-space-industries-remembrance"
+            },
+            {
+                "id": "exotic-space-industries-remembrance-scripts-control-terrain-evolution-lua:runtime-integration",
+                "category": "runtime-integration",
+                "phase": "runtime",
+                "direction": "bridge",
+                "mod_names": [
+                    "TerrainEvolution",
+                    "TerrainEvolution2"
+                ],
+                "guard_mods": [
+                    "TerrainEvolution",
+                    "TerrainEvolution2"
+                ],
+                "source_files": [
+                    "exotic-space-industries-remembrance\\scripts\\control\\terrain-evolution.lua"
+                ],
+                "touchpoints": [
+                    "mods",
+                    "script.active_mods"
+                ],
+                "purpose": "Runtime compatibility touchpoints in terrain-evolution",
+                "pack_role": "primary gameplay and runtime pack",
+                "source_pack": "exotic-space-industries-remembrance",
+                "runtime_refs": [
+                    "ei_terrain_evolution"
+                ]
+            }
                     ]
 }

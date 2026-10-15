@@ -1,5 +1,6 @@
 -- Additional native species/habitat/fire contract fixture; staged private exports only.
 local tests={}
+local work=require("__exotic-space-industries-remembrance__/scripts/control/terrain-ecology-work")
 local species={"cuttlepop","slipstack","funneltrunk","hairyclubnub","teflilly","lickmaw","stingfrond","boompuff","sunnycomb","water-cane"}
 local habitats={"wetland-light-green-slime","wetland-green-slime","wetland-light-dead-skin","wetland-dead-skin",
     "wetland-pink-tentacle","wetland-red-tentacle","wetland-blue-slime","gleba-deep-lake","highland-dark-rock"}
@@ -38,12 +39,20 @@ function tests.run(terrain,policy)
     end
     local function action(surface,x,y,cause,extra)
         tick=tick+1
-        local result
+        local result,waiting
+        local record={surface=surface,x=x,y=y,cause=cause,extra=extra or {}}
+        if cause=="tree" and extra and extra.pollution~=nil then
+            -- Action-only synthetic exposure, never treating native Gleba spores
+            -- as industrial pollution. The V2 input is an observed cohort record.
+            local climate=assert(work.observe(root,root.surfaces[surface.index],math.floor(x/32),math.floor(y/32),"recovery",tick))
+            climate.sample_tick=tick;climate.pollution=extra.pollution
+            climate.dirty_since=extra.dirty_since;climate.clean_since=extra.clean_since
+        end
         for _=1,3 do
-            result=qc.entity_event(root,budget(),{surface=surface,x=x,y=y,cause=cause,extra=extra or {}},tick)
+            result,waiting=qc.entity_event(root,budget(),record,tick)
             if result~=nil then break end
         end
-        return result
+        return result,waiting
     end
     local function find(surface,name,x,y)
         return surface.find_entities_filtered{name=name,area={{x,y},{x+1,y+1}}}[1]
@@ -156,7 +165,8 @@ function tests.run(terrain,policy)
         for _,r in ipairs(root.fires.items) do created[#created+1]=r.entity end
         local before=#root.fires.items
         patch(nauvis,fx+64,fy,"grass-1")
-        check("fire-600-tick-throttle",action(nauvis,fx+64,fy,"ignite")==false and #root.fires.items==before)
+        local throttled,throttle_reason=action(nauvis,fx+64,fy,"ignite")
+        check("fire-600-tick-throttle",throttled==nil and throttle_reason=="retry" and #root.fires.items==before)
         entry.config.wildfire="off";tick=tick+601
         check("fire-runtime-off-blocks-new-ignition",action(nauvis,fx+64,fy,"ignite")==false and #root.fires.items==before)
         entry.config.wildfire="spreading"
@@ -171,7 +181,8 @@ function tests.run(terrain,policy)
         for _,r in ipairs(root.fires.items) do created[#created+1]=r.entity end
         check("fire-native-token-cap-filled",#root.fires.items==16)
         patch(nauvis,fx+320,fy+320,"grass-1")
-        tick=tick+601;check("fire-16-token-cap-refuses",action(nauvis,fx+320,fy+320,"ignite")==false and #root.fires.items==16)
+        tick=tick+601;local capped,cap_reason=action(nauvis,fx+320,fy+320,"ignite")
+        check("fire-16-token-cap-defers",capped==nil and cap_reason=="retry" and #root.fires.items==16)
         local combat=create(nauvis,"fire-flame",fx+320,fy+320)
         check("unrelated-combat-fire-created",combat~=nil)
         if combat then

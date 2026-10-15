@@ -3111,6 +3111,128 @@
                                            "configuration change",
                                            "entity topology changes"
                                        ]
+                    },
+                    {
+                        "id": "ei_terrain_gui",
+                        "path": "exotic-space-industries-remembrance\\scripts\\control\\terrain-gui.lua",
+                        "loaded_by": "exotic-space-industries-remembrance\\control.lua",
+                        "owns": "runtime module: terrain-gui",
+                        "cadence": "one open viewer per 16 ticks; cached season launcher at most one player per 16 ticks, targeting 600 ticks/player; lifecycle hooks",
+                        "events": [
+                            "configure",
+                            "has_tick_work",
+                            "initialize",
+                            "launcher_has_tick_work",
+                            "launcher_updater",
+                            "on_display_changed",
+                            "on_gui_change",
+                            "on_gui_click",
+                            "on_gui_closed",
+                            "on_player_event",
+                            "on_player_left",
+                            "on_player_removed",
+                            "on_settings_changed",
+                            "on_surface_event",
+                            "updater"
+                        ],
+                        "storage_roots": [
+                            "storage.ei"
+                        ],
+                        "gui_ids": [
+                            "button",
+                            "ei-ecology-button",
+                            "frame",
+                            "frame_action_button",
+                            "frame_title",
+                            "sprite-button",
+                            "window"
+                        ],
+                        "remote_interfaces": [],
+                        "rebuild_on": [
+                            "configuration change",
+                            "runtime rebuild"
+                        ]
+                    },
+                    {
+                        "id": "ei_terrain_alerts",
+                        "path": "exotic-space-industries-remembrance\\scripts\\control\\terrain-alerts.lua",
+                        "loaded_by": "exotic-space-industries-remembrance\\control.lua",
+                        "owns": "runtime module: terrain-alerts",
+                        "cadence": "scheduled updates plus event-driven hooks",
+                        "events": [
+                            "configure",
+                            "has_tick_work",
+                            "initialize",
+                            "on_player_event",
+                            "on_player_removed",
+                            "on_settings_changed",
+                            "on_surface_renamed",
+                            "preferences",
+                            "record_effect",
+                            "refresh_preferences",
+                            "set_preference",
+                            "snapshot",
+                            "updater"
+                        ],
+                        "storage_roots": [
+                            "storage.ei"
+                        ],
+                        "gui_ids": [],
+                        "remote_interfaces": [],
+                        "rebuild_on": [
+                            "configuration change",
+                            "runtime rebuild"
+                        ]
+                    },
+                    {
+                        "id": "ei_terrain_evolution",
+                        "path": "exotic-space-industries-remembrance\\scripts\\control\\terrain-evolution.lua",
+                        "loaded_by": "exotic-space-industries-remembrance\\control.lua",
+                        "owns": "runtime module: terrain-evolution",
+                        "cadence": "scheduled updates plus event-driven hooks",
+                        "events": [
+                            "configure",
+                            "enqueue_scar",
+                            "get_overrides",
+                            "has_tick_work",
+                            "initialize",
+                            "maintenance_begin",
+                            "maintenance_update",
+                            "on_chunk_deleted",
+                            "on_chunk_generated",
+                            "on_entity_built",
+                            "on_entity_died",
+                            "on_entity_removed",
+                            "on_load",
+                            "on_object_destroyed",
+                            "on_resource_depleted",
+                            "on_settings_changed",
+                            "on_surface_clearing",
+                            "on_surface_created",
+                            "on_surface_deleted",
+                            "on_teleported",
+                            "on_tiles_changed",
+                            "protect_preset",
+                            "public_snapshot",
+                            "receipt_valid",
+                            "release_receipt",
+                            "reset_overrides",
+                            "resolve_config",
+                            "retain_receipt",
+                            "set_override",
+                            "set_season_phase",
+                            "snapshot",
+                            "updater"
+                        ],
+                        "storage_roots": [
+                            "storage.ei"
+                        ],
+                        "gui_ids": [],
+                        "remote_interfaces": [],
+                        "rebuild_on": [
+                            "configuration change",
+                            "runtime rebuild"
+                        ]
                     }
                 ]
 }

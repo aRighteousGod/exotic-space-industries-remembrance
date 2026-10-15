@@ -77,8 +77,9 @@ function tests.run(terrain,calendar,vat)
     local function entity_action(target,x,y,cause,extra)
         tick=tick+1
         local result
+        local record={surface=target,x=x,y=y,cause=cause,extra=extra or {}}
         for _=1,3 do
-            result=qc.entity_event(root,budget(),{surface=target,x=x,y=y,cause=cause,extra=extra or {}},tick)
+            result=qc.entity_event(root,budget(),record,tick)
             if result~=nil then break end
         end
         return result
@@ -91,7 +92,7 @@ function tests.run(terrain,calendar,vat)
     local function recover_step()
         tick=tick+601
         local b=budget();b.writes=1
-        qc.recover_tiles(root,b,tick);qc.commit(root,b)
+        qc.recover_tiles(root,b,tick);qc.sample_observation(root,b,tick);qc.commit(root,b)
         return b.used_writes
     end
     local function drain_recovery(max)
@@ -214,6 +215,7 @@ function tests.run(terrain,calendar,vat)
         root.config.active_cap=1
         check("reduced-active-cap-refuses-growth",qc.active(root,surface,math.floor((x+448)/32)+3,math.floor(y/32),tick)==nil
             and #root.active.items==3)
+        tick=tick+36001
         for _=1,12 do tick=tick+601;root.next_tick=tick;terrain.updater{tick=tick} end
         check("reduced-active-cap-drains-boundedly",#root.active.items<=1)
 
@@ -318,6 +320,7 @@ function tests.run(terrain,calendar,vat)
                 tick=tick+1
                 local b=budget()
                 qc.hazards(root,b,{surface=surface,x=hx/32,y=hy/32,next_hazard=0,pollution=0},tick)
+                qc.service_events(root,b,tick)
                 qc.commit(root,b);writes=writes+b.used_writes
             end
             return writes
@@ -369,6 +372,7 @@ function tests.run(terrain,calendar,vat)
         root.surfaces[surface.index].overrides.max_depth=7
         root.surfaces[surface.index].config.max_depth=7
         local now=calendar.snapshot(root,surface,game.tick)
+        check("cached-ecology-phase-matches-calendar",calendar.phase(root,surface,game.tick+600)==calendar.snapshot(root,surface,game.tick+600).phase)
         storage.__terrain_guard_pending={stage="clear",results=results,old_root=original,saved_daylight=saved_daylight,
             surface=surface,gleba=gleba,phase=now.phase,period=now.period_ticks,at=game.tick,
             owned_tuple=surface.daytime_parameters,external=external,owned_orbit=root.calendar.records[surface.index],

@@ -540,3 +540,4 @@ data:extend({
 })
 -- ESIR-owned ecology switches and finite work budgets.
 data:extend(require("lib/terrain-evolution-config").definitions)
+data:extend(require("lib/terrain-alert-config").definitions)

@@ -1,6 +1,7 @@
 -- Appended only to the private staged ESIR control script.
 local persistence_terrain=require("scripts/control/terrain-evolution")
 local persistence_calendar=require("scripts/control/terrain-calendar")
+local persistence_index=require("lib/terrain-index")
 local function persistence_same(a,b)
     if not a or not b then return false end
     for _,k in ipairs({"dusk","evening","morning","dawn"}) do if math.abs(a[k]-b[k])>1e-8 then return false end end
@@ -62,6 +63,13 @@ remote.add_interface("ei-terrain-persistence-qc",{
         p.history={}
         for _,h in ipairs(root.history.items) do p.history[#p.history+1]={id=h.id,origin=h.origin,expected=h.expected,depth=#h.path} end
         p.owned=p.surfaces.s.daytime_parameters;p.frozen=p.surfaces.g.daytime_parameters
+        assert(persistence_terrain.enqueue_scar(p.surfaces.s,{x=770,y=770},"mining",tick,{trigger="depletion"}))
+        for _,request in ipairs(root.pending.items) do if request.cause=="mining" then request.retry_tick=tick+1000000;p.pending_id=request.id;p.pending_offset=request.offset end end
+        p.active_count=#root.active.items;p.pending_count=#root.pending.items
+        p.bootstrap_id=root.work.jobs.bootstrap and root.work.jobs.bootstrap.id
+        local probe={items={{id="legacy-a"},{id="legacy-b"}},index={["legacy-a"]=1,["legacy-b"]=2}}
+        persistence_index.adopt(probe);persistence_index.migrate(probe.index,"legacy-a")
+        p.index_probe=probe.index
         return {all_pass=p.admitted and p.history_count>0 and persistence_record(root,p.surfaces.s,tick).owns_daylight
             and persistence_record(root,p.surfaces.g,tick).owns_daylight
             and persistence_record(root,p.surfaces.v,tick).status=="external-control",history=p.history_count,tick=tick}
@@ -73,6 +81,16 @@ remote.add_interface("ei-terrain-persistence-qc",{
         local cases={}
         local function check(name,pass,detail) cases[name]={pass=pass==true,detail=detail} end
         check("saved-history-present",p.history_count>0 and #root.history.items==p.history_count)
+        for _,kind in ipairs{"history","trees","pending","active"} do
+            check("native-index-metatable-"..kind,persistence_index.is_facade(root[kind].index)
+                and getmetatable(root[kind].index)~=nil)
+        end
+        if p.index_probe then
+            check("mixed-native-index-save-lookup",p.index_probe["legacy-a"]==1 and p.index_probe["legacy-b"]==2
+                and persistence_index.remaining(p.index_probe)==1)
+            p.index_probe["legacy-b"]=3
+            check("mixed-native-index-save-migration",p.index_probe["legacy-b"]==3 and persistence_index.remaining(p.index_probe)==0)
+        end
         for _,h in ipairs(p.history) do
             local index=root.history.index[h.id];local current=index and root.history.items[index]
             check("history-path-"..h.id,current and current.origin==h.origin and current.expected==h.expected and #current.path==h.depth)
@@ -84,11 +102,14 @@ remote.add_interface("ei-terrain-persistence-qc",{
         check("external-tuple-preserved",persistence_same(p.surfaces.v.daytime_parameters,p.external))
         check("fulgora-tuple-preserved",persistence_same(p.surfaces.f.daytime_parameters,p.fulgora))
         check("rotation-solar-preserved",p.surfaces.s.ticks_per_day==p.rotation and p.surfaces.s.solar_power_multiplier==p.solar)
+        local request_index=root.pending.index[p.pending_id];local request=request_index and root.pending.items[request_index]
+        check("accepted-mining-request-survives-save",request and request.offset==p.pending_offset and #root.pending.items==p.pending_count)
+        check("bootstrap-generation-survives-save",not p.bootstrap_id or root.work.jobs.bootstrap and root.work.jobs.bootstrap.id==p.bootstrap_id)
         if disabled then
             check("owned-restored-on-startup-disable",persistence_same(p.surfaces.s.daytime_parameters,p.baseline))
             check("frozen-owned-restored-on-startup-disable",persistence_same(p.surfaces.g.daytime_parameters,p.baseline))
             check("disabled-idle",not persistence_terrain.has_tick_work(tick+100000))
-            check("disabled-detaches-active",#root.active.items==0 and #root.pending.items==0)
+            check("disabled-preserves-paused-admissions",#root.active.items==p.active_count and #root.pending.items==p.pending_count)
             check("disabled-rejects-admission",not persistence_terrain.enqueue_scar(p.surfaces.s,{x=0,y=0},"thermal",tick))
         else
             check("owned-tuple-survives-save",persistence_same(p.surfaces.s.daytime_parameters,p.owned) and now.owns_daylight)
