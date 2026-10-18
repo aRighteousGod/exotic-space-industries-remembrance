@@ -10,6 +10,7 @@
 -- rebuild_on: configuration change
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/tesla-runtime.md#contract
+-- blueprint-ref: .codex/esir/blueprints/tesla-runtime.md#rebuild-reporting
 -- Tesla's Legacy runtime for EI.
 --
 -- This module owns all live Tesla scripting after the internalization work. The vendored
@@ -238,6 +239,7 @@ local function ensure_state()
     state.recent_hits_by_position = state.recent_hits_by_position or {}
     state.burst_gates = state.burst_gates or {}
     state.variant_sync_jobs = state.variant_sync_jobs or {}
+    state.variant_rebuild_by_force = state.variant_rebuild_by_force or {}
     state.variant_sync_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.variant_sync_buckets)
     state.legacy_helper_expiry_buckets = ei_runtime_scheduler.ensure_delayed_buckets(state.legacy_helper_expiry_buckets)
     state.last_prune_tick = state.last_prune_tick or 0
@@ -906,16 +908,33 @@ end
 
 local function get_next_surface_index(surface_indices, last_surface_index)
     local normalized_last_surface_index = tonumber(last_surface_index) or 0
-    for _, surface_index in ipairs(surface_indices) do
+    for position, surface_index in ipairs(surface_indices) do
         if surface_index > normalized_last_surface_index then
-            return surface_index
+            return surface_index, position
         end
     end
 
     return nil
 end
 
-local function schedule_variant_sync_job(state, force_index, due_tick, restart_requested)
+local function begin_variant_rebuild(state,force_index,tick)
+    local previous=state.variant_rebuild_by_force[force_index]
+    if previous then ei_runtime_scheduler.finish_rebuild(previous.id,"superseded",tick) end
+    local progress={completed=0,id=ei_runtime_scheduler.begin_rebuild("teslas-legacy","variant-sync",force_index,
+        {reason="research",phase="variants",state="queued",completed=0,unit="surfaces",force_index=force_index},tick)}
+    state.variant_rebuild_by_force[force_index]=progress
+    return progress
+end
+local function finish_variant_rebuild(state,force_index,tick,outcome)
+    local progress=state.variant_rebuild_by_force[force_index];if not progress then return end
+    ei_runtime_scheduler.finish_rebuild(progress.id,outcome or "completed",tick)
+    state.variant_rebuild_by_force[force_index]=nil
+end
+local function finish_variant_rebuilds(state,tick)
+    for force_index in pairs(state.variant_rebuild_by_force) do finish_variant_rebuild(state,force_index,tick,"superseded") end
+end
+
+local function schedule_variant_sync_job(state, force_index, due_tick, restart_requested, current_tick)
     local normalized_force_index = tonumber(force_index)
     if not normalized_force_index then
         return nil
@@ -936,6 +955,7 @@ local function schedule_variant_sync_job(state, force_index, due_tick, restart_r
 
     job.force_index = normalized_force_index
     job.last_surface_index = tonumber(job.last_surface_index) or 0
+    if restart_requested then begin_variant_rebuild(state,normalized_force_index,current_tick) end
     job.restart_requested = job.restart_requested == true or restart_requested == true
 
     if not job.pending then
@@ -946,7 +966,7 @@ local function schedule_variant_sync_job(state, force_index, due_tick, restart_r
     return job
 end
 
-local function process_variant_sync_job(state, job)
+local function process_variant_sync_job(state, job, current_tick)
     if not job then
         return true
     end
@@ -967,17 +987,21 @@ local function process_variant_sync_job(state, job)
     end
 
     local surface_indices = get_sorted_surface_indices()
-    local next_surface_index = get_next_surface_index(surface_indices, job.last_surface_index or 0)
+    local next_surface_index, surface_position = get_next_surface_index(surface_indices, job.last_surface_index or 0)
     if not next_surface_index then
         return true
     end
 
+    local progress=state.variant_rebuild_by_force[force_index] or begin_variant_rebuild(state,force_index,current_tick)
     local surface = game.surfaces[next_surface_index]
     if surface and surface.valid then
         sync_surface_variants(state, force, surface)
     end
 
     job.last_surface_index = next_surface_index
+    progress.completed=progress.completed+1
+    ei_runtime_scheduler.update_rebuild(progress.id,{phase="variants",state="running",completed=progress.completed,
+        total=progress.completed+#surface_indices-surface_position,unit="surfaces",surface_index=next_surface_index},current_tick)
     return get_next_surface_index(surface_indices, job.last_surface_index) == nil
 end
 
@@ -1000,11 +1024,12 @@ local function update_variant_sync_jobs(state, tick)
             local job = state.variant_sync_jobs[normalized_force_index]
             if job then
                 job.pending = false
-                local finished = process_variant_sync_job(state, job)
+                local finished = process_variant_sync_job(state, job, tick)
                 if finished then
+                    finish_variant_rebuild(state,normalized_force_index,tick)
                     state.variant_sync_jobs[normalized_force_index] = nil
                 else
-                    schedule_variant_sync_job(state, normalized_force_index, tick + 1, false)
+                    schedule_variant_sync_job(state, normalized_force_index, tick + 1, false, tick)
                 end
             end
         end
@@ -2766,14 +2791,16 @@ end
 -- Event entrypoints: these are intentionally tiny adapters because base `control.lua`
 -- registers every hook and forwards here, matching EI's normal module shape.
 function model.on_init()
+    local current_tick=game.tick
     local state = ensure_state()
     ensure_legacy_lookup_root()
+    finish_variant_rebuilds(state,current_tick)
     state.variant_sync_jobs = {}
     state.variant_sync_buckets = {}
     state.legacy_helper_expiry_buckets = {}
     sync_all_force_caches(state)
     sync_all_variants(state)
-    prune_state(state, game.tick)
+    prune_state(state, current_tick)
 end
 
 -- blueprint-ref: .codex/esir/blueprints/tesla-runtime.md#lifecycle
@@ -2781,8 +2808,10 @@ end
 function model.on_load()
 end
 
-function model.on_configuration_changed()
+function model.on_configuration_changed(_event,current_tick)
+    current_tick=current_tick or game.tick
     local state = ensure_state()
+    finish_variant_rebuilds(state,current_tick)
     state.recent_hits_by_unit = {}
     state.recent_hits_by_position = {}
     state.burst_gates = {}
@@ -2793,7 +2822,7 @@ function model.on_configuration_changed()
     ensure_legacy_lookup_root()
     sync_all_force_caches(state)
     sync_all_variants(state)
-    prune_state(state, game.tick)
+    prune_state(state, current_tick)
 end
 
 function model.on_research_finished(event)
@@ -2812,7 +2841,8 @@ function model.on_research_finished(event)
     end
 
     if is_variant_sync_research(event.research.name) then
-        schedule_variant_sync_job(state, force_index, (event.tick or game.tick or 0) + 1, true)
+        local current_tick=event.tick or game.tick or 0
+        schedule_variant_sync_job(state, force_index, current_tick + 1, true,current_tick)
     end
 end
 
@@ -2825,7 +2855,8 @@ function model.on_scripted_research_burst(force, variant_sync_needed, current_ti
     sync_force_cache(state, force)
 
     if variant_sync_needed then
-        schedule_variant_sync_job(state, force.index, tonumber(current_tick) or game.tick or 0, true)
+        current_tick=tonumber(current_tick) or game.tick or 0
+        schedule_variant_sync_job(state, force.index, current_tick, true,current_tick)
     end
 
     return true

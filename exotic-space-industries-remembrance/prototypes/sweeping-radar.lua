@@ -14,7 +14,7 @@ local recipes={
         {"ei-steel-beam",8},{"ei-simulation-data",40},{"ei-high-energy-crystal",8}},
 }
 local function technology(name, prerequisites, age, effects, time, chassis)
-    return {type="technology",name=name,icons={{icon=ei_path.."graphics/items/"..config.art[chassis].asset..".png",
+    return {type="technology",name=name,icons={{icon=ei_graphics_6_path.."graphics/items/"..config.art[chassis].asset..".png",
         icon_size=128,icon_mipmaps=3}},prerequisites=prerequisites,
         effects=effects,unit={count=100,time=time,ingredients=ei_data.science[age]},age=age}
 end
@@ -22,7 +22,7 @@ for tier,name in ipairs(config.names) do
     local hardware=config.hardware[name]
     local radar=table.deepcopy(data.raw.radar.radar)
     radar.name=name
-    radar.icons={{icon=ei_path.."graphics/items/"..config.art[name].asset..".png",icon_size=128,icon_mipmaps=3}}
+    radar.icons={{icon=ei_graphics_6_path.."graphics/items/"..config.art[name].asset..".png",icon_size=128,icon_mipmaps=3}}
     radar.icon=nil
     radar.minable={mining_time=0.5,result=name}
     radar.max_health=hardware.health

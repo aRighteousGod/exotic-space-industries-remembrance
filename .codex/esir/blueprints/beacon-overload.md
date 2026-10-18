@@ -38,3 +38,8 @@ Destroy events remove graph relationships while the entity remains valid; object
 ## Verification and maintenance
 
 Source inspection only. Reuse the `esir-dev` beacon-overload geometry helper for removal/teleport/native coverage and `scripts/invoke-beacon-profile-qc.ps1` for final native profiles. Validate same-tick multiple beacon removals, silent destruction, oversized collision boxes, ignored machines/beacons, threshold 4 versus 5, disable/re-enable, and reload during a world rebuild. Do not equate native profile effectiveness with the weighted runtime overload count.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+World discovery, chunk scanning, tracked-machine recounts and release passes publish topology generations at existing admission/service boundaries. Discovery remains indeterminate: chunk queue length is not a world denominator. Processors count completed/retired candidates; finite recount/release stages use actual work counts. Ordinary placement and idle topology maintenance are excluded. Replacement or disabled rebuilds retire the old generation.

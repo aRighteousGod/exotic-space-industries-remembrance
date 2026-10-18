@@ -40,7 +40,7 @@ data:extend({
         circuit_connector =  circuit_connector_definitions.create_vector(
         universal_connector_template,
         {
-            { variation = 28, main_offset = util.by_pixel( 47.5,  32.25), shadow_offset = util.by_pixel( 47.5,  32.25), show_shadow = true },
+           { variation = 26, main_offset = util.by_pixel( 34.75,  24.125), shadow_offset = util.by_pixel( 34.75,  24.125), show_shadow = true }
         }
         ),
         circuit_wire_max_distance = default_circuit_wire_max_distance,

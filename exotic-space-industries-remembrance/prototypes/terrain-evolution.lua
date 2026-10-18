@@ -1,6 +1,13 @@
 -- blueprint: .codex/esir/blueprints/terrain-evolution.md#contract
 -- Owned contained flame. Never mutate the global native forest-fire prototype.
 if settings.startup["ei-terrain-evolution-enabled"].value then
+    for _,planet in ipairs{"nauvis","gaia","vulcanus","gleba","fulgora","aquilo"} do
+        data:extend{{type="sprite",name="ei-ecology-banner-"..planet,
+            filename=ei_graphics_6_path.."graphics/gui/ecology-field-"..planet..".png",
+            width=1536,height=384,flags={"gui"}}}
+    end
+    data:extend{{type="sprite",name="ei-ecology-banner-neutral",
+        filename=ei_graphics_destination_path.."space.png",size=144,flags={"gui"}}}
     for _,season in ipairs{"spring","summer","autumn","winter"} do
         data:extend{{type="sprite",name="ei-ecology-tree-"..season,
             filename=ei_graphics_6_path.."graphics/gui/ecology-tree-"..season..".png",

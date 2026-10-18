@@ -10,10 +10,12 @@
 -- rebuild_on: init, configuration change, entity topology changes, research changes
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/em-trains.md#contract
+-- blueprint-ref: .codex/esir/blueprints/em-trains.md#rebuild-reporting
 local model = {}
 ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
+local publish_rollout
 --ei_rng = require("lib/rng")
 -- DOC
 
@@ -820,7 +822,7 @@ function model.process_surface_quota(prefix, surface_index, quota, registry_name
             end
 
             if entry then
-                remove_entry(unit_number, entry)
+                remove_entry(unit_number, entry, current_tick)
             end
         end
     end
@@ -991,7 +993,7 @@ function model.unindex_charger(charger_id, charger_entry)
     end
 end
 
-function model.remove_charger_entry(charger_id, charger_entry)
+function model.remove_charger_entry(charger_id, charger_entry,current_tick)
     charger_entry = charger_entry or storage.ei_emt.chargers[charger_id]
     if not charger_entry then
         return false
@@ -1005,10 +1007,16 @@ function model.remove_charger_entry(charger_id, charger_entry)
     model.unindex_charger(charger_id, charger_entry)
     model.adjust_surface_count("charger", charger_entry.surface_index, -1)
     storage.ei_emt.chargers[charger_id] = nil
+    current_tick=resolve_runtime_tick(current_tick)
+    publish_rollout("charger",current_tick)
+    if next(storage.ei_emt.chargers)==nil then
+        ei_runtime_scheduler.finish_rebuild(storage.ei_emt.rail_rebuild_id,"completed",current_tick)
+        storage.ei_emt.rail_rebuild_id=nil
+    end
     return true
 end
 
-function model.remove_train_entry(train_id, train_entry)
+function model.remove_train_entry(train_id, train_entry,current_tick)
     train_entry = train_entry or storage.ei_emt.trains[train_id]
     if not train_entry then
         return false
@@ -1021,6 +1029,7 @@ function model.remove_train_entry(train_id, train_entry)
     clear_entry_glows(train_entry)
     model.adjust_surface_count("train", train_entry.surface_index, -1)
     storage.ei_emt.trains[train_id] = nil
+    publish_rollout("train",resolve_runtime_tick(current_tick))
     return true
 end
 
@@ -1166,8 +1175,9 @@ function model.check_buffs(event, force)
     end
 end
 
-function model.refresh_research_buffs(event, queue_rollout, force)
+function model.refresh_research_buffs(event, queue_rollout, force,current_tick)
     model.check_global()
+    current_tick=event and event.tick or resolve_runtime_tick(current_tick)
 
     local buffs = model.check_buffs(event, force)
     if not buffs then
@@ -1206,13 +1216,21 @@ function model.refresh_research_buffs(event, queue_rollout, force)
     end
 
     if train_rollout and queue_rollout then
-        model.request_research_rollout("train")
+        model.request_research_rollout("train",current_tick)
     end
 
     if charger_rollout then
         storage.ei_emt.charger_rail_audit_requested = true
+        if next(storage.ei_emt.chargers)~=nil then
+            storage.ei_emt.rail_rebuild_id=ei_runtime_scheduler.report_rebuild("em-trains","research-rail-audit","all",storage.ei_emt.rail_rebuild_id,
+                {reason="research",phase="rail-audit",state="queued",completed=0,total=false,unit="entities"},current_tick)
+        else
+            ei_runtime_scheduler.finish_rebuild(storage.ei_emt.rail_rebuild_id,"completed",current_tick)
+            storage.ei_emt.rail_rebuild_id=nil
+        end
+        storage.ei_emt.rail_rebuild_completed=0
         if queue_rollout then
-            model.request_research_rollout("charger")
+            model.request_research_rollout("charger",current_tick)
         end
     end
 
@@ -1237,7 +1255,8 @@ function model.ensure_research_rollout_queue(kind)
     return queue
 end
 
-function model.clear_research_rollout_queue(kind)
+function model.clear_research_rollout_queue(kind,current_tick)
+    current_tick=resolve_runtime_tick(current_tick)
     local queue = model.ensure_research_rollout_queue(kind)
     if queue then
         ei_runtime_scheduler.clear_queue(queue)
@@ -1245,6 +1264,8 @@ function model.clear_research_rollout_queue(kind)
 
     local rollout_state = model.ensure_research_rollout_state(kind)
     if rollout_state then
+        ei_runtime_scheduler.finish_rebuild(rollout_state.report_id,"superseded",current_tick)
+        rollout_state.report_id=nil;rollout_state.report_total=nil
         rollout_state.rescan_pending = false
         rollout_state.target_generation = 0
     end
@@ -1390,7 +1411,26 @@ function model.has_charger_tick_work(event)
     return model.get_charger_pending_work_count(event) > 0
 end
 
-function model.queue_research_rollout(kind)
+publish_rollout=function(kind,tick)
+    local root=storage.ei_emt
+    local job=root.research_rollout_state and root.research_rollout_state[kind]
+    if not job then return end
+    local queue=root[kind=="charger" and "research_rollout_chargers" or "research_rollout_trains"]
+    if (not research_rollout_queue_has_pending_items(queue) and not job.rescan_pending)
+        or next(root[kind=="charger" and "chargers" or "trains"])==nil then
+        ei_runtime_scheduler.finish_rebuild(job.report_id,"completed",tick);job.report_id=nil;job.report_total=nil;return
+    end
+    local remaining=ei_runtime_scheduler.queue_length(queue)
+    job.report_total=job.report_total or remaining
+    local total=job.report_total
+    if job.rescan_pending then total=false end
+    job.report_id=ei_runtime_scheduler.report_rebuild("em-trains","research-"..kind,"all",job.report_id,
+        {reason="research",phase=job.rescan_pending and "research-rescan" or "rollout",state="running",
+            completed=math.max(0,job.report_total-remaining),total=total,unit="entities"},tick)
+end
+
+function model.queue_research_rollout(kind,current_tick)
+    current_tick=resolve_runtime_tick(current_tick)
     local registry_name
     if kind == "charger" then
         registry_name = "chargers"
@@ -1423,6 +1463,8 @@ function model.queue_research_rollout(kind)
             end
         end
     end
+    rollout_state.report_total=queued
+    publish_rollout(kind,current_tick)
     return queued
 end
 
@@ -1439,7 +1481,8 @@ function model.ensure_research_rollout_state(kind)
     return storage.ei_emt.research_rollout_state[kind]
 end
 
-function model.request_research_rollout(kind)
+function model.request_research_rollout(kind,current_tick)
+    current_tick=resolve_runtime_tick(current_tick)
     local queue = model.ensure_research_rollout_queue(kind)
     local rollout_state = model.ensure_research_rollout_state(kind)
     if not queue or not rollout_state then
@@ -1453,14 +1496,15 @@ function model.request_research_rollout(kind)
 
     if research_rollout_queue_has_pending_items(queue) then
         rollout_state.rescan_pending = true
+        publish_rollout(kind,current_tick)
         return 0
     end
 
     rollout_state.rescan_pending = false
-    return model.queue_research_rollout(kind)
+    return model.queue_research_rollout(kind,current_tick)
 end
 
-function model.service_research_rollout_rescan(kind)
+function model.service_research_rollout_rescan(kind,current_tick)
     local queue = model.ensure_research_rollout_queue(kind)
     local rollout_state = model.ensure_research_rollout_state(kind)
     if not queue or not rollout_state or rollout_state.rescan_pending ~= true then
@@ -1472,7 +1516,7 @@ function model.service_research_rollout_rescan(kind)
     end
 
     rollout_state.rescan_pending = false
-    return model.queue_research_rollout(kind)
+    return model.queue_research_rollout(kind,current_tick)
 end
 
 function model.process_research_rollout_queue(kind, budget, update_entity, remove_entry, current_tick)
@@ -1512,7 +1556,7 @@ function model.process_research_rollout_queue(kind, budget, update_entity, remov
             end
             processed = processed + 1
         elseif entry then
-            remove_entry(unit_number, entry)
+            remove_entry(unit_number, entry, current_tick)
         end
     end
 
@@ -1607,6 +1651,8 @@ end
 
 function model.deregister_all_chargers()
     model.check_global()
+    ei_runtime_scheduler.finish_rebuild(storage.ei_emt.rail_rebuild_id,"superseded",game.tick)
+    storage.ei_emt.rail_rebuild_id=nil
     clear_registry_glows(storage.ei_emt.chargers)
     storage.ei_emt.chargers = {}
     model.clear_research_rollout_queue("charger")
@@ -1717,6 +1763,7 @@ function model.repair_runtime_state(reason, current_tick)
 end
 
 function model.update_chargers(budget, current_tick)
+    current_tick=resolve_runtime_tick(current_tick)
     model.ensure_runtime_ready()
     local did_rollout = model.process_research_rollout_queue(
         "charger",
@@ -1726,7 +1773,8 @@ function model.update_chargers(budget, current_tick)
         current_tick
     )
     local queued_rescan = research_rollout_rescan_should_run("charger")
-        and model.service_research_rollout_rescan("charger") > 0
+        and model.service_research_rollout_rescan("charger",current_tick) > 0
+    publish_rollout("charger",current_tick)
     if next(storage.ei_emt.chargers) == nil then
         return did_rollout or queued_rescan
     end
@@ -1737,6 +1785,7 @@ function model.update_chargers(budget, current_tick)
 end
 
 function model.update_trains(budget, current_tick)
+    current_tick=resolve_runtime_tick(current_tick)
 
     -- update logic: cycle through train updates
     -- EM locomotives nominally burn 1MW against a 1GJ fuel unit,
@@ -1751,7 +1800,8 @@ function model.update_trains(budget, current_tick)
         current_tick
     )
     local queued_rescan = research_rollout_rescan_should_run("train")
-        and model.service_research_rollout_rescan("train") > 0
+        and model.service_research_rollout_rescan("train",current_tick) > 0
+    publish_rollout("train",current_tick)
     if next(storage.ei_emt.trains) == nil then
         return did_rollout or queued_rescan
     end
@@ -2285,6 +2335,8 @@ function model.audit_charger_rail_counts(budget, current_tick)
     model.ensure_runtime_ready()
     current_tick = resolve_runtime_tick(current_tick)
     if not storage.ei_emt.chargers or next(storage.ei_emt.chargers) == nil then
+        ei_runtime_scheduler.finish_rebuild(storage.ei_emt.rail_rebuild_id,"completed",current_tick)
+        storage.ei_emt.rail_rebuild_id=nil
         storage.ei_emt.charger_rail_audit_cursor = nil
         storage.ei_emt.charger_rail_audit_requested = false
         storage.ei_emt.charger_rail_audit_last_tick = current_tick
@@ -2298,6 +2350,11 @@ function model.audit_charger_rail_counts(budget, current_tick)
     end
 
     budget = math.max(1, math.floor(tonumber(budget) or EM_CHARGER_RAIL_AUDIT_BUDGET))
+    if storage.ei_emt.charger_rail_audit_requested and not storage.ei_emt.rail_rebuild_id then
+        storage.ei_emt.rail_rebuild_completed=0
+        storage.ei_emt.rail_rebuild_id=ei_runtime_scheduler.begin_rebuild("em-trains","research-rail-audit","all",
+            {reason="research",phase="rail-audit",state="running",completed=0,total=false,unit="entities"},tick)
+    end
     local processed = 0
     local cursor = storage.ei_emt.charger_rail_audit_cursor
     if cursor == nil or storage.ei_emt.chargers[cursor] == nil then
@@ -2314,11 +2371,20 @@ function model.audit_charger_rail_counts(budget, current_tick)
             charger_entry.entity.power_usage = model.get_charger_power_usage(charger_entry.rail_count, charger_entry.entity)
             processed = processed + 1
         elseif charger_entry then
-            model.remove_charger_entry(charger_id, charger_entry)
+            model.remove_charger_entry(charger_id, charger_entry,tick)
         end
     end
 
     storage.ei_emt.charger_rail_audit_cursor = cursor
+    if storage.ei_emt.rail_rebuild_id then
+        storage.ei_emt.rail_rebuild_completed=(storage.ei_emt.rail_rebuild_completed or 0)+processed
+        ei_runtime_scheduler.update_rebuild(storage.ei_emt.rail_rebuild_id,
+            {state="running",completed=storage.ei_emt.rail_rebuild_completed},tick)
+        if cursor==nil then
+            ei_runtime_scheduler.finish_rebuild(storage.ei_emt.rail_rebuild_id,"completed",tick)
+            storage.ei_emt.rail_rebuild_id=nil
+        end
+    end
     if cursor == nil then
         storage.ei_emt.charger_rail_audit_requested = false
         storage.ei_emt.charger_rail_audit_last_tick = tick
@@ -2431,13 +2497,13 @@ end
 --REGISTER
 ------------------------------------------------------------------------------------------------------
 
-function model.register_charger(entity)
+function model.register_charger(entity,current_tick)
     local charger_id = get_entity_unit_number(entity)
     if not charger_id then return end
     model.check_global()
     local existing_entry = storage.ei_emt.chargers[charger_id]
     if existing_entry then
-        model.remove_charger_entry(charger_id, existing_entry)
+        model.remove_charger_entry(charger_id, existing_entry,current_tick)
     end
 
     local charger_entry = model.build_charger_entry(entity)
@@ -2457,19 +2523,19 @@ function model.register_charger(entity)
 end
 
 
-function model.unregister_charger(entity)
+function model.unregister_charger(entity,current_tick)
 
     model.check_global()
     local charger_id = get_entity_unit_number(entity)
     if charger_id then
-        model.remove_charger_entry(charger_id)
+        model.remove_charger_entry(charger_id,nil,current_tick)
     else
         log("unregister_charger passed nil entity")
     end
 end
 
 
-function model.register_train(entity)
+function model.register_train(entity,current_tick)
 
     model.check_global()
 
@@ -2479,7 +2545,7 @@ function model.register_train(entity)
     end
     local existing_entry = storage.ei_emt.trains[train_id]
     if existing_entry then
-        model.remove_train_entry(train_id, existing_entry)
+        model.remove_train_entry(train_id, existing_entry,current_tick)
     end
 
     local train_entry = model.build_train_entry(entity)
@@ -2491,7 +2557,7 @@ function model.register_train(entity)
 end
 
 
-function model.unregister_train(entity)
+function model.unregister_train(entity,current_tick)
 
     model.check_global()
 
@@ -2499,7 +2565,7 @@ function model.unregister_train(entity)
     if not train_id then
         return
     end
-    model.remove_train_entry(train_id)
+    model.remove_train_entry(train_id,nil,current_tick)
     --em_trails.remove_active_train(entity)
 end
 
@@ -2651,13 +2717,13 @@ end
 
 ---@param force LuaForce|nil
 ---@return boolean
-function model.on_scripted_research_burst(force)
+function model.on_scripted_research_burst(force,current_tick)
     local player_force = game and game.forces and game.forces.player or nil
     if force and player_force and force.index ~= player_force.index then
         return false
     end
 
-    return model.refresh_research_buffs(nil, true, force)
+    return model.refresh_research_buffs(nil, true, force,current_tick)
 end
 --this deprecated method of singularly checking the completed research
 --is more efficient but inexplicably would fail to fire at times
@@ -2693,7 +2759,7 @@ end
 
 
 
-function model.on_built_entity(entity)
+function model.on_built_entity(entity,current_tick)
 
     if not model.entity_check(entity) then
         return
@@ -2708,7 +2774,7 @@ function model.on_built_entity(entity)
     end
 
     if is_charger then
-        model.register_charger(entity)
+        model.register_charger(entity,current_tick)
         model.animate_range(entity, true, nil)
         model.fix_toggle_range()
         em_trains_gui.mark_dirty()
@@ -2716,13 +2782,13 @@ function model.on_built_entity(entity)
         model.update_charger_from_rail(entity, 1)
         em_trains_gui.mark_dirty()
     elseif is_train then
-        model.register_train(entity)
+        model.register_train(entity,current_tick)
         em_trains_gui.mark_dirty()
     end
 end
 
 
-function model.on_destroyed_entity(entity)
+function model.on_destroyed_entity(entity,current_tick)
 
     if not model.entity_check(entity) then
         return
@@ -2737,13 +2803,13 @@ function model.on_destroyed_entity(entity)
     end
 
     if is_charger then
-        model.unregister_charger(entity)
+        model.unregister_charger(entity,current_tick)
         em_trains_gui.mark_dirty()
     elseif is_rail then
         model.update_charger_from_rail(entity, -1)
         em_trains_gui.mark_dirty()
     elseif is_train then
-        model.unregister_train(entity)
+        model.unregister_train(entity,current_tick)
         em_trains_gui.mark_dirty()
     end
 end

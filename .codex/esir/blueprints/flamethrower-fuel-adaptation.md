@@ -53,3 +53,8 @@ Creation-order cleanup is event-only: newest recognized stickers replace prior r
 ## Verification and maintenance
 
 Source inspection only. Reuse `scripts/invoke-flamethrower-fuels-qc.ps1` and `scripts/qc/flamethrower-fuels/README.md`, including transition, fluid-matrix, overlap, and rollback fixtures. Verify both startup modes, private-buffer versus supply disagreement, same-tick different-fire impacts, replacement failure, and save/reload with pending retries.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Only finite restoration to base turrets while adaptation is disabled is reported. Admission/retirement count work beside the existing queue and retry buckets. Safe-replacement retries retain membership; an entirely retry-blocked batch waits externally. Enabled fuel adaptation and combat remain excluded. Repair supersedes the previous generation.

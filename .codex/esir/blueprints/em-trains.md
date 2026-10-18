@@ -51,3 +51,8 @@ old queues, research rollout generations or rendering handles. Native burner fue
 remains owned by the locomotive. Legacy reset/rebuild entry points keep their
 existing semantics. The active preservation fixture checks two repairs followed
 by an out-of-coverage train update in the same tick.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Dedicated research queues report train/charger generations separately. Re-requested research supersedes the report while outstanding owner rescan requests retain membership and an unknown denominator. Invalid-entry retirement and last-entity removal can complete reports without a new sweep. Only research-requested rail audit is reported; an empty charger registry admits no audit. Ordinary charging and periodic rail maintenance remain excluded.

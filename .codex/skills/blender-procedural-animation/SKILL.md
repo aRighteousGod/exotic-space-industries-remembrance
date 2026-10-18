@@ -17,6 +17,8 @@ Use this skill when an asset should move without relying on humanoid auto-riggin
 
 ## Hard Rules
 
+- Follow [housekeeping](../esir-dev/references/housekeeping.md) for new render output. Preserve procedural sources, authored scenes, specifications and QA/final outputs; register only reproducible intermediates. Reconcile superseded sheets and partial promotion copies during authorized replacements, keeping backups and previews outside mod folders. Leave root `models/` outside housekeeping.
+
 - Keep generated `.blend`, frame, sheet, and manifest outputs under ignored `output/meshy/` or `tmp/` unless the user explicitly gives a shipping path.
 - Keep durable procedural generator scripts or asset-specific reproduction notes under `.codex/esir/asset-generators/`, not under `output/`.
 - Do not edit ESIR prototypes or replace mod graphics from this skill. Use `$esir-factorio-asset-export` first.

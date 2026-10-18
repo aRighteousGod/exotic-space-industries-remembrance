@@ -12,6 +12,7 @@
 -- rebuild_on: init/configuration change; never mutate storage during on_load
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#contract
+-- blueprint-ref: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#rebuild-reporting
 local ei_lib=require("lib/lib")
 local scheduler=require("lib/runtime-scheduler")
 local catalog=require("lib/flamethrower-fuels")
@@ -86,8 +87,30 @@ local function owned(entity)
 end
 
 ---@param root ESIRFlameState
+---@param tick MapTick
+---@param reason string|nil
+local function report_restoration(root,tick,reason)
+    if enabled then return end
+    root.restore_reason=reason or root.restore_reason or "fuel-adaptation-disabled"
+    local completed=root.restore_completed or 0
+    local total=math.max(root.restore_total or 0,completed+root.count);root.restore_total=total
+    if root.count==0 then
+        if root.restore_rebuild_id then
+            scheduler.update_rebuild(root.restore_rebuild_id,{completed=completed,total=total},tick)
+            scheduler.finish_rebuild(root.restore_rebuild_id,"completed",tick);root.restore_rebuild_id=nil
+        end
+        return
+    end
+    local waiting=scheduler.queue_length(root.replacements)==0
+    root.restore_rebuild_id=scheduler.report_rebuild("flamethrower-fuels","restore-variants","world",root.restore_rebuild_id,
+        {reason=root.restore_reason,phase="restoring",state=waiting and "waiting" or "running",completed=completed,total=total,
+            unit="entities",waiting_reason=waiting and "safe-replacement" or false},tick)
+end
+
+---@param root ESIRFlameState
 ---@param id integer
-local function unregister(root,id)
+---@param tick MapTick
+local function unregister(root,id,tick)
     local record=root.records[id]
     if not record then return end
     local unit=ei_lib.get_entity_unit_number(record.entity)
@@ -95,6 +118,7 @@ local function unregister(root,id)
     root.registrations[record.registration]=nil
     root.records[id]=nil
     root.count=root.count-1
+    if not enabled then root.restore_completed=(root.restore_completed or 0)+1 end
     -- Leave queue tombstones for bounded consumption; never scan a queue on removal.
     if root.count==0 then
         root.units={}
@@ -102,6 +126,7 @@ local function unregister(root,id)
         scheduler.clear_queue(root.replacements)
         root.retries={}
     end
+    report_restoration(root,tick)
 end
 
 ---@param event table
@@ -141,7 +166,12 @@ function model.on_built_entity(event)
     root.registrations[registration]=id
     root.count=root.count+1
     if enabled then scheduler.queue_push(root.scans,id)
-    else scheduler.queue_push_unique(root.replacements,id) end
+    else
+        if root.count==1 and not root.restore_rebuild_id then root.restore_completed=0;root.restore_total=0;root.restore_reason=nil end
+        root.restore_total=(root.restore_total or 0)+1
+        scheduler.queue_push_unique(root.replacements,id)
+        report_restoration(root,event.tick or game.tick)
+    end
 end
 
 ---@param event table
@@ -151,7 +181,7 @@ function model.on_destroyed_entity(event)
     if not root then return end
     local unit=ei_lib.get_entity_unit_number(event.entity)
     local id=unit and root.units[unit]
-    if id then unregister(root,id) end
+    if id then unregister(root,id,event.tick or game.tick) end
 end
 
 ---@param event EventData.on_object_destroyed
@@ -160,7 +190,7 @@ function model.on_object_destroyed(event)
     local id=root and root.registrations[event.registration_number]
     if id then
         root.units[event.useful_id]=nil
-        unregister(root,id)
+        unregister(root,id,event.tick)
     end
 end
 
@@ -299,15 +329,18 @@ function model.sync_force(force)
     end
 end
 
-function model.rebuild()
+function model.rebuild(tick)
+    tick=tick or game.tick
     storage.ei=storage.ei or {}
+    local previous=storage.ei.flamethrower_fuels
+    if previous then scheduler.finish_rebuild(previous.restore_rebuild_id,"superseded",tick) end
     storage.ei.flamethrower_fuels=nil
     state()
     local names={catalog.base_turret}
     for _,fuel in ipairs(catalog.fuels) do names[#names+1]=fuel.turret end
     for _,surface in pairs(game.surfaces) do
-        for _,entity in pairs(surface.find_entities_filtered{name=names}) do model.on_built_entity{entity=entity,tick=game.tick} end
-        for _,entity in pairs(surface.find_entities_filtered{type="entity-ghost",ghost_name=names}) do model.on_built_entity{entity=entity,tick=game.tick} end
+        for _,entity in pairs(surface.find_entities_filtered{name=names}) do model.on_built_entity{entity=entity,tick=tick} end
+        for _,entity in pairs(surface.find_entities_filtered{type="entity-ghost",ghost_name=names}) do model.on_built_entity{entity=entity,tick=tick} end
     end
     for _,force in pairs(game.forces) do model.sync_force(force) end
 end
@@ -366,7 +399,7 @@ function model.updater(event,service_interval)
             if record and record.next_check>tick then break end
             scheduler.queue_pop(root.scans)
             if record then
-                if not owned(record.entity) then unregister(root,id)
+                if not owned(record.entity) then unregister(root,id,tick)
                 else
                     counters.checks=counters.checks+1
                     counters.last_checks=counters.last_checks+1
@@ -382,7 +415,7 @@ function model.updater(event,service_interval)
         local id=scheduler.queue_pop(root.replacements)
         local record=id and root.records[id]
         if record then
-            if not owned(record.entity) then unregister(root,id)
+            if not owned(record.entity) then unregister(root,id,tick)
             elseif record.retry_tick>tick then scheduler.delayed_schedule(root.retries,record.retry_tick,id)
             elseif enabled and counters.last_checks>=budget then scheduler.queue_push_unique(root.replacements,id)
             else
@@ -397,17 +430,18 @@ function model.updater(event,service_interval)
                     local ok,reason=replace(record,target)
                     if ok then
                         counters.replaced=counters.replaced+1
-                        if not enabled then unregister(root,id) end
+                        if not enabled then unregister(root,id,tick) end
                     else
                         counters.failed=counters.failed+1
                         record.pending_reason=reason
                         record.retry_tick=tick+60
                         scheduler.delayed_schedule(root.retries,record.retry_tick,id)
                     end
-                elseif not enabled then unregister(root,id) end
+                elseif not enabled then unregister(root,id,tick) end
             end
         end
     end
+    report_restoration(root,tick)
 end
 
 function model.get_status()
@@ -428,6 +462,7 @@ function model.repair_runtime_state(reason,tick)
         for _,entity in pairs(surface.find_entities_filtered{type="entity-ghost",ghost_name=names}) do model.on_built_entity{entity=entity,tick=tick} end
     end
     for _,force in pairs(game.forces) do model.sync_force(force) end
+    report_restoration(state(),tick,reason)
     return true
 end
 

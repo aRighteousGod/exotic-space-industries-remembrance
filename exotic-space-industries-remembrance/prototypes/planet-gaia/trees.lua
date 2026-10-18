@@ -2,7 +2,7 @@
 --TREES FOR GAIA
 --====================================================================================================
 
-local gaia_biomes = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/biomes")
+local gaia_biomes = require(ei_path.."prototypes/planet-gaia/biomes")
 
 local function merge_tile_groups(...)
     local merged = {}

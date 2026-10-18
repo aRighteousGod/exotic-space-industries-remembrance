@@ -19,4 +19,4 @@ No storage/GUI mutation occurs during `on_load`. Progress IDs, dismissal, queues
 
 ## Verification
 
-`scripts/qc/terrain-evolution/v2-reports.lua` covers report lifecycle and bounded publication. The connected ecology fixture covers native GUI integration; persistence fixtures verify saved report IDs. The shared monitor is observation-only and adds no gameplay scheduling. Outputs belong to ignored managed staging.
+`scripts/invoke-rebuild-monitor-qc.ps1` checks reporting and native GUI behavior against Factorio 2.0.77. `-Full` covers actual owner admission/retirement; `-Visual -Scale 1` and `1.5` cover a 1280x720 display. Native multiplayer and fake-player scheduling evidence are reported separately. Existing admin, research, runtime, blueprint and preflight checks cover integration. Outputs belong to ignored managed staging.

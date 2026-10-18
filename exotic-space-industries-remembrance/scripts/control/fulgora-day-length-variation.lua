@@ -25,6 +25,16 @@ local FORCE_APPLY_AFTER_TICKS = standard_fulgora_day_length
 
 local model = {}
 
+---@class EsirFulgoraDayReportApi
+---@field report_status fun(surface: LuaSurface): {managed: boolean, held: boolean}
+---Read-only identity check for the viewed surface; never initializes or rolls a cycle.
+---@param surface LuaSurface
+---@return {managed: boolean, held: boolean}
+function model.report_status(surface)
+    local managed=surface.valid and game.surfaces["fulgora"]==surface
+    return {managed=managed,held=managed and surface.freeze_daytime or false}
+end
+
 local function schedule_next_check(state, tick)
 	-- Jitter the cadence slightly to avoid phase-locking with ticks_per_day.
 	state.check_phase = ((state.check_phase or 0) + 1) % CHECK_JITTER_STEPS

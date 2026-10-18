@@ -2,7 +2,7 @@
 -- ESIR FILE MAP
 -- owns: current-surface Simple, Advanced and Alerts ecology window
 -- loaded_by: control.lua
--- cadence: lifecycle/season buttons; one open viewer per 16 ticks, eight rows per refresh
+-- cadence: lifecycle/season buttons; one open viewer per 16 ticks, eight property writes
 -- forwarded_events: GUI and player lifecycle through control.lua
 -- storage_roots: storage.ei.ecology_gui
 -- gui_ids: ei-ecology
@@ -13,8 +13,9 @@
 local mod_gui=require("__core__/lualib/mod-gui")
 local preferences=require("lib/terrain-alert-config")
 local terrain_config=require("lib/terrain-evolution-config")
+local field_report=require("scripts/control/terrain-field-report")
 local model={}
----@alias EsirEcologyGuiAction "window"|"open"|"close"|"admin"|"page"|"tab"|"preference"|"all-surfaces"|"surface"
+---@alias EsirEcologyGuiAction "window"|"open"|"close"|"admin"|"page"|"tab"|"preference"|"all-surfaces"|"surface"|"guide"
 ---@class EsirEcologyGuiTags
 ---@field parent_gui "ei-ecology"
 ---@field action EsirEcologyGuiAction
@@ -26,6 +27,8 @@ local model={}
 ---@field element LuaGuiElement
 ---@field key string
 ---@field signature string?
+---@field property string? Native property; style.width uses the element's style.
+---@field generation integer? Viewed-surface generation last rendered.
 
 ---@class EsirEcologyGuiSession
 ---@field tab integer 1=Simple, 2=Advanced, 3=Alerts.
@@ -50,6 +53,12 @@ local model={}
 ---@field clear_row integer?
 ---@field button LuaGuiElement?
 ---@field button_season integer? Zero denotes an unavailable calendar.
+---@field view_generation integer?
+---@field tab_generations table<integer, integer>?
+---@field strip_width integer?
+---@field last_update_writes integer? Actual native property writes in the last admitted opportunity.
+---@field invalidated boolean? Survives rapid A-B-A view changes between services.
+---@field layout_version integer? Lazy first-use retirement of older saved GUI layouts.
 
 ---@class EsirEcologyGuiState
 ---@field players table<PlayerIndex, EsirEcologyGuiSession>
@@ -75,6 +84,7 @@ local model={}
 ---@field alerts EsirEcologyAlertPreferencesApi
 ---@field terrain EsirEcologyReportApi
 ---@field open_admin fun(player: LuaPlayer, tick: MapTick)
+---@field fulgora EsirFulgoraDayReportApi
 ---@type EsirEcologyGuiContext
 local owners={}
 local GUI="ei-ecology"
@@ -142,9 +152,94 @@ local function button(player,tick)
         if existing then existing.destroy();close(player) end
     end
 end
-local function label(flow,key)
+local function label(flow,key,width)
     local element=flow.add{type="label",caption=""};element.style.single_line=false;element.style.maximal_width=610
+    if width then element.style.maximal_width=width end
     return {element=element,key=key}
+end
+local function field_text(key) return {"ei-ecology-field."..key} end
+local function field_binding(rows,element,key,property)
+    rows[#rows+1]={element=element,key=key,property=property or "caption"}
+end
+local function field_label(parent,rows,key,width,tooltip)
+    local row=label(parent,key,width);rows[#rows+1]=row
+    row.element.style.font_color={r=0.91,g=0.9,b=0.83}
+    if tooltip then row.element.tooltip=field_text(tooltip) end
+    return row.element
+end
+local function field_section(parent,title,width)
+    local panel=parent.add{type="frame",direction="vertical",style="inside_shallow_frame"}
+    panel.style.width=width;panel.style.padding=12
+    local heading=panel.add{type="label",caption=field_text(title),style="heading_2_label"}
+    heading.style.single_line=false;heading.style.maximal_width=width-24
+    if title=="ground" or title=="woodland" then heading.style.font_color={r=0.55,g=0.88,b=0.79}
+    elseif title=="mining" or title=="other" then heading.style.font_color={r=1,g=0.77,b=0.45} end
+    return panel
+end
+local phase_colors={{r=0.93,g=0.79,b=0.4},{r=0.79,g=0.36,b=0.17},{r=0.16,g=0.25,b=0.38},{r=0.4,g=0.72,b=0.73}}
+local season_colors={{r=0.62,g=0.87,b=0.25},{r=0.08,g=0.67,b=0.43},{r=0.9,g=0.42,b=0.16},{r=0.28,g=0.76,b=0.92}}
+local function field_strip(parent,rows,key,width,colors,dynamic)
+    parent=parent.add{type="flow",direction="vertical"}
+    field_binding(rows,parent,key.."_available","visible")
+    local strip=parent.add{type="flow",direction="horizontal"};strip.style.horizontal_spacing=0
+    local partition=field_report.segment_widths({0.25,0.25,0.25,0.25},width)
+    for i=1,4 do
+        local bar=strip.add{type="progressbar",value=1,style="ei_ecology_strip"}
+        bar.style.width=partition[i];bar.style.color=colors[i]
+        bar.tooltip=dynamic and field_text(({"day","dusk","night","dawn"})[i]) or {"ei-ecology.season-"..i}
+        if dynamic then
+            field_binding(rows,bar,"day_width_"..i,"style.width")
+            field_binding(rows,bar,"day_visible_"..i,"visible")
+        end
+    end
+    local marker=parent.add{type="flow",direction="horizontal"};marker.style.horizontal_spacing=0
+    local offset=marker.add{type="empty-widget"};offset.style.width=0;offset.style.height=12
+    field_binding(rows,offset,key.."_marker","style.width")
+    local point=marker.add{type="label",caption=field_text("phase-marker")}
+    point.style.height=18;point.style.width=20;point.style.single_line=false
+    local legend=parent.add{type="label",caption=field_text(dynamic and "legend-day" or "legend-season")}
+    legend.style.single_line=false;legend.style.maximal_width=width
+end
+local function build_field_report(parent,p,width)
+    local rows={};p.rows[1]=rows;p.strip_width=width-24
+    local banner=parent.add{type="sprite",sprite="ei-ecology-banner-neutral",resize_to_sprite=false,tooltip=field_text("illustration")}
+    banner.style.width=width;banner.style.height=math.floor(width/4);field_binding(rows,banner,"banner","sprite")
+    field_binding(rows,banner,"banner_visible","visible")
+    local compact=width<360
+    local identity=parent.add{type="flow",direction=compact and "vertical" or "horizontal"};identity.style.vertical_align="center"
+    local icon=identity.add{type="sprite",sprite="utility/clock"};icon.style.size=48;field_binding(rows,icon,"icon","sprite")
+    local names=identity.add{type="flow",direction="vertical"}
+    local name_width=compact and width or width-132
+    local name=field_label(names,rows,"identity",name_width);name.style.font="default-large-bold"
+    field_label(names,rows,"status",name_width)
+    local tree=identity.add{type="sprite",sprite=seasonal_sprites[0],resize_to_sprite=false}
+    tree.style.size=64;tree.style.stretch_image_to_widget_size=true;field_binding(rows,tree,"tree","sprite")
+    local day=field_section(parent,"local-day",width)
+    field_strip(day,rows,"day",p.strip_width,phase_colors,true)
+    field_label(day,rows,"day",p.strip_width,"clock-help")
+    local calendar=field_section(parent,"calendar",width)
+    field_strip(calendar,rows,"season",p.strip_width,season_colors,false)
+    local season=field_label(calendar,rows,"season",p.strip_width)
+    field_binding(rows,season,"calendar_tip","tooltip")
+    field_label(calendar,rows,"daylight",p.strip_width)
+    local columns=width>=680 and 2 or 1
+    local grid=parent.add{type="table",column_count=columns};grid.style.horizontal_spacing=8;grid.style.vertical_spacing=8
+    grid.vertical_centering=false
+    for column=1,columns do grid.style.column_alignments[column]="top-left" end
+    local card_width=math.floor((width-(columns-1)*8)/columns)
+    for _,key in ipairs({"ground","woodland","mining","other"}) do
+        local card=field_section(grid,key,card_width)
+        field_label(card,rows,key,card_width-24,"record-help")
+        if key~="other" then field_label(card,rows,key.."_note",card_width-24)
+        else
+            local note=card.add{type="label",caption=field_text("other-help")};note.style.single_line=false;note.style.maximal_width=card_width-24
+        end
+        if key=="ground" then card.tooltip=field_text("ground-help") end
+    end
+    local footer=field_section(parent,"observations",width)
+    field_label(footer,rows,"survey",width-24)
+    local guide=footer.add{type="button",caption=field_text("guide"),tags=tags("guide")}
+    guide.style.maximal_width=width-24
 end
 function model.on_surface_event()
     local root=state();root.surface_names={};root.surface_known={}
@@ -190,33 +285,35 @@ local function open(player,tick)
     root.players[player.index]=old;local p=old
     local frame=player.gui.screen.add{type="frame",name=GUI,direction="vertical",tags=tags("window")}
     p.frame=frame;p.rows={};p.bodies={};p.row_cursor=0;p.next_tick=tick;p.surface=player.surface;p.clearing=nil
-    local width=math.max(240,math.min(670,math.floor(player.display_resolution.width/player.display_scale)-24))
-    local height=math.max(100,math.min(510,math.floor(player.display_resolution.height/player.display_scale)-140))
-    frame.style.width=width
+    p.view_generation=(p.view_generation or 0)+1;p.tab_generations={};p.invalidated=nil;p.layout_version=2
+    local width=math.max(160,math.min(800,math.floor(player.display_resolution.width/player.display_scale)-48))
+    local height=math.max(180,math.min(780,math.floor(player.display_resolution.height/player.display_scale)-48))
+    frame.style.width=width;frame.style.maximal_height=height
     local title=frame.add{type="flow",direction="horizontal"}
     title.add{type="label",caption={"ei-ecology.title"},style="frame_title",ignored_by_interaction=true}
     local spacer=title.add{type="empty-widget",style="ei_titlebar_draggable_spacer"};spacer.drag_target=frame
     title.add{type="sprite-button",sprite="utility/close",style="frame_action_button",tags=tags("close")}
-    p.loading=frame.add{type="label",caption={"ei-ecology.updating"}};p.loading.visible=false
+    p.loading=frame.add{type="label",caption={"ei-ecology.updating"}};p.loading.visible=true
     local pane=frame.add{type="tabbed-pane",tags=tags("tab")};p.pane=pane
     for i,name in ipairs({"simple","advanced","alerts"}) do
         local tab=pane.add{type="tab",caption={"ei-ecology.tab-"..name}}
-        local scroll=pane.add{type="scroll-pane",direction="vertical"};scroll.style.height=height;scroll.style.width=width-30;p.bodies[i]=scroll
+        local scroll=pane.add{type="scroll-pane",direction="vertical",horizontal_scroll_policy="never"};scroll.style.height=height-124;scroll.style.width=width-30;p.bodies[i]=scroll
         pane.add_tab(tab,scroll)
         if i==1 then
-            p.rows[1]={}
-            for _,key in ipairs({"surface","condition","damage","recovery","woodland","mining","season","survey"}) do p.rows[1][#p.rows[1]+1]=label(scroll,key) end
+            build_field_report(scroll,p,width-56);scroll.visible=false
         elseif i==2 then
             p.rows[2]={}
-            for _,key in ipairs({"surface","status","pollution","sample-age","coverage","drills","surface-work","exposure","protections","daylight","recent","latency","global","histories","observations","service","saturation","incomplete","maintenance"}) do p.rows[2][#p.rows[2]+1]=label(scroll,key) end
-            for _,category in ipairs(preferences.categories) do p.rows[2][#p.rows[2]+1]=label(scroll,"effect:"..category) end
-            for _,row in ipairs(terrain_config.schema) do p.rows[2][#p.rows[2]+1]=label(scroll,"setting:"..row.key) end
+            for _,key in ipairs({"surface","status","pollution","sample-age","coverage","drills","surface-work","exposure","protections","daylight","recent","latency","global","histories","observations","service","saturation","incomplete","maintenance"}) do p.rows[2][#p.rows[2]+1]=label(scroll,key,width-56) end
+            for _,category in ipairs(preferences.categories) do p.rows[2][#p.rows[2]+1]=label(scroll,"effect:"..category,width-56) end
+            for _,row in ipairs(terrain_config.schema) do p.rows[2][#p.rows[2]+1]=label(scroll,"setting:"..row.key,width-56) end
+            scroll.visible=false
             if player.admin then scroll.add{type="button",caption={"ei-ecology.admin"},tags=tags("admin")} end
         else build_alerts(player,p,scroll) end
     end
     pane.selected_tab_index=p.tab or 1
-    if p.location then frame.location={x=math.max(0,math.min(p.location.x,player.display_resolution.width-width*player.display_scale)),y=math.max(0,math.min(p.location.y,player.display_resolution.height-(height+120)*player.display_scale))}
-    else frame.location={x=math.max(0,(player.display_resolution.width-width*player.display_scale)/2),y=math.max(0,(player.display_resolution.height-(height+120)*player.display_scale)/2)} end
+    p.loading.visible=(p.tab or 1)~=3
+    if p.location then frame.location={x=math.max(24*player.display_scale,math.min(p.location.x,player.display_resolution.width-(width+24)*player.display_scale)),y=math.max(24*player.display_scale,math.min(p.location.y,player.display_resolution.height-(height+24)*player.display_scale))}
+    else frame.location={x=math.max(24*player.display_scale,(player.display_resolution.width-width*player.display_scale)/2),y=math.max(24*player.display_scale,(player.display_resolution.height-height*player.display_scale)/2)} end
     player.opened=frame
     root.viewers[#root.viewers+1]=player.index;root.indexes[player.index]=#root.viewers
 end
@@ -295,7 +392,10 @@ function model.on_player_event(event)
                 local check=p.checks["allow-unrevealed"]
                 check.enabled=player.admin;check.state=owners.alerts.preferences(player)["allow-unrevealed"]
             end
-            if p.surface~=player.surface then p.pending_surface=player.surface;p.row_cursor=0;p.clearing=true;p.clear_tab=1;p.clear_row=0;p.next_tick=event.tick end
+            if p.surface~=player.surface then
+                -- Constant lifecycle invalidation; never walk the inactive tab.
+                p.bodies[1].visible=false;p.bodies[2].visible=false;p.loading.visible=p.tab~=3;p.next_tick=event.tick;p.invalidated=true
+            end
         end
     end
 end
@@ -317,6 +417,9 @@ function model.on_gui_click(event)
     if action=="open" then if p and p.frame and p.frame.valid then close(player) else open(player,event.tick) end
     elseif action=="close" then close(player)
     elseif action=="admin" and player.admin then owners.open_admin(player,event.tick)
+    elseif action=="guide" and remote.interfaces.informatron and remote.interfaces.informatron.informatron_open_to_page then
+        close(player)
+        remote.call("informatron","informatron_open_to_page",{player_index=player.index,interface="exotic-industries-informatron",page_name="terrain_evolution"})
     elseif action=="page" and p then p.surface_page=(p.surface_page or 1)+event.element.tags.delta;surfaces_page(player,p) end
     return true
 end
@@ -326,7 +429,10 @@ function model.on_gui_change(event)
     if not belongs(event) then return false end
     local player=game.get_player(event.player_index);if not player then return true end
     local element=event.element;local t=element.tags;local p=state().players[player.index]
-    if t.action=="tab" then p.tab=element.selected_tab_index;p.row_cursor=0;p.next_tick=event.tick
+    if p and p.frame and p.frame.valid and p.layout_version~=2 then open(player,event.tick);return true end
+    if t.action=="tab" then
+        p.tab=element.selected_tab_index;p.row_cursor=0;p.next_tick=event.tick
+        p.loading.visible=p.tab~=3 and p.tab_generations[p.tab]~=p.view_generation
     elseif t.action=="preference" then owners.alerts.set_preference(player,t.key,element.state);element.state=owners.alerts.preferences(player)[t.key]
     elseif t.action=="all-surfaces" then owners.alerts.set_preference(player,"surfaces",element.state and "all" or "[]");surfaces_page(player,p)
     elseif t.action=="surface" then
@@ -387,30 +493,51 @@ function model.updater(event)
         if player then close(player) else remove_viewer(root,root.viewers[root.cursor]) end
         return
     end
+    -- Saved GUI handles may outlive a same-version source update. Rebuild only
+    -- this admitted viewer; static construction performs no report/world reads.
+    if p.layout_version~=2 then open(player,tick);return end
     if p.tab==3 then
         if p.surface_epoch~=root.surface_epoch or p.surface_selection~=owners.alerts.preferences(player).surfaces then surfaces_page(player,p) end
         return
     end
-    if tick<(p.next_tick or 0) and not p.clearing then return end
-    p.next_tick=tick+60
+    if tick<(p.next_tick or 0) then return end
+    p.next_tick=tick+60;p.last_update_writes=0
+    local function visible(element,value)
+        if element.visible~=value then element.visible=value;p.last_update_writes=p.last_update_writes+1 end
+    end
     local surface=player.surface
-    if p.surface~=surface and not p.clearing then p.pending_surface=surface;p.clearing=true;p.clear_tab=1;p.clear_row=0 end
-    if p.clearing then
-        p.bodies[1].visible=false;p.bodies[2].visible=false;p.loading.visible=true
-        for _=1,8 do
-            local rows=p.rows[p.clear_tab]
-            if not rows then p.clearing=nil;p.surface=surface;p.row_cursor=0;p.bodies[1].visible=true;p.bodies[2].visible=true;p.loading.visible=false;p.next_tick=tick;break end
-            p.clear_row=p.clear_row+1;local row=rows[p.clear_row]
-            if row then row.element.caption="";row.signature=nil
-            else p.clear_tab=p.clear_tab+1;p.clear_row=0 end
-        end
-        return
+    if p.invalidated or p.surface~=surface then
+        p.surface=surface;p.view_generation=(p.view_generation or 0)+1;p.row_cursor=0;p.invalidated=nil
+        visible(p.bodies[1],false);visible(p.bodies[2],false);visible(p.loading,true)
     end
-    local report=owners.terrain.public_snapshot(surface,tick);local rows=p.rows[p.tab or 1]
-    for _=1,math.min(8,#rows) do
+    local tab=p.tab or 1
+    local initializing=p.tab_generations[tab]~=p.view_generation
+    local report=owners.terrain.public_snapshot(surface,tick)
+    local values=tab==1 and field_report.compose(report,surface,tick,owners.fulgora,p.strip_width).values
+    local rows=p.rows[tab]
+    -- No queue of obsolete captions: inspect a fixed number of current bindings,
+    -- rotate fairly, and charge every native property assignment (including reveal).
+    local limit=initializing and 6 or 8
+    for _=1,math.min(32,#rows) do
+        if p.last_update_writes>=limit then break end
         p.row_cursor=p.row_cursor%#rows+1;local row=rows[p.row_cursor]
-        local caption,signature=row_value(row.key,report,surface,(p.tab or 1)==1)
-        if row.signature~=signature then row.element.caption=caption;row.signature=signature end
+        local value,signature
+        if values then
+            value=values[row.key]
+            signature=type(value)=="table" and helpers.table_to_json(value) or tostring(value)
+        else value,signature=row_value(row.key,report,surface,false) end
+        if row.signature~=signature or row.generation~=p.view_generation then
+            if row.property=="style.width" then row.element.style.width=value
+            else row.element[row.property or "caption"]=value end
+            row.signature=signature;row.generation=p.view_generation
+            p.last_update_writes=p.last_update_writes+1
+        end
+        if initializing and p.row_cursor==#rows then
+            p.tab_generations[tab]=p.view_generation
+            visible(p.bodies[tab],true);visible(p.loading,false)
+            break
+        end
     end
+    if p.tab_generations[tab]~=p.view_generation then p.next_tick=tick+16 end
 end
 return model

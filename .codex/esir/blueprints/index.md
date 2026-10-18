@@ -8,8 +8,8 @@ defines maintenance and link conventions. The
 [scheduler tick-source guidance](../../skills/esir-dev/references/runtime-scheduler-guidelines.md#tick-source)
 is the canonical timing policy; models separately record current deviations.
 
-The initial published backfill was reviewed against committed source on 2026-09-28.
-Pending feature models remain with their corresponding implementation changes. It accounts for
+The initial backfill was reviewed against the working tree on 2026-09-28,
+including pending Singularity Lance and sweeping-radar work. It accounts for
 the live source dependency graph, migrations, nested control modules, shared
 runtime-used helpers, and the deliberately inert vendored Tesla entry point.
 Dependency discovery includes conditional imports conservatively; it is not
@@ -20,16 +20,19 @@ from source and does not trust generated manifests or installed mod selection.
 
 | Model | Owned source files |
 | --- | ---: |
+| [Cryo container families](cryo-containers.md#contract) | 1 |
+| [Planetary enemy populations](planet-enemies.md#contract) | 3 |
+| [Native map settings and future-planet overrides](map-settings.md#contract) | 3 |
 | [Acidthrower native pressure jet and late thrower profiles](acidthrower-pressure-jet.md#contract) | 4 |
 | [Administration tools](admin-tools.md#contract) | 10 |
 | [Rebuild activity monitor](rebuild-monitor.md#contract) | 1 |
 | [Administration runtime registry](admin-runtime-registry.md#contract) | 1 |
 | [ANISETRON processional cathedral, Lance inheritance and visual resonance](anisetron.md#contract) | 10 |
 | [Shared camera windows](camera-windows.md#contract) | 1 |
-| [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 1 |
+| [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 3 |
 | [Balanced agricultural growth jitter](randomized-tree-growth.md#contract) | 1 |
 | [Beacon overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 2 |
-| [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 5 |
+| [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 6 |
 | [Black hole containment and extraction](black-hole.md#contract) | 1 |
 | [Camp-fire registration and periodic fire emission](camp-fire.md#contract) | 1 |
 | [Combustion turbine shell switching](combustion-turbine.md#contract) | 1 |
@@ -51,7 +54,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Induction matrix topology and power](induction-matrix.md#contract) | 1 |
 | [Matter stabilizer containment](matter-stabilizer.md#contract) | 1 |
 | [Mining scar events and working-drill opportunities](mining-scars.md#contract) | 1 |
-| [Minigun turret separated native graphics](minigun-turret-graphics.md#contract) | 3 |
+| [Minigun turret separated native graphics](minigun-turret-graphics.md#contract) | 6 |
 | [Planetary ecology, native alerts and field reports](terrain-evolution.md#contract) | 10 |
 | [Nauvis pressure grace and difficulty policy](nauvis-pressure-grace.md#contract) | 2 |
 | [Neutron collector source binding](neutron-collector.md#contract) | 1 |
@@ -71,7 +74,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Surveyor inventory scope and zoom restoration](surveyor-scope.md#contract) | 1 |
 | [Sweeping radar paid observations, quality, reports, and GUI](sweeping-radar.md#contract) | 7 |
 | [Tesla combat, research variants, and helper lifetime](tesla-runtime.md#contract) | 4 |
-| [Vulcanus auric fumarole lifecycle](vulcanus-fumaroles.md#contract) | 1 |
+| [Vulcanus auric fumarole lifecycle](vulcanus-fumaroles.md#contract) | 2 |
 
 ## Coverage exceptions
 

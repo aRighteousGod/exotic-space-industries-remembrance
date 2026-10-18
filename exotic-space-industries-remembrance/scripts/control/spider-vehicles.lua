@@ -16,6 +16,7 @@
 -- rebuild_on: init/configuration change; force research changes invalidate targets
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/spider-vehicles.md#contract
+-- blueprint-ref: .codex/esir/blueprints/spider-vehicles.md#rebuild-reporting
 local catalog = require("lib/spider-vehicles")
 local scheduler = require("lib/runtime-scheduler")
 local ei_lib = require("lib/lib")
@@ -57,6 +58,9 @@ local replacement_event = script.generate_event_name()
 ---@field selection table? Cached slots/targets, current group and firing-turn counters.
 ---@field search_tick integer?
 ---@field overkill_state ESIRSpiderOverkillState?
+---@field refit_force integer?
+---@field refit_generation integer?
+---@field refit_waiting boolean?
 ---@field placement {item:LuaInventory?,active:boolean,minable:boolean,operable:boolean,destructible:boolean}? Temporary native item copy until the placement body is resolved.
 
 ---@class ESIRSpiderOverkillState
@@ -96,6 +100,8 @@ local function state()
     root.selector=root.selector or {active={},due={},queue=scheduler.ensure_queue(),searches=0,samples=0,max_searches=0,turns=0}
     root.gui=root.gui or {}
     root.overkill=root.overkill or {active={},due={},launches=0,reserved=0,retired=0,expired=0,holds=0,samples=0,unsupported=0}
+    root.refits=root.refits or {}
+    root.refit_generation=root.refit_generation or 0
     return root
 end
 
@@ -117,6 +123,48 @@ local function desired_name(record)
 end
 
 ---@param record ESIRSpiderRecord
+local function publish_refit(root,job,tick)
+    if job.total==0 then return end
+    if job.completed>=job.total then
+        job.id=scheduler.report_rebuild("spider-vehicles","refit","force:"..job.force_index,job.id,nil,tick)
+        return
+    end
+    local waiting=job.waiting>=job.total-job.completed
+    job.id=scheduler.report_rebuild("spider-vehicles","refit","force:"..job.force_index,job.id,{
+        reason=job.reason,phase="refit",state=waiting and "waiting" or "running",completed=job.completed,total=job.total,
+        unit="vehicles",force_index=job.force_index,eta_blocked=job.waiting>0,waiting_reason=job.waiting>0 and "vehicle-state" or false},tick)
+end
+local function refit_for(root,record)
+    local job=record and record.refit_force and root.refits[record.refit_force]
+    return job and record.refit_generation==job.generation and job or nil
+end
+local function finish_refit(root,record,tick)
+    if not record then return end
+    local job=refit_for(root,record)
+    if job then
+        if record.refit_waiting then job.waiting=math.max(0,job.waiting-1) end
+        job.completed=job.completed+1
+    end
+    record.refit_force=nil;record.refit_generation=nil;record.refit_waiting=nil
+    if job then publish_refit(root,job,tick) end
+end
+local function refit_waiting(root,record,waiting,tick)
+    local job=refit_for(root,record);if not job then return end
+    waiting=waiting==true
+    if waiting~=record.refit_waiting then
+        job.waiting=math.max(0,job.waiting+(waiting and 1 or -1));record.refit_waiting=waiting
+    end
+    publish_refit(root,job,tick)
+end
+local function tag_refit(root,record,job,tick)
+    if not job or refit_for(root,record)==job then return end
+    finish_refit(root,record,tick)
+    record.refit_force=job.force_index;record.refit_generation=job.generation;record.refit_waiting=record.suspended==true
+    job.total=job.total+1
+    if record.refit_waiting then job.waiting=job.waiting+1 end
+    publish_refit(root,job,tick)
+end
+
 local function enqueue(record)
     if record.suspended then return end
     scheduler.queue_push_unique(state().queue,record.id)
@@ -147,13 +195,23 @@ local function register(entity)
 end
 
 ---@param force LuaForce
-function model.refresh_force(force)
+function model.refresh_force(force,reason,tick)
     if not force or not force.valid then return end
     local root=state()
+    local job
+    if reason then
+        tick=tick or game.tick
+        local previous=root.refits[force.index]
+        if previous and previous.id then scheduler.finish_rebuild(previous.id,"superseded",tick) end
+        root.refit_generation=root.refit_generation+1
+        job={generation=root.refit_generation,force_index=force.index,reason=reason,total=0,completed=0,waiting=0}
+        root.refits[force.index]=job
+    end
     root.forces[force.index]=catalog.researched_state(force)
     for _,record in pairs(root.vehicles) do
         if ei_lib.entity_check(record.entity) and record.entity.force==force then
             record.force_index=force.index
+            if job then tag_refit(root,record,job,tick) end
             enqueue(record)
         end
     end
@@ -167,13 +225,13 @@ end
 
 ---@param event EventData.on_research_finished|EventData.on_research_reversed
 function model.on_research_finished(event)
-    if event.research and model.is_relevant_research(event.research.name) then model.refresh_force(event.research.force) end
+    if event.research and model.is_relevant_research(event.research.name) then model.refresh_force(event.research.force,"research",event.tick) end
 end
 
 ---@param force LuaForce
 ---@param relevant boolean
-function model.on_scripted_research_burst(force,relevant)
-    if relevant then model.refresh_force(force) end
+function model.on_scripted_research_burst(force,relevant,tick)
+    if relevant then model.refresh_force(force,"scripted-research",tick) end
 end
 
 ---@param event EventData.on_built_entity|EventData.on_robot_built_entity|EventData.script_raised_built|EventData.script_raised_revive
@@ -274,6 +332,7 @@ function model.on_external_replaced(event)
     if not original or not replacement then return end
     release_overkill(original,false,destination)
     if original.id~=replacement.id then
+        finish_refit(root,replacement,event.tick)
         root.vehicles[replacement.id]=nil
         root.queue.queued[replacement.id]=nil
         root.selector.active[replacement.id]=nil
@@ -285,6 +344,7 @@ function model.on_external_replaced(event)
     original.force_index=destination.force.index
     original.suspended=catalog.is_proxy(destination.name)
     original.pending_reason=nil
+    refit_waiting(root,original,original.suspended,event.tick)
     reset_selection(original,event.tick)
     enqueue(original)
 end
@@ -300,6 +360,7 @@ function model.on_object_destroyed(event)
     root.units[unit]=nil
     if id then
         local record=root.vehicles[id]
+        finish_refit(root,record,event.tick)
         if record and record.placement and record.placement.item then record.placement.item.destroy() end
         root.overkill.active[id]=nil
         root.vehicles[id]=nil;root.queue.queued[id]=nil
@@ -329,6 +390,7 @@ end
 
 function model.on_configuration_changed()
     local root=state()
+    local tick=game.tick
     for _,record in pairs(root.vehicles) do release_overkill(record,true) end
     root.overkill={active={},due={},launches=0,reserved=0,retired=0,expired=0,holds=0,samples=0,unsupported=0}
     root.selector={active={},due={},queue=scheduler.ensure_queue(),searches=0,samples=0,max_searches=0,turns=0}
@@ -339,18 +401,19 @@ function model.on_configuration_changed()
         if (legacy and legacy.researched) or (rocket and rocket.researched) then force.technologies["ei-spider-vehicles"].researched=true end
         if legacy and legacy.researched then force.technologies["ei-assault-spidertron"].researched=true end
         if force.recipes.assault_spidertron then force.recipes.assault_spidertron.enabled=false end
-        model.refresh_force(force)
+        model.refresh_force(force,"configuration",tick)
     end
     -- Discovery happens only on init/configuration change, never in idle ticks.
     for _,surface in pairs(game.surfaces) do
         for _,entity in ipairs(surface.find_entities_filtered{type="spider-vehicle"}) do
             local record=register(entity)
-            if record then enqueue(record) end
+            if record then tag_refit(root,record,root.refits[record.entity.force.index],tick);enqueue(record) end
         end
     end
     for id,record in pairs(root.vehicles) do
         if not ei_lib.entity_check(record.entity) then
             if record.placement and record.placement.item then record.placement.item.destroy() end
+            finish_refit(root,record,tick)
             root.vehicles[id]=nil
         else record.selection=nil;record.search_tick=nil end
     end
@@ -1703,6 +1766,13 @@ function model.updater(event)
                 if not record.selection and not record.search_tick then reset_selection(record,event.tick) end
                 refresh_gui(record)
             end
+            if record.refit_generation then
+                if not record.placement and record.entity.name==desired_name(record) then finish_refit(root,record,event.tick)
+                else refit_waiting(root,record,record.pending_reason~=nil,event.tick) end
+            end
+        elseif record then
+            if record.suspended and ei_lib.entity_check(record.entity) then refit_waiting(root,record,true,event.tick)
+            else finish_refit(root,record,event.tick) end
         end
     end
     if SMART then
@@ -1735,16 +1805,17 @@ end
 function model.repair_runtime_state(reason,tick)
     if transaction then return false,"A spider replacement is in progress." end
     local root=state()
-    for _,force in pairs(game.forces) do model.refresh_force(force) end
+    for _,force in pairs(game.forces) do model.refresh_force(force,reason,tick) end
     for _,surface in pairs(game.surfaces) do
         for _,entity in ipairs(surface.find_entities_filtered{type="spider-vehicle"}) do
             local record=register(entity)
-            if record then enqueue(record) end
+            if record then tag_refit(root,record,root.refits[record.entity.force.index],tick);enqueue(record) end
         end
     end
     for id,record in pairs(root.vehicles) do
         if not ei_lib.entity_check(record.entity) then
             if record.placement and record.placement.item then record.placement.item.destroy() end
+            finish_refit(root,record,tick)
             root.vehicles[id]=nil
             root.queue.queued[id]=nil
             root.selector.active[id]=nil

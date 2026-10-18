@@ -2,7 +2,7 @@
 --DECORATIVES FOR GAIA
 --====================================================================================================
 
-local gaia_biomes = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/biomes")
+local gaia_biomes = require(ei_path.."prototypes/planet-gaia/biomes")
 local tile_groups = gaia_biomes.tile_groups
 
 local gaia_decorative_settings = {

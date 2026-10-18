@@ -48,6 +48,8 @@ local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
 local ei_firefighting = require("scripts/control/firefighting")
 local ei_water_turret = require("scripts/control/water-turret")
+local ei_planet_enemies = require("scripts/control/planet-enemies")
+local ei_map_settings = require("scripts/control/map-settings")
 local ei_sweeping_radar = require("scripts/control/sweeping-radar")
 local ei_sweeping_radar_gui = require("scripts/control/sweeping-radar-gui")
 
@@ -132,12 +134,13 @@ ei_admin_tools.configure({
     arrival=ei_echo_codex,["informatron-messager"]=ei_informatron_messager,
     ["admin-tools"]=ei_admin_tools,
     ["terrain-evolution"]=ei_terrain_evolution,
+    ["planet-enemies"]=ei_planet_enemies,["map-settings"]=ei_map_settings,
 })
 ei_admin_tools.register_commands()
 ei_terrain_evolution.configure{vat=ei_auric_inoculation_vat,gaia=ei_alien_spawner,effect=ei_terrain_alerts.record_effect}
 ei_terrain_alerts.configure{valid=ei_terrain_evolution.receipt_valid,retain=ei_terrain_evolution.retain_receipt,release=ei_terrain_evolution.release_receipt,
     maintenance_begin=ei_terrain_evolution.maintenance_begin,maintenance_update=ei_terrain_evolution.maintenance_update}
-ei_terrain_gui.configure{terrain=ei_terrain_evolution,alerts=ei_terrain_alerts,
+ei_terrain_gui.configure{terrain=ei_terrain_evolution,alerts=ei_terrain_alerts,fulgora=ei_fulgora_day_length_variation,
     open_admin=function(player,tick) ei_admin_tools.open(player,"ecology",tick) end}
 ei_alien_spawner.set_preset_protection_handler(function(surface,preset,position)
     ei_terrain_evolution.protect_preset(preset,surface,position)
@@ -147,6 +150,7 @@ script.on_event(defines.events.on_gui_confirmed,ei_admin_tools.on_gui_change)
 script.on_event(defines.events.on_research_started,ei_admin_tools.on_research_started)
 script.on_event(defines.events.on_chunk_charted,ei_admin_tools.on_chunk_charted)
 script.on_event(defines.events.on_surface_created,function(event)
+    ei_map_settings.on_surface_created(event)
     ei_admin_tools.on_surface_created(event)
     ei_terrain_evolution.on_surface_created(event)
     ei_terrain_gui.on_surface_event(event)
@@ -168,8 +172,16 @@ script.on_event(defines.events.on_surface_imported,function(event)
     ei_terrain_gui.on_surface_event(event)
 end)
 script.on_event(defines.events.on_surface_cleared,ei_terrain_evolution.on_surface_created)
-script.on_event(defines.events.on_surface_deleted,function(event) ei_admin_tools.on_surface_deleted(event);ei_terrain_gui.on_surface_event(event) end)
-script.on_event(defines.events.on_biter_base_built,ei_admin_tools.on_biter_base_built)
+script.on_event(defines.events.on_surface_deleted,function(event)
+    ei_planet_enemies.on_surface_deleted(event);ei_map_settings.on_surface_deleted(event)
+    ei_admin_tools.on_surface_deleted(event);ei_terrain_gui.on_surface_event(event)
+end)
+script.on_event(defines.events.on_biter_base_built,function(event)
+    ei_map_settings.on_biter_base_built(event)
+    ei_admin_tools.on_biter_base_built(event)
+end)
+script.on_event(defines.events.on_segmented_unit_created,ei_planet_enemies.on_segmented_unit_created,
+    {{filter="name",name="small-demolisher"},{filter="name",name="medium-demolisher"},{filter="name",name="big-demolisher"}})
 script.on_event(defines.events.on_pre_player_left_game,ei_admin_tools.on_player_left_game)
 script.on_event(defines.events.on_pre_player_removed,ei_admin_tools.on_player_removed)
 script.on_event(defines.events.on_permission_group_edited,ei_admin_tools.on_permission_group_edited)
@@ -187,6 +199,7 @@ script.on_event({defines.events.on_player_promoted,defines.events.on_player_demo
 end)
 
 local SINGLE_OWNER_SCRIPT_EFFECT_HANDLERS = {
+    [ei_planet_enemies.created_effect] = ei_planet_enemies.on_script_trigger_effect,
     [ei_water_turret.created_effect] = ei_water_turret.on_fire_created,
     [ei_anisetron.script_trigger_effect_id] = ei_anisetron.on_script_trigger_effect,
     [ei_singularity_lance.script_trigger_effect_id] = ei_singularity_lance.on_script_trigger_effect,
@@ -484,13 +497,13 @@ local function flush_scripted_research_burst_entry(state, entry, current_tick, f
     -- optional integrations and the heterogeneous diagnostic collector below.
     ei_tech_scaling.on_scripted_research_burst(force)
     ei_teslas_legacy.on_scripted_research_burst(force, entry.tesla_variant_sync_needed == true, current_tick)
-    ei_spider_vehicles.on_scripted_research_burst(force, entry.spider_vehicle_sync_needed == true)
+    ei_spider_vehicles.on_scripted_research_burst(force, entry.spider_vehicle_sync_needed == true, current_tick)
     ei_flamethrower_fuels.sync_force(force)
     ei_singularity_lance.on_scripted_research_burst(force, current_tick)
     ei_anisetron.on_scripted_research_burst(force, current_tick)
     ei_sweeping_radar.on_scripted_research_burst(force, current_tick)
     ei_informatron_messager.on_scripted_research_burst(force)
-    local em_train_buffs_changed = em_trains.on_scripted_research_burst(force) == true
+    local em_train_buffs_changed = em_trains.on_scripted_research_burst(force,current_tick) == true
     if em_train_buffs_changed
     or em_trains_gui.force_has_access(force) then
         em_trains_gui.mark_dirty()
@@ -714,6 +727,7 @@ script.on_init(function(event)
     ei_lib.crystal_echo("✧ [Gaias Heart] — The crystalline veins of Gaia pulse with life, awaiting the touch of her children…")
     ei_echo_codex.queue_players(game.players)
     ei_admin_tools.on_configuration_changed(event and event.tick or game.tick)
+    ei_map_settings.on_configuration_changed(event and event.tick or game.tick)
     ei_rebuild_monitor.on_configuration_changed(event and event.tick or game.tick)
     ei_terrain_evolution.initialize(event and event.tick or game.tick)
     ei_terrain_alerts.initialize(event and event.tick or game.tick)
@@ -1039,6 +1053,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_planet_enemies.on_object_destroyed(e)
     ei_terrain_evolution.on_object_destroyed(e)
     ei_admin_tools.on_object_destroyed(e)
     ei_lib.camera_window.on_object_destroyed(e)
@@ -1484,6 +1499,7 @@ end
 ------------------------------------------------------------------------------------------------------
 
 script.on_configuration_changed(function(e)
+    ei_planet_enemies.on_configuration_changed(e)
     register_exotic_industries_qc_remote()
     ei_global.check_init(e)
     clear_scripted_research_burst_state()
@@ -1498,6 +1514,7 @@ script.on_configuration_changed(function(e)
     local startup_settings_changed = e.mod_startup_settings_changed
 
     local configuration_tick = e and e.tick or game.tick
+    ei_map_settings.on_configuration_changed(configuration_tick)
     ei_terrain_evolution.initialize(configuration_tick,"configuration")
     ei_terrain_alerts.initialize(configuration_tick)
     ei_terrain_gui.initialize(configuration_tick)
@@ -1526,8 +1543,8 @@ script.on_configuration_changed(function(e)
 
     -- Migration-only configuration changes can still strand Tesla helper entities or
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
-    ei_teslas_legacy.on_configuration_changed(e)
-    ei_flamethrower_fuels.rebuild()
+    ei_teslas_legacy.on_configuration_changed(e,configuration_tick)
+    ei_flamethrower_fuels.rebuild(configuration_tick)
     -- ConfigurationChangedData has no event tick in 2.0.77. Take one current
     -- snapshot here; regular water-turret and radar paths pass event.tick through.
     local support_rebuild_tick = game.tick
@@ -1546,7 +1563,7 @@ script.on_configuration_changed(function(e)
     -- Beacon overload keeps its own runtime repair path so any configuration change can
     -- re-seed its state and queue a refresh when prototype or startup settings moved.
     ei_beacon_overload.check_global()
-    ei_beacon_overload.on_configuration_changed(e)
+    ei_beacon_overload.on_configuration_changed(e,configuration_tick)
 
     if mod_changes_present then
         -- This is the mod's broad migration/repair pass. It re-validates globals,
@@ -1700,6 +1717,7 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
   if ei_rebuild_monitor.has_tick_work(event.tick) then ei_rebuild_monitor.updater(event) end
+  if ei_planet_enemies.has_tick_work(event.tick) then ei_planet_enemies.updater(event) end
   -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling
   if ei_terrain_evolution.has_tick_work(event.tick) then ei_terrain_evolution.updater(event) end
   if ei_terrain_alerts.has_tick_work(event.tick) then ei_terrain_alerts.updater(event) end
@@ -2078,7 +2096,7 @@ function on_cloned_entity(e)
     ei_auric_inoculation_vat.on_built_entity(clone_event)
     ei_loaders_lib.on_built_entity(destination)
     ei_fueler.on_built_entity(destination)
-    em_trains.on_built_entity(destination)
+    em_trains.on_built_entity(destination,e.tick)
     orbital_combinator.add(destination, e.tick)
     orbital_logistics.on_built_entity(clone_event)
     ei_railgun_cooling.on_built_entity(clone_event)
@@ -2170,7 +2188,7 @@ function on_built_entity(e)
     ei_auric_inoculation_vat.on_built_entity(e)
     ei_loaders_lib.on_built_entity(e["entity"])
     ei_fueler.on_built_entity(e["entity"])
-    em_trains.on_built_entity(e["entity"])
+    em_trains.on_built_entity(e["entity"],e.tick)
     orbital_combinator.add(e["entity"], e.tick)
     orbital_logistics.on_built_entity(e)
     ei_railgun_cooling.on_built_entity(e)
@@ -2225,7 +2243,7 @@ function on_destroyed_entity(e)
     ei_black_hole.on_destroyed_entity(e["entity"])
     ei_gate.on_destroyed_entity(e)
     ei_fueler.on_destroyed_entity(e["entity"])
-    em_trains.on_destroyed_entity(e["entity"])
+    em_trains.on_destroyed_entity(e["entity"],e.tick)
     orbital_combinator.rem(e["entity"], e.tick)
     orbital_logistics.on_destroyed_entity(e)
     ei_railgun_cooling.on_destroyed_entity(e)

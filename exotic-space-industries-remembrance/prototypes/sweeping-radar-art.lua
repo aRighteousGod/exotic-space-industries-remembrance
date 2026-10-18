@@ -6,7 +6,7 @@
 --==============================================================================
 local config=require("lib/sweeping-radar-config")
 local art={}
-local graphics=ei_path.."graphics/entities/"
+local graphics=ei_graphics_6_path.."graphics/entities/"
 
 local function visual_entity(name,pictures)
     return {type="simple-entity-with-owner",name=name,hidden=true,hidden_in_factoriopedia=true,

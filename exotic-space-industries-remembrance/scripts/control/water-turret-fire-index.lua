@@ -95,9 +95,20 @@ end
 
 ---@param root ESIRWaterState
 ---@param bucket ESIRWaterChunk
+local function finish_seed_rebuild(root,bucket)
+    local rebuild=root.rebuild
+    if rebuild and bucket.rebuild_generation==rebuild.generation then
+        bucket.rebuild_generation=nil;rebuild.completed=rebuild.completed+1
+    end
+end
+
 local function seed(root,bucket)
-    if bucket.seed_pending then return end
     if bucket.seeded_thermal and (bucket.weapon_count==0 or bucket.seeded_weapon) then return end
+    local rebuild=root.rebuild
+    if rebuild and rebuild.accepting and bucket.rebuild_generation~=rebuild.generation then
+        bucket.rebuild_generation=rebuild.generation;rebuild.total=rebuild.total+1
+    end
+    if bucket.seed_pending then return end
     bucket.seed_pending=true;scheduler.queue_push(root.index.seeds,bucket)
 end
 
@@ -247,6 +258,7 @@ end
 ---@param root ESIRWaterState
 ---@param bucket ESIRWaterChunk
 local function retire(root,bucket)
+    finish_seed_rebuild(root,bucket)
     bucket.active=false
     local map=root.index.surfaces[bucket.surface]
     if map and map[bucket.key]==bucket then
@@ -309,9 +321,10 @@ end
 ---@param root ESIRWaterState
 function model.bootstrap(root)
     local b=scheduler.queue_pop(root.index.seeds)
-    if not b or not b.active then return end
+    if not b then return end
+    if not b.active then finish_seed_rebuild(root,b);return end
     local surface=game.get_surface(b.surface)
-    if not surface then b.seed_pending=nil;return end
+    if not surface then b.seed_pending=nil;finish_seed_rebuild(root,b);return end
     -- One query per update. Result ingestion shares the cold slot budget.
     local entities=surface.find_entities_filtered{area={{b.x*32,b.y*32},{(b.x+1)*32,(b.y+1)*32}},type="fire"}
     root.counters.searches=root.counters.searches+1
@@ -326,7 +339,7 @@ end
 function model.cold_slice(root,job,limit)
     local b=job.bucket
     if job.kind=="seed" then
-        if not b.active then return true end
+        if not b.active then finish_seed_rebuild(root,b);return true end
         local stop=math.min(#job.entities,job.cursor+limit-1)
         for i=job.cursor,stop do model.admit(root,job.entities[i]);root.counters.candidate_visits=root.counters.candidate_visits+1 end
         job.cursor=stop+1
@@ -336,7 +349,9 @@ function model.cold_slice(root,job,limit)
             b.seeded_thermal=true
             if job.weapon then b.seeded_weapon=true end
         end
-        seed(root,b);wake(root,b);return true
+        seed(root,b)
+        if not b.seed_pending then finish_seed_rebuild(root,b) end
+        wake(root,b);return true
     end
     if job.kind=="purge-weapon" and (not b.active or b.weapon_count>0) then return true end
     local list=job.kind=="retire" and b[job.category] or b.weapon

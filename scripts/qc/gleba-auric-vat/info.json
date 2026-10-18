@@ -1,0 +1,10 @@
+{
+  "name": "zzz-gleba-auric-vat-qc",
+  "version": "0.0.1",
+  "title": "Gleba Auric vat acceptance fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "exotic-space-industries-remembrance"
+  ]
+}

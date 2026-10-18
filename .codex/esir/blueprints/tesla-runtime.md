@@ -47,3 +47,8 @@ Initialization seeds caches and variants. Configuration refresh clears transient
 ## Verification and maintenance
 
 This model is based on current source inspection, not a new engine run. Reuse `scripts/qc/event-tick/README.md` for deliberately distinct supplied ticks, Tesla burst cooldown, and recent-hit expiry boundaries; its recorded result does not validate every Tesla doctrine. Research flood checks use the scripted-research helper documented by `esir-dev`. When changing mode dispatch, validate both behavior modes, duplicate effects, helper expiry, ordinary reload, and research-triggered variant synchronization.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Force-specific surface synchronization publishes generations beside the existing cursor, in a sibling table that survives job normalization. Surface completion advances the count; requested restarts supersede the old generation. Exhaustion retires it, including invalid/removed surfaces. Normal combat helpers and placement synchronization remain excluded.

@@ -1,7 +1,7 @@
 # Spider technology icon family
 
 The 41 technologies use eight original transparent subjects and twelve reusable
-modifier/tier layers in the main mod's `graphics/technology/spider-vehicles/`
+modifier/tier layers in Graphics 6's `graphics/technology/spider-vehicles/`
 directory. Assault Spidertron uses its dependency's
 existing technology portrait; the original rocket Spidertron keeps vanilla art.
 Weapon research reuses existing weapon/ammunition art, including ESIR's siege
@@ -11,7 +11,8 @@ artillery rocket and the full-size Minigun/Heavy minigun technology portraits.
 `prepare.py` resizes the approved subjects without recoloring or reconstructing
 them, and draws the original geometric UI glyphs. Each semantic layer ships
 separately; the engine composes the final technology icons. These assets ship
-with the gameplay pack; Graphics 5 and its minimum dependency remain at 1.0.0.
+with Graphics 6; the gameplay pack owns the technology definitions and requires
+the graphics companion.
 
 The generator and prompts live here because the session's `.codex` tree is
 read-only. Generated staging, data dumps and previews remain ignored.

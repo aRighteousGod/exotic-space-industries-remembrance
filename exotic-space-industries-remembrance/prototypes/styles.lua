@@ -91,6 +91,15 @@ style.ei_status_progressbar_cyan = {
     parent = "ei_status_progressbar",
     color = {0, 255, 255}
 }
+style.ei_ecology_strip = {
+    type = "progressbar_style",
+    parent = "ei_status_progressbar",
+    bar_width = 12,
+    height = 12,
+    minimal_width = 0,
+    horizontally_stretchable = "off",
+    embed_text_in_bar = false
+}
 style.ei_status_progressbar_grey = {
     type = "progressbar_style",
     parent = "ei_status_progressbar",

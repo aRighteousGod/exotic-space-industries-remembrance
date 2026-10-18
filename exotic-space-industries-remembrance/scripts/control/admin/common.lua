@@ -72,7 +72,7 @@ function model.audit(actor, action, args, result)
     log("[ESIR admin] " .. serpent.line({actor=actor and actor.name or "server", action=action,
         player=args.player_index, player_name=args.player_name, force=args.force_index, planet=args.planet, surface=args.surface_index,
         entity=entity and entity.name,unit=entity and entity.unit_number,module=args.module_id,
-        position=args.position, success=result == true}))
+        position=args.position, map_target=args.target, map_values=args.map_settings_readback, success=result == true}))
 end
 
 ---@param value any

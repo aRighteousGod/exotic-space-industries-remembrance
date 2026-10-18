@@ -3,6 +3,7 @@ local flow={}
 package.loaded['__core__/lualib/mod-gui']={get_button_flow=function()return flow end}
 package.loaded['lib/terrain-alert-config']={}
 package.loaded['lib/terrain-evolution-config']={}
+package.loaded['scripts/control/terrain-field-report']={}
 local gui=dofile('exotic-space-industries-remembrance/scripts/control/terrain-gui.lua')
 local surface={name='nauvis'}
 local player={index=1,connected=false,surface=surface}

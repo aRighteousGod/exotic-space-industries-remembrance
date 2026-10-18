@@ -18,9 +18,9 @@ python -B .codex/esir/asset-generators/singularity-lance/prismatic-redesign/vali
 The generator imports the approved study generator beside it and writes only to
 `output/meshy/lance-prismatic-liturgy/production/`. Its `factorio-export/` contains
 36 shipping PNGs: 28 animation layers and eight mineral/phenomenon icon layers.
-Promotion copies those files to the main pack's
-`graphics/singularity-lance-upgrades/prismatic-liturgy/`. No companion graphics
-pack was changed, so no companion version/dependency change is needed.
+Promotion copies those files to Graphics 6's
+`graphics/singularity-lance-upgrades/prismatic-liturgy/`. The main pack owns
+the prototype definitions and requires the graphics companion.
 
 After promotion, `validate_production.py --shipping` compares every shipped PNG
 byte-for-byte with the staged export. Source and output are deliberately separate.

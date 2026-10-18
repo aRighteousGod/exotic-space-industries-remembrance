@@ -35,7 +35,13 @@ foreach($archive in Get-ChildItem -LiteralPath $seed -Filter '*.zip'){
 }
 foreach($directory in Get-ChildItem -LiteralPath $repo -Directory -Filter 'exotic-space-industries-remembrance-*'){
     $destination=Join-Path $mods $directory.Name
-    if(-not(Test-Path -LiteralPath $destination)){New-Item -ItemType Junction -Path $destination -Target $directory.FullName | Out-Null}
+    if($AssetRoot -and $directory.Name -eq 'exotic-space-industries-remembrance-graphics-6'){
+        # Overrides belong to the artwork owner, never a junction into shipping.
+        if(Test-Path -LiteralPath $destination){throw 'AssetRoot requires a fresh RunName.'}
+        Copy-Item -LiteralPath $directory.FullName -Destination $destination -Recurse -Force
+    }elseif(-not(Test-Path -LiteralPath $destination)){
+        New-Item -ItemType Junction -Path $destination -Target $directory.FullName | Out-Null
+    }
 }
 $pack=Join-Path $mods 'exotic-space-industries-remembrance'
 New-Item -ItemType Directory -Path $pack -Force | Out-Null
@@ -67,7 +73,8 @@ foreach($assetDirectory in @('graphics','sounds')){
     }
 }
 if($AssetRoot){
-    Copy-Item -LiteralPath (Join-Path $AssetRoot 'graphics') -Destination $pack -Recurse -Force
+    $graphicsOwner=Join-Path $mods 'exotic-space-industries-remembrance-graphics-6'
+    Copy-Item -LiteralPath (Join-Path $AssetRoot 'graphics') -Destination $graphicsOwner -Recurse -Force
     $assetLookup=Join-Path $AssetRoot 'anisetron-graphics.lua'
     if(Test-Path -LiteralPath $assetLookup){Copy-Item -LiteralPath $assetLookup -Destination (Join-Path $pack 'lib\anisetron-graphics.lua') -Force}
 }

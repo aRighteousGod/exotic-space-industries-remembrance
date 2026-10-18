@@ -194,6 +194,7 @@ end
 ---@return table
 function model.get_policy(surface)
     if not (surface and surface.valid) then return {} end
+    if context.modules and context.modules["map-settings"] then return context.modules["map-settings"].get_policy(surface) end
     local root = peek_state()
     local policy = root and root.policies[policy_key(surface)] or {}
     return {spawning=not surface.no_enemies_mode,peaceful=surface.peaceful_mode,peaceful_override=policy.peaceful,
@@ -466,16 +467,21 @@ local function create_one(job, tick, budget)
     elseif job.kind=="place_resources" and not surface.can_place_entity{name=name,position=p,force=job.force} then
         job.failed=job.failed+1;return
     end
-    local entity
-    if proto.type=="segmented-unit" then
+    local function create()
+      if proto.type=="segmented-unit" then
         budget.demolisher=budget.demolisher-1
-        entity=surface.create_segmented_unit{name=name,position=create_position,force=job.force,quality=job.quality}
-    else
-        entity=surface.create_entity{name=name,position=create_position,force=job.force,
+        return surface.create_segmented_unit{name=name,position=create_position,force=job.force,quality=job.quality}
+      else
+        return surface.create_entity{name=name,position=create_position,force=job.force,
             direction=job.direction,quality=job.quality,amount=job.amount,
             player=job.kind=="place_entities" and job.actor_index or nil,raise_built=true,
             enable_tree_removal=false,enable_cliff_removal=false}
+      end
     end
+    local policy=context.modules and context.modules["planet-enemies"]
+    local entity
+    if job.kind=="spawn_enemies" and policy then entity=policy.create_admin_enemy(surface,name,job.force,create)
+    else entity=create() end
     if not entity then job.failed=job.failed+1;return end
     if not entity.valid then
         -- Raised-build owners can replace a successfully created temporary item wrapper.
@@ -611,6 +617,23 @@ end
 local function execute(actor,action,args,tick)
     if not authorized(actor) then return false,"Administrator access is required." end
     args=args or {}
+    local settings_owner=context.modules and context.modules["map-settings"]
+    local setting_actions={planet_peaceful="peaceful_mode",planet_spawning="no_enemies_mode",
+        planet_expansion="new_bases",planet_evolution="evolution",global_expansion="enemy_expansion.enabled"}
+    if settings_owner and setting_actions[action] then
+        local target=action=="global_expansion" and {scope="global"}
+            or {planet=args.planet,surface_index=args.surface_index or (not args.planet and actor.surface.index or nil)}
+        local snapshot,error=settings_owner.snapshot(target)
+        if not snapshot then return false,error end
+        local value=args.enabled
+        if action=="planet_spawning" and type(value)=="boolean" then value=not value
+        elseif action=="planet_evolution" then value=args.evolution or args.value end
+        if value==nil then return false,"A setting value is required." end
+        local ok,message,readback=settings_owner.apply(snapshot.target,snapshot.values,{[setting_actions[action]]=value},tick)
+        args.map_settings_readback=readback;args.target=snapshot.target
+        if ok then changed() end
+        return ok,message
+    end
     if action=="cancel_job" then
         local job=state().jobs[tonumber(args.job_id)]
         if not job then return false,"That job is no longer active." end
@@ -866,6 +889,7 @@ end
 
 ---@param surface LuaSurface
 function model.apply_policy(surface)
+    if context and context.modules and context.modules["map-settings"] then return end
     if not context or not context.enabled() or not (surface and surface.valid) then return end
     local root=peek_state()
     local policy=root and root.policies[policy_key(surface)]
@@ -904,6 +928,7 @@ end
 
 ---@param event EventData.on_biter_base_built
 function model.on_biter_base_built(event)
+    if context and context.modules and context.modules["map-settings"] then return end
     if not context or not context.enabled() or not lib.entity_check(event.entity) then return end
     local root=peek_state()
     local policy=root and root.policies[policy_key(event.entity.surface)]

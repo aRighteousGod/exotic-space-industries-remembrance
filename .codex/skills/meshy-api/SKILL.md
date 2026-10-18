@@ -5,6 +5,8 @@ description: "Use when Codex should work with Meshy.ai API or MCP workflows for 
 
 # Meshy API
 
+For ESIR output, follow [housekeeping](../esir-dev/references/housekeeping.md). Paid downloads, original images, models and task/provenance metadata are protected; do not register a whole download directory as disposable. Leave root `models/` outside housekeeping.
+
 Use this skill when a task needs Meshy.ai model, image, texture, rigging, animation, animation-library lookup, print, task-management, site/manual asset handoff, or account-balance workflows.
 
 ## Hard Rules

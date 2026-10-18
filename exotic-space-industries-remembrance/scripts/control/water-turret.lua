@@ -10,6 +10,7 @@
 -- rebuild_on: init/configuration change; no storage mutation during on_load
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/firefighting-and-water-turret.md#contract
+-- blueprint-ref: .codex/esir/blueprints/firefighting-and-water-turret.md#rebuild-reporting
 local ei_lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
 local config = require("lib/firefighting-config")
@@ -399,11 +400,23 @@ local function acquire(root,job,tick)
     if record.wake_again then record.wake_again=false;schedule_cold(record) end
 end
 
+---@param root table
+---@param tick MapTick
+local function publish_rebuild(root,tick)
+    local job=root.rebuild;if not job then return end
+    if root.count==0 or job.completed>=job.total then
+        scheduler.finish_rebuild(job.id,"completed",tick);root.rebuild=nil;return
+    end
+    job.id=scheduler.report_rebuild("water-turret","fire-index","all",job.id,
+        {reason=job.reason,phase="seeding",state="running",completed=job.completed,total=job.total,unit="chunks"},tick)
+end
+
 ---@param event EventData.on_tick
 function model.updater(event)
     local root=storage.ei and storage.ei.water_turret
-    if not root or root.count==0 then return end
+    if not root then return end
     local tick=event.tick
+    if root.count==0 then publish_rebuild(root,tick);return end
     if root.power_due[tick] then
         for _,id in ipairs(scheduler.delayed_take_due(root.power_due,tick)) do
             local record=root.records[id]
@@ -443,6 +456,7 @@ function model.updater(event)
         elseif not fire_index.cold_slice(root,job,config.slice_size) then scheduler.queue_push(root.cold_queue,job) end
     end
     root.counters.cold_slices=root.counters.cold_slices+slices
+    publish_rebuild(root,tick)
 end
 
 ---@param event EventData.on_script_trigger_effect
@@ -587,9 +601,12 @@ end
 ---@param tick MapTick
 function model.repair_runtime_state(reason,tick)
     local old=storage.ei and storage.ei.water_turret
+    if old and old.rebuild then scheduler.finish_rebuild(old.rebuild.id,"superseded",tick) end
     local records=old and old.records or {}
     storage.ei=storage.ei or {};storage.ei.water_turret=nil
     local root=state()
+    root.rebuild_generation=(old and old.rebuild_generation or 0)+1
+    root.rebuild={generation=root.rebuild_generation,reason=reason,completed=0,total=0,accepting=true}
     for id,record in pairs(records) do
         if ei_lib.entity_check(record.entity) then
             record.id=id;record.fire=nil;record.available=false;cancel_work(record)
@@ -609,6 +626,7 @@ function model.repair_runtime_state(reason,tick)
         for _,entity in pairs(surface.find_entities_filtered{name=config.turret}) do register(entity,tick) end
     end
     root.last_admin_repair_reason=reason;root.last_admin_repair_tick=tick
+    root.rebuild.accepting=false;publish_rebuild(root,tick)
     return true
 end
 

@@ -1,4 +1,5 @@
 -- blueprint: .codex/esir/blueprints/admin-tools.md#contract
+-- blueprint-ref: .codex/esir/blueprints/admin-tools.md#rebuild-reporting
 -- blueprint-ref: .codex/esir/blueprints/admin-tools.md#interaction-restrictions
 -- Per-player native permission overlays, bounded attribution census and area-order guards.
 -- Natural entities retain native actions. No entity's global operable/minable flags change.
@@ -30,6 +31,23 @@ end
 
 local function entries() local s=common.peek();return s and s.restrictions end
 local function tracking() local s=common.peek();return s and s.restriction_tracking end
+
+local function report_census(state,tick)
+    local job=state and state.census;if not job then return end
+    local surface=job.surfaces[job.surface_index]
+    local details={reason="interaction-restrictions",phase="attribution",state="running",
+        completed=job.examined,total=false,unit="entities",surface_index=surface and surface.valid and surface.index or nil}
+    local prior=job.rebuild_activity_id
+    local sample_tick=prior and tick or (job.started_tick or tick)
+    job.rebuild_activity_id=scheduler.report_rebuild("admin-tools","restriction-attribution","global",prior,details,sample_tick)
+    if sample_tick~=tick then scheduler.update_rebuild(job.rebuild_activity_id,details,tick) end
+end
+
+local function finish_census(state,outcome,tick)
+    local job=state and state.census;if not job then return end
+    report_census(state,tick)
+    scheduler.finish_rebuild(job.rebuild_activity_id,outcome,tick);job.rebuild_activity_id=nil
+end
 local function candidate(entity)
     if not lib.entity_check(entity) then return false end
     if entity.type=="resource" or entity.type=="tree" or entity.type=="cliff" then return false end
@@ -78,6 +96,7 @@ local function begin_tracking(tick)
     local state={records={},registrations={},tracked_count=0,watch=scheduler.ensure_queue(),watchers={},
         census={surfaces=surfaces,forces=forces,surface_index=1,examined=0,chunks=0,started_tick=tick}}
     root.restriction_tracking=state
+    report_census(state,tick)
     return state
 end
 local function enqueue_watch(state,index,tick)
@@ -175,7 +194,10 @@ function model.set(player,enabled,tick)
         end
         root.restrictions[player.index]=nil
         if group and group.valid then group.destroy() end
-        if not next(root.restrictions) then root.restriction_tracking=nil end
+        if not next(root.restrictions) then
+            finish_census(root.restriction_tracking,"cancelled",tick)
+            root.restriction_tracking=nil
+        end
     end
     return true,enabled and "Interaction restriction: On (player-built entities only)." or "Interaction restriction: Off."
 end
@@ -265,6 +287,7 @@ local function census_step(state,budget,tick)
         for _=1,RECORD_BUDGET do
             local surface=job.surfaces[job.surface_index]
             if not surface then
+                finish_census(state,"completed",tick)
                 state.completed_tick=tick;state.examined=job.examined;state.chunks=job.chunks;state.census=nil
                 for index in pairs(entries() or {}) do
                     local player=game.get_player(index)
@@ -321,6 +344,7 @@ function model.updater(tick)
     local first=index and state.watchers[index]
     state.watch_due_tick=first and first.due_tick or nil
     census_step(state,budget,tick)
+    report_census(state,tick)
 end
 function model.peek_summary()
     local state=tracking();local job=state and state.census
@@ -369,7 +393,10 @@ function model.on_player_removed(event)
     else
         root.restrictions[event.player_index]=nil
         if entry.group and entry.group.valid then entry.group.destroy() end
-        if not next(root.restrictions) then root.restriction_tracking=nil end
+        if not next(root.restrictions) then
+            finish_census(root.restriction_tracking,"cancelled",event.tick)
+            root.restriction_tracking=nil
+        end
     end
 end
 model.is_protected=protected

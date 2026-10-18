@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('doctor', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
+    [ValidateSet('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [string]$SaveId,
@@ -29,12 +29,20 @@ param(
     [switch]$ResolveInstalled,
     [switch]$FixEncoding,
     [switch]$AsJson,
+    [switch]$Apply,
+    [switch]$FullInventory,
+    [switch]$IncludeCodexHome,
+    [string[]]$CloseRunId = @(),
     [switch]$SkipBrowser,
     [switch]$SkipClipboard
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+if ($Task -ne 'housekeeping' -and ($Apply -or $FullInventory -or $IncludeCodexHome -or $CloseRunId.Count)) {
+    throw 'Housekeeping switches require -Task housekeeping.'
+}
 
 . (Join-Path $PSScriptRoot 'esir-dev-lib.ps1')
 
@@ -59,7 +67,7 @@ $writeTasks = @(
     'full'
 )
 $paths = Get-EsirPaths -RepoRoot $RepoRoot -EnsureWritableDirs:($Task -in $writeTasks)
-$result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Seeds $Seeds -PreviewSize $PreviewSize -Planet $Planet -Pack $Pack -DependencyScope $Scope -DependencyCategory $Category -ModName $ModName -TargetPath $Path -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -ResolveInstalled:$ResolveInstalled -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard
+$result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Seeds $Seeds -PreviewSize $PreviewSize -Planet $Planet -Pack $Pack -DependencyScope $Scope -DependencyCategory $Category -ModName $ModName -TargetPath $Path -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -ResolveInstalled:$ResolveInstalled -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard -Apply:$Apply -FullInventory:$FullInventory -IncludeCodexHome:$IncludeCodexHome -CloseRunId $CloseRunId
 
 if ($AsJson) {
     $result | ConvertTo-Json -Depth 16

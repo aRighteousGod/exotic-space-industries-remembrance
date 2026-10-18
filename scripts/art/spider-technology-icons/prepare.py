@@ -2,7 +2,7 @@
 
 Portraits are authored with image_gen; this script only resizes those exports.
 Glyphs are original geometric UI marks, rendered at 4x for clean small-size edges.
-Run without --promote to review staged PNGs before copying into the main mod.
+Run without --promote to review staged PNGs before copying into Graphics 6.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[3]
 STAGE = ROOT / "output/meshy/spider-technology-icons/factorio-export"
-SHIP = ROOT / "exotic-space-industries-remembrance/graphics/technology/spider-vehicles"
+SHIP = ROOT / "exotic-space-industries-remembrance-graphics-6/graphics/technology/spider-vehicles"
 
 
 def glyph(name: str) -> Image.Image:

@@ -6,7 +6,7 @@
 -- provenance: Devilwarriors, extinguisher 2.0.0, portal-declared Unlicense
 --==============================================================================
 local config = require("lib/firefighting-config")
-local path = ei_path.."graphics/"
+local path = ei_graphics_6_path.."graphics/"
 
 data:extend({
     {type="ammo-category", name=config.gun},

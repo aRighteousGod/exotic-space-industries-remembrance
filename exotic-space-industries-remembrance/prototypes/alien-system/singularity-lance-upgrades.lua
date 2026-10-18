@@ -1,6 +1,6 @@
 -- Finite capabilities; all prices remain owned by final-tech-fixes.
 local c = require("lib/singularity-lance-config")
-local path = ei_path.."graphics/singularity-lance-upgrades/"
+local path = ei_graphics_6_path.."graphics/singularity-lance-upgrades/"
 local art_path = path .. "prismatic-liturgy/"
 local art = c.presentation
 for index, upgrade in ipairs(c.upgrades) do

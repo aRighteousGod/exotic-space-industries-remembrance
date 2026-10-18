@@ -5,13 +5,13 @@ param(
     [string]$SourceRoot, [switch]$Probe, [string]$Helper,
     [int]$Ticks=3600, [int]$Runs=6, [string]$SaveInput, [switch]$ForceConfig,
     [switch]$PrepareOnly, [string]$BridgePath, [string]$ExportsPath,
-    [string]$SeedModDirectory, [switch]$CaptureConfiguration
+    [string]$SeedModDirectory, [switch]$CaptureConfiguration, [string]$OutputRoot
 )
 $ErrorActionPreference='Stop'
 if($ForceConfig -and (-not $Helper -or -not $SaveInput)){throw 'ForceConfig requires a helper and an existing fixture.'}
 $repo=Split-Path -Parent $PSScriptRoot
 if($RunName -notmatch '^[A-Za-z0-9_-]+$'){throw 'RunName must be a simple directory name.'}
-$run=Join-Path $repo ".factorio-qc\cu\g\$RunName"
+$run=if($OutputRoot){Join-Path (Resolve-Path -LiteralPath $OutputRoot).Path $RunName}else{Join-Path $repo ".factorio-qc\cu\g\$RunName"}
 if(Test-Path -LiteralPath $run){throw 'Choose a fresh RunName to preserve evidence and avoid stale staged files.'}
 $mods=Join-Path $run 'mods'
 New-Item -ItemType Directory -Path $mods -Force | Out-Null

@@ -1,7 +1,7 @@
 
 local planet_map_gen = require("__space-age__/prototypes/planet/planet-map-gen")
-local gaia_biomes = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/biomes")
-local gaia_decorative_settings = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/decoratives")
+local gaia_biomes = require(ei_path.."prototypes/planet-gaia/biomes")
+local gaia_decorative_settings = require(ei_path.."prototypes/planet-gaia/decoratives")
 
 local gaia_patch_controls = {
     ["ei-morphium-patch"] = {frequency = 4.2, size = 0.72, richness = 1.2},
@@ -144,7 +144,6 @@ planet_map_gen.gaia = function ()
     }
 
     if mods["Electric_flying_enemies"] then
-        map_gen_settings.no_enemies_mode = false
         map_gen_settings.autoplace_controls["electric_enemies"] = {frequency = 1, richness = 1, size = 5}
         map_gen_settings.autoplace_settings.entity.settings["flying-electric-unit-spawner"] = {}
         map_gen_settings.autoplace_settings.entity.settings["walker-electric-unit-spawner"] = {}

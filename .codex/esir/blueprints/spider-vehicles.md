@@ -68,3 +68,8 @@ Use `scripts/invoke-spider-vehicles-qc.ps1` and `scripts/qc/spider-vehicles/READ
 ## GUI refresh cost
 
 Spider weapon panels retain their roots while the vehicle entity and ammo-slot layout remain unchanged. Dynamic controls and optional readouts use named elements, visibility changes, and a scalar displayed-state signature. Native vehicle replacement or a legacy layout rebuilds once. Pending retries and weapon-control events reuse the same panel; no GUI polling is introduced.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Explicit research/configuration/admin refits use per-force generations and record membership established inside existing refresh/discovery loops. Replaced/retired members count as complete, including retry membership. An entirely blocked batch waits externally; mixed runnable/blocked work remains public without ETA. Placement-only refits and combat remain excluded.

@@ -14,13 +14,15 @@ This skill treats the locally installed `recipe-icons-improvement-for-esir` comp
 Read the sources in this order unless the user explicitly wants something else:
 
 1. Latest local companion zip or unpacked folder accepted by the probe, typically under `%APPDATA%\Factorio\mods\recipe-icons-improvement-for-esir*.zip`
-2. Local QC runtime evidence: `.factorio-qc/dump-run-data-2/script-output/data-raw-dump.json`
+2. Verified local final-data evidence for the engine in use: dot-source `scripts/esir-housekeeping.ps1` and select it with `Get-EsirRetainedFinalData -RepoRoot $PWD.Path -EngineVersion '2.0.77'` (use the actual resolved version). If unavailable, run matching QC; do not silently substitute a historical dump path.
 3. ESIR repo source under `exotic-space-industries-remembrance/`
 4. Mod Portal screenshots or changelog only as secondary confirmation
 
 Do not treat Mod Portal screenshots as the primary spec when the local companion mod is available.
 
 ## Default Workflow
+
+Follow [housekeeping](../esir-dev/references/housekeeping.md) for new reproducible report output. Preserve reviewed baselines and manual inputs; keep variant previews outside shipping folders. An authorized icon replacement must retire exact proven-superseded files after checking shared and constructed references.
 
 ### 1. Probe The Companion Baseline
 

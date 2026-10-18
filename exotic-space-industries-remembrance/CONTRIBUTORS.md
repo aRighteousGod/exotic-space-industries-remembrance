@@ -7,3 +7,4 @@ baadfood July 2025
 S3BA-pl September 2025
 kazakovaNet Feb 2026
 Spacedragoon Feb 2026
+バルやん baruyan_sub Sep 2026

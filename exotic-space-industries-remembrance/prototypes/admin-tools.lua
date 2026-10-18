@@ -3,6 +3,10 @@ local config = require("lib/admin-tools-config")
 -- Keep the hidden selector defined across enable/disable so cursor cleanup can
 -- identify it during configuration changes. It has no recipe or public item.
 data:extend({{
+    type="sprite", name=config.sprite,
+    filename=ei_graphics_6_path.."graphics/gui/admin-overseer-seal.png",
+    size=1254, scale=32/1254, flags={"gui"},
+}, {
     type="selection-tool", name=config.selector,
     icon="__base__/graphics/icons/radar.png", icon_size=64,
     stack_size=1, flags={"only-in-cursor", "spawnable"}, hidden=true,

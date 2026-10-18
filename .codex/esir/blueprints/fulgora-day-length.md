@@ -14,6 +14,12 @@
 
 The module changes the native Fulgora surface's `ticks_per_day`. Its actual state is `storage.ei.fulgora_day_length_variation`: multiplier bounds, cycle index, last daytime/darkness, last applied cycle, and next/pending checks. The older file-header reference to a top-level storage field is not the implementation owner.
 
+`report_status(surface)` is a read-only identity/frozen-state probe for the Ecology
+Simple report. It identifies the actual `game.surfaces["fulgora"]` target rather
+than every surface associated with that planet, does not initialize storage, and
+never draws randomness or changes a cycle. Native display observations remain
+separate from seasonal daylight ownership.
+
 ```mermaid
 flowchart LR
   A["Observe daytime wrap"] --> B["New cycle permits one change"]

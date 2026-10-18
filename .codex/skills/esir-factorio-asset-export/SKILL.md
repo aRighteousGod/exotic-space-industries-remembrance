@@ -11,9 +11,11 @@ For requested palette reduction, use [esir-png-quantize](../esir-png-quantize/SK
 
 ## Hard Rules
 
+- Follow [housekeeping](../esir-dev/references/housekeeping.md) for staged output and authorized replacements. Prefer canonical shipping paths; account for added/updated/retained/retired files, including stale numbered sheets, shared/conditional uses and partial failed copies. Retire exact proven-obsolete files in the same patch; the exporter does not perform a folder-wide orphan sweep. Keep previews/backups out of mod folders.
+
 - Stage generated assets under `output/meshy/<asset>/factorio-export/` unless the user explicitly gives another staging path.
 - Treat `output/` as ignored generated staging only. Do not leave the only copy of a reusable generator script, hand-written note, or prompt there; promote durable sources to `.codex/esir/asset-generators/` or `.codex/esir/art-prompts/`.
-- Do not copy files into `exotic-space-industries-remembrance/graphics/` or edit prototypes unless the user explicitly asks for that follow-up. Promotion remains dry-run unless `--execute` is passed.
+- Do not copy files into `exotic-space-industries-remembrance-graphics-6/graphics/` or edit prototypes unless the user explicitly asks for that follow-up. Promotion remains dry-run unless `--execute` is passed. Graphics formerly shipped in the gameplay pack now belong to Graphics 6; choose a snippet path under `ei_graphics_6_path` when promoting there.
 - Do not treat a generated sheet as shippable until the preview has been inspected.
 - At authorized shipping entity asset or prototype integration, use [esir-entity-presentation](../esir-entity-presentation/SKILL.md) to resolve death coverage and player-facing presentation, including inherited variants. Draft-only export records integration notes without changing gameplay; exported snippets alone do not prove final presentation coverage.
 - For generated item or technology icon underlays/overlays, keep each semantic layer as its own transparent PNG and wire the prototype with Factorio `icons` entries so the game composites them. A baked composite may be emitted as a preview artifact, but it must not be the only shipped asset unless the user explicitly asks for a flattened icon.
@@ -138,7 +140,7 @@ python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py
 
 ## Output
 
-Each run writes staged files only:
+The `entity`, `machine`, `icon` and `render-bundle` modes write staged files:
 
 - staged PNG asset(s)
 - preview PNG(s), including working-animation previews when present

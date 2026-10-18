@@ -5,6 +5,8 @@ description: "Docs-first workflow for official Factorio Lua API questions. Use w
 
 # Factorio Lua Docs
 
+Follow [housekeeping](../esir-dev/references/housekeeping.md) for cache work: preserve the engine-matching docs cache and overwrite stable cache paths instead of copying a corpus per query. Historical caches are report-only until separately reviewed.
+
 Use this before freehand memory or broad web search when the task is mainly about official Factorio modding documentation.
 
 Start with the wrapper:

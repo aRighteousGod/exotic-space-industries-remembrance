@@ -128,7 +128,7 @@ Use `promote` only after the staged preview and snippet have been inspected. Def
 python .codex/skills/esir-factorio-asset-export/scripts/export_factorio_asset.py promote `
   --manifest output/meshy/example/factorio-export/example.factorio-asset-manifest.json `
   --copy-assets `
-  --graphics-destination exotic-space-industries-remembrance/graphics/entity/example
+  --graphics-destination exotic-space-industries-remembrance-graphics-6/graphics/entities/example
 ```
 
 Promotion safeguards:

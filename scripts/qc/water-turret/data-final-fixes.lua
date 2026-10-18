@@ -17,7 +17,7 @@ if config.created_effect then
     assert(settings.startup[config.targeting_setting].value==require("test-config").targeting,"target-setting")
 end
 assert(turret.rotation_speed==0.02,"water-turn-speed")
-local graphics="__exotic-space-industries-remembrance-graphics-6__/graphics/"
+local graphics=ei_graphics_6_path.."graphics/"
 local seen={}
 local function check_water_graphics(value)
     if type(value)~="table" then return end

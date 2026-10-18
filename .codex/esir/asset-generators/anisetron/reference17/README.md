@@ -7,6 +7,16 @@ and the exact 128-direction anchor lookup. The promotion record is
 [shipping-hashes.json](../../../../../output/meshy/anisetron/reference17/shipping-hashes.json). The reference16 pipeline remains
 [historical provenance](../README.md#historical-reference-16).
 
+All eleven shipping PNGs now belong to
+`exotic-space-industries-remembrance-graphics-6`: eight sheets under
+`graphics/entities/anisetron/`, two icons under `graphics/items/`, and the research
+icon at `graphics/technology/anisetron.png`. Their image bytes and hashes are
+unchanged by this relocation. The packer's existing package-relative layout is
+retained; promote its `graphics/` tree into graphics pack 6. Framing/attachment
+Lua and gameplay remain in the main pack. Graphics 6 also owns the firing OGG
+and its attribution under `sounds/`, referenced through `ei_sounds_6_path`.
+Historical promotion reports retain their original paths.
+
 ## Original source and preservation
 
 - Reference image: `C:/Users/Theorun/Documents/1righteousgod/ANISETRON 17.png`;
@@ -131,7 +141,7 @@ the old surface or direction. See
 
 ## Continuous firing audio
 
-The shipping `sounds/anisetron-lance-loop.ogg` derives from the existing
+The shipping Graphics 6 `sounds/anisetron-lance-loop.ogg` derives from the existing
 `singularity-lance-beam-2.ogg` and `singularity-lance-beam-3.ogg` samples. Their
 repo attribution records "Pulsar.wav" by wcoltd, CC0, with the original
 [source link](https://freesound.org/s/440783/). The source sample SHA256 values are

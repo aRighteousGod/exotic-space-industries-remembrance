@@ -42,6 +42,16 @@ flowchart TD
 
 ## Interfaces and invariants
 
+<a id="hierophant-page"></a>
+The Gaian Hierophant page (`gaian_hierophant`) is always available under New
+logistics beside the Gaian saucer. Informatron owns its GUI lifecycle; ESIR builds
+static wrapped sections and item cards only when opened. The page reads crown and
+facade damage, range, arc, contact cadence, charge duration and Testament interval
+from the shared ANISETRON/Lance configurations. Its selected visual preset comes
+from the startup setting. Imports remain at control parsing time. All seven
+locales supply menu/title keys, body text, crystal-charge labels and preset labels;
+the page owns no weapon, movement, payment, notification or periodic work.
+
 `storage.ei.pending_arrivals` deduplicates players; `arrival_waves` and `arrival_waves_next_due_tick` hold scheduled beam records and their derived minimum. `flush_pending_arrivals` drops nonexistent players, waits for character readiness, then calls `youHaveArrived` with the flush callback's current tick. The pending entry stores no original enqueue timestamp. Wave service removes completed beams and empty waves.
 
 `storage.ei.informatron_messager.notified_by_force` stores announced pages by force index. Both `on_research_finished` and `on_scripted_research_burst` use the same deduplication path; the burst path inspects completed technologies instead of inventing one representative research event.

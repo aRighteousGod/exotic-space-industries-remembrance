@@ -95,9 +95,155 @@ do
         end
         configured = true
     end)
+    local function map_controls_tests(surface, tick)
+        local original_settings = surface.map_gen_settings
+        local original_state = state()
+        local prototype = prototypes.autoplace_control["ei-auric-fumarole"]
+        check("native resource control with richness and checkbox", prototype and prototype.category=="resource" and prototype.richness and prototype.can_be_disabled)
+        local initial = original_settings.autoplace_controls["ei-auric-fumarole"]
+        check("Vulcanus creates surface with default control", initial and initial.frequency==1 and initial.size==1 and initial.richness==1)
+        local function settings(frequency, size, richness)
+            local map = surface.map_gen_settings
+            map.autoplace_controls["ei-auric-fumarole"] = {frequency=frequency,size=size,richness=richness}
+            surface.map_gen_settings = map
+            return qc.controls(surface)
+        end
+        local function fresh()
+            local s = qc.new_state()
+            s.backfill_bootstrapped = true
+            s.generated_band_counts[surface.index] = {["32+"]=10000}
+            storage.ei.vulcanus_fumaroles = s
+            return s
+        end
+        local mock = {valid=true,name="vulcanus",index=surface.index,map_gen_settings={}}
+        local missing = qc.controls(mock)
+        check("old-save missing control defaults", missing.enabled and missing.frequency==1 and missing.size==1 and missing.richness==1)
+        mock.map_gen_settings.autoplace_controls = {["ei-auric-fumarole"]={size=0.5}}
+        missing = qc.controls(mock)
+        check("missing individual dimensions default", missing.frequency==1 and missing.size==0.5 and missing.richness==1)
+        mock.map_gen_settings.autoplace_controls["ei-auric-fumarole"]={frequency=99,size=99,richness=99}
+        local bounded = qc.controls(mock)
+        check("scripted oversized values bounded", bounded.frequency==6 and bounded.size==6 and bounded.richness==6)
+
+        local seed = surface.map_gen_settings.seed
+        local base_controls = settings(1,1,1)
+        local base_amount = qc.amount(surface,40,0,base_controls)
+        check("new default reserve range", base_amount>=40000 and base_amount<=80000)
+        local previous_hits = -1
+        for _, multiplier in ipairs({0,1/6,0.5,1,2,6}) do
+            local c = settings(multiplier,1,1)
+            check("native frequency round trip "..multiplier, math.abs(c.frequency-multiplier)<0.000001)
+            local hits, parity = 0, true
+            for x=32,4127 do
+                local actual = qc.immediate(surface,x,0,1,c)
+                if actual then hits=hits+1 end
+                if multiplier==1 and actual~=(qc.hash(seed,x,0,101)<0.025) then parity=false end
+            end
+            check("initial frequency monotonic "..multiplier, hits>=previous_hits and (multiplier~=0 or hits==0))
+            check("default initial roll parity "..multiplier, parity)
+            previous_hits = hits
+            local totals = {[2]=0,[4]=0,[6]=0}
+            for pulse=0,35 do
+                for base in pairs(totals) do
+                    local budget = qc.budget(base,pulse*1800,c)
+                    totals[base]=totals[base]+budget
+                    check("bounded budget "..multiplier.."/"..base.."/"..pulse, budget>=0 and budget<=base*6 and (multiplier~=1 or budget==base))
+                end
+            end
+            for base,total in pairs(totals) do
+                check("fractional budget total "..multiplier.."/"..base, math.abs(total-36*base*multiplier)<=1)
+            end
+            local s=fresh()
+            c=settings(1,multiplier,1)
+            check("population scaling "..multiplier, qc.target(s,surface.index,"32+",c)==math.ceil(100*multiplier))
+            check("keepalive scaling "..multiplier, qc.floor(s,c)==math.ceil(2*multiplier))
+            c=settings(1,1,multiplier)
+            if multiplier>0 then
+                local amount=qc.amount(surface,40,0,c)
+                check("reserve scaling "..multiplier, amount==math.floor(base_amount*c.richness+0.5))
+            else
+                check("zero richness disables", not c.enabled)
+            end
+        end
+        local s=fresh()
+        s.generated_band_counts[surface.index]["32+"]=1
+        check("keepalive capped by eligible target", qc.floor(s,settings(1,6,1))==1)
+
+        -- Exercise production recovery/keepalive loops with observed placement calls;
+        -- keep the many synthetic candidates out of the real generated world.
+        local candidate_calls, spawn_calls = 0, 0
+        qc.set_candidate(function() candidate_calls=candidate_calls+1; return {position={x=336,y=16}} end)
+        qc.set_spawn(function() spawn_calls=spawn_calls+1; return false,"blocked" end)
+        local function ready_candidates(c)
+            local next_state=fresh()
+            for x=40,79 do
+                local key=qc.key(surface.index,x,0)
+                next_state.dormant_chunks[key]={surface_index=surface.index,chunk_x=x,chunk_y=0,band_name="32+",due_tick=0}
+                qc.ready(next_state,surface.index,key,"32+")
+            end
+            next_state.below_floor_since_tick=0
+            return next_state
+        end
+        for _, frequency in ipairs({0,1/6,0.5,1,2,6}) do
+            local c=settings(frequency,6,1)
+            s=ready_candidates(c); spawn_calls=0
+            qc.recovery(s,18000,c)
+            check("recovery actual attempt count "..frequency, spawn_calls==qc.budget(6,18000,c))
+            s=ready_candidates(c); spawn_calls=0
+            qc.keepalive(s,18000,c)
+            check("keepalive actual bounded attempts "..frequency, spawn_calls==qc.budget(2,18000,c)*8)
+        end
+        -- Find a deterministic dormant roll accepted at 100% but rejected at 50%.
+        local chosen_tick
+        for pulse=0,10000 do
+            local roll=qc.hash(seed,40,0,2401+pulse)
+            if roll>=0.00375 and roll<0.0075 then chosen_tick=pulse*1800; break end
+        end
+        check("dormant comparison sample exists", chosen_tick~=nil)
+        for _, frequency in ipairs({0.5,1,2,6}) do
+            local c=settings(frequency,1,1)
+            s=ready_candidates(c); spawn_calls=0
+            qc.one_dormant(s,qc.key(surface.index,40,0),chosen_tick,c)
+            check("ordinary dormant frequency "..frequency, spawn_calls==(frequency==0.5 and 0 or 1))
+        end
+        qc.set_spawn(qc.spawn)
+        for _, dimension in ipairs({"frequency","size","richness"}) do
+            local values={frequency=1,size=1,richness=1}; values[dimension]=0
+            local c=settings(values.frequency,values.size,values.richness)
+            s=ready_candidates(c); candidate_calls=0
+            local key=qc.key(surface.index,40,0)
+            local before=copy(s.dormant_chunks)
+            qc.pulse(18000,c); qc.recovery(s,18000,c); qc.keepalive(s,18000,c)
+            qc.one_dormant(s,key,18000,c)
+            local ok,reason=qc.spawn(surface,40,0,"recovery",18000,nil,c)
+            qc.dormant(s,surface,100,0,54000,404,tick,c)
+            check("disabled all paths "..dimension, not ok and reason=="disabled" and candidate_calls==0 and equal(before,s.dormant_chunks))
+            qc.initial(surface,{x=16,y=3},"chunk-generated",tick,c)
+            check("disabled new chunks admit no dormant work "..dimension, s.dormant_chunks[qc.key(surface.index,16,3)]==nil)
+        end
+        qc.set_candidate(qc.select_candidate)
+        -- Actual resource creation verifies amount assignment, not just arithmetic.
+        local position={x=336,y=80}
+        for _, entity in pairs(surface.find_entities_filtered{area={{332,76},{340,84}}}) do
+            if entity.type~="character" then entity.destroy() end
+        end
+        local tiles={}
+        for x=332,340 do for y=76,84 do tiles[#tiles+1]={name="volcanic-smooth-stone",position={x,y}} end end
+        surface.set_tiles(tiles)
+        for _, richness in ipairs({0.5,1,2,6}) do
+            s=fresh(); local c=settings(1,1,richness)
+            local ok=qc.spawn(surface,10,2,"chunk-generated",tick,{position=position},c)
+            local record=s.active[qc.key(surface.index,10,2)]
+            check("native spawn reserve "..richness, ok and record and record.entity.amount==qc.amount(surface,10,2,c))
+            record.entity.destroy()
+        end
+        surface.map_gen_settings=original_settings
+        storage.ei.vulcanus_fumaroles=original_state
+    end
     local function prepare(tick)
         storage.auric_rebuild_qc = {checks={}, start=tick}
         local surface = assert(game.surfaces.vulcanus)
+        map_controls_tests(surface,tick)
         for _, entity in pairs(surface.find_entities_filtered{name="ei-auric-fumarole"}) do entity.destroy() end
         local fresh = qc.new_state()
         fresh.backfill_bootstrapped = true
@@ -182,6 +328,10 @@ do
         qc.process(tick)
         qc.dormant(s,surface,11,1,54000,404,tick)
         storage.auric_rebuild_qc.first = first.entity
+        local map=surface.map_gen_settings
+        map.autoplace_controls["ei-auric-fumarole"]={frequency=0.5,size=2,richness=2}
+        surface.map_gen_settings=map
+        storage.auric_rebuild_qc.map_controls=qc.controls(surface)
         storage.auric_rebuild_qc.snapshot = snapshot()
         storage.auric_rebuild_qc.saved = true
         storage.auric_rebuild_qc.save_tick = tick
@@ -216,6 +366,7 @@ do
             local mismatch = difference(fixture.snapshot,snapshot(),"state")
             check("native reload before first service" .. (mismatch and ": " .. mismatch or ""), not mismatch)
             check("native entity reference survived", fixture.first.valid and fixture.first.amount==4321)
+            check("selected map controls survive native reload", equal(fixture.map_controls,qc.controls(game.surfaces.vulcanus)))
             fixture.reload_observed = true
             fixture.initial_remaining = scheduler.queue_length(state().backfill_queue)
             fixture.saved_id = state().backfill_rebuild_id

@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: data stage reload, prototype cache rebuild
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/auric-inoculation-vat.md#contract
 local ei_data = require("lib/data")
 local util = require("util")
 
@@ -451,6 +452,26 @@ local prototypes = {
             ingredients = ei_data.science["computer-age-space-gleba"],
             time = 30,
         },
+        age = "computer-age-space-gleba",
+    },
+    -- blueprint-ref: .codex/esir/blueprints/auric-inoculation-vat.md#washing-productivity
+    -- Native recipe productivity stacks with modules under the wash's shared cap.
+    {
+        type = "technology",
+        name = "ei-productivity-auric-cyst-washing",
+        icon = VAT_TECH_ICON_PATH,
+        icon_size = 256,
+        prerequisites = {VAT_TECH_NAME, "agricultural-science-pack"},
+        effects = {
+            {type = "change-recipe-productivity", recipe = "ei-auric-cyst-washing", change = 0.1},
+        },
+        unit = {
+            count_formula = "100 * (1 + 0.15 * L)",
+            ingredients = ei_data.science["computer-age-space-gleba"],
+            time = 20,
+        },
+        max_level = "infinite",
+        upgrade = true,
         age = "computer-age-space-gleba",
     },
     vat_entity,

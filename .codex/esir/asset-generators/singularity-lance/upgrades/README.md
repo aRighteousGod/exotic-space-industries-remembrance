@@ -1,7 +1,7 @@
 # Singularity Lance upgrade art
 
 `generate.py` extends ESIR's procedural lance effect family with deterministic
-Pillow drawing. No AI raster source or companion graphics-pack revision is used.
+Pillow drawing. No AI raster source is used; Graphics 6 owns the shipping assets.
 
 Run from the repository root:
 
@@ -10,7 +10,7 @@ python .codex/esir/asset-generators/singularity-lance/upgrades/generate.py --out
 ```
 
 Review `preview.png` and the four animation strips before promotion. Shipping PNGs
-live in the main mod's `graphics/singularity-lance-upgrades/` directory. The preview
+live in Graphics 6's `graphics/singularity-lance-upgrades/` directory. The preview
 is staging-only. Each combat asset has a transparent semantic layer and a separate
 glow layer; Lean loads the semantic layer alone. The four 256px technology emblems
 reuse the gameplay silhouettes, with a common machined octagonal surround.

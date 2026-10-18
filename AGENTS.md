@@ -9,6 +9,7 @@
 - After editing, run the most relevant verification that fits the change and report exactly what was checked.
 
 ## Repo Workflow
+- Change the main mod version only when the user explicitly requests that version change. Ordinary fixes, feature work, changelog edits, commits and release preparation do not authorize a version bump; add changelog entries under the current version until explicitly told otherwise.
 - Prefer PowerShell-native commands on Windows unless another tool is clearly better.
 - Use `rg` for text search and `rg --files` for file discovery when available.
 - Batch independent reads/searches in parallel when the active environment supports it; avoid slow one-file-at-a-time exploration when the needed files are knowable up front.
@@ -16,6 +17,7 @@
 - Treat `scripts\invoke-esir-dev.ps1` as the first-choice repo wrapper for validation, QC, packaging dry-runs, dependency queries, and ESIR-specific repo health checks.
 - Treat checked-in manifests under `.codex/esir/` as fast maps, not authority. Source files and headless Factorio results win.
 - Keep generated scratch, run caches, and temporary outputs in ignored staging such as `.factorio-qc`, `output`, `temp`, or tool-specific cache folders unless the user asks to promote an artifact.
+- Follow [housekeeping](.codex/skills/esir-dev/references/housekeeping.md): register disposable outputs and close out task-owned runs. Automatic retention excludes actual mod folders, `models/`, and `.git/`; historical unclassified artifacts and external Codex storage are report-only. Normal authorized edits must still retire proven-superseded files in the touched subsystem, including old sprite sheets, without leaving backup/preview copies in shipping folders.
 
 ## Factorio Stage Routing
 - Respect Factorio stage boundaries: settings, data/prototype, data-updates, data-final-fixes, runtime/control, migrations, remote interfaces, and locale all have different APIs and guarantees.
@@ -44,6 +46,8 @@
 ## Assets, Locale, And Content
 - For generated or imported assets, prefer the repo-local asset pipeline skills and Factorio preset conventions before inventing ad hoc render/export steps.
 - Treat `exotic-space-industries-remembrance*/graphics/` as the shipping surface for approved assets, not scratch staging.
+  The main gameplay pack's former `graphics/` contents live in Graphics 6; keep its root `thumbnail.png` for Mod Portal metadata and use `ei_graphics_6_path` for relocated assets.
+  Its former `sounds/` contents also live in Graphics 6; use `ei_sounds_6_path`, derived from `ei_graphics_6_path`, for those sounds.
 - For runtime-tinted force/player color overlays, keep tint masks as separate neutral layers and wire them with Factorio-supported mask/tint fields. Route official tint questions through `factorio-lua-docs`.
 - For recipe icon readability, subgroup/order drift, Factoriopedia visibility, player-crafting visibility, or recipe signal cleanup, use `esir-recipe-icon-style`.
 - English locale anchors keys and gameplay meaning. For wording, terminology, names, register, and sentence structure, prefer accepted native-speaker edits in the target locale over fresh translations or mechanical English calques.

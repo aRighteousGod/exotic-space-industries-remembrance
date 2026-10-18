@@ -7,6 +7,7 @@
 -- rebuild_on: init/configuration change; ordinary loads resume persisted cursors
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/sweeping-radar.md#contract
+-- blueprint-ref: .codex/esir/blueprints/sweeping-radar.md#rebuild-reporting
 local model = {}
 local config=require("lib/sweeping-radar-config")
 local geometry=require("lib/sweeping-radar-geometry")
@@ -71,6 +72,8 @@ local function state()
         end
     end
     root.timers=root.timers or timers.new()
+    root.rebuild_generation=root.rebuild_generation or 0
+    root.rebuild_registration_sequence=root.rebuild_registration_sequence or 0
     return root
 end
 
@@ -78,6 +81,46 @@ function model.get_state() return state() end
 function model.get_record(entity)
     local root=storage.ei and storage.ei.sweeping_radar
     return root and valid(entity) and root.records[entity.unit_number] or nil
+end
+
+local function publish_reconstruction(root,tick)
+    local job=root.rebuild;if not job then return end
+    if job.completed>=job.total then
+        job.id=scheduler.report_rebuild("sweeping-radar","reconstruction","all",job.id,nil,tick);root.rebuild=nil;return
+    end
+    local waiting=job.waiting>=job.total-job.completed
+    job.id=scheduler.report_rebuild("sweeping-radar","reconstruction","all",job.id,
+        {reason=job.reason,phase="geometry",state=waiting and "waiting" or "running",completed=job.completed,total=job.total,
+            unit="radars",eta_blocked=job.waiting>0,waiting_reason=job.waiting>0 and "radar-state" or false},tick)
+end
+local function begin_reconstruction(root,reason,tick)
+    if root.rebuild then scheduler.finish_rebuild(root.rebuild.id,"superseded",tick) end
+    root.rebuild_generation=root.rebuild_generation+1
+    root.rebuild={generation=root.rebuild_generation,epoch=root.force_epoch,reason=reason,
+        cutoff=root.rebuild_registration_sequence,total=#root.order,completed=0,waiting=0}
+    publish_reconstruction(root,tick)
+end
+local function reconstruction_for(root,record)
+    local job=root.rebuild
+    if not job or (record.rebuild_registration_sequence or 0)>job.cutoff or record.rebuild_completed_generation==job.generation then return nil end
+    if record.rebuild_tracking_generation~=job.generation then
+        record.rebuild_tracking_generation=job.generation;record.rebuild_waiting=false
+    end
+    return job
+end
+local function finish_reconstruction(root,record)
+    local job=reconstruction_for(root,record);if not job then return end
+    if record.rebuild_waiting then job.waiting=math.max(0,job.waiting-1) end
+    record.rebuild_waiting=nil;record.rebuild_completed_generation=job.generation;job.completed=job.completed+1
+end
+local function observe_reconstruction(root,record)
+    local job=reconstruction_for(root,record);if not job then return end
+    if (record.force_epoch or 0)>=job.epoch and not record.reset_pending and record.geometry and record.geometry.phase=="ready"
+        and valid(record.power) and valid(record.output) and record.status~="invalid" and record.status~="helper" then
+        finish_reconstruction(root,record);return
+    end
+    local waiting=record.status=="power" or record.status=="frozen" or record.status=="paused" or record.status=="invalid" or record.status=="helper"
+    if waiting~=record.rebuild_waiting then job.waiting=math.max(0,job.waiting+(waiting and 1 or -1));record.rebuild_waiting=waiting end
 end
 
 local function next_record(root,stage)
@@ -260,9 +303,10 @@ local function sync_helpers(root,record,tick)
     return true
 end
 
-local function unregister(root,id)
+local function unregister(root,id,tick)
     local record=root.records[id]
     if not record then return end
+    finish_reconstruction(root,record)
     visuals.destroy(record)
     cancel_job(root,record)
     clear_output(record)
@@ -274,18 +318,20 @@ local function unregister(root,id)
     root.order[#root.order]=nil;root.indices[id]=nil;root.records[id]=nil
     for _,lane in pairs(root.lanes or {}) do lane_set(lane,id,false) end
     timers.cancel(root.timers,id..":scan");timers.cancel(root.timers,id..":expiry")
+    publish_reconstruction(root,tick)
 end
 
 local function register(entity,tick,preferences,energy)
     local root,id=state(),entity.unit_number
     if root.records[id] then return root.records[id] end
+    root.rebuild_registration_sequence=root.rebuild_registration_sequence+1
     entity.disabled_by_script=true
     local work=contacts.new()
     local record={entity=entity,id=id,settings=config.copy_settings(preferences),epoch=1,
         work=work,report=work,heading=0,status="preparing",next_poll=tick,next_scan=tick,
         last_power_tick=tick,ready=false,observations=0,passes=0,created_tick=tick,
         registration=script.register_on_object_destroyed(entity),force_epoch=0,
-        pass_started=tick,last_publish=tick,pulse=false,last_trigger=false}
+        pass_started=tick,last_publish=tick,pulse=false,last_trigger=false,rebuild_registration_sequence=root.rebuild_registration_sequence}
     root.records[id]=record
     root.order[#root.order+1]=id;root.indices[id]=#root.order
     root.registrations[record.registration]={id=id,kind="entity"}
@@ -385,7 +431,7 @@ function model.on_destroyed_entity(event)
             root.transfer_indices[key]=#root.transfer_order
         end
     end
-    unregister(root,record.entity.unit_number)
+    unregister(root,record.entity.unit_number,event.tick)
 end
 
 function model.on_object_destroyed(event)
@@ -402,7 +448,7 @@ function model.on_object_destroyed(event)
     local record=root.records[registration.id]
     root.registrations[event.registration_number]=nil
     if not record then return end
-    if registration.kind=="entity" then unregister(root,registration.id)
+    if registration.kind=="entity" then unregister(root,registration.id,event.tick)
     elseif record[registration.kind.."_registration"]==event.registration_number then
         -- A bounded repair may already have replaced this invalid helper before
         -- the engine delivers its delayed destruction notification.
@@ -453,11 +499,16 @@ function model.on_force_changed()
 end
 model.on_forces_merged=model.on_force_changed
 function model.on_research_finished(event)
-    if event.research and event.research.name:match("^ei%-radar%-") then model.on_force_changed() end
+    if event.research and event.research.name:match("^ei%-radar%-") then
+        model.on_force_changed();begin_reconstruction(state(),"research",event.tick)
+    end
 end
-model.on_scripted_research_burst=model.on_force_changed
+function model.on_scripted_research_burst(force,tick)
+    model.on_force_changed();begin_reconstruction(state(),"scripted-research",tick or game.tick)
+end
 
-function model.rebuild(tick)
+function model.rebuild(tick,reason)
+    tick=tick or game.tick
     local root=state()
     root.force_epoch=root.force_epoch+1
     -- Discovery is configuration/init only, never steady-state scanning.
@@ -465,6 +516,7 @@ function model.rebuild(tick)
         for _,entity in pairs(surface.find_entities_filtered{name=config.names}) do register(entity,tick) end
         for _,entity in pairs(surface.find_entities_filtered{type="entity-ghost",ghost_name=config.names}) do visuals.ghost(root,entity) end
     end
+    begin_reconstruction(root,reason or "configuration",tick)
 end
 
 local function research(record,root)
@@ -543,7 +595,7 @@ local function changed(a,b)
 end
 
 local function service_control(root,record,tick)
-    if not valid(record.entity) then unregister(root,record.entity.unit_number);return end
+    if not valid(record.entity) then unregister(root,record.id,tick);return end
     if tick<record.next_poll then return end
     record.next_poll=tick+config.poll_ticks
     record.entity.disabled_by_script=true
@@ -842,8 +894,9 @@ function model.updater(event)
         if not record then break end
         if valid(record.entity) then
             service_control(root,record,tick);refresh_lanes(root,record)
+            observe_reconstruction(root,record)
             if visuals.service(record,tick) then root.last.visual=root.last.visual+1 end
-        else unregister(root,root.order[root.cursors.control]) end
+        else unregister(root,root.order[root.cursors.control],tick) end
         root.last.control=root.last.control+1
     end
     -- Wakeups share the maintenance allowance. No population scan is required
@@ -859,6 +912,7 @@ function model.updater(event)
         local record=next_record(root,"geometry")
         if not record then break end
         if record.geometry and not record.reset_pending and geometry.step(record.geometry) then root.last.geometry=root.last.geometry+1 end
+        observe_reconstruction(root,record)
         refresh_lanes(root,record)
     end
     for _=1,config.budget.observation do
@@ -898,6 +952,7 @@ function model.updater(event)
     end
     scheduler.set_module_status("sweeping-radar",{radars=#root.order,jobs=root.jobs,
         observations=root.counters.observations,generated=root.counters.generated},tick)
+    publish_reconstruction(root,tick)
 end
 -- blueprint-ref: .codex/esir/blueprints/sweeping-radar.md#admin-repair
 -- Discovery preserves paid jobs, report buffers, geometry and helper joules.
@@ -906,10 +961,10 @@ end
 function model.repair_runtime_state(reason,tick)
     local root=state()
     for id,record in pairs(root.records) do
-        if not valid(record.entity) then unregister(root,id)
+        if not valid(record.entity) then unregister(root,id,tick)
         else sync_helpers(root,record,tick) end
     end
-    model.rebuild(tick)
+    model.rebuild(tick,reason)
     return true
 end
 

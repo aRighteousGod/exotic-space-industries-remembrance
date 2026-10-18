@@ -153,3 +153,57 @@ including three saved-preview upgrade assertions. This responsive lane supplies
 the viewport/control regression checks against those current GUI bytes; it does
 not replace that integrated legacy-session test. Both results retain their own
 source manifests and logs.
+
+## Default launcher follow-up, 2026-10-18
+
+`admin-responsive-launcher-default-20261018` passed **75/75** native checks on
+Factorio **2.0.77**, at **1280 x 720, UI scale 1**. The launcher appears for an
+authorized administrator before opening a console page, retains its element on
+reconciliation, respects explicit Off, adopts On for an unset legacy preference,
+and is removed/restored on demotion/promotion. An unauthorized player creates
+neither an admin session nor a mod-gui container. Existing position, draft,
+automatic-refresh and page-bounds checks also passed.
+
+The fixture now supplies an inert Map Settings owner alongside its existing
+Ecology stub, matching the current GUI routing contract. This run validates the
+launcher and shared console lifecycle, not either page's gameplay implementation.
+No new launcher artwork was integrated. Lua syntax and scoped whitespace checks
+passed; the broader blueprint audit reports three unrelated missing primary
+markers in the existing `minigun-turret-HD` worktree.
+
+## Overseer's Seal integration, 2026-10-18
+
+Factorio **2.0.77** passed **83/83** checks at each native **1280 x 720** preset:
+
+- `admin-responsive-overseer-seal-20261018-4`: UI scale **1**.
+- `admin-responsive-overseer-seal-20261018-6`: UI scale **1.5**.
+
+Both runs used the same production GUI, configuration and sprite prototype bytes.
+The accepted **1254 x 1254 RGBA** source is copied unchanged into Graphics 6;
+the native GUI sprite supplies a 32-unit seal inside the standard 40-unit launcher
+and a 48-unit title image. Native screenshots were inspected at both scales;
+the final run also captures the launcher with the console closed. The eye, amber
+lens and crown remain distinct against the native button and dark titlebar.
+
+Checks cover the custom launcher, in-place replacement of saved launcher artwork,
+retained root/title identity on refresh, the title flow's drag target, and a
+structural upgrade retaining position and draft text. Existing permission,
+default/explicit-Off, auto-refresh, camera and page-bounds assertions still pass.
+The fixture now waits for every configured page, including Cameras, before its
+final diagnostic/launcher captures. It stages Map Settings locale alongside the
+existing inert owner; this is shared GUI coverage, not Map Settings or Ecology
+gameplay acceptance. Mouse dragging and multiplayer were not manually exercised.
+
+The initial fixture assertions incorrectly tried to read a native inherited
+height through runtime style overrides. The corrected test verifies the native
+`mod_gui_button` style; its 40-unit height comes from the installed core style.
+The title image passes interaction to its draggable parent flow, matching the
+2.0.77 API's supported drag-target element types. Earlier failed/superseded runs
+are resolved by the two passing runs above.
+
+All five changed Lua files passed syntax checks, the PowerShell runner parsed,
+the accepted/source PNG hashes match, and scoped whitespace checks passed.
+Full preflight stopped while traversing an unrelated pre-existing long-path
+fixture under `output/minigun-firing-offline-tests/long-paths`. The standalone
+blueprint audit still reports only the three unrelated missing primary markers
+in `minigun-turret-HD`; none are in this change's source/model ownership.

@@ -68,6 +68,19 @@ end
 local function session_for(index)
     local root=common.peek();return root and root.sessions[index]
 end
+---@param index uint
+---@return table session
+---@return EiAdminState state
+local function ensure_session(index)
+    local state=common.state();local session=state.sessions[index]
+    if not session then
+        session={drafts={},fields={},choices={},pages={},enemy_mix={}}
+        state.sessions[index]=session
+    end
+    -- An unset legacy preference adopts the default; an explicit Off stays Off.
+    if session.launcher==nil then session.launcher=true end
+    return session,state
+end
 function model.configure(ctx) context=ctx end
 
 -- One cancellable delayed entry per visible viewer; no session scan on idle ticks.
@@ -253,7 +266,7 @@ local function resize_window(player,session,force)
         or root.location or session.location or {x=0,y=0}
     if root.auto_center then root.auto_center=false end
     session.center_pending=nil
-    local body_height=math.max(1,height-112)
+    local body_height=math.max(1,height-132)
     local nav_width=math.min(width<900 and 168 or 202,math.floor(width*0.28))
     local right_width=math.max(1,width-24-nav_width)
     local feedback_height=(status or confirm) and math.min(math.floor(body_height*0.40),(status and 44 or 0)+(confirm and 112 or 0)) or 0
@@ -293,7 +306,7 @@ local function resize_window(player,session,force)
     fit_content(session.confirm_frame,right_width-30)
     fit_content(session.toolbar,width-16)
     session.title.style.maximal_width=width-16
-    session.title_caption.style.minimal_width=0;session.title_caption.style.maximal_width=math.max(1,width-132)
+    session.title_caption.style.minimal_width=0;session.title_caption.style.maximal_width=math.max(1,width-188)
     local margin=math.floor(8*scale)
     local x_max=math.max(0,math.floor(resolution.width-width*scale-margin))
     local y_max=math.max(0,math.floor(resolution.height-height*scale-margin))
@@ -592,7 +605,9 @@ end
 
 local function build_page(parent,id,session,player,tick)
     heading(parent,"page-"..id)
-    if id=="ecology" then
+    if id=="map-settings" then
+        context.map_settings.build(parent,session,player,tick)
+    elseif id=="ecology" then
         context.ecology.build(parent,session,player,tick)
     elseif id=="planets" then
         caption(parent,"planet-policy-note","ei_admin_muted")
@@ -699,6 +714,7 @@ function model.refresh(index,tick,snapshot)
     if session.summary_signature~=signature then session.summary.caption=target_summary;session.summary_signature=signature end
     if session.page=="diagnostics" then refresh_diagnostics(session,player,tick) end
     if session.page=="ecology" then context.ecology.refresh(session,player,tick) end
+    if session.page=="map-settings" then context.map_settings.refresh(session,player,tick) end
     if session.page=="players" then sync_travel_destinations(session) end
     if session.page=="enemies" and session.mixture_label and session.mixture_label.valid then
         sync_catalog(session,"enemy",session.drafts.enemy_catalog=="advanced" and "advanced_enemies" or "enemies",session.drafts.enemy_search)
@@ -815,21 +831,22 @@ end
 
 function model.open(player,page,tick)
     if not common.authorize(player) then return end
-    local state=common.state();local session=state.sessions[player.index]
-    if not session then session={drafts={},fields={},choices={},pages={},enemy_mix={}};state.sessions[player.index]=session end
+    local session,state=ensure_session(player.index)
     local valid_page=false
     for _,entry in ipairs(config.pages) do if entry.id==page then valid_page=true end end
     if not valid_page then page=session.page or "planets" end
-    -- An older saved console lacks the optional timer controls. This is a real
+    -- An older saved console lacks the title emblem or optional controls. This is a real
     -- structural change; close preserves its location/drafts before rebuilding.
     if session.root and session.root.valid and not (session.auto_refresh_button and session.auto_refresh_button.valid
+        and session.title_icon and session.title_icon.valid
         and session.nav and session.nav.ecology and session.nav.ecology.valid
+        and session.nav["map-settings"] and session.nav["map-settings"].valid
         and (not session.diagnostics or (session.diagnostics.rebuild_overview and session.diagnostics.rebuild_overview.valid
             and session.diagnostics.rebuild_detail and session.diagnostics.rebuild_detail.valid))) then
         model.close(player.index,true)
     end
     if not (session.root and session.root.valid) then
-        session.fields={};session.choices={};session.pages={};session.nav={};session.diagnostics=nil;session.ecology=nil
+        session.fields={};session.choices={};session.pages={};session.nav={};session.diagnostics=nil;session.ecology=nil;session.map_settings=nil
         session.target_signatures={};session.summary_signature=nil;session.readout_signature=nil
         session.catalog_signatures={};session.availability={};session.layout_signature=nil
         session.active_jobs_signature=nil
@@ -837,8 +854,11 @@ function model.open(player,page,tick)
         local old=player.gui.screen[GUI];if old then old.destroy() end
         local root=player.gui.screen.add{type="frame",name=GUI,direction="vertical",tags=tags("root")};session.root=root
         root.style.padding=8
-        local title=row(root);session.title=title;session.title_caption=title.add{type="label",caption=label("title"),style="frame_title"}
-        local spacer=title.add{type="empty-widget",style="ei_titlebar_draggable_spacer"};spacer.drag_target=root
+        local title=row(root);session.title=title;title.style.vertical_align="center";title.drag_target=root
+        local icon=title.add{type="sprite",sprite=config.sprite};session.title_icon=icon
+        icon.resize_to_sprite=false;icon.style.size=48;icon.style.stretch_image_to_widget_size=true;icon.ignored_by_interaction=true
+        session.title_caption=title.add{type="label",caption=label("title"),style="frame_title"}
+        local spacer=title.add{type="empty-widget",style="ei_titlebar_draggable_spacer"};spacer.drag_target=root;spacer.style.height=48
         button(title,"close","close")
         local toolbar=root.add{type="flow",direction="vertical"};session.toolbar=toolbar
         local tools=row(toolbar,"buttons");button(tools,"show-launcher","launcher");button(tools,"refresh","refresh");button(tools,"cancel-target","cancel-target")
@@ -899,10 +919,12 @@ function model.close(index,destroy)
 end
 
 function model.launcher(player)
-    local session=session_for(player.index)
+    local authorized=common.authorize(player)
+    local session
+    if authorized then session=ensure_session(player.index) else session=session_for(player.index) end
     local existing=session and session.launcher_element
     if existing and not existing.valid then existing=nil;session.launcher_element=nil end
-    local enabled=common.authorize(player) and session and session.launcher
+    local enabled=authorized and session and session.launcher
     if not enabled then
         if not existing and session and session.launcher then
             -- Read an existing native flow for defensive cleanup; the getter creates
@@ -917,9 +939,12 @@ function model.launcher(player)
     end
     if not existing then
         local flow=mod_gui.get_button_flow(player)
-        session.launcher_element=flow[config.launcher] or flow.add{type="sprite-button",name=config.launcher,
-            sprite="utility/brush_circle_shape",tooltip=label("title"),style=mod_gui.button_style,tags=tags("open")}
+        existing=flow[config.launcher] or flow.add{type="sprite-button",name=config.launcher,
+            sprite=config.sprite,tooltip=label("title"),style=mod_gui.button_style,tags=tags("open")}
+        session.launcher_element=existing
     end
+    -- Upgrade a saved launcher in place; unchanged buttons receive no writes.
+    if existing.sprite~=config.sprite then existing.sprite=config.sprite end
 end
 
 local function arguments(session,player,extra)
@@ -945,6 +970,7 @@ function model.on_gui_change(event)
     local player=game.get_player(event.player_index);if not common.authorize(player) then return true end
     local session=session_for(player.index);if not session then return true end
     if context.ecology.on_gui_change(event,session) then model.refresh(player.index,event.tick);return true end
+    if context.map_settings.on_gui_change(event,session) then model.refresh(player.index,event.tick);return true end
     local id=element.tags.field;if not id then return true end
     if element.type=="textfield" then session.drafts[id]=element.text
     elseif element.type=="choose-elem-button" then session.drafts[id]=element.elem_value
@@ -971,6 +997,7 @@ function model.on_gui_click(event)
     if t.action=="open" then model.open(player,nil,event.tick);return true end
     if not session then return true end
     if context.ecology.on_gui_click(event,session) then model.refresh(player.index,event.tick);return true end
+    if context.map_settings.on_gui_click(event,session) then model.refresh(player.index,event.tick);return true end
     if t.action=="close" then model.close(player.index)
     elseif t.action=="page" then model.open(player,t.page,event.tick)
     elseif t.action=="refresh" then model.refresh(player.index,event.tick)

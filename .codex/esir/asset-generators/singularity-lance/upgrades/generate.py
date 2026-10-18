@@ -1,6 +1,6 @@
 """Deterministic lance capability art. Pillow; --output stages transparent layers.
-Review preview.png and animation strips before promoting to main-pack graphics.
-Extends the existing procedural lance art family; no companion-version change.
+Review preview.png and animation strips before promoting to Graphics 6.
+Extends the existing procedural lance art family; gameplay stays in the main pack.
 """
 from pathlib import Path
 import argparse, math
@@ -117,4 +117,3 @@ for i,name in enumerate(['collapse-warning','collapse-impact','testament-warning
     preview.paste(im,(i*256+32,515),im)
 preview.save(out/'preview.png')
 print(out/'preview.png')
-

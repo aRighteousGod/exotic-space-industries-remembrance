@@ -82,7 +82,7 @@ The earlier overlay implementation described below is superseded by this
 correction. Its historical checks do not validate the correction; the user will
 perform the new checks.
 
-The two chassis use the approved 256-facing masters in the main mod. The native void-powered radar shell has empty pictures and still owns collision, selection, quality health, wiring, blueprint identity and upgrades. Native placement previews and event-bound ghost render objects show the model before construction; inventory icons use the same retained art. The ordinary radar is unchanged.
+The two chassis use the approved 256-facing masters in Graphics 6. The native void-powered radar shell has empty pictures and still owns collision, selection, quality health, wiring, blueprint identity and upgrades. Native placement previews and event-bound ghost render objects show the model before construction; inventory icons use the same retained art. The ordinary radar is unchanged.
 
 Each record optionally owns `visual`: a displayed heading, one coalesced interpolation segment, completion/service ticks, surface/revision/frame caches, and entity-bound `LuaRenderObject` references for body/shadow and optional glow. Four existing control visits per tick select frozen animation frames. There is no additional scheduler or population walk. Small fleets can refresh every tick; larger fleets share these four visual visits, so 256 facings is an art resolution rather than a guaranteed refresh rate. Unchanged animation names, offsets and glow visibility are not rewritten. Native animation speed remains zero, preventing overshoot while the record waits for service.
 
@@ -103,3 +103,8 @@ Reuse `scripts/invoke-sweeping-radar-qc.ps1` and its README, acceptance, quality
 ## GUI refresh cost
 
 Radar screens retain static coverage rendering until geometry, entity position/surface, or handle validity changes. Beam movement replaces only the two private beam lines, leaving coverage handles intact. Unchanged beams create no rendering objects. Capability and metric captions compare their displayed scalar signatures before assignment. Existing one-viewer-per-tick, 15-tick minimum service and unapplied manual fields are preserved. Saved viewers without signatures migrate at their next existing service.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Research/configuration/admin reconstruction captures a cohort cutoff and epoch; later placement stays outside it. Existing control/geometry lanes retire membership after reset, current force epoch, valid helpers and geometry completion. Removal retires work. An entirely externally blocked cohort waits; mixed work remains public without ETA. Ordinary sweeps and contacts remain excluded.

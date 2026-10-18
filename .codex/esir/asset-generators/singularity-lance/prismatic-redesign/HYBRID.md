@@ -9,7 +9,7 @@ python -B .codex/esir/asset-generators/singularity-lance/prismatic-redesign/vali
 
 `hybrid.py` imports the unchanged `production.py` and `generate.py`. It stages only
 eight additional PNGs under `output/meshy/lance-prismatic-liturgy/hybrid/factorio-export`.
-Promotion into the main pack is a separate copy step. `hybrid-manifest.json` records
+Promotion into Graphics 6 is a separate copy step. `hybrid-manifest.json` records
 the approved dimensions, frame counts, core ratios, and hashes.
 
 The normal and Testament concentrated warnings retain the original spiraling
@@ -41,4 +41,4 @@ in-game acceptance.
 Runtime schema 12 uses the new concentrated animation names only for new packets.
 Schema-11 paid packets retain their original single impact and animation names.
 Technology emblems, prerequisite/science identities, and graphics-pack dependencies
-are unchanged; all eight new PNGs ship inside the main pack.
+are unchanged; all eight new PNGs ship inside Graphics 6.

@@ -9,6 +9,27 @@ assert(not crown.action and not crown.action_triggered_automatically and crown.d
 assert(crown.width==beam.width*2)
 assert(vehicle.graphics_set.animation.layers[1].direction_count==128)
 assert(vehicle.graphics_set.shadow_animation.direction_count==128)
+-- Check the final owner after all data-stage mutation, including constructed
+-- split-sheet names and icons inherited by the vehicle's native interfaces.
+local graphics_owner=ei_graphics_6_path.."graphics/"
+for index,suffix in ipairs{"","_glow","_mask"} do
+    local layer=vehicle.graphics_set.animation.layers[index]
+    for part=1,2 do
+        assert(layer.filenames[part]==graphics_owner.."entities/anisetron/anisetron"..suffix.."_"..part..".png")
+    end
+end
+for part=1,2 do
+    assert(vehicle.graphics_set.shadow_animation.filenames[part]==graphics_owner.."entities/anisetron/anisetron_shadow_"..part..".png")
+end
+local vehicle_icon=graphics_owner.."items/anisetron.png"
+assert(vehicle.icon==vehicle_icon)
+assert(data.raw["spider-leg"]["ei-anisetron-leg"].icon==vehicle_icon)
+assert(data.raw["item-with-entity-data"]["ei-anisetron"].icon==vehicle_icon)
+assert(data.raw.gun["ei-anisetron-beam-gun"].icon==graphics_owner.."items/anisetron-crystal-charge.png")
+assert(ammo.icon==graphics_owner.."items/anisetron-crystal-charge.png")
+assert(vehicle.minimap_representation.filename==vehicle_icon)
+assert(vehicle.selected_minimap_representation.filename==vehicle_icon)
+assert(data.raw.technology["ei-anisetron"].icon==graphics_owner.."technology/anisetron.png")
 assert(data.raw.animation["ei-anisetron-movement-strand"])
 assert(vehicle.energy_source.type=="void", "Cathedral movement power was rewritten")
 assert(#vehicle.guns==1 and not vehicle.automatic_weapon_cycling)

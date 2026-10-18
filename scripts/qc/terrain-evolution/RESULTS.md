@@ -1,5 +1,182 @@
 # Terrain Evolution implementation evidence
 
+## Illustrated Simple field report, October 18, 2026
+
+Simple now presents six static planetary illustrations, actual native light
+phases, a separate seasonal calendar and recorded ecological activity. The owner
+adds only finite per-category success timestamps; older totals retain unknown
+times. A read-only native capability fallback also covers older unobserved
+surfaces. No gameplay rates, settings defaults or mod versions were changed.
+
+The six 1536 x 384 Graphics 6 banners match the source/output SHA256 manifest in
+`output/ecology-field-report/`. That ignored package retains prompts, unmodified
+sources, crop bounds, exports and a contact sheet. All six banners were inspected
+in the actual game window. English, Japanese, Russian and German top/middle/bottom
+captures were inspected for wrapping, contrast, complete scrolling and accessible
+title/tab/close controls. The 2x-scale run uses a 592-logical-pixel window and
+536-pixel content width, selecting stacked cards.
+
+Fresh Factorio 2.0.77 graphical evidence, all at an actual 1280 x 720 viewport:
+
+| Lane | Checks | Resolved captions/tooltips | Evidence root |
+|---|---:|---:|---|
+| English, six worlds | 725/725 | 532/532 | `.factorio-qc/efr1/en` |
+| Japanese | 489/489 | 348/348 | `.factorio-qc/efr1/ja` |
+| Russian | 491/491 | 348/348 | `.factorio-qc/efr1/ru` |
+| German | 491/491 | 348/348 | `.factorio-qc/efr1/de` |
+| English, 2x UI scale | 489/489 | 348/348 | `.factorio-qc/efr1/s2` |
+| English, added lifecycle checks | 503/503 | 348/348 | `.factorio-qc/efr1/lc` |
+
+These exercise actual remote views, held/permanent time, unsupported utility
+surfaces, rapid A-B-A returns, first-use replacement of an older saved GUI layout,
+read-only Fulgora observation and 180 closed-panel idle ticks with no report
+compositions or snapshots. Russian and German also dispatch the field-guide
+button and verify native Informatron opens while Ecology closes. Runtime wrappers
+are confined to the fixture: no shipping QC interface or gameplay service is added.
+
+The final lifecycle lane exercises native surface rename and queued deletion.
+After six Advanced rows had populated, it returns to Simple and deletes only the
+fixture utility. The surface catalog retires that entry, and the new Simple
+generation becomes ready in 144 ticks without finishing Advanced. Shipping source
+fingerprints remain identical to the five graphical profiles above.
+
+Fifty independently instrumented native admissions observed at most **8 dynamic
+property writes** and **30 binding inspections**, below the 32-inspection ceiling.
+Static construction on open/layout replacement is a separate operation. A later
+100-refresh profiling window restores the real composer and snapshot functions
+and excludes setter proxies and invariant checks. Natural admissions were 64
+ticks apart, consistent with the 60-tick target on 16-tick presentation polls:
+
+| Open-viewer refresh cost | Milliseconds |
+|---|---:|
+| Mean | 0.538982 |
+| Median | 0.501350 |
+| p99 | 0.896100 |
+| Maximum | 1.051000 |
+
+These are per-admitted-refresh measurements for one open viewer in the focused
+fixture, **not** whole-engine cost, a multiplayer benchmark, or an improvement
+claim. The profiler records and derived values are retained in
+`.factorio-qc/efr1/open-panel-timing.json` and the English native log.
+
+The real composer passes **69 standalone checks** for boundary equality/wrap,
+clamps/partitions, frozen/permanent time, native duration changes, pollutant and
+woodland applicability, old totals without timestamps, and unknown/platform
+reports. The existing offline GUI and scheduler/report lanes pass 3 and 26 checks.
+A fresh focused V2 engine fixture passes **35/35** in `.factorio-qc/efn1`.
+All eight locale audits pass, including the 67 new keys per language and the
+existing settings/guide surfaces. Source fingerprints and asset hashes match the
+tested shipping files.
+
+Native testing exposed coupled `always_day`/`freeze_daytime` setters and the
+visible border of a zero-width progress bar. The fixture now uses actual flag
+results; the report explicitly hides zero-length phases. Preliminary fixture
+failures remain retained separately from final passing reports.
+
+Focused syntax and whitespace checks pass. The blueprint audit has no Ecology
+findings; its three outstanding primary-marker findings are in the unrelated
+`minigun-turret-HD` companion. Full preflight was blocked by a pre-existing long
+path under `output/minigun-firing-offline-tests/`. These graphical checks do not
+establish native-speaker proofreading, mouse dragging, every viewport/scale, or
+two-client multiplayer behavior.
+
+Both task-owned artifact records are closed and their protected evidence is
+retained. The graphics source package completed normally. The native-QC record's
+housekeeping snapshot rejected a staged Graphics 1 directory junction, so its
+registry status is `failed` with `task_open=false`; this is an artifact-snapshot
+limitation, separate from the six passing native reports. No dependency targets
+or other tasks' outputs were removed.
+
+## Practical engineer-ecologist guide rewrite, October 15, 2026
+
+All seven `ecology-informatron.cfg` files now lead with observable effects and
+plain explanations, then use bold default-setting and practical-limit labels.
+The six routes, 36 sections and 82 keys per language remain intact (574 localized
+guide entries; approximately 5,000 English words). Established setting and GUI
+names remain recognizable. This rewrite changes no runtime owner, public API,
+save data, map-setting tooltip or polling behavior. The overview still ends with
+the cached effective-status readout; the child pages still build static labels.
+
+Source review retained every section's qualifications and clarified square
+regrowth reach, the base recovery/degradation interval ratio, and Fulgora's lack
+of an approved woodland family. Wildfire's probability is explicitly a chance to
+attempt ignition: a lower pollution reading prevents new requests, while an
+already accepted ignition may still be waiting. The stress heading no longer
+implies that every naturally grey tree is polluted.
+
+Focused native Factorio 2.0.77 evidence:
+
+| Lane | Result | Evidence |
+|---|---:|---|
+| Six-page routing, sections and wrapping | 141/141 | `.factorio-qc/egir1/native/headless-report.json` |
+| Final English client | 312/312; 85 translations | `.factorio-qc/egir1/en-report.json` |
+| Final Japanese client | 312/312; 85 translations | `.factorio-qc/egir1/ja-report.json` |
+| Final Russian client | 312/312; 85 translations | `.factorio-qc/egir1/ru-report.json` |
+| Startup-disabled availability and effective readout | 142/142 | `.factorio-qc/egir1/off/script-output/terrain-qc.json` |
+
+The final connected runs followed the last wording corrections. All 82 guide
+captions resolved by each client match that language's shipping file exactly;
+the remaining three captions are the existing overview menu/title and effective
+readout. All seven staged guide files match shipping bytes. The locale audit
+passes its 230 setting-schema requirements plus guide key, numeric, paragraph,
+font/colour, encoding and duplicate checks. Its new rich-text balance check also
+accepted valid/nested labels and rejected four malformed-tag probes.
+`.factorio-qc/egir1/locale-report.json` records the final guide hashes and parity.
+
+English, Japanese and Russian captures were inspected for paragraph wrapping,
+bold detail labels, sidebar fit and complete bottom-of-page text. Each connected
+run captured the top and bottom of all six pages under
+`.factorio-qc/egir1/script-output/ecology-guide/<locale>/`. As in the earlier guide
+fixture, only the test host frame is fitted to 1280x720; shipping Informatron
+styles remain unchanged. The other four languages have complete text and static
+locale validation, not a claimed connected-client or native-speaker review.
+
+The first graphical attempt used a nested profile that brought an existing
+sprite path to 260 characters. The engine reported it missing before opening
+the guide. Shortening the owned profile reduced that path to 253 characters and
+resolved the load; no shipping asset was changed. That diagnostic is retained
+under `egir1/native` and is not counted as a passing run. These checks establish
+documentation behavior and layout, not new gameplay or performance measurements.
+The task's artifact record is closed. Its retention snapshot refuses the staged
+graphics-pack junctions, so the payload remains retained; that housekeeping
+failure is separate from the passing fixture results in `egir1/summary.json`.
+
+## Detailed Informatron guide, October 14, 2026
+
+The existing `terrain_evolution` overview remains under World related, with
+five nested pages for ground/mining, woodlands/fire, shorelines/cliffs, seasons/
+worlds and controls/reports. All 36 sections use wrapped headings and paragraphs.
+Each of the seven locales supplies 82 guide entries, roughly 4,200 words in English.
+The overview retains its final effective readout and now reads cached surface
+facts instead of scanning histories. Documentation owns no polling or world work.
+
+Focused native Factorio 2.0.77 evidence:
+
+| Lane | Result | Evidence |
+|---|---:|---|
+| All six native page routes, sections and wrapping | 141/141 | `.factorio-qc/egi1/headless-report.json` |
+| Connected English pages and caption translations | 312/312; 85 translations | `.factorio-qc/egi1/en-report.json` |
+| Connected Japanese pages and caption translations | 312/312; 85 translations | `.factorio-qc/egi1/ja-report.json` |
+| Startup-disabled guide availability and readout | 142/142 | `.factorio-qc/egi2/script-output/terrain-qc.json` |
+
+English and Japanese frames were inspected. The final English captures under
+`ecology-guide/en-final` clear the copied seed's editor controller and fit only
+the fixture host frame into 1280x720. Informatron 0.4.0 fixes its normal frame at
+800 pixels; this fixture adjustment changes no shipping host style or content
+width. Earlier overview/low-frame captures are retained separately. Native
+localization covers English/Japanese; the other five languages have structural,
+paragraph, numeric-token and UTF-8 checks, not a claimed connected rendering pass.
+Two long sidebar captions were shortened after capture while full page titles
+remain; the final seven-locale audit includes those cosmetic edits.
+
+All seven locale audits pass with 230 setting-schema requirements and 82 guide
+keys per language. Focused Lua screening and diff checks pass. Blueprint review
+has no guide findings; the three existing minigun HD marker findings remain.
+The first fixture run used an invalid scroll-position attribute; the corrected
+fixture uses native scroll methods. That diagnostic does not establish acceptance.
+These checks establish documentation routing, localization and layout, not new
+ecology gameplay, networking or performance measurements.
+
 ## Ecology V2, October 14, 2026
 
 The worktree implements fair bounded service, persistent exposure observations,

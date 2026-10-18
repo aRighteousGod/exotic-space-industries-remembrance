@@ -4506,7 +4506,7 @@ data:extend({
             {type = "item", name = "ei-crushed-gold", amount = 80},
             {type = "fluid", name = "ei-hydrofluoric-acid", amount = 100},
         },
-        results = {{type = "item", name = "processing-unit", amount = 10}},
+        results = {{type = "item", name = "processing-unit", amount = 15}},
         enabled = false,
         always_show_made_in = true,
         allow_decomposition = false,

@@ -774,7 +774,7 @@ data:extend({
                     scale = 0.7,
                 },
                 {
-                    filename = ei_path .. "graphics/entities/advanced-port-glow.png",
+                    filename = ei_graphics_6_path .. "graphics/entities/advanced-port-glow.png",
                     width = 512,
                     height = 512,
                     scale = 0.7,
@@ -800,7 +800,7 @@ data:extend({
                     scale = 0.7,
                 },
                 {
-                    filename = ei_path .. "graphics/entities/advanced-port-glow.png",
+                    filename = ei_graphics_6_path .. "graphics/entities/advanced-port-glow.png",
                     width = 512,
                     height = 512,
                     scale = 0.7,

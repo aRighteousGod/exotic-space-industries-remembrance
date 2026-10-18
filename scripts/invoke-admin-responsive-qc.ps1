@@ -21,13 +21,19 @@ $run=Join-Path $repo ('.factorio-qc/admin-responsive-'+$RunName)
 if(Test-Path -LiteralPath $run){throw 'Fresh run name required'}
 $mods=Join-Path $run 'mods'
 $helper=Join-Path $mods 'esir-admin-responsive-qc'
-foreach($folder in @('lib','scripts/control/admin','prototypes','locale/en')){New-Item -ItemType Directory -Path (Join-Path $helper $folder) -Force | Out-Null}
+foreach($folder in @('lib','scripts/control/admin','prototypes','locale/en','graphics/gui')){New-Item -ItemType Directory -Path (Join-Path $helper $folder) -Force | Out-Null}
 Get-ChildItem -LiteralPath $fixture -File | Copy-Item -Destination $helper
 Copy-Item -LiteralPath $GuiSource -Destination (Join-Path $helper 'scripts/control/admin/gui.lua')
 Copy-Item -LiteralPath $CameraSource -Destination (Join-Path $helper 'lib/camera-window.lua')
 foreach($libraryName in @('lib.lua','runtime-scheduler.lua','admin-tools-config.lua')){Copy-Item -LiteralPath (Join-Path $pack ('lib/'+$libraryName)) -Destination (Join-Path $helper 'lib')}
 Copy-Item -LiteralPath (Join-Path $pack 'scripts/control/admin/common.lua') -Destination (Join-Path $helper 'scripts/control/admin')
+Copy-Item -LiteralPath (Join-Path $pack 'scripts/control/rebuild-monitor.lua') -Destination (Join-Path $helper 'scripts/control/rebuild-monitor.lua')
+Copy-Item -LiteralPath (Join-Path $pack 'locale/en/rebuild-monitor.cfg') -Destination (Join-Path $helper 'locale/en')
+Copy-Item -LiteralPath (Join-Path $pack 'locale/en/rebuild-admin.cfg') -Destination (Join-Path $helper 'locale/en')
+Copy-Item -LiteralPath (Join-Path $pack 'locale/en/terrain-evolution.cfg') -Destination (Join-Path $helper 'locale/en')
+Copy-Item -LiteralPath (Join-Path $pack 'locale/en/map-settings.cfg') -Destination (Join-Path $helper 'locale/en')
 Copy-Item -LiteralPath (Join-Path $pack 'prototypes/admin-tools.lua') -Destination (Join-Path $helper 'prototypes')
+Copy-Item -LiteralPath (Join-Path $repo 'exotic-space-industries-remembrance-graphics-6/graphics/gui/admin-overseer-seal.png') -Destination (Join-Path $helper 'graphics/gui')
 Copy-Item -LiteralPath $LocaleSource -Destination (Join-Path $helper 'locale/en/admin-tools.cfg')
 $enc=[Text.UTF8Encoding]::new($false)
 $list=@{mods=@(@{name='base';enabled=$true},@{name='space-age';enabled=$true},@{name='quality';enabled=$true},@{name='elevated-rails';enabled=$true},@{name='esir-admin-responsive-qc';enabled=$true})}
@@ -37,7 +43,7 @@ $scaleText=$Scale.ToString('0.###',[Globalization.CultureInfo]::InvariantCulture
 [IO.File]::WriteAllText($config,"[path]`nread-data=__PATH__executable__/../../data`nwrite-data="+$run.Replace('\','/')+"`n[other]`ncheck-updates=false`n[interface]`nui-scale-mode=manual-pixels`ncustom-ui-scale=$scaleText`n[graphics]`nfull-screen=false`n",$enc)
 $exe='C:\Program Files (x86)\Steam\steamapps\common\Factorio\bin\x64\factorio.exe'
 $env:SteamAppId='427520';$env:SteamGameId='427520'
-$factorioArguments=@('--config',('"'+$config+'"'),'--mod-directory',('"'+$mods+'"'),'--load-game',('"'+$save+'"'),'--disable-audio','--disable-migration-window','--window-size',$Resolution)
+$factorioArguments=@('--config',('"'+$config+'"'),'--mod-directory',('"'+$mods+'"'),'--load-game',('"'+$save+'"'),'--disable-audio','--disable-migration-window','--window-size',$Resolution,'--graphics-quality','medium','--video-memory-usage','low','--single-thread-loading')
 $manifest=@{save=$save;save_sha256=(Get-FileHash -LiteralPath $save).Hash;requested_resolution=$Resolution;requested_scale=$Scale;started=(Get-Date).ToString('o');
     staged_files=@(Get-ChildItem -LiteralPath $helper -Recurse -File | ForEach-Object {@{path=$_.FullName.Substring($helper.Length+1);sha256=(Get-FileHash -LiteralPath $_.FullName).Hash}})}
 [IO.File]::WriteAllText((Join-Path $run 'manifest.json'),($manifest|ConvertTo-Json -Depth 6),$enc)

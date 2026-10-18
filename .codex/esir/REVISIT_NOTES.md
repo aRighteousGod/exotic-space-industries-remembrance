@@ -12,6 +12,14 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-10-15 | planetary-enemy-seeds | revisit on Factorio 2.1 | Factorio 2.0.77 couples spot_noise expressions sharing placement seeds even with different density/radius. User approved native seeds at 1/1 and deterministic family-specific seeds for adjusted Nauvis controls; defaults stay exact, adjusted nest positions may move.`
+  - `Files:` `exotic-space-industries-remembrance/scripts/data-final-updates/planet-enemies.lua`, `scripts/control/planet-enemies.lua`, `scripts/qc/planet-enemies/v2-generation.lua`, `scripts/qc/planet-enemies/check-v2-generation.py`, [enemy blueprint](blueprints/planet-enemies.md#seed-compatibility).
+  - `Next safe move:` on the Factorio 2.1 upgrade, verify the [upstream spot-noise fix](https://forums.factorio.com/131528), rerun default and mixed-family generation comparisons with native seeds, then decide a saved-map-compatible transition. Do not silently reseed existing customized saves or remove the workaround based only on a version number.
+
+- `2026-10-14 | planetary-enemy-controls-locales | native review needed | New planetary enemy control names and Off descriptions currently use the English fallback.`
+  - `Files:` `exotic-space-industries-remembrance/locale/en/planet-enemies.cfg`, `exotic-space-industries-remembrance/locale/en/map-settings.cfg` (v2 adds Nauvis families and the administration map editor).
+  - `Next safe move:` add native-reviewed FR, JA, PL, RU, zh-CN and zh-TW translations, preserving the inactive-raft egg supply and per-surface suppression meaning.
+
 - `2026-10-13 | entity-presentation-companions | open | Existing machine scene factories supply companions/main_first options, but make_entity_simulation does not consume them. New radar previews explicitly create their native visual helpers in post_init.`
   - `Files:` `exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation.lua`, `entity-presentation-machines.lua`, `.codex/esir/blueprints/entity-presentation.md`.
   - `Next safe move:` inspect the affected legacy scenes before adding companion support to the shared factory; verify placement order, inventory/power setup and native captures without forcing unrelated presentation fields.

@@ -10,17 +10,19 @@
 -- rebuild_on: Gaia mapgen changes, Gaia prototype changes, configuration changes
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/gaia-and-alien-systems.md#contract
+-- blueprint-ref: .codex/esir/blueprints/gaia-and-alien-systems.md#rebuild-reporting
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
 local gaia_mapgen_data = require("scripts/control/gaia-mapgen-data")
+local map_settings = require("scripts/control/map-settings")
 
 local model = {}
 -- Optional observer is installed at control-load time; Gaia retains creation and
 -- reforge ownership. A bound staging surface has no planetary identity earlier.
 local surface_ready_handler
 
----@param handler fun(surface: LuaSurface, newly_created: boolean)
+---@param handler fun(surface: LuaSurface, newly_created: boolean, tick: MapTick)
 function model.set_surface_ready_handler(handler)
     surface_ready_handler = handler
 end
@@ -234,6 +236,23 @@ function model.migrate_gaia_surface(surface)
     local legacy_resource_settings = gaia_mapgen_data.legacy_resource_entity_settings
 
     local needs_update = false
+    -- Translate the old shared electric control without resetting explicit zero.
+    local enemy_settings = gaia_mapgen_data.get_map_gen_settings(current_settings)
+    local enemy_control = "ei-gaia-electric-enemies"
+    current_settings.autoplace_controls = current_settings.autoplace_controls or {}
+    if enemy_settings.autoplace_controls[enemy_control] and not current_settings.autoplace_controls[enemy_control] then
+        current_settings.autoplace_controls[enemy_control] = enemy_settings.autoplace_controls[enemy_control]
+        current_settings.autoplace_controls.electric_enemies = nil
+        needs_update = true
+    end
+    current_settings.property_expression_names = current_settings.property_expression_names or {}
+    for key, value in pairs(enemy_settings.property_expression_names) do
+        if type(value) == "string" and value:find(enemy_control, 1, true) == 1
+            and current_settings.property_expression_names[key] ~= value then
+            current_settings.property_expression_names[key] = value
+            needs_update = true
+        end
+    end
     local current_autoplace_settings = current_settings.autoplace_settings
 
     -- Check if surface is missing any required autoplace controls
@@ -354,7 +373,8 @@ function model.migrate_gaia_surface(surface)
     end
 end
 
-function model.ensure_surface()
+function model.ensure_surface(tick)
+    tick = tick or game.tick
     local planet = gaia_planet()
     if not planet then
         return nil
@@ -375,10 +395,10 @@ function model.ensure_surface()
         storage.gaia_surfaces[legacy_surface.name] = true
         storage.gaia_surfaces["gaia"] = true
         planet.associate_surface(legacy_surface)
-        if surface_ready_handler then surface_ready_handler(legacy_surface, false) end
         ei_lib.crystal_echo("Gaia surface rebound from legacy name")
         -- Migrate old surface to have new autoplace controls
         model.migrate_gaia_surface(legacy_surface)
+        if surface_ready_handler then surface_ready_handler(legacy_surface, false, tick) end
         return legacy_surface
     end
 
@@ -388,7 +408,7 @@ function model.ensure_surface()
             storage.gaia_surfaces = storage.gaia_surfaces or {}
             storage.gaia_surfaces[created.name] = true
             storage.gaia_surfaces["gaia"] = true
-            if surface_ready_handler then surface_ready_handler(created, true) end
+            if surface_ready_handler then surface_ready_handler(created, true, tick) end
             ei_lib.crystal_echo("Gaia surface created")
             return created
         end
@@ -396,13 +416,14 @@ function model.ensure_surface()
 
     -- Future-proof: create surface manually from map-gen data and associate
     local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
+    map_gen_settings = map_settings.prepare_creation("gaia", map_gen_settings)
     local created = game.create_surface("gaia", map_gen_settings)
     if created and created.valid then
         planet.associate_surface(created)
         storage.gaia_surfaces = storage.gaia_surfaces or {}
         storage.gaia_surfaces[created.name] = true
         storage.gaia_surfaces["gaia"] = true
-        if surface_ready_handler then surface_ready_handler(created, true) end
+        if surface_ready_handler then surface_ready_handler(created, true, tick) end
         ei_lib.crystal_echo("Gaia surface created (manual create_surface + planet association)")
         return created
     end
@@ -455,6 +476,12 @@ local function current_reforge_tick(event)
     return event and event.tick or game.tick
 end
 
+local function publish_reforge(state,tick,waiting_reason)
+    state.rebuild_id=ei_runtime_scheduler.report_rebuild("gaia","reforge","gaia",state.rebuild_id,
+        {reason="gaia-reforge",phase=state.phase,state=waiting_reason and "waiting" or "running",completed=0,total=false,
+            unit="phases",waiting_reason=waiting_reason or false},tick)
+end
+
 local function set_reforge_phase(state, phase, event)
     if not state then
         return
@@ -463,6 +490,7 @@ local function set_reforge_phase(state, phase, event)
     state.phase = phase
     state.phase_started_tick = current_reforge_tick(event)
     state.phase_last_retry_notice_tick = nil
+    publish_reforge(state,state.phase_started_tick)
 end
 
 local function retry_or_fail_reforge_phase(state, event, wait_message, fail_message)
@@ -470,10 +498,11 @@ local function retry_or_fail_reforge_phase(state, event, wait_message, fail_mess
     local phase_started_tick = state.phase_started_tick or state.started_tick or tick
 
     if tick - phase_started_tick >= reforge_phase_timeout_ticks then
-        fail_reforge(state, fail_message)
+        fail_reforge(state, fail_message,tick)
         return false
     end
 
+    publish_reforge(state,tick,wait_message or "external")
     if wait_message then
         local last_notice_tick = state.phase_last_retry_notice_tick or 0
         if state.phase_last_retry_notice_tick == nil or tick - last_notice_tick >= reforge_phase_retry_notice_interval then
@@ -514,7 +543,7 @@ local function gaia_map_settings_match(surface)
         return false
     end
 
-    local desired_settings = gaia_mapgen_data.get_map_gen_settings()
+    local desired_settings = gaia_mapgen_data.get_map_gen_settings(surface.map_gen_settings)
     local ok_current, current_checksum = pcall(checksum, surface.map_gen_settings)
     local ok_desired, desired_checksum = pcall(checksum, desired_settings)
 
@@ -548,7 +577,7 @@ local function resolve_reforge_source_surface(state, planet)
     end
 end
 
-fail_reforge = function(state, message)
+fail_reforge = function(state, message,tick)
     if message then
         ei_lib.crystal_echo(message)
     end
@@ -557,11 +586,12 @@ fail_reforge = function(state, message)
         update_gaia_surface_registry(state.staging_surface_name, false)
     end
 
+    if state then ei_runtime_scheduler.finish_rebuild(state.rebuild_id,"failed",tick) end
     storage.ei.reforge_gaia = nil
     return nil
 end
 
-local function complete_reforge(state, surface, newly_created)
+local function complete_reforge(state, surface, newly_created,tick)
     if not (state and surface and surface.valid) then
         return nil
     end
@@ -570,7 +600,7 @@ local function complete_reforge(state, surface, newly_created)
     update_gaia_surface_registry("Gaia", false)
     update_gaia_surface_registry(surface.name, true)
     update_gaia_surface_registry("gaia", true)
-    if surface_ready_handler then surface_ready_handler(surface, newly_created == true) end
+    if surface_ready_handler then surface_ready_handler(surface, newly_created == true, tick) end
 
     if state.teleport_when_done and state.request_player_index then
         local player = game.get_player(state.request_player_index)
@@ -579,6 +609,7 @@ local function complete_reforge(state, surface, newly_created)
         end
     end
 
+    ei_runtime_scheduler.finish_rebuild(state.rebuild_id,"completed",tick)
     storage.ei.reforge_gaia = nil
     return surface
 end
@@ -603,10 +634,11 @@ function model.reforge_gaia_surface(event)
         return nil
     end
 
+    local tick=current_reforge_tick(event)
     storage.ei.reforge_gaia = {
         phase = "migrate_legacy",
-        started_tick = current_reforge_tick(event),
-        phase_started_tick = current_reforge_tick(event),
+        started_tick = tick,
+        phase_started_tick = tick,
         request_player_index = event and event.player_index or nil,
         teleport_when_done = not not (event and event.player_index),
         safe_surface_name = safe_surface.name,
@@ -614,8 +646,9 @@ function model.reforge_gaia_surface(event)
         result_surface_name = "gaia",
     }
 
+    publish_reforge(storage.ei.reforge_gaia,tick)
     report_reforge_status(storage.ei.reforge_gaia)
-    model.reforge_on_tick(event or {tick = game.tick})
+    model.reforge_on_tick(event and event.tick and event or {tick=tick})
     return nil
 end
 
@@ -625,6 +658,7 @@ function model.reforge_on_tick(event)
     end
 
     local state = storage.ei.reforge_gaia
+    if not state.rebuild_id then publish_reforge(state,event.tick) end
     local planet = gaia_planet()
     if not planet then
         retry_or_fail_reforge_phase(
@@ -651,12 +685,14 @@ function model.reforge_on_tick(event)
 
     if state.phase == "check_intact" then
         local current_surface = planet.surface
+        -- Keep the player's map choices before the destructive reforge phases.
+        if current_surface and current_surface.valid then state.map_gen_settings = current_surface.map_gen_settings end
         if current_surface and current_surface.valid and current_surface.name == state.result_surface_name then
             if gaia_map_settings_match(current_surface) then
                 local has_resources, resource_name, resource_count = surface_contains_any_resources(current_surface)
                 if has_resources then
                     ei_lib.crystal_echo("✔ [Echo Intact] — " .. resource_name .. " crystals endure (" .. resource_count .. "). Gaia stands.")
-                    complete_reforge(state, current_surface)
+                    complete_reforge(state, current_surface,false,event.tick)
                     return
                 end
             end
@@ -739,7 +775,8 @@ function model.reforge_on_tick(event)
 
         state.staging_cleanup_requested = nil
 
-        local map_gen_settings = gaia_mapgen_data.get_map_gen_settings()
+        local map_gen_settings = gaia_mapgen_data.get_map_gen_settings(state.map_gen_settings)
+        map_gen_settings = map_settings.prepare_creation("gaia", map_gen_settings)
         local created_surface = game.create_surface(state.staging_surface_name, map_gen_settings)
         if not (created_surface and created_surface.valid) then
             retry_or_fail_reforge_phase(
@@ -882,7 +919,7 @@ function model.reforge_on_tick(event)
 
         model.migrate_gaia_surface(rebuilt_surface)
         ei_lib.crystal_echo("✧ [Resurrection] — Gaia's new surface has taken the canonical name and the planet bond is restored.")
-        complete_reforge(state, rebuilt_surface, true)
+        complete_reforge(state, rebuilt_surface, true,event.tick)
         return
     end
 end

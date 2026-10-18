@@ -143,7 +143,7 @@ def main() -> None:
             assert working["fade_in_ticks"] == 6 and working["fade_out_ticks"] == 12
             assert working["max_sounds_per_prototype"] == 5
             assert sound["category"] == "weapon" and sound["volume"] == volume and sound["speed"] == speed
-            assert sound["audible_distance_modifier"] == .5 and sound["filename"].endswith("/sounds/anisetron-lance-loop.ogg")
+            assert sound["audible_distance_modifier"] == .5 and sound["filename"] == "__exotic-space-industries-remembrance-graphics-6__/sounds/anisetron-lance-loop.ogg"
             voices.append({"emitter": emitter, "sound": sound, "working": working})
         hum = vehicle["working_sound"]
         assert hum["sound"]["filename"].endswith("/sounds/gaian-saucer-hum.ogg")

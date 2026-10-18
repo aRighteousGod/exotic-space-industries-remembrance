@@ -1,6 +1,8 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'esir-housekeeping.ps1')
+
 function Get-EsirCodexHome {
     if (-not [string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
         return $env:CODEX_HOME
@@ -1541,7 +1543,7 @@ function Get-EsirToolManifestData {
         wrapper        = [ordered]@{
             path    = 'scripts\invoke-esir-dev.ps1'
             library = 'scripts\esir-dev-lib.ps1'
-            tasks   = @('doctor', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
+            tasks   = @('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
         }
         dependency_wrapper = [ordered]@{
             path    = 'scripts\invoke-esir-dependency-intel.ps1'
@@ -1868,24 +1870,42 @@ function Invoke-EsirQcMode {
     }
     $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName ('qc-' + $Mode) -AllowAutoStage:$false
 
+    $scenario = @($SaveId, $SavePath, $Planet, $Seed | Where-Object { $null -ne $_ -and "$_" -ne '' }) -join '|'
+    if (-not $scenario) { $scenario = 'default' }
+    $retainedInputs = @()
+    if ($saveSelection -and $saveSelection.path -and (Test-EsirArtifactWithin $saveSelection.path $Paths.repo_root)) { $retainedInputs += $saveSelection.path }
+    $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow ('qc-' + $Mode) -Scenario $scenario -RetainedPaths $retainedInputs -Reproduction "invoke-esir-dev -Task qc-$Mode; scenario=$scenario; Factorio=$($context.factorio_exe)"
+
     $arguments = @('-ExecutionPolicy', 'Bypass', '-File', $Paths.factorio_invoke_script, '-Mode', $Mode, '-RepoRoot', $Paths.repo_root)
+    if ($managed.run) {
+        $arguments = @('-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'invoke-esir-qc-delegate.ps1'), '-Mode', $Mode, '-RepoRoot', $Paths.repo_root, '-ArtifactRoot', $context.artifact_root, '-RunId', $managed.run.id)
+    }
     if ($saveSelection -and $saveSelection.path) { $arguments += @('-Save', $saveSelection.path) }
     if ($null -ne $Seed) { $arguments += @('-Seed', [string]$Seed) }
     if ($Planet) { $arguments += @('-Planet', $Planet) }
     if ($FactorioPath) { $arguments += @('-FactorioPath', $FactorioPath) }
     if ($Strict) { $arguments += '-Strict' }
 
+    $invocationStartedAt = [DateTime]::UtcNow
     & powershell @arguments | Out-Null
     $exitCode = $LASTEXITCODE
     $summaryPath = Join-Path $context.artifact_root 'latest-summary.json'
     $summary = Read-EsirJson -Path $summaryPath
-    $delegateStatus = if ($summary) { $summary.overall_status } elseif ($exitCode -eq 0) { 'ok' } else { 'failed' }
+    $matchingSummary = $summary -and $summary.mode -eq $Mode -and $summary.repo_root -eq $Paths.repo_root -and $summary.factorio_exe -eq $context.factorio_exe -and
+        [DateTime]::Parse($summary.timestamp).ToUniversalTime() -ge $invocationStartedAt
+    if ($managed.run) {
+        $matchingSummary = $matchingSummary -and $summary.run_id -eq $managed.run.id -and
+            $summary.payload_path -eq $managed.run.payload_path -and $summary.engine_version -eq $managed.run.engine_version -and
+            [DateTime]::Parse($summary.timestamp).ToUniversalTime() -ge [DateTime]::Parse($managed.run.started_at).ToUniversalTime()
+    }
+    if (-not $matchingSummary) { $summary = $null }
+    $delegateStatus = if ($exitCode -eq 0 -and $summary) { $summary.overall_status } else { 'failed' }
     $overallStatus = Get-EsirOverallStatus -Checks @(
         [ordered]@{ status = $encodingPass.overall_status }
         [ordered]@{ status = $delegateStatus }
     ) -Strict:$Strict
 
-    return [ordered]@{
+    $result = [ordered]@{
         task           = 'qc-' + $Mode
         overall_status = $overallStatus
         exit_code      = $exitCode
@@ -1895,6 +1915,22 @@ function Invoke-EsirQcMode {
         encoding       = $encodingPass
         summary        = $summary
     }
+    $dumpPath = $null
+    if ($summary -and $Mode -in @('fast', 'full')) {
+        foreach ($part in $summary.results) {
+            if ($part.name -eq 'fast' -and $part.artifacts.PSObject.Properties.Name -contains 'data_raw_dump') {
+                $dumpPath = $part.artifacts.data_raw_dump
+            }
+        }
+    }
+    $completionExit = if ($matchingSummary) { $exitCode } else { 1 }
+    $result.housekeeping = Finish-EsirManagedQc -RepoRoot $Paths.repo_root -State $managed -ExitCode $completionExit -Result $result -DumpPath $dumpPath
+    # Preserve the established discovery pointer; ownership is the per-run registry, never this shared file.
+    if ($summary -and $managed.run) {
+        try { Write-EsirJson -Path (Join-Path $managed.original_artifact_root 'latest-summary.json') -Data $summary }
+        catch { $result.housekeeping.discovery_pointer_error = $_.Exception.Message }
+    }
+    return $result
 }
 
 function Invoke-EsirGaiaResourceQc {
@@ -1935,6 +1971,7 @@ function Invoke-EsirGaiaResourceQc {
     }
 
     $minimumEntityCount = [int]$preset.minimum_entity_count
+    $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow 'qc-gaia-resources' -Scenario "$planet|$effectivePreviewSize|$($effectiveSeeds -join ',')" -Reproduction "invoke-esir-dev -Task qc-gaia-resources -Seeds $($effectiveSeeds -join ',') -PreviewSize $effectivePreviewSize"
     $syncResult = New-FactorioQCResult -Name 'gaia-resources'
     $runMods = Sync-FactorioRunMods -Context $context -Result $syncResult
     $targetAlternation = @($targets | ForEach-Object { [regex]::Escape($_) }) -join '|'
@@ -2090,7 +2127,7 @@ function Invoke-EsirGaiaResourceQc {
         }
     }
 
-    return [ordered]@{
+    $result = [ordered]@{
         task = 'qc-gaia-resources'
         overall_status = if ($failures.Count -eq 0) { 'ok' } else { 'failed' }
         preset = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $presetPath
@@ -2104,6 +2141,8 @@ function Invoke-EsirGaiaResourceQc {
         control_probes = $controlProbeRuns
         failures = @($failures)
     }
+    $result.housekeeping = Finish-EsirManagedQc -RepoRoot $Paths.repo_root -State $managed -ExitCode $(if ($failures.Count -eq 0) { 0 } else { 1 }) -Result $result
+    return $result
 }
 
 function Get-EsirNumericStats {
@@ -2252,13 +2291,17 @@ function Invoke-EsirRuntimeBenchmark {
 
     Import-EsirFactorioQc -Paths $Paths
 
+    $scenario = if ($SaveId) { $SaveId } elseif ($saveSelection -and $saveSelection.path) { $saveSelection.path } else { 'default' }
+    $retainedInputs = @()
+    if ($saveSelection -and $saveSelection.path -and (Test-EsirArtifactWithin $saveSelection.path $Paths.repo_root)) { $retainedInputs += $saveSelection.path }
+    $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow 'runtime-benchmark' -Scenario $scenario -RetainedPaths $retainedInputs -Reproduction "invoke-esir-dev -Task runtime-benchmark; save=$scenario; warmup=$WarmupRuns; runs=$BenchmarkRuns; ticks=$BenchmarkTicks"
     $result = New-FactorioQCResult -Name 'runtime-benchmark'
     $runMods = Sync-FactorioRunMods -Context $context -Result $result
     $smokeSave = if ($saveSelection -and $saveSelection.path) { $saveSelection.path } else { Find-SmokeSave -Context $context -Save $SavePath }
     $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName 'runtime-benchmark' -AllowAutoStage
     $helperRequirements = Sync-EsirSaveHelperMods -Paths $Paths -RunMods $runMods -HelperSummary $helperRequirements -Result $result
     if (-not $smokeSave) {
-        return [ordered]@{
+        $skipped = [ordered]@{
             task           = 'runtime-benchmark'
             overall_status = 'skipped'
             reason         = 'No smoke save was found for runtime benchmark mode.'
@@ -2266,6 +2309,8 @@ function Invoke-EsirRuntimeBenchmark {
             save_selection = $saveSelection
             helper_requirements = $helperRequirements
         }
+        $skipped.housekeeping = Finish-EsirManagedQc -RepoRoot $Paths.repo_root -State $managed -ExitCode 1 -Result $skipped
+        return $skipped
     }
 
     $effectiveWarmupRuns = if ($null -ne $WarmupRuns) { [Math]::Max(0, [int]$WarmupRuns) } else { 1 }
@@ -2366,6 +2411,7 @@ function Invoke-EsirRuntimeBenchmark {
 
     $artifact.artifact_path = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $artifactPath
     $artifact.latest_path = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $latestPath
+    $artifact.housekeeping = Finish-EsirManagedQc -RepoRoot $Paths.repo_root -State $managed -ExitCode $process.exit_code -Result $artifact
     return $artifact
 }
 
@@ -3043,8 +3089,14 @@ function Invoke-EsirPackDeploy {
 
     $results = @()
     foreach ($entry in $entries) {
-        & powershell -ExecutionPolicy Bypass -File (Join-Path $Paths.repo_root $entry.deploy_script) | Out-Null
-        $results += [ordered]@{ pack = $entry.folder; deploy_script = $entry.deploy_script; exit_code = $LASTEXITCODE; status = if ($LASTEXITCODE -eq 0) { 'ok' } else { 'failed' } }
+        $deployProperty = $entry.PSObject.Properties['deploy_script']
+        $deployScript = if ($deployProperty) { [string]$deployProperty.Value } else { '' }
+        if ([string]::IsNullOrWhiteSpace($deployScript) -or -not (Test-Path -LiteralPath (Join-Path $Paths.repo_root $deployScript) -PathType Leaf)) {
+            $results += [ordered]@{ pack = $entry.folder; deploy_script = $deployScript; exit_code = $null; status = 'failed'; skipped = $true; reason = 'No existing deploy script is registered for this pack; nothing was deployed for it.' }
+            continue
+        }
+        & powershell -ExecutionPolicy Bypass -File (Join-Path $Paths.repo_root $deployScript) | Out-Null
+        $results += [ordered]@{ pack = $entry.folder; deploy_script = $deployScript; exit_code = $LASTEXITCODE; status = if ($LASTEXITCODE -eq 0) { 'ok' } else { 'failed' } }
     }
 
     return [ordered]@{ task = 'pack-deploy'; overall_status = if ($results | Where-Object { $_.status -eq 'failed' }) { 'failed' } else { 'ok' }; results = $results }
@@ -3113,12 +3165,17 @@ function Invoke-EsirTask {
         [switch]$Strict,
         [switch]$ResolveInstalled,
         [switch]$FixEncoding,
+        [switch]$Apply,
+        [switch]$FullInventory,
+        [switch]$IncludeCodexHome,
+        [string[]]$CloseRunId = @(),
         [switch]$SkipBrowser,
         [switch]$SkipClipboard
     )
 
     switch ($Task) {
         'doctor' { return Invoke-EsirDoctor -Paths $Paths -FactorioPath $FactorioPath }
+        'housekeeping' { return Invoke-EsirHousekeeping -RepoRoot $Paths.repo_root -Apply:$Apply -FullInventory:$FullInventory -IncludeCodexHome:$IncludeCodexHome -CloseRunId $CloseRunId }
         'manifest-refresh' { return Invoke-EsirManifestRefresh -Paths $Paths }
         'dependency-refresh' { return Invoke-EsirDependencyRefresh -Paths $Paths }
         'dependency-query' { return Invoke-EsirDependencyQuery -Paths $Paths -Scope $DependencyScope -Category $DependencyCategory -ModName $ModName -Pack $Pack -PathFilter $TargetPath -ResolveInstalled:$ResolveInstalled }

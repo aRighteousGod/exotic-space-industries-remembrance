@@ -33,6 +33,7 @@ local INFORMATRON_PAGE = "auric_inoculation_vat"
 local CYST_NODE_NAME = "ei-auric-cyst-node"
 
 local RUNTIME_VERSION = 1
+model.MAX_BLOOM_NODES = 12
 model.BLOOM_MIN_VIGOR = 40
 model.BLOOM_MAX_CONTAMINATION = 60
 model.BASIN_RESTORE_SUCCESS_STREAK = 3
@@ -133,14 +134,15 @@ local PHASE_DEFS = {
 -- Bands convert a physical marsh claim into both recipe scale and biological
 -- reward. Keeping these numbers beside runtime behavior makes the later drain
 -- output, bloom yield, and telemetry code read from the same source of truth.
+-- blueprint-ref: .codex/esir/blueprints/auric-inoculation-vat.md#field-production
 local BAND_DEFS = {
-    {key = "b1", min = 24, max = 39, node_yield = 1, cyst_capacity = 3, dirty_water = 25, acidic_water = 5, enrich_bonus = 1, enrich_bioflux = 1},
-    {key = "b2", min = 40, max = 55, node_yield = 1, cyst_capacity = 4, dirty_water = 35, acidic_water = 5, enrich_bonus = 1, enrich_bioflux = 1},
-    {key = "b3", min = 56, max = 71, node_yield = 2, cyst_capacity = 6, dirty_water = 45, acidic_water = 10, enrich_bonus = 1, enrich_bioflux = 2},
-    {key = "b4", min = 72, max = 87, node_yield = 2, cyst_capacity = 8, dirty_water = 55, acidic_water = 10, enrich_bonus = 1, enrich_bioflux = 2},
-    {key = "b5", min = 88, max = 103, node_yield = 3, cyst_capacity = 10, dirty_water = 65, acidic_water = 15, enrich_bonus = 1, enrich_bioflux = 3},
-    {key = "b6", min = 104, max = 127, node_yield = 4, cyst_capacity = 12, dirty_water = 80, acidic_water = 15, enrich_bonus = 1, enrich_bioflux = 3},
-    {key = "b7", min = 128, max = 160, node_yield = 5, cyst_capacity = 14, dirty_water = 95, acidic_water = 20, enrich_bonus = 1, enrich_bioflux = 4},
+    {key = "b1", min = 24, max = 39, node_yield = 2, cyst_capacity = 6, dirty_water = 25, acidic_water = 5, enrich_bonus = 2, enrich_bioflux = 1},
+    {key = "b2", min = 40, max = 55, node_yield = 2, cyst_capacity = 8, dirty_water = 35, acidic_water = 5, enrich_bonus = 2, enrich_bioflux = 1},
+    {key = "b3", min = 56, max = 71, node_yield = 4, cyst_capacity = 12, dirty_water = 45, acidic_water = 10, enrich_bonus = 2, enrich_bioflux = 2},
+    {key = "b4", min = 72, max = 87, node_yield = 4, cyst_capacity = 16, dirty_water = 55, acidic_water = 10, enrich_bonus = 2, enrich_bioflux = 2},
+    {key = "b5", min = 88, max = 103, node_yield = 6, cyst_capacity = 20, dirty_water = 65, acidic_water = 15, enrich_bonus = 2, enrich_bioflux = 3},
+    {key = "b6", min = 104, max = 127, node_yield = 8, cyst_capacity = 24, dirty_water = 80, acidic_water = 15, enrich_bonus = 2, enrich_bioflux = 3},
+    {key = "b7", min = 128, max = 160, node_yield = 10, cyst_capacity = 28, dirty_water = 95, acidic_water = 20, enrich_bonus = 2, enrich_bioflux = 4},
 }
 
 local BAND_INDEX = {}
@@ -2059,20 +2061,21 @@ local function set_fluidbox_contents(entity, index, contents, known_count)
     return ok == true
 end
 
+---@param entity LuaEntity
+---@param fluid_name string
+---@param known_count integer|nil
+---@return integer|nil
 local function get_filtered_output_fluidbox_index(entity, fluid_name, known_count)
     if not entity_check(entity) then
         return nil
     end
 
     known_count = known_count or fluidbox_count(entity)
-    local fluidbox_prototypes = entity.prototype and entity.prototype.fluidbox_prototypes
-    if not fluidbox_prototypes then
-        return nil
-    end
-
+    -- Recipes compact/merge the live boxes, so their indices need not match the
+    -- full entity prototype array. Resolve each live segment, including merged boxes.
     for index = 1, known_count do
-        local fluidbox_proto = fluidbox_prototypes[index]
-        if fluidbox_proto then
+        local resolved = entity.fluidbox.get_prototype(index)
+        for _, fluidbox_proto in ipairs(resolved.production_type and {resolved} or resolved) do
             local production_type = fluidbox_proto.production_type
             local filter = fluidbox_proto.filter
             local filter_name = type(filter) == "string" and filter or filter and filter.name
@@ -2812,9 +2815,10 @@ local function build_snapshot(runtime, record, current_tick)
     local due_tick = math.max(0, math.floor(tonumber(runtime and runtime.due_tick_by_unit and runtime.due_tick_by_unit[record.unit_number]) or 0))
     local band_def = get_band_def(record)
     local display_phase = record.active_phase_key or record.phase
-    local expected_yield = record.expected_yield or 0
+    -- Current bands override historical cached yield without resetting saved phases.
+    local expected_yield = band_def and band_def.node_yield or 0
     if band_def and (record.enriched_bloom or record.phase == "ferment-enriched") then
-        expected_yield = math.min(6, expected_yield + (band_def.enrich_bonus or 0))
+        expected_yield = math.min(model.MAX_BLOOM_NODES, expected_yield + (band_def.enrich_bonus or 0))
     end
     local cyst_nodes = model._count_cyst_nodes_in_basin(record)
     local snapshot = {
@@ -3642,7 +3646,7 @@ local function spawn_cyst_nodes(record, current_tick)
         return 0
     end
 
-    local target = math.min(6, (band_def.node_yield or 0) + (record.enriched_bloom and (band_def.enrich_bonus or 0) or 0))
+    local target = math.min(model.MAX_BLOOM_NODES, (band_def.node_yield or 0) + (record.enriched_bloom and (band_def.enrich_bonus or 0) or 0))
     local spawned = 0
     local tile_count = #record.claim_tiles
     local offset_seed = ((record.completed_cycles or 0) * 13 + (record.unit_number or 0)) % tile_count

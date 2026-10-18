@@ -23,6 +23,10 @@ crystal supplies the crown beam; its original facade crystal supplies the fronta
 beam. Native movement, remote/autopilot, equipment, inventories, manual controls
 and ammunition logistics remain engine-owned.
 
+The public vehicle name is Gaian Hierophant. Its [Informatron page](startup-and-integration.md#hierophant-page)
+appears under New logistics and explains controls, separate beam locks, paid
+charges, Lance inheritance, Gaia assembly and visual settings using shared tuning.
+
 ```mermaid
 flowchart LR
   N[Native manual or automatic fire] --> P[Consume one crystal charge]
@@ -185,6 +189,13 @@ and share the generated scale and zero shift. Original gold/dark colors remain
 baked; a small facade crest alone receives owner color. Crystal emission is a
 separate controlled pass. The unlifted body receives native height 1.8 once;
 separate shadow casters alone are raised during rendering.
+
+Graphics pack 6 owns all eleven ANISETRON PNGs: the eight directional sheets,
+vehicle and crystal-charge icons, and research icon. Package-relative filenames
+and approved image bytes are unchanged. Gameplay and attachment metadata remain
+main-pack owned; the firing loop and its attribution belong to Graphics 6 and use
+`ei_sounds_6_path`. Baseline Lance artwork belongs to Graphics 4 and upgrade cues
+belong to Graphics 6.
 
 The asset manifest generates exact 128-entry projected tables for crown, facade
 and eight original lower crystal tips through the locked camera. The original

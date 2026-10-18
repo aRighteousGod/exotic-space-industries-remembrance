@@ -9,6 +9,7 @@
 - [terrain-calendar.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-calendar.lua)
 - [terrain-ecology-work.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-ecology-work.lua)
 - [terrain-gui.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-gui.lua)
+- [terrain-field-report.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-field-report.lua)
 - [terrain-alerts.lua](../../../exotic-space-industries-remembrance/scripts/control/terrain-alerts.lua)
 - [terrain-alert-config.lua](../../../exotic-space-industries-remembrance/lib/terrain-alert-config.lua)
 - [terrain-index.lua](../../../exotic-space-industries-remembrance/lib/terrain-index.lua)
@@ -160,8 +161,38 @@ protection just as terrain writes do.
 The current-view Ecology window uses mod_gui and a draggable screen frame.
 Simple is an in-world field report; Advanced labels surface observations separately
 from global allowances, queues and histories. Neither infers health from missing
-observations. One viewer per 16 ticks receives at most eight cached row updates,
-targeting 60 ticks per viewer. Closed panels perform no refresh or world reads.
+observations. One viewer per 16 ticks receives at most eight native property writes,
+including visibility and strip geometry, targeting 60 ticks per viewer. A fair
+binding cursor inspects at most 32 fixed widgets per opportunity. Initial population
+uses ordinary 16-tick admissions and reserves two writes for reveal. Closed panels
+perform no refresh or world reads. Surface generations invalidate hidden content;
+Simple can populate without walking Advanced. Rapid A-B-A view changes retain
+invalidation until a fresh generation is rendered.
+A saved layout version is checked at first presentation or interaction; an older
+open window is rebuilt for that viewer without requiring a gameplay migration or
+a mod-version change. This is static construction, not a second refresh service.
+
+Simple uses six decorative Graphics 6 planetary banners, native planet icons and
+the existing seasonal tree, with responsive paired/stacked activity cards. Artwork
+is static place identity, never a visualization of measured terrain health.
+`terrain-field-report` composes cached surface facts and a constant-count native
+day-cycle observation only inside an admitted Simple refresh. The local strip uses
+actual `daytime`, `ticks_per_day` and the four boundaries; the annual strip uses the
+existing analytical calendar. No new simulation or daylight writer is added.
+Frozen time suppresses forecasts; permanent daylight shows an all-light strip;
+missing cycles hide the diagram. Fulgora's read-only `report_status` identifies the
+specific surface managed by its independent rotation controller. The observer may
+read Fulgora's native tuple; the seasonal controller still never reads/writes it.
+
+Successful effects maintain one optional last-success tick per finite category.
+Old totals remain, with no invented historical times or event logs. Pollution
+capability is cached at surface preparation independently of observation age;
+older entries without that field use a read-only native pollutant-type fallback.
+Loaded approved tree-family availability is an O(1) snapshot fact. Counts mean
+recorded changes, including repeated changes to one patch, not unique affected
+areas or world health. All eight present locales cover the new report and its
+Informatron explanation. The maximum window is 800x780 logical pixels, clamped
+with 24-pixel margins; cards stack below 680 content pixels.
 The top-left launcher is a saturated copper mechanical tree with four seasonal
 enamel palettes: rising/spring lime, high/summer emerald, falling/autumn amber-red,
 and low/winter cyan. It reads only the viewed surface's cached analytical phase,
@@ -239,6 +270,30 @@ Legacy Gaia saturation locks remain conservative. New protection uses up to 4,09
 exact protected chunks globally and 16 overflow rectangles per Gaia surface,
 merged by least additional area. Surviving artifact anchors are classified through
 the shared query allowance; absent historical anchors cannot be reconstructed.
+
+<a id="informatron-guide"></a>
+## Detailed player guide
+
+The existing [Informatron](../../../exotic-space-industries-remembrance/scripts/control/informatron.lua)
+`terrain_evolution` page remains a clickable overview
+under World related. Five nested pages (`ecology_ground`, `ecology_woodland`,
+`ecology_hazards`, `ecology_seasons`, `ecology_controls`) explain each feature's
+trigger, timing, planetary scope, protections, recovery limits and common reasons
+for inactivity. All seven locales own matching `ecology-informatron.cfg` entries.
+The section order is declared in Informatron; paragraphs and headings stay localized.
+All 36 sections use a practical engineer-ecologist voice: observable effects and
+plain explanations first, then bold default-setting and practical-limit labels
+where relevant. The seven locales retain 82 keys each and established setting
+names. Exact timings describe processing opportunities, not per-tile promises;
+software limits are explained honestly rather than disguised as natural laws.
+
+Informatron owns scrolling and navigation. Sections build only when explicitly
+opened, using wrapped labels. Child pages do not query the world. The overview
+ends with the existing effective-status line, read from `public_snapshot` for the
+viewed surface and explicitly reports startup disablement. Opening documentation
+does not mutate ecology state, create planetary surfaces, or schedule refreshes.
+The guide distinguishes shipped defaults from preserved save settings and base
+intervals from guaranteed effect timing. Gameplay remains with the terrain owner.
 
 <a id="verification"></a>
 ## Verification

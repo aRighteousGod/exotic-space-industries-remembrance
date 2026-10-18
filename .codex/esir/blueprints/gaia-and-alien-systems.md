@@ -61,6 +61,16 @@ Chunk work derives deadlines from `event.tick + 1`; lifetime registration derive
 <a id="lifecycle"></a>
 ## Lifecycle and upgrades
 
+The [planetary enemy contract](planet-enemies.md#gaia) adds an independent Gaia
+electric control. Legacy values, including Off, translate without resetting them.
+Fallback creation inherits save choices; reforge captures source settings before
+purge/deletion, retaining controls, seed and global peace/no-enemies flags. The
+final planet prototype provides the current dependency expression aliases.
+The [map-settings owner](map-settings.md#lifecycle) merges saved sparse overrides
+before fallback or reforge staging creates chunks. The ready callback receives the
+originating tick and reapplies the latest override revision after association, so
+changes made while reforge runs survive. This owner remains active with admin tools Off.
+
 Old flat decay/spawner queues are normalized into bucket structures by the owning modules. Configuration handling invalidates derived due minima so persisted work remains discoverable. Missing/invalid entities are skipped at lifetime consumption; surface deletion/rebinding must also account for queued surface references and feature-owned helpers.
 
 Migration `1.3.03` associates the existing legacy Gaia surface when the current planet lacks one; it does not rename the legacy space location. Migration `1.3.39` removes exact legacy resource overrides and preserves customized settings/nonmatching overrides. Its map-generation changes affect future chunks, not regeneration of existing terrain. Keep ordinary migration repair separate from the intentional reforge command.
@@ -78,3 +88,8 @@ scheduler and Gaia retains its creation/reforge ownership.
 The [Gaia resource QC guide](../../skills/esir-dev/references/gaia-resource-qc.md) documents native multi-seed/resource-control probes. The [queue lifecycle fixture](../../../scripts/qc/control-ups/queue-save.lua) and [driver](../../../scripts/invoke-control-lifecycle-qc.ps1) provide persisted delayed-work checks.
 
 Verify legacy association, custom mapgen preservation, due queue migration, stale entities, preset aging/legendary completion, artifact quality and crystal re-registration, and every reforge transition with players and existing surfaces. Resource-preview success does not prove reforge safety, artifact GUI behavior, geographic distribution, or multiplayer parity. This model records source-derived behavior and available checks; no new engine results are asserted.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Gaia reforge carries a report ID and publishes phase, elapsed ticks and explicit wait reason at existing state-machine boundaries. There is no common denominator. Completion/failure close the generation; owner-confirmed external waits remain in Diagnostics and disappear publicly.

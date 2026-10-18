@@ -281,6 +281,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "shift": "0,-0.2",
             "filename_root": "{graphics_name}",
             "target_prototype_name": "{prototype_name}",
+            "factorio_var": 'ei_graphics_6_path.."graphics/entities/{graphics_name}/"',
             "animation_speed": 0.6,
             "output_dir": "{output_root}/factorio-export",
             "pack_raw_frames": False,
@@ -290,7 +291,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
             "enabled": False,
             "manifest": "{export.output_dir}/{graphics_name}.factorio-asset-manifest.json",
             "copy_assets": False,
-            "graphics_destination": "exotic-space-industries-remembrance/graphics/entity/{graphics_name}",
+            "graphics_destination": "exotic-space-industries-remembrance-graphics-6/graphics/entities/{graphics_name}",
             "apply_prototype": False,
             "prototype_file": "",
             "prototype_type": "assembling-machine" if kind == "machine" else "{kind}",
@@ -308,7 +309,7 @@ def sample_spec(asset_name: str, kind: str) -> dict[str, Any]:
                 "{render_procedural.output_sheet}",
             ],
             "baseline_globs": [
-                "exotic-space-industries-remembrance/graphics/**/*.png",
+                "exotic-space-industries-remembrance-graphics-6/graphics/**/*.png",
             ],
             "max_baseline_images": 120,
             "output": "{output_root}/style/style-report.json",
@@ -478,7 +479,7 @@ def resolve_spec(spec: dict[str, Any]) -> dict[str, Any]:
             if not promotion.get("manifest"):
                 promotion["manifest"] = export.get("manifest") or str(output_root / "factorio-export" / f"{result.get('graphics_name', result['asset_name'])}.factorio-asset-manifest.json")
             if not promotion.get("graphics_destination"):
-                promotion["graphics_destination"] = f"exotic-space-industries-remembrance/graphics/entity/{result.get('graphics_name', result['asset_name'])}"
+                promotion["graphics_destination"] = f"exotic-space-industries-remembrance-graphics-6/graphics/entities/{result.get('graphics_name', result['asset_name'])}"
             if not promotion.get("prototype_name"):
                 promotion["prototype_name"] = result.get("prototype_name", result["asset_name"])
     if "style" in result:
@@ -1210,7 +1211,7 @@ def configured_style(spec: dict[str, Any]) -> dict[str, Any]:
     if isinstance(qa_style, dict):
         style.update(qa_style)
     style.setdefault("enabled", False)
-    style.setdefault("baseline_globs", ["exotic-space-industries-remembrance/graphics/**/*.png"])
+    style.setdefault("baseline_globs", ["exotic-space-industries-remembrance-graphics-6/graphics/**/*.png"])
     style.setdefault("target_paths", [])
     style.setdefault("max_baseline_images", 120)
     style.setdefault("warn_luma_delta", 45)

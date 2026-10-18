@@ -3,7 +3,7 @@
 -- owns: main Informatron pages
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: load-time remote interface registration
--- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, auric_inoculation_vat, beacon_overhaul, black_hole, bots, cranes_and_belts, crystal_accumulator_resonance, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, gaian_saucer, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, neutron_collector, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, railgun_cooling, repair, resources, rocket_launch_pollution, singularity_lance, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
+-- forwarded_events: ages_and_tech, artifacts, asteroid_variants, auric_fumarole, auric_inoculation_vat, beacon_overhaul, black_hole, bots, cranes_and_belts, crystal_accumulator_resonance, em_trains, enemy_difficulty, exotic_industries_informatron, exotic_stabilizer, fission, fulgora_day_variation, fusion_power, gaian_hierophant, gaian_saucer, game_related, gate, induction_matrix, knowledge, loaders, menu, mining_scars, nauvis_pressure_grace, neutron_collector, new_logistics, new_mechanics, nuclear_fission_and_fusion, orbital_scanner, overall, page_content, railgun_cooling, repair, resources, rocket_launch_pollution, singularity_lance, specialised_pipes, tech_scaling, teslas_legacy, train_progression, turrets, world_gen_related
 -- storage_roots: none
 -- gui_ids_added: exotic-industries-informatron.gaian-saucer, exotic-industries-informatron.gaian-saucer-2, exotic-industries-informatron.gaian-saucer-text, exotic-industries-informatron.gaian-saucer-text-2
 -- gui_ids: exotic-industries-informatron, exotic-industries-informatron., exotic-industries-informatron.ages-and-tech, exotic-industries-informatron.ages-and-tech-2, exotic-industries-informatron.ages-and-tech-text, exotic-industries-informatron.ages-and-tech-text-2, exotic-industries-informatron.artifacts, exotic-industries-informatron.artifacts-text, exotic-industries-informatron.asteroid-anomalies, exotic-industries-informatron.asteroid-anomalies-text, exotic-industries-informatron.asteroid-variants, exotic-industries-informatron.asteroid-variants-text, exotic-industries-informatron.auric-fumarole, exotic-industries-informatron.auric-fumarole-2, exotic-industries-informatron.auric-fumarole-text, exotic-industries-informatron.auric-fumarole-text-2, exotic-industries-informatron.beacon-overhaul, exotic-industries-informatron.beacon-overhaul-text, exotic-industries-informatron.biters, exotic-industries-informatron.biters-text, exotic-industries-informatron.black-hole, exotic-industries-informatron.black-hole-2, exotic-industries-informatron.black-hole-2-text, exotic-industries-informatron.black-hole-3, exotic-industries-informatron.black-hole-3-text, exotic-industries-informatron.black-hole-text, exotic-industries-informatron.bots, exotic-industries-informatron.bots-2, exotic-industries-informatron.bots-text, exotic-industries-informatron.bots-text-2, exotic-industries-informatron.chemical-asteroid, exotic-industries-informatron.chemical-asteroid-text, exotic-industries-informatron.chunk-grades, exotic-industries-informatron.chunk-grades-text, exotic-industries-informatron.chunk-refining, exotic-industries-informatron.chunk-refining-2, exotic-industries-informatron.chunk-refining-text, exotic-industries-informatron.chunk-refining-text-2, exotic-industries-informatron.cranes-and-belts, exotic-industries-informatron.cranes-and-belts-text, exotic-industries-informatron.crystal-accumulator-resonance, exotic-industries-informatron.crystal-accumulator-resonance-2, exotic-industries-informatron.crystal-accumulator-resonance-3, exotic-industries-informatron.crystal-accumulator-resonance-4, exotic-industries-informatron.crystal-accumulator-resonance-5, exotic-industries-informatron.crystal-accumulator-resonance-6, exotic-industries-informatron.crystal-accumulator-resonance-text, exotic-industries-informatron.crystal-accumulator-resonance-text-2, exotic-industries-informatron.crystal-accumulator-resonance-text-3, exotic-industries-informatron.crystal-accumulator-resonance-text-4, exotic-industries-informatron.crystal-accumulator-resonance-text-5, exotic-industries-informatron.crystal-accumulator-resonance-text-6, exotic-industries-informatron.em-trains, exotic-industries-informatron.em-trains-2, exotic-industries-informatron.em-trains-3, exotic-industries-informatron.em-trains-text, exotic-industries-informatron.em-trains-text-2, exotic-industries-informatron.em-trains-text-3, exotic-industries-informatron.exotic-stabilizers, exotic-industries-informatron.exotic-stabilizers-text, exotic-industries-informatron.fission-reactors, exotic-industries-informatron.fission-reactors-2, exotic-industries-informatron.fission-reactors-2-text, exotic-industries-informatron.fission-reactors-text, exotic-industries-informatron.fulgora-day-variation, exotic-industries-informatron.fulgora-day-variation-2, exotic-industries-informatron.fulgora-day-variation-text, exotic-industries-informatron.fulgora-day-variation-text-2, exotic-industries-informatron.fusion-power, exotic-industries-informatron.fusion-power-2, exotic-industries-informatron.fusion-power-2-text, exotic-industries-informatron.fusion-power-text, exotic-industries-informatron.game-related, exotic-industries-informatron.game-related-text, exotic-industries-informatron.induction-matrix, exotic-industries-informatron.induction-matrix-2, exotic-industries-informatron.induction-matrix-2-text, exotic-industries-informatron.induction-matrix-text, exotic-industries-informatron.loaders, exotic-industries-informatron.loaders-2, exotic-industries-informatron.loaders-3, exotic-industries-informatron.loaders-4, exotic-industries-informatron.loaders-5, exotic-industries-informatron.loaders-text, exotic-industries-informatron.loaders-text-2, exotic-industries-informatron.loaders-text-3, exotic-industries-informatron.loaders-text-4, exotic-industries-informatron.loaders-text-5, exotic-industries-informatron.mining-scars, exotic-industries-informatron.mining-scars-2, exotic-industries-informatron.mining-scars-text, exotic-industries-informatron.mining-scars-text-2, exotic-industries-informatron.nauvis-pressure-grace, exotic-industries-informatron.nauvis-pressure-grace-2, exotic-industries-informatron.nauvis-pressure-grace-text, exotic-industries-informatron.nauvis-pressure-grace-text-2, exotic-industries-informatron.new-logistics, exotic-industries-informatron.new-logistics-text, exotic-industries-informatron.new-mechanics, exotic-industries-informatron.new-mechanics-text, exotic-industries-informatron.nuclear-fission-and-fusion, exotic-industries-informatron.nuclear-fission-and-fusion-text, exotic-industries-informatron.orbital-scanner, exotic-industries-informatron.orbital-scanner-2, exotic-industries-informatron.orbital-scanner-3, exotic-industries-informatron.orbital-scanner-text, exotic-industries-informatron.orbital-scanner-text-2, exotic-industries-informatron.orbital-scanner-text-3, exotic-industries-informatron.organic-asteroid, exotic-industries-informatron.organic-asteroid-text, exotic-industries-informatron.overall, exotic-industries-informatron.overall-text, exotic-industries-informatron.petrified-asteroid, exotic-industries-informatron.petrified-asteroid-text, exotic-industries-informatron.repair, exotic-industries-informatron.repair-text, exotic-industries-informatron.resources, exotic-industries-informatron.resources-text, exotic-industries-informatron.rock-asteroid, exotic-industries-informatron.rock-asteroid-text, exotic-industries-informatron.rocket-launch-pollution, exotic-industries-informatron.rocket-launch-pollution-2, exotic-industries-informatron.rocket-launch-pollution-text, exotic-industries-informatron.rocket-launch-pollution-text-2, exotic-industries-informatron.scrap-asteroid, exotic-industries-informatron.scrap-asteroid-text, exotic-industries-informatron.specialised-pipes, exotic-industries-informatron.specialised-pipes-2, exotic-industries-informatron.specialised-pipes-3, exotic-industries-informatron.specialised-pipes-4, exotic-industries-informatron.specialised-pipes-text, exotic-industries-informatron.specialised-pipes-text-2, exotic-industries-informatron.specialised-pipes-text-3, exotic-industries-informatron.specialised-pipes-text-4, exotic-industries-informatron.spidertron, exotic-industries-informatron.spidertron-text, exotic-industries-informatron.steam-bots, exotic-industries-informatron.steam-bots-2, exotic-industries-informatron.steam-bots-text, exotic-industries-informatron.steam-bots-text-2, exotic-industries-informatron.surface-patches, exotic-industries-informatron.surface-patches-text, exotic-industries-informatron.tech, exotic-industries-informatron.tech-2, exotic-industries-informatron.tech-3, exotic-industries-informatron.tech-text, exotic-industries-informatron.tech-text-2, exotic-industries-informatron.tech-text-3, exotic-industries-informatron.teslas-legacy, exotic-industries-informatron.teslas-legacy-2, exotic-industries-informatron.teslas-legacy-3, exotic-industries-informatron.teslas-legacy-4, exotic-industries-informatron.teslas-legacy-5, exotic-industries-informatron.teslas-legacy-6, exotic-industries-informatron.teslas-legacy-7, exotic-industries-informatron.teslas-legacy-text, exotic-industries-informatron.teslas-legacy-text-2, exotic-industries-informatron.teslas-legacy-text-3, exotic-industries-informatron.teslas-legacy-text-4, exotic-industries-informatron.teslas-legacy-text-5, exotic-industries-informatron.teslas-legacy-text-6, exotic-industries-informatron.teslas-legacy-text-7, exotic-industries-informatron.train-progression, exotic-industries-informatron.train-progression-text-2, exotic-industries-informatron.turrets, exotic-industries-informatron.turrets-2, exotic-industries-informatron.turrets-3, exotic-industries-informatron.turrets-4, exotic-industries-informatron.turrets-5, exotic-industries-informatron.turrets-text, exotic-industries-informatron.turrets-text-2, exotic-industries-informatron.turrets-text-3, exotic-industries-informatron.turrets-text-4, exotic-industries-informatron.turrets-text-5, exotic-industries-informatron.uranium-asteroid, exotic-industries-informatron.uranium-asteroid-text, exotic-industries-informatron.veins, exotic-industries-informatron.veins-text, exotic-industries-informatron.welcome, exotic-industries-informatron.welcome-text, exotic-industries-informatron.welcome-text-2, exotic-industries-informatron.world-gen-related, exotic-industries-informatron.world-gen-related-text
@@ -15,6 +15,11 @@ local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local beacon_profile_config = require("lib/beacon-profile-config")
 local pyric_radiance_config = require("lib/pyric-radiance-config")
 local ballistic_divergence_config = require("lib/ballistic-divergence-config")
+-- Page callbacks run after control parsing, when Factorio forbids require().
+local singularity_lance_config = require("lib/singularity-lance-config")
+local singularity_lance_runtime = require("scripts/control/singularity-lance")
+local anisetron_config = require("lib/anisetron-config")
+local anisetron_visual_config = require("lib/anisetron-visual-config")
 local terrain_evolution = require("scripts/control/terrain-evolution")
 local model = {}
 
@@ -272,7 +277,13 @@ function model.menu(player_index)
             auric_fumarole = 1,
             auric_inoculation_vat = 1,
             mining_scars = 1,
-            terrain_evolution = 1,
+            terrain_evolution = {
+                ecology_ground = 1,
+                ecology_woodland = 1,
+                ecology_hazards = 1,
+                ecology_seasons = 1,
+                ecology_controls = 1,
+            },
             asteroid_variants = 1,
             fulgora_day_variation = 1,
             artifacts = 1,
@@ -282,6 +293,7 @@ function model.menu(player_index)
         new_logistics = {
             train_progression = 1,
             gaian_saucer = 1,
+            gaian_hierophant = 1,
             em_trains = 1,
             orbital_scanner = 1,
             sweeping_radar = 1,
@@ -590,8 +602,7 @@ function model.turrets(player_index, element)
 end
 
 function model.singularity_lance(player_index, element)
-    local config = require("lib/singularity-lance-config")
-    local runtime = require("scripts/control/singularity-lance")
+    local config, runtime = singularity_lance_config, singularity_lance_runtime
     local force = game.get_player(player_index).force
     local current = runtime.get_force_snapshot(force)
     local function add_section(section_key, text_key)
@@ -733,7 +744,10 @@ end
 
 function model.auric_fumarole(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.auric-fumarole"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.auric-fumarole-text"}}
+    element.add{type = "label", caption = {"",
+        {"autoplace-control-descriptions.ei-auric-fumarole"}, "\n\n",
+        {"exotic-industries-informatron.auric-fumarole-defaults"}, "\n\n",
+        {"exotic-industries-informatron.auric-fumarole-text"}}}
 
     add_centered_sprite_row(element, {
         "item/ei-carbide-precipitation-core",
@@ -1004,6 +1018,44 @@ function model.gaian_saucer(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.gaian-saucer-text-2", fidelity_label}}
 end
 
+-- blueprint-ref: .codex/esir/blueprints/startup-and-integration.md#hierophant-page
+-- This page reads shared tuning once when opened; it owns no firing or movement.
+---@param _player_index uint
+---@param element LuaGuiElement
+function model.gaian_hierophant(_player_index, element)
+    local config = anisetron_config
+    local fidelity_label = get_localized_startup_string_setting_value(
+        anisetron_visual_config.setting_name, anisetron_visual_config.default_fidelity)
+    element.add{type = "label", caption = {"entity-name.ei-anisetron"}, style = "heading_1_label"}
+    add_wrapped_label(element, {"exotic-industries-informatron.gaian-hierophant-intro"}, 720)
+    add_centered_named_sprite_row(element, {
+        {sprite = "item/ei-anisetron", caption = {"item-name.ei-anisetron"}},
+        {sprite = "item/ei-anisetron-crystal-charge", caption = {"item-name.ei-anisetron-crystal-charge"}},
+        {sprite = "item/ei-singularity-lance", caption = {"item-name.ei-singularity-lance"}},
+    }, {card_width = 180, label_max_width = 168, horizontal_spacing = 8})
+
+    ---@type {key: string, caption: LocalisedString}[]
+    local sections = {
+        {key = "gaian-hierophant-controls", caption = {"exotic-industries-informatron.gaian-hierophant-controls-text"}},
+        {key = "gaian-hierophant-weapons", caption = {
+            "exotic-industries-informatron.gaian-hierophant-weapons-text", config.crown_damage,
+            config.contact_ticks, config.crown_range, config.crown_arc_degrees,
+            config.facade_damage, config.range, config.arc_degrees}},
+        {key = "gaian-hierophant-charge", caption = {
+            "exotic-industries-informatron.gaian-hierophant-charge-text", config.duration_ticks / 60,
+            (config.crown_damage + config.facade_damage) * 60 / config.contact_ticks}},
+        {key = "gaian-hierophant-upgrades", caption = {
+            "exotic-industries-informatron.gaian-hierophant-upgrades-text", singularity_lance_config.testament.interval}},
+        {key = "gaian-hierophant-construction", caption = {"exotic-industries-informatron.gaian-hierophant-construction-text"}},
+        {key = "gaian-hierophant-visuals", caption = {
+            "exotic-industries-informatron.gaian-hierophant-visuals-text", fidelity_label}},
+    }
+    for _, section in ipairs(sections) do
+        element.add{type = "label", caption = {"exotic-industries-informatron." .. section.key}, style = "heading_1_label"}
+        add_wrapped_label(element, section.caption, 720)
+    end
+end
+
 function model.em_trains(player_index, element)
     element.add{type = "label", caption = {"exotic-industries-informatron.em-trains"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.em-trains-text"}}
@@ -1023,7 +1075,7 @@ function model.em_trains(player_index, element)
 end
 
 function model.sweeping_radar(player_index, element)
-    element.add{type="label",caption={"exotic-industries-informatron.sweeping_radar_title"},style="heading_1_label"}
+    element.add{type="label",caption={"exotic-industries-informatron.title_sweeping_radar"},style="heading_1_label"}
     local row=element.add{type="flow"}
     row.add{type="sprite",sprite="item/ei-sweeping-radar"}
     row.add{type="sprite",sprite="item/ei-phased-array-radar"}
@@ -1032,17 +1084,43 @@ function model.sweeping_radar(player_index, element)
     body.style.maximal_width=720
 end
 
-function model.terrain_evolution(player_index,element)
-    for _,key in ipairs({"overview","protections","calendar","performance","controls","v2-coverage"}) do
-        element.add{type="label",caption={"ei-terrain."..key}}
+-- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#informatron-guide
+-- Informatron owns navigation and scrolling. Build static sections only on an
+-- explicit page open; the overview's final readout uses cached surface facts.
+---@type table<string, string[]>
+local ecology_guide_sections={
+    terrain_evolution={"intro","defaults","observation","protection"},
+    ecology_ground={"soil","recovery","depletion","working","mining-recovery","blood","paving"},
+    ecology_woodland={"stress","greening","regrowth","aging","rot","thermal","wildfire"},
+    ecology_hazards={"flood","drought","cliff"},
+    ecology_seasons={"calendar","daylight","modulation","nauvis","gaia","vulcanus","gleba","fulgora","aquilo"},
+    ecology_controls={"settings","presets","reports","alerts","maintenance","troubleshooting"},
+}
+---@param page_name string
+---@param element LuaGuiElement
+local function add_ecology_guide(page_name,element)
+    for _,key in ipairs(ecology_guide_sections[page_name]) do
+        local heading=element.add{type="label",caption={"ei-ecology-guide."..key.."-heading"},style="heading_1_label"}
+        heading.style.single_line=false
+        heading.style.maximal_width=720
+        add_wrapped_label(element,{"ei-ecology-guide."..key},720)
+        if page_name=="ecology_controls" and key=="reports" then
+            add_wrapped_label(element,{"ei-ecology-field.guide-summary"},720)
+        end
     end
+end
+---@param player_index uint
+---@param element LuaGuiElement
+function model.terrain_evolution(player_index,element)
+    add_ecology_guide("terrain_evolution",element)
     local player=game.get_player(player_index)
     if player then
-        local status=terrain_evolution.snapshot(player.surface,game.tick)
+        local status=terrain_evolution.public_snapshot(player.surface,game.tick)
+        if not settings.startup["ei-terrain-evolution-enabled"].value then status.status="disabled" end
         local cfg=status.effective
-        element.add{type="label",caption={"ei-terrain.effective",{"ei-terrain.status-"..status.status},
+        add_wrapped_label(element,{"ei-terrain.effective",{"ei-terrain.status-"..status.status},
             cfg and {"string-mod-setting.ei-terrain-performance-"..cfg.performance} or "-",
-            cfg and {"string-mod-setting.ei-terrain-intensity-"..cfg.intensity} or "-"}}
+            cfg and {"string-mod-setting.ei-terrain-intensity-"..cfg.intensity} or "-"},720)
     end
 end
 
@@ -1435,6 +1513,10 @@ function model.neutron_collector(player_index, element)
 end
 
 function model.page_content(page_name, player_index, element)
+    if ecology_guide_sections[page_name] and page_name~="terrain_evolution" then
+        add_ecology_guide(page_name,element)
+        return
+    end
     if page_name == "exotic-industries-informatron" then
         model.exotic_industries_informatron(player_index, element)
     end
@@ -1557,6 +1639,10 @@ function model.page_content(page_name, player_index, element)
 
     if page_name == "gaian_saucer" then
         model.gaian_saucer(player_index, element)
+    end
+
+    if page_name == "gaian_hierophant" then
+        model.gaian_hierophant(player_index, element)
     end
 
     if page_name == "em_trains" then

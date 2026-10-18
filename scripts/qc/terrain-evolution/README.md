@@ -6,6 +6,67 @@ Use fresh run names. Run engine fixtures sequentially: concurrent data loads can
 exhaust this workstation's memory and invalidate performance measurements.
 New fixture worlds use map seed 42; `-MapSeed` permits an explicit alternative.
 
+## Illustrated Simple field report
+
+The Simple tab uses a read-only composer for native light phases, the independent
+seasonal calendar and cumulative committed ecological effects. New activity times
+are optional scalar values per category; existing totals do not acquire invented
+history. All eight current locales include `ecology-field-report.cfg`.
+
+```powershell
+& .tools/lua-5.4.8/lua54.exe scripts/qc/terrain-evolution/field-report.lua
+python -B scripts/qc/terrain-evolution/audit-locales.py
+```
+
+The connected [field-report fixture](field-connected/README.md) verifies native
+sprites and rendering, remote surfaces, light flags, bounded property writes,
+closed-panel idle behavior, English/Japanese/Russian/German translations and a
+scale-two stacked layout. It measures ordinary open-panel updates separately
+from instrumented assertions. Static banners are exported reproducibly by
+`export-field-banners.py`; prompts, sources, hashes and contact sheet remain in
+the requested ignored `output/ecology-field-report/` staging.
+
+## Detailed Informatron guide
+
+The existing `terrain_evolution` overview now contains five nested pages:
+`ecology_ground`, `ecology_woodland`, `ecology_hazards`, `ecology_seasons` and
+`ecology_controls`. The guide has 36 sections; each of the seven locales supplies
+82 entries in `ecology-informatron.cfg`. Each feature leads with a practical
+engineer-ecologist's explanation, followed by bold default-setting and practical-limit
+labels where relevant. The locale audit includes these entries, paragraph escapes,
+numeric facts and balanced font/colour tags alongside the settings schema.
+
+Voice edits retain every feature's conditions and limitations. In particular,
+intervals describe opportunities rather than guaranteed per-tile countdowns;
+restoration requires recorded damage; the seasonal daylight share is distinct from
+the full rotation period. Translations retain established setting and GUI names.
+
+The `informatron` helper uses both mods' public interfaces, without owner
+instrumentation. Stage it with a copied player-containing seed:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/invoke-terrain-evolution-qc.ps1 -HelperRoot scripts/qc/terrain-evolution/informatron -SaveInput '<player-seed.zip>' -Ticks 300 -OutputRoot .factorio-qc/guide
+```
+
+This headless lane checks native nested navigation, all headings and bodies,
+wrapping, and the overview's final effective readout. It does not establish client
+translation or visual layout. For a connected graphics lane, set the staged
+`guide-config.lua` to `connected=true` and the intended `locale`, match the private
+client's `[general] locale`, then load that same seed with `--benchmark-graphics`
+for 600 ticks. The helper translates all 85 actual captions and captures the top
+and bottom of each page. `disabled=true`, with a fresh settings reconciliation,
+also checks that startup-off documentation remains available and says Disabled.
+The connected fixture waits for its 1280x720 viewport, leaves the copied editor
+controller and fits only the test window to the capture. Informatron 0.4.0 normally
+fixes that host frame at 800 pixels; no shipping host style is changed by the guide.
+Run clients sequentially and keep their profiles outside the live user directory.
+Keep the graphics profile path short: this Windows engine can report an existing
+sprite as missing when its resolved staged path reaches 260 characters. A nested
+profile triggered that limit; shortening the owned profile resolved it without
+changing shipping assets.
+For a substantial prose rewrite, inspect English, Japanese and Russian top/bottom
+captures for readable paragraphs, bold detail labels and complete scrolling.
+
 ## Ecology V2 verification
 
 Run the current V2 lanes below in addition to the existing planetary, ownership,

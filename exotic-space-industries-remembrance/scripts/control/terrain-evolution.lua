@@ -38,6 +38,9 @@
 ---@field classified table<string, boolean>
 ---@field iterator LuaChunkIterator?
 ---@field hazard_epoch integer? Rearms changed optional hazard settings lazily.
+---@field effects table<string, integer>? Cumulative committed changes in the finite effect category set.
+---@field effect_ticks table<string, MapTick>? Last committed change; absent historical times stay unknown.
+---@field pollution_supported boolean? Native pollutant capability, independent of sample coverage.
 ---@class EsirTerrainFire
 ---@field entity LuaEntity
 ---@field surface LuaSurface
@@ -161,6 +164,9 @@ end
 local function effect(root,surface,category,position,tick,count)
     local entry=root.surfaces[surface.index];if not entry then return end
     entry.effects=entry.effects or {};entry.effects[category]=(entry.effects[category] or 0)+(count or 1)
+    -- One optional timestamp per committed category, not a retained event log.
+    -- Old-save totals stay intact; absent historical times are never invented.
+    entry.effect_ticks=entry.effect_ticks or {};entry.effect_ticks[category]=tick
     entry.last_effect_tick=tick;entry.last_effect=category
     if owners.effect then owners.effect{surface=surface,owner=entry,position=position,category=category,tick=tick,count=count or 1,generation=entry.generation or 0} end
 end
@@ -236,6 +242,8 @@ local function add_surface(root,surface,refresh)
         root.surfaces[surface.index]=entry
     end
     local previous=entry.config
+    -- Capability is known before the first observation; it is not a measured zero.
+    entry.pollution_supported=surface.pollutant_type and surface.pollutant_type.name=="pollution" or false
     if refresh or not entry.config then entry.config=config.resolve_surface(root.config,planet,entry.overrides) end
     if root.compatibility then entry.config.enabled=false end
     refresh_hazard_epoch(entry,previous)
@@ -1414,6 +1422,8 @@ end
 ---@field pollution number?
 ---@field pollution_supported boolean?
 ---@field effects table<string, integer>
+---@field effect_ticks table<string, MapTick>? Last committed activity; absent on old saves.
+---@field woodland_supported boolean? Loaded approved native tree family exists.
 ---@field global table
 ---Cached scalar/finite state only: no world search or population walk.
 ---@param surface LuaSurface
@@ -1422,9 +1432,14 @@ end
 function model.public_snapshot(surface,tick)
     local root=peek();local entry=root and root.surfaces[surface.index]
     if not root or not entry or entry.surface~=surface then return {status="unsupported",effects={},global={}} end
+    -- Older unobserved entries have no capability cache. Read the native type
+    -- without inventing a sample or mutating state, including on disabled worlds.
+    local pollution_supported=entry.pollution_supported
+    if pollution_supported==nil then pollution_supported=surface.pollutant_type and surface.pollutant_type.name=="pollution" or false end
     return {status=root.compatibility or (entry.config.enabled and "enabled" or "disabled"),effective=entry.config,
         sample_age=entry.last_sample_tick and tick-entry.last_sample_tick,pollution=entry.last_pollution,
-        pollution_supported=entry.pollution_supported==true,effects=entry.effects or {},last_effect=entry.last_effect,
+        pollution_supported=pollution_supported==true,effects=entry.effects or {},effect_ticks=entry.effect_ticks or {},last_effect=entry.last_effect,
+        woodland_supported=root.native_tree_names and #(root.native_tree_names[entry.planet] or {})>0 or false,
         counts=entry.counts or {},protection_skips=entry.protection_skips or 0,last_pending_age=entry.last_pending_age,
         dirty_age=entry.last_dirty_since and tick-entry.last_dirty_since,clean_age=entry.last_clean_since and tick-entry.last_clean_since,
         calendar=calendar.snapshot(root,surface,tick),drills=entry.drills and #entry.drills or 0,

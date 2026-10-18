@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: data stage reload, prototype cache rebuild
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/auric-inoculation-vat.md#contract
 local util = require("util")
 
 local cyst_node_shadow_path = ei_graphics_entity_4_path .. "auric-cyst-node/auric-cyst-node-shadow.png"
@@ -132,6 +133,9 @@ cyst_node.agricultural_tower_tint = {
 cyst_node.ambient_sounds = nil
 cyst_node.map_color = {255, 215, 140}
 
+-- blueprint-ref: .codex/esir/blueprints/auric-inoculation-vat.md#washing-productivity
+-- Research and modules recover extra gold; waste stays per input batch.
+---@type data.RecipePrototype
 local cyst_washing_recipe = {
     type = "recipe",
     name = "ei-auric-cyst-washing",
@@ -144,11 +148,12 @@ local cyst_washing_recipe = {
     },
     results = {
         {type = "item", name = "ei-gold-chunk", amount_min = 1, amount_max = 3},
-        {type = "item", name = "spoilage", amount_min = 1, amount_max = 3, ignored_by_stats = 3, probability = 0.5},
-        {type = "fluid", name = "ei-dirty-water", amount_min = 5, amount_max = 25, ignored_by_stats = 30},
+        {type = "item", name = "spoilage", amount_min = 1, amount_max = 3, ignored_by_stats = 3, ignored_by_productivity = 3, probability = 0.5},
+        {type = "fluid", name = "ei-dirty-water", amount_min = 5, amount_max = 25, ignored_by_stats = 30, ignored_by_productivity = 25},
     },
     always_show_made_in = true,
-    allow_productivity = false,
+    allow_productivity = true,
+    maximum_productivity = 3,
     auto_recycle = false,
     enabled = false,
     main_product = "ei-gold-chunk",

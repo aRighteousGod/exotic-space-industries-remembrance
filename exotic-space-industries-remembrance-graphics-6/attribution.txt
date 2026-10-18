@@ -1,8 +1,46 @@
 Exotic Space Industries: Remembrance - Graphics 6
 
+All remaining gameplay graphics formerly shipped in the main ESIR pack are
+included here with their original relative paths and accompanying provenance.
+The main pack retains its Mod Portal thumbnail. Project credits and contributor
+attribution continue to follow its CREDITS.md and CONTRIBUTORS.md.
+
+The ANISETRON firing loop and its original attribution are included under
+sounds/. See sounds/anisetron-lance-loop attribution.txt for its source and license.
+
 Project author: aRighteousGod.
-Project contributor attribution follows the main pack's CREDITS.md and CONTRIBUTORS.md.
-See LICENSE.md for the project license text.
+Selected source: the user's minigun prototype image 2, reconstructed with Meshy 7.1.
+Meshy task: 01a123b7-0507-7520-84dd-5fcce51bb408.
+Source GLB SHA256: 453a8f5b75fd16630803d698293222cf9e07a3e1cecb1f7c3b40434d75008f59.
+
+The selected model is mechanically separated and rendered through the ESIR
+Blender/Factorio asset pipeline. This package contains the standard texture
+exports; the main ESIR pack owns gameplay and graphics profile selection.
+Project contributor attribution follows the main pack's CREDITS.md and
+CONTRIBUTORS.md. See LICENSE.md for the project license text.
+
+Durable generation and validation instructions:
+.codex/esir/asset-generators/minigun-turret/HANDOFF-SEPARATED.md
+in the Exotic Space Industries: Remembrance source repository.
+
+Acidthrower revision 03: the user's acidthrower prototype 2, reconstructed
+with Meshy and separated/rendered through the same Blender/Factorio pipeline.
+Complete model SHA256:
+4dcaaa053de76f109ae31ff202eba0178c932d36f03e63bdcdc11622356908d0.
+Liquid effects are deterministic local Blender geometry; the attached corrosion
+sticker references Factorio's base-game acid artwork and is not copied here.
+Durable acidthrower reproduction and validation instructions:
+.codex/esir/asset-generators/acidthrower-turret/revision-03/README.md
+.codex/esir/asset-generators/acidthrower-turret/revision-03/pressure-jet/README.md
+
+ANISETRON 17 artwork uses the user's ANISETRON 17.png reference, reconstructed
+with Meshy 7.1 and rendered through the ESIR Blender/Factorio asset pipeline.
+Meshy task: 01a109e4-32e3-76e7-b8b3-7188f94993a1.
+Source GLB SHA256: 6e866e9d537e330fe2e20ddc89ccd071955562f0eca114db4dc2e4999a706bfc.
+The original geometry, UVs and PBR materials are retained, with separate crystal
+glow and owner-mask layers. This package owns all eleven shipping ANISETRON PNGs.
+Durable provenance and replay instructions:
+.codex/esir/asset-generators/anisetron/reference17/README.md
 
 A. S. H. Sentry water-turret artwork: selected concept 9, light blue/teal,
 reconstructed with Meshy 7.1 and rendered through the ESIR Blender/Factorio
@@ -14,24 +52,25 @@ shadow and owner-mask layers. Full provenance accompanies the entity sheets.
 Durable replay instructions:
 .codex/esir/asset-generators/water-turret/README-source.md
 
-Acidthrower revision 03 / Exotic Space Industries: Remembrance - Graphics 6
+Seasonal Ecology launcher: copper mechanical tree and enamel leaf variations
+generated with OpenAI imagegen for ESIR. Four transparent GUI sprites share a
+common source registration; spring lime, summer emerald, autumn amber-red and
+winter cyan. Durable prompts, source hashes and deterministic export instructions:
+.codex/esir/asset-generators/ecology-season-button/README.md
 
-Project author: aRighteousGod. Original acidthrower authors: DarkNova and Beathoven.
-Selected source: the user's acidthrower prototype 2, reconstructed with Meshy
-and separated/rendered through the ESIR Blender/Factorio pipeline.
-Complete model SHA256:
-4dcaaa053de76f109ae31ff202eba0178c932d36f03e63bdcdc11622356908d0.
-Liquid effects are deterministic local Blender geometry. The attached corrosion
-sticker references Factorio's base-game acid artwork and is not copied here.
-See LICENSE.md and the main pack's CREDITS.md/CONTRIBUTORS.md.
+Overseer's Seal administration emblem: user-selected option 1, generated with
+OpenAI imagegen for ESIR and approved for the launcher and window title.
+The ivory eye, amber lens and fractured steel crown are stored unchanged as
+graphics/gui/admin-overseer-seal.png (1254 x 1254 RGBA). Native GUI scaling
+supplies the 32-unit launcher sprite and 48-unit title emblem.
+Source/output SHA256:
+fbed0138839cd50b05932651c069b4bebaa50d4cfd997df78121a79d6c0983ce.
 
-Durable reproduction and validation instructions:
-.codex/esir/asset-generators/acidthrower-turret/revision-03/README.md
-.codex/esir/asset-generators/acidthrower-turret/revision-03/pressure-jet/README.md
-
-Minigun turret: prototype image 2, reconstructed with Meshy 7.1 and rendered
-through the separated Blender/Factorio asset pipeline. Author: aRighteousGod.
-Meshy task: 01a123b7-0507-7520-84dd-5fcce51bb408.
-Source GLB SHA256: 453a8f5b75fd16630803d698293222cf9e07a3e1cecb1f7c3b40434d75008f59.
-This pack supplies indexed color artwork at 64 pixels per tile, lossless full-resolution shadows and indexed item/research icons.
-Generation and validation: .codex/esir/asset-generators/minigun-turret/HANDOFF-SEPARATED.md.
+Ecology Simple field-report banners: six original text-free industrial landscape
+illustrations generated with OpenAI imagegen for ESIR, October 2026. These are
+decorative planetary scenes, not screenshots or representations of measured
+terrain conditions. Shipping graphics/gui/ecology-field-*.png files are fixed
+1536 x 384 exports. The requested prompts, unmodified source images, source and
+output SHA256 hashes, crop bounds and contact sheet are retained in the source
+workspace's ignored output/ecology-field-report/ staging. Deterministic export:
+scripts/qc/terrain-evolution/export-field-banners.py

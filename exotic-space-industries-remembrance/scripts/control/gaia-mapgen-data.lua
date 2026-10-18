@@ -4,6 +4,7 @@
 -- Used for old world migrations and surface reforging
 
 local gaia_mapgen_data = {}
+local enemy_config = require("lib/planet-enemies-config")
 
 local function copy_value(value)
     if type(value) ~= "table" then
@@ -140,8 +141,12 @@ function gaia_mapgen_data.get_autoplace_settings()
     }
 end
 
+-- blueprint-ref: .codex/esir/blueprints/planet-enemies.md#gaia
+-- Native planet.create_surface owns new-game choices. The fallback/reforge path
+-- receives the saved surface choices, or the save's defaults before first creation.
+---@param preserved MapGenSettings|nil
 ---@return MapGenSettings
-function gaia_mapgen_data.get_map_gen_settings()
+function gaia_mapgen_data.get_map_gen_settings(preserved)
     local settings = {
         default_enable_all_autoplace_controls = false,
         terrain_segmentation = 0.75,
@@ -167,10 +172,30 @@ function gaia_mapgen_data.get_map_gen_settings()
     }
 
     if script.active_mods["Electric_flying_enemies"] then
-        settings.no_enemies_mode = false
-        settings.autoplace_controls["electric_enemies"] = {frequency = 1, richness = 1, size = 5}
+        settings.autoplace_controls[enemy_config.gaia_control] = {frequency = 1, richness = 1, size = 5}
         settings.autoplace_settings.entity.settings["flying-electric-unit-spawner"] = {}
         settings.autoplace_settings.entity.settings["walker-electric-unit-spawner"] = {}
+    end
+
+    local source = preserved or (game and game.default_map_gen_settings) or {}
+    if preserved and preserved.cliff_settings then
+        settings.cliff_settings = copy_value(preserved.cliff_settings)
+    end
+    for _, key in ipairs({"seed", "starting_area", "starting_points", "width", "height", "peaceful_mode", "no_enemies_mode"}) do
+        if source[key] ~= nil then settings[key] = copy_value(source[key]) end
+    end
+    local controls = source.autoplace_controls or {}
+    for name in pairs(settings.autoplace_controls) do
+        if controls[name] then settings.autoplace_controls[name] = copy_value(controls[name]) end
+    end
+    if preserved and not controls[enemy_config.gaia_control] and controls.electric_enemies then
+        settings.autoplace_controls[enemy_config.gaia_control] = copy_value(controls.electric_enemies)
+    end
+    -- The final prototype owns current noise aliases, including dependency wiring.
+    local planet = prototypes.space_location.gaia
+    local defaults = planet and planet.map_gen_settings
+    for key, value in pairs(defaults and defaults.property_expression_names or {}) do
+        settings.property_expression_names[key] = value
     end
 
     return settings

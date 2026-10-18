@@ -7,7 +7,7 @@ local artwork = require("lib/singularity-lance-art")
 local visual = require("lib/anisetron-visual-config").resolve()
 local canonical = lance.resolve("standard")
 local presentation = lance.presentation
-local upgrade_path = ei_path .. "graphics/singularity-lance-upgrades/prismatic-liturgy/"
+local upgrade_path = ei_graphics_6_path .. "graphics/singularity-lance-upgrades/prismatic-liturgy/"
 local base_path = ei_graphics_entity_4_path .. "singularity-lance/beam/"
 local intensity = math.min(1, canonical.visual_beam_light_intensity) * presentation.beam_light_strength
 local extra_glow = visual.enabled and visual.visual_fidelity ~= "lean"

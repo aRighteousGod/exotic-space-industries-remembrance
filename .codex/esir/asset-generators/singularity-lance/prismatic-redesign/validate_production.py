@@ -58,7 +58,7 @@ for name in manifest['icons']:
     body.alpha_composite(effect)
     assert body.tobytes()==Image.open(root/f'{name}.png').convert('RGBA').tobytes(),name
 preview=Image.open(root/'production-motion.webp');assert preview.n_frames==64
-shipping=Path('exotic-space-industries-remembrance/graphics/singularity-lance-upgrades/prismatic-liturgy')
+shipping=Path('exotic-space-industries-remembrance-graphics-6/graphics/singularity-lance-upgrades/prismatic-liturgy')
 if '--shipping' in sys.argv:
     for path in (root/'factorio-export').glob('*.png'):
         assert path.read_bytes()==(shipping/path.name).read_bytes(),path.name

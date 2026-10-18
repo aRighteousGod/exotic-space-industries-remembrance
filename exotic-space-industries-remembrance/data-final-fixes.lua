@@ -142,6 +142,7 @@ require("scripts/data-final-updates/fuel-glow")
 -- tech placement and both gate recipes after the repo's generic age/prereq passes.
 require("scripts/data-final-updates/exotic-damage-resistances")
 require("scripts/data-final-updates/enemy-difficulty")
+require("scripts/data-final-updates/planet-enemies")
 require("scripts/data-final-updates/gate-difficulty")
 require("scripts/data-final-updates/singularity-lance-damage-category")
 require("scripts/data-final-updates/emerald-apocalypse-hover-tank")
@@ -207,6 +208,7 @@ end
 
 -- Weighted-tech badges are a pure icon pass, so they can run truly last after every other
 -- final tech rewrite has settled on its finished icon and science layout.
+require("prototypes/cryo-containers").finalize()
 require("scripts/data-final-updates/tech-weight-badges")
 -- Resolve the shared fleet variants after all source-body compatibility passes.
 -- Resolve deaths on canonical bodies first; hidden fleet/fuel shells inherit

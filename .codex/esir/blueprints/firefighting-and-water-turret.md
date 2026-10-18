@@ -96,3 +96,8 @@ Preference events retain the same-entity relative GUI root and update only chang
 Use `scripts/invoke-water-turret-qc.ps1` and its README for pinned 2.0.77 creation coverage, final-data hooks under both fuel-adaptation settings, targeting modes, index/lifecycle tests, saved backlog, native combat and aiming. Paired performance scenes measure updater, event handlers and whole-engine timing against the same captured baseline.
 
 The engine currently returns nil for fire cloning; the gate records that unsupported path honestly while explicit clone-event admission remains wired. Import handler testing is distinct from an actual surface export/import round trip. Per-module timing alone is not whole-engine UPS or multiplayer proof.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Repair tags rebuilt seed buckets with the reconstruction generation. Completion waits for both cold-seed search and subsequent ingestion, including requery or invalid/removed bucket retirement. Existing processors advance counters without presentation-driven scans. Ordinary firefighting and later coverage changes do not join the fixed batch.

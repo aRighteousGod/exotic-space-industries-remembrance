@@ -11,6 +11,8 @@ For requested indexed PNGs or 256-color derivatives, use [esir-png-quantize](../
 
 ## Hard Rules
 
+- Follow [housekeeping](../esir-dev/references/housekeeping.md): protect source downloads, specs, dossiers and review state; register only new reproducible intermediates with retained QA/final-output evidence. During authorized replacement, reconcile the touched shipping asset family and retire proven-superseded files, including partial promotion copies after failure. Automatic retention never prunes actual mod folders; leave `models/` alone.
+
 - Default generated artifacts to ignored `output/meshy/<asset>/`.
 - Keep durable asset-specific generators, replay scripts, and generator notes under `.codex/esir/asset-generators/`; keep hand-written prompt notes under `.codex/esir/art-prompts/`. Do not make `output/` the only home for source material worth committing.
 - Use `plan` or `--dry-run` before any credit-spending Meshy step.

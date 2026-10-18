@@ -5,6 +5,8 @@ description: "Use when Codex should render or wire ESIR Factorio train and rolli
 
 # ESIR Rolling Stock Render
 
+Follow [housekeeping](../esir-dev/references/housekeeping.md): preserve source scenes and raw-frame edge-check results plus selected boundary previews before registering reproducible intermediates. An authorized replacement must reconcile the complete normal/sloped sheet family, retire proven-obsolete sheets and keep backups/previews outside mod folders. Leave root `models/` outside housekeeping.
+
 Use this skill for the special train-body render path. It is not the generic Factorio preset renderer: ESIR train bodies use the repo-root `rolling_stock_template.blend`, the Susanne train precedent, and `spritter.exe` sheet packing.
 
 ## Template Contract

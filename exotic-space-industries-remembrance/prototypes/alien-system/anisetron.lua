@@ -16,9 +16,9 @@ local category = require("lib/anisetron-config").ammo_damage_category
 local ammo_name = name.."-crystal-charge"
 local gun_name = name.."-beam-gun"
 local beam_name = name.."-beam"
-local graphics = ei_path.."graphics/entities/anisetron/"
-local icon = ei_path.."graphics/items/anisetron.png"
-local charge_icon = ei_path.."graphics/items/anisetron-crystal-charge.png"
+local graphics = ei_graphics_6_path.."graphics/entities/anisetron/"
+local icon = ei_graphics_6_path.."graphics/items/anisetron.png"
+local charge_icon = ei_graphics_6_path.."graphics/items/anisetron-crystal-charge.png"
 
 local config = require("lib/anisetron-config")
 local mobility = require("lib/anisetron-mobility-config")
@@ -170,7 +170,7 @@ for _, emitter in ipairs{"crown", "facade"} do
         selection_box = {{0, 0}, {0, 0}}, picture = util.empty_sprite(), max_health = 1,
     }
     voice.working_sound = {
-        sound = {filename = ei_path.."sounds/anisetron-lance-loop.ogg",
+        sound = {filename = ei_sounds_6_path.."anisetron-lance-loop.ogg",
             category = "weapon", volume = emitter == "crown" and .32 or .18,
             speed = emitter == "crown" and .90 or 1.05, audible_distance_modifier = .50},
         fade_in_ticks = 6, fade_out_ticks = 12, max_sounds_per_prototype = 5,
@@ -255,7 +255,7 @@ data:extend({
     },
     {
         type = "technology", name = name,
-        icon = ei_path.."graphics/technology/anisetron.png", icon_size = 256,
+        icon = ei_graphics_6_path.."graphics/technology/anisetron.png", icon_size = 256,
         prerequisites = {
             "ei-gaian-saucer", "ei-crystal-accumulator", "ei-computing-unit",
             "ei-neodymium-magnet", "ei-sus-plating", "ei-high-energy-crystal",

@@ -56,6 +56,10 @@ local WEIGHTING_RULES = {
             "ei-emerald-target-verdict",
             "ei-emerald-apocalypse-recursion",
             "ei-assault-smokescreen",
+            "ei-singularity-lance-axial-rupture",
+            "ei-singularity-lance-wound-memory",
+            "ei-singularity-lance-terminal-collapse",
+            "ei-singularity-lance-black-hole-testament",
         },
         chain_roots = {
             "follower-robot-count",

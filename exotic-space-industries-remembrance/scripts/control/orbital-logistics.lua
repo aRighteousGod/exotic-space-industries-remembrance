@@ -18,6 +18,7 @@
 -- remote_interfaces: exposed indirectly through control.lua QC hooks
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/orbital-logistics.md#contract
+-- blueprint-ref: .codex/esir/blueprints/orbital-logistics.md#rebuild-reporting
 
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
@@ -3283,6 +3284,8 @@ end
 function model.rebuild_runtime_state(reason, current_tick)
   local root = get_root()
   current_tick = now_tick(current_tick)
+  local report_id=ei_runtime_scheduler.report_rebuild("orbital-logistics","rescan","all",root.rescan_rebuild_id,
+    {reason=reason or "manual",phase="rescan",state="running",synchronous=true,completed=0,total=false},current_tick)
 
   cohort_power.destroy_all_sensors()
 
@@ -3337,6 +3340,8 @@ function model.rebuild_runtime_state(reason, current_tick)
   end
 
   root.last_rescan_tick = current_tick
+  ei_runtime_scheduler.finish_rebuild(report_id,"completed",current_tick)
+  root.rescan_rebuild_id=nil
   return {
     reason = reason or "manual",
     tick = current_tick,
@@ -3356,6 +3361,8 @@ function model.request_runtime_rescan(reason, current_tick)
   root.pending_rescan_request_count = (root.pending_rescan_request_count or 0) + 1
   root.last_rescan_request_tick = current_tick
   ei_runtime_scheduler.queue_push_unique(root.rescan_queue, RESCAN_QUEUE_KEY, RESCAN_QUEUE_KEY)
+  root.rescan_rebuild_id=ei_runtime_scheduler.report_rebuild("orbital-logistics","rescan","all",root.rescan_rebuild_id,
+    {reason=root.pending_rescan_reason,phase="rescan",state="queued",completed=0,total=false,unit="entities"},current_tick)
   return true
 end
 

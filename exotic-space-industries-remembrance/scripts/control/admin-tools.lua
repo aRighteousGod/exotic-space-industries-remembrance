@@ -12,6 +12,7 @@ local registry=require("scripts/control/admin/registry")
 local targeting=require("scripts/control/admin/targeting")
 local restrictions=require("scripts/control/admin/restrictions")
 local ecology=require("scripts/control/admin/ecology")
+local map_settings=require("scripts/control/admin/map-settings")
 local terrain_config=require("lib/terrain-evolution-config")
 local model={}
 local owners
@@ -46,7 +47,7 @@ local function changed(page,target)
     state.dirty=state.dirty or {}
     for index,session in pairs(state.sessions) do
         if session.root and session.root.valid and session.root.visible
-            and (session.page==page or (page=="planet" and session.page=="planets") or session.page=="diagnostics") then state.dirty[index]=true end
+            and (session.page==page or (page=="planet" and (session.page=="planets" or session.page=="map-settings")) or session.page=="diagnostics") then state.dirty[index]=true end
     end
 end
 
@@ -67,14 +68,18 @@ function model.configure(modules)
     owners=modules
     ecology.configure{runtime=modules["terrain-evolution"],schema=terrain_config.schema,
         resolve_surface=model.resolve_surface,execute=model.execute,changed=changed}
-    modules.gaia.set_surface_ready_handler(model.on_planet_surface_ready)
+    map_settings.configure{runtime=modules["map-settings"],execute=model.execute,changed=changed}
+    modules.gaia.set_surface_ready_handler(function(surface,newly_created,tick)
+        modules["map-settings"].on_surface_ready(surface,tick or game.tick)
+        model.on_planet_surface_ready(surface,newly_created)
+    end)
     local ctx={enabled=common.enabled,state=common.state,valid_entity=lib.get_valid_entity,scheduler=scheduler,
         notify=common.notify,changed=changed,resolve_surface=model.resolve_surface,modules=modules,
         rupture_effects=modules["rupture-effects"],fluid_safety=modules["fluid-safety"],fulgora=modules["fulgora-day-length"]}
     players.configure(ctx);world.configure(ctx);registry.configure(ctx)
     targeting.configure{resolve_surface=model.resolve_surface,hidden=function(player) gui.close(player.index) end,
         finished=function(player,tick) if common.authorize(player) then gui.open(player,nil,tick) end end}
-    gui.configure{planets=model.planets,world=world,registry=registry,execute=model.execute,diagnostics=model.diagnostics,ecology=ecology,
+    gui.configure{planets=model.planets,world=world,registry=registry,execute=model.execute,diagnostics=model.diagnostics,ecology=ecology,map_settings=map_settings,
         begin_target=function(player,kind,session,tick) local ok,message=targeting.begin(player,kind,session,tick);if not ok then common.notify(player.index,message) end end,
         cancel_target=targeting.cancel,
         inspect=function(player,id,tick) local ok,message=registry.start_inspection(player,id,tick);common.notify(player.index,message);gui.result(player.index,message,tick) end,
@@ -105,6 +110,7 @@ function model.execute(actor,action,args,tick)
     if not allowed then common.notify(actor and actor.index,message);return false,message end
     local ok,job
     if action=="repair" then ok,message=registry.repair(actor,args.module_id,tick)
+    elseif action=="map_settings_apply" then ok,message=map_settings.execute(actor,action,args,tick)
     elseif action=="ecology_override" or action=="ecology_inherit" or action=="ecology_reset" or action=="ecology_phase" then
         ok,message=ecology.execute(actor,action,args,tick)
     elseif PLAYER_ACTIONS[action] then

@@ -6,10 +6,11 @@ local config = {
     restricted_setting = "ei-admin-restrict-new-players",
     gui = "ei-admin-console",
     launcher = "ei-admin-launcher",
+    sprite = "ei-admin-overseer-seal",
     selector = "ei-admin-location-selector",
     version = 1,
     pages = {
-        {id="planets", group="world"}, {id="chunks", group="world"}, {id="ecology", group="world"},
+        {id="planets", group="world"}, {id="map-settings", group="world"}, {id="chunks", group="world"}, {id="ecology", group="world"},
         {id="players", group="players"}, {id="moderation", group="players"},
         {id="creation", group="sandbox"}, {id="fluids", group="sandbox"},
         {id="enemies", group="sandbox"}, {id="effects", group="sandbox"},

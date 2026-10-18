@@ -32,3 +32,8 @@ Build/destroy/settings paste and platform/rocket events dirty relevant cohorts. 
 ## Verification contract
 
 The [control follow-up record](../../../scripts/qc/control-ups/followup-verification.md) documents a fixed-target fairness fixture and distinguishes GUI skips. Recheck sticky leases, competing fixed jobs, policy retargeting, mixed cargo, launch release, power loss, deleted silos, and reload. Existing historical results do not establish new multiplayer or interactive GUI coverage.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+A deferred rescan reports queued activity until the existing callback consumes it. The blocking rebuild is recorded as synchronous, with duration unavailable; this change does not make it incremental. Pending requests coalesce. Ordinary transfers and logistics jobs remain excluded.

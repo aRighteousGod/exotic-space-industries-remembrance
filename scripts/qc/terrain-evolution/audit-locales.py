@@ -7,8 +7,8 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[3]
 LOCALES = ROOT / "exotic-space-industries-remembrance/locale"
-LANGUAGES = ("en", "fr", "ja", "pl", "ru", "zh-CN", "zh-TW")
-SIDECARS = ("terrain-evolution.cfg", "ecology-v2.cfg")
+LANGUAGES = ("en", "de", "fr", "ja", "pl", "ru", "zh-CN", "zh-TW")
+SIDECARS = ("terrain-evolution.cfg", "ecology-v2.cfg", "ecology-informatron.cfg", "ecology-field-report.cfg")
 
 
 def entries(path, strict=True):
@@ -33,7 +33,21 @@ def entries(path, strict=True):
 
 
 def tokens(value):
-    return Counter(re.findall(r"__\d+__|\[/?color(?:=[^\]]+)?\]|\\n", value))
+    return Counter(re.findall(r"__\d+__|\[/?(?:color|font)(?:=[^\]]+)?\]|\\n", value))
+
+
+def validate_richtext(value, context):
+    """Keep localized detail labels balanced, including nested colour/font tags."""
+    stack = []
+    for token in re.findall(r"\[/?(?:color|font)[^\]]*\]", value):
+        opening = re.fullmatch(r"\[(color|font)=([^\]]+)\]", token)
+        closing = re.fullmatch(r"\[/(color|font)\]", token)
+        assert opening or closing, (context, "Malformed rich-text tag", token)
+        if opening:
+            stack.append(opening[1])
+        else:
+            assert stack and stack.pop() == closing[1], (context, "Mismatched rich-text tag", token)
+    assert not stack, (context, "Unclosed rich-text tags", stack)
 
 
 def audit():
@@ -54,7 +68,11 @@ def audit():
         assert not values.keys() - anchors.keys(), f"Missing English anchors: {language}"
         for key, value in english.items():
             translated = values[key]
+            validate_richtext(value, ("en", key))
+            validate_richtext(translated, (language, key))
             assert tokens(translated) == tokens(value), (language, key)
+            if key.startswith("ei-ecology-guide."):
+                assert Counter(re.findall(r"\d+", translated)) == Counter(re.findall(r"\d+", value)), (language, key)
             if key.startswith("string-mod-setting-description.ei-terrain-performance-") and not key.endswith("-custom"):
                 # Japanese naturally says 'per one service'; that 1 is not a cap.
                 translated = translated.replace("\u51e6\u74061\u56de\u3042\u305f\u308a", "per service")

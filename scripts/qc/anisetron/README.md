@@ -71,6 +71,12 @@ manual movement, turns, original damage, saved active slows and cleanup.
 Run from the repository root. Omit `-AssetRoot` to test shipping sprites and their
 lookup; that option exists for separately reviewed drafts. Use fresh run names.
 
+Shipping PNGs are owned by `exotic-space-industries-remembrance-graphics-6`.
+Draft packages retain their `graphics/` layout. `-AssetRoot` overlays that tree
+into a private staged graphics-6 copy, preserving its other assets and never
+writing through a companion-pack junction. Attachment Lua still overlays the
+main pack. Final-data checks verify all eleven relocated asset paths.
+
 ```powershell
 $runner='scripts/invoke-anisetron-qc.ps1'
 powershell -ExecutionPolicy Bypass -File $runner -DumpOnly -RunName anisetron-data

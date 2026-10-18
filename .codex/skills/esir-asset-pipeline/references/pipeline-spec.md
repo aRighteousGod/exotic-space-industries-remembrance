@@ -294,7 +294,7 @@ If a mask is promoted as a runtime-tint layer, the prototype layer should match 
   "enabled": false,
   "manifest": "{export.output_dir}/{graphics_name}.factorio-asset-manifest.json",
   "copy_assets": false,
-  "graphics_destination": "exotic-space-industries-remembrance/graphics/entity/{graphics_name}",
+  "graphics_destination": "exotic-space-industries-remembrance-graphics-6/graphics/entities/{graphics_name}",
   "apply_prototype": false,
   "prototype_file": "",
   "prototype_type": "assembling-machine",
@@ -308,6 +308,8 @@ If a mask is promoted as a runtime-tint layer, the prototype layer should match 
 ```
 
 Promotion is disabled by default, excluded from `--steps all`, and dry-run unless `"execute": true` is used on an explicit `--steps promotion` run. Copying assets requires an explicit graphics destination. Prototype patching requires a marker-delimited block and never performs broad Lua rewriting. Use `"prototype_integration": "data-raw-assignment"` when the marker block should receive a guarded `data.raw["type"]["name"].field = ...` assignment.
+
+Graphics formerly shipped in the gameplay pack now live in Graphics 6. Match `export.factorio_var` to the selected destination; for the directory above, use `"ei_graphics_6_path..\"graphics/entities/{graphics_name}/\""`. Other graphics packs retain their existing path variables and ownership.
 
 ## Preset Notes
 
@@ -353,7 +355,7 @@ Additional visual QA:
 "style": {
   "enabled": true,
   "target_paths": [],
-  "baseline_globs": ["exotic-space-industries-remembrance/graphics/**/*.png"],
+  "baseline_globs": ["exotic-space-industries-remembrance-graphics-6/graphics/**/*.png"],
   "max_baseline_images": 120,
   "warn_luma_delta": 45,
   "warn_saturation_delta": 0.35,

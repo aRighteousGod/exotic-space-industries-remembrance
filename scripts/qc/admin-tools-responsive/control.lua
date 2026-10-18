@@ -3,6 +3,7 @@ local common=require("scripts/control/admin/common")
 local camera=require("lib/camera-window")
 local config=require("lib/admin-tools-config")
 local util=require("util")
+local scheduler=require("lib/runtime-scheduler")
 local checks={}
 local function check(name,ok,detail) checks[#checks+1]={name=name,ok=not not ok,detail=detail};assert(ok,name..": "..tostring(detail)) end
 local function catalogs(kind)
@@ -51,6 +52,8 @@ local function diagnostics(id,tick)
     end end
 end
 gui.configure{planets=function()local result={};for name,planet in pairs(game.planets)do result[#result+1]={name=name,localised_name=planet.prototype.localised_name}end;return result end,world={get_policy=function()return{}end,peek_summary=function()return{jobs={}}end,get_catalog=catalogs,peek_rupture_radius=function()return 10 end},
+    ecology={build=function()end,refresh=function()end,on_gui_change=function()return false end,on_gui_click=function()return false end},
+    map_settings={build=function()end,refresh=function()end,on_gui_change=function()return false end,on_gui_click=function()return false end},
     registry={list=function()return owners end},diagnostics=diagnostics,
     cancel_target=function()end,begin_target=function()end,inspect=function()end,export=function()end,
     cancel_inspection=function()common.state().inspection=nil end,
@@ -70,9 +73,35 @@ script.on_event(defines.events.on_tick,function(e)
         if p.controller_type==defines.controllers.editor then p.toggle_map_editor() end
         local native_modes={cheat=p.cheat_mode,controller=p.controller_type}
         local before=#p.gui.top.children
+        p.admin=false
         gui.launcher(p)
-        check("default hidden launcher creates no container",#p.gui.top.children==before)
+        check("nonadmin launcher creates no session or container",not common.peek() and #p.gui.top.children==before)
+        p.admin=true
+        gui.launcher(p)
+        local launcher_session=common.peek().sessions[p.index]
+        local launcher=launcher_session.launcher_element
+        check("default launcher is visible without opening console",launcher_session.launcher==true and launcher and launcher.valid and not launcher_session.root)
+        check("launcher uses Overseer seal in native button",launcher.sprite==config.sprite and launcher.style.name=="mod_gui_button")
+        launcher.sprite="utility/brush_circle_shape";gui.launcher(p)
+        check("saved launcher artwork upgrades in place",launcher_session.launcher_element==launcher and launcher.sprite==config.sprite)
+        gui.launcher(p)
+        check("launcher refresh retains button",launcher_session.launcher_element==launcher)
+        launcher_session.launcher=false;gui.launcher(p)
+        check("explicit launcher Off removes button",not launcher.valid and not launcher_session.launcher_element)
+        gui.launcher(p)
+        check("explicit launcher Off persists",launcher_session.launcher==false and not launcher_session.launcher_element)
+        launcher_session.launcher=nil;gui.launcher(p)
+        check("unset legacy launcher preference adopts On",launcher_session.launcher==true and launcher_session.launcher_element.valid)
+        launcher=launcher_session.launcher_element;p.admin=false;gui.launcher(p)
+        check("demotion removes launcher",not launcher.valid and not launcher_session.launcher_element)
+        p.admin=true;gui.launcher(p)
+        check("promotion restores enabled launcher",launcher_session.launcher_element.valid)
         for _,page in ipairs(config.pages) do gui.open(p,page.id,e.tick);check("build "..page.id,true) end
+        gui.open(p,"diagnostics",e.tick)
+        local job=scheduler.begin_rebuild("runtime-owner-1","fixture","world",{phase="discovering",completed=0,total=false},e.tick)
+        check("activity-only refresh accepted",gui.refresh_rebuild_activity(p.index,e.tick,scheduler.peek_rebuilds(e.tick)))
+        check("diagnostics registered as rebuild viewer",gui.has_rebuild_viewer(p.index))
+        scheduler.finish_rebuild(job,"completed",e.tick)
         gui.open(p,"moderation",e.tick)
         local s=common.peek().sessions[p.index];local field=s.fields.reason;local page=s.pages.moderation
         field.text="preserved draft";field.focus();gui.on_gui_change{element=field,player_index=p.index,tick=e.tick}
@@ -80,7 +109,7 @@ script.on_event(defines.events.on_tick,function(e)
         check("same input and page after display event",field==s.fields.reason and page==s.pages.moderation and field.text=="preserved draft" and s.drafts.reason=="preserved draft")
         check("singleplayer kick disabled",not find(page,"execute","kick").enabled)
         check("singleplayer ban disabled",not find(page,"execute","ban").enabled)
-        local moved={x=16,y=18}
+        local moved={x=16,y=16}
         s.root.location=moved
         gui.refresh(p.index,e.tick)
         check("manual position survives explicit refresh",s.root.location.x==moved.x and s.root.location.y==moved.y and not s.root.auto_center)
@@ -102,6 +131,12 @@ script.on_event(defines.events.on_tick,function(e)
         check("manual position survives root recreation",s.root~=prior_root and s.root.location.x==moved.x and s.root.location.y==moved.y)
         gui.on_display_changed{player_index=p.index,tick=e.tick}
         check("manual position survives unchanged native viewport",s.root.location.x==moved.x and s.root.location.y==moved.y and s.fields.reason.text=="preserved draft")
+        local old_root=s.root;local old_icon=s.title_icon
+        check("title emblem uses larger draggable title flow",old_icon.sprite==config.sprite and old_icon.style.minimal_width==48 and old_icon.style.minimal_height==48 and old_icon.ignored_by_interaction and s.title.drag_target==s.root)
+        gui.refresh(p.index,e.tick)
+        check("refresh retains title emblem and root",s.root==old_root and s.title_icon==old_icon)
+        old_icon.destroy();gui.open(p,"moderation",e.tick)
+        check("legacy title upgrade preserves position and draft",not old_root.valid and s.title_icon.valid and s.root.location.x==moved.x and s.root.location.y==moved.y and s.fields.reason.text=="preserved draft")
         local automatic=s.auto_refresh_button
         local interval=s.fields.auto_refresh_interval
         check("automatic refresh defaults off with no scheduled work",automatic.caption[1]=="ei-admin.auto-refresh-off" and not automatic.toggled and not s.auto_refresh and s.auto_due_tick==nil and common.peek().auto_refresh_due_tick==nil)
@@ -190,14 +225,18 @@ script.on_event(defines.events.on_tick,function(e)
         local n=math.floor(storage.step/8);local page=config.pages[n]
         if page then game.take_screenshot{player=p,path="gui/"..page.id..".png",show_gui=true,resolution=p.display_resolution} end
     end
-    if storage.step==100 and common.peek().sessions[p.index].diagnostics then
+    if storage.step==#config.pages*8+8 and common.peek().sessions[p.index].diagnostics then
         camera.close_owner("fixture",p.index)
         gui.open(p,"diagnostics",e.tick)
         gui.on_gui_click{element=find(common.peek().sessions[p.index].diagnostics.overview,"inspect"),player_index=p.index,tick=e.tick}
-    elseif storage.step==104 and common.peek().sessions[p.index].diagnostics then
+    elseif storage.step==#config.pages*8+12 and common.peek().sessions[p.index].diagnostics then
         game.take_screenshot{player=p,path="gui/diagnostics-detail.png",show_gui=true,resolution=p.display_resolution}
+    elseif storage.step==#config.pages*8+16 then
+        gui.close(p.index)
+    elseif storage.step==#config.pages*8+17 then
+        game.take_screenshot{player=p,path="gui/launcher.png",show_gui=true,resolution=p.display_resolution}
     end
-    if storage.step==110 then
+    if storage.step==#config.pages*8+18 then
         helpers.write_file("responsive.json",helpers.table_to_json{checks=checks,resolution=p.display_resolution,scale=p.display_scale,version=script.active_mods.base},false)
         log("RESPONSIVE_COMPLETE")
     end

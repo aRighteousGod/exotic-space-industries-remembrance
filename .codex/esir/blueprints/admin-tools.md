@@ -22,15 +22,24 @@ Inheritance/reset affect configuration only. Calendar controls preserve Fulgora'
 independent ownership. Effective values, compatibility and diagnostics are read
 only for an open page; drafts survive navigation without authorizing mutations.
 
-The startup switch `ei-admin-tools-enabled` defaults false. The coordinator gates the
+The [Map Settings owner/editor](map-settings.md#contract) provides a separate native
+page for surface generation, enemy families and global rules. It owns persistent
+planet overrides outside the toolkit gate. Existing peaceful, natural-spawning,
+new-base, evolution and expansion shortcuts delegate to the same setters. Per-admin
+drafts, target checks, native read-back feedback and the existing audit log cover Apply.
+
+The startup switch `ei-admin-tools-enabled` defaults true. Explicit saved choices
+remain authoritative. Enabling availability does not automatically open the menu
+or enable player cheats, modes or optional policies. The coordinator gates the
 console, new commands and mutation services; existing legacy commands retain their
 own access rules. Commands and delayed jobs revalidate administrator identity and
 target validity at execution. The server console may invoke registered repairs;
 opening a GUI requires a connected player.
 
 `storage.ei.admin_tools` owns sessions/drafts, selected locations, mode restoration,
-jail sentences, permission overlays, per-force spawning, explicit native planet
-policies, admitted world jobs, diagnostics and prior game speed. Gameplay owners
+jail sentences, permission overlays, per-force spawning, admitted world jobs,
+diagnostics and prior game speed. Legacy native planet policies migrate into the
+map-settings owner without erasing the historical records. Gameplay owners
 retain authority over their native entities, paid effects and repair invariants.
 The separate runtime registry describes those owners without calling their
 mutating status getters.
@@ -39,8 +48,16 @@ mutating status getters.
 
 `/ei-admin [page]` opens a movable native screen frame. Pages are created lazily
 and hidden on navigation, preserving text edits, focus and scroll state. The
-optional per-player mod-gui launcher is hidden by default. Target selectors do not
+per-player mod-gui launcher is shown by default for authorized administrators.
+`ensure_session` initializes a missing launcher preference to true; an explicit
+false remains hidden. Join/promotion/configuration hooks reconcile the shortcut
+without opening a page or starting refresh work. Target selectors do not
 create planetary surfaces. Mutation confirms identify the actual resolved target.
+Graphics 6 owns the transparent Overseer's Seal shared by the launcher and title.
+Its native sprite is 32 GUI units inside the existing 40-unit mod-gui button;
+the title displays a 48-unit draggable image using the same high-resolution PNG.
+Saved launcher sprites update in place only when different. Title artwork is
+created once with the root and receives no periodic writes or scheduled work.
 Closed pages build no diagnostic snapshots and receive no periodic updates.
 An optional per-viewer auto-refresh toggle defaults off. A native interval selector
 offers 1/2/5/10/30/60 simulation seconds, default 5. Shared delayed buckets hold one
@@ -59,7 +76,7 @@ element dimensions use scale-independent GUI units. Initial opening centers once
 native auto-center is disabled before dimension changes so dragged positions survive
 feedback, page changes, refreshes, reopening and root recreation. Display changes
 clamp only where the current location no longer fits.
-A valid saved preview root without the timer controls is an actual structural
+A valid saved preview root without the title emblem or timer controls is an actual structural
 change: its next explicit opening performs one rebuild, retaining its saved
 location and drafts. A rebuilt root then returns to normal identity retention;
 missing/revoked timer ownership is never silently enabled during that upgrade.
@@ -92,8 +109,8 @@ Long localized metric lists are grouped below Factorio's parameter limit.
 The shared planet/entity target controls are hidden, with their state retained,
 while Diagnostics is selected because owner snapshots do not use world targets.
 
-The optional launcher retains its own element reference. Disabled/default-hidden
-launcher maintenance does not call mod-gui's container-creating helper; cleanup
+The optional launcher retains its own element reference. Disabled, unauthorized
+or explicitly hidden launcher maintenance does not call mod-gui's container-creating helper; cleanup
 reads existing native containers only when recovering an enabled saved launcher.
 
 <a id="targeting"></a>
@@ -258,3 +275,5 @@ are supporting evidence, not engine or whole-UPS measurements.
 ## Rebuild activity reporting
 
 Diagnostics adds Rebuild activity and Recent rebuilds with selected-owner filtering. Activity-only refresh rechecks authorization and preserves the general auto-refresh preference. Public presentation is independently available with admin tools disabled.
+
+The attribution census publishes an indeterminate discovery job from admission through actual cursor completion. Removing the last restriction cancels it. The ongoing watcher and ordinary admin world-edit jobs remain excluded. Census budgets and attribution semantics stay owner-controlled.

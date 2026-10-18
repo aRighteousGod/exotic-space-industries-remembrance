@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/vulcanus-fumaroles.md#contract
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
 local util = require("util")
@@ -77,8 +78,8 @@ auric_fumarole.name = "ei-auric-fumarole"
 auric_fumarole.category = "ei-pumping"
 auric_fumarole.autoplace = nil
 auric_fumarole.infinite = false
-auric_fumarole.minimum = 4000
-auric_fumarole.normal = 8000
+auric_fumarole.minimum = 40000
+auric_fumarole.normal = 80000
 auric_fumarole.map_color = {r = 0.92, g = 0.72, b = 0.18}
 auric_fumarole.minable = {
     mining_time = 1,
@@ -92,6 +93,21 @@ auric_fumarole.icon = auric_vapor_icons.icons[1].icon
 auric_fumarole.icon_size = auric_vapor_icons.icon_size
 auric_fumarole.icon_mipmaps = auric_vapor_icons.icons[1].icon_mipmaps
 auric_fumarole.icons = auric_vapor_icons.icons
+
+-- Native map controls carry per-map choices; runtime owns every vent placement.
+data:extend({{
+    type = "autoplace-control",
+    name = "ei-auric-fumarole",
+    category = "resource",
+    richness = true,
+    can_be_disabled = true,
+    order = "b-c-auric",
+    localised_name = {"autoplace-control-names.ei-auric-fumarole"},
+    localised_description = {"autoplace-control-descriptions.ei-auric-fumarole"},
+}})
+local vulcanus_map = data.raw.planet.vulcanus.map_gen_settings
+vulcanus_map.autoplace_controls = vulcanus_map.autoplace_controls or {}
+vulcanus_map.autoplace_controls["ei-auric-fumarole"] = {frequency = 1, size = 1, richness = 1}
 
 -- Sulfuric geyser ambience already works directly on the resource prototype, so the auric clone
 -- follows the same path instead of depending on a hidden helper entity with its own live state.
@@ -284,11 +300,14 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-gold-chunk", amount_min = 4, amount_max = 6},
-            {type = "item", name = "ei-slag", amount_min = 8, amount_max = 12, ignored_by_stats = 12},
-            {type = "fluid", name = "ei-dirty-water", amount_min = 30, amount_max = 50, ignored_by_stats = 50},
+            -- blueprint-ref: .codex/esir/blueprints/vulcanus-fumaroles.md#processing-productivity
+            -- Bonus crafts recover gold without multiplying waste or the core's slag feedstock.
+            {type = "item", name = "ei-slag", amount_min = 8, amount_max = 12, ignored_by_stats = 12, ignored_by_productivity = 12},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 30, amount_max = 50, ignored_by_stats = 50, ignored_by_productivity = 50},
         },
         always_show_made_in = true,
-        allow_productivity = false,
+        allow_productivity = true,
+        maximum_productivity = 3,
         enabled = false,
         main_product = "ei-gold-chunk",
         icons = auric_slag_washing_recipe_icons.icons,
@@ -395,6 +414,25 @@ data:extend({
             time = 20,
         },
         age = "computer-age",
+    },
+    {
+        type = "technology",
+        name = "ei-productivity-auric-precipitation",
+        icon = auric_slag_icon_1,
+        icon_size = 256,
+        icon_mipmaps = 5,
+        prerequisites = {"ei-auric-precipitation", "metallurgic-science-pack"},
+        effects = {
+            {type = "change-recipe-productivity", recipe = "ei-auric-slag-washing", change = 0.1},
+        },
+        unit = {
+            count_formula = "100 * (1 + 0.15 * L)",
+            ingredients = ei_data.science["computer-age-space-vulcanus"],
+            time = 20,
+        },
+        max_level = "infinite",
+        upgrade = true,
+        age = "computer-age-space-vulcanus",
     },
 })
 

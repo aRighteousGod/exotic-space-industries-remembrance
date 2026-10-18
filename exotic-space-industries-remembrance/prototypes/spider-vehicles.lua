@@ -14,7 +14,7 @@ local ei_data = require("lib/data")
 local model = {}
 local simulation = "advanced-computer-age"
 local technology_specs = {}
-local icon_root = "__exotic-space-industries-remembrance__/graphics/technology/spider-vehicles/"
+local icon_root = ei_graphics_6_path.."graphics/technology/spider-vehicles/"
 
 -- Technology layers use the 128px logical canvas. Keep both upper corners for
 -- the function/tier marks and the lower-right free for ESIR's cost badges.

@@ -9,8 +9,8 @@ the user's request.
 Factorio 2.0.77, ESIR 1.3.40. Both approved models are now shipping art:
 the Split-Trough Watcher and Fourfold Interrogator, each with 256 facings.
 
-- Ten unchanged approved PNG pages in the main mod: 35,167,676 bytes.
-- Two matching 128/64/32 inventory icon strips in the main pack: 57,483 bytes.
+- Ten unchanged approved PNG pages in Graphics 6: 35,167,676 bytes.
+- Two matching 128/64/32 inventory icon strips in Graphics 6: 57,483 bytes.
 - Body/shadow use two 128-frame animation segments; the Phased-array's white
   panels and red indicator use a separate additive glow animation.
 - The existing four control visits per tick select frozen frames and interpolate
@@ -46,7 +46,7 @@ powershell -ExecutionPolicy Bypass -File scripts/invoke-sweeping-radar-qc.ps1 -R
 powershell -ExecutionPolicy Bypass -File scripts/invoke-sweeping-radar-qc.ps1 -RunName art-view -Fixture art-visual -Visual -Ticks 1000 -SaveInput .factorio-qc/wtr/player/fixture.zip -GraphicsArchiveDirectory .factorio-qc/radar/art-archives
 ```
 
-Radar pages now ship in the main mod. Companion graphics archives remain useful for graphical
+Radar pages and icons now ship in Graphics 6. Companion graphics archives remain useful for graphical
 QC on Windows; long loose-file paths in unrelated existing graphics can exceed
 the engine's path limit. These are finite functional runs, not performance
 measurements. Benchmarks and broader regression runs were skipped at the user's

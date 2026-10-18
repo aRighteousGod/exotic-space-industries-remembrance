@@ -1,7 +1,7 @@
-local planet_map_gen = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/map-gen")
+local planet_map_gen = require(ei_path.."prototypes/planet-gaia/map-gen")
 local ei_lib = require("lib/lib")
 local asteroid_util = require("__space-age__.prototypes.planet.asteroid-spawn-definitions")
-local gaia_procession_catalogue = require("__exotic-space-industries-remembrance__/prototypes/planet-gaia/procession-catalogue")
+local gaia_procession_catalogue = require(ei_path.."prototypes/planet-gaia/procession-catalogue")
 
 local function gaia_world_ambient_sound(filename_stem, variation_count, volume, tuning, advanced_volume_control)
   return

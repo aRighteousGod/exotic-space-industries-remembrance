@@ -6,6 +6,7 @@
                     "library":  "scripts\\esir-dev-lib.ps1",
                     "tasks":  [
                                   "doctor",
+                                  "housekeeping",
                                   "manifest-refresh",
                                   "dependency-refresh",
                                   "dependency-query",

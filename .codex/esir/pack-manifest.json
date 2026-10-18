@@ -1,78 +1,86 @@
 {
-    "schema_version":  1,
-    "generated_at":  "2026-06-16T17:53:10.6923069-05:00",
-    "entries":  [
-                    {
-                        "id":  "exotic-space-industries-remembrance",
-                        "folder":  "exotic-space-industries-remembrance",
-                        "type":  "gameplay-pack",
-                        "info_json":  "exotic-space-industries-remembrance\\info.json",
-                        "deploy_script":  "process.ps1",
-                        "role":  "primary gameplay and runtime pack"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-graphics-1",
-                        "folder":  "exotic-space-industries-remembrance-graphics-1",
-                        "type":  "graphics-pack",
-                        "info_json":  "exotic-space-industries-remembrance-graphics-1\\info.json",
-                        "deploy_script":  "graphics1_process.ps1",
-                        "role":  "graphics companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-graphics-2",
-                        "folder":  "exotic-space-industries-remembrance-graphics-2",
-                        "type":  "graphics-pack",
-                        "info_json":  "exotic-space-industries-remembrance-graphics-2\\info.json",
-                        "deploy_script":  "graphics2_process.ps1",
-                        "role":  "graphics companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-graphics-3",
-                        "folder":  "exotic-space-industries-remembrance-graphics-3",
-                        "type":  "graphics-pack",
-                        "info_json":  "exotic-space-industries-remembrance-graphics-3\\info.json",
-                        "deploy_script":  "graphics3_process.ps1",
-                        "role":  "graphics companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-graphics-4",
-                        "folder":  "exotic-space-industries-remembrance-graphics-4",
-                        "type":  "graphics-pack",
-                        "info_json":  "exotic-space-industries-remembrance-graphics-4\\info.json",
-                        "deploy_script":  "graphics4_process.ps1",
-                        "role":  "graphics and sound-effect companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-graphics-5",
-                        "folder":  "exotic-space-industries-remembrance-graphics-5",
-                        "type":  "graphics-pack",
-                        "info_json":  "exotic-space-industries-remembrance-graphics-5\\info.json",
-                        "deploy_script":  "graphics5_process.ps1",
-                        "role":  "graphics and sound-effect companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-graphics-6",
-                        "folder":  "exotic-space-industries-remembrance-graphics-6",
-                        "type":  "graphics-pack",
-                        "info_json":  "exotic-space-industries-remembrance-graphics-6\\info.json",
-                        "deploy_script":  "graphics6_process.ps1",
-                        "role":  "graphics companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-soundtrack-1",
-                        "folder":  "exotic-space-industries-remembrance-soundtrack-1",
-                        "type":  "soundtrack-pack",
-                        "info_json":  "exotic-space-industries-remembrance-soundtrack-1\\info.json",
-                        "deploy_script":  "soundtrack1_process.ps1",
-                        "role":  "music and ambient audio companion assets"
-                    },
-                    {
-                        "id":  "exotic-space-industries-remembrance-soundtrack-2",
-                        "folder":  "exotic-space-industries-remembrance-soundtrack-2",
-                        "type":  "soundtrack-pack",
-                        "info_json":  "exotic-space-industries-remembrance-soundtrack-2\\info.json",
-                        "deploy_script":  "soundtrack2_process.ps1",
-                        "role":  "music and ambient audio companion assets"
-                    }
-                ]
+    "schema_version": 1,
+    "generated_at": "2026-10-11T13:06:42.5765258-05:00",
+    "entries": [
+        {
+            "id": "minigun-turret-HD",
+            "folder": "minigun-turret-HD",
+            "type": "gameplay-pack",
+            "info_json": "minigun-turret-HD\\info.json",
+            "deploy_script": null,
+            "role": "standalone minigun turret and HD graphics"
+        },
+        {
+            "id": "exotic-space-industries-remembrance",
+            "folder": "exotic-space-industries-remembrance",
+            "type": "gameplay-pack",
+            "info_json": "exotic-space-industries-remembrance\\info.json",
+            "deploy_script": "process.ps1",
+            "role": "primary gameplay and runtime pack"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-graphics-1",
+            "folder": "exotic-space-industries-remembrance-graphics-1",
+            "type": "graphics-pack",
+            "info_json": "exotic-space-industries-remembrance-graphics-1\\info.json",
+            "deploy_script": "graphics1_process.ps1",
+            "role": "graphics companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-graphics-2",
+            "folder": "exotic-space-industries-remembrance-graphics-2",
+            "type": "graphics-pack",
+            "info_json": "exotic-space-industries-remembrance-graphics-2\\info.json",
+            "deploy_script": "graphics2_process.ps1",
+            "role": "graphics companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-graphics-3",
+            "folder": "exotic-space-industries-remembrance-graphics-3",
+            "type": "graphics-pack",
+            "info_json": "exotic-space-industries-remembrance-graphics-3\\info.json",
+            "deploy_script": "graphics3_process.ps1",
+            "role": "graphics companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-graphics-4",
+            "folder": "exotic-space-industries-remembrance-graphics-4",
+            "type": "graphics-pack",
+            "info_json": "exotic-space-industries-remembrance-graphics-4\\info.json",
+            "deploy_script": "graphics4_process.ps1",
+            "role": "graphics and sound-effect companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-graphics-5",
+            "folder": "exotic-space-industries-remembrance-graphics-5",
+            "type": "graphics-pack",
+            "info_json": "exotic-space-industries-remembrance-graphics-5\\info.json",
+            "deploy_script": "graphics5_process.ps1",
+            "role": "graphics and sound-effect companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-graphics-6",
+            "folder": "exotic-space-industries-remembrance-graphics-6",
+            "type": "graphics-pack",
+            "info_json": "exotic-space-industries-remembrance-graphics-6\\info.json",
+            "deploy_script": "graphics6_process.ps1",
+            "role": "graphics companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-soundtrack-1",
+            "folder": "exotic-space-industries-remembrance-soundtrack-1",
+            "type": "soundtrack-pack",
+            "info_json": "exotic-space-industries-remembrance-soundtrack-1\\info.json",
+            "deploy_script": "soundtrack1_process.ps1",
+            "role": "music and ambient audio companion assets"
+        },
+        {
+            "id": "exotic-space-industries-remembrance-soundtrack-2",
+            "folder": "exotic-space-industries-remembrance-soundtrack-2",
+            "type": "soundtrack-pack",
+            "info_json": "exotic-space-industries-remembrance-soundtrack-2\\info.json",
+            "deploy_script": "soundtrack2_process.ps1",
+            "role": "music and ambient audio companion assets"
+        }
+    ]
 }

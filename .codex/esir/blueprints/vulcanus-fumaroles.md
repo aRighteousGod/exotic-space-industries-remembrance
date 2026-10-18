@@ -9,6 +9,7 @@
 ## Implementation sources
 
 - [vulcanus-fumaroles.lua](../../../exotic-space-industries-remembrance/scripts/control/vulcanus-fumaroles.lua)
+- [Vulcanus fumarole prototypes](../../../exotic-space-industries-remembrance/prototypes/planet-vulcanus/vulcanus-fumaroles.lua)
 
 ## Ownership and reference flow
 
@@ -37,9 +38,72 @@ Init/configuration bootstrap existing generated chunks without treating them as 
 
 Depletion closes the exact deposit record, records cooldown/history, and schedules presentation cleanup. Dormant candidate and active-deposit indices must remain consistent across closure, expiry, and rebuild; spacing and local saturation constrain spawns. Rule/schema changes that require existing terrain to be reconsidered must deliberately bump the appropriate module version; this gating correction itself does not bump either version.
 
+<a id="map-controls"></a>
+## New-game map controls
+
+The data-stage fumarole owner registers `ei-auric-fumarole` as a native resource
+control on Vulcanus. Runtime placement remains authoritative (`autoplace = nil`),
+so vents are absent from the map preview. Runtime reads and normalizes the surface
+control once per event/service pass; missing old-save values mean 1, and each
+dimension is bounded to 0..6. Any zero disables all emergence and new dormant
+admission, including breach effects; active deposit cleanup continues and saved
+pending queues are retained.
+
+Frequency multiplies immediate/dormant probabilities (capped at 1) and recovery
+budgets. For pulse `p = floor(tick / 1800)` and rate `r = base * frequency`, the
+attempt budget is `floor((p + 1) * r) - floor(p * r)`. This admits fractional work
+without persistent credits or catch-up. Existing base budgets and pulse cadence
+remain, capped at 36 recovery and 12 keepalive attempts per pulse. Ordinary dormant
+checks stay capped at six; their probability, not their check budget, scales.
+
+Size multiplies each distance-band target before rounding up. The keepalive floor
+is `min(ceil(2 * size), total eligible target)`, after the existing five-minute
+grace. Placement restrictions still apply. Richness multiplies the deterministic
+40,000..80,000 base reserve, rounded to the nearest integer (minimum one when
+enabled). Existing deposits retain amount, initial amount, tapped state and
+expiry. No version bump or rescan is required: eligibility and stored state have
+not changed. Diagnostics expose normalized `map_controls` and the effective floor.
+
+Resource visuals and ambience retain sulfuric-geyser inheritance. Custom combat
+death effects are inapplicable to this finite resource's scripted closure; its
+existing afterglow/scars and pumpjack presentation remain owned by existing paths.
+
+<a id="processing-productivity"></a>
+## Processing productivity
+
+`ei-productivity-auric-precipitation` is native infinite recipe-productivity research:
+each level adds 0.1 to `ei-auric-slag-washing` only. It requires Auric precipitation
+and Metallurgic science, uses the Computer age/space/Vulcanus science set, and takes
+20 seconds per research unit. Its authored `100 * (1 + 0.15 * L)` cost follows the
+existing productivity technologies; the normal final technology-scaling pass owns
+the configured repeatable cost curve.
+
+Washing accepts productivity modules. All productivity sources share its explicit
+`maximum_productivity = 3` cap. Gold remains fully eligible; ordinary slag and dirty
+water exclude their entire possible yield from bonus crafts with
+`ignored_by_productivity = 12` and `50`. Base ingredients, output ranges and crafting
+time remain unchanged. Condensation, core production and mining receive no new
+bonus. At zero/ten/thirty research levels without other bonuses, washing averages
+5/10/20 gold chunks per 100 auric slag. Further research remains available but cannot
+raise output beyond the cap. The engine owns research effects and their persistence;
+this feature adds no runtime receiver, migration, lifecycle invalidation or rescan.
+
 <a id="verification"></a>
 ## Verification contract
+
+For processing productivity, inspect merged final data with technology scaling on
+and off; verify the exact research effect, gates, science set, infinite levels,
+cost/time, module eligibility and product exclusions. Exercise native washing with
+zero, 100%, 300%, above-cap and module-assisted bonuses, retaining base-craft waste
+while increasing only gold. Check pre-feature save admission and researched-level
+save/reload. Review the research screen separately from headless evidence and
+distinguish locale-key/encoding checks from native-language acceptance.
 
 The [control UPS fixture](../../../scripts/qc/control-ups/README.md) documents fumarole cadence decision probes. Test fresh chunks, pre-existing explored terrain, absent/reappearing Vulcanus, version refresh, blocked placement, depleted/expired deposits, simultaneous due work, reload, and eventual helper cleanup. Historical gate parity is not a claim about current long-run resource balance.
 
 The [fumarole lifecycle fixture](../../../scripts/qc/auric-fumaroles/README.md) covers same-version configuration no-ops, migration admission, count reconstruction, tracked/untracked closure, repeated adoption, explicit repair, and native save/reload with pending backfill. Unrelated configuration changes must preserve queue order and rebuild-monitor progress.
+
+<a id="rebuild-reporting"></a>
+## Rebuild activity reporting
+
+Finite backfill/rescan batches report admitted chunks and count entries as the existing processor pops them, including skipped chunks. Requested restart supersedes the previous generation. A missing required surface is an external wait; ordinary slow traversal stays running. Ongoing ecology and dormant revival remain excluded.

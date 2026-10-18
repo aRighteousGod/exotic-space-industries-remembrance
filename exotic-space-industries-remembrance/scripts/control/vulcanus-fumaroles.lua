@@ -10,6 +10,7 @@
 -- rebuild_on: initial bootstrap, module runtime/eligibility version changes, explicit admin repair
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/vulcanus-fumaroles.md#contract
+-- blueprint-ref: .codex/esir/blueprints/vulcanus-fumaroles.md#rebuild-reporting
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
@@ -57,8 +58,8 @@ local UNTOUCHED_LIFETIME_HASH_SALT = 11801
 local AFTERGLOW_TICKS = 3600
 local BREACH_FIRE_LIFETIME_TICKS = 15 * 60
 local BREACH_FIRE_CLEANUP_TICKS = 60
-local MIN_FUMAROLE_AMOUNT = 4000
-local MAX_FUMAROLE_AMOUNT = 8000
+local MIN_FUMAROLE_AMOUNT = 40000
+local MAX_FUMAROLE_AMOUNT = 80000
 local AURIC_SPACING_RADIUS = 64
 local HARD_SULFURIC_EXCLUSION_RADIUS = 16
 local SOFT_SULFURIC_NEAR_RADIUS = 32
@@ -429,6 +430,44 @@ local function get_surface_seed(surface)
     return (map_settings and map_settings.seed) or 0
 end
 
+-- blueprint-ref: .codex/esir/blueprints/vulcanus-fumaroles.md#map-controls
+---@class AuricMapControls
+---@field frequency number
+---@field size number
+---@field richness number
+---@field enabled boolean
+---@field surface_index uint?
+
+-- Resolve once at a world-event/service boundary and forward through its work.
+-- Missing old-save controls mean defaults; explicit zero disables every emergence path.
+---@param surface LuaSurface?
+---@return AuricMapControls
+local function read_map_controls(surface)
+    surface = surface or (game and game.surfaces[VULCANUS_SURFACE_NAME])
+    local valid = model.is_vulcanus_surface(surface)
+    local map = valid and surface.map_gen_settings or nil
+    local control = map and map.autoplace_controls and map.autoplace_controls[RESOURCE_NAME] or {}
+    local frequency = ei_lib.clamp_number(control.frequency, 0, 6, 1)
+    local size = ei_lib.clamp_number(control.size, 0, 6, 1)
+    local richness = ei_lib.clamp_number(control.richness, 0, 6, 1)
+    return {frequency = frequency, size = size, richness = richness,
+        enabled = valid and frequency > 0 and size > 0 and richness > 0 or false,
+        surface_index = valid and surface.index or nil}
+end
+
+-- Difference of cumulative budgets preserves fractional rates without saved
+-- credits, random draws, or catch-up work. At frequency 1 it is exactly base.
+---@param base integer Attempts at 100% frequency
+---@param current_tick MapTick
+---@param controls AuricMapControls
+---@return integer
+local function scaled_attempt_budget(base, current_tick, controls)
+    if not controls.enabled then return 0 end
+    local pulse = math.floor(current_tick / DORMANT_PULSE_TICKS)
+    local rate = base * controls.frequency
+    return math.min(base * 6, math.floor((pulse + 1) * rate) - math.floor(pulse * rate))
+end
+
 local function get_entity_force_name(entity)
     if not ei_lib.entity_check(entity) then
         return nil
@@ -674,7 +713,10 @@ local function decrement_active_band_count(state, surface_index, band_name)
     counts[band_name] = math.max(0, (counts[band_name] or 0) - 1)
 end
 
-local function get_band_target_count(state, surface_index, band_name)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_band_target_count(state, surface_index, band_name, controls)
+    controls = controls or read_map_controls()
+    if not controls.enabled then return 0 end
     local density = FUMAROLE_BAND_DENSITY[band_name]
     if not density then
         return 0
@@ -686,15 +728,16 @@ local function get_band_target_count(state, surface_index, band_name)
         return 0
     end
 
-    return math.ceil(eligible_chunks * density)
+    return math.ceil(eligible_chunks * density * controls.size)
 end
 
 local function get_band_active_count(state, surface_index, band_name)
     return (get_active_band_counts(state, surface_index)[band_name] or 0)
 end
 
-local function get_band_fill_ratio(state, surface_index, band_name)
-    local target = get_band_target_count(state, surface_index, band_name)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_band_fill_ratio(state, surface_index, band_name, controls)
+    local target = get_band_target_count(state, surface_index, band_name, controls)
     if target <= 0 then
         return math.huge
     end
@@ -702,12 +745,22 @@ local function get_band_fill_ratio(state, surface_index, band_name)
     return get_band_active_count(state, surface_index, band_name) / target
 end
 
-local function get_surface_total_band_target(state, surface_index)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_surface_total_band_target(state, surface_index, controls)
+    controls = controls or read_map_controls()
     local total = 0
     for _, band_name in ipairs(FUMAROLE_BAND_ORDER) do
-        total = total + get_band_target_count(state, surface_index, band_name)
+        total = total + get_band_target_count(state, surface_index, band_name, controls)
     end
     return total
+end
+
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_keepalive_target(state, controls)
+    controls = controls or read_map_controls()
+    if not controls.enabled then return 0 end
+    return math.min(math.ceil(KEEPALIVE_TARGET_ACTIVE * controls.size),
+        get_surface_total_band_target(state, controls.surface_index, controls))
 end
 
 local function get_surface_total_band_active(state, surface_index)
@@ -719,8 +772,9 @@ local function get_surface_total_band_active(state, surface_index)
     return total
 end
 
-local function get_band_fill_modifier(state, surface_index, band_name)
-    local fill_ratio = get_band_fill_ratio(state, surface_index, band_name)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_band_fill_modifier(state, surface_index, band_name, controls)
+    local fill_ratio = get_band_fill_ratio(state, surface_index, band_name, controls)
     if fill_ratio < 0.35 then
         return 3.0
     end
@@ -1012,7 +1066,8 @@ local function get_local_saturation_modifier(state, surface_index, chunk_x, chun
     return clamp(1 - total_penalty, LOCAL_SATURATION_MIN_MODIFIER, 1)
 end
 
-local function refresh_active_floor_state(state, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function refresh_active_floor_state(state, current_tick, controls)
     current_tick = resolve_tick(current_tick)
     local active_count = ei_runtime_scheduler.table_count(state.active)
 
@@ -1024,7 +1079,7 @@ local function refresh_active_floor_state(state, current_tick)
         state.zero_active_since_tick = nil
     end
 
-    if active_count < KEEPALIVE_TARGET_ACTIVE then
+    if active_count < get_keepalive_target(state, controls) then
         if state.below_floor_since_tick == nil then
             state.below_floor_since_tick = current_tick
         end
@@ -1436,7 +1491,8 @@ local function destroy_breach_blocker(blocker)
     end
 end
 
-local function adopt_existing_fumarole(state, surface, chunk_x, chunk_y, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function adopt_existing_fumarole(state, surface, chunk_x, chunk_y, current_tick, controls)
     local entity = find_existing_fumarole_entity(surface, chunk_x, chunk_y)
     if not entity then
         return false
@@ -1469,23 +1525,28 @@ local function adopt_existing_fumarole(state, surface, chunk_x, chunk_y, current
         return true
     end
 
-    register_active_fumarole(state, surface, chunk_x, chunk_y, entity, amount, current_tick)
+    register_active_fumarole(state, surface, chunk_x, chunk_y, entity, amount, current_tick, controls)
     return true
 end
 
-local function get_spawn_amount(surface, chunk_x, chunk_y)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_spawn_amount(surface, chunk_x, chunk_y, controls)
+    controls = controls or read_map_controls(surface)
     local seed = get_surface_seed(surface)
     local span = MAX_FUMAROLE_AMOUNT - MIN_FUMAROLE_AMOUNT + 1
-    return MIN_FUMAROLE_AMOUNT + math.floor(hash01(seed, chunk_x, chunk_y, 901) * span)
+    local base = MIN_FUMAROLE_AMOUNT + math.floor(hash01(seed, chunk_x, chunk_y, 901) * span)
+    return math.max(1, math.floor(base * controls.richness + 0.5))
 end
 
-local function immediate_spawn_roll(surface, chunk_x, chunk_y, distance_weight)
-    if distance_weight <= 0 then
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function immediate_spawn_roll(surface, chunk_x, chunk_y, distance_weight, controls)
+    controls = controls or read_map_controls(surface)
+    if not controls.enabled or distance_weight <= 0 then
         return false
     end
 
     local seed = get_surface_seed(surface)
-    return hash01(seed, chunk_x, chunk_y, 101) < (IMMEDIATE_SPAWN_CHANCE * distance_weight)
+    return hash01(seed, chunk_x, chunk_y, 101) < math.min(1, IMMEDIATE_SPAWN_CHANCE * distance_weight * controls.frequency)
 end
 
 local function breach_roll(surface, chunk_x, chunk_y, salt)
@@ -1523,8 +1584,10 @@ clear_dormant_chunk = function(state, key)
     state.dormant_chunks[key] = nil
 end
 
-local function schedule_dormant_chunk(state, surface, chunk_x, chunk_y, delay_ticks, salt, current_tick)
-    if not model.is_vulcanus_surface(surface) then
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function schedule_dormant_chunk(state, surface, chunk_x, chunk_y, delay_ticks, salt, current_tick, controls)
+    controls = controls or read_map_controls(surface)
+    if not model.is_vulcanus_surface(surface) or not controls.enabled then
         return
     end
 
@@ -1551,17 +1614,20 @@ local function schedule_dormant_chunk(state, surface, chunk_x, chunk_y, delay_ti
     ei_runtime_scheduler.delayed_schedule(state.dormant_delayed_buckets, due_tick, key)
 end
 
-local function register_dormant_candidate(state, surface, chunk_x, chunk_y, current_tick)
-    schedule_dormant_chunk(state, surface, chunk_x, chunk_y, DORMANT_MISS_DELAY, 404, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function register_dormant_candidate(state, surface, chunk_x, chunk_y, current_tick, controls)
+    schedule_dormant_chunk(state, surface, chunk_x, chunk_y, DORMANT_MISS_DELAY, 404, current_tick, controls)
 end
 
-local function finalize_closure(state, record, reason, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function finalize_closure(state, record, reason, current_tick, controls)
     if not record then
         return
     end
 
     current_tick = resolve_tick(current_tick)
     local surface = game.surfaces[record.surface_index]
+    controls = controls or read_map_controls(surface)
     local position = record.position or get_chunk_center(record.chunk_x, record.chunk_y)
     local band_name = record.band_name or get_chunk_band_name(record.chunk_x, record.chunk_y)
     local tracked = state.active[record.key] == record
@@ -1590,16 +1656,17 @@ local function finalize_closure(state, record, reason, current_tick)
         end
 
         set_chunk_cooldown(state, surface, record.chunk_x, record.chunk_y, current_tick + REENTRY_DELAY_TICKS + jitter_ticks(surface, record.chunk_x, record.chunk_y, 6401))
-        register_dormant_candidate(state, surface, record.chunk_x, record.chunk_y, current_tick)
+        register_dormant_candidate(state, surface, record.chunk_x, record.chunk_y, current_tick, controls)
     end
 
     if tracked then
         state.active[record.key] = nil
     end
-    refresh_active_floor_state(state, current_tick)
+    refresh_active_floor_state(state, current_tick, controls)
 end
 
-register_active_fumarole = function(state, surface, chunk_x, chunk_y, entity, amount, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+register_active_fumarole = function(state, surface, chunk_x, chunk_y, entity, amount, current_tick, controls)
     current_tick = resolve_tick(current_tick)
     local key = chunk_key(surface.index, chunk_x, chunk_y)
     local position = entity.position
@@ -1622,12 +1689,16 @@ register_active_fumarole = function(state, surface, chunk_x, chunk_y, entity, am
     add_active_bucket_entry(state, surface.index, chunk_x, chunk_y, key)
     increment_active_band_count(state, surface.index, band_name)
 
-    refresh_active_floor_state(state, current_tick)
+    refresh_active_floor_state(state, current_tick, controls)
 
     return record
 end
 
-local function attempt_spawn_fumarole(surface, chunk_x, chunk_y, context, current_tick, placement_candidate)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function attempt_spawn_fumarole(surface, chunk_x, chunk_y, context, current_tick, placement_candidate, controls)
+    controls = controls or read_map_controls(surface)
+    -- This final gate precedes candidate queries and destructive breach effects.
+    if not controls.enabled then return false, "disabled" end
     local state = get_state()
     current_tick = resolve_tick(current_tick)
     local key = chunk_key(surface.index, chunk_x, chunk_y)
@@ -1669,7 +1740,7 @@ local function attempt_spawn_fumarole(surface, chunk_x, chunk_y, context, curren
         play_surface_sound(surface, "utility/cannot_build", position, 1.1)
     end
 
-    local amount = get_spawn_amount(surface, chunk_x, chunk_y)
+    local amount = get_spawn_amount(surface, chunk_x, chunk_y, controls)
     local entity = create_fumarole_entity(surface, position, amount)
     if not entity or not entity.valid then
         return false, "placement"
@@ -1677,15 +1748,17 @@ local function attempt_spawn_fumarole(surface, chunk_x, chunk_y, context, curren
 
     mark_history_chunk(state, surface, chunk_x, chunk_y)
     clear_dormant_chunk(state, key)
-    register_active_fumarole(state, surface, chunk_x, chunk_y, entity, amount, current_tick)
+    register_active_fumarole(state, surface, chunk_x, chunk_y, entity, amount, current_tick, controls)
     return true, "spawned"
 end
 
-local function evaluate_chunk_initial(surface, chunk_position, context, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function evaluate_chunk_initial(surface, chunk_position, context, current_tick, controls)
     if not model.is_vulcanus_surface(surface) then
         return
     end
 
+    controls = controls or read_map_controls(surface)
     local state = get_state()
     current_tick = resolve_tick(current_tick)
     local key = chunk_key(surface.index, chunk_position.x, chunk_position.y)
@@ -1694,7 +1767,7 @@ local function evaluate_chunk_initial(surface, chunk_position, context, current_
         return
     end
 
-    if adopt_existing_fumarole(state, surface, chunk_position.x, chunk_position.y, current_tick) then
+    if adopt_existing_fumarole(state, surface, chunk_position.x, chunk_position.y, current_tick, controls) then
         return
     end
 
@@ -1712,23 +1785,23 @@ local function evaluate_chunk_initial(surface, chunk_position, context, current_
         increment_generated_band_count(state, surface.index, band_name)
     end
 
-    if distance_weight <= 0 then
+    if not controls.enabled or distance_weight <= 0 then
         clear_dormant_chunk(state, key)
         return
     end
 
     if context == "backfill" then
-        register_dormant_candidate(state, surface, chunk_position.x, chunk_position.y, current_tick)
+        register_dormant_candidate(state, surface, chunk_position.x, chunk_position.y, current_tick, controls)
         return
     end
 
     local spawned = false
-    if immediate_spawn_roll(surface, chunk_position.x, chunk_position.y, distance_weight) then
-        spawned = select(1, attempt_spawn_fumarole(surface, chunk_position.x, chunk_position.y, context, current_tick))
+    if immediate_spawn_roll(surface, chunk_position.x, chunk_position.y, distance_weight, controls) then
+        spawned = select(1, attempt_spawn_fumarole(surface, chunk_position.x, chunk_position.y, context, current_tick, nil, controls))
     end
 
     if not spawned then
-        register_dormant_candidate(state, surface, chunk_position.x, chunk_position.y, current_tick)
+        register_dormant_candidate(state, surface, chunk_position.x, chunk_position.y, current_tick, controls)
     end
 end
 
@@ -1747,7 +1820,8 @@ local function migrate_due_dormant_buckets(state, current_tick)
     end
 end
 
-local function process_one_dormant_chunk(state, key, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function process_one_dormant_chunk(state, key, current_tick, controls)
     current_tick = resolve_tick(current_tick)
     local dormant = state.dormant_chunks[key]
     if not dormant then
@@ -1755,6 +1829,8 @@ local function process_one_dormant_chunk(state, key, current_tick)
     end
 
     local surface = game.surfaces[dormant.surface_index]
+    controls = controls or read_map_controls(surface)
+    if not controls.enabled then return end
     if not model.is_vulcanus_surface(surface) then
         clear_dormant_chunk(state, key)
         return
@@ -1777,7 +1853,7 @@ local function process_one_dormant_chunk(state, key, current_tick)
     local candidate, candidate_reason = select_spawn_candidate(surface, dormant.chunk_x, dormant.chunk_y, "dormant")
     if not candidate then
         if candidate_reason == "invalid-tile" or candidate_reason == "auric-spacing" or candidate_reason == "sulfuric-spacing" or candidate_reason == "spacing" or candidate_reason == "blocked" or candidate_reason == "occupied" or candidate_reason == "placement" then
-            schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 505, current_tick)
+            schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 505, current_tick, controls)
         else
             clear_dormant_chunk(state, key)
         end
@@ -1786,18 +1862,18 @@ local function process_one_dormant_chunk(state, key, current_tick)
 
     local modifier = get_local_saturation_modifier(state, dormant.surface_index, dormant.chunk_x, dormant.chunk_y)
     modifier = modifier * get_sulfuric_probability_modifier(candidate.sulfuric_distance)
-    modifier = modifier * get_band_fill_modifier(state, dormant.surface_index, band_name)
+    modifier = modifier * get_band_fill_modifier(state, dormant.surface_index, band_name, controls)
     local seed = get_surface_seed(surface)
     local roll = hash01(seed, dormant.chunk_x, dormant.chunk_y, 2401 + math.floor(current_tick / DORMANT_PULSE_TICKS))
-    if roll >= (DORMANT_BASE_CHANCE * distance_weight * modifier) then
-        schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_MISS_DELAY, 504, current_tick)
+    if roll >= math.min(1, DORMANT_BASE_CHANCE * distance_weight * modifier * controls.frequency) then
+        schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_MISS_DELAY, 504, current_tick, controls)
         return
     end
 
-    local spawned, reason = attempt_spawn_fumarole(surface, dormant.chunk_x, dormant.chunk_y, "dormant", current_tick, candidate)
+    local spawned, reason = attempt_spawn_fumarole(surface, dormant.chunk_x, dormant.chunk_y, "dormant", current_tick, candidate, controls)
     if not spawned then
         if reason == "invalid-tile" or reason == "auric-spacing" or reason == "sulfuric-spacing" or reason == "spacing" or reason == "blocked" or reason == "occupied" or reason == "placement" or reason == "cooldown" then
-            schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 505, current_tick)
+            schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 505, current_tick, controls)
         else
             clear_dormant_chunk(state, key)
         end
@@ -1815,30 +1891,33 @@ local function is_retryable_spawn_reason(reason)
         or reason == "cooldown"
 end
 
-local function get_recovery_attempt_budget(state)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_recovery_attempt_budget(state, current_tick, controls)
+    controls = controls or read_map_controls()
     for _, surface in pairs(game.surfaces) do
         if model.is_vulcanus_surface(surface) then
-            local target_total = get_surface_total_band_target(state, surface.index)
+            local target_total = get_surface_total_band_target(state, surface.index, controls)
             if target_total > 0 then
                 local active_total = get_surface_total_band_active(state, surface.index)
                 if (active_total / target_total) < BAND_RECOVERY_LOW_TOTAL_RATIO then
-                    return BAND_RECOVERY_LOW_TOTAL_ATTEMPTS_PER_PULSE
+                    return scaled_attempt_budget(BAND_RECOVERY_LOW_TOTAL_ATTEMPTS_PER_PULSE, current_tick, controls)
                 end
             end
         end
     end
 
-    return BAND_RECOVERY_BASE_ATTEMPTS_PER_PULSE
+    return scaled_attempt_budget(BAND_RECOVERY_BASE_ATTEMPTS_PER_PULSE, current_tick, controls)
 end
 
-local function get_recovery_band_candidates(state)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function get_recovery_band_candidates(state, controls)
     local entries = {}
 
     for surface_index, band_counts in pairs(state.dormant_band_counts) do
         for _, band_name in ipairs(FUMAROLE_BAND_ORDER) do
             local ready_count = band_counts[band_name] or 0
             if ready_count > 0 then
-                local target = get_band_target_count(state, surface_index, band_name)
+                local target = get_band_target_count(state, surface_index, band_name, controls)
                 if target > 0 then
                     local active = get_band_active_count(state, surface_index, band_name)
                     local fill_ratio = active / target
@@ -1875,14 +1954,16 @@ local function get_recovery_band_candidates(state)
     return entries
 end
 
-local function process_band_recovery_spawn(state, current_tick)
-    local budget = get_recovery_attempt_budget(state)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function process_band_recovery_spawn(state, current_tick, controls)
+    controls = controls or read_map_controls()
+    local budget = get_recovery_attempt_budget(state, current_tick, controls)
     if budget <= 0 then
         return
     end
 
     for attempt_index = 1, budget do
-        local entries = get_recovery_band_candidates(state)
+        local entries = get_recovery_band_candidates(state, controls)
         local entry = entries[1]
         if not entry then
             return
@@ -1903,7 +1984,7 @@ local function process_band_recovery_spawn(state, current_tick)
             elseif state.active[key] then
                 clear_dormant_chunk(state, key)
             elseif get_chunk_cooldown_until_tick(state, key, current_tick) then
-                schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 6501 + attempt_index, current_tick)
+                schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 6501 + attempt_index, current_tick, controls)
                 state.band_recovery_stats.blocked = (state.band_recovery_stats.blocked or 0) + 1
             else
                 local distance_weight = get_fumarole_distance_weight(surface, dormant.chunk_x, dormant.chunk_y)
@@ -1912,24 +1993,24 @@ local function process_band_recovery_spawn(state, current_tick)
                 else
                     local local_modifier = get_local_saturation_modifier(state, dormant.surface_index, dormant.chunk_x, dormant.chunk_y)
                     if local_modifier < BAND_RECOVERY_LOCAL_MIN_MODIFIER then
-                        schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_MISS_DELAY, 6502 + attempt_index, current_tick)
+                        schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_MISS_DELAY, 6502 + attempt_index, current_tick, controls)
                         state.band_recovery_stats.soft_misses = (state.band_recovery_stats.soft_misses or 0) + 1
                     else
                         local candidate, candidate_reason = select_spawn_candidate(surface, dormant.chunk_x, dormant.chunk_y, "recovery")
                         if not candidate then
                             if is_retryable_spawn_reason(candidate_reason) then
-                                schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 6503 + attempt_index, current_tick)
+                                schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 6503 + attempt_index, current_tick, controls)
                                 state.band_recovery_stats.blocked = (state.band_recovery_stats.blocked or 0) + 1
                             else
                                 clear_dormant_chunk(state, key)
                             end
                         else
-                            local spawned, reason = attempt_spawn_fumarole(surface, dormant.chunk_x, dormant.chunk_y, "recovery", current_tick, candidate)
+                            local spawned, reason = attempt_spawn_fumarole(surface, dormant.chunk_x, dormant.chunk_y, "recovery", current_tick, candidate, controls)
                             if spawned then
                                 state.band_recovery_stats.successes = (state.band_recovery_stats.successes or 0) + 1
-                                refresh_active_floor_state(state, current_tick)
+                                refresh_active_floor_state(state, current_tick, controls)
                             elseif is_retryable_spawn_reason(reason) then
-                                schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 6504 + attempt_index, current_tick)
+                                schedule_dormant_chunk(state, surface, dormant.chunk_x, dormant.chunk_y, DORMANT_BLOCKED_DELAY, 6504 + attempt_index, current_tick, controls)
                                 state.band_recovery_stats.blocked = (state.band_recovery_stats.blocked or 0) + 1
                             else
                                 clear_dormant_chunk(state, key)
@@ -1997,18 +2078,22 @@ local function get_keepalive_shortlist(state, current_tick)
     return shortlist
 end
 
-local function handle_failed_keepalive_spawn(state, key, surface, record, reason, salt, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function handle_failed_keepalive_spawn(state, key, surface, record, reason, salt, current_tick, controls)
     if is_retryable_spawn_reason(reason) then
-        schedule_dormant_chunk(state, surface, record.chunk_x, record.chunk_y, DORMANT_BLOCKED_DELAY, salt, current_tick)
+        schedule_dormant_chunk(state, surface, record.chunk_x, record.chunk_y, DORMANT_BLOCKED_DELAY, salt, current_tick, controls)
     else
         clear_dormant_chunk(state, key)
     end
 end
 
-local function process_keepalive_spawn(state, current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function process_keepalive_spawn(state, current_tick, controls)
     current_tick = resolve_tick(current_tick)
-    local active_count = refresh_active_floor_state(state, current_tick)
-    if active_count >= KEEPALIVE_TARGET_ACTIVE then
+    controls = controls or read_map_controls()
+    local target = get_keepalive_target(state, controls)
+    local active_count = refresh_active_floor_state(state, current_tick, controls)
+    if active_count >= target then
         return
     end
 
@@ -2017,7 +2102,7 @@ local function process_keepalive_spawn(state, current_tick)
         return
     end
 
-    local max_attempts = math.min(KEEPALIVE_ATTEMPTS_PER_PULSE, KEEPALIVE_TARGET_ACTIVE - active_count)
+    local max_attempts = math.min(scaled_attempt_budget(KEEPALIVE_ATTEMPTS_PER_PULSE, current_tick, controls), target - active_count)
     for attempt = 1, max_attempts do
         local shortlist = get_keepalive_shortlist(state, current_tick)
         if #shortlist == 0 then
@@ -2035,35 +2120,38 @@ local function process_keepalive_spawn(state, current_tick)
                 else
                     local candidate, candidate_reason = select_spawn_candidate(surface, record.chunk_x, record.chunk_y, "keepalive")
                     if candidate then
-                        local did_spawn, reason = attempt_spawn_fumarole(surface, record.chunk_x, record.chunk_y, "keepalive", current_tick, candidate)
+                        local did_spawn, reason = attempt_spawn_fumarole(surface, record.chunk_x, record.chunk_y, "keepalive", current_tick, candidate, controls)
                         if did_spawn then
-                            active_count = refresh_active_floor_state(state, current_tick)
+                            active_count = refresh_active_floor_state(state, current_tick, controls)
                             spawned = true
                             break
                         end
 
-                        handle_failed_keepalive_spawn(state, key, surface, record, reason, 5600 + (attempt * 100) + shortlist_index, current_tick)
+                        handle_failed_keepalive_spawn(state, key, surface, record, reason, 5600 + (attempt * 100) + shortlist_index, current_tick, controls)
                     else
-                        handle_failed_keepalive_spawn(state, key, surface, record, candidate_reason or "placement", 5600 + (attempt * 100) + shortlist_index, current_tick)
+                        handle_failed_keepalive_spawn(state, key, surface, record, candidate_reason or "placement", 5600 + (attempt * 100) + shortlist_index, current_tick, controls)
                     end
                 end
             end
         end
 
-        if active_count >= KEEPALIVE_TARGET_ACTIVE then
+        if active_count >= target then
             return
         end
 
         if not spawned then
-            active_count = refresh_active_floor_state(state, current_tick)
-            if active_count >= KEEPALIVE_TARGET_ACTIVE then
+            active_count = refresh_active_floor_state(state, current_tick, controls)
+            if active_count >= target then
                 return
             end
         end
     end
 end
 
-local function process_dormant_scheduler(current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function process_dormant_scheduler(current_tick, controls)
+    controls = controls or read_map_controls()
+    if not controls.enabled then return end
     local state = get_state()
     current_tick = resolve_tick(current_tick)
     migrate_due_dormant_buckets(state, current_tick)
@@ -2081,58 +2169,83 @@ local function process_dormant_scheduler(current_tick)
             local surface_index = surfaces[cursor]
             local key = dequeue_ready_chunk(state, surface_index)
             if key then
-                process_one_dormant_chunk(state, key, current_tick)
+                process_one_dormant_chunk(state, key, current_tick, controls)
             elseif #surfaces == 0 then
                 break
             end
         end
     end
 
-    process_band_recovery_spawn(state, current_tick)
-    process_keepalive_spawn(state, current_tick)
+    process_band_recovery_spawn(state, current_tick, controls)
+    process_keepalive_spawn(state, current_tick, controls)
 end
 
-local function audit_active_fumaroles(current_tick)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function audit_active_fumaroles(current_tick, controls)
+    controls = controls or read_map_controls()
     local state = get_state()
     current_tick = resolve_tick(current_tick)
     for key, record in pairs(state.active) do
         local surface = game.surfaces[record.surface_index]
         if not model.is_vulcanus_surface(surface) then
-            finalize_closure(state, record, "invalid-surface", current_tick)
+            finalize_closure(state, record, "invalid-surface", current_tick, controls)
         else
             local entity = record.entity
             local amount = get_fumarole_resource_amount(entity)
             if not amount then
-                finalize_closure(state, record, "missing", current_tick)
+                finalize_closure(state, record, "missing", current_tick, controls)
             else
                 if not record.touched and amount < (record.initial_amount or amount) then
                     record.touched = true
                 end
 
                 if not record.touched and current_tick >= (record.untouched_deadline_tick or 0) then
-                    finalize_closure(state, record, "self-seal", current_tick)
+                    finalize_closure(state, record, "self-seal", current_tick, controls)
                 end
             end
         end
     end
 
-    refresh_active_floor_state(state, current_tick)
+    refresh_active_floor_state(state, current_tick, controls)
 end
 
-local function process_backfill_queue(current_tick)
+local function report_backfill(state,tick,reason,restart)
+    local remaining=ei_runtime_scheduler.queue_length(state.backfill_queue)
+    if restart then
+        ei_runtime_scheduler.finish_rebuild(state.backfill_rebuild_id,"superseded",tick)
+        state.backfill_rebuild_id=nil;state.backfill_rebuild_completed=0
+        state.backfill_rebuild_reason=reason or "backfill"
+    end
+    state.backfill_rebuild_reason=state.backfill_rebuild_reason or reason or "backfill"
+    local completed=state.backfill_rebuild_completed or 0
+    if remaining<=0 then
+        ei_runtime_scheduler.update_rebuild(state.backfill_rebuild_id,{completed=completed,total=completed},tick)
+        ei_runtime_scheduler.finish_rebuild(state.backfill_rebuild_id,"completed",tick)
+        state.backfill_rebuild_id=nil;return
+    end
+    state.backfill_rebuild_id=ei_runtime_scheduler.report_rebuild("vulcanus-fumaroles","backfill","world",state.backfill_rebuild_id,
+        {reason=state.backfill_rebuild_reason,phase="backfill",state="running",completed=completed,total=completed+remaining,unit="chunks",waiting_reason=false},tick)
+end
+
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function process_backfill_queue(current_tick, controls)
+    controls = controls or read_map_controls()
     local state = get_state()
     local queue = state.backfill_queue
+    report_backfill(state,current_tick)
     for _ = 1, BACKFILL_CHUNKS_PER_PASS do
         local entry = queue_pop(queue)
         if not entry then
-            return
+            break
         end
 
         local surface = game.surfaces[entry.surface_index]
         if model.is_vulcanus_surface(surface) then
-            evaluate_chunk_initial(surface, {x = entry.chunk_x, y = entry.chunk_y}, "backfill", current_tick)
+            evaluate_chunk_initial(surface, {x = entry.chunk_x, y = entry.chunk_y}, "backfill", current_tick, controls)
         end
+        state.backfill_rebuild_completed=(state.backfill_rebuild_completed or 0)+1
     end
+    report_backfill(state,current_tick)
 end
 
 local function enqueue_backfill_surface(surface, force_refresh)
@@ -2144,7 +2257,7 @@ local function enqueue_backfill_surface(surface, force_refresh)
     return queue_backfill_entries(state, surface, force_refresh)
 end
 
-local function enqueue_all_vulcanus_backfill(force_refresh)
+local function enqueue_all_vulcanus_backfill(force_refresh,tick)
     local queued = 0
     for _, surface in pairs(game.surfaces) do
         if model.is_vulcanus_surface(surface) then
@@ -2152,10 +2265,11 @@ local function enqueue_all_vulcanus_backfill(force_refresh)
         end
     end
 
+    report_backfill(get_state(),tick,"backfill",true)
     return queued
 end
 
-local function rebuild_backfill_surface(surface)
+local function rebuild_backfill_surface(surface,tick)
     if not model.is_vulcanus_surface(surface) then
         return 0
     end
@@ -2165,10 +2279,12 @@ local function rebuild_backfill_surface(surface)
         return entry.surface_index ~= surface.index
     end)
 
-    return queue_backfill_entries(state, surface, true)
+    local queued=queue_backfill_entries(state, surface, true)
+    report_backfill(state,tick,"rescan",true)
+    return queued
 end
 
-local function rebuild_all_vulcanus_backfill()
+local function rebuild_all_vulcanus_backfill(tick)
     local surfaces = {}
     local target_surface_indexes = {}
 
@@ -2193,17 +2309,18 @@ local function rebuild_all_vulcanus_backfill()
         queued = queued + queue_backfill_entries(state, surface, true)
     end
 
+    report_backfill(state,tick,"rescan",true)
     return queued
 end
 
-local function bootstrap_generated_chunks(force_refresh)
+local function bootstrap_generated_chunks(force_refresh,current_tick)
     local state = get_state()
     force_refresh = force_refresh or state.pending_eligibility_refresh == true
     if not force_refresh and state.backfill_bootstrapped then
         return 0
     end
 
-    local current_tick = game and game.tick or 0
+    current_tick = current_tick or (game and game.tick) or 0
     local found_vulcanus = false
     for _, surface in pairs(game.surfaces) do
         if model.is_vulcanus_surface(surface) then
@@ -2214,10 +2331,11 @@ local function bootstrap_generated_chunks(force_refresh)
 
     if not found_vulcanus then
         state.next_surface_probe_tick = current_tick + SURFACE_PROBE_RETRY_TICKS
+        ei_runtime_scheduler.update_rebuild(state.backfill_rebuild_id,{state="waiting",waiting_reason="surface"},current_tick)
         return 0
     end
 
-    local queued = force_refresh and rebuild_all_vulcanus_backfill() or enqueue_all_vulcanus_backfill(false)
+    local queued = force_refresh and rebuild_all_vulcanus_backfill(current_tick) or enqueue_all_vulcanus_backfill(false,current_tick)
     state.backfill_bootstrapped = true
     state.pending_eligibility_refresh = false
     state.next_surface_probe_tick = 0
@@ -2232,7 +2350,8 @@ local function copy_band_counts(counts)
     return snapshot
 end
 
-local function build_band_status(state)
+---@param controls AuricMapControls? Resolved once by the calling event/service pass
+local function build_band_status(state, controls)
     local status = {}
 
     for _, surface in pairs(game.surfaces) do
@@ -2245,7 +2364,7 @@ local function build_band_status(state)
             local fill = {}
 
             for _, band_name in ipairs(FUMAROLE_BAND_ORDER) do
-                local target_count = get_band_target_count(state, surface.index, band_name)
+                local target_count = get_band_target_count(state, surface.index, band_name, controls)
                 target[band_name] = target_count
                 fill[band_name] = target_count > 0 and (active[band_name] or 0) / target_count or 0
             end
@@ -2256,7 +2375,7 @@ local function build_band_status(state)
                 ready = copy_band_counts(ready),
                 target = target,
                 fill = fill,
-                total_target = get_surface_total_band_target(state, surface.index),
+                total_target = get_surface_total_band_target(state, surface.index, controls),
                 total_active = get_surface_total_band_active(state, surface.index),
             }
         end
@@ -2284,7 +2403,7 @@ function model.on_chunk_generated(event)
         return
     end
 
-    evaluate_chunk_initial(surface, event.position, "chunk-generated", event and event.tick)
+    evaluate_chunk_initial(surface, event.position, "chunk-generated", event and event.tick, read_map_controls(surface))
 end
 
 function model.on_resource_depleted(event)
@@ -2314,7 +2433,7 @@ function model.on_resource_depleted(event)
         }
     end
 
-    finalize_closure(state, record, "depleted", event and event.tick)
+    finalize_closure(state, record, "depleted", event and event.tick, read_map_controls(surface))
 end
 
 function model.has_tick_work(event)
@@ -2360,24 +2479,25 @@ end
 
 function model.updater(event)
     local state = get_state()
+    local controls = read_map_controls()
     local current_tick = event and event.tick or game and game.tick or 0
     local next_surface_probe_tick = tonumber(state.next_surface_probe_tick) or 0
     if (not state.backfill_bootstrapped or state.pending_eligibility_refresh)
         and (next_surface_probe_tick <= 0 or current_tick >= next_surface_probe_tick)
     then
-        bootstrap_generated_chunks(false)
+        bootstrap_generated_chunks(false,current_tick)
     end
 
     if event.tick % BACKFILL_PROCESS_TICKS == 0 then
-        process_backfill_queue(current_tick)
+        process_backfill_queue(current_tick, controls)
     end
 
     if event.tick % DORMANT_PULSE_TICKS == 0 then
-        process_dormant_scheduler(current_tick)
+        process_dormant_scheduler(current_tick, controls)
     end
 
     if event.tick % ACTIVE_AUDIT_TICKS == 0 then
-        audit_active_fumaroles(current_tick)
+        audit_active_fumaroles(current_tick, controls)
     end
 
     if event.tick % BREACH_FIRE_CLEANUP_TICKS == 0 then
@@ -2389,7 +2509,8 @@ function model.get_runtime_status()
     model.check_global()
 
     local state = get_state()
-    local active_count = refresh_active_floor_state(state)
+    local controls = read_map_controls()
+    local active_count = refresh_active_floor_state(state, nil, controls)
     local ready_surface_queue_items = 0
     for _, queue in pairs(state.dormant_surface_queues or {}) do
         ready_surface_queue_items = ready_surface_queue_items + ei_runtime_scheduler.queue_item_count(queue)
@@ -2417,14 +2538,15 @@ function model.get_runtime_status()
         ready_band_queue_items = ready_band_queue_items,
         zero_active_since_tick = state.zero_active_since_tick,
         below_floor_since_tick = state.below_floor_since_tick,
-        keepalive_target_active = KEEPALIVE_TARGET_ACTIVE,
+        keepalive_target_active = get_keepalive_target(state, controls),
+        map_controls = controls,
         band_recovery_stats = {
             attempts = state.band_recovery_stats.attempts or 0,
             successes = state.band_recovery_stats.successes or 0,
             soft_misses = state.band_recovery_stats.soft_misses or 0,
             blocked = state.band_recovery_stats.blocked or 0,
         },
-        band_status = build_band_status(state),
+        band_status = build_band_status(state, controls),
         active = active_count,
         dormant_chunks = ei_runtime_scheduler.table_count(state.dormant_chunks),
         dormant_buckets = ei_runtime_scheduler.delayed_bucket_count(state.dormant_delayed_buckets),
@@ -2468,13 +2590,13 @@ commands.add_command(
             end
 
             rebuild_active_band_counts(get_state())
-            local queued = rebuild_backfill_surface(player.surface)
+            local queued = rebuild_backfill_surface(player.surface,command.tick)
             print_command_feedback(command, {"description.auric-fumarole-rescan-success", queued})
             return
         end
 
         rebuild_active_band_counts(get_state())
-        local queued = rebuild_all_vulcanus_backfill()
+        local queued = rebuild_all_vulcanus_backfill(command.tick)
         print_command_feedback(command, {"description.auric-fumarole-rescan-success", queued})
     end
 )
@@ -2485,7 +2607,7 @@ commands.add_command(
 function model.repair_runtime_state(reason,tick)
     model.check_global()
     rebuild_active_band_counts(get_state())
-    rebuild_all_vulcanus_backfill()
+    rebuild_all_vulcanus_backfill(tick)
     return true
 end
 

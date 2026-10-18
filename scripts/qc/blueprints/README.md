@@ -74,10 +74,7 @@ assess behavior and inspect a rendered document to assess layout.
 The 2026-09-28 backfill accounts for 41 models, 94 owned sources, and two
 classified exceptions in a 96-file inventory. The conservative runtime graph
 contains 93 files, including migrations. These are observed rollout counts,
-not audit constants. The Lance feature commit updates its model to schema 14,
-including paid contacts and angular acquisition.
-
-All 30 audit regression tests and five header/preflight
+not audit constants. All 30 audit regression tests and five header/preflight
 support checks passed. All 41 Mermaid diagrams parsed successfully with Mermaid
 11.12.1. Metadata validation passed for the new skill and six updated development
 skills; 338 local links across 59 relevant documents resolved. The QC helper

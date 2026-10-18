@@ -16,12 +16,14 @@ Use this skill for the Meshy -> Blender -> Factorio-preset spritesheet path. It 
 
 ## Hard Rules
 
+- Follow [housekeeping](../esir-dev/references/housekeeping.md). Register new reproducible render intermediates only after identifying retained source/specification, final sheets and QA evidence; preserve original downloads and manual work. During authorized shipping replacements, retire the exact superseded asset family after consumer checks. Leave root `models/` outside housekeeping.
+
 - Never store Meshy keys in Blender files, repo files, scripts, or Codex config.
 - Use `MESHY_API_KEY` through Meshy MCP or the `$meshy-api` REST helper.
 - Treat Meshy generation as credit-consuming unless explicitly using a documented test mode.
 - Keep generated models and render outputs under ignored `output/meshy/` or `tmp/` unless the user specifies a shipping path.
 - Keep reusable generator scripts, asset-specific replay notes, and hand-written prompts out of `output/`: use `.codex/esir/asset-generators/` for generators/notes and `.codex/esir/art-prompts/` for prompt provenance.
-- Do not replace production sprites in `exotic-space-industries-remembrance/graphics/` until the user approves the generated sheet.
+- Do not replace production sprites in `exotic-space-industries-remembrance-graphics-6/graphics/` until the user approves the generated sheet.
 - For ESIR Factorio-bound spritesheets, do not invent camera, lighting, shadow, or pass layouts. Use the local Factorio preset conventions for final, draft, smoke, and preflight work unless the user specifically requests a non-preset render or the task is debugging the non-preset renderer itself.
 - For main-pack shipping graphics, render and stage with no-prefix asset names such as `threshold-array`; keep `ei-*` for prototype hints passed later to `$esir-factorio-asset-export`.
 - Add runtime-tint mask regions only for owner-readability: turrets, vehicles, rolling stock, train stops/remotes, force-facing logistics/control devices, and ownership-critical entities. Preserve baked ESIR color for neutral terrain, decoratives, resources, ruins, pure environmental/alien forms, and deliberately chromatic assets.

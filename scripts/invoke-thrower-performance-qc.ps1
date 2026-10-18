@@ -82,7 +82,7 @@ if ($Visual) {
     if ($FrozenPack) {
         # Headless timing snapshots can precede delivery of unrelated graphics.
         # Supply missing assets only; retain all frozen Lua and existing images.
-        $graphicsRoot=Join-Path $repo 'exotic-space-industries-remembrance\graphics'
+        $graphicsRoot=Join-Path $repo 'exotic-space-industries-remembrance-graphics-6\graphics'
         $addedAssets=0
         foreach ($asset in Get-ChildItem -LiteralPath $graphicsRoot -File -Recurse) {
             $relative=$asset.FullName.Substring($graphicsRoot.Length+1)

@@ -1,0 +1,1 @@
+-- No owner instrumentation: this fixture uses Informatron's public interfaces.

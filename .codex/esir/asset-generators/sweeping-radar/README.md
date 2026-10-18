@@ -4,7 +4,7 @@ Approved selection: **#1 / E1 Split-Trough Watcher** for `ei-sweeping-radar`, an
 
 ## Current deliverable
 
-Maximum-detail Meshy originals, UV-preserving animated Blender models, 256-facing final-quality master renders and spritesheets. The chosen export is **256 facings**, now integrated into both shipping radar chassis; 128 and 64 remain exact repacks retained for comparison. The main mod ships the ten selected body/shadow/glow pages (35,167,676 bytes), with matching inventory icons in the main pack. See [runtime art contract](../../blueprints/sweeping-radar.md#art) and [engine verification](../../../../scripts/qc/sweeping-radar/art-validation.md).
+Maximum-detail Meshy originals, UV-preserving animated Blender models, 256-facing final-quality master renders and spritesheets. The chosen export is **256 facings**, now integrated into both shipping radar chassis; 128 and 64 remain exact repacks retained for comparison. Graphics 6 ships the ten selected body/shadow/glow pages (35,167,676 bytes), with matching inventory icons in Graphics 6. See [runtime art contract](../../blueprints/sweeping-radar.md#art) and [engine verification](../../../../scripts/qc/sweeping-radar/art-validation.md).
 
 ## Final renders and repacking
 

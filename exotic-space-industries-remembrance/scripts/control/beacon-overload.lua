@@ -10,6 +10,7 @@
 -- rebuild_on: configuration change, beacon-machine topology changes
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
+-- blueprint-ref: .codex/esir/blueprints/beacon-overload.md#rebuild-reporting
 
 local model = {}
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
@@ -558,7 +559,17 @@ local function clear_active_surface_scan()
     active_surface_scan = nil
 end
 
-local function clear_refresh_mode(state)
+local function begin_rebuild_progress(state,mode,reason,tick)
+    ei_runtime_scheduler.finish_rebuild(state.rebuild_id,"superseded",tick)
+    state.rebuild_chunks=0;state.rebuild_machines=0
+    state.rebuild_id=ei_runtime_scheduler.begin_rebuild("beacon-overload","topology","world",
+        {reason=reason,phase=mode,state="running",completed=0,unit=mode=="world" and "chunks" or "operations"},tick)
+end
+
+local function clear_refresh_mode(state,tick)
+    local abandoned=state.mode~=nil and state.mode~="release" and not is_overload_enabled(state)
+    ei_runtime_scheduler.finish_rebuild(state.rebuild_id,abandoned and "superseded" or "completed",tick)
+    state.rebuild_id=nil
     reset_refresh_queue(state)
     clear_active_surface_scan()
 end
@@ -1103,28 +1114,31 @@ local function heartbeat_if_needed(state, event)
     log_debug_status(state, "heartbeat", state.last_reason, nil)
 end
 
-local function queue_release_mode(state, reason)
+local function queue_release_mode(state, reason, tick)
     reset_refresh_queue(state)
     clear_active_surface_scan()
     state.release_cursor = nil
     set_work_mode(state, "release", reason)
+    begin_rebuild_progress(state,"release",reason,tick)
     log_debug_status(state, "release-enqueue", reason, nil)
 end
 
-local function queue_world_mode(state, reason)
+local function queue_world_mode(state, reason, tick)
     reset_refresh_queue(state)
     clear_active_surface_scan()
     state.world_seed_tracked = next(state.tracked_machines) ~= nil
     state.tracked_refresh_cursor = nil
     set_work_mode(state, "world", reason)
+    begin_rebuild_progress(state,"world",reason,tick)
     log_debug_status(state, "world-enqueue", reason, nil)
 end
 
-local function queue_tracked_mode(state, reason)
+local function queue_tracked_mode(state, reason, tick)
     reset_refresh_queue(state)
     clear_active_surface_scan()
     state.tracked_refresh_cursor = nil
     set_work_mode(state, "tracked", reason)
+    begin_rebuild_progress(state,"tracked",reason,tick)
     log_debug_status(state, "tracked-enqueue", reason, nil)
 end
 
@@ -1649,6 +1663,7 @@ local function process_chunk_queue(state)
         budget = budget - 1
     end
 
+    if state.rebuild_id then state.rebuild_chunks=(state.rebuild_chunks or 0)+processed end
     return processed
 end
 
@@ -1690,19 +1705,20 @@ local function process_machine_queue(state)
         budget = budget - 1
     end
 
+    if state.rebuild_id then state.rebuild_machines=(state.rebuild_machines or 0)+processed end
     return processed
 end
 
-local function release_owned_overloads(state, reason)
-    queue_release_mode(state, reason or "disable")
+local function release_owned_overloads(state, reason, tick)
+    queue_release_mode(state, reason or "disable", tick)
 end
 
-local function enqueue_tracked_refresh(state, reason)
-    queue_tracked_mode(state, reason or "tracked-refresh")
+local function enqueue_tracked_refresh(state, reason, tick)
+    queue_tracked_mode(state, reason or "tracked-refresh", tick)
 end
 
-local function enqueue_world_rebuild(state, reason)
-    queue_world_mode(state, reason or "world-rebuild")
+local function enqueue_world_rebuild(state, reason, tick)
+    queue_world_mode(state, reason or "world-rebuild", tick)
     for _, surface in pairs(game.surfaces) do
         if surface and surface.valid then
             queue_push(state.surface_queue, surface.index)
@@ -1796,20 +1812,21 @@ function model.reset_topology_for_qc()
 end
 
 ---@param enabled boolean
-function model.set_enabled_for_qc(enabled)
+function model.set_enabled_for_qc(enabled,tick)
+    tick=tick or game.tick
     local state = ensure_state()
     set_overload_enabled_cache(state, enabled)
     if not enabled then
         clear_topology_graph(state)
         if next(state.overloaded_units) ~= nil then
-            release_owned_overloads(state, "qc-disabled")
+            release_owned_overloads(state, "qc-disabled",tick)
         else
-            clear_refresh_mode(state)
+            clear_refresh_mode(state,tick)
         end
     else
         refresh_rules_signature_cache(state)
         clear_beacon_graph(state)
-        enqueue_world_rebuild(state, "qc-enabled")
+        enqueue_world_rebuild(state, "qc-enabled",tick)
     end
     return state.enabled
 end
@@ -1862,7 +1879,8 @@ function model.count_beacons(entity)
     return count
 end
 
-function model.refresh_all_overloads(reason)
+function model.refresh_all_overloads(reason,tick)
+    tick=tick or game.tick
     local state = ensure_state()
     reason = reason or "manual-refresh"
     maybe_auto_arm_debug(state, reason, true)
@@ -1870,19 +1888,20 @@ function model.refresh_all_overloads(reason)
 
     if not is_overload_enabled(state) then
         if next(state.overloaded_units) ~= nil then
-            release_owned_overloads(state, reason .. "-disabled")
+            release_owned_overloads(state, reason .. "-disabled",tick)
         else
-            clear_refresh_mode(state)
+            clear_refresh_mode(state,tick)
         end
         return
     end
 
     refresh_rules_signature_cache(state)
     clear_beacon_graph(state)
-    enqueue_world_rebuild(state, reason)
+    enqueue_world_rebuild(state, reason,tick)
 end
 
-function model.refresh_tracked_overloads(reason)
+function model.refresh_tracked_overloads(reason,tick)
+    tick=tick or game.tick
     local state = ensure_state()
     reason = reason or "tracked-refresh"
     maybe_auto_arm_debug(state, reason, false)
@@ -1890,16 +1909,16 @@ function model.refresh_tracked_overloads(reason)
 
     if not is_overload_enabled(state) then
         if next(state.overloaded_units) ~= nil then
-            release_owned_overloads(state, reason .. "-disabled")
+            release_owned_overloads(state, reason .. "-disabled",tick)
         else
-            clear_refresh_mode(state)
+            clear_refresh_mode(state,tick)
         end
         return
     end
 
     refresh_rules_signature_cache(state)
     clear_beacon_graph(state)
-    enqueue_tracked_refresh(state, reason)
+    enqueue_tracked_refresh(state, reason,tick)
 end
 
 function model.update_overload(entity, state)
@@ -2071,7 +2090,8 @@ function model.add_overload_effect(entity)
     }
 end
 
-function model.on_configuration_changed(e)
+function model.on_configuration_changed(e,tick)
+    tick=tick or (e and e.tick) or game.tick
     local state = ensure_state()
     local reason = "configuration-changed"
     maybe_auto_arm_debug(state, reason, true)
@@ -2092,10 +2112,10 @@ function model.on_configuration_changed(e)
             clear_topology_graph(state)
             if next(state.overloaded_units) ~= nil then
                 state.debug.last_config_action = "disabled-release"
-                release_owned_overloads(state, reason .. "-disabled")
+                release_owned_overloads(state, reason .. "-disabled",tick)
             else
                 state.debug.last_config_action = "disabled-clear"
-                clear_refresh_mode(state)
+                clear_refresh_mode(state,tick)
             end
             return
         end
@@ -2103,7 +2123,7 @@ function model.on_configuration_changed(e)
         if previous_enabled == false then
             refresh_rules_signature_cache(state)
             state.debug.last_config_action = "rebuild-enabled"
-            enqueue_world_rebuild(state, reason)
+            enqueue_world_rebuild(state, reason,tick)
             return
         end
 
@@ -2117,7 +2137,7 @@ function model.on_configuration_changed(e)
             if rules_changed then
                 state.debug.last_config_action = "rebuild-rules-changed"
                 clear_beacon_graph(state)
-                enqueue_world_rebuild(state, reason)
+                enqueue_world_rebuild(state, reason,tick)
             else
                 state.debug.last_config_action = "skip-rules-unchanged"
                 log_debug_status(state, "config-change-skip", reason, nil)
@@ -2179,16 +2199,21 @@ function model.updater(event)
 
     if not enabled then
         if state.mode ~= "release" and next(state.overloaded_units) ~= nil then
-            release_owned_overloads(state, "runtime-disabled")
+            release_owned_overloads(state, "runtime-disabled",tick)
         end
         if state.mode ~= "release" then
-            clear_refresh_mode(state)
+            clear_refresh_mode(state,tick)
         end
     end
 
+    if not state.rebuild_id and (state.mode=="world" or state.mode=="tracked" or state.mode=="release") then
+        begin_rebuild_progress(state,state.mode,state.last_reason,tick)
+    end
     if state.mode == "release" then
         with_profiled_phase(state, "release", state.last_reason, tick, function()
-            return process_release_queue(state)
+            local processed=process_release_queue(state)
+            state.rebuild_machines=(state.rebuild_machines or 0)+processed
+            return processed
         end)
     elseif enabled and state.mode == "machine" then
         with_profiled_phase(state, "machine-recount", state.last_reason, tick, function()
@@ -2233,15 +2258,25 @@ function model.updater(event)
     end
     heartbeat_if_needed(state, event)
 
+    if state.rebuild_id then
+        local discovering=state.mode=="world" and (state.world_seed_tracked or queue_length(state.surface_queue)>0 or queue_length(state.chunk_queue)>0)
+        local completed=discovering and (state.rebuild_chunks or 0) or (state.rebuild_machines or 0)
+        local total=false
+        if state.mode=="release" then total=completed+(state.overloaded_count or 0)
+        elseif not discovering and state.tracked_refresh_cursor==nil then total=completed+queue_length(state.machine_queue) end
+        ei_runtime_scheduler.update_rebuild(state.rebuild_id,{phase=discovering and "world" or state.mode=="release" and "release" or "machines",
+            completed=completed,total=total,unit=discovering and "chunks" or "operations"},tick)
+    end
+
     if state.mode == "release" then
         if next(state.overloaded_units) == nil and queue_length(state.machine_queue) == 0 then
-            clear_refresh_mode(state)
+            clear_refresh_mode(state,tick)
         end
     elseif queue_length(state.surface_queue) == 0
         and queue_length(state.chunk_queue) == 0
         and queue_length(state.machine_queue) == 0
         and state.tracked_refresh_cursor == nil then
-        clear_refresh_mode(state)
+        clear_refresh_mode(state,tick)
     end
 end
 
