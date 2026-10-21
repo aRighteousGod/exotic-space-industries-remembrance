@@ -463,6 +463,9 @@ local family_colors = {
 }
 
 local generic_dying_explosions = {
+  ["assembling-machine-1-explosion"] = true,
+  ["assembling-machine-2-explosion"] = true,
+  ["assembling-machine-3-explosion"] = true,
   ["accumulator-explosion"] = true,
   ["active-provider-chest-explosion"] = true,
   ["arithmetic-combinator-explosion"] = true,
@@ -521,6 +524,20 @@ local preserved_core_explosions = {
 local preserve_exact = {
   ["ei-exotic-assembler"] = true,
   ["ei-steampunk-lamp"] = true,
+}
+
+-- These reskins animate their own collapse through the corpse. Match the actual
+-- corpse so disabling a reskin retains the ordinary explosion sprite.
+---@type table<string, string>
+local animated_death_corpses = {
+  ["assembling-machine-1"] = "sa-assembler-1-remnants",
+  ["assembling-machine-2"] = "sa-assembler-2-remnants",
+  ["assembling-machine-3"] = "sa-assembler-3-remnants",
+  ["ei-neo-assembler"] = "ei-neo-assembler-corpse",
+  ["ei-exotic-assembler"] = "ei-exotic-assembler-corpse",
+  ["solar-panel"] = "solar-matrix-remnants",
+  ["ei-solar-panel-2"] = "ei-solar-panel-2-remnants",
+  ["ei-solar-panel-3"] = "ei-solar-panel-3-remnants",
 }
 
 local nuclear_locomotive_override_explosion_name = "ei-death-explosion-nuclear-locomotive"
@@ -2422,6 +2439,7 @@ end
 local function family_for_prototype(name, prototype, entity_type, exact_family_map)
   local owned = is_owned_name(name)
   local scoped_dependency = is_scoped_dependency(name, exact_family_map)
+    or (animated_death_corpses[name] ~= nil and prototype.corpse == animated_death_corpses[name])
 
   if not owned and not scoped_dependency then
     return nil, nil, nil
@@ -2573,6 +2591,19 @@ local function apply_family(name, prototype, entity_type, family, assignment_log
       core = current_core,
     }
     return
+  end
+
+  -- Keep the complete family aftermath, but let the authored corpse supply the
+  -- collapse sprite. Never change a shared core or an authored damaging death.
+  if animated_death_corpses[name] and prototype.corpse == animated_death_corpses[name] then
+    local sprite_free_name = target_explosion .. "-animated-corpse"
+    if not data.raw.explosion[sprite_free_name] then
+      local explosion = table.deepcopy(data.raw.explosion[target_explosion])
+      explosion.name = sprite_free_name
+      explosion.animations = util.empty_sprite()
+      data:extend({explosion})
+    end
+    target_explosion = sprite_free_name
   end
 
   prototype.dying_explosion = target_explosion

@@ -19,6 +19,13 @@ preserved authored death with supplements, or replacement of a generic core.
 Appends retain existing `dying_trigger_effect`. Mine activation `action`, robot
 attacks, loot, corpses, mining, and runtime ownership are outside these mutations.
 
+Reskinned assemblers and solar matrices with their expected animated corpses use
+sprite-free copies of the replacement family core. Particles, sound, light and
+smoke remain intact; shared cores and authored deaths such as the exotic
+assembler's damaging matter explosion are preserved. Matching the actual corpse
+keeps ordinary sprites when a reskin is disabled. Reskinned vanilla assemblers
+enter this policy only while their matching animated corpse is installed.
+
 <a id="operational-bodies"></a>
 ## Operational bodies and helper boundaries
 
