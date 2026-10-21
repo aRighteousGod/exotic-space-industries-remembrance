@@ -1,0 +1,8 @@
+{
+  "name": "zzz-esir-robot-progression-qc",
+  "version": "0.0.1",
+  "title": "ESIR robot progression acceptance fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.0",
+  "dependencies": ["exotic-space-industries-remembrance"]
+}

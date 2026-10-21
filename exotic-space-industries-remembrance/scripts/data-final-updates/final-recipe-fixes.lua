@@ -1,4 +1,16 @@
--- fix recipes that are broken due to patches
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: shared final recipe normalization and explicit fleet-refit opt-outs
+-- loaded_by: exotic-space-industries-remembrance\data-final-fixes.lua
+-- cadence: data-final-fixes load
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload, prototype cache rebuild
+--==============================================================================
+-- blueprint: .codex/esir/blueprints/robot-progression.md#contract
+-- Fix recipes that are broken due to patches.
 
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
@@ -360,7 +372,10 @@ for _, recipe in pairs(data.raw.recipe) do
 		--recipe.always_show_made_in = false
 		--recipe.always_show_products = false
 		recipe.hide_from_signal_gui = false
-		recipe.allow_decomposition = true
+		-- blueprint-ref: .codex/esir/blueprints/robot-progression.md#conversion
+		-- Fleet refits consume existing bots; keep their explicit decomposition opt-out.
+		recipe.allow_decomposition = recipe.name ~= "ei-advanced-logistic-bot-from-cargo-bot"
+			and recipe.name ~= "ei-advanced-construction-bot-from-construction-bot"
 		--recipe.result_is_always_fresh = true
 		recipe.unlock_results = true
 	end

@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: data stage reload, prototype cache rebuild
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/robot-progression.md#contract
 --====================================================================================================
 --ITEMS
 --====================================================================================================
@@ -79,10 +80,33 @@ data:extend({
 --RECIPES
 --====================================================================================================
 
+-- Keep both donor routes legible at crafting-slot size without changing item icons.
+---@param target_name string
+---@param donor_name string
+---@return data.IconData[]
+local function advanced_bot_recipe_icons(target_name, donor_name)
+    local target = data.raw.item[target_name]
+    local donor = data.raw.item[donor_name]
+    local icons = ei_lib.make_icons(target.icon, target.icon_size, donor.icon, donor.icon_size,
+        0.32, {4.8, 4.8}, nil, {base_scale = 0.45, base_shift = {-2, -2}})
+    local overlay = table.remove(icons)
+    -- Offset silhouettes form an even dark rim around the enlarged donor artwork.
+    for _, offset in ipairs{{-0.8, 0}, {0.8, 0}, {0, -0.8}, {0, 0.8},
+        {-0.6, -0.6}, {-0.6, 0.6}, {0.6, -0.6}, {0.6, 0.6}} do
+        local outline = table.deepcopy(overlay)
+        outline.tint = {0, 0, 0, 1}
+        outline.shift = {4.8 + offset[1], 4.8 + offset[2]}
+        icons[#icons + 1] = outline
+    end
+    icons[#icons + 1] = overlay
+    return icons
+end
+
 data:extend({
     {
         name = "ei-advanced-logistic-bot",
         type = "recipe",
+        icons = advanced_bot_recipe_icons("ei-advanced-logistic-bot", "logistic-robot"),
         category = "crafting",
         energy_required = 4,
         ingredients = {
@@ -103,6 +127,7 @@ data:extend({
     {
         name = "ei-advanced-construction-bot",
         type = "recipe",
+        icons = advanced_bot_recipe_icons("ei-advanced-construction-bot", "construction-robot"),
         category = "crafting",
         energy_required = 4,
         ingredients = {
@@ -210,6 +235,48 @@ data:extend({
 
 
 --====================================================================================================
+--FLEET CONVERSIONS
+--====================================================================================================
+
+-- blueprint-ref: .codex/esir/blueprints/robot-progression.md#conversion
+-- Refits retain the quantum hardware bill. Only direct recipes own recycling;
+-- both routes produce the same items with native quality and research behavior.
+---@type {target: string, donor: string}[]
+local bot_conversions = {
+    {target = "ei-advanced-logistic-bot", donor = "ei-cargo-bot"},
+    {target = "ei-advanced-construction-bot", donor = "ei-construction-bot"},
+}
+for _, conversion in ipairs(bot_conversions) do
+    local target = data.raw.item[conversion.target]
+    ---@type data.RecipePrototype
+    local recipe = {
+        type = "recipe",
+        name = conversion.target.."-from-"..string.sub(conversion.donor, 4),
+        localised_name = {"", {"item-name."..conversion.target}, " ← ", {"item-name."..conversion.donor}},
+        icons = advanced_bot_recipe_icons(conversion.target, conversion.donor),
+        subgroup = target.subgroup,
+        order = target.order.."-refit",
+        category = "crafting",
+        energy_required = 4,
+        ingredients = {
+            {type = "item", name = conversion.donor, amount = 1},
+            {type = "item", name = "processing-unit", amount = 4},
+            {type = "item", name = "ei-advanced-bot-engine", amount = 4},
+        },
+        results = {{type = "item", name = conversion.target, amount = 1}},
+        main_product = conversion.target,
+        enabled = false,
+        allow_decomposition = false,
+        allow_as_intermediate = false,
+        allow_productivity = false,
+        allow_quality = true,
+        auto_recycle = false,
+        always_show_made_in = true,
+    }
+    data:extend({recipe})
+end
+
+--====================================================================================================
 --TECHS
 --====================================================================================================
 
@@ -228,6 +295,14 @@ data:extend({
             {
                 type = "unlock-recipe",
                 recipe = "ei-advanced-construction-bot"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-advanced-logistic-bot-from-cargo-bot"
+            },
+            {
+                type = "unlock-recipe",
+                recipe = "ei-advanced-construction-bot-from-construction-bot"
             },
             {
                 type = "unlock-recipe",
@@ -310,7 +385,7 @@ data:extend({
         icon = ei_robots_item_path .. "advanced-logistic-bot.png",
         icon_size = 64,
         flags = {"placeable-player", "player-creation", "placeable-off-grid", "not-on-map"},
-        max_health = 1400,
+        max_health = 2100,
         corpse = "big-remnants",
         collision_box = {{0, 0}, {0, 0}},
         selection_box = {{-0.5, -1.5}, {0.5, 0.5}},
@@ -318,13 +393,13 @@ data:extend({
             mining_time = 1,
             result = "ei-advanced-logistic-bot",
         },
-        max_payload_size = 5,
-        speed = 0.24,
+        max_payload_size = 30,
+        speed = 0.30,
         transfer_distance = 0.5,
         max_energy = "200MJ",
         energy_per_tick = "0.1kJ",
         speed_multiplier_when_out_of_energy = 0.2,
-        energy_per_move = "10kJ",
+        energy_per_move = "5kJ",
         min_to_charge = 0.2,
         max_to_charge = 0.9,
         cargo_centered = {0.0, 0.2},
@@ -508,7 +583,7 @@ data:extend({
         icon = ei_robots_item_path .. "advanced-construction-bot.png",
         icon_size = 64,
         flags = {"placeable-player", "player-creation", "placeable-off-grid", "not-on-map"},
-        max_health = 1400,
+        max_health = 2100,
         corpse = "big-remnants",
         collision_box = {{0, 0}, {0, 0}},
         selection_box = {{-0.5, -1.5}, {0.5, 0.5}},
@@ -516,13 +591,13 @@ data:extend({
             mining_time = 1,
             result = "ei-advanced-construction-bot",
         },
-        max_payload_size = 3,
-        speed = 0.16,
+        max_payload_size = 10,
+        speed = 0.24,
         transfer_distance = 0.5,
         max_energy = "50MJ",
         energy_per_tick = "0.1kJ",
         speed_multiplier_when_out_of_energy = 0.2,
-        energy_per_move = "5kJ",
+        energy_per_move = "2.5kJ",
         min_to_charge = 0.2,
         max_to_charge = 0.9,
         cargo_centered = {0.0, 0.2},
