@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: data stage reload, prototype cache rebuild
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/plasma-smelting.md#contract
 --===========================================================================================
 --Productivity technology
 local formula = "100 * (1 + 0.15 * L)" --1.5&L*500 fucklot
@@ -729,3 +730,24 @@ data:extend({
     age = "black-hole-exotic-age",
 	},
 })
+
+-- blueprint-ref: .codex/esir/blueprints/plasma-smelting.md#research
+-- Mirror only the six ore routes; remelting must never acquire the recovery bonus.
+-- All five age tiers retain their original per-level effects and research costs.
+for _, suffix in ipairs({"", "-advanced", "-quantum", "-exotic", "-black-hole"}) do
+    local technology = data.raw.technology["ei-productivity-pure-ore-smelting"..suffix]
+    ---@type data.Modifier[]
+    local plasma_effects = {}
+    for _, effect in ipairs(technology.effects) do
+        if effect.type == "change-recipe-productivity" then
+            local plasma_name = effect.recipe:gsub("^ei%-molten%-", "ei-plasma-molten-")
+            local recipe = data.raw.recipe[plasma_name]
+            if recipe and recipe.category == "ei-plasma-smelting" then
+                plasma_effects[#plasma_effects + 1] = {type = effect.type, recipe = plasma_name, change = effect.change}
+            end
+        end
+    end
+    for _, effect in ipairs(plasma_effects) do
+        technology.effects[#technology.effects + 1] = effect
+    end
+end

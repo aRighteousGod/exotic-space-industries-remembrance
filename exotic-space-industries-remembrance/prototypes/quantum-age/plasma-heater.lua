@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/plasma-smelting.md#contract
 ei_data = require("lib/data")
 
 --====================================================================================================
@@ -19,6 +20,10 @@ data:extend({
         plasma_heater_glow,
     {
         name = "ei-plasma-heater",
+        type = "recipe-category",
+    },
+    {
+        name = "ei-plasma-smelting",
         type = "recipe-category",
     },
     {
@@ -126,7 +131,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.assembler,
-        crafting_categories = {"ei-arc-furnace", "ei-plasma-heater"},
+        crafting_categories = {"ei-arc-furnace", "ei-plasma-heater", "ei-plasma-smelting"},
         crafting_speed = 1.25,
         energy_source = {
             type = 'electric',
@@ -459,3 +464,35 @@ data:extend({
         main_product = "ei-plasma-data",
     },
 })
+
+-- blueprint-ref: .codex/esir/blueprints/plasma-smelting.md#routing
+-- Native furnaces select by input. Keep the lower-yield ore category out of the
+-- heater while retaining shared remelting and gas recipes in ei-arc-furnace.
+---@type string[]
+local plasma_smelting_sources = {
+    "ei-molten-iron-ore", "ei-molten-copper-ore",
+    "ei-molten-iron-pure-ore", "ei-molten-copper-pure-ore",
+    "ei-molten-gold-pure-ore", "ei-molten-lead-pure-ore",
+}
+for _, source_name in ipairs(plasma_smelting_sources) do
+    ---@type data.RecipePrototype
+    local recipe = table.deepcopy(data.raw.recipe[source_name])
+    recipe.name = source_name:gsub("^ei%-molten%-", "ei-plasma-molten-")
+    recipe.category = "ei-plasma-smelting"
+    recipe.localised_name = {"recipe-name."..recipe.name}
+    recipe.localised_description = {"recipe-description.ei-plasma-smelting"}
+    local feedstock = data.raw.item[recipe.ingredients[1].name]
+    local molten = data.raw.fluid[recipe.main_product]
+    local poor_chunks = recipe.ingredients[1].amount == 3
+    recipe.results = {{type = "fluid", name = molten.name, amount = poor_chunks and 20 or 50, temperature = 900}}
+    recipe.maximum_productivity = 3
+    recipe.subgroup = molten.subgroup
+    recipe.order = molten.order.."-plasma-"..(poor_chunks and "a" or "b")
+    recipe.icons = {
+        {icon = molten.icon, icon_size = molten.icon_size},
+        {icon = feedstock.icon, icon_size = feedstock.icon_size, scale = 12 / feedstock.icon_size, shift = {-9, 9}},
+        {icon = ei_graphics_item_path.."plasma-heater.png", icon_size = 64, scale = 0.1875, shift = {9, -9}},
+    }
+    data:extend({recipe})
+    ei_lib.add_unlock_recipe("ei-plasma-heater", recipe.name)
+end

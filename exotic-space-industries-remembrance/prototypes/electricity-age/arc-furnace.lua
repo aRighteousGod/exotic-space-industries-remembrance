@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/plasma-smelting.md#contract
 ei_data = require("lib/data")
 
 --====================================================================================================
@@ -19,6 +20,10 @@ data:extend({
         arc_furnace_glow,
     {
         name = "ei-arc-furnace",
+        type = "recipe-category",
+    },
+    {
+        name = "ei-arc-smelting",
         type = "recipe-category",
     },
     {
@@ -195,7 +200,7 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.assembler,
-        crafting_categories = {"ei-arc-furnace"},
+        crafting_categories = {"ei-arc-furnace", "ei-arc-smelting"},
         crafting_speed = 1,
         energy_source = {
             type = 'electric',
@@ -357,7 +362,7 @@ data:extend({
     {
         name = "ei-molten-iron-ore",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 0.33,
         ingredients = {
             {type = "item", name = "ei-poor-iron-chunk", amount = 3},
@@ -373,7 +378,7 @@ data:extend({
     {
         name = "ei-molten-iron-pure-ore",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-iron", amount = 1},
@@ -439,7 +444,7 @@ data:extend({
     {
         name = "ei-molten-copper-ore",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 0.33,
         ingredients = {
             {type = "item", name = "ei-poor-copper-chunk", amount = 3},
@@ -455,7 +460,7 @@ data:extend({
     {
         name = "ei-molten-copper-pure-ore",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-copper", amount = 1},
@@ -570,7 +575,7 @@ data:extend({
     {
         name = "ei-molten-gold-pure-ore",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-gold", amount = 1},
@@ -620,7 +625,7 @@ data:extend({
     {
         name = "ei-molten-lead-pure-ore",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-lead", amount = 1},

@@ -21,6 +21,7 @@ from source and does not trust generated manifests or installed mod selection.
 | Model | Owned source files |
 | --- | ---: |
 | [Worker robot progression and fleet conversion](robot-progression.md#contract) | 2 |
+| [Arc and plasma ore smelting](plasma-smelting.md#contract) | 3 |
 | [Cryo container families](cryo-containers.md#contract) | 1 |
 | [Planetary enemy populations](planet-enemies.md#contract) | 3 |
 | [Native map settings and future-planet overrides](map-settings.md#contract) | 3 |
