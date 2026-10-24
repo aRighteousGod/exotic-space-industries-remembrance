@@ -1,5 +1,16 @@
--- Cryo containment is a closed data-stage registry, not a generic barreling override.
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: closed cryo-container registry, items, recipes and technology finalization
+-- loaded_by: data.lua (declare), data-final-fixes.lua (finalize)
+-- cadence: data declaration and final compatibility reconciliation
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload
+--==============================================================================
 -- blueprint: .codex/esir/blueprints/cryo-containers.md#contract
+-- Cryo containment is a closed data-stage registry, not a generic barreling override.
 local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
 local model = {}

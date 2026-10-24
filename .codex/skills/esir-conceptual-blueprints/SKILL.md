@@ -18,16 +18,18 @@ Create or update a model for a new subsystem or a substantive change to behavior
 3. Write or revise `.codex/esir/blueprints/<system>.md` using [the model template](assets/model-template.md). Record observable behavior, owner symbols, authoritative versus derived state, lifecycle, timing, invariants, and verification scenarios. Use a small Mermaid diagram when flow or transitions benefit from it.
 4. Distinguish implemented behavior, intended constraints, inferred rationale, and unresolved discrepancies. A code/model disagreement is a finding to resolve, not permission to bless a regression by rewriting its contract. Link deferred work to `REVISIT_NOTES.md`.
 5. Update the model, source commentary, and index in the same patch. Preserve useful comments and explain non-obvious boundaries rather than narrating assignments.
-6. Run the structural audit and relevant subsystem checks. Report structural, source-review, and engine evidence separately.
+6. Run the structural audit and relevant subsystem checks. When modules, headers or ownership lists change, also run the [focused live header check](../../../scripts/qc/blueprints/README.md#focused-module-header-audit). Resolve introduced or touched ownership/header findings even if full preflight has unrelated failures. Report structural, source-review, and engine evidence separately.
 
 ## Link contract
 
-- Every modeled source has exactly one file-level primary marker in its leading comments: `-- blueprint: .codex/esir/blueprints/<system>.md#contract`.
+- Every modeled source has exactly one file-level primary marker in its leading comments: `-- blueprint: .codex/esir/blueprints/<system>.md#contract`. Adding an Implementation sources entry and its source marker is one change, including imported or standalone companion-pack Lua outside the main mod. Check every declared owner; runtime import discovery alone does not cover those data-stage sources.
 - Place it immediately after the generated `ESIR FILE MAP` block, never inside that block. Header synchronization replaces the block. For files without a generated map, use a leading comment.
 - Use `-- blueprint-ref: .codex/esir/blueprints/<system>.md#<anchor>` beside non-obvious logic, followed by useful explanation. These references do not establish ownership.
 - Models use explicit `<a id="contract"></a>` and other stable, unique anchors. The `## Implementation sources` section is a Markdown list of relative links to owned Lua files. Other source links are citations, not ownership declarations. Avoid frozen line numbers.
 - Keep classification exceptions in the index's `## Coverage exceptions` table (`Source | Classification | Reason`). Only `inactive` and `data-only` are supported; explain the actual owner or inactivity evidence. A `data-only` reason must link an existing non-runtime Lua importer outside `scripts/control` whose imports resolve the excluded file. An exception cannot conceal a source discovered through runtime imports.
 - For a nonliteral runtime import, place `-- blueprint-requires: ["literal.module", "another/module"]` on the preceding line. This bounded dependency declaration does not authorize dynamic runtime imports. Remove it when no longer needed.
+
+- Repository-local links must remain inside the repository after resolving junctions and symlinks. For retained machine-local evidence, record its location as a clearly labeled code path and link a repository-owned handoff describing provenance and verification limits. Preserve access instructions when evidence moves; do not present external evidence as a portable contract, weaken containment checks, or remove a real source owner to silence a finding.
 
 ## Runtime timing
 

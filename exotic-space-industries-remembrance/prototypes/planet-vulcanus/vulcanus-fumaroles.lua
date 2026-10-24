@@ -59,10 +59,6 @@ local auric_vapor_icons = layered_icons(steam_icon, auric_slag_recipe_icon_2)
 local auric_vapor_condensation_recipe_icons = layered_icons(auric_slag_recipe_icon_2, steam_icon, {scale = 0.3, shift = {9, 9}})
 local auric_slag_washing_recipe_icons = layered_icons(auric_slag_recipe_icon_3, sulfuric_acid_icon, {scale = 0.3, shift = {9, 9}})
 
-local function extraction_result(name, probability, amount_min, amount_max)
-    return {type = "item", name = name, amount_min = amount_min, amount_max = amount_max, probability = math.min(1, probability * 1.25)}
-end
-
 local function fluid_result(name, amount_min, amount_max, ignored_by_stats)
     return {
         type = "fluid",
@@ -234,7 +230,8 @@ data:extend({
         type = "recipe",
         name = "ei-slag-crushing",
         category = "ei-crushing",
-        energy_required = 2,
+        -- blueprint-ref: .codex/esir/blueprints/slag-recovery.md#crushing
+        energy_required = 0.5,
         ingredients = {
             {type = "item", name = "ei-slag", amount = 5},
         },
@@ -321,19 +318,21 @@ data:extend({
         category = "ei-purifier",
         energy_required = 10,
         ingredients = {
-            {type = "fluid", name = "sulfuric-acid", amount = 100},
+            {type = "fluid", name = "sulfuric-acid", amount = 25},
             {type = "item", name = "ei-crushed-slag", amount = 200},
         },
         results = {
             fluid_result("ei-acidic-water", 15, 45, 45),
-            extraction_result("ei-coal-chunk", 0.075, 0, 1),
-            extraction_result("ei-iron-chunk", 0.05, 0, 1),
-            extraction_result("ei-copper-chunk", 0.04, 0, 1),
-            extraction_result("ei-gold-chunk", 0.02, 0, 1),
-            extraction_result("ei-lead-chunk", 0.03, 0, 1),
-            extraction_result("ei-sulfur-chunk", 0.035, 0, 1),
-            extraction_result("ei-uranium-chunk", 0.0045, 0, 1),
-            extraction_result("ei-neodym-chunk", 0.002, 0, 1),
+            -- blueprint-ref: .codex/esir/blueprints/slag-recovery.md#yields
+            -- Crushing adds 50% expected chunks, without increasing the existing waste products.
+            {type = "item", name = "ei-coal-chunk", amount = 3},
+            {type = "item", name = "ei-iron-chunk", amount = 3},
+            {type = "item", name = "ei-copper-chunk", amount_min = 1, amount_max = 2},
+            {type = "item", name = "ei-gold-chunk", amount = 1, probability = 0.0375},
+            {type = "item", name = "ei-lead-chunk", amount = 1, probability = 0.15},
+            {type = "item", name = "ei-sulfur-chunk", amount_min = 1, amount_max = 2},
+            {type = "item", name = "ei-uranium-chunk", amount = 1, probability = 0.015},
+            {type = "item", name = "ei-neodym-chunk", amount = 1, probability = 0.0075},
         },
         always_show_made_in = true,
         enabled = false,
@@ -347,19 +346,19 @@ data:extend({
         category = "ei-purifier",
         energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-nitric-acid", amount = 33},
+            {type = "fluid", name = "ei-nitric-acid", amount = 20},
             {type = "item", name = "ei-crushed-slag", amount = 200},
         },
         results = {
             fluid_result("ei-acidic-water", 5, 15, 15),
-            extraction_result("ei-coal-chunk", 0.15, 0, 2),
-            extraction_result("ei-iron-chunk", 0.1, 0, 2),
-            extraction_result("ei-copper-chunk", 0.08, 0, 2),
-            extraction_result("ei-gold-chunk", 0.04, 0, 2),
-            extraction_result("ei-lead-chunk", 0.06, 0, 2),
-            extraction_result("ei-sulfur-chunk", 0.07, 0, 2),
-            extraction_result("ei-uranium-chunk", 0.009, 0, 2),
-            extraction_result("ei-neodym-chunk", 0.004, 0, 2),
+            {type = "item", name = "ei-coal-chunk", amount_min = 4, amount_max = 5},
+            {type = "item", name = "ei-iron-chunk", amount_min = 4, amount_max = 5},
+            {type = "item", name = "ei-copper-chunk", amount = 3},
+            {type = "item", name = "ei-gold-chunk", amount = 1, probability = 0.15},
+            {type = "item", name = "ei-lead-chunk", amount = 1, probability = 0.375},
+            {type = "item", name = "ei-sulfur-chunk", amount = 3},
+            {type = "item", name = "ei-uranium-chunk", amount = 1, probability = 0.075},
+            {type = "item", name = "ei-neodym-chunk", amount = 1, probability = 0.03},
         },
         always_show_made_in = true,
         enabled = false,
@@ -381,14 +380,14 @@ data:extend({
             fluid_result("ei-bio-sludge", 1, 2, 2),
             {type = "item", name = "ei-high-energy-crystal", amount = 1, probability = 0.98, ignored_by_stats = 1},
             {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.02, ignored_by_stats = 1},
-            extraction_result("ei-coal-chunk", 0.3, 1, 3),
-            extraction_result("ei-iron-chunk", 0.2, 1, 3),
-            extraction_result("ei-copper-chunk", 0.16, 1, 3),
-            extraction_result("ei-gold-chunk", 0.08, 1, 3),
-            extraction_result("ei-lead-chunk", 0.12, 1, 3),
-            extraction_result("ei-sulfur-chunk", 0.14, 1, 3),
-            extraction_result("ei-uranium-chunk", 0.018, 1, 3),
-            extraction_result("ei-neodym-chunk", 0.008, 1, 3),
+            {type = "item", name = "ei-coal-chunk", amount = 6},
+            {type = "item", name = "ei-iron-chunk", amount_min = 7, amount_max = 8},
+            {type = "item", name = "ei-copper-chunk", amount = 6},
+            {type = "item", name = "ei-gold-chunk", amount = 1, probability = 0.3},
+            {type = "item", name = "ei-lead-chunk", amount = 1, probability = 0.75},
+            {type = "item", name = "ei-sulfur-chunk", amount_min = 4, amount_max = 5},
+            {type = "item", name = "ei-uranium-chunk", amount = 1, probability = 0.15},
+            {type = "item", name = "ei-neodym-chunk", amount = 1, probability = 0.075},
         },
         always_show_made_in = true,
         enabled = false,

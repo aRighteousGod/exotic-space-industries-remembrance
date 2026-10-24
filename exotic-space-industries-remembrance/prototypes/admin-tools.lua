@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: administration GUI sprite/styles and hidden location selector
+-- loaded_by: data.lua
+-- cadence: data stage only
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none (runtime administration owns GUI instances)
+-- remote_interfaces: none
+-- rebuild_on: data stage reload
+--==============================================================================
 -- blueprint: .codex/esir/blueprints/admin-tools.md#contract
 local config = require("lib/admin-tools-config")
 -- Keep the hidden selector defined across enable/disable so cursor cleanup can

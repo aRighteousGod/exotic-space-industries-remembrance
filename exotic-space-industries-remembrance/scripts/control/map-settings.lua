@@ -3,7 +3,11 @@
 -- owns: validated native map edits, future-planet overrides and enabled values
 -- loaded_by: control.lua, scripts/control/gaia.lua
 -- cadence: explicit edits and surface lifecycle; no recurring work
+-- forwarded_events: on_configuration_changed, on_surface_created, on_surface_ready, on_surface_deleted, on_biter_base_built, explicit apply/prepare_creation
 -- storage_roots: storage.ei.map_settings
+-- gui_ids: none (administration map-settings editor owns GUI drafts)
+-- remote_interfaces: none
+-- rebuild_on: init/configuration change (legacy policy import and saved override application)
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/map-settings.md#contract
 local lib = require("lib/lib")

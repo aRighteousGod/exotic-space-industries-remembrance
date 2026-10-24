@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "width": 1280, "height": 720, "header_height": 88, "footer_height": 72,
+  "background": "#202222", "text": "#f0eee7", "muted": "#bfc4c1", "accent": "#edb85d",
+  "font_regular": "C:/Windows/Fonts/segoeui.ttf", "font_bold": "C:/Windows/Fonts/segoeuib.ttf",
+  "title_size": 38, "caption_size": 28, "webp_quality": 83, "webp_method": 4, "target_fps": 12
+}

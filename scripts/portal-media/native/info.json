@@ -1,0 +1,5 @@
+{
+  "name": "zzz-esir-portal-capture", "version": "0.0.1",
+  "title": "ESIR isolated portal capture", "author": "ESIR", "factorio_version": "2.0",
+  "dependencies": ["exotic-space-industries-remembrance"]
+}

@@ -7,22 +7,10 @@
 -- cadence: build/destroy/clone/drive/equipment/script-trigger/damage events plus
 --          control.lua update fan-out for delayed charge/cold targeting, and
 --          every-tick hot shard visual motion
--- forwarded_events: check_global, rebuild_runtime_state, on_built_entity,, repair_runtime_state
---                   on_cloned_entity, on_destroyed_entity, on_object_destroyed,
---                   on_player_driving_changed_state, on_player_placed_equipment,
---                   on_player_removed_equipment,
---                   on_script_trigger_effect, on_entity_damaged,
---                   on_research_finished, on_scripted_research_burst,
---                   on_configuration_changed, open_gui, close_gui,
---                   on_gui_opened, on_gui_closed, on_gui_click,
---                   on_gui_value_changed, on_player_left_game,
---                   has_tick_work, has_hot_tick_work,
---                   update, hot_update,
---                   get_pending_work_count, get_runtime_status, get_qc_snapshot,
---                   configure_qc, service_for_qc, reset_runtime_state
+-- forwarded_events: check_global, rebuild_runtime_state, on_built_entity, repair_runtime_state, on_cloned_entity, on_destroyed_entity, on_object_destroyed, on_player_driving_changed_state, on_player_placed_equipment, on_player_removed_equipment, on_script_trigger_effect, on_entity_damaged, on_research_finished, on_scripted_research_burst, on_configuration_changed, open_gui, close_gui, on_gui_opened, on_gui_closed, on_gui_click, on_gui_value_changed, on_player_left_game, has_tick_work, has_hot_tick_work, update, hot_update, get_pending_work_count, get_runtime_status, get_qc_snapshot, configure_qc, service_for_qc, reset_runtime_state
 -- storage_roots: storage.ei.emerald_apocalypse_hover_tank
 -- gui_ids: ei-emerald-apocalypse-hover-tank-console
--- remote_interfaces: debug/QC methods are expected to be registered by control.lua
+-- remote_interfaces: none (control.lua exposes exotic-industries-qc diagnostics)
 -- rebuild_on: runtime schema changes, prototype changes, QC reset, configuration change
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/emerald-apocalypse.md#contract

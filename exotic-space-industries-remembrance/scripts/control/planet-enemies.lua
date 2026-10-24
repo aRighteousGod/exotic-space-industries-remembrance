@@ -1,9 +1,13 @@
 --==============================================================================
 -- ESIR FILE MAP
 -- owns: per-surface enemy birth policy, retained rafts and bounded silent removal
--- loaded_by: control.lua
+-- loaded_by: control.lua, scripts/control/map-settings.lua
 -- cadence: birth/lifecycle events; mandatory service for due removals or owned raft restoration
+-- forwarded_events: on_script_trigger_effect, on_segmented_unit_created, on_object_destroyed, on_surface_deleted, on_policy_changed, on_configuration_changed, has_tick_work, updater
 -- storage_roots: storage.ei.planet_enemies
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: configuration change (generation-setting migration; no entity scan or purge)
 -- dependency_sources: __Explosive_biters__/control.lua, __Cold_biters__/control.lua, __Electric_flying_enemies__/control.lua,
 -- __Arachnids_enemy__/control.lua, __Toxic_biters__/control.lua, __ArmouredBiters__/data.lua
 -- shared_config: lib/planet-enemies-config.lua

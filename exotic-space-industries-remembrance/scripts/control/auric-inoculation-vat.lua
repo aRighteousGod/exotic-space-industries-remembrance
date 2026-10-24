@@ -3,6 +3,7 @@
 -- owns: gleba auric inoculation vat runtime, basin claims, telemetry proxies, GUI, and placement guide rendering
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, tile changes, GUI open/close/click, player cursor/position/surface/alt, object-destroyed, scheduled vat wakes, and UI due gate
+-- forwarded_events: check_global, rebuild_runtime_state, build/destroy/tile/object/player/GUI/surface events, has_tick_work, updater, get_runtime_status
 -- storage_roots: storage.ei.auric_inoculation_vat
 -- gui_ids: ei-auric-inoculation-vat-console
 -- remote_interfaces: none

@@ -39,6 +39,7 @@ For requested indexed PNGs or 256-color derivatives, use [esir-png-quantize](../
 9. Use `batch` for sequential variant runs and `estimate` before expensive render batches.
 10. Use the disabled-by-default `promotion` step only for dry-run copy/patch plans unless the user explicitly approves execution. `promotion` is excluded from `--steps all`; run it by name when needed.
 11. When shipping entity assets or integrating prototypes is authorized, use [esir-entity-presentation](../esir-entity-presentation/SKILL.md) to reconcile custom death effects, hit effects, interaction sounds, Factoriopedia scenes, and variant inheritance. Draft-only work ends with staged evidence and integration notes; it does not trigger gameplay edits.
+12. If authorized integration adds or changes Lua modules or modeled source ownership, complete the [header checks](../esir-dev/SKILL.md#runtime-script-comments) and [blueprint checks](../esir-conceptual-blueprints/SKILL.md), including companion-pack code. Keep machine-local evidence locations distinct from repository-owned handoffs. Native graphics or package checks do not verify these structural contracts; draft-only asset staging does not require new Lua ownership.
 
 ## Commands
 

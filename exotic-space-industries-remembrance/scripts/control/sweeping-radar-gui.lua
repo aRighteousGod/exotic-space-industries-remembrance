@@ -3,6 +3,10 @@
 -- owns: player radar screens, manual settings, private coverage/beam overlays
 -- loaded_by: control.lua; no independent event registrations
 -- cadence: one viewer per tick, 15-tick minimum refresh; delayed open one tick
+-- forwarded_events: on_open_input, on_gui_opened, on_gui_closed, on_event, has_tick_work, updater, open, close
+-- storage_roots: storage.ei.sweeping_radar.gui (owned within the radar model)
+-- gui_ids: ei_sweeping_radar_gui
+-- remote_interfaces: none
 -- rebuild_on: GUI open; close on invalid entity, ownership/surface or opened change
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/sweeping-radar.md#contract

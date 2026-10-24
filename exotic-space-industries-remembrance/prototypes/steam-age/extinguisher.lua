@@ -3,6 +3,11 @@
 -- owns: integrated handheld extinguisher, canister, research and spray effects
 -- loaded_by: data.lua
 -- cadence: data stage only; impact handling lives in control/firefighting
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload
 -- provenance: Devilwarriors, extinguisher 2.0.0, portal-declared Unlicense
 --==============================================================================
 local config = require("lib/firefighting-config")

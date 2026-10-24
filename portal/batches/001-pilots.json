@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "001-pilots",
+  "features": ["sweeping-radar","water-turret","auric-inoculation-vat","gates","spidertron-controls"],
+  "scene": "pilots",
+  "save_input": ".factorio-qc/wtr/final-player/fixture.zip",
+  "capture_resolution": [1920,1080],
+  "capture_scale": 1,
+  "review": "pending",
+  "capture_status": "aborted",
+  "capture_preference": "manual",
+  "publication": "local-draft",
+  "notes": "Automatic capture stopped at user request on 2026-10-19. Await manual footage; do not resume automatically. Five subjects; Spidertron has three labeled segments. No approved pilot media or live Portal changes. See 001-pilots.STATUS.md."
+}

@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: administration authorization, commands, GUI routing and reversible-state coordination
+-- loaded_by: control.lua (sole dispatcher)
+-- cadence: explicit actions and lifecycle events; bounded due work only while active
+-- forwarded_events: on_configuration_changed, GUI/player/permission/entity/surface/chunk/research events, has_tick_work, updater, repair_runtime_state
+-- storage_roots: storage.ei.admin_tools (shared with scripts/control/admin modules)
+-- gui_ids: ei-admin-console, ei-admin-launcher
+-- remote_interfaces: none
+-- rebuild_on: init, configuration change, toolkit enable/disable, explicit repair
+--==============================================================================
 -- blueprint: .codex/esir/blueprints/admin-tools.md#contract
 -- Administration owns authorization and reversible state; gameplay owners retain
 -- their queues and repairs. control.lua is the only event/tick dispatcher.

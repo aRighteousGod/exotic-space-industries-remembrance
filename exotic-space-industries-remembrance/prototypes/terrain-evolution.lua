@@ -1,3 +1,14 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: ecology GUI artwork and private contained-flame prototype
+-- loaded_by: data.lua
+-- cadence: data stage; gated by ei-terrain-evolution-enabled
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none (runtime terrain GUI owns instances)
+-- remote_interfaces: none
+-- rebuild_on: data stage reload, startup setting changes
+--==============================================================================
 -- blueprint: .codex/esir/blueprints/terrain-evolution.md#contract
 -- Owned contained flame. Never mutate the global native forest-fire prototype.
 if settings.startup["ei-terrain-evolution-enabled"].value then

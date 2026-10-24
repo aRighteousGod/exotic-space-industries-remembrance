@@ -23,10 +23,11 @@ end
 local function layer(name,role,page)
     local definition=config.art[name]
     local shadow=role=="shadow"
+    local shift_scale=definition.scale/0.5
     return {filename=graphics..definition.asset.."/"..definition.asset.."-"..role..(page==2 and "_1" or "")..".png",
         width=shadow and definition.shadow_width or 208,height=shadow and 160 or definition.body_height,
-        line_length=8,frame_count=config.art_page_frames,animation_speed=1,scale=0.5,
-        shift=shadow and {definition.shadow_shift,0} or {0,definition.body_shift},
+        line_length=8,frame_count=config.art_page_frames,animation_speed=1,scale=definition.scale,
+        shift=shadow and {definition.shadow_shift*shift_scale,0} or {0,definition.body_shift*shift_scale},
         draw_as_shadow=shadow or nil,draw_as_glow=role=="glow" or nil,
         blend_mode=role=="glow" and "additive" or "normal"}
 end

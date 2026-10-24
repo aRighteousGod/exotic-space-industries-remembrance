@@ -3,6 +3,11 @@
 -- owns: water-only support turret, slowing stream and private suppression streams
 -- loaded_by: data.lua
 -- cadence: data stage; control/water-turret owns power and firefighting
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload
 --==============================================================================
 local config = require("lib/firefighting-config")
 local icon = ei_graphics_6_path.."graphics/items/water-turret.png"

@@ -40,4 +40,45 @@ $missingPython = Test-EsirConceptualBlueprints -Paths $paths -Context @{ python_
 if ($missingPython.status -ne 'failed') { throw 'Missing Python passed a required coverage check.' }
 $missingScript = Test-EsirConceptualBlueprints -Paths @{ repo_root = (Join-Path $fixtureRoot 'missing') } -Context $context
 if ($missingScript.status -ne 'failed') { throw 'Missing audit script passed a required coverage check.' }
-[ordered]@{ overall_status = 'ok'; checks = 5; header_roundtrip = $true; preflight_failure_propagation = $true; missing_tooling_fails = $true; fixture_root = $fixtureRoot } | ConvertTo-Json
+
+# Use real source discovery in an isolated pack; installed Factorio/mod selection
+# is irrelevant to header coverage. Keep this context override local to the fixture.
+& {
+    function Get-EsirQcContext {
+        param($Paths)
+        return @{ source_mods = @(@{ directory = Join-Path $Paths.repo_root 'exotic-space-industries-remembrance' }) }
+    }
+    $headerPaths = Get-EsirPaths -RepoRoot $fixtureRoot
+    $pack = Join-Path $fixtureRoot 'exotic-space-industries-remembrance'
+    $runtimeModule = Join-Path $pack 'scripts\control\new-module.lua'
+    $prototypeModule = Join-Path $pack 'prototypes\new-module.lua'
+    foreach ($path in @($runtimeModule, $prototypeModule, $headerPaths.runtime_manifest_path)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path $path) | Out-Null
+    }
+    [IO.File]::WriteAllText((Join-Path $pack 'control.lua'), 'local module = require("scripts/control/new-module")' + "`nreturn module`n")
+    [IO.File]::WriteAllText((Join-Path $pack 'data.lua'), 'require("prototypes/new-module")' + "`n")
+    foreach ($path in @($runtimeModule, $prototypeModule)) { [IO.File]::WriteAllText($path, $body) }
+
+    $withoutCaches = @(Get-EsirHeaderTargets -Paths $headerPaths)
+    if ($runtimeModule -notin $withoutCaches -or $prototypeModule -notin $withoutCaches) {
+        throw 'Absent manifests hid current runtime or prototype headers.'
+    }
+    $staleEntry = @{ path = 'exotic-space-industries-remembrance\scripts\control\removed.lua' }
+    [IO.File]::WriteAllText($headerPaths.runtime_manifest_path, (@{ entries = @($staleEntry) } | ConvertTo-Json -Depth 4))
+    [IO.File]::WriteAllText($headerPaths.prototype_index_path, (@{ direct_requires = @() } | ConvertTo-Json))
+    $withStaleCaches = @(Get-EsirHeaderTargets -Paths $headerPaths)
+    if (@(Compare-Object $withoutCaches $withStaleCaches).Count -ne 0) {
+        throw 'Stale manifests changed live header coverage.'
+    }
+    $missingHeaders = @(Test-EsirHeaderPresence -Paths $headerPaths)
+    if ($missingHeaders.Count -ne 2 -or @($missingHeaders | Where-Object { $_.missing.Count -ne 8 }).Count) {
+        throw 'New source modules did not report all missing header fields.'
+    }
+    foreach ($path in @($runtimeModule, $prototypeModule)) {
+        Set-HeaderContent -FilePath $path -Prefix '--' -Metadata $metadata
+    }
+    if (@(Test-EsirHeaderPresence -Paths $headerPaths).Count -ne 0) {
+        throw 'Complete source headers did not clear the live audit.'
+    }
+}
+[ordered]@{ overall_status = 'ok'; checks = 9; header_roundtrip = $true; live_header_discovery = $true; stale_or_absent_manifests_ignored = $true; preflight_failure_propagation = $true; missing_tooling_fails = $true; fixture_root = $fixtureRoot } | ConvertTo-Json

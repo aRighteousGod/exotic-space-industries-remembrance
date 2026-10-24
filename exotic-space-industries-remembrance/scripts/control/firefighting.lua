@@ -5,6 +5,9 @@
 -- cadence: private impact effects only; no polling or persistent state
 -- forwarded_events: on_script_trigger_effect, on_trigger_created_entity, cleanup_legacy
 -- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: init/configuration change (legacy marker cleanup)
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/firefighting-and-water-turret.md#contract
 local ei_lib = require("lib/lib")

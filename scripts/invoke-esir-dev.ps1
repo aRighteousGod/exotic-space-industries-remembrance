@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
+    [ValidateSet('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [string]$SaveId,
@@ -39,6 +39,12 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+if ($Task -in @('portal-plan','portal-capture','portal-render','portal-validate','portal-page')) {
+    $batch = if ($Path) { $Path } else { 'portal/batches/001-pilots.json' }
+    & python -B (Join-Path $PSScriptRoot 'portal-media/portal_media.py') $Task.Substring(7) --batch $batch
+    exit $LASTEXITCODE
+}
 
 if ($Task -ne 'housekeeping' -and ($Apply -or $FullInventory -or $IncludeCodexHome -or $CloseRunId.Count)) {
     throw 'Housekeeping switches require -Task housekeeping.'

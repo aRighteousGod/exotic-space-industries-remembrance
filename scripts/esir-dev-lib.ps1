@@ -1543,7 +1543,7 @@ function Get-EsirToolManifestData {
         wrapper        = [ordered]@{
             path    = 'scripts\invoke-esir-dev.ps1'
             library = 'scripts\esir-dev-lib.ps1'
-            tasks   = @('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
+            tasks   = @('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
         }
         dependency_wrapper = [ordered]@{
             path    = 'scripts\invoke-esir-dependency-intel.ps1'
@@ -2418,8 +2418,9 @@ function Invoke-EsirRuntimeBenchmark {
 function Get-EsirHeaderTargets {
     param([Parameter(Mandatory = $true)]$Paths)
 
-    $runtimeManifest = Read-EsirJson -Path $Paths.runtime_manifest_path
-    $prototypeIndex = Read-EsirJson -Path $Paths.prototype_index_path
+    # Discover current owners without trusting or rewriting cached manifests.
+    $runtimeManifest = Get-EsirRuntimeManifestData -Paths $Paths
+    $prototypeIndex = Get-EsirPrototypeIndexData -Paths $Paths
     $targets = [System.Collections.Generic.List[string]]::new()
 
     foreach ($entry in (ConvertTo-EsirArray $runtimeManifest.entries)) { $targets.Add((Join-Path $Paths.repo_root $entry.path)) | Out-Null }

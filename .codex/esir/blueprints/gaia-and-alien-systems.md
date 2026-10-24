@@ -49,7 +49,14 @@ flowchart TD
 
 `alien-spawner.on_chunk_generated` schedules a preset for the next tick on an allowed surface. `update` drains due work and currently discards jobs more than ten ticks overdue; this age cutoff is gameplay policy, not a generic scheduler behavior. Preset/biome helpers preserve themed tree/tile choices. Legendary completion is recorded only at the appropriate entity-spawn phase. Destruction of eligible untouched alien structures may trigger guardians.
 
-`gaia.register_entity` tracks supported structures with a last-user requirement unless explicitly overloaded. `update_entity_lifetimes` revalidates each queued entity, reduces its remaining stage value, displays that value, and eventually degrades the building. Artifact repair preserves quality, removes the selected original, consumes the cursor tool, calls the crystal runtime's repair hook when present, and increments victory statistics.
+`gaia.register_entity` tracks supported structures with a last-user requirement unless explicitly overloaded. `update_entity_lifetimes` revalidates each queued entity, reduces its remaining stage value, displays that value, and eventually degrades the building.
+
+<a id="artifact-repair"></a>
+### Artifact repair
+
+Artifact repair preserves force, position and quality, removes the selected original only after a valid replacement exists, consumes the cursor tool, calls the crystal runtime's repair hook when present, and increments victory statistics. Invalid selection entries are skipped; failed creation leaves the ruin and tool intact.
+
+Repaired alien beacons raise exactly one native `script_raised_built` event after removing the ruin. Nonstandard Beacons 1.4.2 listens to that event to create its source/manager and metadata; silently creating a beacon leaves its hover-status handler without metadata. ESIR uses the standard event rather than writing dependency-owned storage or calling its migration interface. The replacement is revalidated before the later crystal hook because build-event listeners may invalidate it. Crystal and farstation repairs retain their existing notification behavior.
 
 Alien purchases use force-name-owned currency/unlock state and a confirmation GUI. The current confirmation handler consumes the nested tags' cost/name; it does not repeat every eligibility test made when opening confirmation. Do not claim the UI already provides a general transactional/concurrent-purchase guarantee.
 
@@ -87,7 +94,9 @@ scheduler and Gaia retains its creation/reforge ownership.
 
 The [Gaia resource QC guide](../../skills/esir-dev/references/gaia-resource-qc.md) documents native multi-seed/resource-control probes. The [queue lifecycle fixture](../../../scripts/qc/control-ups/queue-save.lua) and [driver](../../../scripts/invoke-control-lifecycle-qc.ps1) provide persisted delayed-work checks.
 
-Verify legacy association, custom mapgen preservation, due queue migration, stale entities, preset aging/legendary completion, artifact quality and crystal re-registration, and every reforge transition with players and existing surfaces. Resource-preview success does not prove reforge safety, artifact GUI behavior, geographic distribution, or multiplayer parity. This model records source-derived behavior and available checks; no new engine results are asserted.
+The [alien beacon repair fixture](../../../scripts/qc/alien-beacon-repair/README.md) reproduces the Nonstandard Beacons 1.4.2 line-556 hover crash on the pre-fix source. On Factorio 2.0.77, the repaired path passed 115 assertions across three damaged variants at normal and legendary quality, including native hover callbacks, cursor consumption, metadata, fuel, activation and removal. This is focused engine evidence, not rendered UI or multiplayer acceptance.
+
+Verify legacy association, custom mapgen preservation, due queue migration, stale entities, preset aging/legendary completion, artifact quality and crystal re-registration, and every reforge transition with players and existing surfaces. Resource-preview success does not prove reforge safety, artifact GUI behavior, geographic distribution, or multiplayer parity. The beacon fixture covers only beacon repairs; the remaining paths require their own engine acceptance.
 
 <a id="rebuild-reporting"></a>
 ## Rebuild activity reporting

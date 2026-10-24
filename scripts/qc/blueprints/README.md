@@ -39,6 +39,33 @@ try {
 }
 ```
 
+## Focused module-header audit
+
+Use this check with the blueprint audit above when modules, headers or ownership
+lists change, including when unrelated findings prevent a clean full preflight:
+
+```powershell
+. ./scripts/esir-dev-lib.ps1
+$paths = Get-EsirPaths -RepoRoot $PWD.Path
+$findings = @(Test-EsirHeaderPresence -Paths $paths)
+$findings | ConvertTo-Json -Depth 5
+if ($findings.Count) { throw 'Module-header audit failed; inspect the listed fields.' }
+```
+
+Targets are discovered from current directly assigned `control.lua` imports and
+direct `data.lua` prototype imports, plus the established deployment wrappers.
+The audit does not read or refresh cached manifests. Support fixtures verify
+that missing or stale manifests cannot hide new modules, that missing fields
+are reported, and that complete headers clear those findings. Keep all eight
+required fields within the first 18 lines and blueprint markers immediately
+after the generated file-map block. Use `none` for inapplicable fields.
+
+This verifies field presence for that target set, not metadata accuracy or every
+nested helper. Review touched metadata against source. The separate blueprint
+audit covers a broader runtime dependency inventory and all declared model
+owners, including companion-pack data-stage sources. Report the two results
+separately from engine evidence and from unrelated full-preflight findings.
+
 ## QC helper timing checks
 
 ```powershell

@@ -22,6 +22,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `esir-entity-presentation` for custom death coverage, hit effects, interaction sounds, Factoriopedia scenes, and operational variant inheritance
 - `esir-asset-pipeline`, `meshy-api`, `meshy-blender-spritesheet`, `blender-procedural-animation`, `esir-factorio-asset-export`, and `esir-item-icon-prep` for the generated-art-to-Factorio asset path
 - `esir-recipe-icon-style` for recipe icon readability, companion-baseline drift, visibility, sorting, and signal cleanup audits
+- `esir-mod-portal` for approachable public copy, native gameplay demonstrations, WebP batches and the feature coverage queue
 
 ## Task Map
 
@@ -34,6 +35,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - `qc-gaia-resources`: run the checked-in multi-seed Gaia resource matrix described in [`references/gaia-resource-qc.md`](./references/gaia-resource-qc.md)
 - `runtime-benchmark`: run save-catalog-backed runtime benchmarks, auto-staging helper mods declared for that save
 - `portal-scout`: build or refresh `.codex/esir/portal-shortlist.json`
+- `portal-plan|portal-capture|portal-render|portal-validate|portal-page`: prepare local Mod Portal media and copy through [esir-mod-portal](../esir-mod-portal/SKILL.md); `-Path` selects the batch. These tasks do not publish.
 - `diff`: compare live source, seeded caches, package outputs, and shortlist freshness
 - `art-start|art-collect|art-review|art-validate`: stage and review supervised Firefox image sessions
 - `pack-dryrun`: non-destructive packaging through the QC harness
@@ -120,7 +122,7 @@ Use the current Factorio stage roots before creating or moving prototype code.
 - [`data-updates.lua`](../../../exotic-space-industries-remembrance/data-updates.lua) and [`scripts/data-updates/`](../../../exotic-space-industries-remembrance/scripts/data-updates): post-declaration normalization, vanilla/Space Age reshaping, icon/locale/music passes, and optional-mod bridges after regular prototype load.
 - [`data-final-fixes.lua`](../../../exotic-space-industries-remembrance/data-final-fixes.lua) and [`scripts/data-final-updates/`](../../../exotic-space-industries-remembrance/scripts/data-final-updates): last-write reconciliation for recipes, techs, science packs, recycling, compatibility closures, balance, difficulty, and presentation.
 - Do not create a generic `scripts/data-stage` root unless intentionally reorganizing the stage layout. Match the existing stage-specific roots and require order.
-- For durable or non-obvious data-stage modules, prefer an `ESIR FILE MAP` header with `owns`, `loaded_by`, `cadence`, `forwarded_events`, and `rebuild_on` so future agents can route changes quickly.
+- For durable or non-obvious data-stage modules, use the complete [file-map header contract](#runtime-script-comments). Direct `data.lua` prototype imports are audited even when they own no runtime state; use `none` for inapplicable fields.
 
 ## Data-Updates Prototype Touchpoints
 
@@ -198,8 +200,10 @@ Start non-mutating with the companion probe and recipe audit before planning sou
 
 Default ESIR runtime/control edits should leave helpful comments in place and add them where the next maintainer or agent would otherwise have to reconstruct intent from event wiring.
 
-- Keep or add the `ESIR FILE MAP` header for substantial runtime modules: `owns`, `loaded_by`, `cadence`, forwarded events, `storage_roots`, GUI IDs, remote interfaces, and rebuild triggers.
+- Keep or add the `ESIR FILE MAP` header for substantial runtime modules. Header-audit targets require all eight literal keys within the first 18 lines: `owns:`, `loaded_by:`, `cadence:`, `forwarded_events:`, `storage_roots:`, `gui_ids:`, `remote_interfaces:`, and `rebuild_on:`. Use `none` where inapplicable; long wrapped descriptions must not push required fields beyond that window. The same contract applies to audited data-stage modules and deployment wrappers.
+- Check metadata against current callers, exported entry points, state and GUI ownership. Prefer scoped header patches for scoped work: `scripts/sync-esir-headers.ps1` refreshes manifests and rewrites the whole target set, and generated metadata still needs source review.
 - Keep `-- blueprint: ...#contract` immediately after the generated header so synchronization preserves it. Use `-- blueprint-ref: ...#anchor` beside non-obvious invariants. Follow [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md) for reciprocal source lists and model maintenance; do not treat link checks as behavioral verification.
+- After adding, renaming or removing a module, changing header metadata, or adding a blueprint owner, run the [focused live header check](../../../scripts/qc/blueprints/README.md#focused-module-header-audit) and blueprint audit. Header discovery must use current source, not cached manifest membership. Resolve findings introduced by the task or present in its touched headers/ownership links; report unrelated baseline findings separately. An engine pass or an unrelated full-preflight failure does not replace these checks.
 - Add short orientation comments before dense state machines, lifecycle repair paths, scheduler/backstop logic, proxy-entity ownership, telemetry mirrors, migration/rebuild behavior, and Factorio API caveats.
 - Prefer comments that explain why a runtime invariant exists, what owns a piece of derived state, or which event boundary keeps the module cheap.
 - Avoid decorative comments and comments that only translate obvious Lua syntax. If a helper name can carry the meaning cleanly, prefer the name.

@@ -1,0 +1,8 @@
+{
+  "name": "zzz-alien-beacon-repair-qc",
+  "version": "0.0.1",
+  "title": "Alien beacon repair regression fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.0",
+  "dependencies": ["exotic-space-industries-remembrance", "zzz-nonstandard-beacons = 1.4.2"]
+}

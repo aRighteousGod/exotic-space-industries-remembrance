@@ -611,6 +611,7 @@ end
 --ARTIFACT INTERACTION
 ------------------------------------------------------------------------------------------------------
 
+---@param event EventData.on_player_selected_area
 function model.repair_artifact(event)
 
     local item = event.item
@@ -621,7 +622,7 @@ function model.repair_artifact(event)
 
     for _,entity in ipairs(entities) do
 
-        if model.repair_tools[item].targets[entity.name] then
+        if ei_lib.entity_check(entity) and model.repair_tools[item].targets[entity.name] then
             
             -- spawn repaired entity and destroy old one
             local new_entity = entity.surface.create_entity{
@@ -632,7 +633,18 @@ function model.repair_artifact(event)
                 raise_built = false,
             }
 
+            if not ei_lib.entity_check(new_entity) then
+                return
+            end
+
             entity.destroy()
+
+            -- blueprint-ref: .codex/esir/blueprints/gaia-and-alien-systems.md#artifact-repair
+            -- Announce the repaired beacon once the ruin is gone. Nonstandard Beacons
+            -- needs this event to create its fuel source and metadata before hover.
+            if new_entity.name == "ei-alien-beacon" then
+                script.raise_script_built{entity = new_entity}
+            end
 
             -- remove item from inventory
             if not player then
@@ -651,7 +663,7 @@ function model.repair_artifact(event)
 
             -- Route repaired crystals back through the dedicated resonance runtime so
             -- quality and surface attunement are restored immediately.
-            if ei_crystal_accumulator and ei_crystal_accumulator.on_repaired_entity then
+            if ei_lib.entity_check(new_entity) and ei_crystal_accumulator and ei_crystal_accumulator.on_repaired_entity then
                 ei_crystal_accumulator.on_repaired_entity(new_entity, event)
             end
 

@@ -5,6 +5,8 @@
 -- cadence: data stage; final pass after compatibility and presentation
 -- forwarded_events: none
 -- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
 -- rebuild_on: data stage reload
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/spider-vehicles.md#contract

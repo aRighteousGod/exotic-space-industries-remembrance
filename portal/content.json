@@ -1,0 +1,25 @@
+{
+  "title": "Exotic Space Industries: Remembrance",
+  "summary": "A Factorio 2.0 Space Age overhaul with new production chains, planets, power systems, transport and defenses. Build through several industrial ages, manage by-products, and develop new ways to move materials. Research costs, enemy difficulty and other challenges are configurable.",
+  "introduction": "Exotic Space Industries: Remembrance is a large overhaul for Factorio 2.0 with Space Age. Start with simple machinery and work toward advanced production, planetary industry, gates and late-game power systems. Production chains include by-products and waste handling, and new transport options change how you connect your factory.",
+  "requirements": "Requires Factorio 2.0 and Space Age. Install the main mod through Factorio's mod browser so its required graphics, soundtrack and dependency mods are included. Plan for an overhaul playthrough; review the mod settings before starting, especially research costs and enemy difficulty.",
+  "categories": [
+    {"id":"industry","title":"Progression and industry","introduction":"Progress through industrial ages with new machines, materials and research. Build production chains that handle useful products as well as by-products, then expand into advanced smelting and exotic materials."},
+    {"id":"worlds","title":"Worlds and resources","introduction":"Develop planetary production on the Space Age worlds and explore Gaia. Resource systems such as Gleba's Auric basins and Vulcanus's Auric fumaroles have their own placement, supply and processing requirements."},
+    {"id":"power","title":"Power and advanced machinery","introduction":"Develop power systems from steam and combustion through fusion and late-game machinery. Crystal accumulators, induction matrices and black hole systems provide more ways to produce, store and use energy."},
+    {"id":"logistics","title":"Logistics and transport","introduction":"Connect production with loaders, trains, containers, orbital logistics and gates. Several machines have dedicated controls and circuit signals for factory automation."},
+    {"id":"combat","title":"Combat and defenses","introduction":"Choose from additional turrets, ammunition and armed vehicles. Different weapons have different jobs; support tools such as the water turret help control enemies and protect the factory."},
+    {"id":"options","title":"Settings, tools and help","introduction":"Use mod settings to adjust research costs, enemy pressure and individual systems. The in-game guide explains progression, while administration tools help inspect and maintain a save."}
+  ],
+  "closing": [
+    {"title":"Settings and existing saves","text":"Research scaling, enemy difficulty and several individual systems have settings. Read their descriptions before changing an existing game. Some world-generation changes affect newly generated areas; use the in-game Informatron for system-specific guidance. Back up your save before major updates or administrative rebuilds."},
+    {"title":"Compatibility","text":"Check the Mod Portal Dependencies tab for the current required and optional mods. Optional integrations are identified where they are discussed. A listed integration does not mean every combination of mods has been tested."},
+    {"title":"Help and credits","text":"The in-game Informatron explains progression and individual systems. Report problems through the GitHub repository or the Mod Portal discussion tab, including your mod version and the relevant log or save. Remembrance builds on Exotic Industries by PreLeyZero and Exotic Space Industries by Eliont. Integrated mods and third-party assets retain their credits and licenses."}
+  ],
+  "links": {
+    "Source and issues":"https://github.com/aRighteousGod/exotic-space-industries-remembrance",
+    "Mod Portal":"https://mods.factorio.com/mod/exotic-space-industries-remembrance",
+    "Community":"https://discord.gg/hEmNYcvg7G"
+  },
+  "media_base_url":"https://raw.githubusercontent.com/aRighteousGod/exotic-space-industries-remembrance/master/portal/media/"
+}

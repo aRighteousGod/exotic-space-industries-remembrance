@@ -3,6 +3,11 @@
 -- owns: two radar chassis, hidden helpers, finite research and circuit signals
 -- loaded_by: data.lua after age prototypes
 -- cadence: data stage; scripted scanning has no native omnidirectional coverage
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: data stage reload
 --==============================================================================
 local config = require("lib/sweeping-radar-config")
 local art = require("prototypes/sweeping-radar-art")

@@ -4,6 +4,9 @@
 -- loaded_by: control.lua (sole dispatcher); sweeping-radar-gui reads this model
 -- cadence: globally bounded independent stages, fair cursors, no elapsed-time debt
 -- forwarded_events: build/remove/clone/blueprint/paste/teleport/force/research, repair_runtime_state
+-- storage_roots: storage.ei.sweeping_radar
+-- gui_ids: none (sweeping-radar-gui owns ei_sweeping_radar_gui)
+-- remote_interfaces: none
 -- rebuild_on: init/configuration change; ordinary loads resume persisted cursors
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/sweeping-radar.md#contract

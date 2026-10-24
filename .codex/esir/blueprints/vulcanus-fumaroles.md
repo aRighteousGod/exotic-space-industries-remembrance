@@ -68,6 +68,14 @@ Resource visuals and ambience retain sulfuric-geyser inheritance. Custom combat
 death effects are inapplicable to this finite resource's scripted closure; its
 existing afterglow/scars and pumpjack presentation remain owned by existing paths.
 
+<a id="slag-recovery"></a>
+## Ordinary slag recipes
+
+This prototype file also owns slag crushing and the three crushed-slag
+extraction recipes. Their balance, research and feedback constraints are in
+[Ordinary slag recovery](slag-recovery.md#contract). They do not change Auric
+washing, precipitation cores or fumarole lifecycle.
+
 <a id="processing-productivity"></a>
 ## Processing productivity
 
