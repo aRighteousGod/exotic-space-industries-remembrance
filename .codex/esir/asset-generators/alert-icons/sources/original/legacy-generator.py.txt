@@ -1,0 +1,156 @@
+"""Deterministic ESIR alert glyph sources and transparent PNG exports.
+
+The same vector primitives produce the retained SVG and the supersampled PNG.
+Run from the repo root. Only final PNGs enter the explicitly requested main mod.
+"""
+from pathlib import Path
+from math import cos, sin, pi
+import argparse
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT = Path(__file__).resolve().parents[4]
+HERE = Path(__file__).resolve().parent
+SCALE = 4
+INK = '#192027'
+METAL = '#e3d7b4'
+COLORS = {'hot': '#ffac46', 'red': '#f57553', 'ice': '#9ce5f4', 'green': '#95e08b',
+          'teal': '#61d9bf', 'violet': '#d5a0ef', 'earth': '#c8b78b'}
+
+class Glyph:
+    def __init__(self, color):
+        self.color = COLORS[color]
+        self.commands = []
+    def line(self, points, color=None, width=7):
+        self.commands.append(('line', points, color or self.color, width))
+    def poly(self, points, fill=None, stroke=METAL, width=3):
+        self.commands.append(('polygon', points, fill or self.color, stroke, width))
+    def ellipse(self, box, fill=None, stroke=METAL, width=3):
+        self.commands.append(('ellipse', box, fill or self.color, stroke, width))
+    def arc(self, center, radius, start, end, color=None, width=7):
+        self.line([(center[0]+cos(t*pi/180)*radius,center[1]+sin(t*pi/180)*radius)
+                   for t in range(start,end+1,4)], color, width)
+    def leaf(self, x=64, y=62, size=32, wilt=False):
+        self.poly([(x-size,y+size//2),(x-size*.7,y-size*.4),(x+size*.15,y-size),
+                   (x+size,y-size*.8),(x+size*.8,y+size*.2),(x,y+size*.7)])
+        self.line([(x-size*.7,y+size*.6),(x+size*.6,y-size*.5)],INK,5)
+        if wilt:self.line([(x-18,y+21),(x-15,y+34),(x+1,y+40)],METAL,5)
+    def sprout(self,x=64,y=80):
+        self.line([(x,y+14),(x,y-17)],METAL,6)
+        self.poly([(x,y-5),(x-24,y-8),(x-28,y-28),(x-8,y-23)])
+        self.poly([(x,y-12),(x+8,y-31),(x+29,y-32),(x+24,y-13)])
+    def ground(self,y=94):
+        self.line([(30,y),(98,y)],METAL,6)
+    def crack(self,x=64,y=50):
+        self.line([(x,y),(x-8,y+15),(x+5,y+22),(x-7,y+40)],INK,6)
+    def drop(self,x=64,y=62,s=28):
+        self.poly([(x,y-s),(x+s*.75,y+s*.25),(x+s*.65,y+s*.75),(x,y+s),
+                   (x-s*.65,y+s*.75),(x-s*.75,y+s*.25)])
+    def pipe(self):
+        self.poly([(26,63),(54,63),(48,79),(56,94),(26,94)])
+        self.poly([(77,63),(102,63),(102,94),(75,94),(81,79)])
+        self.line([(29,58),(29,99)],METAL,7);self.line([(99,58),(99,99)],METAL,7)
+    def flame(self,x=64,y=58,s=30):
+        self.poly([(x,y-s),(x+6,y-5),(x+18,y-18),(x+s*.8,y+14),(x+12,y+s),
+                   (x-14,y+s),(x-s*.8,y+12),(x-15,y-8),(x-10,y+5)])
+    def tree(self):
+        self.poly([(64,25),(87,54),(76,54),(101,81),(69,81),(69,102),(59,102),(59,81),(27,81),(51,54),(40,54)])
+
+def make_icons():
+    icons={}
+    def new(name,color='hot'):
+        recovery={'ecology-restoration','ecology-mining-restoration','ecology-tree-recovery','ecology-regrowth','ecology-blood'}
+        if name not in recovery and name not in {'ecology-aging','ecology-rot'}:
+            color='red' if name in {'black-hole-containment','matter-cascade','fluid-rupture','ecology-wildfire','ecology-pollution','ecology-thermal'} else 'hot'
+        g=Glyph(color);icons[name]=g;return g
+    g=new('gate-low-power');g.arc((64,65),36,30,329,METAL,10)
+    g.poly([(66,26),(44,66),(61,66),(50,103),(85,55),(67,55)])
+    g=new('black-hole-containment','violet');g.arc((64,64),39,20,150);g.arc((64,64),39,195,325)
+    g.ellipse((43,43,85,85),INK,METAL,5);g.line([(24,53),(34,66),(22,78)],METAL,5)
+    g=new('matter-cascade','violet')
+    g.poly([(44,49),(64,37),(84,49),(84,76),(64,89),(44,76)])
+    g.line([(44,49),(64,62),(84,49)],INK,5);g.line([(64,62),(64,89)],INK,5)
+    for pts in [[(27,30),(36,34),(31,43)],[(92,30),(104,39),(92,43)],[(22,86),(34,88),(27,100)],[(96,84),(107,98),(93,100)]]:g.poly(pts)
+    g=new('gaia-degradation','earth');g.poly([(30,99),(30,52),(49,52),(49,30),(80,30),(80,52),(99,52),(99,99)])
+    g.crack(66,35);g.line([(44,76),(49,76)],INK,7);g.line([(81,76),(86,76)],INK,7)
+    g=new('fluid-phase-shift','ice');g.drop(48,68,24)
+    for x in [70,89]:g.line([(x,88),(x+7,74),(x,59),(x+7,44),(x,30)],METAL,6)
+    g=new('fluid-data','teal');g.pipe();g.line([(28,42),(39,42),(45,25),(53,54),(60,43)],METAL,6);g.line([(76,43),(83,32),(90,43),(101,43)],METAL,6)
+    g=new('fluid-cryo','ice');g.pipe()
+    for angle in [0,60,120]:
+        t=angle*pi/180;g.line([(64-cos(t)*23,37-sin(t)*23),(64+cos(t)*23,37+sin(t)*23)],METAL,5)
+    g=new('fluid-thermal','hot');g.pipe();g.flame(64,35,18)
+    g=new('fluid-chemical','green');g.pipe();g.drop(64,35,18);g.line([(50,107),(78,107)],METAL,5)
+    g=new('fluid-rupture','red');g.pipe();g.line([(54,50),(45,29)],METAL,6);g.line([(64,47),(65,22)],METAL,6);g.line([(76,50),(90,31)],METAL,6)
+    g=new('ecology-wildfire','red');g.tree();g.flame(80,77,20)
+    g=new('ecology-flood','ice')
+    for y in [44,65,86]:g.line([(25,y),(39,y-6),(53,y),(67,y+6),(82,y),(101,y)],width=8)
+    g.line([(64,34),(64,20)],METAL,5);g.line([(55,28),(64,20),(73,28)],METAL,5)
+    g=new('ecology-drought','earth');g.ellipse((26,22,54,50));g.ground(86)
+    g.line([(60,35),(82,35),(91,43),(102,43)],COLORS['ice'],5);g.crack(69,61)
+    g=new('ecology-cliff','earth');g.poly([(25,99),(25,40),(56,25),(87,42),(103,99)])
+    g.crack(65,34);g.line([(38,60),(38,84)],INK,5)
+    g=new('ecology-paving','earth')
+    for x,y in [(28,31),(68,31),(28,71),(68,71)]:g.poly([(x,y),(x+30,y),(x+30,y+28),(x,y+28)])
+    g.ellipse((76,37,89,50),INK,INK,1);g.line([(30,78),(44,82),(39,97)],INK,5)
+    g=new('ecology-pollution','red');g.leaf(62,80,25)
+    for box in [(24,24,60,55),(48,16,84,49),(73,26,105,56)]:g.ellipse(box,fill='#989b8c')
+    g.line([(38,63),(32,72)],METAL,5);g.line([(90,61),(94,71)],METAL,5)
+    g=new('ecology-restoration','green');g.ground();g.sprout();g.line([(33,81),(33,66),(45,66)],METAL,5)
+    g=new('ecology-depletion-scars','earth');g.ground();g.poly([(35,53),(48,30),(63,53),(77,31),(94,53),(83,76),(47,76)],INK,METAL,5);g.crack(63,73)
+    g=new('ecology-working-scars','hot');g.poly([(42,25),(84,25),(84,45),(64,79),(42,45)])
+    g.line([(44,39),(76,52),(54,65)],INK,5);g.ground();g.line([(35,81),(27,75)],METAL,6);g.line([(93,81),(102,75)],METAL,6)
+    g=new('ecology-mining-restoration','teal');g.poly([(31,89),(48,104),(81,104),(98,89)],INK,METAL,5);g.sprout(64,70)
+    g.line([(27,72),(39,82),(27,91)],METAL,5);g.line([(101,72),(89,82),(101,91)],METAL,5)
+    g=new('ecology-tree-stress','hot');g.leaf(wilt=True);g.crack(62,38)
+    g=new('ecology-tree-recovery','green');g.leaf(56,63,28);g.line([(87,98),(87,59)],METAL,7);g.line([(76,71),(87,59),(99,71)],METAL,7)
+    g=new('ecology-regrowth','green');g.sprout(45,77);g.sprout(83,64);g.ground(103)
+    g=new('ecology-aging','earth')
+    for radius in [34,23,11]:g.ellipse((64-radius,68-radius,64+radius,68+radius),INK,METAL,4)
+    g.leaf(91,34,18)
+    g=new('ecology-rot','earth');g.poly([(32,42),(91,65),(82,96),(25,71)])
+    g.ellipse((75,64,99,98),INK,METAL,5);g.line([(46,48),(41,62),(57,75)],INK,6)
+    for x,y in [(38,93),(54,102),(64,94)]:g.ellipse((x,y,x+7,y+7),METAL,METAL,1)
+    g=new('ecology-thermal','red');g.ground(96);g.line([(34,76),(48,69),(61,82),(76,68),(94,76)],width=8)
+    for x in [43,64,85]:g.line([(x,57),(x-5,45),(x+3,30)],METAL,6)
+    g=new('ecology-blood','teal');g.drop(64,42,23)
+    g.line([(64,67),(64,91),(42,104)],METAL,6);g.line([(64,80),(87,97),(101,97)],METAL,6);g.line([(64,90),(72,105)],METAL,5)
+    return icons
+
+def render(g):
+    image=Image.new('RGBA',(128*SCALE,128*SCALE));draw=ImageDraw.Draw(image)
+    body=[(28,8),(100,8),(120,28),(120,100),(100,120),(28,120),(8,100),(8,28)]
+    commands=[('polygon',body,'#252d32','#807a67',3)]+g.commands
+    svg=['<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">']
+    for cmd in commands:
+        kind,coords,*args=cmd
+        if kind=='line':
+            color,width=args;points=[(round(x*SCALE),round(y*SCALE)) for x,y in coords]
+            draw.line(points,fill=color,width=width*SCALE,joint='curve')
+            for x,y in (points[0],points[-1]):draw.ellipse((x-width*SCALE/2,y-width*SCALE/2,x+width*SCALE/2,y+width*SCALE/2),fill=color)
+            svg.append(f'<polyline points="{" ".join(f"{x:g},{y:g}" for x,y in coords)}" fill="none" stroke="{color}" stroke-width="{width}" stroke-linecap="round" stroke-linejoin="round"/>')
+        elif kind=='polygon':
+            fill,stroke,width=args;points=[(round(x*SCALE),round(y*SCALE)) for x,y in coords]
+            draw.polygon(points,fill=fill);draw.line(points+[points[0]],fill=stroke,width=width*SCALE,joint='curve')
+            svg.append(f'<polygon points="{" ".join(f"{x:g},{y:g}" for x,y in coords)}" fill="{fill}" stroke="{stroke}" stroke-width="{width}" stroke-linejoin="round"/>')
+        else:
+            fill,stroke,width=args;x1,y1,x2,y2=coords
+            draw.ellipse(tuple(round(n*SCALE) for n in coords),fill=fill,outline=stroke,width=width*SCALE)
+            svg.append(f'<ellipse cx="{(x1+x2)/2:g}" cy="{(y1+y2)/2:g}" rx="{(x2-x1)/2:g}" ry="{(y2-y1)/2:g}" fill="{fill}" stroke="{stroke}" stroke-width="{width}"/>')
+    svg.append('</svg>')
+    return image.resize((128,128),Image.Resampling.LANCZOS),'\n'.join(svg)+'\n'
+
+def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--preview-dir',type=Path,required=True);args=parser.parse_args()
+    target=ROOT/'exotic-space-industries-remembrance/graphics/gui/alerts';target.mkdir(parents=True,exist_ok=True)
+    sources=HERE/'sources';sources.mkdir(exist_ok=True);args.preview_dir.mkdir(parents=True,exist_ok=True)
+    icons=make_icons();assert len(icons)==27
+    sheet=Image.new('RGB',(1080,9*170),'#25292e');draw=ImageDraw.Draw(sheet)
+    for index,(name,glyph) in enumerate(icons.items()):
+        bitmap,svg=render(glyph);bitmap.save(target/(name+'.png'),optimize=True);(sources/(name+'.svg')).write_text(svg,encoding='utf-8')
+        x=(index%3)*360;y=(index//3)*170;sheet.paste(bitmap,(x+8,y+6),bitmap)
+        for offset,size in enumerate((16,24,32,64)):
+            small=bitmap.resize((size,size),Image.Resampling.LANCZOS);sheet.paste(small,(x+148+offset*46,y+20),small)
+        draw.text((x+8,y+140),name,fill='#eee9db')
+    sheet.save(args.preview_dir/'contact-sheet.png');print(f'Exported {len(icons)} main-mod PNGs and retained SVG sources')
+
+if __name__=='__main__':main()

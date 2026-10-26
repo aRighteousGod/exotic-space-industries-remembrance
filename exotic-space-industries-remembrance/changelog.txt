@@ -1,14 +1,36 @@
 ﻿---------------------------------------------------------------------------------------------------
 Version: 1.3.41
-Date: 10-23-2026
+Date: 10-26-2026
+  Features:
+    - Added an accumulator-style circuit connection panel to the Induction matrix, with configurable signals for stored energy, capacity, maximum transfer and charge percentage. All outputs default off; inactive matrices skip circuit telemetry work. Settings survive reanalysis and upgrades and transfer through settings paste, cloning and blueprints.
+    - Rocket launch pollution now appears in the pollution graph and is released gradually from engine ignition through ascent.
+    - Production building status lights now default to matching lenses and tiny glows centered on their indicators: green while working, yellow for full output, orange for low power, red for other powered stops, and no added lens or glow without energy. The Advanced refinery's entire inset screen changes color with a slightly larger glow. Lens masks cover the original red edges as well as their faces. Buildings without indicators no longer emit the plain white light. A new startup setting also offers Original white and Off. Bottleneck Lite skips the 20 buildings with native status lamps only while the multicolor setting is enabled.
+    - Unified gate, black hole, fluid-safety, Gaia and ecology notifications as native map alerts with 27 custom icons. Every alert type has a per player mod setting; existing ecology category toggles and saved preferences still apply. Gate menus now allow toggling alerts for that particular gate. Destructive incidents retain their map location for one minute, and gate warnings clear when power recovers or the gate is disabled or muted.
+    - Added four personal alert icon sets: Original icons, Cast-metal sigils, Rendered objects and Vanilla-style alerts with flat triangular pictograms. Choose them in per player Mod settings or Ecology Alerts; Rendered objects is the initial default. A startup setting chooses the initial set for new players without replacing saved personal choices. Companion mods can register additional sets with fallback artwork for unchanged alert types.
+    - Added a personal launcher-button toggle and seasonal tree title icon to the Ecology window.
+    - Added default unbound keybinds for toggling the Administration and Ecology menus.
   Changes:
+    - Replaced the broad blue glows on nitrogen beacons and the Hypercooler with slow cold mist while operating, preserving their indicator lights and machinery. Mist artwork from Cryo-container by snouz, using Hurricane046's graphics.
+    - Sweeping Radar scale: 0.5 → 0.75.
+    - Phased-Array Radar scale: 0.5 → 0.6.
     - Slag chunk extraction now guarantees coal, iron, copper and sulfur chunks, with limited lead, gold, uranium and neodymium finds. Sulfuric acid input 100 -> 25; nitric acid input 33 -> 20. Crushed slag variants recover 50% more chunks than raw slag, and slag crushing time 2 -> 0.5 seconds.
     - Spidertron recipe inputs: 4 Rocket launcher -> 4 Rocket turret (oops)
-    - Wraithline advanced logistic bots now carry 30 items, fly at 18 tiles per second and use 5 kJ per tile. Architectum advanced construction bots carry 10 items, fly at 14.4 tiles per second and use 2.5 kJ per tile. Both have 2,100 health. Advanced bots research also unlocks fleet conversions: one Obelisk or Spearling plus four processing units and four advanced bot engines yields its advanced counterpart; direct manufacturing and recycling remain unchanged.
-    - Plasma heaters now use six dedicated, slag-free ore-smelting recipes: 3 poor iron or copper chunks yield 20 molten metal, and purified iron, copper, gold or lead yields 50 per ore. Existing smelting productivity research applies to both furnace tiers. Recipe times and machine power costs are unchanged; improved metal recovery still comes at a higher electricity cost per unit than arc smelting.
+    - Wraithline advanced logistic bot carry capacity: 5 -> 30.
+    - Wraithline advanced logistic bot speed: 14.4 -> 18 tiles per second.
+    - Wraithline advanced logistic bot health: 1,400 -> 2,100.
+    - Architectum advanced construction bot carry capacity: 3 -> 10.
+    - Architectum advanced construction bot speed: 9.6 -> 14.4 tiles per second.
+    - Architectum advanced construction bot health: 1,400 -> 2,100.
+    - Advanced bots research also unlocks fleet conversions: one Obelisk or Spearling plus four processing units and four advanced bot engines yields its advanced counterpart; direct manufacturing and recycling remain unchanged.
+    - Plasma heaters now use seven dedicated, slag-free ore-smelting recipes: 3 poor iron or copper chunks yield 20 molten metal, purified iron, copper, gold or lead yields 50 per ore, and crushed, purified neodymium yields 25 instead of 20. Existing smelting productivity research applies to both furnace tiers. Recipe times and machine power costs are unchanged; improved metal recovery still comes at a higher electricity cost per unit than arc smelting.
   Bugfixes:
+    - Centered the Gaian Hierophant's main beam within its upper crystal instead of firing from the tip.
+    - Abandoned rocket launches and destroyed silos now stop producing exhaust smoke and further launch pollution.
+    - Administration's Toggle launcher button now highlights while its launcher is shown.
+    - Fixed false cryogenic boiloff warnings after pipe-network changes. Fluid safety now verifies the source network and requires actual cryogenic liquid removal before reporting boiloff.
     - Fixed a crash with Nonstandard Beacons when hovering over an alien beacon restored with a repair kit.
     - Removed the standard explosion sprite over reskinned assembler and Solar matrix death animations.
+    - Fixed Arc furnace and Plasma heater glows rendering underneath their animated status lights and fans.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.40
 Date: 10-18-2026

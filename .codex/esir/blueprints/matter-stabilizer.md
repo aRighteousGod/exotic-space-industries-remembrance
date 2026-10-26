@@ -38,3 +38,7 @@ Review the [control UPS fixture](../../../scripts/qc/control-ups/README.md) and 
 Closed GUI service does not initialize its GUI root, replace empty buckets or update
 the last GUI service tick. Stale delayed buckets and their due frontier are cleared
 once before returning to a read-only empty-viewer path.
+
+## Alert delivery
+
+Containment cascades capture the source before destruction and emit `matter-cascade` through the [shared handler](runtime-alerts.md#contract). The handler owns force-filtered personal delivery, coalescing and the 60-second navigation marker; the feature retains gameplay and floating text.

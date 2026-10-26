@@ -64,3 +64,9 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 close only that caller's windows. `ei_lib.camera_window` owns event/due handlers;
 control.lua forwards them. Access control belongs to the caller. Pass explicit
 event ticks and choose native entity attachment before scripted position polling.
+
+## Native alerts and text notifications
+
+Use `lib/alerts.lua` for automatic operational/ecology alerts; see [runtime alerts](../../esir-dev/references/runtime-alerts.md). Its `register_channel`, `set_condition`, `record_incident` and `clear_source` interfaces own native delivery and cleanup. `ei_lib.notify_connected_players` remains text-only for confirmations, instructions and selected notices. Every catalogue type generates a visible personal toggle; missing settings fail closed.
+
+Use `lib/alert-icon-sets.lua` for alert presentation. Companion providers call `register_settings` and `register_data` with the same API v1 manifest; partial sets inherit a complete built-in family. Runtime callers use its validated set list and the shared alert handler's `set_icon_set` application path. Keep actual delivered signals with each recipient so cleanup remains correct after personal changes or provider removal. Never rewrite the catalogue's Original signal IDs to implement a personal style.

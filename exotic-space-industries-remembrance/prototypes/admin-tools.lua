@@ -1,6 +1,6 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: administration GUI sprite/styles and hidden location selector
+-- owns: administration menu input, GUI sprite/styles and hidden location selector
 -- loaded_by: data.lua
 -- cadence: data stage only
 -- forwarded_events: none
@@ -14,6 +14,8 @@ local config = require("lib/admin-tools-config")
 -- Keep the hidden selector defined across enable/disable so cursor cleanup can
 -- identify it during configuration changes. It has no recipe or public item.
 data:extend({{
+    type="custom-input",name="ei-toggle-admin-menu",key_sequence="",consuming="none",
+}, {
     type="sprite", name=config.sprite,
     filename=ei_graphics_6_path.."graphics/gui/admin-overseer-seal.png",
     size=1254, scale=32/1254, flags={"gui"},

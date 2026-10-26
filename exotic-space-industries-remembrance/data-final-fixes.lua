@@ -149,6 +149,8 @@ require("scripts/data-final-updates/emerald-apocalypse-hover-tank")
 require("scripts/data-final-updates/anisetron")
 require("scripts/data-final-updates/item-glow-overlays")
 require("scripts/data-final-updates/arc-furnace-light")
+require("scripts/data-final-updates/machine-status-lights")
+require("scripts/data-final-updates/cryo-mist")
 require("scripts/data-final-updates/entity-presentation")
 
 -- Spider-vehicle lights are normalized between data-updates and final fixes; keep

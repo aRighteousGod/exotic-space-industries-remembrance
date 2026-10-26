@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-tree-stress: ESIR cast-metal signal sigil</title>
+<defs>
+<linearGradient id="ceramic" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#fff0cf"/>
+<stop offset="0.48" stop-color="#d9c6a4"/>
+<stop offset="1" stop-color="#a0927b"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b3bdc1"/>
+<stop offset="0.48" stop-color="#66747e"/>
+<stop offset="1" stop-color="#35414b"/>
+</linearGradient>
+<linearGradient id="amber" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffdc85"/>
+<stop offset="0.48" stop-color="#f2a239"/>
+<stop offset="1" stop-color="#bd6224"/>
+</linearGradient>
+<linearGradient id="red" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffb18b"/>
+<stop offset="0.48" stop-color="#e16b47"/>
+<stop offset="1" stop-color="#9f3d2b"/>
+</linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#dcf1ac"/>
+<stop offset="0.48" stop-color="#8bc47a"/>
+<stop offset="1" stop-color="#3b7965"/>
+</linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b9ead2"/>
+<stop offset="0.48" stop-color="#61bdab"/>
+<stop offset="1" stop-color="#316e70"/>
+</linearGradient>
+<linearGradient id="earth" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#e7d4a5"/>
+<stop offset="0.48" stop-color="#b39b70"/>
+<stop offset="1" stop-color="#71614a"/>
+</linearGradient>
+</defs>
+<polygon points="16.923,115 16.923,68.846 26.538,44.808 40.962,35.192 48.654,43.846 39.038,55.385 31.346,74.615 31.346,115" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="14.923,112 14.923,65.846 24.538,41.808 38.962,32.192 46.654,40.846 37.038,52.385 29.346,71.615 29.346,112" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="14.923,112 14.923,65.846 24.538,41.808 38.962,32.192 46.654,40.846 37.038,52.385 29.346,71.615 29.346,112" fill="url(#amber)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="34.231,37.115 48.654,19.808 77.5,15 100.577,35.192 113.077,67.885 112.115,112.115 88.077,95.769 73.654,72.692 64.038,55.385 45.769,47.692" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="32.231,34.115 46.654,16.808 75.5,12 98.577,32.192 111.077,64.885 110.115,109.115 86.077,92.769 71.654,69.692 62.038,52.385 43.769,44.692" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="32.231,34.115 46.654,16.808 75.5,12 98.577,32.192 111.077,64.885 110.115,109.115 86.077,92.769 71.654,69.692 62.038,52.385 43.769,44.692" fill="url(#ceramic)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="43.769,32.192 64.923,36.038 82.231,59.115 98.577,88.923" fill="none" stroke="url(#steel)" stroke-width="11.538" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

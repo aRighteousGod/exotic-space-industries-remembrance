@@ -9,6 +9,7 @@
 -- remote_interfaces: none
 -- rebuild_on: data stage reload, prototype cache rebuild
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/plasma-smelting.md#contract
 -- require all prototypes for quantum age here
 -- for data stage only
 
@@ -20,7 +21,6 @@
 -- those include prototype definitions for recipes, items, techs and categories
 
 require("quantum-computer")
-require("plasma-heater")
 require("solar-panel-3")
 require("neo-belts")
 require("iron-beacon")
@@ -42,3 +42,6 @@ require("em-trains/trains")
 
 
 require("quantum-prototypes")
+-- blueprint-ref: .codex/esir/blueprints/plasma-smelting.md#routing
+-- Plasma recovery clones the neodymium recipe and feedstock defined above.
+require("plasma-heater")

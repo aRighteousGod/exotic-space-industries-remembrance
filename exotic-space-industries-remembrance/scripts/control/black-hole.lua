@@ -11,6 +11,7 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/black-hole.md#contract
 local model = {}
+local alerts = require("lib/alerts")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_valid_entity = ei_lib.get_valid_entity
 local get_entity_unit_number = ei_lib.get_entity_unit_number
@@ -526,12 +527,9 @@ function model.check_battery(black_hole_data, entity, event)
         black_hole_data.stage_progress = 0
         ei_lib.crystal_echo_floating("WARNING: Black hole containment failure!",entity,6000,nil)
 
-        -- also print chat message
-        ei_lib.notify_connected_players(
-            "black_hole",
-            "WARNING: Black hole containment failure at "..entity.position.x..", "..entity.position.y.."!",
-            {mode = "crystal_echo", font = "default-bold"}
-        )
+        alerts.record_incident("operational","black-hole-containment",{
+            entity=entity, message={"ei-alerts.black-hole-containment",entity.surface.name,entity.position.x,entity.position.y},
+        },ei_lib.get_event_tick(event))
     end
 
 end

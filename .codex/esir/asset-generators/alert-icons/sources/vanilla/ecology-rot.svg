@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-rot: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#d2b478" stroke="none" stroke-width="0"/>
+<polygon points="36,71 88,85 80,108 30,90" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="57,74 50,85 62,88 56,99 65,103 72,85 61,82 65,77" fill="#d2b478" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<ellipse cx="90" cy="98" rx="13" ry="14" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<ellipse cx="90.5" cy="98" rx="6.5" ry="7" fill="#d2b478" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

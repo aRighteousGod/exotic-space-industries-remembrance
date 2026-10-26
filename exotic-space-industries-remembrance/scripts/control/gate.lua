@@ -3,7 +3,7 @@
 -- owns: gate runtime, GUI, selector flow, and remote dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
--- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_checked_state_changed, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
 -- storage_roots: storage.ei
 -- gui_ids: ei-gate-console
 -- remote_interfaces: none
@@ -15,6 +15,7 @@ ei_rng = require("lib/rng")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local ei_surface_anchor = require("lib/surface-anchor")
+local alerts = require("lib/alerts")
 local clamp = ei_lib.clamp
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 
@@ -300,6 +301,7 @@ local function make_gate_gui_projection_signature(data)
         preview_pos and preview_pos.x or GATE_CAMERA_FALLBACK_POSITION.x,
         preview_pos and preview_pos.y or GATE_CAMERA_FALLBACK_POSITION.y,
         data.state and 1 or 0,
+        data.alerts_enabled and 1 or 0,
     }
 
     for index = 1, #parts do
@@ -1165,13 +1167,14 @@ local function set_cached_gate_count(gate_root, count)
 end
 
 
-local function remove_gate_registry_entry(gate_unit)
+local function remove_gate_registry_entry(gate_unit, tick)
     local gate_root = storage and storage.ei and storage.ei.gate or nil
     local gate_registry = type(gate_root) == "table" and gate_root.gate or nil
     if type(gate_registry) ~= "table" or gate_registry[gate_unit] == nil then
         return false
     end
 
+    alerts.clear_source("operational", gate_unit, tick)
     gate_registry[gate_unit] = nil
     set_cached_gate_count(gate_root, get_cached_gate_count(gate_root) - 1)
     return true
@@ -1694,6 +1697,8 @@ function model.ensure_gate_defaults(gate_unit, event)
     if not gate_data then
         return nil
     end
+
+    if gate_data.alerts_enabled == nil then gate_data.alerts_enabled = true end
 
     if gate_data.manual_enabled == nil then
         gate_data.manual_enabled = gate_data.state == true
@@ -2851,6 +2856,16 @@ function model.get_gate_upkeep_watts(gate, gate_data, event)
 end
 
 
+-- blueprint-ref: .codex/esir/blueprints/gate.md#alerts
+local function update_gate_alert(gate_unit, gate_data, tick)
+    local gate = ei_lib.get_valid_entity(gate_data.gate)
+    local active = gate and gate_data.alerts_enabled ~= false and gate_data.effective_enabled == true and gate.energy < LOW_POWER_J
+    alerts.set_condition("operational", gate_unit, "gate-low-power", active == true, {
+        entity=gate_data.container, source_id=gate_unit,
+        message=gate and {"ei-alerts.gate-low-power", gate.surface.name, gate.position.x, gate.position.y} or nil,
+    }, tick)
+end
+
 function model.refresh_gate_live_state(gate, event)
     if not model.entity_check(gate) then
         return
@@ -2867,6 +2882,7 @@ function model.refresh_gate_live_state(gate, event)
     end
 
     model.resolve_gate_target(gate, event)
+    update_gate_alert(gate_unit, gate_data, ei_lib.get_event_tick(event))
     model.update_input_lock(gate, gate_data)
     model.update_wire_proxy_signals(gate, gate_data, event)
 end
@@ -3545,7 +3561,7 @@ function model.destroy_gate(gate, container, event)
         container.destroy()
     end
 
-    remove_gate_registry_entry(gate_unit)
+    remove_gate_registry_entry(gate_unit, ei_lib.get_event_tick(event))
 
 end
 
@@ -3782,18 +3798,7 @@ function model.update_energy(unit, gate, event)
         gate_data.last_energy_tick = current_tick
     end
 
-    local wants_power = gate_data.effective_enabled and model.entity_check(gate_data.effective_target_entity)
-    if gate.energy < LOW_POWER_J then
-        if wants_power and not gate_data.last_low_power then
-            ei_lib.notify_connected_players(
-                "gate",
-                {"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name}
-            )
-        end
-        gate_data.last_low_power = wants_power
-    else
-        gate_data.last_low_power = false
-    end
+    update_gate_alert(unit, gate_data, current_tick)
 
     model.update_input_lock(gate, gate_data)
     model.update_wire_proxy_signals(gate, gate_data, event)
@@ -3959,6 +3964,7 @@ local function gui_elements_valid(elements)
         and elements.runtime and elements.runtime.valid
         and elements.receiver_strain and elements.receiver_strain.valid
         and elements.camera and elements.camera.valid
+        and elements.alerts and elements.alerts.valid
         and elements.state and elements.state.valid
 end
 
@@ -4034,6 +4040,7 @@ function model.get_gui_elements(player)
         receiver_strain = target_flow and target_flow["receiver-strain"],
         camera = camera_frame and camera_frame["target-camera"],
         state = target_flow and target_flow["state-button"],
+        alerts = target_flow and target_flow["alerts-enabled"],
     }
 
     if not gui_elements_valid(elements) then
@@ -4246,6 +4253,12 @@ function model.build_gui(player, gate)
             }
         }
 
+        target_flow.add{
+            type="checkbox", name="alerts-enabled", state=true,
+            caption={"ei-alerts.gate-toggle"}, tooltip={"ei-alerts.gate-toggle-tooltip"},
+            tags={parent_gui="ei-gate-console", action="set-alerts", gate_unit=gate_unit},
+        }
+
         -- Target cam
         -- Shows the currently resolved destination. This follows manual receiver selection,
         -- circuit receiver overrides, and legacy exits for old saves.
@@ -4381,6 +4394,7 @@ function model.update_gui(player, data, ontick, gate, gui)
         }
     end
 
+    gui.alerts.state = data.alerts_enabled
     legacy_status.caption = data.legacy_status
     control_source.caption = {"exotic-industries.gate-gui-control-source-label", data.control_source_text}
     runtime.caption = {"exotic-industries.gate-gui-control-runtime-label", data.runtime_status}
@@ -4526,13 +4540,6 @@ function model.toggle_state(player, gate_unit, event)
     gate_data.state = gate_data.manual_enabled
     mark_gate_resolution_dirty(gate_data)
 
-    if gate_data.manual_enabled and gate.energy < LOW_POWER_J then
-        ei_lib.notify_connected_players(
-            "gate",
-            {"exotic-industries.gate-not-enough-energy", gate.position.x, gate.position.y, gate.surface.name}
-        )
-    end
-
     model.refresh_gate_live_state(gate, event)
 
     -- GUI update is cosmetic — guard against missing GUI
@@ -4612,6 +4619,7 @@ function model.get_data(gate, event)
 
     local data = {
         gate_unit = gate_unit,
+        alerts_enabled = gate_data.alerts_enabled ~= false,
     }
     if gate.electric_buffer_size then
         data.max_energy = gate.electric_buffer_size
@@ -4871,7 +4879,7 @@ function model.rebuild_runtime_state(reason, event)
             else
                 destroy_gate_glows(gate_data)
                 model.destroy_wire_proxy(gate_unit)
-                remove_gate_registry_entry(gate_unit)
+                remove_gate_registry_entry(gate_unit, ei_lib.get_event_tick(event))
             end
         end
     end
@@ -5038,7 +5046,7 @@ function model.update(event)
             model.update_renders(break_id, gate, event)
         else
             destroy_gate_glows(gate_entry)
-            remove_gate_registry_entry(break_id)
+            remove_gate_registry_entry(break_id, tick)
             current_gate_exists = false
         end
     end
@@ -5236,6 +5244,24 @@ function model.on_gui_opened(event)
     model.open_gui(player, event)
 end
 
+
+---@param event EventData.on_gui_checked_state_changed
+function model.on_gui_checked_state_changed(event)
+    local element=event.element
+    if not element or not element.valid then return end
+    local tags=element.tags
+    if not tags or tags.parent_gui~="ei-gate-console" or tags.action~="set-alerts" then return end
+    local player=game.get_player(event.player_index)
+    local gate_data=storage.ei.gate.gate[tags.gate_unit]
+    local container=gate_data and ei_lib.get_valid_entity(gate_data.container)
+    if not player or not container or player.force~=container.force or player.opened~=container then return end
+    local gui=model.get_gui_elements(player)
+    if not gui or gui.alerts~=element or gui.root.tags.gate_unit~=tags.gate_unit then return end
+    gate_data.alerts_enabled=element.state
+    model.refresh_gate_live_state(gate_data.gate,event)
+    storage.ei.gate.gui_projection_cache[player.index]=nil
+    model.update_player_guis(event)
+end
 
 function model.on_gui_click(event)
     local tags = event.element.tags

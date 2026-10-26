@@ -4,6 +4,7 @@ local singularity_lance_config = require("lib/singularity-lance-config")
 local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
 local emerald_hover_tank_config = require("lib/emerald-apocalypse-hover-tank-config")
 local arc_furnace_light_config = require("lib/arc-furnace-light-config")
+data:extend({require("lib/machine-status-light-config").startup_setting_definition()})
 local fluid_safety_config = require("lib/fluid-safety-config")
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local container_capacity_config = require("lib/container-capacity-config")
@@ -494,28 +495,32 @@ data:extend({
       type = "bool-setting",
       setting_type = "runtime-per-user",
       default_value = true,
-      order  = "e1",
+      localised_description = {"ei-alerts.group-gate-description"},
+      order  = "e-alert-01-0",
   },
   {
       name = "ei-black-hole-notifications",
       type = "bool-setting",
       setting_type = "runtime-per-user",
       default_value = true,
-      order  = "e2",
+      localised_description = {"ei-alerts.group-black-hole-description"},
+      order  = "e-alert-02-0",
   },
   {
       name = "ei-matter-machine-notifications",
       type = "bool-setting",
       setting_type = "runtime-per-user",
       default_value = true,
-      order  = "e3",
+      localised_description = {"ei-alerts.group-matter-description"},
+      order  = "e-alert-03-0",
   },
   {
       name = "ei-insulated-pipe-notifications",
       type = "bool-setting",
       setting_type = "runtime-per-user",
       default_value = true,
-      order  = "e4",
+      localised_description = {"ei-alerts.group-fluid-description"},
+      order  = "e-alert-05-0",
   },
   {
       name = "ei-water-turret-fire-targeting",
@@ -541,3 +546,5 @@ data:extend({
 -- ESIR-owned ecology switches and finite work budgets.
 data:extend(require("lib/terrain-evolution-config").definitions)
 data:extend(require("lib/terrain-alert-config").definitions)
+data:extend(require("lib/alert-catalog").setting_definitions())
+data:extend(require("lib/alert-icon-sets").setting_definitions())

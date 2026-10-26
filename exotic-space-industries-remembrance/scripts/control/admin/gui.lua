@@ -83,6 +83,21 @@ local function ensure_session(index)
 end
 function model.configure(ctx) context=ctx end
 
+---@param session table|nil
+local function sync_launcher_toggle(session)
+    if not session then return end
+    ---@type LuaGuiElement|nil
+    local toggle=session.launcher_toggle
+    -- Adopt the existing tagged control in saved windows without rebuilding pages.
+    if not (toggle and toggle.valid) and session.toolbar and session.toolbar.valid then
+        local tools=session.toolbar.children[1]
+        for _,element in pairs(tools and tools.children or {}) do
+            if element.tags.action=="launcher" then toggle=element;session.launcher_toggle=element;break end
+        end
+    end
+    if toggle and toggle.valid and toggle.toggled~=(session.launcher~=false) then toggle.toggled=session.launcher~=false end
+end
+
 -- One cancellable delayed entry per visible viewer; no session scan on idle ticks.
 local function cancel_auto_refresh(index,session)
     local root=common.peek();local due=session.auto_due_tick
@@ -861,7 +876,7 @@ function model.open(player,page,tick)
         local spacer=title.add{type="empty-widget",style="ei_titlebar_draggable_spacer"};spacer.drag_target=root;spacer.style.height=48
         button(title,"close","close")
         local toolbar=root.add{type="flow",direction="vertical"};session.toolbar=toolbar
-        local tools=row(toolbar,"buttons");button(tools,"show-launcher","launcher");button(tools,"refresh","refresh");button(tools,"cancel-target","cancel-target")
+        local tools=row(toolbar,"buttons");session.launcher_toggle=button(tools,"show-launcher","launcher");button(tools,"refresh","refresh");button(tools,"cancel-target","cancel-target")
         local automatic=row(toolbar,"buttons")
         session.auto_refresh_button=button(automatic,"auto-refresh-off","auto-refresh")
         choice(automatic,session,"auto_refresh_interval",{1,2,5,10,30,60},5)
@@ -884,6 +899,7 @@ function model.open(player,page,tick)
         local buttons=row(confirm);button(buttons,"confirm","confirm",nil,true);button(buttons,"cancel","cancel-confirm")
         if session.location then root.location=session.location else session.center_pending=true end
     end
+    sync_launcher_toggle(session)
     session.root.visible=true;session.page=page
     state.rebuild_watch=state.rebuild_watch or {}
     state.rebuild_watch[player.index]=page=="diagnostics" and true or nil
@@ -900,6 +916,15 @@ function model.open(player,page,tick)
     model.refresh(player.index,tick)
     if not session.auto_due_tick then schedule_auto_refresh(player.index,session,tick) end
     rebuild_monitor.watch_player(player.index,tick)
+end
+
+---@param player LuaPlayer
+---@param tick MapTick
+function model.toggle(player,tick)
+    if not common.authorize(player) then return end
+    local session=session_for(player.index)
+    if session and session.root and session.root.valid and session.root.visible then model.close(player.index)
+    else model.open(player,nil,tick) end
 end
 
 function model.close(index,destroy)
@@ -922,6 +947,7 @@ function model.launcher(player)
     local authorized=common.authorize(player)
     local session
     if authorized then session=ensure_session(player.index) else session=session_for(player.index) end
+    sync_launcher_toggle(session)
     local existing=session and session.launcher_element
     if existing and not existing.valid then existing=nil;session.launcher_element=nil end
     local enabled=authorized and session and session.launcher
@@ -1004,7 +1030,7 @@ function model.on_gui_click(event)
     elseif t.action=="auto-refresh" then
         session.auto_refresh=not session.auto_refresh;sync_auto_refresh_button(session)
         schedule_auto_refresh(player.index,session,event.tick)
-    elseif t.action=="launcher" then session.launcher=not session.launcher;model.launcher(player)
+    elseif t.action=="launcher" then session.launcher=session.launcher==false;model.launcher(player)
     elseif t.action=="cancel-target" then context.cancel_target(player,event.tick)
     elseif t.action=="pick" then context.begin_target(player,t.kind,session,event.tick)
     elseif t.action=="coordinates" then

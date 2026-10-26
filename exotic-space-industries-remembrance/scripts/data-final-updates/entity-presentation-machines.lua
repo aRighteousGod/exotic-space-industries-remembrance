@@ -327,6 +327,17 @@ local function miner_scene(simulation, name, opts)
 end
 
 local function furnace_scene(simulation, name, opts)
+    -- Keep the existing nitrogen-production preview supplied after its initial
+    -- electric buffer empties; this update exists only in the native scene.
+    local update = name == "ei-cooler" and [[
+local cooler = game.surfaces[1].find_entity("ei-cooler", {0, 0})
+if cooler and cooler.valid then
+  cooler.energy = 1000000000
+  cooler.fluidbox[1] = {name = "ei-nitrogen-gas", amount = 200}
+  cooler.fluidbox[2] = nil
+end
+]] or nil
+    local post_init = name == "ei-cooler" and 'main_entity.force.recipes["ei-liquid-nitrogen"].enabled = true' or nil
     opts = hydrate_recipe_inputs(opts)
 
     local companions = {
@@ -355,6 +366,8 @@ local function furnace_scene(simulation, name, opts)
         active = true,
         init_update_count = opts.init_update_count or (type(opts.recipe) == "string" and 90 or nil),
         companions = companions,
+        update = update,
+        post_init = post_init,
     })
 end
 
@@ -379,7 +392,25 @@ local function lab_scene(simulation, name, opts)
     })
 end
 
+---@param simulation table Native scene factory.
+---@param name string Canonical beacon name.
+---@param opts table Scene options; cryo adds the existing nitrogen source inside the preview.
+---@return data.SimulationDefinition
 local function beacon_scene(simulation, name, opts)
+    -- blueprint-ref: .codex/esir/blueprints/entity-presentation.md#scenes
+    -- Native previews do not run Nonstandard Beacons' build handlers.
+    local cryo_source = opts.cryo and data.raw["assembling-machine"][name .. "-source"]
+    local post_init, update
+    if cryo_source then
+        post_init = string.format([[
+local source = surface.create_entity{name = %q, position = main_entity.position, direction = main_entity.direction, force = main_entity.force}
+source.insert_fluid{name = "ei-liquid-nitrogen", amount = 100}
+]], cryo_source.name)
+        update = string.format([[
+local source = game.surfaces[1].find_entity(%q, {0, 0})
+if source and source.valid then source.insert_fluid{name = "ei-liquid-nitrogen", amount = 100} end
+]], cryo_source.name)
+    end
     return simulation.entity(name, {
         camera_position = opts.camera or {0, -0.35},
         camera_zoom = opts.zoom or 0.95,
@@ -391,6 +422,8 @@ local function beacon_scene(simulation, name, opts)
         },
         active = true,
         init_update_count = opts.init_update_count or 90,
+        post_init = post_init,
+        update = update,
     })
 end
 
@@ -805,8 +838,8 @@ return function(api)
     end
 
     local beacons = {
-        {name = "ei-copper-beacon", zoom = 1.1, machine = "assembling-machine-2"},
-        {name = "ei-iron-beacon", zoom = 1.05, machine = "assembling-machine-3"},
+        {name = "ei-copper-beacon", zoom = 1.1, machine = "assembling-machine-2", cryo = true},
+        {name = "ei-iron-beacon", zoom = 1.05, machine = "assembling-machine-3", cryo = true},
         {name = "ei-alien-beacon", zoom = 0.88, machine = "ei-alien-stabilizer", tiles = "stone-path", fuel = "ei-bio-matter", module = "speed-module"},
         {name = "ei-warp-beacon", zoom = 0.78, machine = "ei-rift-stabilizer", tiles = "stone-path", fuel = "ei-bio-matter", module = "speed-module-2"},
     }

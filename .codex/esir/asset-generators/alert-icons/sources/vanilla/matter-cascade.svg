@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>matter-cascade: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ff3930" stroke="none" stroke-width="0"/>
+<polygon points="43,66 64,53 85,66 64,78" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="40,75 59,86 59,108 40,96" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="70,86 89,75 89,96 70,108" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="25,87 35,91 29,102" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="96,96 105,103 95,110" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

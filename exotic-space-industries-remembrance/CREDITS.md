@@ -14,10 +14,6 @@ Camp fire branched from @dodo.the.last's Fire Place
 
 Thermal furnace from Heated Fabrication by @MrLumme
 
-Acidthrower from Additional turrets
-Originally by @DarkNova
-Updated by @Beathoven
-
 insulated wire item 1-4, carbon dioxide, irradiated water, auric-slag-1-3 item sprites from unused renders by malcolm riley
 
 cannon mk1 art originally by... YuokiTani ?
@@ -37,6 +33,23 @@ bio oil by Kil_Jaeden
 orbital request combinator icon from Orbital Request Combinator by @Skjolbir
 
 auric inoculation vat graphic from hurricane046
+
+Cold mist for the Hypercooler and liquid-nitrogen beacons:
+    Cryo-container (simple_refrigerator) by snouz
+    https://mods.factorio.com/mod/simple_refrigerator
+    https://github.com/snouz/simple_refrigerator
+    Visual parts assembled by snouz from Hurricane046's buildings, credited
+    upstream under Creative Commons Attribution (CC BY). The upstream credits
+    do not specify a CC BY version; the original graphics attribution is retained.
+    The mod lists MIT for its code, separately from those graphics credits.
+    ESIR copies only the unmodified mist spritesheet, not its chest, sound or code.
+    Original: graphics/entity/simple_refrigerator-smoke-effect.png
+    Source revision: 497140950769a0ab4a4bd4c3e9426e5c3dad30b2
+    Pinned source and credits:
+    https://github.com/snouz/simple_refrigerator/tree/497140950769a0ab4a4bd4c3e9426e5c3dad30b2
+    ESIR file: graphics/entities/cryo-mist.png (2048 x 2048, 60 frames)
+    SHA256: 341e2cae41f220872ea1f708531bded1485c8d75962a82d72ded1fd170cbbeb0
+    ESIR adjusts placement, scale and brightness in its own prototype code.
 
 Terrain ecology behavioral reference: TerrainEvolution by Cheshirrski and
 TerrainEvolution2 by MeteorSwarm / Nicholas Gower (Factorio 2.0 release 1.0.3,

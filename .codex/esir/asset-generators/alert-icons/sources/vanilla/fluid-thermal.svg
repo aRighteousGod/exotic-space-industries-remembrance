@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-thermal: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ff3930" stroke="none" stroke-width="0"/>
+<polygon points="26,96 44,96 44,79 55,79 55,108 26,108" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="75,43 75,64 86,57 96,82 95,97 83,109 68,106 58,94 60,78" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="76,77 79,90 86,84 87,97 78,102 70,95" fill="#ff3930" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

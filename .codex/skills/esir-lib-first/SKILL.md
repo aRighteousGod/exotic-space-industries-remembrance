@@ -11,6 +11,8 @@ Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-i
 
 ## Working Rules
 
+- For automatic operational/ecology notifications, use `lib/alerts.lua` and [runtime alerts](../esir-dev/references/runtime-alerts.md). `notify_connected_players` remains a text helper for confirmations and selected notices.
+
 - Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for UPS defaults and module calls. Compare mutation, allocation, stage and ordering semantics; preserve specialized read-only probes when initializing shared helpers do not fit.
 
 - Before substantively changing shared behavior, read and update its owner model through [esir-conceptual-blueprints](../esir-conceptual-blueprints/SKILL.md).

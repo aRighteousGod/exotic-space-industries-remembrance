@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-thermal: ESIR cast-metal signal sigil</title>
+<defs>
+<linearGradient id="ceramic" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#fff0cf"/>
+<stop offset="0.48" stop-color="#d9c6a4"/>
+<stop offset="1" stop-color="#a0927b"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b3bdc1"/>
+<stop offset="0.48" stop-color="#66747e"/>
+<stop offset="1" stop-color="#35414b"/>
+</linearGradient>
+<linearGradient id="amber" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffdc85"/>
+<stop offset="0.48" stop-color="#f2a239"/>
+<stop offset="1" stop-color="#bd6224"/>
+</linearGradient>
+<linearGradient id="red" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffb18b"/>
+<stop offset="0.48" stop-color="#e16b47"/>
+<stop offset="1" stop-color="#9f3d2b"/>
+</linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#dcf1ac"/>
+<stop offset="0.48" stop-color="#8bc47a"/>
+<stop offset="1" stop-color="#3b7965"/>
+</linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b9ead2"/>
+<stop offset="0.48" stop-color="#61bdab"/>
+<stop offset="1" stop-color="#316e70"/>
+</linearGradient>
+<linearGradient id="earth" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#e7d4a5"/>
+<stop offset="0.48" stop-color="#b39b70"/>
+<stop offset="1" stop-color="#71614a"/>
+</linearGradient>
+</defs>
+<polygon points="17.423,95.617 36.806,80.639 56.189,93.855 76.454,78.877 112.577,95.617 112.577,115 17.423,115" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="15.423,92.617 34.806,77.639 54.189,90.855 74.454,75.877 110.577,92.617 110.577,112 15.423,112" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="15.423,92.617 34.806,77.639 54.189,90.855 74.454,75.877 110.577,92.617 110.577,112 15.423,112" fill="url(#steel)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="34.163,67.423 24.471,52.445 33.282,26.894" fill="none" stroke="#101920" stroke-width="19.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="32.163,64.423 22.471,49.445 31.282,23.894" fill="none" stroke="#5e686b" stroke-width="16.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="32.163,64.423 22.471,49.445 31.282,23.894" fill="none" stroke="url(#ceramic)" stroke-width="11.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="65.881,70.066 56.189,50.683 66.762,20.727" fill="none" stroke="#101920" stroke-width="19.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="63.881,67.066 54.189,47.683 64.762,17.727" fill="none" stroke="#5e686b" stroke-width="16.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="63.881,67.066 54.189,47.683 64.762,17.727" fill="none" stroke="url(#ceramic)" stroke-width="11.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="98.48,66.542 88.789,49.802 100.242,26.894" fill="none" stroke="#101920" stroke-width="19.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="96.48,63.542 86.789,46.802 98.242,23.894" fill="none" stroke="#5e686b" stroke-width="16.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="96.48,63.542 86.789,46.802 98.242,23.894" fill="none" stroke="url(#ceramic)" stroke-width="11.454" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="22.471,97.022 34.806,89.093 53.308,101.427 74.454,87.33 104.41,100.546 104.41,108.476 22.471,108.476" fill="url(#red)" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

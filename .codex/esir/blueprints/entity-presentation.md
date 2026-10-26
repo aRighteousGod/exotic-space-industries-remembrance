@@ -50,6 +50,16 @@ shadow and optional glow helper at the configuration's north frame; canonical
 radar sprites are empty. No ESIR runtime scripts or fake scanning behavior are
 needed for this static hardware view.
 
+The copper and iron nitrogen-beacon scenes explicitly create their existing
+Nonstandard Beacons source assembler at the body's position. Preview-only updates
+keep it supplied with liquid nitrogen so its native working mist remains visible.
+The ordinary game retains Nonstandard Beacons' ownership and lifecycle; the scene
+does not register a second gameplay helper or expose an independent helper entry.
+The hypercooler keeps its existing nitrogen-production recipe and camera, with
+preview-only energy/input replenishment and output clearing to sustain its mist
+after the initial electric buffer and input would otherwise run out. The scene
+also enables that recipe on its preview force so the native furnace can select it.
+
 Prediction Snare displays its armed native body after its normal arming period.
 Incinerator uses its native robot body; its scene-only `update` resets preview
 time-to-live and tracks the hovering body so it stays in view. `make_simulation` forwards that

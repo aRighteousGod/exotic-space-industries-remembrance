@@ -123,3 +123,7 @@ behavior/order/reload acceptance. Structural advice is not runtime evidence.
 The [runtime contract fixtures](../../../../scripts/qc/runtime-contracts/README.md)
 cover scheduler timestamps, required-export dispatch, research and GUI parity,
 and ordinary/Strict advisory isolation.
+
+## Native alert ownership
+
+Follow [runtime alerts](runtime-alerts.md) for automatic operational and ecology notifications. `lib/alerts.lua` alone calls the native alert APIs; catalogue additions must generate visible per-player booleans with explicit defaults, localized presentation and main-mod icons. Keep gameplay decisions with feature owners, timing explicit, cleanup bounded and preference Off authoritative. Retain selected text notices through the text helper.

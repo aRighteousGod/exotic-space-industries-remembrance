@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<polygon points="28,8 100,8 120,28 120,100 100,120 28,120 8,100 8,28" fill="#252d32" stroke="#807a67" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="31,89 48,104 81,104 98,89" fill="#192027" stroke="#e3d7b4" stroke-width="5" stroke-linejoin="round"/>
+<polyline points="64,84 64,53" fill="none" stroke="#e3d7b4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="64,65 40,62 36,42 56,47" fill="#61d9bf" stroke="#e3d7b4" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="64,58 72,39 93,38 88,57" fill="#61d9bf" stroke="#e3d7b4" stroke-width="3" stroke-linejoin="round"/>
+<polyline points="27,72 39,82 27,91" fill="none" stroke="#e3d7b4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="101,72 89,82 101,91" fill="none" stroke="#e3d7b4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

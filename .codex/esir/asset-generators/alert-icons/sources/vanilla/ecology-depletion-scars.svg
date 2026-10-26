@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-depletion-scars: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ffcf00" stroke="none" stroke-width="0"/>
+<polygon points="64,42 77,56 64,69 51,56" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="28,88 44,75 53,86 47,97 53,111 28,104" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="84,75 101,88 101,104 75,111 82,97 75,86" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

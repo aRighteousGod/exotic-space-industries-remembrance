@@ -2733,6 +2733,16 @@ function Invoke-EsirPreflight {
 
     $checks += Test-EsirConceptualBlueprints -Paths $Paths -Context $context
 
+    $alertAudit = Join-Path $Paths.repo_root 'scripts/qc/alerts/audit.py'
+    try {
+        if (-not $context.python_exe -or -not (Test-Path -LiteralPath $alertAudit)) { throw 'Python or the required alert contract audit is unavailable.' }
+        $alertOutput = @(& $context.python_exe -B $alertAudit 2>&1 | ForEach-Object { "$_" })
+        if ($LASTEXITCODE -ne 0) { throw ($alertOutput -join [Environment]::NewLine) }
+        $checks += New-EsirCheckResult -Name 'runtime-alerts' -Status 'ok' -Details $alertOutput
+    } catch {
+        $checks += New-EsirCheckResult -Name 'runtime-alerts' -Status 'failed' -Errors @($_.Exception.Message)
+    }
+
     $lua = Test-EsirReachableLuaFiles -Paths $Paths -Context $context
     $checks += New-EsirCheckResult -Name 'lua-syntax' -Status $(if ($lua.skipped) { 'skipped' } elseif (@($lua.failures).Count -gt 0) { 'failed' } else { 'ok' }) -Errors @($lua.failures | ForEach-Object { '{0}: {1}' -f (Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $_.file), $_.error }) -Details $lua
 

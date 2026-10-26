@@ -3,7 +3,7 @@
 -- owns: administration authorization, commands, GUI routing and reversible-state coordination
 -- loaded_by: control.lua (sole dispatcher)
 -- cadence: explicit actions and lifecycle events; bounded due work only while active
--- forwarded_events: on_configuration_changed, GUI/player/permission/entity/surface/chunk/research events, has_tick_work, updater, repair_runtime_state
+-- forwarded_events: on_configuration_changed, menu input, GUI/player/permission/entity/surface/chunk/research events, has_tick_work, updater, repair_runtime_state
 -- storage_roots: storage.ei.admin_tools (shared with scripts/control/admin modules)
 -- gui_ids: ei-admin-console, ei-admin-launcher
 -- remote_interfaces: none
@@ -334,6 +334,11 @@ end
 
 function model.repair_runtime_state(_,tick) model.on_configuration_changed(tick);return true end
 function model.open(player,page,tick) gui.open(player,page,tick) end
+---@param event EventData.CustomInputEvent
+function model.on_toggle_menu(event)
+    local player=game.get_player(event.player_index)
+    if player then gui.toggle(player,event.tick) end
+end
 function model.peek_runtime_summary(tick) return {enabled=common.enabled(),world=world.peek_summary(),players=players.peek_summary(tick),restrictions=restrictions.peek_summary()} end
 function model.register_commands()
     commands.add_command("ei-admin",{"ei-admin.command-help"},function(event)

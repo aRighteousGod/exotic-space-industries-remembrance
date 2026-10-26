@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-data: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ff3930" stroke="none" stroke-width="0"/>
+<polyline points="27,89 42,89 52,56 59,83" fill="none" stroke="#242627" stroke-width="9" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="69,94 73,106 85,74 93,89 102,89" fill="none" stroke="#242627" stroke-width="9" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

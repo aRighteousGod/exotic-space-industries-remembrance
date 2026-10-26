@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-tree-stress: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ffcf00" stroke="none" stroke-width="0"/>
+<polyline points="40,110 40,87 47,65 59,57 71,62" fill="none" stroke="#242627" stroke-width="9" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="59,49 75,51 88,70 92,105 78,96 64,76 56,60" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

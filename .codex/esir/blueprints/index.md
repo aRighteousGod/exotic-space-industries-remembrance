@@ -20,9 +20,10 @@ from source and does not trust generated manifests or installed mod selection.
 
 | Model | Owned source files |
 | --- | ---: |
+| [Unified native alerts and personal settings](runtime-alerts.md#contract) | 3 |
 | [Ordinary slag recovery](slag-recovery.md#contract) | 1 |
 | [Worker robot progression and fleet conversion](robot-progression.md#contract) | 2 |
-| [Arc and plasma ore smelting](plasma-smelting.md#contract) | 3 |
+| [Arc and plasma ore smelting](plasma-smelting.md#contract) | 5 |
 | [Cryo container families](cryo-containers.md#contract) | 1 |
 | [Planetary enemy populations](planet-enemies.md#contract) | 3 |
 | [Native map settings and future-planet overrides](map-settings.md#contract) | 3 |
@@ -42,6 +43,8 @@ from source and does not trust generated manifests or installed mod selection.
 | [Crystal accumulator resonance](crystal-accumulator.md#contract) | 1 |
 | [Native entity death profiles and inherited operational shells](death-explosions.md#contract) | 1 |
 | [Entity hit effects, interaction sounds and native previews](entity-presentation.md#contract) | 3 |
+| [Production building status lights](machine-status-lights.md#contract) | 4 |
+| [Native cold mist](cryo-mist.md#contract) | 1 |
 | [EM train charging and research rollout](em-trains.md#contract) | 3 |
 | [Emerald Apocalypse charge, doctrine, motion, and orbital shards](emerald-apocalypse.md#contract) | 4 |
 | [Flamethrower fuel variants and replacement transactions](flamethrower-fuel-adaptation.md#contract) | 2 |
@@ -54,7 +57,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Gate transport and receiver selection](gate.md#contract) | 1 |
 | [Hemocrystal wall event-started regeneration](hemocrystal-wall.md#contract) | 1 |
 | [Impact firefighting and powered water-turret service](firefighting-and-water-turret.md#contract) | 5 |
-| [Induction matrix topology and power](induction-matrix.md#contract) | 1 |
+| [Induction matrix topology and power](induction-matrix.md#contract) | 2 |
 | [Matter stabilizer containment](matter-stabilizer.md#contract) | 1 |
 | [Mining scar events and working-drill opportunities](mining-scars.md#contract) | 1 |
 | [Minigun turret separated native graphics](minigun-turret-graphics.md#contract) | 6 |
@@ -65,7 +68,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Orbital scanner banks and demand caches](orbital-combinator.md#contract) | 1 |
 | [Railgun coolant proxies, heat debt, and recovery](railgun-cooling.md#contract) | 2 |
 | [Research scaling, progression migrations, and victory](research-and-progression.md#contract) | 7 |
-| [Rocket launch consequences and visual scheduling](rocket-launch-pollution.md#contract) | 1 |
+| [Rocket launch consequences and visual scheduling](rocket-launch-pollution.md#contract) | 2 |
 | [Runtime orchestration and registry ownership](runtime-orchestration.md#contract) | 3 |
 | [Sawblade event-owned animation and sound gates](sawblade-turret.md#contract) | 1 |
 | [Shared runtime helper boundaries](shared-runtime-helpers.md#contract) | 6 |

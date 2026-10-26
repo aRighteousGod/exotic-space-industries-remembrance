@@ -37,7 +37,8 @@ if not config.baseline then
         check(old and new, row[1].." both recipe IDs exist")
         check(old.category == "ei-arc-smelting" and new.category == "ei-plasma-smelting", row[1].." categories: "..old.category.." / "..new.category)
         check(#new.ingredients == 1 and new.ingredients[1].name == row[2] and new.ingredients[1].amount == row[4], row[1].." inputs")
-        check(#new.results == 1 and new.results[1].name == row[3] and new.results[1].amount == row[6] and new.results[1].temperature == 900, row[1].." output")
+        check(#new.results == 1 and new.results[1].name == row[3] and new.results[1].amount == row[6], row[1].." output without slag")
+        check(new.results[1].temperature == old.results[1].temperature and (new.results[1].temperature or data.raw.fluid[row[3]].default_temperature) == row[9], row[1].." preserved output temperature")
         check(new.energy_required == row[7] and new.maximum_productivity == 3, row[1].." time and cap")
         check(not new.enabled and not new.hidden_in_factoriopedia and #new.icons == 3 and new.localised_name, row[1].." presentation")
         local unlocks = 0

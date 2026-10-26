@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-cryo: ESIR cast-metal signal sigil</title>
+<defs>
+<linearGradient id="ceramic" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#fff0cf"/>
+<stop offset="0.48" stop-color="#d9c6a4"/>
+<stop offset="1" stop-color="#a0927b"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b3bdc1"/>
+<stop offset="0.48" stop-color="#66747e"/>
+<stop offset="1" stop-color="#35414b"/>
+</linearGradient>
+<linearGradient id="amber" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffdc85"/>
+<stop offset="0.48" stop-color="#f2a239"/>
+<stop offset="1" stop-color="#bd6224"/>
+</linearGradient>
+<linearGradient id="red" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffb18b"/>
+<stop offset="0.48" stop-color="#e16b47"/>
+<stop offset="1" stop-color="#9f3d2b"/>
+</linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#dcf1ac"/>
+<stop offset="0.48" stop-color="#8bc47a"/>
+<stop offset="1" stop-color="#3b7965"/>
+</linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b9ead2"/>
+<stop offset="0.48" stop-color="#61bdab"/>
+<stop offset="1" stop-color="#316e70"/>
+</linearGradient>
+<linearGradient id="earth" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#e7d4a5"/>
+<stop offset="0.48" stop-color="#b39b70"/>
+<stop offset="1" stop-color="#71614a"/>
+</linearGradient>
+</defs>
+<polygon points="50.238,15 65.476,15 65.476,40.714 85.476,28.333 95.952,41.667 74.048,55.952 103.571,66.429 98.81,81.667 71.19,71.19 71.19,91.19 55.952,104.524 55.952,67.381 31.19,81.667 21.667,68.333 45.476,54.048 22.619,40.714 31.19,27.381 50.238,39.762" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="48.238,12 63.476,12 63.476,37.714 83.476,25.333 93.952,38.667 72.048,52.952 101.571,63.429 96.81,78.667 69.19,68.19 69.19,88.19 53.952,101.524 53.952,64.381 29.19,78.667 19.667,65.333 43.476,51.048 20.619,37.714 29.19,24.381 48.238,36.762" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="48.238,12 63.476,12 63.476,37.714 83.476,25.333 93.952,38.667 72.048,52.952 101.571,63.429 96.81,78.667 69.19,68.19 69.19,88.19 53.952,101.524 53.952,64.381 29.19,78.667 19.667,65.333 43.476,51.048 20.619,37.714 29.19,24.381 48.238,36.762" fill="url(#ceramic)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="77.857,90.238 96.905,83.571 108.333,97.857 93.095,115 79.762,111.19" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="75.857,87.238 94.905,80.571 106.333,94.857 91.095,112 77.762,108.19" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="75.857,87.238 94.905,80.571 106.333,94.857 91.095,112 77.762,108.19" fill="url(#amber)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="49.19,49.143 62.524,44.381 73,54.857 58.714,64.381 46.333,59.619" fill="url(#amber)" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

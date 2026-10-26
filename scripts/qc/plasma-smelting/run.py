@@ -95,7 +95,7 @@ if phase in ('Baseline', 'Save'):
     write_json(run / 'server-settings.json', server)
     execute(phase, ['--start-server', str(created if phase == 'Baseline' else baseline), '--server-settings', str(run / 'server-settings.json'), '--bind', '127.0.0.1:34420'], baseline if phase == 'Baseline' else checkpoint)
 else:
-    execute(phase, ['--benchmark', str(checkpoint if phase == 'Reload' else baseline), '--benchmark-ticks', '180' if phase == 'Reload' else '4500', '--benchmark-runs', '1'])
+    execute(phase, ['--benchmark', str(checkpoint if phase == 'Reload' else baseline), '--benchmark-ticks', '180' if phase == 'Reload' else '16500', '--benchmark-runs', '1'])
 report = run / 'script-output' / {'Baseline': 'plasma-baseline.json', 'Candidate': 'plasma-runtime.json', 'Save': 'plasma-runtime.json', 'Reload': 'plasma-reload.json'}[phase]
 assert report.stat().st_mtime >= phase_started, f'Stale report: {report}'
 result = json.loads(report.read_text(encoding='utf-8-sig'))

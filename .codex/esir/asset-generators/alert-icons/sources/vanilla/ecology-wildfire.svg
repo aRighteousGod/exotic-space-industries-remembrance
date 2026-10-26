@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-wildfire: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ff3930" stroke="none" stroke-width="0"/>
+<polygon points="50,45 64,69 57,69 70,87 56,87 56,110 45,110 45,87 30,87 42,69 38,69" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="82,64 83,79 92,73 101,93 97,105 87,112 75,108 70,97 73,82" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

@@ -12,6 +12,10 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-10-25 | induction-scripted-tile-removal | pre-existing schema gap | Factorio 2.0.77 script_raised_set_tiles supplies Tile[] without old_tile, while the matrix removal handler requires old_tile. Scripted replacement of matrix floor can leave topology stale until reanalysis; native player mining and floor rejoining pass the circuit acceptance fixture.`
+  - `Files:` `exotic-space-industries-remembrance/scripts/control/induction-matrix.lua` (`on_destroyed_tile`), `scripts/qc/induction-circuit/instrument.lua`.
+  - `Next safe move:` add bounded invalidation for scripted tile replacement without assuming the missing old tile. Cover split, unsupported core removal, unrelated tiles, and preserved settings before changing the existing tile contract.
+
 - `2026-10-15 | planetary-enemy-seeds | revisit on Factorio 2.1 | Factorio 2.0.77 couples spot_noise expressions sharing placement seeds even with different density/radius. User approved native seeds at 1/1 and deterministic family-specific seeds for adjusted Nauvis controls; defaults stay exact, adjusted nest positions may move.`
   - `Files:` `exotic-space-industries-remembrance/scripts/data-final-updates/planet-enemies.lua`, `scripts/control/planet-enemies.lua`, `scripts/qc/planet-enemies/v2-generation.lua`, `scripts/qc/planet-enemies/check-v2-generation.py`, [enemy blueprint](blueprints/planet-enemies.md#seed-compatibility).
   - `Next safe move:` on the Factorio 2.1 upgrade, verify the [upstream spot-noise fix](https://forums.factorio.com/131528), rerun default and mixed-family generation comparisons with native seeds, then decide a saved-map-compatible transition. Do not silently reseed existing customized saves or remove the workaround based only on a version number.
@@ -118,3 +122,7 @@ Close or remove entries in the same patch that resolves them.
 - `2026-04-15 | runtime-scheduler | intentional-local | steam train tracked and active unit sets are dense membership queues, not FIFO queues.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/steam-train.lua`
   - `Next safe move:` leave local unless there is a broader shared need for swap-remove queue helpers.
+
+## Unified alert wording
+
+The new operational alert labels, category-switch explanations and gate toggle have English locale anchors in `runtime-alerts.cfg`; other languages currently use Factorio's English fallback for these new keys. Existing ecology translations and saved setting keys are preserved. Extend the new strings with native review, especially accepted Japanese terminology; do not replace established ecology prose with mechanical translations.

@@ -48,10 +48,20 @@ mutating status getters.
 
 `/ei-admin [page]` opens a movable native screen frame. Pages are created lazily
 and hidden on navigation, preserving text edits, focus and scroll state. The
+unbound `ei-toggle-admin-menu` control toggles the visible window through the same
+authorized open/close paths, preserving its page and drafts. A retained hidden
+root is closed state. `control.lua` forwards the custom-input event and its tick;
+the control remains assignable with the toolkit disabled but cannot open it.
+Launcher visibility does not gate keyboard access. The
 per-player mod-gui launcher is shown by default for authorized administrators.
 `ensure_session` initializes a missing launcher preference to true; an explicit
 false remains hidden. Join/promotion/configuration hooks reconcile the shortcut
-without opening a page or starting refresh work. Target selectors do not
+without opening a page or starting refresh work. The toolbar's launcher toggle is
+highlighted while the shortcut is shown, matching Ecology. Hiding it leaves the
+open console usable. Saved windows adopt their existing tagged toggle in place,
+preserving page trees, drafts, scroll positions, location and auto-refresh state;
+opening and launcher reconciliation synchronize the highlight without polling.
+Target selectors do not
 create planetary surfaces. Mutation confirms identify the actual resolved target.
 Graphics 6 owns the transparent Overseer's Seal shared by the launcher and title.
 Its native sprite is 32 GUI units inside the existing 40-unit mod-gui button;

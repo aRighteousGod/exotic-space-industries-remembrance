@@ -32,3 +32,8 @@ Build/destroy hooks register sender/container/receiver relationships. Receiver c
 ## Verification contract
 
 Test same/cross-surface transfer, quality-bearing items, unavailable/full receivers, insufficient energy, saturation, circuit changes, target deletion, cancelled remote selection, player cleanup, and reload. Compare transferred contents and charged energy. Preserve native transport policy while modifying documentation or tick plumbing.
+
+<a id="alerts"></a>
+## Native warning and source control
+
+The gate owns one `gate-low-power` condition in the [shared alert handler](runtime-alerts.md#contract), keyed by sender unit number and targeted at the visible container. Both power paths evaluate effective manual/circuit enablement and the existing 100 GJ threshold. Recovery, disablement, removal or `alerts_enabled=false` clears it. Missing source preferences default On; saved Off survives registry rebuilds, while new/blueprint/clone records start On. The checkbox beneath enable validates tags, identity and force access, participates in projection caching, and refreshes other open consoles. Personal type and category settings remain mandatory.

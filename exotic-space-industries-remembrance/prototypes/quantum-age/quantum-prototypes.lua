@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/plasma-smelting.md#contract
 -- this file contains the prototype definition for varios stuff from quantum age
 
 local ei_data = require("lib/data")
@@ -1250,7 +1251,7 @@ data:extend({
     {
         name = "ei-molten-neodym",
         type = "recipe",
-        category = "ei-arc-furnace",
+        category = "ei-arc-smelting",
         energy_required = 2,
         ingredients = {
             {type = "item", name = "ei-pure-crushed-neodym", amount = 1},

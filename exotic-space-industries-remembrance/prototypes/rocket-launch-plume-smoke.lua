@@ -1,6 +1,6 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: rocket launch plume smoke prototype
+-- owns: rocket launch plume smoke and pollution statistics source prototypes
 -- loaded_by: exotic-space-industries-remembrance\data.lua
 -- cadence: data-stage load
 -- forwarded_events: none
@@ -9,6 +9,23 @@
 -- remote_interfaces: none
 -- rebuild_on: data stage reload, base trivial-smoke changes
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/rocket-launch-pollution.md#contract
+
+-- Statistics identity only: never instantiated, placed, or shown in Factoriopedia.
+-- Death effects, interaction sounds and preview scenes intentionally do not apply.
+data:extend({{
+  type = "simple-entity",
+  name = "ei-rocket-launch-pollution",
+  localised_name = {"exotic-industries-informatron.rocket-launch-pollution"},
+  icon = "__base__/graphics/icons/rocket-part.png",
+  icon_size = 64,
+  hidden = true,
+  hidden_in_factoriopedia = true,
+  flags = {"not-on-map"},
+  selectable_in_game = false,
+  collision_mask = {layers = {}},
+  picture = {filename = "__core__/graphics/empty.png", width = 1, height = 1},
+}})
 
 local source_smoke = data.raw["trivial-smoke"] and data.raw["trivial-smoke"]["smoke"]
 

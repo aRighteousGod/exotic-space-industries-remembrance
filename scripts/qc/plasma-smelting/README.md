@@ -1,6 +1,6 @@
 # Plasma smelting acceptance
 
-Register a `plasma-smelting` / `conservative-six-recipes` housekeeping run for
+Register a `plasma-smelting` / `conservative-seven-recipes` housekeeping run for
 Factorio 2.0.77. Before editing, copy the main mod into the run's
 `baseline/exotic-space-industries-remembrance` directory using long-path-safe
 file copies. Run these phases separately through the repo wrapper:
@@ -13,15 +13,20 @@ powershell -File scripts/invoke-plasma-smelting-qc.ps1 -RunId <id> -Phase Save
 powershell -File scripts/invoke-plasma-smelting-qc.ps1 -RunId <id> -Phase Reload
 ```
 
-Baseline runs all six feedstocks in both native furnaces, then saves at a craft
+Baseline runs all seven feedstocks in both native furnaces, then saves at a craft
 boundary with input items, molten fluid and slag buffered. Candidate loads the
 save with the live mod and checks identity, inventory/fluid preservation, old
-research and new unlocks. Thirty-six native machines process 100 batches each
+research and new unlocks. Forty-two native machines process 100 batches each
 at zero, inherited and above-cap research. Only their electrical buffers are
 replenished by the fixture; machine speed, categories, outputs and productivity
 are unmodified. Fluid and item outputs are collected each tick.
 
-Final-data assertions cover six recipes, thirty research effects, unlocks,
+The baseline may already contain the six earlier plasma routes. Recipe selection
+and comparisons retain those routes and their research effects while checking the
+new neodymium route. Neodymium retains its existing 15 C fluid default; the six
+earlier recipes retain 900 C. Native fluid outputs are checked before collection.
+
+Final-data assertions cover seven recipes, thirty-five research effects, unlocks,
 categories, icons and inherited entity presentation. Baseline comparison covers
 all existing arc/gas recipes, protected machine fields and research definitions.
 Save writes a real candidate checkpoint; Reload checks its machines and research.

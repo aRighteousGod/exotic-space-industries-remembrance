@@ -1,0 +1,182 @@
+[
+  {
+    "id": "fluid-thermal",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      51,
+      8,
+      1207,
+      1238
+    ],
+    "original": "fluid-thermal.png",
+    "prompt": "fluid-thermal.prompt.txt"
+  },
+  {
+    "id": "fluid-chemical",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      8,
+      172,
+      1249,
+      1079
+    ],
+    "original": "fluid-chemical.png",
+    "prompt": "fluid-chemical.prompt.txt"
+  },
+  {
+    "id": "fluid-rupture",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      57,
+      405,
+      1197,
+      912
+    ],
+    "original": "fluid-rupture.png",
+    "prompt": "fluid-rupture.prompt.txt"
+  },
+  {
+    "id": "ecology-wildfire",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      164,
+      27,
+      1116,
+      1226
+    ],
+    "original": "ecology-wildfire.png",
+    "prompt": "ecology-wildfire.prompt.txt"
+  },
+  {
+    "id": "ecology-flood",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      34,
+      40,
+      1241,
+      1218
+    ],
+    "original": "ecology-flood.png",
+    "prompt": "ecology-flood.prompt.txt"
+  },
+  {
+    "id": "ecology-drought",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      25,
+      79,
+      1229,
+      1179
+    ],
+    "original": "ecology-drought.png",
+    "prompt": "ecology-drought.prompt.txt"
+  },
+  {
+    "id": "ecology-cliff",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      18,
+      36,
+      1228,
+      1229
+    ],
+    "original": "ecology-cliff.png",
+    "prompt": "ecology-cliff.prompt.txt"
+  },
+  {
+    "id": "ecology-paving",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      47,
+      94,
+      1219,
+      1158
+    ],
+    "original": "ecology-paving.png",
+    "prompt": "ecology-paving.prompt.txt"
+  },
+  {
+    "id": "ecology-pollution",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "bounds_alpha32": [
+      89,
+      43,
+      1220,
+      1215
+    ],
+    "original": "ecology-pollution.png",
+    "prompt": "ecology-pollution.prompt.txt"
+  }
+]

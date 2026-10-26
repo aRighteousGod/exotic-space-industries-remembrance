@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-regrowth: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#72d65b" stroke="none" stroke-width="0"/>
+<polygon points="34,111 34,101 29,96 26,86 34,89 38,97 42,89 50,86 47,96 42,102 42,111" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="60,111 60,62 50,57 47,47 60,50 64,58 68,50 81,47 78,57 68,63 68,111" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="86,111 86,101 81,96 78,86 86,89 90,97 94,89 102,86 99,96 94,102 94,111" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

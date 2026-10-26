@@ -12,6 +12,7 @@
 -- blueprint: .codex/esir/blueprints/fluid-safety-and-ruptures.md#contract
 
 local model = {}
+local alerts = require("lib/alerts")
 local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
@@ -768,6 +769,7 @@ local function add_runtime_entry(runtime, entity)
     return entry
 end
 
+-- blueprint-ref: .codex/esir/blueprints/fluid-safety-and-ruptures.md#lifecycle
 local function get_segment_representative(runtime, segment_id, tick)
     local segment = runtime.segments[segment_id]
     if not segment then
@@ -776,7 +778,11 @@ local function get_segment_representative(runtime, segment_id, tick)
 
     local unit_number = segment.representative_unit
     local entry = unit_number and runtime.entries_by_unit[unit_number] or nil
-    if entry and entry.entity and entry.entity.valid and entry.last_segment_id == segment_id then
+    -- Topology may change before queued membership repair reaches this entry.
+    -- Never read a detached representative's fluid as this segment's contents.
+    if entry and entry.entity and entry.entity.valid and entry.last_segment_id == segment_id
+        and get_fluidbox_segment_id(entry.entity) == segment_id
+    then
         return entry, segment
     end
 
@@ -1231,7 +1237,7 @@ local function drain_entity_fluid(entity)
     return fluid_name, amount
 end
 
-local function drain_segment_fluid(runtime, segment_id, fluid_name, tick)
+local function drain_segment_fluid(runtime, segment_id, fluid_name, tick, allow_converted_fluid)
     local representative_entry = get_segment_representative(runtime, segment_id, tick)
     if not representative_entry then
         return fluid_name, 0, nil
@@ -1251,7 +1257,7 @@ local function drain_segment_fluid(runtime, segment_id, fluid_name, tick)
     local live_name, live_amount = get_first_fluid_name_and_amount(live_contents)
     local target_name = fluid_name
     local target_amount = get_named_fluid_amount(live_contents, target_name)
-    local converted_name = cryo_conversion_lookup[fluid_name]
+    local converted_name = allow_converted_fluid and cryo_conversion_lookup[fluid_name]
     if converted_name then
         local converted_amount = get_named_fluid_amount(live_contents, converted_name)
         if converted_amount > 0 then
@@ -1509,7 +1515,8 @@ local function apply_breach_context(runtime, segment_id, segment, context, tick)
     local replacement_entry = context.replacement_entry or context.entry
     local replacement_amount = nil
     if context.drain_mode == "segment" then
-        local drained_name, drained_amount, representative_entry = drain_segment_fluid(runtime, segment_id, context.fluid_name, tick)
+        local drained_name, drained_amount, representative_entry = drain_segment_fluid(
+            runtime, segment_id, context.fluid_name, tick, context.breach_kind ~= "phase-shift")
         if drained_name then
             context.fluid_name = drained_name
             context.incompatible_name = context.incompatible_name or drained_name
@@ -1534,6 +1541,16 @@ local function apply_breach_context(runtime, segment_id, segment, context, tick)
         context.replacement_entry = replacement_entry
         replacement_amount = drained_amount or 0
         context.drained_amount = replacement_amount
+    end
+
+    -- A vent is evidence of liquid actually boiling off, not an old classification.
+    -- Destructive data-line handling may still drain gas converted earlier this audit.
+    if context.breach_kind == "phase-shift"
+        and ((context.drained_amount or 0) <= 0
+            or context.fluid_name ~= context.incompatible_name
+            or not cryo_conversion_lookup[context.fluid_name])
+    then
+        return false
     end
 
     local aftermath_result = "skipped"
@@ -1818,7 +1835,14 @@ maybe_notify_breach = function(segment, context, tick)
         segment.last_notified_signature = signature
     end
 
-    ei_lib.notify_connected_players("insulated_pipe", build_breach_notification_message(context, entity))
+    local alert_id = context.breach_kind == "phase-shift" and "fluid-phase-shift"
+        or (context.family == "data" and "fluid-data")
+        or (context.family == "cryo" and "fluid-cryo")
+        or (context.family == "thermal" and "fluid-thermal")
+        or (context.family == "chemical" and "fluid-chemical") or "fluid-rupture"
+    alerts.record_incident("operational",alert_id,{
+        entity=entity,message=build_breach_notification_message(context,entity),
+    },tick)
 
     spawn_breach_floating_text(entity, context, context.breach_kind == "phase-shift" and "serenity" or "wrath")
 end

@@ -32,6 +32,7 @@
 - Use [esir-conceptual-blueprints](.codex/skills/esir-conceptual-blueprints/SKILL.md) before adding systems or substantively changing behavior, lifecycle, state ownership, scheduling, or cross-file/stage contracts. Read the relevant model in [the blueprint index](.codex/esir/blueprints/index.md), then reconcile the model, source commentary, and code in the same patch. Small wording, formatting, and cosmetic edits do not require a new model.
 
 ## Runtime And Control
+- Use [shared runtime alerts](.codex/skills/esir-dev/references/runtime-alerts.md) for automatic operational/ecology alerts. Every catalogue type must generate a visible personal toggle with an explicit default; only `lib/alerts.lua` owns native alert calls. Source switches cannot override personal Off. Current custom alert icons ship in the main mod.
 - Follow [runtime development standards](.codex/skills/esir-dev/references/runtime-development-standards.md) for UPS defaults, explicit module-call families, required exports, idle-path exceptions, and evidence. Preflight's runtime contract audit is advisory even under `-Strict`.
 - Default new runtime work to event-first control. Start from exact lifecycle hooks before adding `on_tick`, `on_nth_tick`, queues, or periodic scans.
 - Keep `control.lua` as the only top-level dispatcher. Feature modules may own local state and cadence, but should not create parallel scheduling surfaces.

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-cryo: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#00c2ee" stroke="none" stroke-width="0"/>
+<polyline points="42.349,67.5 85.651,92.5" fill="none" stroke="#242627" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="64,55 64,105" fill="none" stroke="#242627" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="85.651,67.5 42.349,92.5" fill="none" stroke="#242627" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="48,61 53,73 40,73" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="80,61 75,73 88,73" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="48,98 53,87 40,87" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="79,99 75,87 88,87" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="57,92 70,86 76,91 59,99" fill="#00c2ee" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

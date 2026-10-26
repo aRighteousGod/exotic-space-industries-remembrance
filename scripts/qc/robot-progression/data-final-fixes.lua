@@ -2,9 +2,9 @@
 local config = require("test-config")
 local specs = {
     {"logistic-robot", "ei-cargo-bot", 25, 0.1, "6.25kJ", 1400},
-    {"logistic-robot", "ei-advanced-logistic-bot", 30, 0.30, "5kJ", 2100},
+    {"logistic-robot", "ei-advanced-logistic-bot", 30, 0.30, "10kJ", 2100},
     {"construction-robot", "ei-construction-bot", 5, 0.1, "10kJ", 1400},
-    {"construction-robot", "ei-advanced-construction-bot", 10, 0.24, "2.5kJ", 2100},
+    {"construction-robot", "ei-advanced-construction-bot", 10, 0.24, "5kJ", 2100},
 }
 local snapshot = {entities = {}, recipes = {}, technology = table.deepcopy(data.raw.technology["ei-advanced-bots"])}
 local fields = {"speed", "max_payload_size", "max_health", "max_energy", "energy_per_move", "energy_per_tick",

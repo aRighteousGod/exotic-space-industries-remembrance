@@ -1,0 +1,1 @@
+-- Version marker only. The runner appends instrument.lua to the staged main mod.

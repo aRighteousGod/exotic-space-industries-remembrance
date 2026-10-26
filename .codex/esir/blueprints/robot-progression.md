@@ -15,9 +15,9 @@ payload handling, persistent state, or scheduling.
 | Robot | Payload | Tiles/tick | Movement energy | Flight energy/tick | Battery | Health |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Obelisk | 25 | 0.10 | 6.25 kJ | 2.25 kJ | 25 MJ | 1,400 |
-| Wraithline | 30 | 0.30 | 5 kJ | 0.1 kJ | 200 MJ | 2,100 |
+| Wraithline | 30 | 0.30 | 10 kJ | 0.1 kJ | 200 MJ | 2,100 |
 | Spearling | 5 | 0.10 | 10 kJ | 0.1 kJ | 25 MJ | 1,400 |
-| Architectum | 10 | 0.24 | 2.5 kJ | 0.1 kJ | 50 MJ | 2,100 |
+| Architectum | 10 | 0.24 | 5 kJ | 0.1 kJ | 50 MJ | 2,100 |
 
 Base values precede native research and quality. Charging thresholds and depleted
 speed multipliers are unchanged. Native construction job scheduling means payload

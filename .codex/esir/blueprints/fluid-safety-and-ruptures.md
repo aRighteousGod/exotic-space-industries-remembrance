@@ -49,7 +49,15 @@ Observed tick debt: fluid service currently replaces a normalized tick <=0 with 
 
 Registration changes repair segment membership and enqueue work. Configuration changes reset the ignore cache and rebuild only when mods/startup settings changed; discovery scans occur there, not as each tick's registration mechanism. Persisted queue version 2 normalizes older queue representations. Queued entities are revalidated during service; effect jobs carry enough surface/position context to survive source removal. Job counts and next-due metadata must remain consistent when rings finish or fail.
 
+A cached segment representative must still report the audited segment's live ID before its contents are read. A pipe-network split or merge can precede bounded membership repair; the old representative must never lend its new network's fluid classification to the old network. Cryogenic phase shifts drain only the original liquid and require positive actual removal before conversion, vent effects, floating text or alert admission. Converted-gas draining remains available for destructive data-line processing after a legitimate same-audit phase shift.
+
 <a id="verification"></a>
 ## Verification and maintenance
 
 For positional admin effects, test invalid/ungenerated targets, every family and energy, neutral attribution, the pre-mutation target limit, lean/standard ceilings, admission while active, and reload before the first queued ring. Mocked control-flow checks do not establish engine effect appearance. Reuse `esir-dev/references/fluid-rupture-qc-helper.md` for family/carrier/platform scenarios and `scripts/qc/event-tick` for fluid warning timing. Test sustained urgent churn with budget 1, dirty/background fairness, ignored names, empty/dead entities, overdue rings, and reload midway through a rupture. Operation budgets do not prove a whole-factory UPS result.
+
+## Alert delivery
+
+The fluid classifier and existing notification throttle stay feature-owned. Six catalogue IDs (phase-shift, data, cryo, thermal, chemical and rupture) capture sources before destruction through the [shared handler](runtime-alerts.md#contract), which owns force-filtered 60-second incidents and separate personal toggles under the retained fluid category switch.
+
+`scripts/qc/fluid-safety/runtime.lua` covers stale representatives over empty, water, oil and ordinary gas networks, stale phase-shift contexts, and genuine nitrogen/oxygen conversion. Native fixture evidence is separate from mocked boundary coverage.

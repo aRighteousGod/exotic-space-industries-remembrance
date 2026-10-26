@@ -10,9 +10,8 @@
 -- rebuild_on: none
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/terrain-evolution.md#contract
-local model={definitions={},schema={},by_name={},categories={
-    "wildfire","flood","drought","cliff","paving","pollution","restoration","depletion-scars","working-scars",
-    "mining-restoration","tree-stress","tree-recovery","regrowth","aging","rot","thermal","blood"}}
+local catalog=require("lib/alert-catalog")
+local model={definitions={},schema={},by_name={},categories=catalog.ecology_categories}
 local function define(key,kind,default)
     local row={key=key,name="ei-ecology-alert-"..key,type=kind,default=default}
     model.schema[#model.schema+1]=row;model.by_name[row.name]=row
@@ -23,6 +22,10 @@ define("enabled","bool-setting",true)
 define("surfaces","string-setting","all")
 define("current-surface-only","bool-setting",false)
 define("allow-unrevealed","bool-setting",false)
-local defaults={wildfire=true,flood=true,drought=true,cliff=true,paving=true}
-for _,category in ipairs(model.categories) do define(category,"bool-setting",defaults[category] or false) end
+-- Category settings are generated once by the shared catalogue in settings.lua.
+for _,category in ipairs(model.categories) do
+    local entry=catalog.by_id["ecology-"..category]
+    local row={key=category,name=entry.setting_name,type="bool-setting",default=entry.default_enabled}
+    model.schema[#model.schema+1]=row;model.by_name[row.name]=row
+end
 return model

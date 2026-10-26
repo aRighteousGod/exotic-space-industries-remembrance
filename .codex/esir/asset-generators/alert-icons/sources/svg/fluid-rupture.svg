@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-rupture: ESIR cast-metal signal sigil</title>
+<defs>
+<linearGradient id="ceramic" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#fff0cf"/>
+<stop offset="0.48" stop-color="#d9c6a4"/>
+<stop offset="1" stop-color="#a0927b"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b3bdc1"/>
+<stop offset="0.48" stop-color="#66747e"/>
+<stop offset="1" stop-color="#35414b"/>
+</linearGradient>
+<linearGradient id="amber" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffdc85"/>
+<stop offset="0.48" stop-color="#f2a239"/>
+<stop offset="1" stop-color="#bd6224"/>
+</linearGradient>
+<linearGradient id="red" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffb18b"/>
+<stop offset="0.48" stop-color="#e16b47"/>
+<stop offset="1" stop-color="#9f3d2b"/>
+</linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#dcf1ac"/>
+<stop offset="0.48" stop-color="#8bc47a"/>
+<stop offset="1" stop-color="#3b7965"/>
+</linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b9ead2"/>
+<stop offset="0.48" stop-color="#61bdab"/>
+<stop offset="1" stop-color="#316e70"/>
+</linearGradient>
+<linearGradient id="earth" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#e7d4a5"/>
+<stop offset="0.48" stop-color="#b39b70"/>
+<stop offset="1" stop-color="#71614a"/>
+</linearGradient>
+</defs>
+<polygon points="17.727,40.455 46.818,40.455 39.545,59.545 50.455,73.182 37.727,87.727 17.727,87.727" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="15.727,37.455 44.818,37.455 37.545,56.545 48.455,70.182 35.727,84.727 15.727,84.727" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="15.727,37.455 44.818,37.455 37.545,56.545 48.455,70.182 35.727,84.727 15.727,84.727" fill="url(#ceramic)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="83.182,40.455 112.273,40.455 112.273,87.727 81.364,87.727 93.182,70.455 81.364,58.636" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="81.182,37.455 110.273,37.455 110.273,84.727 79.364,84.727 91.182,67.455 79.364,55.636" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="81.182,37.455 110.273,37.455 110.273,84.727 79.364,84.727 91.182,67.455 79.364,55.636" fill="url(#ceramic)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="22.273,32.273 22.273,95.909" fill="none" stroke="#101920" stroke-width="22.545" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="20.273,29.273 20.273,92.909" fill="none" stroke="#5e686b" stroke-width="19.545" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="20.273,29.273 20.273,92.909" fill="none" stroke="url(#steel)" stroke-width="14.545" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="107.727,32.273 107.727,95.909" fill="none" stroke="#101920" stroke-width="22.545" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="105.727,29.273 105.727,92.909" fill="none" stroke="#5e686b" stroke-width="19.545" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="105.727,29.273 105.727,92.909" fill="none" stroke="url(#steel)" stroke-width="14.545" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="56.818,19.545 71.364,19.545 68.636,42.273 58.636,42.273" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="54.818,16.545 69.364,16.545 66.636,39.273 56.636,39.273" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="54.818,16.545 69.364,16.545 66.636,39.273 56.636,39.273" fill="url(#red)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="58.636,86.818 69.545,86.818 75,110.455 54.091,110.455" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="56.636,83.818 67.545,83.818 73,107.455 52.091,107.455" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="56.636,83.818 67.545,83.818 73,107.455 52.091,107.455" fill="url(#red)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

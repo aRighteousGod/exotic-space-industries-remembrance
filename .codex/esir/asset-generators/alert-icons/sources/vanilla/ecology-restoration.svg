@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-restoration: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#72d65b" stroke="none" stroke-width="0"/>
+<polygon points="25,88 50,88 60,98 52,111 25,111" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="78,88 103,88 103,111 76,111 68,98" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="40,69 51,69 51,60 64,75 51,88 51,80 36,80" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="77,60 77,69 88,69 92,80 77,80 77,88 64,75" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

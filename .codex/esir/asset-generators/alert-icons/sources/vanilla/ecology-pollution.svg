@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-pollution: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ffcf00" stroke="none" stroke-width="0"/>
+<ellipse cx="52.5" cy="68" rx="11.5" ry="11" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<ellipse cx="68.5" cy="63.5" rx="11.5" ry="15.5" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<ellipse cx="82" cy="71" rx="9" ry="9" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="35,104 47,84 70,83 94,97 77,110 52,113" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="44,105 78,92" fill="none" stroke="#ffcf00" stroke-width="6" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

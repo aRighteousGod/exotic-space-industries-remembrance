@@ -2,7 +2,7 @@
 -- ESIR FILE MAP
 -- owns: rocket launch pollution, launch retaliation, and visual smoke queues
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: ordered-launch visual queueing, confirmed-launch consequences, and due-tick smoke/cleanup work
+-- cadence: active-launch ignition checks, 10-tick pollution, and due-tick smoke/cleanup work
 -- forwarded_events: has_tick_work, on_rocket_launch_ordered, on_rocket_launched, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
@@ -13,20 +13,20 @@
 --[[
 Rocket launch pollution and visual exhaust lifecycle
 
-This module deliberately splits launch order visuals from confirmed launch
-gameplay consequences:
+Launch records own both combustion accounting and their visual jobs:
 
 - on_rocket_launch_ordered computes the pollution amount, records the pending
-  launch, and starts any selected smoke visuals.
+  launch, and schedules the selected smoke visuals.
 - Pad exhaust ("spiral" and hybrid's reduced bloom) starts at
-  silo.prototype.launch_wait_time. It is an annular ground effect around the
+  verified native ignition, after the launch-wait delay. It is an annular ground effect around the
   launch well, with the center aperture and rocket column kept clear. When a
   plume is also enabled, pad exhaust tapers out and stops as that plume begins.
 - The ascending plume starts later, after the plume ignition/lift-off delay, and
   is removed once the confirmed launch event arrives.
-- on_rocket_launched is the only path that applies pollution and retaliation.
-  Ordered-but-canceled launches keep their visual smoke bounded by stale cleanup
-  and never emit gameplay pollution.
+- Native engine_starting begins pollution and permits pad exhaust. Pollution
+  accrues over 812 reference ticks, independently of visual style and budgets.
+- on_rocket_launched settles only the unpaid balance and triggers retaliation.
+  Canceled launches stop new smoke and pollution; their existing emissions remain.
 - has_tick_work gates runtime updates. Smoke jobs store next_tick summaries so
   idle periods do not run control work. Pad-exhaust jobs sleep between emission
   stride boundaries, but advance their remaining lifetime exactly as the old
@@ -52,6 +52,10 @@ Evolution factor is typically in [0, 1], but we clamp anyway for safety.
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local model = {}
+local LAUNCH_STATE_VERSION = 1
+local LAUNCH_POLLUTION_SOURCE = "ei-rocket-launch-pollution"
+local LAUNCH_BURN_TICKS = 812
+local LAUNCH_EMISSION_STRIDE = 10
 local ROCKET_LAUNCH_CONFIRM_GRACE_TICKS = 120
 local ROCKET_LAUNCH_VISUAL_STYLE_DEFAULT = "hybrid"
 local ROCKET_LAUNCH_VISUAL_STYLES = {
@@ -88,7 +92,26 @@ local try_form_retaliation
 
 ---@alias EiRocketLaunchVisualStyle "hybrid"|"plume"|"cinematic"|"spiral"
 
+---@class EiRocketLaunch
+---@field silo_unit_number uint
+---@field ordered_tick MapTick
+---@field silo LuaEntity|nil
+---@field rocket LuaEntity|nil
+---@field surface_index uint
+---@field position MapPosition
+---@field pollution number
+---@field emitted_pollution number
+---@field ignition_tick MapTick|nil
+---@field next_emission_tick MapTick|nil
+---@field confirmed boolean|nil
+---@field canceled boolean|nil
+---@field legacy_unresolved_rocket boolean|nil
+---@field flight_started boolean|nil Silo closure precedes the rocket's actual completion event.
+---@field expected_tick MapTick
+---@field tick MapTick
+
 ---@class EiRocketLaunchSmokeJob
+---@field launch EiRocketLaunch|nil Shared identity and ledger; survives pending-map removal on confirmation.
 ---@field kind "plume"|"spiral"|nil
 ---@field silo_unit_number uint|nil
 ---@field surface_index uint
@@ -408,7 +431,7 @@ end
 ---@param kind "plume"|"spiral"|nil
 ---@return uint removed_count
 ---@param current_tick MapTick
-local function remove_launch_smoke_jobs_for_silo(state, silo_unit_number, kind, current_tick)
+local function remove_launch_smoke_jobs_for_silo(state, silo_unit_number, kind, current_tick, launch)
   if not silo_unit_number then
     return 0
   end
@@ -426,6 +449,7 @@ local function remove_launch_smoke_jobs_for_silo(state, silo_unit_number, kind, 
     local job = jobs[read_index]
     if type(job) == "table"
         and job.silo_unit_number == silo_unit_number
+        and (launch == nil or job.launch == launch)
         and (kind == nil or job.kind == kind) then
       removed_count = removed_count + 1
     else
@@ -451,8 +475,8 @@ end
 ---@param silo_unit_number uint|nil
 ---@return uint removed_count
 ---@param current_tick MapTick
-local function remove_plume_jobs_for_silo(state, silo_unit_number, current_tick)
-  return remove_launch_smoke_jobs_for_silo(state, silo_unit_number, "plume", current_tick)
+local function remove_plume_jobs_for_silo(state, silo_unit_number, current_tick, launch)
+  return remove_launch_smoke_jobs_for_silo(state, silo_unit_number, "plume", current_tick, launch)
 end
 
 ---@param state table
@@ -472,6 +496,87 @@ local function count_launch_smoke_jobs(state)
   return plume_jobs, spiral_jobs
 end
 
+---@param launch EiRocketLaunch|nil
+---@param current_tick MapTick
+---@return boolean alive
+---@return boolean burning
+local function launch_phase(launch, current_tick)
+  if not launch or launch.canceled then return false, false end
+  local surface = game.surfaces[launch.surface_index]
+  local silo = ei_lib.get_valid_entity(launch.silo)
+  if not (surface and surface.valid and silo and silo.type == "rocket-silo"
+      and silo.unit_number == launch.silo_unit_number and silo.surface == surface) then
+    return false, false
+  end
+  if launch.confirmed then return true, false end
+  local rocket = ei_lib.get_valid_entity(launch.rocket)
+  if not (rocket and rocket.surface == surface) then return false, false end
+  local status = silo.rocket_silo_status
+  local phases = defines.rocket_silo_status
+  local attached = silo.rocket
+  if status == phases.rocket_flying and (attached == nil or attached == rocket) then
+    launch.flight_started = true
+  end
+  -- Once airborne the rocket outlives silo closure and possibly the next rocket.
+  -- Before flight, a different attached rocket is an actual replacement.
+  if launch.flight_started then return true, true end
+  if attached ~= rocket then return false, false end
+  local burning = status == phases.engine_starting or status == phases.arms_retract
+      or status == phases.rocket_flying
+  return burning or status == phases.launch_starting or status == phases.launch_started
+      or (current_tick == launch.ordered_tick and status == phases.rocket_ready), burning
+end
+
+---@param launch EiRocketLaunch
+---@return string
+local function launch_key(launch)
+  return launch.silo_unit_number .. ":" .. launch.ordered_tick
+end
+
+---@param launch EiRocketLaunch
+---@param target number Cumulative budget, never an additional full launch charge.
+---@param current_tick MapTick
+local function emit_launch_pollution(launch, target, current_tick)
+  local surface = game.surfaces[launch.surface_index]
+  if not (surface and surface.valid) then return end
+  local total = math.max(0, tonumber(launch.pollution) or 0)
+  local emitted = tonumber(launch.emitted_pollution) or 0
+  local amount = math.max(0, math.min(total, target) - emitted)
+  if amount <= 0 then return end
+  surface.pollute(launch.position, amount, LAUNCH_POLLUTION_SOURCE)
+  launch.emitted_pollution = emitted + amount
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "pollution_emitted", amount, current_tick)
+end
+
+---@param launch EiRocketLaunch
+---@param current_tick MapTick
+local function adopt_pending_launch(launch, current_tick)
+  launch.ordered_tick = launch.ordered_tick or launch.expected_tick or launch.tick or current_tick
+  launch.emitted_pollution = tonumber(launch.emitted_pollution) or 0
+  launch.silo = ei_lib.get_valid_entity(launch.silo)
+      or game.get_entity_by_unit_number(launch.silo_unit_number)
+  -- Vanilla silos lack get-by-unit-number. Legacy recovery is a one-time,
+  -- exact-position lookup with identity verification, never a world scan.
+  local surface = game.surfaces[launch.surface_index]
+  if not launch.silo and surface and surface.valid and launch.position then
+    for _, silo in pairs(surface.find_entities_filtered{position = launch.position, type = "rocket-silo"}) do
+      if silo.unit_number == launch.silo_unit_number then launch.silo = silo; break end
+    end
+  end
+  if ei_lib.entity_check(launch.silo) and launch.silo.type == "rocket-silo" then
+    launch.rocket = ei_lib.get_valid_entity(launch.rocket) or launch.silo.rocket
+    local phase = launch.silo.rocket_silo_status
+    local phases = defines.rocket_silo_status
+    -- Native closure retains the already-airborne rocket until its later event.
+    -- Legacy saves lack the phase observation that new records persist.
+    if ei_lib.entity_check(launch.rocket) and launch.silo.rocket == launch.rocket
+        and (phase == phases.rocket_flying or phase == phases.lights_blinking_close or phase == phases.doors_closing) then
+      launch.flight_started = true
+    end
+  end
+  launch.legacy_unresolved_rocket = launch.rocket == nil
+end
+
 local function ensure_launch_state(current_tick)
   current_tick = current_tick or 0
   storage.ei = storage.ei or {}
@@ -487,6 +592,7 @@ local function ensure_launch_state(current_tick)
   end
   state.visual_style = get_visual_style(state)
   state.pending_launches_by_silo = state.pending_launches_by_silo or {}
+  state.detached_launches = state.detached_launches or {}
   state.pending_launch_cleanup_buckets = ei_runtime_scheduler.ensure_delayed_buckets(
     state.pending_launch_cleanup_buckets
   )
@@ -499,8 +605,7 @@ local function ensure_launch_state(current_tick)
   end
 
   -- Older saves may still carry predicted liftoff queues from the pre-confirmation path.
-  -- Migrate them into pending launches so the actual `on_rocket_launched` event becomes
-  -- the sole authority for whether the pollution consequence fires.
+  -- Import unpaid records before the one-time combustion schema adoption below.
   state.legacy_liftoff_work = has_legacy_liftoff_work(state)
   if state.liftoff_queue and #state.liftoff_queue > 0 then
     for _, job in ipairs(state.liftoff_queue) do
@@ -511,7 +616,8 @@ local function ensure_launch_state(current_tick)
       if job.silo_unit_number then
         job.tick = expected_tick
         job.expected_tick = expected_tick
-        state.pending_launches_by_silo[job.silo_unit_number] = job
+        state.pending_launches_by_silo[job.silo_unit_number] = state.pending_launches_by_silo[job.silo_unit_number] or job
+        state.launch_state_version = nil
         schedule_pending_cleanup(
           state,
           expected_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS,
@@ -533,7 +639,8 @@ local function ensure_launch_state(current_tick)
           end
           job.tick = expected_tick
           job.expected_tick = expected_tick
-          state.pending_launches_by_silo[job.silo_unit_number] = job
+          state.pending_launches_by_silo[job.silo_unit_number] = state.pending_launches_by_silo[job.silo_unit_number] or job
+          state.launch_state_version = nil
           schedule_pending_cleanup(
             state,
             expected_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS,
@@ -546,6 +653,23 @@ local function ensure_launch_state(current_tick)
     state.legacy_liftoff_work = false
   end
 
+  if state.launch_state_version ~= LAUNCH_STATE_VERSION then
+    for _, launch in pairs(state.pending_launches_by_silo) do
+      adopt_pending_launch(launch, current_tick)
+    end
+    local retained = {}
+    for _, job in ipairs(state.launch_smoke) do
+      local launch = job.launch or state.pending_launches_by_silo[job.silo_unit_number]
+      if launch and launch_phase(launch, current_tick) then
+        job.launch = launch
+        retained[#retained + 1] = job
+      end
+    end
+    -- Unverifiable legacy smoke is retired; already-created particles still fade.
+    state.launch_smoke = retained
+    refresh_launch_smoke_summary(state, current_tick)
+    state.launch_state_version = LAUNCH_STATE_VERSION
+  end
   return state
 end
 
@@ -562,6 +686,15 @@ local function queue_pending_launch(job, current_tick)
 
   job.tick = expected_tick
   job.expected_tick = expected_tick
+  job.ordered_tick = current_tick
+  job.emitted_pollution = job.emitted_pollution or 0
+  local previous = state.pending_launches_by_silo[job.silo_unit_number]
+  if previous then
+    -- A fast relaunch must not overwrite the earlier rocket's paid balance.
+    if not previous.flight_started then previous.canceled = true end
+    state.detached_launches[launch_key(previous)] = previous
+    state.next_detached_check_tick = current_tick
+  end
   state.pending_launches_by_silo[job.silo_unit_number] = job
   local cleanup_tick = math.max(
     expected_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS,
@@ -572,7 +705,8 @@ local function queue_pending_launch(job, current_tick)
     cleanup_tick,
     {silo_unit_number = job.silo_unit_number, expected_tick = expected_tick}
   )
-  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_ordered", 1)
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_ordered", 1, current_tick)
+  return job
 end
 
 -- Computes how much pollution a rocket launch should emit based on:
@@ -1062,15 +1196,8 @@ local function spawn_launch_smoke_spiral(
     return
   end
 
-  local burst_pending = start_tick > current_tick
-
-  if not burst_pending then
-    local fade_scale = get_pad_exhaust_fade_scale(stop_tick, fade_out_ticks, current_tick)
-    local scaled_burst_count = scale_pad_exhaust_emit_count(burst_count, fade_scale, 2)
-    if scaled_burst_count > 0 then
-      emit_launch_spiral_burst(surface, pos, scaled_burst_count, SMOKE_NAME, geometry)
-    end
-  end
+  -- Even a short-delay prototype must pass the native ignition guard before its burst.
+  local burst_pending = true
 
   local next_tick = clamp_smoke_due_to_stop_tick(
     burst_pending and start_tick or (current_tick + 1),
@@ -1363,11 +1490,20 @@ local function update_launch_smoke(current_tick)
     local keep_job = false
     local job_next_tick = nil
     if type(job) == "table" then
-      infer_pad_exhaust_handoff_from_plume(job, plume_start_ticks)
-      if job.kind == "plume" then
-        keep_job, plume_budget, job_next_tick = update_launch_smoke_plume_job(job, plume_budget, current_tick)
-      else
-        keep_job, job_next_tick = update_launch_smoke_spiral_job(job, current_tick)
+      local alive, burning = launch_phase(job.launch, current_tick)
+      if alive and (burning or job.launch.confirmed) then
+        infer_pad_exhaust_handoff_from_plume(job, plume_start_ticks)
+        if job.kind == "plume" then
+          keep_job, plume_budget, job_next_tick = update_launch_smoke_plume_job(job, plume_budget, current_tick)
+        else
+          keep_job, job_next_tick = update_launch_smoke_spiral_job(job, current_tick)
+        end
+      elseif alive then
+        -- Preserve pad lifetime while waiting for actual ignition, not its estimate.
+        keep_job = true
+        job.next_tick = math.max(tonumber(job.next_tick) or 0, current_tick + 1)
+        job.last_tick = current_tick
+        job_next_tick = job.next_tick
       end
     end
 
@@ -1465,12 +1601,13 @@ local function apply_confirmed_launch(job)
   end
 
   local state = ensure_launch_state(job.tick or (game and game.tick) or 0)
-  -- Ordered launch owns the visual smoke sequence. Confirmation only stops the
-  -- ascending plume and applies gameplay consequences so aborted orders cannot pollute.
-  remove_plume_jobs_for_silo(state, job.silo_unit_number, job.tick)
+  if job.confirmed then return false end
+  -- Smoke shares this record, so the pad tail survives normal rocket disappearance.
+  job.confirmed = true
+  remove_plume_jobs_for_silo(state, job.silo_unit_number, job.tick, job)
 
   local pollution = tonumber(job.pollution) or 0
-  surface.pollute(job.position, pollution)
+  emit_launch_pollution(job, pollution, job.tick)
   draw_launch_hover_text(
     surface,
     job.position,
@@ -1479,7 +1616,7 @@ local function apply_confirmed_launch(job)
     LAUNCH_POLLUTION_TEXT_OFFSET_Y
   )
   try_form_retaliation(surface, job.position, pollution)
-  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "liftoff_processed", 1)
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "liftoff_processed", 1, job.tick)
   return true
 end
 
@@ -1652,6 +1789,60 @@ try_form_retaliation = function(surface, position, pollution)
   return true
 end
 
+---@param state table
+---@param launch EiRocketLaunch
+---@param current_tick MapTick
+local function cancel_pending_launch(state, launch, current_tick)
+  launch.canceled = true
+  if state.pending_launches_by_silo[launch.silo_unit_number] == launch then
+    state.pending_launches_by_silo[launch.silo_unit_number] = nil
+  end
+  -- A detached rocket can still confirm after its silo dies. Retain its canceled
+  -- accounting only while that rocket exists, so fallback cannot charge it again.
+  state.detached_launches[launch_key(launch)] = ei_lib.entity_check(launch.rocket) and launch or nil
+  state.next_detached_check_tick = math.min(state.next_detached_check_tick or (current_tick + 60), current_tick + 60)
+  remove_launch_smoke_jobs_for_silo(state, launch.silo_unit_number, nil, current_tick, launch)
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_canceled", 1, current_tick)
+end
+
+-- blueprint-ref: .codex/esir/blueprints/rocket-launch-pollution.md#tick-flow
+-- There is no native ignition event. Observe only ordered launches, then use
+-- cumulative targets so skipped emission ticks and save/reload cannot overcharge.
+---@param state table
+---@param current_tick MapTick
+local function update_pending_launches(state, current_tick)
+  local function update_launch(launch)
+    local alive, burning = launch_phase(launch, current_tick)
+    if not alive then
+      cancel_pending_launch(state, launch, current_tick)
+    elseif burning then
+      if launch.ignition_tick == nil then
+        launch.ignition_tick = current_tick
+        launch.next_emission_tick = current_tick
+        ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "ignition_started", 1, current_tick)
+      end
+      if current_tick >= (launch.next_emission_tick or current_tick) then
+        local fraction = math.min((current_tick - launch.ignition_tick + 1) / LAUNCH_BURN_TICKS, 1)
+        emit_launch_pollution(launch, launch.pollution * fraction, current_tick)
+        launch.next_emission_tick = current_tick + LAUNCH_EMISSION_STRIDE
+      end
+    end
+  end
+  -- Service old airborne records first; cancellation may move a current record here.
+  if current_tick >= (state.next_detached_check_tick or 0) then
+    state.next_detached_check_tick = current_tick + 60
+    for key, launch in pairs(state.detached_launches) do
+      if launch.canceled then
+        if not ei_lib.entity_check(launch.rocket) then state.detached_launches[key] = nil end
+      else
+        update_launch(launch)
+        if not launch.canceled then state.next_detached_check_tick = current_tick + 1 end
+      end
+    end
+  end
+  for _, launch in pairs(state.pending_launches_by_silo) do update_launch(launch) end
+end
+
 local function cleanup_stale_pending_launches(current_tick)
   local state = ensure_launch_state(current_tick)
   local pending_item_count = tonumber(state.pending_cleanup_item_count) or 0
@@ -1705,13 +1896,17 @@ local function cleanup_stale_pending_launches(current_tick)
   for _, entry in ipairs(due_entries) do
     local pending = entry and entry.silo_unit_number and state.pending_launches_by_silo[entry.silo_unit_number] or nil
     if pending and pending.expected_tick == entry.expected_tick then
-      state.pending_launches_by_silo[entry.silo_unit_number] = nil
-      remove_launch_smoke_jobs_for_silo(state, entry.silo_unit_number, nil, current_tick)
-      ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_canceled", 1)
+      if launch_phase(pending, current_tick) then
+        schedule_pending_cleanup(state, current_tick + ROCKET_LAUNCH_CONFIRM_GRACE_TICKS, entry)
+      else
+        cancel_pending_launch(state, pending, current_tick)
+      end
     end
   end
 end
 
+---@param event EventData.on_tick
+---@return boolean
 function model.has_tick_work(event)
   local state = storage and storage.ei and storage.ei.rocket_launch_pollution or nil
   if type(state) ~= "table" then
@@ -1719,13 +1914,19 @@ function model.has_tick_work(event)
   end
 
   local current_tick = ei_lib.get_event_tick(event)
-  return is_launch_smoke_due(state, current_tick) or is_pending_cleanup_due(state, current_tick)
+  return state.launch_state_version ~= LAUNCH_STATE_VERSION
+      or (state.pending_launches_by_silo ~= nil and next(state.pending_launches_by_silo) ~= nil)
+      or (state.detached_launches ~= nil and next(state.detached_launches) ~= nil
+          and current_tick >= (state.next_detached_check_tick or 0))
+      or is_launch_smoke_due(state, current_tick) or is_pending_cleanup_due(state, current_tick)
 end
 
+---@param event EventData.on_tick
 function model.updater(event)
   if not (storage.ei and storage.ei.rocket_launch_pollution) then return end
-  local state = storage.ei.rocket_launch_pollution
   local current_tick = event.tick
+  local state = ensure_launch_state(current_tick)
+  update_pending_launches(state, current_tick)
   if is_pending_cleanup_due(state, current_tick) then
     cleanup_stale_pending_launches(current_tick)
   end
@@ -1734,15 +1935,14 @@ function model.updater(event)
   end
 end
 
--- Ordered launches own visual sequencing. Confirmed launches later decide
--- whether the stored pollution consequences actually fire.
+-- Ordered launches capture the budget and exact rocket; native ignition owns combustion.
 local function queue_rocket_liftoff_wrath(silo, pollution, event)
   if not silo or not silo.valid then return end
   if not silo.unit_number then return end
   local surface = silo.surface
   local pos = silo.position
 
-  -- Sync point: how long from "ordered" until the rocket actually launches.
+  -- Earliest expected ignition; the native phase remains authoritative.
   local delay = silo.prototype.launch_wait_time or 0
 
   local state = ensure_launch_state(event.tick)
@@ -1777,17 +1977,23 @@ local function queue_rocket_liftoff_wrath(silo, pollution, event)
     queue_launch_plume(state, surface, pos, silo.unit_number, pollution, event.tick, true)
   end
 
-  queue_pending_launch({
+  local launch = queue_pending_launch({
     tick = expected_tick,
     surface_index = surface.index,
     position = { x = pos.x, y = pos.y },
     silo_unit_number = silo.unit_number,
     pollution = pollution,
     cleanup_tick = cleanup_tick,
+    silo = silo,
+    rocket = event.rocket,
   }, event.tick)
+  for _, job in ipairs(state.launch_smoke) do
+    if job.silo_unit_number == silo.unit_number then job.launch = launch end
+  end
 end
 
--- Ordered launch: queue visuals and remember the predicted confirmation tick.
+-- Ordered launch: queue guarded visuals and capture the fixed pollution budget.
+---@param event EventData.on_rocket_launch_ordered
 function model.on_rocket_launch_ordered(event)
   local silo = event.rocket_silo
   if not (silo and silo.valid) then return end
@@ -1801,33 +2007,58 @@ function model.on_rocket_launch_ordered(event)
   queue_rocket_liftoff_wrath(silo, pollution, event)
 end
 
--- Confirmed launch: apply pollution/retaliation once, then clear the pending
--- plume. Pad exhaust is already running from the ordered launch timing.
+-- Confirmation settles only the unpaid balance; it alone owns retaliation.
+---@param event EventData.on_rocket_launched
 function model.on_rocket_launched(event)
-  local silo = event.rocket_silo
-  if not (silo and silo.valid) then
-    return
-  end
-
-  local surface = silo.surface
-  local force = silo.force
-  if not (surface and surface.valid and force and force.valid) then
-    return
-  end
-
   local state = ensure_launch_state(event.tick)
-  local pending = silo.unit_number and state.pending_launches_by_silo[silo.unit_number] or nil
+  local silo = ei_lib.get_valid_entity(event.rocket_silo)
+  local pending = silo and silo.unit_number and state.pending_launches_by_silo[silo.unit_number] or nil
+  if pending and pending.rocket ~= event.rocket and not pending.legacy_unresolved_rocket then pending = nil end
+  if not pending then
+    -- Factorio can detach the rocket and omit rocket_silo from the completion event.
+    for _, launch in pairs(state.pending_launches_by_silo) do
+      if launch.rocket == event.rocket then pending = launch; break end
+    end
+  end
+  if not pending then
+    for _, launch in pairs(state.detached_launches) do
+      if launch.rocket == event.rocket then pending = launch; break end
+    end
+  end
+  if not pending then
+    -- Repair/interference can lose the index while smoke retains the paid ledger.
+    -- Reuse that exact rocket's record before considering an untracked full charge.
+    for _, smoke in ipairs(state.launch_smoke) do
+      if smoke.launch and smoke.launch.rocket == event.rocket then pending = smoke.launch; break end
+    end
+  end
   if pending then
-    state.pending_launches_by_silo[silo.unit_number] = nil
-    pending.surface_index = surface.index
-    pending.position = { x = silo.position.x, y = silo.position.y }
+    if pending.rocket == nil and pending.legacy_unresolved_rocket then
+      pending.rocket = event.rocket
+    end
+    if pending.rocket ~= event.rocket then return end
     pending.tick = event.tick
-    apply_confirmed_launch(pending)
+    if not pending.canceled and ei_lib.entity_check(pending.silo) then apply_confirmed_launch(pending) end
+    if state.pending_launches_by_silo[pending.silo_unit_number] == pending then
+      state.pending_launches_by_silo[pending.silo_unit_number] = nil
+    end
+    state.detached_launches[launch_key(pending)] = nil
     return
   end
 
   -- Fallback for migration edge cases or external runtime interference that loses the
   -- ordered-launch record. Confirmed launches still get their pollution consequences.
+  local rocket = ei_lib.get_valid_entity(event.rocket)
+  if not silo and rocket then
+    local pod = ei_lib.get_valid_entity(rocket.attached_cargo_pod)
+    local origin = pod and ei_lib.get_valid_entity(pod.cargo_pod_origin) or nil
+    if origin and origin.type == "rocket-silo" then silo = origin end
+  end
+  -- A genuinely untracked rocket without any surviving origin cannot identify
+  -- its launch pad: its current position is already high above that pad.
+  if not silo then return end
+  local surface, force = silo.surface, silo.force
+  if not (surface.valid and force.valid) then return end
   local pollution = get_rocket_launch_pollution(force, surface)
   apply_confirmed_launch({
     tick = event.tick,
@@ -1835,16 +2066,29 @@ function model.on_rocket_launched(event)
     position = { x = silo.position.x, y = silo.position.y },
     silo_unit_number = silo.unit_number,
     pollution = pollution,
+    emitted_pollution = 0,
+    silo = silo,
+    rocket = event.rocket,
   })
-  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_untracked", 1)
+  ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "launch_untracked", 1, event.tick)
 end
 
 function model.get_runtime_status()
   storage.ei = storage.ei or {}
   storage.ei.rocket_launch_pollution = storage.ei.rocket_launch_pollution or {}
-  local state = ensure_launch_state(game and game.tick or 0)
+  local current_tick = game and game.tick or 0
+  local state = ensure_launch_state(current_tick)
   local plume_jobs, spiral_jobs = count_launch_smoke_jobs(state)
+  local burning_launches, pending_emitted_pollution = 0, 0
+  for _, launch in pairs(state.pending_launches_by_silo) do
+    if launch.ignition_tick ~= nil then burning_launches = burning_launches + 1 end
+    pending_emitted_pollution = pending_emitted_pollution + (launch.emitted_pollution or 0)
+  end
   local status = {
+    launch_state_version = state.launch_state_version,
+    detached_launches = ei_runtime_scheduler.table_count(state.detached_launches),
+    burning_launches = burning_launches,
+    pending_emitted_pollution = pending_emitted_pollution,
     visual_style = get_visual_style(state),
     pending_launch_count = ei_runtime_scheduler.table_count(state.pending_launches_by_silo),
     pending_cleanup_bucket_count = tonumber(state.pending_cleanup_bucket_count) or 0,
@@ -1862,7 +2106,7 @@ function model.get_runtime_status()
     launch_smoke = tonumber(state.launch_smoke_count) or 0,
   }
 
-  ei_runtime_scheduler.set_module_status("rocket-launch-pollution", status)
+  ei_runtime_scheduler.set_module_status("rocket-launch-pollution", status, current_tick)
   return status
 end
 

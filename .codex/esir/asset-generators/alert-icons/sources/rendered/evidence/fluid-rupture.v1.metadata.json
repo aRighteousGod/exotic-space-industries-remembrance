@@ -1,0 +1,8 @@
+﻿{
+    "id":  "fluid-rupture",
+    "source":  "C:/Users/Theorun/.codex/generated_images/01a17469-a8c7-7b43-980b-0e59213d7722/exec-c0c600e2-6e2d-42af-aaf7-c151e010ac2e.png",
+    "provider":  "builtin-imagegen",
+    "prompt":  "fluid-rupture.prompt.txt",
+    "background":  "transparent",
+    "review":  "First pass cropped at left/right; needs wider framing before acceptance"
+}

@@ -1,7 +1,7 @@
 <a id="contract"></a>
 # Arc and plasma ore smelting
 
-Six ore routes have distinct native furnace categories. Plasma heaters recover
+Seven ore routes have distinct native furnace categories. Plasma heaters recover
 more molten metal without slag; arc furnaces retain their original yields.
 This data-stage contract owns no runtime state, events or cadence.
 
@@ -10,11 +10,13 @@ This data-stage contract owns no runtime state, events or cadence.
 - [arc-furnace.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/arc-furnace.lua)
 - [plasma-heater.lua](../../../exotic-space-industries-remembrance/prototypes/quantum-age/plasma-heater.lua)
 - [productivity.lua](../../../exotic-space-industries-remembrance/prototypes/productivity.lua)
+- [quantum-age.lua](../../../exotic-space-industries-remembrance/prototypes/quantum-age/quantum-age.lua)
+- [quantum-prototypes.lua](../../../exotic-space-industries-remembrance/prototypes/quantum-age/quantum-prototypes.lua)
 
 <a id="routing"></a>
 ## Recipe routing and recovery
 
-The six original recipes move into `ei-arc-smelting`, accepted by arc furnaces.
+The seven original recipes use `ei-arc-smelting`, accepted by arc furnaces.
 Their `ei-plasma-molten-*` counterparts use `ei-plasma-smelting`, accepted only by
 plasma heaters. Both machines retain `ei-arc-furnace` for other shared recipes.
 Krastorio's existing arc-to-assembler conversion retains the category list.
@@ -23,21 +25,33 @@ Krastorio's existing arc-to-assembler conversion retains the category list.
 | --- | ---: | ---: | ---: |
 | 3 poor iron/copper chunks | 15 | 20 | 0.33 |
 | 1 purified iron/copper/gold/lead | 40 | 50 | 0.25 |
+| 1 crushed, purified neodymium | 20 | 25 | 2 |
 
-Outputs preserve fluid identity and 900 C temperature. Only the new plasma ore
-routes omit slag. Remelting, carbon and gas recipes, purification, machine speed,
+Outputs preserve fluid identity and the source recipe's temperature: 900 C for
+iron/copper/gold/lead, and the existing fluid default (15 C) for neodymium.
+Only the new plasma ore routes omit slag. Remelting, carbon and gas recipes,
+purification, machine speed,
 power and modules remain unchanged. Finished-metal remelting must not gain the
 recovery bonus, avoiding casting/remelting multiplication loops.
 
-The existing heater technology unlocks all six variants. Names and layered
+The quantum-age aggregator loads `plasma-heater.lua` after `quantum-prototypes.lua`
+so the neodymium recipe and feedstock exist before cloning. Explicit per-route
+yields keep neodymium at 25 rather than the other purified ores' 50. The original
+neodymium recipe keeps its 20 output, slag lottery and Neodymium refining unlock;
+the extraction and purification chain is unchanged.
+
+The existing heater technology unlocks all seven variants. Names and layered
 product/input/heater icons distinguish them. Death and presentation fields remain
 inherited from the existing final-data owners.
 
 <a id="research"></a>
 ## Research and existing saves
 
-All five `ei-productivity-pure-ore-smelting*` tiers mirror the six ore effects:
-+5% per level for poor chunks, +10% for purified ores, with the native +300% cap.
+All five `ei-productivity-pure-ore-smelting*` tiers mirror the seven ore effects:
++5% per level for poor chunks, +10% for purified ores including neodymium, with
+the native +300% cap. Neodymium recovers 25% more metal per input and produces
+56.25% more per second at the heater's existing 1.25 speed; electricity per unit
+remains approximately 43% higher including constant drain, without modules.
 Research costs and levels are unchanged; furnace productivity modules remain
 unsupported. Original recipe IDs and research definitions remain stable.
 

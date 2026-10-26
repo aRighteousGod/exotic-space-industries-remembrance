@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-phase-shift: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ffcf00" stroke="none" stroke-width="0"/>
+<polygon points="49,56 65,82 64,96 55,106 43,106 34,98 33,84" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="78,104 88,93 79,81 88,68 81,57" fill="none" stroke="#242627" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

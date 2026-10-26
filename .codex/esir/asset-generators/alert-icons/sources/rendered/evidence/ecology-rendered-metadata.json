@@ -1,0 +1,325 @@
+{
+  "generator": "built-in image_gen",
+  "role": "AI-rendered original candidates; no shipping writes",
+  "alpha": "Transparent RGBA originals preserved",
+  "notes": "Working-scars received a framing-only imagegen correction. Original cropped draft retained separately. Root owns downsample/native review. Original files contain faint alpha 1-3 noise away from the subject; meaningful alpha>=8 bounds all retain margins. Blood has a 5px source margin and should receive normal export fit/padding. No image pixels were altered.",
+  "icons": [
+    {
+      "id": "ecology-restoration",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-restoration.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        9,
+        1239,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "sha256": "efdc85bbf7b41077b83be9116285a4c6e0c36a9d29a0f937f2113c2f3f8ae326",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-9f4b557f-81e2-4ccb-a15e-7db2599e81bd.png",
+      "prompt_path": "ecology-restoration.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        20,
+        107,
+        1237,
+        1174
+      ],
+      "meaningful_min_margin": 17
+    },
+    {
+      "id": "ecology-depletion-scars",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-depletion-scars.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        18,
+        1238,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "sha256": "734c1eb78d8b1cc6741d6e7a60eee3ed4d6fef352d4ba17b543cf656b8a839c1",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-00206625-0059-48fd-b207-8a4412fe060e.png",
+      "prompt_path": "ecology-depletion-scars.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        18,
+        58,
+        1231,
+        1218
+      ],
+      "meaningful_min_margin": 18
+    },
+    {
+      "id": "ecology-working-scars",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-working-scars.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        49,
+        1218,
+        1210
+      ],
+      "edge_alpha": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "sha256": "7bd189334036051f6c1bee389acf391c9234e1c9182fd789e9e9fd2193a9a5a1",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-272dc41f-ef68-4a26-b1cb-60f51551d90a.png",
+      "prompt_path": "ecology-working-scars.prompt.txt",
+      "framing_prompt_path": "ecology-working-scars.framing-prompt.txt",
+      "rejected_draft": "ecology-working-scars-cropped-draft.png",
+      "alpha_at_least_8_bbox": [
+        160,
+        58,
+        1186,
+        1210
+      ],
+      "meaningful_min_margin": 44
+    },
+    {
+      "id": "ecology-tree-recovery",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-tree-recovery.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        15,
+        1224,
+        1243
+      ],
+      "edge_alpha": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "sha256": "fbf4ed8ef14d9f85825189cd22242380ce4048658db2f6e0e7815149c6628079",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-aa80a7b6-70ec-4f7e-b54a-7d28278db041.png",
+      "prompt_path": "ecology-tree-recovery.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        276,
+        20,
+        1111,
+        1240
+      ],
+      "meaningful_min_margin": 14
+    },
+    {
+      "id": "ecology-regrowth",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-regrowth.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        23,
+        1238,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "sha256": "53de1a857be3274533dd969f5fafbac037e6773e4b1eb2ca5fad76add7270b4a",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-850906b6-b9e9-4b86-81e1-1c42f4a033f9.png",
+      "prompt_path": "ecology-regrowth.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        66,
+        60,
+        1222,
+        1223
+      ],
+      "meaningful_min_margin": 31
+    },
+    {
+      "id": "ecology-aging",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-aging.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        9,
+        1243,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "sha256": "bc71346f6fea13e1bd46349fabfc03372d4c3414ea1ba0b0e0934471f31a6a36",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-1f51b3c5-0428-4ce1-98ac-322231fb7cd1.png",
+      "prompt_path": "ecology-aging.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        29,
+        55,
+        1240,
+        1220
+      ],
+      "meaningful_min_margin": 14
+    },
+    {
+      "id": "ecology-rot",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-rot.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        9,
+        1254,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "sha256": "24fab57a1198cb1b72e42f2ded285b4cfffb13af56866ae8d12e987b4a5cf506",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-43c75844-515a-4b6d-815d-facda5271265.png",
+      "prompt_path": "ecology-rot.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        30,
+        83,
+        1228,
+        1179
+      ],
+      "meaningful_min_margin": 26
+    },
+    {
+      "id": "ecology-thermal",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-thermal.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        17,
+        1240,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "sha256": "dcea62703dcc5da8323c142d63f2e2afa16ad453cf919f89dfee4ca832f45a60",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-c934c03d-565a-4c71-8a9a-2ac275c9316f.png",
+      "prompt_path": "ecology-thermal.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        21,
+        100,
+        1234,
+        1186
+      ],
+      "meaningful_min_margin": 20
+    },
+    {
+      "id": "ecology-blood",
+      "path": ".factorio-qc\\ai1\\rendered\\ecology-blood.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        0,
+        14,
+        1234,
+        1254
+      ],
+      "edge_alpha": [
+        0,
+        3,
+        1,
+        0
+      ],
+      "sha256": "754fc0996d2f7fbe6e530e3acacf034424dc60f7bb903b2838bf9e2cf7e8e304",
+      "source_generated_path": "C:\\Users\\Theorun\\.codex\\generated_images\\01a1746f-4e18-7293-8a46-f49ea4949c32\\exec-95cf74e7-73be-4d72-bb19-05665e56b4a7.png",
+      "prompt_path": "ecology-blood.prompt.txt",
+      "alpha_at_least_8_bbox": [
+        145,
+        17,
+        1120,
+        1249
+      ],
+      "meaningful_min_margin": 5
+    }
+  ]
+}

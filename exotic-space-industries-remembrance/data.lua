@@ -102,3 +102,4 @@ end
 
 -- ei_lib.sb(alien_biomes_priority_tiles)
 require("prototypes/terrain-evolution")
+require("prototypes/alerts")

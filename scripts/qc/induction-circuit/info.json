@@ -1,0 +1,8 @@
+{
+  "name": "zzz-esir-induction-circuit-qc",
+  "version": "0.0.1",
+  "title": "Induction matrix circuit QC",
+  "author": "Codex",
+  "factorio_version": "2.0",
+  "dependencies": ["exotic-space-industries-remembrance"]
+}

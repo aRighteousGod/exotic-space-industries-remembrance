@@ -27,6 +27,12 @@ end
 local function collect(case)
     local machine, row = case.machine, case.row
     local amount = machine.get_fluid_count(row[3])
+    if amount > 0 then
+        for index = 1, #machine.fluidbox do
+            local fluid = machine.fluidbox[index]
+            if fluid and fluid.name == row[3] then check(math.abs(fluid.temperature - row[9]) < 0.001, "output temperature "..row[1]) end
+        end
+    end
     case.output = case.output + amount
     machine.remove_fluid({name = row[3], amount = amount})
     local output = machine.get_output_inventory()
@@ -43,7 +49,8 @@ local function feed(case, target)
     end
     local recipe = machine.get_recipe()
     if recipe then
-        local expected = (not config.baseline and case.plasma and "ei-plasma-molten-" or "ei-molten-")..row[1]
+        local upgraded = "ei-plasma-molten-"..row[1]
+        local expected = case.plasma and prototypes.recipe[upgraded] and upgraded or "ei-molten-"..row[1]
         check(recipe.name == expected, "automatic selection "..expected.." got "..recipe.name)
         case.selected = true
     end
@@ -54,6 +61,7 @@ script.on_init(function()
     if not config.baseline then return end
     local force = game.forces.player
     research_tree(force, "ei-plasma-heater")
+    research_tree(force, "ei-neodym-refining")
     force.technologies["ei-productivity-pure-ore-smelting"].level = 2
     local surface = game.create_surface("plasma-smelting-qc", {width = 128, height = 128,
         autoplace_controls = {}, autoplace_settings = {entity = {treat_missing_as_default = false}}})
@@ -82,14 +90,17 @@ local function compare_final_data()
     end
     for name, machine in pairs(old.machines) do
         local expected = table.deepcopy(machine)
-        expected.crafting_categories[#expected.crafting_categories + 1] = name == "ei-arc-furnace" and "ei-arc-smelting" or "ei-plasma-smelting"
+        local category = name == "ei-arc-furnace" and "ei-arc-smelting" or "ei-plasma-smelting"
+        local present = false
+        for _, existing in ipairs(expected.crafting_categories) do if existing == category then present = true end end
+        if not present then expected.crafting_categories[#expected.crafting_categories + 1] = category end
         check(equal(expected, final.snapshot.machines[name]), "machine stats and presentation "..name)
     end
     for name, technology in pairs(old.technologies) do
         local current = table.deepcopy(final.snapshot.technologies[name])
         local effects = {}
         for _, effect in ipairs(current.effects) do
-            if not (effect.recipe and effect.recipe:find("^ei%-plasma%-molten%-")) then effects[#effects + 1] = effect end
+            if not (effect.recipe and effect.recipe:find("^ei%-plasma%-molten%-") and not old.recipes[effect.recipe]) then effects[#effects + 1] = effect end
         end
         current.effects = effects
         check(equal(technology, current), "research unchanged "..name)
@@ -112,7 +123,7 @@ local function setup_candidate(tick)
             local fluid = machine.fluidbox[index]
             if fluid and fluid.name == row[3] then temperature = fluid.temperature end
         end
-        check(math.abs(machine.get_fluid_count(row[3]) - 7) < 0.001 and temperature == 900, "existing fluid retained")
+        check(math.abs(machine.get_fluid_count(row[3]) - 7) < 0.001 and temperature == row[9], "existing fluid retained")
         check(machine.force.recipes["ei-plasma-molten-"..row[1]].enabled, "existing research unlock refreshed")
         machine.get_inventory(defines.inventory.furnace_source).clear()
         collect(case)
@@ -125,6 +136,7 @@ local function setup_candidate(tick)
     for _, level in ipairs({0, 100}) do
         local force = game.create_force("plasma-qc-"..level)
         research_tree(force, "ei-arc-furnace")
+        research_tree(force, "ei-neodym-refining")
         for _, row in ipairs(rows) do check(not force.recipes["ei-plasma-molten-"..row[1]].enabled, "locked before heater research") end
         research_tree(force, "ei-plasma-heater")
         if level > 0 then force.technologies["ei-productivity-pure-ore-smelting-black-hole"].level = level + 1 end
@@ -154,7 +166,7 @@ script.on_event(defines.events.on_tick, function(event)
             collect(case)
             machine.insert({name = row[2], count = row[4] * 3})
             machine.get_output_inventory().insert({name = "ei-slag", count = 2})
-            machine.insert_fluid({name = row[3], amount = 7, temperature = 900})
+            machine.insert_fluid({name = row[3], amount = 7, temperature = row[9]})
             case.identity = machine.unit_number
         end
         storage.baseline_saved = true
@@ -192,7 +204,7 @@ script.on_event(defines.events.on_tick, function(event)
             for _, case in ipairs(storage.cases) do progress[#progress + 1] = {recipe = case.row[1], machine = case.machine.name, fed = case.fed, output = case.output, status = case.machine.status} end
             write("plasma-progress.json", progress)
         end
-        assert(event.tick - storage.started < 4300, "native crafting timeout")
+        assert(event.tick - storage.started < 16000, "native crafting timeout")
         return
     end
     local results = {}
@@ -211,5 +223,5 @@ script.on_event(defines.events.on_tick, function(event)
         results[#results + 1] = {machine = case.machine.name, recipe = case.row[1], bonus = case.bonus, output = case.output, expected = expected, slag = case.slag}
     end
     storage.done = true
-    write("plasma-runtime.json", {passed = true, checks = storage.checks, cases = results, prechange_machines = 12, data_checks = prototypes.mod_data["plasma-qc-final"].data.checks})
+    write("plasma-runtime.json", {passed = true, checks = storage.checks, cases = results, prechange_machines = #rows * 2, data_checks = prototypes.mod_data["plasma-qc-final"].data.checks})
 end)

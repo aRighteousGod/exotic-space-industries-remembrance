@@ -1,0 +1,282 @@
+{
+  "format": 3,
+  "set_id": "vanilla",
+  "style": "flat-triangle-pictograms",
+  "generator_hashes": {
+    "generate.py": "f82b600cd82cc0ae9f5f679bb770667546968bb9b1a1c355416d5e81a5143dbc",
+    "sigils.py": "71b95371698d2b52c947de0899c747ff522a234f0ae4d63b685090ff2b017e8b",
+    "vanilla.py": "47dfe231a5dabe82ec25419315a487dfe56f3a3a3977e9e8dab5edeff8138f56"
+  },
+  "icons": {
+    "gate-low-power": {
+      "png_sha256": "0730254c3e8baaee28807178e032a415c767fa3d266241374d59c97017f843a6",
+      "source_sha256": "e0d86a9d20894d3bfe2bb433bb7dfb7bf9757c454e0cf54722a7186a1585c0a0",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "black-hole-containment": {
+      "png_sha256": "faf8195fac691272bb2a308011fcb4f66b9fcb4757dd56f1cecb5682903f72d7",
+      "source_sha256": "f78b3de7d74df7be84166c89410fe724a0559bbb1391118834501085dd2d942b",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "matter-cascade": {
+      "png_sha256": "f33bf93791e70bf73fb645df879966ab6a066a63d42d477d35c6011f6c78bf49",
+      "source_sha256": "062287cf60f03170b1f12132adc2c66df3bc8e6d13f8a408c4da71e0d468a878",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "gaia-degradation": {
+      "png_sha256": "5982e9c4474297a36c3e2412bc45ee402fdf971ea960d64f7e5dd6a16ea0d98e",
+      "source_sha256": "fa707da673ab09f368d7033199dd7978fde8d9f02faa70a5440091edfbf95883",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "fluid-phase-shift": {
+      "png_sha256": "5c6d23862ddabe58914f0b9955366d4e290ae935f18c6fc9548a4066ad4fe31b",
+      "source_sha256": "00c8335a8ceada10a2fc1fe773cc884ee2efbbc9e3d693ff84d279862b389824",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "fluid-data": {
+      "png_sha256": "21124f5f2681e50668297d75336b31942798c993be77acb08dfec7b33c5a35a0",
+      "source_sha256": "cee4538ba9e65856b370fb84f673d7bcfda126cd2e0960797cdc7b44b3bcb03d",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "fluid-cryo": {
+      "png_sha256": "39db246cabb59e0ff0051698866f19fbf37c9989a003660d9987a969f31ea929",
+      "source_sha256": "0e8d31c01e6667a73cf583c548ac0dc294a136ef0caece30dd767aceb31e422f",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "fluid-thermal": {
+      "png_sha256": "cd135fb0f5fb1fab1520d83f47765a263300ebf896503c91a01481d95dc0ca8b",
+      "source_sha256": "a6fd76cd73d214f9414ba22d372b4e9cf273756e7acd1bfad7c2e5a39ab20265",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "fluid-chemical": {
+      "png_sha256": "47532138288e2a1d39d7bf15c07f111f9b5a1d87d893646c3b57203e8ee9579c",
+      "source_sha256": "3cd895aaf0680c4874a21df037a74db7ed7aecf62e1883a091728756e757a3cc",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "fluid-rupture": {
+      "png_sha256": "09315b1fe242e4cc79f3eb9841da39ef20986bf4cd0eb503e1f44cfd61d4fc5c",
+      "source_sha256": "948f7993c84280a8d97a3c14ad17eaab62adc69bcc7ac8deb427d9ca237d1942",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-wildfire": {
+      "png_sha256": "7f557d66475ed7999abcbf83393eebf0640bbea483a7956ca9b8c17289bb46a0",
+      "source_sha256": "41bb7821284631c685209e5670d81c65f3079f8b9c4d1ca7880510098bda7393",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-flood": {
+      "png_sha256": "c43f4802745a69966c821864031e42df3a9bc0befbacc51e85e1f1a028214903",
+      "source_sha256": "2f56b5bbe5871f7c0cdb2029361b5105739b6f816737d09329fb13fcdaffc576",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-drought": {
+      "png_sha256": "672e55ecd7467dffaadb5e0394c87deb1f40c668346538487b1f175792149249",
+      "source_sha256": "39ccba77ff7c6a58dd628006eb8e927c62836855e629d4785685de60dcb4f443",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-cliff": {
+      "png_sha256": "3fa7cf9d5f57b960e2f2c48b635ea80532ac717c787f68e6f0ad84bcdac08677",
+      "source_sha256": "8ff4031d213ae4e0c5f71a31eb429dfb1c797f6262b8ecbeaa5e8afc6d74e68c",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-paving": {
+      "png_sha256": "0460766fae82807ee88d1cfe0b5b9cd412c917b2af6c01979ae8c9dad446fdd0",
+      "source_sha256": "685e759ee6065bd84c46367c1b97b863c37be61b7fb42d9a0e955466742aedb6",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-pollution": {
+      "png_sha256": "301b5492ff88ee04f298550633507e29a81b708860e546d7968caa6aa3cad6e7",
+      "source_sha256": "084c64dccc8a8bf6ac675ab6253457c82377456f5ad374a1deb856d126cfbf7b",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-restoration": {
+      "png_sha256": "590ab747296f9b0e3852375deb8175b9ca164e3869e366569f9d86e54a9f9a04",
+      "source_sha256": "bf2f00039aa928394b0b7b694442578cfff6db0d8d6e1c93baefa209bccca57d",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-depletion-scars": {
+      "png_sha256": "3f597861814428f5c9fdfd64bb2ad8d0132250dbc14f23e2cfa86b664ccb9e1b",
+      "source_sha256": "d69a987c7db85ad7d0d44d4937962876c54aa5ddcbe34e85f94185ca612ca0a0",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-working-scars": {
+      "png_sha256": "66817066530f8639c2f69a5b32ce8acbeae82857d80e1848618682bff2163bff",
+      "source_sha256": "dc8fd025da24055bf19252eea5fa2413fd24bd7b38237b075b551aa7d6a739ab",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-mining-restoration": {
+      "png_sha256": "96fd24f6a940c09fb5be492fe41ff30ec2ffc9d005e75a0051377522af0be987",
+      "source_sha256": "659765073e080e1136e31cabb385fc956d7c104131fc0e1cfdd7b1ea4a5a907a",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-tree-stress": {
+      "png_sha256": "ec8ba7ae6be6f51a597516fc7c5e730db59732c56392857ddc14151edb6a9ba5",
+      "source_sha256": "d758c4ef61ee113bf6f5a39a6b64d4fcf151c9730fa22c61f11e7d6c8f78daf0",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-tree-recovery": {
+      "png_sha256": "9d36aa226f8d9887bd1370cc086ff7ae3792a0a002e46f9f62edb7bfc08a7576",
+      "source_sha256": "355f1ec2d4bf0d97955ccc3bd455139ae1c6da71d05e74377a74be321291744f",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-regrowth": {
+      "png_sha256": "7fc9a53368672caaf4b38cdf3119399e8297e058e62af2a426555d044daec327",
+      "source_sha256": "a7d183bdc479fd69e555c9baff7c8d8c6ec281b935a3493920496c2a2041be72",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-aging": {
+      "png_sha256": "9fe78623250252b270cc1d031133684e1fd843a1ca06b51aa0c0137cb4a36238",
+      "source_sha256": "a727389ee790d28a73f0c4f616e22e120167d463c7be16f36a533ea91135657b",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-rot": {
+      "png_sha256": "ac841118a0ca3bda3e3547a4dd06a849f1f3b6ba5f6f0015bec50ea85859683e",
+      "source_sha256": "aa76aa7fa82a01e0c9342ef6cdd27819ff3146ded77821eec14775ec207022b1",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-thermal": {
+      "png_sha256": "0fa1639ab6b1c2c81cfaa9b63f31fb57f00267f2c03717a174b6608abe83299b",
+      "source_sha256": "d4cdf69b38ddab1cf552b03ed76bd354a600efe8d8984a5b6fca9a2a066c39a7",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    },
+    "ecology-blood": {
+      "png_sha256": "6124c7947606df24756ae98d4c304d6f1aea0b5eba34631ac17acbcfe3cdc180",
+      "source_sha256": "139a29421b1a8f30a8ca8a62165ef63c22a162dd39ec10a93b0ac0b40ed229b3",
+      "alpha_bounds": [
+        5,
+        5,
+        123,
+        120
+      ]
+    }
+  }
+}

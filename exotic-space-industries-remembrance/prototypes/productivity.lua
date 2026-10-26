@@ -732,7 +732,7 @@ data:extend({
 })
 
 -- blueprint-ref: .codex/esir/blueprints/plasma-smelting.md#research
--- Mirror only the six ore routes; remelting must never acquire the recovery bonus.
+-- Mirror only the seven ore routes; remelting must never acquire the recovery bonus.
 -- All five age tiers retain their original per-level effects and research costs.
 for _, suffix in ipairs({"", "-advanced", "-quantum", "-exotic", "-black-hole"}) do
     local technology = data.raw.technology["ei-productivity-pure-ore-smelting"..suffix]

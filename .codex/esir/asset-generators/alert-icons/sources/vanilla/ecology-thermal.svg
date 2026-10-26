@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-thermal: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ff3930" stroke="none" stroke-width="0"/>
+<polygon points="24,105 40,98 54,105 72,97 104,105 104,114 24,114" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="43,90 37,80 43,66" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="65,88 57,71 65,49" fill="none" stroke="#242627" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="85,90 79,80 85,66" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

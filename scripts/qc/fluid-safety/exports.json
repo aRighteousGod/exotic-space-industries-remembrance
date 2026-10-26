@@ -1,0 +1,3 @@
+{
+  "fluid-safety": "model.qc = {audit=audit_segment, apply=apply_breach_context, context=resolve_breach_context}"
+}

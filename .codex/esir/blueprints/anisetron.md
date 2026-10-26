@@ -198,7 +198,9 @@ main-pack owned; the firing loop and its attribution belong to Graphics 6 and us
 belong to Graphics 6.
 
 The asset manifest generates exact 128-entry projected tables for crown, facade
-and eight original lower crystal tips through the locked camera. The original
+and eight original lower crystal tips through the locked camera. The crown uses
+the upper crystal's surface-area center, not its highest vertex, so its beam and
+native source flare emerge from the crystal's middle at every heading. The original
 three entries are retained and five side/rear entries appended. Root visibility
 is exported per heading by tracing the original hull geometry. Core beams use native
 entity sources and those offsets. Consecutive full native torso steps are led

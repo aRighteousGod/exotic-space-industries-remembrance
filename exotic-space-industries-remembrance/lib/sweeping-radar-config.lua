@@ -43,7 +43,7 @@ config.names = {"ei-sweeping-radar", "ei-phased-array-radar"}
 -- Fit the fixed bases to the 3x3 footprint; dishes may overhang. Crop shifts
 -- remain at the master export's 0.5 scale and are scaled with each layer.
 config.art = {
-    ["ei-sweeping-radar"]={asset="sweeping-radar",scale=0.9,north=192,body_height=224,body_shift=-0.875,shadow_width=264,shadow_shift=0.9375},
+    ["ei-sweeping-radar"]={asset="sweeping-radar",scale=0.75,north=192,body_height=224,body_shift=-0.875,shadow_width=264,shadow_shift=0.9375},
     ["ei-phased-array-radar"]={asset="phased-array-radar",scale=0.6,north=0,body_height=240,body_shift=-0.75,shadow_width=280,shadow_shift=0.6875,glow=true},
 }
 config.art_frames=256

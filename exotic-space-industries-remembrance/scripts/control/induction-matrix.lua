@@ -3,7 +3,7 @@
 -- owns: induction matrix GUI, runtime, and tile hooks
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build, destroy, tile changes, GUI dispatch, and every-tick runtime updates
--- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_sorted_lookup_names, has_tick_work, is_core, lookup_tile_for_entity, mark_dirty, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_gui_click, on_player_left_game, open_gui, queue_tile_render, rebuild_gui_viewers, rebuild_runtime_state, reconcile_gui_player, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
+-- forwarded_events: apply_stats, buff_function, calculate_stats, check_connected_tiles, check_global_init, check_tile, close_gui, copy_circuit_settings, destroy_wire_proxy, ensure_wire_proxy, entity_check, find_existing_wire_proxy, force_visual_update, get_adjacent_tiles, get_connected_solenoid_count, get_core_entity, get_core_tier, get_gui, get_matrix_capacity, get_matrix_current_stored_power, get_matrix_id, get_matrix_max_IO, get_max_connected_tiles, get_real_circuit_connections, get_runtime_status, get_sorted_lookup_names, has_tick_work, is_core, lookup_tile_for_entity, mark_dirty, on_blueprint, on_built_entity, on_built_tile, on_destroyed_entity, on_destroyed_tile, on_entity_cloned, on_entity_settings_pasted, on_gui_changed, on_gui_click, on_player_left_game, open_gui, queue_tile_render, rebuild_gui_viewers, rebuild_runtime_state, reconcile_gui_player, remove_old_cores, remove_stat_text, render_tile_box, reset_matrix_table, reset_runtime_storage, resolve_duplicate_cores, restore_circuit_connections, retag_matrix_guis, retag_wire_proxy, set_circuit_settings, set_core_state, show_stats, swap_core, swap_global_table, table_concat, to_wire_signal_value, update, update_core, update_dirty, update_gui, update_player_guis, update_render_queue, update_wire_outputs, update_wire_proxy_signals, wire_proxy_has_connections
 -- storage_roots: storage.ei.induction_matrix, storage.ei.induction_matrix_gui_by_player
 -- gui_ids: ei-induction-matrix-console
 -- remote_interfaces: none
@@ -25,12 +25,93 @@ local gui_snapshots = {}
 -- - dirty matrices are recomputed on update rather than immediately everywhere
 -- - a hidden circuit proxy is kept in sync with the visible core because the actual
 --   electric-energy-interface is not the circuit-network endpoint players interact with
-local SIGNAL_MATRIX_CHARGE = {type = "virtual", name = "signal-C", quality = "normal", comparator = "="}
-local SIGNAL_MATRIX_CAPACITY = {type = "virtual", name = "signal-T", quality = "normal", comparator = "="}
-local SIGNAL_MATRIX_MAX_IO = {type = "virtual", name = "signal-M", quality = "normal", comparator = "="}
 local MATRIX_WIRE_PROXY_NAME = "ei-induction-matrix-core-circuit-interface"
 local MATRIX_SIGNAL_LIMIT = 2147483647
 local MATRIX_WIRE_UPDATE_INTERVAL = 60
+local MATRIX_BLUEPRINT_TAG = "ei_induction_matrix"
+local GUI_NAME = "ei-induction-matrix-console"
+local CIRCUIT_OUTPUTS = {
+    {key = "charge", signal = "signal-C", caption = "stored"},
+    {key = "capacity", signal = "signal-T", caption = "capacity"},
+    {key = "max_io", signal = "signal-M", caption = "max-io"},
+    {key = "percent", signal = "signal-A", caption = "percent"},
+}
+local SIGNAL_PROTOTYPES = {item = "item", fluid = "fluid", virtual = "virtual_signal",
+    entity = "entity", recipe = "recipe", ["space-location"] = "space_location",
+    ["asteroid-chunk"] = "asteroid_chunk", quality = "quality"}
+
+---@class InductionCircuitOutput
+---@field enabled boolean
+---@field signal SignalID?
+---@class InductionCircuitSettings
+---@field version integer
+---@field charge InductionCircuitOutput
+---@field capacity InductionCircuitOutput
+---@field max_io InductionCircuitOutput
+---@field percent InductionCircuitOutput
+
+---Sanitize picker/blueprint input against the live prototype set, including removed mods.
+---@param signal SignalID?
+---@return SignalID?
+local function copy_circuit_signal(signal)
+    if type(signal) ~= "table" or type(signal.name) ~= "string" then return nil end
+    local signal_type = signal.type or "item"
+    local prototype_kind = SIGNAL_PROTOTYPES[signal_type]
+    local quality = signal.quality or "normal"
+    if not prototype_kind or not prototypes[prototype_kind][signal.name]
+    or type(quality) ~= "string" or not prototypes.quality[quality] then return nil end
+    -- Wildcards are conditions, not concrete output signals.
+    if signal_type == "virtual" and (signal.name == "signal-each"
+        or signal.name == "signal-anything" or signal.name == "signal-everything") then return nil end
+    return {type = signal_type, name = signal.name, quality = quality}
+end
+
+---Missing records default off with C/T/M/A selected; saved choices are preserved.
+---@param settings InductionCircuitSettings?
+---@return InductionCircuitSettings
+function model.copy_circuit_settings(settings)
+    local result = {version = 1}
+    for _, output in ipairs(CIRCUIT_OUTPUTS) do
+        local saved = type(settings) == "table" and settings[output.key]
+        if type(saved) == "table" then
+            result[output.key] = {enabled = saved.enabled == true, signal = copy_circuit_signal(saved.signal)}
+        else
+            result[output.key] = {enabled = false,
+                signal = {type = "virtual", name = output.signal, quality = "normal"}}
+        end
+    end
+    return result --[[@as InductionCircuitSettings]]
+end
+
+---@param matrix table
+---@return InductionCircuitSettings
+local function circuit_settings(matrix)
+    if not matrix.circuit_settings then matrix.circuit_settings = model.copy_circuit_settings() end
+    return matrix.circuit_settings
+end
+
+---@param settings InductionCircuitSettings
+---@return boolean
+local function has_circuit_output(settings)
+    for _, output in ipairs(CIRCUIT_OUTPUTS) do
+        local choice = settings[output.key]
+        if choice.enabled and choice.signal then return true end
+    end
+    return false
+end
+
+---@param settings InductionCircuitSettings
+---@return string
+local function circuit_signature(settings)
+    local parts = {}
+    for _, output in ipairs(CIRCUIT_OUTPUTS) do
+        local choice = settings[output.key]
+        local signal = choice.signal
+        parts[#parts + 1] = table.concat({tostring(choice.enabled), signal and signal.type or "",
+            signal and signal.name or "", signal and signal.quality or ""}, ":")
+    end
+    return table.concat(parts, "|")
+end
 
 local function get_matrix_wire_slot(matrix_id)
     return matrix_id % MATRIX_WIRE_UPDATE_INTERVAL
@@ -87,20 +168,6 @@ local function raw_legacy_render_has_due_work(render_queue, current_tick)
 
     for _, entry in ipairs(render_queue) do
         if type(entry) ~= "table" or (entry.tick or 0) <= current_tick then
-            return true
-        end
-    end
-
-    return false
-end
-
-local function raw_has_numeric_matrix_core(core)
-    if type(core) ~= "table" then
-        return false
-    end
-
-    for matrix_id in pairs(core) do
-        if type(matrix_id) == "number" then
             return true
         end
     end
@@ -272,6 +339,8 @@ function model.check_global_init()
 end
 
 local function ensure_wire_update_slots()
+    -- Disabled/empty outputs own no telemetry slot. Edits and configuration repair
+    -- invalidate membership; normal energy changes never require a rebuild.
     local matrix_state = storage.ei.induction_matrix
     if not matrix_state.wire_slots_rebuild_needed and matrix_state.wire_update_slots then
         return matrix_state.wire_update_slots
@@ -279,7 +348,7 @@ local function ensure_wire_update_slots()
 
     local slots = {}
     for matrix_id, matrix_data in pairs(matrix_state.core or {}) do
-        if type(matrix_id) == "number" and matrix_data then
+        if type(matrix_id) == "number" and matrix_data and has_circuit_output(circuit_settings(matrix_data)) then
             local slot = get_matrix_wire_slot(matrix_id)
             slots[slot] = slots[slot] or {}
             slots[slot][matrix_id] = true
@@ -614,7 +683,9 @@ function model.retag_matrix_guis(old_id, new_id)
         local player = game.get_player(player_index)
         local root = player and model.get_gui(player)
         if matrix_id == old_id and root and root.tags.matrix_id == old_id then
-            root.tags = {matrix_id = new_id}
+            local tags = root.tags
+            tags.matrix_id = new_id
+            root.tags = tags
             viewers[player_index] = new_id
             gui_snapshots[player_index] = nil
         end
@@ -920,7 +991,7 @@ function model.ensure_wire_proxy(matrix_id)
         return nil
     end
 
-    proxy = core.surface.create_entity{
+    proxy = model.find_existing_wire_proxy(core) or core.surface.create_entity{
         name = MATRIX_WIRE_PROXY_NAME,
         position = core.position,
         force = core.force,
@@ -973,10 +1044,13 @@ function model.find_existing_wire_proxy(core)
     local proxies = core.surface.find_entities_filtered{
         position = core.position,
         name = MATRIX_WIRE_PROXY_NAME,
+        force = core.force,
     }
 
     for _, proxy in ipairs(proxies) do
-        if model.entity_check(proxy) then
+        local owner = storage.ei.induction_matrix.proxy[get_entity_unit_number(proxy)]
+        if model.entity_check(proxy) and proxy.position.x == core.position.x and proxy.position.y == core.position.y
+        and (not owner or owner == core.unit_number or not model.entity_check(model.get_core_entity(owner))) then
             if model.wire_proxy_has_connections(proxy) then
                 return proxy
             end
@@ -992,14 +1066,12 @@ function model.find_existing_wire_proxy(core)
 end
 
 
-function model.update_wire_proxy_signals(matrix_id)
-    -- The hidden constant combinator is the matrix's circuit-network surface area.
-    -- It emits:
-    -- - signal-C: current charge in MJ
-    -- - signal-T: total capacity in MJ
-    -- - signal-M: max IO in MW
-    --
-    -- Writes are skipped when the values are unchanged to reduce section churn.
+---@param matrix_id uint32
+---@param force_write boolean? Explicit settings/paste mutations also clear unwired proxies.
+function model.update_wire_proxy_signals(matrix_id, force_write)
+    -- blueprint-ref: .codex/esir/blueprints/induction-matrix.md#circuit-settings
+    -- The proxy is derived output, never the authority for configuration. In particular,
+    -- zero readings and disabled outputs cannot be recovered from combinator filters.
 
     model.check_global_init()
 
@@ -1008,23 +1080,36 @@ function model.update_wire_proxy_signals(matrix_id)
         return
     end
 
+    local settings = circuit_settings(matrix)
+    local active = has_circuit_output(settings)
+    if not force_write and not active then return end
+
     local proxy = model.ensure_wire_proxy(matrix_id)
     if model.entity_check(proxy) == false then
         return
     end
 
-    if model.wire_proxy_has_connections(proxy) == false then
+    if not force_write and model.wire_proxy_has_connections(proxy) == false then
         return
     end
 
-    local charge = model.to_wire_signal_value(model.get_matrix_current_stored_power(matrix_id))
-    local capacity = model.to_wire_signal_value(model.get_matrix_capacity(matrix_id))
-    local max_io = model.to_wire_signal_value(model.get_matrix_max_IO(matrix_id))
+    local values = {charge = 0, capacity = 0, max_io = 0, percent = 0}
+    if active then
+        local stored = model.get_matrix_current_stored_power(matrix_id) or 0
+        local total = model.get_matrix_capacity(matrix_id)
+        values.charge = model.to_wire_signal_value(stored)
+        values.capacity = model.to_wire_signal_value(total)
+        values.max_io = model.to_wire_signal_value(model.get_matrix_max_IO(matrix_id))
+        values.percent = total > 0 and ei_lib.clamp(math.floor(100 * stored / total + 0.5), 0, 100) or 0
+    end
+    local signature = circuit_signature(settings)
 
-    if matrix.signal_cache
-    and matrix.signal_cache.charge == charge
-    and matrix.signal_cache.capacity == capacity
-    and matrix.signal_cache.max_io == max_io then
+    if not force_write and matrix.signal_cache
+    and matrix.signal_cache.charge == values.charge
+    and matrix.signal_cache.capacity == values.capacity
+    and matrix.signal_cache.max_io == values.max_io
+    and matrix.signal_cache.percent == values.percent
+    and matrix.signal_cache.signature == signature then
         return
     end
 
@@ -1033,38 +1118,49 @@ function model.update_wire_proxy_signals(matrix_id)
         return
     end
 
-    control.enabled = true
-
+    control.enabled = active
+    -- Native settings paste has already copied sections, including shared group names.
+    -- Detach before touching filters so this never edits the source's shared group.
+    for i = control.sections_count, 2, -1 do
+        local extra = control.get_section(i)
+        if extra and extra.is_manual then extra.group = ""; control.remove_section(i) end
+    end
     local section = control.get_section(1)
     if not section then
-        section = control.add_section("induction-matrix")
+        section = control.add_section()
     end
 
     if not section then
         return
     end
-
+    section.group = ""
+    section.active = true
+    section.multiplier = 1
     for i = 1, section.filters_count do
         section.clear_slot(i)
     end
 
-    if charge ~= 0 then
-        section.set_slot(1, {value = SIGNAL_MATRIX_CHARGE, min = charge})
+    local filters, by_signal = {}, {}
+    for _, output in ipairs(CIRCUIT_OUTPUTS) do
+        local choice = settings[output.key]
+        local signal = choice.enabled and choice.signal
+        if signal then
+            local key = table.concat({signal.type, signal.name, signal.quality}, ":")
+            local filter = by_signal[key]
+            if not filter then
+                filter = {value = {type = signal.type, name = signal.name,
+                    quality = signal.quality, comparator = "="}, min = 0}
+                by_signal[key] = filter
+                filters[#filters + 1] = filter
+            end
+            filter.min = model.to_wire_signal_value(filter.min + values[output.key])
+        end
     end
-
-    if capacity ~= 0 then
-        section.set_slot(2, {value = SIGNAL_MATRIX_CAPACITY, min = capacity})
+    for index, filter in ipairs(filters) do
+        if filter.min ~= 0 then section.set_slot(index, filter) end
     end
-
-    if max_io ~= 0 then
-        section.set_slot(3, {value = SIGNAL_MATRIX_MAX_IO, min = max_io})
-    end
-
-    matrix.signal_cache = {
-        charge = charge,
-        capacity = capacity,
-        max_io = max_io,
-    }
+    values.signature = signature
+    matrix.signal_cache = values
 
 end
 
@@ -1218,10 +1314,12 @@ function model.reset_matrix_table(matrix_id)
     local stats = {}
     local wire_proxy = nil
     local signal_cache = nil
+    local settings = nil
     if storage.ei.induction_matrix.core[matrix_id] then
         stats = storage.ei.induction_matrix.core[matrix_id].stats
         wire_proxy = storage.ei.induction_matrix.core[matrix_id].wire_proxy
         signal_cache = storage.ei.induction_matrix.core[matrix_id].signal_cache
+        settings = storage.ei.induction_matrix.core[matrix_id].circuit_settings
     end
 
     -- reset the table
@@ -1233,6 +1331,7 @@ function model.reset_matrix_table(matrix_id)
     storage.ei.induction_matrix.core[matrix_id].core = {}
     storage.ei.induction_matrix.core[matrix_id].wire_proxy = wire_proxy
     storage.ei.induction_matrix.core[matrix_id].signal_cache = signal_cache
+    storage.ei.induction_matrix.core[matrix_id].circuit_settings = settings or model.copy_circuit_settings()
 
     -- restore stats
     storage.ei.induction_matrix.core[matrix_id].stats = stats
@@ -1611,6 +1710,7 @@ function model.update_wire_outputs(event)
     --
     -- Matrix charge can drift every tick, but rewriting every proxy every tick is costly.
     -- We only touch a matrix when:
+    -- - at least one output is enabled with a selected signal,
     -- - its once-per-second slot comes up, and
     -- - the hidden proxy actually has a circuit wire attached.
 
@@ -1992,6 +2092,10 @@ function model.rebuild_runtime_state(reason)
     -- repair pass, while orphaned proxies are removed afterward.
 
     model.check_global_init()
+    local saved_settings = {}
+    for id, matrix in pairs(storage.ei.induction_matrix.core) do
+        if type(id) == "number" then saved_settings[id] = model.copy_circuit_settings(matrix.circuit_settings) end
+    end
     model.reset_runtime_storage()
 
     local core_names = model.get_sorted_lookup_names(model.core)
@@ -2013,8 +2117,14 @@ function model.rebuild_runtime_state(reason)
                 goto continue
             end
 
+            model.reset_matrix_table(core_unit)
+            storage.ei.induction_matrix.core[core_unit].circuit_settings = saved_settings[core_unit] or model.copy_circuit_settings()
             local dict = model.check_connected_tiles(core.position, core.surface, false, core_unit, core.force)
             if dict == false then
+                -- A blueprint may place its core before its floor. Repair must retain this
+                -- recoverable core and its settings instead of deleting its selectable proxy.
+                ensure_dormant_core_record(core)
+                model.update_wire_proxy_signals(core_unit, true)
                 goto continue
             end
 
@@ -2046,7 +2156,7 @@ function model.rebuild_runtime_state(reason)
                 storage.ei.induction_matrix.core[new_id].dirty = false
                 storage.ei.induction_matrix.core[new_id].signal_cache = nil
                 model.ensure_wire_proxy(new_id)
-                model.update_wire_proxy_signals(new_id)
+                model.update_wire_proxy_signals(new_id, true)
                 rebuilt_matrices = rebuilt_matrices + 1
             end
 
@@ -2083,6 +2193,82 @@ end
 --HANDLERS
 ------------------------------------------------------------------------------------------------------
 
+---Configuration mutations are event-driven; the ordinary telemetry cadence is unchanged.
+---@param matrix_id uint32
+---@param settings InductionCircuitSettings?
+function model.set_circuit_settings(matrix_id, settings)
+    local matrix = storage.ei.induction_matrix.core[matrix_id]
+    if not matrix or not model.entity_check(model.get_core_entity(matrix_id)) then return end
+    matrix.circuit_settings = model.copy_circuit_settings(settings)
+    matrix.signal_cache = nil
+    mark_wire_slots_dirty()
+    model.update_wire_proxy_signals(matrix_id, true)
+    model.update_player_guis()
+end
+
+---@param event EventData.on_entity_settings_pasted
+function model.on_entity_settings_pasted(event)
+    local destination_id = model.get_matrix_id(event.destination)
+    local destination = destination_id and storage.ei.induction_matrix.core[destination_id]
+    if not destination then return end
+    local source_id = model.get_matrix_id(event.source)
+    local source = source_id and storage.ei.induction_matrix.core[source_id]
+    model.set_circuit_settings(destination_id, source and circuit_settings(source) or circuit_settings(destination))
+end
+
+---@param event EventData.on_player_setup_blueprint
+function model.on_blueprint(event)
+    local player = game.get_player(event.player_index)
+    if not player then return end
+    local stack = event.record
+    if not stack then
+        stack = event.stack or player.blueprint_to_setup
+        if not (stack and stack.valid_for_read and stack.is_blueprint) then stack = player.cursor_stack end
+        if not (stack and stack.valid_for_read and stack.is_blueprint) then return end
+    end
+    for index, entity in pairs(event.mapping.get()) do
+        if model.entity_check(entity) and model.core[entity.name] then
+            local matrix = storage.ei.induction_matrix.core[entity.unit_number]
+            if matrix then stack.set_blueprint_entity_tag(index, MATRIX_BLUEPRINT_TAG,
+                model.copy_circuit_settings(circuit_settings(matrix))) end
+        end
+    end
+end
+
+---Adopt native cloned wire endpoints, keeping their cable peers regardless of clone order.
+---@param event EventData.on_entity_cloned
+---@return boolean handled Helper clones must not reach downstream entity handlers.
+function model.on_entity_cloned(event)
+    local proxy = ei_lib.get_valid_entity(event.destination)
+    if not proxy or proxy.name ~= MATRIX_WIRE_PROXY_NAME then return false end
+    model.check_global_init()
+    local control = proxy.get_control_behavior()
+    if control then control.enabled = false end -- Never broadcast a copied source reading.
+    for _, core in pairs(proxy.surface.find_entities_filtered{
+        position = proxy.position, name = model.get_sorted_lookup_names(model.core), force = proxy.force}) do
+        if core.position.x == proxy.position.x and core.position.y == proxy.position.y then
+            local id = core.unit_number
+            local matrix = storage.ei.induction_matrix.core[id]
+            if matrix then
+                local old_proxy = matrix.wire_proxy
+                if model.entity_check(old_proxy) and old_proxy ~= proxy then
+                    local connections = model.get_real_circuit_connections(old_proxy)
+                    model.restore_circuit_connections(proxy, connections)
+                    model.destroy_wire_proxy(id)
+                end
+                matrix.wire_proxy = proxy
+                model.retag_wire_proxy(proxy, id)
+                matrix.signal_cache = nil
+                model.update_wire_proxy_signals(id, true)
+            end
+            break
+        end
+    end
+    -- Proxy-first clones remain disabled until the real core adopts them in ensure_wire_proxy.
+    -- Unmatched helpers are removed by the existing explicit repair/orphan-cleanup pass.
+    return true
+end
+
 function model.on_built_entity(event)
     -- Entity build path:
     -- - reject irrelevant entities
@@ -2100,9 +2286,24 @@ function model.on_built_entity(event)
         return
     end
 
+    if model.core[entity.name] then
+        local source_id = model.get_matrix_id(event.source)
+        local source = source_id and storage.ei.induction_matrix.core[source_id]
+        local preferences = source and circuit_settings(source)
+            or (event.tags and event.tags[MATRIX_BLUEPRINT_TAG])
+        -- Seed before flood-fill so resets and duplicate-core selection keep the actual
+        -- survivor's own settings, including robot construction before floor placement.
+        model.reset_matrix_table(entity.unit_number)
+        if type(preferences) == "table" and preferences.version == 1 then
+            storage.ei.induction_matrix.core[entity.unit_number].circuit_settings = model.copy_circuit_settings(preferences)
+        end
+        mark_wire_slots_dirty()
+    end
+
     if model.check_tile(entity) == false then
         if model.core[entity.name] then
             ensure_dormant_core_record(entity)
+            model.update_wire_proxy_signals(entity.unit_number, true)
         end
         return
     end
@@ -2121,6 +2322,7 @@ function model.on_built_entity(event)
 
         if model.entity_check(entity) then
             model.ensure_wire_proxy(entity_unit)
+            model.update_wire_proxy_signals(entity_unit, true)
         end
 
     end
@@ -2499,11 +2701,12 @@ function model.has_tick_work(event)
         return true
     end
 
-    if state.wire_slots_rebuild_needed == true then
+    if state.wire_slots_rebuild_needed ~= false or state.dirty_queue_backfilled ~= true then
         return true
     end
 
-    if raw_has_numeric_matrix_core(state.core) then
+    local slot = state.wire_update_slots and state.wire_update_slots[tick % MATRIX_WIRE_UPDATE_INTERVAL]
+    if slot and next(slot) then
         return true
     end
 
@@ -2542,22 +2745,28 @@ end
 
 ---Opens the induction matrix core GUI.
 ---@param player LuaPlayer Player
-function model.open_gui(player)
+---@param matrix_id uint32? Used when replacing a saved legacy GUI.
+---@param location GuiLocation? Previous window position.
+function model.open_gui(player, matrix_id, location)
     -- The GUI may be opened from either the visible core or the hidden proxy, so it always
     -- resolves back to matrix_id first and then anchors the camera against the real core.
     local existing = model.get_gui(player)
     if existing then
-        if player.opened == existing then
+        if player.opened == existing and existing.tags.circuit_gui_version == 1 then
             storage.ei.induction_matrix_gui_by_player = storage.ei.induction_matrix_gui_by_player or {}
             storage.ei.induction_matrix_gui_by_player[player.index] = existing.tags.matrix_id
             model.update_gui(player)
             return
         end
+        if player.opened == existing then
+            matrix_id = matrix_id or existing.tags.matrix_id
+            location = location or existing.location
+        end
         model.close_gui(player)
     end
 
     local entity = player.opened_gui_type == defines.gui_type.entity and player.opened --[[@as LuaEntity]]
-    local matrix_id = model.get_matrix_id(entity)
+    matrix_id = matrix_id or model.get_matrix_id(entity)
     if not matrix_id then return end
 
     local core = model.get_core_entity(matrix_id)
@@ -2571,11 +2780,12 @@ function model.open_gui(player)
         name = "ei-induction-matrix-console",
         direction = "vertical",
         tags = {
-            matrix_id = matrix_id
+            parent_gui = GUI_NAME,
+            matrix_id = matrix_id,
+            circuit_gui_version = 1,
         }
     } --[[@as LuaGuiElement]]
-    root.force_auto_center()
-    root.style.width = 330
+    root.style.width = 690
 
     do -- Titlebar
         local titlebar = root.add{type = "flow", direction = "horizontal"}  --[[@as LuaGuiElement]]
@@ -2615,12 +2825,15 @@ function model.open_gui(player)
         }
     end
 
-    local main_container = root.add{
+    local content = root.add{type = "flow", name = "content", direction = "horizontal"}
+    content.style.vertical_align = "top"
+    local main_container = content.add{
         type = "frame",
         name = "main-container",
         direction = "vertical",
         style = "inside_shallow_frame"
     } --[[@as LuaGuiElement]]
+    main_container.style.width = 306
 
     main_container.add{ -- Console subheader
         type = "frame",
@@ -2698,6 +2911,44 @@ function model.open_gui(player)
         }
     }
 
+    local circuit = content.add{type = "frame", name = "circuit", direction = "vertical", style = "inside_shallow_frame"}
+    circuit.style.width = 346
+    circuit.add{type = "frame", style = "ei_subheader_frame"}.add{
+        type = "label", caption = {"gui-control-behavior.circuit-connection"}, style = "subheader_caption_label"}
+    local outputs = circuit.add{type = "flow", name = "outputs", direction = "vertical", style = "ei_inner_content_flow"}
+    local status = outputs.add{type = "label", name = "status", caption = ""}
+    status.style.single_line = false
+    status.style.maximal_width = 312
+    outputs.add{type = "line"}
+    local settings = circuit_settings(storage.ei.induction_matrix.core[matrix_id])
+    for _, output in ipairs(CIRCUIT_OUTPUTS) do
+        local choice = settings[output.key]
+        local row = outputs.add{type = "flow", name = output.key, direction = "horizontal"}
+        row.style.vertical_align = "center"
+        local tooltip = output.key == "percent" and {"", {"exotic-industries.induction-matrix-circuit-output-tooltip"}, "\n\n",
+            {"exotic-industries.induction-matrix-circuit-percent-tooltip"}} or {"exotic-industries.induction-matrix-circuit-output-tooltip"}
+        local toggle = row.add{type = "checkbox", name = "output-enabled", state = choice.enabled,
+            caption = {"exotic-industries.induction-matrix-circuit-" .. output.caption}, tooltip = tooltip,
+            tags = {parent_gui = GUI_NAME, action = "output-enabled", output = output.key}}
+        toggle.style.width = 258
+        row.add{type = "choose-elem-button", name = "output-signal", elem_type = "signal", signal = choice.signal,
+            tooltip = {"gui-control-behavior-modes-guis.output-signal"},
+            tags = {parent_gui = GUI_NAME, action = "output-signal", output = output.key}}
+    end
+    outputs.add{type = "line"}
+    for _, key in ipairs{"shared-tooltip", "timing-tooltip"} do
+        local hint = outputs.add{type = "label", caption = {"exotic-industries.induction-matrix-circuit-" .. key}}
+        hint.style.single_line = false
+        hint.style.maximal_width = 312
+    end
+
+    -- Restored windows keep their position after native layout/resize processing.
+    if location then
+        root.auto_center = false
+        root.location = location
+    else
+        root.force_auto_center()
+    end
     player.opened = root
 
     -- Verify that root is still valid since another mod may have destroyed it
@@ -2757,12 +3008,16 @@ function model.update_gui(player, snapshot)
     local matrix_id = root.tags.matrix_id
     local core = model.get_core_entity(matrix_id)
     if not model.entity_check(core) then model.close_gui(player); return end
-    local camera = root["main-container"]["console-flow"]["camera-frame"].camera
+    if root.tags.circuit_gui_version ~= 1 then
+        model.open_gui(player, matrix_id, root.location)
+        return
+    end
+    local camera = root.content["main-container"]["console-flow"]["camera-frame"].camera
     if camera.surface_index ~= core.surface.index then camera.surface_index = core.surface.index end
     local camera_position = camera.position
     if camera_position.x ~= core.position.x or camera_position.y ~= core.position.y then camera.position = core.position end
 
-    local info = root["main-container"]["console-flow"] --[[@as LuaGuiElement]]
+    local info = root.content["main-container"]["console-flow"] --[[@as LuaGuiElement]]
 
     local max_et = info["max-et-flow"]["max-et-value"]
     local stored_power = info["capacity-flow"]["stored-power-value"]
@@ -2782,8 +3037,36 @@ function model.update_gui(player, snapshot)
     end
     local ratio = max_power == 0 and 0 or current_power/max_power
     if previous.ratio ~= ratio then stored_power.value = ratio end
+    local matrix = storage.ei.induction_matrix.core[matrix_id]
+    local settings = circuit_settings(matrix)
+    local signature = circuit_signature(settings)
+    local outputs = root.content.circuit.outputs
+    if previous.settings ~= signature then
+        for _, output in ipairs(CIRCUIT_OUTPUTS) do
+            outputs[output.key]["output-enabled"].state = settings[output.key].enabled
+            outputs[output.key]["output-signal"].elem_value = settings[output.key].signal
+        end
+    end
+    local red, green = 0, 0
+    local proxy = matrix.wire_proxy
+    if model.entity_check(proxy) then
+        local red_connector = proxy.get_wire_connector(defines.wire_connector_id.circuit_red, false)
+        local green_connector = proxy.get_wire_connector(defines.wire_connector_id.circuit_green, false)
+        red = red_connector and red_connector.real_connection_count > 0 and red_connector.network_id or 0
+        green = green_connector and green_connector.real_connection_count > 0 and green_connector.network_id or 0
+    end
+    if previous.red ~= red or previous.green ~= green then
+        local caption = {"", {"gui-control-behavior.connected-to-network"}}
+        if red == 0 and green == 0 then caption = {"gui-control-behavior.not-connected"}
+        else
+            if red ~= 0 then caption[#caption + 1] = "\n"; caption[#caption + 1] = {"gui-control-behavior.red-network-id", red} end
+            if green ~= 0 then caption[#caption + 1] = "\n"; caption[#caption + 1] = {"gui-control-behavior.green-network-id", green} end
+        end
+        outputs.status.caption = caption
+    end
     gui_snapshots[player.index] = {root = root, matrix_id = matrix_id, max_text = max_text,
-        current = rounded_current_power, capacity = rounded_max_power, ratio = ratio}
+        current = rounded_current_power, capacity = rounded_max_power, ratio = ratio,
+        settings = signature, red = red, green = green}
 
 end
 
@@ -2811,6 +3094,16 @@ end
 
 function model.rebuild_gui_viewers()
     model.check_global_init()
+    mark_wire_slots_dirty()
+    -- Init/configuration boundaries may remove a mod-provided signal or quality. Repair
+    -- settings before assigning picker values or publishing filters on the new prototype set.
+    for matrix_id, matrix in pairs(storage.ei.induction_matrix.core) do
+        if type(matrix_id) == "number" then
+            matrix.circuit_settings = model.copy_circuit_settings(matrix.circuit_settings)
+            matrix.signal_cache = nil
+            if model.entity_check(model.get_core_entity(matrix_id)) then model.update_wire_proxy_signals(matrix_id, true) end
+        end
+    end
     storage.ei.induction_matrix_gui_by_player = {}
     gui_snapshots = {}
     for _, player in pairs(game.connected_players) do model.reconcile_gui_player(player.index) end
@@ -2820,6 +3113,24 @@ function model.on_player_left_game(player_index)
     local viewers = storage.ei and storage.ei.induction_matrix_gui_by_player
     if viewers then viewers[player_index] = nil end
     gui_snapshots[player_index] = nil
+end
+
+---@param event EventData.on_gui_elem_changed|EventData.on_gui_checked_state_changed
+function model.on_gui_changed(event)
+    local element = event and event.element
+    if not (element and element.valid and element.tags.parent_gui == GUI_NAME) then return end
+    local player = game.get_player(event.player_index)
+    local root = player and model.get_gui(player)
+    if not root or player.opened ~= root then return end
+    local matrix_id = root.tags.matrix_id
+    if not model.entity_check(model.get_core_entity(matrix_id)) then model.close_gui(player); return end
+    local settings = model.copy_circuit_settings(circuit_settings(storage.ei.induction_matrix.core[matrix_id]))
+    local choice = settings[element.tags.output]
+    if type(choice) ~= "table" then return end
+    if element.tags.action == "output-enabled" then choice.enabled = element.state
+    elseif element.tags.action == "output-signal" then choice.signal = copy_circuit_signal(element.elem_value)
+    else return end
+    model.set_circuit_settings(matrix_id, settings)
 end
 
 ---Handles buttons clicks for the induction matrix GUI.

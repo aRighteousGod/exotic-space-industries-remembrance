@@ -305,60 +305,8 @@ data:extend({
 						run_mode = "backward",
 					},
 				},
-				-- Hypercooler lighting stack (slow + dim + low-variation flicker)
-				-- Design:
-				--  - All layers: long intervals, narrow flicker range
-				--  - Intensity kept low to avoid washing sprites
-				--  - Colors turquoise/cyan with subtle deep-blue depth
-
-				{
-					light = {
-						type = "basic",
-						sprite = "arc_furnace_glow",
-						flicker_interval = 20,
-						flicker_min_modifier = 0.88,
-						flicker_max_modifier = 1.00,
-						offset_flicker = true,
-						intensity = 0.30,
-						size = 19,
-						color = { r = 0.65, g = 0.95, b = 1.00 }, -- soft aqua wash
-						blend_mode = "multiplicative",
-						apply_runtime_tint = true,
-						draw_as_glow = true,
-					},
-				},
-				{
-					light = {
-						type = "basic",
-						sprite = "arc_furnace_glow",
-						flicker_interval = 16,
-						flicker_min_modifier = 0.86,
-						flicker_max_modifier = 0.98,
-						offset_flicker = true,
-						intensity = 0.45,
-						size = 16,
-						color = { r = 0.28, g = 0.82, b = 0.92 }, -- turquoise core
-						blend_mode = "multiplicative",
-						apply_runtime_tint = true,
-						draw_as_glow = true,
-					},
-				},
-				{
-					light = {
-						type = "basic",
-						sprite = "arc_furnace_glow",
-						flicker_interval = 24,
-						flicker_min_modifier = 0.90,
-						flicker_max_modifier = 1.00,
-						offset_flicker = true,
-						intensity = 0.27,
-						size = 13,
-						color = { r = 0.25, g = 0.35, b = 1.00 }, -- deep cryo blue accent
-						blend_mode = "multiplicative",
-						apply_runtime_tint = true,
-						draw_as_glow = true,
-					},
-				},
+				-- Native cold mist is appended by data-final cryo-mist; this
+				-- single-frame animation remains the authored working indicator.
 			},
 		},
 		working_sound = {

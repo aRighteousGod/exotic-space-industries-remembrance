@@ -1,5 +1,17 @@
 # Robot progression verification
 
+The historical fleet results below used Wraithline at 5 kJ/tile and Architectum
+at 2.5 kJ/tile. Their movement costs have since been restored to 10 and 5 kJ/tile,
+respectively; the completion-time ratios below have not been remeasured at those costs.
+
+After restoring those costs, a focused Factorio 2.0.77 `--create` run passed the
+existing final-prototype assertions for all four bots, both fleet conversions and
+death/hit/sound/Factoriopedia fields. Evidence is retained in
+`.factorio-qc/managed/be31b1d6d6`. This check did not repeat the fleet timing matrix
+or rendered visual review. Broad preflight and `qc-fast` remained unsuccessful;
+`qc-fast` reported unrelated encoding findings and a 260-character staged module
+path. The focused run used shorter staging and loaded successfully.
+
 Engine: Factorio 2.0.77. Main mod version: 1.3.41 (unchanged).
 Run: `.factorio-qc/managed/219bddf9e8474e37a421a6ce8fb84ff1`.
 Pre-feature robot source: `747d349e3ab693e2acb436fe9a51cf9fbb9eda1d`.

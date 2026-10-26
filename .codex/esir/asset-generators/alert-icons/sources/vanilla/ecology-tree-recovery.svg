@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-tree-recovery: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#72d65b" stroke="none" stroke-width="0"/>
+<polygon points="59,111 59,94 42,84 38,68 47,52 64,40 84,50 89,67 84,83 69,95 69,111" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="60,90 62,70 76,56" fill="none" stroke="#72d65b" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

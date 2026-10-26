@@ -1,0 +1,186 @@
+{
+  "tool": "built-in image_gen",
+  "authored_3d_scene": false,
+  "images": [
+    {
+      "id": "gate-low-power",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4327,
+      "alpha_bbox": [
+        0,
+        1,
+        1253,
+        1254
+      ],
+      "sha256": "facb52d57f81bd8f7c4f5d2e0da1a0f7b5043dcecfb2c0d91f79728fa155805e"
+    },
+    {
+      "id": "fluid-cryo",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5396,
+      "alpha_bbox": [
+        0,
+        18,
+        1218,
+        1254
+      ],
+      "sha256": "d32adc5a5f4c725ff800ae22e995aea4622588eebac99e44d8eb954d74efcc2d"
+    },
+    {
+      "id": "ecology-tree-stress",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5563,
+      "alpha_bbox": [
+        0,
+        9,
+        1224,
+        1254
+      ],
+      "sha256": "0eaf95c2a2add7a3cfa36479ebcf2eb1e40161f0255c394e158eeee06a0a9fe6"
+    },
+    {
+      "id": "ecology-mining-restoration",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4906,
+      "alpha_bbox": [
+        0,
+        39,
+        1191,
+        1254
+      ],
+      "sha256": "135d5163db969f5944e24759853099cf597b96f33252f0c8a5c4eb75f4083d20"
+    },
+    {
+      "id": "black-hole-containment",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4067,
+      "alpha_bbox": [
+        29,
+        56,
+        1238,
+        1198
+      ],
+      "sha256": "48fe38cb73a6d983cbab930728ce7efb555773e61e3c4d952e3cab3a7cfbfb67"
+    },
+    {
+      "id": "matter-cascade",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4294,
+      "alpha_bbox": [
+        45,
+        79,
+        1192,
+        1254
+      ],
+      "sha256": "caa897df586173b176696a8f9c3750e45e3297368f2444d2d0fe0b6d47f1711e"
+    },
+    {
+      "id": "gaia-degradation",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5214,
+      "alpha_bbox": [
+        0,
+        0,
+        1244,
+        1254
+      ],
+      "sha256": "d7dd65e101bab35f0f48f88710a21b6f8f6af02e257fb56de5f5a1588df6c270"
+    },
+    {
+      "id": "fluid-phase-shift",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5736,
+      "alpha_bbox": [
+        192,
+        30,
+        1208,
+        1230
+      ],
+      "sha256": "a1e104ffa78248a16812e98e4bd6f3e5cde33244a18e1d6ae0c4b7c62bb8444b"
+    },
+    {
+      "id": "fluid-data",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.7786,
+      "alpha_bbox": [
+        0,
+        0,
+        1226,
+        1230
+      ],
+      "sha256": "e450f30c8195138c44863e58c0b07d45f7915ed3e33faed15951156e629927dd"
+    }
+  ]
+}

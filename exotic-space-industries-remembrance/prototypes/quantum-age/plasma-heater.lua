@@ -182,6 +182,8 @@ data:extend({
                 -- Simulate always-on energy draw Violet core glow
                 {
                     always_draw = true,
+                    -- Keep both glows above the opaque status-lamp and fan animation patches.
+                    secondary_draw_order = 2,
                     animation = {
                         filename = ei_graphics_glow_path.."plasma-heater-glow-pulse-purple.png",
                         width = 64,
@@ -204,6 +206,7 @@ data:extend({
                 -- Yellow outer aura
                 {
                     always_draw = true,
+                    secondary_draw_order = 3,
                     animation = {
                         filename = ei_graphics_glow_path.."plasma-heater-glow-pulse-yellow.png",
                         width = 64,
@@ -223,6 +226,7 @@ data:extend({
                     }
                 },
                 {
+                    secondary_draw_order = 1,
                     animation = {
                         filename = ei_graphics_entity_path.."plasma-heater_animation.png",
                         size = {512, 512},
@@ -468,23 +472,30 @@ data:extend({
 -- blueprint-ref: .codex/esir/blueprints/plasma-smelting.md#routing
 -- Native furnaces select by input. Keep the lower-yield ore category out of the
 -- heater while retaining shared remelting and gas recipes in ei-arc-furnace.
----@type string[]
+---@type {name: string, amount: number}[]
 local plasma_smelting_sources = {
-    "ei-molten-iron-ore", "ei-molten-copper-ore",
-    "ei-molten-iron-pure-ore", "ei-molten-copper-pure-ore",
-    "ei-molten-gold-pure-ore", "ei-molten-lead-pure-ore",
+    {name = "ei-molten-iron-ore", amount = 20},
+    {name = "ei-molten-copper-ore", amount = 20},
+    {name = "ei-molten-iron-pure-ore", amount = 50},
+    {name = "ei-molten-copper-pure-ore", amount = 50},
+    {name = "ei-molten-gold-pure-ore", amount = 50},
+    {name = "ei-molten-lead-pure-ore", amount = 50},
+    {name = "ei-molten-neodym", amount = 25},
 }
-for _, source_name in ipairs(plasma_smelting_sources) do
+for _, source in ipairs(plasma_smelting_sources) do
     ---@type data.RecipePrototype
-    local recipe = table.deepcopy(data.raw.recipe[source_name])
-    recipe.name = source_name:gsub("^ei%-molten%-", "ei-plasma-molten-")
+    local recipe = table.deepcopy(data.raw.recipe[source.name])
+    recipe.name = source.name:gsub("^ei%-molten%-", "ei-plasma-molten-")
     recipe.category = "ei-plasma-smelting"
     recipe.localised_name = {"recipe-name."..recipe.name}
     recipe.localised_description = {"recipe-description.ei-plasma-smelting"}
     local feedstock = data.raw.item[recipe.ingredients[1].name]
     local molten = data.raw.fluid[recipe.main_product]
     local poor_chunks = recipe.ingredients[1].amount == 3
-    recipe.results = {{type = "fluid", name = molten.name, amount = poor_chunks and 20 or 50, temperature = 900}}
+    -- The first product is molten metal; retain its temperature (including the
+    -- neodymium default) while dropping the separate slag product.
+    recipe.results = {recipe.results[1]}
+    recipe.results[1].amount = source.amount
     recipe.maximum_productivity = 3
     recipe.subgroup = molten.subgroup
     recipe.order = molten.order.."-plasma-"..(poor_chunks and "a" or "b")

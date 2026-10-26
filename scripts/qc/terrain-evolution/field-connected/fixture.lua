@@ -88,7 +88,7 @@ function model.instrument(ctx)
         local root=storage.ei.ecology_gui
         local player=root and #root.viewers>0 and game.get_player(root.viewers[root.cursor%#root.viewers+1])
         local p=player and root.players[player.index]
-        if not p or not p.frame or not p.frame.valid or p.tab==3 or p.layout_version~=2 then return original_update(event) end
+        if not p or not p.frame or not p.frame.valid or p.tab==3 or not p.layout_version or p.layout_version<3 then return original_update(event) end
         local admitted=event.tick>=(p.next_tick or 0)
         if not admitted then return original_update(event) end
         if s.stats.last_admission then assert(event.tick-s.stats.last_admission>=16,"Viewer admissions exceeded the global 16-tick cadence") end
@@ -124,14 +124,15 @@ function model.instrument(ctx)
         for _,row in ipairs(native_rows) do
             replaced[#replaced+1]={row=row,native=row.element};row.element=proxy(row.element)
         end
-        local bodies={p.bodies[1],p.bodies[2]};local loading=p.loading
+        local bodies={p.bodies[1],p.bodies[2]};local loading=p.loading;local title_icon=p.title_icon
         p.bodies[1]=proxy(bodies[1]);p.bodies[2]=proxy(bodies[2]);p.loading=proxy(loading)
+        p.title_icon=proxy(title_icon)
         p.rows[p.tab or 1]=setmetatable({}, {
             __len=function()return #native_rows end,
             __index=function(_,key) if type(key)=="number" then inspections=inspections+1 end;return native_rows[key] end,
         })
         local ok,err=pcall(original_update,event)
-        p.rows[p.tab or 1]=native_rows;p.bodies[1]=bodies[1];p.bodies[2]=bodies[2];p.loading=loading
+        p.rows[p.tab or 1]=native_rows;p.bodies[1]=bodies[1];p.bodies[2]=bodies[2];p.loading=loading;p.title_icon=title_icon
         for _,row in ipairs(replaced) do row.row.element=row.native end
         if not ok then error(err) end
         assert(writes<=8,"Native presentation property-write allowance exceeded: "..writes)
@@ -229,6 +230,10 @@ local function collect_captions(player,case)
         for _,child in pairs(element.children or {}) do walk(child) end
     end
     walk(p.bodies[1]);add({"ei-ecology.title"},"title")
+    add(p.launcher_toggle.caption,"launcher");add(p.launcher_toggle.tooltip,"launcher-tooltip")
+    for _,name in ipairs{"ei-toggle-admin-menu","ei-toggle-ecology-menu"} do
+        add({"controls."..name},"control");add({"controls-description."..name},"control-description")
+    end
     for _,key in ipairs{"simple","advanced","alerts"} do add({"ei-ecology.tab-"..key},"tab") end
     return captions
 end
@@ -244,7 +249,8 @@ local function verify_ready(ctx,player,case,tick)
         and p.frame.location.y+p.frame.style.maximal_height*player.display_scale<=player.display_resolution.height+2)
     check(case.name.." opening did not create surfaces",count_surfaces()==s.surface_count)
     check(case.name.." fresh composition matches surface",last and last.surface==case.surface.index and last.tick>s.case_tick)
-    if case.kind=="legacy" then check("old saved layout is retired on first use",p.layout_version==2 and p.strip_width>0) end
+    if case.kind=="legacy" then check("old saved layout is retired on first use",p.layout_version>=3
+        and p.title_icon.valid and p.launcher_toggle.valid and p.strip_width>0) end
     if case.kind=="utility" then
         check(case.name.." native cycle is unavailable",not last.cycle.available and last.values.day[1]=="ei-ecology-field.no-cycle")
         check(case.name.." unsupported report remains honest",last.values.status[1]=="ei-ecology-field.status-unsupported")

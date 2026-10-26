@@ -162,15 +162,21 @@ The current-view Ecology window uses mod_gui and a draggable screen frame.
 Simple is an in-world field report; Advanced labels surface observations separately
 from global allowances, queues and histories. Neither infers health from missing
 observations. One viewer per 16 ticks receives at most eight native property writes,
-including visibility and strip geometry, targeting 60 ticks per viewer. A fair
+including the seasonal title icon, visibility and strip geometry, targeting 60 ticks per viewer. A fair
 binding cursor inspects at most 32 fixed widgets per opportunity. Initial population
 uses ordinary 16-tick admissions and reserves two writes for reveal. Closed panels
 perform no refresh or world reads. Surface generations invalidate hidden content;
 Simple can populate without walking Advanced. Rapid A-B-A view changes retain
 invalidation until a fresh generation is rendered.
-A saved layout version is checked at first presentation or interaction; an older
-open window is rebuilt for that viewer without requiring a gameplay migration or
-a mod-version change. This is static construction, not a second refresh service.
+A saved layout version is checked at first presentation or interaction without
+requiring a gameplay migration or mod-version change. Layout version 3 added the
+title icon and launcher toggle; version 4 added catalogue icons. Version 5 inserts
+the personal icon-set selector into a compatible version-4 Alerts pane in place,
+preserving the native scroll pane, active tab, location, preferences and launcher.
+Older incompatible layouts use the existing per-viewer rebuild path. Initial
+construction/adoption is not a second refresh service. Subsequent selector and
+category-icon changes consume the existing eight-write viewer allowance; rapid
+changes retain only the latest target and closed panels do no refresh work.
 
 Simple uses six decorative Graphics 6 planetary banners, native planet icons and
 the existing seasonal tree, with responsive paired/stacked activity cards. Artwork
@@ -202,6 +208,23 @@ A separate event-maintained connected roster admits at most one launcher check
 per 16 ticks, targeting 600 ticks per player. It changes native sprite/tooltip
 fields only on season changes; closed report refresh remains entirely idle.
 Existing text launchers are replaced in place during player/configuration lifecycle.
+The per-player `launcher` preference defaults true only when absent. The toolbar
+toggle below the title is available on every tab and displays its current state.
+Hiding it destroys the button and removes its seasonal roster membership without
+closing the report or creating mod-gui containers. Save/load, reconnect and
+configuration changes preserve an explicit false. Feature disablement still
+closes the window and removes the launcher without erasing the preference.
+The title uses the same seasonal mapping at 48 GUI units. Its existing viewer
+service checks the cached season even on Alerts and while the launcher is hidden,
+charging only changed sprite writes to the eight-write allowance. No extra
+scheduler or world observer is added.
+The unbound `ei-toggle-ecology-menu` control opens/closes the report independently
+of launcher visibility. `control.lua` forwards the original custom-input event
+and tick. The control remains assignable with ecology disabled; runtime access
+checks the startup gate before constructing any window or referencing gated art.
+Closing releases the session's frame reference before clearing `player.opened`,
+whose synchronous native close event may re-enter cleanup; the saved local handle
+is then destroyed once. Rebuilding uses this same reentrant close path.
 Administrator mutation remains in the existing gated console. Reading reports
 does not instantiate planetary surfaces.
 
@@ -309,3 +332,30 @@ See scripts/qc/terrain-evolution/README.md for current commands and evidence.
 Dense cursor sets deliberately remain local: shared FIFO helpers compact or drain
 in ways that do not preserve the constant-time removal and cyclic-history contract.
 No new scheduler, telemetry channel, or runtime timing controller is registered.
+
+## Shared alert ownership
+
+`terrain-alerts.lua` owns ecology preferences, interested-player admission,
+visibility policy and terrain receipt callbacks. The
+[shared native alert owner](runtime-alerts.md#contract) owns records, recipients,
+markers, deadlines, deduplication and native calls. Versioned adoption preserves
+old records and retained receipts by identity. The caps and cadence above remain
+independent of operational service.
+
+Native per-player settings are authoritative. The Alerts tab's icon-set selector
+edits `ei-alert-icon-set`, the same choice exposed in Mod settings, through the
+shared setting-change path. It applies to all ESIR alerts. Category captions use
+that player's Original, SVG, Rendered, or registered provider set; the startup
+default initializes a personal choice without overriding a later explicit choice.
+The shared art module owns available-set validation and provider fallback, not the
+ecology policy adapter. GUI selection tags validate player/frame identity and
+selection bounds before writing the personal setting.
+
+Changing art neither re-admits incidents nor re-retains terrain receipts. Shared
+records remember each recipient's actual signal/message for exact cleanup and
+provider-removal recovery. A cosmetic refresh replaces only a native alert still
+visible; dismissed once-only ecology incidents remain absent. Ordinary deliveries
+have priority over replacement within the same one-addition allowance, and style
+changes do not alter the 60-second eligibility deadline or completed audience.
+Presentation migration has its own version and does not repeat terrain delivery
+adoption. Layout version 5 and its bounded caption projection are described above.

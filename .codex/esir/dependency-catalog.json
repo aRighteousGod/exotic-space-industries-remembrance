@@ -1736,6 +1736,19 @@
                             "source_pack":  "exotic-space-industries-remembrance"
                         },
                         {
+                            "id":  "exotic-space-industries-remembrance-scripts-data-updates-machine-status-lights-lua:prototype-integration",
+                            "category":  "prototype-integration",
+                            "phase":  "data-updates",
+                            "direction":  "bridge",
+                            "mod_names":  ["BottleneckLite"],
+                            "guard_mods":  ["BottleneckLite"],
+                            "source_files":  ["exotic-space-industries-remembrance\\scripts\\data-updates\\machine-status-lights.lua"],
+                            "touchpoints":  ["data.raw", "mods"],
+                            "purpose":  "Data-stage compatibility touchpoints in machine-status-lights",
+                            "pack_role":  "primary gameplay and runtime pack",
+                            "source_pack":  "exotic-space-industries-remembrance"
+                        },
+                        {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-nanobot-patches-lua:prototype-integration",
                             "category":  "prototype-integration",
                             "phase":  "data-updates",

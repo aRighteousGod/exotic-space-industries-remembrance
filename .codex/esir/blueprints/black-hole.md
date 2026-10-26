@@ -36,3 +36,7 @@ Build/destruction of pylons dirties nearby hole caches. Hole registration initia
 ## Verification contract
 
 Historical GUI/lifecycle parity appears in the [control follow-up record](../../../scripts/qc/control-ups/followup-verification.md). Exercise empty/dormant holes, mass insertion, pylon build/removal, insufficient energy, stage advancement, reload, and removal with a console open. Verify resource accounting and containment outcomes separately from visual appearance.
+
+## Alert delivery
+
+Containment failure captures owning force and location before destruction and records `black-hole-containment` through the [shared handler](runtime-alerts.md#contract). Its 60-second positional incident replaces automatic chat warnings; floating text retains its presentation.

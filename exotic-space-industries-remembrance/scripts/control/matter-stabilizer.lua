@@ -11,6 +11,7 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/matter-stabilizer.md#contract
 local model = {}
+local alerts = require("lib/alerts")
 ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
@@ -2138,10 +2139,9 @@ function model.update_matter_machine(machine_data, event_tick)
     end
 
     if math.random() < chance then
-        ei_lib.notify_connected_players(
-            "matter_machine",
-            {"exotic-industries.exotic-assembler-explode", entity.name, entity.gps_tag}
-        )
+        alerts.record_incident("operational","matter-cascade",{
+            entity=entity, message={"exotic-industries.exotic-assembler-explode",entity.name,entity.gps_tag},
+        },tick)
         ei_lib.crystal_echo_floating("Containment Breach: Rationality Compromised.", entity, 6000, nil)
         entity.surface.create_entity{
             name = "ei-matter-explosion",

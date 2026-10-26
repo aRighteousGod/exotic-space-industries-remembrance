@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/induction-matrix.md#contract
 ei_data = require("lib/data")
 
 --====================================================================================================
@@ -8,6 +9,7 @@ data:extend({
     {
         name = "ei-induction-matrix-core",
         type = "item",
+        localised_description = {"item-description.ei-induction-matrix-core-circuit-interface"},
         icon = ei_graphics_item_path.."induction-matrix-core.png",
         icon_size = 64,
         subgroup = "ei-induction-matrix",
@@ -650,6 +652,7 @@ data:extend({
 local base = {
     name = "ei-induction-matrix-core-1",
     type = "electric-energy-interface",
+    localised_description = {"item-description.ei-induction-matrix-core-circuit-interface"},
     icon = ei_graphics_item_path.."induction-matrix-core.png",
     icon_size = 64,
     circuit_connector =  circuit_connector_definitions.create_vector(
@@ -716,12 +719,13 @@ matrix_wire_proxy.name = "ei-induction-matrix-core-circuit-interface"
 matrix_wire_proxy.icon = ei_graphics_other_path.."64_empty.png"
 matrix_wire_proxy.flags = {"not-blueprintable", "not-on-map", "not-flammable", "not-repairable", "not-upgradable", "hide-alt-info"}
 matrix_wire_proxy.hidden = true
+matrix_wire_proxy.localised_description = {"item-description.ei-induction-matrix-core-circuit-interface"}
 matrix_wire_proxy.minable = {mining_time = 1, result = "ei-induction-matrix-core"}
 matrix_wire_proxy.placeable_by = {item = "ei-induction-matrix-core", count = 1}
 matrix_wire_proxy.max_health = 300
 matrix_wire_proxy.collision_box = {{0, 0}, {0, 0}}
 matrix_wire_proxy.selection_box = {{-1, -1}, {1, 1}}
-matrix_wire_proxy.item_slot_count = 3
+matrix_wire_proxy.item_slot_count = 4
 matrix_wire_proxy.activity_led_light = {intensity = 0, size = 0, color = {r = 1, g = 1, b = 1}}
 matrix_wire_proxy.activity_led_sprites = {
     north = util.empty_sprite(),

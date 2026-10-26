@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-rupture: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#ff3930" stroke="none" stroke-width="0"/>
+<polygon points="31,80 51,80 46,91 54,100 46,109 28,109" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="79,80 97,80 100,109 77,109 85,100 76,91" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="33,78 33,113" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="95,78 95,113" fill="none" stroke="#242627" stroke-width="7" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="61,46 68,46 67,65 62,65" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="48,60 55,55 61,70 55,73" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="75,56 82,61 74,73 68,70" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

@@ -1,0 +1,9 @@
+﻿{
+    "id":  "fluid-rupture",
+    "replaces":  "fluid-rupture.v1.png",
+    "source":  "C:/Users/Theorun/.codex/generated_images/01a17469-a8c7-7b43-980b-0e59213d7722/exec-468b0110-5ddd-4410-93ce-ddcf21e61c8b.png",
+    "provider":  "builtin-imagegen",
+    "prompt":  "fluid-rupture.v2.prompt.txt",
+    "background":  "transparent",
+    "review":  "Corrected full two-stub framing; original cropped pass retained separately"
+}

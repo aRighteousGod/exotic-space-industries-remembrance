@@ -16,11 +16,25 @@ from the **Enable** and **Disable** actions.
 `research`, `repairs`, `map-settings`, and `cameras`. **Toggle launcher button** adds or removes
 the administrator's persistent mod-gui shortcut. It is shown by default while the
 toolkit is enabled; an explicitly hidden shortcut stays hidden across reloads.
+The toggle is highlighted while the shortcut is shown, matching the Ecology menu.
+Hiding the shortcut leaves the open console usable.
 Existing administrators with no saved preference also receive the shortcut.
 The Overseer's Seal identifies the launcher and appears beside the window title.
+In **Settings → Controls**, assign **Toggle administration menu** to open or close
+the console, including while its launcher is hidden. This control is unbound by
+default and uses the same administrator and startup-setting checks as the menu.
 The native launcher remains 40 by 40 GUI units, with a 32-unit sprite; the title
 emblem is 48 by 48. Both use the same transparent high-resolution artwork and
 scale with the interface. Dragging the title emblem also moves the window.
+
+The public **Ecology** window has its own **Toggle launcher button** control below
+the title, available on every tab. Its pressed state means the launcher is shown;
+hiding it leaves the current window open and saves your choice across reloads.
+Assign **Toggle ecology menu** in **Settings → Controls** to reopen or close it
+with the launcher hidden. This control also starts unbound and requires ecology
+to be enabled. The 48-unit tree beside the title follows the viewed surface's
+season even on Alerts or with the launcher hidden; unavailable calendars use the
+summer tree. Each player's launcher preference is independent.
 
 The target panel selects a player, force and planet. Opening the console does not
 create planets. Travel creates the requested destination through its native owner,

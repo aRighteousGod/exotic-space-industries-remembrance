@@ -1,0 +1,240 @@
+{
+  "format": 1,
+  "set_id": "rendered",
+  "provider": "OpenAI built-in image_gen",
+  "source_kind": "AI-generated raster artwork with a physical 3D appearance; not Blender/model renders.",
+  "reviewed_input": ".factorio-qc/ai1/rendered",
+  "export": "Alpha >= 32 subject crop, fit to 108x108 with Lanczos, center on 128x128 RGBA.",
+  "icons": {
+    "gate-low-power": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/gate-low-power.png",
+      "source_sha256": "facb52d57f81bd8f7c4f5d2e0da1a0f7b5043dcecfb2c0d91f79728fa155805e",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/gate-low-power.prompt.txt",
+      "prompt_sha256": "54e5f7fc2b21170bd3fedf6870c20a152adf18c954b3fa9dd6dde7a99a6a0f91"
+    },
+    "black-hole-containment": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/black-hole-containment.png",
+      "source_sha256": "48fe38cb73a6d983cbab930728ce7efb555773e61e3c4d952e3cab3a7cfbfb67",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/black-hole-containment.prompt.txt",
+      "prompt_sha256": "53915ad150ac3b586cd185416aeee7477656e97460832df46ded7b5ec27f4527"
+    },
+    "matter-cascade": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/matter-cascade.png",
+      "source_sha256": "caa897df586173b176696a8f9c3750e45e3297368f2444d2d0fe0b6d47f1711e",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/matter-cascade.prompt.txt",
+      "prompt_sha256": "8564a32b5d4f1b11b7b3df515a12d76120f0505fa9505bf2091853255a2979cf"
+    },
+    "gaia-degradation": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/gaia-degradation.png",
+      "source_sha256": "d7dd65e101bab35f0f48f88710a21b6f8f6af02e257fb56de5f5a1588df6c270",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/gaia-degradation.prompt.txt",
+      "prompt_sha256": "dae889a7f4e37624aa815cd4dc37d92860ec4577128e9b532e3649a7613e4b3c"
+    },
+    "fluid-phase-shift": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/fluid-phase-shift.png",
+      "source_sha256": "a1e104ffa78248a16812e98e4bd6f3e5cde33244a18e1d6ae0c4b7c62bb8444b",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-phase-shift.prompt.txt",
+      "prompt_sha256": "2f8415204e0180ef87fbda53a72f620ec8ae1a6951811d187f0a7637b9bf8d8c"
+    },
+    "fluid-data": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/fluid-data.png",
+      "source_sha256": "e450f30c8195138c44863e58c0b07d45f7915ed3e33faed15951156e629927dd",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-data.prompt.txt",
+      "prompt_sha256": "fcf1c3d9fe9f200d18205ce3155af1a6e8bd66d929f6900fc172fbd3e6079404"
+    },
+    "fluid-cryo": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/fluid-cryo.png",
+      "source_sha256": "d32adc5a5f4c725ff800ae22e995aea4622588eebac99e44d8eb954d74efcc2d",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-cryo.prompt.txt",
+      "prompt_sha256": "bb3074608359d513851208806838f113a1aab922ca4d4876fc96e6b67064606a"
+    },
+    "fluid-thermal": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/fluid-thermal.png",
+      "source_sha256": "13bc8f2ca8d75688adb156eb2fdd814f67dd601ac5efa6569e57ca8f1d13c0e1",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-thermal.prompt.txt",
+      "prompt_sha256": "e7492df25250676175eeec5c68ae60f5bc977c74ba719a2b3e29fde8d4efe974"
+    },
+    "fluid-chemical": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/fluid-chemical.png",
+      "source_sha256": "84ac2e7400bc2541821adf62bd217913c4e5a223db37d3791fb662b850bb04e8",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-chemical.prompt.txt",
+      "prompt_sha256": "aae75eef932b9ab28d2cc382be5bbfd42b36b1b8655ee1e3bdcb116cc085527b"
+    },
+    "fluid-rupture": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/fluid-rupture.png",
+      "source_sha256": "3c83eca236645b8f65f35802f0ab89e34b224c1251060c30829244797a806550",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-rupture.prompt.txt",
+      "prompt_sha256": "9837e38776932bdb647bfc7f89bd41e609d18242dac02764bf863514b3ffe289",
+      "correction": {
+        "input": ".codex/esir/asset-generators/alert-icons/sources/rendered/corrections/fluid-rupture.v1.png",
+        "input_sha256": "d2bd1de8e998d6605d20d27bda505bbd21cf38c666e6956474077ac4141fb41d",
+        "prompt": ".codex/esir/art-prompts/alert-icons/rendered/fluid-rupture.v2.prompt.txt",
+        "prompt_sha256": "4b2a72c8af8b5bcfa1302e4d6c8ad16439ae4169e875cccd4b27b7121ee8a43b",
+        "purpose": "Framing-only imagegen edit; complete subject retained in the final source."
+      }
+    },
+    "ecology-wildfire": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-wildfire.png",
+      "source_sha256": "706009ebbcbe661e86697e2acedd96def84576b0288b4d636c732bc1fd2f840b",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-wildfire.prompt.txt",
+      "prompt_sha256": "0ea9bf202f78057417b135842833c45d6391a44cc8f136ad7143964df152cf2b"
+    },
+    "ecology-flood": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-flood.png",
+      "source_sha256": "c31317cf1d5fb06ffb427aed68ab1cf16c8d0290aa0914842369cbc0bd28555a",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-flood.prompt.txt",
+      "prompt_sha256": "f18fb25b9b9ef424e6ce4a1f4b861ec5ff2386f1fbe1e1700fb551051407516d"
+    },
+    "ecology-drought": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-drought.png",
+      "source_sha256": "2634996eeb87ec3a65f64bf137272d9fd145fdad23be35a33745db53c985ffa5",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-drought.prompt.txt",
+      "prompt_sha256": "7a5eb244203340948dcf879aa9b8a77841c89a0117f6c01c4d30465b6e123cdf"
+    },
+    "ecology-cliff": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-cliff.png",
+      "source_sha256": "97b5c951a5a38996a72b746c5ec182a533dbdc8b01065e8b699b7efc7fc629da",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-cliff.prompt.txt",
+      "prompt_sha256": "2ea2e0a9e75aadb62c3ffcdc06e4996f6adb7c9fff62ee62d6966ed9b3ec027c"
+    },
+    "ecology-paving": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-paving.png",
+      "source_sha256": "0e69a1801ef5e08fa42303174cfe7d2ac5376eed5e39660c56d70773ed037f46",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-paving.prompt.txt",
+      "prompt_sha256": "c9809867272d89831aa6115e8414fe76a1eee6af539f78d2674c8e2bd8912596"
+    },
+    "ecology-pollution": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-pollution.png",
+      "source_sha256": "c7d3bb3fcbcb82427c632f73a404e7f4a838d5f0ea1425a15e1e35164f2ff540",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-pollution.prompt.txt",
+      "prompt_sha256": "725696a0aed6aad0dc1d8fad08cb9a319fd76a8a53998b6f549acb0fe646885b"
+    },
+    "ecology-restoration": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-restoration.png",
+      "source_sha256": "efdc85bbf7b41077b83be9116285a4c6e0c36a9d29a0f937f2113c2f3f8ae326",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-restoration.prompt.txt",
+      "prompt_sha256": "0359624f660728dfb5264a55c096963bfdf54c65c1b5cf1f14ace6b9a6304c48"
+    },
+    "ecology-depletion-scars": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-depletion-scars.png",
+      "source_sha256": "734c1eb78d8b1cc6741d6e7a60eee3ed4d6fef352d4ba17b543cf656b8a839c1",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-depletion-scars.prompt.txt",
+      "prompt_sha256": "d172dbfa0472c77f4178e3078b6741da560c1becfa29d44919ee319cd0159b44"
+    },
+    "ecology-working-scars": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-working-scars.png",
+      "source_sha256": "7bd189334036051f6c1bee389acf391c9234e1c9182fd789e9e9fd2193a9a5a1",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-working-scars.prompt.txt",
+      "prompt_sha256": "bbddaf0d9243a3b9efc021c6797a06139a2f6c51ea9e3412207d2f97d5ea4a39",
+      "correction": {
+        "input": ".codex/esir/asset-generators/alert-icons/sources/rendered/corrections/ecology-working-scars-cropped-draft.png",
+        "input_sha256": "a2b8c8f4bc35ebba43f3cb86b0933c78d606f792d40273bbe9431e8dde2a65b1",
+        "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-working-scars.framing-prompt.txt",
+        "prompt_sha256": "9ba472d5d06f016cefb6c6ca916d311c1d8d4c9a371f1520ca256a402f968f17",
+        "purpose": "Framing-only imagegen edit; complete subject retained in the final source."
+      }
+    },
+    "ecology-mining-restoration": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-mining-restoration.png",
+      "source_sha256": "135d5163db969f5944e24759853099cf597b96f33252f0c8a5c4eb75f4083d20",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-mining-restoration.prompt.txt",
+      "prompt_sha256": "8c64185c4aced16f0e24f5fc0df41e7561171e324e2be25babe1110b88946d25"
+    },
+    "ecology-tree-stress": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-tree-stress.png",
+      "source_sha256": "0eaf95c2a2add7a3cfa36479ebcf2eb1e40161f0255c394e158eeee06a0a9fe6",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-tree-stress.prompt.txt",
+      "prompt_sha256": "7edb5e0c00b2c3cd27c6f2be7d3240b305f26d77623cf1b7d30d3ec5193d2f5e"
+    },
+    "ecology-tree-recovery": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-tree-recovery.png",
+      "source_sha256": "fbf4ed8ef14d9f85825189cd22242380ce4048658db2f6e0e7815149c6628079",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-tree-recovery.prompt.txt",
+      "prompt_sha256": "418c65994015c1a4437c007d60ad352b466eb15b40eba13a951aa966b8ee4ce5"
+    },
+    "ecology-regrowth": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-regrowth.png",
+      "source_sha256": "53de1a857be3274533dd969f5fafbac037e6773e4b1eb2ca5fad76add7270b4a",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-regrowth.prompt.txt",
+      "prompt_sha256": "248059dd88a9b193d24956788de8cec8bac7b16da7885b943c28af4462d61301"
+    },
+    "ecology-aging": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-aging.png",
+      "source_sha256": "bc71346f6fea13e1bd46349fabfc03372d4c3414ea1ba0b0e0934471f31a6a36",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-aging.prompt.txt",
+      "prompt_sha256": "d5cd737533537786ae3e7f20aaaee0959f8ba6f245cbc27d48131849c6e1ab92"
+    },
+    "ecology-rot": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-rot.png",
+      "source_sha256": "24fab57a1198cb1b72e42f2ded285b4cfffb13af56866ae8d12e987b4a5cf506",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-rot.prompt.txt",
+      "prompt_sha256": "68abdfff984fdf2da7b0c40e9f5ec7ed1464335d4b3659e1cb7d81a3ce1b7cfc"
+    },
+    "ecology-thermal": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-thermal.png",
+      "source_sha256": "dcea62703dcc5da8323c142d63f2e2afa16ad453cf919f89dfee4ca832f45a60",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-thermal.prompt.txt",
+      "prompt_sha256": "aa689ac3d9ef296ba51e8b088c845141074c11555ad7df6122473550609f8fcf"
+    },
+    "ecology-blood": {
+      "source": ".codex/esir/asset-generators/alert-icons/sources/rendered/ecology-blood.png",
+      "source_sha256": "754fc0996d2f7fbe6e530e3acacf034424dc60f7bb903b2838bf9e2cf7e8e304",
+      "prompt": ".codex/esir/art-prompts/alert-icons/rendered/ecology-blood.prompt.txt",
+      "prompt_sha256": "34998de10112edb395a2268f8dcf9855af108af3b81074461627bc9b7941608a"
+    }
+  },
+  "generation_evidence": [
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-cliff.metadata.json",
+      "sha256": "43c2a4a5d94d61c741d08979b1ea563fa16033bad91708787229985e29ea9e03"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-drought.metadata.json",
+      "sha256": "79010722bbe985d1942629a17541129a37d0522cc5aeedaecf2c6cf48533329f"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-flood.metadata.json",
+      "sha256": "edf2d1376eb7f89b3e4513869109985a6c412578a211fcd625967f904bb94140"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-paving.metadata.json",
+      "sha256": "c9fc15c467abeb89a816d44267bbc039a23c6ee3584e869ab173449495c6d6f7"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-pollution.metadata.json",
+      "sha256": "77cf2b8d4b068068b011d2e552d3df7a8a0a8f92ba21a0a21012ada8dafc86e7"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-rendered-metadata.json",
+      "sha256": "38674fb79f9d9b20a8c7732fb32ca92e641e2fd8b200d621a67aa92974bad975"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/ecology-wildfire.metadata.json",
+      "sha256": "0cea97d76dcca13a2909d45e9283897c99676687e9c4d10f634dd23ad5bc2393"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/fluid-chemical.metadata.json",
+      "sha256": "b7e131238467347dfc6c11f6a8ec4b4e3da5e2deb8ff47f79acfc3d083e22357"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/fluid-rupture.metadata.json",
+      "sha256": "ba7ec484ca09627bcd0a639953e6f4cfdb727267d8463ff0ec1f6e4f01c347ae"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/fluid-rupture.v1.metadata.json",
+      "sha256": "4c4b5607584a87f91aa1abce6c02e36ffc740f2ec34726ea7b2a182a576a3cbd"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/fluid-thermal.metadata.json",
+      "sha256": "aadfca78ea7bc885a1a696e2a20d953c328fea9d40dd4bb93ee219d7c783beea"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/hazards-agent-audit.json",
+      "sha256": "38ed53077476c96e32bd74d3017e8286712a3a2095624df18887a785dfe68006"
+    },
+    {
+      "path": ".codex/esir/asset-generators/alert-icons/sources/rendered/evidence/rendered-trial-alpha.json",
+      "sha256": "4224117fc4bb8b0d869d365f9c1ad6d6cabf659c19f1a02756db050e79fed6d0"
+    }
+  ]
+}

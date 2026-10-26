@@ -1,0 +1,578 @@
+{
+  "format": 3,
+  "set_id": "rendered",
+  "style": "imagegen-physical-appearance",
+  "generator_hashes": {
+    "generate.py": "2c3e23b89b442cbd84ad1a11253faac678cf2a3f4169ecb4528cace2fbecec47",
+    "sigils.py": "71b95371698d2b52c947de0899c747ff522a234f0ae4d63b685090ff2b017e8b"
+  },
+  "icons": {
+    "gate-low-power": {
+      "png_sha256": "9cfb74d041630caf318cc787c126e25661a2f9f28bf9e54a550c2d4267abfa49",
+      "source_sha256": "facb52d57f81bd8f7c4f5d2e0da1a0f7b5043dcecfb2c0d91f79728fa155805e",
+      "alpha_bounds": [
+        10,
+        10,
+        117,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        29,
+        14,
+        1239,
+        1240
+      ],
+      "fit_pixels": 108
+    },
+    "black-hole-containment": {
+      "png_sha256": "bdc6228326c52f47be4eaf96f4f78ed90cccf11c69bfe5976da33a76bac5712b",
+      "source_sha256": "48fe38cb73a6d983cbab930728ce7efb555773e61e3c4d952e3cab3a7cfbfb67",
+      "alpha_bounds": [
+        11,
+        10,
+        117,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        72,
+        62,
+        1182,
+        1192
+      ],
+      "fit_pixels": 108
+    },
+    "matter-cascade": {
+      "png_sha256": "b50140a67fafffc092dd0255edede2d738e7279d62d94621ce3f30505fac882e",
+      "source_sha256": "caa897df586173b176696a8f9c3750e45e3297368f2444d2d0fe0b6d47f1711e",
+      "alpha_bounds": [
+        10,
+        10,
+        117,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        97,
+        82,
+        1183,
+        1180
+      ],
+      "fit_pixels": 108
+    },
+    "gaia-degradation": {
+      "png_sha256": "ae8d0605f52843bf40e578c79ba6ae13aa79e259d460da5d7ae327f4dff0a3c5",
+      "source_sha256": "d7dd65e101bab35f0f48f88710a21b6f8f6af02e257fb56de5f5a1588df6c270",
+      "alpha_bounds": [
+        12,
+        10,
+        116,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        54,
+        3,
+        1241,
+        1237
+      ],
+      "fit_pixels": 108
+    },
+    "fluid-phase-shift": {
+      "png_sha256": "5c404c594c4c5cc31714eeb7d723191dd633f2bf688b0ae0e49d7d77cac69e6a",
+      "source_sha256": "a1e104ffa78248a16812e98e4bd6f3e5cde33244a18e1d6ae0c4b7c62bb8444b",
+      "alpha_bounds": [
+        22,
+        10,
+        106,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        205,
+        35,
+        1115,
+        1206
+      ],
+      "fit_pixels": 108
+    },
+    "fluid-data": {
+      "png_sha256": "a5ae6c65bb140ffc76800bd8256f676d7388625c5333ecf0f88ffdbd08c78cbe",
+      "source_sha256": "e450f30c8195138c44863e58c0b07d45f7915ed3e33faed15951156e629927dd",
+      "alpha_bounds": [
+        10,
+        27,
+        118,
+        101
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        33,
+        187,
+        1223,
+        1003
+      ],
+      "fit_pixels": 108
+    },
+    "fluid-cryo": {
+      "png_sha256": "967edb8f855de047c9e8057749f3bbf7aeea464ca4a377defa705177d719b521",
+      "source_sha256": "d32adc5a5f4c725ff800ae22e995aea4622588eebac99e44d8eb954d74efcc2d",
+      "alpha_bounds": [
+        13,
+        10,
+        114,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        85,
+        36,
+        1169,
+        1197
+      ],
+      "fit_pixels": 108
+    },
+    "fluid-thermal": {
+      "png_sha256": "c481f0fded1148bf18dd1a333a761cee541f5794911b991d6507da4feda61e5d",
+      "source_sha256": "13bc8f2ca8d75688adb156eb2fdd814f67dd601ac5efa6569e57ca8f1d13c0e1",
+      "alpha_bounds": [
+        13,
+        10,
+        115,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        51,
+        8,
+        1207,
+        1238
+      ],
+      "fit_pixels": 108
+    },
+    "fluid-chemical": {
+      "png_sha256": "e6246d3f1daba670ba5d1bdeafb7549bca398cdc12519c16d5b9acc1d4bb8179",
+      "source_sha256": "84ac2e7400bc2541821adf62bd217913c4e5a223db37d3791fb662b850bb04e8",
+      "alpha_bounds": [
+        10,
+        24,
+        118,
+        103
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        8,
+        172,
+        1249,
+        1079
+      ],
+      "fit_pixels": 108
+    },
+    "fluid-rupture": {
+      "png_sha256": "d79de38e11d413de0c95f0380fbd48cc50420a33aa5c6e769dd089c084af3d6d",
+      "source_sha256": "3c83eca236645b8f65f35802f0ab89e34b224c1251060c30829244797a806550",
+      "alpha_bounds": [
+        10,
+        40,
+        118,
+        88
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        57,
+        405,
+        1197,
+        912
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-wildfire": {
+      "png_sha256": "2ffb2f000d76b89f509a27a221a8f2fcb1ab210e597e0ad6f08a329c46cc9750",
+      "source_sha256": "706009ebbcbe661e86697e2acedd96def84576b0288b4d636c732bc1fd2f840b",
+      "alpha_bounds": [
+        21,
+        10,
+        107,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        164,
+        27,
+        1116,
+        1226
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-flood": {
+      "png_sha256": "57a820ff1265a16295d33c8e244be3fd557c4bdc2362558532259cd6beeb8eab",
+      "source_sha256": "c31317cf1d5fb06ffb427aed68ab1cf16c8d0290aa0914842369cbc0bd28555a",
+      "alpha_bounds": [
+        10,
+        11,
+        118,
+        116
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        34,
+        40,
+        1241,
+        1218
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-drought": {
+      "png_sha256": "9b0a8119b781f8472664108fb59ba36bbc2423f8d7e1466312b271cd4c7f45fa",
+      "source_sha256": "2634996eeb87ec3a65f64bf137272d9fd145fdad23be35a33745db53c985ffa5",
+      "alpha_bounds": [
+        10,
+        14,
+        118,
+        113
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        25,
+        79,
+        1229,
+        1179
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-cliff": {
+      "png_sha256": "0a4562048e5dfce507a7bff57495dec83d6c9214e56d4773321e5dcf4ce4fdc2",
+      "source_sha256": "97b5c951a5a38996a72b746c5ec182a533dbdc8b01065e8b699b7efc7fc629da",
+      "alpha_bounds": [
+        10,
+        11,
+        118,
+        117
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        18,
+        36,
+        1228,
+        1229
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-paving": {
+      "png_sha256": "1961d9e2455918a333b39e104dbab12b8b8ce4ddbdc8771a14b382c8db084286",
+      "source_sha256": "0e69a1801ef5e08fa42303174cfe7d2ac5376eed5e39660c56d70773ed037f46",
+      "alpha_bounds": [
+        10,
+        15,
+        118,
+        113
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        47,
+        94,
+        1219,
+        1158
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-pollution": {
+      "png_sha256": "5568f61d11892a1fd59864d924b4a0bf5b03f6fef45b981b0211e12870311506",
+      "source_sha256": "c7d3bb3fcbcb82427c632f73a404e7f4a838d5f0ea1425a15e1e35164f2ff540",
+      "alpha_bounds": [
+        12,
+        10,
+        116,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        89,
+        43,
+        1220,
+        1215
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-restoration": {
+      "png_sha256": "92f21e4d2362d9989f11bacda2de60018859a366adea9df5ae7ec568e795e3b4",
+      "source_sha256": "efdc85bbf7b41077b83be9116285a4c6e0c36a9d29a0f937f2113c2f3f8ae326",
+      "alpha_bounds": [
+        10,
+        16,
+        118,
+        111
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        21,
+        108,
+        1237,
+        1173
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-depletion-scars": {
+      "png_sha256": "60f750c2be100679cb9780987760c5d6d7ede3ae936571bc11046153a9300d04",
+      "source_sha256": "734c1eb78d8b1cc6741d6e7a60eee3ed4d6fef352d4ba17b543cf656b8a839c1",
+      "alpha_bounds": [
+        10,
+        12,
+        118,
+        115
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        19,
+        59,
+        1230,
+        1217
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-working-scars": {
+      "png_sha256": "8b518752e44f2f025e733e1c56b5aac2f4d8528612db851686a3da9ac48fb0cd",
+      "source_sha256": "7bd189334036051f6c1bee389acf391c9234e1c9182fd789e9e9fd2193a9a5a1",
+      "alpha_bounds": [
+        16,
+        10,
+        112,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        160,
+        59,
+        1184,
+        1208
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-mining-restoration": {
+      "png_sha256": "c1143faf1fe432d8212f9cad4ee6764679e64e474d7f15ffd340e88721ea4051",
+      "source_sha256": "135d5163db969f5944e24759853099cf597b96f33252f0c8a5c4eb75f4083d20",
+      "alpha_bounds": [
+        11,
+        10,
+        116,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        89,
+        74,
+        1180,
+        1194
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-tree-stress": {
+      "png_sha256": "9c47fe22036f414c8d2a26249110c98009ecc63c3ee08612171b2b6102827823",
+      "source_sha256": "0eaf95c2a2add7a3cfa36479ebcf2eb1e40161f0255c394e158eeee06a0a9fe6",
+      "alpha_bounds": [
+        11,
+        10,
+        116,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        35,
+        15,
+        1221,
+        1232
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-tree-recovery": {
+      "png_sha256": "8610eaecab3a2fd94d149b6edc9042d87aece64e4e405fa552b9f2ef75857aca",
+      "source_sha256": "fbf4ed8ef14d9f85825189cd22242380ce4048658db2f6e0e7815149c6628079",
+      "alpha_bounds": [
+        27,
+        10,
+        101,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        276,
+        22,
+        1110,
+        1240
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-regrowth": {
+      "png_sha256": "e1b73c07fe2f4dfa917d995e6b42c077fdbfca63e80323f521035e0d543deb7c",
+      "source_sha256": "53de1a857be3274533dd969f5fafbac037e6773e4b1eb2ca5fad76add7270b4a",
+      "alpha_bounds": [
+        10,
+        10,
+        118,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        68,
+        62,
+        1222,
+        1221
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-aging": {
+      "png_sha256": "ff35558f375c6df7e0bc3b6fc93b22274a394299010d168f569d26f0d37bac85",
+      "source_sha256": "bc71346f6fea13e1bd46349fabfc03372d4c3414ea1ba0b0e0934471f31a6a36",
+      "alpha_bounds": [
+        10,
+        12,
+        118,
+        116
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        29,
+        55,
+        1240,
+        1219
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-rot": {
+      "png_sha256": "ae76651cf7218823b0535e4bcddc32e7746171da0456c803e506f119d3bf32d1",
+      "source_sha256": "24fab57a1198cb1b72e42f2ded285b4cfffb13af56866ae8d12e987b4a5cf506",
+      "alpha_bounds": [
+        10,
+        14,
+        118,
+        113
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        30,
+        84,
+        1227,
+        1179
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-thermal": {
+      "png_sha256": "d17c7d78b4ebc47fa498ff319859156ad488702168c0532e0ca292e7d0d3e6af",
+      "source_sha256": "dcea62703dcc5da8323c142d63f2e2afa16ad453cf919f89dfee4ca832f45a60",
+      "alpha_bounds": [
+        10,
+        16,
+        118,
+        112
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        21,
+        102,
+        1234,
+        1184
+      ],
+      "fit_pixels": 108
+    },
+    "ecology-blood": {
+      "png_sha256": "73ff4dd4c4c8568b20fe9599b40d43b0e10e9f72fc92c00b14046573a067f9ef",
+      "source_sha256": "754fc0996d2f7fbe6e530e3acacf034424dc60f7bb903b2838bf9e2cf7e8e304",
+      "alpha_bounds": [
+        21,
+        10,
+        106,
+        118
+      ],
+      "source_size": [
+        1254,
+        1254
+      ],
+      "subject_bounds_alpha32": [
+        145,
+        18,
+        1119,
+        1249
+      ],
+      "fit_pixels": 108
+    }
+  }
+}

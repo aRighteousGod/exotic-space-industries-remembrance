@@ -1,8 +1,8 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: ecology GUI artwork and private contained-flame prototype
+-- owns: ecology menu input, GUI artwork and private contained-flame prototype
 -- loaded_by: data.lua
--- cadence: data stage; gated by ei-terrain-evolution-enabled
+-- cadence: data stage; artwork and entities gated by ei-terrain-evolution-enabled
 -- forwarded_events: none
 -- storage_roots: none
 -- gui_ids: none (runtime terrain GUI owns instances)
@@ -10,6 +10,8 @@
 -- rebuild_on: data stage reload, startup setting changes
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/terrain-evolution.md#contract
+-- Keep the unbound control assignable even while ecology is disabled.
+data:extend{{type="custom-input",name="ei-toggle-ecology-menu",key_sequence="",consuming="none"}}
 -- Owned contained flame. Never mutate the global native forest-fire prototype.
 if settings.startup["ei-terrain-evolution-enabled"].value then
     for _,planet in ipairs{"nauvis","gaia","vulcanus","gleba","fulgora","aquilo"} do
@@ -33,13 +35,5 @@ if settings.startup["ei-terrain-evolution-enabled"].value then
     fire.initial_lifetime=600
     fire.maximum_lifetime=600
     fire.burnt_patch_lifetime=0
-    -- Notification anchor: nonselectable, noncombat helper. Intentionally has no
-    -- death effects, interaction sounds, item, or Factoriopedia presentation.
-    data:extend{fire,{
-        type="simple-entity-with-owner",name="ei-ecology-alert-anchor",hidden=true,hidden_in_factoriopedia=true,
-        flags={"not-on-map","placeable-off-grid","not-blueprintable","not-deconstructable","not-upgradable","not-repairable","not-flammable","not-in-kill-statistics","hide-alt-info"},
-        selectable_in_game=false,collision_mask={layers={}},collision_box={{0,0},{0,0}},selection_box={{0,0},{0,0}},
-        is_military_target=false,max_health=1,random_variation_on_create=false,
-        picture={filename=ei_lib.empty_sprite(),width=64,height=64}
-    }}
+    data:extend{fire}
 end

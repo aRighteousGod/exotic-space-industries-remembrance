@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-regrowth: ESIR cast-metal signal sigil</title>
+<defs>
+<linearGradient id="ceramic" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#fff0cf"/>
+<stop offset="0.48" stop-color="#d9c6a4"/>
+<stop offset="1" stop-color="#a0927b"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b3bdc1"/>
+<stop offset="0.48" stop-color="#66747e"/>
+<stop offset="1" stop-color="#35414b"/>
+</linearGradient>
+<linearGradient id="amber" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffdc85"/>
+<stop offset="0.48" stop-color="#f2a239"/>
+<stop offset="1" stop-color="#bd6224"/>
+</linearGradient>
+<linearGradient id="red" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffb18b"/>
+<stop offset="0.48" stop-color="#e16b47"/>
+<stop offset="1" stop-color="#9f3d2b"/>
+</linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#dcf1ac"/>
+<stop offset="0.48" stop-color="#8bc47a"/>
+<stop offset="1" stop-color="#3b7965"/>
+</linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b9ead2"/>
+<stop offset="0.48" stop-color="#61bdab"/>
+<stop offset="1" stop-color="#316e70"/>
+</linearGradient>
+<linearGradient id="earth" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#e7d4a5"/>
+<stop offset="0.48" stop-color="#b39b70"/>
+<stop offset="1" stop-color="#71614a"/>
+</linearGradient>
+</defs>
+<polygon points="27.195,106.463 27.195,76.382 17.439,72.317 15,56.87 26.382,60.935 32.073,71.504 38.577,57.683 48.333,52.805 46.707,70.691 36.951,80.447 36.951,106.463" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="25.195,103.463 25.195,73.382 15.439,69.317 13,53.87 24.382,57.935 30.073,68.504 36.577,54.683 46.333,49.805 44.707,67.691 34.951,77.447 34.951,103.463" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="25.195,103.463 25.195,73.382 15.439,69.317 13,53.87 24.382,57.935 30.073,68.504 36.577,54.683 46.333,49.805 44.707,67.691 34.951,77.447 34.951,103.463" fill="url(#ceramic)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="60.528,110.528 60.528,43.049 44.268,38.984 41.829,23.537 59.715,27.602 65.407,38.171 71.911,24.35 88.171,19.472 86.545,37.358 70.285,47.114 70.285,110.528" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="58.528,107.528 58.528,40.049 42.268,35.984 39.829,20.537 57.715,24.602 63.407,35.171 69.911,21.35 86.171,16.472 84.545,34.358 68.285,44.114 68.285,107.528" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="58.528,107.528 58.528,40.049 42.268,35.984 39.829,20.537 57.715,24.602 63.407,35.171 69.911,21.35 86.171,16.472 84.545,34.358 68.285,44.114 68.285,107.528" fill="url(#green)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="93.862,104.024 93.862,68.252 84.106,64.187 81.667,48.74 93.049,52.805 98.74,63.374 105.244,49.553 115,44.675 113.374,62.561 103.618,72.317 103.618,104.024" fill="#101920" stroke="#101920" stroke-width="8" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="91.862,101.024 91.862,65.252 82.106,61.187 79.667,45.74 91.049,49.805 96.74,60.374 103.244,46.553 113,41.675 111.374,59.561 101.618,69.317 101.618,101.024" fill="#5e686b" stroke="#5e686b" stroke-width="5" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="91.862,101.024 91.862,65.252 82.106,61.187 79.667,45.74 91.049,49.805 96.74,60.374 103.244,46.553 113,41.675 111.374,59.561 101.618,69.317 101.618,101.024" fill="url(#ceramic)" stroke="#f5e4c5" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

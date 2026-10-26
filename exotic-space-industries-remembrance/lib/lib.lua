@@ -2491,7 +2491,9 @@ function ei_lib.player_allows_notification(player_or_index, notification_kind)
     return ei_lib.get_player_setting_value(player_or_index, setting_name, true)
 end
 
--- Route gameplay notifications through connected players so each player can opt in or out per
+-- Text-only helper for confirmations, instructions and selected narrative notices.
+-- Automatic operational/ecology alerts use lib/alerts; see runtime-alerts.md.
+-- Route text notifications through connected players so each player can opt in or out per
 -- system without changing the message call sites across the control scripts.
 function ei_lib.notify_connected_players(notification_kind, message, options)
     if not game or not game.connected_players then

@@ -18,6 +18,7 @@ local gaia_mapgen_data = require("scripts/control/gaia-mapgen-data")
 local map_settings = require("scripts/control/map-settings")
 
 local model = {}
+local alerts = require("lib/alerts")
 -- Optional observer is installed at control-load time; Gaia retains creation and
 -- reforge ownership. A bound staging surface has no planetary identity earlier.
 local surface_ready_handler
@@ -1003,7 +1004,7 @@ function model.update_entity_lifetimes(event)
                 time_to_live = model.entity_damage_ticks[entity.name]+1,
             }
         else
-            model.degrade_building(entity)
+            model.degrade_building(entity, event.tick)
             goto continue
         end
         
@@ -1040,7 +1041,7 @@ function model.remove_search_tick(foo, tick)
 end
 
 
-function model.degrade_building(entity)
+function model.degrade_building(entity, tick)
 
     -- if there is an unrepaired version of this building then create it
     -- destroy original building
@@ -1065,8 +1066,9 @@ function model.degrade_building(entity)
         end
     end
 
-    -- also print warning
-    game.print({"exotic-industries.building-degraded", entity.name, entity.position.x, entity.position.y})
+    alerts.record_incident("operational","gaia-degradation",{
+        entity=entity,message={"ei-alerts.gaia-degradation",entity.localised_name,entity.surface.name,entity.position.x,entity.position.y},
+    },tick)
 
     entity.destroy()
 

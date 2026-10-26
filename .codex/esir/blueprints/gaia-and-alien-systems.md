@@ -102,3 +102,7 @@ Verify legacy association, custom mapgen preservation, due queue migration, stal
 ## Rebuild activity reporting
 
 Gaia reforge carries a report ID and publishes phase, elapsed ticks and explicit wait reason at existing state-machine boundaries. There is no common denominator. Completion/failure close the generation; owner-confirmed external waits remain in Diagnostics and disappear publicly.
+
+## Degradation alerts
+
+Building degradation emits a captured `gaia-degradation` incident before destruction through the [shared handler](runtime-alerts.md#contract), using the event tick. The handler owns force-filtered personal delivery and the 60-second positional marker. Narrative and instruction text retain their presentation.

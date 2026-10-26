@@ -64,7 +64,7 @@ Each pass contains 128 real frames and packs into two 4096-square sheets, direct
 0-63 and 64-127. Native wiring uses scale 1.25, `filenames`, `line_length=8`,
 `lines_per_file=8`, `slice=8`, `direction_count=128`, `frame_count=1`, and
 `apply_projection=false`. The eleven shipping PNGs comprise eight sheets, two
-item 128/64/32 mipmap strips and one technology icon. The current LUT SHA256 is
+item 128/64/32 mipmap strips and one technology icon. The original promotion LUT SHA256 is
 `97114f5b5b169145c49464d345725ba18ff994814dc073671afc880414e151e6`.
 All individual shipping PNG hashes are recorded in the promotion manifest.
 
@@ -80,13 +80,14 @@ all eleven package PNG hashes match. See [full128-qc.json](../../../../../output
 
 Five named anchors are projected through the same locked camera in all 128
 directions. Their formula agrees with actual full-render rotation matrices within
-0.00003052 px. The crown point is the exposed original apex; the facade point is
+0.00003052 px. The crown point is now the surface-area center of the selected
+upper crystal triangles; the facade point is
 the color-weighted front crystal chamber; the keel points are original minimum-Z
 vertices within left/center/right regions.
 
 | Anchor | Prepared physical coordinate |
 |---|---|
-| Crown | `[0.023337072,-0.161754906,9.374269485]` |
+| Crown center | `[0.004466993,-0.087697752,7.231567943]` |
 | Facade | `[0.006949957,1.783496737,4.178755283]` |
 | Left keel | `[-1.692291617,1.512129068,0.758608341]` |
 | Center keel | `[-0.000953169,1.580579519,0]` |
@@ -96,7 +97,19 @@ The exported Lua interfaces are `crown[index][2]`, `facade[index][2]` and
 `keel_tips[tip][index][2]`; `muzzle` aliases the facade. Core beams attach to the
 vehicle with these camera-derived offsets, inheriting native hover/bob.
 
-[full128-twin-core-alignment.json](../../../../../output/meshy/anisetron/reference17/review-delivery/qc/full128-twin-core-alignment.json) certifies
+The crown correction uses all 48,042 selected triangles from the archived
+`models/anisetron.blend`, weighted by triangle area rather than vertex density.
+It replaces the original apex `[0.023337072,-0.161754906,9.374269485]` without
+changing any sprite, facade or keel attachment. `prepare_reference17.py` now
+exports this center as `top_crystal`; project it using the existing
+`export_keel_attachments.py:project` camera formula for all 128 headings.
+Archived preparation JSON and render manifests retain the historical apex and
+must not be used as center-alignment evidence without refreshing their anchor
+metadata. Cardinal sprite review places the new center within 3.18 raw pixels
+vertically of the visible crown glow bounds' midpoints. This is a static art
+check, not a new native firing or moving-bob certificate.
+
+The historical apex-based [full128-twin-core-alignment.json](../../../../../output/meshy/anisetron/reference17/review-delivery/qc/full128-twin-core-alignment.json) certifies
 624/624 isolated native samples: all 128 headings in day/night for both emitters,
 eight-heading views, clockwise/counterclockwise turns, north wrapping and frozen
 or static stops. Every runtime index matches the displayed raw body. Maximum

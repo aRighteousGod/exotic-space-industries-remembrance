@@ -24,6 +24,7 @@ ei_data = require("lib/data")
 ei_rng = require("lib/rng")
 ei_echo_codex = require("lib/echo-codex")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
+local ei_alerts = require("lib/alerts")
 
 
 -- Update pacing is configurable so the mod can spread expensive entity work across a
@@ -145,7 +146,12 @@ ei_terrain_gui.configure{terrain=ei_terrain_evolution,alerts=ei_terrain_alerts,f
 ei_alien_spawner.set_preset_protection_handler(function(surface,preset,position)
     ei_terrain_evolution.protect_preset(preset,surface,position)
 end)
-script.on_event(defines.events.on_gui_elem_changed,ei_admin_tools.on_gui_change)
+script.on_event("ei-toggle-admin-menu",ei_admin_tools.on_toggle_menu)
+script.on_event("ei-toggle-ecology-menu",ei_terrain_gui.on_toggle_menu)
+script.on_event(defines.events.on_gui_elem_changed, function(event)
+    if ei_admin_tools.on_gui_change(event) then return end
+    ei_induction_matrix.on_gui_changed(event)
+end)
 script.on_event(defines.events.on_gui_confirmed,ei_admin_tools.on_gui_change)
 script.on_event(defines.events.on_research_started,ei_admin_tools.on_research_started)
 script.on_event(defines.events.on_chunk_charted,ei_admin_tools.on_chunk_charted)
@@ -158,6 +164,7 @@ end)
 script.on_event(defines.events.on_runtime_mod_setting_changed,function(event)
     ei_terrain_evolution.on_settings_changed(event)
     ei_terrain_alerts.on_settings_changed(event)
+    ei_alerts.on_settings_changed(event)
     ei_terrain_gui.on_settings_changed(event)
 end)
 script.on_event(defines.events.on_gui_selected_tab_changed,ei_terrain_gui.on_gui_change)
@@ -171,7 +178,10 @@ script.on_event(defines.events.on_surface_imported,function(event)
     ei_terrain_evolution.on_surface_created(event)
     ei_terrain_gui.on_surface_event(event)
 end)
-script.on_event(defines.events.on_surface_cleared,ei_terrain_evolution.on_surface_created)
+script.on_event(defines.events.on_surface_cleared,function(event)
+    ei_alerts.on_surface_removed(event)
+    ei_terrain_evolution.on_surface_created(event)
+end)
 script.on_event(defines.events.on_surface_deleted,function(event)
     ei_planet_enemies.on_surface_deleted(event);ei_map_settings.on_surface_deleted(event)
     ei_admin_tools.on_surface_deleted(event);ei_terrain_gui.on_surface_event(event)
@@ -195,6 +205,7 @@ end)
 script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},function(event)
     ei_admin_tools.on_player_event(event)
     ei_terrain_alerts.on_player_event(event)
+    ei_alerts.on_player_event(event)
     ei_terrain_gui.on_player_event(event)
 end)
 
@@ -731,6 +742,7 @@ script.on_init(function(event)
     ei_rebuild_monitor.on_configuration_changed(event and event.tick or game.tick)
     ei_terrain_evolution.initialize(event and event.tick or game.tick)
     ei_terrain_alerts.initialize(event and event.tick or game.tick)
+    ei_alerts.initialize(support_rebuild_tick)
     ei_terrain_gui.initialize(event and event.tick or game.tick)
     ei_black_hole.rebuild_gui_viewers()
     ei_induction_matrix.rebuild_gui_viewers()
@@ -761,6 +773,7 @@ script.on_event(defines.events.on_entity_cloned, function(e)
 end)
 
 script.on_event(defines.events.on_forces_merged, function(e)
+    ei_alerts.on_forces_merged(e)
     ei_admin_tools.on_forces_merged(e)
     ei_sweeping_radar.on_forces_merged(e)
     ei_water_turret.on_forces_merged(e)
@@ -779,6 +792,7 @@ end)
 
 script.on_event(defines.events.on_player_setup_blueprint, function(e)
     ei_sweeping_radar.on_blueprint(e)
+    ei_induction_matrix.on_blueprint(e)
     -- Read the engine mapping before another subsystem rewrites blueprint entities.
     ei_water_turret.on_blueprint(e)
     ei_flamethrower_fuels.on_blueprint(e)
@@ -917,6 +931,7 @@ end
 
 if defines.events.on_pre_surface_deleted then
     script.on_event(defines.events.on_pre_surface_deleted, function(e)
+        ei_alerts.on_surface_removed(e)
         ei_terrain_evolution.on_surface_deleted(e)
         ei_singularity_lance.on_surface_deleted(e)
         ei_anisetron.on_surface_deleted(e)
@@ -1000,6 +1015,7 @@ script.on_event(defines.events.on_player_changed_surface, function(e)
     ei_auric_inoculation_vat.on_player_changed_surface(e)
     ei_terrain_gui.on_player_event(e)
     ei_terrain_alerts.on_player_event(e)
+    ei_alerts.on_player_event(e)
 end)
 
 script.on_event(defines.events.on_player_toggled_alt_mode, function(e)
@@ -1017,6 +1033,7 @@ end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
     ei_admin_tools.on_entity_interaction(e)
+    ei_induction_matrix.on_entity_settings_pasted(e)
     ei_sweeping_radar.on_settings_pasted(e)
     ei_water_turret.on_settings_pasted(e)
     -- Scanner cache invalidation also needs to notice settings pastes onto platform hubs.
@@ -1393,6 +1410,10 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
 
     if parent_gui == "ei-water-turret-console" then
         ei_water_turret.on_gui_changed(event)
+    elseif parent_gui == "ei-induction-matrix-console" then
+        ei_induction_matrix.on_gui_changed(event)
+    elseif parent_gui == "ei-gate-console" then
+        ei_gate.on_gui_checked_state_changed(event)
     elseif parent_gui == "ei-spider-weapon-console" then
         ei_spider_vehicles.on_gui_changed(event)
     end
@@ -1400,6 +1421,7 @@ end)
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
     if ei_admin_tools.on_gui_change(event) then return end
+    if ei_terrain_gui.on_gui_change(event) then return end
     local element = get_valid_gui_element(event)
     if not element then return end
 
@@ -1438,6 +1460,7 @@ end)
 script.on_event(defines.events.on_player_left_game, function(event)
     ei_terrain_gui.on_player_left(event)
     ei_terrain_alerts.on_player_event(event)
+    ei_alerts.on_player_event(event)
     ei_rebuild_monitor.on_player_left_game(event)
     ei_admin_tools.on_player_left_game(event)
     ei_black_hole.on_player_left_game(event.player_index)
@@ -1460,6 +1483,7 @@ end)
 script.on_event(defines.events.on_player_removed, function(event)
     ei_terrain_gui.on_player_removed(event)
     ei_terrain_alerts.on_player_removed(event)
+    ei_alerts.on_player_removed(event)
     ei_rebuild_monitor.on_player_removed(event)
     ei_admin_tools.on_player_removed(event)
     ei_black_hole.on_player_left_game(event.player_index)
@@ -1517,6 +1541,7 @@ script.on_configuration_changed(function(e)
     ei_map_settings.on_configuration_changed(configuration_tick)
     ei_terrain_evolution.initialize(configuration_tick,"configuration")
     ei_terrain_alerts.initialize(configuration_tick)
+    ei_alerts.initialize(configuration_tick)
     ei_terrain_gui.initialize(configuration_tick)
     ei_admin_tools.on_configuration_changed(configuration_tick)
     ei_rebuild_monitor.on_configuration_changed(configuration_tick)
@@ -1570,7 +1595,7 @@ script.on_configuration_changed(function(e)
         -- clears stale cursor/gui state, reapplies runtime buffs, and reruns subsystem
         -- init that depends on changed prototypes or settings.
         ei_compat.check_init(e)
-        ei_gate.on_configuration_changed(e)
+        ei_gate.on_configuration_changed({tick=configuration_tick})
 
         em_trains.check_global() --no nil tables
         -- Keep the steam train runtime schema migrated before the rebuild pass below repopulates it.
@@ -1655,6 +1680,7 @@ script.on_event(
         ei_echo_codex.queue_arrival(event.player_index)
         ei_rebuild_monitor.on_player_event(event)
         ei_terrain_alerts.on_player_event(event)
+        ei_alerts.on_player_event(event)
         ei_terrain_gui.on_player_event(event)
         ei_fueler.on_player_ready(event.player_index)
         em_trains_gui.on_player_ready(event.player_index)
@@ -1680,6 +1706,7 @@ script.on_event(
         ei_admin_tools.on_player_event(event)
         ei_terrain_gui.on_player_event(event)
         ei_terrain_alerts.on_player_event(event)
+        ei_alerts.on_player_event(event)
     end
 )
 
@@ -1693,6 +1720,7 @@ script.on_event(defines.events.on_singleplayer_init, function(_event)
         ei_compat.warn_combat_overlap(player.index)
         ei_rebuild_monitor.on_player_event{player_index=player.index,tick=_event.tick}
         ei_terrain_alerts.on_player_event{player_index=player.index,tick=_event.tick}
+        ei_alerts.on_player_event{player_index=player.index,tick=_event.tick}
         ei_terrain_gui.on_player_event{player_index=player.index,tick=_event.tick}
         em_trains_gui.on_player_ready(player.index)
         ei_auric_inoculation_vat.on_player_ready(player.index, _event)
@@ -1720,6 +1748,7 @@ function updater(event)
   if ei_planet_enemies.has_tick_work(event.tick) then ei_planet_enemies.updater(event) end
   -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling
   if ei_terrain_evolution.has_tick_work(event.tick) then ei_terrain_evolution.updater(event) end
+  if ei_alerts.has_tick_work(event.tick) then ei_alerts.updater(event) end
   if ei_terrain_alerts.has_tick_work(event.tick) then ei_terrain_alerts.updater(event) end
   if ei_terrain_gui.has_tick_work(event.tick) then ei_terrain_gui.updater(event) end
   if ei_terrain_gui.launcher_has_tick_work(event.tick) then ei_terrain_gui.launcher_updater(event) end
@@ -2058,6 +2087,7 @@ function on_cloned_entity(e)
     if not destination or not destination.valid then
         return
     end
+    if ei_induction_matrix.on_entity_cloned(e) then return end
     ei_terrain_evolution.on_entity_built(e)
 
     -- Helper clones must be removed even during spider replacement transactions.

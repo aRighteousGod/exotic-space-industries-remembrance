@@ -158,9 +158,13 @@ def main():
     mesh.polygons.foreach_set('material_index', indices)
     ids = mesh.attributes.new('anisetron_source_face', 'INT', 'FACE')
     ids.data.foreach_set('value', np.arange(original_faces, dtype=np.int32))
-    # Anchors select actual source vertices; they never create new geometry.
-    top_vertices = xyz[np.unique(triangles[top])]
-    top_anchor = top_vertices[np.argmax(top_vertices[:, 2])]
+    # Center the crown beam within the crystal. Surface-area weighting avoids
+    # bias from uneven mesh density; the former highest vertex was its apex.
+    # Attachment points do not change the original source geometry.
+    top_faces = face_geometry[top].astype(np.float64)
+    top_weights = np.linalg.norm(np.cross(top_faces[:, 1]-top_faces[:, 0],
+                                          top_faces[:, 2]-top_faces[:, 0]), axis=1)
+    top_anchor = np.average(top_faces.mean(1), axis=0, weights=top_weights)
     front_centers = centers[facade]
     front_color = rgb[facade]
     front_weight = np.maximum(np.minimum(front_color[:, 1], front_color[:, 2])-front_color[:, 0], .001)

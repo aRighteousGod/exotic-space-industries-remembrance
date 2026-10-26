@@ -1,0 +1,8 @@
+﻿{
+    "id":  "fluid-thermal",
+    "source":  "C:/Users/Theorun/.codex/generated_images/01a17469-a8c7-7b43-980b-0e59213d7722/exec-d554970e-0389-4667-8c2b-456ffb493f14.png",
+    "provider":  "builtin-imagegen",
+    "prompt":  "fluid-thermal.prompt.txt",
+    "background":  "transparent",
+    "review":  "Physical pipe/flame subject correct; native-size comparison pending"
+}

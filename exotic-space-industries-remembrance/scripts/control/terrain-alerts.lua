@@ -1,8 +1,8 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: personal ecology preferences and bounded native alert delivery
+-- owns: personal ecology preferences and shared-alert eligibility adapter
 -- loaded_by: control.lua, terrain-gui.lua
--- cadence: event admission; due service every 32 ticks while incidents exist
+-- cadence: event admission; preference rename maintenance every 32 ticks
 -- forwarded_events: settings, player and surface lifecycle
 -- storage_roots: storage.ei.ecology_alerts
 -- gui_ids: none
@@ -11,6 +11,7 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/terrain-evolution.md#contract
 local config=require("lib/terrain-alert-config")
+local alerts=require("lib/alerts")
 local model={}
 ---@type EsirEcologyAlertContext
 local owners={}
@@ -47,7 +48,7 @@ local owners={}
 ---@field anchor LuaEntity? Created lazily for delivery; validate before use.
 ---@field anchor_counted boolean? Tracks reserved capacity even if the entity becomes invalid.
 ---@field recipients PlayerIndex[]
----@field delivered table<PlayerIndex, boolean>
+---@field delivered table<PlayerIndex, MapTick|boolean>
 ---@field recipient_cursor integer
 ---@field audience_epoch integer? Frozen admission audience; absent legacy values mean epoch zero.
 ---@field scan_epoch integer? Most recent connected-roster traversal epoch.
@@ -62,18 +63,9 @@ local owners={}
 ---@field player_order PlayerIndex[]
 ---@field player_members table<PlayerIndex, integer> Dense-order indices.
 ---@field interested table<EsirEcologyAlertCategory, integer> Connected enabled subscriber counts.
----@field items EsirEcologyIncident[]
----@field by_id table<integer, EsirEcologyIncident>
----@field coalesced table<string, integer>
----@field next_id integer
----@field next_tick MapTick
----@field cursor integer
----@field cleanup_cursor integer
----@field anchors integer
----@field dropped integer
----@field delivered integer
+---@field alert_delivery_version integer? Completed shared-handler adoption version.
+---@field preference_next_tick MapTick?
 ---@field rename_epoch integer?
----@field roster_epoch integer? Incremented by online membership transitions.
 ---@field rename_pending boolean?
 ---@field rename EsirEcologyRenameGeneration?
 
@@ -89,7 +81,9 @@ local function peek() return storage.ei and storage.ei.ecology_alerts end
 local function ensure()
     storage.ei=storage.ei or {}
     storage.ei.ecology_alerts=storage.ei.ecology_alerts or {players={},player_order={},player_members={},interested={},items={},by_id={},coalesced={},next_id=0,next_tick=0,cursor=0,cleanup_cursor=0,anchors=0,dropped=0,delivered=0}
-    return storage.ei.ecology_alerts
+    local root=storage.ei.ecology_alerts
+    alerts.adopt_legacy("ecology",root)
+    return root
 end
 ---@param context EsirEcologyAlertContext
 function model.configure(context) owners=context end
@@ -127,17 +121,18 @@ end
 ---@param player LuaPlayer
 ---@return EsirEcologyPreferences
 function model.refresh_preferences(player)
-    local root=ensure();local old=root.players[player.index] or {live={}}
-    if (old.online==true)~=player.connected then root.roster_epoch=(root.roster_epoch or 0)+1 end
-    local connection_epoch=old.connection_epoch or 0
-    if player.connected and not old.online then connection_epoch=root.roster_epoch or 0 end
+    local root=ensure();local previous=root.players[player.index]
+    local was_online=previous and previous.online
+    local old=alerts.refresh_player("ecology",player)
+    local connection_epoch=old.connection_epoch
     if not root.player_members[player.index] then root.player_order[#root.player_order+1]=player.index;root.player_members[player.index]=#root.player_order end
     root.interested=root.interested or {}
-    for _,category in ipairs(config.categories) do if old.online and old.enabled and old[category] then root.interested[category]=math.max(0,(root.interested[category] or 0)-1) end end
-    local result={live=old.live or {},online=player.connected,connection_epoch=connection_epoch,rename_epoch=old.rename_epoch or root.rename_epoch or 0}
+    for _,category in ipairs(config.categories) do if was_online and old.enabled and old[category] then root.interested[category]=math.max(0,(root.interested[category] or 0)-1) end end
+    local result={live=old.live or {},online=player.connected,connection_epoch=connection_epoch,rename_epoch=old.rename_epoch or root.rename_epoch or 0,force_index=old.force_index,setting_epochs=old.setting_epochs}
     for _,row in ipairs(config.schema) do
-        local setting=player.mod_settings[row.name];result[row.key]=setting and setting.value or row.default
-        if setting and setting.value==false then result[row.key]=false end
+        local setting=player.mod_settings[row.name]
+        if row.type=="bool-setting" then result[row.key]=setting~=nil and setting.value==true
+        else result[row.key]=setting and setting.value or row.default end
     end
     if result["allow-unrevealed"] and not player.admin then
         result["allow-unrevealed"]=false
@@ -176,7 +171,10 @@ function model.set_preference(player,key,value)
     if not row or (key=="allow-unrevealed" and not player.admin) then return false end
     if row.type=="bool-setting" and type(value)~="boolean" then return false end
     if row.type=="string-setting" and not surfaces(value) then player.print{"ei-ecology.invalid-surfaces"};return false end
-    player.mod_settings[row.name]={value=value};model.refresh_preferences(player)
+    player.mod_settings[row.name]={value=value}
+    local event={player_index=player.index,setting_type="runtime-per-user",setting=row.name}
+    model.on_settings_changed(event)
+    alerts.on_settings_changed(event)
     return true
 end
 ---@param event EventData.on_runtime_mod_setting_changed
@@ -196,7 +194,6 @@ end
 function model.on_player_removed(event)
     local root=peek();if root then
         local old=root.players[event.player_index]
-        if old and old.online then root.roster_epoch=(root.roster_epoch or 0)+1 end
         for _,category in ipairs(config.categories) do if old and old.online and old.enabled and old[category] then root.interested[category]=math.max(0,(root.interested[category] or 0)-1) end end
         if old and root.rename and old.rename_epoch~=root.rename.epoch then root.rename.remaining=root.rename.remaining-1;root.rename.completed=root.rename.completed+1 end
         root.players[event.player_index]=nil
@@ -208,19 +205,9 @@ end
 ---@return boolean
 function model.record_effect(receipt)
     local root=peek();if not root or not receipt.surface.valid or (root.interested[receipt.category] or 0)==0 then return false end
-    local p=receipt.position
-    local key=receipt.surface.index..":"..math.floor(p.x/32)..":"..math.floor(p.y/32)..":"..receipt.category
-    local previous=root.by_id[root.coalesced[key]]
-    if previous and previous.owner==receipt.owner and owners.valid(previous) and receipt.tick-previous.tick<=600 then previous.count=previous.count+receipt.count;return true end
-    if #root.items>=64 then root.dropped=root.dropped+1;return false end
-    root.next_id=root.next_id+1
-    local incident={id=root.next_id,category=receipt.category,surface=receipt.surface,owner=receipt.owner,generation=receipt.generation,
-        position={x=p.x,y=p.y},tick=receipt.tick,count=receipt.count,expires=receipt.tick+3600,recipients={},delivered={},recipient_cursor=0,key=key,
-        audience_epoch=root.roster_epoch or 0,scan_epoch=root.roster_epoch or 0}
-    owners.retain(incident)
-    root.items[#root.items+1]=incident;root.by_id[incident.id]=incident;root.coalesced[key]=incident.id
-    return true
+    return alerts.record_incident("ecology","ecology-"..receipt.category,receipt,receipt.tick)
 end
+
 local function eligible(player,prefs,r)
     return player and player.valid and player.connected and prefs and prefs.enabled and prefs[r.category]
         and (prefs.connection_epoch or 0)<=(r.audience_epoch or 0)
@@ -228,38 +215,10 @@ local function eligible(player,prefs,r)
         and (not prefs["current-surface-only"] or player.surface==r.surface)
         and ((player.admin and prefs["allow-unrevealed"]) or player.force.is_chunk_visible(r.surface,{math.floor(r.position.x/32),math.floor(r.position.y/32)}))
 end
-local function remove_live(prefs,id)
-    if not prefs then return end
-    for i=#prefs.live,1,-1 do if prefs.live[i]==id then table.remove(prefs.live,i);return end end
-end
-local function cleanup(root,tick,budget)
-    if #root.items==0 then return end
-    root.cleanup_cursor=root.cleanup_cursor%#root.items+1
-    local r=root.items[root.cleanup_cursor]
-    local expired=tick>=r.expires or not owners.valid(r) or (r.anchor and not r.anchor.valid) or (r.delivery_complete and #r.recipients==0)
-    -- One native removal OR one helper retirement per opportunity.
-    if #r.recipients>0 then
-        budget.checks=budget.checks-1;budget.used_checks=budget.used_checks+1
-        r.cleanup_recipient=(r.cleanup_recipient or 0)%#r.recipients+1
-        local index=r.recipients[r.cleanup_recipient];local player=game.get_player(index);local prefs=root.players[index]
-        if expired or not eligible(player,prefs,r) then
-            if player and player.valid and r.anchor and r.anchor.valid then player.remove_alert{entity=r.anchor,type=defines.alert_type.custom} end
-            remove_live(prefs,r.id);r.delivered[index]=nil;r.recipients[r.cleanup_recipient]=r.recipients[#r.recipients];r.recipients[#r.recipients]=nil
-            return
-        end
-    end
-    if expired and #r.recipients==0 then
-        if r.anchor and r.anchor.valid then r.anchor.destroy() end
-        if r.anchor_counted then root.anchors=math.max(0,root.anchors-1);r.anchor_counted=nil end
-        owners.release(r)
-        root.by_id[r.id]=nil;if root.coalesced[r.key]==r.id then root.coalesced[r.key]=nil end
-        local last=root.items[#root.items];root.items[root.cleanup_cursor]=last;root.items[#root.items]=nil
-    end
-end
 ---@param tick MapTick
 ---@return boolean
 function model.has_tick_work(tick)
-    local root=peek();return root and (#root.items>0 or root.rename~=nil or root.rename_pending) and tick>=root.next_tick or false
+    local root=peek();return root and (root.rename~=nil or root.rename_pending) and tick>=(root.preference_next_tick or 0) or false
 end
 ---@param event EventData.on_surface_renamed
 function model.on_surface_renamed(event)
@@ -270,7 +229,7 @@ end
 ---@param event EventData.on_tick
 function model.updater(event)
     local root=peek();if not model.has_tick_work(event.tick) then return end
-    local tick=event.tick;root.next_tick=tick+32
+    local tick=event.tick;root.preference_next_tick=tick+32
     if not root.rename and root.rename_pending then
         root.rename_pending=nil
         root.rename_epoch=(root.rename_epoch or 0)+1
@@ -296,44 +255,23 @@ function model.updater(event)
         owners.maintenance_update(rename.report,rename.completed,done,tick)
         if done then root.rename=nil end
     end
-    local budget={checks=2,used_checks=0}
-    cleanup(root,tick,budget)
-    local added,created=false,false
-    for _=1,budget.checks do
-        if #root.items==0 then break end
-        root.cursor=root.cursor%#root.items+1
-        local r=root.items[root.cursor]
-        if tick<r.expires and owners.valid(r) and not r.delivery_complete then
-            -- Restart only incomplete traversals after dense roster changes.
-            -- Prior recipients are deduplicated; later connections cannot receive backlog.
-            if r.scan_epoch~=(root.roster_epoch or 0) then r.scan_epoch=root.roster_epoch or 0;r.recipient_cursor=0 end
-            local players=game.connected_players
-            r.recipient_cursor=r.recipient_cursor+1
-            local player=players[r.recipient_cursor]
-            if not player then r.delivery_complete=true
-            else
-                budget.used_checks=budget.used_checks+1
-                local prefs=root.players[player.index]
-                if not r.delivered[player.index] and eligible(player,prefs,r) and #prefs.live<4 then
-                    if not r.anchor and not created and root.anchors<32 and prototypes.entity["ei-ecology-alert-anchor"] then
-                        created=true
-                        r.anchor=r.surface.create_entity{name="ei-ecology-alert-anchor",position=r.position,force="neutral"}
-                        if r.anchor then r.anchor.destructible=false;root.anchors=root.anchors+1;r.anchor_counted=true end
-                    end
-                    if r.anchor and r.anchor.valid and not added then
-                        player.add_custom_alert(r.anchor,{type="virtual",name=r.category=="wildfire" and "signal-fire" or "signal-info"},
-                            {"ei-ecology.alert-message",{"ei-ecology.category-"..r.category},r.surface.name,r.count},true)
-                        prefs.live[#prefs.live+1]=r.id;r.recipients[#r.recipients+1]=player.index;r.delivered[player.index]=true
-                        root.delivered=root.delivered+1;added=true
-                    else r.recipient_cursor=r.recipient_cursor-1 end
-                end
-            end
-        end
-    end
-    root.last_service={tick=tick,recipient_checks=budget.used_checks,additions=added and 1 or 0,creations=created and 1 or 0}
 end
+
 function model.snapshot(player)
-    local root=peek();local prefs=root and root.players[player.index]
-    return {pending=root and #root.items or 0,anchors=root and root.anchors or 0,dropped=root and root.dropped or 0,live=prefs and #prefs.live or 0}
+    local root=alerts.channel_state("ecology");local prefs=root.players[player.index]
+    return {pending=#root.items,anchors=root.anchors,dropped=root.dropped,live=prefs and #prefs.live or 0}
 end
+
+-- Delivery, recipient epochs and native objects belong exclusively to lib/alerts.
+-- Ecology supplies semantic eligibility and keeps terrain references alive until retirement.
+alerts.register_channel("ecology",{interval=32,steps=2,additions=1,creations=1,duration=3600,coalesce_ticks=600,
+    once=true,max_incidents=64,max_anchors=32,max_per_player=4},{
+    valid=function(receipt) return owners.valid(receipt) end,
+    retain=function(receipt) owners.retain(receipt) end,
+    release=function(receipt) owners.release(receipt) end,
+    eligible=eligible,
+    message=function(receipt)
+        return {"ei-ecology.alert-message",{"ei-ecology.category-"..receipt.category},receipt.surface.name,receipt.count}
+    end,
+})
 return model

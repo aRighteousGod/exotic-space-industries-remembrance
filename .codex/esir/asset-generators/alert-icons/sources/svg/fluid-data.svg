@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>fluid-data: ESIR cast-metal signal sigil</title>
+<defs>
+<linearGradient id="ceramic" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#fff0cf"/>
+<stop offset="0.48" stop-color="#d9c6a4"/>
+<stop offset="1" stop-color="#a0927b"/>
+</linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b3bdc1"/>
+<stop offset="0.48" stop-color="#66747e"/>
+<stop offset="1" stop-color="#35414b"/>
+</linearGradient>
+<linearGradient id="amber" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffdc85"/>
+<stop offset="0.48" stop-color="#f2a239"/>
+<stop offset="1" stop-color="#bd6224"/>
+</linearGradient>
+<linearGradient id="red" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffb18b"/>
+<stop offset="0.48" stop-color="#e16b47"/>
+<stop offset="1" stop-color="#9f3d2b"/>
+</linearGradient>
+<linearGradient id="green" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#dcf1ac"/>
+<stop offset="0.48" stop-color="#8bc47a"/>
+<stop offset="1" stop-color="#3b7965"/>
+</linearGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#b9ead2"/>
+<stop offset="0.48" stop-color="#61bdab"/>
+<stop offset="1" stop-color="#316e70"/>
+</linearGradient>
+<linearGradient id="earth" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#e7d4a5"/>
+<stop offset="0.48" stop-color="#b39b70"/>
+<stop offset="1" stop-color="#71614a"/>
+</linearGradient>
+</defs>
+<polyline points="22.377,65 37.951,65 46.967,28.934 57.623,89.59" fill="none" stroke="#101920" stroke-width="22.754" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="20.377,62 35.951,62 44.967,25.934 55.623,86.59" fill="none" stroke="#5e686b" stroke-width="19.754" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="20.377,62 35.951,62 44.967,25.934 55.623,86.59" fill="none" stroke="url(#ceramic)" stroke-width="14.754" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="74.016,101.066 83.852,49.426 93.689,65.82 107.623,65.82" fill="none" stroke="#101920" stroke-width="22.754" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="72.016,98.066 81.852,46.426 91.689,62.82 105.623,62.82" fill="none" stroke="#5e686b" stroke-width="19.754" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="72.016,98.066 81.852,46.426 91.689,62.82 105.623,62.82" fill="none" stroke="url(#ceramic)" stroke-width="14.754" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="44.967,25.934 49.885,50.525" fill="none" stroke="url(#amber)" stroke-width="8.197" stroke-linejoin="round" stroke-linecap="butt"/>
+<polyline points="76.934,73.475 81.852,46.426" fill="none" stroke="url(#amber)" stroke-width="8.197" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

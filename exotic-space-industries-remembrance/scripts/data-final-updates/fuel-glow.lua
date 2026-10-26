@@ -171,7 +171,6 @@ end
 local function apply_fluid_consumer_lights()
     local oil_flame = color(1.00, 0.46, 0.12, 1)
     local drill_flame = color(0.92, 0.72, 0.42, 1)
-    local cryo_glow = color(0.30, 0.88, 1.00, 1)
     local critical_steam = color(0.84, 0.96, 1.00, 1)
 
     set_energy_source_light("boiler", "ei-fluid-boiler", oil_flame, 0.72, 0.92)
@@ -180,9 +179,6 @@ local function apply_fluid_consumer_lights()
     set_energy_source_light("mining-drill", "ei-deep-drill", drill_flame, 0.46, 0.70)
     set_energy_source_light("mining-drill", "ei-advanced-deep-drill", drill_flame, 0.46, 0.76)
     set_energy_source_light("mining-drill", "ei-deep-pumpjack", drill_flame, 0.42, 0.68)
-
-    set_energy_source_light("assembling-machine", "ei-copper-beacon-source", cryo_glow, 0.34, 0.62)
-    set_energy_source_light("assembling-machine", "ei-iron-beacon-source", cryo_glow, 0.34, 0.62)
 
     local turbine = data.raw.generator and data.raw.generator["ei-big-turbine"]
     if turbine then

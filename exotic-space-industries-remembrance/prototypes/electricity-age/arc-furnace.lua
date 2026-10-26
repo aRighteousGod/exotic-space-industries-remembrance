@@ -250,6 +250,8 @@ data:extend({
                 -- simulate always on idle capacitor glow
                 {
                     always_draw = true,
+                    -- Keep the glow above the opaque status-lamp and fan animation patches.
+                    secondary_draw_order = 2,
                     animation = {
                     filename = ei_graphics_glow_path.."arc-furnace-glow-pulse-red.png",
                     width = 64,
@@ -269,6 +271,7 @@ data:extend({
                     }
                 },
                 {
+                  secondary_draw_order = 1,
                   animation = 
                   {
                     filename = ei_graphics_entity_path.."arc-furnace_animation.png",

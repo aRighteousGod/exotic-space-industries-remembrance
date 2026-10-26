@@ -8,7 +8,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[3]
 LOCALES = ROOT / "exotic-space-industries-remembrance/locale"
 LANGUAGES = ("en", "de", "fr", "ja", "pl", "ru", "zh-CN", "zh-TW")
-SIDECARS = ("terrain-evolution.cfg", "ecology-v2.cfg", "ecology-informatron.cfg", "ecology-field-report.cfg")
+SIDECARS = ("terrain-evolution.cfg", "ecology-v2.cfg", "ecology-informatron.cfg", "ecology-field-report.cfg", "menu-controls.cfg")
 
 
 def entries(path, strict=True):

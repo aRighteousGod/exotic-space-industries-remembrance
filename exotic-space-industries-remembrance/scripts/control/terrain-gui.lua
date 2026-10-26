@@ -1,9 +1,9 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: current-surface Simple, Advanced and Alerts ecology window
+-- owns: current-surface ecology window and personal alert icon selector
 -- loaded_by: control.lua
 -- cadence: lifecycle/season buttons; one open viewer per 16 ticks, eight property writes
--- forwarded_events: GUI and player lifecycle through control.lua
+-- forwarded_events: GUI, menu custom input and player lifecycle through control.lua
 -- storage_roots: storage.ei.ecology_gui
 -- gui_ids: ei-ecology
 -- remote_interfaces: none
@@ -12,16 +12,21 @@
 -- blueprint: .codex/esir/blueprints/terrain-evolution.md#contract
 local mod_gui=require("__core__/lualib/mod-gui")
 local preferences=require("lib/terrain-alert-config")
+local alert_catalog=require("lib/alert-catalog")
+local alert_icon_sets=require("lib/alert-icon-sets")
+local native_alerts=require("lib/alerts")
 local terrain_config=require("lib/terrain-evolution-config")
 local field_report=require("scripts/control/terrain-field-report")
 local model={}
----@alias EsirEcologyGuiAction "window"|"open"|"close"|"admin"|"page"|"tab"|"preference"|"all-surfaces"|"surface"|"guide"
+---@alias EsirEcologyGuiAction "window"|"open"|"close"|"launcher"|"admin"|"page"|"tab"|"preference"|"all-surfaces"|"surface"|"guide"|"icon-set"
 ---@class EsirEcologyGuiTags
 ---@field parent_gui "ei-ecology"
 ---@field action EsirEcologyGuiAction
 ---@field key string?
 ---@field surface string? Exact surface name in the personal selection.
 ---@field delta integer?
+---@field player_index PlayerIndex? Personal selector owner.
+---@field frame_index integer? Current native frame identity.
 
 ---@class EsirEcologyGuiRow
 ---@field element LuaGuiElement
@@ -53,12 +58,21 @@ local model={}
 ---@field clear_row integer?
 ---@field button LuaGuiElement?
 ---@field button_season integer? Zero denotes an unavailable calendar.
+---@field launcher boolean? Missing legacy preferences default to shown; false persists.
+---@field launcher_toggle LuaGuiElement?
+---@field title_icon LuaGuiElement?
+---@field title_season integer?
 ---@field view_generation integer?
 ---@field tab_generations table<integer, integer>?
 ---@field strip_width integer?
 ---@field last_update_writes integer? Actual native property writes in the last admitted opportunity.
 ---@field invalidated boolean? Survives rapid A-B-A view changes between services.
 ---@field layout_version integer? Lazy first-use retirement of older saved GUI layouts.
+---@field icon_selector LuaGuiElement?
+---@field icon_choices string[]? Dense dropdown index to registered set ID.
+---@field icon_rows {element: LuaGuiElement, definition: EsirAlertDefinition, set_id: string?}[]?
+---@field icon_target string? Latest resolved personal set, never a queued obsolete choice.
+---@field icon_cursor integer? Next checkbox caption to reconcile under the viewer write budget.
 
 ---@class EsirEcologyGuiState
 ---@field players table<PlayerIndex, EsirEcologyGuiSession>
@@ -89,6 +103,7 @@ local model={}
 local owners={}
 local GUI="ei-ecology"
 local BUTTON="ei-ecology-button"
+local LAYOUT_VERSION=5
 ---@return EsirEcologyGuiState?
 local function peek() return storage.ei and storage.ei.ecology_gui end
 ---@return EsirEcologyGuiState
@@ -114,7 +129,15 @@ local function remove_viewer(root,index)
 end
 local function close(player)
     local root=state();local p=root.players[player.index]
-    if p and p.frame and p.frame.valid then p.location=p.frame.location;p.frame.destroy();p.frame=nil;p.rows=nil end
+    local frame=p and p.frame
+    if frame and frame.valid then
+        p.location=frame.location
+        -- Clearing player.opened can synchronously dispatch on_gui_closed.
+        -- Release ownership before that callback can enter this close path again.
+        p.frame=nil;p.rows=nil;p.title_icon=nil;p.launcher_toggle=nil;p.icon_selector=nil;p.icon_rows=nil
+        if player.opened==frame then player.opened=nil end
+        if frame.valid then frame.destroy() end
+    end
     remove_viewer(root,player.index)
 end
 local function remove_launcher(root,index)
@@ -134,12 +157,21 @@ local function refresh_button(player,p,tick)
 end
 local function button(player,tick)
     local root=state();root.launchers=root.launchers or {};root.launcher_indexes=root.launcher_indexes or {}
-    local flow=mod_gui.get_button_flow(player);local existing=flow[BUTTON]
-    if settings.startup["ei-terrain-evolution-enabled"].value then
+    local p=root.players[player.index] or {tab=1};root.players[player.index]=p
+    if p.launcher==nil then p.launcher=true end
+    local enabled=settings.startup["ei-terrain-evolution-enabled"].value
+    -- Hidden launchers must not create mod-gui containers or close an open report.
+    local existing=p.button
+    if not existing or not existing.valid then
+        local top=player.gui.top;local frame=top.mod_gui_top_frame
+        local flow=top.mod_gui_button_flow or (frame and frame.mod_gui_inner_frame)
+        existing=flow and flow[BUTTON]
+    end
+    if enabled and p.launcher then
         -- Replace the pre-season text button when adopting an existing save.
         if existing and existing.type~="sprite-button" then existing.destroy();existing=nil end
-        local p=root.players[player.index] or {tab=1};root.players[player.index]=p
         if not existing then
+            local flow=mod_gui.get_button_flow(player)
             existing=flow.add{type="sprite-button",name=BUTTON,sprite=seasonal_sprites[0],style=mod_gui.button_style,tags=tags("open")}
             p.button_season=nil
         end
@@ -149,7 +181,9 @@ local function button(player,tick)
         end
     else
         remove_launcher(root,player.index)
-        if existing then existing.destroy();close(player) end
+        if existing then existing.destroy() end
+        p.button=nil;p.button_season=nil
+        if not enabled then close(player) end
     end
 end
 local function label(flow,key,width)
@@ -265,15 +299,85 @@ local function surfaces_page(player,p)
     nav.add{type="label",caption=p.surface_page.." / "..math.max(1,math.ceil(count/8))}
     nav.add{type="button",caption=">",tags=tags("page",{delta=1})}
 end
+---@param definition EsirAlertDefinition
+---@param set_id string
+---@return LocalisedString
+local function alert_caption(definition,set_id)
+    return {"","[img=virtual-signal/"..alert_icon_sets.signal_name(set_id,definition.id).."] ",{"mod-setting-name."..definition.setting_name}}
+end
+---@param player LuaPlayer
+---@param p EsirEcologyGuiSession
+---@param body LuaGuiElement
+local function build_icon_selector(player,p,body)
+    local choices={alert_icon_sets.sentinel};local captions={alert_icon_sets.choice_caption(alert_icon_sets.sentinel)}
+    local selected=1;local resolved=alert_icon_sets.player_set(player)
+    for _,id in ipairs(alert_icon_sets.available_sets()) do
+        choices[#choices+1]=id;captions[#captions+1]=alert_icon_sets.choice_caption(id)
+        if id==resolved then selected=#choices end
+    end
+    if p.icon_selector and p.icon_selector.valid then
+        -- Configuration changes may add/remove provider sets while this pane is open.
+        p.icon_selector.items=captions;p.icon_selector.selected_index=selected
+    else
+        local row=body.add{type="flow",direction="vertical",index=1}
+        local heading=row.add{type="label",caption={"mod-setting-name."..alert_icon_sets.setting_name}}
+        heading.style.single_line=false;heading.style.maximal_width=600
+        p.icon_selector=row.add{type="drop-down",items=captions,selected_index=selected,
+            tooltip={"mod-setting-description."..alert_icon_sets.setting_name},
+            tags=tags("icon-set",{player_index=player.index,frame_index=p.frame.index})}
+        p.icon_selector.style.maximal_width=600
+    end
+    p.icon_choices=choices;p.icon_target=resolved
+end
+-- Keep the saved scroll panes alive: the native API cannot read their scroll
+-- offsets. The v4-to-v5 insertion preserves tab, location, scroll and launcher.
+---@param player LuaPlayer
+---@param p EsirEcologyGuiSession
+---@return boolean
+local function adopt_layout(player,p)
+    if p.layout_version==LAYOUT_VERSION then return true end
+    if p.layout_version~=4 or not p.bodies or not p.bodies[3] or not p.bodies[3].valid or not p.checks then return false end
+    build_icon_selector(player,p,p.bodies[3]);p.icon_rows={};p.icon_cursor=1
+    for _,row in ipairs(preferences.schema) do
+        local definition=alert_catalog.by_setting[row.name];local check=p.checks[row.key]
+        if definition and check and check.valid then p.icon_rows[#p.icon_rows+1]={element=check,definition=definition} end
+    end
+    p.layout_version=LAYOUT_VERSION
+    return true
+end
+---@param p EsirEcologyGuiSession
+local function refresh_alert_icons(p)
+    if not p.icon_cursor then return end
+    for index,id in ipairs(p.icon_choices) do
+        if id==p.icon_target then
+            if p.icon_selector.selected_index~=index and p.last_update_writes<8 then
+                p.icon_selector.selected_index=index;p.last_update_writes=p.last_update_writes+1
+            end
+            break
+        end
+    end
+    while p.icon_cursor<=#p.icon_rows and p.last_update_writes<8 do
+        local row=p.icon_rows[p.icon_cursor];p.icon_cursor=p.icon_cursor+1
+        if row.element.valid and row.set_id~=p.icon_target then
+            row.element.caption=alert_caption(row.definition,p.icon_target);row.set_id=p.icon_target
+            p.last_update_writes=p.last_update_writes+1
+        end
+    end
+    if p.icon_cursor>#p.icon_rows then p.icon_cursor=nil end
+end
 local function build_alerts(player,p,body)
     local prefs=owners.alerts.preferences(player)
+    build_icon_selector(player,p,body);p.icon_rows={};p.icon_cursor=nil
     local note=body.add{type="label",caption={"ei-ecology.alert-note"}};note.style.single_line=false;note.style.maximal_width=600
     p.checks={}
     for _,row in ipairs(preferences.schema) do
         if row.type=="bool-setting" then
-            local check=body.add{type="checkbox",state=prefs[row.key],caption={"mod-setting-name."..row.name},
+            local definition=alert_catalog.by_setting[row.name]
+            local caption=definition and alert_caption(definition,p.icon_target) or {"mod-setting-name."..row.name}
+            local check=body.add{type="checkbox",state=prefs[row.key],caption=caption,
                 tooltip={"mod-setting-description."..row.name},tags=tags("preference",{key=row.key})}
             check.enabled=row.key~="allow-unrevealed" or player.admin;p.checks[row.key]=check
+            if definition then p.icon_rows[#p.icon_rows+1]={element=check,definition=definition,set_id=p.icon_target} end
         end
     end
     body.add{type="line"}
@@ -281,23 +385,32 @@ local function build_alerts(player,p,body)
     p.surface_body=body.add{type="flow",direction="vertical"};surfaces_page(player,p)
 end
 local function open(player,tick)
+    if not settings.startup["ei-terrain-evolution-enabled"].value then return end
     local root=state();local old=root.players[player.index] or {tab=1};close(player)
     root.players[player.index]=old;local p=old
+    if p.launcher==nil then p.launcher=true end
     local frame=player.gui.screen.add{type="frame",name=GUI,direction="vertical",tags=tags("window")}
     p.frame=frame;p.rows={};p.bodies={};p.row_cursor=0;p.next_tick=tick;p.surface=player.surface;p.clearing=nil
-    p.view_generation=(p.view_generation or 0)+1;p.tab_generations={};p.invalidated=nil;p.layout_version=2
+    p.view_generation=(p.view_generation or 0)+1;p.tab_generations={};p.invalidated=nil;p.layout_version=LAYOUT_VERSION
     local width=math.max(160,math.min(800,math.floor(player.display_resolution.width/player.display_scale)-48))
     local height=math.max(180,math.min(780,math.floor(player.display_resolution.height/player.display_scale)-48))
     frame.style.width=width;frame.style.maximal_height=height
     local title=frame.add{type="flow",direction="horizontal"}
+    title.style.vertical_align="center";title.drag_target=frame
+    p.title_season=owners.terrain.season_index(player.surface,tick)
+    local icon=title.add{type="sprite",sprite=seasonal_sprites[p.title_season]};p.title_icon=icon
+    icon.resize_to_sprite=false;icon.style.size=48;icon.style.stretch_image_to_widget_size=true;icon.ignored_by_interaction=true
     title.add{type="label",caption={"ei-ecology.title"},style="frame_title",ignored_by_interaction=true}
-    local spacer=title.add{type="empty-widget",style="ei_titlebar_draggable_spacer"};spacer.drag_target=frame
+    local spacer=title.add{type="empty-widget",style="ei_titlebar_draggable_spacer"};spacer.drag_target=frame;spacer.style.height=48
     title.add{type="sprite-button",sprite="utility/close",style="frame_action_button",tags=tags("close")}
+    local toolbar=frame.add{type="flow",direction="horizontal"}
+    p.launcher_toggle=toolbar.add{type="button",caption={"ei-ecology.show-launcher"},
+        tooltip={"ei-ecology.show-launcher-tooltip"},toggled=p.launcher,tags=tags("launcher")}
     p.loading=frame.add{type="label",caption={"ei-ecology.updating"}};p.loading.visible=true
     local pane=frame.add{type="tabbed-pane",tags=tags("tab")};p.pane=pane
     for i,name in ipairs({"simple","advanced","alerts"}) do
         local tab=pane.add{type="tab",caption={"ei-ecology.tab-"..name}}
-        local scroll=pane.add{type="scroll-pane",direction="vertical",horizontal_scroll_policy="never"};scroll.style.height=height-124;scroll.style.width=width-30;p.bodies[i]=scroll
+        local scroll=pane.add{type="scroll-pane",direction="vertical",horizontal_scroll_policy="never"};scroll.style.height=math.max(1,height-188);scroll.style.width=width-30;p.bodies[i]=scroll
         pane.add_tab(tab,scroll)
         if i==1 then
             build_field_report(scroll,p,width-56);scroll.visible=false
@@ -316,6 +429,18 @@ local function open(player,tick)
     else frame.location={x=math.max(24*player.display_scale,(player.display_resolution.width-width*player.display_scale)/2),y=math.max(24*player.display_scale,(player.display_resolution.height-height*player.display_scale)/2)} end
     player.opened=frame
     root.viewers[#root.viewers+1]=player.index;root.indexes[player.index]=#root.viewers
+end
+---@param player LuaPlayer
+---@param tick MapTick
+local function toggle(player,tick)
+    if not settings.startup["ei-terrain-evolution-enabled"].value then return end
+    local root=peek();local p=root and root.players[player.index]
+    if p and p.frame and p.frame.valid then close(player) else open(player,tick) end
+end
+---@param event EventData.CustomInputEvent
+function model.on_toggle_menu(event)
+    local player=game.get_player(event.player_index)
+    if player then toggle(player,event.tick) end
 end
 local function row_value(key,report,surface,simple)
     local effects=report.effects or {};local g=report.global or {}
@@ -371,9 +496,11 @@ function model.initialize(tick)
     model.on_surface_event()
     for _,player in pairs(game.players) do
         local p=root.players[player.index];local was_open=p and p.frame and p.frame.valid
-        if was_open then close(player) end
+        local keep_open=was_open and player.connected and settings.startup["ei-terrain-evolution-enabled"].value and adopt_layout(player,p)
+        if was_open and not keep_open then close(player) end
         button(player,tick)
-        if was_open and player.connected and settings.startup["ei-terrain-evolution-enabled"].value then open(player,tick) end
+        if keep_open then build_icon_selector(player,p,p.bodies[3]);p.icon_cursor=1
+        elseif was_open and player.connected and settings.startup["ei-terrain-evolution-enabled"].value then open(player,tick) end
     end
 end
 ---@param event EventData.on_player_display_resolution_changed|EventData.on_player_display_scale_changed
@@ -414,8 +541,12 @@ function model.on_gui_click(event)
     if not belongs(event) then return false end
     local player=game.get_player(event.player_index);if not player then return true end
     local action=event.element.tags.action;local root=state();local p=root.players[player.index]
-    if action=="open" then if p and p.frame and p.frame.valid then close(player) else open(player,event.tick) end
+    if action=="open" then toggle(player,event.tick)
     elseif action=="close" then close(player)
+    elseif p and p.frame and p.frame.valid and not adopt_layout(player,p) then open(player,event.tick)
+    elseif action=="launcher" and p then
+        p.launcher=p.launcher==false;button(player,event.tick)
+        if p.launcher_toggle and p.launcher_toggle.valid then p.launcher_toggle.toggled=p.launcher end
     elseif action=="admin" and player.admin then owners.open_admin(player,event.tick)
     elseif action=="guide" and remote.interfaces.informatron and remote.interfaces.informatron.informatron_open_to_page then
         close(player)
@@ -423,14 +554,21 @@ function model.on_gui_click(event)
     elseif action=="page" and p then p.surface_page=(p.surface_page or 1)+event.element.tags.delta;surfaces_page(player,p) end
     return true
 end
----@param event EventData.on_gui_checked_state_changed|EventData.on_gui_selected_tab_changed
+---@param event EventData.on_gui_checked_state_changed|EventData.on_gui_selected_tab_changed|EventData.on_gui_selection_state_changed
 ---@return boolean
 function model.on_gui_change(event)
     if not belongs(event) then return false end
     local player=game.get_player(event.player_index);if not player then return true end
     local element=event.element;local t=element.tags;local p=state().players[player.index]
-    if p and p.frame and p.frame.valid and p.layout_version~=2 then open(player,event.tick);return true end
-    if t.action=="tab" then
+    if not p or not p.frame or not p.frame.valid or element.player_index~=player.index then return true end
+    if not adopt_layout(player,p) then open(player,event.tick);return true end
+    if t.action=="icon-set" then
+        if element~=p.icon_selector or t.player_index~=player.index or t.frame_index~=p.frame.index then return true end
+        local choice=p.icon_choices[element.selected_index];if not choice then return true end
+        native_alerts.set_icon_set(player,choice,event.tick)
+        model.on_settings_changed{player_index=player.index,setting_type="runtime-per-user",setting=alert_icon_sets.setting_name,tick=event.tick}
+    elseif t.action=="tab" then
+        if element~=p.pane then return true end
         p.tab=element.selected_tab_index;p.row_cursor=0;p.next_tick=event.tick
         p.loading.visible=p.tab~=3 and p.tab_generations[p.tab]~=p.view_generation
     elseif t.action=="preference" then owners.alerts.set_preference(player,t.key,element.state);element.state=owners.alerts.preferences(player)[t.key]
@@ -454,9 +592,17 @@ function model.on_gui_closed(event)
 end
 ---@param event EventData.on_runtime_mod_setting_changed
 function model.on_settings_changed(event)
-    if not event.player_index or event.setting_type~="runtime-per-user" or not preferences.by_name[event.setting] then return end
+    if not event.player_index or event.setting_type~="runtime-per-user" then return end
+    local icons_changed=event.setting==alert_icon_sets.setting_name
+    if not icons_changed and not preferences.by_name[event.setting] then return end
     local root=peek();local player=game.get_player(event.player_index);local p=root and root.players[event.player_index]
     if not player or not p or not p.frame or not p.frame.valid then return end
+    if icons_changed then
+        -- Setting events only invalidate; the existing viewer allowance owns
+        -- every selector/caption update, including rapid successive choices.
+        p.icon_target=alert_icon_sets.player_set(player);p.icon_cursor=1
+        return
+    end
     local prefs=owners.alerts.preferences(player)
     for key,check in pairs(p.checks or {}) do if check.valid then check.state=prefs[key];check.enabled=key~="allow-unrevealed" or player.admin end end
     if p.all_surfaces and p.all_surfaces.valid then p.all_surfaces.state=prefs.surfaces=="all";surfaces_page(player,p) end
@@ -493,15 +639,24 @@ function model.updater(event)
         if player then close(player) else remove_viewer(root,root.viewers[root.cursor]) end
         return
     end
-    -- Saved GUI handles may outlive a same-version source update. Rebuild only
-    -- this admitted viewer; static construction performs no report/world reads.
-    if p.layout_version~=2 then open(player,tick);return end
+    -- Saved GUI handles may outlive a same-version source update. Adopt compatible
+    -- panes in place; only older layouts rebuild for this admitted viewer.
+    if not adopt_layout(player,p) then open(player,tick);return end
+    p.last_update_writes=0
+    -- The title remains seasonal even with a hidden launcher or the Alerts tab.
+    -- Charge its changed sprite to the same eight-write viewer allowance.
+    local season=owners.terrain.season_index(player.surface,tick)
+    if p.title_season~=season then
+        if p.title_icon.sprite~=seasonal_sprites[season] then p.title_icon.sprite=seasonal_sprites[season];p.last_update_writes=1 end
+        p.title_season=season
+    end
     if p.tab==3 then
+        refresh_alert_icons(p)
         if p.surface_epoch~=root.surface_epoch or p.surface_selection~=owners.alerts.preferences(player).surfaces then surfaces_page(player,p) end
         return
     end
     if tick<(p.next_tick or 0) then return end
-    p.next_tick=tick+60;p.last_update_writes=0
+    p.next_tick=tick+60
     local function visible(element,value)
         if element.visible~=value then element.visible=value;p.last_update_writes=p.last_update_writes+1 end
     end

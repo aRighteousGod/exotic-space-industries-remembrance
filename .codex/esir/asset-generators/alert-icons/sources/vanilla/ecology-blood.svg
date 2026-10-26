@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<title>ecology-blood: ESIR vanilla-style alert pictogram</title>
+<polygon points="64,5 123,119 5,119" fill="#72d65b" stroke="none" stroke-width="0"/>
+<polygon points="64,37 79,61 78,74 70,82 58,82 49,73 49,62" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="60,84 69,84 69,97 82,89 96,95 93,103 83,99 73,107 73,115 63,115 63,108 49,102 40,112 29,112 29,104 37,104 47,91 60,97" fill="#242627" stroke="none" stroke-width="0" stroke-linejoin="round" stroke-linecap="butt"/>
+</svg>

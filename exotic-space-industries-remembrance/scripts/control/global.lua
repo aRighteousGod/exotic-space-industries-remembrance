@@ -422,10 +422,12 @@ function ei_global.init()
     storage.ei["rocket_launch_pollution"].mode = "linear"
     storage.ei["rocket_launch_pollution"].cap = 10000
     storage.ei["rocket_launch_pollution"].visual_style = "hybrid"
+    storage.ei["rocket_launch_pollution"].launch_state_version = 1
     storage.ei["rocket_launch_pollution"].launch_smoke = {}
     storage.ei["rocket_launch_pollution"].launch_smoke_count = 0
     storage.ei["rocket_launch_pollution"].next_launch_smoke_tick = 0
     storage.ei["rocket_launch_pollution"].pending_launches_by_silo = {}
+    storage.ei["rocket_launch_pollution"].detached_launches = {}
     storage.ei["rocket_launch_pollution"].pending_launch_cleanup_buckets = {}
     storage.ei["rocket_launch_pollution"].pending_cleanup_bucket_count = 0
     storage.ei["rocket_launch_pollution"].pending_cleanup_item_count = 0
@@ -523,6 +525,8 @@ function ei_global.check_init(event)
     if not storage.ei.rocket_launch_pollution.pending_launches_by_silo then
         storage.ei.rocket_launch_pollution.pending_launches_by_silo = {}
     end
+    -- The launch owner adopts old records once; configuration repair must never
+    -- reset saved ignition ticks, emitted pollution, or confirmed smoke ownership.
     if not storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets then
         storage.ei.rocket_launch_pollution.pending_launch_cleanup_buckets = {}
     end
