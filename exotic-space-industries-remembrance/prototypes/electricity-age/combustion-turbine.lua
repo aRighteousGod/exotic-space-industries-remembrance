@@ -18,7 +18,7 @@ data:extend({
     {
         name = "ei-combustion-turbine",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients =
         {
@@ -186,10 +186,13 @@ if solid_turbine then
             smoke_source.frequency = smoke_source.frequency * 0.01
         end
     end
-    fluid_turbine.horizontal_animation = table.deepcopy(solid_turbine.animation)
-    fluid_turbine.vertical_animation = table.deepcopy(solid_turbine.animation)
-    fluid_turbine.horizontal_animation.filename = ei_graphics_entity_4_path.."combustion-turbine-fluid_animation.png"
-    fluid_turbine.vertical_animation.filename = ei_graphics_entity_4_path.."combustion-turbine-fluid_animation.png"
+    fluid_turbine.two_direction_only = true
+    fluid_turbine.pictures = {
+        east = {animation = table.deepcopy(solid_turbine.animation)},
+        north = {animation = table.deepcopy(solid_turbine.animation)},
+    }
+    fluid_turbine.pictures.east.animation.filename = ei_graphics_entity_4_path.."combustion-turbine-fluid_animation.png"
+    fluid_turbine.pictures.north.animation.filename = ei_graphics_entity_4_path.."combustion-turbine-fluid_animation.png"
     fluid_turbine.burner = nil
     fluid_turbine.animation = nil
     fluid_turbine.idle_animation = nil

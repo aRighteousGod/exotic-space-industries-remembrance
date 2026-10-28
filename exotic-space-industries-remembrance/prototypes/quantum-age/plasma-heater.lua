@@ -39,7 +39,7 @@ data:extend({
     {
         name = "ei-plasma-heater",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -313,15 +313,15 @@ data:extend({
     {
         name = "ei-protium",
         type = "recipe",
-        category = "oil-processing",
+        categories = {"oil-processing"},
         energy_required = 0.5,
         ingredients = {
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 5},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-protium", amount = 10, probability = 0.9998},
-            {type = "fluid", name = "ei-deuterium", amount = 10, probability = 0.001},
-            {type = "fluid", name = "ei-tritium", amount = 10, probability = 0.0001},
+            {type = "fluid", name = "ei-protium", amount = 10, independent_probability = 0.9998, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-deuterium", amount = 10, independent_probability = 0.001, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-tritium", amount = 10, independent_probability = 0.0001, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -330,13 +330,13 @@ data:extend({
     {
         name = "ei-heated-protium",
         type = "recipe",
-        category = "ei-plasma-heater",
+        categories = {"ei-plasma-heater"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-protium", amount = 1},
+            {type = "fluid", name = "ei-protium", amount = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-heated-protium", amount = ei_data.fusion.plasma_per_unit},
+            {type = "fluid", name = "ei-heated-protium", amount = ei_data.fusion.plasma_per_unit, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -345,13 +345,13 @@ data:extend({
     {
         name = "ei-heated-deuterium",
         type = "recipe",
-        category = "ei-plasma-heater",
+        categories = {"ei-plasma-heater"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-deuterium", amount = 1},
+            {type = "fluid", name = "ei-deuterium", amount = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-heated-deuterium", amount = ei_data.fusion.plasma_per_unit},
+            {type = "fluid", name = "ei-heated-deuterium", amount = ei_data.fusion.plasma_per_unit, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -360,13 +360,13 @@ data:extend({
     {
         name = "ei-heated-tritium",
         type = "recipe",
-        category = "ei-plasma-heater",
+        categories = {"ei-plasma-heater"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-tritium", amount = 1},
+            {type = "fluid", name = "ei-tritium", amount = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-heated-tritium", amount = ei_data.fusion.plasma_per_unit},
+            {type = "fluid", name = "ei-heated-tritium", amount = ei_data.fusion.plasma_per_unit, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -375,13 +375,13 @@ data:extend({
     {
         name = "ei-heated-helium-3",
         type = "recipe",
-        category = "ei-plasma-heater",
+        categories = {"ei-plasma-heater"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-helium-3", amount = 1},
+            {type = "fluid", name = "ei-helium-3", amount = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-heated-helium-3", amount = ei_data.fusion.plasma_per_unit},
+            {type = "fluid", name = "ei-heated-helium-3", amount = ei_data.fusion.plasma_per_unit, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -416,12 +416,12 @@ data:extend({
     {
         name = "ei-plasma-data-protium",
         type = "recipe",
-        category = "ei-quantum-computer",
+        categories = {"ei-quantum-computer"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power", amount = 100},
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
-            {type = "fluid", name = "ei-heated-protium", amount = 80},
+            {type = "fluid", name = "ei-computing-power", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-heated-protium", amount = 80, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "stone", amount = 20},
         },
         results = {
@@ -434,12 +434,12 @@ data:extend({
     {
         name = "ei-plasma-data-deuterium",
         type = "recipe",
-        category = "ei-quantum-computer",
+        categories = {"ei-quantum-computer"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power", amount = 100},
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
-            {type = "fluid", name = "ei-heated-deuterium", amount = 1},
+            {type = "fluid", name = "ei-computing-power", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-heated-deuterium", amount = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "stone", amount = 20},
         },
         results = {
@@ -452,12 +452,12 @@ data:extend({
     {
         name = "ei-plasma-data-tritium",
         type = "recipe",
-        category = "ei-quantum-computer",
+        categories = {"ei-quantum-computer"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power", amount = 100},
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
-            {type = "fluid", name = "ei-heated-tritium", amount = 1},
+            {type = "fluid", name = "ei-computing-power", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-heated-tritium", amount = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "stone", amount = 20},
         },
         results = {
@@ -486,7 +486,7 @@ for _, source in ipairs(plasma_smelting_sources) do
     ---@type data.RecipePrototype
     local recipe = table.deepcopy(data.raw.recipe[source.name])
     recipe.name = source.name:gsub("^ei%-molten%-", "ei-plasma-molten-")
-    recipe.category = "ei-plasma-smelting"
+    recipe.categories = {"ei-plasma-smelting"}
     recipe.localised_name = {"recipe-name."..recipe.name}
     recipe.localised_description = {"recipe-description.ei-plasma-smelting"}
     local feedstock = data.raw.item[recipe.ingredients[1].name]

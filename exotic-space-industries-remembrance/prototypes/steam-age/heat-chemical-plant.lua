@@ -19,7 +19,7 @@ data:extend({
     {
         name = "ei-heat-chemical-plant",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {

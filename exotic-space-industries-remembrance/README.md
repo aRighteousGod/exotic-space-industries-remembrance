@@ -79,7 +79,7 @@ End stream.
 
 **Fork of _Exotic Space Industries_ by Eliont, a fork of _Exotic Industries_ by PreLeyZero — now continued and expanded under the GNU General Public License v3 or later (GPL-3.0-or-later).**
 
-Exotic Space Industries: Remembrance carries forward the original vision of Exotic Industries, updates it for Factorio 2.0 Space Age, and layers on new mechanics (daemonic influence, emotional soundtrack, and more.). Every file that originated in the upstream mod remains under the GPL; all new work inherits the same licence.
+Exotic Space Industries: Remembrance carries forward the original vision of Exotic Industries, updates it for Factorio 2.1 Space Age, and layers on new mechanics (daemonic influence, emotional soundtrack, and more.). ESIR 1.3.41 remains the final Factorio 2.0 release. Every file that originated in the upstream mod remains under the GPL; all new work inherits the same licence.
 
 ---
 

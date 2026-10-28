@@ -163,8 +163,8 @@ local c_a_c = ei_lib.raw.recipe["carbonic-asteroid-crushing"]
 if c_a_c then
   c_a_c.results = {
     {type="item",name="carbon",amount_min=6,amount_max=14},
-    {type="item",name="ei-coal-chunk",amount_min=2,amount_max=4,probability=0.95},
-    {type="item",name="carbonic-asteroid-chunk",amount=1,probability=0.20},
+    {type="item",name="ei-coal-chunk",amount_min=2,amount_max=4,independent_probability = 0.95},
+    {type="item",name="carbonic-asteroid-chunk",amount=1,independent_probability = 0.20},
   }
 end
 --advanced carbonic asteroid crushing
@@ -172,8 +172,8 @@ local a_c_a_c = ei_lib.raw.recipe["advanced-carbonic-asteroid-crushing"]
 if a_c_a_c then
   a_c_a_c.results = {
     {type="item",name="carbon",amount_min=3,amount_max=7},
-    {type="item",name="sulfur",amount_min=1,amount_max=3,probability=0.97},
-    {type="item",name="ei-coal-chunk",amount_min=1,amount_max=2,probability=0.95},
-    {type="item",name="carbonic-asteroid-chunk",amount=1,probability=0.05},
+    {type="item",name="sulfur",amount_min=1,amount_max=3,independent_probability = 0.97},
+    {type="item",name="ei-coal-chunk",amount_min=1,amount_max=2,independent_probability = 0.95},
+    {type="item",name="carbonic-asteroid-chunk",amount=1,independent_probability = 0.05},
   }
 end

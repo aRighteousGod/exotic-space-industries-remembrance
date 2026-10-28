@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-fusion-reactor",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 40,
         ingredients =
         {
@@ -263,15 +263,15 @@ data:extend(fusion_signal_prototypes)
 local base_recipe = {
     name = "ei-dt-fusion",
     type = "recipe",
-    category = "ei-fusion-reactor",
+    categories = {"ei-fusion-reactor"},
     energy_required = 1,
     ingredients = {
-        {type = "fluid", name = "ei-heated-deuterium", amount = 15}, -- fuel 1
-        {type = "fluid", name = "ei-heated-tritium", amount = 15},   -- fuel 2
-        {type = "fluid", name = "ei-cold-coolant", amount = 100},
+        {type = "fluid", name = "ei-heated-deuterium", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}, -- fuel 1
+        {type = "fluid", name = "ei-heated-tritium", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},   -- fuel 2
+        {type = "fluid", name = "ei-cold-coolant", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     results = {
-        {type = "fluid", name = "ei-hot-coolant", amount = 100},
+        {type = "fluid", name = "ei-hot-coolant", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     always_show_made_in = true,
     enabled = true,

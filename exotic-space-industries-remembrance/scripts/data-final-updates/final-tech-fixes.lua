@@ -528,8 +528,9 @@ for tech_id,_ in pairs(data.raw.technology) do
   if not tech.unit.ingredients then goto continue end
   
   for index,ingredient in pairs(tech.unit.ingredients) do 
-    if data.raw.tool[ingredient[1]] then
-      if data.raw.tool[ingredient[1]].hidden then
+    local science = ei_lib.get_item_prototype(ingredient[1])
+    if science then
+      if science.hidden then
         table.remove(tech.unit.ingredients,index)
       elseif ei_data.science_dict[ingredient[1]] then
         table.remove(tech.unit.ingredients,index)

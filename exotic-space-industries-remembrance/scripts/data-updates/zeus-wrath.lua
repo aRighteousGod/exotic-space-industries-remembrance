@@ -90,7 +90,7 @@ ei_lib.patch_nested_value(
   "ei-plasma"
 )
 local newTurretIngredients = {
-        {type = "fluid", name = "electrolyte", amount = 2000},
+        {type = "fluid", name = "electrolyte", amount = 2000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-high-energy-crystal", amount = 100},
         {type = "item", name = "superconductor", amount = 200},
         {type = "item", name = "holmium-plate", amount = 200},
@@ -108,7 +108,7 @@ local newTurretIngredients = {
 ei_lib.recipe_hard_overwrite("zeus-wrath-zeus-turret",newTurretIngredients)
 
 local newGunIngredients = {
-        {type = "fluid", name = "electrolyte", amount = 1000},
+        {type = "fluid", name = "electrolyte", amount = 1000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-high-energy-crystal", amount = 20},
         {type = "item", name = "superconductor", amount = 50},
         {type = "item", name = "holmium-plate", amount = 50},
@@ -125,7 +125,7 @@ local newGunIngredients = {
 ei_lib.recipe_hard_overwrite("zeus-wrath-zeus-gun",newGunIngredients)
 
 local newAmmoIngredients = {
-        {type = "fluid", name = "electrolyte", amount = 50},
+        {type = "fluid", name = "electrolyte", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-high-energy-crystal", amount = 10},
         {type = "item", name = "ei-high-tech-parts", amount = 10},
         {type = "item", name = "ei-superior-data", amount = 10},

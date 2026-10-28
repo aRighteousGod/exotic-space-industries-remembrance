@@ -43,7 +43,7 @@ end
 ei_lib.recipe_swap("casting-low-density-structure","molten-iron","ei-molten-steel",50)
 
 ei_lib.raw.recipe["casting-steel"].ingredients = {
-    {type="fluid",name="ei-molten-steel",amount=20}
+    {type="fluid",name="ei-molten-steel",amount=20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 }
 ei_lib.raw.recipe["casting-steel"].results = {
     {type="item",name="steel-plate",amount=2}
@@ -81,7 +81,7 @@ if casting_ei_copper_beam_template and copper_beam then
     local casting_ei_copper_beam = util.table.deepcopy(casting_ei_copper_beam_template)
     casting_ei_copper_beam.name = "casting-ei-copper-beam"
     casting_ei_copper_beam.ingredients = {
-        {type = "fluid", name = "ei-molten-copper", amount = 20, fluidbox_multiplier = 10}
+        {type = "fluid", name = "ei-molten-copper", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(10)}
     }
     casting_ei_copper_beam.results = {
         {type = "item", name = "ei-copper-beam", amount = 1}
@@ -102,7 +102,7 @@ if casting_ei_steel_beam_template and steel_beam then
     local casting_ei_steel_beam = util.table.deepcopy(casting_ei_steel_beam_template)
     casting_ei_steel_beam.name = "casting-ei-steel-beam"
     casting_ei_steel_beam.ingredients = {
-        {type = "fluid", name = "ei-molten-steel", amount = 20, fluidbox_multiplier = 10}
+        {type = "fluid", name = "ei-molten-steel", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(10)}
     }
     casting_ei_steel_beam.results = {
         {type = "item", name = "ei-steel-beam", amount = 1}
@@ -123,7 +123,7 @@ if casting_ei_copper_mechanical_parts_template and copper_mechanical_parts then
     local casting_ei_copper_mechanical_parts = util.table.deepcopy(casting_ei_copper_mechanical_parts_template)
     casting_ei_copper_mechanical_parts.name = "casting-ei-copper-mechanical-parts"
     casting_ei_copper_mechanical_parts.ingredients = {
-        {type = "fluid", name = "ei-molten-copper", amount = 10, fluidbox_multiplier = 10}
+        {type = "fluid", name = "ei-molten-copper", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(10)}
     }
     casting_ei_copper_mechanical_parts.results = {
         {type = "item", name = "ei-copper-mechanical-parts", amount = 2}
@@ -144,7 +144,7 @@ if casting_ei_steel_mechanical_parts_template and steel_mechanical_parts then
     local casting_ei_steel_mechanical_parts = util.table.deepcopy(casting_ei_steel_mechanical_parts_template)
     casting_ei_steel_mechanical_parts.name = "casting-ei-steel-mechanical-parts"
     casting_ei_steel_mechanical_parts.ingredients = {
-        {type = "fluid", name = "ei-molten-steel", amount = 10, fluidbox_multiplier = 10}
+        {type = "fluid", name = "ei-molten-steel", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(10)}
     }
     casting_ei_steel_mechanical_parts.results = {
         {type = "item", name = "ei-steel-mechanical-parts", amount = 2}
@@ -159,11 +159,11 @@ if casting_ei_steel_mechanical_parts_template and steel_mechanical_parts then
     ei_lib.add_unlock_recipe("foundry", "casting-ei-steel-mechanical-parts")
 end
 
-ei_lib.raw.recipe["molten-copper"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,ignored_by_stats=12
+ei_lib.raw.recipe["copper-ore-melting"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,independent_probability = 0.33,ignored_by_stats=12
 }
-ei_lib.raw.recipe["molten-iron"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,ignored_by_stats=12
+ei_lib.raw.recipe["iron-ore-melting"].results[2] = {
+    type="item",name="ei-slag",amount_min=8,amount_max=12,independent_probability = 0.33,ignored_by_stats=12
 }
 ei_lib.raw.recipe["molten-copper-from-lava"].results[2] = {
     type="item",name="ei-slag",amount_min=8,amount_max=12,ignored_by_stats=12
@@ -174,7 +174,7 @@ ei_lib.raw.recipe["molten-iron-from-lava"].results[2] = {
 local t_plate_recipe = ei_lib.raw.recipe["tungsten-plate"]
 if t_plate_recipe then
     t_plate_recipe.results[2] = {
-        type="item",name="ei-slag",amount_min=1,amount_max=2,probability=0.44,ignored_by_stats=2
+        type="item",name="ei-slag",amount_min=1,amount_max=2,independent_probability = 0.44,ignored_by_stats=2
     }
     t_plate_recipe.icon = ei_lib.raw.item["tungsten-plate"].icon
     t_plate_recipe.icon_size = ei_lib.raw.item["tungsten-plate"].icon_size
@@ -204,10 +204,9 @@ local addToCaster = {
 for _,toCast in pairs(addToCaster) do
     local recipe = ei_lib.raw.recipe[toCast]
     if recipe then
-        if recipe.additional_categories then
-            table.insert(recipe.additional_categories,"ei-casting")
-        else
-            recipe.additional_categories = {"ei-casting"}
+        recipe.categories = recipe.categories or {"crafting"}
+        if not ei_lib.table_contains_value(recipe.categories,"ei-casting") then
+            table.insert(recipe.categories,"ei-casting")
         end
     end
 end
@@ -215,6 +214,9 @@ end
 --acid neutralisation
 local a_n = ei_lib.raw.recipe["acid-neutralisation"]
 if a_n then
+    -- ESIR retains its authored fluid batch sizes; retain the matching five
+    -- seconds rather than native 2.1's smaller-batch 0.5-second duration.
+    a_n.energy_required = 5
     --acid neutralisation t2
     local a_n_t2 = table.deepcopy(a_n)
     a_n_t2.name = "ei-acid-neutralisation-t2"
@@ -222,12 +224,12 @@ if a_n then
     a_n_t2.icon_size = 64
     a_n_t2.ingredients = {
         {type= "item", name= "calcite", amount=15},
-        {type= "fluid", name= "sulfuric-acid", amount=750},
-        {type= "fluid", name= "ei-nitric-acid", amount=250},
+        {type= "fluid", name= "sulfuric-acid", amount=750, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type= "fluid", name= "ei-nitric-acid", amount=250, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     }
     a_n_t2.results = {
-        {type= "fluid", name= "steam", amount_min= 9000, amount_max=12500, temperature=500},
-        {type = "fluid", name= "ei-acidic-water", amount_min=25,amount_max=125}
+        {type= "fluid", name= "steam", amount_min= 9000, amount_max=12500, temperature=500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "fluid", name= "ei-acidic-water", amount_min=25,amount_max=125, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
     }
     data:extend({
         a_n_t2,
@@ -263,7 +265,7 @@ if a_n then
     {
         name = "ei-calcite-bed",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "calcite", amount = 2},
@@ -280,18 +282,18 @@ if a_n then
     {
         name = "ei-acidic-water-fluorite-bed",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-acidic-water", amount = 100},
-            {type = "fluid", name = "steam", amount = 100, minimum_temperature = 500},
+            {type = "fluid", name = "ei-acidic-water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "steam", amount = 100, minimum_temperature = 500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-calcite-bed", amount = 1},
         },
         results = {
             {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "fluid", name = "water", amount_min = 1, amount_max = 20, ignored_by_stats = 20, ignored_by_productivity = 20},
-            {type = "fluid", name = "ei-carbon-dioxide", amount = 10, ignored_by_stats = 10, ignored_by_productivity = 10},
-            {type = "item", name = "ei-calcite-bed", amount = 1, probability = 0.25, ignored_by_stats = 1, ignored_by_productivity = 1},
+            {type = "fluid", name = "water", amount_min = 1, amount_max = 20, ignored_by_stats = 20, ignored_by_productivity = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 10, ignored_by_stats = 10, ignored_by_productivity = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-calcite-bed", amount = 1, independent_probability = 0.25, ignored_by_stats = 1, ignored_by_productivity = 1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -311,14 +313,14 @@ if a_n then
     {
         name = "ei-carbon-dioxide-acidic-water",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-carbon-dioxide", amount = 20},
-            {type = "fluid", name = "water", amount = 20},
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "water", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount = 20},
+            {type = "fluid", name = "ei-acidic-water", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -344,12 +346,12 @@ if a_n then
     ei_lib.add_unlock_recipe("ei-acid-neutralisation-t2", "ei-carbon-dioxide-vent")
     a_n.ingredients = {
         {type= "item", name= "calcite", amount=15},
-        {type= "fluid", name= "sulfuric-acid", amount=1000},
+        {type= "fluid", name= "sulfuric-acid", amount=1000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     }
     --modify acid neutralization
     a_n.results = {
-        {type= "fluid", name= "steam", amount_min= 7500, amount_max=9500, temperature= 280},
-        {type = "fluid", name= "ei-acidic-water", amount_min=50,amount_max=250}
+        {type= "fluid", name= "steam", amount_min= 7500, amount_max=9500, temperature= 280, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "fluid", name= "ei-acidic-water", amount_min=50,amount_max=250, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
     }
 end
 --tungsten requires lubricant

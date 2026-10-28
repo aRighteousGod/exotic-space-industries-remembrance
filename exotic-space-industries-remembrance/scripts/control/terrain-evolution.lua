@@ -245,7 +245,6 @@ local function add_surface(root,surface,refresh)
     -- Capability is known before the first observation; it is not a measured zero.
     entry.pollution_supported=surface.pollutant_type and surface.pollutant_type.name=="pollution" or false
     if refresh or not entry.config then entry.config=config.resolve_surface(root.config,planet,entry.overrides) end
-    if root.compatibility then entry.config.enabled=false end
     refresh_hazard_epoch(entry,previous)
 end
 
@@ -256,8 +255,10 @@ function model.initialize(tick,reason)
     local previous_next_tick=root.next_tick
     root.config,root.config_errors=config.resolve()
     if previous_interval and previous_interval~=root.config.interval then release_contained(root) end
-    root.compatibility=script.active_mods["TerrainEvolution2"] and "TerrainEvolution2"
-        or script.active_mods["TerrainEvolution"] and "TerrainEvolution" or nil
+    -- Both external implementations conflict with ESIR 1.4. Re-resolve each
+    -- surface from its retained preferences instead of keeping a stale disabled
+    -- compatibility cache from a supported 2.0 save.
+    root.compatibility=nil
     root.transitions,root.missing=policy.compile(prototypes.tile)
     root.surface_order={};root.surface_registered={}
     for _,surface in pairs(game.surfaces) do
@@ -308,7 +309,7 @@ function model.initialize(tick,reason)
     calendar.initialize(root,tick)
     work.initialize(root,tick,reason)
     work.refresh_reports(root,tick)
-    if not root.config.enabled or root.compatibility or root.enabled_surfaces==0 then
+    if not root.config.enabled or root.enabled_surfaces==0 then
         calendar.release(root)
         for _=1,math.min(16,#root.fires.items) do
             local r=root.fires.items[#root.fires.items]
@@ -1245,7 +1246,7 @@ function model.has_tick_work(tick)
     if refresh_after_load then return true end
     local root=peek()
     return root and root.config and tick>=root.next_tick and (work.has_maintenance(root)
-        or (root.config.enabled and not root.compatibility and (root.enabled_surfaces or 0)>0))
+        or (root.config.enabled and (root.enabled_surfaces or 0)>0))
 end
 ---@param event EventData.on_tick
 function model.updater(event)
@@ -1358,7 +1359,6 @@ function model.set_override(surface,name,value,tick)
     if #errors>0 then return false,{"ei-terrain.invalid-value"} end
     local previous=entry.config
     entry.overrides=values;entry.config=resolved
-    if root.compatibility then entry.config.enabled=false end
     refresh_hazard_epoch(entry,previous)
     calendar.configure(root,tick)
     refresh_surface_counts(root)
@@ -1372,7 +1372,6 @@ function model.reset_overrides(surface,tick)
     if not entry then return false,{"ei-terrain.unsupported"} end
     local previous=entry.config
     entry.overrides={};entry.config=config.resolve_surface(root.config,entry.planet)
-    if root.compatibility then entry.config.enabled=false end
     refresh_hazard_epoch(entry,previous)
     calendar.configure(root,tick)
     refresh_surface_counts(root)
@@ -1397,7 +1396,7 @@ end
 ---@return table
 function model.snapshot(surface,tick)
     local root=peek();if not root then return {status="disabled"} end
-    local result={status=root.compatibility or (root.config.enabled and "enabled" or "disabled"),counters=root.counters,
+    local result={status=root.config.enabled and "enabled" or "disabled",counters=root.counters,
         active=#root.active.items,pending=#root.pending.items,history=#root.history.items,tree_history=#root.trees.items,last_service=root.last_service}
     -- Explicit diagnostic/UI request only; closed panels never call this scan.
     result.sample_age=0;result.backlog_age=0;result.history_limit=root.config.tile_history_cap
@@ -1409,7 +1408,7 @@ function model.snapshot(surface,tick)
     end
     if surface then
         result.effective=effective(root,surface)
-        if not root.compatibility and (not result.effective or not result.effective.enabled) then result.status="disabled" end
+        if not result.effective or not result.effective.enabled then result.status="disabled" end
         result.calendar=calendar.snapshot(root,surface,tick)
         result.phase=result.calendar.phase
     end
@@ -1436,7 +1435,7 @@ function model.public_snapshot(surface,tick)
     -- without inventing a sample or mutating state, including on disabled worlds.
     local pollution_supported=entry.pollution_supported
     if pollution_supported==nil then pollution_supported=surface.pollutant_type and surface.pollutant_type.name=="pollution" or false end
-    return {status=root.compatibility or (entry.config.enabled and "enabled" or "disabled"),effective=entry.config,
+    return {status=entry.config.enabled and "enabled" or "disabled",effective=entry.config,
         sample_age=entry.last_sample_tick and tick-entry.last_sample_tick,pollution=entry.last_pollution,
         pollution_supported=pollution_supported==true,effects=entry.effects or {},effect_ticks=entry.effect_ticks or {},last_effect=entry.last_effect,
         woodland_supported=root.native_tree_names and #(root.native_tree_names[entry.planet] or {})>0 or false,

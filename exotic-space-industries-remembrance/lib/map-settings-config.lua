@@ -45,7 +45,7 @@ for _, key in ipairs({"min_expansion_cooldown", "max_expansion_cooldown"}) do
 end
 field("global", "pollution.enabled", "pollution", "boolean")
 for _, key in ipairs({"ageing", "enemy_attack_pollution_consumption_modifier", "min_pollution_to_damage_trees",
-    "pollution_with_max_forest_damage", "pollution_per_tree_damage", "pollution_restored_per_tree_damage", "max_pollution_to_restore_trees"}) do
+    "pollution_with_max_forest_damage", "pollution_per_tree_damage", "pollution_restored_per_tree_damage"}) do
     field("global", "pollution."..key, "pollution", "number", 0, 1000000)
 end
 field("global", "pollution.diffusion_ratio", "pollution", "number", 0, 0.25)

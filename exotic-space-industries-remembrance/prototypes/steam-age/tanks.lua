@@ -119,7 +119,7 @@ data:extend({
     {
         name = "ei-tank-1",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -135,7 +135,7 @@ data:extend({
     {
         name = "ei-tank-2",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 8,
         ingredients =
         {
@@ -151,7 +151,7 @@ data:extend({
     {
         name = "ei-tank-3",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -237,8 +237,7 @@ data:extend({
         corpse = "big-remnants",
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
-        circuit_wire_connection_points = circuit_connector_definitions["storage-tank"].points,
-		circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites,
+        circuit_connector = table.deepcopy(circuit_connector_definitions["storage-tank"]),
 		circuit_wire_max_distance = 20,
         flow_length_in_ticks = 1,
         map_color = data.raw["storage-tank"]["storage-tank"].map_color,
@@ -309,8 +308,7 @@ data:extend({
         dying_explosion = "storage-tank-explosion",
         collision_box = {{-4.253, -4.253}, {4.253, 4.253}},
         selection_box = {{-4.285, -4.285}, {4.285, 4.285}},
-        circuit_wire_connection_points = circuit_connector_definitions["storage-tank"].points,
-		circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites,
+        circuit_connector = table.deepcopy(circuit_connector_definitions["storage-tank"]),
 		circuit_wire_max_distance = 20,
         flow_length_in_ticks = 1,
         map_color = data.raw["storage-tank"]["storage-tank"].map_color,
@@ -387,8 +385,7 @@ data:extend({
         corpse = "big-remnants",
         collision_box = {{-3.42144, -3.42144}, {3.42144, 3.42144}},
         selection_box = {{-3.564, -3.564}, {3.564, 3.564}},
-        circuit_wire_connection_points = circuit_connector_definitions["storage-tank"].points,
-		circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites,
+        circuit_connector = table.deepcopy(circuit_connector_definitions["storage-tank"]),
 		circuit_wire_max_distance = 20,
         flow_length_in_ticks = 1,
         map_color = data.raw["storage-tank"]["storage-tank"].map_color,

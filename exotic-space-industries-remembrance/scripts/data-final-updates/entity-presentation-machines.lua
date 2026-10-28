@@ -333,8 +333,8 @@ local function furnace_scene(simulation, name, opts)
 local cooler = game.surfaces[1].find_entity("ei-cooler", {0, 0})
 if cooler and cooler.valid then
   cooler.energy = 1000000000
-  cooler.fluidbox[1] = {name = "ei-nitrogen-gas", amount = 200}
-  cooler.fluidbox[2] = nil
+  cooler.set_fluid(1, {name = "ei-nitrogen-gas", amount = 200})
+  cooler.clear_fluid(2)
 end
 ]] or nil
     local post_init = name == "ei-cooler" and 'main_entity.force.recipes["ei-liquid-nitrogen"].enabled = true' or nil

@@ -707,7 +707,7 @@ local function set_entity_active_safely(entity, active)
     end
 
     local ok = pcall(function()
-        entity.active = active
+        entity.disabled_by_script = not active
     end)
 
     return ok
@@ -1054,8 +1054,8 @@ end
 ---@param current_tick MapTick|nil Configuration rebuilds do not receive an event tick.
 local function with_profiled_phase(state, phase, reason, current_tick, fn)
     local profiler = nil
-    if state.debug and state.debug.enabled and game and game.create_profiler then
-        profiler = game.create_profiler()
+    if state.debug and state.debug.enabled and helpers and helpers.create_profiler then
+        profiler = helpers.create_profiler()
     end
     local ok, result1, result2, result3 = pcall(fn)
 

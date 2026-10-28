@@ -24,13 +24,13 @@ data:extend({
     {
         name = "ei_extreme-loader",
         type = "recipe",
-        category = "metallurgy",
+        categories = {"metallurgy"},
         energy_required = 2,
         ingredients =
         {
             {type="item", name="ei_turbo-loader", amount=2},
             {type="item", name="holmium-plate", amount=20},
-			{type="fluid", name="lubricant", amount=25}
+            {type="fluid", name="lubricant", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {{type="item", name="ei_extreme-loader", amount=1}},
         enabled = false,
@@ -65,14 +65,14 @@ data:extend({
     {
         name = "ei_ultimate-loader",
         type = "recipe",
-        category = "metallurgy",
+        categories = {"metallurgy"},
         energy_required = 2,
         ingredients =
         {
             {type="item", name="ei_extreme-loader", amount=2},
             {type="item", name="carbon-fiber", amount=20},
             {type="item", name="superconductor", amount=10},
-			{type="fluid", name="lubricant", amount=25}
+            {type="fluid", name="lubricant", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {{type="item", name="ei_ultimate-loader", amount=1}},
         enabled = false,
@@ -107,17 +107,17 @@ data:extend({
     {
         name = "ei_high-speed-loader",
         type = "recipe",
-        category = "cryogenics",
+        categories = {"cryogenics"},
         energy_required = 2,
         ingredients =
         {
             {type="item", name="ei_ultimate-loader", amount=2},
             {type="item", name="lithium-plate", amount=20},
-			{type="fluid", name="fluoroketone-cold", amount=50}
+            {type="fluid", name="fluoroketone-cold", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {
 			{type="item", name="ei_high-speed-loader", amount=1},
-			{type="fluid", name="fluoroketone-hot", amount=25}
+            {type="fluid", name="fluoroketone-hot", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
 			
 		},
         enabled = false,

@@ -8,6 +8,7 @@ Use this reference when choosing between a vanilla prototype module, core lualib
 - `data/base/prototypes`: use this skill's Base map.
 - `data/space-age/prototypes`: use this skill's Space Age map.
 - `data/quality/prototypes`: use this skill's Quality map.
+- `data/recycler`: use this skill's Recycler map; recycling and recycler pictures moved here in 2.1.
 - `data/elevated-rails/prototypes`: use this skill's Elevated Rails map.
 - Official runtime/prototype API symbols: use `factorio-lua-docs`.
 - Generic Lua advice in Factorio's sandbox: use `factorio-lua-assumptions`.
@@ -21,7 +22,7 @@ local sounds = require("__base__.prototypes.entity.sounds")
 local sounds = require("__base__/prototypes/entity/sounds")
 local asteroid_util = require("__space-age__.prototypes.planet.asteroid-spawn-definitions")
 local planet_map_gen = require("__space-age__/prototypes/planet/planet-map-gen")
-local recycling = require("__quality__/prototypes/recycling")
+local recycling = require("__recycler__/recycling")
 ```
 
 Use the style that best matches nearby code. Be explicit with `__mod-name__` when reaching across mod boundaries. Keep requires at module load time.
@@ -37,7 +38,7 @@ Use the style that best matches nearby code. Be explicit with `__mod-name__` whe
 ## Dependency And Stage Notes
 
 - Base is always present.
-- Space Age, Quality, and Elevated Rails require declared dependencies or guarded data-stage paths.
+- Space Age, Quality, Recycler, and Elevated Rails require declared dependencies or guarded data-stage paths.
 - Data/prototype helper imports belong in `data.lua`, `data-updates.lua`, `data-final-fixes.lua`, or modules loaded from those stages.
 - Do not move these imports into runtime event handlers, console commands, remote interfaces, or migration bodies without a stage-specific reason.
 - Picture modules can execute helper/global setup while loading. Inspect the file before assuming it is a pure table export.
@@ -47,7 +48,8 @@ Use the style that best matches nearby code. Be explicit with `__mod-name__` whe
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task doctor
 
-$factorio = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio'
+$factorio = Join-Path $PWD '.factorio-qc/f21'
+& "$factorio\bin\x64\factorio.exe" --version
 Get-ChildItem "$factorio\data" -Directory | Select-Object -ExpandProperty Name
 Get-ChildItem "$factorio\data" -Directory -Recurse -Filter lualib | Select-Object -ExpandProperty FullName
 

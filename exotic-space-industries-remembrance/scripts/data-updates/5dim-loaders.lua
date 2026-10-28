@@ -26,14 +26,14 @@ for i = 4, 10 do
 		{
 			name = "ei-5dim-mk".. i .. "-loader",
 			type = "recipe",
-			category = "crafting-with-fluid",
+			categories = {"crafting-with-fluid"},
 			energy_required = 2,
 			ingredients =
 			{
 				{type="item", name=previous_loader, amount=1},
 				{type="item", name="processing-unit", amount=10 + (5*i)},
 				{type="item", name="low-density-structure", amount=10 + (3*i)},
-				{type="fluid", name="lubricant", amount=50 + (1*i)}
+                {type="fluid", name="lubricant", amount=50 + (1*i), fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 			},
 			results = {{type="item", name="ei-5dim-mk".. i .. "-loader", amount=1}},
 			enabled = false,

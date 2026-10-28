@@ -26,7 +26,7 @@ if mods["Krastorio2"] then -- Krastorio2 Spaced Out does not have the Advanced t
 		{
 			name = "ei-kr-advanced-loader",
 			type = "recipe",
-			category = "crafting",
+			categories = {"crafting"},
 			energy_required = 2,
 			ingredients =
 			{
@@ -70,7 +70,7 @@ data:extend({
     {
         name = "ei-kr-superior-loader",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {

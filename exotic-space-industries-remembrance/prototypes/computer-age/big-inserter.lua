@@ -21,7 +21,7 @@ data:extend({
     {
         name = "ei-big-inserter-normal",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 4,
         ingredients =
         {
@@ -30,7 +30,7 @@ data:extend({
             {type="item", name="low-density-structure", amount=6},
             {type="item", name="processing-unit", amount=6},
             {type="item", name="ei-advanced-motor", amount=4},
-            {type="fluid", name="ei-liquid-nitrogen", amount=15},
+            {type="fluid", name="ei-liquid-nitrogen", amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-big-inserter-normal", amount=1}},
         enabled = false,

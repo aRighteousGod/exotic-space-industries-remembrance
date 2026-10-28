@@ -22,11 +22,14 @@ from source and does not trust generated manifests or installed mod selection.
 | --- | ---: |
 | [Unified native alerts and personal settings](runtime-alerts.md#contract) | 3 |
 | [Ordinary slag recovery](slag-recovery.md#contract) | 1 |
+| [Recycling ownership and Factorio 2.1 parity](recycling.md#contract) | 2 |
+| [Recipe routing across Factorio versions](recipe-routing.md#contract) | 1 |
+| [Authored recipe economy and engine-version parity](recipe-economy.md#contract) | 4 |
 | [Worker robot progression and fleet conversion](robot-progression.md#contract) | 2 |
 | [Arc and plasma ore smelting](plasma-smelting.md#contract) | 5 |
 | [Cryo container families](cryo-containers.md#contract) | 1 |
-| [Planetary enemy populations](planet-enemies.md#contract) | 3 |
-| [Native map settings and future-planet overrides](map-settings.md#contract) | 3 |
+| [Planetary enemy populations](planet-enemies.md#contract) | 4 |
+| [Native map settings and future-planet overrides](map-settings.md#contract) | 4 |
 | [Acidthrower native pressure jet and late thrower profiles](acidthrower-pressure-jet.md#contract) | 4 |
 | [Administration tools](admin-tools.md#contract) | 10 |
 | [Rebuild activity monitor](rebuild-monitor.md#contract) | 1 |
@@ -35,14 +38,14 @@ from source and does not trust generated manifests or installed mod selection.
 | [Shared camera windows](camera-windows.md#contract) | 1 |
 | [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 3 |
 | [Balanced agricultural growth jitter](randomized-tree-growth.md#contract) | 1 |
-| [Beacon overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 2 |
+| [Beacon upgrades, overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 5 |
 | [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 6 |
 | [Black hole containment and extraction](black-hole.md#contract) | 1 |
 | [Camp-fire registration and periodic fire emission](camp-fire.md#contract) | 1 |
 | [Combustion turbine shell switching](combustion-turbine.md#contract) | 1 |
 | [Crystal accumulator resonance](crystal-accumulator.md#contract) | 1 |
 | [Native entity death profiles and inherited operational shells](death-explosions.md#contract) | 1 |
-| [Entity hit effects, interaction sounds and native previews](entity-presentation.md#contract) | 3 |
+| [Entity hit effects, interaction sounds and native previews](entity-presentation.md#contract) | 5 |
 | [Production building status lights](machine-status-lights.md#contract) | 4 |
 | [Native cold mist](cryo-mist.md#contract) | 1 |
 | [EM train charging and research rollout](em-trains.md#contract) | 3 |
@@ -52,7 +55,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Fueler tower servicing](fueler.md#contract) | 2 |
 | [Fulgora day-length variation](fulgora-day-length.md#contract) | 1 |
 | [Fusion reactor control and telemetry](fusion-reactor.md#contract) | 1 |
-| [Gaia surfaces, alien presets, and artifact progression](gaia-and-alien-systems.md#contract) | 8 |
+| [Gaia surfaces, alien presets, and artifact progression](gaia-and-alien-systems.md#contract) | 9 |
 | [Gaian saucer wake registration and bounded visual emission](gaian-saucer-wake.md#contract) | 2 |
 | [Gate transport and receiver selection](gate.md#contract) | 1 |
 | [Hemocrystal wall event-started regeneration](hemocrystal-wall.md#contract) | 1 |
@@ -66,8 +69,8 @@ from source and does not trust generated manifests or installed mod selection.
 | [Neutron collector source binding](neutron-collector.md#contract) | 1 |
 | [Orbital logistics cohorts and leases](orbital-logistics.md#contract) | 1 |
 | [Orbital scanner banks and demand caches](orbital-combinator.md#contract) | 1 |
-| [Railgun coolant proxies, heat debt, and recovery](railgun-cooling.md#contract) | 2 |
-| [Research scaling, progression migrations, and victory](research-and-progression.md#contract) | 7 |
+| [Railgun coolant proxies, heat debt, and recovery](railgun-cooling.md#contract) | 3 |
+| [Research scaling, progression migrations, and victory](research-and-progression.md#contract) | 8 |
 | [Rocket launch consequences and visual scheduling](rocket-launch-pollution.md#contract) | 2 |
 | [Runtime orchestration and registry ownership](runtime-orchestration.md#contract) | 3 |
 | [Sawblade event-owned animation and sound gates](sawblade-turret.md#contract) | 1 |
@@ -77,6 +80,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Spider progression, safe replacement, weapon controls, and reactive smoke](spider-vehicles.md#contract) | 4 |
 | [Startup, compatibility, diagnostics, and information interfaces](startup-and-integration.md#contract) | 6 |
 | [Steam train wheel helpers](steam-train.md#contract) | 1 |
+| [Native quality scaling across ESIR train tiers](transport-quality.md#contract) | 1 |
 | [Surveyor inventory scope and zoom restoration](surveyor-scope.md#contract) | 1 |
 | [Sweeping radar paid observations, quality, reports, and GUI](sweeping-radar.md#contract) | 7 |
 | [Tesla combat, research variants, and helper lifetime](tesla-runtime.md#contract) | 4 |

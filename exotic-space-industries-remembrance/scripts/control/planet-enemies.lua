@@ -226,6 +226,13 @@ end
 -- Upgrade only generation settings. No entity scan, purge or chunk regeneration.
 ---@param event ConfigurationChangedData
 function model.on_configuration_changed(event)
+    local change = event.mod_changes and event.mod_changes["exotic-space-industries-remembrance"]
+    local old_major, old_minor
+    if change and change.old_version then old_major, old_minor = change.old_version:match("^(%d+)%.(%d+)") end
+    -- Explicit saved markers and old owned aliases take precedence over this fallback.
+    local legacy = (event.old_version and event.old_version:match("^2%.0%."))
+        or (old_major and (tonumber(old_major) < 1 or tonumber(old_major) == 1 and tonumber(old_minor) < 4))
+    local fallback = legacy and config.legacy_revision or config.native_revision
     for _, surface in pairs(game.surfaces) do
         local name = planet_name(surface)
         if config.controls[name] then
@@ -264,22 +271,8 @@ function model.on_configuration_changed(event)
                     end
                 end
                 settings.property_expression_names = settings.property_expression_names or {}
-                for key, value in pairs(defaults.property_expression_names or {}) do
-                    if name == "nauvis" and (key == "enemy_base_probability" or key == "eb_enemy_base_probability"
-                        or key == "cb_enemy_base_probability") then
-                        -- Add the 2.0 seed-isolation aliases without replacing an
-                        -- imported custom probability expression on an existing save.
-                        local current = settings.property_expression_names[key]
-                        if current == nil or current == key then settings.property_expression_names[key] = value end
-                    end
-                    if type(value) == "string" and (value:find("ei-", 1, true) == 1) then
-                        -- Only this subsystem's expressions, not unrelated Gaia/resource overrides.
-                        if key:find("enemy_base", 1, true) or key:find("demolisher", 1, true)
-                            or value:find("-enemies-", 1, true) then
-                            settings.property_expression_names[key] = value
-                        end
-                    end
-                end
+                config.merge_generation_aliases(settings.property_expression_names,
+                    defaults.property_expression_names or {}, name, fallback)
                 surface.map_gen_settings = settings
             end
         end

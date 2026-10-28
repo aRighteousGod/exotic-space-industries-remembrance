@@ -170,7 +170,7 @@ local function get_real_circuit_connections(entity)
     end
 
     local saved_connections = {}
-    local ok, connectors = pcall(entity.get_wire_connectors, entity, false)
+    local ok, connectors = pcall(entity.get_wire_connectors, false)
     if not ok or type(connectors) ~= "table" then
         return saved_connections
     end
@@ -654,7 +654,6 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
 
     local old_unit_number = record and record.unit_number or ei_lib.get_entity_unit_number(entity)
     local open_players = collect_open_players(runtime, old_unit_number)
-    local old_name = entity.name
     local surface = entity.surface
     local force = entity.force
     local position = entity.position
@@ -662,55 +661,43 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
     local quality = entity.quality
     local health = entity.health
     local energy = tonumber(entity.energy) or 0
+    local flags = {
+        minable_flag = entity.minable_flag,
+        destructible = entity.destructible,
+        operable = entity.operable,
+        rotatable = entity.rotatable,
+        disabled_by_script = entity.disabled_by_script,
+    }
     local saved_connections = get_real_circuit_connections(entity)
 
-    if requested_mode == MODE_SOLID then
-        destroy_open_proxies_at_turbine(runtime, entity)
-    end
-
-    if requested_mode == MODE_FLUID then
-        spill_burner_inventories(entity)
-    end
-
-    unregister_record(runtime, old_unit_number, false)
-    entity.destroy({raise_destroy = false})
-
+    -- blueprint-ref: .codex/esir/blueprints/combustion-turbine.md#transaction
+    -- These unlike native shells can briefly overlap. Keep the original alive
+    -- until creation succeeds, so failure preserves its fluids, fuel and viewers.
     local replacement = create_turbine_shell(surface, target_name, position, force, direction, quality)
 
     if not is_turbine(replacement) then
-        local restored = create_turbine_shell(surface, old_name, position, force, direction, quality)
-        if is_turbine(restored) then
-            clamp_health(restored, health)
-            pcall(function()
-                restored.energy = energy
-            end)
-            restore_circuit_connections(restored, saved_connections)
-            local restored_record = register_turbine(runtime, restored, event_or_tick)
-            local restored_unit_number = restored_record and restored_record.unit_number or ei_lib.get_entity_unit_number(restored)
-            local restored_opened_entity = restored_record
-                and restored_record.mode == MODE_FLUID
-                and ei_lib.get_valid_entity(restored_record.proxy)
-                or restored
-            retarget_open_players(runtime, open_players, restored_unit_number, restored_opened_entity, event_or_tick)
-        else
-            for _, open_player_index in ipairs(open_players) do
-                close_gui_for_player(runtime, open_player_index)
-            end
-        end
-
         if player_index and game then
             local player = game.get_player(player_index)
             if player then
                 player.print({"exotic-industries.combustion-turbine-gui-swap-failed"})
             end
         end
-        return restored
+        return entity
     end
 
     clamp_health(replacement, health)
+    for name, value in pairs(flags) do replacement[name] = value end
     pcall(function()
         replacement.energy = energy
     end)
+
+    if requested_mode == MODE_SOLID then
+        destroy_open_proxies_at_turbine(runtime, entity)
+    else
+        spill_burner_inventories(entity)
+    end
+    unregister_record(runtime, old_unit_number, false)
+    entity.destroy({raise_destroy = false})
     restore_circuit_connections(replacement, saved_connections)
 
     local new_record = register_turbine(runtime, replacement, event_or_tick)
@@ -1049,6 +1036,13 @@ function model.on_gui_closed(event)
 
     local runtime = get_runtime()
     local closed_entity = ei_lib.get_valid_entity(event and event.entity)
+    -- blueprint-ref: .codex/esir/blueprints/combustion-turbine.md#gui-transfer
+    -- Opening a fluid console can synchronously close a different turbine's
+    -- native window. That old close must not tear down the newly assigned owner.
+    local closed_unit = is_turbine(closed_entity) and closed_entity.unit_number
+        or (is_open_proxy(closed_entity) and runtime.proxy_to_unit[closed_entity.unit_number])
+    local current_unit = runtime.open_by_player[player.index]
+    if closed_unit and current_unit and closed_unit ~= current_unit then return end
     if is_open_proxy(closed_entity) then
         local opened_tick = runtime.proxy_open_tick_by_player[player.index]
         local close_tick = now_tick(event)

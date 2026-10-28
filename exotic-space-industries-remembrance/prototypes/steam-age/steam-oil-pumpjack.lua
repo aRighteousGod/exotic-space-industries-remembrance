@@ -19,7 +19,7 @@ data:extend({
     {
         name = "ei-steam-oil-pumpjack",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 3,
         ingredients =
         {
@@ -98,6 +98,8 @@ pump.module_slots = 0
 -- set energy source
 pump.energy_source = {
     type = "fluid",
+    -- Steam power must not emit the fluid energy source's default working glow.
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     emissions_per_minute={pollution=10},
     fluid_box = {   
         filter = "steam",
@@ -134,7 +136,7 @@ pump.graphics_set = {
                 {
                     animation_speed = 0.5,
                     draw_as_shadow = true,
-                    filename = "__base__/graphics/entity/pumpjack/pumpjack-horsehead-shadow.png",
+                    filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/pumpjack/pumpjack-horsehead-shadow.png",
                     frame_count = 40,
                     height = 82,
                     line_length = 8,

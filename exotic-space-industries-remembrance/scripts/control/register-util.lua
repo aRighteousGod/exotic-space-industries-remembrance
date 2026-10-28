@@ -271,7 +271,7 @@ function model.init_beacon(key, master)
     local master_entry = unit and storage.ei[key].master[unit] or nil
     local entity = master_entry and master_entry.entity or nil
     if ei_lib.entity_check(entity) then
-        entity.active = false
+        entity.disabled_by_script = true
     end
 end
 ---------------------------------------------------------------------

@@ -81,8 +81,8 @@ local removeash = {
     "ei-fusion-fuel"
 }
 for _,item in pairs(data.raw.item) do
-    if item.fuel_category then
-        if item.burnt_result == "atan-ash" and ei_lib.table_contains_value(removeash,item.fuel_category) then
+    if item.fuel_categories then
+        if item.burnt_result == "atan-ash" and ei_lib.item_has_fuel_category(item,removeash) then
             item.burnt_result = nil
         end
     end

@@ -69,6 +69,8 @@ data:extend({
 		heating_energy = "50kW",
 		energy_source = {
 			type = "fluid",
+			-- Steam power must not emit the fluid energy source's default working glow.
+			light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
 			emissions_per_minute = { pollution = 10 },
 			fluid_box = {
 				filter = "steam",

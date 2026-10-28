@@ -29,9 +29,7 @@ local function release_record(r)
     r.baseline=nil;r.last=nil;r.suspended=nil
 end
 local function blocker()
-    if script.active_mods["diurnal-dynamics"] then return "diurnal-dynamics" end
-    if script.active_mods["TerrainEvolution2"] then return "TerrainEvolution2" end
-    if script.active_mods["TerrainEvolution"] then return "TerrainEvolution" end
+    if script.active_mods["diurnal-dynamics-fork"] then return "diurnal-dynamics-fork" end
 end
 ---@param baseline table Native four-boundary tuple.
 ---@param phase number

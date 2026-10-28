@@ -456,7 +456,7 @@ local function get_manual_request_section(point)
     return manual_sections[1]
   end
 
-  local ok, section = pcall(point.add_section, point, "qc")
+  local ok, section = pcall(point.add_section, "qc")
   if ok and section and section.valid then
     return section
   end
@@ -546,7 +546,7 @@ local function ensure_platform_hub(platform)
     return platform.hub, "ready"
   end
 
-  local ok, hub = pcall(platform.apply_starter_pack, platform)
+  local ok, hub = pcall(platform.apply_starter_pack)
   if ok and hub and hub.valid then
     return hub, "applied"
   end

@@ -2,6 +2,10 @@
 local fluid_qc_owner=require('scripts/control/fluid-safety')
 local fluid_qc_alerts=require('lib/alerts')
 local fluid_qc_previous=script.get_event_handler(defines.events.on_tick)
+local function fluid_qc_segment(entity)
+    if script.active_mods.base:sub(1,3)=='2.1' then return entity.get_fluid_segment_id(1) end
+    return entity.fluidbox.get_fluid_segment_id(1)
+end
 script.on_event(defines.events.on_tick,function(event)
     fluid_qc_previous(event)
     if storage.fluid_alert_qc_done then return end
@@ -34,8 +38,8 @@ script.on_event(defines.events.on_tick,function(event)
     for i,name in ipairs{'empty','water','crude-oil','ei-nitrogen-gas','ei-oxygen-gas'} do
         local ordinary=pipe(-40+i*8,-20,nil,name~='empty' and name or nil)
         local detached=pipe(-40+i*8,-10,'ei-insulated-pipe','ei-liquid-nitrogen')
-        local id=ordinary.fluidbox.get_fluid_segment_id(1)
-        local detached_id=detached.fluidbox.get_fluid_segment_id(1)
+        local id=fluid_qc_segment(ordinary)
+        local detached_id=fluid_qc_segment(detached)
         check(id~=detached_id,name..' native networks distinct')
         -- This is the persisted cache left when the representative changes networks
         -- before queued topology repair reaches it. Native fluid state is unmodified.
@@ -59,7 +63,7 @@ script.on_event(defines.events.on_tick,function(event)
     for i,liquid in ipairs{'ei-liquid-nitrogen','ei-liquid-oxygen'} do
         local gas=i==1 and 'ei-nitrogen-gas' or 'ei-oxygen-gas'
         local e=pipe(-30+i*25,20,nil,liquid)
-        local id=e.fluidbox.get_fluid_segment_id(1);local before=reports()
+        local id=fluid_qc_segment(e);local before=reports()
         fluid_qc_owner.qc.audit(runtime,id,event.tick)
         check(e.valid and e.get_fluid_contents()[gas]==50 and not e.get_fluid_contents()[liquid],liquid..' actual conversion')
         check(reports()==before+1,liquid..' actual incident admitted')
@@ -68,12 +72,14 @@ script.on_event(defines.events.on_tick,function(event)
     end
     local ordinary=pipe(20,35,nil,'ei-liquid-nitrogen')
     local data=pipe(21,35,'ei-data-pipe')
-    check(ordinary.fluidbox.get_fluid_segment_id(1)==data.fluidbox.get_fluid_segment_id(1),'mixed carrier native connection')
+    check(fluid_qc_segment(ordinary)==fluid_qc_segment(data),'mixed carrier native connection')
     fluid_qc_owner.touch_entity(ordinary)
     local before=reports()
-    fluid_qc_owner.qc.audit(runtime,ordinary.fluidbox.get_fluid_segment_id(1),event.tick)
+    fluid_qc_owner.qc.audit(runtime,fluid_qc_segment(ordinary),event.tick)
     check(ordinary.valid and not data.valid,'genuine boiloff still destroys incompatible data carrier')
     check(ordinary.get_fluid_count()==0,'destructive path still drains converted gas')
     check(reports()==before+2,'real boiloff and data-carrier failure both reported')
     log('FLUID_NATIVE ALL_COMPLETE '..checks)
+    helpers.write_file('fluid-safety-native.json',helpers.table_to_json{passed=true,checks=checks,engine=script.active_mods.base,
+        limits={'Native fluid/incident admission only; no rendered alert or multiplayer claim'}},false)
 end)

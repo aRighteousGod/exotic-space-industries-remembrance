@@ -1,6 +1,6 @@
 # Base Prototype Libs
 
-Survey source: `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\base\prototypes` from Factorio 2.0.76.
+Survey source: `.factorio-qc/f21/data/base/prototypes`, verified Factorio 2.1.23 build 87750; historical comparison is installed Steam 2.0.77.
 
 This reference tracks installed game files. Do not update its survey version from the hosted Lua API docs alone.
 
@@ -17,6 +17,10 @@ Use Base prototype helper modules when ESIR wants canonical vanilla shapes for d
 - `__base__.prototypes.entity.combinator-pictures`: installs combinator picture globals used by vanilla combinator prototypes. ESIR uses it for orbital combinator/cohort prototype construction.
 
 ## Entity And Effect Helpers
+
+- `entity/assembler-pictures.lua` replaces `assemblerpipes.lua`. The returned `assembler2pipepictures` and `assembler3pipepictures` members are tables to copy, not callable globals.
+- `entity/oil-refinery-animation.lua`, `entity/rocket-silo-crafting-pictures.lua` and `entity/pump-wagon-connector-graphics.lua` are new modules. Pump wagon graphics use `PumpPrototype.wagon_connection_graphics`; this is not a drop-in rename of the removed `pump-connector` helper.
+- `biter-ai-settings.lua` is removed. The old global `crash_trigger` and particle helper `get_shell_particle_shadow_pictures` are absent. Inspect actual call sites before substituting native behavior.
 
 - `entity/sounds.lua`: returns a `sounds` table for deconstruction, robot, explosion, biter, spitter, worm, and many entity loop/open/close sounds.
 - `entity/hit-effects.lua`: returns a `hit_effects` table for generic entities, taller entities, walls, biters, rocks, and flying robots.
@@ -43,7 +47,7 @@ Use these helpers when matching vanilla data shape is more important than ESIR-s
 ## Re-Check Commands
 
 ```powershell
-$base = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\base\prototypes'
+$base = '.factorio-qc/f21/data/base/prototypes'
 rg --no-heading --line-number 'return sounds|return hit_effects|return item_sounds|return item_tints|return fireutil' $base -g '*.lua'
 rg --no-heading --line-number '__base__\.prototypes|__base__/prototypes' exotic-space-industries-remembrance -g '*.lua'
 ```

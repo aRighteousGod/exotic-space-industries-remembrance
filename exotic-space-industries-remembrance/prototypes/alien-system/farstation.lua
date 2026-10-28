@@ -16,7 +16,7 @@ data:extend({
     {
         name = "ei-farstation",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -274,7 +274,7 @@ data:extend({
     {
         name = "ei-farstation-repair",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients = {
             {type = "item", name = "ei-sus-plating", amount = 10},
@@ -291,7 +291,7 @@ data:extend({
     {
         name = "ei-farstation",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients = {
             {type = "item", name = "ei-odd-plating", amount = 100},

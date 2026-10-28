@@ -103,7 +103,7 @@ local function make_recipe(name, category, energy_required, ingredients, results
     return {
         type = "recipe",
         name = name,
-        category = category,
+        categories = {category},
         energy_required = energy_required,
         ingredients = ingredients,
         results = results,
@@ -276,8 +276,8 @@ local ammo_defs = {
         payload_category = "chemistry",
         payload_ingredients = {
             {type = "item", name = "sulfur", amount = 4},
-            {type = "fluid", name = "ei-nitric-acid", amount = 20},
-            {type = "fluid", name = "ei-bio-oil", amount = 20},
+            {type = "fluid", name = "ei-nitric-acid", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-bio-oil", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-ceramic", amount = 1},
         },
         payload_icons = {
@@ -331,7 +331,7 @@ local ammo_defs = {
         sticker_name = "ei-oxyfluoride-ammo-sticker",
         payload_category = "chemistry",
         payload_ingredients = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 15},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-fluorite", amount = 2},
             {type = "item", name = "ei-ceramic", amount = 1},
         },
@@ -359,7 +359,7 @@ local ammo_defs = {
         sticker_name = "ei-morphium-ammo-sticker",
         payload_category = "chemistry",
         payload_ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 40},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-fluorite", amount = 1},
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
         },
@@ -388,7 +388,7 @@ local ammo_defs = {
         sticker_name = "ei-hexafluoride-ammo-sticker",
         payload_category = "chemistry",
         payload_ingredients = {
-            {type = "fluid", name = "ei-uranium-hexafluorite", amount = 20},
+            {type = "fluid", name = "ei-uranium-hexafluorite", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-lead-ingot", amount = 2},
             {type = "item", name = "ei-ceramic", amount = 1},
         },

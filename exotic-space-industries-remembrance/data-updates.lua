@@ -6,6 +6,8 @@
 
 ei_mod.stage = "data-updates"
 ei_lib = require("lib/lib")
+require("lib/recycling-policy").restore_initial()
+require("lib/recipe-routing").apply_native_routes()
 
 --====================================================================================================
 --CONTENT UPDATES
@@ -71,3 +73,4 @@ require("scripts/data-updates/teslas-legacy")
 require("scripts/data-updates/steampunk-lamp")
 require("scripts/data-updates/repair-turret")
 require("scripts/data-updates/machine-status-lights")
+require("scripts/data-updates/rigor-crystal-returns")

@@ -47,12 +47,33 @@ The dispatcher supplies `event.tick` and its service interval to step 16. Fuel r
 
 Build/clone/destruction registration maintain inventory. Initialization/configuration rediscover live turrets and ghosts, synchronize force modifiers, and restore ordinary turrets when adaptation is disabled. Blueprints normalize variant names to the ordinary turret. Safe replacement preserves settings, quality, health/statistics, priority targets, indexed fluids, pipe connections and circuit wires; rollback retains the original entity and restores connected fluid state. Open GUIs defer replacement.
 
+In Factorio 2.1, `get_fluid(index)` is the entity's local storage; the connected
+segment is read separately with `get_fluid_segment_fluid(index)`. A transaction
+snapshots the entire connected supply and the separate private firing buffer.
+It restores segments with `set_fluid_segment_fluid` and private buffers with
+`set_fluid`, after removing either the source on commit or the candidate on
+rollback. Local shares redistribute during native overlapping-entity changes;
+copying those shares alone can duplicate fluid. Native checks compare physical
+totals across connected peers, rather than expect each peer's local read to
+repeat the whole segment volume.
+
 Creation-order cleanup is event-only: newest recognized stickers replace prior recognized stickers; different recognized ground-fire types within one tile compete, while equal types coexist. Acid/tree fire are outside this weapon-fire catalog. Native refueling is not a new creation event.
 
 <a id="verification"></a>
 ## Verification and maintenance
 
-Source inspection only. Reuse `scripts/invoke-flamethrower-fuels-qc.ps1` and `scripts/qc/flamethrower-fuels/README.md`, including transition, fluid-matrix, overlap, and rollback fixtures. Verify both startup modes, private-buffer versus supply disagreement, same-tick different-fire impacts, replacement failure, and save/reload with pending retries.
+Exact 2.1.23 native acceptance passes 51 enabled and 53 disabled checks, all 110
+turret/fuel firing combinations, and an actual populated On/Off/On save sequence.
+The forced rollback occurs after candidate fluid copy and verifies seven units
+of connected diesel at 60 degrees C plus five units in the private firing buffer.
+State, circuit wires, targeting priorities, quality, construction/mining, clone,
+rotation, blueprint normalization and idle cleanup are included. See the
+[upgrade synopsis](../handoffs/factorio-2.1/UPGRADE_SYNOPSIS.md#flamethrower-transactions)
+for exact receipts and remaining limits. Use the version-pinned
+`scripts/qc/factorio-2.1/stage_flame.py` entry point documented in the fixture
+README. The old PowerShell runner is historical 2.0 tooling. Same-tick fire
+overlap, native visual inspection, multiplayer and representative performance
+remain separate checks; the firing matrix does not establish them.
 
 <a id="rebuild-reporting"></a>
 ## Rebuild activity reporting

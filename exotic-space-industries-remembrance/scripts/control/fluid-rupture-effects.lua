@@ -624,19 +624,19 @@ local function collect_nearby_entities(entity, radius)
 end
 
 local function get_connected_fluid_owners(entity)
-    if not (entity and entity.valid and entity.fluidbox and #entity.fluidbox > 0) then
+    if not (entity and entity.valid and entity.fluids_count > 0) then
         return {}
     end
 
     local owners = {}
     local seen = {}
-    for index = 1, #entity.fluidbox do
+    for index = 1, entity.fluids_count do
         local ok, connections = pcall(function()
-            return entity.fluidbox.get_connections(index)
+            return entity.get_fluid_box_neighbours(index)
         end)
         if ok and connections then
             for _, connection in pairs(connections) do
-                local owner = connection and connection.owner or nil
+                local owner = connection and connection.entity or nil
                 local key = get_entity_visit_key(owner)
                 if owner and owner.valid and key and not seen[key] then
                     seen[key] = true
@@ -932,7 +932,7 @@ local function build_damage_rings(entity, nearby_entities, ring_count, explosion
 end
 
 local function build_pair_child_jobs(entity, style, source_force_name, pair_fire_name, platform_pipe_tile_damage, explosion_damage, mode, surface_context, spec)
-    if spec.allow_pipeline_fire == false or entity.type ~= "pipe-to-ground" or not entity.neighbours then
+    if spec.allow_pipeline_fire == false or entity.type ~= "pipe-to-ground" then
         return {}
     end
 
@@ -943,13 +943,12 @@ local function build_pair_child_jobs(entity, style, source_force_name, pair_fire
         pair_explosion_name = get_contextual_explosion_name(spec.effect_family, spec.carrier_class, "small", 0.95) or style.pair_explosion_name
     end
 
-    for _, neighbour_group in pairs(entity.neighbours) do
-        if neighbour_group and neighbour_group.object_name == "LuaEntity" then
-            neighbour_group = {neighbour_group}
-        end
+    for index = 1, entity.fluids_count do
+        local neighbour_group = entity.get_fluid_box_neighbours(index)
 
         if type(neighbour_group) == "table" then
-            for _, neighbour in pairs(neighbour_group) do
+            for _, connection in pairs(neighbour_group) do
+                local neighbour = connection.entity
                 if neighbour and neighbour.valid and neighbour.type == "pipe-to-ground" then
                     local ring = {
                         center_entities = {{name = pair_explosion_name}},

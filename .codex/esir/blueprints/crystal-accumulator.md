@@ -32,6 +32,11 @@ The staggered dispatcher budgets whole surface passes; a separate gated every-ti
 
 Registration reconciles Gaia/base shells immediately. Mining handlers substitute the appropriate carried husk state; repair reintroduces a live shell. Destruction, platform state changes, selection, alternate area selection, GUI close, and player departure invalidate only the relevant records/UI. Init/configuration rebuild derives live membership and queues from world state. Preserve instability across ordinary shell swaps and the explicitly separate repair reset.
 
+Connector enumeration passes the boolean directly to the bound native method.
+The core electric-energy-interface bodies have no native circuit connectors;
+the defensive capture/restore adapter does not grant them circuit capability.
+Native shell-custody evidence must distinguish this from actual wired-entity tests.
+
 <a id="verification"></a>
 ## Verification contract
 

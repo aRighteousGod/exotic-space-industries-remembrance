@@ -1,3 +1,15 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: beacon prototypes and native replacement declarations
+-- loaded_by: ESIR prototype aggregators during data stage
+-- cadence: data stage only
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: prototype reload
+--==============================================================================
+-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
 ei_data = require("lib/data")
 
 --====================================================================================================
@@ -26,8 +38,8 @@ data:extend({
     {
         name = "ei-copper-beacon",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 1,
         ingredients =
         {
@@ -46,7 +58,7 @@ data:extend({
     {
         name = "ei-copper-beacon_slave",
         type = "recipe",
-        category = "ei-copper-beacon_slave",
+        categories = {"ei-copper-beacon_slave"},
         energy_required = 1,
         ingredients = {},
         results = {},
@@ -81,7 +93,7 @@ data:extend({
         type = "beacon",
         icon = ei_graphics_item_path.."copper-beacon.png",
         icon_size = 64,
-        flags = {"player-creation","placeable-neutral","not-upgradable"},
+        flags = {"player-creation","placeable-neutral"},
         max_health = 500,
         corpse = "big-remnants",
         dying_explosion = "beacon-explosion",
@@ -89,10 +101,9 @@ data:extend({
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
         map_color = ei_data.colors.assembler,
         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
-        --fast_replaceable_group = "ei-nitrogen-beacon",
+        fast_replaceable_group = "ei-nitrogen-beacon",
         heating_energy = "200kW",
-        --NSB not compatible with upgrades atp
-        --next_upgrade = "ei-iron-beacon",
+        next_upgrade = "ei-iron-beacon",
         minable = {
             mining_time = 1,
             result = "ei-copper-beacon",

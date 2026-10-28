@@ -38,8 +38,8 @@ if mods["lignumis"] then
   ei_lib.raw.recipe['ei-dark-age-tech'].enabled = true
   ei_lib.raw.recipe['lignumis-dark-age'].enabled = true
   
-  ei_lib.raw.item.wood.fuel_category = "chemical"
-  ei_lib.raw.item.lumber.fuel_category = "chemical"
+  ei_lib.raw.item.wood.fuel_categories = {"chemical"}
+  ei_lib.raw.item.lumber.fuel_categories = {"chemical"}
   
   ei_lib.raw.item.lumber.place_as_tile = table.deepcopy(data.raw.item.wood.place_as_tile)
   ei_lib.raw.item.wood.place_as_tile = nil
@@ -49,7 +49,7 @@ if mods["lignumis"] then
       {
         name = "ei-dark-age-lab-lignumis",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = ei_lib.raw.recipe["ei-dark-age-lab"].energy_required*1.25,
         ingredients =
         {
@@ -65,7 +65,7 @@ if mods["lignumis"] then
     {
         name = "ei-burner-mining-drill-lignumis",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = ei_lib.raw.recipe["burner-mining-drill"].energy_required*1.25,
         ingredients =
         {
@@ -82,7 +82,7 @@ if mods["lignumis"] then
     {
         name = "ei-mechanical-inserter-lignumis",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = ei_lib.raw.recipe["ei-mechanical-inserter"].energy_required*1.25, --lefty loosey
         ingredients =
         {
@@ -97,7 +97,7 @@ if mods["lignumis"] then
     {
         name = "ei-burner-inserter-lignumis",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -152,7 +152,7 @@ if mods["lignumis"] then
       end
     end
   ei_lib.raw.recipe["molten-gold"].results[2] = {
-    type="item",name="ei-slag",amount_min=8,amount_max=12,probability=0.33,ignored_by_stats=12
+    type="item",name="ei-slag",amount_min=8,amount_max=12,independent_probability = 0.33,ignored_by_stats=12
 }
  local gp = ei_lib.raw.recipe["gold-plate"]
   ei_lib.raw.recipe["gold-plate"].ingredients = {
@@ -160,7 +160,7 @@ if mods["lignumis"] then
 }
   ei_lib.raw.recipe["gold-plate"].results = {
     {type="item",name="gold-plate",amount=1},
-    {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,ignored_by_stats=2}
+    {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.1,ignored_by_stats=2}
 }
   ei_lib.raw.recipe["gold-plate"] = {
     icon = Lignumis.graphics .. "icons/gold-plate.png",
@@ -178,10 +178,10 @@ if mods["lignumis"] then
     {
         name = "ei-cast-gold-plate",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 0.5,
         ingredients = {
-            {type = "fluid", name = "ei-molten-gold", amount = 10},
+            {type = "fluid", name = "ei-molten-gold", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "gold-plate", amount = 1},

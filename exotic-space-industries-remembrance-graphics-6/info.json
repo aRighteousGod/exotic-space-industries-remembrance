@@ -1,12 +1,12 @@
 {
     "name": "exotic-space-industries-remembrance-graphics-6",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "title": "Exotic Space Industries: Remembrance Graphics 6",
     "author": "aRighteousGod",
-    "factorio_version": "2.0",
+    "factorio_version": "2.1",
     "license": "GPL-3.0-or-later",
     "description": "Minigun, acidthrower, A.S.H. Sentry, sweeping radar, ANISETRON, Singularity Lance upgrade, spider research and extinguisher graphics, plus ANISETRON firing audio, for Exotic Space Industries: Remembrance.",
     "dependencies": [
-        "base >= 2.0.0"
+        "base >= 2.1.23"
     ]
 }

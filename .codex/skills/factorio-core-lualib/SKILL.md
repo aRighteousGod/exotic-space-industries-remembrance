@@ -9,11 +9,13 @@ Use this skill to reuse Factorio's bundled Lua helpers intentionally instead of 
 
 For importable vanilla prototype modules under `data/base`, `data/space-age`, `data/quality`, or `data/elevated-rails`, use [`factorio-vanilla-prototype-libs`](../factorio-vanilla-prototype-libs/SKILL.md) instead.
 
-The current survey was taken from local Factorio 2.0.76:
+The current survey uses the verified full Factorio 2.1.23 build 87750 under
+`.factorio-qc/f21`. The Steam 2.0.77 installation remains the historical comparison.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task doctor
-Get-ChildItem 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\core\lualib' -File
+& .\.factorio-qc\f21\bin\x64\factorio.exe --version
+Get-ChildItem '.factorio-qc/f21/data/core/lualib' -File
 ```
 
 This survey follows the installed game files, not the hosted `lua-api.factorio.com/latest` docs. Re-run `factorio.exe --version` and resurvey `data\core\lualib` before bumping the recorded version.

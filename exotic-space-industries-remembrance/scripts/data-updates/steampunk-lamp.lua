@@ -166,10 +166,10 @@ data:extend({
 	{
 		name = "ei-steampunk-lamp-running",
 		type = "recipe",
-		category = "ei-steampunk-lamp",
+		categories = {"ei-steampunk-lamp"},
 		energy_required = 60,
 		ingredients = {
-			{ type = "fluid", name = "ei-kerosene", amount = 2 },
+            { type = "fluid", name = "ei-kerosene", amount = 2 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {},
 		enabled = false,

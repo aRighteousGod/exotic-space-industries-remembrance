@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-exchanger",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -178,15 +178,15 @@ data:extend({
     {
         name = "ei-coolant-exchange",
         type = "recipe",
-        category = "ei-exchanger",
+        categories = {"ei-exchanger"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-hot-coolant", amount = 25},
-            {type = "fluid", name = "water", amount = 250},
+            {type = "fluid", name = "ei-hot-coolant", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "water", amount = 250, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-cold-coolant", amount = 25},
-            {type = "fluid", name = "ei-critical-steam", amount = 25},
+            {type = "fluid", name = "ei-cold-coolant", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-critical-steam", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         hide_from_player_crafting = true,
@@ -196,15 +196,15 @@ data:extend({
     {
         name = "ei-coolant-exchange-steam",
         type = "recipe",
-        category = "ei-exchanger",
+        categories = {"ei-exchanger"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-hot-coolant", amount = 3},
-            {type = "fluid", name = "water", amount = 120},
+            {type = "fluid", name = "ei-hot-coolant", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "water", amount = 120, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-cold-coolant", amount = 3},
-            {type = "fluid", name = "steam", amount = 1200, temperature=500},
+            {type = "fluid", name = "ei-cold-coolant", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "steam", amount = 1200, temperature=500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         hide_from_player_crafting = true,

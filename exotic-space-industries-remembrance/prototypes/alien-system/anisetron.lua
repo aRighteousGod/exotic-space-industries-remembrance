@@ -226,7 +226,7 @@ data:extend({
         },
     },
     {
-        type = "recipe", name = name, category = "crafting",
+        type = "recipe", name = name, categories = {"crafting"},
         energy_required = 120, enabled = false,
         surface_conditions = {{property = "gravity", min = 15.5, max = 15.5}},
         ingredients = {
@@ -243,7 +243,7 @@ data:extend({
         main_product = name, always_show_made_in = true,
     },
     {
-        type = "recipe", name = ammo_name, category = "crafting",
+        type = "recipe", name = ammo_name, categories = {"crafting"},
         energy_required = 10, enabled = false,
         ingredients = {
             {type = "item", name = "ei-high-energy-crystal", amount = 10},

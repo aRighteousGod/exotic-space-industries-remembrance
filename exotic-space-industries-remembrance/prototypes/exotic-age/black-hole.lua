@@ -18,7 +18,7 @@ data:extend({
     {
         name = "ei-black-hole",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 100,
         ingredients =
         {
@@ -186,7 +186,7 @@ data:extend({
     {
         name = "ei-energy-injector-pylon-running",
         type = "recipe",
-        category = "ei-energy-injector-pylon",
+        categories = {"ei-energy-injector-pylon"},
         energy_required = 1000,
         ingredients = {},
         results = {},
@@ -214,7 +214,7 @@ data:extend({
     {
         name = "ei-energy-injector-pylon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients =
         {
@@ -243,7 +243,7 @@ data:extend({
     {
         name = "ei-energy-extractor-pylon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients =
         {

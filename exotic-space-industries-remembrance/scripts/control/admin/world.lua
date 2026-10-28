@@ -559,22 +559,23 @@ local function fill_fluid(actor,args)
     if entity.fluids_count==0 then return false,"The selected entity has no fluid storage." end
     local temperature=proto.default_temperature
     local inserted=0
-    local box_count=#entity.fluidbox
+    local ordinary={}
+    for slot=1,entity.fluids_count do
+        if entity.get_fluid_box_prototype(slot) then ordinary[#ordinary+1]=slot end
+    end
     local index=args.fluidbox_index and number(args.fluidbox_index,1,entity.fluids_count,true) or nil
     if args.fluidbox_index and not index then return false,"Fluid storage index is invalid." end
-    if index and index>box_count then return false,"Use automatic insertion for this special fluid storage." end
-    if not index and box_count>0 then
-        for candidate=1,box_count do
+    if index and not entity.get_fluid_box_prototype(index) then return false,"Use automatic insertion for this special fluid storage." end
+    if not index and #ordinary>0 then
+        for _,candidate in ipairs(ordinary) do
             local current=entity.get_fluid(candidate)
-            local locked=entity.fluidbox.get_locked_fluid(candidate)
-            local filter=entity.fluidbox.get_filter(candidate)
+            local locked=entity.has_fluid_segment(candidate) and entity.get_fluid_segment_filter(candidate)
+            local filter=entity.get_fluid_filter(candidate)
             local candidate_temperature=current and current.temperature or proto.default_temperature
-            if not current and filter then candidate_temperature=math.max(filter.minimum_temperature,math.min(filter.maximum_temperature,candidate_temperature)) end
             local compatible=(not current or current.name==proto.name)
-                and (not locked or locked==proto.name)
-                and (not filter or (filter.name==proto.name
-                    and candidate_temperature>=filter.minimum_temperature and candidate_temperature<=filter.maximum_temperature))
-            if compatible and entity.fluidbox.get_capacity(candidate)>(current and current.amount or 0) then
+                and (not locked or locked.name==proto.name)
+                and (not filter or filter.name==proto.name)
+            if compatible and entity.get_fluid_capacity(candidate)>(current and current.amount or 0) then
                 index=candidate;temperature=candidate_temperature;break
             end
         end
@@ -583,19 +584,16 @@ local function fill_fluid(actor,args)
     if index then
         local current=entity.get_fluid(index)
         if current and current.name~=proto.name then return false,"The storage contains another fluid." end
-        local locked=entity.fluidbox.get_locked_fluid(index)
-        local filter=entity.fluidbox.get_filter(index)
+        local locked=entity.has_fluid_segment(index) and entity.get_fluid_segment_filter(index)
+        local filter=entity.get_fluid_filter(index)
         temperature=current and current.temperature or proto.default_temperature
-        if not current and filter then temperature=math.max(filter.minimum_temperature,math.min(filter.maximum_temperature,temperature)) end
-        if (locked and locked~=proto.name) or (filter and (filter.name~=proto.name
-            or temperature<filter.minimum_temperature or temperature>filter.maximum_temperature)) then
+        if (locked and locked.name~=proto.name) or (filter and filter.name~=proto.name) then
             return false,"The requested fluid is incompatible with the storage filter."
         end
         local before=current and current.amount or 0
-        local addition=math.min(amount,math.max(0,entity.fluidbox.get_capacity(index)-before))
+        local addition=math.min(amount,math.max(0,entity.get_fluid_capacity(index)-before))
         if addition<=0 then return false,"The selected storage is full." end
-        local result=entity.set_fluid(index,{name=proto.name,amount=before+addition,temperature=temperature})
-        inserted=math.max(0,(result and result.amount or 0)-before)
+        inserted=entity.add_fluid(index,{name=proto.name,amount=addition,temperature=temperature})
     else
         for slot=1,entity.fluids_count do
             local current=entity.get_fluid(slot)

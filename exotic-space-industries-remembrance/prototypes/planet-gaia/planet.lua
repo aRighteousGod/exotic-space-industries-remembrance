@@ -126,6 +126,7 @@ data:extend({
       ["solar-power"] = 45,
       pressure = 1600,
       gravity = 15.5,
+      ["robot-energy-usage"] = 0.96875, -- preserve 2.0's 100 * gravity / pressure
     },
     asteroid_spawn_influence = 1,
     -- Gaia owns its vanilla metallic-carbonic-oxide route.
@@ -201,140 +202,140 @@ data:extend({
     type = "ambient-sound",
     name = "paradise-found",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia001_synthwave_4k.ogg"
   },
   {
     type = "ambient-sound",
     name = "paradise-found2",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia002_synthwave_4k.ogg"
   },
   {
     type = "ambient-sound",
     name = "paradise-found3",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia003_synthwave_4k.ogg"
   },
   {
     type = "ambient-sound",
     name = "choir",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiachoir.ogg"
   },
   {
     type = "ambient-sound",
     name = "ambient1",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiaambient1.ogg"
   },
   {
     type = "ambient-sound",
     name = "arrow",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiaarrow.ogg"
   },
   {
     type = "ambient-sound",
     name = "omni-domina",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiaomnidomina.ogg"
   },
   {
     type = "ambient-sound",
     name = "soliloquy",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiasoliloquy.ogg"
   },
   {
     type = "ambient-sound",
     name = "anti-entity",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia_anti_entity.ogg"
   },
   {
     type = "ambient-sound",
     name = "cathedral",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiacathedral.ogg"
   },
   {
     type = "ambient-sound",
     name = "last-angel",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia_fato_shadow_-_last_angel.ogg"
   },
   {
     type = "ambient-sound",
     name = "desert-of-dreams",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia_caryil_the_desert_of_dreams_chill_jungle_ambient_mix.ogg"
   },
   {
     type = "ambient-sound",
     name = "space",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia_space.ogg"
   },
   {
     type = "ambient-sound",
     name = "underwater-theme",
     track_type = "main-track",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia_underwater_theme_ii.ogg"
   },
   {
     type = "ambient-sound",
     name = "a-bad-feeling",
     track_type = "interlude",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia1_menu_master.ogg"
   },
   {
     type = "ambient-sound",
     name = "the-swamp",
     track_type = "interlude",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia2_quiet_1_master.ogg"
   },
   {
     type = "ambient-sound",
     name = "the-tower",
     track_type = "interlude",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia3_quiet_2_master.ogg"
   },
   {
     type = "ambient-sound",
     name = "dark-room",
     track_type = "interlude",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia4_tension_1_master.ogg"
   },
   {
     type = "ambient-sound",
     name = "awakening-of-the-monster",
     track_type = "interlude",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaia5_threat_1_master.ogg"
   },
   {
     type = "ambient-sound",
     name = "eternal-terror",
     track_type = "interlude",
-    planet = "gaia",
+    planets = {"gaia"},
     sound = ei_soundtrack_path_2.."gaiadova_eternal_terror_master.ogg"
   },
   {

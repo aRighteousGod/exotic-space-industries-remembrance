@@ -191,12 +191,18 @@ function gaia_mapgen_data.get_map_gen_settings(preserved)
     if preserved and not controls[enemy_config.gaia_control] and controls.electric_enemies then
         settings.autoplace_controls[enemy_config.gaia_control] = copy_value(controls.electric_enemies)
     end
-    -- The final prototype owns current noise aliases, including dependency wiring.
+    -- Resolve the saved revision before filling defaults. Reforge must not acquire
+    -- modern enemy aliases merely because the current planet prototype has them.
     local planet = prototypes.space_location.gaia
     local defaults = planet and planet.map_gen_settings
+    local properties = copy_value(preserved and preserved.property_expression_names or {})
+    local revision = enemy_config.generation_revision(properties, "gaia",
+        preserved and enemy_config.legacy_revision or enemy_config.native_revision)
+    enemy_config.merge_generation_aliases(properties, defaults and defaults.property_expression_names or {}, "gaia", revision)
     for key, value in pairs(defaults and defaults.property_expression_names or {}) do
-        settings.property_expression_names[key] = value
+        if properties[key] == nil then properties[key] = value end
     end
+    for key, value in pairs(properties) do settings.property_expression_names[key] = value end
 
     return settings
 end

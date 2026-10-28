@@ -20,7 +20,9 @@ local function replaced(event)
     for _,record in ipairs(storage.saved_matrix or {}) do if record.id==event.vehicle_id then record.entity=event.entity end end
 end
 script.on_load(function()
-    loaded=true
+    -- A tick-zero engine seed has constructed the vehicles but has not yet
+    -- recorded the settled fingerprint; only an accepted checkpoint is a replay.
+    loaded=storage.saved_matrix and storage.saved_matrix[1] and storage.saved_matrix[1].fingerprint~=nil
     script.on_event(remote.call(api,"get_replacement_event"),replaced)
 end)
 script.on_init(function()

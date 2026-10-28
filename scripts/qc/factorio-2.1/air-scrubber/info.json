@@ -1,0 +1,8 @@
+{
+  "name": "esir-qc-air-scrubber",
+  "version": "1.0.0",
+  "title": "ESIR Air Scrubber state acceptance fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.1",
+  "dependencies": ["base >= 2.1.23", "exotic-space-industries-remembrance >= 1.4.0"]
+}

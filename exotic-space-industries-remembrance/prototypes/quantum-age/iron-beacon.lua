@@ -1,3 +1,15 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: beacon prototypes and native replacement declarations
+-- loaded_by: ESIR prototype aggregators during data stage
+-- cadence: data stage only
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: prototype reload
+--==============================================================================
+-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
 ei_data = require("lib/data")
 
 --====================================================================================================
@@ -26,8 +38,8 @@ data:extend({
     {
         name = "ei-iron-beacon",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 6,
         ingredients =
         {
@@ -46,7 +58,7 @@ data:extend({
     {
         name = "ei-iron-beacon_slave",
         type = "recipe",
-        category = "ei-iron-beacon_slave",
+        categories = {"ei-iron-beacon_slave"},
         energy_required = 1,
         ingredients = {},
         results = {},
@@ -81,14 +93,14 @@ data:extend({
         type = "beacon",
         icon = ei_graphics_item_path.."iron-beacon.png",
         icon_size = 64,
-        flags = {"player-creation","placeable-neutral","not-upgradable"},
+        flags = {"player-creation","placeable-neutral"},
         max_health = 500,
         corpse = "big-remnants",
         dying_explosion = "beacon-explosion",
         collision_box = {{-1.3,-1.3},{1.3,1.3}},
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
         map_color = ei_data.colors.assembler,
-        --fast_replaceable_group = "ei-nitrogen-beacon",
+        fast_replaceable_group = "ei-nitrogen-beacon",
         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
         heating_energy = "200kW",
         minable = {

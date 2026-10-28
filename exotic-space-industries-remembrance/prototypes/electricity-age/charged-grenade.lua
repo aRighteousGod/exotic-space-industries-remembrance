@@ -8,7 +8,7 @@ data:extend({
     {
         name = "ei-charged-grenade",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "ei-energy-crystal", amount = 2},

@@ -252,7 +252,7 @@ local function make_helper(root,record,kind)
     local helper=entity.surface.create_entity{name=name,position=entity.position,force=entity.force,
         quality="normal",create_build_effect_smoke=false}
     if not helper then return false end
-    helper.destructible=false;helper.minable=false;helper.operable=false
+    helper.destructible=false;helper.minable_flag=false;helper.operable=false
     record[kind]=helper
     local registration=script.register_on_object_destroyed(helper)
     record[kind.."_registration"]=registration

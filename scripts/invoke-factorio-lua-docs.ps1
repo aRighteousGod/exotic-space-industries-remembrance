@@ -5,9 +5,9 @@ param(
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [ValidateSet('installed', 'hosted')]
-    [string]$Source = 'installed',
+    [string]$Source = 'hosted',
     [ValidatePattern('^\d+\.\d+\.\d+$')]
-    [string]$Version = '2.0.77',
+    [string]$Version = '2.1.23',
     [string]$DocsRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html',
     [string]$Query,
     [ValidateSet('runtime', 'prototype', 'auxiliary', 'wiki', 'all')]

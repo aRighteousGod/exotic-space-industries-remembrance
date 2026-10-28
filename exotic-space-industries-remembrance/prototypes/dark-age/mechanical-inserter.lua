@@ -19,7 +19,7 @@ data:extend({
     {
         name = "ei-mechanical-inserter",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 8, --winding the springs
         ingredients =
         {
@@ -45,7 +45,7 @@ data:extend({
     {
         name = "ei-mechanical-long-inserter",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 16, --winding the steel springs
         ingredients =
         {

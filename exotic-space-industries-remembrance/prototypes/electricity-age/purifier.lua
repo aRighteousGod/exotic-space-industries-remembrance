@@ -167,7 +167,7 @@ data:extend({
     {
         name = "ei-purifier",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -404,14 +404,14 @@ data:extend({
     {
         name = "ei-gold-chunk-purifier",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "water", amount = 10},
+            {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-gold-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 10,ignored_by_stats=10},
+            {type = "fluid", name = "ei-dirty-water", amount = 10,ignored_by_stats=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-gold", amount = 5},
         },
         always_show_made_in = true,
@@ -424,14 +424,14 @@ data:extend({
     {
         name = "ei-lead-chunk-purifier",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "water", amount = 10},
+            {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-lead-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 10,ignored_by_stats=10},
+            {type = "fluid", name = "ei-dirty-water", amount = 10,ignored_by_stats=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-lead", amount = 5},
         },
         always_show_made_in = true,
@@ -444,14 +444,14 @@ data:extend({
     {
         name = "ei-iron-chunk-purifier",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "water", amount = 5},
+            {type = "fluid", name = "water", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-iron-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5,ignored_by_stats=5},
+            {type = "fluid", name = "ei-dirty-water", amount = 5,ignored_by_stats=5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-iron", amount = 5},
         },
         always_show_made_in = true,
@@ -464,14 +464,14 @@ data:extend({
     {
         name = "ei-copper-chunk-purifier",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "water", amount = 5},
+            {type = "fluid", name = "water", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-copper-chunk", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5,ignored_by_stats=5},
+            {type = "fluid", name = "ei-dirty-water", amount = 5,ignored_by_stats=5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-copper", amount = 5},
         },
         always_show_made_in = true,
@@ -484,14 +484,14 @@ data:extend({
     {
         name = "ei-copper-ingot-pure-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-pure-copper", amount = 1},
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -501,14 +501,14 @@ data:extend({
     {
         name = "ei-iron-ingot-pure-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-pure-iron", amount = 1},
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -518,14 +518,14 @@ data:extend({
     {
         name = "ei-lead-ingot-pure-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-pure-lead", amount = 2},
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -535,14 +535,14 @@ data:extend({
     {
         name = "ei-gold-ingot-pure-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-pure-gold", amount = 2},
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
-            {type ="item", name="ei-slag",amount_min=1,amount_max=2,probability=0.01,ignored_by_stats=2}
+            {type ="item", name="ei-slag",amount_min=1,amount_max=2,independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -552,14 +552,14 @@ data:extend({
     {
         name = "ei-dirty-water-fluorite",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 100},
+            {type = "fluid", name = "ei-dirty-water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "item", name = "ei-fluorite", amount_min = 1, amount_max=3, probability=0.35},
-            {type = "fluid", name = "water", amount_min = 1,amount_max=10,ignored_by_stats=10}
+            {type = "item", name = "ei-fluorite", amount_min = 1, amount_max=3, independent_probability = 0.35},
+            {type = "fluid", name = "water", amount_min = 1,amount_max=10,ignored_by_stats=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -568,7 +568,7 @@ data:extend({
     {
         name = "ei-dirty-water-fluorite-nitric",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 8,
         icons = {
             {
@@ -583,12 +583,12 @@ data:extend({
             },
         },
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 100},
-            {type = "fluid", name = "ei-nitric-acid", amount = 10},
+            {type = "fluid", name = "ei-dirty-water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-nitric-acid", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max = 20, ignored_by_stats = 20, ignored_by_productivity = 20}
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max = 20, ignored_by_stats = 20, ignored_by_productivity = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -597,7 +597,7 @@ data:extend({
     {
         name = "ei-crushed-lead-sulfuric-extraction",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 6,
         icons = {
             {
@@ -633,11 +633,11 @@ data:extend({
         },
         ingredients = {
             {type = "item", name = "ei-crushed-lead", amount = 10},
-            {type = "fluid", name = "sulfuric-acid", amount = 25},
+            {type = "fluid", name = "sulfuric-acid", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max = 30, ignored_by_stats = 30},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max = 30, ignored_by_stats = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-crushed-slag", amount_min = 4, amount_max = 8, ignored_by_stats = 8},
         },
         always_show_made_in = true,
@@ -649,7 +649,7 @@ data:extend({
     {
         name = "ei-crushed-gold-sulfuric-extraction",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 6,
         icons = {
             {
@@ -684,11 +684,11 @@ data:extend({
         },
         ingredients = {
             {type = "item", name = "ei-crushed-gold", amount = 10},
-            {type = "fluid", name = "sulfuric-acid", amount = 40},
+            {type = "fluid", name = "sulfuric-acid", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "item", name = "ei-fluorite", amount = 1, probability = 0.75},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 20, amount_max = 40, ignored_by_stats = 40},
+            {type = "item", name = "ei-fluorite", amount = 1, independent_probability = 0.75},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 20, amount_max = 40, ignored_by_stats = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-crushed-slag", amount_min = 6, amount_max = 10, ignored_by_stats = 10},
         },
         always_show_made_in = true,
@@ -700,14 +700,14 @@ data:extend({
     {
         name = "ei-irradiated-water-purification",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-irradiated-water", amount = 100},
+            {type = "fluid", name = "ei-irradiated-water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 95},
-            {type = "item", name = "ei-nuclear-waste", amount = 1, probability = 0.25},
+            {type = "fluid", name = "ei-dirty-water", amount = 95, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-nuclear-waste", amount = 1, independent_probability = 0.25},
         },
         always_show_made_in = true,
         enabled = false,
@@ -732,10 +732,10 @@ data:extend({
     {
         name = "ei-dirty-water-vent",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 100},
+            {type = "fluid", name = "ei-dirty-water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
 
@@ -750,10 +750,10 @@ data:extend({
     {
         name = "ei-water-vent",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "water", amount = 100},
+            {type = "fluid", name = "water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
 
@@ -768,10 +768,10 @@ data:extend({
     {
         name = "ei-dirty-water-landfill",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 1000},
+            {type = "fluid", name = "ei-dirty-water", amount = 1000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "landfill", amount = 1},
@@ -785,14 +785,14 @@ data:extend({
     {
         name = "ei-dirty-water-slag",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "water", amount = 5},
+            {type = "fluid", name = "water", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-slag", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5},
+            {type = "fluid", name = "ei-dirty-water", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -803,14 +803,14 @@ data:extend({
     {
         name = "ei-breach-residue-neutralization",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "ei-breach-residue", amount = 5},
-            {type = "fluid", name = "water", amount = 25},
+            {type = "fluid", name = "water", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 25},
+            {type = "fluid", name = "ei-dirty-water", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -821,14 +821,14 @@ data:extend({
     {
         name = "ei-dirty-water-sand",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "water", amount = 5},
+            {type = "fluid", name = "water", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-sand", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount = 5},
+            {type = "fluid", name = "ei-dirty-water", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -841,25 +841,25 @@ data:extend({
         -- Common chunks are guaranteed; rare-metal rolls keep the leaching return loop lossy.
         name = "ei-slag-extraction-morphium",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 6,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 10},
+            {type = "fluid", name = "ei-morphium", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type="item",name="ei-high-energy-crystal",amount=1},
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2,ignored_by_stats=2},
-           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1, amount_max=2,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+           {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
             {type = "item", name = "ei-coal-chunk", amount = 4},
             {type = "item", name = "ei-iron-chunk", amount = 5},
             {type = "item", name = "ei-copper-chunk", amount = 4},
-            {type = "item", name = "ei-gold-chunk", amount = 1, probability = 0.2},
-            {type = "item", name = "ei-lead-chunk", amount = 1, probability = 0.5},
+            {type = "item", name = "ei-gold-chunk", amount = 1, independent_probability = 0.2},
+            {type = "item", name = "ei-lead-chunk", amount = 1, independent_probability = 0.5},
             {type = "item", name = "ei-sulfur-chunk", amount = 3},
-            {type = "item", name = "ei-uranium-chunk", amount = 1, probability = 0.1},
-            {type = "item", name = "ei-neodym-chunk", amount = 1, probability = 0.05},
+            {type = "item", name = "ei-uranium-chunk", amount = 1, independent_probability = 0.1},
+            {type = "item", name = "ei-neodym-chunk", amount = 1, independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -868,22 +868,22 @@ data:extend({
     {
         name = "ei-slag-extraction-nitric",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-nitric-acid", amount = 20},
+            {type = "fluid", name = "ei-nitric-acid", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15,ignored_by_stats=15},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-coal-chunk", amount = 3},
             {type = "item", name = "ei-iron-chunk", amount = 3},
             {type = "item", name = "ei-copper-chunk", amount = 2},
-            {type = "item", name = "ei-gold-chunk", amount = 1, probability = 0.1},
-            {type = "item", name = "ei-lead-chunk", amount = 1, probability = 0.25},
+            {type = "item", name = "ei-gold-chunk", amount = 1, independent_probability = 0.1},
+            {type = "item", name = "ei-lead-chunk", amount = 1, independent_probability = 0.25},
             {type = "item", name = "ei-sulfur-chunk", amount = 2},
-            {type = "item", name = "ei-uranium-chunk", amount = 1, probability = 0.05},
-            {type = "item", name = "ei-neodym-chunk", amount = 1, probability = 0.02},
+            {type = "item", name = "ei-uranium-chunk", amount = 1, independent_probability = 0.05},
+            {type = "item", name = "ei-neodym-chunk", amount = 1, independent_probability = 0.02},
         },
         always_show_made_in = true,
         enabled = false,
@@ -894,22 +894,22 @@ data:extend({
     {
         name = "ei-slag-extraction-sulfuric",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 10,
         ingredients = {
-            {type = "fluid", name = "sulfuric-acid", amount = 25},
+            {type = "fluid", name = "sulfuric-acid", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-slag", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45,ignored_by_stats=45},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 15, amount_max=45,ignored_by_stats=45, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-coal-chunk", amount = 2},
             {type = "item", name = "ei-iron-chunk", amount = 2},
             {type = "item", name = "ei-copper-chunk", amount = 1},
-            {type = "item", name = "ei-gold-chunk", amount = 1, probability = 0.025},
-            {type = "item", name = "ei-lead-chunk", amount = 1, probability = 0.1},
+            {type = "item", name = "ei-gold-chunk", amount = 1, independent_probability = 0.025},
+            {type = "item", name = "ei-lead-chunk", amount = 1, independent_probability = 0.1},
             {type = "item", name = "ei-sulfur-chunk", amount = 1},
-            {type = "item", name = "ei-uranium-chunk", amount = 1, probability = 0.01},
-            {type = "item", name = "ei-neodym-chunk", amount = 1, probability = 0.005},
+            {type = "item", name = "ei-uranium-chunk", amount = 1, independent_probability = 0.01},
+            {type = "item", name = "ei-neodym-chunk", amount = 1, independent_probability = 0.005},
         },
         always_show_made_in = true,
         enabled = false,

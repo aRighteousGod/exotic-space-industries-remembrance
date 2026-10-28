@@ -460,7 +460,7 @@ local function get_real_circuit_connections(entity)
     -- capture/restore pair a stressed crystal would silently sever player wiring
     -- whenever it changed output rung.
     local saved_connections = {}
-    local ok, connectors = pcall(entity.get_wire_connectors, entity, false)
+    local ok, connectors = pcall(entity.get_wire_connectors, false)
     if not ok or type(connectors) ~= "table" then
         return saved_connections
     end

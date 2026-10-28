@@ -58,7 +58,7 @@ data:extend({
     {
         name = "ei-gate",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 60,
         ingredients =
         {
@@ -191,7 +191,7 @@ data:extend({
     {
         name = "ei-gate-receiver",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients =
         {

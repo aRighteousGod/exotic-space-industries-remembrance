@@ -1,0 +1,8 @@
+{
+  "name": "esir-qc-crystal-conservation",
+  "version": "1.0.0",
+  "title": "ESIR crystal conservation acceptance fixture",
+  "author": "ESIR QC",
+  "factorio_version": "2.1",
+  "dependencies": ["base", "space-age", "quality", "exotic-space-industries-remembrance"]
+}

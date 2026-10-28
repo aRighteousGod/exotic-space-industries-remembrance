@@ -91,8 +91,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 0.5, count_min = 1, count_max = 10},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 0.5, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -126,9 +126,9 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 1, count_min = 2, count_max = 10},
-            {item = "ei-gold-chunk", probability = 1, count_min = 1, count_max = 2},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 1, amount_min = 2, amount_max = 10},
+            {type = "item", name = "ei-gold-chunk", independent_probability = 1, amount_min = 1, amount_max = 2},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -162,8 +162,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 0.5, count_min = 1, count_max = 10},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 0.5, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -197,8 +197,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 0.5, count_min = 1, count_max = 10},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 0.5, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -232,8 +232,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 0.5, count_min = 1, count_max = 10},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 0.5, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -267,7 +267,7 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-gold-chunk", probability = 1, count_min = 1, count_max = 4},
+            {type = "item", name = "ei-gold-chunk", independent_probability = 1, amount_min = 1, amount_max = 4},
         },
         minable = {
             mining_time = 0.5,
@@ -301,8 +301,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 0.5, count_min = 1, count_max = 10},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 0.5, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -336,8 +336,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 0.25, count_min = 1, count_max = 10},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 0.25, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -371,9 +371,9 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 1, count_min = 1, count_max = 10},
-            {item = "ei-gold-chunk", probability = 1, count_min = 1, count_max = 4},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 1, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-gold-chunk", independent_probability = 1, amount_min = 1, amount_max = 4},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -407,9 +407,9 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 1, count_min = 1, count_max = 10},
-            {item = "ei-high-energy-crystal", probability = 1, count_min = 1, count_max = 4},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 1, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-high-energy-crystal", independent_probability = 1, amount_min = 1, amount_max = 4},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,
@@ -443,9 +443,9 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         max_health = 20,
         loot = {
-            {item = "ei-alien-resin", probability = 1, count_min = 1, count_max = 10},
-            {item = "ei-energy-crystal", probability = 1, count_min = 1, count_max = 4},
-            {item = "ei-alien-seed", probability = 1},
+            {type = "item", name = "ei-alien-resin", independent_probability = 1, amount_min = 1, amount_max = 10},
+            {type = "item", name = "ei-energy-crystal", independent_probability = 1, amount_min = 1, amount_max = 4},
+            {type = "item", name = "ei-alien-seed", independent_probability = 1, amount = 1},
         },
         minable = {
             mining_time = 0.5,

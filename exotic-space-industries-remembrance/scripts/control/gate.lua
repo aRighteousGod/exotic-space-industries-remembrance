@@ -3748,7 +3748,7 @@ function model.teleport_player(character, gate)
     end
 
     -- teleport player
-    player.teleport({exit.x, exit.y}, exit.surface)
+    ei_lib.teleport_physical_player(player, {exit.x, exit.y}, exit.surface)
 
 end
 

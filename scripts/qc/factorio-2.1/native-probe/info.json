@@ -1,0 +1,8 @@
+{
+  "name": "esir-qc-native-probe",
+  "version": "1.0.0",
+  "title": "ESIR native 2.1 semantic probes",
+  "author": "ESIR QC",
+  "factorio_version": "2.1",
+  "dependencies": ["base", "space-age", "quality", "exotic-space-industries-remembrance"]
+}

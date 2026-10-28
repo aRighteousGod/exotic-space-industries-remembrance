@@ -47,7 +47,7 @@ local mod_entity_base = {
 
 local entity_base = table.deepcopy(data.raw["logistic-container"]["buffer-chest"])
 entity_base['picture'] = mod_entity_base['picture']
-entity_base['animation'] = mod_entity_base['picture']
+entity_base.robot_door.animation = mod_entity_base.picture
 entity_base['name'] = mod_entity_base['name']
 entity_base['minable'] = mod_entity_base['minable']
 entity_base['inventory_size'] = mod_entity_base['inventory_size']
@@ -66,7 +66,7 @@ local item_base = {
 local recipe_base = {
     name = "ei-1x1-container",
     type = "recipe",
-    category = "crafting",
+    categories = {"crafting"},
     energy_required = 1,
     ingredients =
     {
@@ -326,7 +326,7 @@ function ei_containers_lib.make_container(size, typus, animation)
     container.next_upgrade = nil 
     -- animation
     if animation then
-        container.animation = {
+        container.robot_door.animation = {
             layers = {
                 {
                     filename = ei_containers_entity_path..name..typename..".png",
@@ -408,6 +408,7 @@ function ei_containers_lib.make_container(size, typus, animation)
         end
     end
 
+    if container.type == "container" then container.robot_door = nil end
     data:extend({container})
 end
 

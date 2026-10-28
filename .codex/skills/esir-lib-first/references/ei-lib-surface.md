@@ -41,6 +41,12 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 
 ## House Notes
 
+- Recipe fluid helpers retain 2.0 storage sizes under native 2.1 semantics:
+  `recipe_add` supplies input multiplier 1, and `recipe_output_add` supplies
+  output multiplier 2. These fields size storage; they do not change consumed or
+  produced amounts. Inputs use one extra native batch in 2.1. Preserve explicit
+  authored overrides deliberately and verify generated final recipes.
+
 - `startswith` and `starts_with` already both exist. Do not add a third spelling.
 - Follow [runtime development standards](../../esir-dev/references/runtime-development-standards.md) before consolidating hot helpers: mutation, allocation, stage and ordering semantics must match. Current `lerp_color` and `rgb_to_hex` each have one definition.
 - Prefer `ei_lib.raw` or `ei_lib.modify_data_raw` before open-coded `data.raw` mutation when the operation is a shared mutation pattern rather than a one-off prototype tweak.

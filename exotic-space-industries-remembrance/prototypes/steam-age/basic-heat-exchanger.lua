@@ -24,7 +24,7 @@ data:extend({
     {
         name = "ei-basic-heat-exchanger",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 3,
         ingredients =
         {

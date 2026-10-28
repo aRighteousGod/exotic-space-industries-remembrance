@@ -608,8 +608,8 @@ function model.apply_output(black_hole_data)
                     if extractor.energy ~= 0 then
                         extractor.energy = 0
                     end
-                    if extractor.active then
-                        extractor.active = false
+                    if not extractor.disabled_by_script then
+                        extractor.disabled_by_script = true
                     end
                 else
                     cache_dirty = true
@@ -638,8 +638,8 @@ function model.apply_output(black_hole_data)
                 power_out = 0
             end
 
-            if not extractor.active then
-                extractor.active = true
+            if extractor.disabled_by_script then
+                extractor.disabled_by_script = false
             end
         else
             cache_dirty = true

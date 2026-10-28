@@ -13,6 +13,7 @@ including Gaia electric size 5. Combat difficulty remains a separate system.
 - [planet-enemies-config.lua](../../../exotic-space-industries-remembrance/lib/planet-enemies-config.lua)
 - [planet-enemies.lua (data)](../../../exotic-space-industries-remembrance/scripts/data-final-updates/planet-enemies.lua)
 - [planet-enemies.lua (runtime)](../../../exotic-space-industries-remembrance/scripts/control/planet-enemies.lua)
+- [legacy-electric-noise.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/legacy-electric-noise.lua)
 
 <a id="generation"></a>
 ## Native generation
@@ -47,7 +48,7 @@ spawning but retains their force, appearance and egg loot.
 Positive controls retain native placement meaning; there is no replacement recipe.
 
 <a id="seed-compatibility"></a>
-## Factorio 2.0 seed compatibility
+## Surface generation revisions and Factorio 2.0 seed compatibility
 
 Factorio 2.0.77 incorrectly shares spot-noise state between expressions with equal
 placement seeds even when their density/radius differs. Nauvis ordinary, Arachnid,
@@ -61,10 +62,32 @@ existing generated terrain is untouched. Ordinary/Cold/Explosive aliases are
 Nauvis-specific so the original Space Age distributions remain unchanged.
 Upgrades add absent native aliases but retain custom saved probability aliases.
 
-This is the user-approved compatibility tradeoff, not an engine-independent
-placement redesign. Revisit on Factorio 2.1 with the recorded multi-seed default,
-single-family and mixed-family matrix before changing saved-map behavior. See
-[the upgrade note](../REVISIT_NOTES.md) and [upstream report](https://forums.factorio.com/131528).
+Factorio 2.1 fixes the shared-state defect. New surfaces select native probability
+clones made before the seed substitution; all six family controls remain independent.
+Existing surfaces retain the legacy expressions. The valid noise-property alias
+`ei-enemy-generation-revision` records `ei-enemy-generation-legacy20` or
+`ei-enemy-generation-native21` in map-generation settings, surviving native map
+exchange and Gaia reforge. An explicit marker wins; exact old aliases identify an
+imported old map; a 2.0/pre-1.4 configuration transition supplies the legacy fallback.
+Custom probability/radius/frequency aliases are preserved by exact ownership checks.
+
+Electric Flying Enemies 0.1.9's generic closure remains frozen under ESIR identities
+for existing Fulgora surfaces, retaining seed 654733, the original spot/blob parameters
+and the two spawner offsets 46865/46866. New Fulgora uses the dependency's native 2.1
+island distribution. Both Gaia revisions use an explicit generic electric profile,
+with independent Gaia controls and authored size 5, instead of importing Fulgora's
+new island-mask dependencies. Symbolic `ee_enemy_base_*` dispatch preserves custom
+saved aliases inside the frozen closure.
+
+The 2.1 matrix passes 10,612 control/exchange checks across 774 executed cases.
+Legacy Gaia probabilities and tiles also match at 200,704 positions per seed,
+but native nest positions/counts differ even on flat, otherwise empty surfaces.
+Retaining expressions does not promise bit-identical future native placements;
+no density compensation or reseeding is applied. Existing generated terrain and
+entities must survive adoption, and the saved revision/custom aliases must survive
+reload and Gaia rebuild. Those are separate migration acceptance gates. See
+[the upgrade note](../REVISIT_NOTES.md), [upstream report](https://forums.factorio.com/131528),
+and [frozen closure owner](../../../exotic-space-industries-remembrance/scripts/data-final-updates/legacy-electric-noise.lua).
 
 <a id="births"></a>
 ## Runtime lifecycle
@@ -104,8 +127,9 @@ may reappear on an old unit, which must not be mistaken for a new hostile birth.
 [Gaia's owner](gaia-and-alien-systems.md#contract) retains association/reforge
 ownership. Native planet.create_surface preserves menu settings. Fallback uses
 save defaults; reforge captures source settings before purge/deletion. Controls,
-seed, starting settings, cliff choices and peace/no-enemies flags survive; final prototypes supply
-current noise aliases. Explicit new values win over translated legacy values,
+seed, starting settings, cliff choices and peace/no-enemies flags survive. Saved
+noise aliases and generation revision are resolved before filling current defaults.
+Explicit new values win over translated legacy values,
 including zero. Configuration changes translate Gaia electric, Vulcanus hot and
 Aquilo frost controls and install owned aliases. Existing enemies and chunks are
 not scanned, purged or regenerated; changes govern future generation and births.

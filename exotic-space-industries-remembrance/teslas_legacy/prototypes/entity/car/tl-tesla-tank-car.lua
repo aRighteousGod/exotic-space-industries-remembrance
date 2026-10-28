@@ -82,7 +82,7 @@ data:extend({
     damaged_trigger_effect = hit_effects.entity(),
     drawing_box = {{-1.8, -1.8}, {1.8, 1.5}},
     effectivity = 0.9,
-    braking_power = "800kW",
+    braking_force = 800000 / 60,
     energy_source =
     {
       type = "burner",
@@ -111,7 +111,7 @@ data:extend({
     },        
     consumption = "600kW",
     terrain_friction_modifier = 0.2,
-    friction = 0.002,
+    friction_force = 0.002,
     light =
     {
       {

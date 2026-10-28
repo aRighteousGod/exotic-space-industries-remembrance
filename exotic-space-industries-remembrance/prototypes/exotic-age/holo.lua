@@ -24,8 +24,8 @@ local blank = {
     ["recipe"] = {
         name = "ei-holo-moon",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 4,
         ingredients =
         {
@@ -95,7 +95,7 @@ local blank = {
     ["running"] = {
         name = "ei-holo-moon-running",
         type = "recipe",
-        category = "ei-holo-moon",
+        categories = {"ei-holo-moon"},
         energy_required = 1000,
         ingredients = {},
         results = {},
@@ -137,7 +137,7 @@ local function make_holo(dest, icon_size, ani_size, lenght, scale)
     holo.entity.graphics_set.working_visualisations[1].animation.scale = holo.entity.graphics_set.working_visualisations[1].animation.scale * scale
 
     holo.running.name = "ei-holo-"..dest.."-running"
-    holo.running.category = "ei-holo-"..dest
+    holo.running.categories = {"ei-holo-"..dest}
 
     data:extend({holo.category, holo.item, holo.recipe, holo.entity, holo.running})
 end

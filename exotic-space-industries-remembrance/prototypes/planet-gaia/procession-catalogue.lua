@@ -1,7 +1,7 @@
 local util = require("__core__.lualib.util")
 local procession_graphic_catalogue = require("__base__/prototypes/planet/procession-graphic-catalogue-types")
 
-local sprite_flags = {"group=effect-texture", "linear-minification", "linear-magnification"}
+local sprite_flags = {"procession-cover", "linear-minification", "linear-magnification"}
 local gaia_tint = {r = 0.42, g = 0.95, b = 0.72, a = 1}
 
 local function make_catalogue_sprite(index, filename, width, height, tint)

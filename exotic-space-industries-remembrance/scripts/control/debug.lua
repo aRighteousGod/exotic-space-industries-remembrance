@@ -908,7 +908,7 @@ function model.teleport_to(event)
   end
 
   ei_lib.crystal_echo("Teleporting")
-  player.teleport({0,0}, destination)
+  ei_lib.teleport_physical_player(player, {0,0}, destination)
 end
 -- Debugs proclaim
 commands.add_command("victory_reset", "Resets victory status which allows victory screen to trigger.", function(cmd)
@@ -966,7 +966,7 @@ commands.add_command("reforge_gaia", "Destroy and recreate Gaia's surface from t
     if not player or not player.admin then return end
     local surface = ei_gaia.reforge_gaia_surface(cmd)
     if not surface then return end
-    player.teleport({0, 0}, surface)
+    ei_lib.teleport_physical_player(player, {0, 0}, surface)
 end)
 local admin_travel=require("scripts/control/admin/players")
 for _,planet in ipairs({"gaia","fulgora","vulcanus","gleba","aquilo","nauvis"}) do

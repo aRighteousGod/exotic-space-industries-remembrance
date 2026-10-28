@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-castor",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -136,7 +136,7 @@ data:extend({
     {
         name = "ei-store-nuclear-waste",
         type = "recipe",
-        category = "ei-castor",
+        categories = {"ei-castor"},
         energy_required = 60,
         ingredients = {
             {type = "item", name = "ei-nuclear-waste", amount = 1},

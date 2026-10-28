@@ -22,7 +22,7 @@ data:extend({
 	{
 		name = "ei-cooler",
 		type = "recipe",
-		category = "crafting",
+		categories = {"crafting"},
 		energy_required = 1,
 		ingredients = {
 			{ type = "item", name = "chemical-plant", amount = 1 },
@@ -38,13 +38,13 @@ data:extend({
 	{
 		name = "ei-liquid-nitrogen",
 		type = "recipe",
-		category = "ei-cooler",
+		categories = {"ei-cooler"},
 		energy_required = 1,
 		ingredients = {
-			{ type = "fluid", name = "ei-nitrogen-gas", amount = 50 },
+            { type = "fluid", name = "ei-nitrogen-gas", amount = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {
-			{ type = "fluid", name = "ei-liquid-nitrogen", amount = 20 },
+            { type = "fluid", name = "ei-liquid-nitrogen", amount = 20 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -53,13 +53,13 @@ data:extend({
 	{
 		name = "ei-vaporize-liquid-nitrogen",
 		type = "recipe",
-		category = "ei-cooler",
+		categories = {"ei-cooler"},
 		energy_required = 1,
 		ingredients = {
-			{ type = "fluid", name = "ei-liquid-nitrogen", amount = 20 },
+            { type = "fluid", name = "ei-liquid-nitrogen", amount = 20 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {
-			{ type = "fluid", name = "ei-nitrogen-gas", amount = 50 },
+            { type = "fluid", name = "ei-nitrogen-gas", amount = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -68,13 +68,13 @@ data:extend({
 	{
 		name = "ei-liquid-oxygen",
 		type = "recipe",
-		category = "ei-cooler",
+		categories = {"ei-cooler"},
 		energy_required = 1,
 		ingredients = {
-			{ type = "fluid", name = "ei-oxygen-gas", amount = 50 },
+            { type = "fluid", name = "ei-oxygen-gas", amount = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {
-			{ type = "fluid", name = "ei-liquid-oxygen", amount = 20 },
+            { type = "fluid", name = "ei-liquid-oxygen", amount = 20 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -83,14 +83,14 @@ data:extend({
 	{
 		name = "ei-vaporize-liquid-oxygen",
 		type = "recipe",
-		category = "ei-cooler",
+		categories = {"ei-cooler"},
 		energy_required = 1,
 		ingredients = {
-			{ type = "fluid", name = "ei-liquid-oxygen", amount = 20 },
+            { type = "fluid", name = "ei-liquid-oxygen", amount = 20 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {
 
-			{ type = "fluid", name = "ei-oxygen-gas", amount = 50 },
+            { type = "fluid", name = "ei-oxygen-gas", amount = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -99,13 +99,13 @@ data:extend({
 	{
 		name = "ei-liquid-ammonia",
 		type = "recipe",
-		category = "ei-cooler",
+		categories = {"ei-cooler"},
 		energy_required = 1,
 		ingredients = {
-			{ type = "fluid", name = "ei-ammonia-gas", amount = 50 },
+            { type = "fluid", name = "ei-ammonia-gas", amount = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {
-			{ type = "fluid", name = "ammonia", amount = 20 },
+            { type = "fluid", name = "ammonia", amount = 20 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		always_show_made_in = true,
 		hide_from_player_crafting = true,
@@ -115,13 +115,13 @@ data:extend({
 	{
 		name = "ei-vaporize-liquid-ammonia",
 		type = "recipe",
-		category = "ei-cooler",
+		categories = {"ei-cooler"},
 		energy_required = 1,
 		ingredients = {
-			{ type = "fluid", name = "ammonia", amount = 20 },
+            { type = "fluid", name = "ammonia", amount = 20 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results = {
-			{ type = "fluid", name = "ei-ammonia-gas", amount = 50 },
+            { type = "fluid", name = "ei-ammonia-gas", amount = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		always_show_made_in = true,
 		hide_from_player_crafting = true,

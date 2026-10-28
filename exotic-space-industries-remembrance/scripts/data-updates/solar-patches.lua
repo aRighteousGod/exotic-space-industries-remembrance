@@ -10,6 +10,19 @@ end
 local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
 
+-- 0.6.0 still places the 10 C input floor on the removed FluidBox field.
+-- Keep energy-conversion maximum_temperature separate from admission limits.
+-- Native 2.1 storage may hold colder solar fluid, but the consumer must not burn it.
+local tower_source = data.raw.reactor["chcs-solar-power-tower"].energy_source
+local tower_box = tower_source.fluid_box
+for _, bound in ipairs({"minimum", "maximum"}) do
+    local old_key, new_key = bound .. "_temperature", bound .. "_input_temperature"
+    if tower_box[old_key] ~= nil then
+        if tower_source[new_key] == nil then tower_source[new_key] = tower_box[old_key] end
+        tower_box[old_key] = nil
+    end
+end
+
 
 --====================================================================================================
 --CHANGES

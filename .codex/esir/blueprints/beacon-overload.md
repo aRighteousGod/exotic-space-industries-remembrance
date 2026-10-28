@@ -1,10 +1,14 @@
 <a id="contract"></a>
-# Beacon overload topology and native diminishing-return profiles
+# Beacon upgrades, overload topology and native diminishing-return profiles
 
 ## Implementation sources
 
 - [beacon-overload.lua](../../../exotic-space-industries-remembrance/scripts/control/beacon-overload.lua)
 - [beacon-profile-config.lua](../../../exotic-space-industries-remembrance/lib/beacon-profile-config.lua)
+
+- [copper-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua)
+- [iron-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua)
+- [alien-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/alien-system/alien-beacon.lua)
 
 ## Ownership and behavior
 
@@ -43,3 +47,21 @@ Source inspection only. Reuse the `esir-dev` beacon-overload geometry helper for
 ## Rebuild activity reporting
 
 World discovery, chunk scanning, tracked-machine recounts and release passes publish topology generations at existing admission/service boundaries. Discovery remains indeterminate: chunk queue length is not a world denominator. Processors count completed/retired candidates; finite recount/release stages use actual work counts. Ordinary placement and idle topology maintenance are excluded. Replacement or disabled rebuilds retire the old generation.
+
+
+<a id="replacement"></a>
+## Native replacement declarations
+
+Copper and Iron share the nitrogen family; Copper defaults to Iron in upgrade planners.
+Alien and Warp share a separate bio-matter family; Alien defaults to Warp. Both pairs
+allow manual replacement in either direction and eligible quality changes. Ruined
+Alien containers remain outside these families and retain their repair workflow.
+
+Nonstandard Beacons Continued owns hidden source handoff and orientation. ESIR retains
+recipes, costs, ranges, slots, consumption, source lighting, repair event ordering and
+both effectiveness systems. Copper to Iron changes overload weight from 1 to 2:
+an upgrade can overload an existing layout. Alien and Warp remain excluded.
+
+Verify both directions, qualities, robot/platform paths, overflow, repaired Alien upgrades
+and the weighted 4-to-5 threshold transition. Refresh the dependency catalog after the
+continuation is adopted in the completed ESIR 2.1 port.

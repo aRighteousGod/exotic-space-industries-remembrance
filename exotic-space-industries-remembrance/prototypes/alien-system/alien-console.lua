@@ -23,7 +23,7 @@ data:extend({
     {
         name = "ei-alien-console",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -40,7 +40,7 @@ data:extend({
     {
         name = "ei-alien-console-running",
         type = "recipe",
-        category = "ei-alien-console",
+        categories = {"ei-alien-console"},
         energy_required = 1000,
         ingredients = {},
         results = {},
@@ -150,7 +150,7 @@ data:extend({
     {
         name = "ei-scanner",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients = {
             {type = "item", name = "ei-energy-crystal", amount = 10},

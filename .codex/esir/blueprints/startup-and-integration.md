@@ -10,12 +10,57 @@ Arrival repair normalizes pending players and the saved wave due minimum without
 
 - [echo-codex.lua](../../../exotic-space-industries-remembrance/lib/echo-codex.lua)
 - [compat.lua](../../../exotic-space-industries-remembrance/scripts/control/compat.lua)
+- [air-scrubber-compat.lua](../../../exotic-space-industries-remembrance/scripts/control/air-scrubber-compat.lua)
 - [debug.lua](../../../exotic-space-industries-remembrance/scripts/control/debug.lua)
 - [informatron.lua](../../../exotic-space-industries-remembrance/scripts/control/informatron.lua)
 - [informatron-messager.lua](../../../exotic-space-industries-remembrance/scripts/control/informatron-messager.lua)
 - [milestone-preset.lua](../../../exotic-space-industries-remembrance/scripts/control/milestone-preset.lua)
+- [construction-drone-compatibility.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/construction-drone-compatibility.lua)
 
 ## Behavior and ownership
+
+<a id="construction-drones"></a>
+### Construction Drones drill upgrade compatibility
+
+Construction Drones Forked 1.1.18 deliberately excludes the vanilla electric drill
+from its construction-drone collision layer, while adding that layer to ESIR's
+Advanced and Superior drills. The latter explicit masks also acquire ESIR's hover
+layer. Factorio consequently rejects the vanilla → Advanced → Superior upgrade
+chain. A hidden optional dependency orders the fork before ESIR. At the end of
+ESIR final data, the two same-footprint tiers inherit the vanilla drill's complete
+collision-mask policy, including an omitted mask and native fallback when present.
+This preserves the fork's vanilla-drill pass-through policy throughout the chain.
+
+Only these two masks change, and only when the fork is enabled. Collision boxes,
+mining speed, energy, recipes, resources, next-upgrade identities, native graphics,
+death effects, circuit connectors and existing entity state are unchanged. There
+is no runtime work, setting, locale key or migration script. Verify native startup
+with the fork, effective mask equality and actual fast replacement through both
+tiers; the ordinary core configuration must retain its previous final data.
+
+<a id="scrubber"></a>
+### Air Scrubber 0.2.9 quality repair
+
+The published fork's build filter names a nonexistent entity, so ESIR normalizes
+the unprefixed nonnormal furnace at its central build/clone boundary. A dedicated
+replacement group allows native inventory transfer without destroying the source
+first. The accepted shape is one input/output slot with no modules or fluid
+storage; changed optional shapes fail closed. Explicit progress, energy, damage
+and script/user flags are restored before the script-built notification. A
+shared replacement family is required. The runtime `can_fast_replace` query
+rejects these hidden identity variants even when actual native replacement
+succeeds, so the repair verifies the actual transaction instead. A protected
+source temporarily permits mining within the synchronous transaction; its
+original flag is restored on the replacement or on the source after failure.
+Energy transfers up to the quality variant's native buffer capacity; its authored
+lower power usage and corresponding smaller buffer remain unchanged. A full base
+buffer can therefore lose the excess charge during identity correction.
+If creation leaves the source alive,
+only the new unnotified candidate is removed and the populated source is kept. A
+synchronous notification guard prevents duplicate ESIR handling. Configuration
+changes repair already-placed unprefixed furnaces once; there is no tick scanner.
+Quality-prefixed identities and normal quality are unchanged. Acceptance requires
+populated replacement, every build/clone path, failure and save/reload fixtures.
 
 Informatron presents [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract)
 using shared stage-neutral configurations; these pages own no combat effects.

@@ -41,7 +41,7 @@ data:extend({
     {
         name = "ei-advanced-deep-drill",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {

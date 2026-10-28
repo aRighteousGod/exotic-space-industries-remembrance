@@ -355,7 +355,7 @@ data:extend({
     {
         name = "ei-crystal-accumulator-repair",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients = {
             {type = "item", name = "ei-sus-plating", amount = 10},
@@ -372,7 +372,7 @@ data:extend({
     {
         name = "ei-crystal-accumulator-repair-quantum",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 35,
         icon = ei_graphics_3_path.."graphics/tech/crystal-accumulator-quantum.png",
         icon_size = 256,
@@ -391,7 +391,7 @@ data:extend({
     {
         name = "ei-crystal-accumulator",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients = {
             {type = "item", name = "ei-sus-plating", amount = 10},
@@ -408,7 +408,7 @@ data:extend({
     {
         name = "ei-crystal-accumulator-quantum",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         icon = ei_graphics_3_path.."graphics/tech/crystal-accumulator-quantum.png",
         icon_size = 256,
         energy_required = 35,
@@ -427,7 +427,7 @@ data:extend({
     {
         name = "ei-crystal-accumulator-gaia",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 9999,
         ingredients = {
 

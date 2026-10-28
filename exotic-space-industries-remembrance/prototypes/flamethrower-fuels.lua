@@ -94,7 +94,7 @@ for index,fuel in ipairs(catalog.fuels) do
     if fuel.ammo~="flamethrower-ammo" then
         local recipe=table.deepcopy(base_recipe)
         recipe.name=fuel.ammo
-        recipe.ingredients={{type="item",name="steel-plate",amount=5},{type="fluid",name=fuel.fluid,amount=100}}
+        recipe.ingredients={{type="item",name="steel-plate",amount=5},{type="fluid",name=fuel.fluid,amount=100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}}
         recipe.results={{type="item",name=fuel.ammo,amount=1}}
         recipe.main_product=fuel.ammo
         recipe.energy_required=6

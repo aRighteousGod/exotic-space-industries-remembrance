@@ -470,7 +470,6 @@ local input_fluid_patch_fluid_base_sprites = {
 
 local wet_mining_graphics_set = {
     animation = drill_animations,
-    circuit_connector_layer = "object",
     working_visualisations = {
         -- Fluid window background
         {
@@ -567,6 +566,13 @@ local circuit_connectors = circuit_connector_definitions.create_vector(universal
 		show_shadow = true,
 	},
 })
+-- Connector layers belong to each sprite definition in 2.1.
+-- Retain the former graphics-set default draw order for this authored rig.
+for index, connector in ipairs(circuit_connectors) do
+    connector.sprites.render_layer = "object"
+    connector.sprites.secondary_draw_order = 100
+end
+
 
 --====================================================================================================
 --SURFACE HARVESTER
@@ -680,7 +686,6 @@ data:extend({
 
 		graphics_set = {
 			animation = drill_animations,
-			circuit_connector_layer = "object",
 		},
 		working_visualisations = {
 			-- dust animation 1
@@ -716,11 +721,11 @@ data:extend({
 	{
 		name = "ei-surface-harvester-running-nauvis",
 		type = "recipe",
-		category = "ei-surface-harvester",
+		categories = {"ei-surface-harvester"},
 		energy_required = 1,
 		ingredients = {},
 		results = {
-			{ type = "item", name = "stone", amount_min = 1, amount_max = 6, probability = 0.1 },
+			{ type = "item", name = "stone", amount_min = 1, amount_max = 6, independent_probability = 0.1 },
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -736,12 +741,12 @@ data:extend({
 	{
 		name = "ei-surface-harvester-running-fulgora",
 		type = "recipe",
-		category = "ei-surface-harvester",
+		categories = {"ei-surface-harvester"},
 		energy_required = 1,
 		ingredients = {},
 		results = {
-			{ type = "item", name = "stone", amount_min = 1, amount_max = 3, probability = 0.06 },
-			{ type = "item", name = "ei-sand", amount_min = 1, amount_max = 3, probability = 0.125 },
+			{ type = "item", name = "stone", amount_min = 1, amount_max = 3, independent_probability = 0.06 },
+			{ type = "item", name = "ei-sand", amount_min = 1, amount_max = 3, independent_probability = 0.125 },
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -757,12 +762,12 @@ data:extend({
 	{
 		name = "ei-surface-harvester-running-vulcanus",
 		type = "recipe",
-		category = "ei-surface-harvester",
+		categories = {"ei-surface-harvester"},
 		energy_required = 1,
 		ingredients = {},
 		results = {
-			{ type = "item", name = "stone", amount_min = 1, amount_max = 3, probability = 0.1 },
-			{ type = "item", name = "atan-ash", amount_min = 1, amount_max = 3, probability = 0.15 },
+			{ type = "item", name = "stone", amount_min = 1, amount_max = 3, independent_probability = 0.1 },
+			{ type = "item", name = "atan-ash", amount_min = 1, amount_max = 3, independent_probability = 0.15 },
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -778,12 +783,12 @@ data:extend({
 	{
 		name = "ei-surface-harvester-running-gleba",
 		type = "recipe",
-		category = "ei-surface-harvester",
+		categories = {"ei-surface-harvester"},
 		energy_required = 1,
 		ingredients = {},
 		results = {
-			{ type = "item", name = "stone", amount_min = 1, amount_max = 4, probability = 0.1 },
-			{ type = "item", name = "spoilage", amount_min = 1, amount_max = 2, probability = 0.05 },
+			{ type = "item", name = "stone", amount_min = 1, amount_max = 4, independent_probability = 0.1 },
+			{ type = "item", name = "spoilage", amount_min = 1, amount_max = 2, independent_probability = 0.05 },
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -799,11 +804,11 @@ data:extend({
 	{
 		name = "ei-surface-harvester-running-aquilo",
 		type = "recipe",
-		category = "ei-surface-harvester",
+		categories = {"ei-surface-harvester"},
 		energy_required = 1,
 		ingredients = {},
 		results = {
-			{ type = "item", name = "ice", amount_min = 1, amount_max = 2, probability = 0.5 },
+			{ type = "item", name = "ice", amount_min = 1, amount_max = 2, independent_probability = 0.5 },
 		},
 		always_show_made_in = true,
 		enabled = false,
@@ -819,11 +824,11 @@ data:extend({
 	{
 		name = "ei-surface-harvester-running-gaia",
 		type = "recipe",
-		category = "ei-surface-harvester",
+		categories = {"ei-surface-harvester"},
 		energy_required = 1,
 		ingredients = {},
 		results = {
-			{ type = "item", name = "stone", amount_min = 1, amount_max = 3, probability = 0.1 },
+			{ type = "item", name = "stone", amount_min = 1, amount_max = 3, independent_probability = 0.1 },
 		},
 		always_show_made_in = true,
 		enabled = false,

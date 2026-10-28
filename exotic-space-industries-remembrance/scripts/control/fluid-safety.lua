@@ -372,11 +372,11 @@ local function dequeue_runtime_queue_value(state, queue_key, head_key, tail_key,
 end
 
 local function entity_has_fluidbox(entity)
-    if not (entity and entity.valid and entity.fluidbox) then
+    if not (entity and entity.valid and entity.fluids_count > 0) then
         return false
     end
 
-    return #entity.fluidbox >= 1
+    return entity.get_fluid_box_prototype(1) ~= nil
 end
 
 local function get_fluidbox_segment_id(entity)
@@ -385,7 +385,7 @@ local function get_fluidbox_segment_id(entity)
     end
 
     local ok, segment_id = pcall(function()
-        return entity.fluidbox.get_fluid_segment_id(1)
+        return entity.has_fluid_segment(1) and entity.get_fluid_segment_id(1) or nil
     end)
 
     if ok then
@@ -397,7 +397,7 @@ end
 
 local function clear_entity_fluids(entity)
     if entity and entity.valid then
-        entity.clear_fluid_inside()
+        entity.clear_fluids()
     end
 end
 
@@ -570,7 +570,8 @@ local function read_entity_segment_contents(entity)
     end
 
     local ok, contents = pcall(function()
-        return entity.fluidbox.get_fluid_segment_contents(1)
+        local fluid = entity.has_fluid_segment(1) and entity.get_fluid_segment_fluid(1)
+        return fluid and {[fluid.name] = fluid.amount} or {}
     end)
 
     if ok and contents then
@@ -1020,7 +1021,7 @@ local function get_entity_fluidbox_capacity(entity)
     end
 
     local ok, capacity = pcall(function()
-        return entity.fluidbox.get_capacity(1)
+        return entity.get_fluid_capacity(1)
     end)
 
     if ok and capacity then
@@ -1268,25 +1269,19 @@ local function drain_segment_fluid(runtime, segment_id, fluid_name, tick, allow_
 
     if target_name and target_amount > 0 then
         local ok, removed = pcall(function()
-            return entity.fluidbox.flush(1, target_name)
+            if not entity.has_fluid_segment(1) then return nil end
+            local current = entity.get_fluid_segment_fluid(1)
+            if current and current.name == target_name then
+                return entity.clear_fluid_segment_fluid(1)
+            end
         end)
 
-        if ok and removed then
-            if target_name then
-                local removed_amount = removed[target_name] or 0
-                if removed_amount > 0 then
-                    return target_name, removed_amount, representative_entry
-                end
-            end
-
-            local removed_name, removed_amount = get_first_fluid_name_and_amount(removed)
-            if removed_name and removed_amount > 0 then
-                return removed_name, removed_amount, representative_entry
-            end
+        if ok and removed and removed.name == target_name and removed.amount > 0 then
+            return removed.name, removed.amount, representative_entry
         end
-
-        clear_entity_fluids(entity)
-        return target_name, target_amount, representative_entry
+        -- A changed/empty segment is not a successful drain. Never clear unrelated
+        -- replacement fluid or account a stale snapshot as actual removal.
+        return target_name, 0, representative_entry
     end
 
     return target_name or live_name or fluid_name, 0, representative_entry
@@ -2168,14 +2163,14 @@ local function enqueue_connected_neighbors(runtime, entity)
     end
 
     local seen = {}
-    for index = 1, #entity.fluidbox do
+    for index = 1, entity.fluids_count do
         local ok, connections = pcall(function()
-            return entity.fluidbox.get_connections(index)
+            return entity.get_fluid_box_neighbours(index)
         end)
 
         if ok and connections then
             for _, connection in pairs(connections) do
-                local owner = connection and connection.owner
+                local owner = connection and connection.entity
                 local unit_number = get_entity_unit_number(owner)
                 if unit_number and not seen[unit_number] and runtime.entries_by_unit[unit_number] then
                     seen[unit_number] = true

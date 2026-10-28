@@ -6,7 +6,9 @@ import time
 import zipfile
 from pathlib import Path
 
-mods = Path(sys.argv[1]).resolve()
+# Keep the short registered run alias: its payload may use the approved D:
+# overflow volume. Individual mod source junctions are never writable here.
+mods = Path(os.path.abspath(sys.argv[1]))
 repo = Path(__file__).resolve().parents[3]
 mods.relative_to(repo / ".factorio-qc")
 assert (mods / "zzz-esir-entity-presentation-qc" / "info.json").is_file(), "Only staged presentation fixtures may be isolated"
@@ -17,6 +19,7 @@ for path in mods.iterdir():
     if path.is_dir():
         control = path / "control.lua"
         if control.exists():
+            assert not path.is_junction() and not path.is_symlink() and not control.is_symlink(), "Refusing to isolate source through a mod link"
             control.write_text("-- Isolated for native presentation QC.\n", encoding="utf-8")
             disabled.append(path.name)
     elif path.suffix == ".zip":

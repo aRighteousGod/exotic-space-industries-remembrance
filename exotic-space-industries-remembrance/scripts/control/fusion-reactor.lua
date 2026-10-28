@@ -756,7 +756,11 @@ end
 
 function model.on_configuration_changed(event)
     model.check_global()
-    model.rebuild_runtime_state("configuration-changed", event)
+    -- blueprint-ref: .codex/esir/blueprints/fusion-reactor.md#admin-repair
+    -- The active recipe cannot reconstruct a circuit user's manual fallback.
+    -- Keep saved records and live helpers while repairing derived indexes.
+    local tick = event and event.tick or game.tick
+    model.repair_runtime_state("configuration-changed", tick)
 end
 
 function model.get_pending_work_count()
@@ -825,6 +829,15 @@ function model.on_destroyed_entity(entity, destroy_type)
         model.destroy_wire_proxy(entry)
     end
     runtime.reactors_by_unit[unit_number] = nil
+    local index = runtime.reactor_unit_index[unit_number]
+    if index then
+        local last_unit = table.remove(runtime.reactor_units)
+        if index <= #runtime.reactor_units then
+            runtime.reactor_units[index] = last_unit
+            runtime.reactor_unit_index[last_unit] = index
+        end
+        runtime.update_cursor = math.min(runtime.update_cursor, #runtime.reactor_units)
+    end
     runtime.reactor_unit_index[unit_number] = nil
 
     for player_index, open_unit in pairs(runtime.open_by_player) do
@@ -892,12 +905,26 @@ local function add_fuel_buttons(control_flow, fuel_index)
     control_flow.add{type = "empty-widget", style = "ei_vertical_pusher"}
 end
 
+---@param player LuaPlayer
+---@return LuaGuiElement|nil
+local function get_console_root(player)
+    return player.gui.relative[GUI_NAME] or player.gui.screen[GUI_NAME]
+end
+
+---@param player LuaPlayer
+---@return boolean
+local function needs_screen_console(player)
+    -- The native inventory, machine and expanded circuit panels already occupy
+    -- most of a narrow viewport. Relative anchors can extend beyond the screen.
+    return player.display_resolution.width / player.display_scale < 1600
+end
+
 function model.open_gui(player)
     if not player then
         return
     end
 
-    if player.gui.relative[GUI_NAME] then
+    if get_console_root(player) then
         model.close_gui(player)
     end
 
@@ -909,16 +936,23 @@ function model.open_gui(player)
     local runtime = get_runtime()
     runtime.open_by_player[player.index] = entry.unit_number
 
-    local root = player.gui.relative.add{
+    local screen_console = needs_screen_console(player)
+    local root = (screen_console and player.gui.screen or player.gui.relative).add{
         type = "frame",
         name = GUI_NAME,
-        anchor = {
+        anchor = not screen_console and {
             gui = defines.relative_gui_type.assembling_machine_gui,
             name = FUSION_REACTOR_NAME,
             position = defines.relative_gui_position.right
-        },
+        } or nil,
+        tags = {gui_mode = screen_console and "screen" or "relative",
+            display_width = player.display_resolution.width, display_height = player.display_resolution.height,
+            display_scale = player.display_scale},
         direction = "vertical"
     }
+    if screen_console then
+        root.location = {x = math.max(0, player.display_resolution.width - 440 * player.display_scale), y = 24}
+    end
 
     do
         local titlebar = root.add{type = "flow", direction = "horizontal"}
@@ -927,11 +961,15 @@ function model.open_gui(player)
             caption = {"exotic-industries.fusion-reactor-gui-title"},
             style = "frame_title"
         }
-        titlebar.add{
+        local drag_spacer = titlebar.add{
             type = "empty-widget",
-            style = "ei_titlebar_nondraggable_spacer",
+            style = screen_console and "ei_titlebar_draggable_spacer" or "ei_titlebar_nondraggable_spacer",
             ignored_by_interaction = true
         }
+        if screen_console then
+            titlebar.drag_target = root
+            drag_spacer.drag_target = root
+        end
         titlebar.add{
             type = "sprite-button",
             sprite = "virtual-signal/informatron",
@@ -943,9 +981,24 @@ function model.open_gui(player)
                 page = "fusion_reactor_controls"
             }
         }
+        if screen_console then
+            titlebar.add{type = "sprite-button", sprite = "utility/close", style = "frame_action_button",
+                tags = {parent_gui = GUI_NAME, action = "close"}}
+        end
     end
 
-    local main_container = root.add{
+    -- Native relative panels can clip their lower descendants while still
+    -- drawing the frame background. Bound the body to the player's UI height
+    -- and let it scroll so every control remains reachable at smaller scales.
+    local body_scroll = root.add{
+        type = "scroll-pane",
+        name = "body-scroll",
+        horizontal_scroll_policy = "never",
+        vertical_scroll_policy = "auto"
+    }
+    body_scroll.style.maximal_height = math.max(240,
+        math.floor(player.display_resolution.height / player.display_scale) - 180)
+    local main_container = body_scroll.add{
         type = "frame",
         name = "main-container",
         direction = "vertical",
@@ -1043,7 +1096,11 @@ function model.open_gui(player)
         caption = {"exotic-industries.fusion-reactor-gui-circuit-source"},
         tags = {parent_gui = GUI_NAME, action = "set-control-source", control_source = CONTROL_SOURCE_CIRCUIT}
     }
-    interface_flow.add{type = "label", name = "interface-state"}
+    -- Keep the translated explanation inside the relative console beside the
+    -- native machine and circuit panels instead of widening it off-screen.
+    local interface_state = interface_flow.add{type = "label", name = "interface-state"}
+    interface_state.style.single_line = false
+    interface_state.style.maximal_width = 340
 
     main_container.add{type = "frame", style = "ei_subheader_frame_with_top_border"}.add{
         type = "label",
@@ -1082,6 +1139,12 @@ function model.open_gui(player)
     command_flow.add{type = "button", caption = {"exotic-industries.fusion-reactor-gui-refresh-collectors"}, tags = {parent_gui = GUI_NAME, action = "refresh-collectors"}}
 
     model.update_gui(player)
+    if screen_console then
+        root.bring_to_front()
+        -- Native entity opening can finish after this event. Reassert once on
+        -- the existing viewer refresh, rather than taking focus every update.
+        gui_snapshots[player.index].raise_pending = true
+    end
 end
 
 function model.update_gui(player, known_entry)
@@ -1090,12 +1153,28 @@ function model.update_gui(player, known_entry)
         return
     end
 
-    local root = player.gui.relative[GUI_NAME]
+    local root = get_console_root(player)
     local entry = known_entry or get_entry_for_player(player)
     if not (root and entry and model.entity_check(entry.entity)
         and ei_lib.get_valid_entity(player.opened) == entry.entity) then
         model.close_gui(player)
         return
+    end
+    if not root["body-scroll"] or root.tags.display_width ~= player.display_resolution.width
+        or root.tags.display_height ~= player.display_resolution.height or root.tags.display_scale ~= player.display_scale then
+        -- Adopt consoles serialized before the bounded body was introduced.
+        model.open_gui(player)
+        return
+    end
+    local body_height = math.max(240,
+        math.floor(player.display_resolution.height / player.display_scale) - 180)
+    if root["body-scroll"].style.maximal_height ~= body_height then
+        root["body-scroll"].style.maximal_height = body_height
+    end
+    local previous_snapshot = gui_snapshots[player.index]
+    if previous_snapshot and previous_snapshot.raise_pending and root.tags.gui_mode == "screen" then
+        root.bring_to_front()
+        previous_snapshot.raise_pending = nil
     end
 
     local selection = normalize_selection(entry.effective_selection or entry.manual_selection)
@@ -1111,7 +1190,7 @@ function model.update_gui(player, known_entry)
         source = entry.control_source, wired = entry.wire_proxy_wired == true}
     if cache_matches(gui_snapshots[player.index], snapshot) then return end
     local metrics = get_selection_metrics(selection)
-    local main_container = root["main-container"]
+    local main_container = root["body-scroll"]["main-container"]
     local status = main_container["status-flow"]
     local control = main_container["control-flow"]
     local interface = main_container["interface-flow"]
@@ -1167,12 +1246,12 @@ end
 ---@param event_or_tick EventData|MapTick|nil
 function model.update_recipe(player, event_or_tick)
     local entry = get_entry_for_player(player)
-    local root = player and player.gui.relative[GUI_NAME] or nil
+    local root = player and get_console_root(player) or nil
     if not (entry and root) then
         return
     end
 
-    local control = root["main-container"]["control-flow"]
+    local control = root["body-scroll"]["main-container"]["control-flow"]
     entry.manual_selection = normalize_selection({
         fuel_1 = control["fuels-frame-1"].tags.selected,
         fuel_2 = control["fuels-frame-2"].tags.selected,
@@ -1194,6 +1273,9 @@ function model.close_gui(player)
     if player.gui.relative[GUI_NAME] then
         player.gui.relative[GUI_NAME].destroy()
     end
+    if player.gui.screen[GUI_NAME] then
+        player.gui.screen[GUI_NAME].destroy()
+    end
 end
 
 function model.on_gui_opened(event)
@@ -1208,7 +1290,7 @@ end
 
 function model.reconcile_gui_player(player_index)
     local player = game.get_player(player_index)
-    if not (player and player.connected and player.gui.relative[GUI_NAME]) then return end
+    if not (player and player.connected and get_console_root(player)) then return end
     local entry = get_entry_for_player(player)
     if not entry then model.close_gui(player); return end
     get_runtime().open_by_player[player_index] = entry.unit_number
@@ -1245,7 +1327,9 @@ function model.on_gui_click(event)
     local player = game.get_player(event.player_index)
     local entry = get_entry_for_player(player)
 
-    if action == "set-fuel" then
+    if action == "close" then
+        model.close_gui(player)
+    elseif action == "set-fuel" then
         event.element.parent.tags = {selected = event.element.tags.fuel_name}
         model.update_recipe(player, event)
     elseif action == "set-control-source" and entry then
@@ -1283,11 +1367,12 @@ function model.on_gui_value_changed(event)
 end
 
 -- blueprint-ref: .codex/esir/blueprints/fusion-reactor.md#admin-repair
--- Admin repair reconciles indexes/helpers in place; manual circuit preferences survive.
+-- Admin/configuration repair retains authoritative selections and live helpers.
 ---@param reason string
 ---@param tick MapTick
 function model.repair_runtime_state(reason, tick)
     local runtime = get_runtime()
+    local owned_proxies = {}
     runtime.reactor_units = {}
     runtime.reactor_unit_index = {}
     runtime.update_cursor = 0
@@ -1301,8 +1386,18 @@ function model.repair_runtime_state(reason, tick)
         for _, entity in pairs(surface.find_entities_filtered{name = FUSION_REACTOR_NAME}) do
             local entry = model.register_reactor(runtime, entity)
             if entry then
-                model.ensure_wire_proxy(entry)
+                local proxy = model.ensure_wire_proxy(entry)
+                if ei_lib.entity_check(proxy) then
+                    owned_proxies[proxy.unit_number] = true
+                end
                 model.update_wire_proxy_signals(entry, tick)
+            end
+        end
+    end
+    for _, surface in pairs(game.surfaces) do
+        for _, proxy in pairs(surface.find_entities_filtered{name = FUSION_WIRE_PROXY_NAME}) do
+            if not owned_proxies[proxy.unit_number] then
+                proxy.destroy({raise_destroy = false})
             end
         end
     end

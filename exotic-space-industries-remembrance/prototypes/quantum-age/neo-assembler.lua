@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-neo-assembler",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 4,
         ingredients =
         {
@@ -31,7 +31,7 @@ data:extend({
             {type="item", name="ei-superior-data", amount=5},
             {type="item", name="ei-magnet", amount=5},
             {type="item", name="ei-odd-plating", amount=5},
-            {type = "fluid", name = "ei-nitric-acid", amount = 50},
+            {type = "fluid", name = "ei-nitric-acid", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-neo-assembler", amount=1}},
         enabled = false,
@@ -102,7 +102,19 @@ local neo_assembler = {
     allowed_effects = {"speed", "consumption", "pollution", "productivity","quality"},
     module_slots = 6,
     fluid_boxes = util.table.deepcopy(data.raw["assembling-machine"]["assembling-machine-3"].fluid_boxes),
-    graphics_set = util.table.deepcopy(data.raw["assembling-machine"]["assembling-machine-3"].graphics_set),
+    -- The authored overlay/mask is a 32-frame 2.0 composition. Retain its body
+    -- geometry rather than mixing it with the new 64-frame vanilla animation.
+    graphics_set = {
+        animation_progress = 0.5,
+        animation = {layers = {
+            {filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/assembling-machine-3/assembling-machine-3.png",
+                priority = "high", width = 214, height = 237, frame_count = 32,
+                line_length = 8, shift = util.by_pixel(0, -0.75), scale = 0.5},
+            {filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/assembling-machine-3/assembling-machine-3-shadow.png",
+                priority = "high", width = 260, height = 162, frame_count = 32,
+                line_length = 8, draw_as_shadow = true, shift = util.by_pixel(28, 4), scale = 0.5},
+        }},
+    },
     working_sound =
     {
         sound = {filename = "__base__/sound/electric-furnace.ogg", volume = 0.6},
@@ -144,5 +156,5 @@ table.insert(neo_assembler.graphics_set.animation.layers,
     animation_speed = 1,
     scale = 0.5
 })
-table.insert(neo_assembler.crafting_categories,"electronics-with-fluid")
+-- Native assembler categories already cover general fluid crafting.
 data:extend({neo_assembler})

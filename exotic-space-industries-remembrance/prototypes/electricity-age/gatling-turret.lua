@@ -139,7 +139,7 @@ data:extend({
 	{
 		name = "ei-gatling-turret",
 		type = "recipe",
-		category = "crafting",
+		categories = {"crafting"},
 		energy_required = 8,
 		ingredients = {
 			{ type = "item", name = "gun-turret", amount = 1 },

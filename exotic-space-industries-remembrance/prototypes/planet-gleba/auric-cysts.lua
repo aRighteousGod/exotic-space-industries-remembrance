@@ -123,6 +123,9 @@ cyst_node.subgroup = "trees"
 cyst_node.order = "a[tree]-c[gleba]-d[auric-cyst-node]"
 cyst_node.factoriopedia_simulation = nil
 cyst_node.variations = make_cyst_node_variations()
+-- These authored cyst sprites are not jellystem's eight growth-warp variants.
+cyst_node.growth_variations = nil
+cyst_node.growth_mounds = nil
 cyst_node.colors = {
     {r = 255, g = 245, b = 235},
 }
@@ -139,17 +142,17 @@ cyst_node.map_color = {255, 215, 140}
 local cyst_washing_recipe = {
     type = "recipe",
     name = "ei-auric-cyst-washing",
-    category = "ei-purifier",
+    categories = {"ei-purifier"},
     energy_required = 2,
     ingredients = {
         {type = "item", name = "ei-auric-cyst", amount = 1},
-        {type = "fluid", name = "steam", amount = 100, minimum_temperature = 500},
-        {type = "fluid", name = "sulfuric-acid", amount = 15},
+        {type = "fluid", name = "steam", amount = 100, minimum_temperature = 500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type = "fluid", name = "sulfuric-acid", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     results = {
         {type = "item", name = "ei-gold-chunk", amount_min = 1, amount_max = 3},
-        {type = "item", name = "spoilage", amount_min = 1, amount_max = 3, ignored_by_stats = 3, ignored_by_productivity = 3, probability = 0.5},
-        {type = "fluid", name = "ei-dirty-water", amount_min = 5, amount_max = 25, ignored_by_stats = 30, ignored_by_productivity = 25},
+        {type = "item", name = "spoilage", amount_min = 1, amount_max = 3, ignored_by_stats = 3, ignored_by_productivity = 3, independent_probability = 0.5},
+        {type = "fluid", name = "ei-dirty-water", amount_min = 5, amount_max = 25, ignored_by_stats = 30, ignored_by_productivity = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     always_show_made_in = true,
     allow_productivity = true,

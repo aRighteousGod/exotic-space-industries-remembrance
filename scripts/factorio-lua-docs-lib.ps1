@@ -4,8 +4,8 @@ $ErrorActionPreference = 'Stop'
 function Get-FactorioLuaDocsPaths {
     param(
         [Parameter(Mandatory = $true)][string]$RepoRoot,
-        [ValidateSet('installed', 'hosted')][string]$Source = 'installed',
-        [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '2.0.77',
+        [ValidateSet('installed', 'hosted')][string]$Source = 'hosted',
+        [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '2.1.23',
         [string]$DocsRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html',
         [switch]$EnsureCacheRoot
     )

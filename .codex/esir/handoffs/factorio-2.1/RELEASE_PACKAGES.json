@@ -1,0 +1,434 @@
+{
+  "packages": [
+    {
+      "name": "doeworks-deer-continued",
+      "version": "1.0.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\doeworks-deer-continued",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\doeworks-deer-continued_1.0.0.zip",
+      "sha256": "599aa5a472abec7dc916cab40795c29157780f625fb1cf9aab9d420044b9c2b5",
+      "bytes": 4338587,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "enhanced-walls-continued",
+      "version": "1.0.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\enhanced-walls-continued",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\enhanced-walls-continued_1.0.0.zip",
+      "sha256": "55448519cd79ab45c0eee181f30108bf28c0a6cfef54bad40babf0e669291048",
+      "bytes": 1202318,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-1",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-1",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-1_1.1.0.zip",
+      "sha256": "a21884a1d72da8b480f984472ebb887ecd15f6255d6f805d42271d5c8fa69a92",
+      "bytes": 218709076,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-2",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-2",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-2_1.1.0.zip",
+      "sha256": "e5e683918cf1f7fb664ff0e6074b520b6860b1b22ab14c69459f1eedc8f8fe86",
+      "bytes": 256656498,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-3",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-3",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-3_1.1.0.zip",
+      "sha256": "5711eed5c4eff1dcb30bbf9044b8bc0d719b68918c7a766f2708ccc9b09c1315",
+      "bytes": 209771849,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-4",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-4",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-4_1.1.0.zip",
+      "sha256": "216a57fd979312268050230dd7ab2a8fc102fc4f5525f742f3e4d807e2bd14bc",
+      "bytes": 164243007,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-5",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-5",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-5_1.1.0.zip",
+      "sha256": "9476dce4a0053c19a9a6e9202c912872c0206d7a7941d5dcd9db9e43a3d5cda0",
+      "bytes": 186401513,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-6",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-6",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-6_1.1.0.zip",
+      "sha256": "7e3fd27cc4bfb2f23d081a222896ab0e3f9c9975044e3df7b85ad1798bd80240",
+      "bytes": 173118095,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-soundtrack-1",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-soundtrack-1",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-soundtrack-1_1.1.0.zip",
+      "sha256": "05cca6d8fc43157377618242126fdbc4b7fa23d9f6820b4c1ca191fc7a9c3b6f",
+      "bytes": 246688685,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-soundtrack-2",
+      "version": "1.1.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-soundtrack-2",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-soundtrack-2_1.1.0.zip",
+      "sha256": "1f8950be6f184b75acea4b363658ecfa4bf9b62e4896420dba1c3ca259b705cb",
+      "bytes": 168789999,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "exotic-space-industries-remembrance",
+      "version": "1.4.0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance",
+      "archive": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\main-candidate06\\exotic-space-industries-remembrance_1.4.0.zip",
+      "sha256": "a8fb077a851004e409a74c0450872bddfdee16a4b121dd2f3f2be90509f94822",
+      "bytes": 7846171,
+      "published": false,
+      "engine_tested": true,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    },
+    {
+      "name": "zzz-nonstandard-beacons-continued",
+      "version": "1.0.0",
+      "archive": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\nsbc-candidate01\\zzz-nonstandard-beacons-continued_1.0.0.zip",
+      "sha256": "c088e7dfe475473c81b9d64053ffd608745f4330e8d557b7a7a2fefbd5d19cd3",
+      "published": false,
+      "package_load_receipt": "package-core-26/packages-01.receipt.json",
+      "engine_tested": true,
+      "bytes": 82419,
+      "final_data_receipt": "package-core-26/packages-final-data.receipt.json"
+    }
+  ],
+  "archive_manifest_sha256": "b23d6ab200b861983df82698f93a456d22e84e55fc13004e6ee580c262a24586",
+  "published": false,
+  "exact_engine": "2.1.23",
+  "required_selection": [
+    {
+      "name": "Accumulator-V2",
+      "version": "1.0.8",
+      "sha256": "484505a04282450b767ea1a165a443ffd25b73f69adfa09aab4d1c9249ea0537",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Accumulator-V2_1.0.8.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Accumulator-V2_1.0.8.zip",
+      "candidate": false
+    },
+    {
+      "name": "Arachnids_enemy",
+      "version": "1.2.1",
+      "sha256": "1eee33ebe8b84c3a4a95a2c80b182d05a047a63dc3f2e504d72e0bf695b9997a",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Arachnids_enemy_1.2.1.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Arachnids_enemy_1.2.1.zip",
+      "candidate": false
+    },
+    {
+      "name": "ArmouredBiters21Compat",
+      "version": "2.0.7",
+      "sha256": "90c146390d6c96f8106fc32c908c4c8faf1e2cfad73e7edf251162cebbcaaf7b",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\ArmouredBiters21Compat_2.0.7.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\ArmouredBiters21Compat_2.0.7.zip",
+      "candidate": false
+    },
+    {
+      "name": "Assembler-Reskin",
+      "version": "1.0.4",
+      "sha256": "8b5f1917daa9ca030c696b9e42275dbc0cb956def19224b6661b8aa1feb1ce9f",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Assembler-Reskin_1.0.4.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Assembler-Reskin_1.0.4.zip",
+      "candidate": false
+    },
+    {
+      "name": "Cold_biters",
+      "version": "2.3.0",
+      "sha256": "7f071e7863762149c5b65a6c182689765f93ffafe7b956b37aa529878fce9c5d",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Cold_biters_2.3.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Cold_biters_2.3.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "Electric_flying_enemies",
+      "version": "0.2.1",
+      "sha256": "b71ecf88c29b2dff5265339fd6215c96798126cc92f5a4384075984e6fc2c25f",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Electric_flying_enemies_0.2.1.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Electric_flying_enemies_0.2.1.zip",
+      "candidate": false
+    },
+    {
+      "name": "Explosive_biters",
+      "version": "2.4.0",
+      "sha256": "6c975ca0ad19c7cd1f7b8821cb5e320bad5359edf6458540dcba8fb3a284eac8",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Explosive_biters_2.4.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Explosive_biters_2.4.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "PollutionCombinator-JamieFork",
+      "version": "1.2.0",
+      "sha256": "f112e667af226208bb08fa2d5bc4755ae7534dc246894b8bfddaa2d579c0f8a1",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\PollutionCombinator-JamieFork_1.2.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\PollutionCombinator-JamieFork_1.2.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "SolarMatrix",
+      "version": "1.0.9",
+      "sha256": "d56c64b762b39b28c8d6f1b32f90a1134cd50961be420c3c067cc099368dfa8b",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\SolarMatrix_1.0.9.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\SolarMatrix_1.0.9.zip",
+      "candidate": false
+    },
+    {
+      "name": "SteampunkLamp",
+      "version": "1.0.4",
+      "sha256": "97b0d17a99e2d62098153b29c26caebf107364d92e5b0f51c70006cc00a923e0",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\SteampunkLamp_1.0.4.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\SteampunkLamp_1.0.4.zip",
+      "candidate": false
+    },
+    {
+      "name": "Toxic_biters",
+      "version": "2.1.0",
+      "sha256": "6238e7949620c45dac8b5fbab815ecb8e937e2e30d460435d5a6ec0d1a96c946",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\Toxic_biters_2.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\Toxic_biters_2.1.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "air-scrubber",
+      "version": "0.2.9",
+      "sha256": "10062bca7bef3583fbf7769c7336e4478ad35575c7e275279f9f57c614a5602c",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\air-scrubber_0.2.9.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\air-scrubber_0.2.9.zip",
+      "candidate": false
+    },
+    {
+      "name": "assault_spidertron_V2",
+      "version": "2.3.12",
+      "sha256": "81156e8ee9aa5ee0defdff601cffa53ed55502a0f5bfe75817394f10a04f4d83",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\assault_spidertron_V2_2.3.12.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\assault_spidertron_V2_2.3.12.zip",
+      "candidate": false
+    },
+    {
+      "name": "atan-ash-fork",
+      "version": "1.0.1",
+      "sha256": "7da940782d4775deeb6dd7b1389add37f506ded9b61c5aa8239713308c40e6b4",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\atan-ash-fork_1.0.1.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\atan-ash-fork_1.0.1.zip",
+      "candidate": false
+    },
+    {
+      "name": "ch-concentrated-solar",
+      "version": "0.6.0",
+      "sha256": "d9d5e4e8767c104b8b542a9e9688eb91f340ca0fe653bb8441ef9c4fa527033f",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\ch-concentrated-solar_0.6.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\ch-concentrated-solar_0.6.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "doeworks-deer-continued",
+      "version": "1.0.0",
+      "sha256": "599aa5a472abec7dc916cab40795c29157780f625fb1cf9aab9d420044b9c2b5",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\doeworks-deer-continued_1.0.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\doeworks-deer-continued_1.0.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "elevated-pipes",
+      "version": "1.5.0",
+      "sha256": "5c01b2fe26619e4c321cde1030f976832702cd0563861689251f986dceb29a5a",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\elevated-pipes_1.5.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\elevated-pipes_1.5.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "enhanced-walls-continued",
+      "version": "1.0.0",
+      "sha256": "55448519cd79ab45c0eee181f30108bf28c0a6cfef54bad40babf0e669291048",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\enhanced-walls-continued_1.0.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\enhanced-walls-continued_1.0.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance",
+      "version": "1.4.0",
+      "sha256": "a8fb077a851004e409a74c0450872bddfdee16a4b121dd2f3f2be90509f94822",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\main-candidate06\\exotic-space-industries-remembrance_1.4.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance_1.4.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-1",
+      "version": "1.1.0",
+      "sha256": "a21884a1d72da8b480f984472ebb887ecd15f6255d6f805d42271d5c8fa69a92",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-1_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-graphics-1_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-2",
+      "version": "1.1.0",
+      "sha256": "e5e683918cf1f7fb664ff0e6074b520b6860b1b22ab14c69459f1eedc8f8fe86",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-2_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-graphics-2_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-3",
+      "version": "1.1.0",
+      "sha256": "5711eed5c4eff1dcb30bbf9044b8bc0d719b68918c7a766f2708ccc9b09c1315",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-3_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-graphics-3_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-4",
+      "version": "1.1.0",
+      "sha256": "216a57fd979312268050230dd7ab2a8fc102fc4f5525f742f3e4d807e2bd14bc",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-4_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-graphics-4_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-5",
+      "version": "1.1.0",
+      "sha256": "9476dce4a0053c19a9a6e9202c912872c0206d7a7941d5dcd9db9e43a3d5cda0",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-5_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-graphics-5_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-6",
+      "version": "1.1.0",
+      "sha256": "7e3fd27cc4bfb2f23d081a222896ab0e3f9c9975044e3df7b85ad1798bd80240",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-graphics-6_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-graphics-6_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-soundtrack-1",
+      "version": "1.1.0",
+      "sha256": "05cca6d8fc43157377618242126fdbc4b7fa23d9f6820b4c1ca191fc7a9c3b6f",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-soundtrack-1_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-soundtrack-1_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "exotic-space-industries-remembrance-soundtrack-2",
+      "version": "1.1.0",
+      "sha256": "1f8950be6f184b75acea4b363658ecfa4bf9b62e4896420dba1c3ca259b705cb",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\companions-candidate01\\exotic-space-industries-remembrance-soundtrack-2_1.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\exotic-space-industries-remembrance-soundtrack-2_1.1.0.zip",
+      "candidate": true
+    },
+    {
+      "name": "informatron",
+      "version": "0.5.0",
+      "sha256": "1e57dd0d86f8fae8486e9ac3cf32da8a2a463d5e7c2b2b5d257286cef727d64b",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\informatron_0.5.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\informatron_0.5.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "mferrari_graphics_pack_1",
+      "version": "0.0.5",
+      "sha256": "3e4ff7d45c74130fb5a229f5924b5a694cc684f95b8e90a3789d60132bde58da",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\mferrari_graphics_pack_1_0.0.5.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\mferrari_graphics_pack_1_0.0.5.zip",
+      "candidate": false
+    },
+    {
+      "name": "perel",
+      "version": "1.2.2",
+      "sha256": "e4e447a14081858813811cafe31be6c10f1bb20ba3d86fb74cb28b81513d4f9a",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\perel_1.2.2.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\perel_1.2.2.zip",
+      "candidate": false
+    },
+    {
+      "name": "rp_art_util",
+      "version": "3.0.0",
+      "sha256": "070dc9b77d9d8287846964b0b7047506060953e4af5a8385dd4fde7dd171d499",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\rp_art_util_3.0.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\rp_art_util_3.0.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "rp_steam_intermediates",
+      "version": "1.0.0",
+      "sha256": "8fe063cf60fccbc639553d9f05847f98000647267accd7eacf3c9580d2fde99f",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\rp_steam_intermediates_1.0.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\rp_steam_intermediates_1.0.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "rp_steam_roboports",
+      "version": "2.1.0",
+      "sha256": "4c8ac6273007c16023131f88792ce9aa5416fb6de893893d0da5f925def77ce2",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\rp_steam_roboports_2.1.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\rp_steam_roboports_2.1.0.zip",
+      "candidate": false
+    },
+    {
+      "name": "zeus-wrath",
+      "version": "1.0.6",
+      "sha256": "0932645ac2986ae3d5d497db05a905e70bf484fff717eaa059a3a9818c0b4f25",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\lv21\\core25\\mods\\zeus-wrath_1.0.6.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\zeus-wrath_1.0.6.zip",
+      "candidate": false
+    },
+    {
+      "name": "zzz-nonstandard-beacons-continued",
+      "version": "1.0.0",
+      "sha256": "c088e7dfe475473c81b9d64053ffd608745f4330e8d557b7a7a2fefbd5d19cd3",
+      "source": "D:\\ESIR\\factorio-2.1-release-0422e48554e14570806ee8e7c009f9a8\\nsbc-candidate01\\zzz-nonstandard-beacons-continued_1.0.0.zip",
+      "staged": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\pt21\\core26\\mods\\zzz-nonstandard-beacons-continued_1.0.0.zip",
+      "candidate": true
+    }
+  ],
+  "release_accepted": true,
+  "acceptance_scope": "Local core 2.1.23 release; user owns uploads; optional migration limits in dependency matrix"
+}

@@ -32,6 +32,7 @@ require("scripts/data-final-updates/set-prerequisites")
 require("scripts/data-final-updates/tiles")
 require("scripts/data-final-updates/labs")
 require("scripts/data-final-updates/recycling")
+require("scripts/data-final-updates/resource-generation")
 require("scripts/data-final-updates/items")
 require("scripts/data-final-updates/krastorio-patches")
 require("teslas_legacy/final_overlay_ei")
@@ -46,8 +47,8 @@ require("scripts/data-final-updates/compatibility-muluna")
 -- =======================================================================================
 
 --data.raw.reactor["ei-burner-heater"].energy_source.fuel_categories = {"chemical"}
-ei_lib.raw.item.wood.fuel_category = "chemical"
-ei_lib.raw.item.coal.fuel_category = "chemical"
+ei_lib.raw.item.wood.fuel_categories = {"chemical"}
+ei_lib.raw.item.coal.fuel_categories = {"chemical"}
 
 -- =======================================================================================
 
@@ -230,3 +231,12 @@ require("scripts/data-final-updates/beacon-profiles")
 require("scripts/data-final-updates/pyric-radiance")
 -- Observe completed fire variants without depending on fuel-overlap cleanup.
 require("scripts/data-final-updates/water-turret-fires")
+require("scripts/data-final-updates/compatibility-21-presentation")
+-- Preserve authored sound starts/stops after all generated operating bodies exist.
+require("scripts/data-final-updates/working-sound-defaults")
+-- Native 2.1 fluid storage adds an input batch and changes the output default.
+require("scripts/data-final-updates/recipe-buffer-sizing")
+-- Apply approved native quality scaling to early-copied ESIR train tiers too.
+require("scripts/data-final-updates/transport-quality-policy")
+-- Keep same-footprint drill upgrades on the fork's canonical collision policy.
+require("scripts/data-final-updates/construction-drone-compatibility")

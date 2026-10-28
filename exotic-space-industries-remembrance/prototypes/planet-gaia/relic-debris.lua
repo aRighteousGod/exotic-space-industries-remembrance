@@ -84,7 +84,7 @@ data:extend({
         name = "ei-gaia-relic-debris-recycling",
         icons = {
             {
-                icon = "__quality__/graphics/icons/recycling.png"
+                icon = "__recycler__/graphics/icons/recycling.png"
             },
             {
                 icon = "__exotic-space-industries-remembrance-graphics-3__/graphics/icons/gaia-relic-debris.png",
@@ -93,10 +93,10 @@ data:extend({
                 scale = 0.4
             },
             {
-                icon = "__quality__/graphics/icons/recycling-top.png"
+                icon = "__recycler__/graphics/icons/recycling-top.png"
             }
         },
-        category = "recycling-or-hand-crafting",
+        categories = {"recycling", "hand-crafting"},
         subgroup = "ei-refining-raw",
         order = "z[gaia]-a[relic-debris-recycling]",
         enabled = false,
@@ -108,21 +108,21 @@ data:extend({
             {type = "item", name = "ei-gaia-relic-debris", amount = 1}
         },
         results = {
-            {type = "item", name = "ei-iron-mechanical-parts", amount = 1, probability = 0.09, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-copper-mechanical-parts", amount = 1, probability = 0.08, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-steel-mechanical-parts", amount = 1, probability = 0.05, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-iron-beam", amount = 1, probability = 0.05, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "battery", amount = 1, probability = 0.05, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "electronic-circuit", amount = 1, probability = 0.05, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-electronic-parts", amount = 1, probability = 0.04, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-insulated-wire", amount = 1, probability = 0.03, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "advanced-circuit", amount = 1, probability = 0.02, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-module-part", amount = 1, probability = 0.02, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "stone", amount = 1, probability = 0.06, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "concrete", amount = 1, probability = 0.05, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ice", amount = 1, probability = 0.04, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.025, show_details_in_recipe_tooltip = false},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability = 0.004, show_details_in_recipe_tooltip = false}
+            {type = "item", name = "ei-iron-mechanical-parts", amount = 1, independent_probability = 0.09, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-copper-mechanical-parts", amount = 1, independent_probability = 0.08, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-steel-mechanical-parts", amount = 1, independent_probability = 0.05, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-iron-beam", amount = 1, independent_probability = 0.05, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "battery", amount = 1, independent_probability = 0.05, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "electronic-circuit", amount = 1, independent_probability = 0.05, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-electronic-parts", amount = 1, independent_probability = 0.04, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-insulated-wire", amount = 1, independent_probability = 0.03, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "advanced-circuit", amount = 1, independent_probability = 0.02, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-module-part", amount = 1, independent_probability = 0.02, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "stone", amount = 1, independent_probability = 0.06, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "concrete", amount = 1, independent_probability = 0.05, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ice", amount = 1, independent_probability = 0.04, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-energy-crystal", amount = 1, independent_probability = 0.025, show_details_in_recipe_tooltip = false},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, independent_probability = 0.004, show_details_in_recipe_tooltip = false}
         }
     }
 })

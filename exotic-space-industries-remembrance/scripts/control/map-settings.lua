@@ -71,7 +71,9 @@ local function control_values(mgs, defaults, remembered, name)
     local enabled = values.frequency > 0 and values.size > 0
     if not enabled then
         for _, property in ipairs({"frequency", "size", "richness"}) do
-            local value = remembered and remembered[property] or fallback[property] or 1
+            local value = remembered and remembered[property]
+            if value == nil then value = source[property] end
+            if value == nil or (property ~= "richness" and value <= 0) then value = fallback[property] or 1 end
             values[property] = property == "richness" and value or (value > 0 and value or 1)
         end
     end
@@ -80,6 +82,7 @@ local function control_values(mgs, defaults, remembered, name)
 end
 
 local function control_id(name, property) return "control/"..name.."/"..property end
+
 local function field_map(fields)
     local result = {}
     for _, field in ipairs(fields) do result[field.id] = field end

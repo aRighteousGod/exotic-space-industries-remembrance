@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-neutron-collector",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -39,7 +39,7 @@ data:extend({
     {
         name = "ei-neutron-container",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -284,7 +284,7 @@ data:extend({
 local base_recipe = {
     name = "ei-charged-neutron-container",
     type = "recipe",
-    category = "ei-neutron-collector",
+    categories = {"ei-neutron-collector"},
     energy_required = 100,
     ingredients = {
         {type = "item", name = "ei-neutron-container", amount = 1},

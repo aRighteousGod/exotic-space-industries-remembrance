@@ -117,7 +117,7 @@ local function apply_fuel_glows()
     for name, prototype in pairs(item_prototypes) do
         if ei_lib.startswith(name, "ei_emt-fuel_")
             and prototype.fuel_value
-            and prototype.fuel_category == "ei_emt-fuel" then
+            and ei_lib.item_has_fuel_category(prototype, {"ei_emt-fuel"}) then
             prototype.fuel_glow_color = copy_color(em_train_glow)
         end
     end
@@ -182,8 +182,8 @@ local function apply_fluid_consumer_lights()
 
     local turbine = data.raw.generator and data.raw.generator["ei-big-turbine"]
     if turbine then
-        add_animation_light_layer(turbine.horizontal_animation, critical_steam, 0.38)
-        add_animation_light_layer(turbine.vertical_animation, critical_steam, 0.38)
+        add_animation_light_layer(turbine.pictures.east.animation, critical_steam, 0.38)
+        add_animation_light_layer(turbine.pictures.north.animation, critical_steam, 0.38)
     end
 end
 

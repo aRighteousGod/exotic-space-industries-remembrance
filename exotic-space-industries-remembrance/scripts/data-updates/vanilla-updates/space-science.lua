@@ -9,15 +9,15 @@ ei_lib.raw.technology["space-science-pack"] = {
 }
 
 --Increase space science pack difficulty, make alt recipes with different fuels
-ei_lib.raw.tool["space-science-pack"] = {
+ei_lib.raw.item["space-science-pack"] = {
     icon = ei_graphics_3_path.."graphics/items/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,
     localised_name = {"item-name.ei-space-science-pack"},
     localised_description = {"item-description.ei-space-science-pack"}
 }
+ei_lib.raw.recipe["space-science-pack"].categories = {"centrifuging"}
 ei_lib.raw.recipe["space-science-pack"] = {
-    category = "centrifuging",
     icon = ei_graphics_3_path.."graphics/items/cosmic-criticality-pack.png",
     icon_size = 512,
     icon_mipmaps = 5,

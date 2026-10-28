@@ -15,15 +15,15 @@ data:extend({
     {
     name = "ei-fluorite-fluorine-calcite",
     type = "recipe",
-    category = "chemistry",
+    categories = {"chemistry"},
     energy_required = 6,
     ingredients = {
-        {type = "fluid", name = "fluorine", amount = 15},
+        {type = "fluid", name = "fluorine", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "calcite", amount = 1},
     },
     results = {
         {type = "item", name = "ei-fluorite", amount = 2},
-        {type = "fluid", name = "ei-carbon-dioxide", amount = 10, ignored_by_stats = 10},
+        {type = "fluid", name = "ei-carbon-dioxide", amount = 10, ignored_by_stats = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     always_show_made_in = true,
     enabled = false,
@@ -32,10 +32,10 @@ data:extend({
     {
         name = "ei-fluorine-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "fluorine", amount = 50},
+            {type = "fluid", name = "fluorine", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -59,7 +59,7 @@ ei_lib.add_unlock_recipe("planet-discovery-aquilo", "ei-carbon-dioxide-vent")
 local lithium_plate = ei_lib.raw.recipe["lithium-plate"]
 if lithium_plate then
     lithium_plate.results[2] =
-    {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.11,ignored_by_stats=2}
+    {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, independent_probability = 0.11,ignored_by_stats=2}
     lithium_plate.icon = data.raw.item["lithium-plate"].icon
     lithium_plate.icon_size = data.raw.item["lithium-plate"].icon_size
     lithium_plate.localised_name = {"item-name.lithium-plate"}
@@ -68,11 +68,11 @@ if lithium_plate then
 local fluoro_cooling = ei_lib.raw.recipe["fluoroketone-cooling"]
 if fluoro_cooling then
 	fluoro_cooling.ingredients = {
-		{ type = "fluid", name = "ei-liquid-nitrogen", amount = 50, ignored_by_stats = 50 },
-		{ type = "fluid", name = "fluoroketone-hot", amount = 10, ignored_by_stats = 10 },
+        { type = "fluid", name = "ei-liquid-nitrogen", amount = 50, ignored_by_stats = 50 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        { type = "fluid", name = "fluoroketone-hot", amount = 10, ignored_by_stats = 10 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 	}
 	fluoro_cooling.results = {
-        { type = "fluid", name = "ei-nitrogen-gas", amount = 125, ignored_by_stats = 125 },
-		{ type = "fluid", name = "fluoroketone-cold", amount = 10, temperature = -150, ignored_by_stats = 10 },
+        { type = "fluid", name = "ei-nitrogen-gas", amount = 125, ignored_by_stats = 125 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        { type = "fluid", name = "fluoroketone-cold", amount = 10, temperature = -150, ignored_by_stats = 10 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 	}
 end

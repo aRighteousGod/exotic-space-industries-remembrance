@@ -26,7 +26,7 @@ data:extend({
     {
         name = "ei-fluid-heater",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -153,6 +153,12 @@ data:extend({
         },
 
         neighbour_bonus = 0.25,
+        neighbour_connectable = {connections = {
+            {location = {position = {0, -1.5}, direction = defines.direction.north}, category = "ei-fluid-heater", neighbour_category = {"ei-fluid-heater"}},
+            {location = {position = {1.5, 0}, direction = defines.direction.east}, category = "ei-fluid-heater", neighbour_category = {"ei-fluid-heater"}},
+            {location = {position = {0, 1.5}, direction = defines.direction.south}, category = "ei-fluid-heater", neighbour_category = {"ei-fluid-heater"}},
+            {location = {position = {-1.5, 0}, direction = defines.direction.west}, category = "ei-fluid-heater", neighbour_category = {"ei-fluid-heater"}},
+        }},
         scale_energy_usage = true,
         picture = {
             filename = ei_graphics_entity_path.."fluid-heater.png",

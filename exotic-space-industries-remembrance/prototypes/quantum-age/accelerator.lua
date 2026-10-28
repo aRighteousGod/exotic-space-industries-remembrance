@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-accelerator",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients =
         {
@@ -149,7 +149,7 @@ data:extend({
     {
         name = "ei-exotic-matter-up-conversion",
         type = "recipe",
-        category = "ei-accelerator",
+        categories = {"ei-accelerator"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "ei-exotic-matter-down", amount = 1},
@@ -157,11 +157,11 @@ data:extend({
             {type = "item", name = "ei-enriched-cryodust", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-exotic-matter-up", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-exotic-matter-down", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-charged-neutron-container", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-neutron-container", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-enriched-cryodust", amount = 1, probability = 0.75},
+            {type = "item", name = "ei-exotic-matter-up", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-exotic-matter-down", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-charged-neutron-container", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-neutron-container", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-enriched-cryodust", amount = 1, independent_probability = 0.75},
         },
         always_show_made_in = true,
         enabled = false,
@@ -172,7 +172,7 @@ data:extend({
     {
         name = "ei-exotic-matter-down-conversion",
         type = "recipe",
-        category = "ei-accelerator",
+        categories = {"ei-accelerator"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "ei-exotic-matter-up", amount = 1},
@@ -180,11 +180,11 @@ data:extend({
             {type = "item", name = "ei-bio-matter", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-exotic-matter-down", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-exotic-matter-up", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-charged-neutron-container", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-neutron-container", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-bio-matter", amount = 1, probability = 0.75},
+            {type = "item", name = "ei-exotic-matter-down", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-exotic-matter-up", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-charged-neutron-container", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-neutron-container", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-bio-matter", amount = 1, independent_probability = 0.75},
         },
         always_show_made_in = true,
         enabled = false,

@@ -20,8 +20,8 @@ data:extend({
     {
         name = "ei-induction-matrix-core",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 10,
         ingredients =
         {
@@ -184,8 +184,8 @@ data:extend({
     {
         name = "ei-induction-matrix-basic-coil",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 1,
         ingredients =
         {
@@ -202,8 +202,8 @@ data:extend({
     {
         name = "ei-induction-matrix-advanced-coil",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 4,
         ingredients =
         {
@@ -219,7 +219,7 @@ data:extend({
     {
         name = "ei-induction-matrix-superior-coil",
         type = "recipe",
-        category = "ei-exotic-assembler",
+        categories = {"ei-exotic-assembler"},
         energy_required = 10,
         ingredients =
         {
@@ -344,8 +344,8 @@ data:extend({
     {
         name = "ei-induction-matrix-basic-solenoid",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 2,
         ingredients =
         {
@@ -360,8 +360,8 @@ data:extend({
     {
         name = "ei-induction-matrix-advanced-solenoid",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 1,
         ingredients =
         {
@@ -490,8 +490,8 @@ data:extend({
     {
         name = "ei-induction-matrix-basic-converter",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 4,
         ingredients =
         {
@@ -507,8 +507,8 @@ data:extend({
     {
         name = "ei-induction-matrix-advanced-converter",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 10,
         ingredients =
         {
@@ -525,7 +525,7 @@ data:extend({
     {
         name = "ei-induction-matrix-superior-converter",
         type = "recipe",
-        category = "ei-exotic-assembler",
+        categories = {"ei-exotic-assembler"},
         energy_required = 20,
         ingredients =
         {
@@ -626,7 +626,7 @@ data:extend({
     {
         name = "ei-induction-matrix-tile",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {

@@ -784,7 +784,7 @@ local function replace_coil_entity(entity, target_name)
     local health = entity.health
     local energy = entity.energy or 0
     local destructible = entity.destructible
-    local minable = entity.minable
+    local minable = entity.minable_flag
     local quality = entity.quality
 
     entity.destroy({raise_destroy = false})
@@ -809,7 +809,7 @@ local function replace_coil_entity(entity, target_name)
         end
         replacement.energy = energy
         replacement.destructible = destructible
-        replacement.minable = minable
+        replacement.minable_flag = minable
     end
 
     return replacement

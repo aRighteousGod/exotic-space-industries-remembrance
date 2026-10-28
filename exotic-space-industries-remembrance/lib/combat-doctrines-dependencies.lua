@@ -6,6 +6,6 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/combat-doctrines.md#contract
 return {
-    pyric_radiance = "fire-lights",
-    ballistic_divergence = "distant-misfires",
+    pyric_radiance = "fire-lights-fork",
+    ballistic_divergence = "distant-misfires-2_1-fork",
 }

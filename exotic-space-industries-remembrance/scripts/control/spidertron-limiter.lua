@@ -40,9 +40,10 @@ local function is_allowed_spiderling_fuel(entity, item_name)
 
     local item_prototypes = ei_lib.get_item_prototypes()
     local item = item_prototypes and item_prototypes[item_name]
-    local fuel_category = item and item.fuel_category
-
-    return fuel_category ~= nil and burner.fuel_categories[fuel_category] == true
+    for _, category in pairs(item and item.fuel_categories or {}) do
+        if burner.fuel_categories[category] then return true end
+    end
+    return false
 end
 
 local function print_rejection_message(event)

@@ -282,7 +282,7 @@ goto do_not_load
 
 local ei_lib = require("lib.lib")
 local ei_data = require("lib.data")
-local matter = require("__Krastorio2-spaced-out__.prototypes.libraries.matter")
+local matter = require("__Krastorio2__.prototypes.libraries.matter")
 -- local variations_util = require("-Krastorio2-.prototypes.updates.generate-roboport-variations")
 local _td = table.deepcopy
 
@@ -488,6 +488,16 @@ for _, matter_args in pairs(K2_MATTER) do
         k2so_upsert_prototype(tech)
     end
     matter.make_recipes(matter_args)
+    -- K2 rebuilds conversion ingredients and also reuses material as a product.
+    -- Apply input-only buffer policy to the generated recipes, not that shared
+    -- material record. Explicit dependency choices retain their own multiplier.
+    local material_name = matter_args.material.name
+    for _, recipe_name in ipairs({"kr-" .. material_name .. "-to-matter", "kr-matter-to-" .. material_name}) do
+        local recipe = data.raw.recipe[recipe_name]
+        for _, ingredient in pairs(recipe and recipe.ingredients or {}) do
+            if ingredient.type == "fluid" and ingredient.fluidbox_multiplier == nil then ingredient.fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier() end
+        end
+    end
 end
 
 --CATEGORIES, GROUPS, SUBGROUPS
@@ -675,7 +685,7 @@ local K2_CHANGES = {
         ["kr-crusher"] = {crafting_categories = {"ei-crushing"}, crafting_speed = 12, localised_name = {"item-name.kr-crusher"}},
         ["kr-filtration-plant"] = {crafting_categories = {"ei-purifier", "kr-fluid-filtration"}, crafting_speed = 3, module_slots = 6},
         ["kr-quantum-computer"] = {crafting_speed = 2},
-        ["kr-advanced-assembling-machine"] = {crafting_speed = 8, crafting_categories = {"crafting", "basic-crafting", "advanced-crafting", "crafting-with-fluid"}, module_slots = 6, energy_usage = "10MW",},
+        ["kr-advanced-assembling-machine"] = {crafting_speed = 8, crafting_categories = {"crafting", "advanced-crafting", "crafting-with-fluid"}, module_slots = 6, energy_usage = "10MW",},
         ["ei-quantum-computer"] = {crafting_categories = {"ei-quantum-computer", "kr-tech-cards"}, crafting_speed = 10, localised_name = {"item-name.kr-ai-core"}}, -- from 1x
         ["kr-atmospheric-condenser"] = {crafting_categories = {"ei-atmosphere-condensation", "ei-lufter"}, crafting_speed = 4},
     },
@@ -832,26 +842,26 @@ local K2_CHANGES = {
         ["kr-imersite"] = {autoplace = ei_autoplace("kr-imersite", "gaia")}
     },
     ["recipe"] = {
-        ["express-splitter"] = {category = "crafting-with-fluid", ingredients = {
+        ["express-splitter"] = {categories = {"crafting-with-fluid"}, ingredients = {
             {type = "item", name = "fast-splitter", amount = 1},
             {type = "item", name = "ei-steel-mechanical-parts", amount = 5},
             {type = "item", name = "kr-rare-metals", amount = 4},
             {type = "item", name = "ei-electronic-parts", amount = 2},
         }},
         --[[ -- why does this not work? manually overwrite below
-        ["express-transport-belt"] = {category = "crafting-with-fluid", ingredients = {
+        ["express-transport-belt"] = {categories = {"crafting-with-fluid"}, ingredients = {
             {type = "item", name = "fast-transport-belt", amount = 1},
             {type = "item", name = "ei-steel-mechanical-parts", amount = 5},
             {type = "item", name = "kr-rare-metals", amount = 1},
         }},
         ]]
-        ["express-underground-belt"] = {category = "crafting-with-fluid", ingredients = {
+        ["express-underground-belt"] = {categories = {"crafting-with-fluid"}, ingredients = {
             {type = "item", name = "fast-underground-belt", amount = 2},
             {type = "item", name = "ei-steel-mechanical-parts", amount = 5},
             {type = "item", name = "kr-rare-metals", amount = 4},
         }},
         -- intermediates
-        ["kr-quartz"] = {subgroup = "ei-refining-secondary", order = "c-a", category = "advanced-crafting"},
+        ["kr-quartz"] = {subgroup = "ei-refining-secondary", order = "c-a", categories = {"advanced-crafting"}},
         ["kr-rare-metals"] = {subgroup = "ei-refining-ingot", order = "a7"}, -- 2 recipes
         ["kr-rare-metals-2"] = {subgroup = "ei-refining-ingot", order = "a7"}, -- 2 recipes
         ["kr-enriched-iron"] = {subgroup = "ei-refining-secondary", order = "c-d"},
@@ -873,37 +883,37 @@ local K2_CHANGES = {
         ["kr-medium-requester-container"] = {order = "e"},
         ["kr-medium-storage-container"] = {order = "d"},
         --transport
-        ["kr-advanced-transport-belt"] = {category = "crafting-with-fluid"},
-        ["kr-advanced-underground-belt"] = {category = "crafting-with-fluid"},
-        ["kr-advanced-splitter"] = {category = "crafting-with-fluid"},
-        ["kr-advanced-loader"] = {category = "crafting-with-fluid"},
+        ["kr-advanced-transport-belt"] = {categories = {"crafting-with-fluid"}},
+        ["kr-advanced-underground-belt"] = {categories = {"crafting-with-fluid"}},
+        ["kr-advanced-splitter"] = {categories = {"crafting-with-fluid"}},
+        ["kr-advanced-loader"] = {categories = {"crafting-with-fluid"}},
         -- fuel refining
-        ["rocket-fuel"] = {category = "kr-fuel-refinery"},
-        ["ei-diesel-fuel-unit"] = {category = "kr-fuel-refinery"},
-        ["ei-drill-fluid"] = {category = "kr-fuel-refinery"},
-        ["ei-kerosene-heavy-oil"] = {category = "kr-fuel-refinery"},
+        ["rocket-fuel"] = {categories = {"kr-fuel-refinery"}},
+        ["ei-diesel-fuel-unit"] = {categories = {"kr-fuel-refinery"}},
+        ["ei-drill-fluid"] = {categories = {"kr-fuel-refinery"}},
+        ["ei-kerosene-heavy-oil"] = {categories = {"kr-fuel-refinery"}},
         -- crushing
-        ["sand"] = {category = "ei-crushing"},
-        ["kr-imersite-powder"] = {category = "ei-crushing"},
-        ["imersite-crystal-to-dust"] = {category = "ei-crushing"},
+        ["sand"] = {categories = {"ei-crushing"}},
+        ["kr-imersite-powder"] = {categories = {"ei-crushing"}},
+        ["imersite-crystal-to-dust"] = {categories = {"ei-crushing"}},
         -- inserters to parts
-        ["inserter-to-parts"] = {category = "ei-crushing"},
-        ["fast-inserter-to-parts"] = {category = "ei-crushing"},
-        ["long-handed-inserter-to-parts"] = {category = "ei-crushing"},
-        ["burner-inserter-to-parts"] = {category = "ei-crushing"},
-        ["stack-inserter-to-parts"] = {category = "ei-crushing"},
-        ["stack-filter-inserter-to-parts"] = {category = "ei-crushing"},
-        ["filter-inserter-to-parts"] = {category = "ei-crushing"},
-        ["superior-inserter-to-parts"] = {category = "ei-crushing"},
-        ["superior-long-inserter-to-parts"] = {category = "ei-crushing"},
-        ["superior-filter-inserter-to-parts"] = {category = "ei-crushing"},
-        ["superior-long-filter-inserter-to-parts"] = {category = "ei-crushing"},
+        ["inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["fast-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["long-handed-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["burner-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["stack-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["stack-filter-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["filter-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["superior-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["superior-long-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["superior-filter-inserter-to-parts"] = {categories = {"ei-crushing"}},
+        ["superior-long-filter-inserter-to-parts"] = {categories = {"ei-crushing"}},
         -- k2 science cards + multiplication of ei times
---        ["utility-science-pack"] = {category = "kr-t2-tech-cards"},
---        ["production-science-pack"] = {category = "kr-tech-cards"},
-        ["space-science-pack"] = {category = "kr-tech-cards"},
-        ["kr-matter-tech-card"] = {category = "kr-tech-cards"},
-        ["kr-advanced-tech-card"] = {category = "kr-tech-cards"},
+--        ["utility-science-pack"] = {categories = {"kr-t2-tech-cards"}},
+--        ["production-science-pack"] = {categories = {"kr-tech-cards"}},
+        ["space-science-pack"] = {categories = {"kr-tech-cards"}},
+        ["kr-matter-tech-card"] = {categories = {"kr-tech-cards"}},
+        ["kr-advanced-tech-card"] = {categories = {"kr-tech-cards"}},
         ["ei-superior-data"] = {energy_required = 50},
         ["ei-plasma-data-deuterium"] = {energy_required = 50},
         ["ei-plasma-data-protium"] = {energy_required = 50},
@@ -944,6 +954,11 @@ for source, group in pairs(K2_CHANGES) do
     for name, object in pairs(group) do
         object.name = name
         object.type = source
+        -- set_properties recursively merges tables; categories replace the old
+        -- recipe routing exactly, including any native 2.1 secondary category.
+        if source == "recipe" and object.categories and data.raw.recipe[name] then
+            data.raw.recipe[name].categories = {}
+        end
         ei_lib.set_properties(object)
     end
 end
@@ -1566,7 +1581,7 @@ local recipe_overwrite = {
         {type = "item", name = "ei-odd-plating", amount = 4},
         {type = "item", name = "kr-imersite-crystal", amount = 10},
         {type = "item", name = "ei-magnet", amount = 6},
-        {type = "fluid", name = "ei-nitric-acid", amount = 25},
+        {type = "fluid", name = "ei-nitric-acid", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["nuclear-reactor-equipment"] = {
         {type = "item", name = "fission-reactor-equipment", amount = 1},
@@ -1644,8 +1659,8 @@ local recipe_overwrite = {
     ["rocket-fuel"] = {
         {type = "item", name = "iron-plate", amount = 1},
         {type = "item", name = "solid-fuel", amount = 1},
-        {type = "fluid", name = "ei-liquid-oxygen", amount = 25},
-        {type = "fluid", name = "ei-kerosene", amount = 15},
+        {type = "fluid", name = "ei-liquid-oxygen", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type = "fluid", name = "ei-kerosene", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["kr-charged-antimatter-fuel-cell"] = {
         {type = "item", name = "kr-empty-antimatter-fuel-cell", amount = 1},
@@ -1696,43 +1711,43 @@ local recipe_overwrite = {
         {type="item", name="express-transport-belt", amount=1},
         {type="item", name="ei-steel-mechanical-parts", amount=5},
         {type="item", name="ei-condensed-cryodust", amount=1},
-        {type="fluid", name="lubricant", amount=15},
+        {type="fluid", name="lubricant", amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["kr-advanced-underground-belt"] = {
         {type="item", name="express-underground-belt", amount=2},
         {type="item", name="ei-steel-mechanical-parts", amount=5},
         {type="item", name="ei-condensed-cryodust", amount=1},
-        {type="fluid", name="lubricant", amount=35},
+        {type="fluid", name="lubricant", amount=35, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["kr-advanced-splitter"] = {
         {type="item", name="express-splitter", amount=1},
         {type="item", name="ei-steel-mechanical-parts", amount=5},
         {type="item", name="ei-condensed-cryodust", amount=1},
-        {type="fluid", name="lubricant", amount=55},
+        {type="fluid", name="lubricant", amount=55, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["kr-advanced-laoder"] = {
         {type="item", name="kr-express-loader", amount=2},
         {type="item", name="ei-steel-mechanical-parts", amount=5},
         {type="item", name="ei-condensed-cryodust", amount=1},
-        {type="fluid", name="lubricant", amount=55},
+        {type="fluid", name="lubricant", amount=55, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
 
     ["ei-neo-belt"] = {
-        {type = "fluid", name = "ei-liquid-nitrogen", amount = 20},
+        {type = "fluid", name = "ei-liquid-nitrogen", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "kr-superior-transport-belt", amount = 2},
         {type = "item", name = "ei-carbon-structure", amount = 2},
         {type = "item", name = "ei-enriched-cryodust", amount = 1},
         {type = "item", name = "ei-steel-mechanical-parts", amount = 10},
     },
     ["ei-neo-splitter"] = {
-        {type = "fluid", name = "ei-liquid-nitrogen", amount = 20},
+        {type = "fluid", name = "ei-liquid-nitrogen", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "kr-superior-splitter", amount = 2},
         {type = "item", name = "ei-carbon-structure", amount = 4},
         {type = "item", name = "ei-enriched-cryodust", amount = 2},
         {type = "item", name = "processing-unit", amount = 5},
     },
     ["ei-neo-underground-belt"] = {
-        {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
+        {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "kr-superior-underground-belt", amount = 4},
         {type = "item", name = "ei-carbon-structure", amount = 10},
         {type = "item", name = "ei-enriched-cryodust", amount = 2},
@@ -1758,18 +1773,18 @@ local recipe_overwrite = {
         {type = "item", name = "chemical-science-pack", amount = 5},
     },
     ["ei-computer-age-tech"] = {
-        {type = "fluid", name = "lubricant", amount = 25},
+        {type = "fluid", name = "lubricant", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-energy-crystal", amount = 3},
         {type = "item", name = "utility-science-pack", amount = 5},
     },
     ["ei-alien-computer-age-tech"] = {
-        {type = "fluid", name = "ei-cryoflux", amount = 100},
+        {type = "fluid", name = "ei-cryoflux", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-alien-resin", amount = 10},
         {type = "item", name = "ei-alien-seed", amount = 1},
         {type = "item", name = "utility-science-pack", amount = 5},
     },
     ["ei-advanced-computer-age-tech"] = {
-        {type = "fluid", name = "ei-ammonia-gas", amount = 100},
+        {type = "fluid", name = "ei-ammonia-gas", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-simulation-data", amount = 12},
         {type = "item", name = "kr-rare-metals", amount = 4},
         {type = "item", name = "utility-science-pack", amount = 5},
@@ -1835,15 +1850,15 @@ k2so_upsert_prototypes({
     {
         name = "kr-enriched-iron",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-pure-iron", amount = 9},
-            {type = "fluid", name = "sulfuric-acid", amount = 3},
+            {type = "fluid", name = "sulfuric-acid", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "kr-enriched-iron", amount = 9},
-            {type = "fluid", name = "ei-dirty-water", amount = 3},
+            {type = "fluid", name = "ei-dirty-water", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         main_product = "kr-enriched-iron",
         subgroup = "ei-refining-purified",
@@ -1854,15 +1869,15 @@ k2so_upsert_prototypes({
     {
         name = "kr-enriched-copper",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-pure-copper", amount = 9},
-            {type = "fluid", name = "sulfuric-acid", amount = 3},
+            {type = "fluid", name = "sulfuric-acid", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "kr-enriched-copper", amount = 9},
-            {type = "fluid", name = "ei-dirty-water", amount = 3},
+            {type = "fluid", name = "ei-dirty-water", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         main_product = "kr-enriched-copper",
         subgroup = "ei-refining-purified",
@@ -1873,15 +1888,15 @@ k2so_upsert_prototypes({
     {
         name = "kr-enriched-rare-metals",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "kr-rare-metal-ore", amount = 9},
-            {type = "fluid", name = "kr-hydrogen-chloride", amount = 10},
+            {type = "fluid", name = "kr-hydrogen-chloride", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "kr-enriched-rare-metals", amount = 9},
-            {type = "fluid", name = "kr-chlorine", amount = 5},
+            {type = "fluid", name = "kr-chlorine", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         main_product = "kr-enriched-rare-metals",
         subgroup = "ei-refining-purified",
@@ -1892,7 +1907,7 @@ k2so_upsert_prototypes({
     {
         name = "kr-enriched-iron-plate",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 16,
         ingredients = {
             {type = "item", name = "kr-enriched-iron", amount = 10},
@@ -1907,7 +1922,7 @@ k2so_upsert_prototypes({
     {
         name = "kr-enriched-copper-plate",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 16,
         ingredients = {
             {type = "item", name = "kr-enriched-copper", amount = 10},
@@ -1922,11 +1937,11 @@ k2so_upsert_prototypes({
     {
         name = "kr-quartz",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 3,
         ingredients = {
             {type = "item", name = "ei-sand", amount = 10},
-            {type = "fluid", name = "water", amount = 10},
+            {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "kr-quartz", amount = 6},
@@ -1940,18 +1955,18 @@ k2so_upsert_prototypes({
     {
         name = "ei-bio-matter-biomass",
         type = "recipe",
-        category = "kr-bioprocessing",
+        categories = {"kr-bioprocessing"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "ei-bio-matter", amount = 1},
             {type = "item", name = "kr-fertilizer", amount = 1},
             {type = "item", name = "kr-biomass", amount = 10},
             {type = "item", name = "ei-cryodust", amount = 4},
-            {type = "fluid", name = "kr-chlorine", amount = 10},
+            {type = "fluid", name = "kr-chlorine", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-bio-matter", amount = 2},
-            {type = "item", name = "ei-cryodust", amount = 1, probability = 0.5},
+            {type = "item", name = "ei-cryodust", amount = 1, independent_probability = 0.5},
         },
         main_product = "ei-bio-matter",
         enabled = false,
@@ -1960,7 +1975,7 @@ k2so_upsert_prototypes({
     {
         name = "imersium-beam-metalworks",
         type = "recipe",
-        category = "ei-metalworks",
+        categories = {"ei-metalworks"},
         energy_required = 3,
         ingredients = {
             {type = "item", name = "kr-imersium-plate", amount = 2},
@@ -1977,7 +1992,7 @@ k2so_upsert_prototypes({
     {
         name = "imersium-gear-wheel-metalworks",
         type = "recipe",
-        category = "ei-metalworks",
+        categories = {"ei-metalworks"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "kr-imersium-plate", amount = 4},
@@ -1994,11 +2009,11 @@ k2so_upsert_prototypes({
     {
         name = "ei-water-from-atmosphere",
         type = "recipe",
-        category = "ei-atmosphere-condensation",
+        categories = {"ei-atmosphere-condensation"},
         energy_required = 120,
         ingredients = {},
         results = {
-            {type = "fluid", name = "water", amount = 25},
+            {type = "fluid", name = "water", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         main_product = "water",
         subgroup = "fluid-recipes",
@@ -2018,7 +2033,7 @@ k2so_upsert_prototypes({
     {
         name = "ei-antimatter-cube",
         type = "recipe",
-        category = "ei-accelerator",
+        categories = {"ei-accelerator"},
         energy_required = 100, -- 100s at 100MW = 10GJ
         ingredients = {
             {type = "item", name = "kr-matter-cube", amount = 1},
@@ -2027,10 +2042,10 @@ k2so_upsert_prototypes({
             {type = "item", name = "ei-eu-magnet", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-antimatter-cube", amount = 1, probability = 0.5},
-            {type = "item", name = "kr-matter-cube", amount = 1, probability = 0.5},
-            {type = "item", name = "kr-ai-core", amount = 1, probability = 0.5},
-            {type = "item", name = "ei-eu-magnet", amount = 1, probability = 0.5},
+            {type = "item", name = "ei-antimatter-cube", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "kr-matter-cube", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "kr-ai-core", amount = 1, independent_probability = 0.5},
+            {type = "item", name = "ei-eu-magnet", amount = 1, independent_probability = 0.5},
         },
         main_product = "ei-antimatter-cube",
         enabled = false,
@@ -2083,7 +2098,7 @@ k2so_upsert_prototypes({
     {
         name = "ei-blank-tech-card",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type="item", name="ei-ceramic", amount=3},
@@ -2097,7 +2112,7 @@ k2so_upsert_prototypes({
     {
         name = "ei-blank-tech-card-electronic-parts",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 8,
         ingredients = {
             {type="item", name="ei-ceramic", amount=6},
@@ -2111,7 +2126,7 @@ k2so_upsert_prototypes({
     {
         name = "ei-matter-quantum-age-tech",
         type = "recipe",
-        category = "ei-nano-factory",
+        categories = {"ei-nano-factory"},
         energy_required = 60,
         ingredients = {
             {type="item", name="ei-clean-plating", amount=2},
@@ -2125,7 +2140,7 @@ k2so_upsert_prototypes({
     {
         name = "ei-imersite-quantum-age-tech",
         type = "recipe",
-        category = "ei-nano-factory",
+        categories = {"ei-nano-factory"},
         energy_required = 60,
         ingredients = {
             {type="item", name="kr-imersium-plate", amount=2},
@@ -2139,7 +2154,7 @@ k2so_upsert_prototypes({
     {
         type = "recipe",
         name = "express-transport-belt",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients = {
             {type = "item", name = "fast-transport-belt", amount = 1},
@@ -2152,7 +2167,7 @@ k2so_upsert_prototypes({
     {
         type = "recipe",
         name = "kr-wind-turbine",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "electric-engine-unit", amount = 1},
@@ -2165,7 +2180,7 @@ k2so_upsert_prototypes({
     {
         type = "recipe",
         name = "kr-imersite-powder",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 3,
         ingredients = {
             {type = "item", name = "kr-imersite", amount = 6},
@@ -2231,7 +2246,7 @@ ei_lib.recipe_add("processing-unit", "kr-rare-metals", 6, false)
 ei_lib.recipe_add("advanced-circuit", "kr-silicon", 1)
 data.raw["recipe"]["kr-quartz"].ingredients = {
     {type = "item", name = "ei-sand", amount = 2},
-    {type = "fluid", name = "water", amount = 20},
+    {type = "fluid", name = "water", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 }
 ei_lib.recipe_add("ei-semiconductor", "kr-silicon", 2)
 ei_lib.recipe_add("ei-advanced-base-semiconductor", "kr-silicon", 4)
@@ -2444,7 +2459,7 @@ k2so_upsert_prototypes({
     {
         type = "recipe",
         name = "ei-basic-power-pole",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "wood", amount = 2},

@@ -24,6 +24,7 @@ $script:EsirEnabledLocalMods = $null
 
 if (Test-Path -LiteralPath $script:EsirFactorioLibDefault) {
     . $script:EsirFactorioLibDefault
+    . (Join-Path $PSScriptRoot 'esir-qc-version-staging.ps1')
     $script:EsirFactorioQcLoaded = $true
 }
 
@@ -372,7 +373,7 @@ function Get-EsirTextFileTargets {
     }
 
     $skipDirectories = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-    foreach ($directory in @('.git', '.factorio-qc', '.factorio-lua-docs-cache', '.tmp_inspect', '.tools', '__pycache__', 'output', 'tmp')) {
+    foreach ($directory in @('.git', '.factorio-qc', '.factorio-lua-docs-cache', '.tmp_inspect', '.tools', '__pycache__', 'output', 'tmp', 'temp')) {
         [void]$skipDirectories.Add($directory)
     }
 
@@ -390,7 +391,7 @@ function Get-EsirTextFileTargets {
             }
 
             foreach ($child in $directory.EnumerateDirectories()) {
-                if (-not $skipDirectories.Contains($child.Name)) {
+                if (-not $skipDirectories.Contains($child.Name) -and -not ($child.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
                     $directories.Push($child)
                 }
             }
@@ -524,6 +525,7 @@ function Import-EsirFactorioQc {
             throw "Factorio QC library not found: $($Paths.factorio_lib_script). Install or repair the global factorio-mod-qc skill."
         }
         . $Paths.factorio_lib_script
+        . (Join-Path $PSScriptRoot 'esir-qc-version-staging.ps1')
         $script:EsirFactorioQcLoaded = $true
     }
 }
@@ -536,7 +538,24 @@ function Get-EsirQcContext {
     )
 
     Import-EsirFactorioQc -Paths $Paths
-    return (Get-FactorioQCContext -RepoRoot $Paths.repo_root -FactorioPath $FactorioPath -EnsureArtifactRoot:$EnsureArtifactRoot)
+    $profile = Read-EsirJson -Path (Join-Path $Paths.repo_root '.codex/esir/factorio-development.json')
+    if (-not $FactorioPath -and $profile) {
+        $FactorioPath = Join-Path $Paths.repo_root $profile.engine_path
+        if (-not (Test-Path -LiteralPath $FactorioPath -PathType Leaf)) {
+            throw "Configured Factorio $($profile.engine_version) executable is missing: $FactorioPath"
+        }
+    }
+    $context = Get-FactorioQCContext -RepoRoot $Paths.repo_root -FactorioPath $FactorioPath -EnsureArtifactRoot:$EnsureArtifactRoot
+    if ($profile -and $context.factorio_exe) {
+        $engineRoot = Split-Path (Split-Path (Split-Path $context.factorio_exe))
+        $base = Read-EsirJson -Path (Join-Path $engineRoot 'data/base/info.json')
+        if ($base.version -like '2.1.*') {
+            if ($base.version -ne $profile.engine_version) { throw "Main development requires exact Factorio $($profile.engine_version), found $($base.version)." }
+            $context.cache_seed_directories = @((Join-Path $Paths.repo_root $profile.dependency_seed))
+            $context | Add-Member -NotePropertyName esir_development_profile -NotePropertyValue $profile
+        }
+    }
+    return $context
 }
 
 function Get-EsirRuntimeOverrideMap {
@@ -1499,13 +1518,13 @@ function Get-EsirSaveCatalogData {
 
     $existing = Read-EsirJson -Path $Paths.save_catalog_path
     $entries = [System.Collections.Generic.List[object]]::new()
-    $defaultSavePath = Join-Path $Paths.repo_root '.factorio-qc\fueler-smoke.zip'
+    $defaultSavePath = Join-Path $Paths.repo_root '.factorio-qc\core-2.1-smoke.zip'
     $entries.Add([ordered]@{
-        id            = 'fueler-smoke'
-        path          = '.factorio-qc\fueler-smoke.zip'
+        id            = 'core-2.1-smoke'
+        path          = '.factorio-qc\core-2.1-smoke.zip'
         kind          = 'smoke-save'
-        purpose       = 'Fueler runtime and preview smoke coverage'
-        tags          = @('runtime', 'preview', 'smoke', 'fueler')
+        purpose       = 'Native Factorio 2.1.23 core runtime and preview smoke coverage'
+        tags          = @('runtime', 'preview', 'smoke', '2.1')
         preferred_for = @('qc-runtime', 'qc-preview')
         helper_mods   = @()
         mods_source   = 'live-repo-via-qc-sync'
@@ -1513,14 +1532,14 @@ function Get-EsirSaveCatalogData {
     }) | Out-Null
 
     foreach ($entry in (ConvertTo-EsirArray $(if ($existing) { $existing.entries } else { $null }))) {
-        if ($entry.id -eq 'fueler-smoke') { continue }
+        if ($entry.id -eq 'core-2.1-smoke') { continue }
         $entries.Add([ordered]@{
             id            = $entry.id
             path          = $entry.path
             kind          = $entry.kind
             purpose       = $entry.purpose
             tags          = @($entry.tags)
-            preferred_for = @($entry.preferred_for)
+            preferred_for = @($entry.preferred_for | Where-Object { $entry.id -ne 'fueler-smoke' -or $_ -notin @('qc-runtime', 'qc-preview') })
             helper_mods   = @($entry.helper_mods)
             mods_source   = $entry.mods_source
             notes         = $entry.notes
@@ -1876,14 +1895,12 @@ function Invoke-EsirQcMode {
     if ($saveSelection -and $saveSelection.path -and (Test-EsirArtifactWithin $saveSelection.path $Paths.repo_root)) { $retainedInputs += $saveSelection.path }
     $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow ('qc-' + $Mode) -Scenario $scenario -RetainedPaths $retainedInputs -Reproduction "invoke-esir-dev -Task qc-$Mode; scenario=$scenario; Factorio=$($context.factorio_exe)"
 
-    $arguments = @('-ExecutionPolicy', 'Bypass', '-File', $Paths.factorio_invoke_script, '-Mode', $Mode, '-RepoRoot', $Paths.repo_root)
-    if ($managed.run) {
-        $arguments = @('-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'invoke-esir-qc-delegate.ps1'), '-Mode', $Mode, '-RepoRoot', $Paths.repo_root, '-ArtifactRoot', $context.artifact_root, '-RunId', $managed.run.id)
-    }
+    if (-not $managed.run) { throw 'QC ownership registration failed; refusing an unmanaged fallback with different staging defaults.' }
+    $arguments = @('-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'invoke-esir-qc-delegate.ps1'), '-Mode', $Mode, '-RepoRoot', $Paths.repo_root, '-ArtifactRoot', $context.artifact_root, '-RunId', $managed.run.id)
     if ($saveSelection -and $saveSelection.path) { $arguments += @('-Save', $saveSelection.path) }
     if ($null -ne $Seed) { $arguments += @('-Seed', [string]$Seed) }
     if ($Planet) { $arguments += @('-Planet', $Planet) }
-    if ($FactorioPath) { $arguments += @('-FactorioPath', $FactorioPath) }
+    $arguments += @('-FactorioPath', $context.factorio_exe)
     if ($Strict) { $arguments += '-Strict' }
 
     $invocationStartedAt = [DateTime]::UtcNow

@@ -182,7 +182,7 @@ local function make_power(record)
     if helper then
         helper.energy = 0
         helper.destructible = false
-        helper.minable = false
+        helper.minable_flag = false
         helper.operable = false
         record.power_registration = script.register_on_object_destroyed(helper)
         state().registrations[record.power_registration] = entity.unit_number
@@ -354,7 +354,7 @@ local function firefight(record,tick)
         end
         entity.orientation=orientation
     end
-    local removed=entity.remove_fluid{name="water",amount=config.pulse_water}
+    local removed=entity.extract_fluid{name="water",amount=config.pulse_water}
     if removed>=config.pulse_water then
         local factor=config.muzzle_length/math.sqrt(dx*dx+2*dy*dy)
         local stream=entity.surface.create_entity{

@@ -37,8 +37,7 @@ end
 -- error(serpent.block(data.raw.technology['planet-discovery-gleba']))
 local p_unit = ei_lib.raw.recipe["processing-unit"]
 if p_unit then
-	p_unit.category = "crafting"
-	p_unit.additional_categories = {"electronics"}
+	p_unit.categories = {"crafting", "ei-electronics"}
 end
 --====================================================================================================
 --RECIPES THAT ALLOW PRODUCTIVITY
@@ -314,9 +313,9 @@ ei_lib.add_unlock_recipe("lithium-processing", "lithium-chloride")
 -- SPECIAL CASES
 --====================================================================================================
 
-data.raw.recipe["transport-belt"].category = "crafting"
-data.raw.recipe["underground-belt"].category = "crafting"
-data.raw.recipe["splitter"].category = "crafting"
+data.raw.recipe["transport-belt"].categories = {"crafting"}
+data.raw.recipe["underground-belt"].categories = {"crafting"}
+data.raw.recipe["splitter"].categories = {"crafting"}
 
 -- error(serpent.block(data.raw.technology["uranium-mining"]))
 -- error(serpent.block(data.raw.recipe["centrifuge"]))
@@ -389,12 +388,14 @@ for _, recipe in pairs(data.raw.recipe) do
 
 	if recipe.subgroup == "fill-barrel" and recipe.ingredients then
 		for _, ingredient in pairs(recipe.ingredients) do
+            if ingredient.type == "fluid" and ingredient.fluidbox_multiplier == nil then ingredient.fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier() end
 			overwrite_barrel_capacity(ingredient, ei_lib.config("barrel-capacity"))
 		end
 	end
 
 	if recipe.subgroup == "empty-barrel" and recipe.results then
 		for _, result in pairs(recipe.results) do
+            if result.type == "fluid" and result.fluidbox_multiplier == nil then result.fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true) end
 			overwrite_barrel_capacity(result, ei_lib.config("barrel-capacity"))
 		end
 	end

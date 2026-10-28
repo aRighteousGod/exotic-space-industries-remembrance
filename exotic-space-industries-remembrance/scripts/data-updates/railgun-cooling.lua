@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/railgun-cooling.md#contract
 require("util")
 
 local ei_lib = require("lib/lib")
@@ -63,14 +64,16 @@ local function make_hidden_proxy()
             name = PROXY_RECIPE_NAME,
             localised_name = {"recipe-name." .. PROXY_RECIPE_NAME},
             localised_description = {"recipe-description." .. PROXY_RECIPE_NAME},
-            category = PROXY_RECIPE_CATEGORY,
+            categories = {PROXY_RECIPE_CATEGORY},
             energy_required = 1,
             ingredients = {
-                {type = "fluid", name = "fluoroketone-cold", amount = PROXY_FLUID_CAPACITY, fluidbox_multiplier = 1},
+                -- 2.1 reserves one extra ingredient batch in the input storage.
+                -- This uncraftable lock recipe only sizes the helper: 15 * (1+1) = 30.
+                {type = "fluid", name = "fluoroketone-cold", amount = PROXY_FLUID_CAPACITY / 2, fluidbox_multiplier = 1},
                 {type = "item", name = PROXY_LOCK_ITEM_NAME, amount = 1},
             },
             results = {
-                {type = "fluid", name = "fluoroketone-hot", amount = PROXY_FLUID_CAPACITY},
+                {type = "fluid", name = "fluoroketone-hot", amount = PROXY_FLUID_CAPACITY, fluidbox_multiplier = 2},
             },
             enabled = false,
             hidden = true,
@@ -224,12 +227,12 @@ local function add_ice_cooling_recipe()
     recipe.allow_productivity = false
     recipe.auto_recycle = false
     recipe.ingredients = {
-        {type = "fluid", name = "fluoroketone-hot", amount = 10, ignored_by_stats = 10},
+        {type = "fluid", name = "fluoroketone-hot", amount = 10, ignored_by_stats = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ice", amount = 2},
     }
     recipe.results = {
-        {type = "fluid", name = "fluoroketone-cold", amount = 10, temperature = -150, ignored_by_stats = 10},
-        {type = "fluid", name = "steam", amount = 40, temperature = 500},
+        {type = "fluid", name = "fluoroketone-cold", amount = 10, temperature = -150, ignored_by_stats = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "fluid", name = "steam", amount = 40, temperature = 500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     }
 
     data:extend({recipe})

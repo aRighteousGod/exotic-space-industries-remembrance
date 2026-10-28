@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-nano-factory",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -190,18 +190,18 @@ data:extend({
     {
         name = "ei-carbon",
         type = "recipe",
-        category = "ei-nano-factory",
+        categories = {"ei-nano-factory"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "carbon", amount = 2},
             {type = "item", name = "ei-ceramic", amount = 6},
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 30},
-            {type = "fluid", name = "steam", amount = 100,min_temperature=900},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "steam", amount = 100,min_temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-carbon", amount_min = 2, amount_max=3},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=20,ignored_by_stats=20},
-            {type = "fluid", name = "ei-hydrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 5, amount_max=20,ignored_by_stats=20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-hydrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -210,18 +210,18 @@ data:extend({
     {
         name = "ei-carbon-nanotube",
         type = "recipe",
-        category = "ei-nano-factory",
+        categories = {"ei-nano-factory"},
         energy_required = 60,
         ingredients = {
             {type = "item", name = "ei-carbon", amount = 5},
             {type = "item", name = "ei-crushed-coke", amount = 2},
-            {type = "fluid", name = "ei-nitric-acid", amount = 15},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 100},
+            {type = "fluid", name = "ei-nitric-acid", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-carbon-nanotube", amount_min = 1, amount_max=3},
-            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max=5,ignored_by_stats=5},
+            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1, amount_max=5,ignored_by_stats=5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -230,18 +230,18 @@ data:extend({
     {
         name = "ei-carbon-structure",
         type = "recipe",
-        category = "ei-nano-factory",
+        categories = {"ei-nano-factory"},
         energy_required = 120,
         ingredients = {
             {type = "item", name = "ei-carbon-nanotube", amount = 3},
             {type = "item", name = "low-density-structure", amount = 2},
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 100},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-carbon-structure", amount = 5},
-            {type = "fluid", name = "ei-ammonia-gas", amount_min = 15, amount_max=30,ignored_by_stats=30},
-            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15},
+            {type = "fluid", name = "ei-ammonia-gas", amount_min = 15, amount_max=30,ignored_by_stats=30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-nitrogen-gas", amount_min = 5, amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,

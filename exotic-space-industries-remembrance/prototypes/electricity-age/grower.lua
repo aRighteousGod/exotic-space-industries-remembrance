@@ -52,7 +52,7 @@ data:extend({
     {
         name = "ei-grower",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -69,16 +69,16 @@ data:extend({
     {
         name = "ei-energy-crystal-washing",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 15,
         ingredients = {
-            {type = "fluid", name = "sulfuric-acid", amount = 100},
-            {type = "fluid", name = "steam", amount = 50},
+            {type = "fluid", name = "sulfuric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "steam", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = modprefix.."sand", amount = 10},
         },
         results = {
             {type = "item", name = modprefix.."sand", amount = 9},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability = 0.1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, independent_probability = 0.1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -87,10 +87,10 @@ data:extend({
     {
         name = "ei-energy-crystal-growing",
         type = "recipe",
-        category = "ei-growing",
+        categories = {"ei-growing"},
         energy_required = 15,
         ingredients = {
-            {type = "fluid", name = "ei-acidic-water", amount = 15},
+            {type = "fluid", name = "ei-acidic-water", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-energy-crystal", amount = 1},
         },
         results = {
@@ -104,15 +104,15 @@ data:extend({
     {
         name = "ei-molten-carbon-fusion",
         type = "recipe",
-        category = "ei-growing",
+        categories = {"ei-growing"},
         energy_required = 30,
         ingredients = {
-            {type = "fluid", name = "ei-molten-carbon", amount = 10,minimum_temperature=925},
-            {type = "fluid", name = "ei-crystal-solution", amount = 10},
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,minimum_temperature=925, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-crystal-solution", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,probability=0.70},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.30,ignored_by_stats=3}
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,independent_probability = 0.70, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,independent_probability = 0.30,ignored_by_stats=3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -121,17 +121,17 @@ data:extend({
     {
         name = "ei-molten-carbon-fusion-high-energy",
         type = "recipe",
-        category = "ei-growing",
+        categories = {"ei-growing"},
         energy_required = 30,
         ingredients = {
             {type="item",name="ei-high-energy-crystal",amount=1},
-            {type = "fluid", name = "ei-molten-carbon", amount = 10,minimum_temperature=925},
-            {type = "fluid", name = "ei-crystal-solution", amount = 10},
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,minimum_temperature=925, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-crystal-solution", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,probability=0.95},
-            {type="item",name="ei-energy-crystal",amount=1,probability=0.05,ignored_by_stats=1},
-            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,probability=0.05,ignored_by_stats=3}
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=912,independent_probability = 0.95, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="item",name="ei-energy-crystal",amount=1,independent_probability = 0.05,ignored_by_stats=1},
+            {type = "fluid", name = "ei-acidic-water", amount_min = 1,amount_max=3,independent_probability = 0.05,ignored_by_stats=3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,

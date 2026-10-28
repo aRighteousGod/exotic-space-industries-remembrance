@@ -1,21 +1,26 @@
-# Quality And Elevated Rails Prototype Libs
+# Quality, Recycler And Elevated Rails Prototype Libs
 
 Survey sources:
 
-- `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\quality\prototypes`
-- `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\elevated-rails\prototypes`
+- `.factorio-qc/f21/data/quality/prototypes`
+- `.factorio-qc/f21/data/recycler`
+- `.factorio-qc/f21/data/elevated-rails/prototypes`
+
+Verified against full Factorio 2.1.23 build 87750. Quality's former recycling
+helper and graphics now belong to the separate Recycler mod.
 
 These surfaces require the corresponding vanilla mod dependency or guarded usage. Do not assume Quality or Elevated Rails helpers are available in every data-stage context.
 This reference tracks installed game files. Do not update its survey assumptions from the hosted Lua API docs alone.
 
-## Quality
+## Recycler
 
-- `__quality__/prototypes/recycling`: returns `lib` with `generate_recycling_recipe(recipe, can_recycle)` and `generate_self_recycling_recipe(item)`.
-- The recycling helper uses vanilla Quality defaults, skips many category/item cases, builds recycling recipes, and supports an optional `can_recycle` predicate for custom eligibility.
+- `__recycler__/recycling`: returns `lib` with `generate_recycling_recipe(recipe, can_recycle)` and `generate_self_recycling_recipe(item)`.
+- The helper supports an eligibility predicate, creates unlock effects on the recycling technology and disables generated recipes until research. Deleting generated recipes must remove dangling unlock effects; repeated generation must deduplicate unlocks without replacing the captured effects table.
+- The 2.1 default predicate no longer excludes the old chemistry/smelting/organic/crushing families. Reverse recipes divide duration by output count, unlike 2.0. Both differences require an explicit balance decision, not just an import rename. Recipe `auto_recycle = false` can still allow the item's self-recycling fallback; item-level `auto_recycle = false` suppresses that fallback too.
 - ESIR uses this in `scripts/data-final-updates/recycling.lua` to regenerate recycling recipes after recipe changes.
-- `__quality__.prototypes.entity.recycler-pictures`: returns recycler graphics data; use as read-only picture precedent unless intentionally matching the vanilla recycler table shape.
+- `__recycler__/recycler-pictures`: returns recycler graphics data; its assets also use the `__recycler__` root.
 
-Prefer the Quality recycling helper when ESIR wants vanilla recycling semantics after prototype mutations. Prefer `ei_lib` when the change is ESIR recipe ownership, visibility policy, or compatibility filtering before calling the vanilla generator.
+Prefer the Recycler helper for native generated recipe structure. Keep ESIR eligibility, timing and explicit output policies in their ESIR owner; verify final data against the preserved baseline.
 
 ## Elevated Rails
 
@@ -27,9 +32,9 @@ Use Elevated Rails modules as narrow vanilla precedent. Avoid importing the pict
 ## Re-Check Commands
 
 ```powershell
-$quality = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\quality\prototypes'
-$rails = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\elevated-rails\prototypes'
-rg --no-heading --line-number 'generate_recycling_recipe|generate_self_recycling_recipe|return lib' $quality -g '*.lua'
+$recycler = '.factorio-qc/f21/data/recycler'
+$rails = '.factorio-qc/f21/data/elevated-rails/prototypes'
+rg --no-heading --line-number 'generate_recycling_recipe|generate_self_recycling_recipe|return lib' $recycler -g '*.lua'
 rg --no-heading --line-number 'apply_all_base|rail_pictures|return updates' $rails -g '*.lua'
 rg --no-heading --line-number '__(quality|elevated-rails)__' exotic-space-industries-remembrance -g '*.lua'
 ```

@@ -1,5 +1,8 @@
 -- Isolated fixture only; no remote surface is shipped by the gameplay mod.
 local first_tick=true
+script.on_init(function()
+    if remote.interfaces.freeplay then remote.call("freeplay","set_skip_intro",true) end
+end)
 script.on_event(defines.events.on_tick,function(event)
     if storage.finished and not first_tick then return end
     local player=game.connected_players[1]

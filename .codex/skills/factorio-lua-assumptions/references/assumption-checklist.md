@@ -9,7 +9,7 @@ Use this checklist before importing a generic Lua pattern into Factorio mod code
 3. Lua 5.2 manual for baseline language behavior.
 4. ESIR local conventions after Factorio behavior is clear.
 
-The Lua baseline was rechecked against the official Factorio 2.0.77 Libraries and functions page: Factorio still documents Lua 5.2.1 plus Factorio-specific deterministic changes and additions.
+The Lua baseline was rechecked against the official Libraries and functions page shipped with Factorio 2.1.23: Factorio still documents Lua 5.2.1 plus deterministic changes and additions. Keep 2.0.77 evidence separate for migrations.
 
 ## High-Risk Deltas
 
@@ -20,6 +20,7 @@ The Lua baseline was rechecked against the official Factorio 2.0.77 Libraries an
 - `storage` is not restored during top-level `control.lua` execution and must not be written in `on_load`. Use `on_init`, migrations, and `on_configuration_changed` for persistent-state setup and repair.
 - Do not store functions in `storage`. If persisted tables need metatables, register them with `script.register_metatable`.
 - Factorio allows storing many `LuaObject` references in `storage`, but they are live engine references. Recheck `.valid` after possible world-state changes, and prefer stable ids such as `unit_number` for durable indexing.
+- Native LuaObject methods are already bound when passed to `pcall`: use `pcall(silo.launch_rocket, destination)` and `pcall(entity.get_wire_connectors, false)`. An extra entity argument shifts the documented parameters and can be hidden by the protected-call failure branch. Keep ordinary Lua module functions and intentional colon methods distinct; verify actual success, not just absence of a crash.
 - `LuaCustomTable` is table-like, not a plain table. Iterate with `pairs()` and do not store it in `storage`.
 - Standard Lua facilities are restricted. Do not assume `io`, `os`, `coroutine`, `dofile`, or `loadfile` exist. Factorio provides its own `package` behavior and a limited `debug` surface.
 - Factorio `require()` is not normal package search. Absolute paths start at the mod root, `..` is disabled, core `lualib` modules can be required directly, and other mods use `__mod-name__.file`.
@@ -27,6 +28,8 @@ The Lua baseline was rechecked against the official Factorio 2.0.77 Libraries an
 - `pairs()` and `next()` are deterministic in Factorio. Do not rewrite working Factorio code purely because generic Lua table order is unspecified.
 - `math.random()` is deterministic in Factorio and `math.randomseed()` is a no-op. Use `game.create_random_generator()` or `LuaRandomGenerator` when independent seeded random streams are needed.
 - Runtime work is lifecycle/event driven. Use `script.on_init`, `script.on_load`, `script.on_configuration_changed`, migrations, event registration, and `remote.add_interface()` instead of assuming a normal long-running Lua main loop.
+- In 2.1 use `disabled_by_script` for script-owned activation, `minable_flag` for runtime writes, `helpers.create_profiler()`, and `defines.inventory.crafter_input/output/modules`. Read exact API contracts before translating aggregate state or private fluid buffers.
+- Recipes use category arrays; item fuel-category arrays differ from burner category dictionaries. Products use `independent_probability` unless an explicitly shared roll is intended. Complementary `shared_probability` ranges require no extra independent gate.
 
 ## ESIR-Specific Overlay
 

@@ -163,7 +163,7 @@ ei_lib.raw["inserter"]["burner-inserter"].allow_burner_leech = true
 -- change upgrade from inserter to steam inserter
 ei_lib.raw["inserter"]["burner-inserter"].next_upgrade = "ei-steam-inserter"
 -- make electric engine unit craft category be crafting
-data.raw["recipe"]["electric-engine-unit"].category = "crafting"
+data.raw["recipe"]["electric-engine-unit"].categories = {"crafting"}
 
 -- make underground pipes longer, read from setting
 ei_lib.raw["pipe-to-ground"]["pipe-to-ground"].fluid_box.pipe_connections = {
@@ -344,7 +344,7 @@ local buff_fuels = {
     "ei-fusion-fuel"
 }
 for _,item in pairs(data.raw["item"]) do
-    if item.fuel_category and ei_lib.table_contains_value(buff_fuels,item.fuel_category) then
+    if ei_lib.item_has_fuel_category(item,buff_fuels) then
         if not item.fuel_acceleration_multiplier_quality_bonus then
             item.fuel_acceleration_multiplier_quality_bonus = 0.495
         else
@@ -588,19 +588,19 @@ ei_lib.raw.module["quality-module"].effect = {
     productivity = -0.25,
     consumption = 1,
     speed = -0.3,
-    quality=0.3
+    quality=0.03
 }
 ei_lib.raw.module["quality-module-2"].effect = {
     productivity = -0.50,
     consumption = 2,
     speed = -0.6,
-    quality=0.45
+    quality=0.045
 }
 ei_lib.raw.module["quality-module-3"].effect = {
     productivity = -0.75,
     consumption = 3,
     speed = -0.9,
-    quality=0.6
+    quality=0.06
 }
 
 -- nerf vanilla modules a bit
@@ -719,7 +719,12 @@ if rfp and rfp.effects then
     })
 end
 
-data.raw.technology["rocket-part-productivity"].effects = {
+-- Muluna can replace this identity with planet-specific productivity research.
+-- Its replacement technologies are routed in final compatibility after Muluna's
+-- product-based effect generator has completed.
+local rocket_productivity = data.raw.technology["rocket-part-productivity"]
+if rocket_productivity then
+rocket_productivity.effects = {
     {
         type = "change-recipe-productivity",
         recipe = "ei-rocket-parts",
@@ -741,6 +746,7 @@ data.raw.technology["rocket-part-productivity"].effects = {
         change = 0.1
     },
 }
+end
 
 ei_lib.raw["recipe"]["heavy-oil-cracking"].localised_name = {"recipe-name.ei-heavy-oil-cracking"}
 

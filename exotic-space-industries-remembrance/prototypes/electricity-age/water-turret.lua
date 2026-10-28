@@ -31,6 +31,12 @@ stream.action = {type="area", radius=config.radius, force="enemy",
 
 ---@type data.FluidTurretPrototype
 local turret = table.deepcopy(data.raw["fluid-turret"]["flamethrower-turret"])
+-- Preserve the authored four-way body and two cardinal pipe ports.
+for index = #turret.flags, 1, -1 do
+    if turret.flags[index] == "building-direction-8-way" then table.remove(turret.flags, index) end
+end
+turret.circuit_connector = {turret.circuit_connector[1], turret.circuit_connector[3],
+    turret.circuit_connector[5], turret.circuit_connector[7]}
 turret.name = config.turret
 turret.icon = icon
 turret.icon_size = 128
@@ -55,7 +61,7 @@ turret.rotation_slowdown = 1
 -- Engine-positioned collars stay aligned with ordinary pipes while the complete
 -- platform, head, backpack and internal supply pipe rotate independently.
 turret.fluid_box = {volume=100, filter="water", production_type="none",
-    pipe_picture=assembler2pipepictures(), pipe_covers=pipecoverspictures(),
+    pipe_picture=table.deepcopy(require("__base__.prototypes.entity.assembler-pictures").assembler2pipepictures), pipe_covers=pipecoverspictures(),
     render_layer="lower-object", secondary_draw_order=0, pipe_connections={
     {direction=defines.direction.west, position={-1,0}},
     {direction=defines.direction.east, position={1,0}},

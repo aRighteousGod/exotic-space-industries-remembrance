@@ -266,7 +266,7 @@ end
 --====================================================================================================
 
 local function get_fluidbox_contents(proxy, index)
-    local ok, contents = pcall(function() return proxy and proxy.valid and proxy.fluidbox[index] or nil end)
+    local ok, contents = pcall(function() return proxy and proxy.valid and proxy.get_fluid(index) or nil end)
     return ok and contents or nil
 end
 
@@ -280,7 +280,7 @@ end
 
 local function get_fluid_capacity(proxy, index)
     local ok, capacity = pcall(function()
-        return proxy and proxy.valid and proxy.fluidbox.get_capacity(index) or nil
+        return proxy and proxy.valid and proxy.get_fluid_capacity(index) or nil
     end)
     capacity = ok and tonumber(capacity) or nil
     if capacity and capacity > 0 then
@@ -309,9 +309,9 @@ local function set_fluid_amount(proxy, index, fluid_name, amount, temperature)
     end
     amount = tonumber(amount) or 0
     if amount <= 0.0001 then
-        proxy.fluidbox[index] = nil
+        proxy.clear_fluid(index)
     else
-        proxy.fluidbox[index] = {name = fluid_name, amount = amount, temperature = temperature}
+        proxy.set_fluid(index, {name = fluid_name, amount = amount, temperature = temperature})
     end
 end
 
@@ -532,7 +532,7 @@ local function ensure_proxy(runtime, record)
     end
     pcall(function() proxy.destructible = false end)
     pcall(function() proxy.operable = false end)
-    pcall(function() proxy.minable = false end)
+    pcall(function() proxy.minable_flag = false end)
     sanitize_proxy_buffers(proxy)
     record.proxy = proxy
     record.proxy_registration = register_destroy(runtime, proxy, "proxy", record.unit_number)

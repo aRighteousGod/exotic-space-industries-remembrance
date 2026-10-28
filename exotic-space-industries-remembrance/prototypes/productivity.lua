@@ -742,7 +742,7 @@ for _, suffix in ipairs({"", "-advanced", "-quantum", "-exotic", "-black-hole"})
         if effect.type == "change-recipe-productivity" then
             local plasma_name = effect.recipe:gsub("^ei%-molten%-", "ei-plasma-molten-")
             local recipe = data.raw.recipe[plasma_name]
-            if recipe and recipe.category == "ei-plasma-smelting" then
+            if recipe and ei_lib.table_contains_value(recipe.categories or {"crafting"}, "ei-plasma-smelting") then
                 plasma_effects[#plasma_effects + 1] = {type = effect.type, recipe = plasma_name, change = effect.change}
             end
         end

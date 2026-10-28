@@ -6,6 +6,7 @@
 - [map-settings-config.lua](../../../exotic-space-industries-remembrance/lib/map-settings-config.lua)
 - [map-settings.lua owner](../../../exotic-space-industries-remembrance/scripts/control/map-settings.lua)
 - [map-settings.lua editor](../../../exotic-space-industries-remembrance/scripts/control/admin/map-settings.lua)
+- [resource-generation.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/resource-generation.lua)
 
 The owner writes native settings through a typed allowlist. The administration
 adapter owns drafts and delegates authorized Apply through the existing coordinator,
@@ -38,6 +39,25 @@ Population zero/Off remembers positive frequency and size independently; On
 restores them, including across recreation. Unknown values use planet defaults,
 including Gaia size 5. No setting action clears entities, pollution or chunks.
 Explicit clearing and regeneration remain separate existing administration actions.
+For imported Off controls without a remembered tuple, known positive native
+dimensions and exact richness take precedence over defaults. This avoids losing
+an imported size or changing zero/fractional richness during the first Off/On edit.
+
+<a id="resource-off"></a>
+### Factorio 2.1 resource Off compatibility
+
+The saved zero-frequency/zero-size Off representation remains unchanged. Native
+2.1.23 resource noise otherwise rejects zero frequency with a NaN compilation
+error, or crashes while sampling zero frequency with positive size. Compilation
+precedes Lua migrations, so a runtime conversion cannot admit affected old saves.
+
+The final-data owner guards the two zero denominators in the native
+`resource_autoplace_all_patches` function and returns zero for frequency zero.
+Every positive frequency uses its original denominator and original expression.
+Only the recognized native formulas are patched; a replacement helper is logged
+for compatibility review. This preserves the saved controls, remembered On tuple,
+exact richness (including zero), seed, existing resources and terrain. It adds no
+runtime work and does not alter enemy or terrain controls.
 
 <a id="lifecycle"></a>
 ## State, creation and persistence
@@ -80,7 +100,9 @@ points, planet properties and pathfinder tuning are intentionally absent.
 ## Verification boundaries
 
 The v2 fixtures under `scripts/qc/planet-enemies` exercise production owners and
-native GUI elements in Factorio 2.0.77. Data, generation, callback, persistence,
+native GUI elements in Factorio 2.0.77 and the ported 2.1.23 lane. Paired native
+`resource-zero-probe.lua` runs verify zero-size resource suppression and reproduce
+the 2.1-only failure for frequency zero. Data, generation, callback, persistence,
 native rendered UI and multiplayer evidence must be reported separately. Simulated
 GUI dispatcher events do not establish mouse/focus behavior or two-client safety.
 The EditMapSettings 0.1.6 `ems` branch informed field coverage; its clearing behavior

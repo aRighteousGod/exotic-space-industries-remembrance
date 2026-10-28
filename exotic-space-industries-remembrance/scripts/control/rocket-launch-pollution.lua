@@ -21,10 +21,11 @@ Launch records own both combustion accounting and their visual jobs:
   verified native ignition, after the launch-wait delay. It is an annular ground effect around the
   launch well, with the center aperture and rocket column kept clear. When a
   plume is also enabled, pad exhaust tapers out and stops as that plume begins.
-- The ascending plume starts later, after the plume ignition/lift-off delay, and
+- The ascending plume starts after native engine-start completion plus the
+  authored ascent delay, and
   is removed once the confirmed launch event arrives.
-- Native engine_starting begins pollution and permits pad exhaust. Pollution
-  accrues over 812 reference ticks, independently of visual style and budgets.
+- Native engine_starting begins pollution and permits pad exhaust. Quality
+  compresses the engine-start share; the ascent share keeps its authored cadence.
 - on_rocket_launched settles only the unpaid balance and triggers retaliation.
   Canceled launches stop new smoke and pollution; their existing emissions remain.
 - has_tick_work gates runtime updates. Smoke jobs store next_tick summaries so
@@ -52,9 +53,10 @@ Evolution factor is typically in [0, 1], but we clamp anyway for safety.
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local model = {}
-local LAUNCH_STATE_VERSION = 1
+local LAUNCH_STATE_VERSION = 2
 local LAUNCH_POLLUTION_SOURCE = "ei-rocket-launch-pollution"
 local LAUNCH_BURN_TICKS = 812
+local REFERENCE_ENGINE_TICKS = 330
 local LAUNCH_EMISSION_STRIDE = 10
 local ROCKET_LAUNCH_CONFIRM_GRACE_TICKS = 120
 local ROCKET_LAUNCH_VISUAL_STYLE_DEFAULT = "hybrid"
@@ -66,9 +68,10 @@ local ROCKET_LAUNCH_VISUAL_STYLES = {
 }
 
 local PLUME_SMOKE_NAME = "ei-rocket-launch-plume-smoke"
-local PLUME_START_DELAY = 650
-local PLUME_LIFT_OFF_DELAY = 40
-local PLUME_ASCENT_START_DELAY = PLUME_START_DELAY + PLUME_LIFT_OFF_DELAY
+-- Normal quality previously started at order + 690: 121 native wait ticks,
+-- 330 engine-start ticks, then this authored delay. Anchor the same effect to
+-- the actual clamp-release phase so quality, launch waits and slow rockets fit.
+local PLUME_AFTER_ENGINE_DELAY = 239
 local PLUME_INITIAL_SPEED = 0.000025
 local PLUME_INITIAL_ACCELERATION = 0.000035
 local PLUME_ACCELERATION_GROWTH = 0.00000065
@@ -102,6 +105,8 @@ local try_form_retaliation
 ---@field pollution number
 ---@field emitted_pollution number
 ---@field ignition_tick MapTick|nil
+---@field engine_burn_ticks uint|nil Native prototype/quality engine-start duration.
+---@field ascent_tick MapTick|nil First observed arms_retract; rocket acceleration begins here.
 ---@field next_emission_tick MapTick|nil
 ---@field confirmed boolean|nil
 ---@field canceled boolean|nil
@@ -514,6 +519,10 @@ local function launch_phase(launch, current_tick)
   local status = silo.rocket_silo_status
   local phases = defines.rocket_silo_status
   local attached = silo.rocket
+  if not launch.ascent_tick and (status == phases.arms_retract or status == phases.rocket_flying)
+      and (attached == rocket or (attached == nil and status == phases.rocket_flying)) then
+    launch.ascent_tick = current_tick
+  end
   if status == phases.rocket_flying and (attached == nil or attached == rocket) then
     launch.flight_started = true
   end
@@ -525,6 +534,19 @@ local function launch_phase(launch, current_tick)
       or status == phases.rocket_flying
   return burning or status == phases.launch_starting or status == phases.launch_started
       or (current_tick == launch.ordered_tick and status == phases.rocket_ready), burning
+end
+
+---@param launch EiRocketLaunch
+---@return uint
+local function get_engine_burn_ticks(launch)
+  if launch.engine_burn_ticks then return launch.engine_burn_ticks end
+  local silo = ei_lib.get_valid_entity(launch.silo)
+  local rocket = ei_lib.get_valid_entity(launch.rocket)
+  local speed = rocket and rocket.prototype.engine_starting_speed or (1 / REFERENCE_ENGINE_TICKS)
+  local modifier = silo and silo.prototype.rocket_engine_starting_speed_modifier_per_quality_level or 0
+  local level = silo and silo.quality.level or 0
+  launch.engine_burn_ticks = math.max(1, math.ceil(1 / (speed * (1 + modifier * level))))
+  return launch.engine_burn_ticks
 end
 
 ---@param launch EiRocketLaunch
@@ -567,6 +589,17 @@ local function adopt_pending_launch(launch, current_tick)
     launch.rocket = ei_lib.get_valid_entity(launch.rocket) or launch.silo.rocket
     local phase = launch.silo.rocket_silo_status
     local phases = defines.rocket_silo_status
+    if not launch.ascent_tick and launch.ignition_tick and
+        (phase == phases.arms_retract or phase == phases.rocket_flying
+          or phase == phases.lights_blinking_close or phase == phases.doors_closing) then
+      -- Schema 1 shipped on 2.0, where quality did not shorten engine start.
+      -- Already airborne old rockets retain that elapsed phase. New records
+      -- have captured engine_burn_ticks, including when repaired mid-launch.
+      local speed = launch.rocket and launch.rocket.valid and launch.rocket.prototype.engine_starting_speed
+          or (1 / REFERENCE_ENGINE_TICKS)
+      local elapsed_engine_ticks = launch.engine_burn_ticks or math.ceil(1 / speed)
+      launch.ascent_tick = math.min(current_tick, launch.ignition_tick + elapsed_engine_ticks)
+    end
     -- Native closure retains the already-airborne rocket until its later event.
     -- Legacy saves lack the phase observation that new records persist.
     if ei_lib.entity_check(launch.rocket) and launch.silo.rocket == launch.rocket
@@ -657,11 +690,18 @@ local function ensure_launch_state(current_tick)
     for _, launch in pairs(state.pending_launches_by_silo) do
       adopt_pending_launch(launch, current_tick)
     end
+    for _, launch in pairs(state.detached_launches) do
+      if not launch.canceled then adopt_pending_launch(launch, current_tick) end
+    end
     local retained = {}
     for _, job in ipairs(state.launch_smoke) do
       local launch = job.launch or state.pending_launches_by_silo[job.silo_unit_number]
       if launch and launch_phase(launch, current_tick) then
         job.launch = launch
+        -- Drop legacy absolute deadlines, never a saved paid pollution balance.
+        job.next_tick = current_tick
+        job.stop_tick = nil
+        job.expire_tick = nil
         retained[#retained + 1] = job
       end
     end
@@ -854,10 +894,10 @@ local function get_plume_smoke_density(pollution)
   return ei_lib.clamp(math.ceil(amount / 4000), 2, 6)
 end
 
----@param current_tick uint|number|nil
----@return uint
-local function get_launch_plume_start_tick(current_tick)
-  return math.max(0, math.floor(tonumber(current_tick) or 0)) + PLUME_ASCENT_START_DELAY
+---@param launch EiRocketLaunch|nil
+---@return uint|nil
+local function get_launch_plume_start_tick(launch)
+  return launch and launch.ascent_tick and (launch.ascent_tick + PLUME_AFTER_ENGINE_DELAY) or nil
 end
 
 ---@param state table
@@ -873,7 +913,7 @@ local function queue_launch_plume(state, surface, pos, silo_unit_number, polluti
   end
   state.launch_smoke = state.launch_smoke or {}
   current_tick = math.max(0, math.floor(tonumber(current_tick) or 0))
-  local start_tick = get_launch_plume_start_tick(current_tick)
+  local start_tick = current_tick + 1
   state.launch_smoke[#state.launch_smoke + 1] = {
     kind = "plume",
     silo_unit_number = silo_unit_number,
@@ -885,7 +925,6 @@ local function queue_launch_plume(state, surface, pos, silo_unit_number, polluti
     current_speed = PLUME_INITIAL_SPEED,
     density = get_plume_smoke_density(pollution),
     next_tick = start_tick,
-    expire_tick = current_tick + PLUME_MAX_TRAIL_TICKS,
   }
   state.launch_smoke_count = #state.launch_smoke
   remember_launch_smoke_tick(state, start_tick)
@@ -1378,15 +1417,12 @@ local function update_launch_smoke_plume_job(job, plume_budget, current_tick)
     return true, plume_budget, next_tick
   end
 
-  local expire_tick = tonumber(job.expire_tick)
-  if expire_tick and expire_tick > 0 and current_tick > expire_tick then
-    return false, plume_budget, nil
+  local start_tick = get_launch_plume_start_tick(job.launch)
+  if not start_tick or current_tick < start_tick then
+    job.next_tick = start_tick or (current_tick + 1)
+    return true, plume_budget, job.next_tick
   end
-
   local previous_ticks = tonumber(job.ticks) or 0
-  if not expire_tick and previous_ticks >= PLUME_START_DELAY then
-    previous_ticks = math.max(0, previous_ticks - PLUME_ASCENT_START_DELAY)
-  end
   job.ticks = previous_ticks + 1
 
   if job.ticks > PLUME_MAX_TRAIL_TICKS then
@@ -1441,7 +1477,7 @@ local function get_plume_start_ticks_by_silo(jobs)
   local plume_start_ticks = nil
   for _, job in ipairs(jobs or {}) do
     if type(job) == "table" and job.kind == "plume" and job.silo_unit_number then
-      local plume_start_tick = normalize_smoke_tick(job.next_tick)
+      local plume_start_tick = get_launch_plume_start_tick(job.launch)
       if plume_start_tick then
         plume_start_ticks = plume_start_ticks or {}
         local existing_tick = plume_start_ticks[job.silo_unit_number]
@@ -1821,8 +1857,21 @@ local function update_pending_launches(state, current_tick)
         launch.next_emission_tick = current_tick
         ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "ignition_started", 1, current_tick)
       end
+      local engine_ticks = get_engine_burn_ticks(launch)
+      if not launch.ascent_tick and launch.flight_started then
+        -- A legacy save may be adopted after clamp release. Recover from its
+        -- saved ignition when possible; unpaid-only accounting prevents replay.
+        launch.ascent_tick = math.min(current_tick, launch.ignition_tick + engine_ticks)
+      end
       if current_tick >= (launch.next_emission_tick or current_tick) then
-        local fraction = math.min((current_tick - launch.ignition_tick + 1) / LAUNCH_BURN_TICKS, 1)
+        local reference_ticks
+        if launch.ascent_tick then
+          reference_ticks = REFERENCE_ENGINE_TICKS + current_tick - launch.ascent_tick + 1
+        else
+          reference_ticks = REFERENCE_ENGINE_TICKS
+              * math.min((current_tick - launch.ignition_tick + 1) / engine_ticks, 1)
+        end
+        local fraction = math.min(reference_ticks / LAUNCH_BURN_TICKS, 1)
         emit_launch_pollution(launch, launch.pollution * fraction, current_tick)
         launch.next_emission_tick = current_tick + LAUNCH_EMISSION_STRIDE
       end
@@ -1950,7 +1999,6 @@ local function queue_rocket_liftoff_wrath(silo, pollution, event)
   local pad_exhaust_profile = get_pad_exhaust_profile(visual_style)
   local expected_tick = event.tick + delay
   local uses_plume = visual_style_uses_plume(visual_style)
-  local plume_start_tick = uses_plume and get_launch_plume_start_tick(event.tick) or nil
   local cleanup_tick = nil
 
   if pad_exhaust_profile or uses_plume then
@@ -1968,7 +2016,7 @@ local function queue_rocket_liftoff_wrath(silo, pollution, event)
       silo.unit_number,
       event.tick,
       expected_tick,
-      uses_plume and plume_start_tick or nil,
+      nil,
       uses_plume and PAD_EXHAUST_PLUME_HANDOFF_FADE_TICKS or nil
     )
   end

@@ -150,14 +150,14 @@ data:extend({
     {
         name = "ei-poor-iron-chunk-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type="item",name="ei-poor-iron-chunk", amount=3}
         },
         results = {
             {type = "item", name = "iron-plate", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, independent_probability = 0.33,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = true,
@@ -166,14 +166,14 @@ data:extend({
     {
         name = "ei-poor-copper-chunk-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type="item",name="ei-poor-copper-chunk", amount=3}
         },
         results = {
             {type = "item", name = "copper-plate", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, probability = 0.33,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1,amount_max=2, independent_probability = 0.33,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = true,
@@ -182,7 +182,7 @@ data:extend({
     {
         name = "ei-iron-beam",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type ="item", name="iron-plate", amount=2},
@@ -197,7 +197,7 @@ data:extend({
     {
         name = "ei-copper-beam",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type="item",name="copper-plate", amount=2},
@@ -212,7 +212,7 @@ data:extend({
     {
         name = "ei-iron-mechanical-parts",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients = {
             {type="item", name="iron-plate", amount=1},
@@ -227,7 +227,7 @@ data:extend({
     {
         name = "ei-copper-mechanical-parts",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients = {
             {type="item", name="copper-plate", amount=1},
@@ -242,7 +242,7 @@ data:extend({
     {
         name = "ei-stone-slag-processing",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients = {
             {type="item",name="ei-slag", amount=2},
@@ -257,7 +257,7 @@ data:extend({
     {
         name = "ei-dark-age-tech",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients = {
             {type="item", name="iron-plate", amount=1},
@@ -273,7 +273,7 @@ data:extend({
     {
         name = "ei-steam-engine",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type="item", name="ei-iron-mechanical-parts", amount=2},
@@ -290,7 +290,7 @@ data:extend({
     {
         name = "ei-steam-age-tech",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type="item", name="ei-copper-mechanical-parts", amount=4},

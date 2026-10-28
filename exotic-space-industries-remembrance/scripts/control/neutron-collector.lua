@@ -1337,7 +1337,7 @@ function model.refresh_collector(runtime, collector_entry, show_feedback, exclud
     entity.recipe_locked = true
 
     model.apply_collector_animation(collector_entry, desired_direction)
-    entity.active = desired_active
+    entity.disabled_by_script = not desired_active
 
     collector_entry.last_recipe_name = desired_recipe_name
     collector_entry.last_efficiency = result.eff or 0
@@ -1446,9 +1446,9 @@ function model.poll_source(runtime, source_unit, event_or_tick)
             model.remove_collector_from_source(runtime, source_entry, collector_unit, false)
             model.close_sessions_for_unit(runtime, collector_unit, true)
         elseif state_changed then
-            collector_entry.entity.active = source_state
+            collector_entry.entity.disabled_by_script = not (source_state
                 and not collector_entry.entity.disabled_by_control_behavior
-                and collector_entry.last_recipe_name ~= nil
+                and collector_entry.last_recipe_name ~= nil)
 
             for _, candidate in ipairs(collector_entry.last_candidates or {}) do
                 if candidate.unit_number == source_unit then

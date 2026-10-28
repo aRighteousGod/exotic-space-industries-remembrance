@@ -3,7 +3,7 @@
 --====================================================================================================
 
 --fire extinguisher
-if not mods["enhanced-walls"] then
+if not mods["enhanced-walls-continued"] then
     return
 end
 
@@ -320,7 +320,7 @@ local function make_late_wall(opts)
     local recipe = {
         name = name,
         type = "recipe",
-        category = opts.category,
+        categories = {opts.category},
         energy_required = opts.energy_required,
         localised_name = {"item-name."..name},
         subgroup = "defensive-structure",
@@ -484,7 +484,7 @@ make_late_wall({
         {type = "item", name = "ei-clean-plating", amount = 2},
         {type = "item", name = "ei-bio-matter", amount = 10},
         {type = "item", name = "ei-high-energy-crystal", amount = 1},
-        {type = "fluid", name = "ei-concentrated-morphium", amount = 25},
+        {type = "fluid", name = "ei-concentrated-morphium", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     resistances = {
       {

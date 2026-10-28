@@ -99,12 +99,12 @@ data:extend({
     {
         name = "ei-plasma-turret",
         type = "recipe",
-        category = "crafting-with-fluid",
-        additional_categories = {"electronics-with-fluid"},
+        categories = {"crafting-with-fluid", "ei-electronics-with-fluid"},
+        
         energy_required = 60,
         ingredients =
         {
-            {type = "fluid", name = "electrolyte", amount = 800},
+            {type = "fluid", name = "electrolyte", amount = 800, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "superconductor", amount = 140},
             {type = "item", name = "holmium-plate", amount = 140},
             {type = "item", name = "ei-induction-matrix-core", amount = 1},

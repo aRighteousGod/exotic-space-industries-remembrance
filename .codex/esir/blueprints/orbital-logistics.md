@@ -28,6 +28,11 @@ Dispatcher step 10 passes the event to one cohort service slice. The update cons
 
 Build/destroy/settings paste and platform/rocket events dirty relevant cohorts. Selector modes and oversize policies determine jobs; coordinator arbitration and existing lane rotation determine dispatch. Removal, retargeting, lost power, invalid bindings, and launch confirmation reconcile or release leases. Rebuild reconstructs world entities and registries; GUI close/leave destroys associated silo overlays.
 
+The bound native `silo.launch_rocket` method receives the destination table directly.
+Passing the silo again is an argument error, not a not-ready result; it previously
+left a loaded, ready silo indefinitely leased without dispatching its cargo. The
+protected call retains its error boundary and successful-launch bookkeeping.
+
 <a id="verification"></a>
 ## Verification contract
 

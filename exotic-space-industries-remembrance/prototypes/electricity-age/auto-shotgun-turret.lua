@@ -251,7 +251,7 @@ data:extend({
 	{
 		name = "ei-auto-shotgun-turret",
 		type = "recipe",
-		category = "crafting",
+		categories = {"crafting"},
 		energy_required = 8,
 		ingredients = {
 			{ type = "item", name = "ei-shotgun-turret", amount = 1 },

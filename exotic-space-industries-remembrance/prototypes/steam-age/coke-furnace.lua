@@ -23,7 +23,7 @@ data:extend({
     {
         name = "ei-coke-furnace",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {

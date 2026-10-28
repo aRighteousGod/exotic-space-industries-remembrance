@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-advanced-refinery",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {

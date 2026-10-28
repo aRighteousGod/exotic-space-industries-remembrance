@@ -11,6 +11,33 @@ with their existing systems.
 - [entity-presentation.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation.lua)
 - [entity-presentation-machines.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation-machines.lua)
 - [entity-presentation-combat.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation-combat.lua)
+- [working-sound-defaults.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/working-sound-defaults.lua)
+- [compatibility-21-presentation.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/compatibility-21-presentation.lua)
+
+<a id="optional-copies"></a>
+## Optional copies and admission fields
+
+Tenebris creates bioluminescent ESIR machines before final graphics repairs.
+Their graphics sets are refreshed from the final canonical ESIR body, preserving
+the separate Tenebris glow, void power, speed multiplier, restrictions and IDs.
+This avoids mixed 64/32-frame inherited assembler layers. Death inheritance,
+rendered animation and native simulation acceptance remain separately recorded.
+Corrundum's red steam engine retains its 100-degree input floor on the generator's
+native admission field, removing the obsolete FluidBox field. This does not alter
+its conversion maximum, fluid use or power output.
+
+<a id="working-sound-defaults"></a>
+## Working-sound defaults across the 2.1 upgrade
+
+Factorio 2.1 changes omitted `MainSound` fades from zero to eight ticks in and
+twenty ticks out. ESIR's last data pass explicitly retains zero for missing fade
+fields on `ei-` identities, including generated fleet and fuel bodies. Authored
+fade values remain unchanged; progress-matched sounds do not receive forbidden
+fade fields. Bare Sound shorthand is wrapped as a working sound when needed.
+The pass copies sound definitions before mutation so shared vanilla/dependency
+tables retain their own behavior. It changes no filenames, volumes, probabilities,
+sound ownership or runtime scheduling. Native data comparison is distinct from
+audible playback/listening acceptance.
 
 ## Ownership and order
 

@@ -19,7 +19,7 @@ data:extend({
     {
         name = "ei-steam-miner",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 3,
         ingredients =
         {
@@ -78,6 +78,8 @@ miner.allowed_effects = {"consumption", "speed", "productivity", "pollution","qu
 -- set energy source
 miner.energy_source = {
     type = "fluid",
+    -- Steam power must not emit the fluid energy source's default working glow.
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     emissions_per_minute={pollution=10},
     fluid_box = {   
         filter = "steam",
@@ -114,6 +116,7 @@ steam_quarry.energy_usage = "1.05MW"
 steam_quarry.heating_energy = "50kW"
 steam_quarry.energy_source = {
     type = "fluid",
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     emissions_per_minute={pollution=32},
     fluid_box = {   
         filter = "steam",

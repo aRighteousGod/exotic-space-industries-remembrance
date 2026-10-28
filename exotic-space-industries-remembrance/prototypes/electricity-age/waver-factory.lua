@@ -40,7 +40,7 @@ data:extend({
     {
         name = "ei-waver-factory",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -187,16 +187,16 @@ data:extend({
     {
         name = "ei-semiconductor",
         type = "recipe",
-        category = "ei-waver-factory",
+        categories = {"ei-waver-factory"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 10},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-gold", amount = 5},
             {type = "item", name = modprefix.."sand", amount = 6},
         },
         results = {
-            {type = "item", name = "ei-semiconductor", amount = 1, probability = 0.95},
-            {type = "item", name = "ei-faulty-semiconductor", amount = 1, probability = 0.05},
+            {type = "item", name = "ei-semiconductor", amount = 1, independent_probability = 0.95},
+            {type = "item", name = "ei-faulty-semiconductor", amount = 1, independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -205,14 +205,14 @@ data:extend({
     {
         name = "ei-crush-faulty-semiconductor",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-faulty-semiconductor", amount = 1},
         },
         results = {
             {type = "item", name = modprefix.."sand", amount_min = 1,amount_max=4},
-            {type = "item", name = "ei-crushed-gold", amount_min = 0,amount_max=2,probability=0.25}
+            {type = "item", name = "ei-crushed-gold", amount_min = 0,amount_max=2,independent_probability = 0.25}
         },
         always_show_made_in = true,
         allow_decomposition = false,
@@ -222,14 +222,14 @@ data:extend({
     {
         name = "ei-crush-faulty-advanced-semiconductor",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-faulty-advanced-semiconductor", amount = 1},
         },
         results = {
-            {type = "item", name ="ei-energy-crystal", amount = 1,probability=0.10},
-            {type = "item", name = "ei-crushed-gold", amount_min = 0,amount_max=2,probability=0.10},
+            {type = "item", name ="ei-energy-crystal", amount = 1,independent_probability = 0.10},
+            {type = "item", name = "ei-crushed-gold", amount_min = 0,amount_max=2,independent_probability = 0.10},
             {type = "item", name = modprefix.."sand", amount_min = 1,amount_max=4},
         },
         always_show_made_in = true,
@@ -240,7 +240,7 @@ data:extend({
     {
         name = "ei-hydrofluoric-acid",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         icons = {
             { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.3, shift = { -0, -5 } },
@@ -248,13 +248,13 @@ data:extend({
             { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.3, shift = { 5, 5 } },
         },
         ingredients = {
-            {type="fluid", name="water", amount=200},
-            {type="fluid", name="sulfuric-acid", amount=100},
+            {type="fluid", name="water", amount=200, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type="fluid", name="sulfuric-acid", amount=100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type="item", name="ei-fluorite", amount=2},
         },
         results = {
-            {type="fluid", name="ei-acidic-water", amount_min=5,amount_max=15,ignored_by_stats=15},
-            {type="fluid", name="ei-hydrofluoric-acid", amount_min=175,amount_max=225},
+            {type="fluid", name="ei-acidic-water", amount_min=5,amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-hydrofluoric-acid", amount_min=175,amount_max=225, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -265,7 +265,7 @@ data:extend({
     {
         name = "ei-hydrofluoric-acid-steam",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 1.6,
         icons = {
             { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.3, shift = { -0, -5 } },
@@ -273,13 +273,13 @@ data:extend({
             { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.3, shift = { 5, 5 } },
         },
         ingredients = {
-            {type="fluid", name="steam", amount=2000},
-            {type="fluid", name="sulfuric-acid", amount=100},
+            {type="fluid", name="steam", amount=2000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type="fluid", name="sulfuric-acid", amount=100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type="item", name="ei-fluorite", amount=2},
         },
         results = {
-            {type="fluid", name="ei-acidic-water", amount_min=2,amount_max=12,ignored_by_stats=12},
-            {type="fluid", name="ei-hydrofluoric-acid", amount_min=190,amount_max=240},
+            {type="fluid", name="ei-acidic-water", amount_min=2,amount_max=12,ignored_by_stats=12, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-hydrofluoric-acid", amount_min=190,amount_max=240, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -290,7 +290,7 @@ data:extend({
     {
         name = "ei-hydrofluoric-acid-steam-ash",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 0.8,
         icons = {
             { icon = data.raw.fluid["ei-hydrofluoric-acid"].icon,            scale = 0.3, shift = { 5, -5 } },
@@ -299,14 +299,14 @@ data:extend({
             { icon = "__base__/graphics/icons/fluid/sulfuric-acid.png", scale = 0.3, shift = { 5, 5 } },
         },
         ingredients = {
-            {type="fluid", name="steam", amount=1000},
-            {type="fluid", name="sulfuric-acid", amount=50},
+            {type="fluid", name="steam", amount=1000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type="fluid", name="sulfuric-acid", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type="item", name="ei-fluorite", amount=1},
             {type="item", name="atan-ash", amount=30},
         },
         results = {
-            {type="fluid", name="ei-dirty-water", amount_min=5,amount_max=15,ignored_by_stats=15},
-            {type="fluid", name="ei-hydrofluoric-acid", amount_min=95,amount_max=105},
+            {type="fluid", name="ei-dirty-water", amount_min=5,amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-hydrofluoric-acid", amount_min=95,amount_max=105, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type="item", name="ei-slag", amount_min=1,amount_max=2,ignored_by_stats=2}
         },
         always_show_made_in = true,

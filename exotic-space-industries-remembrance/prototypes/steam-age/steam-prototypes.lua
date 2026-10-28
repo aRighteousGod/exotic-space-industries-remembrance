@@ -30,7 +30,7 @@ data:extend({
         stack_size = 50,
         subgroup = "ei-refining-secondary",
         order = "a2",
-        fuel_category = "chemical",
+        fuel_categories = {"chemical"},
         fuel_value = "6MJ",
         fuel_emissions_multiplier = 0.8
     },
@@ -42,7 +42,7 @@ data:extend({
         stack_size = 50,
         subgroup = "ei-refining-secondary",
         order = "a3",
-        fuel_category = "chemical",
+        fuel_categories = {"chemical"},
         fuel_value = "34.5MJ",
         fuel_emissions_multiplier = 0.7
     },
@@ -54,7 +54,7 @@ data:extend({
         stack_size = 100,
         subgroup = "ei-refining-crushed",
         order = "c1",
-        fuel_category = "chemical",
+        fuel_categories = {"chemical"},
         fuel_value = "3MJ",
         fuel_emissions_multiplier = 0.72,
         pictures = {
@@ -78,7 +78,7 @@ data:extend({
         stack_size = 50,
         subgroup = "ei-refining-secondary",
         order = "a1",
-        fuel_category = "chemical",
+        fuel_categories = {"chemical"},
         fuel_value = "2MJ",
     },
     {
@@ -155,7 +155,7 @@ data:extend({
         stack_size = 100,
         subgroup = "ei-refining-crushed",
         order = "c1",
-        fuel_category = "chemical",
+        fuel_categories = {"chemical"},
         fuel_value = "2MJ",
         fuel_emissions_multiplier=0.92,
         pictures = {
@@ -466,7 +466,7 @@ data:extend({
     {
         name = "ei-charcoal",
         type = "recipe",
-        category = "ei-coke-furnace",
+        categories = {"ei-coke-furnace"},
         energy_required = 3,
         ingredients = {
             {type="item", name="wood", amount=2}
@@ -481,7 +481,7 @@ data:extend({
     {
         name = "ei-coke",
         type = "recipe",
-        category = "ei-coke-furnace",
+        categories = {"ei-coke-furnace"},
         energy_required = 1.5,
         ingredients = {
             {type="item", name="coal", amount=1}
@@ -496,7 +496,7 @@ data:extend({
     {
         name = "ei-coke-charcoal",
         type = "recipe",
-        category = "ei-coke-furnace",
+        categories = {"ei-coke-furnace"},
         energy_required = 1.5,
         ingredients = {
             {type="item", name="ei-charcoal", amount=1}
@@ -511,14 +511,14 @@ data:extend({
     {
         name = "ei-coke-advanced_coal",
         type = "recipe",
-        category = "oil-processing",
+        categories = {"oil-processing"},
         energy_required = 3.5,
         ingredients = {
             {type="item", name="coal", amount=4}
         },
         results = {
             {type = "item", name = "ei-coke", amount = 6},
-            {type = "fluid", name = "ei-coal-gas", amount_min = 23,amount_max=27},
+            {type = "fluid", name = "ei-coal-gas", amount_min = 23,amount_max=27, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -527,14 +527,14 @@ data:extend({
     {
         name = "ei-coke-advanced_charcoal",
         type = "recipe",
-        category = "oil-processing",
+        categories = {"oil-processing"},
         energy_required = 3.5,
         ingredients = {
             {type="item", name="ei-charcoal", amount=4}
         },
         results = {
             {type = "item", name = "ei-coke", amount = 6},
-            {type = "fluid", name = "ei-coal-gas", amount_min = 23,amount_max=27},
+            {type = "fluid", name = "ei-coal-gas", amount_min = 23,amount_max=27, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -543,7 +543,7 @@ data:extend({
     {
         name = "ei-coke-pellets",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type="item", name="ei-coke", amount=5}
@@ -558,7 +558,7 @@ data:extend({
     {
         name = "ei-crushed-coke-pellets",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 3,
         ingredients = {
             {type="item", name="ei-coke-pellets", amount=1}
@@ -573,7 +573,7 @@ data:extend({
     {
         name = "ei-crushed-coke",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type="item", name="ei-coke", amount=1}
@@ -588,7 +588,7 @@ data:extend({
     {
         name = "ei-crushed-coal",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "coal", amount = 1},
@@ -603,7 +603,7 @@ data:extend({
     {
         name = "ei-crushed-iron",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type="item", name="iron-plate", amount=1}
@@ -636,7 +636,7 @@ data:extend({
     {
         name = "ei-crushed-iron-mechanical-parts",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type="item", name="ei-iron-mechanical-parts", amount=1}
@@ -652,7 +652,7 @@ data:extend({
     {
         name = "ei-steel-blend",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type="item", name="ei-crushed-coke", amount=2},
@@ -668,14 +668,14 @@ data:extend({
     {
         name = "ei-steel-plate",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 2,
         ingredients = {
             {type="item", name = "ei-steel-blend", amount = 1}
         },
         results = {
             {type = "item", name = "steel-plate", amount = 1},
-            {type="item",name="ei-slag",amount_min=1,amount_max=2,probability=0.1}
+            {type="item",name="ei-slag",amount_min=1,amount_max=2,independent_probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -684,7 +684,7 @@ data:extend({
     {
         name = "ei-steel-mechanical-parts",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients = {
             {type="item", name="steel-plate", amount=1}
@@ -700,7 +700,7 @@ data:extend({
     {
         name = "ei-steel-mechanical-parts-from-plate",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients = {
             {type="item", name="steel-plate", amount=1}
@@ -715,7 +715,7 @@ data:extend({
     {
         name = "ei-steel-beam",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type="item",name="steel-plate", amount=2}
@@ -730,7 +730,7 @@ data:extend({
     {
         name = "ei-tank",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients = {
             {type="item", name="ei-iron-mechanical-parts", amount=10},
@@ -747,10 +747,10 @@ data:extend({
     {
         name = "ei-solid-fuel-residual-oil",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
-            {type="fluid", name="ei-residual-oil", amount=30}
+            {type="fluid", name="ei-residual-oil", amount=30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {
             {type = "item", name = "solid-fuel", amount = 1},
@@ -765,7 +765,7 @@ data:extend({
     {
         name = "ei-sand",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         icons = {
           {
@@ -790,14 +790,14 @@ data:extend({
     {
         name = "ei-glass",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type="item", name = modprefix.."sand", amount=16},
         },
         results = {
             {type = "item", name = "ei-glass", amount = 1},
-            {type ="item", name="ei-slag", amount_min=1,amount_max=2,probability=0.1}
+            {type ="item", name="ei-slag", amount_min=1,amount_max=2,independent_probability = 0.1}
         },
         always_show_made_in = true,
         enabled = false,
@@ -806,11 +806,11 @@ data:extend({
     {
         name = "ei-ceramic-steam-assembler",
         type = "recipe",
-        category = "ei-steam-assembler",
+        categories = {"ei-steam-assembler"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = modprefix.."sand", amount = 2},
-            {type = "fluid", name = "steam", amount = 15}
+            {type = "fluid", name = "steam", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {
             {type = "item", name = "ei-ceramic", amount = 1},
@@ -822,11 +822,11 @@ data:extend({
     {
         name = "ei-ceramic",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = modprefix.."sand", amount = 2},
-            {type = "fluid", name = "steam", amount = 15}
+            {type = "fluid", name = "steam", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {
             {type = "item", name = "ei-ceramic", amount = 1},
@@ -838,7 +838,7 @@ data:extend({
     {
         name = "ei-electron-tube",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "copper-cable", amount = 4},
@@ -855,7 +855,7 @@ data:extend({
     {
         name = "ei-electricity-age-tech",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 18,
         ingredients = {
             {type = "item", name = "electronic-circuit", amount = 4},
@@ -872,7 +872,7 @@ data:extend({
     {
         name = "ei-landfill-sand",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients = {
             {type = "item", name = modprefix.."sand", amount = 50},
@@ -887,19 +887,19 @@ data:extend({
   {
     type = "recipe",
     name = "ei-basic-steam-oil-processing",
-    category = "oil-processing",
+    categories = {"oil-processing"},
     enabled = false,
     energy_required = 5,
     ingredients =
     {
-      {type = "fluid", name = "steam", amount = 500, minimum_temperature = 165},
-      {type = "fluid", name = "crude-oil", amount = 50}
+      {type = "fluid", name = "steam", amount = 500, minimum_temperature = 165, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+      {type = "fluid", name = "crude-oil", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
     results =
     {
-        {type="fluid", name="ei-residual-oil", amount_min=68,amount_max=72},
-        {type="fluid", name="petroleum-gas", amount_min=23,amount_max=27},
-        {type="fluid", name="light-oil", amount_min=8,amount_max=12},
+        {type="fluid", name="ei-residual-oil", amount_min=68,amount_max=72, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type="fluid", name="petroleum-gas", amount_min=23,amount_max=27, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type="fluid", name="light-oil", amount_min=8,amount_max=12, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     icon = ei_graphics_3_path.."graphics/other/basic-steam-oil-processing.png",
     icon_size = 64,
@@ -909,18 +909,18 @@ data:extend({
   {
     type = "recipe",
     name = "ei-basic-water-oil-processing",
-    category = "oil-processing",
+    categories = {"oil-processing"},
     enabled = false,
     energy_required = 5,
     ingredients =
     {
-      {type = "fluid", name = "water", amount = 50},
-      {type = "fluid", name = "crude-oil", amount = 50}
+      {type = "fluid", name = "water", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+      {type = "fluid", name = "crude-oil", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
     results =
     {
-        {type="fluid", name="ei-residual-oil", amount_min=48,amount_max=52},
-        {type="fluid", name="petroleum-gas", amount_min=48,amount_max=52},
+        {type="fluid", name="ei-residual-oil", amount_min=48,amount_max=52, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type="fluid", name="petroleum-gas", amount_min=48,amount_max=52, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     icon = ei_graphics_3_path.."graphics/other/basic-water-oil-processing.png",
     icon_size = 64,
@@ -930,14 +930,14 @@ data:extend({
 {
     name = "ei-lube-destilation",
     type = "recipe",
-    category = "chemistry",
+    categories = {"chemistry"},
     energy_required = 4,
     ingredients = {
-        {type = "fluid", name = "steam", amount = 5},
-        {type = "fluid", name = "lubricant", amount = 20},
+        {type = "fluid", name = "steam", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type = "fluid", name = "lubricant", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     results = {
-        {type = "fluid", name = "heavy-oil", amount_min = 13,amount_max=17},
+        {type = "fluid", name = "heavy-oil", amount_min = 13,amount_max=17, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         {type = "item", name = "coal", amount = 1},
     },
     always_show_made_in = true,
@@ -951,15 +951,15 @@ data:extend({
 {
     name = "ei-lube-destilate-steam-finishing",
     type = "recipe",
-    category = "chemistry",
+    categories = {"chemistry"},
     energy_required = 4,
     ingredients = {
-        {type = "fluid", name = "ei-lube-destilate", amount = 25},
-        {type = "fluid", name = "steam", amount = 10, minimum_temperature = 350},
+        {type = "fluid", name = "ei-lube-destilate", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type = "fluid", name = "steam", amount = 10, minimum_temperature = 350, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     results = {
-        {type = "fluid", name = "lubricant", amount_min = 8, amount_max = 12},
-        {type = "fluid", name = "ei-coal-gas", amount_min = 4, amount_max = 6},
+        {type = "fluid", name = "lubricant", amount_min = 8, amount_max = 12, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "fluid", name = "ei-coal-gas", amount_min = 4, amount_max = 6, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     always_show_made_in = true,
     enabled = false,
@@ -973,10 +973,10 @@ data:extend({
 {
     name = "ei-engine-unit-heavy-oil",
     type = "recipe",
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 40,
     ingredients = {
-        {type = "fluid", name = "heavy-oil", amount = 100},
+        {type = "fluid", name = "heavy-oil", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type = "item", name = "ei-steam-engine", amount = 10},
         {type = "item", name = "ei-copper-mechanical-parts", amount = 10},
         {type = "item", name = "ei-iron-mechanical-parts", amount = 10},
@@ -1016,10 +1016,10 @@ data:extend({
 {
     name = "ei-electric-engine-lube",
     type = "recipe",
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 60,
     ingredients = {
-        {type = "fluid", name = "lubricant", amount = 100},
+        {type = "fluid", name = "lubricant", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type="item",name="electronic-circuit", amount=10},
         {type = "item", name = "engine-unit", amount = 10},
         {type = "item", name = "copper-cable", amount = 40},
@@ -1043,14 +1043,14 @@ data:extend({
     {
         name = "ei-gold-ingot",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-gold-chunk", amount = 3},
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.1,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1059,7 +1059,7 @@ data:extend({
     {
         name = "ei-crushed-gold",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
@@ -1074,7 +1074,7 @@ data:extend({
     {
         name = "ei-crushed-lead",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
@@ -1107,14 +1107,14 @@ data:extend({
     {
         name = "ei-lead-ingot",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-lead-chunk", amount = 3},
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.1,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1123,14 +1123,14 @@ data:extend({
     {
         name = "ei-neodym-ingot",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-neodym-chunk", amount = 3},
         },
         results = {
             {type = "item", name = "ei-neodym-ingot", amount = 1},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.1,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1139,14 +1139,14 @@ data:extend({
     {
         name = "ei-iron-ingot-chunk-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-iron-chunk", amount = 3},
         },
         results = {
             {type = "item", name = "iron-plate", amount = 2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.1,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1155,14 +1155,14 @@ data:extend({
     {
         name = "ei-copper-ingot-chunk-smelting",
         type = "recipe",
-        category = "smelting",
+        categories = {"smelting"},
         energy_required = 3.2,
         ingredients = {
             {type = "item", name = "ei-copper-chunk", amount = 3},
         },
         results = {
             {type = "item", name = "copper-plate", amount = 2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.1,ignored_by_stats=2}
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.1,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1171,7 +1171,7 @@ data:extend({
     {
         name = "ei-coal-chunk-crushing",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "ei-coal-chunk", amount = 1},
@@ -1186,7 +1186,7 @@ data:extend({
     {
         name = "ei-coal-chunk-crushing-crushed",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 6,
         ingredients = {
             {type = "item", name = "ei-coal-chunk", amount = 1},
@@ -1201,7 +1201,7 @@ data:extend({
     {
         name = "ei-sulfur-chunk-crushing",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "ei-sulfur-chunk", amount = 1},
@@ -1216,7 +1216,7 @@ data:extend({
     {
         name = "ei-sulfur-chunk-crushing-stone",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 2,
         icons = {
             { icon = data.raw.item["sulfur"].icon,            scale = 0.2, shift = { 3, 4 } },
@@ -1236,7 +1236,7 @@ data:extend({
     {
         name = "ei-sulfur-crushing",
         type = "recipe",
-        category = "ei-crushing",
+        categories = {"ei-crushing"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "sulfur", amount = 1},
@@ -1251,14 +1251,14 @@ data:extend({
     {
         name = "ei-acidic-water-crushed-sulfur",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-crushed-sulfur", amount = 4},
-            {type = "fluid", name = "water", amount = 20},
+            {type = "fluid", name = "water", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount = 20},
+            {type = "fluid", name = "ei-acidic-water", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1269,15 +1269,15 @@ data:extend({
     {
         name = "ei-drill-fluid",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 8,
         ingredients = {
             {type = "item", name = "solid-fuel", amount = 5},
-            {type = "fluid", name = "sulfuric-acid", amount = 20},
-            {type = "fluid", name = "lubricant", amount = 10},
+            {type = "fluid", name = "sulfuric-acid", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "lubricant", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-drill-fluid", amount = 30},
+            {type = "fluid", name = "ei-drill-fluid", amount = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1286,14 +1286,14 @@ data:extend({
     {
         name = "ei-acidic-water-sulfur",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-acidic-water", amount = 10},
+            {type = "fluid", name = "ei-acidic-water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "sulfur", amount = 1},
-            {type = "fluid", name = "water", amount = 10},
+            {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1302,14 +1302,14 @@ data:extend({
     {
         name = "ei-sulfur-acidic-water",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 1,
         ingredients = {
             {type = "item", name = "sulfur", amount = 1},
-            {type = "fluid", name = "water", amount = 10},
+            {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount = 10},
+            {type = "fluid", name = "ei-acidic-water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,

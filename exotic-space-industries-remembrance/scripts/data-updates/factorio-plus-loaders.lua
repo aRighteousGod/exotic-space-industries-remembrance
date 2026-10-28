@@ -24,7 +24,7 @@ data:extend({
     {
         name = "ei-fplus-turbo-loader",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -51,14 +51,14 @@ data:extend({
     {
         name = "ei-fplus-sonic-loader",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 2,
         ingredients =
         {
             {type="item", name="ei-express-loader", amount=2},
             {type="item", name="processing-unit", amount=12},
             {type="item", name="speed-module-2", amount=4},
-			{type="fluid",name="lubricant", amount=30},
+            {type="fluid",name="lubricant", amount=30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-fplus-sonic-loader", amount=1}},
         enabled = false,

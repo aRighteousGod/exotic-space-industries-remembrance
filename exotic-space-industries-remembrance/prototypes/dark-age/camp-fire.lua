@@ -108,7 +108,7 @@ data:extend{
     {
         type = "recipe",
         name = "ei-camp-fire",
-        category = "crafting",
+        categories = {"crafting"},
         ingredients = {{type="item", name="stone", amount=2}},
         results = {{type="item", name="ei-camp-fire", amount=1}},
         enabled=true,

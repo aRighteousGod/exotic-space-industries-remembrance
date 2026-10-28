@@ -167,7 +167,7 @@ saucer_leg.alert_when_damaged = false
 saucer_leg.graphics_set = nil
 saucer_leg.working_sound = nil
 saucer_leg.walking_sound_volume_modifier = 0
-saucer_leg.walking_sound_speed_modifier = 0
+saucer_leg.walking_sound_speed_modifier = 1 -- 2.1 requires positive speed; volume remains zero.
 saucer_leg.target_position_randomisation_distance = 0
 saucer_leg.minimal_step_size = 0
 saucer_leg.initial_movement_speed = SAUCER_HOVER_ANCHOR_RESPONSIVENESS
@@ -337,7 +337,7 @@ data:extend({
     {
         name = saucer_name,
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 60,
         surface_conditions =
         {

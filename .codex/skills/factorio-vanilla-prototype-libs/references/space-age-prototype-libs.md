@@ -1,6 +1,6 @@
 # Space Age Prototype Libs
 
-Survey source: `C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\space-age\prototypes` from Factorio 2.0.76.
+Survey source: `.factorio-qc/f21/data/space-age/prototypes`, verified Factorio 2.1.23 build 87750; historical comparison is installed Steam 2.0.77.
 
 This reference tracks installed game files. Do not update its survey version from the hosted Lua API docs alone.
 
@@ -21,6 +21,7 @@ Space Age has no `data/space-age/lualib` directory. Treat these as data/prototyp
 - `planet/planet-map-gen.lua`: extends Base `planet_map_gen` with `vulcanus()`, `gleba()`, `fulgora()`, and `aquilo()`.
 - `planet/general/general-functions.lua`: returns helpers for rocket parts, pod overlays, pod animations, jet bursts, and simple table concatenation for procession data.
 - `planet/general/*`: returns procession layer/audio/space-layer tables used by platform-to-planet and planet-to-platform sequences.
+- 2.1 adds six platform-to-platform procession modules. Preserve existing ESIR catalogue identities when adopting new native procession data.
 
 Use these when ESIR needs to stay aligned with Space Age route, planet, cargo-pod, or procession data. Re-check live files for signatures before adding new custom planet behavior.
 
@@ -30,7 +31,7 @@ Use these when ESIR needs to stay aligned with Space Age route, planet, cargo-po
 - `entity/explosion-animations.lua`: returns asteroid explosion animation helpers for chunk/small/medium/big/huge asteroids plus magma eruption.
 - `entity/cargo-pod-catalogue.lua`: returns Space Age cargo-pod catalogue data.
 - `entity/space-enemy-autoplace-utils.lua`: wraps Base enemy autoplace helpers for Gleba spawner placement.
-- `entity/gleba-ai-settings.lua`: returns shared Gleba enemy AI settings.
+- The former `entity/gleba-ai-settings.lua` is removed in 2.1; inspect current native enemy prototypes and exact API fields instead.
 - `item-effects.lua`: returns Space Age item effect tables for capsule/effect style item definitions.
 - `item_sounds.lua`: returns Space Age item sound tables.
 - `particle-animations.lua`: adds lava, asteroid, pentapod, demolisher, Gleba vegetation, and related particle picture helpers.
@@ -55,7 +56,7 @@ Avoid importing or copying large picture modules just to borrow asset paths. Pre
 ## Re-Check Commands
 
 ```powershell
-$sa = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\space-age\prototypes'
+$sa = '.factorio-qc/f21/data/space-age/prototypes'
 rg --no-heading --line-number 'asteroid_functions\.|planet_map_gen\.|return item_effects|return sounds|return space_age_item_sounds' $sa -g '*.lua'
 rg --no-heading --line-number '__space-age__\.prototypes|__space-age__/prototypes' exotic-space-industries-remembrance -g '*.lua'
 ```

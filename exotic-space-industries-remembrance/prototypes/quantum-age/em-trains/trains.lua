@@ -192,8 +192,8 @@ data:extend({
     {
         name = "ei_em-locomotive",
         type = "recipe",
-        category = "crafting",
-		additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+		
         energy_required = 10,
         ingredients = {
           {type="item", name="ei-nuclear-locomotive", amount=1},
@@ -211,7 +211,7 @@ data:extend({
 	{
         name = "ei_em-fluid-wagon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients = {
 		{type="item", name="ei-advanced-fluid-wagon", amount=1},
@@ -227,7 +227,7 @@ data:extend({
 	{
         name = "ei_em-cargo-wagon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients = {
 			{type="item", name="ei-advanced-cargo-wagon", amount=1},
@@ -243,8 +243,8 @@ data:extend({
 	{
         name = "ei_em-fielder",
         type = "recipe",
-        category = "crafting",
-		additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+		
         energy_required = 20,
         ingredients =
         {
@@ -815,7 +815,7 @@ data:extend({
             min_speed = max_speed_sound_levelon,
             max_speed = max_speed_sound_leveloff
 		},
-		crash_trigger = crash_trigger(),
+		crash_trigger = {type = "play-sound", sound = {filename = "__base__/sound/car-crash.ogg", volume = 0}},
 		open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 		close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
 		sound_minimum_speed = em_sound_minimum_speed,
@@ -948,7 +948,7 @@ data:extend({
             min_speed = max_speed_sound_levelon,
             max_speed = max_speed_sound_leveloff
 		},
-		crash_trigger = crash_trigger(),
+		crash_trigger = {type = "play-sound", sound = {filename = "__base__/sound/car-crash.ogg", volume = 0}},
 		open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 		close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
 		sound_minimum_speed = em_sound_minimum_speed,
@@ -974,7 +974,7 @@ local foo = {
 	icon = ei_trains_item_path.."dummy.png",
 	icon_size = 64,
 	stack_size = 1,
-	fuel_category = "ei_emt-fuel",
+	fuel_categories = {"ei_emt-fuel"},
 	hidden = true,
 	fuel_value = "1GJ",
 	fuel_acceleration_multiplier = 1,

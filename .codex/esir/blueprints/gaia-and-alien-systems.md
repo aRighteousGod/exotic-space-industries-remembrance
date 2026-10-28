@@ -20,6 +20,7 @@ artifact anchors classify legacy sites through budgeted ecology searches.
 - [biomes.lua](../../../exotic-space-industries-remembrance/prototypes/planet-gaia/biomes.lua)
 - [1.3.03.lua](../../../exotic-space-industries-remembrance/migrations/1.3.03.lua)
 - [1.3.39.lua](../../../exotic-space-industries-remembrance/migrations/1.3.39.lua)
+- [1.4.0.lua](../../../exotic-space-industries-remembrance/migrations/1.4.0.lua)
 
 ## Behavior and ownership
 
@@ -72,7 +73,11 @@ The [planetary enemy contract](planet-enemies.md#gaia) adds an independent Gaia
 electric control. Legacy values, including Off, translate without resetting them.
 Fallback creation inherits save choices; reforge captures source settings before
 purge/deletion, retaining controls, seed and global peace/no-enemies flags. The
-final planet prototype provides the current dependency expression aliases.
+saved generation revision and custom expression aliases survive. The builder
+selects that revision before filling missing aliases from the current planet;
+legacy surfaces retain the frozen electric profile. Reforge evacuation must
+complete before purge; optional requester arrival after completion cannot leave
+the rebuild pending when a controller restriction prevents physical travel.
 The [map-settings owner](map-settings.md#lifecycle) merges saved sparse overrides
 before fallback or reforge staging creates chunks. The ready callback receives the
 originating tick and reapplies the latest override revision after association, so
@@ -81,6 +86,12 @@ changes made while reforge runs survive. This owner remains active with admin to
 Old flat decay/spawner queues are normalized into bucket structures by the owning modules. Configuration handling invalidates derived due minima so persisted work remains discoverable. Missing/invalid entities are skipped at lifetime consumption; surface deletion/rebinding must also account for queued surface references and feature-owned helpers.
 
 Migration `1.3.03` associates the existing legacy Gaia surface when the current planet lacks one; it does not rename the legacy space location. Migration `1.3.39` removes exact legacy resource overrides and preserves customized settings/nonmatching overrides. Its map-generation changes affect future chunks, not regeneration of existing terrain. Keep ordinary migration repair separate from the intentional reforge command.
+
+Migration `1.4.0` preserves each owned Gaia surface's former robot energy multiplier
+as `100 * gravity / pressure` in the new `robot-energy-usage` property. Canonical
+new Gaia uses 0.96875 (gravity 15.5, pressure 1600). Legacy, custom and in-flight
+reforge surfaces use their actual saved values; later configuration changes do not
+overwrite deliberate robot-cost adjustments.
 
 The optional admin observer is installed through `set_surface_ready_handler` at
 control load. Gaia invokes it only after association, distinguishing new creation

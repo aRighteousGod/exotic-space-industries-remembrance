@@ -18,7 +18,8 @@ Close or remove entries in the same patch that resolves them.
 
 - `2026-10-15 | planetary-enemy-seeds | revisit on Factorio 2.1 | Factorio 2.0.77 couples spot_noise expressions sharing placement seeds even with different density/radius. User approved native seeds at 1/1 and deterministic family-specific seeds for adjusted Nauvis controls; defaults stay exact, adjusted nest positions may move.`
   - `Files:` `exotic-space-industries-remembrance/scripts/data-final-updates/planet-enemies.lua`, `scripts/control/planet-enemies.lua`, `scripts/qc/planet-enemies/v2-generation.lua`, `scripts/qc/planet-enemies/check-v2-generation.py`, [enemy blueprint](blueprints/planet-enemies.md#seed-compatibility).
-  - `Next safe move:` on the Factorio 2.1 upgrade, verify the [upstream spot-noise fix](https://forums.factorio.com/131528), rerun default and mixed-family generation comparisons with native seeds, then decide a saved-map-compatible transition. Do not silently reseed existing customized saves or remove the workaround based only on a version number.
+  - `2.1 implementation:` saved generation revisions retain the legacy aliases; new surfaces use native 2.1 expressions. The 774-case matrix passes 10,612 control/exchange checks. Dense Gaia probes preserve probabilities and tiles at 200,704 positions per seed, but native nest placement differs even with equal inspected prototypes on flat empty terrain. No compensating balance change is applied.
+  - `Verified follow-up:` actual migration and repeated reload retain 97 nests and 32,768 tiles; actual Gaia reforge and its reload retain the saved seed/revision/override. The native enemy/Administration client passes 670 checks. Connected-player evacuation, physical GUI interaction and multiplayer remain open. Do not silently reseed existing customized saves or equate preserved expressions with identical native placements. Evidence is linked from [the upgrade synopsis](handoffs/factorio-2.1/UPGRADE_SYNOPSIS.md).
 
 - `2026-10-14 | planetary-enemy-controls-locales | native review needed | New planetary enemy control names and Off descriptions currently use the English fallback.`
   - `Files:` `exotic-space-industries-remembrance/locale/en/planet-enemies.cfg`, `exotic-space-industries-remembrance/locale/en/map-settings.cfg` (v2 adds Nauvis families and the administration map editor).
@@ -114,6 +115,9 @@ Close or remove entries in the same patch that resolves them.
   - `Next safe move:` only migrate further after the shared scheduler can express the false-tombstone or equivalent live-set semantics without changing dormant-surface fairness behavior.
 
 ## Intentional Local
+
+- `2026-10-27 | Factorio 2.1 native fluid overflow | user accepted | Exact 2.1.23 truncates the portion above an old connected pipe segment's nominal capacity during migration. A Base-only generator reproduction retains 100/200-unit cases but changes 230 to 215.0000083; the user explicitly declined both automatic preparation and a manual prerequisite. Do not reopen this as a release blocker or silently add preparation requirements.`
+  - `Evidence:` [turbine migration and native overflow](handoffs/factorio-2.1/UPGRADE_SYNOPSIS.md#turbine-transactions). Other fluid loss and transaction conservation remain subject to the upgrade contract.
 
 - `2026-04-19 | runtime-scheduler | intentional-local | matter stabilizer machine service still keeps its dense swap-remove per-surface queue local for fairness and UPS, while the module now uses `runtime-scheduler.lua` only for open-panel refresh buckets, counters, and runtime status.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/matter-stabilizer.lua`

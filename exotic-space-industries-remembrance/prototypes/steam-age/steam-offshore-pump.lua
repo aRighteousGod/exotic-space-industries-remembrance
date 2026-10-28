@@ -92,7 +92,7 @@ data:extend({
     {
         name = name,
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "ei-burner-offshore-pump", amount = 1},
@@ -145,6 +145,8 @@ pump.pumping_speed = 20
 add_cap_mask_overlay(pump, {r = 1.0, g = 1.0, b = 1.0, a = 0.9})
 pump.energy_source = {
     type = "fluid",
+    -- Steam power must not emit the fluid energy source's default working glow.
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     fluid_box = {
         filter = "steam",
         volume = 200,

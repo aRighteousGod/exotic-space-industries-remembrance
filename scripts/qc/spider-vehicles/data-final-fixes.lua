@@ -79,7 +79,13 @@ check("assault-simulation",has_path("ei-assault-spidertron","ei-spider-vehicles"
 check("rocket-gleba",has_path("spidertron","ei-spider-vehicles") and has_path("spidertron","agricultural-science-pack"))
 local recipe={}
 for _,ingredient in ipairs(data.raw.recipe.spidertron.ingredients) do recipe[ingredient.name or ingredient[1]]=ingredient.amount or ingredient[2] end
-check("rocket-recipe",recipe["rocket-launcher"]==4 and recipe["carbon-fiber"]==50 and not recipe.tank and not recipe["rocket-turret"])
+-- Match the preserved ESIR 1.3.41 recipe, rather than the superseded vanilla
+-- launcher expectation from the original vehicle feature fixture.
+check("rocket-recipe",#data.raw.recipe.spidertron.ingredients==7
+    and recipe["rocket-turret"]==4 and recipe["ei-steel-mechanical-parts"]==50
+    and recipe["carbon-fiber"]==50 and recipe["ei-advanced-motor"]==100
+    and recipe["ei-high-energy-crystal"]==40 and recipe["processing-unit"]==40
+    and recipe["ei-simulation-data"]==100 and not recipe.tank and not recipe["rocket-launcher"])
 check("upstream-tech-disabled",data.raw.technology.assault_spidertron_tech.hidden and data.raw.technology.assault_spidertron_tech.enabled==false)
 check("upstream-recipe-disabled",data.raw.recipe.assault_spidertron.hidden and data.raw.recipe.assault_spidertron.enabled==false)
 for tier=2,3 do

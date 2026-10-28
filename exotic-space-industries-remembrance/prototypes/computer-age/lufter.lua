@@ -25,7 +25,7 @@ data:extend({
     {
         name = "ei-lufter",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -144,11 +144,11 @@ data:extend({
     {
         name = "ei-nitrogen-gas",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {},
         results = {
-            {type = "fluid", name = "ei-nitrogen-gas", amount = 5},
+            {type = "fluid", name = "ei-nitrogen-gas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -160,10 +160,10 @@ data:extend({
     {
         name = "ei-nitrogen-gas-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-nitrogen-gas", amount = 20},
+            {type = "fluid", name = "ei-nitrogen-gas", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -176,11 +176,11 @@ data:extend({
     {
         name = "ei-oxygen-gas",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {},
         results = {
-            {type = "fluid", name = "ei-oxygen-gas", amount = 5},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -192,10 +192,10 @@ data:extend({
     {
         name = "ei-oxygen-gas-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-oxygen-gas", amount = 20},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -208,10 +208,10 @@ data:extend({
     {
         name = "ei-carbon-dioxide-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-carbon-dioxide", amount = 20},
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -226,11 +226,11 @@ data:extend({
     {
         name = "ei-extract-water",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {},
         results = {
-            {type = "fluid", name = "water", amount = 50},
+            {type = "fluid", name = "water", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         surface_conditions = {
@@ -244,10 +244,10 @@ data:extend({
     {
         name = "ei-steam-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "steam", amount = 50},
+            {type = "fluid", name = "steam", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -260,10 +260,10 @@ data:extend({
     {
         name = "ei-benzol-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-benzol", amount = 50},
+            {type = "fluid", name = "ei-benzol", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -280,10 +280,10 @@ data:extend({
     {
         name = "ei-coal-gas-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-coal-gas", amount = 50},
+            {type = "fluid", name = "ei-coal-gas", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,
@@ -300,10 +300,10 @@ data:extend({
     {
         name = "ei-hydrogen-gas-vent",
         type = "recipe",
-        category = "ei-lufter",
+        categories = {"ei-lufter"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 50},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {},
         always_show_made_in = true,

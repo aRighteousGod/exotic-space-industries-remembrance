@@ -79,7 +79,7 @@ function create_asteroid_chunk_parameter(number)
     }
   }
   local shared_health = {0, 100, 400, 2000, 5000}
-  local shared_mass = {0, 200000, 500000, 5000000, 100000000}
+  local shared_damage_per_hp = {0, 3, 5, 12, 50}
   local custom_asteroid_resistances =
   {
     ["ei-radiological"] = {0, 10, 20, 35, 50},
@@ -90,7 +90,7 @@ function create_asteroid_chunk_parameter(number)
     scrap =
     {
       order = "bc",
-      mass = shared_mass,
+      damage_per_hp = shared_damage_per_hp,
       max_health = shared_health,
       resistances = shared_resistances,
       shading_data =
@@ -114,7 +114,7 @@ function create_asteroid_chunk_parameter(number)
     rock =
     {
       order = "ab",
-      mass = shared_mass,
+      damage_per_hp = shared_damage_per_hp,
       max_health = shared_health,
       resistances = shared_resistances,
       shading_data =
@@ -138,7 +138,7 @@ function create_asteroid_chunk_parameter(number)
     uranium =
     {
       order = "ab",
-      mass = shared_mass,
+      damage_per_hp = shared_damage_per_hp,
       max_health = shared_health,
       resistances = shared_resistances,
       shading_data =
@@ -162,7 +162,7 @@ function create_asteroid_chunk_parameter(number)
     chemical =
     {
       order = "cd",
-      mass = shared_mass,
+      damage_per_hp = shared_damage_per_hp,
       max_health = shared_health,
       resistances = shared_resistances,
       shading_data =
@@ -186,7 +186,7 @@ function create_asteroid_chunk_parameter(number)
     organic =
     {
       order = "cd",
-      mass = shared_mass,
+      damage_per_hp = shared_damage_per_hp,
       max_health = shared_health,
       resistances = shared_resistances,
       shading_data =
@@ -210,7 +210,7 @@ function create_asteroid_chunk_parameter(number)
     petrified =
     {
       order = "cd",
-      mass = shared_mass,
+      damage_per_hp = shared_damage_per_hp,
       max_health = shared_health,
       resistances = shared_resistances,
       shading_data =
@@ -436,7 +436,7 @@ function create_asteroid_chunk_parameter(number)
           -- asteroid properties
           flags = asteroid_size_name ~= "chunk" and {"placeable-enemy", "placeable-off-grid", "not-repairable", "not-on-map"} or nil,
           max_health = asteroid_size_name ~= "chunk" and asteroid_data.max_health[asteroid_size] or nil,
-          mass = asteroid_size_name ~= "chunk" and asteroid_data.mass[asteroid_size] or nil,
+          damage_per_hp = asteroid_size_name ~= "chunk" and asteroid_data.damage_per_hp[asteroid_size] or nil,
           resistances = resistances,
         }
       }
@@ -547,7 +547,7 @@ data:extend(
         type = "recipe",
         name = "ei-uranium-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/uranium-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -555,16 +555,16 @@ data:extend(
         ingredients =
         {
           {type = "item", name = "ei-uranium-asteroid-chunk", amount = 1},
-          {type = "fluid", name = "sulfuric-acid", amount = 6}
+          {type = "fluid", name = "sulfuric-acid", amount = 6, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         energy_required = 2,
         results =
         {
-          {type = "item", name = "stone", amount_min = 6,amount_max=12,probability=0.95},
-          {type = "item", name = "ei-uranium-chunk", amount_min = 2,amount_max=10,probability=0.75},
-    	  	{type = "item", name = "ei-lead-chunk", amount_min = 2,amount_max=4,probability=0.55},
-          {type = "item", name = "ei-uranium-asteroid-chunk", amount = 1, probability = 0.15},
-          {type = "item", name = "ei-isotopic-ghost-shell", amount = 1, probability = 0.02},
+          {type = "item", name = "stone", amount_min = 6,amount_max=12,independent_probability = 0.95},
+          {type = "item", name = "ei-uranium-chunk", amount_min = 2,amount_max=10,independent_probability = 0.75},
+    	  	{type = "item", name = "ei-lead-chunk", amount_min = 2,amount_max=4,independent_probability = 0.55},
+          {type = "item", name = "ei-uranium-asteroid-chunk", amount = 1, independent_probability = 0.15},
+          {type = "item", name = "ei-isotopic-ghost-shell", amount = 1, independent_probability = 0.02},
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -573,7 +573,7 @@ data:extend(
         type = "recipe",
         name = "ei-advanced-uranium-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/advanced-uranium-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -581,16 +581,16 @@ data:extend(
         ingredients =
         {
           {type = "item", name = "ei-uranium-asteroid-chunk", amount = 1},
-          {type = "fluid", name = "sulfuric-acid", amount = 12}
+          {type = "fluid", name = "sulfuric-acid", amount = 12, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         energy_required = 2,
         results =
         {
-        {type = "item", name = "stone", amount_min = 3,amount_max=8,probability=0.8},
-        {type = "item", name = "ei-uranium-chunk", amount_min=6,amount_max = 12,probability=0.95},
-    		{type = "item", name = "ei-lead-chunk", amount_min = 2,amount_max=6,probability=0.9},
-        {type = "item", name = "ei-uranium-asteroid-chunk", amount = 1, probability = 0.02},
-        {type = "item", name = "ei-isotopic-ghost-shell", amount = 1, probability = 0.04}
+        {type = "item", name = "stone", amount_min = 3,amount_max=8,independent_probability = 0.8},
+        {type = "item", name = "ei-uranium-chunk", amount_min=6,amount_max = 12,independent_probability = 0.95},
+    		{type = "item", name = "ei-lead-chunk", amount_min = 2,amount_max=6,independent_probability = 0.9},
+        {type = "item", name = "ei-uranium-asteroid-chunk", amount = 1, independent_probability = 0.02},
+        {type = "item", name = "ei-isotopic-ghost-shell", amount = 1, independent_probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -599,7 +599,7 @@ data:extend(
         type = "recipe",
         name = "ei-rock-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/rock-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -612,8 +612,8 @@ data:extend(
         results =
         {
           {type = "item", name = "stone", amount_min = 10,amount_max=20},
-          {type = "item", name = "ei-rock-asteroid-chunk", amount = 1, probability = 0.2},
-          {type = "item", name = "ei-gravity-braided-ore", amount = 1, probability = 0.02},
+          {type = "item", name = "ei-rock-asteroid-chunk", amount = 1, independent_probability = 0.2},
+          {type = "item", name = "ei-gravity-braided-ore", amount = 1, independent_probability = 0.02},
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -622,7 +622,7 @@ data:extend(
         type = "recipe",
         name = "ei-advanced-rock-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/advanced-rock-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -635,11 +635,11 @@ data:extend(
         results =
         {
         {type = "item", name = "stone", amount_min = 5,amount_max=10},
-        {type = "item", name = "tungsten-ore", amount_min = 1,amount_max=5,probability=0.06},
-        {type = "item", name = "calcite", amount_min = 2,amount_max=4,probability=0.12},
-    		{type = "item", name = "ei-gold-chunk", amount_min = 1,amount_max=3,probability=0.12},
-        {type = "item", name = "ei-rock-asteroid-chunk", amount = 1, probability = 0.05},
-        {type = "item", name = "ei-gravity-braided-ore", amount = 1, probability = 0.04}
+        {type = "item", name = "tungsten-ore", amount_min = 1,amount_max=5,independent_probability = 0.06},
+        {type = "item", name = "calcite", amount_min = 2,amount_max=4,independent_probability = 0.12},
+    		{type = "item", name = "ei-gold-chunk", amount_min = 1,amount_max=3,independent_probability = 0.12},
+        {type = "item", name = "ei-rock-asteroid-chunk", amount = 1, independent_probability = 0.05},
+        {type = "item", name = "ei-gravity-braided-ore", amount = 1, independent_probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -648,7 +648,7 @@ data:extend(
         type = "recipe",
         name = "ei-chemical-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/chemical-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -660,11 +660,11 @@ data:extend(
         energy_required = 2,
         results =
         {
-        {type = "fluid", name = "ammonia", amount_min = 5, amount_max=10,probability=0.5},
-        {type = "item", name = "ei-fluorite", amount_min = 1,amount_max=5, probability=0.06},
-        {type = "fluid", name = "fluorine", amount_min = 1,amount_max=5, probability=0.06},
-        {type = "item", name = "ei-chemical-asteroid-chunk", amount = 1, probability = 0.2},
-        {type = "item", name = "ei-neuro-reactive-residue", amount = 1, probability = 0.02}
+        {type = "fluid", name = "ammonia", amount_min = 5, amount_max=10,independent_probability = 0.5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-fluorite", amount_min = 1,amount_max=5, independent_probability = 0.06},
+        {type = "fluid", name = "fluorine", amount_min = 1,amount_max=5, independent_probability = 0.06, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-chemical-asteroid-chunk", amount = 1, independent_probability = 0.2},
+        {type = "item", name = "ei-neuro-reactive-residue", amount = 1, independent_probability = 0.02}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -673,7 +673,7 @@ data:extend(
         type = "recipe",
         name = "ei-advanced-chemical-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/advanced-chemical-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -685,12 +685,12 @@ data:extend(
         energy_required = 2,
         results =
         {
-        {type = "fluid", name = "ammonia", amount_min = 10, amount_max=20,probability=0.75},
-        {type = "item", name = "ei-fluorite", amount_min = 1,amount_max=5, probability=0.33},
-        {type = "fluid", name = "fluorine", amount_min = 1,amount_max=5, probability=0.33},
-        {type = "fluid", name = "lithium-brine", amount_min = 1,amount_max=5,probability=0.08},
-        {type = "item", name = "ei-chemical-asteroid-chunk", amount = 1, probability = 0.05},
-        {type = "item", name = "ei-neuro-reactive-residue", amount = 1, probability = 0.04}
+        {type = "fluid", name = "ammonia", amount_min = 10, amount_max=20,independent_probability = 0.75, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-fluorite", amount_min = 1,amount_max=5, independent_probability = 0.33},
+        {type = "fluid", name = "fluorine", amount_min = 1,amount_max=5, independent_probability = 0.33, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "fluid", name = "lithium-brine", amount_min = 1,amount_max=5,independent_probability = 0.08, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-chemical-asteroid-chunk", amount = 1, independent_probability = 0.05},
+        {type = "item", name = "ei-neuro-reactive-residue", amount = 1, independent_probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -699,7 +699,7 @@ data:extend(
         type = "recipe",
         name = "ei-scrap-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/scrap-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -712,9 +712,9 @@ data:extend(
         results =
         {
         --{type = "item", name = "scrap", amount_min = 5,amount_max=20},
-		    {type = "item", name = "ei-crushed-neodym", amount = 1, probability=0.001},
-        {type = "item", name = "ei-scrap-asteroid-chunk", amount = 1, probability = 0.2},
-        {type = "item", name = "ei-worm-torn-relay-core", amount = 1, probability = 0.02}
+		    {type = "item", name = "ei-crushed-neodym", amount = 1, independent_probability = 0.001},
+        {type = "item", name = "ei-scrap-asteroid-chunk", amount = 1, independent_probability = 0.2},
+        {type = "item", name = "ei-worm-torn-relay-core", amount = 1, independent_probability = 0.02}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -723,7 +723,7 @@ data:extend(
         type = "recipe",
         name = "ei-advanced-scrap-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/advanced-scrap-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -736,9 +736,9 @@ data:extend(
         results =
         {
         --{type = "item", name = "scrap", amount_min = 10, amount_max = 20},
-    		{type = "item", name = "ei-crushed-neodym", amount = 1, probability=0.004},
-        {type = "item", name = "ei-scrap-asteroid-chunk", amount = 1, probability = 0.05},
-        {type = "item", name = "ei-worm-torn-relay-core", amount = 1, probability = 0.04}
+    		{type = "item", name = "ei-crushed-neodym", amount = 1, independent_probability = 0.004},
+        {type = "item", name = "ei-scrap-asteroid-chunk", amount = 1, independent_probability = 0.05},
+        {type = "item", name = "ei-worm-torn-relay-core", amount = 1, independent_probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -747,7 +747,7 @@ data:extend(
         type = "recipe",
         name = "ei-organic-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/organic-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -755,16 +755,16 @@ data:extend(
         ingredients =
         {
           {type = "item", name = "ei-organic-asteroid-chunk", amount = 1},
-          {type = "fluid", name = "water", amount = 50},
+          {type = "fluid", name = "water", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         energy_required = 2,
         results =
         {
         {type = "item", name = "spoilage", amount_min = 5, amount_max = 50},
-        {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=4, probability=0.35},
-	    	{type = "fluid", name = "ei-ammonia-gas", amount_min = 1,amount_max=5,probability=0.5},
-        {type = "item", name = "ei-organic-asteroid-chunk", amount = 1, probability = 0.2},
-        {type = "item", name = "ei-sporeglass-heart", amount = 1, probability = 0.02}
+        {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=4, independent_probability = 0.35, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-ammonia-gas", amount_min = 1,amount_max=5,independent_probability = 0.5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-organic-asteroid-chunk", amount = 1, independent_probability = 0.2},
+        {type = "item", name = "ei-sporeglass-heart", amount = 1, independent_probability = 0.02}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -773,7 +773,7 @@ data:extend(
         type = "recipe",
         name = "ei-advanced-organic-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/advanced-organic-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -782,19 +782,19 @@ data:extend(
         {
           {type = "item", name = "ei-organic-asteroid-chunk", amount = 1},
           {type = "item", name = "nutrients", amount = 5},
-          {type = "fluid", name = "water", amount = 50},
+          {type = "fluid", name = "water", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         energy_required = 2,
         results =
         {
-        {type = "item", name = "pentapod-egg", amount = 1, probability = 0.001},
-        {type = "item", name = "yumako", amount = 5, probability = 0.13},
-        {type = "item", name = "jellynut", amount = 10, probability = 0.125},
-	    	{type = "item", name = "ei-bio-matter", amount_min=2,amount_max = 12, probability=0.25},
-        {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=8, probability=0.25},
-    		{type = "fluid", name = "ei-ammonia-gas", amount_min = 5,amount_max=10,probability=0.8},
-        {type = "item", name = "ei-organic-asteroid-chunk", amount = 1, probability = 0.05},
-        {type = "item", name = "ei-sporeglass-heart", amount = 1, probability = 0.04}
+        {type = "item", name = "pentapod-egg", amount = 1, independent_probability = 0.001},
+        {type = "item", name = "yumako", amount = 5, independent_probability = 0.13},
+        {type = "item", name = "jellynut", amount = 10, independent_probability = 0.125},
+	    	{type = "item", name = "ei-bio-matter", amount_min=2,amount_max = 12, independent_probability = 0.25},
+        {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=8, independent_probability = 0.25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-ammonia-gas", amount_min = 5,amount_max=10,independent_probability = 0.8, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-organic-asteroid-chunk", amount = 1, independent_probability = 0.05},
+        {type = "item", name = "ei-sporeglass-heart", amount = 1, independent_probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -803,7 +803,7 @@ data:extend(
         type = "recipe",
         name = "ei-petrified-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/petrified-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -816,11 +816,11 @@ data:extend(
         results =
         {
         {type = "item", name = "wood", amount_min = 5, amount_max = 20},
-        {type = "item", name = "raw-fish", amount = 1, probability = 0.4},
-    		{type = "fluid", name = "ei-liquid-nitrogen", amount_min = 5,amount_max=10,probability=0.5},
-        {type = "fluid", name = "ei-liquid-oxygen", amount_min = 5,amount_max=10,probability=0.5}, 
-        {type = "item", name = "ei-petrified-asteroid-chunk", amount = 1, probability = 0.2},
-        {type = "item", name = "ei-chrono-fossil-shard", amount = 1, probability = 0.02}
+        {type = "item", name = "raw-fish", amount = 1, independent_probability = 0.4},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount_min = 5,amount_max=10,independent_probability = 0.5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "fluid", name = "ei-liquid-oxygen", amount_min = 5,amount_max=10,independent_probability = 0.5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-petrified-asteroid-chunk", amount = 1, independent_probability = 0.2},
+        {type = "item", name = "ei-chrono-fossil-shard", amount = 1, independent_probability = 0.02}
         },
         allow_productivity = true,
         allow_decomposition = false
@@ -829,7 +829,7 @@ data:extend(
         type = "recipe",
         name = "ei-advanced-petrified-asteroid-crushing",
         icon = ei_graphics_3_path.."graphics/icons/advanced-petrified-asteroid-crushing.png",
-        category = "crushing",
+        categories = {"crushing"},
         subgroup="space-crushing",
         order = "b-a-a",
         auto_recycle = false,
@@ -838,18 +838,18 @@ data:extend(
         {
           {type = "item", name = "ei-petrified-asteroid-chunk", amount = 1},
           {type = "item", name = "bioflux", amount = 5},
-          {type = "fluid", name = "fluoroketone-cold", amount = 10},
+          {type = "fluid", name = "fluoroketone-cold", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         energy_required = 2,
         results =
         {
         {type = "item", name = "wood", amount_min = 1, amount_max = 5},
-        {type = "item", name = "raw-fish", amount = 1, probability = 0.6},
-        {type = "item", name = "biter-egg", amount = 1,probability=0.05},
-	    	{type = "fluid", name = "ei-liquid-nitrogen", amount_min = 10,amount_max=20,probability=0.5},
-	    	{type = "fluid", name = "ei-liquid-oxygen", amount_min = 10,amount_max=20,probability=0.5},
-        {type = "item", name = "ei-petrified-asteroid-chunk", amount = 1, probability = 0.05},
-        {type = "item", name = "ei-chrono-fossil-shard", amount = 1, probability = 0.04}
+        {type = "item", name = "raw-fish", amount = 1, independent_probability = 0.6},
+        {type = "item", name = "biter-egg", amount = 1,independent_probability = 0.05},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount_min = 10,amount_max=20,independent_probability = 0.5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-liquid-oxygen", amount_min = 10,amount_max=20,independent_probability = 0.5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type = "item", name = "ei-petrified-asteroid-chunk", amount = 1, independent_probability = 0.05},
+        {type = "item", name = "ei-chrono-fossil-shard", amount = 1, independent_probability = 0.04}
         },
         allow_productivity = true,
         allow_decomposition = false

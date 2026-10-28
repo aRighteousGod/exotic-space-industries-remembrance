@@ -21,7 +21,7 @@ data:extend({
     {
         name = "ei-small-inserter-normal",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 2,
         ingredients =
         {
@@ -29,7 +29,7 @@ data:extend({
             {type="item", name="ei-steel-mechanical-parts", amount=20},
             {type="item", name="ei-electronic-parts", amount=4},
             {type="item", name="electric-engine-unit", amount=8},
-            {type="fluid", name="lubricant", amount=15},
+            {type="fluid", name="lubricant", amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-small-inserter-normal", amount=1}},
         enabled = false,

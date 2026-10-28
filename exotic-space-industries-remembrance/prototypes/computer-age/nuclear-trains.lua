@@ -406,7 +406,7 @@ data:extend({
     {
         name = "ei-nuclear-locomotive",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 7,
         ingredients = {
             {type = "item", name = "locomotive", amount = 1},
@@ -425,7 +425,7 @@ data:extend({
     {
         name = "ei-advanced-cargo-wagon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 7,
         ingredients = {
             {type = "item", name = "ei-carbon", amount = 30},
@@ -442,7 +442,7 @@ data:extend({
     {
         name = "ei-advanced-fluid-wagon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 7,
         ingredients = {
             {type = "item", name = "ei-carbon", amount = 30},

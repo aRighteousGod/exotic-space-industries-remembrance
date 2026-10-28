@@ -169,7 +169,7 @@ data:extend({
     {
         name = "ei-alien-stabilizer-running",
         type = "recipe",
-        category = "ei-alien-stabilizer",
+        categories = {"ei-alien-stabilizer"},
         energy_required = 1000,
         ingredients = {},
         results = {},

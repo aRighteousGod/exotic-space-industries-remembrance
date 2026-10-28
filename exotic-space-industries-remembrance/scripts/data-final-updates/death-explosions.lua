@@ -403,7 +403,7 @@ if not mods["SolarMatrix"] then
   remove_entry(family_assignments["electric-industrial"], "solar-panel")
 end
 
-if not mods["enhanced-walls"] then
+if not mods["enhanced-walls-continued"] then
   family_assignments["fortified"] = {}
 end
 
@@ -411,7 +411,7 @@ if not mods["zeus-wrath"] then
   remove_entry(family_assignments["quantum"], "zeus-wrath-zeus-turret")
 end
 
-if not mods["castra"] then
+if not mods["castra-prime"] then
   remove_entry(family_assignments["electric-logistics"], "ei-military-loader")
 end
 

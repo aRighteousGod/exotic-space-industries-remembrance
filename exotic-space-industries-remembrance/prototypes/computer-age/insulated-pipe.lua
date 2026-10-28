@@ -41,8 +41,8 @@ data:extend({
     {
         name = "ei-insulated-pipe",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"cryogenics"},
+        categories = {"crafting", "cryogenics"},
+        
         energy_required = 1,
         ingredients =
         {
@@ -58,8 +58,8 @@ data:extend({
     {
         name = "ei-insulated-underground-pipe",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"cryogenics"},
+        categories = {"crafting", "cryogenics"},
+        
         energy_required = 1,
         ingredients =
         {
@@ -74,8 +74,8 @@ data:extend({
     {
         name = "ei-insulated-tank",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"cryogenics"},
+        categories = {"crafting", "cryogenics"},
+        
         energy_required = 1,
         ingredients =
         {
@@ -110,12 +110,10 @@ data:extend({
             mining_time = 1,
             result = "ei-insulated-tank",
         },
-        circuit_wire_connection_points = circuit_connector_definitions["storage-tank"].points,
-		circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites,
+        circuit_connector = table.deepcopy(circuit_connector_definitions["storage-tank"]),
 		circuit_wire_max_distance = 20,
         flow_length_in_ticks = 1,
         heating_energy = "0kW",
-        additional_categories = "cryogenics",
         window_bounding_box = {{0,0},{1,1}},
         pictures = {
             picture = {

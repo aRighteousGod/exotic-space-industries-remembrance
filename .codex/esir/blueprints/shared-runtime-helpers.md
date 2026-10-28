@@ -28,6 +28,10 @@ flowchart LR
 
 ## Ownership and invariants
 
+- Data-stage `recipe_add` uses fluid input multiplier 1 and `recipe_output_add`
+  uses fluid output multiplier 2. These preserve native 2.0 storage sizes under
+  the [2.1 buffer contract](recipe-economy.md#fluid-buffers) without changing
+  ingredient/result quantities or the public helper signatures.
 - `ei_lib.entity_check`, `get_valid_entity`, and `get_entity_unit_number` normalize uncertain runtime handles. A successful key extraction is not an enduring validity guarantee; revalidate after delays or destructive callbacks.
 - `ei_rng.int` and `ei_rng.float` construct a fresh deterministic seed from the caller's name and entropy inputs. There is no serialized generator state. Preserve stable entropy and ordering when changing callers. Current `float` returns the normalized LCG value directly despite accepting minimum/maximum arguments; do not infer scaled-range behavior from the signature.
 - `ei_loaders_lib.on_built_entity`, `snap_loader`, `snap_belt`, and `attempt_snap` derive orientation/type from adjacent entities at build-time. `make_loader` and `addEnergyDraw` are prototype helpers and do not belong in runtime mutation paths.

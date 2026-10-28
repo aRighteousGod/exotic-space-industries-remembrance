@@ -3,6 +3,7 @@
 -- ==========================================================================================================
 
 local science_pack_unlock = {["ei-dark-age-tech"]="ei-dark-age"}
+local science_prototypes = ei_lib.get_science_prototypes()
 local tiered_tech = {}
 local name = ""
 local untiered = ""
@@ -21,7 +22,7 @@ for _,tech in pairs(data.raw.technology) do
       data.raw.technology[tech.name].prerequisites = {}
       for i,v in ipairs(tech.effects) do
         if v.type == "unlock-recipe" then
-          if data.raw.tool[v.recipe] then 
+          if science_prototypes[v.recipe] then
             if not science_pack_unlock[v.recipe] then 
               science_pack_unlock[v.recipe] = tech.name
             end

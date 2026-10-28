@@ -227,7 +227,7 @@ local function count(runtime, key, amount)
 end
 
 local function profile_start(runtime)
-    return runtime.profiling_enabled and game.create_profiler() or nil
+    return runtime.profiling_enabled and helpers.create_profiler() or nil
 end
 
 -- Transient QC timers never enter storage or affect mechanical decisions. Emit
@@ -706,7 +706,7 @@ function lance.on_script_trigger_effect(event)
     record.wound_context = context
     local origin = source.position
     local pivot = {x = origin.x + c.crystal_offset.x, y = origin.y + c.crystal_offset.y}
-    local reservation_profiler = runtime.profiling_enabled and game.create_profiler()
+    local reservation_profiler = runtime.profiling_enabled and helpers.create_profiler()
     local due, turn, same, first_acquisition, compressed = reserve_contact(record, target, aim, pivot,
         force.index, source.surface.index, tick)
     if reservation_profiler then profile_end(reservation_profiler, "turn-reservation", tick) end
@@ -835,7 +835,7 @@ local function sweep(runtime, tick)
             stop_sweep(runtime, id)
             reset_beams(record)
         elseif tick < contact.due and tick > record.sweep_start then
-            local turn_profiler = runtime.profiling_enabled and game.create_profiler()
+            local turn_profiler = runtime.profiling_enabled and helpers.create_profiler()
             local target = observe_contact(runtime, contact)
             local from = record.sweep_from
             local duration = contact.due - record.sweep_start

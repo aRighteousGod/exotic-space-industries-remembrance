@@ -253,6 +253,14 @@ local circuit_connectors = circuit_connector_definitions.create_vector(universal
     { variation = 0, main_offset = util.by_pixel(-31, 4), shadow_offset = util.by_pixel(0, 34), show_shadow = false },
     { variation = 6, main_offset = util.by_pixel(-32, 5), shadow_offset = util.by_pixel(0, 35), show_shadow = false }
 })
+-- Connector layers belong to each sprite definition in 2.1.
+-- Native drills use N14/E48/S48/W48 for both dry and wet graphics; keep
+-- the authored connector offsets while adopting that unified layering.
+for index, connector in ipairs(circuit_connectors) do
+    connector.sprites.render_layer = "object"
+    connector.sprites.secondary_draw_order = index == 1 and 14 or 48
+end
+
 
 ----------------------------------------------------------------------------------------------------
 -- Restore the mining drill
@@ -430,9 +438,6 @@ mining_drill.graphics_set =
     max_animation_progress = 30,
 
     status_colors = electric_mining_drill_status_colors(),
-
-    circuit_connector_layer = "object",
-    circuit_connector_secondary_draw_order = { north = 14, east = 26, south = 26, west = 26 },
 
     animation = {
         north =  {
@@ -831,9 +836,6 @@ mining_drill.wet_mining_graphics_set =
     max_animation_progress = 30,
 
     status_colors = electric_mining_drill_status_colors(),
-
-    circuit_connector_layer = "object",
-    circuit_connector_secondary_draw_order = { north = 14, east = 44, south = 44, west = 44 },
 
     animation = {
         north = {
@@ -1531,8 +1533,9 @@ mining_drill.wet_mining_graphics_set =
     }
 }
 
-mining_drill.circuit_wire_connection_points = circuit_connectors.points
-mining_drill.circuit_connector_sprites = circuit_connectors.sprites
+mining_drill.circuit_wire_connection_points = nil
+mining_drill.circuit_connector_sprites = nil
+mining_drill.circuit_connector = circuit_connectors
 
 mining_drill.radius_visualisation_picture = {
     filename = ei_graphics_semi_kirazy_path.."tier_1/electric-mining-drill-radius-visualization.png",
@@ -1623,7 +1626,7 @@ data:extend({
     {
         name = "ei-advanced-electric-mining-drill",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {

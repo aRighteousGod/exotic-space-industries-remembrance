@@ -2,6 +2,24 @@
 -- It exercises native entities and production owner functions; never ships in ESIR.
 do
     local qc = {}
+    qc.modern = script.active_mods.base:sub(1,3) == "2.1"
+    qc.input_inventory = qc.modern and defines.inventory.crafter_input or defines.inventory.assembling_machine_input
+    function qc.enable(entity, enabled)
+        if qc.modern then entity.disabled_by_script = not enabled else entity.active = enabled end
+    end
+    function qc.clear_fluids(entity)
+        if qc.modern then
+            for index=1,entity.fluids_count do entity.clear_fluid(index) end
+        else entity.clear_fluid_inside() end
+    end
+    function qc.fluid_count(entity)
+        return qc.modern and entity.fluids_count or #entity.fluidbox
+    end
+    function qc.set_fluid(entity, index, fluid)
+        if qc.modern then
+            if fluid then entity.set_fluid(index,fluid) else entity.clear_fluid(index) end
+        else entity.fluidbox[index]=fluid end
+    end
     function qc.check(value, message)
         local state = storage.ei.gleba_vat_qc
         state.checks = (state.checks or 0) + 1
@@ -11,7 +29,7 @@ do
         return get_runtime().vats_by_unit[storage.ei.gleba_vat_qc.units[index]]
     end
     function qc.freeze(record)
-        record.entity.active = false
+        qc.enable(record.entity,false)
         queue_vat_due(get_runtime(), record.unit_number, game.tick + 10000000)
     end
     function qc.clear_nodes(record)
@@ -128,18 +146,18 @@ do
         record=qc.record(2)
         record.phase="drain";record.active_phase_key="drain";record.enriched_bloom=false
         record.drain_runoff_pending=true
-        record.entity.clear_fluid_inside()
+        qc.clear_fluids(record.entity)
         apply_phase_recipe(record,game.tick)
         local out=get_filtered_output_fluidbox_index(record.entity,"ei-dirty-water")
         if not out then
             local boxes={}
             for index,box in pairs(record.entity.prototype.fluidbox_prototypes) do boxes[#boxes+1]={index=index,production=box.production_type,filter=box.filter and box.filter.name} end
-            error("Drain output missing "..helpers.table_to_json({count=#record.entity.fluidbox,boxes=boxes}))
+            error("Drain output missing "..helpers.table_to_json({count=qc.fluid_count(record.entity),boxes=boxes}))
         end
-        record.entity.fluidbox[out]={name="ei-dirty-water",amount=35}
+        qc.set_fluid(record.entity,out,{name="ei-dirty-water",amount=35})
         process_due_vat(get_runtime(),record,game.tick)
         qc.check(record.phase=="drain","runoff blocks drain")
-        record.entity.remove_fluid{name="ei-dirty-water",amount=10000}
+        qc.set_fluid(record.entity,out,nil)
         process_due_vat(get_runtime(),record,game.tick)
         qc.check(record.phase=="bloom","cleared runoff advances")
         qc.freeze(record)
@@ -149,11 +167,15 @@ do
         record.phase="seed";record.active_phase_key="seed"
         record.completed_cycles=0;record.enriched_bloom=false
         record.vigor=100;record.contamination=0;record.drain_runoff_pending=false
-        record.entity.clear_fluid_inside()
-        record.entity.get_inventory(defines.inventory.assembling_machine_input).clear()
+        qc.clear_fluids(record.entity)
+        record.entity.get_inventory(qc.input_inventory).clear()
         apply_phase_recipe(record,game.tick)
         record.entity.crafting_progress=0
-        record.entity.active=true
+        -- The preceding synthetic progress=1 probes can finish a native product
+        -- while changing recipes in 2.1. Begin this timed cycle from that count.
+        record.last_products_finished=record.entity.products_finished
+        qc.check(get_marker_amount(record.entity)==0,"fresh cycle has no completion marker")
+        qc.enable(record.entity,true)
         queue_vat_due(get_runtime(),record.unit_number,game.tick+1)
         state.cycle_start=game.tick
         state.results=results
@@ -163,8 +185,17 @@ do
         local state=storage.ei.gleba_vat_qc
         local record=qc.record(7)
         if state.cycle_done then return true end
+        state.phase_times=state.phase_times or {}
+        if not state.phase_times[#state.phase_times] or state.phase_times[#state.phase_times].phase~=record.phase then
+            local recipe=record.entity.get_recipe()
+            state.phase_times[#state.phase_times+1]={phase=record.phase,tick=game.tick-state.cycle_start,
+                recipe=recipe and recipe.name,energy=recipe and recipe.energy,progress=record.entity.crafting_progress,
+                speed=record.entity.crafting_speed,marker=get_marker_amount(record.entity)}
+        end
         if record.completed_cycles>=1 and record.phase=="seed" then
             qc.check(model._count_cyst_nodes_in_basin(record)==12,"real fed enriched cycle yields twelve")
+            helpers.write_file('auric-phase-times.json',helpers.table_to_json{engine=script.active_mods.base,
+                cycle_ticks=game.tick-state.cycle_start,phases=state.phase_times},false)
             qc.check(game.tick-state.cycle_start>=175*60,"native phase durations")
             state.cycle_done=true
             state.cycle_ticks=game.tick-state.cycle_start
@@ -173,17 +204,20 @@ do
         end
         local entity=record.entity
         if entity.get_fuel_inventory().get_item_count("nutrients")<10 then entity.get_fuel_inventory().insert{name="nutrients",count=100} end
-        local inputs=entity.get_inventory(defines.inventory.assembling_machine_input)
+        local inputs=entity.get_inventory(qc.input_inventory)
         for _,name in ipairs({"spoilage","jelly","yumako-mash","bioflux"}) do if inputs.get_item_count(name)<50 then entity.insert{name=name,count=100} end end
-        for index=1,#entity.fluidbox do
-            local resolved=entity.fluidbox.get_prototype(index)
+        for index=1,qc.fluid_count(entity) do
+            local resolved=qc.modern and entity.get_fluid_box_prototype(index) or entity.fluidbox.get_prototype(index)
             for _,box in ipairs(resolved.production_type and {resolved} or resolved) do
-                if box.production_type=="input" and box.filter then entity.fluidbox[index]={name=box.filter.name,amount=entity.fluidbox.get_capacity(index)} end
+                if box.production_type=="input" and box.filter then
+                    local capacity=qc.modern and entity.get_fluid_capacity(index) or entity.fluidbox.get_capacity(index)
+                    qc.set_fluid(entity,index,{name=box.filter.name,amount=capacity})
+                end
             end
         end
         for _,name in ipairs({"ei-dirty-water","ei-acidic-water"}) do
             local index=get_filtered_output_fluidbox_index(entity,name)
-            if index then entity.fluidbox[index]=nil end
+            if index then qc.set_fluid(entity,index,nil) end
         end
         return false
     end
@@ -223,5 +257,6 @@ do
         player.opened=record.entity
         model.open_gui(player,game.tick)
     end
-    remote.add_interface("ei-gleba-vat-qc",qc)
+    remote.add_interface("ei-gleba-vat-qc",{prepare=qc.prepare,run=qc.run,service_cycle=qc.service_cycle,
+        checkpoint=qc.checkpoint,verify_checkpoint=qc.verify_checkpoint,report=qc.report,visual=qc.visual})
 end

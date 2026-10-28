@@ -37,8 +37,9 @@ stone_well_pump.fluid_box.pipe_connections = {
 	}
 }
 
-stone_well_pump.circuit_wire_connection_points = circuit_connector_definitions["storage-tank"].points
-stone_well_pump.circuit_connector_sprites = circuit_connector_definitions["storage-tank"].sprites
+stone_well_pump.circuit_wire_connection_points = nil
+stone_well_pump.circuit_connector_sprites = nil
+stone_well_pump.circuit_connector = table.deepcopy(circuit_connector_definitions["storage-tank"])
 
 data:extend(
 {

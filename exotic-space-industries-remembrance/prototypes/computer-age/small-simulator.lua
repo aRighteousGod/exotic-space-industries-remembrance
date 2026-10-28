@@ -230,7 +230,7 @@ data:extend({
     {
         name = "ei-small-simulator",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -336,10 +336,10 @@ data:extend({
     {
         name = "ei-simulation-data",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power", amount = 4},
+            {type = "fluid", name = "ei-computing-power", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data", amount = 3},
@@ -352,10 +352,10 @@ data:extend({
     {
         name = "ei-simulation-data-chemical",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power-chemical", amount = 4},
+            {type = "fluid", name = "ei-computing-power-chemical", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data-chemical", amount = 3},
@@ -375,10 +375,10 @@ data:extend({
     {
         name = "ei-simulation-data-organic",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power-organic", amount = 4},
+            {type = "fluid", name = "ei-computing-power-organic", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data-organic", amount = 3},
@@ -398,10 +398,10 @@ data:extend({
     {
         name = "ei-simulation-data-stone",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power-stone", amount = 4},
+            {type = "fluid", name = "ei-computing-power-stone", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data-stone", amount = 3},
@@ -421,10 +421,10 @@ data:extend({
     {
         name = "ei-simulation-data-uranium",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power-uranium", amount = 4},
+            {type = "fluid", name = "ei-computing-power-uranium", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data-uranium", amount = 3},
@@ -444,10 +444,10 @@ data:extend({
     {
         name = "ei-simulation-data-petrified",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power-petrified", amount = 4},
+            {type = "fluid", name = "ei-computing-power-petrified", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data-petrified", amount = 3},
@@ -467,10 +467,10 @@ data:extend({
     {
         name = "ei-simulation-data-scrap",
         type = "recipe",
-        category = "ei-small-simulator",
+        categories = {"ei-small-simulator"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-computing-power-scrap", amount = 4},
+            {type = "fluid", name = "ei-computing-power-scrap", amount = 4, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-simulation-data-scrap", amount = 3},

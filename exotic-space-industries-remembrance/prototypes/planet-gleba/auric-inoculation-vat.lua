@@ -61,7 +61,7 @@ local function make_signal_icons(base_icon, base_size, overlay_icon, tint, base_
 end
 
 local function make_marker_result()
-    return {type = "fluid", name = MARKER_FLUID_NAME, amount = 1, fluidbox_index = MARKER_OUTPUT_FLUIDBOX, ignored_by_stats = 1, ignored_by_productivity = 1}
+    return {type = "fluid", name = MARKER_FLUID_NAME, amount = 1, fluidbox_index = MARKER_OUTPUT_FLUIDBOX, ignored_by_stats = 1, ignored_by_productivity = 1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
 end
 
 local function make_hidden_recipe(name, energy_required, ingredients, extra_results, localised_name)
@@ -73,7 +73,7 @@ local function make_hidden_recipe(name, energy_required, ingredients, extra_resu
     local recipe = {
         type = "recipe",
         name = name,
-        category = VAT_CATEGORY_NAME,
+        categories = {VAT_CATEGORY_NAME},
         enabled = true,
         hidden = true,
         hide_from_player_crafting = true,
@@ -109,7 +109,7 @@ for _, band in ipairs(BAND_DEFS) do
         10,
         {
             {type = "item", name = "spoilage", amount = band.seed_spoilage},
-            {type = "fluid", name = "ei-bio-oil", amount = band.seed_bio_oil, fluidbox_index = BIO_OIL_INPUT_FLUIDBOX},
+            {type = "fluid", name = "ei-bio-oil", amount = band.seed_bio_oil, fluidbox_index = BIO_OIL_INPUT_FLUIDBOX, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         }
     )
 
@@ -117,7 +117,7 @@ for _, band in ipairs(BAND_DEFS) do
         "ei-auric-vat-flood-" .. band.key,
         15,
         {
-            {type = "fluid", name = "ei-dirty-water", amount = band.flood_dirty_water, fluidbox_index = DIRTY_WATER_INPUT_FLUIDBOX},
+            {type = "fluid", name = "ei-dirty-water", amount = band.flood_dirty_water, fluidbox_index = DIRTY_WATER_INPUT_FLUIDBOX, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         }
     )
 
@@ -145,7 +145,7 @@ for _, band in ipairs(BAND_DEFS) do
         15,
         {},
         {
-            {type = "fluid", name = "ei-dirty-water", amount = band.drain_dirty_water, fluidbox_index = DIRTY_WATER_OUTPUT_FLUIDBOX},
+            {type = "fluid", name = "ei-dirty-water", amount = band.drain_dirty_water, fluidbox_index = DIRTY_WATER_OUTPUT_FLUIDBOX, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         }
     )
 
@@ -154,8 +154,8 @@ for _, band in ipairs(BAND_DEFS) do
         15,
         {},
         {
-            {type = "fluid", name = "ei-dirty-water", amount = band.drain_dirty_water, fluidbox_index = DIRTY_WATER_OUTPUT_FLUIDBOX},
-            {type = "fluid", name = "ei-acidic-water", amount = band.drain_acidic_water, fluidbox_index = ACIDIC_WATER_OUTPUT_FLUIDBOX},
+            {type = "fluid", name = "ei-dirty-water", amount = band.drain_dirty_water, fluidbox_index = DIRTY_WATER_OUTPUT_FLUIDBOX, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-acidic-water", amount = band.drain_acidic_water, fluidbox_index = ACIDIC_WATER_OUTPUT_FLUIDBOX, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         }
     )
 end
@@ -412,7 +412,7 @@ local prototypes = {
     {
         type = "recipe",
         name = VAT_NAME,
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 12,
         ingredients = {
             {type = "item", name = "biochamber", amount = 1},

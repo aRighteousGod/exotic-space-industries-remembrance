@@ -8,7 +8,7 @@
    - command-line or executable option guidance
    - Factorio-vs-general-Lua assumption check
 2. If the question is an assumption check, read `factorio-lua-assumptions` first.
-3. Run `-Task status` to confirm `source = installed` and `resolved_version = 2.0.77`; run `-Task refresh` when that versioned cache is stale or missing.
+3. Run `-Task status` to confirm `source = hosted` and `resolved_version = 2.1.23` for main development. For migration evidence, explicitly select `-Source installed -Version 2.0.77`. Refresh is an explicit cache-writing action; ordinary queries stay read-only.
 4. Query the local cache first with `invoke-factorio-lua-docs.ps1`.
 5. Prefer exact name lookup when the symbol is known.
 6. For broader "how do I..." questions, search the wiki or auxiliary stages.
@@ -38,6 +38,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Source hosted -Version 2.0.77 -Task status
 ```
 
-Add `-RefreshIfMissing` only when a cache write is acceptable. Under the default installed profile it never falls back to the network. The `latest` literal is invalid, and explicit `-DocsRoot` cannot be combined with `-Source hosted`.
+Add `-RefreshIfMissing` only when a cache write is intended. The installed historical profile never falls back to the network. The `latest` literal is invalid, and explicit `-DocsRoot` cannot be combined with `-Source hosted`. The stale flat 2.1.15 cache is never a fallback.
 
 When the question is "can I use normal Lua behavior here?", read `factorio-lua-assumptions` before choosing a pattern.

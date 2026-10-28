@@ -15,7 +15,7 @@ Short-form `require("meld")` is common in vanilla prototype files, but explicit 
 - `meld(target, source)` mutates `target` and returns the same `target`.
 - Non-table values from `source` replace `target[k]`.
 - Table values recursively merge into `target[k]` when `target[k]` is also a table.
-- Table values are deep-copied into `target` when the destination is absent or not a table.
+- In 2.1, an absent or non-table destination becomes an empty table and is recursively merged. Nested control markers therefore execute even when their destination did not exist. The 2.0.77 helper instead deep-copied that whole branch, so do not assume identical behavior for such patches.
 - Control markers allow delete, replace, transform, and append behavior that normal recursive merge cannot express.
 
 ## Control Markers

@@ -74,7 +74,7 @@ Use the original callback tick through downstream work. Water/radar rebuilds sha
 <a id="lifecycle"></a>
 ## Lifecycle and cross-system state
 
-New-save initialization creates shared storage before feature rebuilds, then synchronizes compatibility, victory, settings, and arrival work. Configuration changes repair global storage and clear the pending scripted-research burst state, invalidate derived due minima, and perform both unconditional and mod-change-gated feature rebuilds. Preserve those distinctions: migration-only loads still rebuild systems with unconditional repair.
+New-save initialization creates shared storage before feature rebuilds, then synchronizes compatibility, victory, settings, and arrival work. Configuration changes repair global storage and clear the pending scripted-research burst state, invalidate derived due minima, and perform both unconditional and mod-change-gated feature rebuilds. Preserve those distinctions: migration-only loads still rebuild systems with unconditional repair. Railgun cooling uses its state-preserving repair entry point in the mod-change pass, retaining coolant helpers, debt and deadlines instead of discarding populated runtime state.
 
 `on_load` invokes the terrain owner's local self-write reset and deferred-adoption flag, and the Tesla module's local-load hook. Terrain adoption resumes at an ordinary service boundary; no persistent migration work occurs during `on_load`. Arrival gameplay resumes from player entry/controller events and `on_singleplayer_init`, not from load-time world mutation.
 

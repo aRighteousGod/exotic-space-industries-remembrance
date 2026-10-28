@@ -198,17 +198,17 @@ end
 ---@return string
 local function desired(entity)
     if not enabled then return catalog.base_turret end
-    -- Proven in 2.0.77: ordinary fluidbox(es) precede the private firing buffer.
-    -- The supply pipe can contain a different fuel while old ammunition is burning.
-    for index=#entity.fluidbox+1,entity.fluids_count do
-        local fluid=entity.get_fluid(index)
+    -- Private firing-buffer fuel takes precedence over a changed supply pipe.
+    -- 2.1 exposes both through indexed storage; only supply boxes have prototypes.
+    for index=1,entity.fluids_count do
+        local fluid=not entity.get_fluid_box_prototype(index) and entity.get_fluid(index)
         if fluid and fluid.amount>0 then
             local fuel=catalog.by_fluid[fluid.name]
             return fuel and fuel.turret or entity.name
         end
     end
-    for index=1,#entity.fluidbox do
-        local fluid=entity.get_fluid(index)
+    for index=1,entity.fluids_count do
+        local fluid=entity.get_fluid_box_prototype(index) and entity.get_fluid(index)
         if fluid and fluid.amount>0 then
             local fuel=catalog.by_fluid[fluid.name]
             return fuel and fuel.turret or entity.name
@@ -217,7 +217,7 @@ local function desired(entity)
     return entity.name
 end
 
-local entity_fields={"health","orientation","kills","damage_dealt","disabled_by_script","destructible","minable","operable","rotatable","last_user","custom_status","ignore_unprioritised_targets"}
+local entity_fields={"health","orientation","kills","damage_dealt","disabled_by_script","destructible","minable_flag","operable","rotatable","last_user","custom_status","ignore_unprioritised_targets"}
 local behavior_fields={"read_ammo","circuit_enable_disable","circuit_condition","connect_to_logistic_network","logistic_condition","set_priority_list","set_ignore_unlisted_targets","ignore_unlisted_targets_condition"}
 
 ---@param source LuaEntity
@@ -231,6 +231,27 @@ local function unsafe_reason(source)
     end
 end
 
+-- A connected supply and a private firing buffer have different 2.1 APIs.
+-- Reapply the segment total after the overlapping entity is removed: native
+-- reconnection redistributes local shares during both commit and rollback.
+---@param entity LuaEntity
+---@param fluids table<integer,Fluid>
+---@param segments table<integer,boolean>
+---@param verify boolean|nil
+local function restore_transaction_fluids(entity,fluids,segments,verify)
+    for index=1,entity.fluids_count do
+        if segments[index] then
+            if fluids[index] then entity.set_fluid_segment_fluid(index,fluids[index]) else entity.clear_fluid_segment_fluid(index) end
+        else
+            if fluids[index] then entity.set_fluid(index,fluids[index]) else entity.clear_fluid(index) end
+        end
+        if verify then
+            local restored=segments[index] and entity.get_fluid_segment_fluid(index) or entity.get_fluid(index)
+            assert(util.table.compare({restored},{fluids[index]}),"fluid-state:"..index)
+        end
+    end
+end
+
 ---@param record ESIRFlameRecord
 ---@param target string
 ---@return boolean success
@@ -240,12 +261,19 @@ local function replace(record,target)
     local unsafe=unsafe_reason(source)
     if unsafe then return false,unsafe end
     local root=state()
-    -- get_fluid on a supply storage represents its connected segment. Creating
-    -- an overlapping fluidbox can split that segment immediately, before a tick.
-    local fluids={}
-    for index=1,source.fluids_count do fluids[index]=source.get_fluid(index) end
+    -- Local shares change when the overlapping candidate splits/rejoins pipes.
+    -- Snapshot connected totals explicitly; private firing buffers have no segment.
+    local fluids,segments={},{}
+    for index=1,source.fluids_count do
+        segments[index]=source.has_fluid_segment(index)
+        fluids[index]=segments[index] and source.get_fluid_segment_fluid(index) or source.get_fluid(index)
+    end
     local pipe_connections={}
-    for index=1,#source.fluidbox do pipe_connections[index]=source.fluidbox.get_pipe_connections(index) end
+    for index=1,source.fluids_count do
+        if source.get_fluid_box_prototype(index) then
+            pipe_connections[index]=source.get_fluid_box_pipe_connections(index)
+        end
+    end
     local candidate
     transaction=true
     local ok,err=pcall(function()
@@ -269,13 +297,13 @@ local function replace(record,target)
         end
         assert(source.fluids_count==candidate.fluids_count,"fluid-storage-count")
         for index=1,source.fluids_count do
-            candidate.set_fluid(index,fluids[index])
-            assert(util.table.compare({candidate.get_fluid(index)},{fluids[index]}),"fluid-state:"..index)
+            assert(candidate.has_fluid_segment(index)==segments[index],"fluid-storage-kind:"..index)
         end
-        for index,connections in ipairs(pipe_connections) do
-            local restored=candidate.fluidbox.get_pipe_connections(index)
+        restore_transaction_fluids(candidate,fluids,segments,true)
+        for index,connections in pairs(pipe_connections) do
+            local restored=candidate.get_fluid_box_pipe_connections(index)
             for connection_index,connection in ipairs(connections) do
-                assert(restored[connection_index].target==connection.target,"pipe-connection:"..index)
+                assert(restored[connection_index] and restored[connection_index].target==connection.target,"pipe-connection:"..index)
             end
         end
         for id,connector in pairs(source.get_wire_connectors(false) or {}) do
@@ -293,7 +321,7 @@ local function replace(record,target)
         -- fluidbox on destruction. Refresh its connections before restoring the
         -- segment snapshot; teleporting in place retains the original identity.
         source.teleport(source.position)
-        for index=1,source.fluids_count do source.set_fluid(index,fluids[index]) end
+        restore_transaction_fluids(source,fluids,segments)
         transaction=false
         return false,tostring(err)
     end
@@ -301,10 +329,11 @@ local function replace(record,target)
     if not source.destroy{raise_destroy=true} then
         candidate.destroy()
         source.teleport(source.position)
-        for index=1,source.fluids_count do source.set_fluid(index,fluids[index]) end
+        restore_transaction_fluids(source,fluids,segments)
         transaction=false
         return false,"commit-failed"
     end
+    restore_transaction_fluids(candidate,fluids,segments)
     root.units[old_unit]=nil
     root.registrations[record.registration]=nil
     record.entity=candidate

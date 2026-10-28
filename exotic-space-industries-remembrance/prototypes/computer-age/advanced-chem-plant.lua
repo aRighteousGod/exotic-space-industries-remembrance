@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-advanced-chem-plant",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -66,11 +66,11 @@ data:extend({
     {
         name = "ei-ceramic-water",
         type = "recipe",
-        category = "ei-advanced-chem-plant",
+        categories = {"ei-advanced-chem-plant"},
         energy_required = 3,
         ingredients = {
             {type = "item", name = modprefix.."sand", amount = 6},
-            {type = "fluid", name = "water", amount = 60}
+            {type = "fluid", name = "water", amount = 60, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {
             {type = "item", name = "ei-ceramic", amount = 4},
@@ -82,12 +82,12 @@ data:extend({
     {
         name = "ei-plastic-crushed-coke",
         type = "recipe",
-        category = "ei-advanced-chem-plant",
+        categories = {"ei-advanced-chem-plant"},
         energy_required = 24,
         ingredients = {
             {type = "item", name = "ei-crushed-coke", amount = 8},
-            {type = "fluid", name = "petroleum-gas", amount = 60},
-            {type = "fluid", name = "light-oil", amount = 40}
+            {type = "fluid", name = "petroleum-gas", amount = 60, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "light-oil", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {
             {type = "item", name = "plastic-bar", amount = 28},
@@ -99,7 +99,7 @@ data:extend({
     {
         name = "ei-advanced-chem-plant",
         type = "assembling-machine",
-        crafting_categories = {"chemistry", "ei-advanced-chem-plant","chemistry-or-cryogenics","organic-or-chemistry","ei-burning"},
+        crafting_categories = {"chemistry", "ei-advanced-chem-plant","ei-burning"},
         icon = ei_graphics_item_path.."advanced-chem-plant.png",
         icon_size = 64,
         circuit_connector =  circuit_connector_definitions.create_vector(

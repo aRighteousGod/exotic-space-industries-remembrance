@@ -185,7 +185,7 @@ data:extend({
 	{
 		name = "ei-shotgun-turret",
 		type = "recipe",
-		category = "crafting",
+		categories = {"crafting"},
 		energy_required = 8,
 		ingredients = {
 			{ type = "item", name = "shotgun", amount = 1 },
@@ -405,19 +405,19 @@ data:extend({
 	{
 		name = "ei-dragons-breath-shotgun-shell",
 		type = "recipe",
-		category = "metallurgy",
+		categories = {"metallurgy"},
 		energy_required = 10,
 		ingredients = {
-			{ type = "fluid", name = "ei-molten-carbon-symbiote", amount = 5 }, --fire spirit
+            { type = "fluid", name = "ei-molten-carbon-symbiote", amount = 5 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}, --fire spirit
 			{ type = "item", name = "piercing-shotgun-shell", amount = 1 }, --regular shells
 			{ type = "item", name = "tungsten-carbide", amount = 1 }, --shell
 			{ type = "item", name = "explosives", amount = 10 }, --spice
-			{ type = "fluid", name = "lava", amount = 100 }, --life
+            { type = "fluid", name = "lava", amount = 100 , fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}, --life
 		},
 		results = {
 			{ type = "item", name = "ei-dragons-breath-shotgun-shell", amount = 1 },
 			{ type = "item", name = "ei-slag", amount_min = 6, amount_max = 18, ignored_by_stats=18 },
-			{ type = "item", name = "atan-ash", amount_min = 15, amount_max = 30, probability = 0.98, ignored_by_stats=30 },
+			{ type = "item", name = "atan-ash", amount_min = 15, amount_max = 30, independent_probability = 0.98, ignored_by_stats=30 },
 		},
 		enabled = false,
 		always_show_made_in = true,

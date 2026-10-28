@@ -1,5 +1,14 @@
 # Fuel-specific flamethrower verification
 
+Current 2.1 acceptance uses `scripts/qc/factorio-2.1/stage_flame.py --run <new-short-path>`
+with the pinned full core, then `run_staged.py` or `save_checkpoint.py` from the same
+directory. Modes are `ordinary`, `transition`, and `matrix`; `--disabled` selects
+startup restoration. Ordinary mode uses a saved player and 625 ticks; matrix mode
+uses a fresh tick-zero save and 625 ticks. Transition mode saves `flame-transition.zip`.
+The private failure injection runs after fluid copying. Its 2.1 assertions compare
+connected-segment totals separately from local storage and the private firing buffer.
+The historical runner/evidence below targets 2.0 and is not a current 2.1 invocation.
+
 Target: installed Factorio 2.0.77, ESIR 1.3.40. The fixture copies the gameplay
 pack into `.factorio-qc/flamethrower-fuels`; it does not modify live saves or mods.
 Its remote interface and profiling/failure hooks are injected into that copy only.

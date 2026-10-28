@@ -30,8 +30,10 @@ do
         surface.map_gen_settings=mgs
     end
     local function write()
-        helpers.write_file("planet-enemies-v2.json",helpers.table_to_json{all_pass=all_pass,checks=checks,
-            version=script.active_mods.base,mods=script.active_mods,connected=#game.connected_players,complete=game.tick>=started+10},false)
+        local report={all_pass=all_pass,passed=all_pass and game.tick>=started+10,checks=checks,
+            version=script.active_mods.base,mods=script.active_mods,connected=#game.connected_players,complete=game.tick>=started+10}
+        helpers.write_file("planet-enemies-v2.json",helpers.table_to_json(report),false)
+        if report.complete then helpers.write_file("planet-enemies-v2-complete.json",helpers.table_to_json(report),false) end
         log("PLANET_ENEMIES_V2_COMPLETE "..tostring(all_pass))
     end
     script.on_event(defines.events.on_tick,function(event)
@@ -44,7 +46,7 @@ do
                 for _,field in ipairs(schema.global) do
                     assert(snapshot.values[field.id]~=nil,field.id)
                 end
-                return #snapshot.fields==22
+                return #snapshot.fields==#schema.global
             end)
             test("pending reference booleans",function()
                 local snap=maps.snapshot{planet="aquilo"}
@@ -104,10 +106,13 @@ do
             end)
             test("Off On retains zero resource richness",function()
                 local id="control/iron-ore/"
-                apply(target,{[id.."richness"]=0},event.tick)
-                apply(target,{[id.."enabled"]=false},event.tick)
+                apply(target,{[id.."frequency"]=3,[id.."size"]=2,[id.."richness"]=0},event.tick)
+                local off=apply(target,{[id.."enabled"]=false},event.tick)
+                local native=nauvis.map_gen_settings.autoplace_controls["iron-ore"]
+                assert(not off.values[id.."enabled"] and native.frequency==0 and native.size==0 and native.richness==0)
                 apply(target,{[id.."enabled"]=true},event.tick)
-                return nauvis.map_gen_settings.autoplace_controls["iron-ore"].richness==0
+                native=nauvis.map_gen_settings.autoplace_controls["iron-ore"]
+                return native.frequency==3 and native.size==2 and native.richness==0
             end)
             test("migration preserves custom probability aliases",function()
                 local m=nauvis.map_gen_settings
@@ -116,9 +121,10 @@ do
                 m.property_expression_names.cb_enemy_base_probability="cb_enemy_base_probability"
                 nauvis.map_gen_settings=m;policy.on_configuration_changed({})
                 local aliases=nauvis.map_gen_settings.property_expression_names
+                local prefix=config.native_revision and "ei_native21_nauvis_" or "ei_nauvis_"
                 return aliases.enemy_base_probability=="0.0125"
-                    and aliases.eb_enemy_base_probability=="ei_nauvis_explosive_enemy_base_probability"
-                    and aliases.cb_enemy_base_probability=="ei_nauvis_cold_enemy_base_probability"
+                    and aliases.eb_enemy_base_probability==prefix.."explosive_enemy_base_probability"
+                    and aliases.cb_enemy_base_probability==prefix.."cold_enemy_base_probability"
             end)
             test("stale same field rejected",function()
                 local snap=maps.snapshot(target)
@@ -335,6 +341,8 @@ do
             local enabled=0;for _,e in ipairs(batch) do if not e.disabled_by_script then enabled=enabled+1 end end
             check("raft reactivation resumes",enabled==130 and batch.external.disabled_by_script,enabled)
             write()
+            assert(all_pass,"Planet enemy v2 acceptance failed; inspect planet-enemies-v2.json")
+            if #game.connected_players>0 then game.auto_save('esir-enemy-v2-accepted') end
         end
     end)
 end

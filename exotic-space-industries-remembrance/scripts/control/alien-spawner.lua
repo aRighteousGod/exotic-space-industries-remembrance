@@ -559,7 +559,7 @@ function model.spawn_entities(preset, surface, pos)
         
         spawned_entity.destructible = destructible
 
-        spawned_entity.active = true
+        spawned_entity.disabled_by_script = false
 
         ::continue::
     end

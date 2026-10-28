@@ -22,13 +22,13 @@ data:extend({
     {
         name = "ei-big-turbine",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 120,
         ingredients =
         {
             {type="item", name="ei-carbon", amount=200},
             {type="item", name="low-density-structure", amount=60},
-            {type="fluid",name="ei-nitric-acid", amount=375},
+            {type="fluid",name="ei-nitric-acid", amount=375, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type="item", name="steam-turbine", amount=10},
             {type="item", name="ei-steel-mechanical-parts", amount=25},
             {type="item", name="ei-advanced-motor", amount=20}
@@ -41,7 +41,7 @@ data:extend({
     {
         name = "ei-big-turbine-quantum",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients =
         {
@@ -93,7 +93,8 @@ data:extend({
           production_type = "input-output"
         },
         --animation
-        horizontal_animation = {
+        two_direction_only = true,
+        pictures = {east = {animation = {
             layers = {
                 {
                     filename = ei_graphics_entity_path.."big-turbine_animation.png",
@@ -117,8 +118,7 @@ data:extend({
                     shift = {0,-0.5} 
                 },
             }
-        },
-        vertical_animation = {
+        }}, north = {animation = {
             layers = {
                 {
                     filename = ei_graphics_entity_path.."big-turbine_animation.png",
@@ -142,7 +142,7 @@ data:extend({
                     shift = {0,-0.5} 
                 },
             }
-        },
+        }}},
         smoke = {
           {
               name = "smoke",

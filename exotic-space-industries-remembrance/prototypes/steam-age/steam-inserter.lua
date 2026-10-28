@@ -19,7 +19,7 @@ data:extend({
     {
         name = "ei-steam-inserter",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -45,7 +45,7 @@ data:extend({
     {
         name = "ei-steam-long-inserter",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -124,6 +124,8 @@ inserter.icon_draw_specification = {shift = {0, 0}, scale = 1, scale_for_many = 
 -- set energy source to steam fluid box
 inserter.energy_source = {
     type = "fluid",
+    -- Steam power must not emit the fluid energy source's default working glow.
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     fluid_box = {   
         filter = "steam",
         volume = 200,
@@ -169,6 +171,7 @@ long_inserter.icon_draw_specification = {shift = {0, 0}, scale = 1, scale_for_ma
 -- set energy source to steam fluid box
 long_inserter.energy_source = {
     type = "fluid",
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     fluid_box = {   
         filter = "steam",
         volume = 200,

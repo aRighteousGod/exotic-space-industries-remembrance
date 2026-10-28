@@ -2,7 +2,7 @@
 local catalog=require("__exotic-space-industries-remembrance__/lib/flamethrower-fuels")
 local module={}
 function module.install()
-    script.on_init(function()
+    local function setup()
         local surface=game.create_surface("flame-matrix",{width=512,height=640,autoplace_controls={},autoplace_settings={entity={treat_missing_as_default=false}}})
         surface.request_to_generate_chunks({0,0},10);surface.force_generate_chunk_requests()
         local names={catalog.base_turret}
@@ -23,11 +23,15 @@ function module.install()
                 storage.cases[#storage.cases+1]={turret=turret,target=target,initial=target.health,name=name,fuel=fuel.id}
             end
         end
-    end)
+    end
     script.on_event(defines.events.on_tick,function(event)
+        -- Adding the fixture to a save runs configuration rebuild after on_init.
+        -- Build on the first tick so the fixed-identity matrix stays unregistered.
+        if event.tick==1 then setup() end
         if event.tick~=600 then return end
         local report={all_pass=true,cases={}}
         for _,case in ipairs(storage.cases) do
+            assert(case.turret.valid and case.target.valid,"Matrix entity was replaced or destroyed: "..case.name.." / "..case.fuel)
             local damage=case.initial-case.target.health
             local supply=case.turret.get_fluid(1)
             local passed=damage>0 and case.turret.name==case.name and (not supply or supply.amount<100)
@@ -36,6 +40,7 @@ function module.install()
         end
         helpers.write_file("flamethrower-qc.json",helpers.table_to_json(report),false)
         assert(report.all_pass,"A turret identity failed to fire a supported fuel")
+        log("FLAMETHROWER MATRIX COMPLETE")
     end)
 end
 return module

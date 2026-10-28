@@ -1,9 +1,9 @@
 # Core Lualib Map
 
-Surveyed from local Factorio 2.0.76 under:
+Surveyed from verified Factorio 2.1.23 build 87750 under:
 
 ```text
-C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\core\lualib
+.factorio-qc/f21/data/core/lualib
 ```
 
 This map tracks installed game files. A hosted Lua API cache refresh alone is not enough to update the surveyed Factorio version.
@@ -11,13 +11,15 @@ This map tracks installed game files. A hosted Lua API cache refresh alone is no
 Re-check with:
 
 ```powershell
-Get-ChildItem 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data\core\lualib' -File
-rg -n "require.*(meld|util|resource-autoplace|mod-gui|math2d|math3d)" 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\data'
+& .\.factorio-qc\f21\bin\x64\factorio.exe --version
+Get-ChildItem '.factorio-qc/f21/data/core/lualib' -File
+rg -n "require.*(meld|util|resource-autoplace|mod-gui|math2d|math3d)" '.factorio-qc/f21/data'
 ```
 
 ## Data And Prototype Helpers
 
 - `util`: copying, table comparison, colors, positions, icon composition, sprite loading, recipe product normalization, tint helpers, and assorted prototype utilities.
+- `prototype-hierarchy` and `prototype-info`: new in 2.1; engine prototype hierarchy/metadata used by the loader and native helpers.
 - `meld`: in-place recursive table patching with delete, overwrite, invoke, and append controls.
 - `resource-autoplace`: resource autoplace setting construction; ESIR uses it for custom resource placement.
 - `autoplace_utils`: lower-level autoplace peak helpers.
@@ -58,6 +60,10 @@ rg -n "require.*(meld|util|resource-autoplace|mod-gui|math2d|math3d)" 'C:\Progra
 - `prototypes/planet-gaia/procession-catalogue.lua`: core `util`.
 
 ## Practical Defaults
+
+- The 2.0.77 to 2.1.23 survey has 23 to 25 Lua modules: two additions, no removals, 13 byte-identical and 10 changed modules. File presence does not prove semantic parity.
+- In 2.1 `util.product_amount` understands `independent_probability`, `shared_probability` and `extra_count_fraction`; do not calculate yields from the removed product `probability` field. `util.contains_value` is available, and position shifting accepts keyed coordinates.
+- Circuit connector definitions such as `chest` are vectors in 2.1. Use `chest-single` when a scalar definition is required. Connector sprites now own `render_layer` and `secondary_draw_order`; old mining-drill graphics-set fields are removed.
 
 - For new ESIR prototype patches, check `meld`, `util`, and `ei_lib` before writing custom recursive table code.
 - For resource patches, prefer `resource-autoplace` when matching vanilla map generation behavior.

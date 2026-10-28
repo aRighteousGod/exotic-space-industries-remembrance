@@ -13,13 +13,13 @@ local function add_recipe(energy,speed,name,item)
         type = "recipe",
         name = "ei-warm-fire-from-" .. name,
         localised_name = {"recipe-name.ei-warm-fire"},
-        category = "ei-burning",
+        categories = {"ei-burning"},
         icon = "__core__/graphics/arrows/heat-exchange-indication.png",
         icon_size = 48,
         energy_required = (12.3 + energy / 1e6) * speed,
         enabled = true,
-        always_show_products = true,
-        show_amount_in_title = false,
+        
+        
         allowed_effects = {"speed", "consumption","quality","productivity"},
         hide_from_player_crafting = true,
         allow_productivity = true,
@@ -35,7 +35,7 @@ local function add_recipe(energy,speed,name,item)
             --in chemical labs directly for ash, so....
             --math.min(3,math.max(1,math.floor((12.3 + energy / 1e6) * speed))),
             amount = 1,
-            probability = 1,
+            independent_probability = 1,
             emissions_multiplier = item['fuel_emissions_multiplier'] or 1,
         }}}
     )
@@ -71,7 +71,14 @@ end
 for name,item in pairs(data.raw['item']) do
     local energy = item['fuel_value'] and util.parse_energy(item['fuel_value'])
     local speed = item['fuel_top_speed_multiplier'] or 1
-    if energy and string.find(item['fuel_category'], 'chemical') then
+    local chemical_fuel = false
+    for _, category in ipairs(item.fuel_categories or {}) do
+        if string.find(category, "chemical", 1, true) then
+            chemical_fuel = true
+            break
+        end
+    end
+    if energy and chemical_fuel then
         --log(string.format("found fuel to burn:  %s  (%s)", name, energy))
         add_recipe(energy,speed,name,item)
     elseif exceptions[name] then

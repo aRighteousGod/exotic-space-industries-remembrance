@@ -116,11 +116,13 @@ can produce snappers and the ordinary enemy-base control governs those births;
 the Armoured row has no effect. Changing nest mode never backfills existing chunks.
 Population settings are separate from ESIR combat difficulty.
 
-On Factorio 2.0.77, default enemy placement is unchanged. Adjusting a Nauvis
-family's frequency or size away from 100% uses a stable family-specific placement
-seed to keep neighboring sliders independent. Its nest positions can change;
-returning both sliders to 100% restores the original placement in future chunks.
-This engine workaround will be reviewed when ESIR moves to Factorio 2.1.
+Surfaces migrated from Factorio 2.0 retain their saved enemy-generation profile,
+seed expressions and overrides. On those surfaces, adjusting a Nauvis family's
+frequency or size away from 100% uses the established family-specific placement
+seed; returning both sliders to 100% restores the original placement in future
+chunks. New 2.1 surfaces use the native 2.1 generation profile. Each surface owns
+its generation revision, so upgrading ESIR does not silently change a legacy
+surface to the new profile. Existing generated chunks remain unchanged.
 
 ## Player modes and jail
 

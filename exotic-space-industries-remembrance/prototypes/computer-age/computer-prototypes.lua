@@ -438,7 +438,7 @@ data:extend({
         stack_size = 10,
         subgroup = "intermediate-product",
         order = "p[rocket-fuel]-b",
-        fuel_category = "ei-rocket-fuel",
+        fuel_categories = {"ei-rocket-fuel"},
         fuel_value = "180MJ",
         fuel_acceleration_multiplier = 2.1,
         fuel_top_speed_multiplier = 1.3,
@@ -687,7 +687,7 @@ data:extend({
     {
         name = "ei-bio-matter",
         type = "item",
-        fuel_category = "ei-bio-matter",
+        fuel_categories = {"ei-bio-matter"},
         fuel_value = "1MJ",
         icon = ei_graphics_item_path.."bio-matter.png",
         icon_size = 64,
@@ -795,19 +795,19 @@ data:extend({
     {
         name = "ei-sus-plating",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 2,
         ingredients = {
             {type = "item", name = "iron-plate", amount = 1},
             {type = "item", name = "ei-bio-matter", amount = 1},
             {type = "item", name = "ei-alien-resin", amount = 1},
-            {type = "fluid", name = "lubricant", amount = 5},
+            {type = "fluid", name = "lubricant", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-sus-plating", amount = 1},
-            {type = "item", name = "ei-bio-matter", amount = 1, probability = 0.8},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type = "item", name = "ei-bio-matter", amount = 1, independent_probability = 0.8},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -816,8 +816,8 @@ data:extend({
     {
         name = "ei-bio-insulated-wire",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 2,
         auto_recycle = false,
         ingredients = {
@@ -827,7 +827,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-insulated-wire", amount = 4},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -839,18 +839,18 @@ data:extend({
     {
         name = "ei-bio-energy-crystal",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 10,
         auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-energy-crystal", amount = 1},
-            {type = "fluid", name = "ei-acidic-water", amount = 10},
+            {type = "fluid", name = "ei-acidic-water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-bio-matter", amount = 1},
         },
         results = {
             {type = "item", name = "ei-energy-crystal", amount_min = 2,amount_max=3},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -862,20 +862,20 @@ data:extend({
     {
         name = "ei-bio-high-energy-crystal",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 60,
         auto_recycle = false,
         ingredients = {
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
-            {type = "fluid", name = "ei-crystal-solution", amount = 3},
+            {type = "fluid", name = "ei-crystal-solution", amount = 3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-bio-matter", amount = 3},
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount_min = 2,amount_max=3},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type = "item", name = "ei-high-energy-crystal", amount_min = 2,amount_max=3, always_fresh = true},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
-        result_is_always_fresh = true,
+        
         always_show_made_in = true,
         enabled = false,
         icon = ei_graphics_3_path.."graphics/other/bio-high-energy-crystal.png",
@@ -886,18 +886,18 @@ data:extend({
     {
         name = "ei-bio-hydrofluoric-acid",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 1,
         ingredients = {
             {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "fluid", name = "water", amount = 100},
+            {type = "fluid", name = "water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "sulfur", amount = 3},
             {type = "item", name = "ei-bio-matter", amount = 2},
         },
         results = {
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 250},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 250, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -909,18 +909,18 @@ data:extend({
     {
         name = "ei-bio-nitric-acid",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 3,
         ingredients = {
             {type = "item", name = "ei-crushed-gold", amount = 1},
-            {type = "fluid", name = "ei-dinitrogen-tetroxide-water-solution", amount = 10},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 5},
+            {type = "fluid", name = "ei-dinitrogen-tetroxide-water-solution", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-bio-matter", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-nitric-acid", amount = 100},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type = "fluid", name = "ei-nitric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -932,8 +932,8 @@ data:extend({
     {
         name = "ei-bio-electronic-parts",
         type = "recipe",
-        category = "ei-bio-reactor",
-        additional_categories = {"ei-bio-chamber","organic"},
+        categories = {"ei-bio-reactor", "ei-bio-chamber", "organic"},
+        
         energy_required = 6,
         auto_recycle = false,
         ingredients = {
@@ -945,7 +945,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-electronic-parts", amount = 5},
-            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,probability=0.10,ignored_by_stats=2}
+            {type="fluid",name="ei-bio-sludge",amount_min=1,amount_max=2,independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -957,15 +957,15 @@ data:extend({
     {
         name = "ei-oxygen-difluoride",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 9,
         ingredients = {
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 100},
-            {type = "fluid", name = "ei-liquid-oxygen", amount = 50},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-liquid-oxygen", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount_min = 25,amount_max=45},
-            {type = "fluid", name = "ei-hydrogen-gas", amount_min=5,amount_max=25},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount_min = 25,amount_max=45, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-hydrogen-gas", amount_min=5,amount_max=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -974,17 +974,17 @@ data:extend({
     {
         name = "ei-oxygen-difluoride-alien",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 12,
         ingredients = {
-            {type = "fluid", name = "ei-liquid-oxygen", amount = 100},
-            {type = "fluid", name = "sulfuric-acid", amount = 50},
+            {type = "fluid", name = "ei-liquid-oxygen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "sulfuric-acid", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-alien-resin", amount = 2},
             {type = "item", name = "ei-fluorite", amount = 2},
         },
         results = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount_min = 70, amount_max = 110},
-            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=6,probability=0.1,ignored_by_stats=6},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount_min = 70, amount_max = 110, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=6,independent_probability = 0.1,ignored_by_stats=6, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -993,18 +993,18 @@ data:extend({
     {
         name = "ei-undilute-morphium",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 32,
         ingredients = {
-            {type = "fluid", name = "ei-diluted-morphium", amount = 1000},
+            {type = "fluid", name = "ei-diluted-morphium", amount = 1000, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 10},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-morphium", amount = 10},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=15,probability=0.9,ignored_by_stats=15},
+            {type = "fluid", name = "ei-morphium", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=15,independent_probability = 0.9,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         icon = ei_graphics_fluid_path.."diluted-morphium.png",
@@ -1017,18 +1017,18 @@ data:extend({
     {
         name = "ei-concentrated-morphium",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 25},
+            {type = "fluid", name = "ei-morphium", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 10},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 15},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1039,18 +1039,18 @@ data:extend({
     {
         name = "ei-concentrated-morphium-light-oil",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 8,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 8},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 8, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
-            {type = "fluid", name = "steam", amount = 8},
+            {type = "fluid", name = "steam", amount = 8, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "light-oil", amount = 24},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
+            {type = "fluid", name = "light-oil", amount = 24, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1062,18 +1062,18 @@ data:extend({
     {
         name = "ei-concentrated-morphium-kerosene",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 16,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 16},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 16, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
-            {type = "fluid", name = "steam", amount = 16},
+            {type = "fluid", name = "steam", amount = 16, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-kerosene", amount = 48},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
+            {type = "fluid", name = "ei-kerosene", amount = 48, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1085,18 +1085,18 @@ data:extend({
     {
         name = "ei-concentrated-morphium-heavy-oil",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 32,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 32},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 32, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
-            {type = "fluid", name = "steam", amount = 32},
+            {type = "fluid", name = "steam", amount = 32, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "heavy-oil", amount = 96},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
+            {type = "fluid", name = "heavy-oil", amount = 96, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1108,18 +1108,18 @@ data:extend({
     {
         name = "ei-concentrated-morphium-lubricant",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 64,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 64},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 64, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
-            {type = "fluid", name = "steam", amount = 64},
+            {type = "fluid", name = "steam", amount = 64, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "lubricant", amount = 192},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2}
+            {type = "fluid", name = "lubricant", amount = 192, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1132,20 +1132,20 @@ data:extend({
     {
         name = "ei-water",
         type = "recipe",
-        category = "ei-purifier",
+        categories = {"ei-purifier"},
         energy_required = 6,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 100},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
         },
         results = {
             {type = "item", name = modprefix.."sand", amount = 1},
             {type = "item", name = "ei-crushed-coal", amount = 1},
             {type = "item", name = "ei-crushed-sulfur", amount = 1},
-            {type = "fluid", name = "water", amount = 100},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=2, probability=0.10,ignored_by_stats=2}
+            {type = "fluid", name = "water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min=1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1156,16 +1156,16 @@ data:extend({
     {
         name = "ei-evolved-alien-seed",
         type = "recipe",
-        category = "ei-bio-chamber",
+        categories = {"ei-bio-chamber"},
         energy_required = 10,
         ingredients = {
-            {type = "fluid", name = "ei-ammonia-gas", amount = 25},
+            {type = "fluid", name = "ei-ammonia-gas", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-alien-seed", amount = 1},
-            {type = "fluid", name = "ei-phythogas", amount = 50},
+            {type = "fluid", name = "ei-phythogas", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-evolved-alien-seed", amount = 1},
-            {type = "item", name = "ei-alien-seed", amount = 1, probability = 0.5},
+            {type = "item", name = "ei-alien-seed", amount = 1, independent_probability = 0.5},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1174,18 +1174,18 @@ data:extend({
     {
         name = "ei-blooming-evolved-alien-seed",
         type = "recipe",
-        category = "ei-bio-chamber",
+        categories = {"ei-bio-chamber"},
         energy_required = 20,
         ingredients = {
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 5},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
             {type = "item", name = "ei-evolved-alien-seed", amount = 1},
-            {type = "fluid", name = "ei-phythogas", amount = 100},
+            {type = "fluid", name = "ei-phythogas", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1},
-           {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+           {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
 
         },
         always_show_made_in = true,
@@ -1195,18 +1195,18 @@ data:extend({
     {
         name = "ei-bio-sludge",
         type = "recipe",
-        category = "ei-bio-reactor",
+        categories = {"ei-bio-reactor"},
         energy_required = 16,
         ingredients = {
             {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1},
-            {type = "fluid", name = "ei-nitrogen-gas", amount = 25},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 25},
+            {type = "fluid", name = "ei-nitrogen-gas", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "item", name = "ei-evolved-alien-seed", amount = 1, probability = 0.5,ignored_by_stats=1},
-            {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1, probability = 0.25,ignored_by_stats=1},
-            {type = "item", name = "ei-bio-matter", amount = 1, probability = 0.5},
-            {type = "fluid", name = "ei-bio-sludge", amount = 20},
+            {type = "item", name = "ei-evolved-alien-seed", amount = 1, independent_probability = 0.5,ignored_by_stats=1},
+            {type = "item", name = "ei-blooming-evolved-alien-seed", amount = 1, independent_probability = 0.25,ignored_by_stats=1},
+            {type = "item", name = "ei-bio-matter", amount = 1, independent_probability = 0.5},
+            {type = "fluid", name = "ei-bio-sludge", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1215,16 +1215,16 @@ data:extend({
     {
         name = "ei-bio-matter",
         type = "recipe",
-        category = "ei-bio-reactor",
+        categories = {"ei-bio-reactor"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "ei-bio-matter", amount = 1},
             {type = "item", name = "ei-crushed-coal", amount = 1},
-            {type = "fluid", name = "ei-bio-sludge", amount = 10},
+            {type = "fluid", name = "ei-bio-sludge", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-bio-matter", amount = 2},
-            {type = "fluid", name = "ei-bio-sludge", amount = 5},
+            {type = "fluid", name = "ei-bio-sludge", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1233,18 +1233,18 @@ data:extend({
     {
         name = "ei-cryodust",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 5},
+            {type = "fluid", name = "ei-morphium", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = modprefix.."sand", amount = 1},
-            {type = "fluid", name = "ei-cryoflux", amount = 10},
+            {type = "fluid", name = "ei-cryoflux", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1, ignored_by_stats=1},
         },
         results = {
             {type = "item", name = "ei-cryodust", amount = 1},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1253,12 +1253,12 @@ data:extend({
     {
         name = "ei-cryocondensate",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 8,
         ingredients = {
             {type = "item", name = "ei-cryodust", amount = 10},
             {type = "item", name = "sulfur", amount = 4},
-            {type = "fluid", name = "ei-cryoflux", amount = 25},
+            {type = "fluid", name = "ei-cryoflux", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-cryodust", amount = 3,ignored_by_stats=1},
@@ -1271,12 +1271,12 @@ data:extend({
     {
         name = "ei-condensed-cryodust",
         type = "recipe",
-        category = "ei-destill-tower",
+        categories = {"ei-destill-tower"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "ei-cryocondensate", amount = 10},
             {type = "item", name = "ei-crushed-coal", amount = 4},
-            {type = "fluid", name = "ei-nitrogen-gas", amount = 25},
+            {type = "fluid", name = "ei-nitrogen-gas", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-cryocondensate", amount = 9,ignored_by_stats=9},
@@ -1289,7 +1289,7 @@ data:extend({
     {
         name = "ei-compound-ammo",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients =
         {
@@ -1305,7 +1305,7 @@ data:extend({
     {
         name = "ei-personal-laser",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients =
         {
@@ -1321,7 +1321,7 @@ data:extend({
     {
         name = "ei-personal-leg",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients =
         {
@@ -1337,16 +1337,16 @@ data:extend({
     {
         name = "ei-advanced-base-semiconductor",
         type = "recipe",
-        category = "ei-waver-factory",
+        categories = {"ei-waver-factory"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-nitric-acid", amount = 5},
+            {type = "fluid", name = "ei-nitric-acid", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-sand", amount = 8},
             {type = "item", name = "ei-semiconductor", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-advanced-base-semiconductor", amount = 1, probability = 0.75},
-            {type = "item", name = "ei-faulty-semiconductor", amount = 1, probability = 0.25},
+            {type = "item", name = "ei-advanced-base-semiconductor", amount = 1, independent_probability = 0.75},
+            {type = "item", name = "ei-faulty-semiconductor", amount = 1, independent_probability = 0.25},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1355,7 +1355,7 @@ data:extend({
     {
         name = "ei-advanced-semiconductor",
         type = "recipe",
-        category = "ei-waver-factory",
+        categories = {"ei-waver-factory"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "ei-crushed-gold", amount = 6},
@@ -1363,9 +1363,9 @@ data:extend({
             {type = "item", name = "ei-advanced-base-semiconductor", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount = 10},
-            {type = "item", name = "ei-advanced-semiconductor", amount = 1, probability = 0.75},
-            {type = "item", name = "ei-faulty-advanced-semiconductor", amount = 1, probability = 0.25},
+            {type = "fluid", name = "ei-acidic-water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-advanced-semiconductor", amount = 1, independent_probability = 0.75},
+            {type = "item", name = "ei-faulty-advanced-semiconductor", amount = 1, independent_probability = 0.25},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1374,8 +1374,8 @@ data:extend({
     {
         name = "ei-computing-unit",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 15,
         ingredients = {
             {type = "item", name = "ei-rocket-control-unit", amount = 1},
@@ -1393,16 +1393,16 @@ data:extend({
     {
         name = "ei-molten-steel-mix",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-molten-iron", amount = 15},
+            {type = "fluid", name = "ei-molten-iron", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-coke", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-steel", amount = 10, temperature = 900},
-            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, probability = 0.25,ignored_by_stats=2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-steel", amount = 10, temperature = 900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, independent_probability = 0.25,ignored_by_stats=2},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1413,17 +1413,17 @@ data:extend({
     {
         name = "ei-molten-steel-oxygen",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-molten-iron", amount = 20},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 20},
+            {type = "fluid", name = "ei-molten-iron", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-coke", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-steel", amount = 20, temperature = 900},
-            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, probability = 0.05,ignored_by_stats=2},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-steel", amount = 20, temperature = 900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 2, independent_probability = 0.05,ignored_by_stats=2},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1434,8 +1434,8 @@ data:extend({
     {
         name = "ei-module-part",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 4,
         ingredients =
         {
@@ -1451,7 +1451,7 @@ data:extend({
     {
         name = "ei-rocket-parts",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients =
         {
@@ -1470,7 +1470,7 @@ data:extend({
     {
         name = "ei-rocket-parts-advanced",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         auto_recycle = false,
         ingredients =
@@ -1490,10 +1490,10 @@ data:extend({
     {
         name = "ei-advanced-rocket-fuel",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 20,
         ingredients = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 15},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "rocket-fuel", amount = 2},
         },
         results = {
@@ -1506,7 +1506,7 @@ data:extend({
 	{
 		type = "recipe",
 		name = "ei-space-steam-1",
-		category = "organic-or-chemistry",
+		categories = {"ei-organic-or-chemistry"},
 		subgroup = "fluid-recipes",
 		order = "d[other-chemistry]-b[space-steam]",
 		enabled = false,
@@ -1515,14 +1515,14 @@ data:extend({
 		{
 		  {type = "item", name = "coal", amount = 1},
 		  {type = "item", name = "ice", amount = 1},
-          {type = "fluid", name = "thruster-oxidizer", amount = 5}
+          {type = "fluid", name = "thruster-oxidizer", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 		},
 		results =
 		{
-		  {type = "fluid", name = "steam", amount = 100, temperature = 165}
+          {type = "fluid", name = "steam", amount = 100, temperature = 165, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
 		},
 		allow_productivity = false,
-		show_amount_in_title = false,
+		
 		allow_decomposition = false,
 		icon = "__base__/graphics/icons/fluid/steam.png",
 		surface_conditions =
@@ -1544,7 +1544,7 @@ data:extend({
     {
         type = "recipe",
 		name = "ei-space-steam-2",
-		category = "organic-or-chemistry",
+		categories = {"ei-organic-or-chemistry"},
 		subgroup = "fluid-recipes",
 		order = "d[other-chemistry]-b[space-steam]",
 		enabled = false,
@@ -1552,14 +1552,14 @@ data:extend({
 		ingredients =
 		{
 		  {type = "item", name = "rocket-fuel", amount = 10},
-		  {type = "fluid", name = "water", amount = 90},
+          {type = "fluid", name = "water", amount = 90, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 		},
 		results =
 		{
-		  {type = "fluid", name = "steam", amount = 1000, temperature = 165},
+          {type = "fluid", name = "steam", amount = 1000, temperature = 165, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 		},
 		allow_productivity = false,
-		show_amount_in_title = false,
+		
 		allow_decomposition = false,
 		icon = "__base__/graphics/icons/fluid/steam.png",
 		surface_conditions =
@@ -1581,8 +1581,8 @@ data:extend({
     {
         name = "ei-module-base",
         type = "recipe",
-        category = "crafting",
-        additional_categories = {"electronics"},
+        categories = {"crafting", "ei-electronics"},
+        
         energy_required = 4,
         ingredients =
         {
@@ -1598,7 +1598,7 @@ data:extend({
     {
         name = "ei-emtpy-cryo-container",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 6,
         ingredients =
         {
@@ -1615,11 +1615,11 @@ data:extend({
     {
         name = "ei-fill-cryo-container-nitrogen",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 1,
         auto_recycle = false,
         ingredients = {
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = ei_lib.config("barrel-capacity")},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = ei_lib.config("barrel-capacity"), fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-empty-cryo-container", amount = 1},
         },
         results = {
@@ -1637,7 +1637,7 @@ data:extend({
     {
         name = "ei-empty-cryo-container-nitrogen",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 1,
         auto_recycle = false,
         ingredients = {
@@ -1645,7 +1645,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-empty-cryo-container", amount = 1},
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = ei_lib.config("barrel-capacity")},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = ei_lib.config("barrel-capacity"), fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1658,11 +1658,11 @@ data:extend({
     {
         name = "ei-fill-cryo-container-oxygen",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 1,
         auto_recycle = false,
         ingredients = {
-            {type = "fluid", name = "ei-liquid-oxygen", amount = ei_lib.config("barrel-capacity")},
+            {type = "fluid", name = "ei-liquid-oxygen", amount = ei_lib.config("barrel-capacity"), fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-empty-cryo-container", amount = 1},
         },
         results = {
@@ -1680,7 +1680,7 @@ data:extend({
     {
         name = "ei-empty-cryo-container-oxygen",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 1,
         auto_recycle = false,
         ingredients = {
@@ -1688,7 +1688,7 @@ data:extend({
         },
         results = {
             {type = "item", name = "ei-empty-cryo-container", amount = 1},
-            {type = "fluid", name = "ei-liquid-oxygen", amount = ei_lib.config("barrel-capacity")},
+            {type = "fluid", name = "ei-liquid-oxygen", amount = ei_lib.config("barrel-capacity"), fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1701,14 +1701,14 @@ data:extend({
     {
         name = "ei-crystal-solution",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 10,
         ingredients = {
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 25},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-energy-crystal", amount = 5},
         },
         results = {
-            {type = "fluid", name = "ei-crystal-solution", amount = 25},
+            {type = "fluid", name = "ei-crystal-solution", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1717,14 +1717,14 @@ data:extend({
     {
         name = "ei-high-energy-crystal",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-crystal-solution", amount = 100},
+            {type = "fluid", name = "ei-crystal-solution", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability = 0.001},
-            {type = "fluid", name = "ei-crystal-solution", amount_min = 1,amount_max=99},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, independent_probability = 0.001},
+            {type = "fluid", name = "ei-crystal-solution", amount_min = 1,amount_max=99, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1733,25 +1733,25 @@ data:extend({
     {
         name = "ei-high-energy-crystal-growing",
         type = "recipe",
-        category = "ei-growing",
+        categories = {"ei-growing"},
         energy_required = 60,
         ingredients = {
-            {type = "fluid", name = "ei-crystal-solution", amount = 5},
+            {type = "fluid", name = "ei-crystal-solution", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount=1},
-            {type = "item", name = "ei-high-energy-crystal", amount_min=1,amount_max=2,probability=0.05}
+            {type = "item", name = "ei-high-energy-crystal", amount=1, always_fresh = true},
+            {type = "item", name = "ei-high-energy-crystal", amount_min=1,amount_max=2,independent_probability = 0.05, always_fresh = true}
         },
         always_show_made_in = true,
-        result_is_always_fresh = true,
+        
         enabled = false,
         main_product = "ei-high-energy-crystal",
     },
     {
         name = "ei-quantum-age-tech",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 90,
         ingredients =
         {
@@ -1769,14 +1769,14 @@ data:extend({
     {
         name = "ei-hydrogen",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "water", amount = 20},
+            {type = "fluid", name = "water", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-oxygen-gas", amount = 10},
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 10},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1785,14 +1785,14 @@ data:extend({
     {
         name = "ei-ammonia",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 3,
         ingredients = {
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 30},
-            {type = "fluid", name = "ei-nitrogen-gas", amount = 20},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-nitrogen-gas", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-ammonia-gas", amount = 20},
+            {type = "fluid", name = "ei-ammonia-gas", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1801,15 +1801,15 @@ data:extend({
     {
         name = "ei-dinitrogen-tetroxide",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 3,
         ingredients = {
-            {type = "fluid", name = "ei-ammonia-gas", amount = 40},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 70},
+            {type = "fluid", name = "ei-ammonia-gas", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 70, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-iron", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-dinitrogen-tetroxide-gas", amount = 40},
+            {type = "fluid", name = "ei-dinitrogen-tetroxide-gas", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1818,14 +1818,14 @@ data:extend({
     {
         name = "ei-dinitrogen-tetroxide-water-solution",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-dinitrogen-tetroxide-gas", amount = 10},
-            {type = "fluid", name = "water", amount = 10},
+            {type = "fluid", name = "ei-dinitrogen-tetroxide-gas", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dinitrogen-tetroxide-water-solution", amount = 10},
+            {type = "fluid", name = "ei-dinitrogen-tetroxide-water-solution", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1834,15 +1834,15 @@ data:extend({
     {
         name = "ei-nitric-acid",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 3,
         ingredients = {
-            {type = "fluid", name = "ei-dinitrogen-tetroxide-water-solution", amount = 20},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 10},
+            {type = "fluid", name = "ei-dinitrogen-tetroxide-water-solution", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-gold", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-nitric-acid", amount = 40},
+            {type = "fluid", name = "ei-nitric-acid", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1851,13 +1851,13 @@ data:extend({
     {
         name = "ei-advanced-computer-age-tech",
         type = "recipe",
-        category = "advanced-crafting",
+        categories = {"advanced-crafting"},
         energy_required = 56,
         ingredients = {
             {type = "item", name = "ei-advanced-motor", amount = 1},
             {type = "item", name = "processing-unit", amount = 12},
             {type = "item", name = "ei-data-pipe", amount = 12},
-            {type = "fluid", name = "ei-nitric-acid", amount = 100},
+            {type = "fluid", name = "ei-nitric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-advanced-computer-age-tech", amount = 2},
@@ -1869,18 +1869,18 @@ data:extend({
     {
         name = "ei-alien-computer-age-tech",
         type = "recipe",
-        category = "advanced-crafting",
+        categories = {"advanced-crafting"},
         energy_required = 70,
         ingredients = {
             {type = "item", name = "ei-blooming-alien-seed", amount = 5},
             {type = "item", name = "ei-high-energy-crystal", amount = 2},
             {type = "item", name = "ei-bio-matter", amount = 50},
-            {type = "fluid", name = "ei-concentrated-morphium", amount = 100},
+            {type = "fluid", name = "ei-concentrated-morphium", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-alien-computer-age-tech", amount = 2},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
         },
         always_show_made_in = true,
         enabled = false,
@@ -1889,7 +1889,7 @@ data:extend({
     {
         name = "ei-advanced-motor",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         icon = ei_graphics_3_path.."graphics/tech/advanced-motor.png",
         icon_size = 256,
         icon_mipmaps = 4,
@@ -1898,7 +1898,7 @@ data:extend({
             {type = "item", name = "electric-engine-unit", amount = 1},
             {type = "item", name = "ei-electronic-parts", amount = 1},
             {type = "item", name = "ei-steel-mechanical-parts", amount = 2},
-            {type = "fluid", name = "lubricant", amount = 150},
+            {type = "fluid", name = "lubricant", amount = 150, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-advanced-motor", amount = 1},
@@ -1910,7 +1910,7 @@ data:extend({
     {
         name = "ei-advanced-motor-cryo",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         icon = ei_graphics_3_path.."graphics/tech/advanced-motor-cryo.png",
         icon_size = 256,
         icon_mipmaps = 4,
@@ -1920,7 +1920,7 @@ data:extend({
             {type = "item", name = "ei-electronic-parts", amount = 1},
             {type = "item", name = "ei-steel-mechanical-parts", amount = 2},
             {type = "item", name = "ei-condensed-cryodust", amount = 2},
-            {type = "fluid", name = "lubricant", amount = 15},
+            {type = "fluid", name = "lubricant", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-advanced-motor", amount = 1},
@@ -1932,12 +1932,12 @@ data:extend({
     {
         name = "ei-battery-lithium",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "lithium", amount = 2},
             {type = "item", name = "ei-ceramic", amount = 1},
-            {type = "fluid", name = "sulfuric-acid", amount = 15},
+            {type = "fluid", name = "sulfuric-acid", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "battery", amount = 2},
@@ -1951,17 +1951,17 @@ data:extend({
     {
         name = "ei-morphium-fluorite",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 50},
+            {type = "fluid", name = "ei-morphium", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name ="ei-high-energy-crystal", amount = 1, ignored_by_stats=1}
         },
         results = {
             {type = "item", name = "ei-fluorite", amount = 1},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability=0.10,ignored_by_stats=2}
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
         always_show_made_in = true,
         enabled = false,
@@ -1972,16 +1972,16 @@ data:extend({
     {
         name = "ei-copper-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 40},
+            {type = "fluid", name = "ei-morphium", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-copper", amount = 1},
         },
         always_show_made_in = true,
@@ -1994,16 +1994,16 @@ data:extend({
     {
         name = "ei-iron-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 40},
+            {type = "fluid", name = "ei-morphium", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-iron", amount = 1},
         },
         always_show_made_in = true,
@@ -2016,16 +2016,16 @@ data:extend({
     {
         name = "ei-gold-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1.5,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 60},
+            {type = "fluid", name = "ei-morphium", amount = 60, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-gold", amount = 1},
         },
         always_show_made_in = true,
@@ -2038,16 +2038,16 @@ data:extend({
     {
         name = "ei-lead-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1.5,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 60},
+            {type = "fluid", name = "ei-morphium", amount = 60, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-pure-lead", amount = 1},
         },
         always_show_made_in = true,
@@ -2060,16 +2060,16 @@ data:extend({
     {
         name = "ei-uranium-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 2.5,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 100},
+            {type = "fluid", name = "ei-morphium", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.9,ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.10,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.9},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.9, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "uranium-ore", amount = 1},
         },
         always_show_made_in = true,
@@ -2082,16 +2082,16 @@ data:extend({
     {
         name = "ei-stone-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 2.5,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 10},
+            {type = "fluid", name = "ei-morphium", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "stone", amount = 1},
         },
         always_show_made_in = true,
@@ -2103,16 +2103,16 @@ data:extend({
     {
         name = "ei-sulfur-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 2.5,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 80},
+            {type = "fluid", name = "ei-morphium", amount = 80, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount=1, ignored_by_stats=1}
         },
         results = {
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98, ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, probability = 0.10,ignored_by_stats=2},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98}, ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=2, independent_probability = 0.10,ignored_by_stats=2, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "sulfur", amount = 1},
         },
         always_show_made_in = true,
@@ -2126,14 +2126,14 @@ data:extend({
     {
         name = "ei-dirty-water-copper-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 40},
+            {type = "fluid", name = "ei-dirty-water", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,ignored_by_stats=15},
-            {type = "item", name = "ei-pure-copper", amount = 1,probability = 0.05},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-pure-copper", amount = 1,independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2145,14 +2145,14 @@ data:extend({
     {
         name = "ei-dirty-water-iron-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 40},
+            {type = "fluid", name = "ei-dirty-water", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,ignored_by_stats=15},
-            {type = "item", name = "ei-pure-iron", amount = 1,probability = 0.05},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 10,amount_max=15,ignored_by_stats=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-pure-iron", amount = 1,independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2164,14 +2164,14 @@ data:extend({
     {
         name = "ei-dirty-water-gold-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1.5,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 60},
+            {type = "fluid", name = "ei-dirty-water", amount = 60, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=25,ignored_by_stats=25},
-            {type = "item", name = "ei-pure-gold", amount = 1,probability = 0.05},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=25,ignored_by_stats=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-pure-gold", amount = 1,independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2183,14 +2183,14 @@ data:extend({
     {
         name = "ei-dirty-water-lead-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 1.5,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 60},
+            {type = "fluid", name = "ei-dirty-water", amount = 60, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 7,amount_max=8,ignored_by_stats=8},
-            {type = "item", name = "ei-pure-lead", amount = 1,probability = 0.05},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 7,amount_max=8,ignored_by_stats=8, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-pure-lead", amount = 1,independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2202,14 +2202,14 @@ data:extend({
     {
         name = "ei-dirty-water-uranium-extraction",
         type = "recipe",
-        category = "centrifuging",
+        categories = {"centrifuging"},
         energy_required = 2.5,
         ingredients = {
-            {type = "fluid", name = "ei-dirty-water", amount = 80},
+            {type = "fluid", name = "ei-dirty-water", amount = 80, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=20,ignored_by_stats=20},
-            {type = "item", name = "ei-crushed-uranium", amount = 1,probability = 0.05},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 15,amount_max=20,ignored_by_stats=20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-crushed-uranium", amount = 1,independent_probability = 0.05},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2221,18 +2221,18 @@ data:extend({
     {
         name = "ei-dirty-water-stone-water",
         type = "recipe",
-        category = "ei-advanced-chem-plant",
+        categories = {"ei-advanced-chem-plant"},
         energy_required = 180,
         icons = {
             { icon = data.raw.fluid["water"].icon,            scale = 0.2, shift = { 3, 3 } },
             { icon = data.raw.fluid["ei-dirty-water"].icon, scale = 0.2, shift = { -3, -3 } },
         },
         ingredients = {
-            {type = "fluid", name = "water", amount = 500},
+            {type = "fluid", name = "water", amount = 500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "stone", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 250,amount_max=350},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 250,amount_max=350, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2241,18 +2241,18 @@ data:extend({
     {
         name = "ei-dirty-water-stone-steam",
         type = "recipe",
-        category = "ei-advanced-chem-plant",
+        categories = {"ei-advanced-chem-plant"},
         energy_required = 60,
         icons = {
             { icon = data.raw.fluid["steam"].icon,            scale = 0.2, shift = { 3, 3 } },
             { icon = data.raw.fluid["ei-dirty-water"].icon, scale = 0.2, shift = { -3, -3 } },
         },
         ingredients = {
-            {type = "fluid", name = "steam", amount = 5000, minimum_temperature=500},
+            {type = "fluid", name = "steam", amount = 5000, minimum_temperature=500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "stone", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 475, amount_max= 525},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 475, amount_max= 525, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2261,19 +2261,19 @@ data:extend({
     {
         name = "ei-dirty-water-stone-steam-acid",
         type = "recipe",
-        category = "ei-advanced-chem-plant",
+        categories = {"ei-advanced-chem-plant"},
         energy_required = 20,
         icons = {
             { icon = data.raw.fluid["sulfuric-acid"].icon,            scale = 0.2, shift = { 3, 3 } },
             { icon = data.raw.fluid["ei-dirty-water"].icon, scale = 0.2, shift = { -3, -3 } },
         },
         ingredients = {
-            {type = "fluid", name = "steam", amount = 5000, minimum_temperature=500},
-            {type = "fluid", name = "sulfuric-acid", amount = 100},
+            {type = "fluid", name = "steam", amount = 5000, minimum_temperature=500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "sulfuric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "stone", amount = 100},
         },
         results = {
-            {type = "fluid", name = "ei-dirty-water", amount_min = 500, amount_max = 550},
+            {type = "fluid", name = "ei-dirty-water", amount_min = 500, amount_max = 550, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2282,15 +2282,15 @@ data:extend({
     {
         name = "ei-petroleum-reforming",
         type = "recipe",
-        category = "ei-advanced-chem-plant",
+        categories = {"ei-advanced-chem-plant"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "petroleum-gas", amount = 40},
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 10},
+            {type = "fluid", name = "petroleum-gas", amount = 40, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "water", amount_min = 3,amount_max=7},
-            {type = "fluid", name = "heavy-oil", amount_min = 3,amount_max=7},
+            {type = "fluid", name = "water", amount_min = 3,amount_max=7, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "heavy-oil", amount_min = 3,amount_max=7, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2303,11 +2303,11 @@ data:extend({
     {
         name = "ei-silicon",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-hydrogen-gas", amount = 5},
-            {type = "fluid", name = "ei-molten-glass", amount = 10},
+            {type = "fluid", name = "ei-hydrogen-gas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-molten-glass", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-silicon", amount = 1},
@@ -2319,15 +2319,15 @@ data:extend({
     {
         name = "ei-monosilicon",
         type = "recipe",
-        category = "chemistry",
+        categories = {"chemistry"},
         energy_required = 2,
         ingredients = {
             {type = "item", name = "ei-silicon", amount = 5},
-            {type = "fluid", name = "ei-oxygen-gas", amount = 5},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "item", name = "ei-silicon", amount = 5, probability = 0.75},
-            {type = "item", name = "ei-monosilicon", amount = 1, probability = 0.25},
+            {type = "item", name = "ei-silicon", amount = 5, independent_probability = 0.75},
+            {type = "item", name = "ei-monosilicon", amount = 1, independent_probability = 0.25},
         },
         always_show_made_in = true,
         enabled = false,
@@ -2336,10 +2336,10 @@ data:extend({
     {
         name = "ei-semiconductor-monosilicon",
         type = "recipe",
-        category = "ei-waver-factory",
+        categories = {"ei-waver-factory"},
         energy_required = 15,
         ingredients = {
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 30},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-gold", amount = 15},
             {type = "item", name = "ei-monosilicon", amount = 1},
         },
@@ -2355,7 +2355,7 @@ data:extend({
     {
         name = "ei-advanced-semiconductor-monosilicon",
         type = "recipe",
-        category = "ei-waver-factory",
+        categories = {"ei-waver-factory"},
         energy_required = 6,
         ingredients = {
             {type = "item", name = "ei-monosilicon", amount = 2},
@@ -2364,7 +2364,7 @@ data:extend({
             {type = "item", name = "ei-advanced-base-semiconductor", amount = 3},
         },
         results = {
-            {type = "fluid", name = "ei-acidic-water", amount = 30},
+            {type = "fluid", name = "ei-acidic-water", amount = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-advanced-semiconductor", amount = 9},
         },
         always_show_made_in = true,
@@ -2379,7 +2379,7 @@ data:extend({
         name = "ei-rocket-control-unit",
         energy_required = 30,
         enabled = false,
-        category = "crafting",
+        categories = {"crafting"},
         icons = {{icon=ei_graphics_3_path.."graphics/items/rocket-processing-unit.png", tint={r=1.0, g=1.0, b=0.0}, icon_size = 512,icon_mipmaps = 5}},
         ingredients =
         {
@@ -2395,7 +2395,7 @@ data:extend({
         name = "ei-rocket-processing-unit",
         energy_required = 30,
         enabled = false,
-        category = "crafting",
+        categories = {"crafting"},
         ingredients =
         {
             {type="item", name="processing-unit", amount=1},
@@ -2407,7 +2407,7 @@ data:extend({
     {
         type = "recipe",
         name = "ei-oxygen-sulfuric-acid",
-        category = "chemistry",
+        categories = {"chemistry"},
         subgroup = "fluid-recipes",
         order = "c[oil-products]-b[sulfuric-acid]2",
         energy_required = 1.8,
@@ -2418,32 +2418,32 @@ data:extend({
         enabled = false,
         ingredients =
         {
-            {type="fluid", name="ei-oxygen-gas", amount=30},
-            {type="fluid", name="water", amount=50},
+            {type="fluid", name="ei-oxygen-gas", amount=30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type="fluid", name="water", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type="item", name="ei-crushed-iron", amount=2},
             {type="item", name="ei-crushed-sulfur", amount=14}
         },
         results =
         {
-        {type = "fluid", name = "sulfuric-acid", amount_min=95,amount_max=125}
+        {type = "fluid", name = "sulfuric-acid", amount_min=95,amount_max=125, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
         },
     },
     --basic cryogenic fractionation
 {
         name = "ei-liquid-nitrogen-oil-processing",
         type = "recipe",
-        category = "oil-processing",
+        categories = {"oil-processing"},
         energy_required = 10,
         ingredients =
         {
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
-            {type = "fluid", name = "crude-oil", amount = 50}
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "crude-oil", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results =
         {
-            {type="fluid", name="ei-kerosene", amount_min=48,amount_max=52},
-            {type="fluid", name="ei-heavy-destilate", amount_min=33,amount_max=37},
-            {type="fluid", name="ei-residual-oil", amount_min=18,amount_max=22},
+            {type="fluid", name="ei-kerosene", amount_min=48,amount_max=52, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-heavy-destilate", amount_min=33,amount_max=37, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-residual-oil", amount_min=18,amount_max=22, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         icon = ei_graphics_3_path.."graphics/icons/cryogenic-fractionation.png",
         icon_size = 512,
@@ -2458,18 +2458,18 @@ data:extend({
 {
         name = "ei-liquid-oxygen-heavy-oil-cracking",
         type = "recipe",
-        category = "oil-processing",
+        categories = {"oil-processing"},
         energy_required = 10,
         ingredients =
         {
-            {type = "fluid", name = "ei-liquid-oxygen", amount = 100},
-            {type = "fluid", name = "heavy-oil", amount = 50}
+            {type = "fluid", name = "ei-liquid-oxygen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "heavy-oil", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results =
         {
-            {type="fluid", name="petroleum-gas", amount_min=68,amount_max=72},
-            {type="fluid", name="ei-benzol", amount_min=33,amount_max=37},
-            {type="fluid", name="ei-coal-gas", amount_min=18,amount_max=22},
+            {type="fluid", name="petroleum-gas", amount_min=68,amount_max=72, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-benzol", amount_min=33,amount_max=37, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-coal-gas", amount_min=18,amount_max=22, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         icon = ei_graphics_3_path.."graphics/icons/oxidative-cracking.png",
         icon_size = 512,
@@ -2484,18 +2484,18 @@ data:extend({
 {
         name = "ei-nitric-acid-medium-destilate-cracking",
         type = "recipe",
-        category = "oil-processing",
+        categories = {"oil-processing"},
         energy_required = 10,
         ingredients =
         {
-            {type = "fluid", name = "ei-nitric-acid", amount = 100},
-            {type = "fluid", name = "ei-medium-destilate", amount = 50}
+            {type = "fluid", name = "ei-nitric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-medium-destilate", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results =
         {
-            {type="fluid", name="ei-diesel", amount_min=68,amount_max=72},
-            {type="fluid", name="ei-ammonia-gas", amount_min=33,amount_max=37},
-            {type="fluid", name="ei-dinitrogen-tetroxide-gas", amount_min=18,amount_max=22},
+            {type="fluid", name="ei-diesel", amount_min=68,amount_max=72, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-ammonia-gas", amount_min=33,amount_max=37, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type="fluid", name="ei-dinitrogen-tetroxide-gas", amount_min=18,amount_max=22, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         icon = ei_graphics_3_path.."graphics/icons/acid-hydrolysis-nitration.png",
         icon_size = 512,
@@ -3655,7 +3655,7 @@ data:extend({
   {
     type = "recipe",
     name = "ei-thruster-oxidizer",
-    category = "chemistry",
+    categories = {"chemistry"},
     subgroup="space-processing",
     order = "c[thruster-oxidizer]2",
     auto_recycle = false,
@@ -3663,7 +3663,7 @@ data:extend({
     ingredients =
     {
       {type = "item", name = "ei-poor-iron-chunk", amount = 6},
-      {type = "fluid", name = "water", amount = 10}
+      {type = "fluid", name = "water", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
     surface_conditions =
     {
@@ -3674,10 +3674,10 @@ data:extend({
       }
     },
     energy_required = 2.5,
-    results = {{type = "fluid", name = "thruster-oxidizer", amount = 75}},
+    results = {{type = "fluid", name = "thruster-oxidizer", amount = 75, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}},
     allow_productivity = true,
-    show_amount_in_title = false,
-    always_show_products = true,
+    
+    
     crafting_machine_tint =
     {
       primary = {r = 0.082, g = 0.396, b = 0.792, a = 0.502}, -- #1565ca80
@@ -3690,7 +3690,7 @@ data:extend({
     type = "recipe",
     name = "ei-advanced-thruster-oxidizer",
     icon = "__space-age__/graphics/icons/advanced-thruster-oxidizer.png",
-    category = "chemistry",
+    categories = {"chemistry"},
     subgroup = "space-processing",
     order = "d[advanced-thruster-oxydizer]2",
     auto_recycle = false,
@@ -3699,7 +3699,7 @@ data:extend({
     {
       {type = "item", name = "ei-poor-iron-chunk", amount = 6},
       {type = "item", name = "calcite", amount = 1},
-      {type = "fluid", name = "water", amount = 100}
+      {type = "fluid", name = "water", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
     surface_conditions =
     {
@@ -3712,11 +3712,11 @@ data:extend({
     energy_required = 12.5,
     results =
     {
-      {type = "fluid", name = "thruster-oxidizer", amount = 1500},
+      {type = "fluid", name = "thruster-oxidizer", amount = 1500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     allow_productivity = true,
-    always_show_products = true,
-    show_amount_in_title = false,
+    
+    
     allow_decomposition = false,
     crafting_machine_tint =
     {
@@ -4322,7 +4322,7 @@ data:extend({
     {
         name = "ei-inferno-grenade",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 12,
         ingredients = {
             {type = "item", name = "cluster-grenade", amount = 1},
@@ -4339,7 +4339,7 @@ data:extend({
     {
         name = "ei-incinerator-capsule",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 18,
         ingredients = {
             {type = "item", name = "destroyer-capsule", amount = 1},
@@ -4357,7 +4357,7 @@ data:extend({
     {
         name = "ei-prediction-snare-mine",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 8,
         ingredients = {
             {type = "item", name = "steel-plate", amount = 1},
@@ -4373,7 +4373,7 @@ data:extend({
     {
         name = "ei-breach-solver-charge",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "grenade", amount = 1},
@@ -4494,8 +4494,8 @@ data:extend({
     {
         type = "recipe",
         name = "ei-processing-unit-hydrofluoric",
-        category = "crafting-with-fluid",
-        additional_categories = {"electronics-with-fluid"},
+        categories = {"crafting-with-fluid", "ei-electronics-with-fluid"},
+        
         energy_required = 60,
         icon_size = 64,
         icons = processing_unit_bulk_icons,
@@ -4504,7 +4504,7 @@ data:extend({
             {type = "item", name = "ei-advanced-semiconductor", amount = 10},
             {type = "item", name = "ei-simulation-data", amount = 40},
             {type = "item", name = "ei-crushed-gold", amount = 80},
-            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 100},
+            {type = "fluid", name = "ei-hydrofluoric-acid", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type = "item", name = "processing-unit", amount = 15}},
         enabled = false,

@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-steam-crusher",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -108,6 +108,8 @@ data:extend({
         heating_energy = "200kW",
         energy_source = {
             type = "fluid",
+            -- Steam power must not emit the fluid energy source's default working glow.
+            light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
             emissions_per_minute={pollution=2},
             fluid_box = {   
                 filter = "steam",

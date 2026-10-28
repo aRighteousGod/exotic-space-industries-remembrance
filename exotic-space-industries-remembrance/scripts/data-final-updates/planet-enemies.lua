@@ -11,6 +11,7 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/planet-enemies.md#contract
 local config = require("lib/planet-enemies-config")
+local electric_noise = require("scripts/data-final-updates/legacy-electric-noise")
 
 local function control(name, family, order)
     data:extend{{type = "autoplace-control", name = name, category = "enemy", richness = false,
@@ -28,17 +29,18 @@ end
 -- couple them, so preserve and rebind that closure separately for each family.
 local native_noise = {{"noise-expression", "enemy_base_radius"}, {"noise-expression", "enemy_base_frequency"},
     {"noise-expression", "enemy_base_probability"}, {"noise-function", "enemy_autoplace_base"}}
-local function rebind(value, names, name)
+local function rebind(value, names, name, previous_control)
     if type(value) ~= "string" then return value end
-    value = value:gsub("control:enemy%-base:", function() return "control:" .. name .. ":" end)
+    local pattern = (previous_control or "enemy-base"):gsub("(%W)", "%%%1")
+    value = value:gsub("control:" .. pattern .. ":", function() return "control:" .. name .. ":" end)
     return (value:gsub("[%a_][%w_:]*", function(identifier) return names[identifier] or identifier end))
 end
-local function rebind_definition(definition, names, name)
-    definition.expression = rebind(definition.expression, names, name)
+local function rebind_definition(definition, names, name, previous_control)
+    definition.expression = rebind(definition.expression, names, name, previous_control)
     for key, value in pairs(definition.local_expressions or {}) do
-        definition.local_expressions[key] = rebind(value, names, name)
+        definition.local_expressions[key] = rebind(value, names, name, previous_control)
     end
-    for _, value in pairs(definition.local_functions or {}) do rebind_definition(value, names, name) end
+    for _, value in pairs(definition.local_functions or {}) do rebind_definition(value, names, name, previous_control) end
 end
 local nauvis = data.raw.planet.nauvis
 if nauvis then
@@ -82,7 +84,7 @@ if nauvis then
     -- Factorio 2.0.77 merges spot-noise state for equal seeds, even when density
     -- or radius differs. Keep native seeds at 1/1; adjusted families use stable,
     -- distinct seeds. Only spot centers change; blobs and terrain masks remain.
-    -- Revisit on the Factorio 2.1 upgrade before removing this compatibility rule.
+    -- New surfaces use the native 2.1 clone; old surfaces retain these identities.
     local probabilities = {
         {"ordinary", "enemy_base_probability", 2000123},
         {"explosive", "eb_enemy_base_probability", 2000124},
@@ -100,8 +102,12 @@ if nauvis then
             prototype.name = "ei_nauvis_" .. row[1] .. "_enemy_base_probability"
             prototype.intended_property = nil
             data:extend{prototype}
-            if properties[row[2]] == nil or properties[row[2]] == row[2] then properties[row[2]] = prototype.name end
         end
+        local native = table.deepcopy(prototype)
+        native.name = "ei_native21_nauvis_" .. row[1] .. "_enemy_base_probability"
+        native.intended_property = nil
+        data:extend{native}
+        if properties[row[2]] == nil or properties[row[2]] == row[2] then properties[row[2]] = native.name end
         local name = config.controls.nauvis[row[1]]
         local frequency, size = "var('control:" .. name .. ":frequency')", "var('control:" .. name .. ":size')"
         local adjusted = "max(" .. frequency .. " < 1, " .. frequency .. " > 1, " .. size .. " < 1, " .. size .. " > 1)"
@@ -139,12 +145,22 @@ for _, binding in ipairs(config.rebindings) do
         settings.autoplace_controls[binding.legacy] = nil
         local properties = settings.property_expression_names or {}
         settings.property_expression_names = properties
-        for _, suffix in ipairs({"radius", "frequency"}) do
+        for _, suffix in ipairs(binding.planet == "gaia" and {"radius", "frequency", "probability"} or {"radius", "frequency"}) do
             local original = binding.prefix .. "_enemy_base_" .. suffix
-            local source = data.raw["noise-expression"][original]
+            local source = binding.planet == "gaia" and electric_noise[suffix] or data.raw["noise-expression"][original]
             assert(source and type(source.expression) == "string", "Unsupported planetary enemy noise: " .. original)
-            properties[original] = expression(binding.control .. "-" .. suffix,
-                (source.expression:gsub("control:" .. binding.legacy .. ":", "control:" .. binding.control .. ":")))
+            local clone = table.deepcopy(source)
+            clone.name = binding.control .. "-" .. suffix
+            clone.intended_property = nil
+            rebind_definition(clone, {}, binding.control, binding.legacy)
+            data:extend{clone}
+            properties[original] = clone.name
+            if binding.planet == "gaia" then
+                local native = table.deepcopy(clone)
+                native.name = "ei-native21-gaia-electric-" .. suffix
+                data:extend{native}
+                properties[original] = native.name
+            end
         end
         local enabled = "((var('control:" .. binding.control .. ":frequency') > 0) * (var('control:" .. binding.control .. ":size') > 0))"
         local entities = settings.autoplace_settings.entity.settings
@@ -155,11 +171,29 @@ for _, binding in ipairs(config.rebindings) do
                     -- Explicit whitelist keeps the old shared control out of this
                     -- planet's menu without excluding its existing enemy prototypes.
                     entities[name] = entities[name] or {}
-                    properties["entity:" .. name .. ":probability"] = expression(binding.control .. "-" .. name,
-                        "(" .. autoplace.probability_expression .. ") * " .. enabled .. " - (1 - " .. enabled .. ")")
+                    local probability = binding.planet == "gaia"
+                        and assert(data.raw["noise-expression"]["ei-legacy20-electric-" .. name]).expression
+                        or autoplace.probability_expression
+                    local value = "(" .. probability .. ") * " .. enabled .. " - (1 - " .. enabled .. ")"
+                    properties["entity:" .. name .. ":probability"] = expression(binding.control .. "-" .. name, value)
+                    if binding.planet == "gaia" then
+                        properties["entity:" .. name .. ":probability"] = expression("ei-native21-gaia-electric-" .. name, value)
+                    end
                 end
             end
         end
+    end
+end
+
+expression(config.revision_property, "2")
+expression(config.legacy_revision, "1")
+expression(config.native_revision, "2")
+for name in pairs(config.controls) do
+    local planet = data.raw.planet[name]
+    if planet and planet.map_gen_settings then
+        local properties = planet.map_gen_settings.property_expression_names or {}
+        planet.map_gen_settings.property_expression_names = properties
+        properties[config.revision_property] = config.native_revision
     end
 end
 

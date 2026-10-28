@@ -1856,7 +1856,7 @@ local function get_input_inventory(entity)
     end
 
     local ok, inventory = pcall(function()
-        return entity.get_inventory(defines.inventory.assembling_machine_input)
+        return entity.get_inventory(defines.inventory.crafter_input)
     end)
     if ok then
         return inventory
@@ -2020,12 +2020,12 @@ end
 -- internal boxes mixed with player-facing inputs/outputs. Bad indices should
 -- fail closed, especially across prototype edits or save migrations.
 local function fluidbox_count(entity)
-    if not entity_check(entity) or not entity.fluidbox then
+    if not entity_check(entity) then
         return 0
     end
 
     local ok, count = pcall(function()
-        return #entity.fluidbox
+        return entity.fluids_count
     end)
     if ok then
         return math.max(0, tonumber(count) or 0)
@@ -2036,12 +2036,12 @@ end
 
 local function get_fluidbox_contents(entity, index, known_count)
     known_count = known_count or fluidbox_count(entity)
-    if not entity_check(entity) or not entity.fluidbox or index < 1 or index > known_count then
+    if not entity_check(entity) or index < 1 or index > known_count then
         return nil
     end
 
     local ok, contents = pcall(function()
-        return entity.fluidbox[index]
+        return entity.get_fluid(index)
     end)
     if ok then
         return contents
@@ -2052,12 +2052,12 @@ end
 
 local function set_fluidbox_contents(entity, index, contents, known_count)
     known_count = known_count or fluidbox_count(entity)
-    if not entity_check(entity) or not entity.fluidbox or index < 1 or index > known_count then
+    if not entity_check(entity) or index < 1 or index > known_count then
         return false
     end
 
     local ok = pcall(function()
-        entity.fluidbox[index] = contents
+        if contents then entity.set_fluid(index, contents) else entity.clear_fluid(index) end
     end)
     return ok == true
 end
@@ -2075,8 +2075,8 @@ local function get_filtered_output_fluidbox_index(entity, fluid_name, known_coun
     -- Recipes compact/merge the live boxes, so their indices need not match the
     -- full entity prototype array. Resolve each live segment, including merged boxes.
     for index = 1, known_count do
-        local resolved = entity.fluidbox.get_prototype(index)
-        for _, fluidbox_proto in ipairs(resolved.production_type and {resolved} or resolved) do
+        local resolved = entity.get_fluid_box_prototype(index)
+        for _, fluidbox_proto in ipairs(resolved and (resolved.production_type and {resolved} or resolved) or {}) do
             local production_type = fluidbox_proto.production_type
             local filter = fluidbox_proto.filter
             local filter_name = type(filter) == "string" and filter or filter and filter.name

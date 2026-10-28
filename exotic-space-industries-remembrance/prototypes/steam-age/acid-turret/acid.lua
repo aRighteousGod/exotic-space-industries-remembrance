@@ -142,7 +142,13 @@ local turret =
     fluid_buffer_input_flow = 250 / 60 / 5, -- 5s to fill the buffer
     activation_buffer_ratio = 0.25,
 
-    circuit_connector = circuit_connector_definitions["flamethrower-turret"],
+    -- Authored body and pipes remain four-way; vanilla now also has diagonals.
+    circuit_connector = {
+        circuit_connector_definitions["flamethrower-turret"][1],
+        circuit_connector_definitions["flamethrower-turret"][3],
+        circuit_connector_definitions["flamethrower-turret"][5],
+        circuit_connector_definitions["flamethrower-turret"][7],
+    },
     circuit_wire_max_distance = default_circuit_wire_max_distance,
 
     out_of_ammo_alert_icon =

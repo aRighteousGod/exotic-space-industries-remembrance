@@ -107,7 +107,7 @@ data:extend({
         name = "ei-advanced-logistic-bot",
         type = "recipe",
         icons = advanced_bot_recipe_icons("ei-advanced-logistic-bot", "logistic-robot"),
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "logistic-robot", amount = 2},
@@ -128,7 +128,7 @@ data:extend({
         name = "ei-advanced-construction-bot",
         type = "recipe",
         icons = advanced_bot_recipe_icons("ei-advanced-construction-bot", "construction-robot"),
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "construction-robot", amount = 2},
@@ -148,7 +148,7 @@ data:extend({
     {
         name = "ei-cargo-bot",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "logistic-robot", amount = 1},
@@ -168,7 +168,7 @@ data:extend({
     {
         name = "ei-construction-bot",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = "construction-robot", amount = 1},
@@ -188,7 +188,7 @@ data:extend({
     {
         name = "ei-advanced-bot-engine",
         type = "recipe",
-        category = "ei-nano-factory",
+        categories = {"ei-nano-factory"},
         energy_required = 20,
         ingredients = {
             {type="item", name="flying-robot-frame", amount=2},
@@ -196,7 +196,7 @@ data:extend({
             {type="item", name="ei-advanced-motor", amount=2},
             {type="item", name="ei-superior-data", amount=1},
             {type="item", name="battery",amount=8},
-            {type="fluid", name="lubricant", amount=50},
+            {type="fluid", name="lubricant", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-advanced-bot-engine", amount = 1}
@@ -211,7 +211,7 @@ data:extend({
     {
         name = "ei-advanced-port",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 10,
         ingredients = {
             {type = "item", name = "roboport", amount = 8},
@@ -256,7 +256,7 @@ for _, conversion in ipairs(bot_conversions) do
         icons = advanced_bot_recipe_icons(conversion.target, conversion.donor),
         subgroup = target.subgroup,
         order = target.order.."-refit",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients = {
             {type = "item", name = conversion.donor, amount = 1},

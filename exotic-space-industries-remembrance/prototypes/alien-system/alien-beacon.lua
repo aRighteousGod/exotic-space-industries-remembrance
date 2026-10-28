@@ -1,3 +1,15 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: beacon prototypes and native replacement declarations
+-- loaded_by: ESIR prototype aggregators during data stage
+-- cadence: data stage only
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: prototype reload
+--==============================================================================
+-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
 --====================================================================================================
 --ALIEN BEACON
 --====================================================================================================
@@ -37,6 +49,8 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.alien,
         allowed_effects = {"speed", "consumption", "pollution","quality","productivity"},
+        fast_replaceable_group = "ei-alien-beacon",
+        next_upgrade = "ei-warp-beacon",
         minable = {
             mining_time = 1,
             result = "ei-alien-beacon",
@@ -90,6 +104,7 @@ data:extend({
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.alien,
         allowed_effects = {"speed","consumption", "pollution", "quality","productivity"},
+        fast_replaceable_group = "ei-alien-beacon",
         minable = {
             mining_time = 60,
             result = "ei-warp-beacon",
@@ -275,7 +290,7 @@ data:extend({
     {
         name = "ei-alien-beacon-repair",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 20,
         ingredients = {
             {type = "item", name = "ei-odd-plating", amount = 100},
@@ -295,7 +310,7 @@ data:extend({
     {
         name = "ei-warp-beacon",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 300,
         ingredients = {
             {type = "item", name = "ei-odd-plating", amount = 1000},

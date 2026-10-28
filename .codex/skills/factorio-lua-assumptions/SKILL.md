@@ -7,7 +7,7 @@ description: "Use before applying generic Lua advice to Factorio mod code. Check
 
 Use this skill when a Lua coding decision might be influenced by habits from normal Lua, LuaJIT, Lua 5.1, or Lua 5.4. It is a guardrail, not a tutorial or linter.
 
-The Lua baseline should be checked against the official Libraries and functions page when Factorio updates. The refreshed `factorio-lua-docs` cache for Factorio 2.0.77 still documents Lua 5.2.1 plus Factorio-specific deterministic changes and additions.
+The official Libraries and functions page shipped with the verified Factorio 2.1.23 executable still documents Lua 5.2.1 plus Factorio-specific deterministic changes and additions. Main development uses the exact 2.1.23 documentation profile; select 2.0.77 explicitly for migration comparisons.
 
 ## Workflow
 

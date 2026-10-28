@@ -1,4 +1,6 @@
+-- blueprint: .codex/esir/blueprints/recycling.md#contract
 local ei_lib = require("lib/lib")
+local removed_recipes = {}
 --====================================================================================================
 --Recycling
 --====================================================================================================
@@ -61,19 +63,19 @@ if recycler then
     end
 
     --run vanilla recycling recipe generator again
-    local recycling = require("__quality__/prototypes/recycling")
+    local recycling = require("lib/recycling-policy")
 
     -- auto_recycle = false tells the recycling recipe generator to skip
 
     -- Generating the recycle (reverse) recipes
     for name, recipe in pairs(data.raw.recipe) do
         if not string.find(name, "^ei%-auric%-vat%-") then
-            recycling.generate_recycling_recipe(recipe)
+            recycling.generate(recipe)
         end
     end
     for name, recipe in pairs(data.raw.recipe) do
-        local remove_recipe = recipe.category == "recycling" and string.find(name, "^ei%-auric%-vat%-")
-        if not remove_recipe and recipe.category == "recycling" then
+        local remove_recipe = ei_lib.table_contains_value(recipe.categories or {"crafting"}, "recycling") and string.find(name, "^ei%-auric%-vat%-")
+        if not remove_recipe and ei_lib.table_contains_value(recipe.categories or {"crafting"}, "recycling") then
             for _, result in pairs(recipe.results or {}) do
                 if result.name == "ei-auric-cyst" then
                     remove_recipe = true
@@ -82,27 +84,29 @@ if recycler then
             end
         end
         if remove_recipe then
+            removed_recipes[name] = true
             data.raw.recipe[name] = nil
         end
     end
     --Swap superior data for simulation else nobody will ever do the space crafting chain
     ei_lib.raw.recipe["processing-unit-recycling"].results = {
-        {type="item",name="ei-electronic-parts", amount_min=0,amount_max=1,probability=0.21},
-        {type="item",name="ei-advanced-semiconductor", amount_min=0,amount=1,probability=0.06},
-        {type="item",name="ei-simulation-data", amount_min=0,amount=1,probability=0.01},
-        {type="item",name="ei-crushed-gold", amount_min=0,amount_max=1,probability=0.16},
+        {type="item",name="ei-electronic-parts", amount_min=0,amount_max=1,independent_probability = 0.21},
+        {type="item",name="ei-advanced-semiconductor", amount_min=0,amount=1,independent_probability = 0.06},
+        {type="item",name="ei-simulation-data", amount_min=0,amount=1,independent_probability = 0.01},
+        {type="item",name="ei-crushed-gold", amount_min=0,amount_max=1,independent_probability = 0.16},
     }
 
     -- Late merge/swap passes can leave stale alias recyclers behind.
-    data.raw.recipe["iron-stick-recycling"] = nil
-    data.raw.recipe["iron-gear-wheel-recycling"] = nil
-    data.raw.recipe["uranium-fuel-cell-recycling"] = nil
     for _, recipe_name in pairs({
+        "iron-stick-recycling",
+        "iron-gear-wheel-recycling",
+        "uranium-fuel-cell-recycling",
         "ei-used-uranium-235-fuel-recycling",
         "ei-used-uranium-233-fuel-recycling",
         "ei-used-plutonium-239-fuel-recycling",
         "ei-used-thorium-232-fuel-recycling",
     }) do
+        removed_recipes[recipe_name] = true
         data.raw.recipe[recipe_name] = nil
     end
 
@@ -115,14 +119,14 @@ if recycler then
     }) do
         data.raw.recipe[item_name.."-recycling"] = nil
         if data.raw.item[item_name] then
-            recycling.generate_self_recycling_recipe(data.raw.item[item_name])
+            recycling.generate_self(data.raw.item[item_name])
         end
     end
 
     -- Crushed intermediates should recycle into themselves rather than back into parent materials.
     for recipe_name, recipe in pairs(data.raw.recipe) do
         local crushed_item_name = string.gsub(recipe_name, "%-recycling$", "")
-        if recipe.category == "recycling"
+        if ei_lib.table_contains_value(recipe.categories or {"crafting"}, "recycling")
         and crushed_item_name ~= recipe_name
         and string.find(crushed_item_name, "crushed", 1, true)
         and data.raw.item[crushed_item_name] then
@@ -130,7 +134,7 @@ if recycler then
                 {type = "item", name = crushed_item_name, amount = 1, ignored_by_stats = 1},
             }
             recipe.results = {
-                {type = "item", name = crushed_item_name, amount = 1, probability = 0.25, ignored_by_stats = 1},
+                {type = "item", name = crushed_item_name, amount = 1, independent_probability = 0.25, ignored_by_stats = 1},
             }
         end
     end
@@ -150,39 +154,39 @@ if recycler then
         }
     end
     ei_lib.raw.recipe["ei-energy-crystal-recycling"].results = {
-        {type="item",name="ei-sand", amount_min=0,amount_max=1,probability=0.18},
-        {type="item",name="ei-crushed-sulfur", amount_min=0,amount=1,probability=0.11},
+        {type="item",name="ei-sand", amount_min=0,amount_max=1,independent_probability = 0.18},
+        {type="item",name="ei-crushed-sulfur", amount_min=0,amount=1,independent_probability = 0.11},
     }
     ei_lib.raw.recipe["ei-coke-recycling"].results = {
-        {type="item",name="coal", amount_min=0,amount_max=1,probability=0.17},
+        {type="item",name="coal", amount_min=0,amount_max=1,independent_probability = 0.17},
     }
     --fit output size to new scrap recipe
     recycler.result_inventory_size = 24
     ei_lib.raw.recipe["scrap-recycling"].results = {
-        {type="item",name="ei-iron-mechanical-parts", amount_min=0,amount_max=1,probability=0.07},
-        {type="item",name="ei-copper-mechanical-parts", amount_min=0,amount_max=1,probability=0.07},
-        {type="item",name="ei-steel-mechanical-parts", amount_min=0,amount_max=1,probability=0.07},
-        {type="item",name="ei-iron-beam", amount_min=0,amount_max=1,probability=0.04},
-        {type="item",name="ei-copper-beam", amount_min=0,amount_max=1,probability=0.03},
-        {type="item",name="ei-steel-beam", amount_min=0,amount_max=1,probability=0.02},
-        {type="item",name="steel-plate", amount_min=0,amount_max=1,probability=0.02},
-        {type="item",name="iron-plate", amount_min=0,amount_max=1,probability=0.025},
-        {type="item",name="concrete", amount_min=0,amount_max=1,probability=0.05},
-        {type="item",name="ice", amount_min=0,amount_max=1,probability=0.06},
-        {type="item",name="battery", amount_min=0,amount_max=1,probability=0.04},
-        {type="item",name="stone", amount_min=0,amount_max=1,probability=0.025},
-        {type="item",name="ei-slag", amount_min=0,amount_max=1,probability=0.02},
-        {type="item",name="electronic-circuit", amount_min=0,amount_max=1,probability=0.04},
-        {type="item",name="advanced-circuit", amount_min=0,amount_max=1,probability=0.03},
-        {type="item",name="ei-electronic-parts", amount_min=0,amount_max=1,probability=0.03},
-        {type="item",name="copper-cable", amount_min=0,amount_max=1,probability=0.02},
-        {type="item",name="ei-electron-tube", amount_min=0,amount_max=1,probability=0.02},
-        {type="item",name="ei-insulated-wire", amount_min=0,amount_max=1,probability=0.02},
-        {type="item",name="low-density-structure", amount_min=0,amount_max=1,probability=0.01},
-        {type="item",name="holmium-ore", amount_min=0,amount_max=1,probability=0.01},
-        {type="item",name="rp-steam-soul", amount_min=0,amount_max=1,probability=0.005},
-        {type="item",name="rp-steam-calculator", amount_min=0,amount_max=1,probability=0.005},
-        {type="item",name="ei-module-part", amount_min=0,amount_max=1,probability=0.02}
+        {type="item",name="ei-iron-mechanical-parts", amount_min=0,amount_max=1,independent_probability = 0.07},
+        {type="item",name="ei-copper-mechanical-parts", amount_min=0,amount_max=1,independent_probability = 0.07},
+        {type="item",name="ei-steel-mechanical-parts", amount_min=0,amount_max=1,independent_probability = 0.07},
+        {type="item",name="ei-iron-beam", amount_min=0,amount_max=1,independent_probability = 0.04},
+        {type="item",name="ei-copper-beam", amount_min=0,amount_max=1,independent_probability = 0.03},
+        {type="item",name="ei-steel-beam", amount_min=0,amount_max=1,independent_probability = 0.02},
+        {type="item",name="steel-plate", amount_min=0,amount_max=1,independent_probability = 0.02},
+        {type="item",name="iron-plate", amount_min=0,amount_max=1,independent_probability = 0.025},
+        {type="item",name="concrete", amount_min=0,amount_max=1,independent_probability = 0.05},
+        {type="item",name="ice", amount_min=0,amount_max=1,independent_probability = 0.06},
+        {type="item",name="battery", amount_min=0,amount_max=1,independent_probability = 0.04},
+        {type="item",name="stone", amount_min=0,amount_max=1,independent_probability = 0.025},
+        {type="item",name="ei-slag", amount_min=0,amount_max=1,independent_probability = 0.02},
+        {type="item",name="electronic-circuit", amount_min=0,amount_max=1,independent_probability = 0.04},
+        {type="item",name="advanced-circuit", amount_min=0,amount_max=1,independent_probability = 0.03},
+        {type="item",name="ei-electronic-parts", amount_min=0,amount_max=1,independent_probability = 0.03},
+        {type="item",name="copper-cable", amount_min=0,amount_max=1,independent_probability = 0.02},
+        {type="item",name="ei-electron-tube", amount_min=0,amount_max=1,independent_probability = 0.02},
+        {type="item",name="ei-insulated-wire", amount_min=0,amount_max=1,independent_probability = 0.02},
+        {type="item",name="low-density-structure", amount_min=0,amount_max=1,independent_probability = 0.01},
+        {type="item",name="holmium-ore", amount_min=0,amount_max=1,independent_probability = 0.01},
+        {type="item",name="rp-steam-soul", amount_min=0,amount_max=1,independent_probability = 0.005},
+        {type="item",name="rp-steam-calculator", amount_min=0,amount_max=1,independent_probability = 0.005},
+        {type="item",name="ei-module-part", amount_min=0,amount_max=1,independent_probability = 0.02}
     }
     local sac = ei_lib.raw.recipe["ei-scrap-asteroid-crushing"]
     local sac_exclude = {
@@ -211,4 +215,32 @@ if recycler then
     end
     end
     data.raw.recipe["ei-nuclear-waste-recycling"] = nil
+    removed_recipes["ei-nuclear-waste-recycling"] = true
+
+    -- Recycler 2.1 records generated recipe unlocks. Regeneration can duplicate
+    -- them, and the deliberate removals above must not leave dangling effects.
+    local effects = data.raw.technology.recycling.effects
+    local seen = {}
+    local index = 1
+    while index <= #effects do
+        local effect = effects[index]
+        if effect.type == "unlock-recipe" then
+            local recipe = data.raw.recipe[effect.recipe]
+            if not recipe or seen[effect.recipe] then table.remove(effects, index)
+            else seen[effect.recipe] = true; index = index + 1 end
+        else index = index + 1 end
+    end
+    -- Cerys and other integrations can own additional recycling unlocks.
+    -- Remove only references to recipes deliberately retired by this owner;
+    -- unrelated missing recipes must still surface as native validation errors.
+    for _, technology in pairs(data.raw.technology) do
+        local technology_effects = technology.effects or {}
+        for effect_index = #technology_effects, 1, -1 do
+            local effect = technology_effects[effect_index]
+            if effect.type == "unlock-recipe" and removed_recipes[effect.recipe]
+                and not data.raw.recipe[effect.recipe] then
+                table.remove(technology_effects, effect_index)
+            end
+        end
+    end
 end

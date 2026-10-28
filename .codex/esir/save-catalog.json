@@ -3,6 +3,17 @@
     "generated_at":  "2026-06-16T17:53:10.7098062-05:00",
     "entries":  [
                     {
+                        "id": "core-2.1-smoke",
+                        "path": ".factorio-qc\\core-2.1-smoke.zip",
+                        "kind": "smoke-save",
+                        "purpose": "Native Factorio 2.1.23 core runtime and preview smoke coverage",
+                        "tags": ["runtime", "preview", "smoke", "2.1"],
+                        "preferred_for": ["qc-runtime", "qc-preview"],
+                        "helper_mods": [],
+                        "mods_source": "live-repo-via-qc-sync",
+                        "notes": "Native core create and 600-tick engine smoke passed; does not replace populated migration or interaction suites."
+                    },
+                    {
                         "id":  "research-hitch",
                         "path":  ".factorio-qc\\research-hitch.zip",
                         "kind":  "stress-save",
@@ -95,10 +106,7 @@
                                      "smoke",
                                      "fueler"
                                  ],
-                        "preferred_for":  [
-                                              "qc-runtime",
-                                              "qc-preview"
-                                          ],
+                        "preferred_for":  [],
                         "helper_mods":  [
 
                                         ],

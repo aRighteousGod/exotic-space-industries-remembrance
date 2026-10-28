@@ -664,11 +664,11 @@ hover_tank.selection_box = {{-4.5, -4.5}, {4.5, 4.5}}
 hover_tank.drawing_box = {{-8, -8}, {8, 8}}
 hover_tank.weight = 60000
 hover_tank.consumption = "3.6MW"
-hover_tank.braking_power = "2500kW"
+hover_tank.braking_force = 2500000 / 60
 hover_tank.effectivity = 0.85
 hover_tank.rotation_speed = 0.0035
 hover_tank.terrain_friction_modifier = 0
-hover_tank.friction = 0.0008
+hover_tank.friction_force = 0.0008
 hover_tank.render_layer = TANK_BODY_RENDER_LAYER
 hover_tank.resistances = {
     {type = "fire", decrease = 120, percent = 95},
@@ -900,7 +900,7 @@ data:extend({
     {
         name = tank_name,
         type = "recipe",
-        category = "ei-exotic-assembler",
+        categories = {"ei-exotic-assembler"},
         energy_required = 600,
         ingredients = {
             {type = "item", name = tesla_tank_name, amount = 1},
@@ -925,7 +925,7 @@ data:extend({
     {
         name = ammo_name,
         type = "recipe",
-        category = "ei-accelerator",
+        categories = {"ei-accelerator"},
         energy_required = 180,
         ingredients = {
             {type = "item", name = "ei-high-energy-crystal", amount = 64},

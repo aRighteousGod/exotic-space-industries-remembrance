@@ -61,7 +61,7 @@ local replacement_event = script.generate_event_name()
 ---@field refit_force integer?
 ---@field refit_generation integer?
 ---@field refit_waiting boolean?
----@field placement {item:LuaInventory?,active:boolean,minable:boolean,operable:boolean,destructible:boolean}? Temporary native item copy until the placement body is resolved.
+---@field placement {item:LuaInventory?,disabled_by_script:boolean,minable_flag:boolean,operable:boolean,destructible:boolean}? Temporary native item copy until the placement body is resolved.
 
 ---@class ESIRSpiderOverkillState
 ---@field shots table<integer, table> Native shots, never synthetic projectiles.
@@ -183,9 +183,9 @@ local function register(entity)
     root.next_id=root.next_id+1
     record={id=root.next_id,entity=entity,family=family,force_index=entity.force.index,smoke_ready=0,suspended=catalog.is_proxy(entity.name)}
     if entity.name==catalog.placement_name(family) then
-        record.placement={active=entity.active,minable=entity.minable,operable=entity.operable,destructible=entity.destructible}
+        record.placement={disabled_by_script=entity.disabled_by_script,minable_flag=entity.minable_flag,operable=entity.operable,destructible=entity.destructible}
         -- Await the shared replacement queue without exposing transport capacity.
-        entity.active=false;entity.minable=false;entity.operable=false;entity.destructible=false
+        entity.disabled_by_script=true;entity.minable_flag=false;entity.operable=false;entity.destructible=false
     end
     root.vehicles[record.id]=record
     root.units[entity.unit_number]=record.id
@@ -249,8 +249,8 @@ function model.on_built_entity(event)
         if stack.grid and stack.grid.prototype.name~=record.entity.grid.prototype.name then
             if not record.placement then
                 local entity=record.entity
-                record.placement={active=entity.active,minable=entity.minable,operable=entity.operable,destructible=entity.destructible}
-                entity.active=false;entity.minable=false;entity.operable=false;entity.destructible=false
+                record.placement={disabled_by_script=entity.disabled_by_script,minable_flag=entity.minable_flag,operable=entity.operable,destructible=entity.destructible}
+                entity.disabled_by_script=true;entity.minable_flag=false;entity.operable=false;entity.destructible=false
             end
             record.placement.item=game.create_inventory(1)
             assert(record.placement.item[1].set_stack(stack),"spider-placement-snapshot")
@@ -309,7 +309,7 @@ function model.on_entity_cloned(event)
         record.stowed_ammo=table.deepcopy(original.stowed_ammo)
         if original.placement then
             record.placement=record.placement or {}
-            for _,key in ipairs({"active","minable","operable","destructible"}) do record.placement[key]=original.placement[key] end
+            for _,key in ipairs({"disabled_by_script","minable_flag","operable","destructible"}) do record.placement[key]=original.placement[key] end
             if original.placement.item then
                 record.placement.item=game.create_inventory(1)
                 assert(record.placement.item[1].set_stack(original.placement.item[1]),"spider-placement-clone")
@@ -391,6 +391,19 @@ end
 function model.on_configuration_changed()
     local root=state()
     local tick=game.tick
+    -- Preserve in-flight 2.0 placement snapshots, including explicit false flags.
+    for _,record in pairs(root.vehicles) do
+        local placement=record.placement
+        if placement then
+            if placement.disabled_by_script==nil and placement.active~=nil then
+                placement.disabled_by_script=not placement.active
+            end
+            if placement.minable_flag==nil and placement.minable~=nil then
+                placement.minable_flag=placement.minable
+            end
+            placement.active=nil;placement.minable=nil
+        end
+    end
     for _,record in pairs(root.vehicles) do release_overkill(record,true) end
     root.overkill={active={},due={},launches=0,reserved=0,retired=0,expired=0,holds=0,samples=0,unsupported=0}
     root.selector={active={},due={},queue=scheduler.ensure_queue(),searches=0,samples=0,max_searches=0,turns=0}
@@ -623,7 +636,7 @@ local function prepare_replacement(source,target,record)
             restored.enabled=point.enabled
             restored.trash_not_requested=point.trash_not_requested
         end
-        for _,property in ipairs({"orientation","torso_orientation","color","entity_label","driver_is_gunner","enable_logistics_while_moving","vehicle_automatic_targeting_parameters","destructible","minable","operable","rotatable","active","last_user"}) do
+        for _,property in ipairs({"orientation","torso_orientation","color","entity_label","driver_is_gunner","enable_logistics_while_moving","vehicle_automatic_targeting_parameters","destructible","minable_flag","operable","rotatable","disabled_by_script","last_user"}) do
             candidate[property]=source[property]
         end
         if source.selected_gun_index then
@@ -1723,7 +1736,7 @@ local function finish_placement(record,tick)
     end
     local ok,reason,unexpected=replace(record,target,tick)
     if not ok then return false,reason,unexpected end
-    for _,key in ipairs({"active","minable","operable","destructible"}) do record.entity[key]=placement[key] end
+    for _,key in ipairs({"disabled_by_script","minable_flag","operable","destructible"}) do record.entity[key]=placement[key] end
     if placement.item then placement.item.destroy() end
     record.placement=nil
     reset_selection(record,tick)

@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-steam-assembler",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -86,11 +86,13 @@ data:extend({
         collision_box = data.raw["assembling-machine"]["assembling-machine-1"].collision_box,
         selection_box = data.raw["assembling-machine"]["assembling-machine-1"].selection_box,
         map_color = ei_data.colors.assembler,
-        crafting_categories = {"ei-steam-assembler", "crafting", "crafting-with-fluid", "electronics",},
+        crafting_categories = {"ei-steam-assembler", "crafting", "crafting-with-fluid"},
         crafting_speed = 0.5,
         heating_energy = "100kW",
         energy_source = {
             type = "fluid",
+            -- Steam power must not emit the fluid energy source's default working glow.
+            light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
             emissions_per_minute={pollution=4},
             fluid_box = {   
                 filter = "steam",

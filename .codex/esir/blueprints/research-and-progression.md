@@ -15,8 +15,13 @@ Victory `repair_runtime_state` restores optional victory integration callbacks w
 - [victory-disabler.lua](../../../exotic-space-industries-remembrance/scripts/control/victory-disabler.lua)
 - [1.3.35.lua](../../../exotic-space-industries-remembrance/migrations/1.3.35.lua)
 - [1.3.36.lua](../../../exotic-space-industries-remembrance/migrations/1.3.36.lua)
+- [techs.lua](../../../exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/techs.lua)
 
 ## Behavior and ownership
+
+The [1.4.0 migration](../../../exotic-space-industries-remembrance/migrations/1.4.0.lua)
+is owned by the [Gaia migration model](gaia-and-alien-systems.md#lifecycle) and also
+preserves researched recycling and native discovery travel unlocks described here.
 
 `tech-scaling` computes a shared research-price multiplier from weighted completed technology and configured curves. `storage.ei.tech_scaling` owns static metadata, total/age weights, the selected-force researched snapshot, cached settings, and the last applied multiplier. `tech-weighting` excludes unsuitable technologies and supplies thematic weights; the two scaling libraries share price normalization and curve math with other stages.
 
@@ -60,3 +65,23 @@ Migration `1.3.35.lua` moves the old repeatable electric-weapons tier-four progr
 The [scripted research QC helper](../../skills/esir-dev/references/scripted-research-qc-helper.md) and [research hitch helper](../../skills/esir-dev/references/research-hitch-qc-helper.md) expose burst behavior and cache results. They do not replace normal one-tech completion coverage or migration fixtures.
 
 Verify a normal delta, repeated notification, scripted flood, disabled scaling, each configured curve, ignored secondary-force research, cache rebuild, queued/active electric-weapons migration, pump unlock preservation, and steam-assembler/ghost port preservation. No fresh migration or engine results are claimed by this source-derived model.
+
+<a id="platform-travel"></a>
+## Factorio 2.1 platform travel
+
+Factorio 2.1 separates platform creation from personal rocket travel. ESIR uses
+the native progression: `rocket-silo` alone does not grant personal travel;
+the first researched `planet-discovery-vulcanus`, `planet-discovery-gleba` or
+`planet-discovery-fulgora` grants `unlock-travel-to-space-platforms`. Their native
+effects remain intact. Existing ESIR prerequisites, research costs and science
+requirements remain unchanged. This is an explicitly approved progression change
+from ESIR 2.0, replacing the earlier unreleased Rocket silo preservation override.
+
+No 1.4.0 save correction is needed: the user confirmed no player save has used
+that version. Migration coverage is 1.3.41 on 2.0.77 to 1.4.0 on 2.1.23. Verify
+Rocket-silo-only and all three already-discovered cases, followed by save/reload.
+The existing 1.4.0 migration applies travel effects from already researched
+technologies, including compatible mods' grants. It does not grant travel from
+Rocket silo alone or reset unrelated force effects.
+Fresh ordinary research uses native technology effects; no research receiver,
+periodic work, setting or remote API is added.

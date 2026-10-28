@@ -6,7 +6,7 @@ ei_lib.raw["lab"]["lab"].inputs = table.deepcopy(ei_data.lab_inputs["lab"])
 ei_lib.raw["lab"]["lab"].researching_speed = 1.5
 ei_lib.raw["lab"]["lab"].fast_replaceable_group = "lab"
 
-for science_pack_name,science_pack_object in pairs(data.raw['tool']) do
+for science_pack_name,science_pack_object in pairs(ei_lib.get_science_prototypes()) do
   if science_pack_object.hidden or ei_lib.table_contains_value(ei_data.tech_exclude_list,science_pack_name) then 
     if not ei_lib.table_contains_value(data.raw.lab["ei-dummy-lab"]['inputs'],science_pack_name) then 
       table.insert(data.raw.lab["ei-dummy-lab"]['inputs'],science_pack_name)
@@ -30,7 +30,7 @@ end
 -- error(serpent.block(data.raw.lab["ei-dark-age-lab"]['inputs']))
 -- error(serpent.block(util.by_pixel))
 
-for science_pack_name,science_pack_object in pairs(data.raw['tool']) do
+for science_pack_name,science_pack_object in pairs(ei_lib.get_science_prototypes()) do
   if science_pack_object.hidden then 
     if not ei_lib.table_contains_value(data.raw.lab["ei-dummy-lab"]['inputs'],science_pack_name) then 
       table.insert(data.raw.lab["ei-dummy-lab"]['inputs'],science_pack_name)

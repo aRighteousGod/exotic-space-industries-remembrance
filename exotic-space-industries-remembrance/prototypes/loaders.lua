@@ -159,7 +159,7 @@ data:extend({
     {
         name = "ei-steam-loader",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 15,
         ingredients =
         {
@@ -176,7 +176,7 @@ data:extend({
     {
         name = "ei-loader",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 30,
         ingredients =
         {
@@ -193,7 +193,7 @@ data:extend({
     {
         name = "ei-fast-loader",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 60,
         ingredients =
         {
@@ -211,7 +211,7 @@ data:extend({
     {
         name = "ei-express-loader",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 90,
         ingredients =
         {
@@ -219,7 +219,7 @@ data:extend({
         {type="item", name="ei-fast-loader", amount=1},
         {type="item", name="bulk-inserter", amount=4},
         {type="item", name="ei-electronic-parts", amount=20},
-        {type="fluid", name="lubricant", amount=50},
+        {type="fluid", name="lubricant", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-express-loader", amount=1}},
         enabled = false,
@@ -229,7 +229,7 @@ data:extend({
     {
         name = "ei-turbo-loader",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 120,
         ingredients =
         {
@@ -238,7 +238,7 @@ data:extend({
         {type="item", name="stack-inserter", amount=4},
         {type="item", name="ei-advanced-motor", amount=20},
         {type="item", name="tungsten-carbide", amount=40},
-        {type="fluid", name="electrolyte", amount=100},
+        {type="fluid", name="electrolyte", amount=100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-turbo-loader", amount=1}},
         enabled = false,
@@ -248,7 +248,7 @@ data:extend({
     {
         name = "ei-neo-loader",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 150,
         ingredients =
         {
@@ -258,7 +258,7 @@ data:extend({
         {type="item", name="ei-high-tech-parts", amount=20},
         {type="item", name="ei-high-energy-crystal", amount=20},
         {type="item", name="ei-neodym-ingot", amount=10},
-        {type="fluid", name="ei-liquid-nitrogen", amount=150},
+        {type="fluid", name="ei-liquid-nitrogen", amount=150, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {{type="item", name="ei-neo-loader", amount=1}},
         enabled = false,
@@ -293,6 +293,8 @@ ei_loaders_lib.addEnergyDraw(data.raw["loader-1x1"]["ei-neo-loader"],"40500","60
 local steam_loader = data.raw["loader-1x1"]["ei-steam-loader"]
 steam_loader.energy_source = {
     type = "fluid",
+    -- Steam power must not emit the fluid energy source's default working glow.
+    light_flicker = {minimum_intensity = 0, maximum_intensity = 0},
     fluid_box = {
         filter = "steam",
         volume = 200,

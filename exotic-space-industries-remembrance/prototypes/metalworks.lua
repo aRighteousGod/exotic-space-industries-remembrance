@@ -20,7 +20,7 @@ data:extend({
     {
         name = "ei-metalworks-1",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients =
         {
@@ -46,7 +46,7 @@ data:extend({
     {
         name = "ei-metalworks-2",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients =
         {
@@ -72,7 +72,7 @@ data:extend({
     {
         name = "ei-metalworks-3",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients =
         {
@@ -98,7 +98,7 @@ data:extend({
     {
         name = "ei-metalworks-4",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 0.5,
         ingredients =
         {
@@ -161,7 +161,7 @@ local entity_base = {
         animation = {
             layers = {
                 {
-                    filename = "__base__/graphics/entity/assembling-machine-1/assembling-machine-1.png",
+                    filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/assembling-machine-1/assembling-machine-1.png",
                     priority = "high",
                     width = 214,
                     height = 226,
@@ -171,7 +171,7 @@ local entity_base = {
                     scale = 1/3,
                 },
                 {
-                    filename = "__base__/graphics/entity/assembling-machine-1/assembling-machine-1-shadow.png",
+                    filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/assembling-machine-1/assembling-machine-1-shadow.png",
                     priority = "high",
                     width = 190,
                     height = 165,
@@ -212,12 +212,12 @@ local function make_metalworks(base, foo, level, max_level, animation, result)
     if animation then
         entity.graphics_set = { animation = animation }
     else
-        entity.graphics_set.animation.layers[1].filename = "__base__/graphics/entity/assembling-machine-"..level.."/assembling-machine-"..level..".png"
+        entity.graphics_set.animation.layers[1].filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/assembling-machine-"..level.."/assembling-machine-"..level..".png"
         entity.graphics_set.animation.layers[1].width = foo[1].width
         entity.graphics_set.animation.layers[1].height = foo[1].height
         entity.graphics_set.animation.layers[1].shift = foo[1].shift
 
-        entity.graphics_set.animation.layers[2].filename = "__base__/graphics/entity/assembling-machine-"..level.."/assembling-machine-"..level.."-shadow.png"
+        entity.graphics_set.animation.layers[2].filename = ei_graphics_6_path.."graphics/compat/factorio-2.0.77/assembling-machine-"..level.."/assembling-machine-"..level.."-shadow.png"
         entity.graphics_set.animation.layers[2].width = foo[2].width
         entity.graphics_set.animation.layers[2].height = foo[2].height
         entity.graphics_set.animation.layers[2].shift = foo[2].shift
@@ -331,7 +331,7 @@ for recipe_name, tech in pairs(recipes_to_add) do
     end
 
     new_recipe.name = new_recipe.name.."-metalworks"
-    new_recipe.category = "ei-metalworks"
+    new_recipe.categories = {"ei-metalworks"}
     new_recipe.hide_from_player_crafting = true
     if recipe.localised_name then
         new_recipe.localised_name = recipe.localised_name

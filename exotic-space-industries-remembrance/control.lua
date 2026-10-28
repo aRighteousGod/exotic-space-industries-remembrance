@@ -47,6 +47,7 @@ ei_beacon_overload = require("scripts/control/beacon-overload")
 local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
+local ei_air_scrubber = require("scripts/control/air-scrubber-compat")
 local ei_firefighting = require("scripts/control/firefighting")
 local ei_water_turret = require("scripts/control/water-turret")
 local ei_planet_enemies = require("scripts/control/planet-enemies")
@@ -1570,6 +1571,7 @@ script.on_configuration_changed(function(e)
     -- leave variant caches stale, so keep this repair pass outside the mod-change gate.
     ei_teslas_legacy.on_configuration_changed(e,configuration_tick)
     ei_flamethrower_fuels.rebuild(configuration_tick)
+    ei_air_scrubber.rebuild()
     -- ConfigurationChangedData has no event tick in 2.0.77. Take one current
     -- snapshot here; regular water-turret and radar paths pass event.tick through.
     local support_rebuild_tick = game.tick
@@ -1639,7 +1641,9 @@ script.on_configuration_changed(function(e)
         ei_victory.init()  -- Required for Better Victory Screen
         orbital_combinator.check_init()
         orbital_logistics.rebuild_runtime_state("configuration-changed", configuration_tick)
-        ei_railgun_cooling.rebuild_runtime_state("configuration-changed", configuration_tick)
+        -- blueprint-ref: .codex/esir/blueprints/railgun-cooling.md#lifecycle
+        -- Retain populated coolant helpers, heat debt and recovery deadlines.
+        ei_railgun_cooling.repair_runtime_state("configuration-changed", configuration_tick)
         ei_sawblade_turret.check_global()
         ei_emerald_apocalypse_hover_tank.check_global(configuration_tick)
         ei_gaia.ensure_surface()
@@ -2080,6 +2084,7 @@ function updater(event)
 end
 
 function on_cloned_entity(e)
+    if e then e.destination = ei_air_scrubber.normalize(e.destination) end
     -- Clone events expose the new entity as `destination`, not `entity`.
     -- Route only clone-safe registration/update hooks here; full build routing
     -- also contains constructor paths and surface swaps that are not clone-safe.
@@ -2146,6 +2151,8 @@ function on_cloned_entity(e)
 end
 
 function on_built_entity(e)
+    if ei_air_scrubber.is_notifying(e.entity) then return end
+    if e then e.entity = ei_air_scrubber.normalize(e.entity) end
     ei_terrain_evolution.on_entity_built(e)
     -- Centralized post-build routing keeps every subsystem on the same event surface.
     -- This wrapper also hosts the small amount of truly cross-cutting setup that is not

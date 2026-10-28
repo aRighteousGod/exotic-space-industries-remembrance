@@ -69,7 +69,7 @@ data:extend({
     {
         name = "ei-bio-chamber",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -204,11 +204,11 @@ data:extend({
     {
         name = "ei-alien-seed-growing",
         type = "recipe",
-        category = "ei-bio-chamber",
+        categories = {"ei-bio-chamber"},
         energy_required = 20,
         ingredients = {
-            {type = "fluid", name = "ei-oxygen-gas", amount = 50},
-            {type = "fluid", name = "ei-phythogas", amount = 15},
+            {type = "fluid", name = "ei-oxygen-gas", amount = 50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-phythogas", amount = 15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-alien-seed", amount = 1},
             {type = "item", name = "ei-alien-resin", amount = 4},
         },
@@ -222,18 +222,18 @@ data:extend({
     {
         name = "ei-alien-seed-harvesting",
         type = "recipe",
-        category = "ei-bio-chamber",
+        categories = {"ei-bio-chamber"},
         energy_required = 10,
         ingredients = {
-            {type = "fluid", name = "ei-morphium", amount = 100},
+            {type = "fluid", name = "ei-morphium", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
             {type = "item", name = "ei-blooming-alien-seed", amount = 1},
         },
         results = {
             {type = "item", name = "ei-alien-seed", amount_min = 1, amount_max = 5},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=3,probability=0.05,ignored_by_stats=3},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=3,independent_probability = 0.05,ignored_by_stats=3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -242,20 +242,20 @@ data:extend({
     {
         name = "ei-alien-resin-growing",
         type = "recipe",
-        category = "ei-bio-chamber",
+        categories = {"ei-bio-chamber"},
         energy_required = 20,
         ingredients = {
-            {type = "fluid", name = "ei-phythogas", amount = 5},
-            {type = "fluid", name = "ei-morphium", amount = 5},
+            {type = "fluid", name = "ei-phythogas", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-morphium", amount = 5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-alien-seed", amount = 1},
             {type = "item", name = "ei-high-energy-crystal", amount = 1},
         },
         results = {
             {type = "item", name = "ei-alien-resin", amount = 6},
-            {type = "item", name = "ei-alien-seed", amount = 1, probability = 0.9},
-            {type = "item", name = "ei-high-energy-crystal", amount = 1, probability=0.98,ignored_by_stats=1},
-            {type = "item", name = "ei-energy-crystal", amount = 1, probability=0.02,ignored_by_stats=1},
-            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=3,probability=0.05,ignored_by_stats=3},
+            {type = "item", name = "ei-alien-seed", amount = 1, independent_probability = 0.9},
+            {type = "item", name = "ei-high-energy-crystal", amount = 1, shared_probability = {min = 0, max = 0.98},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "item", name = "ei-energy-crystal", amount = 1, shared_probability = {min = 0.98, max = 1},ignored_by_stats=1, ignored_by_productivity = 1},
+            {type = "fluid", name = "ei-bio-sludge", amount_min = 1,amount_max=3,independent_probability = 0.05,ignored_by_stats=3, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,

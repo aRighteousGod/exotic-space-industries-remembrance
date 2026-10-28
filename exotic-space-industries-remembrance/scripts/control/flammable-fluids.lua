@@ -174,8 +174,7 @@ local function classify_fluid_family(fluid)
 end
 
 local function analyze_fluidboxes(entity)
-    local fluidbox = entity.fluidbox
-    if not fluidbox or #fluidbox <= 0 then
+    if entity.fluids_count <= 0 then
         return nil
     end
 
@@ -184,8 +183,10 @@ local function analyze_fluidboxes(entity)
     local family_energy_mj = {oil = 0, gas = 0, exotic = 0}
     local per_fluid_energy = {}
 
-    for index = 1, #fluidbox do
-        local contents = fluidbox[index]
+    for index = 1, entity.fluids_count do
+        -- Preserve ordinary-box accounting; private wagon/turret stores were
+        -- outside LuaFluidBox and must not gain explosion energy in this port.
+        local contents = entity.get_fluid_box_prototype(index) and entity.get_fluid(index)
         if contents and contents.name and contents.amount and contents.amount > 0 then
             local fluid = prototypes.fluid[contents.name]
             if is_flammable_fluid(fluid) then

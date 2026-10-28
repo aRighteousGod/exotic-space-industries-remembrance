@@ -21,7 +21,7 @@ data:extend({
     {
         name = "ei-drone-port",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -99,7 +99,7 @@ data:extend({
     {
         name = "ei-drone-port:running",
         type = "recipe",
-        category = "ei-drone-port",
+        categories = {"ei-drone-port"},
         energy_required = 1000,
         ingredients = {},
         results = {},
@@ -142,8 +142,8 @@ data:extend({
         immune_to_cliff_impacts = true,
         tank_driving = true,
         render_layer = "higher-object-under",
-        braking_power = "200kW",
-        friction = 0.01,
+        braking_force = 200000 / 60,
+        friction_force = 0.01,
         energy_per_hit_point = 1,
         weight = 100,
         max_health = 1000,

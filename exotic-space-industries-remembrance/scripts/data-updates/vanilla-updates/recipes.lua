@@ -1,4 +1,33 @@
+-- blueprint: .codex/esir/blueprints/recipe-economy.md#contract
 local ei_lib = require("lib/lib")
+
+-- Retain the established random byproducts; the approved mutually exclusive
+-- correction applies to ESIR crystal returns, not unrelated native processing.
+for _, family in ipairs({"metallic", "oxide"}) do
+    for _, prefix in ipairs({"", "advanced-"}) do
+        local recipe = data.raw.recipe[prefix .. family .. "-asteroid-crushing"]
+        for _, result in pairs(recipe and recipe.results or {}) do
+            if result.name == family .. "-asteroid-chunk" then
+                result.shared_probability = nil
+                result.independent_probability = prefix == "" and 0.2 or 0.05
+            end
+        end
+    end
+end
+for _, family in ipairs({"metallic", "carbonic", "oxide"}) do
+    local recipe = data.raw.recipe[family .. "-asteroid-reprocessing"]
+    if recipe then
+        recipe.allow_quality = true
+        for _, result in pairs(recipe.results) do
+            result.shared_probability = nil
+            result.independent_probability = result.name == family .. "-asteroid-chunk" and 0.4 or 0.2
+        end
+    end
+end
+for _, result in pairs(data.raw.recipe["uranium-processing"].results) do
+    result.shared_probability = nil
+    result.independent_probability = result.name == "uranium-235" and 0.007 or 0.993
+end
 
 --RECIPES
 ------------------------------------------------------------------------------------------------------
@@ -184,7 +213,7 @@ local new_ingredients_table = {
         {type="item",name="ei-steel-beam", amount=4},
         {type="item",name="ei-steel-mechanical-parts", amount=8},
         {type="item",name="assembling-machine-1", amount=1},
-        {type="fluid",name="lubricant", amount=25},
+        {type="fluid",name="lubricant", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["assembling-machine-3"] = {
         {type="item",name="assembling-machine-2", amount=2},
@@ -192,7 +221,7 @@ local new_ingredients_table = {
         {type="item",name="processing-unit", amount=6},
         {type="item",name="ei-carbon", amount=5},
         {type="item",name="ei-simulation-data", amount=15},
-        {type="fluid",name="ei-liquid-nitrogen", amount=25},
+        {type="fluid",name="ei-liquid-nitrogen", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["chemical-plant"] = {
         {type="item",name="ei-heat-chemical-plant", amount=1},
@@ -287,7 +316,7 @@ local new_ingredients_table = {
         {type="item",name="ei-advanced-motor", amount=10},
         {type="item",name="ei-electronic-parts", amount=10},
         {type="item",name="tungsten-carbide", amount=35},
-        {type="fluid",name="ei-molten-steel", amount=250},
+        {type="fluid",name="ei-molten-steel", amount=250, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type="item",name="ei-carbon", amount=50},
     },
     ["storage-tank"] = {
@@ -389,20 +418,20 @@ local new_ingredients_table = {
         {type="item",name="fast-transport-belt", amount=1},
         {type="item",name="ei-steel-mechanical-parts", amount=5},
         {type="item",name="ei-carbon", amount=3},
-        {type="fluid", name="lubricant", amount=15},
+        {type="fluid", name="lubricant", amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["express-underground-belt"] = {
         {type="item",name="fast-underground-belt", amount=2},
         {type="item",name="ei-steel-mechanical-parts", amount=30},
         {type="item",name="ei-carbon", amount=12},
-        {type="fluid", name="lubricant", amount=35},
+        {type="fluid", name="lubricant", amount=35, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["express-splitter"] = {
         {type="item",name="fast-splitter", amount=1},
         {type="item",name="advanced-circuit", amount=10},
         {type="item",name="ei-steel-mechanical-parts", amount=12},
         {type="item",name="ei-carbon", amount=12},
-        {type="fluid", name="lubricant", amount=55},
+        {type="fluid", name="lubricant", amount=55, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["firearm-magazine"] = {
         {type="item",name="ei-iron-mechanical-parts", amount=2},
@@ -511,14 +540,14 @@ local new_ingredients_table = {
         {type="item", name="electronic-circuit", amount=2},
         {type="item", name="ei-insulated-wire", amount=4},
         {type="item", name="ei-electron-tube", amount=2},
-        {type="fluid", name="sulfuric-acid", amount=5}
+        {type="fluid", name="sulfuric-acid", amount=5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
 -- batteries
     ["battery"] = {
         {type="item", name="ei-crushed-iron", amount=4},
         {type="item", name="ei-crushed-copper", amount=4},
         {type="item", name="ei-ceramic", amount=1},
-        {type="fluid", name="sulfuric-acid", amount=25}
+        {type="fluid", name="sulfuric-acid", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
 -- robo frames
     ["flying-robot-frame"] = {
@@ -528,7 +557,7 @@ local new_ingredients_table = {
         {type="item", name="ei-steel-mechanical-parts", amount=10},
         {type="item", name="ei-electronic-parts", amount=5},
         {type="item", name="ei-energy-crystal", amount=1},
-        {type="fluid", name="lubricant", amount=100}
+        {type="fluid", name="lubricant", amount=100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
 -- recipes for modules
     ["quality-module"] = {
@@ -553,7 +582,7 @@ local new_ingredients_table = {
     },
     ["speed-module"] = {
         {type="item", name="ei-module-base", amount=1},
-        {type="fluid", name="ei-liquid-nitrogen", amount=25}
+        {type="fluid", name="ei-liquid-nitrogen", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
     ["efficiency-module"] = {
         {type="item",name="ei-module-base", amount=1},
@@ -596,8 +625,8 @@ local new_ingredients_table = {
 -- treat rocket fuel
     ["rocket-fuel"] = {
         {type="item", name="solid-fuel", amount=10},
-        {type="fluid", name="ei-kerosene", amount=15},
-        {type="fluid", name="ei-liquid-oxygen", amount=25},
+        {type="fluid", name="ei-kerosene", amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type="fluid", name="ei-liquid-oxygen", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     ["heat-exchanger"] = {
         {type="item",name="ei-basic-heat-exchanger", amount=1},
@@ -618,13 +647,15 @@ local new_ingredients_table = {
     },
 }
 --adjust categories to allow above changes
-ei_lib.raw["recipe"]["advanced-circuit"].category = "crafting-with-fluid"
-ei_lib.raw["recipe"]["advanced-circuit"].additional_categories = {"electronics-with-fluid"}
-ei_lib.raw["recipe"]["flying-robot-frame"].category = "crafting-with-fluid"
-ei_lib.raw["recipe"]["speed-module"].category = "electronics-with-fluid"
-ei_lib.raw["recipe"]["assembling-machine-2"].category = "crafting-with-fluid"
-ei_lib.raw["recipe"]["assembling-machine-3"].category = "crafting-with-fluid"
-ei_lib.raw["recipe"]["rocket-fuel"].category = "chemistry"
+-- Native 2.1 doubled this output; ESIR's retained ingredients are balanced for
+-- one magazine, which also controls the per-item recycling ingredient returns.
+ei_lib.raw.recipe["piercing-shotgun-shell"].results = {{type = "item", name = "piercing-shotgun-shell", amount = 1}}
+ei_lib.raw["recipe"]["advanced-circuit"].categories = {"crafting-with-fluid", "ei-electronics-with-fluid"}
+ei_lib.raw["recipe"]["flying-robot-frame"].categories = {"crafting-with-fluid"}
+ei_lib.raw["recipe"]["speed-module"].categories = {"ei-electronics-with-fluid"}
+ei_lib.raw["recipe"]["assembling-machine-2"].categories = {"crafting-with-fluid"}
+ei_lib.raw["recipe"]["assembling-machine-3"].categories = {"crafting-with-fluid"}
+ei_lib.raw["recipe"]["rocket-fuel"].categories = {"chemistry"}
 
 --remove vanilla plate recipes in favor of varied chunk processes
 local ip = ei_lib.raw["recipe"]["iron-plate"]
@@ -702,7 +733,7 @@ if explosives then
     explosives_2.ingredients = {
         {type="item",name="ei-crushed-coke", amount=6},
         {type="item",name="ei-crushed-sulfur", amount=6},
-        {type="fluid",name="light-oil", amount=20},
+        {type="fluid",name="light-oil", amount=20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     }
     explosives_2.results = {
         {type="item",name="explosives", amount=12},
@@ -718,8 +749,8 @@ if explosives then
     --alt 2
     local explosives_3 = table.deepcopy(explosives)
     explosives_3.ingredients = {
-        {type="fluid",name="ei-nitric-acid", amount=270},
-        {type="fluid",name="sulfuric-acid", amount=190},
+        {type="fluid",name="ei-nitric-acid", amount=270, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+        {type="fluid",name="sulfuric-acid", amount=190, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         {type="item",name="solid-fuel", amount=5},
     }
     explosives_3.results = {
@@ -745,11 +776,11 @@ end
 ei_lib.raw["recipe"]["basic-oil-processing"] = {
     force_replace = true,
     ingredients = {
-        {type="fluid", name="crude-oil", amount=65},
+        {type="fluid", name="crude-oil", amount=65, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     },
     results =   {
-        {type="fluid", name="ei-residual-oil", amount_min=28,amount_max=32},
-        {type="fluid", name="petroleum-gas", amount_min=38,amount_max=42},
+        {type="fluid", name="ei-residual-oil", amount_min=28,amount_max=32, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+        {type="fluid", name="petroleum-gas", amount_min=38,amount_max=42, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
     },
     icon = ei_graphics_3_path.."graphics/other/basic-oil-processing.png",
     icon_size = 64,
@@ -758,27 +789,27 @@ ei_lib.raw["recipe"]["basic-oil-processing"] = {
 -- treat cracking
 ei_lib.raw["recipe"]["light-oil-cracking"].results = 
 {
-    {type="fluid", name="petroleum-gas", amount_min=18,amount_max=22},
+    {type="fluid", name="petroleum-gas", amount_min=18,amount_max=22, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 }
 ei_lib.recipe_new("heavy-oil-cracking",
 {
-    {type="fluid", name="heavy-oil", amount=50},
-    {type="fluid", name="water", amount=50}
+    {type="fluid", name="heavy-oil", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+    {type="fluid", name="water", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 })
 ei_lib.raw["recipe"]["heavy-oil-cracking"].icon = ei_graphics_other_path.."heavy-cracking.png"
 ei_lib.raw["recipe"]["heavy-oil-cracking"].icon_size = 64
 ei_lib.raw["recipe"]["heavy-oil-cracking"].results = {
-    {type="fluid", name="ei-kerosene", amount_min=38,amount_max=42},
+    {type="fluid", name="ei-kerosene", amount_min=38,amount_max=42, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 }
 
 ei_lib.recipe_new("lubricant",
 {
-    {type="fluid", name="heavy-oil", amount=10},
-    {type="fluid", name="ei-coal-gas", amount=10}
+    {type="fluid", name="heavy-oil", amount=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+    {type="fluid", name="ei-coal-gas", amount=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 })
 ei_lib.raw["recipe"]["lubricant"].results = {
-    {type="fluid", name="lubricant", amount_min=6,amount_max=10},
-    {type="fluid", name="steam", amount_min=3,amount_max=7,temperature=350},
+    {type="fluid", name="lubricant", amount_min=6,amount_max=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+    {type="fluid", name="steam", amount_min=3,amount_max=7,temperature=350, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 }
 local l_icon = ei_lib.raw.fluid["lubricant"].icon
 local l_icon_size = ei_lib.raw.fluid["lubricant"].icon_size
@@ -786,47 +817,47 @@ ei_lib.raw.recipe["lubricant"].icon = l_icon
 ei_lib.raw.recipe["lubricant"].icon_size = l_icon_size
 
 ei_lib.raw["recipe"]["sulfuric-acid"].ingredients = {
-    {type="fluid", name="water", amount=25},
+    {type="fluid", name="water", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
     {type="item", name="ei-crushed-iron", amount=1},
     {type="item", name="sulfur", amount=3}
 }
 ei_lib.raw["recipe"]["sulfuric-acid"].results = {
-    {type="fluid", name="sulfuric-acid", amount_min=25,amount_max=35},
+    {type="fluid", name="sulfuric-acid", amount_min=25,amount_max=35, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 }
 ei_lib.recipe_new("carbon",
 {
     {type="item",name="ei-coke", amount=6},
-    {type="fluid", name="sulfuric-acid", amount=45},
+    {type="fluid", name="sulfuric-acid", amount=45, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
 })
 --Adjust carbon outputs
 ei_lib.raw["recipe"]["carbon"].results = {
     {type="item",name="carbon", amount_min=2,amount_max=3},
-    {type="fluid", name="steam", amount_min=1,amount_max=5,temperature=250}
+    {type="fluid", name="steam", amount_min=1,amount_max=5,temperature=250, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
 }
 ei_lib.recipe_new("simple-coal-liquefaction",
 {
     {type="item", name="ei-coke", amount=15},
     {type="item", name="calcite", amount=2},
-    {type="fluid", name="sulfuric-acid", amount=25}
+    {type="fluid", name="sulfuric-acid", amount=25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 })
 ei_lib.raw["recipe"]["simple-coal-liquefaction"].results = {
-    {type="fluid", name="ei-residual-oil", amount_min=48,amount_max=52},
-    {type="fluid", name="ei-coal-gas", amount_min=33,amount_max=37},
+    {type="fluid", name="ei-residual-oil", amount_min=48,amount_max=52, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+    {type="fluid", name="ei-coal-gas", amount_min=33,amount_max=37, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 }
 ei_lib.recipe_new("coal-liquefaction",
 {
     {type="item", name="ei-crushed-coke", amount=30},
-    {type="fluid", name="heavy-oil", amount=35},
-    {type="fluid", name="steam", amount=50}
+    {type="fluid", name="heavy-oil", amount=35, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+    {type="fluid", name="steam", amount=50, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
 })
 ei_lib.raw["recipe"]["coal-liquefaction"].results = {
-    {type="fluid", name="ei-residual-oil", amount_min=88,amount_max=92},
-    {type="fluid", name="light-oil", amount_min=3,amount_max=7},
-    {type="fluid", name="ei-benzol", amount_min=38,amount_max=42},
+    {type="fluid", name="ei-residual-oil", amount_min=88,amount_max=92, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+    {type="fluid", name="light-oil", amount_min=3,amount_max=7, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+    {type="fluid", name="ei-benzol", amount_min=38,amount_max=42, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
 }
 
 -- make engine recipe in recipe-category crafting
-ei_lib.raw["recipe"]["engine-unit"].category = "crafting"
+ei_lib.raw["recipe"]["engine-unit"].categories = {"crafting"}
 
 -- reduce craft time of engines and electric engines
 ei_lib.raw["recipe"]["engine-unit"].energy_required = 4

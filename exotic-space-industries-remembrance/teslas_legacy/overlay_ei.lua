@@ -1681,8 +1681,8 @@ local function patch_tl_progression()
 
   local advanced_tesla_coil = raw.recipe["tl-advanced-tesla-coil"]
   if advanced_tesla_coil then
-    advanced_tesla_coil.additional_categories = advanced_tesla_coil.additional_categories or {}
-    append_unique(advanced_tesla_coil.additional_categories, "electromagnetics")
+    advanced_tesla_coil.categories = advanced_tesla_coil.categories or {"crafting"}
+    append_unique(advanced_tesla_coil.categories, "electromagnetics")
     advanced_tesla_coil.ingredients = {
       {type = "item", name = "tl-basic-tesla-coil", amount = 1},
       {type = "item", name = "substation", amount = 2},
@@ -1695,8 +1695,8 @@ local function patch_tl_progression()
 
   local basic_tesla_coil = raw.recipe["tl-basic-tesla-coil"]
   if basic_tesla_coil then
-    basic_tesla_coil.additional_categories = basic_tesla_coil.additional_categories or {}
-    append_unique(basic_tesla_coil.additional_categories, "electromagnetics")
+    basic_tesla_coil.categories = basic_tesla_coil.categories or {"crafting"}
+    append_unique(basic_tesla_coil.categories, "electromagnetics")
     basic_tesla_coil.ingredients = {
       {type = "item", name = "medium-electric-pole", amount = 1},
       {type = "item", name = "ei-copper-beam", amount = 2},
@@ -1713,8 +1713,8 @@ local function patch_tl_progression()
 
   local tesla_tank_recipe = raw.recipe["tl-tesla-tank"]
   if tesla_tank_recipe then
-    tesla_tank_recipe.additional_categories = tesla_tank_recipe.additional_categories or {}
-    append_unique(tesla_tank_recipe.additional_categories, "electromagnetics")
+    tesla_tank_recipe.categories = tesla_tank_recipe.categories or {"crafting"}
+    append_unique(tesla_tank_recipe.categories, "electromagnetics")
     tesla_tank_recipe.ingredients = {
       {type = "item", name = "tank", amount = 1},
       {type = "item", name = "ei-electronic-parts", amount = 20},

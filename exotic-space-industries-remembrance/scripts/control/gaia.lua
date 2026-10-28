@@ -194,7 +194,7 @@ end
 local function connected_players_on_surface(surface)
     local players = {}
     for _, player in pairs(game.connected_players) do
-        if player.surface == surface then
+        if player.physical_surface == surface then
             table.insert(players, player)
         end
     end
@@ -248,8 +248,7 @@ function model.migrate_gaia_surface(surface)
     end
     current_settings.property_expression_names = current_settings.property_expression_names or {}
     for key, value in pairs(enemy_settings.property_expression_names) do
-        if type(value) == "string" and value:find(enemy_control, 1, true) == 1
-            and current_settings.property_expression_names[key] ~= value then
+        if current_settings.property_expression_names[key] == nil then
             current_settings.property_expression_names[key] = value
             needs_update = true
         end
@@ -606,7 +605,9 @@ local function complete_reforge(state, surface, newly_created,tick)
     if state.teleport_when_done and state.request_player_index then
         local player = game.get_player(state.request_player_index)
         if player and player.valid then
-            player.teleport({0, 0}, surface)
+            -- Arrival is optional after the rebuild. A controller restriction
+            -- must not leave an already completed reforge pending indefinitely.
+            ei_lib.teleport_physical_player(player, {0, 0}, surface)
         end
     end
 
@@ -719,7 +720,7 @@ function model.reforge_on_tick(event)
 
             for _, player in pairs(connected_players_on_surface(source_surface)) do
                 ei_lib.crystal_echo("⚠ [Displacement] — Moving " .. player.name .. " to safety while Gaia is reforged.")
-                player.teleport({0, 0}, safe_surface)
+                if not ei_lib.teleport_physical_player(player, {0, 0}, safe_surface) then return end
                 if event and event.tick then
                     ei_echo_codex.youHaveArrived({player_index = player.index, tick = event.tick})
                 end
@@ -1196,7 +1197,7 @@ function model.spawn_command(event)
 
         local surface = model.create_gaia()
         if surface then
-            player.teleport({0, 0}, surface)
+            if not ei_lib.teleport_physical_player(player, {0, 0}, surface) then return nil end
         end
     end
     

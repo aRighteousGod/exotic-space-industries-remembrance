@@ -42,10 +42,10 @@ data:extend({
         results={{type="item",name=config.gun,amount=1}},
     },
     {
-        type="recipe", name=config.ammo, category="chemistry", enabled=false, energy_required=3,
+        type="recipe", name=config.ammo, categories = {"chemistry"}, enabled=false, energy_required=3,
         ingredients={{type="item",name="iron-plate",amount=5},
             {type="item",name="copper-plate",amount=1}, {type="item",name="stone",amount=5},
-            {type="fluid",name="sulfuric-acid",amount=1}, {type="fluid",name="water",amount=5}},
+            {type="fluid",name="sulfuric-acid",amount=1, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}, {type="fluid",name="water",amount=5, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}},
         results={{type="item",name=config.ammo,amount=1}},
     },
     {

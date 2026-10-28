@@ -35,11 +35,11 @@ data:extend({
     {
         name = "ei-neo-belt",
         type = "recipe",
-        category = "crafting-with-fluid",
-		additional_categories = {"metallurgy-or-assembling"},
+        categories = {"crafting-with-fluid", "ei-metallurgy-or-assembling"},
+		
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 20},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "turbo-transport-belt", amount = 2},
             {type = "item", name = "ei-neodym-ingot", amount = 2},
 			{type = "item", name = "ei-magnet", amount = 1},
@@ -55,11 +55,11 @@ data:extend({
     {
         name = "ei-neo-splitter",
         type = "recipe",
-        category = "crafting-with-fluid",
-		additional_categories = {"metallurgy-or-assembling"},
+        categories = {"crafting-with-fluid", "ei-metallurgy-or-assembling"},
+		
         energy_required = 2,
         ingredients = {
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 20},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "turbo-splitter", amount = 2},
             {type = "item", name = "ei-neodym-ingot", amount = 2},
 			{type = "item", name = "ei-magnet", amount = 1},
@@ -76,11 +76,11 @@ data:extend({
     {
         name = "ei-neo-underground-belt",
         type = "recipe",
-        category = "crafting-with-fluid",
-		additional_categories = {"metallurgy-or-assembling"},
+        categories = {"crafting-with-fluid", "ei-metallurgy-or-assembling"},
+		
         energy_required = 6,
         ingredients = {
-            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100},
+            {type = "fluid", name = "ei-liquid-nitrogen", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "turbo-underground-belt", amount = 4},
             {type = "item", name = "ei-neodym-ingot", amount = 20},
 			{type = "item", name = "ei-magnet", amount = 1},
@@ -198,8 +198,7 @@ data:extend({
 		speed = 0.125*3/2,
 		animation_speed_coefficient = 32,
 		connector_frame_sprites = transport_belt_connector_frame_sprites,
-		circuit_wire_connection_points = circuit_connector_definitions["belt"].points,
-		circuit_connector_sprites = circuit_connector_definitions["belt"].sprites,
+		circuit_connector = table.deepcopy(circuit_connector_definitions["belt"]),
 		circuit_wire_max_distance = transport_belt_circuit_wire_max_distance
 	},
     {

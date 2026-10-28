@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-destill-tower",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {
@@ -209,14 +209,14 @@ data:extend({
     {
         name = "ei-destill-light",
         type = "recipe",
-        category = "ei-destill-tower",
+        categories = {"ei-destill-tower"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-residual-oil", amount = 55},
+            {type = "fluid", name = "ei-residual-oil", amount = 55, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-medium-destilate", amount_min = 43,amount_max=47},
-            {type = "fluid", name = "light-oil", amount_min = 43,amount_max=47},
+            {type = "fluid", name = "ei-medium-destilate", amount_min = 43,amount_max=47, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "light-oil", amount_min = 43,amount_max=47, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -227,14 +227,14 @@ data:extend({
     {
         name = "ei-destill-kerosene",
         type = "recipe",
-        category = "ei-destill-tower",
+        categories = {"ei-destill-tower"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-medium-destilate", amount = 45},
+            {type = "fluid", name = "ei-medium-destilate", amount = 45, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-heavy-destilate", amount_min = 33,amount_max=37},
-            {type = "fluid", name = "ei-kerosene", amount_min = 33,amount_max=37},
+            {type = "fluid", name = "ei-heavy-destilate", amount_min = 33,amount_max=37, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "ei-kerosene", amount_min = 33,amount_max=37, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -245,14 +245,14 @@ data:extend({
     {
         name = "ei-destill-heavy",
         type = "recipe",
-        category = "ei-destill-tower",
+        categories = {"ei-destill-tower"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-heavy-destilate", amount = 35},
+            {type = "fluid", name = "ei-heavy-destilate", amount = 35, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-lube-destilate", amount_min = 23,amount_max=27},
-            {type = "fluid", name = "heavy-oil", amount_min = 23,amount_max=27},
+            {type = "fluid", name = "ei-lube-destilate", amount_min = 23,amount_max=27, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "fluid", name = "heavy-oil", amount_min = 23,amount_max=27, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -263,13 +263,13 @@ data:extend({
     {
         name = "ei-destill-lube",
         type = "recipe",
-        category = "ei-destill-tower",
+        categories = {"ei-destill-tower"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-lube-destilate", amount = 25},
+            {type = "fluid", name = "ei-lube-destilate", amount = 25, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "lubricant", amount_min = 8,amount_max=12},
+            {type = "fluid", name = "lubricant", amount_min = 8,amount_max=12, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
             {type = "item", name = "ei-coke", amount = 1},
         },
         always_show_made_in = true,

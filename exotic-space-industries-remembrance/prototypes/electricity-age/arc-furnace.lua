@@ -39,7 +39,7 @@ data:extend({
     {
         name = "ei-arc-furnace",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -365,14 +365,14 @@ data:extend({
     {
         name = "ei-molten-iron-ore",
         type = "recipe",
-        category = "ei-arc-smelting",
+        categories = {"ei-arc-smelting"},
         energy_required = 0.33,
         ingredients = {
             {type = "item", name = "ei-poor-iron-chunk", amount = 3},
         },
         results = {
-            {type = "fluid", name = "ei-molten-iron", amount = 15, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.33,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-iron", amount = 15, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.33,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -381,14 +381,14 @@ data:extend({
     {
         name = "ei-molten-iron-pure-ore",
         type = "recipe",
-        category = "ei-arc-smelting",
+        categories = {"ei-arc-smelting"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-iron", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-iron", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-iron", amount = 40, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -397,13 +397,13 @@ data:extend({
     {
         name = "ei-molten-iron-plate",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "iron-plate", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-iron", amount = 10, temperature=900},
+            {type = "fluid", name = "ei-molten-iron", amount = 10, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -413,13 +413,13 @@ data:extend({
     {
         name = "ei-molten-iron-beam",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-iron-beam", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-iron", amount = 20, temperature=900},
+            {type = "fluid", name = "ei-molten-iron", amount = 20, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -429,13 +429,13 @@ data:extend({
     {
         name = "ei-molten-iron-mechanical-parts",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-iron-mechanical-parts", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-iron", amount = 5, temperature=900},
+            {type = "fluid", name = "ei-molten-iron", amount = 5, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -447,14 +447,14 @@ data:extend({
     {
         name = "ei-molten-copper-ore",
         type = "recipe",
-        category = "ei-arc-smelting",
+        categories = {"ei-arc-smelting"},
         energy_required = 0.33,
         ingredients = {
             {type = "item", name = "ei-poor-copper-chunk", amount = 3},
         },
         results = {
-            {type = "fluid", name = "ei-molten-copper", amount = 15, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.33,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-copper", amount = 15, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.33,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -463,14 +463,14 @@ data:extend({
     {
         name = "ei-molten-copper-pure-ore",
         type = "recipe",
-        category = "ei-arc-smelting",
+        categories = {"ei-arc-smelting"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-copper", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-copper", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-copper", amount = 40, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -479,13 +479,13 @@ data:extend({
     {
         name = "ei-molten-copper-plate",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "copper-plate", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-copper", amount = 10, temperature=900},
+            {type = "fluid", name = "ei-molten-copper", amount = 10, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -495,13 +495,13 @@ data:extend({
     {
         name = "ei-molten-copper-beam",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-copper-beam", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-copper", amount = 20, temperature=900},
+            {type = "fluid", name = "ei-molten-copper", amount = 20, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -511,13 +511,13 @@ data:extend({
     {
         name = "ei-molten-copper-mechanical-parts",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-copper-mechanical-parts", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-copper", amount = 5, temperature=900},
+            {type = "fluid", name = "ei-molten-copper", amount = 5, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -529,13 +529,13 @@ data:extend({
     {
         name = "ei-molten-steel-ingot",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "steel-plate", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-steel", amount = 10, temperature=900},
+            {type = "fluid", name = "ei-molten-steel", amount = 10, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -544,13 +544,13 @@ data:extend({
     {
         name = "ei-molten-steel-beam",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-steel-beam", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-steel", amount = 20, temperature=900},
+            {type = "fluid", name = "ei-molten-steel", amount = 20, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -560,13 +560,13 @@ data:extend({
     {
         name = "ei-molten-steel-mechanical-parts",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-steel-mechanical-parts", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-steel", amount = 5, temperature=900},
+            {type = "fluid", name = "ei-molten-steel", amount = 5, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -578,14 +578,14 @@ data:extend({
     {
         name = "ei-molten-gold-pure-ore",
         type = "recipe",
-        category = "ei-arc-smelting",
+        categories = {"ei-arc-smelting"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-gold", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-gold", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-gold", amount = 40, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -594,13 +594,13 @@ data:extend({
     {
         name = "ei-molten-gold-ingot",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-gold", amount = 10, temperature=900},
+            {type = "fluid", name = "ei-molten-gold", amount = 10, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -628,14 +628,14 @@ data:extend({
     {
         name = "ei-molten-lead-pure-ore",
         type = "recipe",
-        category = "ei-arc-smelting",
+        categories = {"ei-arc-smelting"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-pure-lead", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-lead", amount = 40, temperature=900},
-            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, probability = 0.01,ignored_by_stats=2}
+            {type = "fluid", name = "ei-molten-lead", amount = 40, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "ei-slag", amount_min = 1, amount_max = 2, independent_probability = 0.01,ignored_by_stats=2}
         },
         always_show_made_in = true,
         enabled = false,
@@ -644,13 +644,13 @@ data:extend({
     {
         name = "ei-molten-lead-ingot",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 0.25,
         ingredients = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-lead", amount = 10, temperature=900},
+            {type = "fluid", name = "ei-molten-lead", amount = 10, temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -678,15 +678,15 @@ data:extend({
     {
         name = "ei-molten-carbon-coke",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 5,
         ingredients = {
-            {type = "fluid", name = "ei-molten-glass", amount = 10},
+            {type = "fluid", name = "ei-molten-glass", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "ei-crushed-coke", amount = 20},
         },
         results = {
-            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
-            {type = "item", name = "atan-ash", amount_min = 2, amount_max = 6, probability = 0.90,ignored_by_stats=6}
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "atan-ash", amount_min = 2, amount_max = 6, independent_probability = 0.90,ignored_by_stats=6}
         },
         always_show_made_in = true,
         enabled = false,
@@ -695,15 +695,15 @@ data:extend({
     {
         name = "ei-molten-carbon",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 6,
         ingredients = {
-            {type = "fluid", name = "ei-molten-glass", amount = 10},
+            {type = "fluid", name = "ei-molten-glass", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "carbon", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
-            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 3, probability = 0.60,ignored_by_stats=3}
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
+            {type = "item", name = "atan-ash", amount_min = 1, amount_max = 3, independent_probability = 0.60,ignored_by_stats=3}
         },
         always_show_made_in = true,
         enabled = false,
@@ -712,14 +712,14 @@ data:extend({
     {
         name = "ei-coal-gas-carbon-dioxide",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "ei-carbon-dioxide", amount = 20},
+            {type = "fluid", name = "ei-carbon-dioxide", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "carbon", amount = 1},
         },
         results = {
-            {type = "fluid", name = "ei-coal-gas", amount = 20},
+            {type = "fluid", name = "ei-coal-gas", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -728,13 +728,13 @@ data:extend({
     {
         name = "ei-molten-carbon-reheat",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "ei-molten-carbon", amount = 10},
+            {type = "fluid", name = "ei-molten-carbon", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950},
+            {type = "fluid", name = "ei-molten-carbon", amount = 10,temperature=950, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,
@@ -743,13 +743,13 @@ data:extend({
     {
         name = "ei-molten-carbon-symbiote-reheat",
         type = "recipe",
-        category = "ei-arc-furnace",
+        categories = {"ei-arc-furnace"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10},
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
-            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=950},
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10,temperature=950, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         always_show_made_in = true,
         enabled = false,

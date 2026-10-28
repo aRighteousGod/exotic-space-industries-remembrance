@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-matter-stabilizer",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 4,
         ingredients =
         {
@@ -146,7 +146,7 @@ data:extend({
     {
         name = "ei-matter-stabilizer-running",
         type = "recipe",
-        category = "ei-matter-stabilizer",
+        categories = {"ei-matter-stabilizer"},
         energy_required = 1000,
         ingredients = {},
         results = {},

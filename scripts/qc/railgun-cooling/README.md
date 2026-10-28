@@ -1,5 +1,18 @@
 # Railgun inserter and coolant regression
 
+Current upgrade acceptance uses `scripts/qc/factorio-2.1/stage_railgun.py` with
+a new short run path. Select `--version 2.0 --mode donor` for the preserved donor,
+default 2.1 fresh mode for current native checks, or `--mode migration` to adopt
+the donor. `save_checkpoint.py` waits for `railgun-baseline.zip` or
+`railgun-accepted.zip`; reload mode verifies another 600 ticks and saves
+`railgun-reloaded.zip`. The fixture uses insulated fluoroketone lines, separates
+native connected segments from private helper buffers, and compares all 296
+helper identities plus populated coolant and pending heat-debt state on adoption.
+Cold/hot native capacities must remain 30/60 and cooled shots convert 10/10.
+The 2.1 API needs no gameplay bridge or private remote interface in the shipped mod.
+
+The commands and historical results below target the original 2.0 fixture.
+
 Run `scripts/invoke-esir-dev.ps1 -Task qc-fast` first to refresh the dependency seed,
 then run these commands from the repository root:
 

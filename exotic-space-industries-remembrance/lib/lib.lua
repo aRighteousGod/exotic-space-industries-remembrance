@@ -398,6 +398,59 @@ function ei_lib.get_item_prototypes()
     end
 end
 
+---Move the physical player, explicitly leaving 2.1 remote view first.
+---@param player LuaPlayer
+---@param position MapPosition
+---@param surface LuaSurface
+---@return boolean
+function ei_lib.teleport_physical_player(player, position, surface)
+    if not player or not player.valid then return false end
+    if player.controller_type == defines.controllers.remote then player.exit_remote_view() end
+    if player.controller_type == defines.controllers.remote then return false end
+    return player.teleport(position, surface)
+end
+
+---Resolve a data-stage item without assuming that science packs are tools.
+---@param name string
+---@return data.ItemPrototype|nil
+function ei_lib.get_item_prototype(name)
+    for item_type in pairs(defines.prototypes.item) do
+        local prototype = data.raw[item_type] and data.raw[item_type][name]
+        if prototype then return prototype end
+    end
+end
+
+---Discover science from research and lab inputs, retaining ESIR's tool packs.
+---Recomputed at the caller's data stage so later integrations are included.
+---@return table<string, data.ItemPrototype>
+function ei_lib.get_science_prototypes()
+    local names, science = {}, {}
+    for _, technology in pairs(data.raw.technology) do
+        for _, ingredient in pairs(technology.unit and technology.unit.ingredients or {}) do
+            names[ingredient.name or ingredient[1]] = true
+        end
+    end
+    for _, lab in pairs(data.raw.lab) do
+        for _, name in pairs(lab.inputs or {}) do names[name] = true end
+    end
+    for name in pairs(data.raw.tool or {}) do names[name] = true end
+    for name in pairs(names) do
+        local prototype = ei_lib.get_item_prototype(name)
+        if prototype then science[name] = prototype end
+    end
+    return science
+end
+
+---@param item data.ItemPrototype|LuaItemPrototype
+---@param categories string[]
+---@return boolean
+function ei_lib.item_has_fuel_category(item, categories)
+    for _, category in pairs(item.fuel_categories or {}) do
+        if ei_lib.table_contains_value(categories, category) then return true end
+    end
+    return false
+end
+
 function ei_lib.get_quality_prototypes()
     if prototypes and prototypes.quality then
         return prototypes.quality
@@ -938,6 +991,18 @@ function ei_lib.fix_recipe(recipe,results)
 end
 
 
+-- blueprint-ref: .codex/esir/blueprints/recipe-economy.md#fluid-buffers
+-- Data stage only. Quality-enabled games use native 2.1 recipe buffers; retain
+-- the old capacity floor only for a future configuration without Quality.
+---@param legacy_multiplier number|nil Explicit authored 2.0 value, or nil for its default.
+---@param output boolean|nil Fluid product rather than ingredient.
+---@return number|nil
+function ei_lib.recipe_fluidbox_multiplier(legacy_multiplier, output)
+    if mods["quality"] then return legacy_multiplier end
+    if output then return legacy_multiplier or 2 end
+    return (legacy_multiplier or 2) - 1
+end
+
 -- add new ingredient with variability to recipe output (made for ash, slag, trace mineral chunks)
 --[[]
 args = {["recipe"],["type"],["ingredient"],["amountmin"],
@@ -976,19 +1041,21 @@ function ei_lib.recipe_output_add(args)
 
     if fluid then typus = "fluid" end
     if amount and not amountmax and not probability and not allowproductivity then  --guaranteed each time
-        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount = amount})
+        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount = amount, fluidbox_multiplier = typus == "fluid" and ei_lib.recipe_fluidbox_multiplier(nil, true) or nil})
     elseif amountmin and amountmax and probability > 0 and probability < 1 and not allowproductivity then --min_max between
-        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount_min = amountmin, amount_max = amountmax})
+        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount_min = amountmin, amount_max = amountmax, fluidbox_multiplier = typus == "fluid" and ei_lib.recipe_fluidbox_multiplier(nil, true) or nil})
     elseif amountmin and amountmax and probability > 0 and probability < 1 and not allowproductivity then --min_max between, probability
-        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount_min = amountmin, amount_max = amountmax, probability = _probability})
+        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount_min = amountmin, amount_max = amountmax, independent_probability = _probability, fluidbox_multiplier = typus == "fluid" and ei_lib.recipe_fluidbox_multiplier(nil, true) or nil})
     elseif amountmin and amountmax and probability > 0 and probability < 1 and allowproductivity then--min_max between, probability, affected by productivity
-        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount_min = amountmin, amount_max = amountmax, probability = _probability, allow_productivity = allowproductivity})
+        table.insert(data.raw.recipe[recipe].results, {type = typus, name = ingredient, amount_min = amountmin, amount_max = amountmax, independent_probability = _probability, allow_productivity = allowproductivity, fluidbox_multiplier = typus == "fluid" and ei_lib.recipe_fluidbox_multiplier(nil, true) or nil})
     else
         log("recipe "..recipe.." ingredient "..ingredient.." probability cannot be 0")
         return
     end
 end
 
+-- blueprint-ref: .codex/esir/blueprints/recipe-economy.md#fluid-buffers
+-- Native 2.1 buffers are preferred with Quality; the shared policy owns fallback sizing.
 -- add new ingredient in recipe
 function ei_lib.recipe_add(recipe, ingredient, amount, fluid)
     -- amount is optional if not give default to 1
@@ -1005,7 +1072,8 @@ function ei_lib.recipe_add(recipe, ingredient, amount, fluid)
     local typus = "item"
     if fluid then typus = "fluid" end
 
-    table.insert(data.raw.recipe[recipe].ingredients, {type = typus, name = ingredient, amount = amount})
+    table.insert(data.raw.recipe[recipe].ingredients, {type = typus, name = ingredient, amount = amount,
+        fluidbox_multiplier = fluid and ei_lib.recipe_fluidbox_multiplier() or nil})
 end
 
 
@@ -1047,11 +1115,7 @@ function ei_lib.recipe_new(recipe, table_in, category, opts)
         return
     end
     if category then
-      if data.raw.recipe[recipe].category then
-        data.raw.recipe[recipe].category = category
-        else
-        log("recipe "..recipe.." does not have a category field, cannot set category to "..category)
-      end
+      data.raw.recipe[recipe].categories = {category}
     end
     if opts.clear_difficulty_variants then
       data.raw.recipe[recipe].normal = nil
@@ -2008,7 +2072,7 @@ function ei_lib.debug_crafting_categories()
 
             info.recipes = {}
             for _, recipe in pairs(data.raw.recipe) do
-                if recipe.category == name then
+                if ei_lib.table_contains_value(recipe.categories or {"crafting"}, name) then
                     if not (ei_lib.starts_with(recipe.name, "fill-") or ei_lib.starts_with(recipe.name, "empty-")) then
                         table.insert(info.recipes, recipe.name)
                     end

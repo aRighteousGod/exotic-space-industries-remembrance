@@ -57,7 +57,7 @@ data:extend({
     icon_draw_specification = {shift = {0, -0.1}},
     icons_positioning =
     {
-      {inventory_index = defines.inventory.furnace_modules, shift = {0, 0.8}}
+      {inventory_index = defines.inventory.crafter_modules, shift = {0, 0.8}}
     },
     allowed_effects = {"consumption", "speed", "productivity", "pollution", "quality"},
     crafting_categories = {"smelting"},

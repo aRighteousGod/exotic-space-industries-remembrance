@@ -71,7 +71,7 @@ data:extend({
 	{
 		name = "ei-black-hole-exotic-age-tech",
 		type = "recipe",
-		category = "ei-nano-factory",
+		categories = {"ei-nano-factory"},
 		energy_required = 240,
 		ingredients = {
 			{ type = "item", name = "ei-clean-plating", amount = 25 },
@@ -90,7 +90,7 @@ data:extend({
 				name = "ei-neutron-container",
 				amount_min = 5,
 				amount_max = 10,
-				probability = 0.96,
+				independent_probability = 0.96,
 				ignored_by_stats = 10,
 			},
 		},
@@ -151,7 +151,7 @@ data:extend({
 	{
 		name = "ei-crushed-promethium-asteroid-chunk",
 		type = "recipe",
-		category = "ei-crushing",
+		categories = {"ei-crushing"},
 		energy_required = 20,
 		ingredients = {
 			{ type = "item", name = "promethium-asteroid-chunk", amount = 1 },
@@ -167,14 +167,14 @@ data:extend({
 	{
 		name = "ei-exotic-matter",
 		type = "recipe",
-		category = "centrifuging",
+		categories = {"centrifuging"},
 		energy_required = 1,
 		ingredients = {
 			{ type = "item", name = "ei-exotic-ore", amount = 1 },
 		},
 		results = {
-			{ type = "item", name = "ei-exotic-matter-up", amount_min = 1, amount_max = 2, probability = 0.25 },
-			{ type = "item", name = "ei-exotic-matter-down", amount_min = 1, amount_max = 2, probability = 0.25 },
+			{ type = "item", name = "ei-exotic-matter-up", amount_min = 1, amount_max = 2, independent_probability = 0.25 },
+			{ type = "item", name = "ei-exotic-matter-down", amount_min = 1, amount_max = 2, independent_probability = 0.25 },
 		},
 		always_show_made_in = true,
 		enabled = false,

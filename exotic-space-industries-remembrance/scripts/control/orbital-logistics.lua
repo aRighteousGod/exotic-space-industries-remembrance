@@ -2515,7 +2515,8 @@ local function try_launch_uplink_job(cohort, uplink_record, job, registry, curre
     return false
   end
 
-  local ok, launched = pcall(silo.launch_rocket, silo, {
+  -- LuaEntity methods are already bound; the first argument is the destination.
+  local ok, launched = pcall(silo.launch_rocket, {
     type = defines.cargo_destination.station,
     station = destination_hub,
   })

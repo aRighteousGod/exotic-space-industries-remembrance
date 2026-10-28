@@ -181,7 +181,7 @@ for _, weapon in ipairs(surveyor_weapons) do
     recipes[#recipes + 1] = {
         name = weapon.name,
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = weapon.recipe_time,
         ingredients = weapon.ingredients,
         results = {{type = "item", name = weapon.name, amount = 1}},

@@ -50,7 +50,7 @@ script.on_init(function()
     entity.kills=17
     entity.damage_dealt=1234
     entity.orientation=0.35
-    storage.pipe=surface.create_entity{name="pipe",position=entity.fluidbox.get_pipe_connections(1)[1].target_position,force="player"}
+    storage.pipe=surface.create_entity{name="pipe",position=entity.get_fluid_box_pipe_connections(1)[1].target_position,force="player"}
     entity.set_fluid(1,{name="ei-diesel",amount=7,temperature=60})
     entity.set_priority_target(1,"small-biter")
     entity.ignore_unprioritised_targets=true
@@ -135,10 +135,12 @@ script.on_event(defines.events.on_tick,function(event)
     if event.tick==65 then
         local ghost=storage.surface.find_entities_filtered{position={-80,0},type="entity-ghost"}[1]
         check("ghost-normalized",ghost.ghost_name==catalog.base_turret and ghost.quality.name=="rare" and ghost.tags.flame_qc=="retained")
-        storage.report.fluids={source=storage.original.get_fluid(1),pipe=storage.pipe.get_fluid(1)}
+        storage.report.fluids={source=storage.original.get_fluid(1),pipe=storage.pipe.get_fluid(1),segment=storage.original.get_fluid_segment_fluid(1)}
         check("rollback-original-valid",storage.original.valid)
         check("rollback-buffer",storage.original.get_fluid(2).name=="heavy-oil" and storage.original.get_fluid(2).amount==5)
-        check("rollback-connected-supply",storage.original.get_fluid(1).amount==7 and storage.pipe.get_fluid(1).amount==7)
+        check("rollback-connected-supply",storage.original.get_fluid_segment_fluid(1).amount==7
+            and storage.original.get_fluid(1).amount+storage.pipe.get_fluid(1).amount==7
+            and storage.original.get_fluid(1).temperature==60 and storage.pipe.get_fluid(1).temperature==60)
         check("rollback-wire",storage.original.get_wire_connector(defines.wire_connector_id.circuit_red).connection_count==1)
         check("rollback-no-extra-turrets",#storage.surface.find_entities_filtered{type="fluid-turret"}==12)
         remote.call("esir-flame-qc","fail",false)
@@ -149,11 +151,12 @@ script.on_event(defines.events.on_tick,function(event)
         local entity=turret({0,10})
         check("buffer-before-supply",entity.name==(config.enabled and catalog.by_fluid["heavy-oil"].turret or catalog.base_turret))
         check("quality-health-stats",entity.quality.name=="rare" and entity.health==321 and entity.kills==17 and entity.damage_dealt==1234)
-        check("both-fluid-storages",entity.get_fluid(1).name=="ei-diesel" and entity.get_fluid(1).amount==7 and entity.get_fluid(1).temperature==60 and entity.get_fluid(2).amount==5)
-        check("connected-supply-preserved",storage.pipe.get_fluid(1).amount==7 and storage.pipe.get_fluid(1).temperature==60)
+        check("both-fluid-storages",entity.get_fluid(1).name=="ei-diesel" and entity.get_fluid(1).temperature==60 and entity.get_fluid(2).amount==5)
+        check("connected-supply-preserved",entity.get_fluid_segment_fluid(1).amount==7
+            and entity.get_fluid(1).amount+storage.pipe.get_fluid(1).amount==7 and storage.pipe.get_fluid(1).temperature==60)
         check("wire-and-condition",entity.get_wire_connector(defines.wire_connector_id.circuit_red).connection_count==1 and entity.get_control_behavior().circuit_condition.constant==5)
         check("priority",entity.get_priority_target(1).name=="small-biter" and entity.ignore_unprioritised_targets)
-        entity.set_fluid(2,nil)
+        entity.clear_fluid(2)
         turret({80,40}).order_deconstruction(game.forces.player)
         storage.stable_count=s.counters.replaced
     elseif event.tick==360 then
@@ -163,8 +166,8 @@ script.on_event(defines.events.on_tick,function(event)
         storage.surface.create_entity{name="entity-ghost",inner_name=catalog.base_turret,position={80,40},quality="rare",force="player",expires=false}
         local entity=turret({0,10})
         check("empty-buffer-fallback",entity.name==(config.enabled and catalog.by_fluid["ei-diesel"].turret or catalog.base_turret))
-        entity.set_fluid(1,nil)
-        entity.set_fluid(2,nil)
+        entity.clear_fluid(1)
+        entity.clear_fluid(2)
         storage.empty_unit=entity.unit_number
         storage.stable_count=s.counters.replaced
         storage.stable_checks=s.counters.checks
@@ -217,5 +220,6 @@ script.on_event(defines.events.on_tick,function(event)
         storage.report.status=s
         storage.report.all_pass=true
         helpers.write_file("flamethrower-qc.json",helpers.table_to_json(storage.report),false)
+        log("FLAMETHROWER NATIVE COMPLETE")
     end
 end)

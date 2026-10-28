@@ -848,8 +848,8 @@ data:extend({
     {
         name = NAME,
         type = "recipe",
-        category = "crafting-with-fluid",
-        additional_categories = {"electronics-with-fluid"},
+        categories = {"crafting-with-fluid", "ei-electronics-with-fluid"},
+        
         energy_required = 90,
         surface_conditions =
         {
@@ -860,7 +860,7 @@ data:extend({
             }
         },
         ingredients = {
-            {type = "fluid", name = "ei-oxygen-difluoride", amount = 500},
+            {type = "fluid", name = "ei-oxygen-difluoride", amount = 500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
             {type = "item", name = "laser-turret", amount = 8},
             {type = "item", name = "ei-crystal-accumulator", amount = 1},
             {type = "item", name = "ei-sus-plating", amount = 250},

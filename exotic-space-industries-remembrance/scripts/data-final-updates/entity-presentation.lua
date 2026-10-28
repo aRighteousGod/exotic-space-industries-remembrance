@@ -348,8 +348,8 @@ local function append_entity_inventory_setup(lines, variable_name, opts)
         end
         fluid = fluid .. "}"
 
-        lines[#lines + 1] = "if " .. variable_name .. " and " .. variable_name .. ".valid and " .. variable_name .. ".fluidbox then"
-        lines[#lines + 1] = "  pcall(function() " .. variable_name .. ".fluidbox[" .. tostring(tonumber(index) or 1) .. "] = " .. fluid .. " end)"
+        lines[#lines + 1] = "if " .. variable_name .. " and " .. variable_name .. ".valid and " .. variable_name .. ".fluids_count >= " .. tostring(tonumber(index) or 1) .. " then"
+        lines[#lines + 1] = "  pcall(function() " .. variable_name .. ".set_fluid(" .. tostring(tonumber(index) or 1) .. ", " .. fluid .. ") end)"
         lines[#lines + 1] = "end"
     end
 
@@ -400,7 +400,7 @@ local function append_entity_inventory_setup(lines, variable_name, opts)
 
     if opts.active == true then
         lines[#lines + 1] = "if " .. variable_name .. " and " .. variable_name .. ".valid then"
-        lines[#lines + 1] = "  pcall(function() " .. variable_name .. ".active = true end)"
+        lines[#lines + 1] = "  pcall(function() " .. variable_name .. ".disabled_by_script = false end)"
         lines[#lines + 1] = "end"
     end
 end

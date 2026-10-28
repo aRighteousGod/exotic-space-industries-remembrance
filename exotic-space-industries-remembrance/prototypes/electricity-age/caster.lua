@@ -33,7 +33,7 @@ data:extend({
     {
         name = "ei-caster",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {
@@ -178,10 +178,10 @@ data:extend({
     {
         name = "ei-cast-iron-ingot",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 1.7,
         ingredients = {
-            {type = "fluid", name = "ei-molten-iron", amount = 10},
+            {type = "fluid", name = "ei-molten-iron", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "iron-plate", amount = 1},
@@ -194,10 +194,10 @@ data:extend({
     {
         name = "ei-cast-copper-ingot",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 1.7,
         ingredients = {
-            {type = "fluid", name = "ei-molten-copper", amount = 10},
+            {type = "fluid", name = "ei-molten-copper", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "copper-plate", amount = 1},
@@ -210,10 +210,10 @@ data:extend({
     {
         name = "ei-cast-lead-ingot",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 1.7,
         ingredients = {
-            {type = "fluid", name = "ei-molten-lead", amount = 10},
+            {type = "fluid", name = "ei-molten-lead", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-lead-ingot", amount = 1},
@@ -226,10 +226,10 @@ data:extend({
     {
         name = "ei-cast-gold-ingot",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 1.7,
         ingredients = {
-            {type = "fluid", name = "ei-molten-gold", amount = 10},
+            {type = "fluid", name = "ei-molten-gold", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-gold-ingot", amount = 1},
@@ -242,10 +242,10 @@ data:extend({
     {
         name = "ei-cast-steel-ingot",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 1.7,
         ingredients = {
-            {type = "fluid", name = "ei-molten-steel", amount = 10},
+            {type = "fluid", name = "ei-molten-steel", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "steel-plate", amount = 1},
@@ -259,11 +259,11 @@ data:extend({
     {
         name = "ei-cast-carbon",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 1.7,
         ingredients = {
-            {type = "fluid", name = "ei-molten-carbon", amount = 10},
-            {type = "fluid", name = "steam", amount = 100, minimum_temperature=500},
+            {type = "fluid", name = "ei-molten-carbon", amount = 10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "steam", amount = 100, minimum_temperature=500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "carbon", amount = 1},
@@ -276,11 +276,11 @@ data:extend({
     {
         name = "ei-molten-carbon-symbiote-casting",
         type = "recipe",
-        category = "ei-casting",
+        categories = {"ei-casting"},
         energy_required = 4,
         ingredients = {
-            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10, minimum_temperature=900},
-            {type = "fluid", name = "steam", amount = 100, minimum_temperature=500},
+            {type = "fluid", name = "ei-molten-carbon-symbiote", amount = 10, minimum_temperature=900, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "steam", amount = 100, minimum_temperature=500, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type = "item", name = "ei-carbon", amount = 1},

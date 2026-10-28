@@ -1,8 +1,19 @@
+--==============================================================================
+-- ESIR FILE MAP
+-- owns: vanilla technology routing, effects, prerequisites and retained progression
+-- loaded_by: scripts/data-updates/vanilla-patches.lua
+-- cadence: data updates only
+-- storage_roots: none
+--==============================================================================
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
+-- blueprint-ref: .codex/esir/blueprints/research-and-progression.md#platform-travel
 local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
 
 --TECHS
 ------------------------------------------------------------------------------------------------------
+-- Personal rocket travel follows the native 2.1 planet-discovery effects.
+-- Rocket silo unlocks platform creation without granting character travel.
 ---
 ---make automation obey tech multiplier
 local auto_tech = ei_lib.raw.technology["automation"]
@@ -326,10 +337,10 @@ ei_lib.raw.item["nuclear-fuel"] = {
     stack_size=20,
     fuel_top_speed_multiplier=1.25,
 }
+ei_lib.raw.recipe["nuclear-fuel-reprocessing"].categories = {"chemistry"}
 ei_lib.raw.recipe["nuclear-fuel-reprocessing"] = {
     localised_name = {"recipe-name.ei-depleted-uranium-fuel-cell"},
     subgroup = "ei-nuclear-processing",
-    category="chemistry"
     
 }
 ei_lib.raw.item["depleted-uranium-fuel-cell"] = {
@@ -347,11 +358,11 @@ ei_lib.remove_unlock_recipe("nuclear-power","uranium-fuel-cell")
 ei_lib.raw.recipe["nuclear-fuel-reprocessing"] = {
     ingredients = {
         {type="item",name="depleted-uranium-fuel-cell",amount=1},
-        {type="fluid",name="ei-nitric-acid",amount=15}
+        {type="fluid",name="ei-nitric-acid",amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
     },
     results = {
-        {type="item",name="ei-nuclear-waste",amount=1,probability=0.33},
-        {type="fluid",name="ei-nitric-acid-uranium-235",amount=15}
+        {type="item",name="ei-nuclear-waste",amount=1,independent_probability = 0.33},
+        {type="fluid",name="ei-nitric-acid-uranium-235",amount=15, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)}
     },
     main_product = "ei-nitric-acid-uranium-235",
 }

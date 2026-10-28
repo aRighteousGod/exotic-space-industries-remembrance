@@ -162,7 +162,7 @@ def water(path):
 parser = argparse.ArgumentParser()
 parser.add_argument("kind", choices=("orbital", "emerald", "tesla", "water"))
 parser.add_argument("baseline", type=Path)
-parser.add_argument("candidate", type=Path)
+parser.add_argument("candidate", type=Path, nargs="?", help="Omit for one-report acceptance without a parity claim")
 parser.add_argument("--report-baseline-failures", action="store_true",
                     help="Orbital only: retain existing failed assertions in an exact report comparison; acceptance remains false.")
 args = parser.parse_args()
@@ -172,6 +172,10 @@ check = {"orbital": orbital, "emerald": emerald, "tesla": tesla, "water": water}
 if args.report_baseline_failures:
     check = lambda path: orbital(path, report_baseline_failures=True)
 old, old_summary = check(args.baseline)
+if args.candidate is None:
+    print(json.dumps({"kind": args.kind, "report": str(args.baseline), "validation": old_summary,
+        "comparison_performed": False}, indent=2))
+    raise SystemExit(0)
 new, new_summary = check(args.candidate)
 assert old == new, "Baseline/candidate runtime snapshots differ; inspect reports before accepting."
 assert old_summary == new_summary, "Baseline/candidate acceptance results differ."

@@ -27,7 +27,7 @@ data:extend({
     {
         name = "ei-fluid-boiler",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 2,
         ingredients =
         {

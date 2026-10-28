@@ -255,7 +255,7 @@ data:extend({
     {
         type = "sprite",
         name = "ei-lava-ground-patch",
-        filename = "__space-age__/graphics/terrain/water-transitions/lava-patch.png",
+        filename = "__space-age__/graphics/terrain/lava-transitions/lava-patch.png",
         width = 64,
         height = 64
     }

@@ -18,7 +18,7 @@ data:extend({
     {
         name = "ei-burner-assembler",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {

@@ -22,7 +22,7 @@ data:extend({
     {
         name = "ei-exotic-assembler",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 4,
         ingredients =
         {
@@ -32,11 +32,11 @@ data:extend({
             {type="item", name="ei-eu-circuit", amount=4},
             {type="item", name="ei-eu-magnet", amount=5},
             {type="item", name="quantum-processor", amount=6},
-            {type = "fluid", name = "fluoroketone-cold", amount = 100},
+            {type = "fluid", name = "fluoroketone-cold", amount = 100, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         results = {
             {type="item", name="ei-exotic-assembler", amount=1},
-            {type = "fluid", name = "fluoroketone-hot", amount = 33},
+            {type = "fluid", name = "fluoroketone-hot", amount = 33, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier(nil, true)},
         },
         enabled = false,
         always_show_made_in = true,

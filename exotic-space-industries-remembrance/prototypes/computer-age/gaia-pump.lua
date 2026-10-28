@@ -16,7 +16,7 @@ data:extend({
     {
         name = "ei-gaia-pump",
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 1,
         ingredients =
         {

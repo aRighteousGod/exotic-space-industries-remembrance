@@ -2,7 +2,7 @@
 -- Doeworks bridge for ESIR modular rocket ordnance
 --====================================================================================================
 
-if not mods["doeworks-deer"] then
+if not mods["doeworks-deer-continued"] then
     return
 end
 
@@ -12,8 +12,8 @@ local nitric_acid_icon = ei_graphics_fluid_path .. "nitric-acid.png"
 local cryodust_icon = ei_graphics_item_2_path .. "cryodust.png"
 local uranium_235_icon = "__base__/graphics/icons/uranium-235.png"
 local plutonium_icon = ei_graphics_item_path .. "plutonium-239.png"
-local deer_ammo_icon = "__doeworks-deer__/graphics-smol/icons/deer-ammo-basic-icon.png"
-local deer_crate_icon = "__doeworks-deer__/graphics-smol/icons/deer-crate-basic-icon.png"
+local deer_ammo_icon = "__doeworks-deer-continued__/graphics-smol/icons/deer-ammo-basic-icon.png"
+local deer_crate_icon = "__doeworks-deer-continued__/graphics-smol/icons/deer-crate-basic-icon.png"
 local rocket_items_path = ei_temporary_rocket_item_path
 local deer_ammo_basic_direct_icon = rocket_items_path .. "dw-deer-ammo-basic.png"
 local deer_ammo_corrosive_direct_icon = rocket_items_path .. "dw-deer-ammo-corrosive.png"

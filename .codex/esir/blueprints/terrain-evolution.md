@@ -114,9 +114,12 @@ At most one due surface is visited per service with a 600-tick target per surfac
 Only atomic daytime_parameters is owned. Twilight widths are preserved with
 2 percent minimum full-day/full-night clamps. Rotation, brightness, solar
 multipliers and travel routes remain untouched. Fulgora is never acquired,
-written or restored. Known diurnal-dynamics ownership yields automatically;
+written or restored. Known diurnal-dynamics-fork ownership yields automatically;
 unexpected tuple changes suspend control. Disablement restores matching owned
-tuples only. TerrainEvolution/TerrainEvolution2 suspend overlapping ecology.
+tuples only. ESIR declares both TerrainEvolution and TerrainEvolution2 incompatible.
+Its integrated ecology remains available. Configuration repair clears the old
+external-mod compatibility cache and resolves existing surface preferences again;
+it preserves generated terrain, stored recovery records and explicit overrides.
 
 <a id="hazards"></a>
 ## Optional hazards

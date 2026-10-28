@@ -3,9 +3,9 @@ local ei_lib = require("lib/lib")
 --FUEL CATEGORIES
 ------------------------------------------------------------------------------------------------------
 
-ei_lib.raw.item["rocket-fuel"].fuel_category = "ei-rocket-fuel"
+ei_lib.raw.item["rocket-fuel"].fuel_categories = {"ei-rocket-fuel"}
 
-ei_lib.raw.item["nuclear-fuel"].fuel_category = "ei-nuclear-fuel-cell"
+ei_lib.raw.item["nuclear-fuel"].fuel_categories = {"ei-nuclear-fuel-cell"}
 
 --ITEM SUBGROUPS
 ------------------------------------------------------------------------------------------------------

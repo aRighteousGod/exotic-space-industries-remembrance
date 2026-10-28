@@ -81,7 +81,7 @@ data:extend({
     {
         name = name,
         type = "recipe",
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = 3,
         ingredients = {
             {type = "item", name = "ei-iron-mechanical-parts", amount = 8},

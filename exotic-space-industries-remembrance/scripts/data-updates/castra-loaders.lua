@@ -1,6 +1,6 @@
 --originally by @Samario for Exotic Industries: Loaders (2.0 Port) 
 -- return if castra is not present
-if not mods["castra"] then return end
+if not mods["castra-prime"] then return end
 
 ei_loaders_lib = require("lib/loaders")
 ei_lib = require("lib/lib")
@@ -23,14 +23,14 @@ data:extend({
     {
         name = "ei-military-loader",
         type = "recipe",
-        category = "crafting-with-fluid",
+        categories = {"crafting-with-fluid"},
         energy_required = 2,
         ingredients =
         {
             {type="item", name="ei-fast-loader", amount=2},
             {type="item", name="nickel-plate", amount=15},
             {type="item", name="engine-unit", amount=5},
-			{type="fluid", name="lubricant", amount=10}
+            {type="fluid", name="lubricant", amount=10, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()}
         },
         results = {{type="item", name="ei-military-loader", amount=1}},
         enabled = false,

@@ -33,9 +33,13 @@ The top-level dispatcher supplies one event and budget to `updater`; the module 
 
 Phases, including enriched fermentation, drainage, bloom, and rest, reconcile actual machine state before advancing. Tile changes refresh relevant claims and placement regions. Entity/object destruction removes claims, proxies, pending work, and sessions; surface deletion also tears down guides and surface ownership. Cursor, position, surface, alt-mode, and player-leave events maintain placement rendering without a broad player scan. Rebuild repairs world-derived ownership and orphan telemetry proxies.
 
-Drain checks resolve each live fluidbox with `LuaFluidBox.get_prototype(index)`,
+Drain checks resolve each live fluid storage with `LuaEntity.get_fluid_box_prototype(index)`,
 including merged prototype lists. Recipe-active indices do not necessarily match
 the full entity prototype array; runoff must clear before advancing to bloom.
+The 2.1 owner reads/writes indexed contents with `get_fluid`, `set_fluid` and
+`clear_fluid`, using `fluids_count` for bounds. Script disabling uses
+`disabled_by_script`; production state, basin claims and the dispatcher remain owned
+by the same records and lifecycle hooks.
 
 <a id="field-production"></a>
 ## Field production

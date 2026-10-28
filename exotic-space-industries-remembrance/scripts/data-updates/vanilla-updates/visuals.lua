@@ -1,6 +1,6 @@
 local ei_lib = require("lib/lib")
 
-ei_lib.raw.tool["electromagnetic-science-pack"].pictures = {
+ei_lib.raw.item["electromagnetic-science-pack"].pictures = {
 layers = {
     {
         filename = ei_graphics_3_path.."graphics/items/fulgora-science-vial.png",
@@ -17,7 +17,7 @@ layers = {
 }
 }
 
-ei_lib.raw.tool["promethium-science-pack"].pictures = {
+ei_lib.raw.item["promethium-science-pack"].pictures = {
 layers = {
     {
         filename = ei_graphics_3_path.."graphics/items/promethium-science-vial.png",
@@ -34,7 +34,7 @@ layers = {
 }
 }
 
-ei_lib.raw.tool["cryogenic-science-pack"].pictures = {
+ei_lib.raw.item["cryogenic-science-pack"].pictures = {
 layers = {
     {
         filename = ei_graphics_3_path.."graphics/items/aquilo-science-vial.png",
@@ -51,7 +51,7 @@ layers = {
 }
 }
 
-ei_lib.raw.tool["metallurgic-science-pack"].pictures = {
+ei_lib.raw.item["metallurgic-science-pack"].pictures = {
 layers = {
     {
         filename = ei_graphics_3_path.."graphics/items/vulcanus-science-vial.png",
@@ -68,7 +68,7 @@ layers = {
 }
 }
 
-ei_lib.raw.tool["agricultural-science-pack"].pictures = {
+ei_lib.raw.item["agricultural-science-pack"].pictures = {
 layers = {
     {
         filename = ei_graphics_3_path.."graphics/items/gleba-science-vial.png",
@@ -125,8 +125,8 @@ for name, definition in pairs(items) do
         if ei_lib.raw.technology[name] then
             ei_lib.raw.technology[name][property] = value
         end
-        if ei_lib.raw.tool[name] then
-            ei_lib.raw.tool[name][property] = value
+        if ei_lib.get_item_prototype(name) then
+            ei_lib.get_item_prototype(name)[property] = value
         end
     end
 end

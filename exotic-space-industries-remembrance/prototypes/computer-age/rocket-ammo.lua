@@ -44,7 +44,7 @@ local function make_recipe(name, energy_required, ingredients, results, extra)
     local recipe = {
         type = "recipe",
         name = name,
-        category = "crafting",
+        categories = {"crafting"},
         energy_required = energy_required,
         ingredients = ingredients,
         results = results,
@@ -806,14 +806,14 @@ data:extend({
             {type = "item", name = "ei-rocket-warhead-explosive", amount = 1},
             {type = "item", name = "sulfur", amount = 4},
             {type = "item", name = "ei-ceramic", amount = 2},
-            {type = "fluid", name = "ei-nitric-acid", amount = 30},
-            {type = "fluid", name = "ei-bio-oil", amount = 20},
+            {type = "fluid", name = "ei-nitric-acid", amount = 30, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
+            {type = "fluid", name = "ei-bio-oil", amount = 20, fluidbox_multiplier = ei_lib.recipe_fluidbox_multiplier()},
         },
         {
             {type = "item", name = "ei-rocket-warhead-corrosive", amount = 1},
         },
         {
-            category = "chemistry",
+            categories = {"chemistry"},
             crafting_machine_tint = {
                 primary = {r = 0.22, g = 0.62, b = 0.18, a = 1},
                 secondary = {r = 0.12, g = 0.35, b = 0.08, a = 1},
