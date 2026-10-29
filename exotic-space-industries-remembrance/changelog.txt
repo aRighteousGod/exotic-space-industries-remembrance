@@ -2,12 +2,15 @@
 Version: 1.4.01
 Date: 10-29-2026
   Features:
-    - Added startup settings for quality and productivity modules in nitrogen and alien beacons and an ESIR or vanilla-like quality-module effects. Tightening beacon module permissions returns newly forbidden installed modules beside the affected beacons, preserving their count and quality.
+    - Added startup settings for allowing/forbidding quality and productivity modules in nitrogen and alien beacons. Tightening beacon module permissions returns newly forbidden installed modules beside the affected beacons, preserving their count and quality.
+    - Added a startup setting to select between ESIR and Vanilla Quality module effects.
     - Added diagonal placement to the Acidthrower: eight native placement directions, new diagonal chassis renders, and vanilla pipe overlays joining the manifold to the grid-aligned fluid ports.
   Changes:
     - Made Quality optional.
     - Moved the remaining alert icons, machine status-light overlays and cryogenic mist artwork into Graphics 6 without changing their image data. Requires Graphics 6 version 1.1.1 or later; the main pack retains its Mod Portal thumbnail.
   Bugfixes:
+    - Fixed that Enhanced Walls setting overrides were applied to the original mod and not the forked mod id.
+    - Fixed that Atan Ash setting override was applied to the original mod and not the forked mod id.
     - Safely repair obsolete quality references in admin selections and placement jobs, remembered spider ammunition filters, and orbital scanner caches when Quality is removed.
     - Fixed tier-2 acid neutralisation adding its Metallurgic science requirement to the shared Computer Age research costs, which could make Metallurgic science and its prerequisite technologies require the science pack they unlock.
     - Fixed oversized Deer artillery rocket icons in Alt mode for all five ammunition types and their uncrating recipes.
