@@ -11,7 +11,7 @@ from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[3]
 GEN=ROOT/'.codex/esir/asset-generators/alert-icons'
-SHIP=ROOT/'exotic-space-industries-remembrance/graphics/gui/alerts'
+SHIP=ROOT/'exotic-space-industries-remembrance-graphics-6/graphics/gui/alerts'
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--stage',type=Path,required=True)
 parser.add_argument('--rendered-stage',type=Path,required=True)
@@ -56,7 +56,10 @@ for set_id,current in (('svg',stage),('rendered',rendered_stage),('vanilla',args
     check(len(pixels)==27,set_id+' all icons distinct')
 original=json.loads((GEN/'sources/original/manifest.json').read_text())
 for path,digest in original['files'].items():
-    check(generator.digest(ROOT/path)==digest,'Original retained: '+path)
+    # The archival manifest retains its original paths; only shipping ownership moved.
+    current_path=path.replace('exotic-space-industries-remembrance/graphics/',
+                              'exotic-space-industries-remembrance-graphics-6/graphics/',1)
+    check(generator.digest(ROOT/current_path)==digest,'Original retained: '+path)
 def rejected(arguments,phrase):
     result=subprocess.run([sys.executable,'-B',str(GEN/'generate.py'),*arguments],cwd=ROOT,capture_output=True,text=True)
     check(result.returncode!=0 and phrase in result.stderr,'rejected: '+phrase)

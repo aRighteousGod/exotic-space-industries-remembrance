@@ -1,9 +1,25 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.4.01
+Date: 10-29-2026
+  Features:
+    - Added startup settings for quality and productivity modules in nitrogen and alien beacons and an ESIR or vanilla-like quality-module effects. Tightening beacon module permissions returns newly forbidden installed modules beside the affected beacons, preserving their count and quality.
+    - Added diagonal placement to the Acidthrower: eight native placement directions, new diagonal chassis renders, and vanilla pipe overlays joining the manifold to the grid-aligned fluid ports.
+  Changes:
+    - Made Quality optional.
+    - Moved the remaining alert icons, machine status-light overlays and cryogenic mist artwork into Graphics 6 without changing their image data. Requires Graphics 6 version 1.1.1 or later; the main pack retains its Mod Portal thumbnail.
+  Bugfixes:
+    - Safely repair obsolete quality references in admin selections and placement jobs, remembered spider ammunition filters, and orbital scanner caches when Quality is removed.
+    - Fixed tier-2 acid neutralisation adding its Metallurgic science requirement to the shared Computer Age research costs, which could make Metallurgic science and its prerequisite technologies require the science pack they unlock.
+    - Fixed oversized Deer artillery rocket icons in Alt mode for all five ammunition types and their uncrating recipes.
+    - Fixed production status lenses drawing over foreground characters and flying mechs.
+    - Fixed cryo-container loading errors when another mod changes a contained fluid's temperature range, including both Space Age Galore ammonia and ammoniacal-solution overrides; filling and emptying now use the same valid default temperature when the original temperature becomes invalid.
+---------------------------------------------------------------------------------------------------
 Version: 1.4.0
-Date: 10-27-2026
+Date: 10-28-2026
   Changes:
     - Ported main development to Factorio 2.1.23. ESIR 1.3.41 remains the final Factorio 2.0 release.
     - Adopted Nonstandard Beacons Continued and selected 2.1 dependency continuations, with explicit Quality and Recycler dependencies.
+    - Marked original Nonstandard Beacons incompatible; use Nonstandard Beacons Continued with ESIR.
     - Preserved authored recipe machine access, recycling yields and timings, independent resource byproducts, fuel eligibility and ash policy while adapting the 2.1 prototype and runtime APIs.
     - External TerrainEvolution and TerrainEvolution2 are now incompatible. ESIR's integrated ecology remains available and clears stale external-mod compatibility flags while retaining surface preferences.
     - Crystal-return recipes now return exactly one crystal through mutually exclusive outcomes at their existing probability splits; productivity cannot duplicate that return. Alien computer-age science still consumes two high-energy crystals, permanently spending one and returning the other at 98% high-energy / 2% ordinary.
@@ -11,6 +27,7 @@ Date: 10-27-2026
     - Adopted native 2.1 quality scaling for all locomotive and wagon tiers, and finer module-effect precision while retaining authored base values and penalties.
     - Kept native 2.1 rocket-silo quality speedups; launch pollution and exhaust timing now follow native ignition and clamp release without changing the calculated pollution total.
     - Adopted native 2.1 recipe fluid buffers with Quality enabled, providing the additional input batch and larger output sizing floor without changing recipe costs or yields.
+    - Removed unused temporary train and superseded gatling artwork from Graphics 2 and 3; relocated the unchanged shared ammunition sticker spark out of the old acid-flame folder.
   Bugfixes:
     - Preserved electric mining drill upgrades with Construction Drones Forked by applying its vanilla drill collision policy to the Advanced and Superior drills.
     - Corrected the orbital uplink's native launch arguments so a loaded, ready leased silo can dispatch its cargo to the selected platform.

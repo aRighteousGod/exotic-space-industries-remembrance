@@ -5,6 +5,19 @@ Publication is owned by the user. Optional migration exclusions and evidence
 limits below remain explicit. Machine-readable reconciliation is in
 [RELEASE_RECONCILIATION.json](RELEASE_RECONCILIATION.json).
 
+The subsequent [requested graphics cleanup](GRAPHICS_RETIREMENT.md) removes six
+unused sheets and relocates two unchanged retained sprites. It is a source-only
+follow-up; main ESIR and Graphics 2, 3 and 5 need rebuilt ZIPs before that cleanup
+is included in an installed or published candidate.
+
+The subsequent [Computer Age science-cost repair](RESEARCH_SCIENCE_COST_REGRESSION.md)
+is accepted in 1.4.1 source. It isolates tier-2 acid neutralisation's science
+ingredients, removing an accidental Metallurgic requirement from 206 technologies
+while preserving 29 intended requirements in the tested core configuration.
+The four startup-setting combinations and native lab/save/reload checks pass;
+the report and JSON record exact scope, versions and evidence. This follow-up
+requires the user's rebuild and does not amend the historical 1.4.0 ZIP hashes.
+
 ## Release contract and preservation
 
 The approved target is Factorio 2.1.23 and ESIR 1.4.0 under the existing identity.
@@ -66,7 +79,7 @@ content saves retain their preserved 2.0 installation.
 | Rocket launch emissions and plumes | Native silo quality speedups; keep configured pollution totals and align effects to actual phases | All five qualities retain native modifiers 0.2/0.45/0.15. Emissions begin at ignition, plume begins 239 ticks after clamp release. 45 cases / 374,714 checks, 24 inspected native frames, in-flight reload, real 2.0 ignition/ascent migration and second reload pass. |
 | Beacons | Adopt NSBC with preserved state/orientation/source UI/guarded rotation; two ESIR replacement families and overload behavior | NSBC core replacement, eight custody handoffs, overload 4 → 5 → 4, 128 blueprint transforms, guarded native/editor rotation, source panels, robot/platform construction, six ruined repairs and legacy migration/reload pass. Whole-world ownership finds 131 sources/262 helpers and zero orphans. Real peer disconnect/rejoin and the rebuilt NSBC ZIP also pass. |
 | Working audio | Preserve ESIR's authored working-sound envelope while porting soundtrack bindings | A final data pass copies ESIR sound tables and makes omitted fades explicitly 0/0, retaining authored overrides and progress-matched audio. Native core23 audit covers 26,253 shared working sounds and reports zero ESIR fade differences. No audio-listening claim. |
-| Cross-mod integration | Selected required forks, optional dispositions, overlap/daylight ownership and asset/remote/settings updates | 23 verified required/transitive ZIPs load with the core. Air Scrubber/Ash fixes and all 50 optional dispositions are recorded. Twelve optional roots pass a combined 48-archive final-ZIP smoke. K2 is deferred by user choice, with no ammonia-temperature exception; optional progression/save migration remains unaccepted unless separately stated. |
+| Cross-mod integration | Selected required forks, optional dispositions, overlap/daylight ownership and asset/remote/settings updates | 23 verified required/transitive ZIPs load with the core. Air Scrubber/Ash fixes and all 50 optional dispositions are recorded. Twelve optional roots pass a combined 48-archive final-ZIP smoke. K2 remains deferred; the later generic cryo-temperature fix has isolated fixture coverage, not full K2 acceptance. Optional progression/save migration remains unaccepted unless separately stated. |
 | Documentation and locale | Conceptual models, source comments and all eight locales | Conceptual owners and source comments are reconciled for implemented changes. Ecology incompatibility and new train quality guidance cover all eight locales while preserving existing prose. Current syntax, keys, duplicates, requires, headers and blueprint checks pass. Historical test-log encoding and independent native-language certification are explicitly separate. |
 | Packaging and release | Own continuations, six graphics/two soundtracks, main; actual ZIP tests/publication | All 12 current candidate ZIPs passed a combined 35-archive exact-engine load, fresh save, 600 ticks and final-data crystal audit. Rebuilt main 1.4.0 includes the approved transport-quality policy and all eight locales; final ZIP data verifies every ESIR locomotive/cargo/fluid quality flag. Media are 1.1.0 and continuations 1.0.0. Nothing published. |
 
@@ -416,6 +429,8 @@ Selected required replacements are ArmouredBiters21Compat 2.0.7, air-scrubber
 enhanced-walls-continued 1.0.0 and zzz-nonstandard-beacons-continued 1.0.0.
 The latter uses published PEREL 1.2.2. Upstream Nonstandard Beacons remains an
 assessed alternative, but its published release requires unpublished PEREL 1.2.3.
+ESIR explicitly declares `! zzz-nonstandard-beacons`: the original mod must be
+disabled for this configuration. The Continued dependency remains unchanged.
 
 Package inspection corrects the proposed Deer GPL-only description: its original
 `licence.txt` assigns remixed Factorio/Space Age graphics to Factorio terms, sounds
@@ -451,8 +466,19 @@ boarding a rocket. Cargo launches and remote platform construction are unchanged
 
 The first native smoke pass has now attempted all 45 selected optional roots:
 42 pass and three remain unsupported. The user explicitly deferred K2 support for
-1.4.0 after its ammonia temperature conflict; core recipes retain -35 degrees and
-no K2 temperature/balance exception is applied. K2 saves stay on preserved 2.0.
+1.4.0 after its ammonia temperature conflict. A subsequent generic cryo-container
+fix reconciles invalid paired transfer temperatures against the actual final fluid,
+including renamed fluids; native core ammonia still transfers at -35 degrees.
+This focused fix does not accept full K2 progression or save migration. K2 saves
+stay on preserved 2.0 pending that review. See [CRYO_TEMPERATURE_COMPATIBILITY.md](CRYO_TEMPERATURE_COMPATIBILITY.md).
+The later player report identifies Space Age Galore as the ammoniacal-solution
+trigger. Its inspected source applies the matching 15-100 degree range in the
+initial data stage; its separate ammonia override uses 15-450 degrees. ESIR's
+final-stage correction covers both pairs at 15 degrees when those overrides are
+enabled. The current 1.4.1 source passes a focused native 2.1.23 fixture with both
+exact Galore overrides together: nine conserved fill/empty round trips and three
+wrong-temperature rejection checks. The player's exact package version and full
+Space Age Galore combination have not received native acceptance.
 Cubium still uses removed water-effect texture
 fields; Woodoria's transitive Fruit dependency calls a removed assembler graphics
 helper. Five original families remain in the separately documented port backlog.

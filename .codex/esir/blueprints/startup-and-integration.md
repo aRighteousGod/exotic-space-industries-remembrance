@@ -39,6 +39,11 @@ with the fork, effective mask equality and actual fast replacement through both
 tiers; the ordinary core configuration must retain its previous final data.
 
 <a id="scrubber"></a>
+Data-stage quality-variant patches require the companion's supported Quality
+integration and actual generated prototypes. Runtime rebuild returns immediately
+when these variants are absent, avoiding a no-Quality world scan. Ordinary scrubber
+changes and operation remain active.
+
 ### Air Scrubber 0.2.9 quality repair
 
 The published fork's build filter names a nonexistent entity, so ESIR normalizes

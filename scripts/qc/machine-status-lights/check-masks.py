@@ -12,7 +12,7 @@ repo = Path(__file__).resolve().parents[3]
 root = run / 'lens-art'
 manifest = root / 'manifest.json'
 rows = json.loads(manifest.read_text(encoding='utf-8'))['records']
-shipping = repo / 'exotic-space-industries-remembrance/graphics/status-lights'
+shipping = repo / 'exotic-space-industries-remembrance-graphics-6/graphics/status-lights'
 assert len(rows) == 23 and len({r['name'] for r in rows}) == 20
 assert {p.name for p in shipping.glob('*.png')} == {r['file'] for r in rows}
 sources = set()

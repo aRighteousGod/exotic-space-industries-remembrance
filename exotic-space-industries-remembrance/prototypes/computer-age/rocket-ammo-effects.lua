@@ -8,7 +8,7 @@ local util = require("util")
 
 local plasma_explosion_sheet = ei_graphics_other_path .. "plasma-explosion.png"
 local plasma_explosion_frame_size = {1944 / 6, 1248 / 3}
-local spark_sheet = ei_graphics_3_path .. "graphics/entities/acid-turret/acid-flame/spark.png"
+local spark_sheet = ei_graphics_3_path .. "graphics/effects/stickers/spark.png"
 local smoke_sheet = "__base__/graphics/entity/fire-smoke/fire-smoke.png"
 local smoke_glow_sheet = "__base__/graphics/entity/fire-smoke/fire-smoke-glow.png"
 local stream_spine_sheet = "__base__/graphics/entity/flamethrower-fire-stream/flamethrower-fire-stream-spine.png"

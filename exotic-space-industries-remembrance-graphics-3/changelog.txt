@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2026-10-28
+  Changes:
+    - Updated for Factorio 2.1.23.
+    - Removed the superseded gatling turret sheets; current turret artwork remains in Graphics 6.
+    - Moved the shared ammunition sticker spark into graphics/effects/stickers and retired the obsolete acid-flame directory.
+    - Moved the retained legacy nuclear locomotive light cone to Graphics 5 beside the other locomotive artwork.
+    - Removed development Python scripts from the shipping pack for Mod Portal upload compatibility.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.4
 Date: 2026-4-11
   Changes:

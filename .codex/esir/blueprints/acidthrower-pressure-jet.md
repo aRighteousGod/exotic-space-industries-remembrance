@@ -19,8 +19,9 @@ feature adds no runtime handler, persistent state, migration or public setting.
 
 All revision-03 machine sheets, liquid effects and item/research icons belong to
 `exotic-space-industries-remembrance-graphics-6`. Gameplay definitions remain in
-the main pack. Only shared ordnance `spark.png` remains in the old Graphics-3
-acid-flame folder; active rocket and exotic-ammunition stickers consume it.
+the main pack. Shared ordnance `spark.png` lives at Graphics-3
+`graphics/effects/stickers/spark.png`; active rocket and exotic-ammunition
+stickers consume it. The obsolete acid-flame directory is retired.
 The original three machine gun sheets and their superseded animation/model
 builders are retired. Construct the turret with its revision-03 graphics before
 registration; no transient original sprite tables remain in `acid.lua`.
@@ -39,9 +40,23 @@ width 0.1. Supported `particle_scale_per_part=1` replaces the obsolete
 `particle_end_scale` assignment on the turret stream. The jet uses normal
 blending, wet highlights and separate shadows without an added area light.
 
-The existing 9–38 tile range, 96-degree aiming sector, rotation speed, machine
-graphics, placement shifts, secondary draw order, sound and active-only machine
-glow remain owned by the existing turret definition and graphics module.
+The existing 9–38 tile range, 96-degree aiming sector, rotation speed, placement
+shifts, secondary draw order, sound and active-only machine glow remain owned by
+the turret definition and graphics module. Eight-way placement uses the native
+`building-direction-8-way` flag. The cardinal ports, graphics and shifts remain
+exact; NE supplies `alt_position`/`alt_direction` for west at `{-1,0}` and south
+at `{0,1}`, with the other diagonals quarter-turned by the engine.
+
+Four additional diagonal base sheets cover NE/SE/SW/NW. Their body, shadow,
+glow and neutral owner-mask passes retain the revision-03 preset and scale.
+Native straight pipe sprites sit beneath the diagonal chassis at the inner port
+tile centers, without the body's 0.18-tile shift. The chassis hides their inner
+ends; native covers hide when pipes connect. No custom silver pipe meshes are
+shipped. All seven original cardinal/head PNGs remain byte-identical.
+The shared 256-direction head sheets use eight placement-specific bearing and
+muzzle-center shifts. Native circuit connectors have eight entries, retaining
+the existing cardinal definitions. Placed rotation follows the vanilla fluid
+turret's footprint constraints; it is not a scripted 45-degree rotation loop.
 
 The native muzzle uses barrel length `0.854090101414` and projected height
 `0.886152416900 * sqrt(0.5)`. One rotating origin fits all nine user-selected
@@ -135,7 +150,7 @@ combined-DPS increase. Record that correction separately from ordinary parity.
 
 ## Verification
 
-`scripts/invoke-acid-jet-qc.ps1` runs isolated Factorio 2.0.77 fixtures on D:.
+`scripts/invoke-acid-jet-qc.ps1 -LegacyReplay` retains the historical isolated Factorio 2.0.77 fixtures on D:.
 Its helper exports a focused final-data snapshot through `mod-data`, including
 source, resolved and alias streams, turret, sticker and retained poison fallback.
 It asserts the absence of the ten retired legacy fire/smoke/stream prototypes. It compares old/new native flight, stationary damage and fluid use
@@ -155,7 +170,7 @@ measures actual green pixels against the grey outlet across twelve poses.
 Clean/marked captures are different emission phases: compare matching phases,
 and preserve deliberate cadence gaps instead of adding particles to hide them.
 
-Visual fixtures cover four placement facings, nominal ranges 9/24/38, centre and
+Historical visual fixtures cover four placement facings, nominal ranges 9/24/38, centre and
 sector edges, daylight/night, moving targets, retargeting and shutdown. Tiny
 inward range/angle tolerances and actual target/launch coordinates are recorded;
 nominal edge labels must not conceal non-firing cases. Source script effects
@@ -166,3 +181,11 @@ first landing and shutdown uses the last landing after emission stops.
 muzzle attachment, fine rotation, active glow and adjacent-pipe draw order.
 The asset generator dossier records native width/bow measurements, unchanged
 seven machine-image hashes, effect generation, gallery and replay commands.
+
+Current eight-way validation is owned by `scripts/qc/acid-eight-way/` and its
+runner. It uses exact Factorio 2.1.23, current final data, all five performance
+profiles, actual native pipe targets and fluid transfer, native rotation and
+fast replacement, player placement, blueprint transforms, robot construction,
+and reload receipts. Combat samples use actual ranges 9.2/24/37.8 and angles
+-47.9/0/+47.9 degrees. Native rendering is separate from headless assertions;
+report the selected graphics quality and any unperformed coverage explicitly.

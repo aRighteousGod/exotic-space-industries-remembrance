@@ -27,7 +27,7 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 - Runtime count and spatial utility:
   `count_sequence`, `get_surface_index`, `get_chunk_coordinate`, `get_chunk_coordinates`, `get_chunk_coverage`, `is_within_range_squared`
 - Item/quality/stack adapters:
-  `get_item_prototypes`, `get_quality_prototypes`, `get_quality_level_bounds`, `try_get_stack_field`, `copy_localised_string`, `get_quality_name`, `make_item_with_quality_id`, `make_item_stack_definition`, `entity_can_take_health_damage`
+  `get_item_prototypes`, `get_quality_prototypes`, `get_prototype_name`, `is_valid_signal_id`, `get_quality_level_bounds`, `try_get_stack_field`, `copy_localised_string`, `get_quality_name`, `make_item_with_quality_id`, `make_item_stack_definition`, `entity_can_take_health_damage`
 - Prototype and raw access:
   `modify_data_raw`, `raw`, `recursive_copy`, `recursive_insert`, `set_properties`, `set_custom_tooltip_fields`
 - Localization and prototype text:
@@ -41,11 +41,11 @@ rg -n '^function ei_lib\.' exotic-space-industries-remembrance/lib/lib.lua
 
 ## House Notes
 
-- Recipe fluid helpers retain 2.0 storage sizes under native 2.1 semantics:
-  `recipe_add` supplies input multiplier 1, and `recipe_output_add` supplies
-  output multiplier 2. These fields size storage; they do not change consumed or
-  produced amounts. Inputs use one extra native batch in 2.1. Preserve explicit
-  authored overrides deliberately and verify generated final recipes.
+- Recipe fluid helpers use `recipe_fluidbox_multiplier`: with Quality they retain
+  authored multipliers or native 2.1 defaults; without Quality they retain the
+  existing legacy-capacity correction (default input 1/output 2). These fields
+  size storage without changing consumed or produced quantities. Verify generated
+  final recipes under the selected configuration.
 
 - `startswith` and `starts_with` already both exist. Do not add a third spelling.
 - Follow [runtime development standards](../../esir-dev/references/runtime-development-standards.md) before consolidating hot helpers: mutation, allocation, stage and ordering semantics must match. Current `lerp_color` and `rgb_to_hex` each have one definition.

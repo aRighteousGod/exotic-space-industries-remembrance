@@ -6,7 +6,7 @@ for _,id in ipairs(sets.builtin_ids) do
         local signal=assert(data.raw["virtual-signal"][sets.signal_name(id,entry.id)])
         local directory=id=="original" and "" or id.."/"
         assert(signal.hidden and signal.icon_size==128)
-        assert(signal.icon=="__exotic-space-industries-remembrance__/graphics/gui/alerts/"..directory..entry.id..".png")
+        assert(signal.icon=="__exotic-space-industries-remembrance-graphics-6__/graphics/gui/alerts/"..directory..entry.id..".png")
         count=count+1
     end
 end

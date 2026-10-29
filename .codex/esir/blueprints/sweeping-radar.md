@@ -1,10 +1,24 @@
 <a id="contract"></a>
+<!-- Quality removal also uses this owner's normal bounded control/observation lanes. -->
 # Sweeping radar paid observations, quality, reports, and GUI
 
 <a id="admin-repair"></a>
 ## Admin repair
 
 `repair_runtime_state` prunes invalid owners, reconciles existing helpers, and discovers missing radar records. Existing manual geometry, paid jobs, output/contact buffers, trigger history and valid stored helper energy survive.
+
+## Quality configuration changes
+
+On a Quality configuration change, an already-paid observation retains its numeric
+geometry, effective settings, rate, cost, hostile set and captured batch until that
+observation finishes or reaches an existing timeout/cancellation boundary.
+`quality_refresh_pending` keeps its old force epoch pending while allowing only
+that paid job through the existing observation lane. Once the job clears, no second
+observation can enter with old capabilities: the next bounded control visit adopts
+current native quality and uses the normal reset path. Manual settings changes,
+explicit stop, freeze, deconstruction and owner destruction retain their existing
+cancellation behavior. Unpaid work refreshes immediately; no periodic quality scan
+or additional scheduler is introduced.
 
 ## Implementation sources
 

@@ -1,7 +1,7 @@
 # ESIR alert icon sets
 
 All 27 catalogue identities have four built-in art sets. Their 108 shipping PNGs
-remain in the main gameplay mod's `graphics/gui/alerts/`, not Graphics 6. The shared
+ship in Graphics 6 under `graphics/gui/alerts/`. The shared
 handler selects artwork per player without changing alert identity or permissions.
 
 | Set | Shipping PNGs | Durable sources |
@@ -89,7 +89,7 @@ python -B scripts/qc/alerts/icon-assets.py --stage output/alert-icons/svg `
   --work-dir output/alert-icons/export-checks
 ```
 
-The audit covers all 108 main-mod assets, source types and hashes, selector/signals,
+The audit covers all 108 Graphics 6 assets, source types and hashes, selector/signals,
 catalogue settings and native-call ownership. Export fixtures cover reproducibility
 and invalid promotions. Native `scripts/qc/alerts/icon-visual/` fixtures remain
 separate evidence. Report static, native screenshot and multiplayer coverage

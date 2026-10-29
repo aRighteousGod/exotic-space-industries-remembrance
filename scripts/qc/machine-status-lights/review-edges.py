@@ -36,7 +36,7 @@ for scene in scenes:
                         cy = atlas.height / 2 + (row['position'][1] + offset[1]) * 32 * zoom
                         left, top = math.floor(cx) - 32, math.floor(cy) - 32
                         rgb = np.array(atlas.crop((left, top, left + 64, top + 64)).convert('RGB'), dtype=float)
-                        alpha = Image.open(repo / 'exotic-space-industries-remembrance/graphics/status-lights' / lens['file']).getchannel('A')
+                        alpha = Image.open(repo / 'exotic-space-industries-remembrance-graphics-6/graphics/status-lights' / lens['file']).getchannel('A')
                         inverse = 1 / (scale * zoom)
                         coverage = np.array(alpha.transform((64, 64), Image.Transform.AFFINE,
                             (inverse, 0, 32 + (left - cx) * inverse,

@@ -100,7 +100,7 @@ data:extend({
         collision_box = {{-1.3,-1.3},{1.3,1.3}},
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
         map_color = ei_data.colors.assembler,
-        allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
+        allowed_effects = require("lib/module-policy-config").allowed_effects("nitrogen"),
         fast_replaceable_group = "ei-nitrogen-beacon",
         heating_energy = "200kW",
         next_upgrade = "ei-iron-beacon",

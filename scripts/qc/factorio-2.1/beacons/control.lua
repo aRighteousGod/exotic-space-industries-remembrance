@@ -65,6 +65,12 @@ script.on_init(function()
     for _, entity in ipairs(surface.find_entities()) do entity.destroy() end
     storage.surface=surface
     storage.results={}
+    storage.rates={}
+    for index, name in ipairs({"ei-copper-beacon", "ei-iron-beacon"}) do
+        local body=surface.create_entity{name=name,position={-60,index*12},force="player",raise_built=true}
+        fill(body)
+        storage.rates[index]={entity=body, expected=index*5}
+    end
     storage.machine=surface.create_entity{name="assembling-machine-3",position={0,0},force="player",raise_built=true}
     storage.copper={}
     for index, position in ipairs({{-4,0},{4,0},{0,-4},{0,4}}) do
@@ -93,6 +99,11 @@ script.on_event(defines.events.on_tick,function(event)
         check(#storage.alien.get_module_inventory()==10,"Warp has ten slots")
         storage.alien.get_module_inventory().insert{name="speed-module",count=2}
     elseif event.tick==60 then
+        for _, row in ipairs(storage.rates) do
+            local source=record(row.entity).source
+            check(source.status==defines.entity_status.working,"controlled depletion source operating")
+            row.start=source.get_fluid(1).amount
+        end
         local state=overload()
         check(state.machine.weighted_count==5 and state.machine.overloaded and storage.machine.disabled_by_script,"Iron weight triggers actual overload")
         storage.copper[1]=upgrade(storage.copper[1],"ei-copper-beacon","normal",2)
@@ -103,6 +114,12 @@ script.on_event(defines.events.on_tick,function(event)
         storage.copper[1]=upgrade(storage.copper[1],"ei-iron-beacon","rare",0)
         storage.alien=upgrade(storage.alien,"ei-warp-beacon","rare",0)
     elseif event.tick==120 then
+        for _, row in ipairs(storage.rates) do
+            local source=record(row.entity).source
+            row.measured=row.start-source.get_fluid(1).amount
+            -- Native fluid quantities accumulate floating-point rounding each tick.
+            check(math.abs(row.measured-row.expected)<0.001,"measured nitrogen/s " .. row.entity.name .. ": " .. row.measured)
+        end
         storage.copper[1]=upgrade(storage.copper[1],"ei-copper-beacon","normal",0)
         storage.alien=upgrade(storage.alien,"ei-alien-beacon","normal",0)
     elseif event.tick==150 then
@@ -110,6 +127,7 @@ script.on_event(defines.events.on_tick,function(event)
         storage.done=true
         helpers.write_file("beacons.json",helpers.table_to_json{passed=true,engine=script.active_mods.base,
             overload=overload(),upgrades=storage.results,
+            nitrogen_per_second={copper=storage.rates[1].measured,iron=storage.rates[2].measured},
             limits={"No native player, GUI, blueprint, robot, platform or multiplayer-client acceptance claim"}},false)
         if game.is_multiplayer() then game.server_save("beacons-complete") end
         log("FULL ESIR BEACON QC COMPLETE")

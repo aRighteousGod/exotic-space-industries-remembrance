@@ -40,7 +40,7 @@ local function initialise()
                     local entity = assert(surface.create_entity{name = case.name, position = position, force = "player", direction = direction})
                     if state ~= "idle" and entity.type == "assembling-machine" then entity.set_recipe("machine-light-qc") end
                     if state == "missing-input" and entity.type == "furnace" then
-                        entity.get_inventory(defines.inventory.furnace_source).insert{name = "iron-plate", count = 1}
+                        entity.get_inventory(defines.inventory.crafter_input).insert{name = "iron-plate", count = 1}
                     end
                     if state == "disabled" then entity.disabled_by_script = true end
                     local row = {entity = entity, state = state, source_type = source_type, direction = direction,
@@ -92,7 +92,6 @@ local function initialise()
         storage.brightness_surface = surface
     end
 end
-script.on_init(initialise)
 
 local function feed(row)
     local entity = row.entity
@@ -103,7 +102,7 @@ local function feed(row)
         elseif row.source_type == "heat" then entity.temperature = 1000 end
     end
     if row.state ~= "idle" and row.state ~= "missing-input" then
-        entity.get_inventory(entity.type == "furnace" and defines.inventory.furnace_source or defines.inventory.assembling_machine_input).insert{name = "iron-plate", count = 1}
+        entity.get_inventory(defines.inventory.crafter_input).insert{name = "iron-plate", count = 1}
     end
     local output = entity.get_output_inventory()
     if row.state == "full-output" then
@@ -135,6 +134,12 @@ local function inspect(row)
         valid = (row.entity.direction == row.direction or row.entity.direction == defines.direction.north)
             and accepted[row.state][status] == true and ((row.state ~= "working" and row.state ~= "low-power") or row.advanced)}
 end
+
+if config.overlaps then
+    require("overlap").install(cases, feed, inspect)
+    return
+end
+script.on_init(initialise)
 
 local function capture(scene, variant)
     local evidence = {name = scene.name, tick = game.tick, rows = {}}

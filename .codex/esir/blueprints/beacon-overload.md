@@ -5,6 +5,8 @@
 
 - [beacon-overload.lua](../../../exotic-space-industries-remembrance/scripts/control/beacon-overload.lua)
 - [beacon-profile-config.lua](../../../exotic-space-industries-remembrance/lib/beacon-profile-config.lua)
+- [module-policy-config.lua](../../../exotic-space-industries-remembrance/lib/module-policy-config.lua)
+- [beacon-module-policy.lua](../../../exotic-space-industries-remembrance/scripts/control/beacon-module-policy.lua)
 
 - [copper-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua)
 - [iron-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua)
@@ -14,7 +16,7 @@
 
 Runtime overload is a separate rule from the data-stage diminishing-return curve. `beacon-profile-config` generates the native 4,096-entry profile, settings choices, and matching tooltip parameters; it has no runtime polling. The overload module counts eligible native covering beacons, applies weights/exclusions, and overloads eligible machines when the weighted count exceeds four. `entity.get_beacons()` supplies actual coverage before filtering; a distance-only replacement would change semantics.
 
-`storage.ei.beacon_overload` owns tracked machines/beacons, persisted beacon-to-machine edges, destruction-registration mappings, refresh queues, rule signatures, modes and diagnostic state. `storage.ei.overload_icons` owns render references. State changes affect machine `active` plus owned overload/icon state.
+`storage.ei.beacon_overload` owns tracked machines/beacons, persisted beacon-to-machine edges, destruction-registration mappings, refresh queues, rule signatures, modes and diagnostic state. `storage.ei.overload_icons` owns render references. On Factorio 2.1, state changes use `disabled_by_script` plus owned overload/icon state; release clears only the pause owned by overload. `active` is not the 2.1 actuator.
 
 ```mermaid
 flowchart LR
@@ -38,10 +40,37 @@ The central per-tick fan-out calls `has_tick_work(event)` then `updater(event)`;
 
 Destroy events remove graph relationships while the entity remains valid; object-destroyed registration supplies cleanup when it no longer is. Beacon teleport invalidates old edges before querying the destination, ensuring former neighbors are reconsidered. Configuration refresh compares the persisted rule signature (version 3); unchanged relevant rules avoid an unnecessary world rebuild. Disabling overload clears topology and queues release of owned overloads rather than leaving machines permanently inactive. Ordinary reload preserves queues/topology; a local surface iterator may be reconstructed.
 
+<a id="module-permissions"></a>
+## Module permissions and optional Quality
+
+Quality is optional; Space Age and Recycler remain required. Three startup settings
+control quality-module admission, productivity-module admission, and quality-module
+effects. Each admission setting selects neither family, nitrogen only, Alien/Warp
+only, or both. Copper/Iron form the nitrogen family; Alien/Warp form the other.
+Defaults retain both permissions and ESIR effects. Vanilla-like effects skip ESIR's
+three module-effect overrides while retaining ESIR recipes and research progression.
+
+The config supplies each visible beacon's native allowed effects at declaration.
+Speed, consumption and pollution remain allowed. Positive quality/productivity
+bonuses require the corresponding permission; negative penalties do not require it.
+NSBC sources remain dependency-owned and have no module slots for these beacons.
+The late [description pass](../../../exotic-space-industries-remembrance/scripts/data-final-updates/beacon-profiles.lua)
+and Informatron compose the same localized active policy.
+
+`storage.ei.beacon_module_policy` records the last family permissions. Initialization
+records the current policy. Configuration changes scan only beacon families whose
+permissions tightened; legacy saves without this state are treated as previously
+allowing both effects. Newly forbidden installed modules are spilled beside their
+beacon with native stack quality and metadata preserved, then removed only after
+the returned count is verified. Incomplete restitution fails visibly. Loosening
+permissions and ordinary reload do not scan, and this module schedules no tick work.
+Native beacon restrictions govern subsequent insertion; overload and profile rules
+stay independent. Removed Quality content retains Factorio's native migration.
+
 <a id="verification"></a>
 ## Verification and maintenance
 
-Source inspection only. Reuse the `esir-dev` beacon-overload geometry helper for removal/teleport/native coverage and `scripts/invoke-beacon-profile-qc.ps1` for final native profiles. Validate same-tick multiple beacon removals, silent destruction, oversized collision boxes, ignored machines/beacons, threshold 4 versus 5, disable/re-enable, and reload during a world rebuild. Do not equate native profile effectiveness with the weighted runtime overload count.
+The current 1.4.0/2.1.23 integration is covered by the full-core native beacon, actor, client, ownership and two-client fixtures under `scripts/qc/factorio-2.1`. See [current acceptance](../handoffs/nonstandard-beacons-2.1/CURRENT_ACCEPTANCE.md) for exact candidate evidence and boundaries. The native fixture verifies weighted count 4 to 5 to 4 against actual `disabled_by_script` and recovery. Do not equate native profile effectiveness with the weighted runtime overload count. Historical profile/geometry evidence is retained separately; use version-pinned runners before extending those claims.
 
 <a id="rebuild-reporting"></a>
 ## Rebuild activity reporting
@@ -62,6 +91,10 @@ recipes, costs, ranges, slots, consumption, source lighting, repair event orderi
 both effectiveness systems. Copper to Iron changes overload weight from 1 to 2:
 an upgrade can overload an existing layout. Alien and Warp remain excluded.
 
-Verify both directions, qualities, robot/platform paths, overflow, repaired Alien upgrades
-and the weighted 4-to-5 threshold transition. Refresh the dependency catalog after the
-continuation is adopted in the completed ESIR 2.1 port.
+ESIR 1.4.0 already declares the continuation and these families. The historical deferred
+patch is superseded and must not be reapplied. NSBC schema 2 uses native manager recipe
+events with a persisted owner lookup; it rebuilds disposable controllers during adoption
+without changing ESIR's source resources or overload/profile rules. Eligible upgrades
+retain normal/quality source state; six Alien repair cases run the existing repair event
+ordering before native Alien-to-Warp upgrades. Physical-input coverage remains distinct
+from scripted native actions and actual multiplayer-client evidence.

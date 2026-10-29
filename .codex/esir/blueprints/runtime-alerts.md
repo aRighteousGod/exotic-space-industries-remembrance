@@ -11,7 +11,7 @@
 The stage-safe catalogue owns stable IDs, explicit defaults, icon signals, localized
 settings and display order. Settings generation creates a visible personal boolean
 for every type. Prototypes create hidden signals and a common invisible position
-marker. Four built-in sets provide 108 PNGs in the main mod under
+marker. Four built-in sets provide 108 PNGs in Graphics 6 under
 `graphics/gui/alerts/`: Original at the root, SVG under `svg/`, Rendered under
 `rendered/`, and Vanilla under `vanilla/`. Original files and signal identities remain compatible.
 

@@ -1,0 +1,8 @@
+{
+  "name": "esir-qc-cryo-temperature",
+  "version": "1.0.0",
+  "title": "ESIR cryo temperature compatibility QC",
+  "author": "ESIR QC",
+  "factorio_version": "2.1",
+  "dependencies": ["exotic-space-industries-remembrance >= 1.4.0"]
+}

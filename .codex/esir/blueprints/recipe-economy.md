@@ -54,20 +54,18 @@ capacity contract below rather than retaining the old field value mechanically.
 <a id="fluid-buffers"></a>
 ## Quality-aware fluid buffers
 
-The user approved native 2.1 recipe buffers when Quality is enabled. Main ESIR
-requires Quality: default input capacity therefore changes from two batches to
-four (new multiplier 3 plus one batch), and the default fluid-output sizing floor changes from two batches to
-three. Explicit authored input multiplier 10 remains 10, giving eleven input
-batches under 2.1's `amount * (multiplier + 1)` rule. Larger native fluid volumes
-still dominate. This increases buffering, not recipe costs or yields.
+Quality is optional. With Quality enabled, ESIR uses the approved native 2.1 recipe
+buffers: default inputs hold four batches and the default fluid-output floor is
+three batches. Explicit authored input multiplier 10 remains 10, giving eleven
+batches under `amount * (multiplier + 1)`. Larger native fluid volumes still
+dominate. Buffering changes neither recipe costs nor yields.
 
 `ei_lib.recipe_fluidbox_multiplier(legacy_multiplier, output)` centralizes this
 policy for literal records and generated recipes. With Quality it returns the
 authored explicit value, or nil to inherit the engine default. Without Quality
 it subtracts one from the old input multiplier and retains the old output default
-2. The bounded inherited-recipe module returns immediately when Quality is
-enabled. Its fallback remains available for a deliberately modified dependency
-configuration; removing Quality is not a supported core ESIR configuration.
+2. The bounded inherited-recipe module runs only without Quality, retaining the
+authored fallback in the supported Quality-disabled configuration.
 Ingredients, outputs, temperatures, probabilities, catalysts, productivity and
 recipe durations remain unchanged.
 The locked railgun recipe's separate 15/30 sizing declaration retains its native

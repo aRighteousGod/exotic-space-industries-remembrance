@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([ValidateSet('original','2x','4x','8x','16x')][string[]]$Profiles=@('original','2x','4x','8x','16x'),
-    [switch]$Visual,[switch]$ReuseFixture,[switch]$TestNativeRefresh,
+    [switch]$Visual,[switch]$ReuseFixture,[switch]$TestNativeRefresh,[switch]$LegacyReplay,
     [switch]$ProbeOnly,[switch]$TestAnimationLifetime,
     [switch]$DispersionProbe,[switch]$OriginProbe,[switch]$OriginVariants,
     [ValidateSet('half','short')][string]$OriginVariantSet='half',
@@ -9,6 +9,9 @@ param([ValidateSet('original','2x','4x','8x','16x')][string[]]$Profiles=@('origi
     [ValidateSet('high','medium')][string]$GraphicsQuality='medium')
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
+if(-not $LegacyReplay){
+    throw 'Historical 2.0 pressure-jet calibration requires -LegacyReplay. Current eight-facing art/origin/profile acceptance: scripts/invoke-acid-eight-way-qc.ps1 (Factorio 2.1.23).'
+}
 $seed=if($SeedMods){$SeedMods}else{Join-Path $repo '.factorio-qc/wtr/ports-3x3/mods'}
 $mods=Join-Path $ArtifactRoot 'qc/mods'
 New-Item -ItemType Directory -Path $mods -Force | Out-Null

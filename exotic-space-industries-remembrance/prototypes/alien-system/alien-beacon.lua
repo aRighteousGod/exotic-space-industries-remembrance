@@ -48,7 +48,7 @@ data:extend({
         collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.alien,
-        allowed_effects = {"speed", "consumption", "pollution","quality","productivity"},
+        allowed_effects = require("lib/module-policy-config").allowed_effects("alien"),
         fast_replaceable_group = "ei-alien-beacon",
         next_upgrade = "ei-warp-beacon",
         minable = {
@@ -103,7 +103,7 @@ data:extend({
         collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = ei_data.colors.alien,
-        allowed_effects = {"speed","consumption", "pollution", "quality","productivity"},
+        allowed_effects = require("lib/module-policy-config").allowed_effects("alien"),
         fast_replaceable_group = "ei-alien-beacon",
         minable = {
             mining_time = 60,

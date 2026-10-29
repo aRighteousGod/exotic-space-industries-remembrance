@@ -37,6 +37,12 @@ flowchart LR
 The updater uses `event.tick` for exact retry/smoke buckets and downstream selection/reservation work. Replacement attempts cap at two per tick; unsafe attempts retry after 120 ticks. Smoke admission emits the first pulse immediately, followed by pulses at +60, +120, +180, +240, and +300 ticks; the catalog separately declares a 360-tick duration and an 1,800-tick cooldown. Optional selector refresh intervals are 15 active/60 idle ticks, with eight searches per tick. Reservation expiry is 300 ticks. Remote control entry points may supply a numeric tick and otherwise retain their existing eventless fallback.
 
 <a id="lifecycle"></a>
+Configuration changes and ammunition handoff sanitize remembered stowed-ammunition
+identifiers in placed-vehicle and mined-item records. Removed items or qualities
+clear the invalid identity/filter independently, retaining other valid metadata.
+Native inventories remain authoritative: sanitation never creates, downgrades or
+removes cargo.
+
 ## Lifecycle and invariants
 
 Build/clone/mining/item destruction, research (including coalesced scripted bursts), forces, and external replacement keep stable identities/preferences synchronized. Configuration resets selector/reservation caches, grandfather-migrates only specified old unlocks, discovers world vehicles, and queues desired variants. The transaction guard prevents duplicate ownership during replacement. Compatibility boarding proxies suspend ESIR replacement; ordinary occupants transfer with the replacement transaction, while moving, temporary-effect, construction, and active-logistics states defer. Relative GUI tags identify stable records.

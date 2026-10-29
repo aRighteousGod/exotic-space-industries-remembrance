@@ -28,10 +28,10 @@ flowchart LR
 
 ## Ownership and invariants
 
-- Data-stage `recipe_add` uses fluid input multiplier 1 and `recipe_output_add`
-  uses fluid output multiplier 2. These preserve native 2.0 storage sizes under
-  the [2.1 buffer contract](recipe-economy.md#fluid-buffers) without changing
-  ingredient/result quantities or the public helper signatures.
+- Data-stage fluid recipe helpers use `recipe_fluidbox_multiplier`: Quality-enabled
+  games retain authored multipliers or native 2.1 defaults; Quality-disabled games
+  retain the existing legacy-capacity correction. This changes storage sizing,
+  not ingredient/result quantities. See the [buffer contract](recipe-economy.md#fluid-buffers).
 - `ei_lib.entity_check`, `get_valid_entity`, and `get_entity_unit_number` normalize uncertain runtime handles. A successful key extraction is not an enduring validity guarantee; revalidate after delays or destructive callbacks.
 - `ei_rng.int` and `ei_rng.float` construct a fresh deterministic seed from the caller's name and entropy inputs. There is no serialized generator state. Preserve stable entropy and ordering when changing callers. Current `float` returns the normalized LCG value directly despite accepting minimum/maximum arguments; do not infer scaled-range behavior from the signature.
 - `ei_loaders_lib.on_built_entity`, `snap_loader`, `snap_belt`, and `attempt_snap` derive orientation/type from adjacent entities at build-time. `make_loader` and `addEnergyDraw` are prototype helpers and do not belong in runtime mutation paths.
@@ -45,6 +45,17 @@ These helpers do not register tick callbacks. Timed feature work passes `event.t
 
 <a id="lifecycle"></a>
 ## Lifecycle and compatibility
+
+<a id="signal-identifiers"></a>
+### Serialized prototype and signal identifiers
+
+`ei_lib.get_prototype_name` canonicalizes string/native prototype identifiers,
+checking native validity before reading the name. `ei_lib.is_valid_signal_id`
+validates normalized runtime signal names and optional quality names against
+current catalogs: item, fluid, virtual, entity, recipe, space-location,
+asteroid-chunk and quality. Omitted type/quality mean item/normal. Missing
+prototypes or requested qualities return false rather than changing demand.
+Both helpers are runtime-only, with no state or scheduling.
 
 Shared data/constants survive through normal module reloading rather than persisted Lua locals. Entity and surface caches belong to consumers and must be rebuilt or invalidated through those consumers' configuration and destruction paths. Wheel helper cleanup belongs to steam-train teardown. Loader snapping acts on the current world rather than maintaining another persistent index.
 

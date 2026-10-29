@@ -74,10 +74,12 @@ local function add_status_lights(graphics, pixels, prepend, name)
             apply_tint = "status",
             -- The neutral lens covers the colored face, rim and filtered edge.
             -- Native tint drives both lens and emitter; no-power hides both.
-            render_layer = "light-effect",
+            -- Sort with the machine, below foreground characters and flying
+            -- mechs. light-effect would stamp the opaque lens over both.
+            render_layer = "object",
             secondary_draw_order = 4,
             animation = {
-                filename = "__exotic-space-industries-remembrance__/graphics/status-lights/" .. name:sub(4) .. "-" .. index .. ".png",
+                filename = ei_graphics_6_path.."graphics/status-lights/" .. name:sub(4) .. "-" .. index .. ".png",
                 size = 64,
                 scale = graphics.animation.scale or 1,
                 frame_count = 1,

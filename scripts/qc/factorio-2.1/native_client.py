@@ -57,6 +57,7 @@ def main():
     parser.add_argument("--width", type=int, default=1600)
     parser.add_argument("--height", type=int, default=1000)
     parser.add_argument("--ui-scale", type=float, default=1)
+    parser.add_argument("--graphics-quality", choices=("high", "medium"), default="high")
     args = parser.parse_args()
     assert args.width >= 800 and args.height >= 600 and 0.5 <= args.ui_scale <= 2
     window_size = str(args.width) + "x" + str(args.height)
@@ -87,12 +88,16 @@ def main():
     startup.wShowWindow = 0
     with output.open("w", encoding="utf-8") as log:
         process = subprocess.Popen([str(engine), "--config", str(config), "--mod-directory", str(root / "mods"),
-            "--disable-audio", "--window-size", window_size, "--load-game", os.path.abspath(args.save)], stdout=log, stderr=subprocess.STDOUT,
+            "--disable-audio", "--disable-migration-window", "--graphics-quality", args.graphics_quality, "--window-size", window_size,
+            "--load-game", os.path.abspath(args.save)], stdout=log, stderr=subprocess.STDOUT,
             startupinfo=startup)
         try:
             while time.time() - started < args.timeout:
                 current = output.read_text(encoding="utf-8", errors="replace")
-                if process.poll() is not None or "non-recoverable error" in current:
+                # Missing media opens a native error dialog before map loading; a hidden
+                # client cannot dismiss it and must fail without accepting stale markers.
+                if (process.poll() is not None or "non-recoverable error" in current
+                        or "Error AtlasBuilder.cpp:" in current):
                     raise RuntimeError(current[-6000:])
                 if marker.exists() and marker.stat().st_mtime >= started:
                     result = json.loads(marker.read_text(encoding="utf-8"))
@@ -111,7 +116,7 @@ def main():
                     time.sleep(2)  # Allow queued native screenshots to finish writing.
                     result.update(elapsed_seconds=round(time.time()-started,3), marker=str(marker), log=str(output),
                         engine=str(engine), engine_version="2.1.23", locale=args.locale, ui_scale=args.ui_scale,
-                        audio=False, manual_input=False, rendered_client=True, source_manifest=str(manifest),
+                        audio=False, manual_input=False, rendered_client=True, graphics_quality=args.graphics_quality, source_manifest=str(manifest),
                         source_manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest())
                     result["native_window_geometry"] = native_window_geometry(process.pid)
                     images = []

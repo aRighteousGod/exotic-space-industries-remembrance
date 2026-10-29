@@ -28,6 +28,12 @@ flowchart LR
 Dispatcher step 5 provides the event for each work slice. One update selects and services one work class, marks it served, and reports remaining work. Preserve class fairness, hot/cold cadence, same-surface mirroring, and mixed-key cursor handling. Most helpers accept a numeric tick with a context-free fallback; some platform utility paths still read `game.tick` directly and require review when changing propagation.
 
 <a id="lifecycle"></a>
+Signal normalization and publication validate current signal and quality prototypes.
+Removed identifiers are discarded and stale native section slots are cleared,
+never rewritten as normal-quality requests. A Quality mod change invokes the
+existing full repair path in the central dispatcher before banks may publish:
+all prototype-derived platform caches are rebuilt, independent of audit slice size.
+
 ## Lifecycle and cleanup
 
 Build/removal/settings paste, logistic-slot changes, platform movement, rocket/cargo-pod events, and object-destruction events invalidate specific cache components. Destroy callbacks distinguish a genuinely lost platform from a stale registration for one that still exists. Init/configuration rebuild repairs banks, helper power state, and platform indices. Demand transitions bootstrap newly requested data without eagerly scanning unused components.

@@ -461,6 +461,36 @@ function ei_lib.get_quality_prototypes()
     end
 end
 
+-- blueprint-ref: .codex/esir/blueprints/shared-runtime-helpers.md#signal-identifiers
+---Canonicalize a native prototype identifier before retaining it in saved state.
+---@param identifier string|LuaPrototypeBase|nil
+---@return string|nil
+function ei_lib.get_prototype_name(identifier)
+    if type(identifier) == "string" then return identifier end
+    if (type(identifier) == "table" or type(identifier) == "userdata") and identifier.valid then
+        return identifier.name
+    end
+end
+
+local runtime_signal_catalogs = {
+    item = "item", fluid = "fluid", virtual = "virtual_signal", entity = "entity",
+    recipe = "recipe", ["space-location"] = "space_location",
+    ["asteroid-chunk"] = "asteroid_chunk", quality = "quality",
+}
+
+---Validate serialized signal identifiers against the current runtime prototypes.
+---Callers normalize LuaPrototype objects first; missing demand is never downgraded.
+---@param signal {type:string?,name:string?,quality:string?}|nil
+---@return boolean
+function ei_lib.is_valid_signal_id(signal)
+    if type(signal) ~= "table" or type(signal.name) ~= "string" then return false end
+    local catalog_name = runtime_signal_catalogs[signal.type or "item"]
+    local catalog = catalog_name and prototypes[catalog_name]
+    local quality = signal.quality == nil and "normal" or signal.quality
+    return catalog ~= nil and catalog[signal.name] ~= nil
+        and type(quality) == "string" and prototypes.quality[quality] ~= nil
+end
+
 function ei_lib.get_quality_level_bounds(force_refresh)
     if not force_refresh and quality_level_bounds_cache then
         return quality_level_bounds_cache.min_level, quality_level_bounds_cache.max_level

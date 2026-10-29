@@ -33,7 +33,7 @@ for _, target in ipairs(targets) do
             constant_speed = true,
             render_layer = "higher-object-under",
             animation = {
-                filename = "__exotic-space-industries-remembrance__/graphics/entities/cryo-mist.png",
+                filename = ei_graphics_6_path.."graphics/entities/cryo-mist.png",
                 width = 256,
                 height = 256,
                 frame_count = 60,

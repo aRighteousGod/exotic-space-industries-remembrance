@@ -52,7 +52,13 @@ def main():
         if edge["name"] in packages: edges[edge["from"]].append(edge["name"])
     source=REPO / ".factorio-qc/21/mods"
     core_list=json.loads((source / "mod-list.json").read_text(encoding="utf-8"))
-    core_names={row["name"] for row in core_list["mods"] if row["enabled"]}
+    core_mods={entry["name"]:dict(entry) for entry in core_list["mods"]}
+    assert "quality" in core_mods,"Core profile must explicitly select Quality enabled or disabled"
+    quality_enabled=bool(core_mods["quality"].get("enabled"))
+    core_settings=source / "mod-settings.dat"
+    core_profile={"mods":[core_mods[n] for n in sorted(core_mods)],
+        "settings_sha256":digest(core_settings) if core_settings.is_file() else None}
+    core_profile_sha256=hashlib.sha256(json.dumps(core_profile,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     for row in core_rows:
         target=shared / row["file"]
         if not target.exists(): shutil.copy2(args.audit.parent / "dependencies" / row["file"],target)
@@ -72,14 +78,17 @@ def main():
         for prior_path in prior_paths:
             if not prior_path.exists(): continue
             prior=json.loads(prior_path.read_text(encoding="utf-8"))
-            if prior["passed"] and prior["version"]==row["version"] and prior["package_sha256"]==row["sha256"]:
+            if (prior["passed"] and prior["version"]==row["version"] and prior["package_sha256"]==row["sha256"]
+                and prior.get("core_profile_sha256")==core_profile_sha256):
                 accepted.append(prior)
         if accepted and not args.rerun_selected:
             results.append(max(accepted,key=lambda receipt:receipt["started_utc"]))
             continue
         if receipt_path.exists():
             previous=json.loads(receipt_path.read_text(encoding="utf-8"))
-            if not args.rerun_selected and (previous["passed"] or not args.retry_failed):
+            if (not args.rerun_selected and (previous["passed"] or not args.retry_failed)
+                and previous["version"]==row["version"] and previous["package_sha256"]==row["sha256"]
+                and previous.get("core_profile_sha256")==core_profile_sha256):
                 results.append(previous)
                 continue
             case=root / (f"{index:02d}-retry-"+datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -94,6 +103,8 @@ def main():
             if child in needed: continue
             needed.add(child)
             queue.extend(edges[child])
+        assert quality_enabled or not any(edge["from"] in needed and edge["name"]=="quality"
+            for edge in resolution["required_edges"]),(name,"requires Quality in a Quality-disabled profile")
         for item in [*core_rows,*[packages[n] for n in sorted(needed)]]:
             target=shared / item["file"]
             if not target.exists():
@@ -111,7 +122,12 @@ def main():
         for file in (HERE / "optional-smoke").glob("*.lua"): shutil.copy2(file,fixture / file.name)
         (fixture / "info.json").write_text(json.dumps({"name":fixture.name,"version":"1.0.0","factorio_version":"2.1",
             "title":"ESIR optional smoke","author":"ESIR QC","dependencies":["exotic-space-industries-remembrance",name]}),encoding="utf-8")
-        (mods / "mod-list.json").write_text(json.dumps({"mods":[{"name":n,"enabled":True} for n in sorted(core_names | needed | {fixture.name})]}),encoding="utf-8")
+        selection={n:dict(entry) for n,entry in core_mods.items()}
+        for n in needed | {fixture.name}:
+            selection[n]=dict(selection.get(n,{}),name=n,enabled=True)
+        selection["quality"]=dict(core_mods["quality"],enabled=quality_enabled)
+        (mods / "mod-list.json").write_text(json.dumps({"mods":[selection[n] for n in sorted(selection)]}),encoding="utf-8")
+        if core_settings.is_file():shutil.copy2(core_settings,mods / "mod-settings.dat")
         config=case / "config.ini"
         config.write_text(f"[path]\nread-data={engine.parents[2] / 'data'}\nwrite-data={case}\n[other]\ncheck-updates=false\n",encoding="utf-8")
         source_hashes={str(p.relative_to(REPO)):digest(p) for p in (REPO / "exotic-space-industries-remembrance").rglob("*.lua")}
@@ -120,7 +136,7 @@ def main():
         save=case / "fresh.zip"
         started=time.time()
         receipt={"name":name,"version":row["version"],"package_sha256":row["sha256"],"required_closure":sorted(needed),
-            "settings_overrides":{},
+            "settings_overrides":{},"core_profile_sha256":core_profile_sha256,"core_profile":core_profile,
             "receipt_path":str(receipt_path),
             "started_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"passed":False,
             "scope":"Native create, final crystal assertions and 600 ticks only; progression and migration remain separate"}

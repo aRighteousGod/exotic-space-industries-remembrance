@@ -1,6 +1,6 @@
 {
     "name": "exotic-space-industries-remembrance",
-    "version": "1.4.0",
+    "version": "1.4.01",
     "title": "Exotic Space Industries: Remembrance",
     "author": "aRighteousGod",
     "factorio_version": "2.1",
@@ -11,7 +11,7 @@
         "base >= 2.1.23",
         "informatron",
         "space-age",
-        "quality",
+        "? quality",
         "recycler",
         "elevated-pipes",
         "zeus-wrath",
@@ -37,6 +37,7 @@
         "enhanced-walls-continued >= 1.0.0",
         "SteampunkLamp",
         "~ zzz-nonstandard-beacons-continued >= 1.0.0",
+        "! zzz-nonstandard-beacons",
         "! TerrainEvolution",
         "! TerrainEvolution2",
         "! Railguns-Require-Fluoroketone",
@@ -108,7 +109,7 @@
         "exotic-space-industries-remembrance-graphics-3 >= 1.1.0",
         "exotic-space-industries-remembrance-graphics-4 >= 1.1.0",
         "exotic-space-industries-remembrance-graphics-5 >= 1.1.0",
-        "exotic-space-industries-remembrance-graphics-6 >= 1.1.0",
+        "exotic-space-industries-remembrance-graphics-6 >= 1.1.1",
         "exotic-space-industries-remembrance-soundtrack-1 >= 1.1.0",
         "exotic-space-industries-remembrance-soundtrack-2 >= 1.1.0"
     ]

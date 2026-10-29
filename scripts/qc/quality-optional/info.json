@@ -1,0 +1,8 @@
+{
+  "name": "esir-qc-quality-optional",
+  "version": "0.1.0",
+  "title": "ESIR optional Quality acceptance fixture",
+  "author": "ESIR contributors",
+  "factorio_version": "2.1",
+  "dependencies": ["base", "exotic-space-industries-remembrance", "zzz-nonstandard-beacons-continued", "? quality"]
+}

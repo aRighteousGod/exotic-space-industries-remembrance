@@ -16,7 +16,7 @@ def fit_bearing(scene):
     # Compensate ground-plane foreshortening without stretching the ring that
     # must meet the independently rendered, unmodified rotating head.
     args=preset.parse_args()
-    angle=-((scene.frame_current-1)//args.animation_frames)*math.tau/args.directions
+    angle=-math.radians(args.initial_angle)-((scene.frame_current-1)//args.animation_frames)*math.tau/args.directions
     rotation=Matrix.Rotation(angle,4,'Z')
     for obj,pivot,rest in rigid_parts:
         center=rotation@pivot;center.y*=math.sqrt(2)
@@ -26,7 +26,7 @@ def fit_collars(scene):
     # Ground attachment positions use Factorio's square tile grid; model
     # silhouettes use the preset's 45-degree projection. Bridge those spaces
     # per placement rather than moving the gameplay fluid ports.
-    args=preset.parse_args();angle=-((scene.frame_current-1)//args.animation_frames)*math.tau/args.directions
+    args=preset.parse_args();angle=-math.radians(args.initial_angle)-((scene.frame_current-1)//args.animation_frames)*math.tau/args.directions
     rotation=Matrix.Rotation(angle,4,'Z')
     profile=[(.78,.105,0),(.88,.18,.45),(.93,.27,.9),(.95,.32,1),(1,.32,1),(1,.225,1),(.89,.225,.85)]
     for obj,side in collar_objects:
@@ -146,7 +146,7 @@ def render(output_dir):
     records=[];collar_meshes=[]
     for frame in range(1,args.frames+1):
         scene.frame_set(frame);bpy.context.view_layer.update()
-        expected=((frame-1)//args.animation_frames)*360/args.directions
+        expected=args.initial_angle+((frame-1)//args.animation_frames)*360/args.directions
         actual=-math.degrees(rotator.rotation_euler.z)
         assert abs(actual-expected)<.001,(frame,actual,expected)
         records.append({'frame':frame,'world_yaw_degrees':actual})

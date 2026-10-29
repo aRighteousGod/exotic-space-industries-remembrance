@@ -52,8 +52,8 @@ for mode in ("original", "status", "off"):
                     emitters += len(lights)
                     for index, (visual, offset) in enumerate(zip(lights, offsets), 1):
                         check(set(visual) == {"always_draw", "apply_tint", "light", "animation", "render_layer", "secondary_draw_order", "north_position", "east_position", "south_position", "west_position"}, name + " exact light entry fields")
-                        check(visual['render_layer'] == 'light-effect' and visual['secondary_draw_order'] == 4, name + ' lens ordering')
-                        check(visual['animation'] == dict(filename=f'__exotic-space-industries-remembrance__/graphics/status-lights/{name[3:]}-{index}.png', size=64, scale=before['graphics_set']['animation'].get('scale', 1), frame_count=1, draw_as_glow=True, blend_mode='normal'), name + ' neutral lens')
+                        check(visual['render_layer'] == 'object' and visual['secondary_draw_order'] == 4, name + ' lens ordering')
+                        check(visual['animation'] == dict(filename=f'__exotic-space-industries-remembrance-graphics-6__/graphics/status-lights/{name[3:]}-{index}.png', size=64, scale=before['graphics_set']['animation'].get('scale', 1), frame_count=1, draw_as_glow=True, blend_mode='normal'), name + ' neutral lens')
                         check(visual["always_draw"] is True, name + " idle visibility")
                         check(visual["light"] == dict(type="basic", color=[1, 1, 1], size=0.5 if name == 'ei-advanced-refinery' else 0.35,
                                                       intensity=1, minimum_darkness=0.1), name + " light profile")

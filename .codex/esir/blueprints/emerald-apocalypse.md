@@ -6,6 +6,11 @@
 
 `repair_runtime_state` refreshes force caches and re-registers live tanks without replacing the runtime root. Active charges, delayed work, cooldowns, drift and player doctrine settings survive. Missing entities use ordinary owner cleanup.
 
+The central dispatcher also selects this preserving repair when Quality changes.
+Current native equipment and derived movement/work caches are refreshed while
+already-paid charge profiles, deadlines and orbital work keep their numeric
+execution contracts. Other configuration changes retain their existing rebuild.
+
 ## Implementation sources
 
 - [emerald-apocalypse-hover-tank.lua](../../../exotic-space-industries-remembrance/scripts/control/emerald-apocalypse-hover-tank.lua)

@@ -37,7 +37,7 @@ for name, types in baseline.items():
             require(a['scale'] == (0.8 if name == 'ei-cooler' else 0.5)
                     and a['shift'] == [0, 0.75 if name == 'ei-cooler' else 0.375], name + ': placement')
             require(a['tint'] == {'r': 0.5, 'g': 0.5, 'b': 0.5, 'a': 1}, name + ': half brightness')
-            require(a['filename'] == '__exotic-space-industries-remembrance__/graphics/entities/cryo-mist.png', name + ': main mod asset')
+            require(a['filename'] == '__exotic-space-industries-remembrance-graphics-6__/graphics/entities/cryo-mist.png', name + ': Graphics 6 asset')
             graphics['working_visualisations'] = [v for v in graphics['working_visualisations'] if v.get('name') != 'ei-cryo-mist']
             if name.endswith('-source'):
                 require(new['energy_source']['light_flicker'] == {'minimum_intensity': 0, 'maximum_intensity': 0}, name + ': no native default light')
@@ -73,7 +73,7 @@ reload_runtime = json.loads((out / 'reload-runtime.json').read_text())
 require(reload_runtime['passed'], 'post-reload transitions and cleanup passed')
 
 repo = Path(__file__).resolve().parents[3]
-asset = repo / 'exotic-space-industries-remembrance/graphics/entities/cryo-mist.png'
+asset = repo / 'exotic-space-industries-remembrance-graphics-6/graphics/entities/cryo-mist.png'
 require(hashlib.sha256(asset.read_bytes()).hexdigest() == '341e2cae41f220872ea1f708531bded1485c8d75962a82d72ded1fd170cbbeb0', 'unchanged upstream asset')
 with Image.open(asset) as im:
     require(im.size == (2048, 2048) and im.mode == 'RGBA', 'source dimensions/alpha')

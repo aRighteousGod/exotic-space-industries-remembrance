@@ -31,7 +31,7 @@ return
 	
 	animation = 
 	{
-		filename = inputs.filename and inputs.filename or ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/spark.png",
+		filename = inputs.filename and inputs.filename or ei_graphics_3_path.."graphics/effects/stickers/spark.png",
 		line_length = inputs.line_length and inputs.line_length or 5,
 		width = inputs.width and inputs.width or 64,
 		height = inputs.height and inputs.height or 64,
@@ -51,7 +51,7 @@ return
 end
 data:extend({
 
-  	sticker_set{name="ei-poison-sticker", filename=ei_graphics_3_path.."graphics/entities/acid-turret/acid-flame/spark.png",
+  	sticker_set{name="ei-poison-sticker", filename=ei_graphics_3_path.."graphics/effects/stickers/spark.png",
 		line_length=5, width=64, height=64, frame_count=5, direction_count=1, scale=0.5,
 		target_movement_modifier = sticker_option.poison.target_movement_modifier,
 		tint = sticker_option.poison.tint,
@@ -95,7 +95,7 @@ local turret =
 	  icon = ei_graphics_6_path.."graphics/items/acid-turret.png",
 	  icon_size = 128,
 	  icon_mipmaps = 3,
-    flags = {"placeable-player", "player-creation"},
+    flags = {"placeable-player", "player-creation", "building-direction-8-way"},
 	  minable = {mining_time = 0.5, result = "ei-acidthrower-turret"},
     fast_replaceable_group = "flamethrower-turret",
     max_health = 1400,
@@ -134,21 +134,18 @@ local turret =
       volume = 100,
       pipe_connections =
       {
-        { direction = defines.direction.west, position = {-0.5, 1.0} },
-        { direction = defines.direction.east, position = {0.5, 1.0} }
+        { direction = defines.direction.west, position = {-0.5, 1.0},
+          alt_direction = defines.direction.west, alt_position = {-1, 0} },
+        { direction = defines.direction.east, position = {0.5, 1.0},
+          alt_direction = defines.direction.south, alt_position = {0, 1} }
       }
     },
     fluid_buffer_size = 100,
     fluid_buffer_input_flow = 250 / 60 / 5, -- 5s to fill the buffer
     activation_buffer_ratio = 0.25,
 
-    -- Authored body and pipes remain four-way; vanilla now also has diagonals.
-    circuit_connector = {
-        circuit_connector_definitions["flamethrower-turret"][1],
-        circuit_connector_definitions["flamethrower-turret"][3],
-        circuit_connector_definitions["flamethrower-turret"][5],
-        circuit_connector_definitions["flamethrower-turret"][7],
-    },
+    -- Native eight-way ordering preserves the four existing cardinal connectors.
+    circuit_connector = table.deepcopy(circuit_connector_definitions["flamethrower-turret"]),
     circuit_wire_max_distance = default_circuit_wire_max_distance,
 
     out_of_ammo_alert_icon =

@@ -15,7 +15,7 @@ from vanilla import make_icons as make_vanilla_icons, svg_document as vanilla_sv
 
 ROOT=Path(__file__).resolve().parents[4]
 HERE=Path(__file__).resolve().parent
-SHIPPING=ROOT/'exotic-space-industries-remembrance/graphics/gui/alerts'
+SHIPPING=ROOT/'exotic-space-industries-remembrance-graphics-6/graphics/gui/alerts'
 SCALE=4
 MATERIALS={
     'ceramic':('#fff0cf','#d9c6a4','#a0927b'),

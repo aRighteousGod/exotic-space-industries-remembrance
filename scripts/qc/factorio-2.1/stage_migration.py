@@ -26,7 +26,17 @@ def digest(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def stage_target(root):
+def checked_engine(executable, expected):
+    assert executable, "Supply the explicit engine executable for this stage"
+    executable = executable.absolute()
+    version = subprocess.check_output([str(executable), "--version"], text=True)
+    assert "Version: " + expected + " " in version, version
+    engine = executable.parents[2]
+    assert json.loads((engine / "data/base/info.json").read_text())["version"] == expected
+    return engine
+
+
+def stage_target(root, engine):
     mods = root / "mods"
     profile = json.loads((REPO / ".codex/esir/factorio-development.json").read_text(encoding="utf-8"))
     seed = REPO / profile["dependency_seed"]
@@ -60,7 +70,6 @@ def stage_target(root):
     mod_list = json.loads((seed / "mod-list.json").read_text(encoding="utf-8"))
     mod_list["mods"].append({"name": fixture.name, "enabled": True})
     (mods / "mod-list.json").write_text(json.dumps(mod_list), encoding="utf-8")
-    engine = REPO / ".factorio-qc/engine-2.1.23"
     (root / "config.ini").write_text("[path]\nread-data=" + str(engine / "data") + "\nwrite-data=" + str(root) + "\n[other]\ncheck-updates=false\n", encoding="utf-8")
     (root / "target-stage.json").write_text(json.dumps({"engine": "2.1.23", "source_hashes": hashes, "private_main_hook": True}, indent=2), encoding="utf-8")
     print(json.dumps({"staged": str(root), "engine": "2.1.23", "source_files": len(hashes)}))
@@ -71,14 +80,16 @@ def main():
     parser.add_argument("--run", required=True)
     parser.add_argument("--baseline", type=Path, required=True)
     parser.add_argument("--target21", action="store_true")
+    parser.add_argument("--old-engine", type=Path, help="Verified 2.0.77 executable; required to build a historical donor")
+    parser.add_argument("--new-engine", type=Path, help="Verified 2.1.23 executable; required for the target stage")
     args = parser.parse_args()
     root = Path(os.path.abspath(args.run))
     mods = root / "mods"
     mods.mkdir(parents=True, exist_ok=True)
     if args.target21:
-        stage_target(root)
+        stage_target(root, checked_engine(args.new_engine, "2.1.23"))
         return
-    engine = Path("C:/Program Files (x86)/Steam/steamapps/common/Factorio")
+    engine = checked_engine(args.old_engine, "2.0.77")
     available = {}
     for archive in (args.baseline / "mods").glob("*.zip"):
         with zipfile.ZipFile(archive) as source:

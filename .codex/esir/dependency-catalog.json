@@ -379,7 +379,7 @@
     {
       "mod_name": "exotic-space-industries-remembrance-graphics-6",
       "dependency_kind": "required",
-      "constraint": ">= 1.1.0",
+      "constraint": ">= 1.1.1",
       "declared_by_pack": "exotic-space-industries-remembrance",
       "declared_in": "exotic-space-industries-remembrance\\info.json",
       "pack_role": "primary gameplay and runtime pack"
@@ -530,7 +530,7 @@
     },
     {
       "mod_name": "quality",
-      "dependency_kind": "required",
+      "dependency_kind": "optional",
       "constraint": null,
       "declared_by_pack": "exotic-space-industries-remembrance",
       "declared_in": "exotic-space-industries-remembrance\\info.json",
@@ -863,6 +863,14 @@
       "declared_by_pack": "minigun-turret-HD",
       "declared_in": "minigun-turret-HD\\info.json",
       "pack_role": "standalone minigun turret and HD graphics"
+    },
+    {
+      "mod_name": "zzz-nonstandard-beacons",
+      "dependency_kind": "incompatible",
+      "constraint": null,
+      "declared_by_pack": "exotic-space-industries-remembrance",
+      "declared_in": "exotic-space-industries-remembrance\\info.json",
+      "pack_role": "primary gameplay and runtime pack"
     }
   ],
   "touchpoints": [
@@ -1161,10 +1169,14 @@
       "phase": "data-updates",
       "direction": "bridge",
       "mod_names": [
-        "air-scrubber"
+        "air-scrubber",
+        "quality",
+        "quality-se"
       ],
       "guard_mods": [
-        "air-scrubber"
+        "air-scrubber",
+        "quality",
+        "quality-se"
       ],
       "source_files": [
         "exotic-space-industries-remembrance\\scripts\\data-updates\\atan-air-scrubber.lua"
@@ -1174,26 +1186,6 @@
         "mods"
       ],
       "purpose": "Data-stage compatibility touchpoints in atan-air-scrubber",
-      "pack_role": "primary gameplay and runtime pack",
-      "source_pack": "exotic-space-industries-remembrance"
-    },
-    {
-      "id": "exotic-space-industries-remembrance-scripts-data-final-updates-machine-status-lights-lua:prototype-integration",
-      "category": "prototype-integration",
-      "phase": "data-final-updates",
-      "direction": "bridge",
-      "mod_names": [
-        "exotic-space-industries-remembrance"
-      ],
-      "guard_mods": [],
-      "source_files": [
-        "exotic-space-industries-remembrance\\scripts\\data-final-updates\\machine-status-lights.lua"
-      ],
-      "touchpoints": [
-        "data.raw",
-        "external-path"
-      ],
-      "purpose": "Data-stage compatibility touchpoints in machine-status-lights",
       "pack_role": "primary gameplay and runtime pack",
       "source_pack": "exotic-space-industries-remembrance"
     },
@@ -1589,10 +1581,12 @@
       "phase": "data-updates",
       "direction": "bridge",
       "mod_names": [
-        "Krastorio2-spaced-out"
+        "Krastorio2-spaced-out",
+        "quality"
       ],
       "guard_mods": [
-        "Krastorio2-spaced-out"
+        "Krastorio2-spaced-out",
+        "quality"
       ],
       "source_files": [
         "exotic-space-industries-remembrance\\scripts\\data-updates\\vanilla-updates\\other.lua"
@@ -3199,26 +3193,6 @@
         "mods"
       ],
       "purpose": "Data-stage compatibility touchpoints in container-capacities",
-      "pack_role": "primary gameplay and runtime pack",
-      "source_pack": "exotic-space-industries-remembrance"
-    },
-    {
-      "id": "exotic-space-industries-remembrance-scripts-data-final-updates-cryo-mist-lua:prototype-integration",
-      "category": "prototype-integration",
-      "phase": "data-final-updates",
-      "direction": "bridge",
-      "mod_names": [
-        "exotic-space-industries-remembrance"
-      ],
-      "guard_mods": [],
-      "source_files": [
-        "exotic-space-industries-remembrance\\scripts\\data-final-updates\\cryo-mist.lua"
-      ],
-      "touchpoints": [
-        "data.raw",
-        "external-path"
-      ],
-      "purpose": "Data-stage compatibility touchpoints in cryo-mist",
       "pack_role": "primary gameplay and runtime pack",
       "source_pack": "exotic-space-industries-remembrance"
     },

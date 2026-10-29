@@ -50,7 +50,7 @@ do
         for _,id in ipairs(sets.builtin_ids)do
             local signal=signals[sets.signal_name(id,entry.id)]
             local folder=id=='original' and '' or id..'/'
-            check(signal.icon=='__exotic-space-industries-remembrance__/graphics/gui/alerts/'..folder..entry.id..'.png'
+            check(signal.icon=='__exotic-space-industries-remembrance-graphics-6__/graphics/gui/alerts/'..folder..entry.id..'.png'
                 and signal.icon_size==128 and signal.hidden and signal.hidden_in_factoriopedia,'builtin path/size/visibility')
         end
     end

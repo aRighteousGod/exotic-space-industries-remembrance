@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2026-10-29
+  Graphics:
+    - Added diagonal Acidthrower chassis, glow, owner-mask and shadow sheets for all eight native placement directions.
+    - Moved all 108 alert icons from the main ESIR pack: Original, SVG, Rendered and Vanilla sets for all 27 alert types.
+    - Moved the 23 machine status-light lens overlays and the 60-frame cryogenic mist spritesheet used by the Hypercooler and liquid-nitrogen beacons from the main ESIR pack.
+    - Preserved image data, relative paths and source attribution. The main pack retains its Mod Portal thumbnail.
+  Compatibility:
+    - ESIR 1.4.01 requires Graphics 6 version 1.1.1 or later. Update both packs together.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2026-10-13
   Graphics:

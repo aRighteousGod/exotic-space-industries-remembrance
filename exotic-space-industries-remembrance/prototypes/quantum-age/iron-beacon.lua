@@ -101,7 +101,7 @@ data:extend({
         selection_box = {{-1.5,-1.5},{1.5,1.5}},
         map_color = ei_data.colors.assembler,
         fast_replaceable_group = "ei-nitrogen-beacon",
-        allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
+        allowed_effects = require("lib/module-policy-config").allowed_effects("nitrogen"),
         heating_energy = "200kW",
         minable = {
             mining_time = 1,

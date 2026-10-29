@@ -1286,19 +1286,7 @@ end
 
 
 local function get_signal_name(signal_name)
-  if signal_name == nil then
-    return nil
-  end
-
-  if type(signal_name) == "string" then
-    return signal_name
-  end
-
-  if signal_name.name then
-    return signal_name.name
-  end
-
-  return tostring(signal_name)
+  return ei_lib.get_prototype_name(signal_name)
 end
 
 
@@ -1307,15 +1295,8 @@ local function get_quality_name(quality)
     return "normal"
   end
 
-  if type(quality) == "string" then
-    return quality
-  end
-
-  if quality.name then
-    return quality.name
-  end
-
-  return tostring(quality)
+  -- Invalid native identifiers must not turn removed-quality demand into normal.
+  return ei_lib.get_prototype_name(quality) or false
 end
 
 
@@ -1329,11 +1310,12 @@ local function normalize_signal_id(value)
     return nil
   end
 
-  return {
+  local normalized = {
     type = value.type or "item",
     name = signal_name,
     quality = get_quality_name(value.quality),
   }
+  return ei_lib.is_valid_signal_id(normalized) and normalized or nil
 end
 
 
@@ -4170,9 +4152,13 @@ local function reconcile_section(section, page)
   end
 
   iter_page_filters(page, function(filter, page_slot_index)
-    if not filters_match(section.get_slot(page_slot_index), filter) then
+    local value = copy_signal_id(filter.value)
+    local current = section.get_slot(page_slot_index)
+    if not value then
+      if current then section.clear_slot(page_slot_index) end
+    elseif not filters_match(current, filter) then
       section.set_slot(page_slot_index, {
-        value = copy_signal_id(filter.value),
+        value = value,
         min = filter.min,
         max = filter.max,
       })

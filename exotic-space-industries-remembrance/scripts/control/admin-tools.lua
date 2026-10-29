@@ -202,6 +202,7 @@ function model.on_configuration_changed(tick)
     local enabled=common.enabled();local root=common.peek()
     if enabled then root=common.state() end
     if not root then return end
+    gui.reconcile_item_choices()
     if not enabled then
         targeting.cleanup(tick)
         for index in pairs(root.sessions) do gui.close(index,true) end

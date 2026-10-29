@@ -2,8 +2,9 @@
 param(
     [ValidateSet('stage','dump','create','benchmark')][string]$Task = 'dump',
     [string]$RunRoot = (Join-Path (Get-Location).Path '.factorio-qc/21'),
-    [string]$Engine = (Join-Path (Get-Location).Path '.factorio-qc/f21/bin/x64/factorio.exe'),
-    [string]$DependencyRoot = (Join-Path (Get-Location).Path '.factorio-qc/managed/0422e48554e14570806ee8e7c009f9a8/dependencies'),
+    [string]$Engine = (Join-Path (Get-Location).Path '.factorio-qc/engine-2.1.23/bin/x64/factorio.exe'),
+    [string]$DependencyRoot = (Join-Path (Get-Location).Path '.factorio-qc/dependency-seeds/2.1-core'),
+    [ValidateSet('enabled','disabled')][string]$Quality = 'enabled',
     [string]$Save,
     [string]$Tag,
     [int]$Ticks = 600,
@@ -24,7 +25,11 @@ $enabled = @('base','space-age','quality','elevated-rails','recycler')
 foreach ($zip in Get-ChildItem -LiteralPath $DependencyRoot -Filter '*.zip') {
     if ($AirOnly -and $zip.Name -notlike 'air-scrubber_*') { continue }
     $destination = Join-Path $mods $zip.Name
-    if (-not (Test-Path -LiteralPath $destination)) { Copy-Item -LiteralPath $zip.FullName -Destination $destination }
+    if (-not (Test-Path -LiteralPath $destination)) {
+        if ([IO.Path]::GetPathRoot($destination) -eq [IO.Path]::GetPathRoot($zip.FullName)) {
+            New-Item -ItemType HardLink -Path $destination -Target $zip.FullName | Out-Null
+        } else { Copy-Item -LiteralPath $zip.FullName -Destination $destination }
+    }
     $enabled += ($zip.BaseName -replace '_\d+\.\d+\.\d+$','')
 }
 if (-not $AirOnly) {
@@ -58,7 +63,9 @@ foreach ($fixture in $FixtureRoot) {
     }
     $enabled += $info.name
 }
-$modList = @{mods=@($enabled | Sort-Object -Unique | ForEach-Object { @{name=$_;enabled=$true} })}
+$modList = @{mods=@($enabled | Sort-Object -Unique | ForEach-Object {
+    @{name=$_;enabled=($_ -ne 'quality' -or $Quality -eq 'enabled')}
+})}
 [IO.File]::WriteAllText((Join-Path $mods 'mod-list.json'),($modList | ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
 $config = Join-Path $RunRoot 'config.ini'
 $configText = "[path]`nread-data=$engineData`nwrite-data=$RunRoot`n[other]`ncheck-updates=false`n"

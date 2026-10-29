@@ -369,8 +369,10 @@ ei_lib.raw.recipe["nuclear-fuel-reprocessing"] = {
 
 for age,table_in in pairs(new_prerequisites_table) do
     for i,v in pairs(table_in) do
+        if not v[1]:match("^quality%-module") or data.raw.technology[v[1]] then
         ei_lib.add_prerequisite(v[1], v[2])
         ei_lib.remove_prerequisite(v[1], "ei-"..age)
+        end
     end
 end
 

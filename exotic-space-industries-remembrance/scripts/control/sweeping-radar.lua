@@ -29,6 +29,7 @@ local GREEN=defines.wire_connector_id.circuit_green
 ---@field output LuaEntity?
 ---@field settings ESIRRadarSettings
 ---@field effective table?
+---@field quality_refresh_pending boolean? Finish the accepted observation before adopting changed quality capabilities.
 ---@field geometry table?
 ---@field batch table?
 ---@field job table?
@@ -464,6 +465,7 @@ end
 ---@param tick integer
 function model.set_settings(record,settings,tick)
     record.settings=config.copy_settings(settings)
+    record.quality_refresh_pending=nil
     record.next_poll=tick
 end
 
@@ -513,6 +515,15 @@ end
 function model.rebuild(tick,reason)
     tick=tick or game.tick
     local root=state()
+    -- A paid observation owns its captured geometry and numeric execution budget.
+    -- Leave its force epoch stale so reconstruction waits for the later refresh.
+    if reason=="quality-configuration-changed" then
+        for _,record in pairs(root.records) do
+            if valid(record.entity) and record.job and record.job.paid and record.geometry and record.effective then
+                record.quality_refresh_pending=true
+            end
+        end
+    end
     root.force_epoch=root.force_epoch+1
     -- Discovery is configuration/init only, never steady-state scanning.
     for _,surface in pairs(game.surfaces) do
@@ -603,8 +614,10 @@ local function service_control(root,record,tick)
     record.next_poll=tick+config.poll_ticks
     record.entity.disabled_by_script=true
     if not sync_helpers(root,record,tick) then record.ready=false;record.status="helper";return end
-    if record.force_epoch~=root.force_epoch or record.force_index~=record.entity.force.index
-        or record.capability_revision~=config.capability_revision or record.quality_level~=record.entity.quality.level then
+    local paid_quality_contract=record.quality_refresh_pending and record.job and record.job.paid
+    if record.quality_refresh_pending and not paid_quality_contract then record.quality_refresh_pending=nil end
+    if not paid_quality_contract and (record.force_epoch~=root.force_epoch or record.force_index~=record.entity.force.index
+        or record.capability_revision~=config.capability_revision or record.quality_level~=record.entity.quality.level) then
         if research(record,root) then request_reset(root,record,tick) end
     end
     record.last_power_tick=tick
@@ -613,11 +626,12 @@ local function service_control(root,record,tick)
     local idle=config.hardware[record.entity.name].idle/60
     local power=record.power
     record.ready=power.energy>=idle
-    local effective,error=read_settings(record)
+    local current_effective,error=read_settings(record)
+    local effective=paid_quality_contract and record.effective or current_effective
     if not effective then
         record.status=error;record.running=false;cancel_job(root,record);clear_output(record);return
     end
-    if changed(record.effective,effective) then request_reset(root,record,tick) end
+    if not paid_quality_contract and changed(record.effective,effective) then request_reset(root,record,tick) end
     record.effective=effective
     if record.reset_pending and not finish_reset(record) then record.status="maintenance";record.running=false;return end
     if not record.geometry then
@@ -633,11 +647,13 @@ local function service_control(root,record,tick)
         record.pulse=true;record.pulse_ack_pending=true;record.pass_started=tick
     end
     record.last_trigger=trigger
-    record.running=record.ready and effective.run>0 and effective.speed>0 and not record.entity.frozen
+    local run=current_effective and current_effective.run or effective.run
+    local speed=current_effective and current_effective.speed or effective.speed
+    record.running=record.ready and run>0 and speed>0 and not record.entity.frozen
         and not record.entity.to_be_deconstructed()
     if not record.running then
         record.status=not record.ready and "power" or record.entity.frozen and "frozen" or "paused"
-        if effective.run<=0 or effective.speed<=0 or record.entity.frozen or record.entity.to_be_deconstructed() then
+        if run<=0 or speed<=0 or record.entity.frozen or record.entity.to_be_deconstructed() then
             -- Explicit suspension cancels unfinished work; accepted energy is spent.
             -- The cursor remains on that cell, with no elapsed-time catch-up.
             cancel_job(root,record)
@@ -927,7 +943,10 @@ function model.updater(event)
         generation_turn=record~=nil
         record=record or next_record(root,"observation")
         if not record then break end
-        if valid(record.entity) and record.force_epoch==root.force_epoch then begin_job(root,record,tick,generation_turn) end
+        if valid(record.entity) and (record.force_epoch==root.force_epoch
+            or (record.quality_refresh_pending and record.job and record.job.paid)) then
+            begin_job(root,record,tick,generation_turn)
+        end
         if valid(record.entity) then refresh_lanes(root,record) end
     end
     for _=1,config.budget.aggregate do

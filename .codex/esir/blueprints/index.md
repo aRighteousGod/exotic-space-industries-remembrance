@@ -38,7 +38,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Shared camera windows](camera-windows.md#contract) | 1 |
 | [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 3 |
 | [Balanced agricultural growth jitter](randomized-tree-growth.md#contract) | 1 |
-| [Beacon upgrades, overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 5 |
+| [Beacon upgrades, overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 7 |
 | [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 6 |
 | [Black hole containment and extraction](black-hole.md#contract) | 1 |
 | [Camp-fire registration and periodic fire emission](camp-fire.md#contract) | 1 |
@@ -70,7 +70,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Orbital logistics cohorts and leases](orbital-logistics.md#contract) | 1 |
 | [Orbital scanner banks and demand caches](orbital-combinator.md#contract) | 1 |
 | [Railgun coolant proxies, heat debt, and recovery](railgun-cooling.md#contract) | 3 |
-| [Research scaling, progression migrations, and victory](research-and-progression.md#contract) | 8 |
+| [Research scaling, progression migrations, and victory](research-and-progression.md#contract) | 9 |
 | [Rocket launch consequences and visual scheduling](rocket-launch-pollution.md#contract) | 2 |
 | [Runtime orchestration and registry ownership](runtime-orchestration.md#contract) | 3 |
 | [Sawblade event-owned animation and sound gates](sawblade-turret.md#contract) | 1 |

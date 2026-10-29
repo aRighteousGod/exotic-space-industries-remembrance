@@ -20,13 +20,13 @@ if aas then
     aas.energy_usage = base_usage .. "MW"
 
     local qualities = data.raw["quality"]
-    if qualities then
+    if qualities and (mods["quality"] or mods["quality-se"]) then
         local quality_count = ei_lib.getn(qualities)
         local steps = math.max(quality_count - 1, 1)
 
         for name, quality in pairs(qualities) do
             local target = name .. "-atan-air-scrubber"
-            local type_aas = ei_lib.raw.furnace[target]
+            local type_aas = data.raw.furnace[target]
 
             if type_aas then
                 type_aas.fast_replaceable_group = "ei-air-scrubber"

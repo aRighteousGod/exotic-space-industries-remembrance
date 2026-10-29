@@ -23,6 +23,10 @@ it, with 13 sticker owners in the inspected complete native dump. Retain
 `ei-poison-sticker`, the optional corrosive-toxic rocket fallback. Current
 turret stream/sticker identities and late profile aliases remain intact.
 
+The 2026-10-28 graphics cleanup relocated that unchanged shared sprite to
+Graphics-3 `graphics/effects/stickers/spark.png` and removed the now-empty
+`graphics/entities/acid-turret/acid-flame` directory. Its consumers remain active.
+
 Evidence before editing: current production Lua and dynamic selectors;
 complete Oct-10 Factorio 2.0.77 final data (2,047,593,299 bytes); 3,430 active
 external archive Lua members; and the 39-enabled-mod QC seed (26 external

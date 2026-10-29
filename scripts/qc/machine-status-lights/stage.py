@@ -7,7 +7,13 @@ from pathlib import Path
 
 source, target = (Path(p).resolve() for p in sys.argv[1:])
 boundary = Path(__file__).resolve().parents[3] / '.factorio-qc'
-assert source.is_relative_to(boundary) and target.is_relative_to(boundary)
+def owned_stage(path):
+    if path.is_relative_to(boundary):
+        return True
+    return (str(path.parent).lower().startswith('d:\\esir\\output\\machine-status-depth-')
+            and (path.parent / 'run-id.txt').is_file() and path.name == 'm')
+
+assert owned_stage(source) and owned_stage(target)
 assert source.is_dir() and not target.exists()
 assert not target.is_relative_to(source)
 for directory, dirs, files in os.walk(source):

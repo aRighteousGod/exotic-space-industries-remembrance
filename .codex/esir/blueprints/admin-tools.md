@@ -254,6 +254,17 @@ Positional ruptures use the existing real effect builder and scheduler without a
 dummy machine or pipe traversal. One admin rupture is admitted at a time; committed
 effects drain normally on toolkit shutdown.
 
+<a id="prototype-reconciliation"></a>
+## Prototype reconciliation
+
+Configuration reconciliation clears item selectors whose item prototype vanished
+and changes an unavailable quality on an otherwise valid draft item to normal.
+Native prototype identifiers are checked before reading their names. Already-open
+controls are synchronized; an explicitly cleared draft remains cleared across GUI
+rebuilds. Persisted world jobs retain exact requested identities: vanished qualities
+or placement entities cancel those jobs before admission counts and queues are
+rebuilt. Completed work remains intact. Draft repair never retargets admitted jobs.
+
 ## Lifecycle and shutdown
 
 New planetary surfaces receive the peaceful default only when newly created;

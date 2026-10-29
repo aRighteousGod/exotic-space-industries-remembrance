@@ -26,8 +26,6 @@ heat steel furnace icon from Electric steel furnace by @Morlot
 
 auto shotgun turret from Factorio+ by fishbus
 
-gatling turret from additionalturrets by DarkNova
-
 bio oil by Kil_Jaeden
 
 orbital request combinator icon from Orbital Request Combinator by @Skjolbir
@@ -47,7 +45,7 @@ Cold mist for the Hypercooler and liquid-nitrogen beacons:
     Source revision: 497140950769a0ab4a4bd4c3e9426e5c3dad30b2
     Pinned source and credits:
     https://github.com/snouz/simple_refrigerator/tree/497140950769a0ab4a4bd4c3e9426e5c3dad30b2
-    ESIR file: graphics/entities/cryo-mist.png (2048 x 2048, 60 frames)
+    ESIR Graphics 6 file: graphics/entities/cryo-mist.png (2048 x 2048, 60 frames)
     SHA256: 341e2cae41f220872ea1f708531bded1485c8d75962a82d72ded1fd170cbbeb0
     ESIR adjusts placement, scale and brightness in its own prototype code.
 

@@ -388,9 +388,38 @@ function model.on_forces_merged(event)
     model.refresh_force(event.destination)
 end
 
+---@param saved table|nil
+---@return table|nil
+local function sanitize_stowed_ammo(saved)
+    if type(saved)~="table" then return nil end
+    if saved.name~=nil then
+        local name=ei_lib.get_prototype_name(saved.name)
+        local quality=saved.quality==nil and "normal" or ei_lib.get_prototype_name(saved.quality)
+        if not name or not prototypes.item[name] or not quality or not prototypes.quality[quality] then
+            saved.name=nil;saved.quality=nil
+        else saved.name=name;saved.quality=quality end
+    end
+    local filter=saved.filter
+    if type(filter)=="string" then
+        if not prototypes.item[filter] then saved.filter=nil end
+    elseif type(filter)=="table" then
+        local name=ei_lib.get_prototype_name(filter.name)
+        local quality=ei_lib.get_prototype_name(filter.quality)
+        if (filter.name~=nil and (not name or not prototypes.item[name]))
+            or (filter.quality~=nil and (not quality or not prototypes.quality[quality])) then
+            saved.filter=nil
+        else filter.name=name;filter.quality=quality end
+    else saved.filter=nil end
+    if not saved.name and not saved.filter then return nil end
+    return saved
+end
+
 function model.on_configuration_changed()
     local root=state()
     local tick=game.tick
+    -- Only remembered identifiers are repaired; native cargo remains authoritative.
+    for _,record in pairs(root.vehicles) do record.stowed_ammo=sanitize_stowed_ammo(record.stowed_ammo) end
+    for _,saved in pairs(root.items) do saved.stowed_ammo=sanitize_stowed_ammo(saved.stowed_ammo) end
     -- Preserve in-flight 2.0 placement snapshots, including explicit false flags.
     for _,record in pairs(root.vehicles) do
         local placement=record.placement
@@ -534,7 +563,7 @@ local function copy_spider_ammo(source,destination,remembered)
     local ammo=destination.get_inventory(defines.inventory.spider_ammo)
     if not original then return remembered end
     local trunk=destination.get_inventory(defines.inventory.spider_trunk)
-    local saved=table.deepcopy(remembered)
+    local saved=sanitize_stowed_ammo(table.deepcopy(remembered))
     for index=1,#original do
         local stack=original[index]
         local filter=original.supports_filters() and original.get_filter(index)

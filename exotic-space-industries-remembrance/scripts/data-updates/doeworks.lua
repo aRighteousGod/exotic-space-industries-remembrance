@@ -192,6 +192,7 @@ local function set_composite_icons(prototype, icons)
 end
 
 local function make_imported_recipe_icons(base_icon, overlay_icon, overlay_scale, overlay_shift)
+    -- Recipe layers use a 32px canvas; Alt mode does not shrink oversized layers like the GUI.
     return ei_lib.make_icons(
         base_icon,
         512,
@@ -200,7 +201,7 @@ local function make_imported_recipe_icons(base_icon, overlay_icon, overlay_scale
         overlay_scale or 0.45,
         overlay_shift or {8, 8},
         nil,
-        {base_mipmaps = 5, base_scale = 1.2}
+        {base_mipmaps = 5, base_scale = 32 / 512}
     )
 end
 

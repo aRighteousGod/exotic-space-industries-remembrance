@@ -1,5 +1,9 @@
 # Acidthrower revision 03
 
+Current 2.1.23 placement, diagonal render and pipe-overlay work is documented in
+[EIGHT-WAY.md](EIGHT-WAY.md). Use `scripts/invoke-acid-eight-way-qc.ps1` for current
+native acceptance; the old jet calibration runner requires explicit `-LegacyReplay`.
+
 Source: the user's `Documents/Development/acidthrower prototype 2.glb`, selected on 2026-10-09. This revision uses its complete, consistently textured ivory/graphite machine. No additional Meshy generation or credits were required. Revisions 01 and 02 remain preserved.
 
 Artifacts: `D:/CodexArtifacts/esir-acidthrower-20261009/revision-03`.
@@ -9,7 +13,7 @@ pressure-jet effect family are in Graphics 6 under
 `graphics/entities/acidthrower-turret/`. The item icon is in `graphics/items/`
 and the technology icon in `graphics/techs/`. The main pack retains prototypes.
 The native muzzle was subsequently fitted to visible outlet pixels using barrel
-length 0.835 and world height 0.87555; the source model anchors below are preserved
+length 0.854090101414 and world height 0.886152416900; the source model anchors below are preserved
 as historical geometry, not a claim of current visible launch alignment.
 
 Source SHA256: `257f4beadb591807487fbfd1b70ff7f1b02c3e38c284068cbbee38c6ce3e4c17`.

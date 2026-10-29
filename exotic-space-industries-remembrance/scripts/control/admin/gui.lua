@@ -32,14 +32,47 @@ local function field(parent,session,id,default)
     session.fields[id]=element
     return element
 end
+---@param value table|string|nil|false
+---@return table|nil
+local function sanitize_item_choice(value)
+    if type(value)=="string" then value={name=value} end
+    if type(value)~="table" then return nil end
+    local name=lib.get_prototype_name(value.name)
+    if not name or not prototypes.item[name] then return nil end
+    local quality=lib.get_prototype_name(value.quality) or "normal"
+    if not prototypes.quality[quality] then quality="normal" end
+    return {name=name,quality=quality}
+end
+
 local function selector(parent,session,id,kind,default)
     local r=row(parent,"selector");caption(r,id)
     if session.drafts[id]==nil then session.drafts[id]=default end
     local spec={type="choose-elem-button",elem_type=kind,tags=tags("draft",{field=id})}
-    spec[kind]=session.drafts[id]
+    if kind=="item-with-quality" then
+        local value=sanitize_item_choice(session.drafts[id])
+        -- False remembers an intentionally cleared obsolete item across rebuilds.
+        session.drafts[id]=value or false
+        spec[kind]=value
+    else spec[kind]=session.drafts[id] end
     local element=r.add(spec)
     session.fields[id]=element
     return element
+end
+
+function model.reconcile_item_choices()
+    local root=common.peek()
+    if not root then return end
+    for _,session in pairs(root.sessions) do
+        session.drafts=session.drafts or {}
+        for _,id in ipairs({"item","place_item"}) do
+            if session.drafts[id]~=nil then
+                local value=sanitize_item_choice(session.drafts[id])
+                session.drafts[id]=value or false
+                local element=session.fields and session.fields[id]
+                if element and element.valid and element.type=="choose-elem-button" then element.elem_value=value end
+            end
+        end
+    end
 end
 local function choice(parent,session,id,values,default)
     local r=row(parent,"choice");caption(r,id)

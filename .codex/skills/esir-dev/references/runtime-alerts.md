@@ -17,10 +17,10 @@ type toggles. Reuse existing keys when migrating; saved false values are authori
 Missing settings, undeclared IDs and incomplete definitions must fail closed.
 
 The 27 current entries have 108 transparent 128×128 PNGs across Original, SVG,
-Rendered and Vanilla. They ship in the **main mod's** `graphics/gui/alerts/`: Original remains
+Rendered and Vanilla. They ship in **Graphics 6** under `graphics/gui/alerts/`: Original remains
 at `<id>.png`, with the others at `svg/<id>.png`, `rendered/<id>.png` and `vanilla/<id>.png`, referenced
-through `__exotic-space-industries-remembrance__/graphics/gui/alerts/`. Do not move
-these icons into Graphics 6. Original PNGs and flat SVG masters remain unchanged.
+through `__exotic-space-industries-remembrance-graphics-6__/graphics/gui/alerts/`.
+Original PNGs and flat SVG masters remain unchanged.
 The [generator guide](../../../esir/asset-generators/alert-icons/README.md) requires
 `--set svg|rendered|vanilla` and ignored `--staging-dir`; only explicit `--ship` promotes a
 complete hash-verified named set. Original cannot be an export target. Preserve

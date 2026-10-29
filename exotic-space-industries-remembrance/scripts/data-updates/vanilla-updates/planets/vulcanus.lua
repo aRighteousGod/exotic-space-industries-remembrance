@@ -1,3 +1,4 @@
+-- blueprint: .codex/esir/blueprints/research-and-progression.md#contract
 local ei_lib = require("lib/lib")
 local ei_data = require("lib/data")
 local util = require("util")
@@ -247,7 +248,10 @@ if a_n then
         },
         unit = {
             count = 100,
-            ingredients = ei_data.science["computer-age"],
+            -- blueprint-ref: .codex/esir/blueprints/research-and-progression.md#science-template-ownership
+            -- This technology adds Metallurgic science below; never mutate the
+            -- Computer Age template shared by other technologies and triggers.
+            ingredients = table.deepcopy(ei_data.science["computer-age"]),
             time = 20
         },
         age = "computer-age",

@@ -27,7 +27,7 @@ data:extend{{type = "mod-data", name = "machine-light-qc", data_type = "machine-
 -- Native machine IDs, graphics, energy sources, speed and fluid boxes are retained.
 data:extend{
     {type = "recipe-category", name = "machine-light-qc"},
-    {type = "recipe", name = "machine-light-qc", category = "machine-light-qc", enabled = true,
+    {type = "recipe", name = "machine-light-qc", categories = {"machine-light-qc"}, enabled = true,
         energy_required = 0.25, ingredients = {{type = "item", name = "iron-plate", amount = 1}},
         results = {{type = "item", name = "copper-plate", amount = 1}}},
 }
@@ -59,4 +59,6 @@ data:extend{pole, {
     picture = {filename = "__core__/graphics/empty.png", width = 1, height = 1},
 }}
 
+require("overlap-data")
 require("brightness")
+require("focused-graphics")

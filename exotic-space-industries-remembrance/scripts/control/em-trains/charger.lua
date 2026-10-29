@@ -390,9 +390,10 @@ function model.get_item_fuel_value(item_like)
         return item_like.fuel_value
     end
 
-    if type(item_like.name) == "string" then
+    local name = ei_lib.get_prototype_name(item_like.name)
+    if name then
         local item_prototypes = ei_lib.get_item_prototypes()
-        local item_prototype = item_prototypes and item_prototypes[item_like.name] or nil
+        local item_prototype = item_prototypes and item_prototypes[name] or nil
         if item_prototype and ei_lib.is_valid_number(item_prototype.fuel_value) then
             return item_prototype.fuel_value
         end

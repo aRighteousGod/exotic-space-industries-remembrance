@@ -584,24 +584,31 @@ ei_lib.raw.module["efficiency-module-2"].icon = ei_graphics_item_path .. "effect
 ei_lib.raw.module["efficiency-module-3"].icon = ei_graphics_item_path .. "effectivity-module-3.png"
 
 -- modify quality modules
-ei_lib.raw.module["quality-module"].effect = {
+if mods["quality"] and require("lib/module-policy-config").use_esir_quality_effects() then
+local quality_effects = {
+    ["quality-module"] = {
     productivity = -0.25,
     consumption = 1,
     speed = -0.3,
     quality=0.03
-}
-ei_lib.raw.module["quality-module-2"].effect = {
+    },
+    ["quality-module-2"] = {
     productivity = -0.50,
     consumption = 2,
     speed = -0.6,
     quality=0.045
-}
-ei_lib.raw.module["quality-module-3"].effect = {
+    },
+    ["quality-module-3"] = {
     productivity = -0.75,
     consumption = 3,
     speed = -0.9,
     quality=0.06
+    },
 }
+for name, effects in pairs(quality_effects) do
+    if data.raw.module[name] then data.raw.module[name].effect = effects end
+end
+end
 
 -- nerf vanilla modules a bit
 ei_lib.raw.module["productivity-module"].effect = {

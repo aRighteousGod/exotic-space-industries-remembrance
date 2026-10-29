@@ -21,8 +21,8 @@ connected display includes the old red corner and constant cyan quadrants. The
 complete inset screen is centered at source pixel `(470, 555)`, with its cyan
 antialiasing and the same one-pixel guard, leaving the bezel intact.
 
-By explicit user request these assets ship in the **main mod** at
-`exotic-space-industries-remembrance/graphics/status-lights/`, without an `ei-`
+These assets ship in **Graphics 6** at
+`exotic-space-industries-remembrance-graphics-6/graphics/status-lights/`, without an `ei-`
 filename prefix. Copy only the 23 named mask PNGs; previews and manifests remain
 in registered staging. No original sprite sheet is replaced or retired.
 

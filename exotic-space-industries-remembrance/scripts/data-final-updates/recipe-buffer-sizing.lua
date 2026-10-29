@@ -12,8 +12,8 @@
 -- blueprint: .codex/esir/blueprints/recipe-economy.md#contract
 -- blueprint-ref: .codex/esir/blueprints/recipe-economy.md#fluid-buffers
 
--- Main ESIR requires Quality and uses native 2.1 buffer sizing. Retain this
--- bounded fallback for configurations that deliberately omit that dependency.
+-- Quality-enabled games use native 2.1 buffer sizing. This bounded fallback
+-- preserves authored capacities when the optional Quality mod is disabled.
 if mods["quality"] then return end
 
 -- Bounded identities from the preserved 1.3.41 core comparison, plus the two

@@ -2082,7 +2082,7 @@
         }
       ],
       "integration_acceptance": "deferred-by-user",
-      "integration_changes_or_limits": "User explicitly deferred K2 support for ESIR 1.4.0. Known load conflict: kr-ammonia has a 25 C minimum while ESIR cryo-container recipes use -35 C. No temperature or balance change; retain affected saves on preserved 2.0. Earlier import/buffer ports are preparatory, not accepted support."
+      "integration_changes_or_limits": "Full K2 support remains deferred for ESIR 1.4.0. The later generic cryo-temperature reconciliation repairs out-of-range paired transfers against their actual fluid identity, covering the earlier kr-ammonia minimum-temperature failure mechanism while retaining native core temperatures. Isolated changed-range and renamed-fluid fixtures do not accept the full K2 combination, progression or save migration; retain affected saves on preserved 2.0 pending that review. See CRYO_TEMPERATURE_COMPATIBILITY.md."
     },
     {
       "original": "planet-muluna",

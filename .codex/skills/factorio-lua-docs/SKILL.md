@@ -62,7 +62,8 @@ Fluid outputs need explicit multiplier 2 to retain the old default, instead of
 the new default 3. The user subsequently approved native 2.1 buffer sizing with
 Quality enabled. ESIR now uses `ei_lib.recipe_fluidbox_multiplier` to inherit
 those defaults and retain authored explicit values; parity adjustments apply
-only without Quality. Main ESIR requires Quality. Do not halve an ordinary
+only without Quality. Main ESIR supports both Quality-enabled and Quality-disabled
+configurations; Recycler remains a separate required dependency. Do not halve an ordinary
 recipe's ingredients to fit a buffer.
 The railgun helper's locked, normally uncraftable recipe has a separately verified
 sizing exception. See `scripts/qc/factorio-2.1/prepare_fluid_buffers.py`, the paired

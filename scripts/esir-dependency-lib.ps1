@@ -192,7 +192,7 @@ function Get-EsirDependencyMediaPackSet {
 
 function Get-EsirDependencyIgnoredExternalPathMods {
     $set = New-EsirStringSet
-    Add-EsirStringSetItems -Set $set -Items @('base', 'core', 'quality')
+    Add-EsirStringSetItems -Set $set -Items @('base', 'core')
     return $set
 }
 

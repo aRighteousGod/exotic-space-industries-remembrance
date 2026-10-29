@@ -1,5 +1,6 @@
 -- Existing NSBC player acceptance, run through actual ESIR dispatcher/prototypes.
 local fixture = require("player-control")
+local player_matrix = require("player-matrix")
 local loaded = false
 script.on_init(function()
     -- The native freeplay introduction is a modal dialog and pauses a hidden
@@ -29,6 +30,7 @@ script.on_event(defines.events.on_tick, function(event)
     end
     fixture.tick(event.tick)
     if storage.native_accepted and not storage.custody then
+        player_matrix.run(game.connected_players[1])
         storage.custody = remote.call("nsbc-qc", "custody")
         -- Take a second autosave after the custody projection exists.
         game.auto_save("esir-beacon-client-accepted")

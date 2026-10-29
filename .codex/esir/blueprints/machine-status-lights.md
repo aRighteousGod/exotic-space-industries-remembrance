@@ -35,10 +35,13 @@ stages share the config module; no runtime state, events, or migrations exist.
   and antialiased fringe, plus one source pixel of opaque filtering coverage.
   Source red-to-green changes distinguish lens edges from unchanged metal.
   The overlays use normal
-  blending and `draw_as_glow`, on `light-effect` at secondary draw order 4.
+  blending and `draw_as_glow`, on `object` at secondary draw order 4. They sort
+  with the machine and cover its original lens pixels, while foreground
+  characters and airborne mechs can occlude them. The high `light-effect`
+  layer must not be used for the opaque lens pass.
   The source sprites remain unchanged; the overlay and emitter both disappear
-  without energy. All new PNGs ship in the main mod's `graphics/status-lights/`
-  by explicit user request. Original and Off load no added lens overlays.
+  without energy. All lens PNGs ship in Graphics 6 under `graphics/status-lights/`.
+  Original and Off load no added lens overlays.
 - During data-updates, only Status plus installed/enabled Bottleneck Lite sets
   `bottleneck_ignore = true` on the 20 indicator-bearing bodies. BNL consumes it
   in data-final-fixes before inserting its own indicator or overriding colors.
@@ -83,3 +86,7 @@ custom-colored. Capture early flags before BNL consumes them; final flag presenc
 alone cannot prove exclusion. Verify an independently supplied ignore flag too.
 Exercise full-output and low-power recovery, and review yellow/orange lenses in
 day/night captures. The QC baseline disables both early and final ESIR hooks.
+Check real grounded-character and airborne-mech overlaps on every indicator body,
+including partial/full overlap and departure, with light-sprite occlusion on/off.
+The lens shape must not draw through a foreground actor; nearby soft illumination
+is allowed. Verify exposed lenses still cover the original colored pixels.

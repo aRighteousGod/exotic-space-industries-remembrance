@@ -30,7 +30,7 @@ assert (flecks['start_scale'],flecks['end_scale'])==(.05,1)
 assert .59*(1-.12)<=.8*(1-.35)
 assert data['turret']['attack_parameters']['lead_target_for_projectile_speed']==.85
 assert sum(len(names) for names in data['retired'].values())==10
-assert data['poison']['animation']['filename'].endswith('/acid-flame/spark.png')
+assert data['poison']['animation']['filename'].endswith('/effects/stickers/spark.png')
 pairs={}
 for row in report['combat']:pairs.setdefault(row['key'],{})[row['variant']]=row
 expected_pairs=144 if report['profile'] in ('8x','16x') and report.get('fixture_version',0)>=4 else 48

@@ -16,8 +16,33 @@ Victory `repair_runtime_state` restores optional victory integration callbacks w
 - [1.3.35.lua](../../../exotic-space-industries-remembrance/migrations/1.3.35.lua)
 - [1.3.36.lua](../../../exotic-space-industries-remembrance/migrations/1.3.36.lua)
 - [techs.lua](../../../exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/techs.lua)
+- [vulcanus.lua](../../../exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/planets/vulcanus.lua)
 
 ## Behavior and ownership
+
+<a id="science-template-ownership"></a>
+### Science ingredient ownership
+
+`ei_data.science` entries are shared age templates. Technology-specific additions
+must operate on a deep copy, including nested ingredient rows. The Vulcanus
+patch creates an independent Computer Age list for `ei-acid-neutralisation-t2`
+before appending its intended Metallurgic science requirement. That addition must
+not change the Computer Age template used by other technologies or by the
+`ei-no-triggers` conversion. Both triggered and science-cost research modes must
+retain reachable science unlocks; flattened-tree mode uses the same clean lists.
+
+Verify templates before/after data-updates and final fixes, check science-unlock
+ancestor costs, and compare all technology ingredients against the reproduced
+failure. Native save/reload must preserve already researched technologies and
+unrelated research state. This data-only correction introduces no recurring
+runtime work or research receiver.
+
+The [1.4.1 regression receipt](../handoffs/factorio-2.1/RESEARCH_SCIENCE_COST_REGRESSION.md)
+records the reproduced shared-table mutation, exact cost-only delta, all four
+trigger/flatten selections and native lab/save/reload results. Flattening with
+native triggers retains its existing unit-based unlock lookup; the acid
+technology's science cost is preserved even where that lookup omits a direct
+trigger-technology prerequisite edge.
 
 The [1.4.0 migration](../../../exotic-space-industries-remembrance/migrations/1.4.0.lua)
 is owned by the [Gaia migration model](gaia-and-alien-systems.md#lifecycle) and also

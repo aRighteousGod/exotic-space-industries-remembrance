@@ -123,7 +123,7 @@ ei_lib.add_prerequisite("land-mine","explosives")
 ei_lib.add_prerequisite("follower-robot-count-1","defender")
 ei_lib.add_prerequisite("coal-liquefaction","metallurgic-science-pack")
 ei_lib.add_prerequisite("coal-liquefaction","space-science-pack")
-ei_lib.add_prerequisite("quality-module-3","ei-computing-unit")
+if data.raw.technology["quality-module-3"] then ei_lib.add_prerequisite("quality-module-3","ei-computing-unit") end
 
 -- Simulation begins at mining tier 3 and the first consuming combat tier.
 ei_lib.add_prerequisite("mining-productivity-3","ei-advanced-computer-age-tech")

@@ -951,12 +951,23 @@ function model.configure_cleanup(tick,enabled)
         return
     end
     root.charting=root.charting or {};root.charting_count=root.charting_count or 0
-    -- Rebuild only the bounded admission queue; job cursors and native wait ownership survive.
-    root.queue=scheduler.ensure_queue(nil);root.active=0
     local ids={}
     for id in pairs(root.jobs) do ids[#ids+1]=id end
     table.sort(ids)
-    for _,id in ipairs(ids) do scheduler.queue_push(root.queue,id);root.active=root.active+1 end
+    -- Cancel vanished requests before rebuilding counts: finish decrements active.
+    for _,id in ipairs(ids) do
+        local job=root.jobs[id]
+        if job.quality~=nil and (type(job.quality)~="string" or not prototypes.quality[job.quality]) then
+            finish(root,job,"cancelled: requested quality is no longer available")
+        elseif job.kind=="place_entities" and not prototypes.entity[job.name] then
+            finish(root,job,"cancelled: requested entity is no longer available")
+        end
+    end
+    -- Rebuild only the bounded admission queue; job cursors and native wait ownership survive.
+    root.queue=scheduler.ensure_queue(nil);root.active=0
+    for _,id in ipairs(ids) do
+        if root.jobs[id] then scheduler.queue_push(root.queue,id);root.active=root.active+1 end
+    end
     for _,surface in pairs(game.surfaces) do model.apply_policy(surface) end
 end
 

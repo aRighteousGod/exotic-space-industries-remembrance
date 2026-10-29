@@ -44,7 +44,7 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 
 ## Operating Rules
 
-- Automatic operational and ecology alerts must follow [shared runtime alerts](references/runtime-alerts.md): catalogue-generated personal toggles, fail-closed delivery, bounded cleanup and main-mod custom icons.
+- Automatic operational and ecology alerts must follow [shared runtime alerts](references/runtime-alerts.md): catalogue-generated personal toggles, fail-closed delivery, bounded cleanup and Graphics 6 custom icons.
 
 - Treat checked-in manifests under `.codex/esir/` as the fast map, not the authority. The repo source is still canonical.
 - For dependency-heavy questions, prefer the dedicated `esir-dependency-intel` skill and `scripts\invoke-esir-dependency-intel.ps1` before freehand repo scans.

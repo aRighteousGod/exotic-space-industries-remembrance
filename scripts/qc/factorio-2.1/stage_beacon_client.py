@@ -50,9 +50,15 @@ def main():
     # Keep the accepted save ticking so a second native load can validate custody.
     text = text.replace('game.tick_paused = true', 'storage.native_accepted = true')
     (fixture / "player-control.lua").write_text(text, encoding="utf-8")
+    shutil.copy2(HERE / "beacons/player-matrix.lua", fixture / "player-matrix.lua")
     (fixture / "control.lua").write_text((HERE / "beacons/client-control.lua").read_text(encoding="utf-8"), encoding="utf-8")
+    ownership = (HERE / "beacon-ownership.lua").read_text(encoding="utf-8")
+    ownership = ownership.replace('if complete then return end', 'if complete or not storage.native_accepted then return end')
+    with (fixture / "control.lua").open("a", encoding="utf-8") as stream:
+        stream.write("\n" + ownership)
     subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", str(HERE / "invoke-core.ps1"),
-        "-Task", "stage", "-RunRoot", str(root), "-FixtureRoot", str(fixture)], check=True)
+        "-Task", "stage", "-RunRoot", str(root), "-FixtureRoot", str(fixture),
+        "-DependencyRoot", str(REPO / ".factorio-qc/dependency-seeds/2.1-core")], check=True)
     target = root / "mods/zzz-nonstandard-beacons-continued"
     # Remove only the checked junction object; no recursive source traversal.
     assert target.is_junction() and target.resolve() == NSBC.resolve()

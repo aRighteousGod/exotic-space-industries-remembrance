@@ -1,6 +1,6 @@
 -- Fixture-only comparison of native emissive assembler LEDs and light intensities.
 local config = require("test-config")
-if config.mode ~= "status" or config.focus == "smelters" or (config.bottleneck and config.bottleneck ~= "absent") then return end
+if config.overlaps or config.mode ~= "status" or config.focus == "smelters" or (config.bottleneck and config.bottleneck ~= "absent") then return end
 
 local sources = {"ei-crusher", "ei-advanced-chem-plant", "ei-nano-factory", "ei-fission-facility", "ei-castor"}
 local levels = {0.35, 0.5, 0.65, 0.8, 1.0}

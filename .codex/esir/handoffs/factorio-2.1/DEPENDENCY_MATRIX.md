@@ -118,6 +118,9 @@ None was uploaded by this task.
 | `exotic-space-industries-remembrance-soundtrack-2` | 1.1.0 |
 | `zzz-nonstandard-beacons-continued` | 1.0.0 |
 
+ESIR declares original `zzz-nonstandard-beacons` incompatible. Disable the original
+mod and use the Continued dependency; its existing version requirement is unchanged.
+
 ## Final optional combination
 
 The final ESIR ZIP passed a combined fresh-save and tick-600 smoke with twelve

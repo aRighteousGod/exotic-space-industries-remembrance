@@ -25,10 +25,13 @@ while queue:
     queue.extend(e['name'] for e in resolution['required_edges'] if e['from']==name and e['name'] in packages)
 selection=json.loads((a.core/'release-selection.json').read_text())
 rows=selection['packages']
-names={r['name'] for r in rows}|needed|{'base','quality','space-age','elevated-rails','recycler'}
+core_mods={r['name']:r for r in json.loads((a.core/'mods/mod-list.json').read_text())['mods']}
+names={name for name,row in core_mods.items() if row.get('enabled')}|needed
+quality_enabled='quality' in names
 for name in needed:
     package=packages[name]
     for dependency in package['info'].get('dependencies',[]):
+        assert quality_enabled or not re.match(r'\s*(?:~\s*)?quality(?:\s|$)',dependency), (name,'requires Quality in a Quality-disabled profile')
         conflict=re.match(r'\s*!\s*([^ <=>]+)',dependency)
         assert not conflict or conflict[1] not in names,(name,dependency)
     assert name not in {r['name'] for r in rows},'Do not silently replace a tested core dependency'
@@ -47,9 +50,14 @@ for path in (HERE/'optional-smoke').glob('*.lua'):shutil.copy2(path,fixture/path
 (fixture/'info.json').write_text(json.dumps(dict(name=fixture.name,version='1.0.0',factorio_version='2.1',
     title='ESIR optional combination QC',author='ESIR QC',dependencies=['exotic-space-industries-remembrance',*a.roots])),encoding='utf-8')
 names.add(fixture.name)
-(mods/'mod-list.json').write_text(json.dumps({'mods':[dict(name=n,enabled=True) for n in sorted(names)]}),encoding='utf-8')
+selected={name:dict(row) for name,row in core_mods.items()}
+for name in names:selected[name]=dict(selected.get(name,{}),name=name,enabled=True)
+if not quality_enabled:selected['quality']=dict(name='quality',enabled=False)
+mod_list=[selected[name] for name in sorted(selected)]
+(mods/'mod-list.json').write_text(json.dumps({'mods':mod_list}),encoding='utf-8')
 if (a.core/'mods/mod-settings.dat').exists():shutil.copy2(a.core/'mods/mod-settings.dat',mods/'mod-settings.dat')
-engine=Path('.factorio-qc/f21').absolute()
+development=json.loads((HERE.parents[2]/'.codex/esir/factorio-development.json').read_text())
+engine=(HERE.parents[2]/development['engine_path']).resolve().parents[2]
 (root/'config.ini').write_text(f'[path]\nread-data={engine / "data"}\nwrite-data={root}\n[other]\ncheck-updates=false\n',encoding='utf-8')
 (root/'release-selection.json').write_text(json.dumps(dict(packages=rows,source_overlays=False,private_fixture=fixture.name,
     optional_roots=a.roots,required_closure=sorted(needed)),indent=2),encoding='utf-8')

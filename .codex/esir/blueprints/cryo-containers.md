@@ -35,11 +35,22 @@ and fluorine use 25°C, holmium/electrolyte/brine 15°C, ammoniacal solution −
 ammonia −35°C and auric vapor 500°C. A single item cannot encode arbitrary heat;
 rejecting other temperatures prevents free heating or cooling through packaging.
 
+If compatibility changes the actual output fluid's identity or legal temperature
+range, finalization retains any valid selected temperature. Only an out-of-range
+output is replaced with that fluid's final `default_temperature` (also its minimum).
+The matching filling ingredient receives the same exact temperature and clears
+stale minimum/maximum gates, so the container never accepts arbitrary heat.
+For example, ammoniacal solution changed to a 15-100 C range fills and empties at
+15 C; a replacement ammonia fluid with minimum 25 C transfers at 25 C. Native
+ESIR keeps -50 C and -35 C respectively. Items, amounts, unlocks and transfer flags
+are preserved; no optional fluids are added to the closed registry.
+
 <a id="finalization"></a>
 ## Research and presentation
 
 New researches start at count 100, time 20 and then participate in normal ESIR
-cost scaling. Finalization retains scaled counts while resolving science ingredients
+cost scaling. Finalization first repairs invalid paired transfer temperatures using
+the final recipe fluid identities, then retains scaled counts while resolving science ingredients
 and the two explicit prerequisites after compatibility passes. Propellants use
 Computer Age; electrochemical uses Computer Age plus space science; Aquilan and
 auric inherit final ingredients from their respective milestone technologies.

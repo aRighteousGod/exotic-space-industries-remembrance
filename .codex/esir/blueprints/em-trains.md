@@ -3,6 +3,12 @@
 
 ## Implementation sources
 
+Native 2.1 burner item/quality pairs may return a prototype object in the name
+field. Fuel-value lookup canonicalizes that identifier through
+`ei_lib.get_prototype_name` before computing the remaining fraction, preserving
+already-stored fuel and avoiding repeated full-refill charges in either Quality
+configuration.
+
 - [charger.lua](../../../exotic-space-industries-remembrance/scripts/control/em-trains/charger.lua)
 - [gui.lua](../../../exotic-space-industries-remembrance/scripts/control/em-trains/gui.lua)
 - [informatron.lua](../../../exotic-space-industries-remembrance/scripts/control/em-trains/informatron.lua)

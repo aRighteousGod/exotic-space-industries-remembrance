@@ -7,6 +7,8 @@ param(
     [ValidateSet('all', 'smelters')][string]$Focus = 'all',
     [ValidateSet('absent', 'disabled', 'enabled', 'custom')][string]$Bottleneck = 'absent',
     [switch]$TransitionsOnly,
+    [switch]$Overlaps,
+    [ValidateSet('on', 'off')][string]$LightOcclusion = 'on',
     [ValidateSet('original', 'off', 'static', 'soft', 'reduced')][string]$ArcPreset = 'original',
     [ValidateSet('baseline', 'original', 'status', 'off')][string]$Mode = 'status'
 )
@@ -20,9 +22,9 @@ $utf8 = [Text.UTF8Encoding]::new($false)
 $fixture = Join-Path $repo 'scripts/qc/machine-status-lights'
 if ($Phase -eq 'Stage') {
     $version = (& $context.factorio_exe --version | Out-String)
-    if ($version -notmatch 'Version:\s*(2\.0\.77)') { throw 'This fixture requires Factorio 2.0.77.' }
+    if ($version -notmatch 'Version:\s*(2\.1\.23)') { throw 'This fixture requires Factorio 2.1.23.' }
     $payload = '.factorio-qc/ml-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
-    $run = Register-EsirArtifactRun -RepoRoot $repo -Workflow 'machine-status-lights' -Scenario "$Focus-startup-modes" -EngineVersion '2.0.77' -PayloadPath $payload -Reproduction 'scripts/invoke-machine-status-light-qc.ps1: Stage, Data baseline/original/status/off, Visual status, Finish; smelter focus also covers all ArcPreset values'
+    $run = Register-EsirArtifactRun -RepoRoot $repo -Workflow 'machine-status-lights' -Scenario "$Focus-startup-modes" -EngineVersion '2.1.23' -PayloadPath $payload -Reproduction 'scripts/invoke-machine-status-light-qc.ps1: Stage, Data baseline/original/status/off, Visual status, Finish; smelter focus also covers all ArcPreset values'
     $RunDirectory = Join-Path $repo $run.payload_path
     New-Item -ItemType Directory -Path $RunDirectory -Force | Out-Null
     & python -B (Join-Path $repo '.codex/esir/asset-generators/machine-status-lights/generate.py') --output (Join-Path $RunDirectory 'lens-art')
@@ -43,10 +45,19 @@ if ($Phase -eq 'Stage') {
         $context.artifact_root = $RunDirectory
         $context.run_mod_directory = $mods
         $result = New-FactorioQCResult -Name 'machine-status-lights'
+        # Keep the wrapper's engine/dependency validation, but do not duplicate
+        # gigabytes of immutable graphics. Every Lua/control file stays private.
+        function Copy-DirectoryTreeRobust {
+            param([string]$Source, [string]$Destination)
+            & python -B (Join-Path $fixture 'stage-tree.py') $Source $Destination
+            if ($LASTEXITCODE -ne 0) { throw 'Private media-sharing stage failed.' }
+        }
         $null = Sync-FactorioRunMods -Context $context -Result $result
     }
     $pack = Join-Path $mods 'exotic-space-industries-remembrance'
-    Get-ChildItem -LiteralPath (Join-Path $repo 'exotic-space-industries-remembrance') | Copy-Item -Destination $pack -Recurse -Force
+    if ($SeedMods -or $PreparedMods) {
+        Get-ChildItem -LiteralPath (Join-Path $repo 'exotic-space-industries-remembrance') | Copy-Item -Destination $pack -Recurse -Force
+    }
     $entrypoints = Join-Path $RunDirectory 'entrypoints'
     New-Item -ItemType Directory -Path $entrypoints -Force | Out-Null
     foreach ($entry in @('data-updates.lua', 'data-final-fixes.lua')) {
@@ -73,6 +84,18 @@ $RunDirectory = (Resolve-Path -LiteralPath $RunDirectory).Path
 $boundary = [IO.Path]::GetFullPath((Join-Path $repo '.factorio-qc')) + [IO.Path]::DirectorySeparatorChar
 if (-not $RunDirectory.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) { throw 'Run must be private QC staging.' }
 $runId = Get-Content -LiteralPath (Join-Path $RunDirectory 'run-id.txt') -Raw
+# A task may explicitly relocate its generated payload to the user's overflow
+# disk. Keep ownership/receipts in the registered directory; never follow an
+# arbitrary junction or use an installed mod directory as mutable test staging.
+$overflowPointer = Join-Path $RunDirectory 'overflow-root.txt'
+if (Test-Path -LiteralPath $overflowPointer) {
+    $overflow = [IO.Path]::GetFullPath((Get-Content -LiteralPath $overflowPointer -Raw).Trim())
+    if (-not $overflow.StartsWith('D:\ESIR\output\machine-status-depth-', [StringComparison]::OrdinalIgnoreCase) -or
+        (Get-Content -LiteralPath (Join-Path $overflow 'run-id.txt') -Raw).Trim() -ne $runId.Trim()) {
+        throw 'Overflow payload ownership mismatch.'
+    }
+    $RunDirectory = $overflow
+}
 if ($Phase -eq 'Finish') {
     if ($Focus -eq 'smelters') {
         & python -B (Join-Path $fixture 'check-smelters.py') $RunDirectory
@@ -109,21 +132,34 @@ foreach ($language in @('en', 'de', 'fr', 'ja', 'pl', 'ru', 'zh-CN', 'zh-TW')) {
     $relative = "locale/$language/machine-status-lights.cfg"
     Copy-Item -LiteralPath (Join-Path (Join-Path $repo 'exotic-space-industries-remembrance') $relative) -Destination (Join-Path (Join-Path $mods 'exotic-space-industries-remembrance') $relative) -Force
 }
-$art = Join-Path $repo 'exotic-space-industries-remembrance/graphics/status-lights'
+$art = Join-Path $repo 'exotic-space-industries-remembrance-graphics-6/graphics/status-lights'
 if (Test-Path -LiteralPath $art) {
-    $targetArt = Join-Path $mods 'exotic-space-industries-remembrance/graphics/status-lights'
+    $targetArt = Join-Path $mods 'exotic-space-industries-remembrance-graphics-6/graphics/status-lights'
     New-Item -ItemType Directory -Path $targetArt -Force | Out-Null
-    Get-ChildItem -LiteralPath $art -File | Copy-Item -Destination $targetArt -Force
+    foreach ($asset in Get-ChildItem -LiteralPath $art -File) {
+        $destination = Join-Path $targetArt $asset.Name
+        if (Test-Path -LiteralPath $destination) {
+            if ((Get-FileHash -LiteralPath $asset.FullName).Hash -eq (Get-FileHash -LiteralPath $destination).Hash) { continue }
+            # Detach a staged hard link before replacing changed source art.
+            Remove-Item -LiteralPath $destination
+        }
+        Copy-Item -LiteralPath $asset.FullName -Destination $destination
+    }
 }
 $list = Get-Content -LiteralPath (Join-Path $mods 'mod-list.json') -Raw | ConvertFrom-Json
 $list.mods = @($list.mods | Where-Object name -ne 'BottleneckLite')
+# The isolated lighting profile uses the core seed, not optional turret reskins.
+# Keep unrelated, concurrently edited HD assets outside this fixture's atlas.
+foreach ($optional in @('minigun-turret-HD', 'minigun-turret-HD-graphics')) {
+    $list.mods = @($list.mods | Where-Object name -ne $optional) + @{name=$optional; enabled=$false}
+}
 if ($Bottleneck -eq 'absent') { $list.mods += @{name='BottleneckLite'; enabled=$false} }
 if ($Bottleneck -ne 'absent') {
-    $archive = Join-Path $env:APPDATA 'Factorio/mods/BottleneckLite_1.3.4.zip'
-    Copy-Item -LiteralPath $archive -Destination (Join-Path $mods 'BottleneckLite_1.3.4.zip') -Force
-    $list.mods += @{name='BottleneckLite'; enabled=$true; version='1.3.4'}
-    Copy-Item -LiteralPath (Join-Path $env:APPDATA 'Factorio/mods/flib_0.16.5.zip') -Destination (Join-Path $mods 'flib_0.16.5.zip') -Force
-    $list.mods = @($list.mods | Where-Object name -ne 'flib') + @{name='flib'; enabled=$true; version='0.16.5'}
+    $archive = Join-Path $env:APPDATA 'Factorio/mods/BottleneckLite_1.4.1.zip'
+    Copy-Item -LiteralPath $archive -Destination (Join-Path $mods 'BottleneckLite_1.4.1.zip') -Force
+    $list.mods += @{name='BottleneckLite'; enabled=$true; version='1.4.1'}
+    Copy-Item -LiteralPath (Join-Path $env:APPDATA 'Factorio/mods/flib_0.17.2.zip') -Destination (Join-Path $mods 'flib_0.17.2.zip') -Force
+    $list.mods = @($list.mods | Where-Object name -ne 'flib') + @{name='flib'; enabled=$true; version='0.17.2'}
 }
 [IO.File]::WriteAllText((Join-Path $mods 'mod-list.json'), ($list | ConvertTo-Json -Depth 8), $utf8)
 $info = Get-Content -LiteralPath (Join-Path $helper 'info.json') -Raw | ConvertFrom-Json
@@ -140,22 +176,32 @@ if ($Mode -eq 'baseline') {
 $visual = ($Phase -eq 'Visual').ToString().ToLowerInvariant()
 $lightingProfile = if ($ArcPreset -eq 'original') { $Mode } else { "$ArcPreset-$Mode" }
 if ($Bottleneck -ne 'absent') { $lightingProfile = "bnl-$Bottleneck-$lightingProfile" }
+if ($Overlaps) {
+    if ($Mode -ne 'status' -or $Bottleneck -ne 'absent') { throw 'Overlap captures require Status with BNL absent.' }
+    $lightingProfile = "overlap-$LightOcclusion"
+}
 $transitionCapture = $TransitionsOnly.ToString().ToLowerInvariant()
-[IO.File]::WriteAllText((Join-Path $helper 'test-config.lua'), "return {mode='$Mode',visual=$visual,focus='$Focus',arc='$ArcPreset',profile='$lightingProfile',bottleneck='$Bottleneck',transitions_only=$transitionCapture}", $utf8)
+$overlapCapture = $Overlaps.ToString().ToLowerInvariant()
+[IO.File]::WriteAllText((Join-Path $helper 'test-config.lua'), "return {mode='$Mode',visual=$visual,focus='$Focus',arc='$ArcPreset',profile='$lightingProfile',bottleneck='$Bottleneck',transitions_only=$transitionCapture,overlaps=$overlapCapture}", $utf8)
+$privateConfig = Join-Path $RunDirectory "$lightingProfile-config.ini"
+$occlusion = ($LightOcclusion -eq 'on').ToString().ToLowerInvariant()
+[IO.File]::WriteAllText($privateConfig, "[path]`nwrite-data=$RunDirectory`n[other]`ncheck-updates=false`n[graphics]`nfull-screen=false`nhalt-rendering-when-minimized=false`nmax-sprite-loading-threads=2`nscreenshots-threads-count=1`ncache-sprite-atlas=false`nlight-occlusion=$occlusion`n", $utf8)
 $save = Join-Path $RunDirectory "$lightingProfile.zip"
-$arguments = @('--config', (Join-Path $RunDirectory 'config.ini'), '--mod-directory', $mods, '--disable-audio', '--disable-migration-window')
+$arguments = @('--config', $privateConfig, '--mod-directory', $mods, '--disable-audio', '--disable-migration-window')
 if ($Phase -in @('Data', 'Runtime')) {
     if ($Phase -eq 'Data') {
         $created = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments (@('--create', $save) + $arguments) -OutputPath (Join-Path $RunDirectory "$lightingProfile-create.txt")
         if ($created.exit_code -ne 0) { throw "Data/create failed: $lightingProfile-create.txt" }
     }
-    $bench = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments (@('--benchmark', $save, '--benchmark-ticks', '1000', '--benchmark-runs', '1') + $arguments) -OutputPath (Join-Path $RunDirectory "$lightingProfile-runtime.txt")
+    $ticks = if ($Overlaps) { '6000' } else { '1000' }
+    $bench = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments (@('--benchmark', $save, '--benchmark-ticks', $ticks, '--benchmark-runs', '1') + $arguments) -OutputPath (Join-Path $RunDirectory "$lightingProfile-runtime.txt")
     if ($bench.exit_code -ne 0) { throw "Runtime failed: $lightingProfile-runtime.txt" }
 } else {
     $env:SteamAppId = '427520'; $env:SteamGameId = '427520'
     # Leave room after the final simulation transition at tick 960. The fixture
     # disables Freeplay's intro modal, which otherwise pauses graphical playback.
-    $arguments = @('--benchmark-graphics', $save, '--benchmark-ticks', '1600', '--benchmark-runs', '1', '--window-size', '1280x720') + $arguments
+    $ticks = if ($Overlaps) { '6500' } else { '1600' }
+    $arguments = @('--benchmark-graphics', $save, '--benchmark-ticks', $ticks, '--benchmark-runs', '1', '--window-size', '1280x720') + $arguments
     $process = Start-Process -FilePath $context.factorio_exe -ArgumentList @($arguments | ForEach-Object { '"' + $_ + '"' }) -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $RunDirectory "$lightingProfile-visual.txt") -RedirectStandardError (Join-Path $RunDirectory "$lightingProfile-visual-error.txt")
     [IO.File]::WriteAllText((Join-Path $RunDirectory "$lightingProfile-visual-process.json"), (@{id=$process.Id; started_at=$process.StartTime.ToUniversalTime().ToString('o')} | ConvertTo-Json -Compress), $utf8)
     $null = $process.Handle
@@ -165,11 +211,17 @@ if ($Phase -in @('Data', 'Runtime')) {
             Start-Sleep -Seconds 1
             $process.Refresh()
             if (-not $process.HasExited -and $process.MainWindowTitle -eq 'Error') { throw "Factorio graphics error: $lightingProfile-visual.txt" }
+            $graphicsLog = Join-Path $RunDirectory "$lightingProfile-visual.txt"
+            if (-not $process.HasExited -and (Test-Path -LiteralPath $graphicsLog) -and
+                (Select-String -LiteralPath $graphicsLog -Pattern 'Error (AtlasBuilder|PrototypeLoader|ModManager|Util)\.cpp:' -Quiet)) {
+                throw "Factorio graphics load failed: $lightingProfile-visual.txt"
+            }
         }
         if (-not $process.HasExited) { throw 'Graphics capture timed out.' }
         $process.WaitForExit(); $process.Refresh()
         if ($process.ExitCode -ne 0) { throw "Graphics failed: $lightingProfile-visual.txt" }
-        $transitionReport = Get-Item -LiteralPath (Join-Path $RunDirectory "script-output/machine-lights/$lightingProfile-transitions.json")
+        $receipt = if ($Overlaps) { 'overlaps' } else { 'transitions' }
+        $transitionReport = Get-Item -LiteralPath (Join-Path $RunDirectory "script-output/machine-lights/$lightingProfile-$receipt.json")
         if ($transitionReport.LastWriteTime -lt $process.StartTime) { throw 'Graphics quit before the final transition evidence was written.' }
     } finally { if (-not $process.HasExited) { Stop-Process -Id $process.Id }; $process.Dispose() }
 }

@@ -1,0 +1,662 @@
+{
+  "date": "2026-10-29",
+  "status": "accepted-in-source",
+  "main_version": "1.4.1",
+  "engine_version": "2.1.23",
+  "artifact_run_id": "a6ea7b639fe04bbe9a682884f98adb40",
+  "artifact_root": ".factorio-qc/research-bootstrap-20261029",
+  "behavior_change": "Deep-copy Computer Age science template for tier-2 acid neutralisation before appending Metallurgic science.",
+  "technologies_compared": 804,
+  "recipes_compared": 2840,
+  "tested_mod_versions": {
+    "Accumulator-V2": "1.0.8",
+    "Arachnids_enemy": "1.2.1",
+    "ArmouredBiters21Compat": "2.0.7",
+    "Assembler-Reskin": "1.0.4",
+    "Cold_biters": "2.3.0",
+    "Electric_flying_enemies": "0.2.1",
+    "Explosive_biters": "2.4.0",
+    "PollutionCombinator-JamieFork": "1.2.0",
+    "SolarMatrix": "1.0.9",
+    "SteampunkLamp": "1.0.4",
+    "Toxic_biters": "2.1.0",
+    "air-scrubber": "0.2.9",
+    "assault_spidertron_V2": "2.3.12",
+    "atan-ash-fork": "1.0.1",
+    "base": "2.1.23",
+    "ch-concentrated-solar": "0.6.0",
+    "doeworks-deer-continued": "1.0.0",
+    "elevated-pipes": "1.5.0",
+    "elevated-rails": "2.1.23",
+    "enhanced-walls-continued": "1.0.0",
+    "esir-qc-research-bootstrap": "1.0.0",
+    "exotic-space-industries-remembrance": "1.4.1",
+    "exotic-space-industries-remembrance-graphics-1": "1.1.0",
+    "exotic-space-industries-remembrance-graphics-2": "1.1.0",
+    "exotic-space-industries-remembrance-graphics-3": "1.1.0",
+    "exotic-space-industries-remembrance-graphics-4": "1.1.0",
+    "exotic-space-industries-remembrance-graphics-5": "1.1.0",
+    "exotic-space-industries-remembrance-graphics-6": "1.1.0",
+    "exotic-space-industries-remembrance-soundtrack-1": "1.1.0",
+    "exotic-space-industries-remembrance-soundtrack-2": "1.1.0",
+    "informatron": "0.5.0",
+    "mferrari_graphics_pack_1": "0.0.5",
+    "perel": "1.2.2",
+    "quality": "2.1.23",
+    "recycler": "2.1.23",
+    "rp_art_util": "3.0.0",
+    "rp_steam_intermediates": "1.0.0",
+    "rp_steam_roboports": "2.1.0",
+    "space-age": "2.1.23",
+    "zeus-wrath": "1.0.6",
+    "zzz-nonstandard-beacons-continued": "1.0.0"
+  },
+  "checks": {
+    "cases": [
+      {
+        "snapshot": ".factorio-qc\\research-bootstrap-20261029\\verified-default.json",
+        "passed": true,
+        "settings": {
+          "no_triggers": true,
+          "flatten": false
+        },
+        "science_ancestor_coverage": {
+          "ei-advanced-computer-age-tech": 91,
+          "ei-alien-computer-age-tech": 108,
+          "space-science-pack": 95,
+          "agricultural-science-pack": 106,
+          "metallurgic-science-pack": 105,
+          "electromagnetic-science-pack": 102,
+          "cryogenic-science-pack": 135,
+          "promethium-science-pack": 146
+        }
+      },
+      {
+        "snapshot": ".factorio-qc\\research-bootstrap-20261029\\verified-triggers.json",
+        "passed": true,
+        "settings": {
+          "no_triggers": false,
+          "flatten": false
+        },
+        "science_ancestor_coverage": {
+          "ei-advanced-computer-age-tech": 91,
+          "ei-alien-computer-age-tech": 108,
+          "space-science-pack": 95,
+          "agricultural-science-pack": 106,
+          "metallurgic-science-pack": 105,
+          "electromagnetic-science-pack": 102,
+          "cryogenic-science-pack": 135,
+          "promethium-science-pack": 146
+        }
+      },
+      {
+        "snapshot": ".factorio-qc\\research-bootstrap-20261029\\verified-flat.json",
+        "passed": true,
+        "settings": {
+          "no_triggers": true,
+          "flatten": true
+        },
+        "science_ancestor_coverage": {
+          "ei-advanced-computer-age-tech": 21,
+          "ei-alien-computer-age-tech": 21,
+          "space-science-pack": 22,
+          "agricultural-science-pack": 21,
+          "metallurgic-science-pack": 21,
+          "electromagnetic-science-pack": 21,
+          "cryogenic-science-pack": 21,
+          "promethium-science-pack": 27
+        }
+      },
+      {
+        "snapshot": ".factorio-qc\\research-bootstrap-20261029\\verified-flat-triggers.json",
+        "passed": true,
+        "settings": {
+          "no_triggers": false,
+          "flatten": true
+        },
+        "science_ancestor_coverage": {
+          "ei-advanced-computer-age-tech": 21,
+          "ei-alien-computer-age-tech": 21,
+          "space-science-pack": 23,
+          "agricultural-science-pack": 33,
+          "metallurgic-science-pack": 38,
+          "electromagnetic-science-pack": 28,
+          "cryogenic-science-pack": 27,
+          "promethium-science-pack": 28
+        }
+      }
+    ],
+    "before_after": {
+      "removed_unintended_cost": [
+        "agricultural-science-pack",
+        "agriculture",
+        "artificial-soil",
+        "atan-pollution-scrubbing",
+        "atan-spore-scrubbing",
+        "atomic-bomb",
+        "automation-2",
+        "automation-3",
+        "bacteria-cultivation",
+        "big-mining-drill",
+        "biochamber",
+        "bioflux",
+        "bioflux-processing",
+        "biter-egg-handling",
+        "braking-force-3",
+        "braking-force-4",
+        "braking-force-5",
+        "braking-force-6",
+        "bulk-inserter",
+        "calcite-processing",
+        "captivity",
+        "cb-coldjet-ammo-damage-1",
+        "cb-coldjet-ammo-damage-2",
+        "cb-power-armor",
+        "cryogenic-plant",
+        "cryogenic-science-pack",
+        "destroyer",
+        "dw-deer-tech",
+        "efficiency-module",
+        "efficiency-module-2",
+        "ei-advanced-cargo-wagon",
+        "ei-advanced-computer-age-tech",
+        "ei-advanced-electric-mining-drill",
+        "ei-advanced-fluid-wagon",
+        "ei-advanced-induction-matrix",
+        "ei-advanced-logistic-containers",
+        "ei-advanced-motor",
+        "ei-advanced-motor-cryodust",
+        "ei-advanced-port",
+        "ei-advanced-refinery",
+        "ei-advanced-rocket-fuel",
+        "ei-advanced-semiconductor",
+        "ei-advanced-steel",
+        "ei-alien-computer-age-tech",
+        "ei-ammonia",
+        "ei-anisetron",
+        "ei-arc-magazines",
+        "ei-assault-spidertron",
+        "ei-auric-marsh-inoculation",
+        "ei-big-inserter",
+        "ei-big-lab",
+        "ei-bio-chamber",
+        "ei-bio-nitric-acid",
+        "ei-bio-oil-carbon-fiber",
+        "ei-bio-reactor",
+        "ei-carbon-manipulation",
+        "ei-cargo-bots",
+        "ei-computer-core",
+        "ei-construction-bots",
+        "ei-cooler",
+        "ei-copper-beacon",
+        "ei-corrosive-magazines",
+        "ei-corrosive-rocketry",
+        "ei-cryo-container",
+        "ei-cryo-magazines",
+        "ei-cryo-rocketry",
+        "ei-cryodust",
+        "ei-dinitrogen-tetroxide",
+        "ei-dirty-water-production",
+        "ei-dirty-water-usage",
+        "ei-excavator",
+        "ei-exotic-magazines",
+        "ei-fusion-reactor",
+        "ei-gaian-saucer",
+        "ei-hexafluoride-magazines",
+        "ei-high-energy-crystal",
+        "ei-high-energy-crystal-growing",
+        "ei-high-temperature-reactor",
+        "ei-incinerator",
+        "ei-liquid-nitrogen-oil-processing",
+        "ei-liquid-oxygen-heavy-oil-cracking",
+        "ei-logistic-containers",
+        "ei-morphium-magazines",
+        "ei-morphium-usage-petro",
+        "ei-nano-factory",
+        "ei-neodym-refining",
+        "ei-neutron-magazines",
+        "ei-nitric-acid",
+        "ei-nitric-acid-medium-destilate-cracking",
+        "ei-nuclear-locomotive",
+        "ei-odd-plating",
+        "ei-oxyfluoride-magazines",
+        "ei-oxygen-cryo-container",
+        "ei-oxygen-difluoride",
+        "ei-oxygen-difluoride-alien",
+        "ei-oxygen-gas",
+        "ei-oxygen-steel",
+        "ei-oxygen-sulfuric-acid",
+        "ei-personal-laser",
+        "ei-personal-leg",
+        "ei-petroleum-reforming",
+        "ei-phased-array-radar",
+        "ei-plutonium-239-recycling",
+        "ei-processing-unit-bulk",
+        "ei-productivity-dirty-water-usage",
+        "ei-productivity-ore-purification",
+        "ei-productivity-ore-purification-simulation",
+        "ei-productivity-pure-ore-smelting",
+        "ei-productivity-pure-ore-smelting-advanced",
+        "ei-productivity-pure-ore-smelting-quantum",
+        "ei-productivity-slag-chunk-extraction",
+        "ei-propellant-cryo-container",
+        "ei-radar-capacity-1",
+        "ei-radar-capacity-2",
+        "ei-radar-efficiency-1",
+        "ei-radar-efficiency-2",
+        "ei-radar-range-1",
+        "ei-radar-range-2",
+        "ei-rocket-control-unit",
+        "ei-rocket-parts",
+        "ei-rocket-processing-unit",
+        "ei-spider-chassis-1",
+        "ei-spider-chassis-10",
+        "ei-spider-chassis-11",
+        "ei-spider-chassis-12",
+        "ei-spider-chassis-2",
+        "ei-spider-chassis-3",
+        "ei-spider-chassis-4",
+        "ei-spider-chassis-5",
+        "ei-spider-chassis-6",
+        "ei-spider-chassis-7",
+        "ei-spider-chassis-8",
+        "ei-spider-chassis-9",
+        "ei-spider-doeworks-mount",
+        "ei-spider-vehicles",
+        "ei-surveyor-cannon",
+        "ei-thorium-232-recycling",
+        "ei-uranium-233-recycling",
+        "ei-uranium-235-recycling",
+        "electric-weapons-damage-1",
+        "electric-weapons-damage-2",
+        "electromagnetic-plant",
+        "electromagnetic-science-pack",
+        "elevated-rail",
+        "energy-shield-mk2-equipment",
+        "epic-quality",
+        "explosive-rocketry",
+        "fission-reactor-equipment",
+        "follower-robot-count-4",
+        "foundry",
+        "heating-tower",
+        "holmium-processing",
+        "inserter-capacity-bonus-1",
+        "inserter-capacity-bonus-2",
+        "jellynut",
+        "kovarex-enrichment-process",
+        "lithium-processing",
+        "logistic-system",
+        "logistics-3",
+        "low-density-structure",
+        "metallurgic-science-pack",
+        "military-4",
+        "military-5",
+        "mining-productivity-2",
+        "mining-productivity-3",
+        "modules",
+        "nuclear-fuel-reprocessing",
+        "physical-projectile-damage-3",
+        "physical-projectile-damage-4",
+        "power-armor",
+        "power-armor-mk2",
+        "processing-unit",
+        "production-science-pack",
+        "productivity-module",
+        "productivity-module-2",
+        "quality-module",
+        "quality-module-2",
+        "recycling",
+        "refined-flammables-4",
+        "refined-flammables-5",
+        "research-speed-3",
+        "research-speed-4",
+        "rocket-fuel",
+        "rocket-silo",
+        "rocket-turret",
+        "rocketry",
+        "space-platform",
+        "space-platform-thruster",
+        "space-science-pack",
+        "speed-module",
+        "speed-module-2",
+        "spidertron",
+        "stack-inserter",
+        "steam-power",
+        "steel-plate-productivity",
+        "stronger-explosives-3",
+        "stronger-explosives-4",
+        "stronger-explosives-5",
+        "tesla-weapons",
+        "toolbelt-equipment",
+        "tungsten-carbide",
+        "tungsten-steel",
+        "utility-science-pack",
+        "weapon-shooting-speed-3",
+        "weapon-shooting-speed-4",
+        "yumako"
+      ],
+      "retained_metallurgic_cost": [
+        "artillery-shell-damage-1",
+        "asteroid-reprocessing",
+        "captive-biter-spawner",
+        "cliff-explosives",
+        "coal-liquefaction",
+        "ei-acid-neutralisation-t2",
+        "ei-aquilan-cryo-container",
+        "ei-auric-precipitation",
+        "ei-auric-vapor-cryo-container",
+        "ei-crystal-accumulator-quantum",
+        "ei-dragons-breath-shotgun-shell",
+        "ei-exotic-matter-separation",
+        "ei-neo-logistics",
+        "ei-personal-reactor",
+        "ei-productivity-auric-precipitation",
+        "foundation",
+        "fusion-reactor",
+        "fusion-reactor-equipment",
+        "legendary-quality",
+        "low-density-structure-productivity",
+        "planet-discovery-aquilo",
+        "quantum-processor",
+        "rail-support-foundations",
+        "railgun",
+        "railgun-damage-1",
+        "railgun-shooting-speed-1",
+        "research-productivity",
+        "stellar-discovery-solar-system-edge",
+        "turbo-transport-belt"
+      ],
+      "all_other_captured_technology_fields_unchanged": true,
+      "all_captured_recipe_fields_unchanged": true
+    },
+    "negative_control": "Original template mutation rejected at data-updates",
+    "native": {
+      "passed": true,
+      "reload_exact_match": true,
+      "researched_technologies": 105,
+      "queue": [
+        "ei-acid-neutralisation-t2"
+      ],
+      "progress": 0.375,
+      "inventory": {
+        "ei-dark-age-tech": 30,
+        "ei-steam-age-tech": 30,
+        "ei-electricity-age-tech": 30,
+        "ei-computer-age-tech": 30
+      },
+      "completion": {
+        "tick": 5,
+        "by_script": false
+      },
+      "checkpoint_sha256": "886d4d44580993afe1ed45cd65c0654f5626d7698087638ea4d4c922ff492c8e"
+    }
+  },
+  "source": [
+    {
+      "path": "exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/planets/vulcanus.lua",
+      "sha256": "dee0c9aafdb3b5ce859f0d4cd9fb5d14420f07b679e46633f5e6f027dbb44dc0",
+      "bytes": 17979
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/capture.lua",
+      "sha256": "0943b3d2d5920098c829375138005d0cf7fb1ddbffd8e24130d7d161ab7caec2",
+      "bytes": 1735
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/check.py",
+      "sha256": "9c7f705881341700c5f08daea91986fa3393cbe733f456777ce1ef43fd022f35",
+      "bytes": 6489
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/control.lua",
+      "sha256": "28bad010c741b5c7096998326a2410407cf0a82485a0d8e5fcaae6a45563be4a",
+      "bytes": 5056
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/data-final-fixes.lua",
+      "sha256": "a64d04d18bb981245b2bb0f12e9dc685338aae1343f163d1374238c39a48f962",
+      "bytes": 28
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/data-updates.lua",
+      "sha256": "087c330accee479581bde20b5f6c8f61d48e2ac713dda078983952a273184ff0",
+      "bytes": 30
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/data.lua",
+      "sha256": "17fdfb9b7843651bf9e42afd173f81bf35a4b186f0224199462af808a121c957",
+      "bytes": 134
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/info.json",
+      "sha256": "ce2b3374656adb940a222ccf50fda5a82b317345b29140242660d6579047e2cc",
+      "bytes": 211
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/README.md",
+      "sha256": "93a0182576e26b91a85ee2ab5fd2647bda9ca4cefa3b5d82800938a4fa5c2392",
+      "bytes": 3317
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/settings-updates.lua",
+      "sha256": "aca5f39b3a2298352c895986d87444760bf4d469f2d175069fe73a82550ccb11",
+      "bytes": 471
+    },
+    {
+      "path": "scripts/qc/factorio-2.1/research-bootstrap/test-config.lua",
+      "sha256": "9a2c0310e7a6dcab9eb88ece86780d169249a969777a6974d667e624d8c68ad0",
+      "bytes": 41
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/before.json",
+      "sha256": "1f18862ac960692cea04b8ccbc5091f03479b9c3a2efcf78e6061799a43ae4fb",
+      "bytes": 2484732
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/vulcanus.before.lua",
+      "sha256": "06050436198e20e27ef31f173ae3141fff363c911f05b04fdb26be39b09ef998",
+      "bytes": 17617
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/verified-checks.json",
+      "sha256": "a65b663b42c8dc186debc9b5c356e3547f54bef6a605809e0e75c49c8d294cd5",
+      "bytes": 10431
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/verified-default.json",
+      "sha256": "484c7a8dbf9101e55ddfa6099a8c8ab564804e21b2930db04735cfc213a2b277",
+      "bytes": 2476968
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/verified-default.factorio.log",
+      "sha256": "d43f742d243bde7722766c4398bd287f3c5f6bad0c04ade61f64e102b8c88369",
+      "bytes": 111269
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/verified-triggers.json",
+      "sha256": "e9600785a69fd9c5246b2a806785329dcc16987cbae10d8e4d1c365b546811b8",
+      "bytes": 2475016
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/verified-triggers.factorio.log",
+      "sha256": "d4ca5eafd381e5d5e85983a693b5da80f1e9702f11271efe812ede64e11e5036",
+      "bytes": 111212
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/verified-flat.json",
+      "sha256": "0e624f1bf8922b4ecf8ec3c5298b26520debb2e0ea065c4e5d719e45b8e11fe6",
+      "bytes": 2524868
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/verified-flat.factorio.log",
+      "sha256": "3f4c33a2db7470dde2ec86e782ae15f72d5e679a7198c7275fd2c9512f58fc2f",
+      "bytes": 109648
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/verified-flat-triggers.json",
+      "sha256": "6c57f57981d1de9b4447d29a2aa663675edfe6edd2c1313fe090f216ff6423c9",
+      "bytes": 2518885
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/verified-flat-triggers.factorio.log",
+      "sha256": "3b8b4d1911e51c026ef1e2c1a49cd08eb8ff7eb75354a55b065cecbe5409cab0",
+      "bytes": 110021
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/script-output/research-bootstrap-native.json",
+      "sha256": "17e397e0d8d828873dfaf816b06cd4b7aad3730810a50becc1c9a89373be431b",
+      "bytes": 2491
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/script-output/research-bootstrap-reload.json",
+      "sha256": "fcc8a814cca1b461b352f4114b88da1357f9c287ab63a3c27cf87ec0dc8b6cc3",
+      "bytes": 4799
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/native-save.checkpoint.json",
+      "sha256": "2e246f421c86950c31825813f3586573975ce2c9496617d7e93e87c077b7511a",
+      "bytes": 891
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/native-save.server.log",
+      "sha256": "4b5482a29fa9af5d7f65a1f2d93fb0c1cd6edfa832376f5bb3d6375e89a8b762",
+      "bytes": 114103
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/native-reload.factorio.log",
+      "sha256": "b40c38687ded255be8b1f7ba6f5f9964f9b487b59906ad6dbb938f41ee30f47c",
+      "bytes": 111251
+    }
+  ],
+  "dependency_archives": [
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Accumulator-V2_1.0.8.zip",
+      "sha256": "484505a04282450b767ea1a165a443ffd25b73f69adfa09aab4d1c9249ea0537",
+      "bytes": 1361974
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/air-scrubber_0.2.9.zip",
+      "sha256": "10062bca7bef3583fbf7769c7336e4478ad35575c7e275279f9f57c614a5602c",
+      "bytes": 13023652
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Arachnids_enemy_1.2.1.zip",
+      "sha256": "1eee33ebe8b84c3a4a95a2c80b182d05a047a63dc3f2e504d72e0bf695b9997a",
+      "bytes": 15980865
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/ArmouredBiters21Compat_2.0.7.zip",
+      "sha256": "90c146390d6c96f8106fc32c908c4c8faf1e2cfad73e7edf251162cebbcaaf7b",
+      "bytes": 45241819
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/assault_spidertron_V2_2.3.12.zip",
+      "sha256": "81156e8ee9aa5ee0defdff601cffa53ed55502a0f5bfe75817394f10a04f4d83",
+      "bytes": 2429841
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Assembler-Reskin_1.0.4.zip",
+      "sha256": "8b5f1917daa9ca030c696b9e42275dbc0cb956def19224b6661b8aa1feb1ce9f",
+      "bytes": 5971041
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/atan-ash-fork_1.0.1.zip",
+      "sha256": "7da940782d4775deeb6dd7b1389add37f506ded9b61c5aa8239713308c40e6b4",
+      "bytes": 94222
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/ch-concentrated-solar_0.6.0.zip",
+      "sha256": "d9d5e4e8767c104b8b542a9e9688eb91f340ca0fe653bb8441ef9c4fa527033f",
+      "bytes": 1720684
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Cold_biters_2.3.0.zip",
+      "sha256": "7f071e7863762149c5b65a6c182689765f93ffafe7b956b37aa529878fce9c5d",
+      "bytes": 120411539
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Electric_flying_enemies_0.2.1.zip",
+      "sha256": "b71ecf88c29b2dff5265339fd6215c96798126cc92f5a4384075984e6fc2c25f",
+      "bytes": 72404337
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/elevated-pipes_1.5.0.zip",
+      "sha256": "5c01b2fe26619e4c321cde1030f976832702cd0563861689251f986dceb29a5a",
+      "bytes": 876320
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Explosive_biters_2.4.0.zip",
+      "sha256": "6c975ca0ad19c7cd1f7b8821cb5e320bad5359edf6458540dcba8fb3a284eac8",
+      "bytes": 121093432
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/informatron_0.5.0.zip",
+      "sha256": "1e57dd0d86f8fae8486e9ac3cf32da8a2a463d5e7c2b2b5d257286cef727d64b",
+      "bytes": 129277
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/mferrari_graphics_pack_1_0.0.5.zip",
+      "sha256": "3e4ff7d45c74130fb5a229f5924b5a694cc684f95b8e90a3789d60132bde58da",
+      "bytes": 63284949
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/perel_1.2.2.zip",
+      "sha256": "e4e447a14081858813811cafe31be6c10f1bb20ba3d86fb74cb28b81513d4f9a",
+      "bytes": 45858
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/PollutionCombinator-JamieFork_1.2.0.zip",
+      "sha256": "f112e667af226208bb08fa2d5bc4755ae7534dc246894b8bfddaa2d579c0f8a1",
+      "bytes": 115438
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/rp_art_util_3.0.0.zip",
+      "sha256": "070dc9b77d9d8287846964b0b7047506060953e4af5a8385dd4fde7dd171d499",
+      "bytes": 342807
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/rp_steam_intermediates_1.0.0.zip",
+      "sha256": "8fe063cf60fccbc639553d9f05847f98000647267accd7eacf3c9580d2fde99f",
+      "bytes": 712826
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/rp_steam_roboports_2.1.0.zip",
+      "sha256": "4c8ac6273007c16023131f88792ce9aa5416fb6de893893d0da5f925def77ce2",
+      "bytes": 2066185
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/SolarMatrix_1.0.9.zip",
+      "sha256": "d56c64b762b39b28c8d6f1b32f90a1134cd50961be420c3c067cc099368dfa8b",
+      "bytes": 6222079
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/SteampunkLamp_1.0.4.zip",
+      "sha256": "97b0d17a99e2d62098153b29c26caebf107364d92e5b0f51c70006cc00a923e0",
+      "bytes": 4364751
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/Toxic_biters_2.1.0.zip",
+      "sha256": "6238e7949620c45dac8b5fbab815ecb8e937e2e30d460435d5a6ec0d1a96c946",
+      "bytes": 95780030
+    },
+    {
+      "path": ".factorio-qc/research-bootstrap-20261029/engine/mods/zeus-wrath_1.0.6.zip",
+      "sha256": "0932645ac2986ae3d5d497db05a905e70bf484fff717eaa059a3a9818c0b4f25",
+      "bytes": 1394631
+    }
+  ],
+  "limits": [
+    "Unknown reporting-player configuration and save unavailable.",
+    "Captured field comparison, not every final prototype field.",
+    "Eight same-identity science unlocks checked, not exhaustive production reachability.",
+    "Existing flatten+native-trigger prerequisite mapping unchanged.",
+    "Native headless laboratory and server save/reload; no rendered GUI or multiplayer-client evidence.",
+    "User owns rebuild and publication; no new package built."
+  ],
+  "superseded_diagnostics": [
+    "after-* snapshots do not prove alternate settings because forced_value was used without hidden=true.",
+    "native-lab failed on a removed 2.0 fixture property; native-lab-02 and native-save supersede it."
+  ]
+}

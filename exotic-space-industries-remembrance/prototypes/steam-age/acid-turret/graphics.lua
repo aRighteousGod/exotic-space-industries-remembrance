@@ -6,7 +6,7 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/acidthrower-pressure-jet.md#contract
 local art = ei_graphics_6_path.."graphics/entities/acidthrower-turret/"
-local facings = {"north", "east", "south", "west"}
+local facings = {"north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"}
 local projection = math.sqrt(0.5)
 -- Blender coordinates: +Y is north. Height is already baked into the head
 -- frames; only the fixed bearing's horizontal displacement belongs in shift.
@@ -29,6 +29,15 @@ local shifts = {
     south = {-bearing_x, bearing_y - rear_offset},
     west = {-bearing_y + rear_offset, -bearing_x},
 }
+-- Keep cardinal constants exact. Diagonal bases bridge the native orthogonal
+-- ports; rotating the old port coordinates would move them off the pipe grid.
+for index,facing in ipairs{"north_east", "south_east", "south_west", "north_west"} do
+    local angle = math.rad(45 + (index-1)*90)
+    local sine, cosine = math.sin(angle), math.cos(angle)
+    base_shifts[facing] = {-rear_offset*sine, rear_offset*cosine}
+    shifts[facing] = {bearing_x*cosine + (bearing_y-rear_offset)*sine,
+        bearing_x*sine - (bearing_y-rear_offset)*cosine}
+end
 
 -- These builders describe this model's two different origins and sheet layouts.
 -- The shared four-way helper does not retain draw_as_glow on its leaf sprites.
@@ -36,8 +45,9 @@ local shifts = {
 ---@param index integer
 ---@return data.Animation
 local function base_layer(suffix, index)
-    local layer = {filename=art.."acidthrower-base"..suffix..".png",
-        width=320, height=320, x=index*320, frame_count=1, scale=0.5, shift=base_shifts[facings[index+1]]}
+    local diagonal = index%2 == 1 and "-diagonal" or ""
+    local layer = {filename=art.."acidthrower-base"..diagonal..suffix..".png",
+        width=320, height=320, x=math.floor(index/2)*320, frame_count=1, scale=0.5, shift=base_shifts[facings[index+1]]}
     if suffix == "_shadow" then layer.draw_as_shadow = true end
     if suffix == "_mask" then layer.flags={"mask"}; layer.apply_runtime_tint=true end
     if suffix == "_glow" then layer.draw_as_glow=true end
@@ -72,7 +82,22 @@ end
 return function(turret)
     local base, glow = {}, {}
     for index,facing in ipairs(facings) do
-        base[facing] = {layers={base_layer("",index-1), base_layer("_shadow",index-1), base_layer("_mask",index-1)}}
+        local layers = {}
+        if index%2 == 0 then
+            -- Native pipe artwork bridges the diagonal manifold to grid-aligned
+            -- outlets. Its inner ends tuck under the chassis; terminal covers
+            -- remain engine-owned. These shifts deliberately omit rear_offset.
+            local pictures = pipepictures()
+            local horizontal = pictures.straight_horizontal
+            local vertical = pictures.straight_vertical
+            horizontal.shift = {index <= 4 and -1 or 1, 0}
+            vertical.shift = {0, (index == 2 or index == 8) and 1 or -1}
+            layers = {horizontal, vertical}
+        end
+        layers[#layers+1] = base_layer("",index-1)
+        layers[#layers+1] = base_layer("_shadow",index-1)
+        layers[#layers+1] = base_layer("_mask",index-1)
+        base[facing] = {layers=layers}
         glow[facing] = base_layer("_glow",index-1)
     end
     turret.base_picture = nil

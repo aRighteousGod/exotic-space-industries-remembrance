@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2026-10-28
+  Changes:
+    - Updated for Factorio 2.1.23.
+    - Collected the retained legacy nuclear locomotive light cone from Graphics 3 beside the locomotive sprites; the current HID headlight remains unchanged.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2026-06-16
   Changes:

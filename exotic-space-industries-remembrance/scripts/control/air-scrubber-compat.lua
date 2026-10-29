@@ -72,6 +72,7 @@ function model.normalize(entity)
 end
 
 function model.rebuild()
+    if not prototypes.entity["normal-atan-air-scrubber"] then return end
     for _, surface in pairs(game.surfaces) do
         for _, entity in ipairs(surface.find_entities_filtered{name="atan-air-scrubber"}) do model.normalize(entity) end
     end

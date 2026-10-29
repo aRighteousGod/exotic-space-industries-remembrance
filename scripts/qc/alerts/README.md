@@ -145,7 +145,7 @@ and `custom-ui-scale=1` or `1.5`. Run a fresh fixture save for each scale and an
 ecology-disabled profile, preserving each report, client log and fresh screenshots
 before reusing the profile. The data-stage assertion logs
 `ESIR_ICON_FINAL_DATA_PASS 27 ecology=true` or `ecology=false`; both profiles keep
-every signal in the main-mod asset namespace. The disabled profile presents a
+every signal's artwork in the Graphics 6 asset namespace. The disabled profile presents a
 fixture catalogue because the production Ecology window is intentionally absent.
 
 The [generator guide](../../../.codex/esir/asset-generators/alert-icons/README.md)

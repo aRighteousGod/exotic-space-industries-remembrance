@@ -864,5 +864,5 @@ ei_lib.raw["recipe"]["engine-unit"].energy_required = 4
 ei_lib.raw["recipe"]["electric-engine-unit"].energy_required = 6
 
 for i,v in pairs(new_ingredients_table) do
-    ei_lib.recipe_new(i, v)
+    if not i:match("^quality%-module") or data.raw.recipe[i] then ei_lib.recipe_new(i, v) end
 end

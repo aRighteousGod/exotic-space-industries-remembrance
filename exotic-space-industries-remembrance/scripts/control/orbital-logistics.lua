@@ -151,15 +151,16 @@ local function signal_key(signal)
 end
 
 local function copy_signal_id(signal)
-  if not signal or not signal.type or not signal.name then
+  if not signal or not signal.name then
     return nil
   end
 
-  return {
-    type = signal.type,
-    name = signal.name,
-    quality = signal.quality or "normal",
+  local copied = {
+    type = signal.type or "item",
+    name = ei_lib.get_prototype_name(signal.name),
+    quality = signal.quality == nil and "normal" or (ei_lib.get_prototype_name(signal.quality) or false),
   }
+  return ei_lib.is_valid_signal_id(copied) and copied or nil
 end
 
 local function make_filter(signal, count, max)
@@ -2048,9 +2049,10 @@ local function manifest_from_payload(payload)
 
   for _, filter in ipairs(filters) do
     local amount = math.max(0, tonumber(filter.min) or 0)
-    if amount > 0 then
+    local value = copy_signal_id(filter.value)
+    if amount > 0 and value then
       manifest[#manifest + 1] = {
-        value = copy_signal_id(filter.value),
+        value = value,
         min = amount,
         max = nil,
       }
@@ -2736,9 +2738,13 @@ local function reconcile_section(section, page)
   end
 
   for index, filter in ipairs(page.filters) do
-    if not filters_match(section.get_slot(index), filter) then
+    local value = copy_signal_id(filter.value)
+    local current = section.get_slot(index)
+    if not value then
+      if current then section.clear_slot(index) end
+    elseif not filters_match(current, filter) then
       section.set_slot(index, {
-        value = copy_signal_id(filter.value),
+        value = value,
         min = filter.min,
         max = filter.max,
       })

@@ -5527,13 +5527,15 @@ function model.repair_runtime_state(reason, tick)
     orbital_shards.sync_all_force_caches(runtime, tick)
     model.sync_all_doctrine_force_caches(runtime, tick)
     for unit, record in pairs(runtime.tanks_by_unit) do
-        if not is_tank(record.entity) then remove_record(runtime, unit, "invalid") end
+        if not is_tank(record.entity) then remove_record(runtime, unit, "invalid")
+        else record.movement_equipment_factor_tick = tick - 30 end
     end
     for _, surface in pairs(game.surfaces) do
         for _, entity in pairs(surface.find_entities_filtered{name = TANK_NAME}) do register_tank(runtime, entity, tick) end
     end
     refresh_orbital_shard_damage_statuses(runtime, nil, tick)
     gui.prune_orphaned_tank_settings(runtime)
+    invalidate_pending_work_cache(runtime)
     runtime.last_admin_repair_reason = reason
     runtime.last_admin_repair_tick = tick
     return true

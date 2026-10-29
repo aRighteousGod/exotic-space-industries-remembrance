@@ -24,6 +24,12 @@ flowchart LR
 Dispatcher step 10 passes the event to one cohort service slice. The update consumes pending rescans, then dirty cohorts before queued power audits. Numeric ticks flow into service, while init/QC/GUI utilities retain fallback reads. Per-pass scanner and silo caches must not escape that pass. Lease teardown may trigger one additional candidate rebuild in the same service so freed targets converge immediately.
 
 <a id="lifecycle"></a>
+Serialized signals are validated against current signal and quality prototypes.
+Invalid demand is omitted from both manifests and totals, and stale native output
+slots are cleared. Configuration rebuild retains the cohort/lease reconstruction
+path; removing Quality never converts vanished-quality requests into normal-quality
+shipments or changes already-paid numeric orbital execution contracts.
+
 ## Lifecycle and cleanup
 
 Build/destroy/settings paste and platform/rocket events dirty relevant cohorts. Selector modes and oversize policies determine jobs; coordinator arbitration and existing lane rotation determine dispatch. Removal, retargeting, lost power, invalid bindings, and launch confirmation reconcile or release leases. Rebuild reconstructs world entities and registries; GUI close/leave destroys associated silo overlays.

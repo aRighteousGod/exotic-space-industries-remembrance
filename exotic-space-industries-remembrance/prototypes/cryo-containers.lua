@@ -34,7 +34,7 @@ local families = {
 ---@field fluid string Existing fluid prototype; no optional-mod discovery.
 ---@field suffix string Item and recipe suffix, preserving existing cryo naming.
 ---@field family integer Index into families.
----@field temperature number Exact native filling and emptying temperature.
+---@field temperature number Authored exact transfer temperature; invalid compatibility ranges are reconciled at finalization.
 
 -- blueprint-ref: .codex/esir/blueprints/cryo-containers.md#registry
 ---@type CryoContainerEntry[]
@@ -143,6 +143,36 @@ end
 
 -- blueprint-ref: .codex/esir/blueprints/cryo-containers.md#finalization
 function model.finalize()
+    -- Compatibility can change a fluid's minimum or replace its identity after
+    -- declaration. Reconcile the actual transfer pair, preserving one exact
+    -- temperature in both directions rather than allowing arbitrary heat loss.
+    for _, entry in ipairs(entries) do
+        local fill = data.raw.recipe["ei-fill-cryo-container-"..entry.suffix]
+        local empty = data.raw.recipe["ei-empty-cryo-container-"..entry.suffix]
+        if fill and empty then
+            for _, product in ipairs(empty.results) do
+                if product.type == "fluid" then
+                    local fluid = data.raw.fluid[product.name]
+                    local minimum = fluid.default_temperature
+                    local maximum = fluid.max_temperature or minimum
+                    local temperature = product.temperature or minimum
+                    if temperature < minimum or temperature > maximum then
+                        local input
+                        for _, ingredient in ipairs(fill.ingredients) do
+                            if ingredient.type == "fluid" and ingredient.name == product.name then input = ingredient; break end
+                        end
+                        assert(input, "Mismatched cryo transfer fluid: "..entry.suffix)
+                        input.temperature = minimum
+                        input.minimum_temperature = nil
+                        input.maximum_temperature = nil
+                        product.temperature = minimum
+                        log("EI cryo temperature: "..entry.suffix.." ("..product.name..") "..temperature.." -> "..minimum)
+                    end
+                end
+            end
+        end
+    end
+
     for _, family in ipairs(families) do
         local name = "ei-"..family.name.."-cryo-container"
         if family.science_source then

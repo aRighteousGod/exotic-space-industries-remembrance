@@ -48,6 +48,7 @@ local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
 local ei_air_scrubber = require("scripts/control/air-scrubber-compat")
+local ei_beacon_module_policy = require("scripts/control/beacon-module-policy")
 local ei_firefighting = require("scripts/control/firefighting")
 local ei_water_turret = require("scripts/control/water-turret")
 local ei_planet_enemies = require("scripts/control/planet-enemies")
@@ -671,6 +672,7 @@ script.on_init(function(event)
     -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
     ei_global.check_init(event)
+    ei_beacon_module_policy.on_init()
     clear_scripted_research_burst_state()
     ei_surveyor_scope.check_global()
     ei_hemocrystal_wall.check_global()
@@ -1572,18 +1574,24 @@ script.on_configuration_changed(function(e)
     ei_teslas_legacy.on_configuration_changed(e,configuration_tick)
     ei_flamethrower_fuels.rebuild(configuration_tick)
     ei_air_scrubber.rebuild()
+    ei_beacon_module_policy.on_configuration_changed()
     -- ConfigurationChangedData has no event tick in 2.0.77. Take one current
     -- snapshot here; regular water-turret and radar paths pass event.tick through.
     local support_rebuild_tick = game.tick
     ei_water_turret.rebuild(support_rebuild_tick)
-    ei_sweeping_radar.rebuild(support_rebuild_tick)
+    ei_sweeping_radar.rebuild(support_rebuild_tick,
+        e.mod_changes and e.mod_changes.quality and "quality-configuration-changed" or nil)
     ei_firefighting.cleanup_legacy()
     ei_spider_vehicles.on_configuration_changed()
     ei_singularity_lance.on_configuration_changed(e)
     ei_sawblade_turret.on_configuration_changed(e)
     ei_gaian_saucer_wake.on_configuration_changed(e)
     ei_anisetron.rebuild_visuals(configuration_tick)
-    ei_emerald_apocalypse_hover_tank.on_configuration_changed(configuration_tick)
+    if e.mod_changes and e.mod_changes.quality then
+        ei_emerald_apocalypse_hover_tank.repair_runtime_state("quality-configuration-changed", configuration_tick)
+    else
+        ei_emerald_apocalypse_hover_tank.on_configuration_changed(configuration_tick)
+    end
     ei_surveyor_scope.on_configuration_changed(e)
     ei_hemocrystal_wall.on_configuration_changed(e)
 
@@ -1639,7 +1647,11 @@ script.on_configuration_changed(function(e)
         ei_lib.crystal_echo("⫷ Core Heuristics Have Shifted ⫸")
         ei_lib.crystal_echo("『CONFIGURATION CHANGED – BY WHOM, WE DARE NOT NAME","default-bold")
         ei_victory.init()  -- Required for Better Victory Screen
-        orbital_combinator.check_init()
+        if e.mod_changes and e.mod_changes.quality then
+            orbital_combinator.repair_runtime_state("quality-configuration-changed", configuration_tick)
+        else
+            orbital_combinator.check_init()
+        end
         orbital_logistics.rebuild_runtime_state("configuration-changed", configuration_tick)
         -- blueprint-ref: .codex/esir/blueprints/railgun-cooling.md#lifecycle
         -- Retain populated coolant helpers, heat debt and recovery deadlines.

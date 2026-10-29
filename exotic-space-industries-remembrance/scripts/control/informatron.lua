@@ -13,6 +13,7 @@
 -- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
 local beacon_profile_config = require("lib/beacon-profile-config")
+local beacon_module_policy = require("lib/module-policy-config")
 local pyric_radiance_config = require("lib/pyric-radiance-config")
 local ballistic_divergence_config = require("lib/ballistic-divergence-config")
 -- Page callbacks run after control parsing, when Factorio forbids require().
@@ -1255,6 +1256,9 @@ function model.beacon_overhaul(player_index, element)
     local mode = element.add{type = "label", caption = beacon_profile_config.mode_description()}
     mode.style.single_line = false
     mode.style.maximal_width = 720
+    local permissions = element.add{type = "label", caption = beacon_module_policy.description()}
+    permissions.style.single_line = false
+    permissions.style.maximal_width = 720
     local profiles = element.add{type = "label", caption = beacon_profile_config.tooltip()}
     profiles.style.single_line = false
     profiles.style.maximal_width = 720

@@ -1,4 +1,4 @@
-"""Native BNL 1.3.4 integration: stage timing, exclusion scope and preservation."""
+"""Native BNL 1.4.1 integration: stage timing, exclusion scope and preservation."""
 import copy
 import json
 import sys
@@ -31,7 +31,7 @@ for profile in ('absent', 'disabled', 'enabled', 'custom'):
     for mode in ('original', 'off', 'status'):
         key = prefix + mode
         current = load(key)
-        check(current['bottleneck_version'] == ('absent' if profile == 'absent' else '1.3.4'), key + ' pinned BNL version')
+        check(current['bottleneck_version'] == ('absent' if profile == 'absent' else '1.4.1'), key + ' pinned BNL version')
         check(current['bottleneck_enabled'] == active, key + ' real BNL startup setting')
         check(sum(current['early']['flags'].values()) == (20 if active and mode == 'status' else 0), key + ' early flag count')
         for name, before in baseline['snapshot'].items():
@@ -49,7 +49,7 @@ for profile in ('absent', 'disabled', 'enabled', 'custom'):
                     expected['graphics_set']['working_visualisations'] = [v for v in expected['graphics_set']['working_visualisations'] if v != plain]
                     if mode == 'status' and lamps:
                         check(graphics.pop('status_colors') == colors, key + ' independent ESIR colors ' + name)
-                        lenses = [v for v in graphics['working_visualisations'] if v.get('animation', {}).get('filename', '').startswith('__exotic-space-industries-remembrance__/graphics/status-lights/')]
+                        lenses = [v for v in graphics['working_visualisations'] if v.get('animation', {}).get('filename', '').startswith('__exotic-space-industries-remembrance-graphics-6__/graphics/status-lights/')]
                         check(len(lenses) == len(lamps), key + ' paired lens/emitter count ' + name)
                         graphics['working_visualisations'] = [v for v in graphics['working_visualisations'] if v not in lenses]
             check(after == expected, key + ' complete prototype preservation ' + name)
@@ -75,6 +75,6 @@ for profile in ('absent', 'disabled', 'enabled', 'custom'):
         state_cases += len(runtime['rows'])
         transitions += result['checks']
 report = dict(overall_status='ok', checks=checks, profiles=12, native_state_cases=state_cases,
-              transition_checks=transitions, bottleneck_version='1.3.4')
+              transition_checks=transitions, bottleneck_version='1.4.1')
 (root / 'bottleneck-acceptance.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report))

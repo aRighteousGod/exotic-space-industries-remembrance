@@ -33,6 +33,10 @@ Durable acidthrower reproduction and validation instructions:
 .codex/esir/asset-generators/acidthrower-turret/revision-03/README.md
 .codex/esir/asset-generators/acidthrower-turret/revision-03/pressure-jet/README.md
 
+The diagonal chassis, glow, owner-mask and shadow sheets extend the same
+Acidthrower model to eight native placement directions. Reproduction and QA:
+.codex/esir/asset-generators/acidthrower-turret/revision-03/EIGHT-WAY.md
+
 ANISETRON 17 artwork uses the user's ANISETRON 17.png reference, reconstructed
 with Meshy 7.1 and rendered through the ESIR Blender/Factorio asset pipeline.
 Meshy task: 01a109e4-32e3-76e7-b8b3-7188f94993a1.
@@ -74,3 +78,31 @@ terrain conditions. Shipping graphics/gui/ecology-field-*.png files are fixed
 output SHA256 hashes, crop bounds and contact sheet are retained in the source
 workspace's ignored output/ecology-field-report/ staging. Deterministic export:
 scripts/qc/terrain-evolution/export-field-banners.py
+
+Alert artwork: all 27 alert identities in Original, SVG, Rendered and Vanilla
+sets are preserved unchanged under graphics/gui/alerts/. Original and flat SVG
+masters, generated raster sources, prompts and provenance remain in the source
+repository. Export and attribution details:
+.codex/esir/asset-generators/alert-icons/README.md
+
+Machine status lights: 23 neutral lens masks derived from the existing ESIR
+machine sprites, stored unchanged under graphics/status-lights/. Source sprite
+credits remain in the main pack's CREDITS.md. Reproduction and mask provenance:
+.codex/esir/asset-generators/machine-status-lights/README.md
+
+Cold mist for the Hypercooler and liquid-nitrogen beacons:
+    Cryo-container (simple_refrigerator) by snouz
+    https://mods.factorio.com/mod/simple_refrigerator
+    https://github.com/snouz/simple_refrigerator
+    Visual parts assembled by snouz from Hurricane046's buildings, credited
+    upstream under Creative Commons Attribution (CC BY). The upstream credits
+    do not specify a CC BY version; the original graphics attribution is retained.
+    The mod lists MIT for its code, separately from those graphics credits.
+    ESIR copies only the unmodified mist spritesheet, not its chest, sound or code.
+    Original: graphics/entity/simple_refrigerator-smoke-effect.png
+    Source revision: 497140950769a0ab4a4bd4c3e9426e5c3dad30b2
+    Pinned source and credits:
+    https://github.com/snouz/simple_refrigerator/tree/497140950769a0ab4a4bd4c3e9426e5c3dad30b2
+    ESIR file: graphics/entities/cryo-mist.png (2048 x 2048, 60 frames)
+    SHA256: 341e2cae41f220872ea1f708531bded1485c8d75962a82d72ded1fd170cbbeb0
+    ESIR adjusts placement, scale and brightness in its own prototype code.

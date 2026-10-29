@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[3]
 MOD = ROOT / 'exotic-space-industries-remembrance'
 LUA = ROOT / '.tools/lua-5.4.8/lua54.exe'
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--icons-dir', type=Path, default=MOD / 'graphics/gui/alerts')
+parser.add_argument('--icons-dir', type=Path, default=ROOT / 'exotic-space-industries-remembrance-graphics-6/graphics/gui/alerts')
 parser.add_argument('--sources-dir', type=Path, default=ROOT / '.codex/esir/asset-generators/alert-icons/sources')
 args = parser.parse_args()
 code = '''package.path='exotic-space-industries-remembrance/?.lua;'..package.path
@@ -58,7 +58,11 @@ for set_id in ('svg','rendered','vanilla'):
         ext='png' if set_id=='rendered' else 'svg'
         assert digest(args.sources_dir/set_id/f'{name}.{ext}')==entry['source_sha256'],f'Changed source {set_id}/{name}'
 original=json.loads((args.sources_dir/'original/manifest.json').read_text(encoding='utf-8'))
-for path,expected in original['files'].items():assert digest(ROOT/path)==expected,f'Original changed: {path}'
+for path,expected in original['files'].items():
+    # Keep historical source paths in the manifest while checking the current owner.
+    current_path=path.replace('exotic-space-industries-remembrance/graphics/',
+                              'exotic-space-industries-remembrance-graphics-6/graphics/',1)
+    assert digest(ROOT/current_path)==expected,f'Original changed: {path}'
 provenance=json.loads((args.sources_dir/'rendered/provenance.json').read_text(encoding='utf-8'))
 assert set(provenance['icons'])==ids
 assert not list((args.sources_dir/'rendered').glob('*.svg')),'Raster artwork must not have fabricated SVG masters'
@@ -100,7 +104,7 @@ local count=0
 for _,id in ipairs(a.builtin_ids) do for _,e in ipairs(c.entries) do
  local name=a.signal_name(id,e.id);local p=signals[name];assert(p,'Missing signal '..name)
  local suffix=(id=='original' and '' or id..'/')..e.id..'.png'
- assert(p.icon=='__exotic-space-industries-remembrance__/graphics/gui/alerts/'..suffix)
+ assert(p.icon=='__exotic-space-industries-remembrance-graphics-6__/graphics/gui/alerts/'..suffix)
  assert(name==(id=='original' and e.icon_signal or 'ei-alert-set-'..id..'__'..e.id))
  count=count+1
 end end
@@ -123,4 +127,4 @@ assert 'if not setting or setting.value ~= true then return false end' in handle
 prototype = (MOD / 'prototypes/alerts.lua').read_text(encoding='utf-8')
 assert 'builtin_prototypes()' in prototype,'Prototype loader must use named-set definitions'
 assert 'require("lib/alert-catalog").setting_definitions()' in (MOD / 'settings.lua').read_text(encoding='utf-8')
-print(f'PASS {len(rows)} catalogue settings, selectors, {len(rows)*4} named signals/main-mod PNGs, actual sources/provenance, Original preservation and native-call ownership')
+print(f'PASS {len(rows)} catalogue settings, selectors, {len(rows)*4} named signals/Graphics 6 PNGs, actual sources/provenance, Original preservation and native-call ownership')

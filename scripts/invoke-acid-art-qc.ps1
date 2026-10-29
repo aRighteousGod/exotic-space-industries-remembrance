@@ -1,9 +1,17 @@
 [CmdletBinding()]
-param([switch]$Visual,[switch]$ReuseFixture,
+param([switch]$Visual,[switch]$ReuseFixture,[switch]$LegacyReplay,
+    [string]$FactorioPath='C:/Program Files (x86)/Steam/steamapps/common/Factorio/bin/x64/factorio.exe',
     [string]$RunRoot,[string]$SeedMods,
     [ValidateSet('high','medium')][string]$GraphicsQuality='high')
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
+if(-not $LegacyReplay){
+    $current=@{Suite=$(if($Visual){'visual'}else{'accept'});FactorioPath=$FactorioPath;GraphicsQuality=$GraphicsQuality}
+    if($RunRoot){$current.RunRoot=$RunRoot};if($SeedMods){$current.SeedMods=$SeedMods}
+    & (Join-Path $PSScriptRoot 'invoke-acid-eight-way-qc.ps1') @current
+    return
+}
+# Explicit historical four-facing replay. Current acceptance is eight-way/2.1.23.
 $run=if($RunRoot){[IO.Path]::GetFullPath($RunRoot)}else{Join-Path $repo '.factorio-qc/acid-art-r03'}
 $mods=Join-Path $run 'mods'
 $shortMods=if($RunRoot){Join-Path ([IO.Path]::GetPathRoot($run)) 'esir-acid-art-r03-mods'}else{Join-Path $env:TEMP 'esir-acid-art-r03-mods'}

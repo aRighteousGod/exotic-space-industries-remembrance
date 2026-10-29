@@ -11,6 +11,7 @@ local container_capacity_config = require("lib/container-capacity-config")
 data:extend({container_capacity_config.startup_setting_definition()})
 data:extend({require("lib/thrower-performance-config").startup_setting_definition()})
 data:extend({require("lib/beacon-profile-config").startup_setting_definition()})
+data:extend(require("lib/module-policy-config").startup_setting_definitions())
 data:extend(require("lib/pyric-radiance-config").startup_setting_definitions())
 data:extend(require("lib/ballistic-divergence-config").startup_setting_definitions())
 data:extend({

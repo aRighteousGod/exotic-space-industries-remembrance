@@ -4,5 +4,5 @@
   "title": "ESIR native 2.1 semantic probes",
   "author": "ESIR QC",
   "factorio_version": "2.1",
-  "dependencies": ["base", "space-age", "quality", "exotic-space-industries-remembrance"]
+  "dependencies": ["base", "space-age", "? quality", "exotic-space-industries-remembrance"]
 }

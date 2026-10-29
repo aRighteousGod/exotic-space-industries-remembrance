@@ -77,8 +77,8 @@ for profile, mode, arc in profiles:
                     check(graphics['working_visualisations'][:len(added)] == added, name + ' first entries')
                 for index, (visual, offset) in enumerate(zip(added, offsets), 1):
                     target = dict(always_draw=True, apply_tint='status', light=dict(type='basic', color=[1, 1, 1], size=.5 if name == 'ei-advanced-refinery' else .35, intensity=1, minimum_darkness=.1),
-                        render_layer='light-effect', secondary_draw_order=4,
-                        animation=dict(filename=f'__exotic-space-industries-remembrance__/graphics/status-lights/{name[3:]}-{index}.png', size=64, scale=original['graphics_set']['animation'].get('scale', 1), frame_count=1, draw_as_glow=True, blend_mode='normal'))
+                        render_layer='object', secondary_draw_order=4,
+                        animation=dict(filename=f'__exotic-space-industries-remembrance-graphics-6__/graphics/status-lights/{name[3:]}-{index}.png', size=64, scale=original['graphics_set']['animation'].get('scale', 1), frame_count=1, draw_as_glow=True, blend_mode='normal'))
                     for direction in ('north', 'east', 'south', 'west'):
                         position = visual.pop(direction + '_position')
                         check(all(abs(a-b) < 1e-12 for a,b in zip(position, offset)), name + ' measured center')

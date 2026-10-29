@@ -10,8 +10,9 @@ Native working state gates visibility; playback speed stays constant at 0.15.
 Supplied beacon sources may operate without modules or recipients, matching their
 existing consumption behavior. No new runtime handlers, storage or helpers exist.
 
-The unchanged 60-frame sheet ships in the **main mod**, by explicit user choice.
-Its provenance and graphics license are recorded in the main pack's CREDITS.md.
+The unchanged 60-frame sheet ships in **Graphics 6** under `graphics/entities/`.
+Its provenance and graphics license are recorded in that pack's attribution.txt
+and the main pack's CREDITS.md.
 The additive animation emits no light. The hypercooler's three broad lights are
 removed at their declaration; its base and red/green indicator remain unchanged.
 Beacon sources explicitly use zero flicker intensity because omitted fields

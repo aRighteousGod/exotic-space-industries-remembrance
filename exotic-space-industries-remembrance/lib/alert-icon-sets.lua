@@ -81,7 +81,7 @@ function model.builtin_prototypes()
         local folder=id=="original" and "" or id.."/"
         for _,entry in ipairs(catalog.entries) do
             result[#result+1]=signal_prototype(id,entry,{
-                icon="__exotic-space-industries-remembrance__/graphics/gui/alerts/"..folder..entry.id..".png",icon_size=128})
+                icon="__exotic-space-industries-remembrance-graphics-6__/graphics/gui/alerts/"..folder..entry.id..".png",icon_size=128})
         end
     end
     return result
