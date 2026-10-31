@@ -8,7 +8,7 @@
    - command-line or executable option guidance
    - Factorio-vs-general-Lua assumption check
 2. If the question is an assumption check, read `factorio-lua-assumptions` first.
-3. Run `-Task status` to confirm `source = hosted` and `resolved_version = 2.1.23` for main development. For migration evidence, explicitly select `-Source installed -Version 2.0.77`. Refresh is an explicit cache-writing action; ordinary queries stay read-only.
+3. Run `-Task status` to confirm `source = hosted` and `resolved_version = 2.1.24` for main development. For migration evidence, select the historical version explicitly, using hosted docs or an independently verified matching installation. Refresh is an explicit cache-writing action; ordinary queries stay read-only.
 4. Query the local cache first with `invoke-factorio-lua-docs.ps1`.
 5. Prefer exact name lookup when the symbol is known.
 6. For broader "how do I..." questions, search the wiki or auxiliary stages.

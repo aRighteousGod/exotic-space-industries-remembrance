@@ -1,5 +1,9 @@
 # ESIR firefighting acceptance
 
+This is a historical standalone runner. Before new use, adapt its copied setup and
+junction teardown to the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
+Historical engine and acceptance details below remain specific to those runs.
+
 Run against installed Factorio **2.0.77**. `invoke-water-turret-qc.ps1` stages a copied
 gameplay pack, linked dependency archives and graphics companions under
 `.factorio-qc/wtr/`. It never changes the installed mod list or original saves.

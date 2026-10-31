@@ -1,5 +1,9 @@
 # Combat doctrine acceptance fixtures
 
+This standalone runner predates the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
+Adapt staging and `-ReuseRun` ownership before new runs; the historical setup and
+evidence below do not confer current package leases or compact closeout behavior.
+
 `-RangeLimits` omits the synthetic 90-range consumer. Its final-data oracle checks
 both travel endpoints, and its 117 native cases remove the intended receiver only
 after launch, observe each round from its creation position through native expiry,

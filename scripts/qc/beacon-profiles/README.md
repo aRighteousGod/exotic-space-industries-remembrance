@@ -1,5 +1,9 @@
 # Beacon diminishing-return acceptance
 
+This is a historical standalone runner. Before new use, adapt its source views,
+dependency selection and `-ReuseRun` ownership to the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
+An old frozen copy does not establish current inputs or an active retention lease.
+
 Run from the Factorio 2.0 checkout:
 
 ```powershell

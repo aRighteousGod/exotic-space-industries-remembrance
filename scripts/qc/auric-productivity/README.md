@@ -1,5 +1,9 @@
 # Auric productivity acceptance fixture
 
+This is a historical standalone runner. Before new use, adapt its staging and dump
+closeout to the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
+The full-dump retention described below is legacy behavior, not the current default.
+
 Uses Factorio 2.0.77 and the dependency ZIP seed in `.factorio-qc/fmqc/mods-live`.
 Shipping source and player saves are never used as writable staging. Asset files
 are hard-linked read-only by convention; the main pack and helper are copied.

@@ -1,4 +1,11 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.4.02
+Date: 10-30-2026
+  Changes:
+    - Switched dependency back to the original Armoured Biters now that is has been updated for Factorio 2.1 and marked ArmouredBiters21Compat incompatible.
+  Bugfixes:
+    - Restored mirroring for 18 fluid-processing machines, including the Advanced chemical plant, and fixed the Steam oil pumpjack using vanilla artwork when mirrored.
+---------------------------------------------------------------------------------------------------
 Version: 1.4.01
 Date: 10-29-2026
   Features:
@@ -7,7 +14,7 @@ Date: 10-29-2026
     - Added diagonal placement to the Acidthrower: eight native placement directions, new diagonal chassis renders, and vanilla pipe overlays joining the manifold to the grid-aligned fluid ports.
   Changes:
     - Made Quality optional.
-    - Moved the remaining alert icons, machine status-light overlays and cryogenic mist artwork into Graphics 6 without changing their image data. Requires Graphics 6 version 1.1.1 or later; the main pack retains its Mod Portal thumbnail.
+    - Moved the remaining alert icons, machine status-light overlays and cryogenic mist artwork into Graphics 6 without changing their image data. Requires Graphics 6 version 1.1.1 or later,
   Bugfixes:
     - Fixed that Enhanced Walls setting overrides were applied to the original mod and not the forked mod id.
     - Fixed that Atan Ash setting override was applied to the original mod and not the forked mod id.

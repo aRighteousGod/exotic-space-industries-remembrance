@@ -2,6 +2,7 @@
 
 --Adding Fluidboxes to the asteroid crusher
 local crusher = data.raw["assembling-machine"]["crusher"]
+crusher.use_mirroring = true
 crusher.fluid_boxes = {
   {
     production_type = "input",

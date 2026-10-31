@@ -1,6 +1,7 @@
 # Cryo temperature compatibility fixture
 
-Exact Factorio 2.1.23 fixture for the reported ammoniacal-solution recipe error.
+Factorio 2.1 fixture for the reported ammoniacal-solution recipe error. New runs use
+the current development profile (2.1.24); historical 2.1.23 receipts keep their provenance.
 Stage with `scripts/qc/factorio-2.1/invoke-core.ps1` and a private copy of this
 fixture. In its private `test-config.lua`, select both `mutate=false` and
 `galore=false` for unchanged core behavior, `mutate=true` for the replacement-fluid
@@ -8,6 +9,14 @@ reproduction, or `galore=true` for both Space Age Galore temperature overrides.
 The two mutation modes are mutually exclusive. Keep
 `assert_final=true` for acceptance; `false` allows the unfixed engine error to
 surface during reproduction.
+
+Use a new ignored `-RunRoot` and pass this directory through `-FixtureRoot` at
+`-Task stage`. The managed runner records `mod_view_root`, `write_data_root` and
+`scratch_root` in `context.json`; use those paths rather than assuming a copied
+`mods` directory beside the receipt. Change only the private helper's settings.
+Subsequent phases reuse the original selection. After consuming the assertions
+and selecting any required saves, invoke `-Task close -RunRoot <root>` to retain
+compact evidence and retire the temporary setup.
 
 The mutation occurs in data-updates after ESIR declaration. It raises ammoniacal
 solution's legal range to 15-100 C and replaces the ammonia transfer fluid with a

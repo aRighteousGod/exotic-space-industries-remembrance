@@ -1,6 +1,55 @@
 # Repository artifact ownership and retention. Source edits use the normal patch workflow.
 # Registry state lives outside payloads; only explicitly closed, verified runs can expire.
 Set-StrictMode -Version Latest
+. (Join-Path $PSScriptRoot 'esir-qc-storage.ps1')
+
+function Test-EsirCompactQcRun {
+    param($Run)
+    return $Run.PSObject.Properties.Name -contains 'storage_policy' -and $Run.storage_policy -eq 'compact-v1'
+}
+
+function Initialize-EsirManagedQcContext {
+    param([string]$RepoRoot, $Context, [string]$RunId,
+        [Parameter(Mandatory)][ValidateSet('read-only', 'private-mutable')][string]$SourceMode)
+    $run = Read-EsirArtifactRun $RepoRoot $RunId
+    if ($run.status -ne 'running' -or -not $run.task_open) { throw 'Managed staging requires an open running task.' }
+    $evidence = Assert-EsirArtifactTarget $RepoRoot $run.payload_path
+    $storage = Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action open -Data @{
+        run_id = $run.id; evidence_root = $evidence; workflow = $run.workflow; source_mode = $SourceMode
+    }
+    foreach ($property in @('store_root', 'mod_view_root', 'scratch_root', 'evidence_root')) {
+        $Context | Add-Member -NotePropertyName $property -NotePropertyValue $storage.$property -Force
+    }
+    $Context | Add-Member -NotePropertyName qc_run_id -NotePropertyValue $run.id -Force
+    $Context | Add-Member -NotePropertyName source_mode -NotePropertyValue $SourceMode -Force
+    $Context.artifact_root = $evidence
+    $Context.run_mod_directory = $storage.mod_view_root
+    $lock = Enter-EsirHousekeepingLock $RepoRoot
+    try {
+        $run = Read-EsirArtifactRun $RepoRoot $RunId
+        $run | Add-Member -NotePropertyName storage_policy -NotePropertyValue 'compact-v1' -Force
+        $roots = @{store_root=$storage.store_root;mod_view_root=$storage.mod_view_root;scratch_root=$storage.scratch_root;evidence_root=$storage.evidence_root;source_mode=$SourceMode}
+        $run | Add-Member -NotePropertyName storage_roots -NotePropertyValue $roots -Force
+        if ($run.PSObject.Properties.Name -notcontains 'selected_evidence') {
+            $run | Add-Member -NotePropertyName selected_evidence -NotePropertyValue @()
+            $run | Add-Member -NotePropertyName dump_identity -NotePropertyValue $null
+            $run | Add-Member -NotePropertyName cleanup_status -NotePropertyValue 'active'
+        }
+        Write-EsirArtifactJson $RepoRoot (Get-EsirArtifactRecordPath $RepoRoot $RunId) $run
+    } finally { $lock.Dispose() }
+    return $storage
+}
+
+function Set-EsirQcSelectedEvidence {
+    param([string]$RepoRoot, [string]$RunId, [string[]]$Paths)
+    $lock = Enter-EsirHousekeepingLock $RepoRoot
+    try {
+        $run = Read-EsirArtifactRun $RepoRoot $RunId
+        if (-not (Test-EsirCompactQcRun $run) -or -not $run.task_open) { throw 'Selected evidence requires an open managed QC task.' }
+        $run.selected_evidence = @(@($run.selected_evidence) + $Paths | Select-Object -Unique)
+        Write-EsirArtifactJson $RepoRoot (Get-EsirArtifactRecordPath $RepoRoot $RunId) $run
+    } finally { $lock.Dispose() }
+}
 
 function Initialize-EsirHousekeepingNative {
     if ('EsirArtifactFile' -as [type]) { return }
@@ -202,12 +251,32 @@ function Register-EsirArtifactRun {
         if (-not $PayloadPath) { $PayloadPath = ".factorio-qc/managed/$id" }
         $payload = Assert-EsirArtifactTarget $RepoRoot $PayloadPath
         if ([IO.Directory]::Exists([EsirArtifactFile]::ExtendedPath($payload)) -or [IO.File]::Exists([EsirArtifactFile]::ExtendedPath($payload))) { throw 'Only a new, absent payload directory can be registered. Legacy adoption is not automatic.' }
-        foreach ($existing in @(Get-EsirArtifactRuns $RepoRoot)) {
-            $owned = Resolve-EsirArtifactPath $RepoRoot $existing.payload_path
-            if ((Test-EsirArtifactWithin $payload $owned) -or (Test-EsirArtifactWithin $owned $payload)) { throw 'Payload ownership overlaps an existing run.' }
+        $existingRuns = @(Get-EsirArtifactRuns $RepoRoot)
+        $registeredPaths = @($existingRuns | ForEach-Object {
+            @($_.payload_path) + @($_.retained_paths) | ForEach-Object {
+                [IO.Path]::GetFullPath($(if ([IO.Path]::IsPathRooted($_)) { $_ } else { Join-Path $RepoRoot $_ }))
+            }
+        } | Sort-Object -Unique)
+        $resolvedPaths = @{}
+        if ($registeredPaths.Count) {
+            # Resolve only path/link metadata, never enumerate historical payload
+            # contents. Reverse aliases can own a plain candidate's parent too.
+            $request = ConvertTo-Json -InputObject $registeredPaths -Compress
+            $response = $request | & python -X utf8 -B -c 'import json,pathlib,sys; print(json.dumps([{sys.argv[1]:p,sys.argv[2]:str(pathlib.Path(p).resolve())} for p in json.load(sys.stdin)]))' registered resolved
+            if ($LASTEXITCODE) { throw 'Cannot resolve historical ownership aliases safely.' }
+            foreach ($item in ($response | Out-String | ConvertFrom-Json)) { $resolvedPaths[$item.registered] = $item.resolved }
+        }
+        foreach ($existing in $existingRuns) {
+            $owned = [IO.Path]::GetFullPath($(if ([IO.Path]::IsPathRooted($existing.payload_path)) { $existing.payload_path } else { Join-Path $RepoRoot $existing.payload_path }))
+            if (-not (Test-EsirArtifactWithin $owned (Get-EsirHousekeepingRoot $RepoRoot))) { throw 'Existing payload record escapes the repository.' }
+            foreach ($alias in @($owned, $resolvedPaths[$owned])) {
+                if ((Test-EsirArtifactWithin $payload $alias) -or (Test-EsirArtifactWithin $alias $payload)) { throw 'Payload ownership overlaps an existing run.' }
+            }
             foreach ($reference in $existing.retained_paths) {
                 $retained = [IO.Path]::GetFullPath($(if ([IO.Path]::IsPathRooted($reference)) { $reference } else { Join-Path $RepoRoot $reference }))
-                if ((Test-EsirArtifactWithin $retained $payload) -or (Test-EsirArtifactWithin $payload $retained)) { throw 'Another run retains this path as evidence.' }
+                foreach ($alias in @($retained, $resolvedPaths[$retained])) {
+                    if ((Test-EsirArtifactWithin $alias $payload) -or (Test-EsirArtifactWithin $payload $alias)) { throw 'Another run retains this path as evidence.' }
+                }
             }
         }
         if ($Classification -eq 'render-intermediates' -and $RetainedPaths.Count -eq 0) { throw 'Render intermediates require retained source/specification/final-output evidence paths.' }
@@ -235,6 +304,9 @@ function Complete-EsirArtifactRun {
     try {
         $run = Read-EsirArtifactRun $RepoRoot $RunId
         if ($run.status -ne 'running') { throw 'Only a running artifact record can be completed.' }
+        if (Test-EsirCompactQcRun $run) {
+            return (Complete-EsirCompactQcRun -RepoRoot $RepoRoot -Run $run -ExitCode $ExitCode -Summary $Summary -DumpPath $DumpPath)
+        }
         $run.completed_at = [DateTime]::UtcNow.ToString('o')
         $run.summary = $Summary
         $run.status = 'failed'
@@ -271,6 +343,58 @@ function Complete-EsirArtifactRun {
     } finally { $lock.Dispose() }
 }
 
+function Complete-EsirCompactQcRun {
+    # Caller holds the registry lock. Execution scratch and source views have their
+    # own storage ownership; only compact evidence is snapshotted here.
+    param([string]$RepoRoot, $Run, [int]$ExitCode, $Summary, [string]$DumpPath)
+    $Run.completed_at = [DateTime]::UtcNow.ToString('o')
+    $Run.summary = $Summary
+    $Run.status = 'failed'
+    try {
+        if ($Summary.run_id -ne $Run.id -or $Summary.workflow -ne $Run.workflow -or
+            $Summary.engine_version -ne $Run.engine_version -or $Summary.repo_root -ne $Run.repo_root -or
+            $Summary.payload_path -ne $Run.payload_path -or
+            [DateTime]::Parse($Summary.timestamp).ToUniversalTime() -lt [DateTime]::Parse($Run.started_at).ToUniversalTime()) {
+            throw 'Missing, stale, or mismatched completion evidence.'
+        }
+        $storage = Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action inspect -Data @{run_id=$Run.id}
+        [void](Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action validate -Data @{run_id=$Run.id})
+        if ($DumpPath) {
+            $dump = [IO.Path]::GetFullPath($DumpPath)
+            if (-not (Test-EsirArtifactWithin $dump $storage.scratch_root) -or
+                -not (Test-Path -LiteralPath $dump -PathType Leaf) -or
+                (Get-Item -LiteralPath $dump).Length -eq 0 -or
+                (Get-Item -LiteralPath $dump).LastWriteTimeUtc -lt [DateTime]::Parse($Run.started_at).ToUniversalTime()) {
+                throw 'Final-data dump is empty, stale, or outside the owned scratch root.'
+            }
+            & python -B (Join-Path $PSScriptRoot 'validate-esir-json.py') $dump
+            if ($LASTEXITCODE -ne 0) { throw 'Final-data dump is not complete JSON.' }
+            $Run.verified_dump = $dump
+            $Run.dump_identity = [EsirArtifactFile]::Identity($dump, $false)
+            Write-EsirArtifactJson $RepoRoot (Join-Path $storage.evidence_root 'final-data-receipt.json') @{
+                engine_version=$Run.engine_version; sha256=(Get-FileHash -LiteralPath $dump -Algorithm SHA256).Hash.ToLowerInvariant()
+                bytes=(Get-Item -LiteralPath $dump).Length; valid_json=$true; retained_by_default=$false
+            }
+        } elseif ($ExitCode -eq 0 -and $Run.workflow -in @('qc-fast', 'qc-full')) {
+            throw 'Data QC must provide its final-data dump before compact closeout.'
+        }
+        # Completion ends staging, not the task's data/capture consumer lifetime.
+        [void](Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action release -Data @{run_id=$Run.id})
+        $Run.cleanup_status = 'ready'
+        $Run | Add-Member -NotePropertyName closeout_retryable -NotePropertyValue $false -Force
+        if ($ExitCode -eq 0 -and $Summary.overall_status -in @('ok', 'warning')) { $Run.status = 'success' }
+        else { $Run.housekeeping_error = 'Run did not complete successfully; compact failure evidence remains available.' }
+    } catch {
+        $Run.cleanup_status = 'protected-error'
+        $Run | Add-Member -NotePropertyName closeout_retryable -NotePropertyValue $false -Force
+        $Run.housekeeping_error = $_.Exception.Message
+    }
+    Write-EsirArtifactJson $RepoRoot (Join-Path (Resolve-EsirArtifactPath $RepoRoot $Run.payload_path) 'completion.json') $Summary
+    $Run.snapshot = Get-EsirArtifactSnapshot $RepoRoot $Run.payload_path
+    Write-EsirArtifactJson $RepoRoot (Get-EsirArtifactRecordPath $RepoRoot $Run.id) $Run
+    return $Run
+}
+
 function Set-EsirArtifactRunState {
     [CmdletBinding()]
     param([string]$RepoRoot, [string]$RunId, [ValidateSet('close', 'pin', 'unpin', 'release')][string]$Action, [string]$Reason)
@@ -296,6 +420,39 @@ function Set-EsirArtifactRunState {
                 }
             }
         }
+        if (Test-EsirCompactQcRun $run) {
+            if ($Action -in @('pin', 'unpin')) {
+                [void](Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action pin -Data @{
+                    run_id=$run.id; reason=$Reason; pinned=($Action -eq 'pin')
+                })
+            }
+            if (-not $run.task_open -and -not @($run.pins).Count) {
+                $closeAttempted = $false
+                try {
+                    # Completion/input failures still need verified completion. A
+                    # failed close may retry through the helper's identity checks.
+                    $retryable = $run.PSObject.Properties.Name -contains 'closeout_retryable' -and $run.closeout_retryable
+                    if ($run.cleanup_status -eq 'protected-error' -and -not $retryable) { throw $run.housekeeping_error }
+                    $closeAttempted = $true
+                    $closed = Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action close -Data @{
+                        run_id=$run.id; status=$run.status; reason=$Reason
+                        retain=@(@($run.selected_evidence) + @($run.retained_paths | ForEach-Object {
+                            if ([IO.Path]::IsPathRooted($_)) { $_ } else { Join-Path $RepoRoot $_ }
+                        }))
+                    }
+                    $run.cleanup_status = 'compacted'
+                    $run.housekeeping_error = $null
+                    $run | Add-Member -NotePropertyName closeout_retryable -NotePropertyValue $false -Force
+                    $run.verified_dump = $null; $run.dump_identity = $null
+                    $run | Add-Member -NotePropertyName compact_evidence -NotePropertyValue $closed -Force
+                    $run.snapshot = Get-EsirArtifactSnapshot $RepoRoot $run.payload_path
+                    [void](Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action collect -Data @{apply=$true})
+                } catch {
+                    $run.cleanup_status = 'protected-error'; $run.housekeeping_error = $_.Exception.Message
+                    $run | Add-Member -NotePropertyName closeout_retryable -NotePropertyValue $closeAttempted -Force
+                }
+            }
+        }
         Write-EsirArtifactJson $RepoRoot (Get-EsirArtifactRecordPath $RepoRoot $RunId) $run
         return $run
     } finally { $lock.Dispose() }
@@ -305,10 +462,10 @@ function Get-EsirArtifactRetention {
     param([string]$RepoRoot)
     $runs = @(Get-EsirArtifactRuns $RepoRoot)
     $keep = @{}
-    foreach ($group in @($runs | Where-Object { $_.status -eq 'success' } | Group-Object { $_.workflow + '|' + $_.scenario + '|' + $_.engine_version })) {
+    foreach ($group in @($runs | Where-Object { $_.status -eq 'success' -and -not (Test-EsirCompactQcRun $_) } | Group-Object { $_.workflow + '|' + $_.scenario + '|' + $_.engine_version })) {
         foreach ($run in @($group.Group | Sort-Object completed_at -Descending | Select-Object -First 2)) { $keep[$run.id] = 'latest-two-successes' }
     }
-    foreach ($group in @($runs | Where-Object { $_.status -eq 'success' -and $_.verified_dump } | Group-Object engine_version)) {
+    foreach ($group in @($runs | Where-Object { $_.status -eq 'success' -and $_.verified_dump -and -not (Test-EsirCompactQcRun $_) } | Group-Object engine_version)) {
         # Only an unchanged, present dump may displace an older verified dump.
         foreach ($run in @($group.Group | Sort-Object completed_at -Descending)) {
             try {
@@ -324,10 +481,12 @@ function Get-EsirArtifactRetention {
     }
     foreach ($run in $runs) {
         $reason = if ($run.status -eq 'retired') { 'already-retired' }
+            elseif ((Test-EsirCompactQcRun $run) -and $run.cleanup_status -eq 'protected-error') { 'protected-error' }
             elseif ($run.classification -eq 'protected-evidence') { 'durable-evidence' }
             elseif ($run.classification -notin @('qc-payload', 'scratch', 'render-intermediates')) { 'unclassified' }
             elseif ($run.task_open) { 'active-task' }
             elseif (@($run.pins).Count) { 'pinned' }
+            elseif (Test-EsirCompactQcRun $run) { 'compact-evidence' }
             elseif ($run.status -notin @('success', 'released')) { 'unresolved-or-incomplete' }
             elseif ($run.engine_version -eq 'unknown' -and $run.classification -eq 'qc-payload') { 'unknown-engine' }
             elseif ($keep.ContainsKey($run.id)) { $keep[$run.id] }
@@ -428,6 +587,7 @@ function Invoke-EsirHousekeeping {
         foreach ($entry in @(Get-EsirArtifactRetention $RepoRoot)) {
             $run = $entry.run
             $row = [ordered]@{ run_id = $run.id; workflow = $run.workflow; scenario = $run.scenario; engine_version = $run.engine_version; payload_path = $run.payload_path; disposition = $entry.reason; file_count = 0; logical_bytes = 0; error = $null }
+            if ($entry.reason -eq 'protected-error') { $row.error = $run.housekeeping_error }
             if ($run.snapshot) {
                 $row.file_count = @($run.snapshot.files).Count
                 foreach ($file in $run.snapshot.files) { $row.logical_bytes += [long]$file.bytes }
@@ -459,9 +619,17 @@ function Invoke-EsirHousekeeping {
             $rows.Add([pscustomobject]$row)
         }
         $freeAfter = [IO.DriveInfo]::new([IO.Path]::GetPathRoot((Get-EsirHousekeepingRoot $RepoRoot))).AvailableFreeSpace
+        $storageCollection = $null
+        if (Test-Path -LiteralPath (Join-Path $RepoRoot '.factorio-qc/storage')) {
+            try { $storageCollection = Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action collect -Data @{apply=[bool]$Apply} }
+            catch { $storageCollection = [pscustomobject]@{status='protected-error';error=$_.Exception.Message} }
+        }
         return [ordered]@{
-            task = 'housekeeping'; overall_status = $(if (@($rows | Where-Object error).Count) { 'warning' } else { 'ok' })
+            task = 'housekeeping'; overall_status = $(if (@($rows | Where-Object error).Count -or
+                ($storageCollection -and (($storageCollection.PSObject.Properties.Name -contains 'error') -or
+                ($storageCollection.PSObject.Properties.Name -contains 'protected' -and @($storageCollection.protected).Count)))) { 'warning' } else { 'ok' })
             applied = [bool]$Apply; runs = @($rows.ToArray())
+            storage = $storageCollection
             inventory = @(Get-EsirArtifactInventory $RepoRoot -FullInventory:$FullInventory -IncludeCodexHome:$IncludeCodexHome)
             deleted_file_count = $deletedCount; deleted_logical_bytes = $deletedBytes
             observed_free_space_delta = $freeAfter - $freeBefore
@@ -472,7 +640,8 @@ function Invoke-EsirHousekeeping {
 }
 
 function Start-EsirManagedQc {
-    param([string]$RepoRoot, $Context, [string]$Workflow, [string]$Scenario = 'default', [string]$Reproduction, [string[]]$RetainedPaths = @())
+    param([string]$RepoRoot, $Context, [string]$Workflow, [string]$Scenario = 'default', [string]$Reproduction, [string[]]$RetainedPaths = @(),
+        [ValidateSet('read-only', 'private-mutable')][string]$SourceMode = 'read-only')
     $state = [pscustomobject]@{ run = $null; error = $null; original_artifact_root = $Context.artifact_root }
     try {
         $version = 'unknown'
@@ -495,10 +664,10 @@ function Start-EsirManagedQc {
             } finally { $probe.Dispose() }
         }
         $state.run = Register-EsirArtifactRun -RepoRoot $RepoRoot -Workflow $Workflow -Scenario $Scenario -EngineVersion $version -Reproduction $Reproduction -RetainedPaths $RetainedPaths
-        $Context.artifact_root = Resolve-EsirArtifactPath $RepoRoot $state.run.payload_path
-        $Context.run_mod_directory = Join-Path $Context.artifact_root 'run-mods'
+        [void](Initialize-EsirManagedQcContext -RepoRoot $RepoRoot -Context $Context -RunId $state.run.id -SourceMode $SourceMode)
     } catch {
         $state.error = $_.Exception.Message
+        $state.run = $null
     }
     return $state
 }
@@ -521,8 +690,15 @@ function Finish-EsirManagedQc {
 function Get-EsirRetainedFinalData {
     param([string]$RepoRoot, [Parameter(Mandatory)][string]$EngineVersion)
     Initialize-EsirHousekeepingNative
-    foreach ($run in @(Get-EsirArtifactRuns $RepoRoot | Where-Object { $_.status -eq 'success' -and $_.engine_version -eq $EngineVersion -and $_.verified_dump } | Sort-Object completed_at -Descending)) {
+    foreach ($run in @(Get-EsirArtifactRuns $RepoRoot | Where-Object { $_.status -eq 'success' -and $_.engine_version -eq $EngineVersion -and $_.verified_dump -and ($_.task_open -or @($_.pins).Count) } | Sort-Object completed_at -Descending)) {
         try {
+            if (Test-EsirCompactQcRun $run) {
+                $storage = Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action inspect -Data @{run_id=$run.id}
+                $dump = [IO.Path]::GetFullPath($run.verified_dump)
+                if ((Test-EsirArtifactWithin $dump $storage.scratch_root) -and
+                    [EsirArtifactFile]::Identity($dump, $false) -eq $run.dump_identity) { return $dump }
+                continue
+            }
             $payload = Assert-EsirArtifactTarget $RepoRoot $run.payload_path
             $dump = Resolve-EsirArtifactPath $RepoRoot $run.verified_dump
             if (-not (Test-EsirArtifactWithin $dump $payload)) { continue }
@@ -530,5 +706,5 @@ function Get-EsirRetainedFinalData {
             if ([EsirArtifactFile]::Identity($dump, $false) -eq $recorded.identity) { return $dump }
         } catch { continue }
     }
-    throw "No retained verified dump for Factorio $EngineVersion. Run engine-matching qc-fast; do not substitute a historical path silently."
+    throw "No active or explicitly pinned verified dump for Factorio $EngineVersion. Regenerate with engine-matching qc-fast and consume before task close; never substitute historical output silently."
 }

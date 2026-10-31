@@ -11,7 +11,14 @@ Use the repo-local wrapper first:
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task doctor
 ```
 
-This skill is the ESIR operator surface. It composes the existing engine-layer skills instead of replacing them:
+This skill is the ESIR operator surface.
+
+Main development currently targets exact Factorio **2.1.24**. Resolve the executable,
+dependency selection and smoke save from `.codex/esir/factorio-development.json`;
+verify the executable and adjacent base data match before QC. Historical 2.1.23
+and 2.0.77 receipts retain their original versions and are not current acceptance.
+
+It composes these engine-layer skills:
 
 - `factorio-mod-qc` for headless Factorio validation, package dry-runs, and Mod Portal metadata
 - `chatgpt-firefox-companion` for supervised Firefox image sessions
@@ -49,10 +56,10 @@ This skill is the ESIR operator surface. It composes the existing engine-layer s
 - Treat checked-in manifests under `.codex/esir/` as the fast map, not the authority. The repo source is still canonical.
 - For dependency-heavy questions, prefer the dedicated `esir-dependency-intel` skill and `scripts\invoke-esir-dependency-intel.ps1` before freehand repo scans.
 - Treat headless Factorio runs as authoritative when they disagree with static sweeps.
-- Treat cached run-mod directories as dependency seeds only. Live repo pack folders are the source of truth.
-- Main development uses exact Factorio 2.1.23 through `.codex/esir/factorio-development.json`, a dedicated verified core dependency seed, and a clean stage-only NSBC source overlay. Cached dependencies never override live source packs. Engine staging filters packs by the selected executable's adjacent base-data family through `scripts/esir-qc-version-staging.ps1`; explicit 2.0 migration work requires compatible preserved sources and dependencies. Static discovery and packaging still include all repo packs. The ordinary runtime/preview default is `core-2.1-smoke`; historical saves require explicit selection. QC registration failure stops before engine launch rather than bypassing the local staging adapter. Package QC builds archives; actual ZIP engine loads remain a separate release gate.
-- Keep raw caches and generated staging in `.factorio-qc` or ignored `output/`; stable manifests stay checked in.
-- Apply [housekeeping](references/housekeeping.md) when producing QC/staging output and at task closeout. Keep two successful managed payloads per workflow/scenario/engine, protect current work and pins, and retire proven-obsolete files from authorized edits in the same patch. Automatic retention cannot prune actual mod folders; leave `models/` alone.
+- Live repo pack folders are the source of truth. Resolve dependencies through the managed ZIP store and the selected profile's exact lock; historical run-mod directories are not automatic seeds.
+- Main development resolves its exact Factorio version, verified core dependency selection and smoke save through `.codex/esir/factorio-development.json`, with a clean stage-only NSBC source overlay. Stored dependencies never override live source packs. Engine staging filters packs by the selected executable's adjacent base-data family through `scripts/esir-qc-version-staging.ps1`; explicit 2.0 migration work requires compatible preserved sources and dependencies. Static discovery and packaging still include all repo packs. Historical saves require explicit selection. QC registration failure stops before engine launch rather than bypassing the local staging adapter. Package QC builds archives; actual ZIP engine loads remain a separate release gate.
+- Apply the [minimum-storage housekeeping contract](references/housekeeping.md) when producing QC/staging output and at task closeout: one canonical ZIP per required mod/content identity, temporary linked run views, private mutable fixture code, and compact evidence. Use C: first and `D:/ESIR` only for capacity overflow. Keep dumps and frames only until their consumers finish; explicitly pin required bulky evidence. Unused managed package versions expire when no profile, active task or pin needs them.
+- Retire proven-obsolete files from authorized edits in the same patch. Automatic retention cannot prune actual mod folders, historical unclassified output or `models/`. An older standalone runner needs a managed-storage adapter before claiming these guarantees.
 - Keep durable ESIR asset generator scripts and generator-specific notes in `.codex/esir/asset-generators/`, not in `output/`. Keep hand-written art prompts in `.codex/esir/art-prompts/` unless the user intentionally wants the older top-level `art-prompts/` tree.
 - Treat `exotic-space-industries-remembrance*/graphics/` as the shipping surface for approved/promoted PNGs, not as scratch staging.
 - The main gameplay pack's former sounds now live in `exotic-space-industries-remembrance-graphics-6/sounds/`; use `ei_sounds_6_path = ei_graphics_6_path.."sounds/"` and keep attribution beside the audio files.
@@ -173,7 +180,7 @@ For affected entities, including hidden operational bodies and generated variant
 - The Singularity Lance helper lives at [`assets/zzz-singularity-lance-qc_0.0.1`](./assets/zzz-singularity-lance-qc_0.0.1). Use [`references/singularity-lance-qc-helper.md`](./references/singularity-lance-qc-helper.md) when a run needs dense alien-age turret sweep coverage with scripted damage and visual-slice telemetry.
 - Use [`esir-research-events`](../esir-research-events/SKILL.md) before changing research receivers or interpreting scripted-research results so normal `on_research_finished` behavior and burst-safe `on_scripted_research_burst` behavior stay paired.
 - The scripted research burst helper lives at [`assets/zzz-scripted-research-qc_0.0.1`](./assets/zzz-scripted-research-qc_0.0.1). Use [`references/scripted-research-qc-helper.md`](./references/scripted-research-qc-helper.md) when a run needs a deterministic `event.by_script` `research_all_technologies()` flood.
-- Stage skill-owned helper mods into `.factorio-qc/fmqc/mods-live/` only for the runs that need them, enable them in `mod-list.json`, and treat the checked-in skill copy as canonical.
+- Stage skill-owned helper mods privately in the managed run's mod view only for the runs that need them, enable them in that run's `mod-list.json`, and treat the checked-in skill copy as canonical. Retire the helper view after its final consumer; never write helpers into a shared dependency seed.
 
 ## Dependency Intel
 

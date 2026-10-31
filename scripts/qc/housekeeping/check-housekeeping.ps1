@@ -111,6 +111,7 @@ try {
     [IO.File]::WriteAllText($dumpPath, '{"data":{"nested":[true,false,null,-1.2e+3,"a\\b",{}]}}')
     $done = Finish-TestRun $valid -DumpPath $dumpPath
     Assert ($done.status -eq 'success') "Valid dump failed: $($done.housekeeping_error)"
+    [void](Set-EsirArtifactRunState $fixture $valid.id pin 'explicit legacy dump lookup')
     Assert ((Get-EsirRetainedFinalData $fixture 2.0.77) -eq $dumpPath.Replace('/', '\')) 'Retained dump lookup failed'
     1..3 | ForEach-Object { $extra = New-TestRun; [void](Finish-TestRun $extra) }
     [void](Invoke-EsirHousekeeping $fixture -Apply)

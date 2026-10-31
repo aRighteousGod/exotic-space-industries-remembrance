@@ -617,9 +617,17 @@
       "pack_role": "primary gameplay and runtime pack"
     },
     {
-      "mod_name": "ArmouredBiters21Compat",
+      "mod_name": "ArmouredBiters",
       "dependency_kind": "required",
-      "constraint": ">= 2.0.7",
+      "constraint": ">= 2.1.0",
+      "declared_by_pack": "exotic-space-industries-remembrance",
+      "declared_in": "exotic-space-industries-remembrance\\info.json",
+      "pack_role": "primary gameplay and runtime pack"
+    },
+    {
+      "mod_name": "ArmouredBiters21Compat",
+      "dependency_kind": "incompatible",
+      "constraint": null,
       "declared_by_pack": "exotic-space-industries-remembrance",
       "declared_in": "exotic-space-industries-remembrance\\info.json",
       "pack_role": "primary gameplay and runtime pack"

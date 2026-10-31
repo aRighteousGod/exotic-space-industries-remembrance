@@ -62,6 +62,7 @@ data:extend({
     {
         name = "ei-advanced-refinery",
         type = "assembling-machine",
+        use_mirroring = true,
         crafting_categories = {"oil-processing", "ei-advanced-refinery"},
         icon = ei_graphics_item_path.."advanced-refinery.png",
         icon_size = 64,

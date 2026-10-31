@@ -86,6 +86,7 @@ data:extend({
     {
         name = "ei-bio-chamber",
         type = "assembling-machine",
+        use_mirroring = true,
         icon = ei_graphics_item_path.."bio-chamber.png",
         icon_size = 64,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},

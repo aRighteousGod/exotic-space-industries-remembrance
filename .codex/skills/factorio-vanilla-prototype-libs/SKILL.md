@@ -7,12 +7,16 @@ description: "Use when Codex needs to import, audit, replace, or choose Factorio
 
 Use this skill when a task touches importable vanilla helper modules outside Factorio's `data/core/lualib` tree.
 
-The current survey uses verified full Factorio 2.1.23 build 87750. Keep the
-Steam 2.0.77 installation as an explicit historical comparison.
+Main development uses Factorio 2.1.24 from `.codex/esir/factorio-development.json`;
+recheck relevant helpers against that executable's adjacent data files before use.
+The historical survey uses verified full Factorio 2.1.23 build 87750. Keep its
+2.0.77 comparison labeled as historical; the current Steam installation is 2.1.24.
 
 ```powershell
-$factorio = Join-Path $PWD '.factorio-qc/f21'
-& "$factorio\bin\x64\factorio.exe" --version
+$profile = Get-Content .codex/esir/factorio-development.json -Raw | ConvertFrom-Json
+$engine = Join-Path $PWD $profile.engine_path
+& $engine --version
+$factorio = Split-Path (Split-Path (Split-Path $engine))
 Get-ChildItem "$factorio\data\base\prototypes" -Recurse -Filter *.lua
 Get-ChildItem "$factorio\data\space-age\prototypes" -Recurse -Filter *.lua
 Get-ChildItem "$factorio\data\quality\prototypes" -Recurse -Filter *.lua

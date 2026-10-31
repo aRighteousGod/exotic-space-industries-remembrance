@@ -7,7 +7,7 @@ param(
     [ValidateSet('installed', 'hosted')]
     [string]$Source = 'hosted',
     [ValidatePattern('^\d+\.\d+\.\d+$')]
-    [string]$Version = '2.1.23',
+    [string]$Version = '2.1.24',
     [string]$DocsRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html',
     [string]$Query,
     [ValidateSet('runtime', 'prototype', 'auxiliary', 'wiki', 'all')]

@@ -26,16 +26,17 @@ if ($RunId) {
     $payload = '.factorio-qc/ep-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
     $run = Register-EsirArtifactRun -RepoRoot $repo -Workflow 'entity-presentation' -Scenario 'new-entity-native-scenes' -EngineVersion $matches[1] -PayloadPath $payload -Reproduction 'invoke-entity-presentation-qc; data assertions and isolated exact native scenes'
 }
-$context.artifact_root = Join-Path $repo $run.payload_path
-$context.run_mod_directory = Join-Path $context.artifact_root 'm'
+[void](Initialize-EsirManagedQcContext -RepoRoot $repo -Context $context -RunId $run.id -SourceMode private-mutable)
+# Runtime isolation changes control.lua in every enabled source mod.
+$context | Add-Member -NotePropertyName mutable_source_names -NotePropertyValue @('*') -Force
 if ($SeedDirectory) { $context.cache_seed_directories = @((Resolve-Path -LiteralPath $SeedDirectory).Path) }
 $result = New-FactorioQCResult -Name 'entity-presentation'
 $managed = [pscustomobject]@{run = $run; error = $null}
 try {
     if ($PreparedModDirectory) {
         $mods = (Resolve-Path -LiteralPath $PreparedModDirectory).Path
-        $qcRoot = [IO.Path]::GetFullPath((Join-Path $repo '.factorio-qc')) + [IO.Path]::DirectorySeparatorChar
-        if (-not $mods.StartsWith($qcRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Prepared mods must be private QC staging.' }
+        if ($mods -ne $context.mod_view_root) { throw 'Prepared mods must be this run''s managed private-mutable view; historical setups cannot be adopted.' }
+        [void](Invoke-EsirQcStorage -RepoRoot $repo -Action validate -Data @{run_id=$run.id})
         # Preserve runtime isolation but require the entire live gameplay Lua
         # source to match, so a retry cannot silently validate stale data code.
         $live = Join-Path $repo 'exotic-space-industries-remembrance'
@@ -64,7 +65,7 @@ try {
     $helperInfo = Get-Content -LiteralPath (Join-Path $helper 'info.json') -Raw | ConvertFrom-Json
     $helperInfo.dependencies = @($list.mods | Where-Object { $_.enabled -and $_.name -ne 'zzz-esir-entity-presentation-qc' } | ForEach-Object name)
     $helperInfo | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $helper 'info.json') -Encoding UTF8
-    & python -B (Join-Path $fixtureSource 'isolate-runtime.py') $mods |
+    & python -B (Join-Path $fixtureSource 'isolate-runtime.py') $mods --run-id $run.id |
         Set-Content -LiteralPath (Join-Path $context.artifact_root 'runtime-isolation.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { throw 'Runtime isolation failed.' }
     foreach ($file in @(
@@ -112,6 +113,7 @@ try {
         } finally { if (-not $native.HasExited) { Stop-Process -Id $native.Id }; $native.Dispose() }
         $shots = @(Get-ChildItem -LiteralPath (Join-Path $config.write_data_dir 'script-output/presentation') -File -Filter '*.png')
         if ($shots.Count -ne 8) { throw 'Missing scene captures.' }
+        Set-EsirQcSelectedEvidence -RepoRoot $repo -RunId $run.id -Paths @($shots.FullName)
         $visualReport = @('--visual-report', (Join-Path $config.write_data_dir 'script-output/presentation-visual.json'))
     }
     $runtime = Join-Path $config.write_data_dir 'script-output/presentation-runtime.json'

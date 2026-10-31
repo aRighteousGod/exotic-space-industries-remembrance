@@ -17,47 +17,32 @@ $repo = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'esir-dev-lib.ps1')
 . (Join-Path $PSScriptRoot 'esir-housekeeping.ps1')
 $paths = Get-EsirPaths -RepoRoot $repo
-$context = Get-EsirQcContext -Paths $paths -EnsureArtifactRoot
+$context = $null
+if ($Phase -ne 'Finish') { $context = Get-EsirQcContext -Paths $paths -EnsureArtifactRoot }
 $utf8 = [Text.UTF8Encoding]::new($false)
 $fixture = Join-Path $repo 'scripts/qc/machine-status-lights'
 if ($Phase -eq 'Stage') {
+    if ($SeedMods -or $PreparedMods) { throw 'Historical mod setups cannot be adopted. Stage a new managed private-mutable run from the current profile.' }
     $version = (& $context.factorio_exe --version | Out-String)
     if ($version -notmatch 'Version:\s*(2\.1\.23)') { throw 'This fixture requires Factorio 2.1.23.' }
     $payload = '.factorio-qc/ml-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
     $run = Register-EsirArtifactRun -RepoRoot $repo -Workflow 'machine-status-lights' -Scenario "$Focus-startup-modes" -EngineVersion '2.1.23' -PayloadPath $payload -Reproduction 'scripts/invoke-machine-status-light-qc.ps1: Stage, Data baseline/original/status/off, Visual status, Finish; smelter focus also covers all ArcPreset values'
-    $RunDirectory = Join-Path $repo $run.payload_path
-    New-Item -ItemType Directory -Path $RunDirectory -Force | Out-Null
+    [void](Initialize-EsirManagedQcContext -RepoRoot $repo -Context $context -RunId $run.id -SourceMode private-mutable)
+    $context | Add-Member -NotePropertyName mutable_source_names -NotePropertyValue @('*') -Force
+    $RunDirectory = $context.scratch_root
     & python -B (Join-Path $repo '.codex/esir/asset-generators/machine-status-lights/generate.py') --output (Join-Path $RunDirectory 'lens-art')
     if ($LASTEXITCODE -ne 0) { throw 'Reproducible lens-mask extraction failed.' }
     & python -B (Join-Path $fixture 'check-masks.py') $RunDirectory
     if ($LASTEXITCODE -ne 0) { throw 'Shipping lens masks differ from reproducible extraction.' }
-    $mods = Join-Path $RunDirectory 'm'
-    if ($SeedMods) {
-        & python -B (Join-Path $fixture 'stage.py') $SeedMods $mods
-        if ($LASTEXITCODE -ne 0) { throw 'Read-only dependency seed copy failed.' }
-    } elseif ($PreparedMods) {
-        $source = (Resolve-Path -LiteralPath $PreparedMods).Path
-        $boundary = [IO.Path]::GetFullPath((Join-Path $repo '.factorio-qc')) + [IO.Path]::DirectorySeparatorChar
-        if (-not $source.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) { throw 'Prepared mods must be task-owned private QC staging.' }
-        # Short alias avoids Factorio's long require paths without another asset copy.
-        New-Item -ItemType Junction -Path $mods -Target $source | Out-Null
-    } else {
-        $context.artifact_root = $RunDirectory
-        $context.run_mod_directory = $mods
-        $result = New-FactorioQCResult -Name 'machine-status-lights'
-        # Keep the wrapper's engine/dependency validation, but do not duplicate
-        # gigabytes of immutable graphics. Every Lua/control file stays private.
-        function Copy-DirectoryTreeRobust {
-            param([string]$Source, [string]$Destination)
-            & python -B (Join-Path $fixture 'stage-tree.py') $Source $Destination
-            if ($LASTEXITCODE -ne 0) { throw 'Private media-sharing stage failed.' }
-        }
-        $null = Sync-FactorioRunMods -Context $context -Result $result
+    if ($Bottleneck -ne 'absent') {
+        $context | Add-Member -NotePropertyName extra_dependency_packages -NotePropertyValue @(
+            @{path=(Join-Path $env:APPDATA 'Factorio/mods/BottleneckLite_1.4.1.zip')},
+            @{path=(Join-Path $env:APPDATA 'Factorio/mods/flib_0.17.2.zip')}
+        ) -Force
     }
+    $result = New-FactorioQCResult -Name 'machine-status-lights'
+    $mods = Sync-FactorioRunMods -Context $context -Result $result
     $pack = Join-Path $mods 'exotic-space-industries-remembrance'
-    if ($SeedMods -or $PreparedMods) {
-        Get-ChildItem -LiteralPath (Join-Path $repo 'exotic-space-industries-remembrance') | Copy-Item -Destination $pack -Recurse -Force
-    }
     $entrypoints = Join-Path $RunDirectory 'entrypoints'
     New-Item -ItemType Directory -Path $entrypoints -Force | Out-Null
     foreach ($entry in @('data-updates.lua', 'data-final-fixes.lua')) {
@@ -73,7 +58,7 @@ if ($Phase -eq 'Stage') {
     $info = Get-Content -LiteralPath (Join-Path $helper 'info.json') -Raw | ConvertFrom-Json
     $info.dependencies = @($list.mods | Where-Object { $_.enabled -and $_.name -ne $info.name } | ForEach-Object name)
     [IO.File]::WriteAllText((Join-Path $helper 'info.json'), ($info | ConvertTo-Json -Depth 5), $utf8)
-    & python -B (Join-Path $fixture 'isolate.py') $mods | Set-Content (Join-Path $RunDirectory 'isolation.json') -Encoding UTF8
+    & python -B (Join-Path $fixture 'isolate.py') $mods --run-id $run.id | Set-Content (Join-Path $RunDirectory 'isolation.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { throw 'Private runtime isolation failed.' }
     [IO.File]::WriteAllText((Join-Path $RunDirectory 'run-id.txt'), $run.id, $utf8)
     [IO.File]::WriteAllText((Join-Path $RunDirectory 'config.ini'), "[path]`nwrite-data=$RunDirectory`n[other]`ncheck-updates=false`n[graphics]`nfull-screen=false`nhalt-rendering-when-minimized=false`nmax-sprite-loading-threads=2`nscreenshots-threads-count=2`ncache-sprite-atlas=false`n", $utf8)
@@ -81,21 +66,10 @@ if ($Phase -eq 'Stage') {
     return
 }
 $RunDirectory = (Resolve-Path -LiteralPath $RunDirectory).Path
-$boundary = [IO.Path]::GetFullPath((Join-Path $repo '.factorio-qc')) + [IO.Path]::DirectorySeparatorChar
-if (-not $RunDirectory.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) { throw 'Run must be private QC staging.' }
-$runId = Get-Content -LiteralPath (Join-Path $RunDirectory 'run-id.txt') -Raw
-# A task may explicitly relocate its generated payload to the user's overflow
-# disk. Keep ownership/receipts in the registered directory; never follow an
-# arbitrary junction or use an installed mod directory as mutable test staging.
-$overflowPointer = Join-Path $RunDirectory 'overflow-root.txt'
-if (Test-Path -LiteralPath $overflowPointer) {
-    $overflow = [IO.Path]::GetFullPath((Get-Content -LiteralPath $overflowPointer -Raw).Trim())
-    if (-not $overflow.StartsWith('D:\ESIR\output\machine-status-depth-', [StringComparison]::OrdinalIgnoreCase) -or
-        (Get-Content -LiteralPath (Join-Path $overflow 'run-id.txt') -Raw).Trim() -ne $runId.Trim()) {
-        throw 'Overflow payload ownership mismatch.'
-    }
-    $RunDirectory = $overflow
-}
+$runId = (Get-Content -LiteralPath (Join-Path $RunDirectory 'run-id.txt') -Raw).Trim()
+$storage = Invoke-EsirQcStorage -RepoRoot $repo -Action inspect -Data @{run_id=$runId}
+if ($RunDirectory -ne $storage.scratch_root -or $storage.source_mode -ne 'private-mutable' -or $storage.closed) { throw 'RunDirectory must be this active managed fixture''s scratch root.' }
+[void](Invoke-EsirQcStorage -RepoRoot $repo -Action validate -Data @{run_id=$runId})
 if ($Phase -eq 'Finish') {
     if ($Focus -eq 'smelters') {
         & python -B (Join-Path $fixture 'check-smelters.py') $RunDirectory
@@ -117,12 +91,16 @@ if ($Phase -eq 'Finish') {
         }
     }
     $managed = [pscustomobject]@{run = (Read-EsirArtifactRun $repo $runId); error = $null}
+    $selected = @(Get-ChildItem -LiteralPath $RunDirectory -Recurse -File | Where-Object {
+        $_.Extension -eq '.webp' -or ($_.Extension -eq '.png' -and $_.Name -match 'gallery|review|contact|comparison')
+    } | Select-Object -ExpandProperty FullName)
+    Set-EsirQcSelectedEvidence -RepoRoot $repo -RunId $runId -Paths $selected
     $result = Finish-EsirManagedQc -RepoRoot $repo -State $managed -ExitCode 0 -Result $summary
     if ($result.status -ne 'success') { throw $result.error }
     [void](Set-EsirArtifactRunState -RepoRoot $repo -RunId $runId -Action close)
     return
 }
-$mods = Join-Path $RunDirectory 'm'
+$mods = $storage.mod_view_root
 $helper = Join-Path $mods 'zzz-esir-machine-lights-qc'
 foreach ($relative in @('lib/machine-status-light-config.lua', 'lib/machine-status-light-definitions.lua', 'scripts/data-updates/machine-status-lights.lua', 'scripts/data-final-updates/machine-status-lights.lua', 'settings.lua')) {
     Copy-Item -LiteralPath (Join-Path (Join-Path $repo 'exotic-space-industries-remembrance') $relative) -Destination (Join-Path (Join-Path $mods 'exotic-space-industries-remembrance') $relative) -Force
@@ -132,20 +110,8 @@ foreach ($language in @('en', 'de', 'fr', 'ja', 'pl', 'ru', 'zh-CN', 'zh-TW')) {
     $relative = "locale/$language/machine-status-lights.cfg"
     Copy-Item -LiteralPath (Join-Path (Join-Path $repo 'exotic-space-industries-remembrance') $relative) -Destination (Join-Path (Join-Path $mods 'exotic-space-industries-remembrance') $relative) -Force
 }
-$art = Join-Path $repo 'exotic-space-industries-remembrance-graphics-6/graphics/status-lights'
-if (Test-Path -LiteralPath $art) {
-    $targetArt = Join-Path $mods 'exotic-space-industries-remembrance-graphics-6/graphics/status-lights'
-    New-Item -ItemType Directory -Path $targetArt -Force | Out-Null
-    foreach ($asset in Get-ChildItem -LiteralPath $art -File) {
-        $destination = Join-Path $targetArt $asset.Name
-        if (Test-Path -LiteralPath $destination) {
-            if ((Get-FileHash -LiteralPath $asset.FullName).Hash -eq (Get-FileHash -LiteralPath $destination).Hash) { continue }
-            # Detach a staged hard link before replacing changed source art.
-            Remove-Item -LiteralPath $destination
-        }
-        Copy-Item -LiteralPath $asset.FullName -Destination $destination
-    }
-}
+# Immutable graphics are shared. Source fingerprint validation above requires a
+# fresh Stage after any edit; never refresh art through a shared directory link.
 $list = Get-Content -LiteralPath (Join-Path $mods 'mod-list.json') -Raw | ConvertFrom-Json
 $list.mods = @($list.mods | Where-Object name -ne 'BottleneckLite')
 # The isolated lighting profile uses the core seed, not optional turret reskins.
@@ -155,10 +121,10 @@ foreach ($optional in @('minigun-turret-HD', 'minigun-turret-HD-graphics')) {
 }
 if ($Bottleneck -eq 'absent') { $list.mods += @{name='BottleneckLite'; enabled=$false} }
 if ($Bottleneck -ne 'absent') {
-    $archive = Join-Path $env:APPDATA 'Factorio/mods/BottleneckLite_1.4.1.zip'
-    Copy-Item -LiteralPath $archive -Destination (Join-Path $mods 'BottleneckLite_1.4.1.zip') -Force
+    foreach ($archive in @('BottleneckLite_1.4.1.zip', 'flib_0.17.2.zip')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $mods $archive))) { throw 'Stage this fixture with -Bottleneck enabled before running Bottleneck comparisons.' }
+    }
     $list.mods += @{name='BottleneckLite'; enabled=$true; version='1.4.1'}
-    Copy-Item -LiteralPath (Join-Path $env:APPDATA 'Factorio/mods/flib_0.17.2.zip') -Destination (Join-Path $mods 'flib_0.17.2.zip') -Force
     $list.mods = @($list.mods | Where-Object name -ne 'flib') + @{name='flib'; enabled=$true; version='0.17.2'}
 }
 [IO.File]::WriteAllText((Join-Path $mods 'mod-list.json'), ($list | ConvertTo-Json -Depth 8), $utf8)

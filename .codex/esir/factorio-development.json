@@ -1,8 +1,8 @@
 {
-  "engine_version": "2.1.23",
-  "engine_path": ".factorio-qc/engine-2.1.23/bin/x64/factorio.exe",
+  "engine_version": "2.1.24",
+  "engine_path": ".factorio-qc/engine-2.1.24/bin/x64/factorio.exe",
   "dependency_seed": ".factorio-qc/dependency-seeds/2.1-core",
-  "dependency_lock_sha256": "2cd48f3ccd5714e74b78386ce49019298e9dcff354c0180da51d93f62c27a8c2",
+  "dependency_lock_sha256": "8f509c61cfebdcca625577ad4ed14f2b491e1c4cf1a63260d8ca78f09130161a",
   "nsbc_source": "../nonstandard-beacons-continued",
   "smoke_save_id": "core-2.1-smoke",
   "smoke_save": ".factorio-qc/core-2.1-smoke.zip"

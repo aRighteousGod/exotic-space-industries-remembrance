@@ -14,39 +14,27 @@ $context = Get-EsirQcContext -Paths $paths -FactorioPath $FactorioPath -EnsureAr
 $run = Read-EsirArtifactRun $RepoRoot $RunId
 $ownedRoot = Assert-EsirArtifactTarget $RepoRoot $run.payload_path
 if ($run.status -ne 'running' -or $run.workflow -ne ('qc-' + $Mode) -or $ownedRoot -ne [IO.Path]::GetFullPath($ArtifactRoot)) { throw 'QC invocation does not match its artifact owner.' }
-$shortRoot = Join-Path $RepoRoot ('.factorio-qc/q' + $RunId.Substring(0, 8))
-if (Test-Path -LiteralPath $shortRoot) {
-    $alias = Get-Item -LiteralPath $shortRoot
-    if (-not ($alias.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $alias.Target -ne $ownedRoot) {
-        throw 'Short QC path already exists with a different owner.'
-    }
-} else {
-    New-Item -ItemType Junction -Path $shortRoot -Target $ownedRoot | Out-Null
-}
-# Factorio's Lua loader requires short physical argument paths even on Windows
-# installations supporting long filesystem paths. The registry retains the owner.
-$context.artifact_root = $shortRoot
-$context.run_mod_directory = Join-Path $shortRoot 'mods'
-# Source discovery and dependency seeds are unchanged; staged copies are invocation-owned.
+[void](Initialize-EsirManagedQcContext -RepoRoot $RepoRoot -Context $context -RunId $RunId -SourceMode read-only)
+# The store owns a short physical mod view. No extra junction into evidence is
+# needed, and large engine output can independently overflow to D:.
 $results = @()
 $modes = if ($Mode -eq 'full') { @('fast', 'runtime', 'preview', 'assets', 'package') } else { @($Mode) }
-foreach ($part in $modes) {
-    $results += switch ($part) {
-        'fast' { Invoke-FactorioFastQC -Context $context -Strict:$Strict }
-        'runtime' { Invoke-FactorioRuntimeQC -Context $context -Save $Save -Strict:$Strict }
-        'preview' { Invoke-FactorioPreviewQC -Context $context -Save $Save -Seed $Seed -Planet $Planet -Strict:$Strict }
-        'assets' { Invoke-FactorioAssetsQC -Context $context -Strict:$Strict }
-        'package' { Invoke-FactorioPackageQC -Context $context -Strict:$Strict }
-    }
-}
-# Report physical ownership paths even though the native loader used a short
-# alias. Retention verifies these against the managed payload's file inventory.
-foreach ($result in $results) {
-    foreach ($key in @($result.artifacts.Keys)) {
-        $value = $result.artifacts[$key]
-        if ($value -is [string] -and $value.StartsWith($shortRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
-            $result.artifacts[$key] = $ownedRoot + $value.Substring($shortRoot.Length)
+try {
+    foreach ($part in $modes) {
+        $results += switch ($part) {
+            'fast' { Invoke-FactorioFastQC -Context $context -Strict:$Strict }
+            'runtime' { Invoke-FactorioRuntimeQC -Context $context -Save $Save -Strict:$Strict }
+            'preview' { Invoke-FactorioPreviewQC -Context $context -Save $Save -Seed $Seed -Planet $Planet -Strict:$Strict }
+            'assets' { Invoke-FactorioAssetsQC -Context $context -Strict:$Strict }
+            'package' { Invoke-FactorioPackageQC -Context $context -Strict:$Strict }
         }
+    }
+} catch {
+    $results += [pscustomobject]@{name='execution';status='failed';errors=@($_.Exception.Message);warnings=@();artifacts=@{}}
+} finally {
+    try { [void](Invoke-EsirQcStorage -RepoRoot $RepoRoot -Action release -Data @{run_id=$RunId}) }
+    catch {
+        $results += [pscustomobject]@{name='storage';status='failed';errors=@($_.Exception.Message);warnings=@();artifacts=@{}}
     }
 }
 $status = if (@($results | Where-Object status -eq 'failed').Count) { 'failed' }

@@ -1867,6 +1867,26 @@ function Sync-EsirSaveHelperMods {
     return $HelperSummary
 }
 
+function Invoke-FactorioPackageQC {
+    param([Parameter(Mandatory)]$Context, [switch]$Strict)
+    if ($Context.PSObject.Properties.Name -notcontains 'qc_run_id') { throw 'ESIR package QC requires a managed run.' }
+    $result = New-FactorioQCResult -Name 'package'
+    if (@($Context.source_mods).Count -eq 0) { Add-FactorioQCError -Result $result -Message 'No source mods discovered.' }
+    foreach ($mod in $Context.source_mods) {
+        $arguments = @('-X','utf8','-B',(Join-Path $PSScriptRoot 'esir_qc_package.py'),'--repo',$Context.repo_root,'--run-id',$Context.qc_run_id,'--source',$mod.directory)
+        foreach ($exclude in $script:FactorioQCPackagingExcludes) { $arguments += @('--exclude',$exclude) }
+        $text = & python @arguments
+        if ($LASTEXITCODE -ne 0) { throw "Managed package build failed: $($mod.name)" }
+        $package = ($text | Out-String) | ConvertFrom-Json
+        Add-FactorioQCFinding -Result $result -Finding ([pscustomobject]@{
+            mod=$mod.folder_name; archive=$package.path; sha256=$package.sha256
+            entry_count=$package.entry_count; reused=$package.reused
+        })
+    }
+    Add-FactorioQCNote -Result $result -Message 'Packages are canonical leased store objects; task close collects unreferenced outputs.'
+    return (Finalize-FactorioQCResult -Result $result -Strict:$Strict)
+}
+
 function Invoke-EsirQcMode {
     param(
         [Parameter(Mandatory = $true)]$Paths,
@@ -1895,7 +1915,7 @@ function Invoke-EsirQcMode {
     if ($saveSelection -and $saveSelection.path -and (Test-EsirArtifactWithin $saveSelection.path $Paths.repo_root)) { $retainedInputs += $saveSelection.path }
     $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow ('qc-' + $Mode) -Scenario $scenario -RetainedPaths $retainedInputs -Reproduction "invoke-esir-dev -Task qc-$Mode; scenario=$scenario; Factorio=$($context.factorio_exe)"
 
-    if (-not $managed.run) { throw 'QC ownership registration failed; refusing an unmanaged fallback with different staging defaults.' }
+    if (-not $managed.run) { throw "QC ownership registration failed: $($managed.error)" }
     $arguments = @('-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'invoke-esir-qc-delegate.ps1'), '-Mode', $Mode, '-RepoRoot', $Paths.repo_root, '-ArtifactRoot', $context.artifact_root, '-RunId', $managed.run.id)
     if ($saveSelection -and $saveSelection.path) { $arguments += @('-Save', $saveSelection.path) }
     if ($null -ne $Seed) { $arguments += @('-Seed', [string]$Seed) }

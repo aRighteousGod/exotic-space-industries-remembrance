@@ -99,6 +99,7 @@ data:extend({
     {
         name = "ei-advanced-chem-plant",
         type = "assembling-machine",
+        use_mirroring = true,
         crafting_categories = {"chemistry", "ei-advanced-chem-plant","ei-burning"},
         icon = ei_graphics_item_path.."advanced-chem-plant.png",
         icon_size = 64,

@@ -21,7 +21,7 @@ Use this skill when ESIR Lua work should leave the editor with sharper completio
    - `---@type` for important locals, module exports, prototype tables, and data lists
    - `---@class`, `---@field`, and `---@alias` for reused state, option, payload, tag, and record shapes
 3. Prefer authoritative Factorio and ESIR types:
-   - default to exact Factorio 2.1.23; preserve explicit 2.0.77 types only in historical fixtures and migration evidence
+   - default to exact Factorio 2.1.24 from the development profile; preserve explicit 2.1.23 and 2.0.77 types in historical fixtures and migration evidence
    - runtime API examples: `LuaEntity`, `LuaPlayer`, `LuaSurface`, `LuaGuiElement`
    - event payload examples: `EventData.on_gui_click`, `EventData.on_built_entity`
    - data stage examples: `data.AssemblingMachinePrototype`, `data.RecipePrototype`, `data.TechnologyPrototype`

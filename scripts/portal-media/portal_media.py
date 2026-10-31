@@ -15,6 +15,9 @@ from datetime import datetime, timezone
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from esir_qc_storage import dispatch
+
 ROOT = Path(__file__).resolve().parents[2]
 PACK = ROOT / "exotic-space-industries-remembrance"
 OUT = ROOT / "output/portal-media"
@@ -109,8 +112,10 @@ def capture_fingerprint(batch):
     files = [p for p in PACK.rglob("*") if p.is_file() and p.suffix in {".lua", ".cfg", ".json"}]
     files += list((ROOT / "scripts/portal-media/native").rglob("*"))
     files += [ROOT / "scripts/invoke-portal-capture.ps1", ROOT / "scripts/portal-media/pack_media.py", ROOT / "scripts/portal-media/window.ps1", local(batch["save_input"])]
-    files += list((ROOT / ".factorio-qc/fmqc/mods-live").glob("*.zip"))
-    files += [ROOT / ".factorio-qc/fmqc/mods-live/mod-list.json"]
+    profile_path = ROOT / ".codex/esir/factorio-development.json"
+    profile = read(profile_path)
+    files += [profile_path, ROOT / profile["dependency_seed"] / "dependency-lock-2.1.json",
+              ROOT / profile["dependency_seed"] / "mod-list.json"]
     for path in sorted(p for p in files if p.is_file()):
         h.update(path.relative_to(ROOT).as_posix().encode()); h.update(digest(path).encode())
     for source in sorted(ROOT.glob("exotic-space-industries-remembrance-graphics-*")):
@@ -123,12 +128,21 @@ def state_path(batch):
     return OUT / batch["id"] / "state.json"
 
 
+def capture_directory(state):
+    # The storage registry owns overflow paths; never trust an arbitrary state-file path.
+    run = dispatch(ROOT, "status", {"run_id": state["capture_run_id"]})
+    path = Path(run["scratch_root"])
+    if path != Path(state["capture_root"]):
+        raise ValueError("Capture root differs from its managed ownership record")
+    return path / "script-output/portal"
+
+
 def capture(batch):
     identity = capture_fingerprint(batch)
     path = state_path(batch)
-    if path.exists():
+    if path.exists() and read(path).get("engine_version"):
         old = read(path)
-        report_path = local(old["capture_root"]) / "script-output/portal/report.json"
+        report_path = capture_directory(old) / "report.json"
         if old.get("capture_fingerprint") == identity and report_path.exists():
             report = read(report_path)
             if report.get("complete") and report.get("connected") and not report.get("probe") and report.get("frames") and all((report_path.parent / f["path"]).is_file() for f in report["frames"]):
@@ -141,17 +155,28 @@ def capture(batch):
     result = json.loads(process.stdout[process.stdout.index("{"):])
     if capture_fingerprint(batch) != identity:
         raise RuntimeError("Source changed during capture; result retained but not reusable")
-    state = {"capture_fingerprint": identity, "capture_root": Path(result["path"]).relative_to(ROOT).as_posix(), "capture_run_id": result["run_id"], "captured_at": stamp()}
+    state = {"capture_fingerprint": identity, "capture_root": str(Path(result["path"])),
+             "capture_run_id": result["run_id"], "engine_version": result["engine_version"], "captured_at": stamp()}
     write(path, state)
     return {"overall_status": "ok", **state}
 
 
-def load_capture(batch):
+def load_capture(batch, require_frames=False):
     state = read(state_path(batch))
     if state["capture_fingerprint"] != capture_fingerprint(batch):
         raise ValueError("Native captures are stale; rerun portal-capture")
-    directory = local(state["capture_root"]) / "script-output/portal"
-    report = read(directory / "report.json")
+    directory = capture_directory(state)
+    closed_path = OUT / batch["id"] / "capture-closeout.json"
+    if not (directory / "report.json").exists() and closed_path.exists():
+        closeout = read(closed_path)
+        report_path = OUT / batch["id"] / "native-report.json"
+        if require_frames:
+            raise ValueError("Validated raw frames were retired; run portal-capture for a new render")
+        if closeout["capture"] != state or digest(report_path) != closeout["native_report_sha256"]:
+            raise ValueError("Changed compact capture evidence")
+        report = read(report_path)
+    else:
+        report = read(directory / "report.json")
     if not report.get("complete") or report.get("probe") or not report.get("connected"):
         raise ValueError("Native report is incomplete")
     return state, directory, report
@@ -198,7 +223,7 @@ def compose(source, feature, frame, style):
 
 
 def render(batch, features, style):
-    state, directory, report = load_capture(batch)
+    state, directory, report = load_capture(batch, require_frames=True)
     output = OUT / batch["id"] / "candidate"
     output.mkdir(parents=True, exist_ok=True)
     feature_map = {f["id"]: f for f in features}
@@ -239,7 +264,7 @@ def render(batch, features, style):
             sheet.paste(thumb, ((index%3)*320,(index//3)*180))
         sheet.save(output / f"{feature_id}.contact.jpg", quality=90)
         receipt = {"schema_version":1, "feature":feature_id, "created_at":stamp(), "capture":state,
-            "environment":{"engine_version":"2.0.77","mod_versions":report["mods"],
+            "environment":{"engine_version":state["engine_version"],"mod_versions":report["mods"],
                 "startup_settings":report["startup_settings"],"capture_resolution":report["resolution"],"ui_scale":report["scale"]},
             "native_report_sha256":digest(directory/"report.json"),
             "feature_sources":[{"path":p.relative_to(ROOT).as_posix(),"sha256":digest(p)} for p in feature_sources(feature)],
@@ -256,15 +281,23 @@ def render(batch, features, style):
 def validate(batch, features, style):
     state, directory, report = load_capture(batch)
     output = OUT / batch["id"] / "candidate"
+    closeout_path = OUT / batch["id"] / "capture-closeout.json"
+    closeout = read(closeout_path) if closeout_path.exists() else None
+    raw_available = (directory / "report.json").is_file()
+    frame_manifests = {}
     rows = []
     for feature_id in batch["features"]:
         receipt = read(output / f"{feature_id}.json")
         if receipt["capture"] != state:
             raise ValueError(f"Export belongs to an older capture: {feature_id}")
-        for source in receipt["source_frames"]:
-            path = (directory / source["path"]).resolve()
-            if not path.is_relative_to(directory) or digest(path) != source["sha256"]:
-                raise ValueError(f"Missing or changed source frame: {feature_id}")
+        frame_manifests[feature_id] = hashlib.sha256(json.dumps(receipt["source_frames"], sort_keys=True).encode()).hexdigest()
+        if raw_available:
+            for source in receipt["source_frames"]:
+                path = (directory / source["path"]).resolve()
+                if not path.is_relative_to(directory) or digest(path) != source["sha256"]:
+                    raise ValueError(f"Missing or changed source frame: {feature_id}")
+        elif not closeout or closeout["frame_manifests"].get(feature_id) != frame_manifests[feature_id]:
+            raise ValueError(f"Changed retained frame manifest: {feature_id}")
         path = output / f"{feature_id}.webp"
         if digest(path) != receipt["file_sha256"] or receipt["style_sha256"] != digest(ROOT/"portal/style.json") or receipt["renderer_sha256"] != digest(__file__):
             raise ValueError(f"Stale or changed export: {feature_id}")
@@ -288,6 +321,23 @@ def validate(batch, features, style):
                      "editorial_review":receipt["review"]["status"]})
     result = {"overall_status":"ok","checked_at":stamp(),"media":rows,"total_bytes":sum(r["bytes"] for r in rows),"portal_preview":"unverified"}
     write(OUT/batch["id"]/"validation.json",result)
+    # Capture and render are separate commands. Only successful validation ends
+    # the pending consumer lease. Final media remain here once, outside scratch.
+    report_path = OUT / batch["id"] / "native-report.json"
+    if raw_available:
+        report_path.write_bytes((directory / "report.json").read_bytes())
+        write(closeout_path, {"capture": state, "native_report_sha256": digest(report_path),
+                              "frame_manifests": frame_manifests, "validated_at": stamp()})
+    # Pass paths via environment rather than interpolating them into shell code.
+    environment = os.environ.copy()
+    environment.update(ESIR_PORTAL_REPO=str(ROOT), ESIR_PORTAL_RUN=state["capture_run_id"])
+    command = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command",
+               ". (Join-Path $env:ESIR_PORTAL_REPO 'scripts/esir-housekeeping.ps1'); "
+               "$closed = Set-EsirArtifactRunState -RepoRoot $env:ESIR_PORTAL_REPO -RunId $env:ESIR_PORTAL_RUN -Action close; "
+               "if ($closed.cleanup_status -ne 'compacted') { throw $closed.housekeeping_error }"]
+    closed = subprocess.run(command, env=environment, capture_output=True, text=True)
+    if closed.returncode:
+        raise RuntimeError("Capture validation passed, but owned cleanup is protected: " + closed.stderr[-2000:])
     return result
 
 

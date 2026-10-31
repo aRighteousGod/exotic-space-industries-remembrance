@@ -123,6 +123,7 @@ data:extend({
     {
         name = "ei-quantum-computer",
         type = "assembling-machine",
+        use_mirroring = true,
         icon = ei_graphics_item_path.."quantum-computer.png",
         icon_size = 64,
         circuit_connector =  circuit_connector_definitions.create_vector(

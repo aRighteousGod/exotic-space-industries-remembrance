@@ -187,6 +187,7 @@ telemetry_proxy.circuit_wire_max_distance = default_circuit_wire_max_distance
 
 local vat_entity = {
     type = "assembling-machine",
+    use_mirroring = true,
     name = VAT_NAME,
     icon = VAT_ICON_PATH,
     icon_size = 64,

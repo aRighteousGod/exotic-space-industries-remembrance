@@ -8,6 +8,10 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from esir_qc_storage import dispatch
 
 
 def digest(path):
@@ -38,8 +42,14 @@ def main():
     enabled = {"base", "space-age", "quality", "recycler", "elevated-rails", "zzz-nonstandard-beacons-continued"}
     for row in lock:
         source = args.dependencies / row["file"]
-        assert row["info"]["factorio_version"] == "2.1" and digest(source) == row["sha256"], row["name"]
-        copy_verified(source, seed / row["file"])
+        assert row["info"]["factorio_version"] == "2.1", row["name"]
+        if source.is_file():
+            assert digest(source) == row["sha256"], row["name"]
+            dispatch(repo, "import", {"path": str(source.resolve()), "sha256": row["sha256"],
+                                      "profile": "acquired-core-2.1"})
+        else:
+            stored = {r["sha256"]: r for r in dispatch(repo, "status", {})["artifacts"]}
+            assert row["sha256"] in stored, "Missing locked archive: " + row["name"]
         enabled.add(row["name"])
     for source in repo.iterdir():
         if source.name.startswith("exotic-space-industries-remembrance") or source.name in ("doeworks-deer-continued", "enhanced-walls-continued"):
@@ -50,12 +60,15 @@ def main():
                 enabled.add(info["name"])
     assert len(enabled) == 40, sorted(enabled)
     copy_verified(lock_path, seed / lock_path.name)
+    dispatch(repo, "profile", {"name": "development", "packages": [r["sha256"] for r in lock]})
+    # Acquisition is a pending promotion lease, not a permanent second profile.
+    dispatch(repo, "profile", {"name": "acquired-core-2.1", "packages": []})
     mod_list = {"mods": [{"name": name, "enabled": True} for name in sorted(enabled)] +
         [{"name": name, "enabled": False} for name in ("minigun-turret-HD", "minigun-turret-HD-graphics")]}
     (seed / "mod-list.json").write_text(json.dumps(mod_list, indent=2), encoding="utf-8")
     smoke = repo / profile["smoke_save"]
     copy_verified(args.smoke, smoke)
-    receipt = {"enabled_mods": len(enabled), "dependency_archives": len(lock), "seed": str(seed),
+    receipt = {"enabled_mods": len(enabled), "dependency_archives": 0, "store_references": len(lock), "seed": str(seed),
         "smoke_save": str(smoke), "smoke_sha256": digest(smoke), "startup_settings": "tested core defaults",
         "dependency_lock_sha256": digest(lock_path)}
     # The receipt belongs outside the dependency seed's deliberately narrow contents.

@@ -1,5 +1,9 @@
 # Auric fumarole rebuild lifecycle QC
 
+This is a historical standalone runner. Before new use, adapt dependency staging and
+junction teardown to the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
+Preserve the historical receipts below; do not reinterpret them as compact managed runs.
+
 Run `powershell -ExecutionPolicy Bypass -File scripts/invoke-auric-fumarole-qc.ps1`.
 The runner requires installed Factorio 2.0.77 and the existing dependency seed.
 It delegates isolated full-pack staging to `invoke-control-ups-qc.ps1`, registers

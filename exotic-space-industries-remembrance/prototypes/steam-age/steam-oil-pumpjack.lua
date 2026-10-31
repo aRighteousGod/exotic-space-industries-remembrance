@@ -152,4 +152,6 @@ pump.graphics_set = {
         }
     }
 }
+-- Both native mirroring states use the authored steam pumpjack, not the donor's art.
+pump.graphics_set_flipped = table.deepcopy(pump.graphics_set)
 data:extend({pump})

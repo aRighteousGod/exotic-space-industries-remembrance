@@ -58,6 +58,7 @@ data:extend({
     {
         name = "ei-advanced-centrifuge",
         type = "assembling-machine",
+        use_mirroring = true,
         crafting_categories = {"centrifuging"},
         icon = ei_graphics_item_path.."advanced-centrifuge.png",
         icon_size = 64,

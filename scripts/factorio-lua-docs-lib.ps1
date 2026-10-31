@@ -5,7 +5,7 @@ function Get-FactorioLuaDocsPaths {
     param(
         [Parameter(Mandatory = $true)][string]$RepoRoot,
         [ValidateSet('installed', 'hosted')][string]$Source = 'hosted',
-        [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '2.1.23',
+        [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '2.1.24',
         [string]$DocsRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html',
         [switch]$EnsureCacheRoot
     )

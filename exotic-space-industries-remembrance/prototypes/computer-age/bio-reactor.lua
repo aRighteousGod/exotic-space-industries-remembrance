@@ -58,6 +58,7 @@ data:extend({
     {
         name = "ei-bio-reactor",
         type = "assembling-machine",
+        use_mirroring = true,
         crafting_categories = {"ei-bio-chamber", "ei-bio-reactor", "organic"},
         icon = ei_graphics_item_2_path.."bio-reactor.png",
         icon_size = 64,

@@ -1,9 +1,19 @@
 # Research science-template regression
 
-Private Factorio 2.1.23 QC mod for the Vulcanus Computer Age template alias.
+Private Factorio 2.1 QC mod for the Vulcanus Computer Age template alias. New runs
+use the current development profile (2.1.24); historical 2.1.23 receipts keep their provenance.
 Keep it out of shipping packages and real mod selections. Use the pinned core
 runner `scripts/qc/factorio-2.1/invoke-core.ps1` with this folder copied into an
 isolated registered run. Required dependencies use the existing core selection.
+
+The current runner manages storage through the shared QC store. Start a new
+`-RunRoot` with `-Task stage -FixtureRoot scripts/qc/factorio-2.1/research-bootstrap`.
+Read that root's `context.json`: `mod_view_root` holds the private helper,
+`write_data_root` names the latest phase's output, and `scratch_root` owns the
+temporary saves. Modify only the staged helper's `test-config.lua`; subsequent
+phases reuse the original fixture/quality selection when those options are omitted.
+After checks and required save/capture selection, use `-Task close -RunRoot <root>`.
+Closeout retains compact evidence and removes temporary setups and raw dumps.
 
 `test-config.lua` selects `no_triggers` and `flatten`. The fixture hides and
 forces both startup settings in the private run, then asserts their **actual**

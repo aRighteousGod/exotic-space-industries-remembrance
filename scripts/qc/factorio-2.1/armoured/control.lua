@@ -41,7 +41,7 @@ script.on_event(defines.events.on_tick,function(event)
     local passed=true
     for _,entry in ipairs(rows) do if #entry.buildings==0 then passed=false end end
     helpers.write_file("armoured-native.json",helpers.table_to_json{passed=passed,engine=script.active_mods.base,
-        package=script.active_mods.ArmouredBiters21Compat,separate_nests=settings.startup["ab-enable-nest"].value,groups=rows},false)
+        package=script.active_mods.ArmouredBiters,separate_nests=settings.startup["ab-enable-nest"].value,groups=rows},false)
     for _,entry in ipairs(rows) do assert(#entry.buildings>0,"Native expansion did not build for tier " .. entry.tier) end
     storage.done=true
     log("ESIR ARMOURED NATIVE EXPANSION PASS")

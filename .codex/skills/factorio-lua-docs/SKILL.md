@@ -17,17 +17,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 
 powershell -ExecutionPolicy Bypass -File .\scripts\invoke-factorio-lua-docs.ps1 -Task refresh
 ```
 
-These commands default to the exact `-Source hosted -Version 2.1.23` profile. Queries read the isolated `.factorio-lua-docs-cache/2.1.23` cache without network access or writes; populate it with an explicit `-Task refresh`. Use `-Task status` to confirm the source and cached runtime/prototype application versions before answering version-sensitive API questions. Verify the selected executable reports 2.1.23 as well.
+These commands default to the exact `-Source hosted -Version 2.1.24` profile, matching `.codex/esir/factorio-development.json`. Queries read the isolated `.factorio-lua-docs-cache/2.1.24` cache without network access or writes; populate it with an explicit `-Task refresh`. Use `-Task status` to confirm the source and cached runtime/prototype application versions before answering version-sensitive API questions. Verify the selected executable reports 2.1.24 as well.
 
-For historical migration work, use `-Source installed -Version 2.0.77` with the preserved Steam installation at `C:\Program Files (x86)\Steam\steamapps\common\Factorio\doc-html`. Never substitute that executable for main 2.1 validation, or silently refresh either profile from another version.
+For historical migration work, select the separate 2.0.77 or 2.1.23 cache explicitly. Use `-Source hosted -Version 2.0.77` to refresh historical docs; use `-Source installed` only with an independently verified matching installation. The current Steam installation is 2.1.24. Never substitute another executable for exact-engine validation or relabel an older receipt.
 
 For `-Task query`, provide either `-Query` or `-ExactName`. Blank queries fail instead of returning arbitrary first entries.
 Cached queries are read-only by default. Installed refreshes never use the network. Use `-RefreshIfMissing` or `-Task refresh` only when a versioned cache write is acceptable.
 
 ## What This Skill Covers
 
-- exact-version hosted runtime and prototype API JSON/HTML for Factorio 2.1.23 by default
-- explicitly selected installed 2.0.77 documentation for migration and historical evidence
+- exact-version hosted runtime and prototype API JSON/HTML for Factorio 2.1.24 by default
+- explicitly selected 2.0.77 or 2.1.23 documentation for migration and historical evidence
 - auxiliary docs such as Data Lifecycle, Storage, Libraries, Migrations, Instrument Mode, and JSON doc formats
 - official wiki scripting topics such as Tutorial:Scripting, Script interfaces, Localisation, data.raw, Console, Scenario System, and Command line parameters
 
@@ -37,7 +37,7 @@ Cached queries are read-only by default. Installed refreshes never use the netwo
 - Prefer the machine-readable runtime and prototype JSON docs for exact symbol lookup.
 - Prefer the version-pinned cached index first, then open the exact versioned official page when the question needs more detail or examples.
 - Do not copy the whole docs corpus into checked-in repo files. Keep indexed snapshots in the ignored, versioned cache at `.factorio-lua-docs-cache/<version>`.
-- Treat 2.1.23 as the main ESIR authority. Never select, migrate, or reuse the legacy flat 2.1.15 cache implicitly. Keep 2.0.77 results explicitly labeled as historical.
+- Treat 2.1.24 as the main ESIR authority. Never select, migrate, or reuse the legacy flat 2.1.15 cache implicitly. Keep 2.0.77 and 2.1.23 results explicitly labeled as historical.
 - Refreshing hosted documentation is opt-in: pass `-Task refresh`. The version must be numeric; `latest` is rejected, and `-DocsRoot` is incompatible with hosted mode.
 - Compare `-Task status` with `factorio.exe --version` before updating installed-file surveys such as core lualib or vanilla prototype helper maps.
 - For command-line option questions, query the cached wiki topic first, then compare the official page with local `factorio.exe --help` when choosing flags for this workstation.

@@ -16,7 +16,7 @@ Use this skill for the Meshy -> Blender -> Factorio-preset spritesheet path. It 
 
 ## Hard Rules
 
-- Follow [housekeeping](../esir-dev/references/housekeeping.md). Register new reproducible render intermediates only after identifying retained source/specification, final sheets and QA evidence; preserve original downloads and manual work. During authorized shipping replacements, retire the exact superseded asset family after consumer checks. Leave root `models/` outside housekeeping.
+- Follow [housekeeping](../esir-dev/references/housekeeping.md). Register new reproducible render intermediates only after identifying retained source/specification, final sheets and QA evidence; preserve original downloads and manual work. Keep frames until export and QA finish, then retain compact receipts and selected captures rather than another complete frame tree. During authorized shipping replacements, retire the exact superseded asset family after consumer checks. Leave root `models/` outside housekeeping.
 
 - Never store Meshy keys in Blender files, repo files, scripts, or Codex config.
 - Use `MESHY_API_KEY` through Meshy MCP or the `$meshy-api` REST helper.

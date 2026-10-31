@@ -63,6 +63,7 @@ data:extend({
     {
         name = "ei-excavator",
         type = "assembling-machine",
+        use_mirroring = true,
         crafting_categories = {"ei-excavator"},
         icon = ei_graphics_item_2_path.."excavator.png",
         icon_size = 64,

@@ -1,6 +1,6 @@
 # Licensing And Cache Boundaries
 
-- The main Factorio 2.1.23 API docs include a license page at `https://lua-api.factorio.com/2.1.23/license.html`; retain the separate 2.0.77 cache for historical evidence.
+- The main Factorio 2.1.24 API docs include a license page at `https://lua-api.factorio.com/2.1.24/license.html`; retain separate historical caches with their original versions.
 - The official wiki copyright page is `https://wiki.factorio.com/Factorio:Copyrights`.
 
 Practical rule for this skill:
@@ -12,4 +12,4 @@ Practical rule for this skill:
 
 This keeps the skill usable without turning the repo into a documentation mirror.
 
-The official wiki links are intentionally unversioned and are guidance, not evidence for version-sensitive API decisions. The legacy flat 2.1.15 files remain untouched and outside both the default 2.1.23 profile and the explicit historical 2.0.77 profile.
+The official wiki links are intentionally unversioned and are guidance, not evidence for version-sensitive API decisions. The legacy flat 2.1.15 files remain untouched and outside the default 2.1.24 profile and explicitly selected historical profiles.

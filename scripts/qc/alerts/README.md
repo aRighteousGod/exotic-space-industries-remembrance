@@ -1,5 +1,9 @@
 # Unified alert verification
 
+Standalone engine runners below predate the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
+Adapt their staging and closeout before new engine runs; existing audit/evidence
+descriptions do not establish managed ownership or automatic cleanup.
+
 Run the contract audit and actual-owner Lua fixtures from the repository root:
 
 ```powershell

@@ -197,6 +197,7 @@ ei_lib.raw["reactor"]["nuclear-reactor"].picture.layers[1].filename = ei_graphic
 ei_lib.raw["reactor"]["nuclear-reactor"].working_light_picture.filename = ei_graphics_entity_path.."hr-reactor-lights-color.png"
 
 -- add fluidbox to centrifuge
+ei_lib.raw["assembling-machine"]["centrifuge"].use_mirroring = true
 ei_lib.raw["assembling-machine"]["centrifuge"].fluid_boxes_off_when_no_fluid_recipe = true
 ei_lib.raw["assembling-machine"]["centrifuge"].fluid_boxes = {
     {

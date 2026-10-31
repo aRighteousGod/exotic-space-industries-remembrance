@@ -39,6 +39,7 @@ data:extend({
     {
         name = "ei-neutron-activator",
         type = "assembling-machine",
+        use_mirroring = true,
         circuit_connector =  circuit_connector_definitions.create_vector(
         universal_connector_template,
         {
