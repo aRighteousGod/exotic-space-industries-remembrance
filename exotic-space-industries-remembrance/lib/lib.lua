@@ -926,6 +926,10 @@ function ei_lib.recipe_swap(recipe, old_ingredient, new_ingredient, amount, resu
       target = "results"
     end
     target = data.raw.recipe[recipe][target]
+    -- Optional recipe arrays are absent on native parameters and internal helpers.
+    if target == nil then
+      return
+    end
     --validate
     if not target then
       log("recipe "..recipe.." had invalid target")
@@ -983,6 +987,9 @@ function ei_lib.fix_recipe(recipe,results)
       target = "results"
     end
     target = data.raw.recipe[recipe][target]
+    if target == nil then
+      return
+    end
     if not target then
       log("fix recipe got invalid target for "..recipe)
       return

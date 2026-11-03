@@ -28,6 +28,11 @@ flowchart LR
 
 ## Ownership and invariants
 
+- Optional recipe ingredient/result arrays may be absent. `recipe_swap` and
+  `fix_recipe` preserve those absences and empty arrays, while existing target
+  diagnostics remain active. Required reads through `ei_lib.raw` retain diagnostics.
+  Optional compatibility and create-if-absent paths inspect `data.raw` directly.
+
 - Data-stage fluid recipe helpers use `recipe_fluidbox_multiplier`: Quality-enabled
   games retain authored multipliers or native 2.1 defaults; Quality-disabled games
   retain the existing legacy-capacity correction. This changes storage sizing,

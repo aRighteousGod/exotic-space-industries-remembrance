@@ -72,11 +72,10 @@ local default_logi_chests = {
     "storage-chest"
 }
 
-for chest in pairs(default_logi_chests) do
+for _, chest in ipairs(default_logi_chests) do
     local hide_item = ei_lib.raw.item[chest]
     if hide_item then
         hide_item.hidden = true
-        hide_item.enabled = false
     end
     local hide_recipe = ei_lib.raw.recipe[chest]
     if hide_recipe then

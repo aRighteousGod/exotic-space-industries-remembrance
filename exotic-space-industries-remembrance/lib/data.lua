@@ -448,7 +448,6 @@ ei_data.add_to_sub_age["fusion-quantum-age"] = {
     "worker-robots-storage-3",
     "laser-weapons-damage-6",
     "inserter-capacity-bonus-6",
-    "mining-productivity-4",
     "worker-robots-speed-6",
     "research-speed-6",
     "stronger-explosives-7",
@@ -752,7 +751,6 @@ ei_data.tech_structure["exotic-age"] = {
     "weapon-shooting-speed-6",
     "physical-projectile-damage-6",
     "inserter-capacity-bonus-7",
-    "weapon-shooting-speed-7",
     "physical-projectile-damage-7",
     "laser-weapons-damage-7",
 }

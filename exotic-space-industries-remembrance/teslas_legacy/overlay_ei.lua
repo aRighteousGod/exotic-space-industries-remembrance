@@ -227,7 +227,7 @@ local function add_technology_effect(technology_name, effect)
 end
 
 local function ensure_ammo_category(name)
-  if raw["ammo-category"][name] then
+  if data.raw["ammo-category"][name] then
     return
   end
 

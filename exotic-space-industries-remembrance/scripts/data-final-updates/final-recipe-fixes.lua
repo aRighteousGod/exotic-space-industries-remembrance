@@ -287,7 +287,7 @@ if is then
 	is.enabled = false
 	is.hidden = true
 end
-local sg = ei_lib.raw.recipe["steel-gear-wheel"] or ei_lib.raw.recipe["kr-steel-gear-wheel"]
+local sg = data.raw.recipe["steel-gear-wheel"] or data.raw.recipe["kr-steel-gear-wheel"]
 if sg then
 	sg.enabled = false
 	sg.hidden = true

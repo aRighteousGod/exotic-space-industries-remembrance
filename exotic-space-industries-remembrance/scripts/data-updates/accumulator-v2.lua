@@ -42,7 +42,8 @@ end
 ]]
 
 local v_a_tech = ei_lib.raw.technology["electric-energy-accumulators"]
-local a_2_tech = ei_lib.raw.technology["accumulator-v2"]
+-- SolarMatrix intentionally omits this technology unless Paracelsin needs it.
+local a_2_tech = data.raw.technology["accumulator-v2"]
 if a_2_tech and not mods["Paracelsin"] then
   a_2_tech.hidden = true
   a_2_tech.enabled = false
