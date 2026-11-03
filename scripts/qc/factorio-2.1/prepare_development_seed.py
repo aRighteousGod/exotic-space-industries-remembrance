@@ -51,7 +51,7 @@ def main():
             stored = {r["sha256"]: r for r in dispatch(repo, "status", {})["artifacts"]}
             assert row["sha256"] in stored, "Missing locked archive: " + row["name"]
         enabled.add(row["name"])
-    for source in repo.iterdir():
+    for source in list(repo.iterdir()) + [repo / profile["enhanced_walls_source"], repo / profile["doeworks_source"]]:
         if source.name.startswith("exotic-space-industries-remembrance") or source.name in ("doeworks-deer-continued", "enhanced-walls-continued"):
             info_path = source / "info.json"
             if info_path.is_file():

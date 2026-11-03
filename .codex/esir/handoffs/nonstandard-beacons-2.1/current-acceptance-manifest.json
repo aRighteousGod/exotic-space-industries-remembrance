@@ -1,0 +1,658 @@
+{
+  "schema_version": 1,
+  "completed_utc": "2026-10-28T18:47:46.456966+00:00",
+  "status": "automated acceptance passed; physical input and complete library UI remain unperformed",
+  "scope": {
+    "nsbc": "1.0.0",
+    "storage_schema": 2,
+    "esir": "1.4.0",
+    "published": false,
+    "installed_configuration_changed": false
+  },
+  "engine": {
+    "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\engine-2.1.23\\bin\\x64\\factorio.exe",
+    "version": "Version: 2.1.23 (build 87750, win64, full)\nVersion: 64\nMap input version: 1.0.0-0\nMap output version: 2.1.23-2",
+    "sha256": "8dc3979b88784c111d51ec942f04345554635a1b93b7bd7cf536a1e7e903db38",
+    "base_data_info_sha256": "0da4fcb137a0c38cd74eeb3a52462169f360f54b95ad0669270d08cfa9aa352f"
+  },
+  "baseline": {
+    "manifest": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\baseline\\manifest.json",
+    "sha256": "6e4ac61d40f3e484d9c977c4959b65dde613e692147b2630e720fe80b12881d2",
+    "esir_revision": "a41d55de13f606d16dd8db63e7311212ea2c30ac",
+    "nsbc_revision": "32a00dcce60a2f1e7eed8ba8633cbebb0ef693d6"
+  },
+  "current_esir_revision": "3e4e309d37e7f7b51586f99ed8f3fcc49d0a3c4e",
+  "nsbc_revision": "32a00dcce60a2f1e7eed8ba8633cbebb0ef693d6 plus captured uncommitted continuation changes",
+  "source_snapshot": {
+    "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\candidate-source-snapshot.json",
+    "sha256": "e097d01b081391148284f616a34205c7a50643b2de8aa86886f207c5fd9c0dbc",
+    "files": 59
+  },
+  "esir_beacon_preservation": {
+    "exotic-space-industries-remembrance/control.lua": "0974687d7a4cc9da094c757a2db858cfd400c9440803d3e1550f81a159bc661c",
+    "exotic-space-industries-remembrance/lib/beacon-profile-config.lua": "6dba1c4bb5b59a8e2bb0e4b92cac1da114bef8b90576549a35295e41c380c00d",
+    "exotic-space-industries-remembrance/lib/data.lua": "d5a2a370a358b970df1fb721b79d20d22e10e01a56dd772d720c57ea67e9043f",
+    "exotic-space-industries-remembrance/prototypes/alien-system/alien-beacon.lua": "cfcded7b2d9190868f93aa5853ccf6e662e068ab0aad8e787a77fed97f4a3ab2",
+    "exotic-space-industries-remembrance/scripts/data-updates/zeus-wrath.lua": "78c748f2a7ff95b619d307855e3b3ef3e216ae06f4e68b652410601649c94cb2",
+    "exotic-space-industries-remembrance/prototypes/computer-age/computer-prototypes.lua": "43ad26a6717205be94467fdc2f733ad04347b7ad141e58cb75f3448d63925cf5",
+    "exotic-space-industries-remembrance/lib/spawner-presets.lua": "60a4b3b90f29fd785bafe97c10fa2f95a450574ce1d5f94480381cf4b841d766",
+    "exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua": "e71b10c121038e0c122e8869d12e651298946cdd3dd78d09913bb1d02a811d36",
+    "exotic-space-industries-remembrance/scripts/data-updates/icon-updates.lua": "65c4ba02cb3faee55cf2530e9b184592ee57fbf4e3e05b1b458e698920c23de1",
+    "exotic-space-industries-remembrance/scripts/control/alien-spawner.lua": "7f3b2c9637b5d185fee26cb8bec6b92e5d32463061351f0ca40137ecbc29e65c",
+    "exotic-space-industries-remembrance/scripts/control/alien-system.lua": "df1b95574a877dbd12383841ec4290625b60d33dc97aed4eff4d9f7a8a3da0a9",
+    "exotic-space-industries-remembrance/scripts/control/beacon-overload.lua": "2c8eec0308c51c0ca1e0ad516af4c71a74f0c090c593c46d9afe00c9aee116cc",
+    "exotic-space-industries-remembrance/prototypes/quantum-age/em-trains/charger.lua": "461095a051977ce8df8944bd948365b15224f518112a87ada63cf681ad20a8f9",
+    "exotic-space-industries-remembrance/prototypes/quantum-age/em-trains/trains.lua": "bfee913d1e1b8f35546bc732fd0fa75d73ad65bdb7176fb2954e7b042429a058",
+    "exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua": "ce6748c2aad2d2cc94804d56d4fdd481f8961924db507bb89edb14c46ac8ecac",
+    "exotic-space-industries-remembrance/scripts/control/gate.lua": "346b025642d7ab2446b48336aac8131162cdd69037d958ecadb98aaaf8f949d3",
+    "exotic-space-industries-remembrance/scripts/control/global.lua": "a269f4e0e9526dc4cc97f64044e247c69e67a9450cd968b24e70a1739c7928bd",
+    "exotic-space-industries-remembrance/scripts/data-final-updates/death-explosions.lua": "acd7d636c213767f3988fcd8ca1e28d71ccdee1817cbcc657e597e5d1b776e8a",
+    "exotic-space-industries-remembrance/scripts/data-final-updates/entity-presentation-machines.lua": "049b666356ef554ec5b65990b07ec70489b6caf5b7ab3b47a1040522e2baab16",
+    "exotic-space-industries-remembrance/scripts/data-final-updates/krastorio-patches.lua": "ea1deccd7c0f0f924c13bc15617309ef5b36bf2045ab3c7861cf71d805fcedff",
+    "exotic-space-industries-remembrance/scripts/data-final-updates/cryo-mist.lua": "230ec50a1e198937742d1d561e8c13b262113222cb4bca95221a21b972bbf576"
+  },
+  "historical_handoff": {
+    "superseded": true,
+    "patch_and_manifest_unchanged": true,
+    "hashes": {
+      "manifest.json": "b5ca00d41f56357109639e159087625c7a2d4384d6241fd1733512e8b75facfc",
+      "esir-integration.patch": "7011bd7d77e4f685fc4c903db0abea257cd7a0b8c0f5d99f10ede1ef92d80503"
+    }
+  },
+  "package": {
+    "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\package-final\\zzz-nonstandard-beacons-continued_1.0.0.zip",
+    "sha256": "1174687b34279f467fae7ee702872ebbf20c24687d540bcfb89be0182b149e97",
+    "bytes": 91827,
+    "files": 31,
+    "manifest": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\package-final\\manifest.json",
+    "manifest_sha256": "26aee8a294bff2fe7961ee0b656624cd22fb72ecbbd96c084b497fc4c4141741"
+  },
+  "dependencies": [
+    {
+      "name": "Accumulator-V2",
+      "version": "1.0.8",
+      "archive_sha256": "484505a04282450b767ea1a165a443ffd25b73f69adfa09aab4d1c9249ea0537"
+    },
+    {
+      "name": "air-scrubber",
+      "version": "0.2.9",
+      "archive_sha256": "10062bca7bef3583fbf7769c7336e4478ad35575c7e275279f9f57c614a5602c"
+    },
+    {
+      "name": "Arachnids_enemy",
+      "version": "1.2.1",
+      "archive_sha256": "1eee33ebe8b84c3a4a95a2c80b182d05a047a63dc3f2e504d72e0bf695b9997a"
+    },
+    {
+      "name": "ArmouredBiters21Compat",
+      "version": "2.0.7",
+      "archive_sha256": "90c146390d6c96f8106fc32c908c4c8faf1e2cfad73e7edf251162cebbcaaf7b"
+    },
+    {
+      "name": "assault_spidertron_V2",
+      "version": "2.3.12",
+      "archive_sha256": "81156e8ee9aa5ee0defdff601cffa53ed55502a0f5bfe75817394f10a04f4d83"
+    },
+    {
+      "name": "Assembler-Reskin",
+      "version": "1.0.4",
+      "archive_sha256": "8b5f1917daa9ca030c696b9e42275dbc0cb956def19224b6661b8aa1feb1ce9f"
+    },
+    {
+      "name": "atan-ash-fork",
+      "version": "1.0.1",
+      "archive_sha256": "7da940782d4775deeb6dd7b1389add37f506ded9b61c5aa8239713308c40e6b4"
+    },
+    {
+      "name": "ch-concentrated-solar",
+      "version": "0.6.0",
+      "archive_sha256": "d9d5e4e8767c104b8b542a9e9688eb91f340ca0fe653bb8441ef9c4fa527033f"
+    },
+    {
+      "name": "Cold_biters",
+      "version": "2.3.0",
+      "archive_sha256": "7f071e7863762149c5b65a6c182689765f93ffafe7b956b37aa529878fce9c5d"
+    },
+    {
+      "name": "doeworks-deer-continued",
+      "version": "1.0.0",
+      "info_sha256": "155e8b6701534b49528c0268cacd7624f323b3c5754955dc4e891698b5ca0bab",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\doeworks-deer-continued"
+    },
+    {
+      "name": "Electric_flying_enemies",
+      "version": "0.2.1",
+      "archive_sha256": "b71ecf88c29b2dff5265339fd6215c96798126cc92f5a4384075984e6fc2c25f"
+    },
+    {
+      "name": "elevated-pipes",
+      "version": "1.5.0",
+      "archive_sha256": "5c01b2fe26619e4c321cde1030f976832702cd0563861689251f986dceb29a5a"
+    },
+    {
+      "name": "enhanced-walls-continued",
+      "version": "1.0.0",
+      "info_sha256": "79f0fccea5469db1e0cd7e6325bdf0f2f855bbd2d12bca83daffadde33692355",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\enhanced-walls-continued"
+    },
+    {
+      "name": "esir-qc-beacons",
+      "version": "1.0.0",
+      "info_sha256": "e887506d3babd00d5c7c32d4a42e0bfac419dfa17f06c6a93fdedbb043141cc8",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\scripts\\qc\\factorio-2.1\\beacons"
+    },
+    {
+      "name": "exotic-space-industries-remembrance",
+      "version": "1.4.0",
+      "info_sha256": "50a9e0eb6c03b72d4adf5ad8fd881a1562985da51328737f93a451e08d00660a",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-1",
+      "version": "1.1.0",
+      "info_sha256": "59a345fb2128fc105ee111f0a09b902a3fb69e9f1737ce93e620db0e0575c952",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-1"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-2",
+      "version": "1.1.0",
+      "info_sha256": "f86b1d69c9b6c3fcde3a53b127727d3a0ac59cc06b5d6ddcea8844db54bbf036",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-2"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-3",
+      "version": "1.1.0",
+      "info_sha256": "b43cf0a8ab6c2c0b3373c3e4c4c8d3ebf3f58b2f7150d89ac09faf713f934a5e",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-3"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-4",
+      "version": "1.1.0",
+      "info_sha256": "72de8f95455bfb14ad129509bffbd85ec87a06b55c85ca298b001edaedbe06f1",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-4"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-5",
+      "version": "1.1.0",
+      "info_sha256": "d763e4bc5afe138da48ddb6d8ffd41cf03bfc0ceb17d87daecdc885a1bcaba5b",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-5"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-graphics-6",
+      "version": "1.1.0",
+      "info_sha256": "6df103713b23b801e0dfe620adbc9222098c8b787d61ffc2e0e52bd9f12fd3cc",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-graphics-6"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-soundtrack-1",
+      "version": "1.1.0",
+      "info_sha256": "9b0a3ee0a3638fb256e2361c710519f99a77e31dc2f86a0ddbebca6f3f2b9483",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-soundtrack-1"
+    },
+    {
+      "name": "exotic-space-industries-remembrance-soundtrack-2",
+      "version": "1.1.0",
+      "info_sha256": "909bd3f8cf998a2e5d1ff23b83c586995f8573bd60ab30d58370ac2b6eeefeca",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\exotic-space-industries-remembrance-soundtrack-2"
+    },
+    {
+      "name": "Explosive_biters",
+      "version": "2.4.0",
+      "archive_sha256": "6c975ca0ad19c7cd1f7b8821cb5e320bad5359edf6458540dcba8fb3a284eac8"
+    },
+    {
+      "name": "informatron",
+      "version": "0.5.0",
+      "archive_sha256": "1e57dd0d86f8fae8486e9ac3cf32da8a2a463d5e7c2b2b5d257286cef727d64b"
+    },
+    {
+      "name": "mferrari_graphics_pack_1",
+      "version": "0.0.5",
+      "archive_sha256": "3e4ff7d45c74130fb5a229f5924b5a694cc684f95b8e90a3789d60132bde58da"
+    },
+    {
+      "name": "perel",
+      "version": "1.2.2",
+      "archive_sha256": "e4e447a14081858813811cafe31be6c10f1bb20ba3d86fb74cb28b81513d4f9a"
+    },
+    {
+      "name": "PollutionCombinator-JamieFork",
+      "version": "1.2.0",
+      "archive_sha256": "f112e667af226208bb08fa2d5bc4755ae7534dc246894b8bfddaa2d579c0f8a1"
+    },
+    {
+      "name": "rp_art_util",
+      "version": "3.0.0",
+      "archive_sha256": "070dc9b77d9d8287846964b0b7047506060953e4af5a8385dd4fde7dd171d499"
+    },
+    {
+      "name": "rp_steam_intermediates",
+      "version": "1.0.0",
+      "archive_sha256": "8fe063cf60fccbc639553d9f05847f98000647267accd7eacf3c9580d2fde99f"
+    },
+    {
+      "name": "rp_steam_roboports",
+      "version": "2.1.0",
+      "archive_sha256": "4c8ac6273007c16023131f88792ce9aa5416fb6de893893d0da5f925def77ce2"
+    },
+    {
+      "name": "SolarMatrix",
+      "version": "1.0.9",
+      "archive_sha256": "d56c64b762b39b28c8d6f1b32f90a1134cd50961be420c3c067cc099368dfa8b"
+    },
+    {
+      "name": "SteampunkLamp",
+      "version": "1.0.4",
+      "archive_sha256": "97b0d17a99e2d62098153b29c26caebf107364d92e5b0f51c70006cc00a923e0"
+    },
+    {
+      "name": "Toxic_biters",
+      "version": "2.1.0",
+      "archive_sha256": "6238e7949620c45dac8b5fbab815ecb8e937e2e30d460435d5a6ec0d1a96c946"
+    },
+    {
+      "name": "zeus-wrath",
+      "version": "1.0.6",
+      "archive_sha256": "0932645ac2986ae3d5d497db05a905e70bf484fff717eaa059a3a9818c0b4f25"
+    },
+    {
+      "name": "zzz-nonstandard-beacons-continued",
+      "version": "1.0.0",
+      "info_sha256": "6fb5b90e8bfce154fbcbbf54bae3a70ea7dd512325bff8fcc6bf4dc0cebad4ed",
+      "source": "C:\\Users\\Theorun\\Documents\\github\\nonstandard-beacons-continued"
+    }
+  ],
+  "upstream_diagnostic_sources": [
+    {
+      "name": "zzz-nonstandard-beacons",
+      "revision": "8bf22ca6fe59544e816ad360017e083a697ff5cd",
+      "url": "https://codeload.github.com/protocol-1903/zzz-nonstandard-beacons/zip/8bf22ca6fe59544e816ad360017e083a697ff5cd",
+      "sha256": "64b4189fe51de3f5c5622ee9a816d7f48a076875b4c4181a6d87b2126bf6efc7"
+    },
+    {
+      "name": "perel",
+      "revision": "febdb6760a99d776b23107e3ad791eaae5083978",
+      "url": "https://codeload.github.com/protocol-1903/perel/zip/febdb6760a99d776b23107e3ad791eaae5083978",
+      "sha256": "d51574c4ab8b99cf6a4613e74b38b9c5e27c512badd412e41ba29ea754cf272b"
+    }
+  ],
+  "installed_configuration": {
+    "mod-list.json": "6e2bc604c5034677f393c836b00fd855cce67cff3a865bf46f05bf4a246a6707",
+    "mod-settings.dat": "b4005ede2e2217b2bf8f351c0d1e590db69c6a1601a9703f547aca93f50f5e0c"
+  },
+  "performance": {
+    "baseline": {
+      "samples_ms": [
+        77.694,
+        80.717,
+        78.184,
+        76.997,
+        76.725,
+        77.571,
+        76.054,
+        75.96,
+        76.258,
+        77.831,
+        81.11,
+        77.725,
+        76.537,
+        77.226,
+        78.823,
+        79.782,
+        80.025,
+        75.921,
+        78.935,
+        77.965
+      ],
+      "median_ms": 77.70949999999999,
+      "min_ms": 75.921,
+      "max_ms": 81.11
+    },
+    "candidate": {
+      "samples_ms": [
+        72.633,
+        74.871,
+        72.932,
+        71.951,
+        73.891,
+        74.696,
+        75.055,
+        75.405,
+        73.532,
+        74.62,
+        77.308,
+        73.38,
+        72.375,
+        72.539,
+        74.023,
+        74.763,
+        76.122,
+        73.778,
+        75.164,
+        74.601
+      ],
+      "median_ms": 74.312,
+      "min_ms": 71.951,
+      "max_ms": 77.308
+    },
+    "median_change_percent": -4.372052323075037
+  },
+  "evidence_root": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c",
+  "accepted_evidence": {
+    "schema-final/result.json": {
+      "sha256": "5b34ae5f7d39ab8a0f8c79bd06b98e6a9c77eba9ba7d5a5927cbc1aca4efd7ec",
+      "passed": true
+    },
+    "events-10/result.json": {
+      "sha256": "62db92d23880a3f3fcb2cb414a1e087ecd93f4f3dc2398c6a7cca116ae5c7a1a",
+      "passed": true
+    },
+    "esir-native-final-03/native-01.receipt.json": {
+      "sha256": "9db59be5688b46b25a5cace437502d54ff75b76edc2640741f8e14c47be1c4a6",
+      "passed": true
+    },
+    "esir-actors-final/native-02.receipt.json": {
+      "sha256": "d74f0dc2da596b8e3f3d62e5082d57fb3a21291f5bbe0b1a84028ae506c79a0d",
+      "passed": true
+    },
+    "esir-migration-final/adopt.checkpoint.json": {
+      "sha256": "3ea3e55c8a2ba5856c56406b0e3e9d8051466d114c4e95347f7c7f38ca82999f",
+      "passed": true
+    },
+    "esir-migration-final/reload.checkpoint.json": {
+      "sha256": "dbff0686a9ef40842963a4aa9e43979bece8d846990f3f71c7ddba25fbe6aa05",
+      "passed": true
+    },
+    "esir-mp-final-02/network/result.json": {
+      "sha256": "2751ea71e18a38b4a1c3d7090ae0c4a0918c939d2ba66135b6e3f2f17de54f41",
+      "passed": true
+    },
+    "esir-client-final/accepted-04.receipt.json": {
+      "sha256": "e86ba544be6ed8fb564a954381a954145093e0a59d2dcd21b6b72a2573963be2",
+      "passed": true
+    },
+    "esir-client-final/reload-native-final.receipt.json": {
+      "sha256": "988632957d5c22159b4a92253ee6b848a97422bb0dd28b23ce93d2f79b8854a0",
+      "passed": true
+    },
+    "esir-client-final/reload-media-final-02.receipt.json": {
+      "sha256": "14372a7845ad7ea10fda1c451de2c8bc8d2ef3d86a7a2d770ae9e93aceb43d4d",
+      "passed": true
+    },
+    "esir-client-final/media-overlay.json": {
+      "sha256": "b7ec39e787e1d5eeabc391f991609837afa10d526da14ca71d366ff9931e766d",
+      "passed": true
+    },
+    "esir-client-final/frozen-esir-receipt.json": {
+      "sha256": "055116f843d902bb8f4998b16cbcad77702fd072ad2ffd403a29027b62d5ce11",
+      "passed": true
+    },
+    "esir-client-final/client/script-output/beacon-ownership.json": {
+      "sha256": "1a2a428d5b132618e21808c4b05a06a64c86d35b65c5ad60a626e0be9ca69610",
+      "passed": true
+    },
+    "esir-client-final/client/script-output/beacon-player-matrix.json": {
+      "sha256": "dc9f647812aea1b836ad1470aa33ab644189b469acb0eaab5c260f908eed4073",
+      "passed": true
+    },
+    "archive-acceptance.json": {
+      "sha256": "784ace83f3aa193ac69e6dddcd4b656055b0e74f917f1f4230cde84743429c45",
+      "passed": true
+    },
+    "static-audit.json": {
+      "sha256": "a61b1f0b05b2122667ad8812fa3ad7ba786b97a846fad9e6eb8ed3b1d5791ce6",
+      "passed": true
+    },
+    "final-ui-en-1/user/script-output/nsbc-ui-result.json": {
+      "sha256": "2fd13302397645fec54e37f09ac3bfb83f18d9316306d353a21d221283180c1e",
+      "passed": true
+    },
+    "final-ui-en-1.25/user/script-output/nsbc-ui-result.json": {
+      "sha256": "48d8d2c619215c7cc6ea58a3df99469e4c5c43e6dfd211b810e3ee2b7daec62e",
+      "passed": true
+    },
+    "final-ui-en-1.5/user/script-output/nsbc-ui-result.json": {
+      "sha256": "898f9050582d072e8d8e1fe0fce5ce4d4649fd8cbf91243db204ca87b45a50bc",
+      "passed": true
+    },
+    "final-ui-de-1/user/script-output/nsbc-ui-result.json": {
+      "sha256": "0f4ec68a73bc9f26de8c086240334186b8aa429180646f375515d396646b2d7e",
+      "passed": true
+    },
+    "final-ui-de-1.25/user/script-output/nsbc-ui-result.json": {
+      "sha256": "06d73a4ffc2f1159bbf47ca065f2e051f17e97bc793f4d46a9deed186fc69b13",
+      "passed": true
+    },
+    "final-ui-de-1.5/user/script-output/nsbc-ui-result.json": {
+      "sha256": "c89129325286b7f9259f06556ca757e6369ff03ec52c1a4a7f27063adc3d3643",
+      "passed": true
+    },
+    "final-ui-ja-1/user/script-output/nsbc-ui-result.json": {
+      "sha256": "072725e804e2efc6d5e8d254e1c9e7d508f43e07972c2779972e15b520796a16",
+      "passed": true
+    },
+    "final-ui-ja-1.25/user/script-output/nsbc-ui-result.json": {
+      "sha256": "29bbd22c53b64c4eb6e1262aaf15c4c301ad8dd3ed116916120fc10c02fc8fb2",
+      "passed": true
+    },
+    "final-ui-ja-1.5/user/script-output/nsbc-ui-result.json": {
+      "sha256": "7ae4e7e21cd918d110cedc2e31258f1f4d501584b53f858bbf185b1d9e13fbd3",
+      "passed": true
+    },
+    "runtime-final/run.json": {
+      "sha256": "ad56361908c3c07c86c2a476464dbe6d909b993a07160fa52b8a4cee056b7996",
+      "passed": true
+    }
+  },
+  "report": "C:\\Users\\Theorun\\Documents\\github\\nonstandard-beacons-continued\\docs\\native-events-acceptance.md",
+  "report_sha256": "3928498f1a5a044b88ff779224c6bcc38d547cc31e44d71e7d7133ca40cbfda7",
+  "commands": [
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\final_headless.py",
+      "sha256": "a741d5f9b43849b2ccad928c67719f6b9d8f4e4f40ce6ce415cbf4039b2d74ff"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\final_ui_chain.py",
+      "sha256": "8329b2da26598dd577f5252829e8e71feaa55a236e7155289caf5082522387c7"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\final_graphical.py",
+      "sha256": "73ec8d3c106789797d0a37ecf8eaaf417b7cc88dab3375ee5ba0281c2b19b0ee"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\client_finish.py",
+      "sha256": "528462d63ad9bc82a36d4c21c612e5fb2c1c4992d170ec330ac04d5e25182816"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\benchmark_repeat.py",
+      "sha256": "ca4127e6fd684b55a6d2cca40da529518a2db500e848b3b0b7f5e848bf9efdc4"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\archive_acceptance.py",
+      "sha256": "73ae3377e03831e631afd3f24e322708bc6fe10f575713266208f1dacdd579bf"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\static_audit.py",
+      "sha256": "4e08e016f6387e0ef27331efba5b5b3fa3acfcff69d10e20afcd3c9eb276947f"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\player_debug.py",
+      "sha256": "2f28d14ba0ada204c4f7271cf486a613ab694f3877d220eb53e1f9c88ff37a67"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\freeze_reload.py",
+      "sha256": "555627adc649d61efa291d47fca58800fcd474ebb75c2c4fa9392dc0683d880e"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\graphics_reload.py",
+      "sha256": "cfeefa8c9ce3420242190a254bcaf6b136fe9acc779e276f26076f5cf0581f32"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\restore_test_sprite.py",
+      "sha256": "6ea115b1edb9b2e12958e166809bdba2bfc4a4674f00142b136bed5290146155"
+    },
+    {
+      "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\closeout.ps1",
+      "sha256": "919024f180a8ce22d81d7adc0759e9e5a40f441046a8c576affde8c7b0982269"
+    }
+  ],
+  "esir_harness_sources": {
+    "scripts/qc/factorio-2.1/acquire_dependencies.py": "9a7c18cc95c913ce63448ee09718a7d1f81af646ca6d57029f4215c6f72f5952",
+    "scripts/qc/factorio-2.1/acquire_optional.py": "8fa82c0b95aa479fe0dd5398f0556e3d6e1de33c8ead1d0c6147aba1f4dfdeae",
+    "scripts/qc/factorio-2.1/alerts-options.lua": "eeea0f002ed3f2f20e9d0efdeffed2686b2d6ac977cd219467b0d865f8ebb9a3",
+    "scripts/qc/factorio-2.1/audit_optional_packages.py": "dd88ea8e6c4d20c346c22d6f2f3d19798c853119cdede39b93c802feaba3b88a",
+    "scripts/qc/factorio-2.1/audit_progression.py": "88638511e1568978b0ccb4f55e5218c97cfae54c3a58f708d7057763bfb3a79d",
+    "scripts/qc/factorio-2.1/audit_sound_defaults.py": "564107c104765f3e597d6327b821378692e516f08c872a8b73216daa9b05c231",
+    "scripts/qc/factorio-2.1/auric-runtime.lua": "a1c28459a429f6769e8d324b47f2821429be0bfc117e10f674dc566a9b94cce5",
+    "scripts/qc/factorio-2.1/beacon-ownership.lua": "bb5059c2f6850d74192015a031b4979271e72c174c53a2de70afef7c7bcaf3c0",
+    "scripts/qc/factorio-2.1/build_audit_ledgers.py": "1f6f1499032ff0aaec64c794ddcb4c1fda3b04e0e2e37f8cfc63ad48eb042db9",
+    "scripts/qc/factorio-2.1/check_release_versions.py": "39b9b2bdbc752e509994c2fdc655d9ed425c3b3ebeb7815a17e1f0bd24cacd67",
+    "scripts/qc/factorio-2.1/classify_api_ledger.py": "9cb704ea38e8cbd6216b0b3fdaabc013bbd20ad1b5113847ffbb4ce0515a9c1f",
+    "scripts/qc/factorio-2.1/compare_data.py": "8646f8986c2909c5a4956e3474e41b6e3d0365f6f8234d7e1834b323d0b11d6d",
+    "scripts/qc/factorio-2.1/compare_fluid_buffers.py": "49fb2c44f5600ed6b763d1b2091ba3cdd1adfd91cea2aba99613fc5f99771b12",
+    "scripts/qc/factorio-2.1/compare_fusion.py": "71d117809bb75207363e86cc5e6313c83942a7e5caf9605647c8ac3e4cf6f711",
+    "scripts/qc/factorio-2.1/compare_gaia_probe.py": "2295f8ba09d4571004723a13ef0ce15eaac16840a793c74d3b2ab44541f436ac",
+    "scripts/qc/factorio-2.1/compare_generation.py": "24b7382d6e1f3bf37d76bcfbc869755851455b772525584cd1a5932b72269430",
+    "scripts/qc/factorio-2.1/compare_heat.py": "645cb3d6bec7f4d5f9301efa15f1808c1d7cfb3eb8648315da3e02256d49df8f",
+    "scripts/qc/factorio-2.1/compare_power_output.py": "875a65830f2891f9dd2f4679c433fa69fafe47eb5669f84810dbc1d901b7aeb2",
+    "scripts/qc/factorio-2.1/compare_quality.py": "f64078cadf8e0151ee78397845666168cd84f4fbf2e53afa622cec245e1a9685",
+    "scripts/qc/factorio-2.1/compare_steam.py": "e6621b13115126c6a1893a114071d6f938b5e85c6c7f4eb003386bcb8a74e533",
+    "scripts/qc/factorio-2.1/crystal-wire.lua": "6fd62d3fd94f57d28a405274ae8274c65ada8cb289ca21a7aa21956f1056b966",
+    "scripts/qc/factorio-2.1/default_control_inventory.py": "e0509128acce2ad77e2345240dd36ae881ebba85aa5f148977011c81a91c177e",
+    "scripts/qc/factorio-2.1/default_review_rules.py": "da000653b103b93ebc725bde4f6b9a0d4d5aceed1e1962801fb7233501bf5fc9",
+    "scripts/qc/factorio-2.1/final_data.py": "f323f86f1bbc941acb95dd1ff926e192561fb8cada71bccfdd8708d1150206f5",
+    "scripts/qc/factorio-2.1/fixture-bridge.lua": "4118ebe89b82f0c490623db67c3de5d278675ba921fc186773af9d89339bbcbb",
+    "scripts/qc/factorio-2.1/fluid-capacity-data.lua": "baab3d74be926b986ae74abd3ec8031bf90e1f218274b57c94de68f3d0457bbd",
+    "scripts/qc/factorio-2.1/fluid-capacity-runtime.lua": "5d3dcc0b07692b73816d074410ca06200d408ee442c175ff36b98f53859d8842",
+    "scripts/qc/factorio-2.1/fusion-actors.lua": "edbea54d11f5d44a9449e5d2beef4a9dc7da946e2f766b3875928f9f55a7b91a",
+    "scripts/qc/factorio-2.1/fusion-bridge.lua": "ba4e62a727cb94abd8b6e50c0a2d355601d72e02b381b4394736de1aa7f89aff",
+    "scripts/qc/factorio-2.1/fusion-gui.lua": "03655a050e07a787f08aff87d9a12f4a50f502c94fee4fee5044466eaf6ffada",
+    "scripts/qc/factorio-2.1/fusion-migration.lua": "39474a8db1de95c23727017db9ac35d68aa1437d6d8cc60a3b3783169b398e3c",
+    "scripts/qc/factorio-2.1/fusion-recipes.lua": "58105dbad60b2c275eb1fbb5acd9d6e54459c84cd4466b89a83087d3cbfec624",
+    "scripts/qc/factorio-2.1/gaia-generation-probe-data.lua": "77ddcf69bfe809142cd1fad92a643341c4ffef5bbcdba87fac8e9ac3f2492267",
+    "scripts/qc/factorio-2.1/gaia-generation-probe.lua": "b931f1f1ed489942958f2dbd979c4a222c2958603048c17b854f96b6df790c11",
+    "scripts/qc/factorio-2.1/gaia-reforge.lua": "fb6f16d6b309fd7dab766a372353a4bc83777f9ba3e07f19fd07ba31f1480d3e",
+    "scripts/qc/factorio-2.1/gate-native.lua": "12787728fe9f7e7a9ff100da03d3198bf0c7857f0d94174025ac87d4468dd4c6",
+    "scripts/qc/factorio-2.1/generation-migration.lua": "3f3a439de40c5ce14b6eb2d1abaaebadca28bc6df8939eca1d0baaf72b4e0744",
+    "scripts/qc/factorio-2.1/generation-order-probe.lua": "7a0c5f6f8a49db346526173da707d3cbc480f9fe8d4e1272dae3f9998b2e11aa",
+    "scripts/qc/factorio-2.1/generation-sample.lua": "75b322462028b1323be5589d354a85d7ecb6e8473c3779131bf020687b91ed7d",
+    "scripts/qc/factorio-2.1/generation.lua": "e816206ee8031d6ac3b4de12da9e742fc97eb1ef778b9bd18e869121dcff4541",
+    "scripts/qc/factorio-2.1/induction-bridge.lua": "99f5212cfa4401f989d12c41c2faf9e299cc41a6095da776abdd8284c20e9127",
+    "scripts/qc/factorio-2.1/native-buffer-data.lua": "199cc2c8a8a07f79d6e9e425fe5214b218cf536f958ec0180d8c2049fd4ae1b6",
+    "scripts/qc/factorio-2.1/native-buffer-runtime.lua": "9653c237175628acfcddb62a02f9be504b54fb0322aa946c25af812ba51a2ffa",
+    "scripts/qc/factorio-2.1/native-car-control.lua": "edf862a31f35317af23672fec5cb66b3a873dc9de5ba7e4220ae13c7c185372e",
+    "scripts/qc/factorio-2.1/native-car-data.lua": "d09f630f110394d5ef933a14f2e2f8e524434c3f4eba071ea857669be7007429",
+    "scripts/qc/factorio-2.1/native-generator-control.lua": "115465e52d532ca00087c41b55c22d8f09b9fce760adeaedf76981a12b7011c5",
+    "scripts/qc/factorio-2.1/native-generator-data.lua": "e4eb069f56bdc6f0db576f325b27b4f90ec48c8ba95d3d7b5402558b4b9e2d55",
+    "scripts/qc/factorio-2.1/native_client.py": "c43bd27362160dfcf9ae5ec0a14afd25b7adc646f44dd86be89e9bf6207fe19d",
+    "scripts/qc/factorio-2.1/native_multiplayer.py": "cefe6bea60132216e8c61960ba8b53447407ca7d131e8dce5084d589dea32d7e",
+    "scripts/qc/factorio-2.1/orbital-client-bridge.lua": "47b2ae6d4398032a738c12435fb740ed0233e47228536f01ea4b93edff2da6ec",
+    "scripts/qc/factorio-2.1/orbital-client.lua": "46766979071238ebd260cb7036053923402d8b5a1b2e9361916f6eb217c21c52",
+    "scripts/qc/factorio-2.1/orbital-delivery.lua": "207752b6cba3b5a66aa5e2bfa2d4b03628819e8919430eef8b068c49b0e5ffe9",
+    "scripts/qc/factorio-2.1/package_final.py": "87cf072cecae0958fe697d6316e19c0d3ee44a871d63bd2adf2b3ae4acd59675",
+    "scripts/qc/factorio-2.1/package_release.py": "8ab7649a4728cd54c207ea0b51d2d50693206c8931883aac10a5eab977ad07f9",
+    "scripts/qc/factorio-2.1/platform-travel.lua": "f3617ac4e257a72d3d6a9f655fcb4d158609c60e934367d91636c88abcd1afd8",
+    "scripts/qc/factorio-2.1/pollution-statistics-probe.lua": "1d320b95d9d92a38c9afdd5130fb2d507770d6333647bdd03b4d6b6bc682b17b",
+    "scripts/qc/factorio-2.1/power-native-burner.lua": "e5667c2e1194688b7a344a98141c9ecd98996d95fd1a38122329ab5320120e57",
+    "scripts/qc/factorio-2.1/power-output-data.lua": "7a102c2c8b2c7b01ead77ddcb2e62413b35acf794f65b600d098bdfdde03a357",
+    "scripts/qc/factorio-2.1/power-output.lua": "94dcfc869752c78e815b6c21fa2cb744ad1594c72883ad930717bbaff63133a5",
+    "scripts/qc/factorio-2.1/prepare_development_seed.py": "71d5cd2b806b8b38cc449ded61ac3d1fb6041dd9b9df7297dd1721f2344f38ed",
+    "scripts/qc/factorio-2.1/prepare_fluid_buffers.py": "160578f21413f5207a0508155182442fea2748d095b6eef60178d73199aa1bdb",
+    "scripts/qc/factorio-2.1/prepare_literal_patch.py": "330631b87d24fee970d892d2afbea263f1fed1548f3996b90156ca7ee7260565",
+    "scripts/qc/factorio-2.1/prepare_native_buffers.py": "b397088d17f3c713f5852038cfb97be5033cf975e8aca47812d35eac2093d1a5",
+    "scripts/qc/factorio-2.1/presentation-drills-data.lua": "0329b27b140f1ac6eb2175c57a782c267f15afa7eff1cdd80337bf8e26eabbbc",
+    "scripts/qc/factorio-2.1/presentation-drills.lua": "86dbdb7d56e751c16b9d6caeefdfe2484739b496b6a4d32a5ee91e5c1eda3169",
+    "scripts/qc/factorio-2.1/quality-trains-data.lua": "cd855d1e4c050154459e4b5d3fef0d92d9e25063789657ec47ef2ceb5b538a5d",
+    "scripts/qc/factorio-2.1/quality-trains.lua": "da464be77162b2b21433d60ad7955d7400111687e44acdc54584530572cec129",
+    "scripts/qc/factorio-2.1/railgun-capacity-probe.lua": "276f299f2db6f179cf08645cc2a232dd676e4979d96a62448815b87ba62a192b",
+    "scripts/qc/factorio-2.1/reconcile_release.py": "8d1ec613749f84837f42e7bfb008d2d6e7f9626dfe7c680e76e88e9b82ec88ef",
+    "scripts/qc/factorio-2.1/release_report.py": "73172f4b7b8477369f5aec3f45e9774fd40fff6fd41045477625326507bdf459",
+    "scripts/qc/factorio-2.1/report_dependencies.py": "d05587cc6307ff4409d4070509bdf0ff7ce116abc1fbfad8ccec6b57c3f80e60",
+    "scripts/qc/factorio-2.1/resource-off-migration.lua": "95203e6d07b604d08c784bb8dde6f29de20e9eab5beb1516a6c8dd21b7341cd7",
+    "scripts/qc/factorio-2.1/resource-zero-data.lua": "6da36880f78c0ef46e527e9ca9a2d762941c6df19551c980c73c54c858cb8e1c",
+    "scripts/qc/factorio-2.1/resource-zero-probe.lua": "d474964ff85575bb1ccd839aee8314eef5f66b77e35542d761f450a558fe7761",
+    "scripts/qc/factorio-2.1/rocket-delivery.lua": "a047602036a3be6c5476d59e7b5daa735ee70888156e6daaf7f2bc560c230249",
+    "scripts/qc/factorio-2.1/rocket-migration.lua": "e9b0cb86c1546a989401cbc4352ba44e79c41d938433e61badf7318e83657996",
+    "scripts/qc/factorio-2.1/rocket-position-data.lua": "4aa68dd851998a0770f45dfb7b07c852525df7ab3b61eb6a147e4871d397ea92",
+    "scripts/qc/factorio-2.1/rocket-position-probe.lua": "f20fdbceda175c6d94cd0d39ba67371f1ab28c6ad73d1a7a672366643c8c1da4",
+    "scripts/qc/factorio-2.1/rocket-quality-visual.lua": "1ff2929875b2373886308c1be7a8fd873266d7c4d9dc7f4eddb1dbdceeb814da",
+    "scripts/qc/factorio-2.1/run_optional_smokes.py": "a63ffe8014fa2ddaeb4e771a2699017488d0ca03464cf5badf22632c184409b9",
+    "scripts/qc/factorio-2.1/run_spider_matrix.py": "3e873f91db2a21fa819fc8d9e9be118199fcf3072b45f13c2a8947e4acc59400",
+    "scripts/qc/factorio-2.1/run_staged.py": "60030ef8c8af7ded4f8ff843093229411e8d5aa14e67e2ecfe27cdef895ba97c",
+    "scripts/qc/factorio-2.1/save_checkpoint.py": "006cdd1992d5d6e60dd5f9e6c8c7cb7289e0246da28704db759c254d61a083b4",
+    "scripts/qc/factorio-2.1/solar-boundary.lua": "f2b080ce8be2a05d9bcbfb5b1759b43b7ab8f123726fa67b08796fe08737da9b",
+    "scripts/qc/factorio-2.1/stage_armoured.py": "8dc4fd982e6a4ef2a738d212b5672f53a59851869a9315730648524e57eb8aac",
+    "scripts/qc/factorio-2.1/stage_beacon_actors.py": "a69f2a9ac0dc1fb3e5bbbdee4867df115bcda4181865fd5cb85d3376c1701315",
+    "scripts/qc/factorio-2.1/stage_beacon_client.py": "fa7e1baf163f676bb31b8aa96eb4b2aac1e8fbd3149c6b64737256e6bb7ffd7f",
+    "scripts/qc/factorio-2.1/stage_beacon_multiplayer.py": "63127d333a7afb7b037a625518e3d348dcf72c82f40841e39044329098aa5c15",
+    "scripts/qc/factorio-2.1/stage_capacity.py": "77c5e8a58e04a3f86ad024e879bf9273097f5e94b60c1d4a44ab40f235f0d824",
+    "scripts/qc/factorio-2.1/stage_fixture.py": "b1d88bc6ba575aae16d17e8a3279b5e9dafed7bbad5ac0083da9033a7ab61a05",
+    "scripts/qc/factorio-2.1/stage_flame.py": "f6d9afd1a63f1662c4c9573ae76fada0b4c56f6caac894cfd5ae8f07e33fa259",
+    "scripts/qc/factorio-2.1/stage_fusion.py": "f6f33dd85a5f3064bb0ab35383b64c30520e0853e5843fd46142b4a643927d21",
+    "scripts/qc/factorio-2.1/stage_heat.py": "9e4c125880b35644e938448234ec0b488f7225e606c5cfaa0daf7b625536b192",
+    "scripts/qc/factorio-2.1/stage_induction.py": "0abfcb99b6fc9cd583b286ee29ee5055b7e42b7606c366c5427a4f143cfd9e9a",
+    "scripts/qc/factorio-2.1/stage_migration.py": "9c6a12b4a113b6e2021c19fc39b773dbd416ff66f3b294b908cf516b3b50705e",
+    "scripts/qc/factorio-2.1/stage_native_car.py": "889230c7377716fb542240d5c2268fee226d44e2096af77adb96e79fd6bca4f2",
+    "scripts/qc/factorio-2.1/stage_native_generator.py": "b7596d66aea35334a2c6887ccd3e94dcdb11e0a7ed9d3141a2e89c45954743b4",
+    "scripts/qc/factorio-2.1/stage_optional_combination.py": "fb62f7f06af2e915d07d52176f1178795de4f90d25960828d9e2feddbde8268c",
+    "scripts/qc/factorio-2.1/stage_orbital_client.py": "1af9543b8b25e699c0a933ba694321cd496db538590401b9ca9b8eb5d0713259",
+    "scripts/qc/factorio-2.1/stage_owner.py": "7cf25dc0d8b0491b282202604a4e263391568f76a49e5b3415e1eb1b11e9abdd",
+    "scripts/qc/factorio-2.1/stage_power_output.py": "ce76c6e5bd567ec2edd5a05794ebbc9cfda85a6b59f7d5306269b39ef9e96d0d",
+    "scripts/qc/factorio-2.1/stage_presentation.py": "239df88a8806b0fb9c0cc0240b3dd262796bf2a8e3c0cd818672b52e692734b5",
+    "scripts/qc/factorio-2.1/stage_railgun.py": "19166486ce8ad9914331a4a0eb63a061a32a84735de4997495d50a0e8f6f487d",
+    "scripts/qc/factorio-2.1/stage_release.py": "4b16241628ce73534cd9ace2f7d4aaedb15880419eb27d1cd60eeb041c830f79",
+    "scripts/qc/factorio-2.1/stage_rocket_quality.py": "9afdb73dee5db05c4c4fcbf65a59cc279b542d0a709823e3a9db2cb5ff4e79f3",
+    "scripts/qc/factorio-2.1/stage_solar.py": "183fbe21582d3314a78f32160b06b0fc994a51e97aca27bdf06816fb9caeebe5",
+    "scripts/qc/factorio-2.1/stage_spider.py": "06514a23fc0035bf8aea23a503d09dd7641192c1cb00e2f9996926f6c33abbdb",
+    "scripts/qc/factorio-2.1/stage_steam.py": "3881d720049ac3b1df647817ebecf86e3ff87232126aca7671e059f7401f8010",
+    "scripts/qc/factorio-2.1/stage_turbine.py": "c7c1d835afcd942096c1497647f5a77062002152ea7fc52d1f93d7b895c8f404",
+    "scripts/qc/factorio-2.1/stage_turbine_migration.py": "78b3a60226a907550d74fdaa25950b89cdfb59bd801345dd5b875fa47de3601d",
+    "scripts/qc/factorio-2.1/turbine-bridge.lua": "e841523fe52f58439d906ecdf1ee90037d810484fd897e8f9926b795b9d2d108",
+    "scripts/qc/factorio-2.1/turbine-migration.lua": "04176fd381069d469583a06e93fc3aa23046dc364fdb1e650c365cd670445a6e",
+    "scripts/qc/factorio-2.1/turbine-runtime.lua": "394b9ac90c8001e6235223f583ea8f335ddaff9297dece4805bab6248f791216",
+    "scripts/qc/factorio-2.1/vehicle-handling.lua": "ca5215e83e3374ce0ada790437c49d05ff5d9b78e3a40ee31633acef104c2f08",
+    "scripts/qc/factorio-2.1/verify_terrain_conflicts.py": "f376958831ed3457728bfd14c98f67b658a6c8b3e7b0dbe017e91801f61cc24a",
+    "scripts/qc/factorio-2.1/air-scrubber/control.lua": "fb0c7b9c7401cd11a64139a66f286c3f8fd1d560633cd3babdf8a0b5539733cc",
+    "scripts/qc/factorio-2.1/armoured/control.lua": "1a59f0effb1ab724676c9fb5b1773ac3b8c0873fc1473b52a35c979314b0b868",
+    "scripts/qc/factorio-2.1/armoured/data-final-fixes.lua": "2d5c9fcdd1cf33acd5d8df61b7b335d7fbbe06b7ba210bb1852bc433f73b1161",
+    "scripts/qc/factorio-2.1/beacons/actor-matrix.lua": "3009f118a94dabc06554fd0e86732d039f5161c3d31910542be616ea62d80577",
+    "scripts/qc/factorio-2.1/beacons/client-control.lua": "6708da204f9a09ef14ba9a7ec267cbef9ee139c6812c3c8e3ebc9f975de3c84a",
+    "scripts/qc/factorio-2.1/beacons/control.lua": "f8d7d2359dbf689e8a3a334b45e6dc987b1094a744e738624db8779c61508882",
+    "scripts/qc/factorio-2.1/beacons/player-matrix.lua": "001a19b68710e673470ce45e69f7d842fc7535568ff860851b8dc877f70c9900",
+    "scripts/qc/factorio-2.1/crystal-conservation/control.lua": "222fe9d39b3ee6d57026aa55d1a76db71af7523e87afac87b07b3330417070be",
+    "scripts/qc/factorio-2.1/crystal-conservation/data-final-fixes.lua": "03d6c92c3d61a768961b357b050bce4de4431b599cc0590a12875ddb53241d88",
+    "scripts/qc/factorio-2.1/heat/control.lua": "ae1906ab86eb23bec7a3dab6439b365f41925880f18cec404db259d27448d73b",
+    "scripts/qc/factorio-2.1/migration/control.lua": "f94f50207e3d007726404b1c869f4a9d3111c7724abfafc6cd15d4d1f1845d4b",
+    "scripts/qc/factorio-2.1/migration/private-hooks.lua": "4f11e38723e400b0ef25d0d0ba827dcf6dfd9a3dd5cd347bf6bdb3589689257f",
+    "scripts/qc/factorio-2.1/multiplayer/control.lua": "26fdc1a988f1fc7b02b787a8c8b3c2a6d9bdf57caf8acc7dd19ed16b4f91d966",
+    "scripts/qc/factorio-2.1/native-probe/control.lua": "f5f152fdf83c4dd20d43c1033745663b8abee5d1468cd1cd694211f9408b6e48",
+    "scripts/qc/factorio-2.1/optional-smoke/control.lua": "cfc725fe3847ad78c12fc37b5bc144fd265a548ad631b670238ae804781af867",
+    "scripts/qc/factorio-2.1/optional-smoke/data-final-fixes.lua": "b02cefb5d4e2b8bdee888ee092d69d3b9d2e6d987bbc6dc8b3557cbc2d33b9eb",
+    "scripts/qc/factorio-2.1/progression/control.lua": "ca00daacadae11bbe699de1e6f2880220ef16d9bfe3fb175eba985f682a13122",
+    "scripts/qc/factorio-2.1/progression/data.lua": "ffc9cfc1ebe23a759b3410d8fcf77f90228f2375f77a4d4b3b01ba9e726d5448"
+  },
+  "limitations": [
+    "Scripted native player actions are not physical keyboard/mouse input.",
+    "Full blueprint-library UI route and native-speaker review are unperformed.",
+    "No fresh historical donor was created: retained actual 2.0.77 donors have hashes/provenance.",
+    "Fixed-seed transition timings are not a general UPS claim.",
+    "Failed/interrupted harness attempts are retained; accepted receipts above identify the final candidate."
+  ],
+  "harness_notes": [
+    "Concurrent full ESIR sprite loading exceeded memory; final startup serialized.",
+    "Player-matrix fixture imports were moved to top-level loading.",
+    "Player snapshots use engine-accepted energy and orientation after fuel initialization/portless mirroring normalization.",
+    "Native depletion tolerance accounts for floating-point accumulation.",
+    "Concurrent live ESIR/media changes removed an acid-turret spark sprite still referenced by the captured code. The isolated reload source was restored from its earlier physical snapshot and all 493 main-mod hashes matched the successful accepted manifest exactly. A private media overlay then restored the one missing sprite directly from the captured Git revision. Live source/media was untouched.",
+    "Earlier normal-client reload attempts timed out and the graphics-benchmark attempt exited without loading the save because AtlasBuilder reported that missing sprite. None is accepted evidence. The final reload-media-final receipt verifies a fresh marker after restoring the captured sprite in the test overlay."
+  ],
+  "housekeeping": {
+    "task_closed": true,
+    "note": "Evidence retained. Reparse-point snapshot protection is separate from feature acceptance; no source or linked target was deleted.",
+    "files_removed": 0,
+    "classification": "protected-evidence",
+    "automated_acceptance": "passed",
+    "housekeeping_error": "Payload contains a reparse point: C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\b84842298b0e44cd81909b250c7f1f4c\\player-debug\\mods\\doeworks-deer-continued",
+    "registry_status": "failed"
+  }
+}

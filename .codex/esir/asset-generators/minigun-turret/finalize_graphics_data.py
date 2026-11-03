@@ -230,7 +230,7 @@ def validate_emission(repo, acceptance, base, emitter):
     require((row.get("pack"), row.get("profile"), row.get("path"), row.get("role")) ==
             (PACKS["hd"], "hd", "lib/graphics-data.lua", "graphics_library_metadata"),
             "Unexpected HD support artifact")
-    example = library_metadata(contract)
+    example = library_metadata(contract, asset_pack=PACKS["hd"])
     require(sha(row["source"]) == row["sha256"] and fs(row["source"]).stat().st_size == row["bytes"]
             and fs(row["source"]).read_text(encoding="utf-8") == EXAMPLE_HEADER + "return " + emitter.lua(example) + "\n",
             "Generated HD example is unbound or differs from the full shipping profile")
@@ -445,7 +445,7 @@ def write_outputs(repo, output, emitter, mapping, final, receipt):
     output = safe_output(repo, output)
     # Construct/serialize everything before creating output. A rejected gate has
     # no partially accepted output and never changes original evidence.
-    example = library_metadata(final)
+    example = library_metadata(final, asset_pack=PACKS["hd"])
     header = ("-- Native-calibrated full atlas; staged integration still requires final load/package gates.\n"
               "-- blueprint: .codex/esir/blueprints/minigun-turret-graphics.md#contract\n")
     lua_text = header + "return " + emitter.lua(final, graphics_6_paths=True) + "\n"

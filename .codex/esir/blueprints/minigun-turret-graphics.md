@@ -6,9 +6,15 @@
 - [gatling-turret.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/gatling-turret.lua)
 - [graphics.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/gatling-turret/graphics.lua)
 - [graphics-data.lua](../../../exotic-space-industries-remembrance/prototypes/electricity-age/gatling-turret/graphics-data.lua)
-- [HD graphics library](../../../minigun-turret-HD/lib/graphics.lua)
-- [Standalone turret](../../../minigun-turret-HD/prototypes/minigun-turret.lua)
-- [Standalone research bonuses](../../../minigun-turret-HD/data-final-fixes.lua)
+
+## Standalone repository references
+
+- [HD graphics library](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/minigun-turret-HD/lib/graphics.lua)
+- [HD metadata compatibility import](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/minigun-turret-HD/lib/graphics-data.lua)
+- [Reusable HD graphics library](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/minigun-turret-HD-graphics/lib/graphics.lua)
+- [Reusable HD metadata](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/minigun-turret-HD-graphics/lib/graphics-data.lua)
+- [Standalone turret](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/minigun-turret-HD/prototypes/minigun-turret.lua)
+- [Standalone research bonuses](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/minigun-turret-HD/data-final-fixes.lua)
 
 The original geometry owner comes from the evidence-bound finalizer. The
 [indexed HD derivative](../asset-generators/minigun-turret/INDEXED-HD.md) reuses
@@ -18,6 +24,32 @@ lossless-finalizer output.
 
 ## Scope and integration status
 
+The standalone Factorio 2.1 release is Minigun Turret HD 1.1.0 with required
+Minigun Turret HD Graphics 1.0.0. Both require Factorio 2.1.23. The latter owns
+all 199 PNG assets, three sounds, the graphics helper, metadata and unloaded
+example; it registers no gameplay prototypes and requires only base. Gameplay
+retains its turret, progression, locales and thumbnail. Assets are moved with
+SHA-256 parity; no rendering, geometry, timing or combat change is authorized.
+The standalone packs and their dedicated tooling now live in the sibling
+`../minigun-turret-HD` checkout. Current standalone entrypoints and historical
+split acceptance are recorded in
+[the standalone verification documentation](https://github.com/aRighteousGod/minigun-turret-HD/blob/main/scripts/qc/minigun-2.1/README.md).
+ESIR's gameplay, Graphics 6 assets, shared generator dossier and this model remain
+here; the standalone repository includes a provenance snapshot of the shared tools.
+
+The canonical public import is
+`__minigun-turret-HD-graphics__.lib.graphics`. Its `create(options)`,
+`apply(turret)`, `icons()` and `include_shadows` contract is unchanged. The
+major-1 guard belongs to the asset dependency. The old gameplay `lib.graphics`,
+`lib.graphics-data` and example paths forward to it; literal old asset paths do
+not. The metadata remains `minigun-turret.graphics.v1` with `hd_major = 1`.
+
+ESIR remains on Factorio 2.0 with legacy Minigun HD 1.0.1. Its source and optional
+HD paths below describe that legacy line. ESIR's future 2.1 port must adopt the
+new asset dependency and root. Do not backport the split or mix 2.1 source packs
+into 2.0 engine staging. The standalone recipe uses `categories = {"crafting"}`;
+prototype identities and progression remain stable, requiring no storage migration.
+
 The replacement passed native color, shadow and firing alignment checks. The
 standalone extension passed base-only, Space Age and main-plus-HD data loads,
 the short firing/GUI check, locale coverage and exact ZIP integrity/byte checks.
@@ -25,10 +57,13 @@ The finished ZIPs are staged for later installation; no live installation change
 The durable [generation handoff](../asset-generators/minigun-turret/HANDOFF-SEPARATED.md)
 owns source provenance, rig measurements, exact motion equations and production
 gates. Historical rig and timing evidence remains unchanged.
-Resume work from [the current operational status](../../../output/minigun-implementation/STATUS.md)
-and [live render snapshot](../../../output/minigun-implementation/render-status.json).
-These locate the active production render and installed tooling without treating
-the earlier progress snapshot as a current remaining-work count.
+The generation handoff also locates the operational status and render snapshot:
+`output/minigun-implementation/STATUS.md` and
+`output/minigun-implementation/render-status.json`. These are machine-local
+evidence, retained through a compatibility junction to
+`D:/ESIR/output/minigun-implementation`, rather than repository-owned contracts.
+Consult them before resuming production; the earlier progress snapshot is not
+a current remaining-work count.
 
 The turret definition retains gameplay ownership. The graphics module builds
 native tables from generated atlas metadata and selects the enabled texture

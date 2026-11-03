@@ -1,5 +1,22 @@
 # Minigun prototype 2 asset dossier
 
+## Standalone Factorio 2.1 release
+
+Standalone sources, packaging and acceptance now live in the sibling
+`../minigun-turret-HD` checkout and the
+[Minigun Turret HD repository](https://github.com/aRighteousGod/minigun-turret-HD).
+The two standalone mod folders, root deployment scripts, `package_current.py`,
+`standalone-fixture` and `scripts/qc/minigun-2.1` moved there. This generator
+dossier and its shared helpers remain here for ESIR's own turret artwork; a
+snapshot accompanies the standalone repository for provenance.
+Minigun Turret HD 1.1.0 consumes `minigun-turret-HD-graphics` 1.0.0. The asset
+library owns graphics, sounds and generated metadata. `hd_library_metadata.py`
+defaults to that new asset root; the original emitter/finalizer explicitly select
+their legacy destination to keep ESIR's 2.0 generation contract separate.
+
+The render, finalizer, indexed-HD and 2.0 acceptance receipts below are historical
+evidence, not 2.1 release acceptance. Do not rewrite them or rerender for this split.
+
 ## Selected production candidate
 
 The user selected **prototype 2, the exposed cradle**, on 2026-10-09.

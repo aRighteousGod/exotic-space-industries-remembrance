@@ -85,6 +85,8 @@ def main():
     roots=[p for p in Path.cwd().iterdir() if p.is_dir() and (p.name.startswith("exotic-space-industries-remembrance")
         or p.name in ("doeworks-deer-continued","enhanced-walls-continued")) and (p / "info.json").is_file()]
     roots.append(Path(profile["nsbc_source"]))
+    roots.append(Path(profile["enhanced_walls_source"]))
+    roots.append(Path(profile["doeworks_source"]))
     for root in roots:
         raw=(root / "info.json").read_bytes();info=json.loads(raw.decode("utf-8-sig"))
         sources.append({"name":info["name"],"version":info["version"],"factorio_version":info["factorio_version"],

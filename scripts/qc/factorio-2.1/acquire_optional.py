@@ -39,7 +39,8 @@ def main():
     core=json.loads((args.audit.parent / "dependencies/dependency-lock-2.1.json").read_text(encoding="utf-8"))
     available={row["name"]:row["version"] for row in core}
     available.update({name:"2.1.23" for name in BUILTINS})
-    for source in Path.cwd().iterdir():
+    profile=json.loads(Path(".codex/esir/factorio-development.json").read_text(encoding="utf-8"))
+    for source in list(Path.cwd().iterdir()) + [Path(profile["enhanced_walls_source"]), Path(profile["doeworks_source"])]:
         if source.is_dir() and (source.name.startswith("exotic-space-industries-remembrance") or source.name in ("doeworks-deer-continued","enhanced-walls-continued")) and (source / "info.json").is_file():
             info=json.loads((source / "info.json").read_text(encoding="utf-8-sig"))
             if info.get("factorio_version")=="2.1": available[info["name"]]=info["version"]

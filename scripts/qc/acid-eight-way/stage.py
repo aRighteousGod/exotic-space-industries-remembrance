@@ -47,6 +47,8 @@ def stage(root, engine, seed, phase, profile):
                (p.name.startswith(MAIN) or p.name in ("doeworks-deer-continued", "enhanced-walls-continued"))
                and (p / "info.json").is_file()]
     sources.append((REPO / development["nsbc_source"]).resolve())
+    sources.append((REPO / development["enhanced_walls_source"]).resolve())
+    sources.append((REPO / development["doeworks_source"]).resolve())
     for source in sources:
         info = json.loads((source / "info.json").read_text(encoding="utf-8-sig"))
         target = mods / info["name"]

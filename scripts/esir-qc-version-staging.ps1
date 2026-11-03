@@ -112,6 +112,17 @@ function Sync-FactorioRunMods {
         $mode = if ($Context.source_mode -eq 'private-mutable' -and ('*' -in $mutableNames -or $info.name -in $mutableNames)) { 'private-mutable' } else { 'read-only' }
         $sources += @{path=$source; name=$info.name; mode=$mode}
         Add-FactorioQCNote -Result $Result -Message 'Staged the accepted NSBC source through the shared source-view contract.'
+        foreach ($companion in @(@{field='enhanced_walls_source';name='enhanced-walls-continued'}, @{field='doeworks_source';name='doeworks-deer-continued'})) {
+            if ($profile.PSObject.Properties.Name -notcontains $companion.field) { continue }
+            $source = [IO.Path]::GetFullPath((Join-Path $Context.repo_root $profile.($companion.field)))
+            $info = Get-Content -LiteralPath (Join-Path $source 'info.json') -Raw | ConvertFrom-Json
+            if ($info.name -ne $companion.name -or $info.factorio_version -ne '2.1' -or $info.version -ne '1.0.0') {
+                throw "Companion live source identity/version does not match the accepted continuation: $($companion.name)"
+            }
+            $mode = if ($Context.source_mode -eq 'private-mutable' -and ('*' -in $mutableNames -or $info.name -in $mutableNames)) { 'private-mutable' } else { 'read-only' }
+            $sources = @($sources | Where-Object name -ne $info.name) + @{path=$source; name=$info.name; mode=$mode}
+            Add-FactorioQCNote -Result $Result -Message "Staged the sibling $($companion.name) source through the shared source-view contract."
+        }
     }
     if ($Context.PSObject.Properties.Name -contains 'extra_dependency_packages') {
         foreach ($extra in $Context.extra_dependency_packages) {

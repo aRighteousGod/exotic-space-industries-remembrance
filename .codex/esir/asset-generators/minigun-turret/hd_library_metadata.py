@@ -2,18 +2,22 @@
 from __future__ import annotations
 import copy
 
-HD = "minigun-turret-HD"
+HD = "minigun-turret-HD-graphics"
+LEGACY_HD = "minigun-turret-HD"
 OLD_HD = "e-s-i-r-minigun-turret-graphics-hd"
 
 
-def library_metadata(art):
+def library_metadata(art, asset_pack=HD):
+    """Emit the current asset root; pass LEGACY_HD to reproduce 2.0 receipts."""
     def rename(value):
         if isinstance(value, dict):
             return {key: rename(child) for key, child in value.items()}
         if isinstance(value, list):
             return [rename(child) for child in value]
         if isinstance(value, str):
-            return value.replace("__" + OLD_HD + "__/", "__" + HD + "__/")
+            for source in (OLD_HD, LEGACY_HD):
+                value = value.replace("__" + source + "__/", "__" + asset_pack + "__/")
+            return value
         return value
 
     provenance = art["provenance"]

@@ -1,0 +1,172 @@
+--- a/exotic-space-industries-remembrance/info.json
++++ b/exotic-space-industries-remembrance/info.json
+@@ -34,7 +34,7 @@
+         "SolarMatrix",
+         "enhanced-walls",
+         "SteampunkLamp",
+-        "~ zzz-nonstandard-beacons",
++        "~ zzz-nonstandard-beacons-continued >= 1.0.0",
+         "! Railguns-Require-Fluoroketone",
+ 
+         "? minigun-turret-HD >= 1.0.0",
+--- a/exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua
++++ b/exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua
+@@ -1,3 +1,15 @@
++--==============================================================================
++-- ESIR FILE MAP
++-- owns: beacon prototypes and native replacement declarations
++-- loaded_by: ESIR prototype aggregators during data stage
++-- cadence: data stage only
++-- forwarded_events: none
++-- storage_roots: none
++-- gui_ids: none
++-- remote_interfaces: none
++-- rebuild_on: prototype reload
++--==============================================================================
++-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
+ ei_data = require("lib/data")
+ 
+ --====================================================================================================
+@@ -81,7 +93,7 @@
+         type = "beacon",
+         icon = ei_graphics_item_path.."copper-beacon.png",
+         icon_size = 64,
+-        flags = {"player-creation","placeable-neutral","not-upgradable"},
++        flags = {"player-creation","placeable-neutral"},
+         max_health = 500,
+         corpse = "big-remnants",
+         dying_explosion = "beacon-explosion",
+@@ -89,10 +101,9 @@
+         selection_box = {{-1.5,-1.5},{1.5,1.5}},
+         map_color = ei_data.colors.assembler,
+         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
+-        --fast_replaceable_group = "ei-nitrogen-beacon",
++        fast_replaceable_group = "ei-nitrogen-beacon",
+         heating_energy = "200kW",
+-        --NSB not compatible with upgrades atp
+-        --next_upgrade = "ei-iron-beacon",
++        next_upgrade = "ei-iron-beacon",
+         minable = {
+             mining_time = 1,
+             result = "ei-copper-beacon",
+--- a/exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua
++++ b/exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua
+@@ -1,3 +1,15 @@
++--==============================================================================
++-- ESIR FILE MAP
++-- owns: beacon prototypes and native replacement declarations
++-- loaded_by: ESIR prototype aggregators during data stage
++-- cadence: data stage only
++-- forwarded_events: none
++-- storage_roots: none
++-- gui_ids: none
++-- remote_interfaces: none
++-- rebuild_on: prototype reload
++--==============================================================================
++-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
+ ei_data = require("lib/data")
+ 
+ --====================================================================================================
+@@ -81,14 +93,14 @@
+         type = "beacon",
+         icon = ei_graphics_item_path.."iron-beacon.png",
+         icon_size = 64,
+-        flags = {"player-creation","placeable-neutral","not-upgradable"},
++        flags = {"player-creation","placeable-neutral"},
+         max_health = 500,
+         corpse = "big-remnants",
+         dying_explosion = "beacon-explosion",
+         collision_box = {{-1.3,-1.3},{1.3,1.3}},
+         selection_box = {{-1.5,-1.5},{1.5,1.5}},
+         map_color = ei_data.colors.assembler,
+-        --fast_replaceable_group = "ei-nitrogen-beacon",
++        fast_replaceable_group = "ei-nitrogen-beacon",
+         allowed_effects = {"speed", "productivity", "consumption", "pollution", "quality"},
+         heating_energy = "200kW",
+         minable = {
+--- a/exotic-space-industries-remembrance/prototypes/alien-system/alien-beacon.lua
++++ b/exotic-space-industries-remembrance/prototypes/alien-system/alien-beacon.lua
+@@ -1,3 +1,15 @@
++--==============================================================================
++-- ESIR FILE MAP
++-- owns: beacon prototypes and native replacement declarations
++-- loaded_by: ESIR prototype aggregators during data stage
++-- cadence: data stage only
++-- forwarded_events: none
++-- storage_roots: none
++-- gui_ids: none
++-- remote_interfaces: none
++-- rebuild_on: prototype reload
++--==============================================================================
++-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
+ --====================================================================================================
+ --ALIEN BEACON
+ --====================================================================================================
+@@ -37,6 +49,8 @@
+         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
+         map_color = ei_data.colors.alien,
+         allowed_effects = {"speed", "consumption", "pollution","quality","productivity"},
++        fast_replaceable_group = "ei-alien-beacon",
++        next_upgrade = "ei-warp-beacon",
+         minable = {
+             mining_time = 1,
+             result = "ei-alien-beacon",
+@@ -90,6 +104,7 @@
+         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
+         map_color = ei_data.colors.alien,
+         allowed_effects = {"speed","consumption", "pollution", "quality","productivity"},
++        fast_replaceable_group = "ei-alien-beacon",
+         minable = {
+             mining_time = 60,
+             result = "ei-warp-beacon",
+--- a/.codex/esir/blueprints/beacon-overload.md
++++ b/.codex/esir/blueprints/beacon-overload.md
+@@ -1,10 +1,14 @@
+ <a id="contract"></a>
+-# Beacon overload topology and native diminishing-return profiles
++# Beacon upgrades, overload topology and native diminishing-return profiles
+ 
+ ## Implementation sources
+ 
+ - [beacon-overload.lua](../../../exotic-space-industries-remembrance/scripts/control/beacon-overload.lua)
+ - [beacon-profile-config.lua](../../../exotic-space-industries-remembrance/lib/beacon-profile-config.lua)
++
++- [copper-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua)
++- [iron-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua)
++- [alien-beacon.lua](../../../exotic-space-industries-remembrance/prototypes/alien-system/alien-beacon.lua)
+ 
+ ## Ownership and behavior
+ 
+@@ -43,3 +47,21 @@
+ ## Rebuild activity reporting
+ 
+ World discovery, chunk scanning, tracked-machine recounts and release passes publish topology generations at existing admission/service boundaries. Discovery remains indeterminate: chunk queue length is not a world denominator. Processors count completed/retired candidates; finite recount/release stages use actual work counts. Ordinary placement and idle topology maintenance are excluded. Replacement or disabled rebuilds retire the old generation.
++
++
++<a id="replacement"></a>
++## Native replacement declarations
++
++Copper and Iron share the nitrogen family; Copper defaults to Iron in upgrade planners.
++Alien and Warp share a separate bio-matter family; Alien defaults to Warp. Both pairs
++allow manual replacement in either direction and eligible quality changes. Ruined
++Alien containers remain outside these families and retain their repair workflow.
++
++Nonstandard Beacons Continued owns hidden source handoff and orientation. ESIR retains
++recipes, costs, ranges, slots, consumption, source lighting, repair event ordering and
++both effectiveness systems. Copper to Iron changes overload weight from 1 to 2:
++an upgrade can overload an existing layout. Alien and Warp remain excluded.
++
++Verify both directions, qualities, robot/platform paths, overflow, repaired Alien upgrades
++and the weighted 4-to-5 threshold transition. Refresh the dependency catalog after the
++continuation is adopted in the completed ESIR 2.1 port.
+--- a/.codex/esir/blueprints/index.md
++++ b/.codex/esir/blueprints/index.md
+@@ -34,7 +34,7 @@
+ | [Shared camera windows](camera-windows.md#contract) | 1 |
+ | [Auric inoculation vat basin lifecycle](auric-inoculation-vat.md#contract) | 3 |
+ | [Balanced agricultural growth jitter](randomized-tree-growth.md#contract) | 1 |
+-| [Beacon overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 2 |
++| [Beacon upgrades, overload topology and native diminishing-return profiles](beacon-overload.md#contract) | 5 |
+ | [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 6 |
+ | [Black hole containment and extraction](black-hole.md#contract) | 1 |
+ | [Camp-fire registration and periodic fire emission](camp-fire.md#contract) | 1 |

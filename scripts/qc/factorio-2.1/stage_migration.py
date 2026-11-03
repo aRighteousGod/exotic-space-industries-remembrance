@@ -45,6 +45,8 @@ def stage_target(root, engine):
             shutil.copy2(source, mods / source.name)
     sources = [p for p in REPO.iterdir() if p.is_dir() and (p.name.startswith(MAIN) or p.name in ("doeworks-deer-continued", "enhanced-walls-continued")) and (p / "info.json").is_file()]
     sources.append(REPO / profile["nsbc_source"])
+    sources.append(REPO / profile["enhanced_walls_source"])
+    sources.append(REPO / profile["doeworks_source"])
     hashes = {}
     for source in sources:
         info = json.loads((source / "info.json").read_text(encoding="utf-8-sig"))

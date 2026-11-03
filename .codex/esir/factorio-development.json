@@ -4,6 +4,8 @@
   "dependency_seed": ".factorio-qc/dependency-seeds/2.1-core",
   "dependency_lock_sha256": "8f509c61cfebdcca625577ad4ed14f2b491e1c4cf1a63260d8ca78f09130161a",
   "nsbc_source": "../nonstandard-beacons-continued",
+  "enhanced_walls_source": "../enhanced-walls-continued",
+  "doeworks_source": "../doeworks-deer-continued",
   "smoke_save_id": "core-2.1-smoke",
   "smoke_save": ".factorio-qc/core-2.1-smoke.zip"
 }

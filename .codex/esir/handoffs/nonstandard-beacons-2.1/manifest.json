@@ -1,0 +1,1157 @@
+{
+  "schema_version": 2,
+  "generated_at_utc": "2026-10-24T11:56:32.231063+00:00",
+  "snapshot_git_revision": "69de9263e90b52bc17986b6db6535aec414d09da",
+  "files": [
+    {
+      "path": "exotic-space-industries-remembrance/info.json",
+      "pre_sha256": "c4bdfe25d1c923e7d3d6503d8407ff1ad65c7109d7c2ae9ee5504eff850f17ab",
+      "post_sha256": "602d47fcd17360230b60713d98e6351fd3ed04600e03fe975c7f5b3d44f5d22f"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/prototypes/computer-age/copper-beacon.lua",
+      "pre_sha256": "e725e576fddc03293fae98a783d9321e64fa6f53a95913e9b2288e0a6b691074",
+      "post_sha256": "d929d83835401343cf6b724c0ae2548141275cac1aa4d36d05d57f48ed86b759"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/prototypes/quantum-age/iron-beacon.lua",
+      "pre_sha256": "5e4b067b61bdd3fd1f54e02accd53a781e5aefee0ab79a74f545053e6a2a5746",
+      "post_sha256": "1db85687fb02289dbb6777495c7264497b5315151623ff4fa26090734a5c85a8"
+    },
+    {
+      "path": "exotic-space-industries-remembrance/prototypes/alien-system/alien-beacon.lua",
+      "pre_sha256": "6f7c3fae265abb72df3236fb52e503a2e4530a9456abd03d8c8f06e55e117f58",
+      "post_sha256": "381e6443f29db7573ef20d63b445305ef3719992dc9e8f161f2f3885fba701a2"
+    },
+    {
+      "path": ".codex/esir/blueprints/beacon-overload.md",
+      "pre_sha256": "cf4c08c174ca19c31c3dca5a88338af4b5b223a642d241b4db62dfbb5b1d348b",
+      "post_sha256": "b47c07c3a970377e9f05454dc69cc933841bcf2847b3df0f631e4bc9f6b247df"
+    },
+    {
+      "path": ".codex/esir/blueprints/index.md",
+      "pre_sha256": "2154756ccbb7462c5720fbe268449fbc6cd2dbadbdc4f82ee7f6650c8ce01b19",
+      "post_sha256": "18d16d21383a4cf7d18c0325bd231af66cb958a66c82cc888acee065eeb81b87"
+    }
+  ],
+  "patch_sha256": "7011bd7d77e4f685fc4c903db0abea257cd7a0b8c0f5d99f10ede1ef92d80503",
+  "text_hash_convention": "Git UTF-8 LF blobs",
+  "fork": {
+    "name": "zzz-nonstandard-beacons-continued",
+    "version": "1.0.0",
+    "upstream_revision": "32a00dcce60a2f1e7eed8ba8633cbebb0ef693d6",
+    "candidate_files": [
+      {
+        "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+        "size_bytes": 1632,
+        "sha256": "f9ca0c4d6d4fe53a1d5121a4dd300e89f436d7220bff3c54422f6f51d48dad58"
+      },
+      {
+        "path": ".github/ISSUE_TEMPLATE/config.yml",
+        "size_bytes": 28,
+        "sha256": "235ef33cba9b7f437e163dcbb6d446607258451210383d8b295d93752646c4ac"
+      },
+      {
+        "path": ".gitignore",
+        "size_bytes": 24,
+        "sha256": "c8df73df4d0c2d79b829571f9c4243953124e92e73759100991ff0322de35caf"
+      },
+      {
+        "path": "changelog.txt",
+        "size_bytes": 12834,
+        "sha256": "fe1da3d9a4789ca9799c70ce4f78269ccb6b37fdc9355236d56c3684ad2a6685"
+      },
+      {
+        "path": "control.lua",
+        "size_bytes": 4994,
+        "sha256": "a721226fa650dc4eccaf49b6688d83eae22b4866a17e3d80019f53016bab9ab8"
+      },
+      {
+        "path": "data-final-fixes.lua",
+        "size_bytes": 11595,
+        "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+      },
+      {
+        "path": "data.lua",
+        "size_bytes": 10370,
+        "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+      },
+      {
+        "path": "docs/api.md",
+        "size_bytes": 3371,
+        "sha256": "8db2022c46217c46524c8ecae7afd8a43e27c2660ffaf2ca9b6387857c8f1163"
+      },
+      {
+        "path": "docs/decisions.md",
+        "size_bytes": 2899,
+        "sha256": "263b560f7abcb794289e93744a1da873681e42c287270d3892b1a3c7eda3b945"
+      },
+      {
+        "path": "docs/lifecycle.md",
+        "size_bytes": 6885,
+        "sha256": "7d6f3b0b02689c73cc60a9556403c2832987ef660c08009d11ed0345f17d9652"
+      },
+      {
+        "path": "docs/migration.md",
+        "size_bytes": 1472,
+        "sha256": "288ace950c82623e90201ffc0105374d2651ebe4f7d610d3a005df3038b09f65"
+      },
+      {
+        "path": "docs/validation.md",
+        "size_bytes": 9398,
+        "sha256": "9a27b8232ef90b2b1dd68bc1536e59ee4b868f59a18ea1bb826ac04d1cba5091"
+      },
+      {
+        "path": "info.json",
+        "size_bytes": 515,
+        "sha256": "db19847d58f8259b57373df16b9620bd08f64215f7c67bc864dfefc422a8a4d7"
+      },
+      {
+        "path": "LICENSE",
+        "size_bytes": 1091,
+        "sha256": "35c4ec6aa475268f81066dea7c698a9be2717976c58cbc44c6041510c81f7019"
+      },
+      {
+        "path": "locale/en/en.cfg",
+        "size_bytes": 1624,
+        "sha256": "451cf66c6391b86f2da7c6a9c0bea051740370d1171dab48d7c0dd37415432e0"
+      },
+      {
+        "path": "README.md",
+        "size_bytes": 1968,
+        "sha256": "1c6a2f45e132416df3d2951e2b3a923c239c0e078ed15946f9275625621f40c1"
+      },
+      {
+        "path": "scripts/common.lua",
+        "size_bytes": 3204,
+        "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+      },
+      {
+        "path": "scripts/esir_fixture.py",
+        "size_bytes": 4524,
+        "sha256": "fca3c3eaea6b56f2590fe1d59ae01bd7d47e571a0c59badb41fceb06646bc1ca"
+      },
+      {
+        "path": "scripts/esir_handoff.py",
+        "size_bytes": 7760,
+        "sha256": "9e862c1ca7f3c38460eaf1f6322ea641be1110dee6fddedd11607e7f9efe256e"
+      },
+      {
+        "path": "scripts/gui_fixture.py",
+        "size_bytes": 1958,
+        "sha256": "7d61d9a314e289df2a345c5bf44e596ab4e3bd86128149aeb8f91b273e01fe28"
+      },
+      {
+        "path": "scripts/information.lua",
+        "size_bytes": 14024,
+        "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+      },
+      {
+        "path": "scripts/lifecycle.lua",
+        "size_bytes": 31037,
+        "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+      },
+      {
+        "path": "scripts/migration.py",
+        "size_bytes": 4617,
+        "sha256": "ed53e3fc9485bcec0b7cc5e42169cf2909733ea7cab95b91319c2c8434738e4d"
+      },
+      {
+        "path": "scripts/multiplayer.py",
+        "size_bytes": 3721,
+        "sha256": "8eed70973fdd2c4cd739fc49248b8b3bc95464bcc243d62230ad0043c94b5f32"
+      },
+      {
+        "path": "scripts/orientation.lua",
+        "size_bytes": 7897,
+        "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+      },
+      {
+        "path": "scripts/package.py",
+        "size_bytes": 3317,
+        "sha256": "692d15300efc5b5c6cc506c301a02231f42bf95969e70c7440fced4fc03822dc"
+      },
+      {
+        "path": "scripts/power.lua",
+        "size_bytes": 5276,
+        "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+      },
+      {
+        "path": "scripts/types.lua",
+        "size_bytes": 5430,
+        "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+      },
+      {
+        "path": "scripts/validate.py",
+        "size_bytes": 3812,
+        "sha256": "c9c9306c50f70702f608fc8ab54c1ca377b4c1a56ec3a43be29a36c481a535d6"
+      },
+      {
+        "path": "settings.lua",
+        "size_bytes": 308,
+        "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+      },
+      {
+        "path": "tests/actor-control.lua",
+        "size_bytes": 6460,
+        "sha256": "72d78335fb9b457f49fc18cc3bec6427e74e75a24130dc4cbcc29d60f2835308"
+      },
+      {
+        "path": "tests/control.lua",
+        "size_bytes": 14040,
+        "sha256": "629a9f351e28c3f28a5aec77aa6aaa1295fc8ab404c28a1398a27c0182621014"
+      },
+      {
+        "path": "tests/data.lua",
+        "size_bytes": 4681,
+        "sha256": "eef063088e6aa3af6277b5b19b2825de054063b3ec488a30d859931debf27cb9"
+      },
+      {
+        "path": "tests/esir-control.lua",
+        "size_bytes": 7886,
+        "sha256": "1177a39a548eb729b0294bc84966950c411be8c42ce0e8fc484c86379e6fbe97"
+      },
+      {
+        "path": "tests/esir-data.lua",
+        "size_bytes": 3095,
+        "sha256": "6803ec651d2cc0acca7448cbf47dab0f0b8effbbe57a572c1f7865d422e4aedb"
+      },
+      {
+        "path": "tests/hooks.lua",
+        "size_bytes": 1254,
+        "sha256": "bb425456b2a5aee0ea99b725a9559725d0b3020913fbf4234f41f580f4636311"
+      },
+      {
+        "path": "tests/info.json",
+        "size_bytes": 218,
+        "sha256": "e14e218c93f134b954a8dcc41d062805376eb9517b0686228c7a154ef4d96cb4"
+      },
+      {
+        "path": "tests/migration-control.lua",
+        "size_bytes": 6942,
+        "sha256": "ad9e8fbf675ebb57dbf3764ff3682066a8b247825283423630fb032f86c5de38"
+      },
+      {
+        "path": "tests/multiplayer-control.lua",
+        "size_bytes": 3811,
+        "sha256": "db70251f223d8dadcaa8db462cc4b14b2bc03c0cde13c001311566199b1c0c04"
+      },
+      {
+        "path": "tests/player-control.lua",
+        "size_bytes": 15433,
+        "sha256": "993f758525c02bdaf78c74775ed971f5ce22b5ac583da2d8c29212e3d3ce821b"
+      },
+      {
+        "path": "tests/recovery-control.lua",
+        "size_bytes": 10784,
+        "sha256": "6a80f1e608d8062925964e0fb1388fd3d08f44448c42dd958de9565dd95916e4"
+      },
+      {
+        "path": "thumbnail.png",
+        "size_bytes": 18192,
+        "sha256": "1f7846c3484474544bc41e7ecdd80ac6a28cdb3f13fa852d9b9b85576a386d57"
+      }
+    ],
+    "candidate_inventory_sha256": "398dcf4e390e4be8d53b5821d9b4fb942bbacd545cd426563e6b45b3c7989cf0",
+    "hash_convention": "SHA256 of actual file bytes, including tracked and untracked candidate files",
+    "local_changes_uncommitted": true
+  },
+  "engine_version": "2.1.23",
+  "applied_to_active_esir": false,
+  "validation": {
+    "snapshot_git_apply_check": "passed",
+    "full_esir_2_1_acceptance": "pending"
+  },
+  "evidence": {
+    "snapshot": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-snapshot",
+    "fork_report": "C:\\Users\\Theorun\\Documents\\github\\nonstandard-beacons-continued\\docs\\validation.md",
+    "suites": [
+      {
+        "suite": "smoke",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\create.log",
+            "sha256": "9e275b85c211c39e3ba879d718684f00982987849384f2966f7df96991865b3c"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\graphical-error.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\graphical.log",
+            "sha256": "b153120552257c1dc4cc823deab97ad098d6fa4bd30d9d18bd3d52ad680b0444"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\opened-without-adapter.png",
+            "sha256": "d7bcfb03e30625684f82de8ba423f14cba26a417a584f816173a10c67e286b4a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\run.json",
+            "sha256": "cd7a87cb9a52b50ddb26321ddbf58504b81df2c45c4e7739a439abc331948d84"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\runtime.log",
+            "sha256": "a741adc67524565652e1dc6b0a04e029acc410c8284314616703bde9e87d30f2"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\factorio-current.log",
+            "sha256": "74259a09475a7dc04299b997b8f57f8a40a6883b6958707e93c9a95dfda4b2f0"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\factorio-previous.log",
+            "sha256": "87785546813b2b0f6ee748b2886d2904e4debc2a3e4ec724c05c04bbd6149866"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\player-data.json",
+            "sha256": "85250f76bf948b9d7e03af2e826b8440636e29eb90f3c4ad6459dc2358342071"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc\\opened-beacon.png",
+            "sha256": "5696dfbe3412d3df348b20b32d406c5485db9bcd8d027db37cc3b34fd08e46fc"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc\\opened-phase-1.png",
+            "sha256": "980169f2cf5daa29450bcca4afbaf73c1b79c7be9646b93716d27aa34139f7f1"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc\\opened-phase-2.png",
+            "sha256": "73ea0cd57b6470fd4620b63affca74de454ca1309c3700648602a681b1932882"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc\\opened-phase-3.png",
+            "sha256": "5e77664404d92df69b715901523d6fb6af31e8a1bf601eb5a44e466187b988c7"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc\\opened-phase-4.png",
+            "sha256": "29af57022d1618bb4fad2f8e65337da6f69601c78d4246cdaa1698e7c455e3c3"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc\\opened-phase-5.png",
+            "sha256": "fb9698b7554471bc475c100a87db0351cd49468ce9fa48be188a1d43ed29357a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc-player-result.json",
+            "sha256": "e26d907320796f48870f1a2c1a963e3bdf265d6f928c2fc974a87263235614c1"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc-result.json",
+            "sha256": "bbbaf31fe73bcec0b3d72681c56b01692514ee522b78d031271ace04faac4b94"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\script-output\\nsbc-ui-result.json",
+            "sha256": "5007663ca18539a0c56f2796e0222a831aedc2751ff251ffad38aaf04c89ffd2"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\smoke\\user\\tips-and-tricks.log",
+            "sha256": "3db71227a6caf0294c2049f5ceec5acaa6c326be769af299b6731627ab3df4c3"
+          }
+        ],
+        "staged_lua_sha256": [
+          {
+            "path": "control.lua",
+            "sha256": "a42c0cf1ed9307d977298dee24ea293485881c7fdba1aa025b02acc3b8e419cb"
+          },
+          {
+            "path": "data-final-fixes.lua",
+            "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+          },
+          {
+            "path": "data.lua",
+            "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+          },
+          {
+            "path": "scripts/common.lua",
+            "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+          },
+          {
+            "path": "scripts/information.lua",
+            "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+          },
+          {
+            "path": "scripts/lifecycle.lua",
+            "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+          },
+          {
+            "path": "scripts/orientation.lua",
+            "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+          },
+          {
+            "path": "scripts/power.lua",
+            "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+          },
+          {
+            "path": "scripts/types.lua",
+            "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+          },
+          {
+            "path": "settings.lua",
+            "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+          }
+        ]
+      },
+      {
+        "suite": "examples",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\create.log",
+            "sha256": "401c845e7190c9761d9c0e084138ab6dcfec3abe59f5f80c940654951988db1c"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\run.json",
+            "sha256": "cd7a87cb9a52b50ddb26321ddbf58504b81df2c45c4e7739a439abc331948d84"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\runtime.log",
+            "sha256": "a1d89ba6fc9c2237da986c57a64f3111d2238d6933f8f59b7f0e98d2cc0fd742"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\user\\factorio-current.log",
+            "sha256": "bc395728e81fcb371c20ac28904620be892c7ab30807ab25bb04bdf7bb9cc451"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\user\\factorio-previous.log",
+            "sha256": "6ebaae9122228343a6ec74b81225687f913ea01969ef184745cd3947d7ded5d6"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\user\\player-data.json",
+            "sha256": "b43d10d79e682c5e59141dd4c795ceaaeb583f8432047af5128c5b6e8230c342"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\examples\\user\\script-output\\nsbc-result.json",
+            "sha256": "bbbaf31fe73bcec0b3d72681c56b01692514ee522b78d031271ace04faac4b94"
+          }
+        ],
+        "staged_lua_sha256": [
+          {
+            "path": "control.lua",
+            "sha256": "a42c0cf1ed9307d977298dee24ea293485881c7fdba1aa025b02acc3b8e419cb"
+          },
+          {
+            "path": "data-final-fixes.lua",
+            "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+          },
+          {
+            "path": "data.lua",
+            "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+          },
+          {
+            "path": "scripts/common.lua",
+            "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+          },
+          {
+            "path": "scripts/information.lua",
+            "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+          },
+          {
+            "path": "scripts/lifecycle.lua",
+            "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+          },
+          {
+            "path": "scripts/orientation.lua",
+            "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+          },
+          {
+            "path": "scripts/power.lua",
+            "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+          },
+          {
+            "path": "scripts/types.lua",
+            "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+          },
+          {
+            "path": "settings.lua",
+            "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+          }
+        ]
+      },
+      {
+        "suite": "actors",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\create.log",
+            "sha256": "3ea406d2cd97db7ae38663e59d06800883c4af5418b66b2ea16f32d2c8688e3b"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\run.json",
+            "sha256": "ad56361908c3c07c86c2a476464dbe6d909b993a07160fa52b8a4cee056b7996"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\runtime.log",
+            "sha256": "0b48992a79bc10b601cf42763f88c464db41551bc97007cbb663bdfcd82d34d9"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\user\\factorio-current.log",
+            "sha256": "a969dfeface6068c3cbcfacd934df6e3f4a826daee4c6fda3bb26555e3532579"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\user\\factorio-previous.log",
+            "sha256": "15e91d234e7b3299c49ac380beacd2f110eb9e4e1e1e2ce2010725f035729f16"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\user\\player-data.json",
+            "sha256": "8a069bef1c79b3e4645fa51f3b08d891a3fa7105c8caafc633f7ba6b9d8c4d67"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\user\\script-output\\nsbc-actors-result.json",
+            "sha256": "63bcd7afbbb98a4c2391a31cfe577fe75b8eb7fc8c1edbd4fd7fd226699d945d"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\actors\\user\\script-output\\nsbc-result.json",
+            "sha256": "bbbaf31fe73bcec0b3d72681c56b01692514ee522b78d031271ace04faac4b94"
+          }
+        ],
+        "staged_lua_sha256": [
+          {
+            "path": "control.lua",
+            "sha256": "a42c0cf1ed9307d977298dee24ea293485881c7fdba1aa025b02acc3b8e419cb"
+          },
+          {
+            "path": "data-final-fixes.lua",
+            "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+          },
+          {
+            "path": "data.lua",
+            "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+          },
+          {
+            "path": "scripts/common.lua",
+            "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+          },
+          {
+            "path": "scripts/information.lua",
+            "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+          },
+          {
+            "path": "scripts/lifecycle.lua",
+            "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+          },
+          {
+            "path": "scripts/orientation.lua",
+            "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+          },
+          {
+            "path": "scripts/power.lua",
+            "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+          },
+          {
+            "path": "scripts/types.lua",
+            "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+          },
+          {
+            "path": "settings.lua",
+            "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+          }
+        ]
+      },
+      {
+        "suite": "migration",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\adopted.log",
+            "sha256": "ef0a4fdda704f7c87a31f1fc4172e1e562488300fa60efb66ce749570d3ebad7"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\reload.log",
+            "sha256": "6a7c381e15b78121a7b85d7dc4d273f000bd2247b9152639ad7fe69a0078fee4"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\server-settings.json",
+            "sha256": "e63ba2ddc561890cfca299ec15d7d3fcecda0724616ce9e20ad79c24533940d8"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\user\\factorio-current.log",
+            "sha256": "16fb03e8143cdbe2f5a3284e1b060dc4ddb2e69563f6a9ae5cfdd3bb0b2a449a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\user\\factorio-previous.log",
+            "sha256": "59542a076698ff0cb1660989cce6981ef993a9bfdfb3322e275cc1ac7b24c1c5"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\user\\player-data.json",
+            "sha256": "b43d10d79e682c5e59141dd4c795ceaaeb583f8432047af5128c5b6e8230c342"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\user\\script-output\\nsbc-adopted-ready.json",
+            "sha256": "5b7465c8424bef48d3892fb64b12c72bbf03ea3de2b9bf8b3ddb74494773e0a3"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\adopted\\user\\script-output\\nsbc-reload-ready.json",
+            "sha256": "1609cb8915cfc267d5a25ff83aad834f49c54f49eca788c585d71a20c6c0fdc6"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\create.log",
+            "sha256": "7a80ade9a7379b5f1f7e9d2c489fd16cf55df32e7c35845a4bd70fbddd77d6c9"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\donor.log",
+            "sha256": "e9bb64350eb0789a3cbbdd832ad8fb1ecaf17928c043dce1c6b2f13bf50e14e8"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\server-settings.json",
+            "sha256": "e63ba2ddc561890cfca299ec15d7d3fcecda0724616ce9e20ad79c24533940d8"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\user\\factorio-current.log",
+            "sha256": "51b3d7876a2b9cf9a3f86ab4f3cc8c4c40f711135138a0fdf5d7df51a4ceb636"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\user\\factorio-previous.log",
+            "sha256": "04debe415889bf9474896a3e47bb219a26235cad2d37c8cc66b795209aeea563"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\user\\player-data.json",
+            "sha256": "5ef1af667a846d2e58799a881362a982a2d3497150d1241bb58a90661e2486c9"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\donor\\user\\script-output\\nsbc-donor-ready.json",
+            "sha256": "6977a20e9d87d74696af599b23f873abe18d8c9cff9c63bd8ab2e061fc287542"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\migration\\result.json",
+            "sha256": "6936f8bba9ca6c62749d93612b51b3ac81d9b0e0169f003f3fc5fb38dcf87df8"
+          }
+        ],
+        "staged_lua_sha256": []
+      },
+      {
+        "suite": "esir-fixture",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-fixture\\run.json",
+            "sha256": "0838ed19c4f4c18ed4f42e9e605e9b80b4c7e9b15d4240cfd140816a60e1d775"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-fixture\\runtime.log",
+            "sha256": "1a4d2c968fbd074b71809be4f727f2276497eb35be99a8233e8fe4d52ee11106"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-fixture\\user\\factorio-current.log",
+            "sha256": "e18f6382a9bf9d369469bc16c1b2bab47ff520a0585bff6531dfb7845316c5cc"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-fixture\\user\\factorio-previous.log",
+            "sha256": "3a3f64d34de0ccff237a18b4080a055119fb8b357e2078666db6fbc3461c670c"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-fixture\\user\\player-data.json",
+            "sha256": "b43d10d79e682c5e59141dd4c795ceaaeb583f8432047af5128c5b6e8230c342"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\esir-fixture\\user\\script-output\\nsbc-esir-result.json",
+            "sha256": "5b785f945c3f6586c2017bfea3090e218243fe4df536862119aa82c5057415e2"
+          }
+        ],
+        "staged_lua_sha256": [
+          {
+            "path": "control.lua",
+            "sha256": "a721226fa650dc4eccaf49b6688d83eae22b4866a17e3d80019f53016bab9ab8"
+          },
+          {
+            "path": "data-final-fixes.lua",
+            "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+          },
+          {
+            "path": "data.lua",
+            "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+          },
+          {
+            "path": "scripts/common.lua",
+            "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+          },
+          {
+            "path": "scripts/information.lua",
+            "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+          },
+          {
+            "path": "scripts/lifecycle.lua",
+            "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+          },
+          {
+            "path": "scripts/orientation.lua",
+            "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+          },
+          {
+            "path": "scripts/power.lua",
+            "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+          },
+          {
+            "path": "scripts/types.lua",
+            "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+          },
+          {
+            "path": "settings.lua",
+            "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+          }
+        ]
+      },
+      {
+        "suite": "multiplayer",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\runtime.log",
+            "sha256": "9e864d0a9476c4504adf495fa44d4a8b118e7c6bb2307b20b4fdb4c0b33b3421"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\user\\factorio-current.log",
+            "sha256": "a92e5d4b57baac9eca773f84e2de3d164e0a88a8f216f54b1cd10c33dfd25c4f"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\user\\factorio-previous.log",
+            "sha256": "08330caf02a93073fc74e589aa18f2d0ee41d3d019db48792867cb661919723d"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\user\\player-data.json",
+            "sha256": "dc1b096713b10222d6036585bac8e282da802f8c91b05398f967b3df98454bc1"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\user\\script-output\\nsbc-mp-disconnect.json",
+            "sha256": "b342fc286d0216cc212e0d7ba234894e2e7283ddf14f959adf0fe7fd5924308a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\user\\script-output\\nsbc-mp-rejoin.json",
+            "sha256": "b342fc286d0216cc212e0d7ba234894e2e7283ddf14f959adf0fe7fd5924308a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-a\\user\\script-output\\nsbc-mp-result.json",
+            "sha256": "5228f938cfb1d70fb75e6dbb2f0157c7f788fa417ed9209bb865dbb722533b1e"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-b\\runtime.log",
+            "sha256": "a0e9a060b3ed543f52f3fb713c2ebb19e4ec39d2c66c35f7019e1faf1a6cf588"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-b\\user\\factorio-current.log",
+            "sha256": "7b18fb220f2ccf76c6be1f6f9880d0a4bc4c836dc2e0cc19e01cd6fb15ac8a2b"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-b\\user\\factorio-previous.log",
+            "sha256": "ea59ee4ba5193203d9ea268f10e403c459786fd31e0ac266e64301804195393c"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-b\\user\\player-data.json",
+            "sha256": "9736e2278def9912d5aebc755dfdb27811b418c919bd53dd5466e02779acd4e7"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-b\\user\\script-output\\nsbc-mp-disconnect.json",
+            "sha256": "b342fc286d0216cc212e0d7ba234894e2e7283ddf14f959adf0fe7fd5924308a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\client-b\\user\\script-output\\nsbc-mp-result.json",
+            "sha256": "5228f938cfb1d70fb75e6dbb2f0157c7f788fa417ed9209bb865dbb722533b1e"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\result.json",
+            "sha256": "2751ea71e18a38b4a1c3d7090ae0c4a0918c939d2ba66135b6e3f2f17de54f41"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\create.log",
+            "sha256": "18f764d4e2325a487244c66b2c2c58a86cafc63433a6774dc193a36cdf8c1716"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\runtime.log",
+            "sha256": "7131d2a4eda5b0b6f71c7a210aa6d9bd2f67663ac1f37ed1787ff9ab162e537f"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\settings.json",
+            "sha256": "02ed3e0cc7be551109dae14c6237874fec30399721a178058d0b0bc8b91bf236"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\user\\factorio-current.log",
+            "sha256": "8057f9abc5a834df5ee99c3c4936415bf4fc0244a719dc11225c3cb1300a9451"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\user\\factorio-previous.log",
+            "sha256": "e3db4076620c99a09a341cb13b95dc58247b7bfefd02027cb9071f799eb33411"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\user\\player-data.json",
+            "sha256": "741ca5ec285a31c0c2c06ad4dfaa2d5caeb15f3baf53e07955add2584c8f663b"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\user\\script-output\\nsbc-mp-disconnect.json",
+            "sha256": "b342fc286d0216cc212e0d7ba234894e2e7283ddf14f959adf0fe7fd5924308a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\user\\script-output\\nsbc-mp-rejoin.json",
+            "sha256": "b342fc286d0216cc212e0d7ba234894e2e7283ddf14f959adf0fe7fd5924308a"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\multiplayer\\server\\user\\script-output\\nsbc-mp-result.json",
+            "sha256": "5228f938cfb1d70fb75e6dbb2f0157c7f788fa417ed9209bb865dbb722533b1e"
+          }
+        ],
+        "staged_lua_sha256": [
+          {
+            "path": "control.lua",
+            "sha256": "a42c0cf1ed9307d977298dee24ea293485881c7fdba1aa025b02acc3b8e419cb"
+          },
+          {
+            "path": "data-final-fixes.lua",
+            "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+          },
+          {
+            "path": "data.lua",
+            "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+          },
+          {
+            "path": "scripts/common.lua",
+            "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+          },
+          {
+            "path": "scripts/information.lua",
+            "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+          },
+          {
+            "path": "scripts/lifecycle.lua",
+            "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+          },
+          {
+            "path": "scripts/orientation.lua",
+            "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+          },
+          {
+            "path": "scripts/power.lua",
+            "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+          },
+          {
+            "path": "scripts/types.lua",
+            "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+          },
+          {
+            "path": "settings.lua",
+            "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+          }
+        ]
+      },
+      {
+        "suite": "gui-en-100",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\graphical.log",
+            "sha256": "f2e66265b9e0f58256bf7b2e746f2542559c507326c8b98b3bb02cb4d3109f86"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\factorio-current.log",
+            "sha256": "a6d81ac071c66644f750b262441342bfaa7171137f08fe5f6d16f54987c9890d"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\factorio-previous.log",
+            "sha256": "afe85d331eee7315c17e67503b074a53b42b479dec5090ca30d9707e1a3bea49"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\player-data.json",
+            "sha256": "723be4f160d1815d2fb1a703a7c2d8ff03b4bc1d60ef1fb2795fafaaf6e11073"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-1.png",
+            "sha256": "d88cc393395eaf857c64314b57429d40c3d9bde78eba753100c42a0488a82364"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-10.png",
+            "sha256": "02d7abd9f85fe2bac82f06eebd4f1c0a5775b17777fc5a366cd71417543d3d01"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-2.png",
+            "sha256": "1d987e747caea5f0b83ad88117a93587aea1270ca4a14da3ea9e51fafa5c1d31"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-3.png",
+            "sha256": "0c2985c3d99d70a55f0cb9f0d53f531cbea97885acd4500287d9d6ddc14cc5ff"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-4.png",
+            "sha256": "1b706dee2e7c294f336ee184bc5c64b73525286544a0a9574b62726980e80576"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-5.png",
+            "sha256": "d23934083f1f113913ca612c5bb11235132cfa69b15d1e0dc7fa910514c89607"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-6.png",
+            "sha256": "0d632fc94f789040867533322c57ee9d6a245042d2b4ae31cf98bbe52c965c01"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-7.png",
+            "sha256": "44459c4100bb21aaa44db2e4d712a7f258bde4864eceb6c3483e39571487b777"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-8.png",
+            "sha256": "00f169ddb47fffab80adedb7552fd3a29f19d88059e70abe330511d8c6fb2e25"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc\\opened-phase-9.png",
+            "sha256": "a4a327085fd30fd159177dbb9796995f65300c3f49801d90995df4c67f8b2654"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc-player-result.json",
+            "sha256": "e26d907320796f48870f1a2c1a963e3bdf265d6f928c2fc974a87263235614c1"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc-result.json",
+            "sha256": "bbbaf31fe73bcec0b3d72681c56b01692514ee522b78d031271ace04faac4b94"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\script-output\\nsbc-ui-result.json",
+            "sha256": "2fd13302397645fec54e37f09ac3bfb83f18d9316306d353a21d221283180c1e"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-en-100\\user\\tips-and-tricks.log",
+            "sha256": "5867b991ba6713c9e3c097929ab149768c3e6f6fef0283affde6b0c3b03a9891"
+          }
+        ],
+        "staged_lua_sha256": []
+      },
+      {
+        "suite": "gui-de-125",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\graphical.log",
+            "sha256": "6ae35a76fb46846ad20e495a23ebd5f8401d9132e4b410e30830f3f28747143d"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\factorio-current.log",
+            "sha256": "ac814227b9261c24164512af57b57af1cccf47f1f624b7af070ce7106fe4d5b8"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\factorio-previous.log",
+            "sha256": "c2aedffbefd10d740cd3e2bf191996ad4f08de5eaa28e353ed4af97a65529416"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\player-data.json",
+            "sha256": "8c36ba05e727376c68e032e2a7912442a47655663d5a59ea2bdc4842c6eb1407"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-1.png",
+            "sha256": "caedff54f19058fb34dae339637e1c88bedfbb5e5766ae91614b5998cd68e6d7"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-10.png",
+            "sha256": "b03ff6ec774edef17c6c6802328b45ee2629cd4f1ce06aa2401baef351cae3d0"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-2.png",
+            "sha256": "0a0bf85316785813efacb068a04f8fcfdb47962b0ddbf0d8e7a7cd525f169bb2"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-3.png",
+            "sha256": "0d425434b6ba10a1246742ffecb6bf1359f69685e20c886a13eb44c463c200cf"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-4.png",
+            "sha256": "f647107374d0e6541062de151995ff849cc0daadea33ab7f13262415fda8c5e6"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-5.png",
+            "sha256": "90ca143460d6f5eba8aaea492a53f185e723bd0d2f2aff4769004727f4e655e4"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-6.png",
+            "sha256": "3a234ca24f1571597a7f0aaea04e3f4038707df5eca1fc8ee8b49d0d2ff6d0c1"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-7.png",
+            "sha256": "a1686fda05e3e0d36d383621be8b5714c5e4f889225163bcd497cab5ba5cc3ec"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-8.png",
+            "sha256": "c64e20d8a94f6a1ba1231305bdee3e917e48ab867611ba031c584be8c00be8bd"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc\\opened-phase-9.png",
+            "sha256": "a069cdc2578dd443a938c3d28e4a7de2720e317704e7177fa5508a3aeecc379d"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc-player-result.json",
+            "sha256": "e26d907320796f48870f1a2c1a963e3bdf265d6f928c2fc974a87263235614c1"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc-result.json",
+            "sha256": "bbbaf31fe73bcec0b3d72681c56b01692514ee522b78d031271ace04faac4b94"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\script-output\\nsbc-ui-result.json",
+            "sha256": "06d73a4ffc2f1159bbf47ca065f2e051f17e97bc793f4d46a9deed186fc69b13"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\gui-de-125\\user\\tips-and-tricks.log",
+            "sha256": "5dd6b91dca7b9d414ef860d6f113181080e7fae031be5e75dc2dffd12d9747a7"
+          }
+        ],
+        "staged_lua_sha256": []
+      },
+      {
+        "suite": "package",
+        "artifacts": [
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\create.log",
+            "sha256": "a4b364baad2756053e4ec19da4200154bab4c033b9398e130a7cc0229a6e6bd6"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\manifest.json",
+            "sha256": "a3008a9223c722d38e366b6b9bae19034fa193c46c8ac3ecc2d2d34ad07941de"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\runtime.log",
+            "sha256": "789780a77d6d66f76fcce6debb5ffe0ddb0028d5e0dae26bf192f6e8b9d51338"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\user\\factorio-current.log",
+            "sha256": "bd3c02fa3532e358c2b47ed5c8d7c376b3668c5609efd1b75d87a5ba51976ea0"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\user\\factorio-previous.log",
+            "sha256": "1965e34b005b39630da8ae60e6a4e9619738b162e4bc29ce9a4b38fdb97327e0"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\user\\player-data.json",
+            "sha256": "b43d10d79e682c5e59141dd4c795ceaaeb583f8432047af5128c5b6e8230c342"
+          },
+          {
+            "path": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\user\\script-output\\nsbc-result.json",
+            "sha256": "bbbaf31fe73bcec0b3d72681c56b01692514ee522b78d031271ace04faac4b94"
+          }
+        ],
+        "staged_lua_sha256": []
+      }
+    ]
+  },
+  "engine": {
+    "version": "2.1.23",
+    "executable_sha256": "8dc3979b88784c111d51ec942f04345554635a1b93b7bd7cf536a1e7e903db38",
+    "base_info_sha256": "0da4fcb137a0c38cd74eeb3a52462169f360f54b95ad0669270d08cfa9aa352f"
+  },
+  "dependencies": [
+    {
+      "name": "perel",
+      "version": "1.2.2",
+      "sha256": "e4e447a14081858813811cafe31be6c10f1bb20ba3d86fb74cb28b81513d4f9a"
+    }
+  ],
+  "package": {
+    "mod_id": "zzz-nonstandard-beacons-continued",
+    "version": "1.0.0",
+    "zip": "C:\\Users\\Theorun\\Documents\\github\\exotic-space-industries-remembrance\\.factorio-qc\\managed\\119f39bc4c15428f92ab6a800b60f7e3\\package\\zzz-nonstandard-beacons-continued_1.0.0.zip",
+    "sha256": "efb31aebed1773d0df69bd56f75c47383150cd7f5bc8ba151a0b02452a477a1e",
+    "files": [
+      {
+        "path": "LICENSE",
+        "size_bytes": 1091,
+        "sha256": "35c4ec6aa475268f81066dea7c698a9be2717976c58cbc44c6041510c81f7019"
+      },
+      {
+        "path": "README.md",
+        "size_bytes": 1968,
+        "sha256": "1c6a2f45e132416df3d2951e2b3a923c239c0e078ed15946f9275625621f40c1"
+      },
+      {
+        "path": "changelog.txt",
+        "size_bytes": 12834,
+        "sha256": "fe1da3d9a4789ca9799c70ce4f78269ccb6b37fdc9355236d56c3684ad2a6685"
+      },
+      {
+        "path": "control.lua",
+        "size_bytes": 4994,
+        "sha256": "a721226fa650dc4eccaf49b6688d83eae22b4866a17e3d80019f53016bab9ab8"
+      },
+      {
+        "path": "data-final-fixes.lua",
+        "size_bytes": 11595,
+        "sha256": "aea0b1a3d8157fb648bdf59bf757e603f22cdfd9832c31d46160787905e2fa59"
+      },
+      {
+        "path": "data.lua",
+        "size_bytes": 10370,
+        "sha256": "8921748402e52f802c9279a4f7418e223d19d4c681c07a82c896298792ef7f64"
+      },
+      {
+        "path": "docs/api.md",
+        "size_bytes": 3371,
+        "sha256": "8db2022c46217c46524c8ecae7afd8a43e27c2660ffaf2ca9b6387857c8f1163"
+      },
+      {
+        "path": "docs/decisions.md",
+        "size_bytes": 2899,
+        "sha256": "263b560f7abcb794289e93744a1da873681e42c287270d3892b1a3c7eda3b945"
+      },
+      {
+        "path": "docs/lifecycle.md",
+        "size_bytes": 6885,
+        "sha256": "7d6f3b0b02689c73cc60a9556403c2832987ef660c08009d11ed0345f17d9652"
+      },
+      {
+        "path": "docs/migration.md",
+        "size_bytes": 1472,
+        "sha256": "288ace950c82623e90201ffc0105374d2651ebe4f7d610d3a005df3038b09f65"
+      },
+      {
+        "path": "docs/validation.md",
+        "size_bytes": 9398,
+        "sha256": "9a27b8232ef90b2b1dd68bc1536e59ee4b868f59a18ea1bb826ac04d1cba5091"
+      },
+      {
+        "path": "info.json",
+        "size_bytes": 515,
+        "sha256": "db19847d58f8259b57373df16b9620bd08f64215f7c67bc864dfefc422a8a4d7"
+      },
+      {
+        "path": "locale/en/en.cfg",
+        "size_bytes": 1624,
+        "sha256": "451cf66c6391b86f2da7c6a9c0bea051740370d1171dab48d7c0dd37415432e0"
+      },
+      {
+        "path": "scripts/common.lua",
+        "size_bytes": 3204,
+        "sha256": "6a1da4672f71cab248ec3f3dd669c71ff38cebdd9c3be55eaee9e23055017cba"
+      },
+      {
+        "path": "scripts/information.lua",
+        "size_bytes": 14024,
+        "sha256": "32e6eafe99acd3304b1507d1d717b2e440c8d7476e12e6ba93b76fc70e85365d"
+      },
+      {
+        "path": "scripts/lifecycle.lua",
+        "size_bytes": 31037,
+        "sha256": "198566e6c448a7d6f3f9f9dec64c2e1d213ca41d98f0979ec6bcc6c12f403ae8"
+      },
+      {
+        "path": "scripts/orientation.lua",
+        "size_bytes": 7897,
+        "sha256": "ec5ed30d60cc3ee993b06e6da2f0c392d10249b467eef851d44f0af381d297a3"
+      },
+      {
+        "path": "scripts/power.lua",
+        "size_bytes": 5276,
+        "sha256": "b07a06e22a1a6339680052f4cdeff86b38b16eddccb660abc2eb764cab82cf7d"
+      },
+      {
+        "path": "scripts/types.lua",
+        "size_bytes": 5430,
+        "sha256": "89bfbf2b5b74bbb4de9abfa60adf621d1415ed7b24da199d913f735002484c98"
+      },
+      {
+        "path": "settings.lua",
+        "size_bytes": 308,
+        "sha256": "0f8894e9c1f8ebef743dd1e3391c04ee7690812c5a920b863ae3a0d778f881f6"
+      },
+      {
+        "path": "thumbnail.png",
+        "size_bytes": 18192,
+        "sha256": "1f7846c3484474544bc41e7ecdd80ac6a28cdb3f13fa852d9b9b85576a386d57"
+      }
+    ],
+    "file_inventory_sha256": "a9e88a581ec6462ed44208c187921ca8004c8244cea5e78a90233c85851715a5",
+    "engine": "Version: 2.1.23 (build 87750, win64, full)\nVersion: 64\nMap input version: 1.0.0-0\nMap output version: 2.1.23-2",
+    "results": [
+      {
+        "phase": "create",
+        "exit_code": 0
+      },
+      {
+        "phase": "runtime",
+        "exit_code": 0
+      }
+    ],
+    "published": false,
+    "installed_to_active_game": false
+  }
+}

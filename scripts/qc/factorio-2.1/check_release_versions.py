@@ -16,6 +16,9 @@ def main():
                and (p.name.startswith('exotic-space-industries-remembrance')
                     or p.name in ('doeworks-deer-continued', 'enhanced-walls-continued'))]
     sources.append(Path('../nonstandard-beacons-continued'))
+    profile = json.loads(Path('.codex/esir/factorio-development.json').read_text(encoding='utf-8'))
+    sources.append(Path(profile['enhanced_walls_source']))
+    sources.append(Path(profile['doeworks_source']))
 
     def inspect(source):
         info = json.loads((source / 'info.json').read_text(encoding='utf-8-sig'))

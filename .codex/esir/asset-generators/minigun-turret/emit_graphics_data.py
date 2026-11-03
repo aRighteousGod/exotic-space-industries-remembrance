@@ -599,7 +599,7 @@ class Emitter:
         # generated profile self-contained; only explicit SD shadow fallback
         # references may name Graphics 6. This draft retains the same calibration
         # flags, so the example refuses pilot/proposal data until final approval.
-        example = library_metadata(shipping_value(art))
+        example = library_metadata(shipping_value(art), asset_pack=PACKS["hd"])
         example_path = output / "hd-example-graphics-data.lua"
         example_path.write_text("-- SPDX-License-Identifier: GPL-3.0-or-later\n"
             "-- Shared HD layout and calibrated native launch positions.\n"
