@@ -5,6 +5,10 @@ description: "Use before applying generic Lua advice to Factorio mod code. Check
 
 # Factorio Lua Assumptions
 
+## Native test integration
+
+Native fixtures obey ordinary initialization, `on_load`, storage serialization and `require` boundaries. `script.test_arg` selects runtime cases; it cannot configure startup settings or the data stage. Select a separately staged catalogue profile for those inputs. Ordinary reload must preserve helper content and assert that configuration repair did not run. See [native testing](../esir-dev/references/native-testing.md).
+
 Use this skill when a Lua coding decision might be influenced by habits from normal Lua, LuaJIT, Lua 5.1, or Lua 5.4. It is a guardrail, not a tutorial or linter.
 
 Main development uses the exact Factorio 2.1.24 documentation and executable profile. Check its official Libraries and functions page for the Lua baseline and Factorio-specific deterministic changes. The earlier 2.1.23 survey documented Lua 5.2.1; retain that survey's provenance and select historical versions explicitly for migration comparisons.

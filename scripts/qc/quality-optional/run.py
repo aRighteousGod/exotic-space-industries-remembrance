@@ -1,4 +1,4 @@
-"""Factorio 2.1.23 full-core optional-Quality matrix, with isolated frozen source.
+"""Profile-selected full-core optional-Quality matrix, with isolated frozen source.
 
 Register an absent short run directory through esir-housekeeping.ps1 first.
 The runner preserves the core seed and explicitly disables Quality after staging.
@@ -14,12 +14,23 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import time
 
 REPO = Path(__file__).absolute().parents[3]
 FIXTURE = Path(__file__).absolute().parent
 NAME = "exotic-space-industries-remembrance"
 FLAGS = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+sys.path.insert(0, str(REPO / 'scripts/qc/factorio-2.1'))
+from managed_paths import context
+
+
+def mods_path(root):
+    return Path(context(root)['mod_view_root'])
+
+
+def output_path(root):
+    return Path(context(root)['write_data_root']) / 'script-output'
 
 
 def write_json(path, value):
@@ -32,52 +43,43 @@ def source_hashes(root):
 
 
 def stage(root, frozen, engine):
-    root.mkdir(exist_ok=True, parents=True)
+    # invoke-core registers the absent root. Precreating it makes it unmanaged.
+    if root.exists():
+        record=context(root)
+        assert record['source_mode']=='private-mutable', 'Existing worker is not private'
+        assert Path(record['options']['main_source']).resolve()==frozen.resolve(), 'Frozen source mismatch'
+        subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(REPO/'scripts/qc/factorio-2.1/validate-context.ps1'),'-RunRoot',str(root)],check=True,creationflags=FLAGS,capture_output=True)
+        return mods_path(root) / 'esir-qc-quality-optional'
     command = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                str(REPO / "scripts/qc/factorio-2.1/invoke-core.ps1"), "-Task", "stage",
-               "-RunRoot", str(root), "-Engine", str(engine), "-Quality", "disabled"]
+               "-RunRoot", str(root), "-Engine", str(engine), "-Quality", "disabled",
+               "-SourceMode", "private-mutable", "-MainSource", str(frozen), "-FixtureRoot", str(FIXTURE)]
     result = subprocess.run(command, cwd=REPO, capture_output=True, text=True, creationflags=FLAGS)
-    (root / "staging.log").write_text(result.stdout + result.stderr, encoding="utf-8")
+    if root.exists(): (root / "staging.log").write_text(result.stdout + result.stderr, encoding="utf-8")
     assert result.returncode == 0, result.stderr
-    destination = root / "mods" / NAME
-    # Unlink only the verified live-source junction. Never recursively remove it.
-    assert destination.resolve() == (REPO / NAME).resolve(), destination
-    assert os.path.isjunction(destination), destination
-    os.rmdir(destination)
-    quote = lambda path: "'" + str(path).replace("'", "''") + "'"
-    subprocess.run(["powershell", "-NoProfile", "-Command",
-                    f"New-Item -ItemType Junction -Path {quote(destination)} -Target {quote(frozen)} | Out-Null"],
-                   check=True, creationflags=FLAGS)
-    fixture = root / "mods/esir-qc-quality-optional"
-    fixture.mkdir()
-    for path in FIXTURE.glob("*.lua"):
-        shutil.copy2(path, fixture / path.name)
-    shutil.copy2(FIXTURE / "info.json", fixture / "info.json")
-    selection = json.loads((root / "mods/mod-list.json").read_text(encoding="utf-8-sig"))
-    selection["mods"].append({"name": "esir-qc-quality-optional", "enabled": True})
-    write_json(root / "mods/mod-list.json", selection)
-    return fixture
+    return mods_path(root) / 'esir-qc-quality-optional'
 
 
 def configure(root, case):
-    fixture = root / "mods/esir-qc-quality-optional"
+    fixture = mods_path(root) / "esir-qc-quality-optional"
     contents = "return {\n" + "".join(
         f"    {key} = {str(value).lower() if isinstance(value, bool) else json.dumps(value)},\n"
         for key, value in case.items()) + "}\n"
     (fixture / "case.lua").write_text(contents, encoding="utf-8")
-    selection = json.loads((root / "mods/mod-list.json").read_text(encoding="utf-8"))
+    selection = json.loads((mods_path(root) / "mod-list.json").read_text(encoding="utf-8-sig"))
     for mod in selection["mods"]:
         if mod["name"] == "quality":
             mod["enabled"] = case["quality"]
     required = {row["name"] for row in selection["mods"] if row["enabled"]}
     assert {"space-age", "recycler", NAME} <= required
-    write_json(root / "mods/mod-list.json", selection)
+    write_json(mods_path(root) / "mod-list.json", selection)
 
 
 def execute(root, engine, case, args, phase):
     log = root / (case["id"] + "." + phase + ".log")
-    command = [str(engine), "--config", str(root / "config.ini"), "--mod-directory",
-               str(root / "mods"), "--disable-audio", *args]
+    record=context(root)
+    command = [str(engine), "--config", record['config'], "--mod-directory",
+               record['mod_view_root'], "--disable-audio", *args]
     start = time.time()
     with log.open("w", encoding="utf-8") as stream:
         result = subprocess.run(command, cwd=REPO, stdout=stream, stderr=subprocess.STDOUT,
@@ -104,6 +106,8 @@ def main():
     args = parser.parse_args()
     root = Path(os.path.abspath(args.run))
     assert root.is_relative_to(REPO / ".factorio-qc"), "Use registered repo-owned staging"
+    if args.refresh_source and root.exists() and list(root.glob('*/context.json')):
+        raise ValueError('Cannot refresh source of existing private workers; choose a new registered run')
     root.mkdir(exist_ok=True, parents=True)
     development = json.loads((REPO / ".codex/esir/factorio-development.json").read_text(encoding="utf-8-sig"))
     engine = (REPO / development["engine_path"]).absolute()
@@ -139,16 +143,19 @@ def main():
     if args.resume and summary_path.exists():
         previous=json.loads(summary_path.read_text())
         assert previous.get("source_unchanged"),"Cannot resume evidence from changed shipping source"
+        assert previous.get('fixture_hashes')==source_hashes(FIXTURE),'Fixture changed; prior rows require fresh qualification'
+        assert previous.get('production_hashes')==source_hashes(REPO/NAME),'Source changed; prior rows require fresh qualification'
         accepted={row["case"]["id"]:row for row in previous["cases"] if row["passed"]}
     stages = []
     for index in range(args.workers):
         worker = root / chr(ord("a") + index)
-        if not (worker / "mods/esir-qc-quality-optional").exists():
+        if not (worker / "context.json").exists():
             stage(worker, frozen, engine)
         else:
+            stage(worker,frozen,engine)
             for path in FIXTURE.glob("*.lua"):
-                shutil.copy2(path, worker / "mods/esir-qc-quality-optional" / path.name)
-            shutil.copy2(FIXTURE / "info.json", worker / "mods/esir-qc-quality-optional/info.json")
+                shutil.copy2(path, mods_path(worker) / "esir-qc-quality-optional" / path.name)
+            shutil.copy2(FIXTURE / "info.json", mods_path(worker) / "esir-qc-quality-optional/info.json")
         stages.append(worker)
     def worker_run(index):
         worker = stages[index]
@@ -160,10 +167,10 @@ def main():
                 print(json.dumps({"case":case["id"],"passed":True,"resumed":True}),flush=True)
                 continue
             configure(worker, case)
-            save = worker / "fresh.zip"
+            save = Path(context(worker)['scratch_root']) / "fresh.zip"
             result = execute(worker, engine, case, ["--create", str(save)], "create")
             if result["passed"]:
-                report = json.loads((worker / "script-output/quality-optional-init.json").read_text())
+                report = json.loads((output_path(worker) / "quality-optional-init.json").read_text())
                 result["passed"] = report.get("passed") and report.get("case") == case["id"]
                 result["init"] = report
             if result["passed"] and args.phase == "runtime":
@@ -172,7 +179,7 @@ def main():
                 result["runtime"] = runtime
                 result["passed"] = runtime["passed"]
                 if runtime["passed"]:
-                    report = json.loads((worker / "script-output/quality-optional-native.json").read_text())
+                    report = json.loads((output_path(worker) / "quality-optional-native.json").read_text())
                     result["passed"] = report.get("passed") and report["case"]["id"] == case["id"]
                     result["native"] = report
             write_json(worker / (case["id"] + ".receipt.json"), result)
@@ -184,6 +191,7 @@ def main():
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         results = list(itertools.chain.from_iterable(pool.map(worker_run, range(args.workers))))
     summary = {"passed": len(results) == len(cases) and all(row["passed"] for row in results),
+               "fixture_hashes":source_hashes(FIXTURE),"production_hashes":source_hashes(REPO/NAME),
                "engine": str(engine), "expected_cases": len(cases), "cases": results,
                "source_unchanged": source_hashes(REPO / NAME) == json.loads((root / "production-source.json").read_text())}
     progression = {row["progression_sha256"] for row in results if row["case"]["quality"]}

@@ -5,6 +5,10 @@ description: "Prefer the shared `ei_lib` helper surface in `exotic-space-industr
 
 # ESIR Lib First
 
+## Native test integration
+
+Shared runtime-helper changes route through [native testing](../esir-dev/references/native-testing.md) to core, including `scheduler-event-tick` for queues, delays and tick plumbing. Select consumer cases for other helper contracts. Assertion/report utilities belong in QC infrastructure, outside shipping `ei_lib`.
+
 Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-industries-remembrance/lib/lib.lua) before adding any new helper with shared utility shape.
 
 `ei_lib` is already loaded by both [`data.lua`](../../../exotic-space-industries-remembrance/data.lua) and [`control.lua`](../../../exotic-space-industries-remembrance/control.lua), so it is the default shared helper layer for this repo.

@@ -1,5 +1,9 @@
 # Induction matrix circuit acceptance
 
+## Current native suite
+
+Use `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite induction-circuit` from the repo root. Shared mechanics and evidence rules live in `.codex/skills/esir-dev/references/native-testing.md`; the catalogue owns exact profiles/cases. Current `candidate`, `reload` and `configuration` cases distinguish native GUI/circuit state, programmatic dispatcher edits, ordinary persistence and deliberate repair. The checkpoint producer is graphical; native assertions do not establish rendered layout or mouse interaction.
+
 Run `powershell -ExecutionPolicy Bypass -File scripts/invoke-induction-circuit-qc.ps1 -SaveReload -CaptureLocales`.
 The runner stages live main sources with the existing control-UPS harness, records
 source/dependency hashes, and uses a separate managed profile with Factorio 2.0.77.

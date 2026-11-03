@@ -25,17 +25,15 @@ After the burst fires, it waits a few ticks before writing its post-burst report
 - This helper is meant to be staged only for direct scripted-research QC runs.
 - Do not leave it enabled for normal `qc-fast`, `fueler-smoke`, preview, or package runs.
 - The helper writes `scripted-research-qc.txt` into script output during world preparation and after the scripted burst fires.
-- The save is intended for explicit `-SavePath` usage; it does not need a checked-in save-catalog entry.
+- Historical standalone saves used explicit `-SavePath`. Current `research-events` cases own their checkpoints through the suite catalogue; `qc-test` uses suite/profile/case selectors.
 
 ## Staging Steps
 
-1. Copy `assets/zzz-scripted-research-qc_0.0.1` into `.factorio-qc/fmqc/mods-live/`.
-2. Add or enable the `zzz-scripted-research-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
-3. Create the save with the normal Factorio executable, for example:
-   - `factorio.exe --create .factorio-qc\\scripted-research-burst.zip --mod-directory .factorio-qc\\fmqc\\mods-live`
-4. Keep the helper staged and enabled while running:
-   - `qc-runtime -SavePath .factorio-qc\\scripted-research-burst.zip`
-5. Disable or remove the helper again before unrelated QC runs.
+1. Run `scripts/invoke-esir-dev.ps1 -Task test-plan -Suite research-events`.
+2. Run `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite research-events`.
+3. Review fresh `candidate` and `reload` reports under the managed run identity.
+
+The repository-owned adapter reuses this helper's world setup in a private current-engine helper. Required snapshots, completion, derived state and ordering are assertions; a missing snapshot fails. Historical receipts retain their engine and counts. See [native testing](native-testing.md). Do not stage shared `fmqc/mods-live` copies.
 
 ## Scope
 

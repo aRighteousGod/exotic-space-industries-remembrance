@@ -5,6 +5,10 @@ description: "Use when adding, refactoring, auditing, or testing ESIR runtime co
 
 # ESIR Research Events
 
+## Native test integration
+
+Run `qc-test -Suite research-events` for ordinary/scripted completion, coalescing, force isolation, flush ordering, derived state and persistence. Run `research-bootstrap` for progression and lab changes across all four registered startup profiles. Missing required diagnostic state fails. Use [native testing](../esir-dev/references/native-testing.md); the historical helper supplies world setup, and manual shared `fmqc/mods-live` staging is obsolete.
+
 Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for required calls and force/hint/tick contracts. Keep diagnostic capabilities distinct from required research fan-out.
 
 Use this skill before changing research-aware runtime code. ESIR has a deliberate UPS saver for `event.by_script` research floods, so normal research handling and scripted burst handling must be designed together.
@@ -43,10 +47,11 @@ rg -n "on_research_finished|on_scripted_research_burst|by_script|scripted_resear
 
 ## QC Guidance
 
-- For deterministic scripted flood coverage, use the helper documented by `esir-dev`: `references/scripted-research-qc-helper.md`.
-- Stage the `zzz-scripted-research-qc` helper only for explicit scripted-research QC runs, then remove or disable it before unrelated QC.
-- Inspect the research hitch/scripted snapshot fields when validating the burst saver: pending force count, next due tick, due bucket counts, tech-scaling snapshot, Tesla status, and EM train status.
-- Normal research behavior still needs ordinary research-completion coverage; the scripted helper only proves the `event.by_script` flood path.
+- Run the named `research-events` candidate/reload cases; the adapter owns helper staging and cleanup.
+- Assert pending-force/due-bucket state, flush order, force isolation and derived Tesla/EM state. Missing required diagnostics fail.
+- Immediate force flushes can leave cancelled bucket entries. Compare their saved counts on ordinary reload while requiring zero live pending forces and zero next-due tick.
+- Run all four `research-bootstrap` settings profiles for progression changes, including native lab completion and exact saved progress/inventory reload.
+- Preserve [the helper's historical world-setup provenance](../esir-dev/references/scripted-research-qc-helper.md); snapshot-only output is not functional acceptance.
 
 ## Read Next
 

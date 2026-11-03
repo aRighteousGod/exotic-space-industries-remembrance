@@ -1,6 +1,8 @@
 # Orbital Logistics QC Helper
 
-Use this helper when ESIR work needs a deterministic orbital logistics cohort save instead of relying on ad hoc hand-built test pads.
+For current 2.1.24 work, use the registered `orbital-logistics` suite through `invoke-esir-dev.ps1 -Task qc-test -Suite orbital-logistics`. Its checked-in fixture is `scripts/qc/orbital-logistics`, with Quality enabled/disabled and candidate/reload/configuration cases. A graphical checkpoint exercises programmatic native GUI callbacks; rendered, physical-input, multiplayer and performance evidence remain separate. Fresh matching receipts are required.
+
+The helper described below is historical reference material. Its configuration handler recreates the world and must not be used to establish persistence acceptance for the current implementation.
 
 ## Canonical Asset
 
@@ -44,23 +46,15 @@ Use this helper when ESIR work needs a deterministic orbital logistics cohort sa
   - manual retargeting across both live platforms
   - real silo destruction, missing-binding detection, rebuild, and explicit rebind onto the replacement unit
 - a contested-lane fairness window that rotates service between `QC Beta` and `QC Gamma` once explicit manual claims have been satisfied
-- Later checkpoints at `t+1`, `t+30`, `t+60`, `t+120`, `t+180`, `t+240`, `t+270`, `t+300`, `t+330`, and `t+420` service the cohort and dump snapshots without rebuilding away lease state.
-- The stock `qc-runtime` wrapper is still useful as a quick smoke pass, but it only benchmarks `60` ticks. Use a direct helper-aware benchmark of at least `420` ticks when you actually need the full mutation sequence.
+- Later checkpoints through `t+480`, including the final ID-conflict recovery after the `t+435` mutation, service the historical cohort and dump snapshots without rebuilding away lease state.
+- A short runtime smoke does not cover the historical 480-tick mutation sequence. Current acceptance belongs to the registered native suite above.
 - `gui_validation` may report `skipped=true` with `skip_reason=missing-player` under fully headless runs that do not expose a runtime player. Treat that as "GUI smoke unavailable", not as a cohort failure.
 
-## Staging Steps
+## Managed staging
 
-1. Copy `assets/zzz-orbital-logistics-qc_0.0.1` into `.factorio-qc/fmqc/mods-live/`.
-2. Add or enable the `zzz-orbital-logistics-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
-3. Create the save with the normal Factorio executable, for example:
-   - `factorio.exe --create .factorio-qc\\orbital-cohort.zip --mod-directory .factorio-qc\\fmqc\\mods-live`
-4. Use the wrapper smoke pass when you only want a fast "does the save still boot?" check:
-   - `qc-runtime -SaveId orbital-cohort`
-5. For the full helper scenario, keep the helper staged and run Factorio directly from `.factorio-qc\\fmqc\\mods-live` for at least `420` ticks so every checkpoint fires:
-   - `factorio.exe --mod-directory .factorio-qc\\fmqc\\mods-live --config .factorio-qc\\fmqc\\factorio-orbital-helper.ini --disable-audio --benchmark .factorio-qc\\orbital-cohort.zip --benchmark-ticks 420 --benchmark-runs 1`
-6. The save catalog now records the helper requirement explicitly, and the wrapper will report that manual or pre-staged helper sync is still required for `qc-runtime -SaveId orbital-cohort`.
-7. The wrapper still rebuilds `mods-live` before runtime lanes, so restage the helper after wrapper sync or use the direct helper-aware run above until the lower QC sync path grows save-aware helper staging.
-8. Disable or remove the helper again before unrelated QC runs.
+The save catalogue's required helpers now stage automatically for `qc-runtime`, `qc-preview`, `qc-full` and `runtime-benchmark`. Missing or incompatible helpers fail before engine launch. This helper still carries historical 2.0 metadata; port its metadata and APIs together before claiming current 2.1.24 acceptance. Use the explicit catalogue family and preserve historical receipts. Do not copy into shared `fmqc/mods-live` directories. See [native testing](native-testing.md).
+
+For an already compatible catalogued save, select its `SaveId` through the wrapper. Keep the scenario's full tick budget and required reports; short runtime smoke remains separate from complete functional acceptance.
 
 ## Scope
 

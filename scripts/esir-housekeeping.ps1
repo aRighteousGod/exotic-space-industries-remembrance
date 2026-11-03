@@ -667,6 +667,7 @@ function Start-EsirManagedQc {
         [void](Initialize-EsirManagedQcContext -RepoRoot $RepoRoot -Context $Context -RunId $state.run.id -SourceMode $SourceMode)
     } catch {
         $state.error = $_.Exception.Message
+        $state | Add-Member -NotePropertyName failed_registration -NotePropertyValue $state.run -Force
         $state.run = $null
     }
     return $state

@@ -69,6 +69,11 @@ Helper behavior changes affect runtime and potentially data-stage users. Search 
 <a id="verification"></a>
 ## Verification and limits
 
+The controlled host fixture `scripts/qc/native-tests/test_data_helpers.lua` exercises
+nil, empty and populated recipe arrays, optional dependency branches and required
+diagnostics. `scripts/qc/native-tests/data_contracts.py` consumes the managed native
+dump before retirement. Its assertions require a fresh matching-engine run.
+
 Use [ESIR lib-first guidance](../../skills/esir-lib-first/SKILL.md) and [Factorio stage assumptions](../../skills/factorio-lua-assumptions/SKILL.md) before extending this surface. Run the repository preflight plus the affected consumer's focused fixture; the [control lifecycle driver](../../../scripts/invoke-control-lifecycle-qc.ps1) can exercise consumer reconstruction.
 
 Check invalid handles, nil anchors, platform movement, configuration cache rebuild, loader direction/type, and base/elevated/ramp wheel visibility in the relevant consumers. No single fixture proves all mixed-stage exports; the documentation rollout does not claim comprehensive behavioral validation of this large utility surface.

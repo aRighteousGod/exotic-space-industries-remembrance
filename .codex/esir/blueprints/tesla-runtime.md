@@ -57,6 +57,11 @@ Initialization seeds caches and variants. Configuration refresh clears transient
 <a id="verification"></a>
 ## Verification and maintenance
 
+Controlled helper tests cover idempotent bridge-category creation. Required
+final-data assertions verify the two registered categories, gun/turret/ammunition
+assignments and corresponding technology effects. Missing required prototypes
+retain diagnostics through the shared raw proxy.
+
 This model is based on current source inspection, not a new engine run. Reuse `scripts/qc/event-tick/README.md` for deliberately distinct supplied ticks, Tesla burst cooldown, and recent-hit expiry boundaries; its recorded result does not validate every Tesla doctrine. Research flood checks use the scripted-research helper documented by `esir-dev`. When changing mode dispatch, validate both behavior modes, duplicate effects, helper expiry, ordinary reload, and research-triggered variant synchronization.
 
 <a id="rebuild-reporting"></a>

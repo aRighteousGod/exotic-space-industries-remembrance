@@ -1,5 +1,7 @@
 # Runtime Development Standards
 
+Current behavioral checks route through [native testing](native-testing.md): `build-dispatch`, `scheduler-event-tick`, `research-events` and relevant GUI cases cover timing, idle admission, bounded work, invalid objects and cleanup. Keep controlled handler/clock probes distinct from native events. Behavior parity and reduced call counts do not establish whole-engine UPS improvement; preserve historical verification provenance.
+
 Use this common contract before ESIR runtime design, optimization, or module API
 work. Specialist scheduler, GUI, research, Factorio API, and blueprint guidance
 refine it. Current source and engine results remain authoritative.

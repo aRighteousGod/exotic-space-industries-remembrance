@@ -1,11 +1,16 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
+    [ValidateSet('test-list', 'test-plan', 'qc-test', 'doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [string]$SaveId,
     [string]$SavePath,
+    [string[]]$Suite = @(),
+    [string[]]$Case = @(),
+    [string[]]$TestProfile = @(),
+    [ValidateSet('core','extended')][string]$TestTier = 'core',
+    [string]$ChangedSince,
     [Nullable[int]]$WarmupRuns,
     [Nullable[int]]$BenchmarkRuns,
     [Nullable[int]]$BenchmarkTicks,
@@ -39,6 +44,24 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+if ($Task -in @('test-list','test-plan','qc-test')) {
+    $nativeParameters=@('Task','RepoRoot','Suite','Case','TestProfile','TestTier','ChangedSince','FactorioPath','AsJson')
+    foreach ($parameter in $PSBoundParameters.Keys) {
+        if ($parameter -notin $nativeParameters) { throw "Parameter -$parameter is not supported by native test tasks." }
+    }
+    $nativeArgs=@('-B',(Join-Path $PSScriptRoot 'qc/native-tests/runner.py'),$Task,'--repo',$RepoRoot,'--tier',$TestTier)
+    foreach ($item in $Suite) { foreach($value in $item.Split(',')){ $nativeArgs+=@('--suite',$value) } }
+    foreach ($item in $Case) { foreach($value in $item.Split(',')){ $nativeArgs+=@('--case',$value) } }
+    foreach ($item in $TestProfile) { foreach($value in $item.Split(',')){ $nativeArgs+=@('--profile',$value) } }
+    if ($ChangedSince) { $nativeArgs+=@('--changed-since',$ChangedSince) }
+    if ($FactorioPath) { $nativeArgs+=@('--engine',$FactorioPath) }
+    & python @nativeArgs
+    exit $LASTEXITCODE
+}
+if ($Suite.Count -or $Case.Count -or $TestProfile.Count -or $ChangedSince -or $PSBoundParameters.ContainsKey('TestTier')) {
+    throw 'Native test selectors require test-list, test-plan or qc-test.'
+}
 
 if ($Task -in @('portal-plan','portal-capture','portal-render','portal-validate','portal-page')) {
     $batch = if ($Path) { $Path } else { 'portal/batches/001-pilots.json' }

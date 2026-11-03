@@ -68,12 +68,11 @@ Use this helper when ESIR work needs hard evidence about Vulcanus auric fumarole
 - The quota-band target uses the same generated-area densities as the runtime plan: `3-6=0.25%`, `6-16=0.80%`, `16-24=1.30%`, `24-32=1.80%`, `32+=1.00%` of generated eligible chunks in each band.
 - Recovery-attempt fields are validation-budget telemetry inferred from sampled windows where at least one band is below `70%` fill. They do not claim direct access to runtime internal attempts.
 
-## Staging Steps
+## Managed staging
 
-1. Copy `assets/zzz-auric-fumarole-qc_0.0.1` into `.factorio-qc/fmqc/mods-live/`.
-2. Add or enable the `zzz-auric-fumarole-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
-3. Run the usual ESIR runtime benchmark or a direct Factorio benchmark against the target save.
-4. Inspect `.factorio-qc/fmqc/<run-data>/script-output/auric-fumarole-qc.txt`.
+The save catalogue's required helpers now stage automatically for `qc-runtime`, `qc-preview`, `qc-full` and `runtime-benchmark`. Missing or incompatible helpers fail before engine launch. This helper still carries historical 2.0 metadata; port its metadata and APIs together before claiming current 2.1.24 acceptance. Use the explicit catalogue family and preserve historical receipts. Do not copy into shared `fmqc/mods-live` directories. See [native testing](native-testing.md).
+
+For an already compatible catalogued save, select its `SaveId` through the wrapper. Keep the scenario's full tick budget and required reports; short runtime smoke remains separate from complete functional acceptance.
 
 ## Interpretation Notes
 

@@ -38,16 +38,11 @@ The helper also includes a data-final patch that gives `ei-singularity-lance` a 
   - `max_under_target`
 - For Factorio builds where `LuaProfiler` is only renderable through the engine log, parse `SINGULARITY_LANCE_PROFILE ... elapsed=...` lines from `factorio-current.log` for the authoritative active updater timing.
 
-## Staging Steps
+## Managed staging
 
-1. Copy `assets/zzz-singularity-lance-qc_0.0.1` into `.factorio-qc/fmqc/mods-live/`.
-2. Add or enable the `zzz-singularity-lance-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
-3. Create the save with the normal Factorio executable, for example:
-   - `factorio.exe --create .factorio-qc\\singularity-lance.zip --mod-directory .factorio-qc\\fmqc\\mods-live`
-4. Keep the helper staged for direct helper-aware playback, for example:
-   - `factorio.exe --mod-directory .factorio-qc\\fmqc\\mods-live --disable-audio --benchmark .factorio-qc\\singularity-lance.zip --benchmark-ticks 3600 --benchmark-runs 1`
-5. Inspect the active write-data script output for `singularity-lance-qc.jsonl`, plus the benchmark stdout for whole-run UPS timing.
-6. Disable or remove the helper again before unrelated QC runs.
+The save catalogue's required helpers now stage automatically for `qc-runtime`, `qc-preview`, `qc-full` and `runtime-benchmark`. Missing or incompatible helpers fail before engine launch. This helper still carries historical 2.0 metadata; port its metadata and APIs together before claiming current 2.1.24 acceptance. Use the explicit catalogue family and preserve historical receipts. Do not copy into shared `fmqc/mods-live` directories. See [native testing](native-testing.md).
+
+For an already compatible catalogued save, select its `SaveId` through the wrapper. Keep the scenario's full tick budget and required reports; short runtime smoke remains separate from complete functional acceptance.
 
 ## Main Mod Hook Contract
 

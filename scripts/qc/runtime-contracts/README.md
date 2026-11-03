@@ -1,5 +1,9 @@
 # Runtime development contract verification
 
+## Current native suite
+
+Use `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite scheduler-event-tick` from the repo root. Shared mechanics and evidence rules live in `.codex/skills/esir-dev/references/native-testing.md`; the catalogue owns exact profiles/cases. Run `research-events` separately for the native flood/ordinary completion contract. Current exports are adapted in private copies; controlled clock/handler probes retain their labels. Historical assertion counts below do not define the new contract.
+
 Target: installed Factorio 2.0.77. These fixtures check the shared scheduler and
 the focused dispatcher adoption of the runtime development standard. Bridges
 are appended only to isolated staged `control.lua` copies. They are not shipping

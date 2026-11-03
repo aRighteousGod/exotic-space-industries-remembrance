@@ -5,6 +5,10 @@ description: "Ingest the local recipe-icons-improvement-for-esir companion mod, 
 
 # ESIR Recipe Icon Style
 
+## Native test integration
+
+Use [native testing](../esir-dev/references/native-testing.md) for applicable recipe/progression contracts, including `research-bootstrap` and its four startup profiles. Retain final-data inspection and rendered icon readability checks; native functional success does not establish icon appearance.
+
 Use this skill when work touches ESIR recipe icon readability, subgroup or order drift, Factoriopedia visibility, player-crafting visibility, recipe signal cleanup, or batch review of companion-style changes outside the game.
 
 This skill treats the locally installed `recipe-icons-improvement-for-esir` companion mod as the primary baseline and keeps the workflow non-mutating by default.
@@ -14,7 +18,7 @@ This skill treats the locally installed `recipe-icons-improvement-for-esir` comp
 Read the sources in this order unless the user explicitly wants something else:
 
 1. Latest local companion zip or unpacked folder accepted by the probe, typically under `%APPDATA%\Factorio\mods\recipe-icons-improvement-for-esir*.zip`
-2. Verified local final-data evidence for the engine in use: dot-source `scripts/esir-housekeeping.ps1` and select it with `Get-EsirRetainedFinalData -RepoRoot $PWD.Path -EngineVersion '2.0.77'` (use the actual resolved version). If unavailable, run matching QC; do not silently substitute a historical dump path.
+2. Verified local final-data evidence for the engine in use: dot-source `scripts/esir-housekeeping.ps1`, resolve `$profile = Get-Content .codex/esir/factorio-development.json -Raw | ConvertFrom-Json`, and select it with `Get-EsirRetainedFinalData -RepoRoot $PWD.Path -EngineVersion $profile.engine_version`. If unavailable, run matching QC; do not silently substitute a historical dump path.
 3. ESIR repo source under `exotic-space-industries-remembrance/`
 4. Mod Portal screenshots or changelog only as secondary confirmation
 

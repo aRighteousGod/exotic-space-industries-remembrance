@@ -30,17 +30,11 @@ It also appends focused runtime snapshots to `research-hitch-qc.txt` around each
 - The helper writes `research-hitch-qc.txt` into script output during generation/config-change refresh so you can confirm surface counts and queued techs.
 - During the active hitch scenario, the same file also records `pre-complete`, `post-immediate`, `post-plus-1`, `post-plus-2`, and final `queue-finished` snapshot blocks with tech-scaling, scripted-burst, Tesla variant-sync, and EM rollout status.
 
-## Staging Steps
+## Managed staging
 
-1. Copy `assets/zzz-research-hitch-qc_0.0.1` into `.factorio-qc/fmqc/mods-live/`.
-2. Add or enable the `zzz-research-hitch-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
-3. Create the save with the normal Factorio executable, for example:
-   - `factorio.exe --create .factorio-qc\\research-hitch.zip --mod-directory .factorio-qc\\fmqc\\mods-live`
-4. Keep the helper staged and enabled while running wrapper runtime smoke:
-   - `qc-runtime -SaveId research-hitch`
-5. Repo-side runtime benchmarks now honor the save catalog's `helper_mods`, so this path will restage and enable `zzz-research-hitch-qc` automatically:
-   - `powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId research-hitch`
-6. Disable or remove the helper again before unrelated QC runs.
+The save catalogue's required helpers now stage automatically for `qc-runtime`, `qc-preview`, `qc-full` and `runtime-benchmark`. Missing or incompatible helpers fail before engine launch. This helper still carries historical 2.0 metadata; port its metadata and APIs together before claiming current 2.1.24 acceptance. Use the explicit catalogue family and preserve historical receipts. Do not copy into shared `fmqc/mods-live` directories. See [native testing](native-testing.md).
+
+For an already compatible catalogued save, select its `SaveId` through the wrapper. Keep the scenario's full tick budget and required reports; short runtime smoke remains separate from complete functional acceptance.
 
 ## Scope
 

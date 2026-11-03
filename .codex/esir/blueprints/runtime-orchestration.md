@@ -150,6 +150,12 @@ warning receiver; creation, respawn and cutscene events keep their existing rout
 
 `storage.ei.scripted_research_burst` owns `pending_by_force`, `due_buckets`, and `next_due_tick`. `queue_scripted_research_burst` coalesces scripted completions per force until after the latest source tick. Old bucket entries may remain, so flushing deduplicates force IDs and validates the live pending entry. Normal research flushes that force's pending burst first. Burst consumers refresh force-derived state; they must not assume one representative technology describes the whole batch.
 
+The native research reload case requires zero live pending forces and a zero next
+due tick after its controlled immediate-flush probes. It also compares the saved
+cancelled bucket/item counts across ordinary load. Those probes can leave cancelled
+entries in the delayed buckets, and the idle dispatcher preserves them until a
+later admitted burst drains the buckets.
+
 ANISETRON's Lance inheritance joins the existing normal/reversed research,
 coalesced scripted-research, force reset/merge, diplomacy, object destruction and
 surface cleanup routes. It owns cathedral memory and committed pulses separately
@@ -160,6 +166,13 @@ Shared registries are paired: fluid insertion/removal adjusts membership and cou
 
 <a id="verification"></a>
 ## Verification and limits
+
+test-suite: build-dispatch
+test-suite: scheduler-event-tick
+test-case: build-dispatch/candidate
+test-case: build-dispatch/reload
+
+The current native lane exercises build ownership/consumption, invalidation, metadata preservation and ordinary reload. Injected event probes and controlled failure boundaries remain labelled separately from native events. Historical verification below retains its original source and engine identity.
 
 Use the checked-in [control lifecycle driver](../../../scripts/invoke-control-lifecycle-qc.ps1) and [queue-save fixture](../../../scripts/qc/control-ups/queue-save.lua) for queue continuation across save/load and configuration repair; the [GUI lifecycle fixture](../../../scripts/qc/control-ups/gui-lifecycle.lua) covers routed GUI transitions. The [scripted research helper](../../skills/esir-dev/references/scripted-research-qc-helper.md) exercises burst fan-out separately from normal research.
 

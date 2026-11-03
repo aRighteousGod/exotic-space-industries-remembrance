@@ -92,6 +92,18 @@ Migration `1.3.35.lua` moves the old repeatable electric-weapons tier-four progr
 <a id="verification"></a>
 ## Verification and limits
 
+The broad final-data gate checks the current shooting-speed tier 6 and Space Age
+mining-productivity tier 3 ages, predecessor prerequisites and science packs.
+Obsolete tier references are removed from the active age tables. These checks
+complement the native research suites and run before dump retirement.
+
+test-suite: research-events
+test-suite: research-bootstrap
+test-case: research-events/candidate
+test-case: research-events/reload
+
+The [native catalogue](../test-suites.json) requires all four bootstrap startup combinations, ordinary laboratory completion and exact progress/inventory reload, plus scripted flood, force isolation, ordering and derived-state assertions. Historical snapshots below are provenance, not current acceptance.
+
 The [scripted research QC helper](../../skills/esir-dev/references/scripted-research-qc-helper.md) and [research hitch helper](../../skills/esir-dev/references/research-hitch-qc-helper.md) expose burst behavior and cache results. They do not replace normal one-tech completion coverage or migration fixtures.
 
 Verify a normal delta, repeated notification, scripted flood, disabled scaling, each configured curve, ignored secondary-force research, cache rebuild, queued/active electric-weapons migration, pump unlock preservation, and steam-assembler/ghost port preservation. No fresh migration or engine results are claimed by this source-derived model.

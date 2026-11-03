@@ -1,5 +1,9 @@
 # Scoped native mirroring repair
 
+## Current native suite
+
+Use `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite mirroring` from the repo root. Shared mechanics and evidence rules live in `.codex/skills/esir-dev/references/native-testing.md`; the catalogue owns exact profiles/cases. Run both `quality-enabled` and `quality-disabled`. The current invariant checker in `scripts/qc/native-tests/adapters.py` is separate from the historical 19-field differential comparator below. Native candidate/reload cannot replace rendered acceptance.
+
 Original target: Factorio **2.1.24**, ESIR **1.4.01**, the standard development
 dependency profile with Quality enabled and disabled. This patch makes no version
 change; concurrent release work is recorded separately in the verification report.

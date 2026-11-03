@@ -12,11 +12,12 @@ from pathlib import Path
 import subprocess
 import time
 import zipfile
+from managed_paths import context, engine_path
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--engine", default=".factorio-qc/f21/bin/x64/factorio.exe")
+    parser.add_argument("--engine")
     parser.add_argument("--run", required=True)
     parser.add_argument("--save", required=True)
     parser.add_argument("--checkpoint", required=True)
@@ -28,15 +29,18 @@ def main():
     args = parser.parse_args()
     # Do not resolve junctions: Factorio's require loader needs short mod paths.
     root = Path(os.path.abspath(args.run))
-    (root / "saves").mkdir(exist_ok=True)
-    settings = root / "server-settings.json"
+    record = context(root)
+    engine, version = engine_path(args.engine)
+    write_root = Path(record['write_data_root'])
+    (write_root / "saves").mkdir(exist_ok=True)
+    settings = write_root / "server-settings.json"
     settings.write_text(json.dumps({"name": "Private ESIR upgrade acceptance", "description": "Disposable native fixture",
         "visibility": {"public": False, "lan": False}, "require_user_verification": False,
         "auto_pause": False, "autosave_interval": 0}), encoding="utf-8")
-    command = [os.path.abspath(args.engine), "--config", str(root / "config.ini"), "--mod-directory", str(root / "mods"),
+    command = [str(engine), "--config", record['config'], "--mod-directory", record['mod_view_root'],
         "--disable-audio", "--start-server", os.path.abspath(args.save), "--server-settings", str(settings),
         "--bind", "127.0.0.1", "--port", str(args.port)]
-    checkpoint = root / "saves" / args.checkpoint
+    checkpoint = write_root / "saves" / args.checkpoint
     output = root / (args.phase + ".server.log")
     started = time.time()
     with output.open("w", encoding="utf-8") as log:
@@ -47,7 +51,7 @@ def main():
                 current = output.read_text(encoding="utf-8", errors="replace")
                 if process.poll() is not None or "non-recoverable error" in current:
                     raise RuntimeError(current[-5000:])
-                marker = root / "script-output" / args.receipt if args.receipt else None
+                marker = write_root / "script-output" / args.receipt if args.receipt else None
                 if "Saving finished" in current and checkpoint.exists() and checkpoint.stat().st_mtime >= started:
                     try:
                         with zipfile.ZipFile(checkpoint) as archive:
@@ -64,7 +68,8 @@ def main():
                         receipt = {"passed": True, "phase": args.phase, "checkpoint": str(checkpoint),
                             "checkpoint_sha256": checksum,
                             "checkpoint_bytes": checkpoint.stat().st_size, "elapsed_seconds": round(time.time() - started, 3),
-                            "engine": command[0], "log": str(output), "fixture_receipt": str(marker) if marker else None}
+                            "engine": command[0], "engine_version": version, "run_id": record['run_id'],
+                            "log": str(output), "fixture_receipt": str(marker) if marker else None}
                         (root / (args.phase + ".checkpoint.json")).write_text(json.dumps(receipt, indent=2), encoding="utf-8")
                         print(json.dumps(receipt))
                         return
@@ -73,7 +78,8 @@ def main():
         finally:
             if process.poll() is None:
                 process.terminate()
-                process.wait(timeout=15)
+                try: process.wait(timeout=15)
+                except subprocess.TimeoutExpired: process.kill(); process.wait(timeout=15)
 
 
 if __name__ == "__main__":

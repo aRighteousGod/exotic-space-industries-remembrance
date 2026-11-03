@@ -5,6 +5,17 @@ description: "Inspect ESIR declared dependencies and cross-mod touchpoints throu
 
 # ESIR Dependency Intel
 
+## Native test integration
+
+Accumulator-V2 1.0.8 and SolarMatrix 1.0.9 share `link-multiplier-to-cost`.
+SolarMatrix conditionally suppresses the accumulator technology. Check those
+declared dependency contracts through the controlled data-helper tests and the
+managed final-data gate, with effective startup values recorded by the Gaia case.
+Use quiet presence checks for conditional prototypes while retaining diagnostics
+for required reads.
+
+Route changed declarations and touchpoints through `test-plan`, then choose named `TestProfile` rows in the [native catalogue](../../esir/test-suites.json). The mirroring profiles explicitly cover Quality enabled/disabled. Local installed presence never silently expands the matrix. [Native testing](../esir-dev/references/native-testing.md) keeps unmigrated compatibility families visible as coverage gaps.
+
 Use this before ad hoc repo-wide greps when the question is mainly about ESIR dependencies, compatibility surfaces, remote interfaces, planet integrations, or media companion packs.
 
 Start with the wrapper:

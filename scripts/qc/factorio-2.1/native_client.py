@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import time
 import zipfile
+from managed_paths import context, engine_path
 
 
 def native_window_geometry(pid):
@@ -46,7 +47,7 @@ def native_window_geometry(pid):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", required=True)
-    parser.add_argument("--engine", default=".factorio-qc/f21/bin/x64/factorio.exe")
+    parser.add_argument("--engine")
     parser.add_argument("--locale", default="en")
     parser.add_argument("--save", required=True)
     parser.add_argument("--marker", required=True)
@@ -62,10 +63,10 @@ def main():
     assert args.width >= 800 and args.height >= 600 and 0.5 <= args.ui_scale <= 2
     window_size = str(args.width) + "x" + str(args.height)
     root = Path(os.path.abspath(args.run))
-    engine = Path(os.path.abspath(args.engine))
-    assert "Version: 2.1.23 " in subprocess.check_output([str(engine), "--version"], text=True)
-    assert json.loads((engine.parents[2] / "data/base/info.json").read_text())["version"] == "2.1.23"
-    user = root / "client"
+    record = context(root)
+    engine, version = engine_path(args.engine)
+    mods = Path(record['mod_view_root'])
+    user = Path(record['scratch_root']) / "client"
     user.mkdir(exist_ok=True)
     config = root / "client.ini"
     config.write_text(f"[path]\nread-data={(engine.parents[2] / 'data').as_posix()}\nwrite-data={user.as_posix()}\n"
@@ -77,17 +78,17 @@ def main():
     checkpoint = user / "saves" / args.checkpoint if args.checkpoint else None
     started = time.time()
     source_hashes = {}
-    for directory in (root / "mods").iterdir():
+    for directory in mods.iterdir():
         if directory.is_dir() and (directory / "info.json").is_file():
             for path in [directory / "info.json", *directory.rglob("*.lua")]:
-                source_hashes[str(path.relative_to(root / "mods"))] = hashlib.sha256(path.read_bytes()).hexdigest()
+                source_hashes[str(path.relative_to(mods))] = hashlib.sha256(path.read_bytes()).hexdigest()
     manifest = root / (args.phase + ".source-manifest.json")
     manifest.write_text(json.dumps(source_hashes, indent=2), encoding="utf-8")
     startup = subprocess.STARTUPINFO()
     startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     startup.wShowWindow = 0
     with output.open("w", encoding="utf-8") as log:
-        process = subprocess.Popen([str(engine), "--config", str(config), "--mod-directory", str(root / "mods"),
+        process = subprocess.Popen([str(engine), "--config", str(config), "--mod-directory", str(mods),
             "--disable-audio", "--disable-migration-window", "--graphics-quality", args.graphics_quality, "--window-size", window_size,
             "--load-game", os.path.abspath(args.save)], stdout=log, stderr=subprocess.STDOUT,
             startupinfo=startup)
@@ -115,7 +116,7 @@ def main():
                         result["checkpoint_sha256"] = hashlib.file_digest(checkpoint.open("rb"), "sha256").hexdigest()
                     time.sleep(2)  # Allow queued native screenshots to finish writing.
                     result.update(elapsed_seconds=round(time.time()-started,3), marker=str(marker), log=str(output),
-                        engine=str(engine), engine_version="2.1.23", locale=args.locale, ui_scale=args.ui_scale,
+                        engine=str(engine), engine_version=version, run_id=record['run_id'], locale=args.locale, ui_scale=args.ui_scale,
                         audio=False, manual_input=False, rendered_client=True, graphics_quality=args.graphics_quality, source_manifest=str(manifest),
                         source_manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest())
                     result["native_window_geometry"] = native_window_geometry(process.pid)
@@ -136,7 +137,8 @@ def main():
         finally:
             if process.poll() is None:
                 process.terminate()
-                process.wait(timeout=15)
+                try: process.wait(timeout=15)
+                except subprocess.TimeoutExpired: process.kill(); process.wait(timeout=15)
 
 
 if __name__ == "__main__":

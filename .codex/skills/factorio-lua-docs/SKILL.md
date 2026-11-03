@@ -5,6 +5,17 @@ description: "Docs-first workflow for official Factorio Lua API questions. Use w
 
 # Factorio Lua Docs
 
+## Native test integration
+
+Query exact-version `LuaBootstrap::finish_test` and `LuaBootstrap::test_arg`, then verify `--test-scenario`, `--test-save`, `--test-ticks` and `--test-arg` with the selected executable's `--help`. These features begin in 2.1.24; current ESIR requires exact 2.1.24. A tick-limit exit can return zero without assertions completing. See [native testing](../esir-dev/references/native-testing.md) for explicit completion and evidence requirements.
+
+```powershell
+powershell -File scripts/invoke-factorio-lua-docs.ps1 -Task query -Source hosted -Version 2.1.24 -Stage runtime -Kind method -ExactName finish_test
+powershell -File scripts/invoke-factorio-lua-docs.ps1 -Task query -Source hosted -Version 2.1.24 -Stage runtime -Kind attribute -ExactName test_arg
+$profile = Get-Content .codex/esir/factorio-development.json -Raw | ConvertFrom-Json
+& (Join-Path $PWD $profile.engine_path) --help
+```
+
 Follow [housekeeping](../esir-dev/references/housekeeping.md) for cache work: preserve the engine-matching docs cache and overwrite stable cache paths instead of copying a corpus per query. Historical caches are report-only until separately reviewed.
 
 Use this before freehand memory or broad web search when the task is mainly about official Factorio modding documentation.

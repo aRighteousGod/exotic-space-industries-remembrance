@@ -112,6 +112,12 @@ ownership, deadlines, counters, IDs and retained anchors survive unchanged.
 
 ## Verification
 
+test-suite: alert-preferences
+test-case: alert-preferences/candidate
+test-case: alert-preferences/reload
+
+The current native lane covers personal preference authority, bounded cleanup and persistence. Player-isolation boundary probes do not establish real multiple-viewer or multiplayer delivery; icon rendering and the complete ecology matrix remain separate.
+
 The [canonical development reference](../../skills/esir-dev/references/runtime-alerts.md)
 defines extension rules and commands. Static catalogue/asset/localization checks,
 mocked boundary fixtures, native runtime/save evidence, rendered icon/UI inspection

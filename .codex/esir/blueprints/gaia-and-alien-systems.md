@@ -110,6 +110,11 @@ scheduler and Gaia retains its creation/reforge ownership.
 <a id="verification"></a>
 ## Verification and limits
 
+`test-suite: gaia-resources` and `test-case: gaia-resources/candidate` cover current
+runtime-factory resource presence in a fixed 4096 square at seed 1000. Terminal
+receipts retain effective settings and all six resource counts. The required
+preview row and extended preview matrix have separately recorded results.
+
 The [Gaia resource QC guide](../../skills/esir-dev/references/gaia-resource-qc.md) documents native multi-seed/resource-control probes. The [queue lifecycle fixture](../../../scripts/qc/control-ups/queue-save.lua) and [driver](../../../scripts/invoke-control-lifecycle-qc.ps1) provide persisted delayed-work checks.
 
 The [alien beacon repair fixture](../../../scripts/qc/alien-beacon-repair/README.md) reproduces the Nonstandard Beacons 1.4.2 line-556 hover crash on the pre-fix source. On Factorio 2.0.77, the repaired path passed 115 assertions across three damaged variants at normal and legendary quality, including native hover callbacks, cursor consumption, metadata, fuel, activation and removal. This is focused engine evidence, not rendered UI or multiplayer acceptance.

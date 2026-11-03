@@ -3,6 +3,7 @@
 param(
     [ValidateSet('stage','dump','create','benchmark','close')][string]$Task = 'dump',
     [string]$RunRoot, [string]$Engine, [string]$DependencyRoot,
+    [string]$MainSource,
     [ValidateSet('enabled','disabled')][string]$Quality = 'enabled',
     [ValidateSet('read-only','private-mutable')][string]$SourceMode = 'read-only',
     [string]$Save, [string]$Tag, [int]$Ticks = 600,
@@ -31,6 +32,7 @@ if (Test-Path -LiteralPath $RunRoot) {
         if (-not $PSBoundParameters.ContainsKey('Quality')) { $Quality = $prior.options.quality }
         if (-not $PSBoundParameters.ContainsKey('AirOnly')) { $AirOnly = [switch]$prior.options.air_only }
         if (-not $PSBoundParameters.ContainsKey('DependencyRoot')) { $DependencyRoot = $prior.options.dependency_root }
+        if (-not $PSBoundParameters.ContainsKey('MainSource') -and $prior.options.PSObject.Properties.Name -contains 'main_source') { $MainSource = $prior.options.main_source }
     }
     $managed = Read-EsirArtifactRun $repo $prior.run_id
     if ($managed.workflow -ne 'core-2.1' -or (Join-Path $repo $managed.payload_path) -ne $RunRoot -or -not $managed.task_open) { throw 'RunRoot is not an open managed core fixture.' }
@@ -68,10 +70,22 @@ $sources = @()
 if (-not $AirOnly) {
     $selection = Select-EsirEngineSourceMods -Context $context
     foreach ($mod in $selection.included) { $sources += @{path=$mod.directory; name=$mod.name; mode=$SourceMode} }
+    if ($MainSource) {
+        $mainInfo=Read-EsirJson (Join-Path $MainSource 'info.json')
+        if ($mainInfo.name -ne 'exotic-space-industries-remembrance' -or $mainInfo.factorio_version -ne '2.1') { throw 'Invalid private main-source override.' }
+        $sources=@($sources | Where-Object name -ne $mainInfo.name)+@{path=(Resolve-Path -LiteralPath $MainSource).Path;name=$mainInfo.name;mode='private-mutable'}
+    }
     $nsbc = [IO.Path]::GetFullPath((Join-Path $repo $profile.nsbc_source))
     $nsbcInfo = Read-EsirJson (Join-Path $nsbc 'info.json')
     if ($nsbcInfo.name -ne 'zzz-nonstandard-beacons-continued' -or $nsbcInfo.version -ne '1.0.0' -or $nsbcInfo.factorio_version -ne '2.1') { throw 'NSBC source differs from the accepted continuation.' }
     $sources += @{path=$nsbc; name=$nsbcInfo.name; mode=$SourceMode}
+    foreach ($companion in @(@{field='enhanced_walls_source';name='enhanced-walls-continued'}, @{field='doeworks_source';name='doeworks-deer-continued'})) {
+        if ($profile.PSObject.Properties.Name -notcontains $companion.field) { continue }
+        $path = [IO.Path]::GetFullPath((Join-Path $repo $profile.($companion.field)))
+        $info = Read-EsirJson (Join-Path $path 'info.json')
+        if ($info.name -ne $companion.name -or $info.version -ne '1.0.0' -or $info.factorio_version -ne '2.1') { throw "Companion source differs from the accepted continuation: $($companion.name)" }
+        $sources = @($sources | Where-Object name -ne $info.name) + @{path=$path; name=$info.name; mode=$SourceMode}
+    }
 }
 foreach ($fixture in $FixtureRoot) {
     $path = (Resolve-Path -LiteralPath $fixture).Path
@@ -84,7 +98,7 @@ $list = @{mods=@($enabled | Sort-Object -Unique | ForEach-Object { @{name=$_; en
 $view = Invoke-EsirQcStorage -RepoRoot $repo -Action stage -Data @{run_id=$managed.id; packages=$packages; sources=$sources; mod_list=$list}
 $config = New-FactorioWriteDataConfig -Context $context -Label 'core'
 $manifest = @{run_id=$managed.id; source_mode=$SourceMode; mod_view_root=$view.mod_view_root; scratch_root=$view.scratch_root; write_data_root=$config.write_data_dir; config=$config.config_path; engine_version=$profile.engine_version; overall_status='ok'}
-$manifest.options = @{fixture_roots=@($FixtureRoot | ForEach-Object {(Resolve-Path -LiteralPath $_).Path}); quality=$Quality; air_only=[bool]$AirOnly; dependency_root=[IO.Path]::GetFullPath($DependencyRoot)}
+$manifest.options = @{fixture_roots=@($FixtureRoot | ForEach-Object {(Resolve-Path -LiteralPath $_).Path}); quality=$Quality; air_only=[bool]$AirOnly; dependency_root=[IO.Path]::GetFullPath($DependencyRoot); main_source=$MainSource}
 if ($prior) {
     $manifest.overall_status = $prior.overall_status
     foreach ($field in @('dump','dump_sha256','dump_bytes','dump_valid')) {

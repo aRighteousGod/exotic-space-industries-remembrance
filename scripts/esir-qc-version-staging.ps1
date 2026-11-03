@@ -131,6 +131,22 @@ function Sync-FactorioRunMods {
             $packages = @($packages | Where-Object { $_.name -ne $artifact.name }) + @{sha256=$artifact.sha256;name=$artifact.name}
         }
     }
+    # Required fixture/save helpers use the same managed source view as gameplay.
+    # Do not copy them into a completed view or silently omit an incompatible helper.
+    if ($Context.PSObject.Properties.Name -contains 'required_helper_sources') {
+        foreach ($helper in $Context.required_helper_sources) {
+            $helperInfo = Get-Content -LiteralPath (Join-Path $helper.path 'info.json') -Raw | ConvertFrom-Json
+            if ($helperInfo.name -ne $helper.name -or $helperInfo.factorio_version -ne $selection.engine_target) {
+                throw "Required helper identity/engine mismatch: $($helper.path)"
+            }
+            if (@($sources | Where-Object name -eq $helper.name).Count) { throw "Duplicate required helper: $($helper.name)" }
+            $sources += @{path=$helper.path;name=$helper.name;mode='private-mutable'}
+            $modList.mods = @($modList.mods | Where-Object name -ne $helper.name) + @{name=$helper.name;enabled=$true}
+        }
+    }
+    if ($Context.PSObject.Properties.Name -contains 'test_quality') {
+        $modList.mods = @($modList.mods | Where-Object name -ne 'quality') + @{name='quality';enabled=($Context.test_quality -eq 'enabled')}
+    }
     $request = @{run_id=$Context.qc_run_id; packages=$packages; sources=$sources; mod_list=$modList}
     if ($settings) { $request.settings_path = $settings }
     $storage = Invoke-EsirQcStorage -RepoRoot $Context.repo_root -Action stage -Data $request

@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "title": "Scripted Research QC Helper",
   "author": "Codex",
-  "factorio_version": "2.0",
+  "factorio_version": "2.1",
   "dependencies": [
-    "base >= 2.0.0",
+    "base >= 2.1.24",
     "space-age",
     "exotic-space-industries-remembrance"
   ],

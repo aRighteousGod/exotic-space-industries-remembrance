@@ -94,6 +94,17 @@ exist in en/de/fr/ja/pl/ru/zh-CN/zh-TW; built-in headings use native Factorio lo
 <a id="verification"></a>
 ## Verification contract
 
+test-suite: induction-circuit
+test-case: induction-circuit/candidate
+test-case: induction-circuit/reload
+test-case: induction-circuit/configuration
+
+Use the [native testing lane](../../skills/esir-dev/references/native-testing.md) for native GUI/circuit state, programmatic dispatch, teardown, persistence and deliberate configuration repair. Rendered layout, mouse interaction and multiplayer remain separate checks.
+
+The candidate's legal half-tile-centered basic coil must contribute exactly 25 MJ
+with the current default passage profile. Keep this native topology assertion;
+moving the coil off-grid or forcing fixture capacity would hide a discovery defect.
+
 Use [control UPS fixture](../../../scripts/qc/control-ups/README.md) and the [follow-up lifecycle record](../../../scripts/qc/control-ups/followup-verification.md) as historical guidance. Test split/merge, duplicate cores, last-tile removal, shell upgrade/downgrade, saved energy, wire reconnection, delayed render expiry, and open-GUI destruction. Headless session tests are not a substitute for visual review.
 
 The [circuit acceptance fixture](../../../scripts/qc/induction-circuit/README.md)

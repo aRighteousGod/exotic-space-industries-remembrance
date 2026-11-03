@@ -24,4 +24,6 @@ Describe callback tick propagation, no-tick boundaries, cadence/budgets, and ori
 <a id="verification"></a>
 ## Verification and limits
 
+For registered native coverage, add `test-suite: <catalogue-id>` and optional `test-case: <suite>/<case>` lines using real IDs from `.codex/esir/test-suites.json`. Omit markers where no registered suite covers the model. Link validity does not establish behavioral coverage or a passing receipt.
+
 Link existing fixtures and define scenarios that exercise the contract. Distinguish prior reports from checks performed for this change. Link deferred work and state coverage limits.

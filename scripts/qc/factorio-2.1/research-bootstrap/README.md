@@ -1,5 +1,9 @@
 # Research science-template regression
 
+## Current native suite
+
+Use `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite research-bootstrap` from the repo root. Shared mechanics and evidence rules live in `.codex/skills/esir-dev/references/native-testing.md`; the catalogue owns exact profiles/cases. The current catalogue requires all four no_triggers/flatten combinations, effective-setting receipts and shared-template invariants. `triggers-1-flatten-0` also runs ordinary lab completion and exact progress/inventory reload. Historical before/after controls below remain qualification provenance.
+
 Private Factorio 2.1 QC mod for the Vulcanus Computer Age template alias. New runs
 use the current development profile (2.1.24); historical 2.1.23 receipts keep their provenance.
 Keep it out of shipping packages and real mod selections. Use the pinned core

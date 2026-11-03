@@ -1,5 +1,9 @@
 # Event tick propagation
 
+## Current native suite
+
+Use `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite scheduler-event-tick` from the repo root. Shared mechanics and evidence rules live in `.codex/skills/esir-dev/references/native-testing.md`; the catalogue owns exact profiles/cases. Current candidate/reload cover supplied ticks, tick zero, queues, cleanup and persistence. Direct handler calls and clock stubs are controlled boundary evidence; retain the older records below as provenance.
+
 Use the existing isolated runtime runner. The private exports and event bridge
 are inserted into its staged copy only; shipping modules expose no QC hooks.
 

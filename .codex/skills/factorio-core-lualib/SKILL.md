@@ -5,6 +5,10 @@ description: "Use when Codex needs to import, audit, replace, or choose Factorio
 
 # Factorio Core Lualib
 
+## Native test integration
+
+For changed ESIR consumers, select contract cases through [native testing](../esir-dev/references/native-testing.md), including `scheduler-event-tick` for timing/queue consumers and GUI cases for native elements. Retain final-data checks for prototype changes and preserve historical helper-survey versions.
+
 Use this skill to reuse Factorio's bundled Lua helpers intentionally instead of rediscovering them or cloning their behavior into ESIR.
 
 For importable vanilla prototype modules under `data/base`, `data/space-age`, `data/quality`, or `data/elevated-rails`, use [`factorio-vanilla-prototype-libs`](../factorio-vanilla-prototype-libs/SKILL.md) instead.
@@ -51,6 +55,10 @@ local mod_gui = require("mod-gui")
 - Keep `require()` at module load time. Do not add dynamic `require()` calls inside runtime event handlers, remote interfaces, or console command bodies.
 
 ## Stage Guidance
+
+- The settings stage does not preload `table.deepcopy` in the exact 2.1.24
+  development engine. Require `__core__/lualib/util` explicitly before cloning
+  setting definitions; do not rely on an unrelated mod to load it first.
 
 - Data/prototype helpers are the safest core lualib imports for ESIR prototype work: `util`, `meld`, `resource-autoplace`, `autoplace_utils`, `collision-mask-util`, `circuit-connector-sprites`, `sound-util`, `math2d`, and `math3d`.
 - Runtime/control helpers need ESIR routing. `mod-gui` is useful for persistent top buttons, but `esir-runtime-gui` still prefers `player.gui.relative` for entity panels. Avoid adopting `event_handler` as a parallel dispatcher; ESIR keeps `control.lua` as the top-level dispatcher.

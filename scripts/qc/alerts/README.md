@@ -1,5 +1,9 @@
 # Unified alert verification
 
+## Current native suite
+
+Use `scripts/invoke-esir-dev.ps1 -Task qc-test -Suite alert-preferences` from the repo root. Shared mechanics and evidence rules live in `.codex/skills/esir-dev/references/native-testing.md`; the catalogue owns exact profiles/cases. Current candidate/reload cover personal Off, controlled player-state isolation, native delivery/cleanup and persistence. Full ecology-category, multiple real viewers, icon rendering and multiplayer remain separate workflows.
+
 Standalone engine runners below predate the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
 Adapt their staging and closeout before new engine runs; existing audit/evidence
 descriptions do not establish managed ownership or automatic cleanup.

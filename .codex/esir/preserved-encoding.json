@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "path": "scripts/qc/singularity-lance/angular-results.json",
+      "sha256_lf": "2f3c5ed418b0559f74220ca2963c4bde2d4faf1156ac075afacb3a5e9bc0bc12",
+      "engine_version": "2.0.77",
+      "complete": false,
+      "reason": "Original historical capture contains incorrectly decoded console messages. Preserve the captured text and assertion provenance.",
+      "findings": [
+        {"marker": "punctuation-mojibake", "count": 32},
+        {"marker": "c1-controls", "count": 32}
+      ]
+    }
+  ]
+}

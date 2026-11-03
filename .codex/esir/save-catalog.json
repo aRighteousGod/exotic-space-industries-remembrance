@@ -38,7 +38,7 @@
                                             }
                                         ],
                         "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for save generation. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
+                        "notes":  "Requires the staged zzz-research-hitch-qc helper mod for save generation. Save-aware runtime, preview, full and benchmark lanes now stage the required helper privately; incompatible historical metadata fails until separately ported."
                     },
                     {
                         "id":  "orbital-cohort",
@@ -65,7 +65,7 @@
                                             }
                                         ],
                         "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback. Wrapper runtime lanes still require manual or pre-staged helper sync."
+                        "notes":  "Requires the staged zzz-orbital-logistics-qc helper mod for generation and runtime playback. Save-aware wrapper lanes now stage the required helper privately; incompatible historical metadata fails until separately ported."
                     },
                     {
                         "id":  "fluid-rupture",
@@ -93,7 +93,7 @@
                                             }
                                         ],
                         "mods_source":  "live-repo-via-qc-sync",
-                        "notes":  "Requires the staged zzz-fluid-rupture-qc helper mod for save generation and helper-aware playback. Repo-side runtime-benchmark can now auto-stage it from the save catalog; wrapper runtime lanes still require manual or pre-staged helper sync."
+                        "notes":  "Requires the staged zzz-fluid-rupture-qc helper mod for save generation and helper-aware playback. Save-aware runtime, preview, full and benchmark lanes now stage the required helper privately; incompatible historical metadata fails until separately ported."
                     },
                     {
                         "id":  "fueler-smoke",

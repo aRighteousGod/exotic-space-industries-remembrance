@@ -1,5 +1,9 @@
 # Optional Quality acceptance (Factorio 2.1.23 / ESIR 1.4.01)
 
+## Current adapter status
+
+The catalogue marks this family `needs-port`. The 64-row matrix and historical 2.1.23 evidence below remain intact; they are not current native acceptance. `run.py` and `transition_run.py` now consume managed `context.json` paths and private frozen main sources. Do not precreate worker directories. Reuse requires an open matching managed worker; source refresh requires a fresh run, and resumed rows require unchanged source and fixture fingerprints. Server/graphical checkpoint helpers resolve the exact development profile. A separate migration and full matrix qualification are still required before promotion into native execution.
+
 The production dependency is optional Quality with required Space Age and Recycler.
 Core staging accepts `-Quality disabled`; optional-combination staging inherits that
 selection instead of re-enabling Quality. Every disabled matrix row creates a fresh

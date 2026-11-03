@@ -67,6 +67,12 @@ Queues are payload-agnostic. They do not validate LuaEntity handles, remove help
 <a id="verification"></a>
 ## Verification and limits
 
+test-suite: scheduler-event-tick
+test-case: scheduler-event-tick/candidate
+test-case: scheduler-event-tick/reload
+
+Current [native testing](../../skills/esir-dev/references/native-testing.md) covers queue/delay semantics, supplied ticks/tick zero, cleanup and serialization. Controlled clock probes remain explicitly labelled; historical counts below retain their provenance.
+
 The [scheduler guidance](../../skills/esir-dev/references/runtime-scheduler-guidelines.md) defines reuse policy; keep it synchronized with interface changes. The [control queue lifecycle fixture](../../../scripts/qc/control-ups/queue-save.lua) and [lifecycle checker](../../../scripts/qc/control-ups/check-lifecycle.py) supply regression entrypoints.
 
 Verify sparse queues, unique-key cleanup, stale membership rejection, stable compaction order, exact versus overdue buckets, empty due minima, save/load continuation, and disabled telemetry. The [runtime contract fixture](../../../scripts/qc/runtime-contracts/README.md) additionally checks explicit and legacy timestamps, consistent nested logging, return identity and disabled encoding/I/O in the installed engine. Timestamp acceptance does not establish queue/save parity or a UPS gain.

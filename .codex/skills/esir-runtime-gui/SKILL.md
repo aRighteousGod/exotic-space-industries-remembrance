@@ -5,6 +5,10 @@ description: "Create, review, and standardize ESIR runtime GUI code. Use when Co
 
 # ESIR Runtime GUI
 
+## Native test integration
+
+Run `qc-test -Suite induction-circuit` through [native testing](../esir-dev/references/native-testing.md) after lifecycle or circuit edits. The `candidate`, `reload` and `configuration` cases exercise native GUI elements, tags, filters, immediate edits, replacement and teardown. Direct dispatcher calls are programmatic event evidence; rendered layout, locale and mouse interaction require their own checks.
+
 Follow [runtime alerts](../esir-dev/references/runtime-alerts.md) for alert preferences and source switches: native per-player settings are authoritative, source controls cannot override personal Off, and GUI changes use the shared setting-change path.
 
 For save-wide mod settings, use [Administration Options](../../esir/blueprints/runtime-options.md#contract)

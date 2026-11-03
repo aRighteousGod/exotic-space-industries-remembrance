@@ -1,0 +1,3103 @@
+{
+  "schema_version": 1,
+  "engine_version": "2.1.24",
+  "infrastructure_paths": [
+    "scripts/qc/native-tests/*",
+    ".codex/esir/test-suites.json",
+    "scripts/esir-qc-*.ps1",
+    "scripts/esir_qc_storage.py",
+    "scripts/invoke-esir-dev.ps1",
+    "scripts/esir-dev-lib.ps1",
+    "scripts/esir-housekeeping.ps1",
+    "scripts/invoke-esir-qc-delegate.ps1",
+    "scripts/qc/factorio-2.1/invoke-core.ps1",
+    "scripts/qc/factorio-2.1/managed_paths.py",
+    "scripts/qc/factorio-2.1/validate-context.ps1",
+    "scripts/qc/factorio-2.1/save_checkpoint.py",
+    "scripts/qc/factorio-2.1/native_client.py"
+  ],
+  "shared_runtime_paths": [
+    "exotic-space-industries-remembrance/control.lua",
+    "exotic-space-industries-remembrance/lib/*.lua"
+  ],
+  "suites": [
+    {
+      "id": "dollies",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": ["native-functional", "save-reload"],
+      "inventory": ["scripts/qc/dollies"],
+      "paths": ["scripts/qc/dollies/*", "exotic-space-industries-remembrance/scripts/data-final-updates/dollies.lua"],
+      "cases": [],
+      "profiles": [],
+      "supplementary_evidence": ["multiplayer"],
+      "engine_provenance": "2.1.24 development profile, Even Pickier Dollies 3.2.0",
+      "acceptance": "Requires fresh input-handler and persistence receipts from the dedicated runner.",
+      "port_requirements": ["Adapt the instrumented player checkpoint to the shared runner"],
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B scripts/qc/dollies/run.py",
+        "reference": "scripts/qc/dollies/run.py",
+        "named_rows": ["absent", "installed", "reload"]
+      }
+    },
+    {
+      "id": "gaia-resources",
+      "eligibility": "active",
+      "core": false,
+      "engine_version": "2.1.24",
+      "evidence_kind": ["native-functional"],
+      "inventory": ["scripts/qc/gaia-resources"],
+      "paths": [
+        "exotic-space-industries-remembrance/scripts/control/gaia-mapgen-data.lua",
+        "exotic-space-industries-remembrance/prototypes/planet-gaia/*",
+        "scripts/qc/gaia-resources/*",
+        ".codex/skills/esir-dev/assets/gaia-resource-qc.json"
+      ],
+      "cases": [{"id": "candidate"}],
+      "profiles": [{"id": "default", "quality": "enabled", "seed": 1000}],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {"scenario": "esir-qc-native-tests/native", "helper": "scripts/qc/native-tests/helper", "report": "native-test-{phase}.json"},
+      "profile_requirements": {"development_profile": ".codex/esir/factorio-development.json", "engine": "2.1.24", "dependency_selection": "exact development lock"},
+      "supplementary_evidence": ["native-map-preview", "historical-migration", "geographic-distribution"],
+      "commands": ["invoke-esir-dev -Task qc-gaia-resources"],
+      "notes": "Current six-resource presence in a 4096 square at seed 1000. The dedicated preview command owns eight seed rows and six resource-disable rows. Historical generation, reforge and geographic distribution retain separate evidence.",
+      "acceptance": "requires matching fresh receipt",
+      "checkpoint_executor": "server"
+    },
+    {
+      "id": "runtime-options",
+      "eligibility": "active",
+      "core": false,
+      "engine_version": "2.1.24",
+      "evidence_kind": ["native-functional", "native-gui", "controlled-migration", "save-reload"],
+      "inventory": ["scripts/qc/runtime-options"],
+      "paths": [
+        "exotic-space-industries-remembrance/settings.lua",
+        "exotic-space-industries-remembrance/lib/runtime-options-config.lua",
+        "exotic-space-industries-remembrance/scripts/control/runtime-options.lua",
+        "exotic-space-industries-remembrance/scripts/control/admin/options.lua",
+        "exotic-space-industries-remembrance/scripts/control/admin-tools.lua",
+        "exotic-space-industries-remembrance/scripts/control/admin/common.lua",
+        "exotic-space-industries-remembrance/scripts/control/admin/gui.lua",
+        "exotic-space-industries-remembrance/scripts/control/fulgora-day-length-variation.lua",
+        "exotic-space-industries-remembrance/scripts/control/nauvis-pressure-grace.lua",
+        "exotic-space-industries-remembrance/scripts/control/fluid-safety.lua",
+        "exotic-space-industries-remembrance/scripts/control/flammable-rupture-scheduler.lua",
+        "exotic-space-industries-remembrance/scripts/control/water-turret.lua",
+        "exotic-space-industries-remembrance/scripts/control/gaian-saucer-wake.lua",
+        "exotic-space-industries-remembrance/scripts/control/emerald-apocalypse-hover-tank.lua",
+        "exotic-space-industries-remembrance/scripts/control/teslas-legacy.lua",
+        "exotic-space-industries-remembrance/scripts/control/tech-scaling.lua",
+        "exotic-space-industries-remembrance/scripts/control/steam-train.lua",
+        "exotic-space-industries-remembrance/scripts/control/camp-fire.lua",
+        "exotic-space-industries-remembrance/scripts/control/flamethrower-fuels.lua",
+        "exotic-space-industries-remembrance/locale/*/runtime-options.cfg",
+        "scripts/qc/runtime-options/*"
+      ],
+      "cases": [{"id":"candidate"},{"id":"reload"},{"id":"configuration"}],
+      "profiles": [
+        {"id":"default","quality":"enabled"},
+        {"id":"legacy-values","quality":"enabled","legacy_inputs":true}
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario":"esir-qc-native-tests/native",
+        "helper":"scripts/qc/native-tests/helper",
+        "report":"native-test-{phase}.json"
+      },
+      "checkpoint_executor":"graphical",
+      "profile_requirements": {
+        "development_profile":".codex/esir/factorio-development.json",
+        "engine":"2.1.24",
+        "dependency_selection":"exact development lock"
+      },
+      "supplementary_evidence":["rendered","multiplayer"],
+      "notes":"Actual native settings and GUI with private owner-cache observers, controlled legacy migration marker and injected second-write failure. Two draft snapshots do not establish two-client multiplayer. A historical old-source save transition remains separate.",
+      "acceptance":"requires matching fresh receipt"
+    },
+    {
+      "id": "factory-passage",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered",
+        "benchmark"
+      ],
+      "inventory": [
+        "scripts/qc/factory-passage",
+        "scripts/invoke-factory-passage-qc.ps1"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/lib/factory-passage-config.lua",
+        "exotic-space-industries-remembrance/prototypes/factory-passage.lua",
+        "exotic-space-industries-remembrance/scripts/data-final-updates/factory-passage.lua",
+        "exotic-space-industries-remembrance/scripts/control/factory-passage.lua",
+        "scripts/qc/factory-passage/*",
+        "scripts/invoke-factory-passage-qc.ps1"
+      ],
+      "cases": [],
+      "profiles": [],
+      "supplementary_evidence": [
+        "rendered",
+        "benchmark",
+        "multiplayer"
+      ],
+      "notes": "Separate focused acceptance is documented by the fixture. Porting to the shared native runner remains outstanding; core build-dispatch does not instrument this new receiver's counts or helper interception.",
+      "engine_provenance": "2.1.24; explicit development profile for functional cases, Base plus exact modules for isolated performance",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-factory-passage-qc.ps1 -Phase Prepare",
+        "phases": ["Prepare", "Configure", "Sync", "Create", "Run", "Settle", "Visual", "Finish"],
+        "named_rows": [
+          "full-esir", "full-squeak-through", "full-vanilla",
+          "esir-to-squeak-through", "esir-to-vanilla", "squeak-through-to-esir",
+          "squeak-through-to-vanilla", "vanilla-to-esir", "vanilla-to-squeak-through",
+          "full-reload", "full-master-off", "full-master-on",
+          "production-off", "power-off", "logistics-off", "turrets-off", "actors"
+        ],
+        "reference": "scripts/qc/factory-passage/README.md",
+        "additional_commands": [
+          "scripts/qc/factory-passage/matrix.ps1 -ContextPath <context.json> -Group modes -Render",
+          "scripts/qc/factory-passage/matrix.ps1 -ContextPath <context.json> -Group transitions -Render",
+          "scripts/qc/factory-passage/matrix.ps1 -ContextPath <context.json> -Group switches -Render",
+          "scripts/qc/factory-passage/matrix.ps1 -ContextPath <context.json> -Group actors",
+          "python -B scripts/qc/factory-passage/acceptance.py --context <context.json>",
+          "scripts/qc/factory-passage/performance.ps1 -ContextPath <performance-context.json>",
+          "python -B scripts/qc/factory-passage/performance.py --context <performance-context.json>"
+        ],
+        "matrix_requirements": [
+          "17 functional groups including all six directed mode transitions and separate ordinary reload",
+          "Rendered rows esir-visual, squeak-through-visual, vanilla-visual, master-off-visual; 96 frames each",
+          "Performance: 10000/100000 pipes, vanilla/esir, idle/burst, five independent processes per case; 40 trials",
+          "Performance seed 137013, checkpoint tick 512, 6000 idle or 1000 burst updates; no overlapping Factorio process",
+          "Companion: explicit actual squeak-through-2 0.2.0 package; separate BaseOnly Companion stage",
+          "Two-client multiplayer remains separate and unverified"
+        ]
+      },
+      "acceptance": "Separate focused receipts retain their provenance; shared native-runner acceptance requires an explicit port and fresh qualification.",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "build-dispatch",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/build-dispatch"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/control.lua",
+        "exotic-space-industries-remembrance/scripts/control/combustion-turbine.lua",
+        "exotic-space-industries-remembrance/scripts/control/crystal-accumulator.lua",
+        "exotic-space-industries-remembrance/scripts/control/steam-train.lua",
+        "exotic-space-industries-remembrance/scripts/control/teslas-legacy.lua",
+        "scripts/qc/build-dispatch/*"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "default",
+          "quality": "enabled"
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "server"
+    },
+    {
+      "id": "scheduler-event-tick",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/runtime-contracts",
+        "scripts/qc/event-tick",
+        "scripts/invoke-runtime-contracts-qc.ps1"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/lib/runtime-scheduler.lua",
+        "scripts/qc/runtime-contracts/*",
+        "scripts/qc/event-tick/*",
+        "scripts/invoke-runtime-contracts-qc.ps1"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "default",
+          "quality": "enabled"
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "server"
+    },
+    {
+      "id": "research-events",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        ".codex/skills/esir-dev/assets/zzz-scripted-research-qc_0.0.1"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/scripts/control/tech-scaling.lua",
+        "exotic-space-industries-remembrance/scripts/control/teslas-legacy.lua",
+        ".codex/skills/esir-dev/assets/zzz-scripted-research-qc_0.0.1/*"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "default",
+          "quality": "enabled"
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "server"
+    },
+    {
+      "id": "research-bootstrap",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [],
+      "paths": [
+        "exotic-space-industries-remembrance/lib/data.lua",
+        "exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/planets/vulcanus.lua",
+        "exotic-space-industries-remembrance/scripts/data-final-updates/*tech*.lua",
+        "exotic-space-industries-remembrance/scripts/data-final-updates/set-*.lua",
+        "scripts/qc/factorio-2.1/research-bootstrap/*"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload",
+          "profiles": [
+            "triggers-1-flatten-0"
+          ]
+        }
+      ],
+      "profiles": [
+        {
+          "id": "triggers-0-flatten-0",
+          "quality": "enabled",
+          "no_triggers": false,
+          "flatten": false
+        },
+        {
+          "id": "triggers-0-flatten-1",
+          "quality": "enabled",
+          "no_triggers": false,
+          "flatten": true
+        },
+        {
+          "id": "triggers-1-flatten-0",
+          "quality": "enabled",
+          "no_triggers": true,
+          "flatten": false
+        },
+        {
+          "id": "triggers-1-flatten-1",
+          "quality": "enabled",
+          "no_triggers": true,
+          "flatten": true
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "server"
+    },
+    {
+      "id": "induction-circuit",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/induction-circuit",
+        "scripts/invoke-induction-circuit-qc.ps1"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/scripts/control/induction-matrix.lua",
+        "scripts/qc/induction-circuit/*",
+        "scripts/invoke-induction-circuit-qc.ps1"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        },
+        {
+          "id": "configuration"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "default",
+          "quality": "enabled"
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [
+        "rendered",
+        "multiplayer"
+      ],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "graphical"
+    },
+    {
+      "id": "alert-preferences",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/alerts"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/lib/alerts.lua",
+        "exotic-space-industries-remembrance/lib/alert-catalog.lua",
+        "exotic-space-industries-remembrance/scripts/control/terrain-alerts.lua",
+        "scripts/qc/alerts/*"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "default",
+          "quality": "enabled"
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [
+        "rendered",
+        "multiplayer"
+      ],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "graphical"
+    },
+    {
+      "id": "mirroring",
+      "eligibility": "active",
+      "core": true,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/mirroring"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/prototypes/planet-gleba/auric-inoculation-vat.lua",
+        "exotic-space-industries-remembrance/prototypes/quantum-age/fusion-reactor.lua",
+        "exotic-space-industries-remembrance/prototypes/quantum-age/quantum-computer.lua",
+        "exotic-space-industries-remembrance/prototypes/quantum-age/neutron-activator.lua",
+        "exotic-space-industries-remembrance/prototypes/quantum-age/nano-factory.lua",
+        "exotic-space-industries-remembrance/prototypes/steam-age/destill-tower.lua",
+        "exotic-space-industries-remembrance/prototypes/steam-age/steam-oil-pumpjack.lua",
+        "exotic-space-industries-remembrance/prototypes/computer-age/advanced-*.lua",
+        "exotic-space-industries-remembrance/prototypes/computer-age/exchanger.lua",
+        "exotic-space-industries-remembrance/prototypes/computer-age/excavator.lua",
+        "exotic-space-industries-remembrance/prototypes/computer-age/bio-*.lua",
+        "exotic-space-industries-remembrance/prototypes/electricity-age/grower.lua",
+        "exotic-space-industries-remembrance/prototypes/electricity-age/purifier.lua",
+        "exotic-space-industries-remembrance/scripts/data-updates/more-asteroids.lua",
+        "exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/other.lua",
+        "scripts/qc/mirroring/*"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "quality-enabled",
+          "quality": "enabled"
+        },
+        {
+          "id": "quality-disabled",
+          "quality": "disabled"
+        }
+      ],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [
+        "rendered",
+        "multiplayer"
+      ],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "exact development lock"
+      },
+      "checkpoint_executor": "server"
+    },
+    {
+      "id": "runner-conformance",
+      "eligibility": "active",
+      "core": false,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "infrastructure"
+      ],
+      "inventory": [
+        "scripts/qc/native-tests"
+      ],
+      "paths": [
+        "scripts/qc/native-tests/*"
+      ],
+      "cases": [
+        {
+          "id": "candidate"
+        },
+        {
+          "id": "reload"
+        },
+        {
+          "id": "explicit-failure",
+          "tier": "extended"
+        },
+        {
+          "id": "lua-error",
+          "tier": "extended"
+        },
+        {
+          "id": "missing-report",
+          "tier": "extended"
+        },
+        {
+          "id": "tick-limit",
+          "tier": "extended"
+        },
+        {
+          "id": "host-timeout",
+          "tier": "extended"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "base-only",
+          "quality": "disabled"
+        }
+      ],
+      "deadline_ticks": 120,
+      "timeout_seconds": 60,
+      "budget_reason": "Base-only conformance completes in two ticks; short finite limits keep deliberate failure qualification bounded. The explicit host-timeout probe uses 15 seconds.",
+      "launch": {
+        "scenario": "esir-qc-native-tests/native",
+        "helper": "scripts/qc/native-tests/helper",
+        "report": "native-test-{phase}.json"
+      },
+      "supplementary_evidence": [],
+      "acceptance": "requires matching fresh receipt",
+      "profile_requirements": {
+        "development_profile": ".codex/esir/factorio-development.json",
+        "engine": "2.1.24",
+        "dependency_selection": "base-only"
+      },
+      "checkpoint_executor": "graphical"
+    },
+    {
+      "id": "acid-art",
+      "eligibility": "historical",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/acid-art",
+        "scripts/invoke-acid-art-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/acid-art/*",
+        "scripts/invoke-acid-art-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Preserved historical calibration/trial; no recurring current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-acid-art-qc.ps1",
+        "named_rows": [
+          "retained-calibration"
+        ],
+        "reference": "scripts/qc/acid-art/control.lua"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "acid-eight-way",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/acid-eight-way",
+        "scripts/invoke-acid-eight-way-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/acid-eight-way/*",
+        "scripts/invoke-acid-eight-way-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.1.23",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-acid-eight-way-qc.ps1",
+        "named_rows": [
+          "Original",
+          "2x",
+          "4x",
+          "8x",
+          "16x",
+          "legacy",
+          "layouts"
+        ],
+        "reference": "scripts/qc/acid-eight-way/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "acid-jet",
+      "eligibility": "historical",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/acid-jet",
+        "scripts/invoke-acid-jet-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/acid-jet/*",
+        "scripts/invoke-acid-jet-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Preserved historical calibration/trial; no recurring current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-acid-jet-qc.ps1 -LegacyReplay",
+        "named_rows": [
+          "origin",
+          "onset",
+          "dispersion"
+        ],
+        "reference": "scripts/qc/acid-jet/check.py"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "admin-shutdown",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/admin-shutdown",
+        "scripts/invoke-admin-shutdown-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/admin-shutdown/*",
+        "scripts/invoke-admin-shutdown-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-admin-shutdown-qc.ps1",
+        "named_rows": [
+          "enabled-prepare",
+          "disabled-reload"
+        ],
+        "reference": "scripts/qc/admin-shutdown/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "admin-tools",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/admin-tools",
+        "scripts/invoke-admin-tools-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/admin-tools/*",
+        "scripts/invoke-admin-tools-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-admin-tools-qc.ps1",
+        "named_rows": [
+          "lifecycle",
+          "administration-integration"
+        ],
+        "reference": "scripts/qc/admin-tools/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "admin-tools-player",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/admin-tools-player",
+        "scripts/invoke-admin-player-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/admin-tools-player/*",
+        "scripts/invoke-admin-player-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-admin-player-qc.ps1",
+        "named_rows": [
+          "connected",
+          "save-jail",
+          "save-god",
+          "offline-player"
+        ],
+        "reference": "scripts/qc/admin-tools-player/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "admin-tools-responsive",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-gui",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/admin-tools-responsive",
+        "scripts/invoke-admin-responsive-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/admin-tools-responsive/*",
+        "scripts/invoke-admin-responsive-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-admin-responsive-qc.ps1",
+        "named_rows": [
+          "720-100",
+          "720-150",
+          "1080-125"
+        ],
+        "reference": "scripts/qc/admin-tools-responsive/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "admin-world",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/admin-world",
+        "scripts/invoke-admin-world-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/admin-world/*",
+        "scripts/invoke-admin-world-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-admin-world-qc.ps1",
+        "named_rows": [
+          "budget",
+          "terrain",
+          "surface",
+          "inventory",
+          "lifecycle",
+          "reload"
+        ],
+        "reference": "scripts/qc/admin-world/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "alien-beacon-repair",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/alien-beacon-repair",
+        "scripts/invoke-alien-beacon-repair-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/alien-beacon-repair/*",
+        "scripts/invoke-alien-beacon-repair-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77; original NSB 1.4.2",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-alien-beacon-repair-qc.ps1",
+        "named_rows": [
+          "Prepare",
+          "Baseline",
+          "Candidate"
+        ],
+        "reference": "scripts/qc/alien-beacon-repair/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron",
+        "scripts/invoke-anisetron-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/anisetron/*",
+        "scripts/invoke-anisetron-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -Regression",
+        "named_rows": [
+          "tracking-native",
+          "tracking-art",
+          "tracking-off"
+        ],
+        "reference": "scripts/qc/anisetron/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-dispatch",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "controlled-boundary"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-dispatch"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-dispatch/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -FixtureSource scripts/qc/anisetron-dispatch",
+        "named_rows": [
+          "dispatch-order",
+          "budget",
+          "cold-save",
+          "reload"
+        ],
+        "reference": "scripts/qc/anisetron-dispatch/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-glide",
+      "eligibility": "historical",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-glide"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-glide/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Preserved historical calibration/trial; no recurring current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77; unpromoted ten-leg trial",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -TenLegTrial",
+        "named_rows": [
+          "ten-anchor-gait",
+          "attachment-review"
+        ],
+        "reference": "scripts/qc/anisetron-glide/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-hover-combat",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-hover-combat"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-hover-combat/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -FixtureSource scripts/qc/anisetron-hover-combat",
+        "named_rows": [
+          "hover-research",
+          "hover-glow",
+          "old-tech",
+          "migration"
+        ],
+        "reference": "scripts/qc/anisetron-hover-combat/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-inheritance",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-inheritance"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-inheritance/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -FixtureSource scripts/qc/anisetron-inheritance",
+        "named_rows": [
+          "standard",
+          "save",
+          "replay",
+          "range",
+          "air-layer"
+        ],
+        "reference": "scripts/qc/anisetron-inheritance/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-live-observer",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "manual-native-observation"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-live-observer"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-live-observer/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "manual-native-observation"
+      ],
+      "engine_provenance": "2.0",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "/anisetron-motion-trace",
+        "named_rows": [
+          "keyboard-input",
+          "stop",
+          "12000-tick-recording"
+        ],
+        "reference": "scripts/qc/anisetron-live-observer/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-mobility",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-mobility"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-mobility/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -FixtureSource scripts/qc/anisetron-mobility",
+        "named_rows": [
+          "native12000",
+          "save",
+          "replay9000"
+        ],
+        "reference": "scripts/qc/anisetron-mobility/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-stability",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "rendered",
+        "manual-native-observation"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-stability"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-stability/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered",
+        "manual-native-observation"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -FixtureSource scripts/qc/anisetron-stability",
+        "named_rows": [
+          "floor50",
+          "attachments",
+          "sustained",
+          "gait-experiments"
+        ],
+        "reference": "scripts/qc/anisetron-stability/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "anisetron-ups",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "benchmark",
+        "native-functional",
+        "controlled-boundary"
+      ],
+      "inventory": [
+        "scripts/qc/anisetron-ups"
+      ],
+      "paths": [
+        "scripts/qc/anisetron-ups/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "benchmark"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-anisetron-qc.ps1 -FixtureSource scripts/qc/anisetron-ups",
+        "named_rows": [
+          "idle",
+          "moving",
+          "firing",
+          "moving-firing",
+          "edges",
+          "mobility"
+        ],
+        "reference": "scripts/qc/anisetron-ups/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "auric-fumaroles",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/auric-fumaroles",
+        "scripts/invoke-auric-fumarole-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-auric-fumarole-qc_0.0.1"
+      ],
+      "paths": [
+        "scripts/qc/auric-fumaroles/*",
+        "scripts/invoke-auric-fumarole-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-auric-fumarole-qc_0.0.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-auric-fumarole-qc.ps1",
+        "named_rows": [
+          "setup",
+          "rebuild",
+          "configuration",
+          "reload"
+        ],
+        "reference": "scripts/qc/auric-fumaroles/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "auric-productivity",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/auric-productivity",
+        "scripts/invoke-auric-productivity-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/auric-productivity/*",
+        "scripts/invoke-auric-productivity-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-auric-productivity-qc.ps1",
+        "named_rows": [
+          "Prepare",
+          "Baseline",
+          "Candidate",
+          "NoScaling",
+          "Save",
+          "Reload"
+        ],
+        "reference": "scripts/qc/auric-productivity/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "beacon-profiles",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/beacon-profiles",
+        "scripts/invoke-beacon-profile-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-beacon-overload-geometry-qc_0.0.1"
+      ],
+      "paths": [
+        "scripts/qc/beacon-profiles/*",
+        "scripts/invoke-beacon-profile-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-beacon-overload-geometry-qc_0.0.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-beacon-profile-qc.ps1 -Transition -Geometry",
+        "named_rows": [
+          "strict",
+          "default",
+          "transition",
+          "geometry"
+        ],
+        "reference": "scripts/qc/beacon-profiles/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "blueprints",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "static"
+      ],
+      "inventory": [
+        "scripts/qc/blueprints"
+      ],
+      "paths": [
+        "scripts/qc/blueprints/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "host",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B .codex/skills/esir-conceptual-blueprints/scripts/blueprint_audit.py",
+        "named_rows": [
+          "structural",
+          "audit-regressions",
+          "check-support",
+          "diagram"
+        ],
+        "reference": "scripts/qc/blueprints/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ],
+      "native_adapter": "not-applicable to host/static checks"
+    },
+    {
+      "id": "combat-doctrines",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "rendered",
+        "benchmark"
+      ],
+      "inventory": [
+        "scripts/qc/combat-doctrines",
+        "scripts/invoke-combat-doctrines-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-emerald-doctrine-qc_0.0.1"
+      ],
+      "paths": [
+        "scripts/qc/combat-doctrines/*",
+        "scripts/invoke-combat-doctrines-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-emerald-doctrine-qc_0.0.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered",
+        "benchmark"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-combat-doctrines-qc.ps1",
+        "named_rows": [
+          "RangeLimits",
+          "Matrix",
+          "Overlap",
+          "Performance",
+          "PyricDisabled",
+          "Locales"
+        ],
+        "reference": "scripts/qc/combat-doctrines/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "container-capacities",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "locale-static"
+      ],
+      "inventory": [
+        "scripts/qc/container-capacities",
+        "scripts/invoke-container-capacity-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/container-capacities/*",
+        "scripts/invoke-container-capacity-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-container-capacity-qc.ps1",
+        "named_rows": [
+          "capacity-profiles",
+          "transitions",
+          "WithK2SO",
+          "SkipRuntime"
+        ],
+        "reference": "scripts/qc/container-capacities/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "control-ups",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "benchmark",
+        "native-functional",
+        "controlled-boundary"
+      ],
+      "inventory": [
+        "scripts/qc/control-ups",
+        "scripts/invoke-control-ups-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/control-ups/*",
+        "scripts/invoke-control-ups-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "benchmark"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-control-ups-qc.ps1",
+        "named_rows": [
+          "differential-probes",
+          "behavior-parity",
+          "whole-engine-timing"
+        ],
+        "reference": "scripts/qc/control-ups/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "cryo-containers",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/cryo-containers",
+        "scripts/invoke-cryo-container-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/cryo-containers/*",
+        "scripts/invoke-cryo-container-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-cryo-container-qc.ps1",
+        "named_rows": [
+          "capacities50",
+          "capacities1000",
+          "capacities2000",
+          "baseline",
+          "candidate",
+          "roundtrip",
+          "research"
+        ],
+        "reference": "scripts/qc/cryo-containers/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "cryo-mist",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/cryo-mist",
+        "scripts/invoke-cryo-mist-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/cryo-mist/*",
+        "scripts/invoke-cryo-mist-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77; original NSB 1.4.2",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-cryo-mist-qc.ps1",
+        "named_rows": [
+          "Data",
+          "Runtime",
+          "Reload",
+          "Visual",
+          "baseline",
+          "current"
+        ],
+        "reference": "scripts/qc/cryo-mist/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "death-explosions",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data"
+      ],
+      "inventory": [
+        "scripts/qc/death-explosions"
+      ],
+      "paths": [
+        "scripts/qc/death-explosions/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "input dump version",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B scripts/qc/death-explosions/check-data.py <dump> --output <report>",
+        "named_rows": [
+          "coverage",
+          "helper-exclusions",
+          "visual-contracts"
+        ],
+        "reference": "scripts/qc/death-explosions/check-data.py"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ],
+      "native_adapter": "not-applicable to host/static checks"
+    },
+    {
+      "id": "entity-presentation",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-scene-content",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/entity-presentation",
+        "scripts/invoke-entity-presentation-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/entity-presentation/*",
+        "scripts/invoke-entity-presentation-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0 helper; current-profile runner requires port",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-entity-presentation-qc.ps1 -BaselineDump <dump>",
+        "named_rows": [
+          "descendants",
+          "copied-bodies",
+          "eight-scenes",
+          "Visual"
+        ],
+        "reference": "scripts/qc/entity-presentation/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "factorio-2.1",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered",
+        "multiplayer",
+        "package"
+      ],
+      "inventory": [
+        "scripts/qc/factorio-2.1"
+      ],
+      "paths": [
+        "scripts/qc/factorio-2.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered",
+        "multiplayer"
+      ],
+      "engine_provenance": "mixed historical 2.0.77/2.1.23 and current 2.1.24 adapters",
+      "reference_base": "scripts/qc/factorio-2.1",
+      "component_defaults": {
+        "acceptance": "Requires fresh qualification; discovery metadata never establishes acceptance.",
+        "requirements": ["Exact executable/base/dependency/settings selection", "Resolve registered private context paths", "Enumerate fixed cases before promotion", "Fresh assertions and ordinary reload where declared"],
+        "matrix_rule": "Declared selectors are not an implicitly accepted Cartesian product. Installed mods never expand a matrix.",
+        "execution": "Use the referenced existing executor explicitly; components are not automatically launched by qc-test."
+      },
+      "components": [
+        {"id":"execution-infrastructure","eligibility":"needs-port","evidence_kind":["infrastructure"],"references":["invoke-core.ps1","validate-context.ps1","managed_paths.py","stage_owner.py","stage_fixture.py","run_staged.py","save_checkpoint.py","native_client.py","fixture-bridge.lua"],"named_rows":[],"requirements":["Mixed repaired managed adapters and legacy stagers; qualify each executor separately","Supporting tooling is not independent gameplay acceptance"]},
+        {"id":"air-scrubber","eligibility":"needs-port","evidence_kind":["native-functional","save-reload"],"references":["air-scrubber/control.lua","air-scrubber/info.json","stage_fixture.py"],"named_rows":[],"requirements":["Enumerate replacement/refund cases","Port helper from base >=2.1.23 to exact selected profile"]},
+        {"id":"armoured","eligibility":"needs-port","evidence_kind":["final-data","native-functional"],"references":["stage_armoured.py","armoured/control.lua","armoured/data-final-fixes.lua"],"named_rows":["nest=true","nest=false"]},
+        {"id":"beacons","eligibility":"needs-port","evidence_kind":["native-functional","native-gui","save-reload","multiplayer"],"references":["stage_beacon_actors.py","stage_beacon_client.py","stage_beacon_multiplayer.py","beacon-ownership.lua","beacons/actor-matrix.lua","beacons/player-matrix.lua","beacons/client-control.lua","beacons/control.lua","beacons/info.json"],"named_rows":["actor-and-ruin-adapter","native-player-adapter","two-client-adapter"],"requirements":["Hash required Nonstandard Beacons Continued sibling fixtures and alien-beacon-repair fixture","Enumerate imported actor/player rows","Keep actual two-client evidence separate from programmatic player events"]},
+        {"id":"cryo-temperature","eligibility":"needs-port","evidence_kind":["final-data","native-functional"],"references":["cryo-temperature/README.md","cryo-temperature/control.lua","cryo-temperature/test-config.lua","cryo-temperature/data.lua","cryo-temperature/data-updates.lua","cryo-temperature/data-final-fixes.lua","invoke-core.ps1"],"named_rows":["unchanged-core","replacement-fluid","galore-temperature-overrides"],"matrix":[{"mutate":false,"galore":false},{"mutate":true,"galore":false},{"mutate":false,"galore":true}],"requirements":["assert_final must be true; nine pairs per row and 600 runtime ticks","Current README selects 2.1.24; historical 2.1.23 receipts remain separate","Specific override probes do not certify complete external mod compatibility"]},
+        {"id":"crystal-conservation","eligibility":"needs-port","evidence_kind":["final-data","native-functional","save-reload"],"references":["crystal-conservation/control.lua","crystal-conservation/data-final-fixes.lua","crystal-conservation/info.json","stage_fixture.py"],"named_rows":["original","productivity"],"requirements":["Explicit Space Age and Quality dependencies","Capture selected productivity recipe inventory","Checkpoint after native 501st craft and verify second reload; benchmark-only execution cannot establish saves"]},
+        {"id":"heat","eligibility":"needs-port","evidence_kind":["native-functional","historical-comparison"],"references":["stage_heat.py","compare_heat.py","heat/control.lua"],"named_rows":["2.0","2.1"],"requirements":["Resolve exact historical donor and target executables; do not relabel paired old receipts"]},
+        {"id":"core-migration","eligibility":"needs-port","evidence_kind":["native-functional","historical-migration","save-reload"],"references":["stage_migration.py","migration/control.lua","migration/private-hooks.lua"],"named_rows":["historical-donor","target21"],"requirements":["Retained stager explicitly uses donor 2.0.77 and target 2.1.23; port target intentionally before current qualification"]},
+        {"id":"multiplayer","eligibility":"needs-port","evidence_kind":["multiplayer","native-functional"],"references":["native_multiplayer.py","multiplayer/control.lua","multiplayer/info.json"],"named_rows":["join","disconnect","rejoin"],"requirements":["Actual loopback server and graphical peer","Enumerate internal assertions; native single-process player is not multiplayer evidence"]},
+        {"id":"native-probe","eligibility":"needs-port","evidence_kind":["infrastructure","native-functional"],"references":["native-probe/control.lua","native-probe/info.json","stage_fixture.py"],"named_rows":[],"requirements":["Supporting instrumentation, not a standalone accepted gameplay family"]},
+        {"id":"optional-smoke","eligibility":"needs-port","evidence_kind":["final-data","native-functional"],"references":["run_optional_smokes.py","stage_optional_combination.py","optional-smoke/control.lua","optional-smoke/data-final-fixes.lua"],"named_rows":["create","runtime"],"requirements":["Explicit optional-dependencies-packaged.json selection with --only, or --roots required closure","Capture concrete rows rather than installed presence; historical 45-candidate description is provenance","Bounded 601-tick smoke does not establish progression or migration"]},
+        {"id":"progression","eligibility":"needs-port","evidence_kind":["final-data","native-functional"],"references":["audit_progression.py","progression/control.lua","progression/data.lua"],"named_rows":[],"requirements":["Capture selected technology/science/lab inventory before enumerating rows"]},
+        {"id":"research-bootstrap","eligibility":"active","active_suite":"research-bootstrap","evidence_kind":["final-data","native-functional","save-reload"],"references":["research-bootstrap/README.md","research-bootstrap/check.py","research-bootstrap/control.lua","research-bootstrap/test-config.lua"],"named_rows":["candidate","reload"],"requirements":["Alias only: use active suite profiles and receipt; no second executor or acceptance claim"]},
+        {"id":"sprite-audit","eligibility":"needs-port","evidence_kind":["unknown"],"references":["sprite-audit"],"named_rows":[],"requirements":["Empty directory; no runnable fixture or invented command"]},
+        {"id":"induction","eligibility":"needs-port","active_suite":"induction-circuit","evidence_kind":["native-functional","native-gui","save-reload"],"references":["stage_induction.py","induction-bridge.lua"],"named_rows":["configuration"],"requirements":["Legacy adapter remains separate; active induction-circuit owns current candidate/reload/configuration acceptance"]},
+        {"id":"fluid-capacity-buffers","eligibility":"needs-port","evidence_kind":["final-data","native-functional","historical-comparison"],"references":["stage_capacity.py","compare_fluid_buffers.py","fluid-capacity-data.lua","fluid-capacity-runtime.lua","native-buffer-data.lua","native-buffer-runtime.lua"],"named_rows":["2.0","2.1"],"requirements":["Historical 36 capacity probes; separately enumerate native buffer matrix","Preserve exact paired engines and settings"]},
+        {"id":"native-generator","eligibility":"needs-port","evidence_kind":["native-functional","historical-migration","save-reload"],"references":["stage_native_generator.py","native-generator-data.lua","native-generator-control.lua"],"named_rows":["donor","migration","prepare"],"requirements":["Explicit 2.0/2.1 Base-only donor and target; valid mode/version combinations only"]},
+        {"id":"native-car","eligibility":"needs-port","evidence_kind":["native-functional","historical-comparison"],"references":["stage_native_car.py","native-car-data.lua","native-car-control.lua"],"named_rows":["2.0","2.1"],"requirements":["Base-only historical physics comparison; pin both engines"]},
+        {"id":"power-solar","eligibility":"needs-port","evidence_kind":["final-data","native-functional","historical-comparison"],"references":["stage_power_output.py","compare_power_output.py","power-output.lua","power-output-data.lua","power-native-burner.lua","POWER_ACCEPTANCE.md","stage_solar.py","solar-boundary.lua"],"named_rows":["core-generators","native-burner","solar-boundary"],"requirements":["Explicit paired 2.0/2.1 versions","Native burner uses Base/Quality and Recycler in 2.1; do not infer dependency closure"]},
+        {"id":"steam","eligibility":"needs-port","evidence_kind":["native-functional","rendered","comparison"],"references":["stage_steam.py","compare_steam.py"],"named_rows":["on","off"],"requirements":["Retain rendered comparison separately from current native functional assertions"]},
+        {"id":"turbine","eligibility":"needs-port","evidence_kind":["native-functional","historical-migration","save-reload"],"references":["stage_turbine.py","stage_turbine_migration.py","turbine-bridge.lua","turbine-runtime.lua","turbine-migration.lua"],"named_rows":["donor","migration","reload"],"requirements":["Pin historical 2.0/2.1 custody migration","Enumerate current native state/creation-failure rows separately"]},
+        {"id":"fusion","eligibility":"needs-port","evidence_kind":["final-data","native-functional","native-gui","historical-migration","save-reload"],"references":["stage_fusion.py","compare_fusion.py","fusion-bridge.lua","fusion-actors.lua","fusion-gui.lua","fusion-migration.lua","fusion-recipes.lua"],"named_rows":["donor","migration","reload","recipes","actors","gui"],"requirements":["Explicit valid 2.0/2.1 mode rows","Qualify native GUI player or retain required graphical producer"]},
+        {"id":"orbital","eligibility":"needs-port","evidence_kind":["native-functional","native-gui","save-reload"],"references":["stage_orbital_client.py","orbital-client.lua","orbital-client-bridge.lua","orbital-delivery.lua","native_client.py"],"named_rows":[],"requirements":["Retain connected-player cohort; enumerate delivery/GUI/reload rows"]},
+        {"id":"rocket-quality-delivery","eligibility":"needs-port","evidence_kind":["final-data","native-functional","historical-migration","save-reload","rendered"],"references":["stage_rocket_quality.py","rocket-quality-visual.lua","rocket-delivery.lua","rocket-migration.lua","rocket-position-data.lua","rocket-position-probe.lua"],"named_rows":[],"requirements":["Extract explicit names from retained 29-scenario stager","Visual flag and position probes are separate requirements","Keep historical donors and rendered evidence distinct"]},
+        {"id":"spider","eligibility":"needs-port","catalogue_suite":"spider-vehicles","evidence_kind":["native-functional","native-gui","save-reload","benchmark"],"references":["stage_spider.py","run_spider_matrix.py"],"named_rows":["full","overkill","dispatch","canonical","save","performance"],"functional_rows":[{"version":"2.1","mode":"dispatch","native":false},{"version":"2.1","mode":"canonical","native":false},{"version":"2.1","mode":"dispatch","native":true},{"version":"2.1","mode":"canonical","native":true},{"version":"2.1","mode":"full","native":true}],"performance_rows":{"versions":["2.0","2.1"],"populations":[{"native":false,"vehicles":100},{"native":false,"vehicles":500},{"native":true,"vehicles":500}],"combat":[false,true],"count":12},"requirements":["Retain module profiler after setup; not whole-map UPS or statistical speedup acceptance"]},
+        {"id":"presentation","eligibility":"needs-port","catalogue_suite":"entity-presentation","evidence_kind":["final-data","native-functional","rendered"],"references":["stage_presentation.py","presentation-drills.lua","presentation-drills-data.lua"],"named_rows":["mining-drill","reactor","generator","burner-generator","furnace","assembling-machine"],"requirements":["Twenty additional scenes do not replace inherited fixture inventory","Enumerate drill connector probes and retain rendered acceptance"]},
+        {"id":"flame","eligibility":"needs-port","catalogue_suite":"flamethrower-fuels","evidence_kind":["final-data","native-functional","save-reload"],"references":["stage_flame.py"],"named_rows":["ordinary","transition","matrix"],"requirements":["Explicit --disabled true/false variants and mode rows"]},
+        {"id":"railgun","eligibility":"needs-port","catalogue_suite":"railgun-cooling","evidence_kind":["final-data","native-functional","historical-migration","save-reload"],"references":["stage_railgun.py","railgun-capacity-probe.lua"],"named_rows":["fresh","donor","migration","reload"],"requirements":["Explicit valid 2.0/2.1 mode rows and locked recipe capacity boundary"]},
+        {"id":"gaia-generation","eligibility":"needs-port","evidence_kind":["final-data","native-functional","comparison","historical-migration","save-reload"],"references":["compare_generation.py","compare_gaia_probe.py","generation.lua","generation-sample.lua","generation-order-probe.lua","generation-migration.lua","gaia-reforge.lua","gaia-generation-probe.lua","gaia-generation-probe-data.lua"],"named_rows":[],"requirements":["Capture explicit seeds/revisions and separate generation, sampling/order, migration and reforge matrices"]},
+        {"id":"resources","eligibility":"needs-port","evidence_kind":["final-data","native-functional","historical-migration"],"references":["resource-zero-probe.lua","resource-zero-data.lua","resource-off-migration.lua"],"named_rows":[],"requirements":["Enumerate selected zero-resource and disabled-resource migration settings"]},
+        {"id":"standalone-runtime-probes","eligibility":"needs-port","evidence_kind":["final-data","native-functional"],"references":["alerts-options.lua","auric-runtime.lua","crystal-wire.lua","gate-native.lua","quality-trains.lua","quality-trains-data.lua","platform-travel.lua","pollution-statistics-probe.lua","vehicle-handling.lua","stage_owner.py","stage_fixture.py"],"named_rows":["alerts-options","auric-runtime","crystal-wire","gate-native","quality-trains","platform-travel","pollution-statistics","vehicle-handling"],"requirements":["Each source owns its own probe matrix; no combined acceptance count","Active alert-preferences does not absorb all alerts-options behavior"]},
+        {"id":"final-data-audit","eligibility":"needs-port","evidence_kind":["final-data","static","comparison"],"references":["final_data.py","compare_data.py","compare_quality.py","default_control_inventory.py","default_review_rules.py","audit_sound_defaults.py"],"named_rows":[],"requirements":["Keep host checks independently usable; native adapter is not applicable","Pin supplied dump/inventory provenance"]},
+        {"id":"dependency-api-audit","eligibility":"needs-port","evidence_kind":["static","dependency","native-resolver"],"references":["build_audit_ledgers.py","classify_api_ledger.py","acquire_dependencies.py","acquire_optional.py","audit_optional_packages.py","report_dependencies.py","verify_terrain_conflicts.py"],"named_rows":[],"requirements":["Capture selected optional package/API inventory and two terrain conflict stubs","Acquisition is explicit external work, never automatic test execution"]},
+        {"id":"release-package","eligibility":"needs-port","evidence_kind":["package","static","dependency"],"references":["stage_release.py","package_release.py","package_final.py","reconcile_release.py","release_report.py","check_release_versions.py","prepare_development_seed.py"],"named_rows":[],"requirements":["Explicit package/seed/Portal actions; no native gameplay adapter","Preserve input release identity and historical artifacts"]},
+        {"id":"patch-authoring","eligibility":"needs-port","evidence_kind":["static"],"references":["prepare_native_buffers.py","prepare_literal_patch.py"],"named_rows":[],"requirements":["Authoring utilities, not test execution or acceptance evidence"]},
+        {"id":"historical-fluid-parity-patch","eligibility":"historical","evidence_kind":["historical","static"],"references":["prepare_fluid_buffers.py"],"named_rows":[],"requirements":["Superseded for accepted Quality-enabled development; never automatically apply to shipping source"]}
+      ],
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/qc/factorio-2.1/invoke-core.ps1",
+        "named_rows": [
+          "stage",
+          "dump",
+          "create",
+          "benchmark",
+          "close",
+          "cryo-temperature",
+          "flame",
+          "railgun",
+          "optional-smokes"
+        ],
+        "reference": "scripts/qc/factorio-2.1/invoke-core.ps1",
+        "additional_commands": [
+          "python -B scripts/qc/factorio-2.1/native_client.py --help",
+          "python -B scripts/qc/factorio-2.1/native_multiplayer.py --help",
+          "python -B scripts/qc/factorio-2.1/run_optional_smokes.py --help"
+        ]
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "flamethrower-fuels",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/flamethrower-fuels",
+        "scripts/invoke-flamethrower-fuels-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/flamethrower-fuels/*",
+        "scripts/invoke-flamethrower-fuels-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "current 2.1 adapter; historical 2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B scripts/qc/factorio-2.1/stage_flame.py",
+        "named_rows": [
+          "ordinary",
+          "transition",
+          "matrix",
+          "disabled"
+        ],
+        "reference": "scripts/qc/flamethrower-fuels/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "fluid-safety",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "controlled-boundary",
+        "native-functional"
+      ],
+      "inventory": [
+        "scripts/qc/fluid-safety"
+      ],
+      "paths": [
+        "scripts/qc/fluid-safety/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "host and 2.0.77 native",
+      "existing_workflow": {
+        "executor": "external",
+        "command": ".tools/lua-5.4.8/lua54.exe scripts/qc/fluid-safety/runtime.lua",
+        "named_rows": [
+          "stale-segment",
+          "fluid-kind",
+          "warning-throttle",
+          "recipient-alert"
+        ],
+        "reference": "scripts/qc/fluid-safety/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "gleba-auric-vat",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/gleba-auric-vat",
+        "scripts/invoke-gleba-auric-vat-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/gleba-auric-vat/*",
+        "scripts/invoke-gleba-auric-vat-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-gleba-auric-vat-qc.ps1",
+        "named_rows": [
+          "Prepare",
+          "Baseline",
+          "Candidate",
+          "NoScaling",
+          "Dump",
+          "Save",
+          "Reload"
+        ],
+        "reference": "scripts/qc/gleba-auric-vat/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "housekeeping",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "static",
+        "infrastructure-native"
+      ],
+      "inventory": [
+        "scripts/qc/housekeeping"
+      ],
+      "paths": [
+        "scripts/qc/housekeeping/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "host and current-profile tiny engine",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/qc/housekeeping/check-housekeeping.ps1",
+        "named_rows": [
+          "ownership",
+          "compact-closeout",
+          "JSON-validation",
+          "engine-integration"
+        ],
+        "reference": "scripts/qc/housekeeping/check-housekeeping.ps1"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ],
+      "native_adapter": "not-applicable to host/static checks"
+    },
+    {
+      "id": "machine-status-lights",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/machine-status-lights",
+        "scripts/invoke-machine-status-light-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/machine-status-lights/*",
+        "scripts/invoke-machine-status-light-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.1.23 runner; historical 2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-machine-status-light-qc.ps1",
+        "named_rows": [
+          "Stage",
+          "Data",
+          "Visual",
+          "Finish",
+          "baseline",
+          "original",
+          "status",
+          "off",
+          "Bottleneck",
+          "ArcPreset"
+        ],
+        "reference": "scripts/qc/machine-status-lights/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "menu-controls",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "controlled-boundary",
+        "native-gui",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/menu-controls"
+      ],
+      "paths": [
+        "scripts/qc/menu-controls/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "host and 2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-terrain-evolution-qc.ps1",
+        "named_rows": [
+          "launcher-toggle",
+          "show-hide",
+          "session-adoption",
+          "ecology-menu",
+          "reload"
+        ],
+        "reference": "scripts/qc/menu-controls/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "minigun-2.1",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered",
+        "package"
+      ],
+      "inventory": [
+        "scripts/qc/minigun-2.1"
+      ],
+      "paths": [
+        "scripts/qc/minigun-2.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.1.23 and 2.0.77 donor",
+      "existing_workflow": {
+        "executor": "external",
+        "command": null,
+        "availability": "Former local fixture removed by concurrent Minigun extraction; resolve the current external owner before execution.",
+        "named_rows": [
+          "data",
+          "migration",
+          "render",
+          "package",
+          "package-load",
+          "assets",
+          "audit",
+          "all"
+        ],
+        "reference": ".codex/esir/blueprints/minigun-turret-graphics.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "planet-enemies",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-generation",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/planet-enemies"
+      ],
+      "paths": [
+        "scripts/qc/planet-enemies/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/qc/planet-enemies/engine.ps1",
+        "named_rows": [
+          "generation",
+          "runtime",
+          "migration",
+          "V2-setting-matrix"
+        ],
+        "reference": "scripts/qc/planet-enemies/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "plasma-smelting",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/plasma-smelting",
+        "scripts/invoke-plasma-smelting-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/plasma-smelting/*",
+        "scripts/invoke-plasma-smelting-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-plasma-smelting-qc.ps1",
+        "named_rows": [
+          "Prepare",
+          "Baseline",
+          "Candidate",
+          "Save",
+          "Reload"
+        ],
+        "reference": "scripts/qc/plasma-smelting/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "quality-optional",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "configuration-change"
+      ],
+      "inventory": [
+        "scripts/qc/quality-optional"
+      ],
+      "paths": [
+        "scripts/qc/quality-optional/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "historical 2.1.23; adapter now profile-derived",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B scripts/qc/quality-optional/run.py",
+        "named_rows": [
+          "matrix64",
+          "selected-runtime",
+          "upstream-sentinel",
+          "normal",
+          "player",
+          "donor",
+          "eject",
+          "removed",
+          "reload",
+          "relax",
+          "legacy",
+          "duplicates"
+        ],
+        "reference": "scripts/qc/quality-optional/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "railgun-cooling",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/railgun-cooling",
+        "scripts/invoke-railgun-cooling-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/railgun-cooling/*",
+        "scripts/invoke-railgun-cooling-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "current 2.1 adapter; 2.0.77 donor",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B scripts/qc/factorio-2.1/stage_railgun.py",
+        "named_rows": [
+          "donor",
+          "fresh",
+          "migration",
+          "reload"
+        ],
+        "reference": "scripts/qc/railgun-cooling/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "rebuild-monitor",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "native-gui",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/rebuild-monitor",
+        "scripts/invoke-rebuild-monitor-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/rebuild-monitor/*",
+        "scripts/invoke-rebuild-monitor-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-rebuild-monitor-qc.ps1",
+        "named_rows": [
+          "Full",
+          "Visual100",
+          "Visual150",
+          "Reload"
+        ],
+        "reference": "scripts/qc/rebuild-monitor/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "robot-progression",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/robot-progression",
+        "scripts/invoke-robot-progression-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/robot-progression/*",
+        "scripts/invoke-robot-progression-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-robot-progression-qc.ps1",
+        "named_rows": [
+          "Prepare",
+          "Baseline",
+          "Candidate",
+          "Save",
+          "Reload"
+        ],
+        "reference": "scripts/qc/robot-progression/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "rocket-launch-pollution",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/rocket-launch-pollution",
+        "scripts/invoke-rocket-pollution-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/rocket-launch-pollution/*",
+        "scripts/invoke-rocket-pollution-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-rocket-pollution-qc.ps1 -SaveReload",
+        "named_rows": [
+          "native-launch",
+          "before-save",
+          "after-reload"
+        ],
+        "reference": "scripts/qc/rocket-launch-pollution/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "singularity-lance",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered",
+        "benchmark"
+      ],
+      "inventory": [
+        "scripts/qc/singularity-lance",
+        "scripts/invoke-singularity-lance-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-singularity-lance-qc_0.0.1"
+      ],
+      "paths": [
+        "scripts/qc/singularity-lance/*",
+        "scripts/invoke-singularity-lance-qc.ps1",
+        ".codex/skills/esir-dev/assets/zzz-singularity-lance-qc_0.0.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered",
+        "benchmark"
+      ],
+      "engine_provenance": "2.0.77; schema14 current historical contract",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-singularity-lance-qc.ps1",
+        "named_rows": [
+          "mechanics",
+          "save",
+          "reload",
+          "visual",
+          "angular-sweep",
+          "fidelity",
+          "NoScaling",
+          "Flatten"
+        ],
+        "reference": "scripts/qc/singularity-lance/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "slag-recovery",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        "scripts/qc/slag-recovery",
+        "scripts/invoke-slag-recovery-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/slag-recovery/*",
+        "scripts/invoke-slag-recovery-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-slag-recovery-qc.ps1",
+        "named_rows": [
+          "Prepare",
+          "Baseline",
+          "Candidate",
+          "Save",
+          "Reload"
+        ],
+        "reference": "scripts/qc/slag-recovery/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "spider-icons",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "unknown"
+      ],
+      "inventory": [
+        "scripts/qc/spider-icons"
+      ],
+      "paths": [
+        "scripts/qc/spider-icons/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Empty inventory entry; no runnable fixture or README found.",
+      "supplementary_evidence": [],
+      "engine_provenance": "unknown; empty directory",
+      "existing_workflow": {
+        "executor": "external",
+        "command": null,
+        "named_rows": [],
+        "reference": ".codex/esir/test-suites.json",
+        "availability": "Empty directory; no executable fixture is available."
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "spider-vehicles",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "native-gui",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/spider-vehicles",
+        "scripts/invoke-spider-vehicles-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/spider-vehicles/*",
+        "scripts/invoke-spider-vehicles-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-spider-vehicles-qc.ps1",
+        "named_rows": [
+          "defaults",
+          "NativeCycling",
+          "scripted-cycling",
+          "Arachnophobia",
+          "SaveFixture",
+          "reload"
+        ],
+        "reference": "scripts/qc/spider-vehicles/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "steam-consumer-glow",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/steam-consumer-glow"
+      ],
+      "paths": [
+        "scripts/qc/steam-consumer-glow/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/qc/steam-consumer-glow/run.ps1",
+        "named_rows": [
+          "baseline",
+          "on",
+          "off",
+          "ten-consumer-nighttime"
+        ],
+        "reference": "scripts/qc/steam-consumer-glow/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "storage",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "static",
+        "infrastructure-native"
+      ],
+      "inventory": [
+        "scripts/qc/storage"
+      ],
+      "paths": [
+        "scripts/qc/storage/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [],
+      "engine_provenance": "host and current-profile engine",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "python -B -m unittest discover -s scripts/qc/storage -p test*.py -v",
+        "named_rows": [
+          "package-identity",
+          "source-isolation",
+          "leases",
+          "overflow",
+          "closeout",
+          "current-profile"
+        ],
+        "reference": "scripts/qc/storage/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ],
+      "native_adapter": "not-applicable to host/static checks"
+    },
+    {
+      "id": "sweeping-radar",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "static",
+        "native-functional",
+        "save-reload",
+        "benchmark",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/sweeping-radar",
+        "scripts/invoke-sweeping-radar-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/sweeping-radar/*",
+        "scripts/invoke-sweeping-radar-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "benchmark",
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-sweeping-radar-qc.ps1",
+        "named_rows": [
+          "gate",
+          "acceptance",
+          "quality",
+          "performance"
+        ],
+        "reference": "scripts/qc/sweeping-radar/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "terrain-evolution",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "static",
+        "controlled-boundary",
+        "native-functional",
+        "native-gui",
+        "save-reload",
+        "rendered",
+        "benchmark"
+      ],
+      "inventory": [
+        "scripts/qc/terrain-evolution",
+        "scripts/invoke-terrain-evolution-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/terrain-evolution/*",
+        "scripts/invoke-terrain-evolution-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered",
+        "benchmark"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-terrain-evolution-qc.ps1",
+        "named_rows": [
+          "ecology",
+          "admin",
+          "field-report",
+          "informatron",
+          "settings",
+          "reload",
+          "factory-comparison"
+        ],
+        "reference": "scripts/qc/terrain-evolution/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "thrower-performance",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "benchmark",
+        "native-functional",
+        "save-reload",
+        "rendered"
+      ],
+      "inventory": [
+        "scripts/qc/thrower-performance",
+        "scripts/invoke-thrower-performance-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/thrower-performance/*",
+        "scripts/invoke-thrower-performance-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "benchmark",
+        "rendered"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-thrower-performance-qc.ps1",
+        "named_rows": [
+          "enabled",
+          "Disabled",
+          "Behavior",
+          "Transition",
+          "Overlap",
+          "performance"
+        ],
+        "reference": "scripts/qc/thrower-performance/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "water-turret",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "final-data",
+        "native-functional",
+        "save-reload",
+        "rendered",
+        "benchmark"
+      ],
+      "inventory": [
+        "scripts/qc/water-turret",
+        "scripts/invoke-water-turret-qc.ps1"
+      ],
+      "paths": [
+        "scripts/qc/water-turret/*",
+        "scripts/invoke-water-turret-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "supplementary_evidence": [
+        "rendered",
+        "benchmark"
+      ],
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-water-turret-qc.ps1",
+        "named_rows": [
+          "DumpOnly",
+          "Creation",
+          "CreationDisableAdaptation",
+          "Index",
+          "acceptance",
+          "performance"
+        ],
+        "reference": "scripts/qc/water-turret/README.md"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "control-lifecycle",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "native-gui"
+      ],
+      "inventory": [
+        "scripts/invoke-control-lifecycle-qc.ps1"
+      ],
+      "paths": [
+        "scripts/invoke-control-lifecycle-qc.ps1"
+      ],
+      "profiles": [],
+      "cases": [],
+      "supplementary_evidence": [],
+      "notes": "Existing focused workflow remains separate. Metadata repair does not establish current acceptance.",
+      "engine_provenance": "2.0.77",
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-control-lifecycle-qc.ps1",
+        "named_rows": [
+          "queue-save",
+          "queue-load",
+          "ForceConfig",
+          "HeadlessGui",
+          "ClientGui"
+        ],
+        "reference": "scripts/invoke-control-lifecycle-qc.ps1"
+      },
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Review exact engine/dependencies and existing fixture instructions",
+        "Managed staging and explicit native assertion/report adapter",
+        "Fresh qualification before promotion"
+      ]
+    },
+    {
+      "id": "fluid-ruptures",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload"
+      ],
+      "inventory": [
+        ".codex/skills/esir-dev/assets/zzz-fluid-rupture-qc_0.0.1"
+      ],
+      "paths": [
+        ".codex/skills/esir-dev/assets/zzz-fluid-rupture-qc_0.0.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "engine_provenance": "2.0 helper metadata; historical evidence",
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Port helper metadata and APIs together",
+        "Qualify required assertions and managed checkpoint/reload"
+      ],
+      "supplementary_evidence": [],
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId fluid-rupture",
+        "reference": ".codex/skills/esir-dev/references/fluid-rupture-qc-helper.md",
+        "named_rows": [
+          "rupture-categories",
+          "scheduler-cleanup"
+        ]
+      }
+    },
+    {
+      "id": "orbital-logistics",
+      "eligibility": "active",
+      "core": false,
+      "engine_version": "2.1.24",
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "native-gui"
+      ],
+      "inventory": [
+        "scripts/qc/orbital-logistics",
+        ".codex/skills/esir-dev/assets/zzz-orbital-logistics-qc_0.0.1"
+      ],
+      "paths": [
+        "exotic-space-industries-remembrance/scripts/control/orbital-logistics*.lua",
+        "exotic-space-industries-remembrance/scripts/control/orbital-combinator.lua",
+        "exotic-space-industries-remembrance/locale/*/orbital-native.cfg",
+        "scripts/qc/orbital-logistics/*",
+        ".codex/skills/esir-dev/assets/zzz-orbital-logistics-qc_0.0.1/*"
+      ],
+      "profiles": [{"id":"quality-enabled","quality":"enabled"},{"id":"quality-disabled","quality":"disabled"}],
+      "cases": [{"id":"candidate"},{"id":"reload"},{"id":"configuration"}],
+      "deadline_ticks": 10800,
+      "budget_reason": "Sequential native rocket preparation, flight and platform-to-platform deliveries need bounded engine time after scanner and radar assertions.",
+      "timeout_seconds": 600,
+      "checkpoint_executor": "graphical",
+      "launch": {"scenario":"esir-qc-native-tests/native","helper":"scripts/qc/native-tests/helper","report":"native-test-{phase}.json"},
+      "engine_provenance": "Exact development engine 2.1.24 and lock",
+      "acceptance": "requires matching fresh receipt",
+      "supplementary_evidence": ["Rendered GUI review", "Physical input and multiplayer", "Paired scanner and whole-engine benchmarks"],
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId orbital-cohort",
+        "reference": ".codex/skills/esir-dev/references/orbital-logistics-qc-helper.md",
+        "named_rows": [
+          "cohort-mutations",
+          "historical-480-tick-completion",
+          "GUI-presence"
+        ]
+      }
+    },
+    {
+      "id": "research-hitch",
+      "eligibility": "needs-port",
+      "core": false,
+      "evidence_kind": [
+        "native-functional",
+        "save-reload",
+        "benchmark"
+      ],
+      "inventory": [
+        ".codex/skills/esir-dev/assets/zzz-research-hitch-qc_0.0.1"
+      ],
+      "paths": [
+        ".codex/skills/esir-dev/assets/zzz-research-hitch-qc_0.0.1/*"
+      ],
+      "profiles": [],
+      "cases": [],
+      "engine_provenance": "2.0 helper metadata; historical evidence",
+      "acceptance": "not current native acceptance",
+      "port_requirements": [
+        "Port helper metadata and APIs together",
+        "Qualify required assertions and managed checkpoint/reload"
+      ],
+      "supplementary_evidence": [
+        "benchmark"
+      ],
+      "existing_workflow": {
+        "executor": "external",
+        "command": "scripts/invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId research-hitch",
+        "reference": ".codex/skills/esir-dev/references/research-hitch-qc-helper.md",
+        "named_rows": [
+          "pre-complete",
+          "post-immediate",
+          "post-plus-1",
+          "post-plus-2"
+        ]
+      }
+    }
+  ]
+}

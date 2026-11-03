@@ -254,14 +254,8 @@ end
 
 local function append_post_burst_report(current_tick)
     local snapshot = get_esir_qc_snapshot()
-    if type(snapshot) ~= "table" then
-        write_report(
-            "post_burst_tick=" .. tostring(current_tick)
-                .. "\nqc_snapshot=unavailable\n",
-            true
-        )
-        return
-    end
+    assert(type(snapshot) == "table", "Required scripted-research diagnostic snapshot unavailable")
+    assert(type(snapshot.scripted_research_burst) == "table", "Required research burst state missing")
 
     local burst = type(snapshot.scripted_research_burst) == "table" and snapshot.scripted_research_burst or {}
     local emerald = type(snapshot.emerald_apocalypse_hover_tank) == "table"

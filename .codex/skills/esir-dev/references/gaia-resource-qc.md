@@ -1,5 +1,43 @@
 # Gaia Resource QC
 
+The [2026-11-03 acceptance record](../../../esir/handoffs/factorio-final-qc-gap-repairs-acceptance-2026-11-03.md#gaia-acceptance-and-the-observed-window)
+links the corrected native case, fixed preview, extended matrix and controlled
+defects. It also explains the separate graphical checkpoint worlds seen during
+core execution. New changes still require fresh matching acceptance receipts.
+
+## Required focused acceptance
+
+`qc-preview` and `qc-full` require a seed-1000, 4096-square preview and
+`test-suite: gaia-resources`, `test-case: gaia-resources/candidate`, profile
+`default`. The native fixture calls the production runtime settings factory,
+generates bounded chunk batches and requires all six resources. Its terminal
+receipt includes effective settings, bounds and resource counts. The shared
+runner owns private staging, report identity, input validation and finite limits.
+
+Fresh runtime coverage calls `get_map_gen_settings()` with no preserved-save
+argument and then sets the selected test seed. Supplying a seed-only preserved
+table selects the historical generation branch. Required assertions verify the
+native 2.1 generation revision, Gaia terrain expressions, actual Gaia tiles and
+the fixture surface name.
+
+The runtime fixture uses a separate surface named `esir-qc-gaia-runtime`.
+Graphical windows during the full core run belong to declared player-dependent
+checkpoint producers, including alert preferences and induction circuits. Their
+starting worlds are recorded separately from Gaia map-preview/resource evidence.
+
+```powershell
+powershell -File scripts/invoke-esir-dev.ps1 -Task qc-test -Suite gaia-resources -Case candidate -TestProfile default -AsJson
+powershell -File scripts/invoke-esir-dev.ps1 -Task qc-preview -Strict -AsJson
+```
+
+Explicit preview seed/planet requests produce separate outputs alongside the fixed
+acceptance row. Required missing reports or incomplete assertions fail the wrapper.
+Current acceptance requires fresh passing receipts. Native counts establish resource
+presence within the measured bounds. Geographic distribution, rendered inspection,
+historical migration and reforge safety use their dedicated evidence.
+
+## Extended preview matrix
+
 Use the repo-local `qc-gaia-resources` task for deterministic Gaia resource
 regressions. It runs native map previews against the resolved mod stack and
 reports every Gaia resource, including relic debris.

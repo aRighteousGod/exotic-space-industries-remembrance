@@ -56,6 +56,10 @@ Presentation and death finalizers retain ownership of effects, sounds and scenes
 
 ## Verification
 
+The required final-data checker in `scripts/qc/native-tests/data_contracts.py`
+checks all five vanilla logistic chest items for hiding and their recipes for
+hiding and disabled availability. The source iteration consumes chest names.
+
 Run blueprint/preflight checks, `qc-fast`, and `scripts/invoke-robot-progression-qc.ps1`.
 Check fresh and upgraded saves, quality crafting, recycling and presentation.
 Compare 20 normal-quality bots per fleet over 32- and 128-tile routes with equal

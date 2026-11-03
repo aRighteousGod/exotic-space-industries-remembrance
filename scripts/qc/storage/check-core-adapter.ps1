@@ -47,6 +47,10 @@ try {
     $sourceHash = (Get-FileHash -LiteralPath (Join-Path $main 'control.lua')).Hash
     $nsbc = Join-Path $fixture 'fixtures/nsbc'
     Write-TestJson (Join-Path $nsbc 'info.json') @{name='zzz-nonstandard-beacons-continued';version='1.0.0';factorio_version='2.1'}
+    $walls = Join-Path $fixture 'fixtures/walls'
+    Write-TestJson (Join-Path $walls 'info.json') @{name='enhanced-walls-continued';version='1.0.0';factorio_version='2.1'}
+    $doeworks = Join-Path $fixture 'fixtures/doeworks'
+    Write-TestJson (Join-Path $doeworks 'info.json') @{name='doeworks-deer-continued';version='1.0.0';factorio_version='2.1'}
     $companion = Join-Path $fixture 'fixtures/selected'
     Write-TestJson (Join-Path $companion 'info.json') @{name='esir-qc-selected';version='1.0.0';factorio_version='2.1'}
     [IO.File]::WriteAllText((Join-Path $companion 'control.lua'), '-- private helper fixture')
@@ -71,7 +75,7 @@ try {
     $engineRelative = [Uri]::UnescapeDataString($baseUri.MakeRelativeUri([Uri]([IO.Path]::GetFullPath($FactorioPath))).ToString()).Replace('/', '\')
     Write-TestJson (Join-Path $fixture '.codex/esir/factorio-development.json') @{
         engine_version=$actualVersion;engine_path=$engineRelative;dependency_seed='.factorio-qc/dependency-seeds/2.1-core'
-        dependency_lock_sha256=(Get-FileHash -LiteralPath $lockPath).Hash.ToLowerInvariant();nsbc_source='fixtures/nsbc'
+        dependency_lock_sha256=(Get-FileHash -LiteralPath $lockPath).Hash.ToLowerInvariant();nsbc_source='fixtures/nsbc';enhanced_walls_source='fixtures/walls';doeworks_source='fixtures/doeworks'
         smoke_save_id='fixture';smoke_save='.factorio-qc/unused-fixture-save.zip'
     }
     $modes = @()
@@ -82,6 +86,10 @@ try {
         $initialList = Get-Content -LiteralPath (Join-Path $first.mod_view_root 'mod-list.json') -Raw | ConvertFrom-Json
         Assert (-not ($initialList.mods | Where-Object name -eq quality).enabled) 'Explicit disabled quality was lost'
         Assert (($initialList.mods | Where-Object name -eq 'esir-qc-selected').enabled) 'Selected fixture was not staged'
+        Assert (($initialList.mods | Where-Object name -eq 'enhanced-walls-continued').enabled) 'Sibling Enhanced Walls source was not staged'
+        Assert (Test-Path -LiteralPath (Join-Path $first.mod_view_root 'enhanced-walls-continued/info.json')) 'Sibling Enhanced Walls source view is missing'
+        Assert (($initialList.mods | Where-Object name -eq 'doeworks-deer-continued').enabled) 'Sibling doeWorks source was not staged'
+        Assert (Test-Path -LiteralPath (Join-Path $first.mod_view_root 'doeworks-deer-continued/info.json')) 'Sibling doeWorks source view is missing'
         $stagedMain = Get-Item -LiteralPath (Join-Path $first.mod_view_root 'exotic-space-industries-remembrance')
         Assert ([bool]($stagedMain.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq ($mode -eq 'read-only')) 'Source mutability was staged incorrectly'
         Invoke-Core stage $runRoot

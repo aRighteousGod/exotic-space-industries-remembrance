@@ -25,6 +25,7 @@ $script:EsirEnabledLocalMods = $null
 if (Test-Path -LiteralPath $script:EsirFactorioLibDefault) {
     . $script:EsirFactorioLibDefault
     . (Join-Path $PSScriptRoot 'esir-qc-version-staging.ps1')
+    . (Join-Path $PSScriptRoot 'esir-qc-acceptance.ps1')
     $script:EsirFactorioQcLoaded = $true
 }
 
@@ -409,8 +410,25 @@ function Invoke-EsirEncodingPass {
         [switch]$Fix
     )
 
+    $preserved = @{}
+    $preservationPath = Join-Path $Paths.repo_root '.codex/esir/preserved-encoding.json'
+    if (Test-Path -LiteralPath $preservationPath) {
+        $policy = Read-EsirJson -Path $preservationPath
+        if ($policy.schema_version -ne 1) { throw 'Unsupported historical encoding preservation schema.' }
+        foreach ($entry in $policy.entries) {
+            $path = [string]$entry.path
+            if ($path -match '\\|(^|/)\.\.(/|$)|^/' -or [IO.Path]::IsPathRooted($path) -or
+                $entry.sha256_lf -notmatch '^[a-f0-9]{64}$' -or -not $entry.reason -or
+                -not $entry.engine_version -or @($entry.findings).Count -eq 0 -or $preserved.ContainsKey($path)) {
+                throw "Invalid historical encoding preservation record: $path"
+            }
+            $preserved[$path] = $entry
+        }
+    }
+    $seenPreserved = @{}
     $findings = @()
-    foreach ($file in (Get-EsirTextFileTargets -Paths $Paths)) {
+    $targets = @(Get-EsirTextFileTargets -Paths $Paths)
+    foreach ($file in $targets) {
         $relativePath = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $file.FullName
         $readInfo = Read-EsirTextFile -Path $file.FullName -AllowFallback
         $health = Get-EsirEncodingHealth -Text $readInfo.text
@@ -425,6 +443,30 @@ function Invoke-EsirEncodingPass {
         }
         if ($health.score -gt 0) {
             $issues.Add('mojibake-suspected') | Out-Null
+        }
+
+        $preservedPath = $relativePath.Replace('\', '/')
+        if ($preserved.ContainsKey($preservedPath)) {
+            $entry = $preserved[$preservedPath]
+            $seenPreserved[$preservedPath] = $true
+            $hasher = [Security.Cryptography.SHA256]::Create()
+            try {
+                $normalized = [Text.Encoding]::UTF8.GetBytes($readInfo.text.Replace("`r`n", "`n"))
+                $digest = [BitConverter]::ToString($hasher.ComputeHash($normalized)).Replace('-', '').ToLowerInvariant()
+            } finally { $hasher.Dispose() }
+            $actualMarkers = @($health.findings | ForEach-Object { "$($_.marker)=$($_.count)" } | Sort-Object) -join '|'
+            $expectedMarkers = @($entry.findings | ForEach-Object { "$($_.marker)=$($_.count)" } | Sort-Object) -join '|'
+            $matched = $readInfo.encoding -eq 'utf8' -and $digest -eq $entry.sha256_lf -and $actualMarkers -eq $expectedMarkers
+            if (-not $matched) { $issues.Add('historical-preservation-mismatch') | Out-Null }
+            $findings += [ordered]@{
+                file = $relativePath; status = if ($matched) { 'ok' } else { 'failed' }
+                classification = 'preserved-historical'; informational = [bool]$matched
+                encoding = $readInfo.encoding; fixed = $false; issues = @($issues)
+                mojibake = $health.findings; repair_steps = @(); sha256_lf = $digest
+                preservation = $entry
+            }
+            # A changed historical capture also remains protected from -FixEncoding.
+            continue
         }
 
         if ($issues.Count -eq 0) {
@@ -466,6 +508,11 @@ function Invoke-EsirEncodingPass {
         }
     }
 
+    foreach ($path in $preserved.Keys) {
+        if (-not $seenPreserved.ContainsKey($path)) {
+            $findings += [ordered]@{file=$path;status='failed';fixed=$false;issues=@('preserved-receipt-missing');preservation=$preserved[$path]}
+        }
+    }
     $overallStatus = if (@($findings | Where-Object { $_.status -eq 'failed' }).Count -gt 0) {
         'failed'
     } elseif (@($findings | Where-Object { $_.fixed }).Count -gt 0) {
@@ -475,10 +522,11 @@ function Invoke-EsirEncodingPass {
     }
 
     return [ordered]@{
-        scanned_files = @(Get-EsirTextFileTargets -Paths $Paths).Count
+        scanned_files = $targets.Count
         overall_status = $overallStatus
         findings = @($findings)
         fixed_files = @($findings | Where-Object { $_.fixed } | ForEach-Object { $_.file })
+        preserved_files = @($findings | Where-Object { $_.Contains('informational') -and $_.informational -eq $true } | ForEach-Object { $_.file })
     }
 }
 
@@ -1495,6 +1543,8 @@ function Get-EsirPackManifestData {
         if ($mod.folder_name -in @('exotic-space-industries-remembrance-graphics-4', 'exotic-space-industries-remembrance-graphics-5')) {
             $role = 'graphics and sound-effect companion assets'
         }
+        if ($mod.folder_name -eq 'minigun-turret-HD') { $role = 'standalone Factorio 2.1 minigun turret' }
+        if ($mod.folder_name -eq 'minigun-turret-HD-graphics') { $role = 'reusable Factorio 2.1 minigun graphics, sounds and helper' }
 
         [ordered]@{
             id            = $mod.name
@@ -1562,7 +1612,7 @@ function Get-EsirToolManifestData {
         wrapper        = [ordered]@{
             path    = 'scripts\invoke-esir-dev.ps1'
             library = 'scripts\esir-dev-lib.ps1'
-            tasks   = @('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
+            tasks   = @('doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'test-list', 'test-plan', 'qc-test', 'qc-fast', 'qc-runtime', 'runtime-benchmark', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')
         }
         dependency_wrapper = [ordered]@{
             path    = 'scripts\invoke-esir-dependency-intel.ps1'
@@ -1687,7 +1737,9 @@ function Resolve-EsirSaveSelection {
     }
 
     if ($SavePath) {
-        return [ordered]@{ id = $null; path = (Resolve-EsirUserPath -Paths $Paths -Path $SavePath); reason = 'explicit-save-path'; entry = $null }
+        $resolved = Resolve-EsirUserPath -Paths $Paths -Path $SavePath
+        $selected = $entries | Where-Object { [IO.Path]::GetFullPath((Join-Path $Paths.repo_root $_.path)) -eq $resolved } | Select-Object -First 1
+        return [ordered]@{ id = $(if($selected){$selected.id}else{$null}); path = $resolved; reason = 'explicit-save-path'; entry = $selected }
     }
 
     $preferred = $entries | Where-Object { @($_.preferred_for) -contains $TaskName } | Select-Object -First 1
@@ -1713,7 +1765,7 @@ function Get-EsirSaveHelperRequirements {
         $assetPath = if ($helper.asset_path) { [string]$helper.asset_path } else { $null }
         $assetFullPath = if ($assetPath) { Join-Path $Paths.repo_root $assetPath } else { $null }
         $autoStageFor = @($helper.auto_stage_for)
-        $willAutoStage = $AllowAutoStage.IsPresent -and $TaskName -and ($autoStageFor -contains $TaskName)
+        $willAutoStage = $AllowAutoStage.IsPresent -and $TaskName -and (($autoStageFor -contains $TaskName) -or $TaskName -in @('qc-runtime','qc-preview','qc-full'))
 
         $requirements.Add([ordered]@{
             name            = if ($helper.name) { [string]$helper.name } else { $null }
@@ -1799,73 +1851,19 @@ function Set-EsirModListEntryEnabled {
     Write-EsirJson -Path $ModListPath -Data ([ordered]@{ mods = $sortedMods })
 }
 
-function Sync-EsirSaveHelperMods {
-    param(
-        [Parameter(Mandatory = $true)]$Paths,
-        [Parameter(Mandatory = $true)][string]$RunMods,
-        $HelperSummary,
-        $Result
-    )
-
-    if (-not $HelperSummary -or @($HelperSummary.items).Count -eq 0) {
-        return $HelperSummary
+function Set-EsirRequiredSaveHelpers {
+    param($Paths, $Context, $HelperSummary)
+    $sources = @()
+    if ($HelperSummary) {
+        foreach ($helper in $HelperSummary.items) {
+            if (-not $helper.asset_exists) { throw "Required save helper is missing: $($helper.asset_path)" }
+            if (-not $helper.will_auto_stage) { throw "Required helper is not enabled for this task: $($helper.name)" }
+            $sources += @{name=$helper.name;path=(Join-Path $Paths.repo_root $helper.asset_path)}
+        }
     }
-
-    $warnings = [System.Collections.Generic.List[string]]::new()
-    foreach ($warning in (ConvertTo-EsirArray $HelperSummary.warnings)) {
-        $warnings.Add([string]$warning) | Out-Null
-    }
-
-    $modListPath = Join-Path $RunMods 'mod-list.json'
-    $items = [System.Collections.Generic.List[object]]::new()
-
-    foreach ($helper in @($HelperSummary.items)) {
-        $entry = [ordered]@{
-            name            = $helper.name
-            asset_path      = $helper.asset_path
-            asset_exists    = $helper.asset_exists
-            auto_stage_for  = @($helper.auto_stage_for)
-            will_auto_stage = $helper.will_auto_stage
-            stage_mode      = $helper.stage_mode
-            notes           = $helper.notes
-            stage_status    = 'not-requested'
-        }
-
-        if ($helper.will_auto_stage -ne $true) {
-            $items.Add($entry) | Out-Null
-            continue
-        }
-
-        if (-not $helper.asset_exists) {
-            $entry.stage_status = 'missing-asset'
-            $warnings.Add("Helper auto-staging skipped for '$($helper.name)' because the asset path was not found: $($helper.asset_path)") | Out-Null
-            if ($Result -and (Get-Command -Name Add-FactorioQCWarning -ErrorAction SilentlyContinue)) {
-                Add-FactorioQCWarning -Result $Result -Message "Helper auto-staging skipped for '$($helper.name)' because the asset path was not found: $($helper.asset_path)"
-            }
-            $items.Add($entry) | Out-Null
-            continue
-        }
-
-        $source = Join-Path $Paths.repo_root $helper.asset_path
-        $destination = Join-Path $RunMods ([System.IO.Path]::GetFileName($source))
-        Copy-DirectoryTreeRobust -Source $source -Destination $destination
-        if ($helper.name) {
-            Set-EsirModListEntryEnabled -ModListPath $modListPath -ModName ([string]$helper.name)
-        }
-
-        $entry.stage_status = 'staged'
-        $entry.destination = $destination
-        if ($Result -and (Get-Command -Name Add-FactorioQCNote -ErrorAction SilentlyContinue)) {
-            Add-FactorioQCNote -Result $Result -Message "Auto-staged helper mod for save '$($HelperSummary.save_id)': $($helper.name)"
-        }
-        $items.Add($entry) | Out-Null
-    }
-
-    $HelperSummary.items = @($items)
-    $HelperSummary.warnings = @($warnings)
-    $HelperSummary.manual_staging_required = @($items | Where-Object { $_.stage_mode -ne 'auto' }).Count -gt 0
-    return $HelperSummary
+    $Context | Add-Member -NotePropertyName required_helper_sources -NotePropertyValue $sources -Force
 }
+
 
 function Invoke-FactorioPackageQC {
     param([Parameter(Mandatory)]$Context, [switch]$Strict)
@@ -1887,6 +1885,36 @@ function Invoke-FactorioPackageQC {
     return (Finalize-FactorioQCResult -Result $result -Strict:$Strict)
 }
 
+function Assert-EsirNativeCoreAggregate {
+    param($Paths,$Aggregate)
+    $catalog=Read-EsirJson (Join-Path $Paths.repo_root '.codex/esir/test-suites.json')
+    $expectedCount=0
+    foreach($suite in @($catalog.suites | Where-Object core -eq $true)) {
+        if($suite.eligibility -ne 'active'){throw "Required native suite is unavailable: $($suite.id)"}
+        foreach($profile in $suite.profiles) {
+            $expectedCount++
+            $rows=@($Aggregate.results | Where-Object { $_.suite -eq $suite.id -and $_.profile -eq $profile.id })
+            if($rows.Count -ne 1 -or $rows[0].overall_status -ne 'ok'){throw "Missing or failed native row: $($suite.id)/$($profile.id)"}
+            $required=@($suite.cases | Where-Object { ($_.PSObject.Properties.Name -notcontains 'tier' -or $_.tier -eq 'core') -and
+                ($_.PSObject.Properties.Name -notcontains 'profiles' -or $profile.id -in $_.profiles) })
+            foreach($case in $required) {
+                $phases=@($rows[0].phases | Where-Object phase -eq $case.id)
+                if($phases.Count -ne 1 -or $phases[0].passed -ne $true){throw "Missing or failed native phase: $($suite.id)/$($profile.id)/$($case.id)"}
+            }
+        }
+    }
+    if($expectedCount -ne 11 -or @($Aggregate.results).Count -ne $expectedCount){throw 'Incomplete required native core matrix'}
+}
+
+function Get-EsirCommonTestInputs {
+    param($Paths)
+    $output = & python -B (Join-Path $PSScriptRoot 'qc/native-tests/source_inputs.py') --repo $Paths.repo_root
+    if ($LASTEXITCODE -ne 0) { throw 'Cannot fingerprint common QC source inputs' }
+    $value = $output | ConvertFrom-Json
+    if (-not $value.sha256) { throw 'Missing common QC source fingerprint' }
+    return $value
+}
+
 function Invoke-EsirQcMode {
     param(
         [Parameter(Mandatory = $true)]$Paths,
@@ -1902,12 +1930,13 @@ function Invoke-EsirQcMode {
 
     $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath -EnsureArtifactRoot
     $encodingPass = Invoke-EsirEncodingPass -Paths $Paths -Fix:$FixEncoding
+    $commonInputs = if ($Mode -eq 'full') { Get-EsirCommonTestInputs -Paths $Paths } else { $null }
     $saveSelection = $null
     if ($Mode -in @('runtime', 'preview', 'full')) {
         $preferredTask = if ($Mode -eq 'preview') { 'qc-preview' } else { 'qc-runtime' }
         $saveSelection = Resolve-EsirSaveSelection -Paths $Paths -TaskName $preferredTask -SaveId $SaveId -SavePath $SavePath
     }
-    $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName ('qc-' + $Mode) -AllowAutoStage:$false
+    $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName ('qc-' + $Mode) -AllowAutoStage
 
     $scenario = @($SaveId, $SavePath, $Planet, $Seed | Where-Object { $null -ne $_ -and "$_" -ne '' }) -join '|'
     if (-not $scenario) { $scenario = 'default' }
@@ -1927,14 +1956,30 @@ function Invoke-EsirQcMode {
     & powershell @arguments | Out-Null
     $exitCode = $LASTEXITCODE
     $summaryPath = Join-Path $context.artifact_root 'latest-summary.json'
-    $summary = Read-EsirJson -Path $summaryPath
-    $matchingSummary = $summary -and $summary.mode -eq $Mode -and $summary.repo_root -eq $Paths.repo_root -and $summary.factorio_exe -eq $context.factorio_exe -and
+    $summaryError = $null
+    $summary = $null
+    $dumpPath = $null
+    $matchingSummary = $false
+    try {
+      $summary = Read-EsirJson -Path $summaryPath
+      $matchingSummary = $summary -and $summary.mode -eq $Mode -and $summary.repo_root -eq $Paths.repo_root -and $summary.factorio_exe -eq $context.factorio_exe -and
         [DateTime]::Parse($summary.timestamp).ToUniversalTime() -ge $invocationStartedAt
     if ($managed.run) {
         $matchingSummary = $matchingSummary -and $summary.run_id -eq $managed.run.id -and
             $summary.payload_path -eq $managed.run.payload_path -and $summary.engine_version -eq $managed.run.engine_version -and
             [DateTime]::Parse($summary.timestamp).ToUniversalTime() -ge [DateTime]::Parse($managed.run.started_at).ToUniversalTime()
     }
+    if ($matchingSummary) {
+        if ($summary.overall_status -notin @('ok','warning','failed')) { throw 'Invalid broad QC verdict' }
+        if ($Mode -in @('fast','full')) {
+            foreach ($part in $summary.results) {
+                if ($part.name -eq 'fast' -and $part.artifacts.PSObject.Properties.Name -contains 'data_raw_dump') {
+                    $dumpPath = $part.artifacts.data_raw_dump
+                }
+            }
+        }
+    }
+    } catch { $summaryError = $_.Exception.Message; $matchingSummary = $false; $dumpPath = $null }
     if (-not $matchingSummary) { $summary = $null }
     $delegateStatus = if ($exitCode -eq 0 -and $summary) { $summary.overall_status } else { 'failed' }
     $overallStatus = Get-EsirOverallStatus -Checks @(
@@ -1951,21 +1996,53 @@ function Invoke-EsirQcMode {
         helper_requirements = $helperRequirements
         encoding       = $encodingPass
         summary        = $summary
-    }
-    $dumpPath = $null
-    if ($summary -and $Mode -in @('fast', 'full')) {
-        foreach ($part in $summary.results) {
-            if ($part.name -eq 'fast' -and $part.artifacts.PSObject.Properties.Name -contains 'data_raw_dump') {
-                $dumpPath = $part.artifacts.data_raw_dump
-            }
-        }
+        summary_error  = $summaryError
     }
     $completionExit = if ($matchingSummary) { $exitCode } else { 1 }
     $result.housekeeping = Finish-EsirManagedQc -RepoRoot $Paths.repo_root -State $managed -ExitCode $completionExit -Result $result -DumpPath $dumpPath
     # Preserve the established discovery pointer; ownership is the per-run registry, never this shared file.
-    if ($summary -and $managed.run) {
+    if ($summary -and $managed.run -and $Mode -ne 'full') {
         try { Write-EsirJson -Path (Join-Path $managed.original_artifact_root 'latest-summary.json') -Data $summary }
         catch { $result.housekeeping.discovery_pointer_error = $_.Exception.Message }
+    }
+    if ($Mode -eq 'full') {
+        $result.source_fingerprint = $commonInputs
+        $result.source_error = $null
+        try {
+            if ((Get-EsirCommonTestInputs -Paths $Paths).sha256 -ne $commonInputs.sha256) { throw 'Source inputs changed during broad QC' }
+        } catch { $result.source_error = $_.Exception.Message; $result.overall_status = 'failed' }
+        if ($result.housekeeping.error -or $result.housekeeping.status -notin @('success')) { $result.overall_status = 'failed' }
+        # Native suites own separate managed child runs. The broad run's dump
+        # consumers and closeout above retain their established lifetime.
+        $nativeArgs = @('-B',(Join-Path $PSScriptRoot 'qc/native-tests/runner.py'),'qc-test','--repo',$Paths.repo_root,'--tier','core','--expected-source-sha256',$commonInputs.sha256)
+        if ($FactorioPath) { $nativeArgs += @('--engine',$FactorioPath) }
+        $nativeExit = 1
+        try {
+            $nativeOutput = & python @nativeArgs
+            $nativeExit = $LASTEXITCODE
+            $result.native_tests = ($nativeOutput | Select-Object -Last 1 | ConvertFrom-Json)
+            if (-not $result.native_tests -or $result.native_tests.task -ne 'qc-test' -or $result.native_tests.overall_status -notin @('ok','warning','failed')) { throw 'Native child returned missing or invalid aggregate' }
+            if ($result.native_tests.overall_status -ne 'failed' -and $result.native_tests.source_fingerprint.sha256 -ne $commonInputs.sha256) { throw 'Native aggregate source fingerprint mismatch' }
+            if ($result.native_tests.overall_status -ne 'failed') { Assert-EsirNativeCoreAggregate -Paths $Paths -Aggregate $result.native_tests }
+        } catch {
+            $nativeExit = 1
+            $result.native_tests = @{task='qc-test';overall_status='failed';error=$_.Exception.Message;results=@()}
+        }
+        if ($nativeExit -ne 0 -or $result.native_tests.overall_status -eq 'failed') { $result.overall_status = 'failed' }
+        try {
+            if ((Get-EsirCommonTestInputs -Paths $Paths).sha256 -ne $commonInputs.sha256) { throw 'Source inputs changed before full QC completion' }
+        } catch { $result.source_error = $_.Exception.Message; $result.overall_status = 'failed' }
+        $result.exit_code = if ($result.overall_status -eq 'failed') { 1 } else { 0 }
+        # The broad receipt above remains a child result. Publish the final
+        # aggregate only after every required native child has closed out.
+        $aggregate = [ordered]@{mode='full';task='qc-full';timestamp=[DateTime]::UtcNow.ToString('o');repo_root=$Paths.repo_root;
+            factorio_exe=$context.factorio_exe;engine_version=$managed.run.engine_version;overall_status=$result.overall_status;
+            broad_run_id=$managed.run.id;broad=$summary;summary_error=$summaryError;encoding=$encodingPass;
+            source_fingerprint=$commonInputs;source_error=$result.source_error;native_tests=$result.native_tests;housekeeping=$result.housekeeping}
+        $aggregatePath = Join-Path $managed.original_artifact_root ('qc-full-' + $managed.run.id + '.json')
+        Write-EsirJson -Path $aggregatePath -Data $aggregate
+        Write-EsirJson -Path (Join-Path $managed.original_artifact_root 'latest-summary.json') -Data $aggregate
+        $result.summary_path = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $aggregatePath
     }
     return $result
 }
@@ -1975,211 +2052,10 @@ function Invoke-EsirGaiaResourceQc {
         [Parameter(Mandatory = $true)]$Paths,
         [uint32[]]$Seeds,
         [Nullable[int]]$PreviewSize,
-        [string]$FactorioPath
+        [string]$FactorioPath,
+        [switch]$Strict
     )
-
-    $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath -EnsureArtifactRoot
-    if (-not $context.factorio_exe) {
-        throw 'Factorio executable not found for Gaia resource QC.'
-    }
-
-    $presetPath = Join-Path $Paths.repo_root '.codex\skills\esir-dev\assets\gaia-resource-qc.json'
-    $preset = Read-EsirJson -Path $presetPath
-    if (-not $preset) {
-        throw "Gaia resource QC preset not found or invalid: $presetPath"
-    }
-
-    $effectiveSeeds = @(
-        if ($Seeds -and $Seeds.Count -gt 0) {
-            $Seeds | ForEach-Object { [uint32]$_ }
-        } else {
-            $preset.seeds | ForEach-Object { [uint32]$_ }
-        }
-    )
-    $effectivePreviewSize = if ($null -ne $PreviewSize) { [int]$PreviewSize } else { [int]$preset.preview_size }
-    if ($effectivePreviewSize -lt 256 -or $effectivePreviewSize -gt 8192) {
-        throw "Gaia resource QC preview size must be between 256 and 8192; got $effectivePreviewSize."
-    }
-
-    $planet = [string]$preset.planet
-    $targets = @($preset.resources | ForEach-Object { [string]$_ })
-    if (-not $planet -or $targets.Count -eq 0 -or $effectiveSeeds.Count -eq 0) {
-        throw "Gaia resource QC preset is missing its planet, resources, or seed matrix: $presetPath"
-    }
-
-    $minimumEntityCount = [int]$preset.minimum_entity_count
-    $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow 'qc-gaia-resources' -Scenario "$planet|$effectivePreviewSize|$($effectiveSeeds -join ',')" -Reproduction "invoke-esir-dev -Task qc-gaia-resources -Seeds $($effectiveSeeds -join ',') -PreviewSize $effectivePreviewSize"
-    $syncResult = New-FactorioQCResult -Name 'gaia-resources'
-    $runMods = Sync-FactorioRunMods -Context $context -Result $syncResult
-    $targetAlternation = @($targets | ForEach-Object { [regex]::Escape($_) }) -join '|'
-    $runs = @()
-    $failures = [System.Collections.Generic.List[string]]::new()
-
-    foreach ($seedValue in $effectiveSeeds) {
-        $seedText = [string]$seedValue
-        $config = New-FactorioWriteDataConfig -Context $context -Label "gaia-resource-$seedText"
-        $previewPath = Join-Path $context.artifact_root ("gaia-resource-{0}-{1}.png" -f $seedText, $effectivePreviewSize)
-        $stdoutPath = Join-Path $config.write_data_dir 'factorio-gaia-resource-stdout.txt'
-        $failureCountBeforeRun = $failures.Count
-
-        $process = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments @(
-            '--mod-directory', $runMods,
-            '--config', $config.config_path,
-            '--disable-audio',
-            '--generate-map-preview', $previewPath,
-            '--map-preview-size', [string]$effectivePreviewSize,
-            '--map-preview-planet', $planet,
-            '--map-gen-seed', $seedText,
-            '--report-quantities', ($targets -join ',')
-        ) -OutputPath $stdoutPath
-
-        if ($process.exit_code -ne 0) {
-            $failures.Add("seed ${seedText}: Factorio exited with code $($process.exit_code)") | Out-Null
-        }
-
-        $quantityByName = @{}
-        foreach ($line in $process.output) {
-            if ([string]$line -match "(?<name>$targetAlternation): totalEntityCount=(?<count>\d+), totalRichness=(?<richness>\d+)") {
-                $quantityByName[$Matches.name] = [ordered]@{
-                    entity_count = [uint64]$Matches.count
-                    richness = [uint64]$Matches.richness
-                }
-            }
-        }
-
-        $resourceRows = @()
-        foreach ($target in $targets) {
-            $measurement = $quantityByName[$target]
-            $entityCount = if ($measurement) { [uint64]$measurement.entity_count } else { $null }
-            $richness = if ($measurement) { [uint64]$measurement.richness } else { $null }
-            $present = $measurement -and $entityCount -ge $minimumEntityCount
-            if (-not $present) {
-                $observed = if ($null -eq $entityCount) { 'missing report' } else { "$entityCount entities" }
-                $failures.Add("seed ${seedText}: $target reported $observed") | Out-Null
-            }
-
-            $resourceRows += [ordered]@{
-                name = $target
-                entity_count = $entityCount
-                richness = $richness
-                present = [bool]$present
-            }
-        }
-
-        $runs += [ordered]@{
-            seed = $seedValue
-            status = if ($failures.Count -eq $failureCountBeforeRun) { 'ok' } else { 'failed' }
-            resources = $resourceRows
-            preview = if (Test-Path -LiteralPath $previewPath) { Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $previewPath } else { $null }
-            stdout = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $stdoutPath
-            config = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $config.config_path
-        }
-    }
-
-    $controlProbeRuns = @()
-    if ($preset.control_probe) {
-        $probeSeed = [uint32]$preset.control_probe.seed
-        $probeSeedText = [string]$probeSeed
-        $probePreviewSize = [int]$preset.control_probe.preview_size
-        $disabledResources = @($preset.control_probe.disabled_resources | ForEach-Object { [string]$_ })
-
-        foreach ($disabledResource in $disabledResources) {
-            if ($disabledResource -notin $targets) {
-                throw "Gaia resource QC control probe names an unknown resource: $disabledResource"
-            }
-
-            $controls = [ordered]@{}
-            $controls[$disabledResource] = [ordered]@{frequency = 0; size = 0; richness = 0}
-            $mapGenSettings = [ordered]@{autoplace_controls = $controls}
-            $mapGenSettingsPath = Join-Path $context.artifact_root ("gaia-resource-control-{0}.json" -f $disabledResource)
-            Write-FactorioQCTextFile -Path $mapGenSettingsPath -Value ($mapGenSettings | ConvertTo-Json -Depth 5)
-
-            $config = New-FactorioWriteDataConfig -Context $context -Label ("gaia-control-{0}" -f $disabledResource)
-            $previewPath = Join-Path $context.artifact_root ("gaia-control-{0}-{1}-{2}.png" -f $disabledResource, $probeSeedText, $probePreviewSize)
-            $stdoutPath = Join-Path $config.write_data_dir 'factorio-gaia-control-stdout.txt'
-            $failureCountBeforeRun = $failures.Count
-            $process = Invoke-NativeProcess -FilePath $context.factorio_exe -Arguments @(
-                '--mod-directory', $runMods,
-                '--config', $config.config_path,
-                '--disable-audio',
-                '--generate-map-preview', $previewPath,
-                '--map-preview-size', [string]$probePreviewSize,
-                '--map-preview-planet', $planet,
-                '--map-gen-seed', $probeSeedText,
-                '--map-gen-settings', $mapGenSettingsPath,
-                '--report-quantities', ($targets -join ',')
-            ) -OutputPath $stdoutPath
-
-            if ($process.exit_code -ne 0) {
-                $failures.Add("control probe ${disabledResource}: Factorio exited with code $($process.exit_code)") | Out-Null
-            }
-
-            $quantityByName = @{}
-            foreach ($line in $process.output) {
-                if ([string]$line -match "(?<name>$targetAlternation): totalEntityCount=(?<count>\d+), totalRichness=(?<richness>\d+)") {
-                    $quantityByName[$Matches.name] = [ordered]@{
-                        entity_count = [uint64]$Matches.count
-                        richness = [uint64]$Matches.richness
-                    }
-                }
-            }
-
-            $resourceRows = @()
-            foreach ($target in $targets) {
-                $measurement = $quantityByName[$target]
-                $entityCount = if ($measurement) { [uint64]$measurement.entity_count } else { $null }
-                $richness = if ($measurement) { [uint64]$measurement.richness } else { $null }
-                $isDisabledTarget = $target -eq $disabledResource
-                $passed = if ($isDisabledTarget) {
-                    $measurement -and $entityCount -eq 0
-                } else {
-                    $measurement -and $entityCount -ge $minimumEntityCount
-                }
-
-                if (-not $passed) {
-                    $expected = if ($isDisabledTarget) { '0 entities' } else { "at least $minimumEntityCount entity" }
-                    $observed = if ($null -eq $entityCount) { 'missing report' } else { "$entityCount entities" }
-                    $failures.Add("control probe ${disabledResource}: $target expected $expected, observed $observed") | Out-Null
-                }
-
-                $resourceRows += [ordered]@{
-                    name = $target
-                    entity_count = $entityCount
-                    richness = $richness
-                    expected = if ($isDisabledTarget) { 'disabled' } else { 'present' }
-                    passed = [bool]$passed
-                }
-            }
-
-            $controlProbeRuns += [ordered]@{
-                disabled_resource = $disabledResource
-                seed = $probeSeed
-                preview_size = $probePreviewSize
-                status = if ($failures.Count -eq $failureCountBeforeRun) { 'ok' } else { 'failed' }
-                resources = $resourceRows
-                map_gen_settings = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $mapGenSettingsPath
-                preview = if (Test-Path -LiteralPath $previewPath) { Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $previewPath } else { $null }
-                stdout = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $stdoutPath
-            }
-        }
-    }
-
-    $result = [ordered]@{
-        task = 'qc-gaia-resources'
-        overall_status = if ($failures.Count -eq 0) { 'ok' } else { 'failed' }
-        preset = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $presetPath
-        planet = $planet
-        preview_size = $effectivePreviewSize
-        minimum_entity_count = $minimumEntityCount
-        seeds = $effectiveSeeds
-        resources = $targets
-        run_mod_directory = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $runMods
-        runs = $runs
-        control_probes = $controlProbeRuns
-        failures = @($failures)
-    }
-    $result.housekeeping = Finish-EsirManagedQc -RepoRoot $Paths.repo_root -State $managed -ExitCode $(if ($failures.Count -eq 0) { 0 } else { 1 }) -Result $result
-    return $result
+    return (Invoke-EsirGaiaResourceMatrix @PSBoundParameters)
 }
 
 function Get-EsirNumericStats {
@@ -2333,10 +2209,10 @@ function Invoke-EsirRuntimeBenchmark {
     if ($saveSelection -and $saveSelection.path -and (Test-EsirArtifactWithin $saveSelection.path $Paths.repo_root)) { $retainedInputs += $saveSelection.path }
     $managed = Start-EsirManagedQc -RepoRoot $Paths.repo_root -Context $context -Workflow 'runtime-benchmark' -Scenario $scenario -RetainedPaths $retainedInputs -Reproduction "invoke-esir-dev -Task runtime-benchmark; save=$scenario; warmup=$WarmupRuns; runs=$BenchmarkRuns; ticks=$BenchmarkTicks"
     $result = New-FactorioQCResult -Name 'runtime-benchmark'
+    $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName 'runtime-benchmark' -AllowAutoStage
+    Set-EsirRequiredSaveHelpers -Paths $Paths -Context $context -HelperSummary $helperRequirements
     $runMods = Sync-FactorioRunMods -Context $context -Result $result
     $smokeSave = if ($saveSelection -and $saveSelection.path) { $saveSelection.path } else { Find-SmokeSave -Context $context -Save $SavePath }
-    $helperRequirements = Get-EsirSaveHelperSummary -Paths $Paths -SaveSelection $saveSelection -TaskName 'runtime-benchmark' -AllowAutoStage
-    $helperRequirements = Sync-EsirSaveHelperMods -Paths $Paths -RunMods $runMods -HelperSummary $helperRequirements -Result $result
     if (-not $smokeSave) {
         $skipped = [ordered]@{
             task           = 'runtime-benchmark'
@@ -2669,8 +2545,15 @@ function Get-EsirPackVersionFindings {
         }
     }
 
-    if ((@($factorioVersions.Values | Sort-Object -Unique)).Count -gt 1) {
+    # Standalone Minigun retains its independent release line and paired target.
+    $standalone = @('minigun-turret-HD', 'minigun-turret-HD-graphics')
+    $esirVersions = @($factorioVersions.Keys | Where-Object { $_ -notin $standalone } | ForEach-Object { $factorioVersions[$_] })
+    if ((@($esirVersions | Sort-Object -Unique)).Count -gt 1) {
         $findings += [ordered]@{ mod = '<all>'; issue = 'mixed-factorio-version-targets' }
+    }
+    if ($factorioVersions.ContainsKey('minigun-turret-HD-graphics') -and
+        $factorioVersions['minigun-turret-HD'] -ne $factorioVersions['minigun-turret-HD-graphics']) {
+        $findings += [ordered]@{ mod = 'minigun-turret-HD'; issue = 'graphics-dependency-factorio-version-mismatch' }
     }
 
     return $findings
@@ -3233,7 +3116,7 @@ function Invoke-EsirTask {
         'qc-runtime' { return Invoke-EsirQcMode -Paths $Paths -Mode 'runtime' -SaveId $SaveId -SavePath $SavePath -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'runtime-benchmark' { return Invoke-EsirRuntimeBenchmark -Paths $Paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-preview' { return Invoke-EsirQcMode -Paths $Paths -Mode 'preview' -SaveId $SaveId -SavePath $SavePath -Seed $Seed -Planet $Planet -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
-        'qc-gaia-resources' { return Invoke-EsirGaiaResourceQc -Paths $Paths -Seeds $Seeds -PreviewSize $PreviewSize -FactorioPath $FactorioPath }
+        'qc-gaia-resources' { return Invoke-EsirGaiaResourceQc -Paths $Paths -Seeds $Seeds -PreviewSize $PreviewSize -FactorioPath $FactorioPath -Strict:$Strict }
         'qc-assets' { return Invoke-EsirQcMode -Paths $Paths -Mode 'assets' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-package' { return Invoke-EsirQcMode -Paths $Paths -Mode 'package' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-full' { return Invoke-EsirQcMode -Paths $Paths -Mode 'full' -SaveId $SaveId -SavePath $SavePath -Seed $Seed -Planet $Planet -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }

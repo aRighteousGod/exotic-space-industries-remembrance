@@ -5,6 +5,10 @@ description: "Use when Codex needs to import, audit, replace, or choose Factorio
 
 # Factorio Vanilla Prototype Libs
 
+## Native test integration
+
+For changed ESIR consumers, use [native testing](../esir-dev/references/native-testing.md) to select registered contracts and dependency profiles, including mirroring's two Quality rows. Retain final-data and rendered acceptance for prototype/presentation changes; historical surveys keep their original version.
+
 Use this skill when a task touches importable vanilla helper modules outside Factorio's `data/core/lualib` tree.
 
 Main development uses Factorio 2.1.24 from `.codex/esir/factorio-development.json`;

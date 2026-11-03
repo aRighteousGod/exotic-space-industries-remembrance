@@ -5,6 +5,10 @@ description: "Use when editing or auditing ESIR Lua annotations for LuaLS/EmmyLu
 
 # ESIR Lua Types
 
+## Native test integration
+
+For QC context/results use the focused `EsirNativeContext`, `EsirNativeCheck` and `EsirNativeResult` examples in `scripts/qc/native-tests/helper/support.lua`. Annotate changed fixture exports and report boundaries, including invocation identity, selected cases, completion and verdict. Keep production annotations scoped to actual production changes. See [native testing](../esir-dev/references/native-testing.md).
+
 Use this skill when ESIR Lua work should leave the editor with sharper completion, hover text, and diagnostics. The default is touched-code coverage: annotate the functions, tables, event payloads, options, and module exports involved in the patch without forcing unrelated churn.
 
 ## Workflow

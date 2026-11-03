@@ -37,18 +37,11 @@ Use this helper when ESIR work needs a deterministic rupture scenario instead of
   - the chemical tank dies
   - the flammable oil tank survives until the scripted kill, then dies while the rupture scheduler plays back
 
-## Staging Steps
+## Managed staging
 
-1. Copy `assets/zzz-fluid-rupture-qc_0.0.1` into `.factorio-qc/fmqc/mods-live/`.
-2. Add or enable the `zzz-fluid-rupture-qc` entry in `.factorio-qc/fmqc/mods-live/mod-list.json`.
-3. Create the save with the normal Factorio executable, for example:
-   - `factorio.exe --create .factorio-qc\\fluid-rupture.zip --mod-directory .factorio-qc\\fmqc\\mods-live`
-4. Keep the helper staged for direct helper-aware playback, for example:
-   - `factorio.exe --mod-directory .factorio-qc\\fmqc\\mods-live --disable-audio --benchmark .factorio-qc\\fluid-rupture.zip --benchmark-ticks 90 --benchmark-runs 1`
-5. Repo-side runtime benchmarks now honor the save catalog's `helper_mods`, so this path will restage and enable `zzz-fluid-rupture-qc` automatically:
-   - `powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId fluid-rupture`
-6. Wrapper-driven runtime lanes still rebuild `mods-live` without replaying helper mods automatically, so treat `qc-runtime -SaveId fluid-rupture` as a save-selection convenience only after manual helper staging or until the lower QC sync path grows save-aware helper staging.
-7. Disable or remove the helper again before unrelated QC runs.
+The save catalogue's required helpers now stage automatically for `qc-runtime`, `qc-preview`, `qc-full` and `runtime-benchmark`. Missing or incompatible helpers fail before engine launch. This helper still carries historical 2.0 metadata; port its metadata and APIs together before claiming current 2.1.24 acceptance. Use the explicit catalogue family and preserve historical receipts. Do not copy into shared `fmqc/mods-live` directories. See [native testing](native-testing.md).
+
+For an already compatible catalogued save, select its `SaveId` through the wrapper. Keep the scenario's full tick budget and required reports; short runtime smoke remains separate from complete functional acceptance.
 
 ## Scope
 

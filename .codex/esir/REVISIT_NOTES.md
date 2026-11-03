@@ -16,6 +16,12 @@ Close or remove entries in the same patch that resolves them.
   - `Files:` `lib/runtime-options-config.lua`, `scripts/control/runtime-options.lua`, [runtime options model](blueprints/runtime-options.md#migration).
   - `Next safe move:` decide a supported historical-save migration boundary before retiring legacy names; preserve post-import native choices and the migration marker.
 
+- `2026-11-01 | native-test-migration | explicit catalogue | The initial native lane covers seven core families. Remaining fixtures, cryo compatibility, the 64-row Quality matrix, presentation/combat families and dedicated rendered/performance/multiplayer workflows retain needs-port or historical status in test-suites.json; adapter repair alone is not acceptance.`
+  - `Files:` `.codex/esir/test-suites.json`, `.codex/skills/esir-dev/references/native-testing.md`, `scripts/qc/native-tests/`.
+  - `Next safe move:` select a named family, preserve its old receipts, port required helper/API contracts and qualify every declared row before changing eligibility.
+
+- `2026-11-01 | save-aware-helper-staging | staging gap closed | qc-runtime, qc-preview, qc-full and runtime-benchmark now resolve catalogue helpers through the shared managed staging path. Nine host integration assertions cover ID/path resolution, private helper staging and missing/incompatible rejection. Historical helper metadata/API ports remain explicit compatibility work.`
+  - `Files:` `scripts/esir-dev-lib.ps1`, `scripts/esir-qc-version-staging.ps1`, `scripts/qc/native-tests/test_helpers.ps1`.
 
 - `2026-10-25 | induction-scripted-tile-removal | pre-existing schema gap | Factorio 2.0.77 script_raised_set_tiles supplies Tile[] without old_tile, while the matrix removal handler requires old_tile. Scripted replacement of matrix floor can leave topology stale until reanalysis; native player mining and floor rejoining pass the circuit acceptance fixture.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/induction-matrix.lua` (`on_destroyed_tile`), `scripts/qc/induction-circuit/instrument.lua`.
@@ -98,9 +104,9 @@ Close or remove entries in the same patch that resolves them.
   - `Files:` `exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua`, `.codex/skills/esir-dev/assets/zzz-orbital-logistics-qc_0.0.1/control.lua`
   - `Next safe move:` add one helper staging step or seeded save variant that brings a bound silo to `rocket_ready`, then assert `launch_count`, `last_launch_tick`, and post-launch lease behavior from the existing structured snapshots.
 
-- `2026-04-17 | orbital-logistics-qc | open | the save-driven orbital cohort helper works during direct helper-aware runs, and the save catalog now records its helper requirement explicitly, but the wrapper-driven runtime lanes still rebuild mods-live without replaying zzz-orbital-logistics-qc automatically.`
+- `2026-04-17 | orbital-logistics-qc | staging resolved 2026-11-01 | the save-driven orbital cohort helper requirement now flows through managed wrapper staging. A helper whose metadata or APIs target an older engine fails compatibility checks until separately ported.`
   - `Files:` `.codex/skills/esir-dev/assets/zzz-orbital-logistics-qc_0.0.1/control.lua`, `.codex/skills/esir-dev/references/orbital-logistics-qc-helper.md`, `scripts/esir-dev-lib.ps1`
-  - `Next safe move:` teach the lower QC sync path to honor save-catalog `helper_mods` during wrapper-driven runtime lanes so `qc-runtime -SaveId orbital-cohort` stops depending on manual or pre-staged helper sync.
+  - `Next safe move:` port and qualify the historical orbital cohort helper against the exact current profile before treating it as current behavior acceptance.
 
 - `2026-04-19 | orbital-logistics | open | click-driven uplink refreshes now seed the current bound silo the same way open-panel repaint refreshes do, so immediate post-click summaries stop repeating the same silo lookup when the binding did not change. The next likely orbital UPS hotspot is still the remaining open-uplink binding/control churn plus any leftover render-time lane passes around the dispatch surface.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/orbital-logistics.lua`
@@ -111,13 +117,18 @@ Close or remove entries in the same patch that resolves them.
   - `Next safe move:` benchmark the remaining uplink binding/control repaint path, then decide whether the next safe win is a narrower adjacent-binding cache shortcut or a render-time lane staging trim that still preserves current lease and launch behavior.
 
 
-- `2026-04-18 | flammable-ruptures | open | rupture job assembly now reuses one shared center-area candidate scan, local pipeline fallback rejects out-of-radius candidates before paying for `sqrt`, damage rings skip impossible distance math for victims outside the blast, dense pipe-network fire targeting now keeps a bounded nearest-target set instead of traversal-order cap wins, and the repo now ships a dedicated fluid-rupture QC helper plus rupture snapshot bridge. The save catalog now records the rupture helper explicitly and repo-side `runtime-benchmark` can restage it automatically; the remaining gap is still wrapper-driven runtime lanes.`
+- `2026-04-18 | flammable-ruptures | staging resolved 2026-11-01 | rupture job assembly now reuses one shared center-area candidate scan, local pipeline fallback rejects out-of-radius candidates before paying for `sqrt`, damage rings skip impossible distance math for victims outside the blast, dense pipe-network fire targeting now keeps a bounded nearest-target set instead of traversal-order cap wins, and the repo now ships a dedicated fluid-rupture QC helper plus rupture snapshot bridge. Save-aware wrapper runtime lanes and runtime-benchmark now resolve the catalogue helper through shared managed staging; historical helper metadata/API qualification remains open.`
   - `Files:` `exotic-space-industries-remembrance/control.lua`, `exotic-space-industries-remembrance/scripts/control/fluid-rupture-effects.lua`, `exotic-space-industries-remembrance/scripts/control/flammable-fluids.lua`, `.codex/skills/esir-dev/assets/zzz-fluid-rupture-qc_0.0.1/control.lua`, `.codex/skills/esir-dev/references/fluid-rupture-qc-helper.md`, `.codex/esir/save-catalog.json`
-  - `Next safe move:` teach the lower QC sync path to honor save-catalog `helper_mods` during wrapper-driven runtime lanes, then use the dedicated fluid-rupture save for `qc-runtime` smoke and any later dense-network rupture benchmark work without manual restaging.
+  - `Next safe move:` port and qualify the historical 2.0 fluid-rupture helper metadata/APIs on exact 2.1.24 before claiming current behavior acceptance; keep dense-network performance evidence separate from the native functional suite.
 
 - `2026-04-15 | runtime-scheduler | open | Vulcanus dormant ready queues still rely on false tombstones plus local active-surface bookkeeping.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/vulcanus-fumaroles.lua`
   - `Next safe move:` only migrate further after the shared scheduler can express the false-tombstone or equivalent live-set semantics without changing dormant-surface fairness behavior.
+
+## Resolved
+
+- `2026-11-03 | generic-gaia-qc-companion | resolved | Required fixed preview and corrected native Gaia coverage passed in a complete qc-full -Strict result of ok. The native case passed 56 assertions and nine host checks. The eight-seed/six-control matrix and both missing-resource/legacy-generation controls passed qualification. Historical generation and migration families retain their catalogue status.`
+  - `Evidence:` [final QC gap repair acceptance](handoffs/factorio-final-qc-gap-repairs-acceptance-2026-11-03.md#gaia-acceptance-and-the-observed-window).
 
 ## Intentional Local
 

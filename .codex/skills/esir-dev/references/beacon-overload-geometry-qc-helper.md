@@ -43,10 +43,9 @@ Structured records use the `BEACON_OVERLOAD_GEOMETRY_QC` log prefix and are mirr
 
 ## Staging and Running
 
-1. Recreate the ignored scenario save after helper topology changes:
-   - `factorio.exe --create .factorio-qc\beacon-overload-geometry.zip --mod-directory .factorio-qc\fmqc\mods-live`
+1. Port the historical 2.0 helper metadata/APIs together before current-engine use, then recreate its private managed checkpoint after topology changes. Shared `fmqc/mods-live` staging is obsolete; see [native testing](native-testing.md).
 2. Run one warm-up plus five measured executions:
    - `powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task runtime-benchmark -SaveId beacon-overload-geometry -WarmupRuns 1 -BenchmarkRuns 5 -BenchmarkTicks 3600`
 3. Inspect the aggregate record and structured log for invalid-object errors, stranded icons, non-empty queues, duplicate edges, and stale registrations.
 
-Repo-side runtime benchmarking restages and enables the helper from the save catalog. Disable or remove it before unrelated direct QC runs. This helper is QA-only and must not ship in release mod packs.
+Save-aware runtime/preview/full and benchmark lanes resolve required helpers through shared managed staging. Incompatible metadata fails explicitly. This helper is QA-only and must not ship in release mod packs; the catalogue retains its migration status separately from historical acceptance.

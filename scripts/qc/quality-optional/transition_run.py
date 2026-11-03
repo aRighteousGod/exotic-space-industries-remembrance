@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import time
 
-from run import REPO, FIXTURE, NAME, FLAGS, stage, configure, execute, write_json, source_hashes
+from run import REPO, FIXTURE, NAME, FLAGS, stage, configure, execute, write_json, source_hashes, mods_path, output_path, context
 
 
 def main():
@@ -31,6 +31,8 @@ def main():
     engine=REPO/development["engine_path"]
     frozen=root/("transition-main" if args.worker=="t" else "transition-main-u")
     worker=root/args.worker
+    if args.refresh_source and (worker/'context.json').exists():
+        raise ValueError('Cannot refresh source of an existing private worker; choose a new registered run')
     if not frozen.exists() or args.refresh_source:
         shutil.copytree(REPO/NAME,frozen,dirs_exist_ok=True)
         for filename,exports in {
@@ -47,12 +49,12 @@ def main():
         with (frozen/"control.lua").open("a",encoding="utf-8") as stream:
             stream.write("\n"+(FIXTURE/"bridge.lua").read_text(encoding="utf-8"))
         write_json(root/("transition-production-source-"+args.worker+".json"),source_hashes(REPO/NAME))
-        if not (worker/"mods/esir-qc-quality-optional").exists():stage(worker,frozen,engine)
-    for path in FIXTURE.glob("*.lua"):shutil.copy2(path,worker/"mods/esir-qc-quality-optional"/path.name)
-    shutil.copy2(FIXTURE/"info.json",worker/"mods/esir-qc-quality-optional/info.json")
+    stage(worker,frozen,engine)
+    for path in FIXTURE.glob("*.lua"):shutil.copy2(path,mods_path(worker)/"esir-qc-quality-optional"/path.name)
+    shutil.copy2(FIXTURE/"info.json",mods_path(worker)/"esir-qc-quality-optional/info.json")
     case={"id":args.id or args.phase,"phase":args.phase,"quality":args.phase!="removed" and not args.without_quality,"effects":"esir",
           "quality_permission":args.quality_permission,"productivity_permission":args.productivity_permission,"overload":True}
-    save=Path(os.path.abspath(args.save)) if args.save else worker/"donor-fresh.zip"
+    save=Path(os.path.abspath(args.save)) if args.save else Path(context(worker)['scratch_root'])/"donor-fresh.zip"
     if args.phase=="reload":
         assert args.save,"Reload requires an accepted saved checkpoint"
         # Keep the exact original fixture/data selection. Changing the phase in
@@ -81,7 +83,7 @@ def main():
         if args.phase=="normal":
             result=execute(worker,engine,case,["--benchmark",str(save),"--benchmark-ticks","1600","--benchmark-runs","1"],"normal")
             if result["passed"]:
-                result["normal"]=json.loads((worker/"script-output"/(case["id"]+".json")).read_text())
+                result["normal"]=json.loads((output_path(worker)/(case["id"]+".json")).read_text())
                 result["passed"]=result["normal"].get("passed",False)
             write_json(worker/(case["id"]+".receipt.json"),result)
             assert result["passed"],result

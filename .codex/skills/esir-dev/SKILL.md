@@ -38,7 +38,9 @@ It composes these engine-layer skills:
 - `manifest-refresh`: regenerate checked-in manifests under `.codex/esir/`, including the dependency catalog
 - `dependency-refresh|dependency-query|dependency-diff`: operate on the ESIR dependency catalog and optional local installed-mod enrichment
 - `preflight`: static syntax/reference/header/encoding and conceptual-blueprint coverage sweeps without touching gameplay data
-- `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness
+- `test-list|test-plan`: read-only suite discovery and changed-path selection; see [native testing](references/native-testing.md).
+- `qc-test`: run selected current functional suites, defaulting to core. Use `Suite`, `Case`, `TestProfile`, `TestTier` and `ChangedSince` for exact selection.
+- `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness. Runtime retains smoke coverage; `qc-full` additionally requires the native core suite gate.
 - `qc-gaia-resources`: run the checked-in multi-seed Gaia resource matrix described in [`references/gaia-resource-qc.md`](./references/gaia-resource-qc.md)
 - `runtime-benchmark`: run save-catalog-backed runtime benchmarks, auto-staging helper mods declared for that save
 - `portal-scout`: build or refresh `.codex/esir/portal-shortlist.json`
@@ -329,7 +331,7 @@ See [references/runtime-scheduler-guidelines.md](./references/runtime-scheduler-
 
 - Prefer `-SaveId` over `-SavePath`.
 - The wrapper resolves `-SaveId` through `.codex/esir/save-catalog.json`.
-- Save-catalog entries may declare `helper_mods` with asset paths and auto-stage tasks. The repo-side `runtime-benchmark` path can restage those helper mods automatically, but wrapper-driven `qc-runtime`, `qc-preview`, and `qc-full` still require manual or pre-staged helper sync until the lower QC sync path grows save-aware helper staging.
+- Save-catalog entries declare `helper_mods` with canonical asset paths. `runtime-benchmark`, `qc-runtime`, `qc-preview` and `qc-full` resolve them into the same managed staging contract used by native suites. Explicit save paths retain matching catalogue requirements. Missing or incompatible required helpers fail; never repair them by copying into shared run-mod directories.
 - When neither is provided, `qc-runtime` and `qc-preview` fall back to the catalog default for that task.
 
 ## Sidecar Roles
