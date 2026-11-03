@@ -422,15 +422,17 @@ local function refresh_availability(session,player)
     end
 end
 
-local function diagnostic_value(value)
+local function diagnostic_value(value,prefix)
     if value==nil or value=="Not sampled" then return label("diag-not-sampled") end
     if type(value)=="boolean" then return label(value and "diag-yes" or "diag-no") end
+    if prefix and type(value)=="string" then return {"?",{prefix..".value-"..value},value} end
     return tostring(value)
 end
 
-local function diagnostic_name(name)
+local function diagnostic_name(name,prefix)
     local words=tostring(name):gsub("([a-z])([A-Z])","%1 %2"):gsub("[_.]"," ")
-    return words:sub(1,1):upper()..words:sub(2)
+    local fallback=words:sub(1,1):upper()..words:sub(2)
+    return prefix and {"?",{prefix..".field-"..name},fallback} or fallback
 end
 
 local function diagnostic_state(value)
@@ -497,7 +499,7 @@ local function diagnostic_join(parts)
     return parts
 end
 
-local function diagnostic_metrics(values)
+local function diagnostic_metrics(values,prefix)
     local keys={}
     for key,value in pairs(values or {}) do
         if type(value)=="string" or type(value)=="number" or type(value)=="boolean" then keys[#keys+1]=key end
@@ -507,7 +509,7 @@ local function diagnostic_metrics(values)
     local lines={""}
     for _,key in ipairs(keys) do
         if #lines>1 then lines[#lines+1]="\n" end
-        lines[#lines+1]={"ei-admin.diag-metric",diagnostic_name(key),diagnostic_value(values[key])}
+        lines[#lines+1]={"ei-admin.diag-metric",diagnostic_name(key,prefix),diagnostic_value(values[key],prefix)}
     end
     return diagnostic_join(lines)
 end
@@ -525,10 +527,10 @@ local function overview_metrics(snapshot)
             or lower:find("queue",1,true) or lower:find("active_job",1,true)
         local counted=lower:find("count",1,true) or lower:find("tracked",1,true) or lower:find("registered",1,true)
         if queued and not lower:find("tick",1,true) and queue_added<1 then
-            queue[#queue+1]={"ei-admin.diag-metric",diagnostic_name(key),values[key]};queue_added=queue_added+1
+            queue[#queue+1]={"ei-admin.diag-metric",diagnostic_name(key,snapshot.locale_prefix),values[key]};queue_added=queue_added+1
         elseif counted and count_added<2 then
             if count_added>0 then counts[#counts+1]="; " end
-            counts[#counts+1]={"ei-admin.diag-metric",diagnostic_name(key),values[key]};count_added=count_added+1
+            counts[#counts+1]={"ei-admin.diag-metric",diagnostic_name(key,snapshot.locale_prefix),values[key]};count_added=count_added+1
         end
     end
     return count_added>0 and counts or label("diag-counts-unsampled"),queue_added>0 and queue or label("diag-queue-unsampled")
@@ -543,7 +545,7 @@ local function diagnostic_inspection(snapshot)
     if inspection.truncated then lines[#lines+1]="\n";lines[#lines+1]=label("diag-inspection-truncated") end
     for _,collection in ipairs(inspection.collections or {}) do
         lines[#lines+1]="\n"
-        lines[#lines+1]={"ei-admin.diag-collection",diagnostic_name(collection.path),collection.entries or 0,
+        lines[#lines+1]={"ei-admin.diag-collection",diagnostic_name(collection.path,snapshot.locale_prefix),collection.entries or 0,
             collection.valid_entities or 0,collection.invalid_entities or 0,collection.scalar_values or 0}
         if collection.missing then lines[#lines+1]=" ";lines[#lines+1]=label("diag-collection-missing") end
         if collection.changed_during_inspection or collection.unsupported_key then
@@ -620,9 +622,10 @@ local function refresh_diagnostics(session,player,tick)
             cache={"ei-admin.diag-cache",diagnostic_value(snapshot.cache_updated_tick)},
             repair=snapshot.last_repair_tick and {"ei-admin.diag-last-repair",snapshot.last_repair_tick,
                 label(snapshot.last_repair_ok and "diag-repair-ok" or "diag-repair-failed"),snapshot.last_repair_message or ""} or label("diag-no-repair"),
-            fields=diagnostic_metrics(snapshot.fields),cached=diagnostic_metrics(snapshot.cached),counters=diagnostic_metrics(snapshot.counters),
+            fields=diagnostic_metrics(snapshot.fields,snapshot.locale_prefix),cached=diagnostic_metrics(snapshot.cached,snapshot.locale_prefix),counters=diagnostic_metrics(snapshot.counters,snapshot.locale_prefix),
             inspection=diagnostic_inspection(snapshot),
         }
+        if snapshot.diagnostic_note then values.fields={"",values.fields,"\n\n",{snapshot.diagnostic_note}} end
         for key,value in pairs(values) do diagnostic_caption(diagnostic,key,diagnostic.values[key],value) end
     end
     local state=common.peek();local active=state and state.inspection

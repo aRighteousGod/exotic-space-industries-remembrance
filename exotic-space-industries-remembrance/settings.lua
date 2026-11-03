@@ -14,6 +14,8 @@ data:extend({require("lib/beacon-profile-config").startup_setting_definition()})
 data:extend(require("lib/module-policy-config").startup_setting_definitions())
 data:extend(require("lib/pyric-radiance-config").startup_setting_definitions())
 data:extend(require("lib/ballistic-divergence-config").startup_setting_definitions())
+data:extend(require("lib/factory-passage-config").startup_setting_definitions())
+data:extend(require("lib/factory-passage-config").runtime_setting_definitions())
 data:extend({
   {type="bool-setting", name="ei-admin-tools-enabled", setting_type="startup", default_value=true, order="zz-admin-a"},
   {type="bool-setting", name="ei-admin-new-planets-peaceful", setting_type="runtime-global", default_value=false, order="zz-admin-b"},

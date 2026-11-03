@@ -48,6 +48,7 @@ local ei_spidertron_limiter = require("scripts/control/spidertron-limiter")
 local ei_spider_vehicles = require("scripts/control/spider-vehicles")
 local ei_flamethrower_fuels = require("scripts/control/flamethrower-fuels")
 local ei_air_scrubber = require("scripts/control/air-scrubber-compat")
+local ei_factory_passage = require("scripts/control/factory-passage")
 local ei_beacon_module_policy = require("scripts/control/beacon-module-policy")
 local ei_firefighting = require("scripts/control/firefighting")
 local ei_water_turret = require("scripts/control/water-turret")
@@ -108,12 +109,28 @@ local ei_hemocrystal_wall = require("scripts/control/hemocrystal-wall")
 local ei_randomized_tree_growth = require("scripts/control/randomized-tree-growth")
 local ei_admin_tools = require("scripts/control/admin-tools")
 local ei_rebuild_monitor = require("scripts/control/rebuild-monitor")
+-- Scripted recipe owners notify passage at the write site; no polling of their
+-- custom control systems is needed. Reinstalled on load, never saved in storage.
+local function passage_recipe_changed(entity,tick)
+    if ei_lib.entity_check(entity) and entity.prototype.fluidbox_prototypes[1] then
+        ei_factory_passage.refresh_entity(entity,tick,true)
+    end
+end
+ei_fusion_reactor.set_recipe_change_handler(passage_recipe_changed)
+ei_auric_inoculation_vat.set_recipe_change_handler(passage_recipe_changed)
+ei_neutron_collector.set_recipe_change_handler(passage_recipe_changed)
+-- blueprint-ref: .codex/esir/blueprints/factory-passage.md#lifecycle
+remote.add_interface("ei_factory_passage", {
+    refresh_entity=function(entity) ei_factory_passage.refresh_entity(entity,game.tick) end,
+    status=ei_factory_passage.status,
+})
 ei_rebuild_monitor.configure{
     admin_viewer=ei_admin_tools.has_rebuild_viewer,
     admin_viewers=ei_admin_tools.has_rebuild_viewers,
     admin_refresh=ei_admin_tools.refresh_rebuild_activity,
 }
 ei_admin_tools.configure({
+    ["factory-passage"]=ei_factory_passage,
     ["auric-inoculation-vat"]=ei_auric_inoculation_vat,["beacon-overload"]=ei_beacon_overload,
     ["black-hole"]=ei_black_hole,["camp-fire"]=ei_camp_fire,["combustion-turbine"]=ei_combustion_turbine,
     ["crystal-accumulator"]=ei_crystal_accumulator,["em-trains"]=em_trains,
@@ -164,6 +181,7 @@ script.on_event(defines.events.on_surface_created,function(event)
     ei_terrain_gui.on_surface_event(event)
 end)
 script.on_event(defines.events.on_runtime_mod_setting_changed,function(event)
+    ei_factory_passage.on_settings_changed(event)
     ei_terrain_evolution.on_settings_changed(event)
     ei_terrain_alerts.on_settings_changed(event)
     ei_alerts.on_settings_changed(event)
@@ -176,15 +194,18 @@ script.on_event(defines.events.on_chunk_deleted,function(event)
     ei_water_turret.on_chunk_deleted(event)
 end)
 script.on_event(defines.events.on_surface_imported,function(event)
+    ei_factory_passage.on_surface_imported(event)
     ei_water_turret.on_surface_imported(event)
     ei_terrain_evolution.on_surface_created(event)
     ei_terrain_gui.on_surface_event(event)
 end)
 script.on_event(defines.events.on_surface_cleared,function(event)
+    ei_factory_passage.on_surface_removed(event)
     ei_alerts.on_surface_removed(event)
     ei_terrain_evolution.on_surface_created(event)
 end)
 script.on_event(defines.events.on_surface_deleted,function(event)
+    ei_factory_passage.on_surface_removed(event)
     ei_planet_enemies.on_surface_deleted(event);ei_map_settings.on_surface_deleted(event)
     ei_admin_tools.on_surface_deleted(event);ei_terrain_gui.on_surface_event(event)
 end)
@@ -194,8 +215,14 @@ script.on_event(defines.events.on_biter_base_built,function(event)
 end)
 script.on_event(defines.events.on_segmented_unit_created,ei_planet_enemies.on_segmented_unit_created,
     {{filter="name",name="small-demolisher"},{filter="name",name="medium-demolisher"},{filter="name",name="big-demolisher"}})
-script.on_event(defines.events.on_pre_player_left_game,ei_admin_tools.on_player_left_game)
-script.on_event(defines.events.on_pre_player_removed,ei_admin_tools.on_player_removed)
+script.on_event(defines.events.on_pre_player_left_game,function(event)
+    ei_factory_passage.on_player_left(event);ei_admin_tools.on_player_left_game(event)
+end)
+script.on_event(defines.events.on_pre_player_removed,function(event)
+    ei_factory_passage.on_player_left(event);ei_admin_tools.on_player_removed(event)
+end)
+script.on_event(defines.events.on_pre_player_died,ei_factory_passage.on_player_left)
+script.on_event(defines.events.on_multiplayer_init,ei_factory_passage.reconcile_gui_sessions)
 script.on_event(defines.events.on_permission_group_edited,ei_admin_tools.on_permission_group_edited)
 script.on_event(defines.events.on_permission_group_deleted,ei_admin_tools.on_permission_group_deleted)
 script.on_event({defines.events.on_player_display_resolution_changed,defines.events.on_player_display_scale_changed},function(event)
@@ -746,6 +773,7 @@ script.on_init(function(event)
     ei_terrain_evolution.initialize(event and event.tick or game.tick)
     ei_terrain_alerts.initialize(event and event.tick or game.tick)
     ei_alerts.initialize(support_rebuild_tick)
+    ei_factory_passage.rebuild_runtime_state("init",support_rebuild_tick)
     ei_terrain_gui.initialize(event and event.tick or game.tick)
     ei_black_hole.rebuild_gui_viewers()
     ei_induction_matrix.rebuild_gui_viewers()
@@ -808,6 +836,7 @@ script.on_event(defines.events.on_force_created, function(e)
 end)
 
 script.on_event(defines.events.script_raised_teleported, function(e)
+    ei_factory_passage.on_teleported(e)
     ei_terrain_evolution.on_teleported(e)
     ei_sweeping_radar.on_teleported(e)
     ei_water_turret.on_teleported(e)
@@ -887,7 +916,13 @@ script.on_event(defines.events.on_cancelled_upgrade,function(event)
     ei_sweeping_radar.on_cancelled_upgrade(event)
 end)
 script.on_event({defines.events.on_marked_for_deconstruction,defines.events.on_cancelled_deconstruction},ei_admin_tools.on_area_order)
-script.on_event(defines.events.on_player_flipped_entity,ei_admin_tools.on_entity_interaction)
+script.on_event(defines.events.on_player_flipped_entity,function(e)
+    ei_admin_tools.on_entity_interaction(e)
+    ei_factory_passage.on_changed(e)
+end)
+script.on_event(defines.events.on_blueprint_settings_pasted,function(event)
+    ei_factory_passage.on_changed(event)
+end)
 script.on_event("ei-sweeping-radar-open", ei_sweeping_radar_gui.on_open_input)
 
 script.on_event(defines.events.on_entity_damaged, function(event)
@@ -1014,6 +1049,7 @@ script.on_event(defines.events.on_player_changed_position, function(e)
 end)
 
 script.on_event(defines.events.on_player_changed_surface, function(e)
+    ei_factory_passage.on_gui_opened(e)
     ei_admin_tools.on_player_event(e)
     ei_auric_inoculation_vat.on_player_changed_surface(e)
     ei_terrain_gui.on_player_event(e)
@@ -1035,6 +1071,7 @@ script.on_event(defines.events.on_entity_logistic_slot_changed, function(e)
 end)
 
 script.on_event(defines.events.on_entity_settings_pasted, function(e)
+    ei_factory_passage.on_changed(e)
     ei_admin_tools.on_entity_interaction(e)
     ei_induction_matrix.on_entity_settings_pasted(e)
     ei_sweeping_radar.on_settings_pasted(e)
@@ -1056,6 +1093,7 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
 end)
 
 script.on_event(defines.events.on_player_rotated_entity, function(e)
+    ei_factory_passage.on_changed(e)
     ei_admin_tools.on_entity_interaction(e)
     ei_railgun_cooling.on_player_rotated_entity(e)
 end)
@@ -1073,6 +1111,7 @@ script.on_event(defines.events.on_cargo_pod_delivered_cargo, function(e)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(e)
+    ei_factory_passage.on_object_destroyed(e)
     ei_planet_enemies.on_object_destroyed(e)
     ei_terrain_evolution.on_object_destroyed(e)
     ei_admin_tools.on_object_destroyed(e)
@@ -1193,6 +1232,7 @@ end
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
+    ei_factory_passage.on_gui_opened(event)
     if ei_admin_tools.on_gui_opened(event) then return end
     local player = event and event.player_index and game.get_player(event.player_index) or nil
     local entity = get_valid_gui_entity(event, player, true)
@@ -1252,6 +1292,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
+    ei_factory_passage.on_gui_closed(event)
     if ei_terrain_gui.on_gui_closed(event) then return end
     ei_admin_tools.on_gui_closed(event)
     -- Close routing mirrors open routing, but some UIs close by element name rather than
@@ -1461,6 +1502,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 end)
 
 script.on_event(defines.events.on_player_left_game, function(event)
+    ei_factory_passage.on_player_left(event)
     ei_terrain_gui.on_player_left(event)
     ei_terrain_alerts.on_player_event(event)
     ei_alerts.on_player_event(event)
@@ -1484,6 +1526,7 @@ script.on_event(defines.events.on_player_left_game, function(event)
 end)
 
 script.on_event(defines.events.on_player_removed, function(event)
+    ei_factory_passage.on_player_left(event)
     ei_terrain_gui.on_player_removed(event)
     ei_terrain_alerts.on_player_removed(event)
     ei_alerts.on_player_removed(event)
@@ -1500,6 +1543,7 @@ script.on_event(defines.events.on_player_removed, function(event)
 end)
 
 script.on_event(defines.events.on_player_died, function(event)
+    ei_factory_passage.on_player_left(event)
     ei_admin_tools.on_player_event(event)
     ei_surveyor_scope.on_player_died(event)
 end)
@@ -1666,6 +1710,7 @@ script.on_configuration_changed(function(e)
     -- `mod_changes` does not cover startup-setting-only changes, and tech scaling depends on
     -- both startup settings and the loaded prototype set, so refresh it for every
     -- configuration-changed event.
+    ei_factory_passage.rebuild_runtime_state("configuration-changed",configuration_tick)
     ei_tech_scaling.init()
     em_trains_gui.mark_dirty()
     ei_black_hole.rebuild_gui_viewers()
@@ -1694,6 +1739,7 @@ script.on_event(
         -- `on_player_joined_game` is the MP-safe load/reconnect path; avoid deriving gameplay
         -- work from `on_load`, which also runs for peers connecting to a live session.
         ei_echo_codex.queue_arrival(event.player_index)
+        ei_factory_passage.on_gui_opened(event)
         ei_rebuild_monitor.on_player_event(event)
         ei_terrain_alerts.on_player_event(event)
         ei_alerts.on_player_event(event)
@@ -1719,6 +1765,7 @@ script.on_event(
         -- the character entity, and armor changes can add or remove burner-backed equipment grids.
         ei_fueler.on_player_ready(event.player_index)
         ei_surveyor_scope.on_player_controller_changed(event)
+        if event.name==defines.events.on_player_controller_changed then ei_factory_passage.on_gui_opened(event) end
         ei_admin_tools.on_player_event(event)
         ei_terrain_gui.on_player_event(event)
         ei_terrain_alerts.on_player_event(event)
@@ -1727,6 +1774,7 @@ script.on_event(
 )
 
 script.on_event(defines.events.on_singleplayer_init, function(_event)
+    ei_factory_passage.reconcile_gui_sessions(_event)
     -- Singleplayer save loads do not raise `on_player_joined_game`.
     -- Use the dedicated SP-init hook to replay the queued arrival ritual without
     -- deriving gameplay work from `on_load`.
@@ -2006,6 +2054,7 @@ function updater(event)
     if ei_water_turret.has_tick_work(event) then
         ei_water_turret.updater(event)
     end
+    if ei_factory_passage.has_work(event.tick) then ei_factory_passage.updater(ei_factory_passage.update_budget(),event) end
     if ei_spider_vehicles.has_tick_work(event) then
         ei_spider_vehicles.updater(event)
     end
@@ -2100,6 +2149,9 @@ end
 
 ---@param event EventData.on_entity_cloned
 function on_cloned_entity(event)
+    if event and ei_factory_passage.is_helper(event.destination) then
+        ei_factory_passage.on_built(event.destination,event);return
+    end
     if event then event.destination = ei_air_scrubber.normalize(event.destination) end
     -- Clone events expose the new entity as `destination`, not `entity`.
     -- Route only clone-safe registration/update hooks here; full build routing
@@ -2151,6 +2203,7 @@ function on_cloned_entity(event)
     event.destination, clone_event.entity, clone_event.created_entity, clone_event.destination = destination, destination, destination, destination
     if not destination then return end
 
+    ei_factory_passage.on_built(destination,event)
 
     if ei_fluid_safety.counts_for_fluid_handling(destination) then
         ei_register.register_fluid_entity(destination)
@@ -2186,8 +2239,9 @@ end
 
 ---@param event ESIRBuildEvent
 function on_built_entity(event)
-    if not event or not event.entity then
-        return
+    if not event or not event.entity then return end
+    if ei_factory_passage.is_helper(event.entity) then
+        ei_factory_passage.on_built(event.entity,event);return
     end
     if ei_air_scrubber.is_notifying(event.entity) then return end
     -- Scrubber normalization notifies other mods synchronously. Its returned
@@ -2227,6 +2281,7 @@ function on_built_entity(event)
     local entity = event.entity
     local current_tick = event.tick
     ei_spider_vehicles.on_built_entity(event)
+    ei_factory_passage.on_built(entity,event)
 
     -- Entities registered here participate in shared fluid handling managed by register-util.
     if ei_fluid_safety.counts_for_fluid_handling(entity) then
@@ -2284,6 +2339,7 @@ function on_destroyed_entity(e)
       return
     end
 
+    ei_factory_passage.on_removed(e.entity,e)
     ei_terrain_evolution.on_entity_removed(e)
     ei_sweeping_radar.on_destroyed_entity(e)
     ei_flamethrower_fuels.on_destroyed_entity(e)

@@ -13,11 +13,15 @@
 -- blueprint-ref: .codex/esir/blueprints/admin-runtime-registry.md#rebuild-reporting
 local lib=require("lib/lib")
 local scheduler=require("lib/runtime-scheduler")
+local passage_config=require("lib/factory-passage-config")
 local model={}
 local context
 local INSPECTION_BUDGET=64
 local MAX_INSPECTION_RECORDS=1000000
 local DEFINITIONS={
+    {id="factory-passage",label="Factory passage",localised_label={"ei-factory-passage.owner"},locale_prefix="ei-factory-passage",diagnostic_note="ei-factory-passage.observer-note",blueprint="factory-passage",root="ei.factory_passage",repair="rebuild_runtime_state",call="repair",
+        fields={"configured_mode","effective_mode","inactive_reason","dirty_count","pending_count","blocked_count","watch_count","circuit_watch_count","gui_watch_count","gui_session_count","legacy_watch_count","shared_watch_count","circuit_candidate_count","joint_count","helper_count","rebuild.phase","rebuild.completed","counters.topology","counters.created","counters.destroyed","counters.unsupported","counters.max_processed","counters.circuit_attempts","counters.circuit_scans","counters.circuit_max_attempts"},
+        collections={"endpoints","joints","registrations","dirty.items","pending.items","watchers.items","gui_sessions","circuit_deadlines.nodes"},sources={"exotic-space-industries-remembrance/scripts/control/factory-passage.lua","exotic-space-industries-remembrance/lib/factory-passage-config.lua"}},
     {id="auric-inoculation-vat",label="Auric inoculation vats",blueprint="auric-inoculation-vat",root="ei.auric_inoculation_vat",repair="rebuild_runtime_state",call="repair",fields={"version","next_due_tick","next_ui_due_tick","ready_queue_count"},collections={"vats_by_unit","claims_by_tile","due_tick_by_unit","open_by_player"},sources={"exotic-space-industries-remembrance/scripts/control/auric-inoculation-vat.lua"}},
     {id="beacon-overload",label="Beacon overload",blueprint="beacon-overload",root="ei.beacon_overload",repair="refresh_all_overloads",call="reason",fields={"mode","tracked_count","registered_beacon_count","registered_machine_count","relationship_count","overloaded_count"},collections={"machines","beacons"},sources={"exotic-space-industries-remembrance/scripts/control/beacon-overload.lua","exotic-space-industries-remembrance/lib/beacon-profile-config.lua"}},
     {id="black-hole",label="Black holes",blueprint="black-hole",root="ei.black_hole",repair="rebuild_runtime_state",call="repair",fields={},collections={},sources={"exotic-space-industries-remembrance/scripts/control/black-hole.lua"}},
@@ -140,8 +144,8 @@ end
 
 local function metadata(entry)
     return {
-        id=entry.id,label=entry.label,blueprint=entry.blueprint,repair=entry.repair,
-        classification=entry.repair and "stateful" or entry.call,
+        id=entry.id,label=entry.localised_label or entry.label,locale_prefix=entry.locale_prefix,blueprint=entry.blueprint,repair=entry.repair,
+        classification=entry.repair and "stateful" or entry.call,diagnostic_note=entry.diagnostic_note,
         sources=lib.copy_array(entry.sources),command=entry.repair and ("/ei-admin-repair "..entry.id) or nil,
     }
 end
@@ -189,6 +193,19 @@ function model.peek(id,tick)
         local value=read_path(root,path)
         if SCALAR_TYPES[type(value)] then result.fields[path]=value else result.fields[path]="Not sampled" end
     end
+    if id=="factory-passage" then
+        -- Pure native reads keep diagnostics independent of event-cache timing.
+        local selected=passage_config.resolve()
+        result.fields.configured_mode=selected.configured_mode
+        result.fields.effective_mode=selected.pipe_mode
+        result.fields.inactive_reason=selected.inactive_reason
+        result.fields.update_budget=passage_config.update_budget()
+        result.fields.circuit_scan_budget=passage_config.circuit_scan_budget()
+        result.fields.circuit_scanner_enabled=passage_config.circuit_scanner_enabled()
+        result.fields.circuit_scanner_active=selected.pipe_mode=="esir" and passage_config.circuit_scanner_enabled()
+        local _,deadline=scheduler.deadline_peek(root and root.circuit_deadlines)
+        result.fields.next_circuit_tick=deadline or false
+    end
     local scheduler=storage and storage.ei and storage.ei.runtime_scheduler
     local cached=type(scheduler)=="table" and type(scheduler.modules)=="table" and scheduler.modules[entry.scheduler_id or id]
     if type(cached)~="table" then cached=nil end
@@ -214,7 +231,8 @@ function model.peek(id,tick)
     if type(repair)=="table" then
         if type(repair.tick)=="number" then result.last_repair_tick=repair.tick end
         if type(repair.ok)=="boolean" then result.last_repair_ok=repair.ok end
-        if type(repair.message)=="string" then result.last_repair_message=repair.message end
+        if type(repair.message)=="string" then result.last_repair_message=repair.message
+        elseif type(repair.message)=="table" then result.last_repair_message=table.deepcopy(repair.message) end
     end
     result.notes="Counts without a cached scalar are available through Inspect. This summary does not poll entities."
     return result
@@ -223,6 +241,7 @@ end
 ---@param actor integer|LuaPlayer|nil
 ---@param id string
 ---@param tick MapTick
+---@return boolean, LocalisedString
 function model.repair(actor,id,tick)
     local allowed,message=authorized(actor)
     if not allowed then return false,message end
@@ -246,6 +265,10 @@ function model.repair(actor,id,tick)
     scheduler.finish_rebuild(activity,success and "completed" or "failed",tick)
     message=success and ("Repair requested: "..entry.label..".")
         or ("Repair failed: "..tostring(ok and detail or result)..".")
+    if entry.locale_prefix then
+        message=success and {entry.locale_prefix..".repair-requested",entry.localised_label or entry.label}
+            or {entry.locale_prefix..".repair-failed",tostring(ok and detail or result)}
+    end
     local admin=context.state()
     admin.registry_repairs=admin.registry_repairs or {}
     admin.registry_repairs[id]={tick=tick,ok=success,message=message}
@@ -255,6 +278,7 @@ end
 ---@param actor integer|LuaPlayer|nil
 ---@param id string
 ---@param tick MapTick
+---@return boolean, LocalisedString
 function model.start_inspection(actor,id,tick)
     local allowed,message=authorized(actor)
     if not allowed then return false,message end
@@ -268,7 +292,8 @@ function model.start_inspection(actor,id,tick)
         actor_index=actor_index(actor),id=id,started_tick=tick,paths=paths,path_index=1,
         cursor=nil,examined=0,collections={},summary=model.peek(id,tick),
     }
-    return true,"Inspection started: "..entry.label.."."
+    return true,entry.locale_prefix and {entry.locale_prefix..".inspection-started",entry.localised_label or entry.label}
+        or ("Inspection started: "..entry.label..".")
 end
 
 function model.inspect(id,options,tick)

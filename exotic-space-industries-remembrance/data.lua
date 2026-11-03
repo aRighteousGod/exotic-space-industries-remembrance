@@ -103,5 +103,6 @@ end
 -- ei_lib.sb(alien_biomes_priority_tiles)
 require("prototypes/terrain-evolution")
 require("prototypes/alerts")
+require("prototypes/factory-passage")
 require("lib/recipe-routing").declare_and_grant()
 require("lib/recycling-policy").capture_initial()

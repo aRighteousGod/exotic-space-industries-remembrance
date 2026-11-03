@@ -3,7 +3,7 @@
 -- owns: neutron collector runtime, source linking, and relative GUI diagnostics
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, scheduled tick step 3, GUI open/close/click, and configuration rebuild
--- forwarded_events: add_connected_source, apply_collector_animation, attach_wire_proxy_to_collector, calc_distance, calc_efficiency, calc_fusion_flux, check_global, clear_gui_session, clear_legacy_runtime_fields, clear_queued_collector, close_gui, close_sessions_for_unit, connect_collector, dequeue_dirty_collector, destroy_all_wire_proxies, destroy_wire_proxy, disconnect_collector, ensure_gui_session, ensure_runtime_ready, ensure_wire_proxy, entity_check, find_neutron_source, get_collector_state_key, get_connected_source_count, get_dirty_collector_count, get_dirty_queue, get_due_gui_refresh_count, get_entity_recipe_name, get_gui_snapshot, get_open_neutron_collector, get_pending_work_count, get_source_entry, get_source_fusion_multiplier, get_state, is_output_empty, make_direction_animation, on_built_entity, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_player_left_game, open_gui, poll_connected_sources, poll_source, process_dirty_collectors, queue_collectors_in_range, queue_dirty_collector, queue_gui_refresh_for_player, queue_gui_refresh_for_unit, rebuild_runtime_state, refresh_collector, register_collector, remove_collector_from_source, remove_connected_source, remove_direction_animation, remove_direction_animation_by_unit, remove_source_entry, reset_runtime_storage, service_gui_refreshes, service_wire_proxy_outputs, show_resolution_text, unregister_collector, update, update_gui, update_neutron_collector, update_neutron_collectors_in_range, update_wire_proxy_signals
+-- forwarded_events: add_connected_source, apply_collector_animation, attach_wire_proxy_to_collector, calc_distance, calc_efficiency, calc_fusion_flux, check_global, clear_gui_session, clear_legacy_runtime_fields, clear_queued_collector, close_gui, close_sessions_for_unit, connect_collector, dequeue_dirty_collector, destroy_all_wire_proxies, destroy_wire_proxy, disconnect_collector, ensure_gui_session, ensure_runtime_ready, ensure_wire_proxy, entity_check, find_neutron_source, get_collector_state_key, get_connected_source_count, get_dirty_collector_count, get_dirty_queue, get_due_gui_refresh_count, get_entity_recipe_name, get_gui_snapshot, get_open_neutron_collector, get_pending_work_count, get_source_entry, get_source_fusion_multiplier, get_state, is_output_empty, make_direction_animation, on_built_entity, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_player_left_game, open_gui, poll_connected_sources, poll_source, process_dirty_collectors, queue_collectors_in_range, queue_dirty_collector, queue_gui_refresh_for_player, queue_gui_refresh_for_unit, rebuild_runtime_state, refresh_collector, register_collector, remove_collector_from_source, remove_connected_source, remove_direction_animation, remove_direction_animation_by_unit, remove_source_entry, reset_runtime_storage, service_gui_refreshes, service_wire_proxy_outputs, show_resolution_text, unregister_collector, update, update_gui, update_neutron_collector, update_neutron_collectors_in_range, update_wire_proxy_signals, set_recipe_change_handler
 -- storage_roots: storage.ei.neutron_runtime, storage.ei.neutron_collector_animation
 -- gui_ids: ei-neutron-collector-console
 -- remote_interfaces: none
@@ -11,6 +11,10 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/neutron-collector.md#contract
 local model = {}
+---@type fun(entity:LuaEntity, tick:MapTick)?
+local recipe_changed
+---@param handler fun(entity:LuaEntity, tick:MapTick)
+function model.set_recipe_change_handler(handler) recipe_changed=handler end
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 
@@ -1333,6 +1337,7 @@ function model.refresh_collector(runtime, collector_entry, show_feedback, exclud
     local current_recipe_name = model.get_entity_recipe_name(entity)
     if current_recipe_name ~= applied_recipe_name then
         entity.set_recipe(applied_recipe_name)
+        if recipe_changed then recipe_changed(entity,now_tick(event_or_tick)) end
     end
     entity.recipe_locked = true
 

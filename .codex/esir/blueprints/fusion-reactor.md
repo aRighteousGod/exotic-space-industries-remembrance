@@ -56,6 +56,11 @@ The fallback is raised once after native entity opening settles, using the exist
 viewer refresh. Later updates do not repeatedly take focus from other windows.
 
 <a id="verification"></a>
+Recipe writes in selection, build defaults and full rebuild defaults notify factory
+passage through a module-local callback injected by `control.lua`. The callback
+passes the supplied event/numeric tick and queues deferred reconciliation. Manual
+and scripted circuit selections remain covered without native circuit observation.
+
 ## Verification contract
 
 Test manual/circuit transitions, absent or partial circuit signals, recipe changes observed by neutron collectors, copy/paste, proxy destruction, open-console removal, and configuration repair. Use runtime QC and inspect both recipe identity and circuit outputs.

@@ -5,6 +5,7 @@
 -- cadence: helper calls only; no top-level events
 -- forwarded_events: audit_queue, bump_counter, clear_queue, compact_queue, delayed_bucket_count, delayed_item_count, delayed_schedule, delayed_take_due, delayed_take_due_through, ensure_delayed_buckets, ensure_module_state, ensure_queue, get_module_status, log_snapshot, queue_item_count, queue_length, queue_peek, queue_peek_last, queue_pop, queue_pop_matching, queue_pop_queued, queue_push, queue_push_unique, queue_remove_value, set_module_status, status_snapshot, table_count, telemetry_enabled, write_telemetry
 --   begin_rebuild, update_rebuild, finish_rebuild, report_rebuild, peek_rebuilds, peek_rebuild_state
+--   ensure_deadline_queue, deadline_put, deadline_remove, deadline_peek, deadline_pop_due, deadline_count
 -- storage_roots: storage.ei.runtime_scheduler and caller-owned queue tables
 -- gui_ids: none
 -- remote_interfaces: none
@@ -356,6 +357,103 @@ end
 
 function scheduler.ensure_delayed_buckets(buckets)
     return safe_table(buckets)
+end
+
+-- blueprint-ref: .codex/esir/blueprints/runtime-scheduler.md#deadline-queues
+---@class RuntimeDeadlineNode
+---@field key uint Stable numeric identity; breaks equal-deadline ties deterministically.
+---@field due MapTick
+---@class RuntimeDeadlineQueue
+---@field nodes RuntimeDeadlineNode[]
+---@field indices table<uint, integer>
+---@param queue RuntimeDeadlineQueue?
+---@return RuntimeDeadlineQueue
+function scheduler.ensure_deadline_queue(queue)
+    return queue or {nodes={},indices={}}
+end
+
+local function deadline_before(a,b)
+    return a.due<b.due or a.due==b.due and a.key<b.key
+end
+
+local function deadline_swap(queue,a,b)
+    local nodes=queue.nodes
+    nodes[a],nodes[b]=nodes[b],nodes[a]
+    queue.indices[nodes[a].key]=a;queue.indices[nodes[b].key]=b
+end
+
+local function deadline_up(queue,index)
+    while index>1 do
+        local parent=math.floor(index/2)
+        if not deadline_before(queue.nodes[index],queue.nodes[parent]) then break end
+        deadline_swap(queue,index,parent);index=parent
+    end
+end
+
+local function deadline_down(queue,index)
+    local nodes=queue.nodes
+    while index*2<=#nodes do
+        local child=index*2
+        if child<#nodes and deadline_before(nodes[child+1],nodes[child]) then child=child+1 end
+        if not deadline_before(nodes[child],nodes[index]) then break end
+        deadline_swap(queue,index,child);index=child
+    end
+end
+
+---@param queue RuntimeDeadlineQueue
+---@param key uint
+---@param due MapTick
+---@return boolean added
+function scheduler.deadline_put(queue,key,due)
+    local index=queue.indices[key]
+    if index then
+        local previous=queue.nodes[index].due
+        queue.nodes[index].due=due
+        if due<previous then deadline_up(queue,index) else deadline_down(queue,index) end
+        return false
+    end
+    index=#queue.nodes+1;queue.nodes[index]={key=key,due=due};queue.indices[key]=index
+    deadline_up(queue,index)
+    return true
+end
+
+---@param queue RuntimeDeadlineQueue
+---@param key uint
+---@return boolean removed
+function scheduler.deadline_remove(queue,key)
+    local index=queue.indices[key]
+    if not index then return false end
+    local nodes=queue.nodes;local last=nodes[#nodes]
+    nodes[#nodes]=nil;queue.indices[key]=nil
+    if index<=#nodes then
+        nodes[index]=last;queue.indices[last.key]=index
+        if index>1 and deadline_before(last,nodes[math.floor(index/2)]) then deadline_up(queue,index)
+        else deadline_down(queue,index) end
+    end
+    return true
+end
+
+---@param queue RuntimeDeadlineQueue?
+---@return uint? key
+---@return MapTick? due
+function scheduler.deadline_peek(queue)
+    local node=queue and queue.nodes[1]
+    if node then return node.key,node.due end
+end
+
+---@param queue RuntimeDeadlineQueue
+---@param tick MapTick
+---@return uint? key
+---@return MapTick? due
+function scheduler.deadline_pop_due(queue,tick)
+    local key,due=scheduler.deadline_peek(queue)
+    if key and due<=tick then scheduler.deadline_remove(queue,key);return key,due end
+end
+
+---@param queue RuntimeDeadlineQueue?
+---@return integer
+function scheduler.deadline_count(queue)
+    return queue and #queue.nodes or 0
 end
 
 function scheduler.delayed_schedule(buckets, tick, value)

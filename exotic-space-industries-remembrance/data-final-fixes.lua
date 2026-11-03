@@ -240,3 +240,5 @@ require("scripts/data-final-updates/recipe-buffer-sizing")
 require("scripts/data-final-updates/transport-quality-policy")
 -- Keep same-footprint drill upgrades on the fork's canonical collision policy.
 require("scripts/data-final-updates/construction-drone-compatibility")
+-- Keep final operating bodies coherent while preserving authored connections.
+require("scripts/data-final-updates/factory-passage")

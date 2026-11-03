@@ -1,5 +1,14 @@
 # Runtime Scheduler Guidelines
 
+For reschedulable numeric-key deadlines, prefer the shared indexed heap:
+`ensure_deadline_queue`, `deadline_put/remove/peek/pop_due/count`. It maintains one
+entry per key, deterministic due/key ordering and a constant-time earliest read.
+Keep the heap in owner storage, pass the supplied event tick, charge every attempted
+pop, and park by declining service. Do not traverse cooling populations or append
+duplicate timers. Do not mutate saved heaps in `on_load`.
+
+When queue, delayed-work, telemetry or tick contracts change, run `scheduler-event-tick` through [native testing](native-testing.md). Cover supplied ticks, tick zero, idle paths, invalid queued objects, cleanup and serialized state as applicable. Clock stubs are controlled boundary checks; historical receipts keep their original versions and exports.
+
 Use this when editing queued runtime modules under `exotic-space-industries-remembrance/scripts/control/`.
 
 ## First Principles

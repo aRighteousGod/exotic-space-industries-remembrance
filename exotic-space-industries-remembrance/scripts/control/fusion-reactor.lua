@@ -3,7 +3,7 @@
 -- owns: fusion reactor GUI, manual/circuit control, and circuit telemetry proxy
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, scheduled tick step, GUI open/close/click/value-change, configuration rebuild
--- forwarded_events: check_global, close_gui, entity_check, get_pending_work_count, on_built_entity, on_configuration_changed, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_gui_value_changed, on_player_left_game, open_gui, rebuild_runtime_state, reconcile_gui_player, repair_runtime_state, update, update_gui, update_recipe
+-- forwarded_events: check_global, close_gui, entity_check, get_pending_work_count, on_built_entity, on_configuration_changed, on_destroyed_entity, on_entity_settings_pasted, on_gui_click, on_gui_opened, on_gui_value_changed, on_player_left_game, open_gui, rebuild_runtime_state, reconcile_gui_player, repair_runtime_state, update, update_gui, update_recipe, set_recipe_change_handler
 -- storage_roots: storage.ei.fusion_reactor
 -- gui_ids: ei-fusion-reactor-console
 -- remote_interfaces: none
@@ -12,6 +12,10 @@
 -- blueprint: .codex/esir/blueprints/fusion-reactor.md#contract
 
 local model = {}
+---@type fun(entity:LuaEntity, tick:MapTick)?
+local recipe_changed
+---@param handler fun(entity:LuaEntity, tick:MapTick)
+function model.set_recipe_change_handler(handler) recipe_changed=handler end
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 
 local FUSION_RUNTIME_VERSION = 1
@@ -693,6 +697,7 @@ local function apply_selection(entry, selection, event)
 
     if changed and prototypes.recipe[recipe] then
         entry.entity.set_recipe(recipe)
+        if recipe_changed then recipe_changed(entry.entity,ei_lib.get_event_tick(event)) end
         ei_neutron_collector.update_neutron_collectors_in_range(entry.entity)
     end
 
@@ -746,6 +751,7 @@ function model.rebuild_runtime_state(reason, event_or_tick)
             if entry then
                 if not entity.get_recipe() then
                     entity.set_recipe(build_recipe_name(entry.manual_selection))
+                    if recipe_changed then recipe_changed(entity,ei_lib.get_event_tick(event_or_tick)) end
                 end
                 entity.recipe_locked = true
                 service_reactor_entry(entry, event_or_tick)
@@ -808,6 +814,7 @@ function model.on_built_entity(entity, event_or_tick)
 
     if not entity.get_recipe() then
         entity.set_recipe(build_recipe_name(entry.manual_selection))
+        if recipe_changed then recipe_changed(entity,ei_lib.get_event_tick(event_or_tick)) end
     end
     entity.recipe_locked = true
     service_reactor_entry(entry, event_or_tick or (game and game.tick) or 0)

@@ -33,6 +33,23 @@ flowchart LR
 
 `delayed_take_due` consumes only the exact tick bucket. `delayed_take_due_through` consumes all nonempty buckets through the supplied tick, sorted by due tick and then insertion order. A caller that can skip ticks needs the latter or an equivalent explicit catch-up policy. `delayed_next_due_tick` returns the earliest nonempty bucket or `false` for known emptiness; do not confuse that sentinel with an uninitialized cache.
 
+<a id="deadline-queues"></a>
+## Indexed deadline queues
+
+`ensure_deadline_queue` creates caller-owned `nodes` and `indices` tables. Nodes
+contain a numeric key and due tick. `deadline_put` replaces an existing key's due
+tick or inserts one node; `deadline_remove` removes it without timer tombstones.
+The binary heap orders by due tick, then numeric key, for deterministic ties.
+Upsert/removal/pop are logarithmic; pure `deadline_peek` and `deadline_count` are
+constant-time. `deadline_pop_due(queue,tick)` removes at most one due item, leaving
+future items untouched. No function registers events or reads `game.tick`.
+
+Factory passage owns its heap in `storage.ei.factory_passage.circuit_deadlines`.
+Callers charge each popped attempt, validate domain membership, and reinsert only
+surviving candidates. Parking leaves the queue intact and declines service.
+Serializable arrays/maps survive load unchanged; callers must not normalize them
+in `on_load`. The minimum replaces repeated cooling-population scans.
+
 <a id="tick-flow"></a>
 ## Tick flow
 

@@ -24,6 +24,14 @@ through the presentation monitor.
 
 `control.lua` owns Factorio event registrations and dispatch order. Feature modules own gameplay state and local service decisions. `ei_global.init` seeds `storage.ei`; `ei_global.check_init` fills missing or older structures without replacing valid feature state. `register-util` supplies fluid registration, collector registration, update counts, and legacy master/slave bookkeeping; it is not an independent scheduler.
 
+[Factory passage](factory-passage.md#contract) receives final build/clone bodies,
+committed removals, destruction registrations, rotation, flip, settings pastes,
+raised teleports and surface events here. Helper clones are removed before the
+spider transaction guard. Its bounded queue service follows `::skip::`, so dormant
+sixteen-slot scheduling does not suppress pending character-safe joint activation.
+Every configuration change, including startup-only changes, cleans and rebuilds
+the passage subsystem with the shared configuration tick; ordinary load preserves it.
+
 Required research, Auric player/surface/session, and matter GUI exports are called directly. Their capability probes are removed while event availability, placement relevance, session cleanup, receiver order and payloads remain intact. Heterogeneous diagnostic status probing stays optional. [Runtime development standards](../../skills/esir-dev/references/runtime-development-standards.md) describe the existing event/entity/budget/clock families rather than a universal adapter. Heartbeat observation stamps receive the same supplied tick; the heartbeat remains inactive unless explicitly registered.
 
 `on_built_entity`, `on_cloned_entity`, `on_destroyed_entity`, tile handlers, filtered script effects, research handlers, and GUI handlers forward into the appropriate systems. GUI routing uses valid elements/entities and stable parent tags. Registration filters and handler order are part of the contract: adding one receiver must not displace another owner of the same event.

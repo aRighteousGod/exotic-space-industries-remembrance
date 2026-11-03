@@ -3,7 +3,7 @@
 -- owns: gleba auric inoculation vat runtime, basin claims, telemetry proxies, GUI, and placement guide rendering
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy, tile changes, GUI open/close/click, player cursor/position/surface/alt, object-destroyed, scheduled vat wakes, and UI due gate
--- forwarded_events: check_global, rebuild_runtime_state, build/destroy/tile/object/player/GUI/surface events, has_tick_work, updater, get_runtime_status
+-- forwarded_events: check_global, rebuild_runtime_state, build/destroy/tile/object/player/GUI/surface events, has_tick_work, updater, get_runtime_status, set_recipe_change_handler
 -- storage_roots: storage.ei.auric_inoculation_vat
 -- gui_ids: ei-auric-inoculation-vat-console
 -- remote_interfaces: none
@@ -12,6 +12,10 @@
 -- blueprint: .codex/esir/blueprints/auric-inoculation-vat.md#contract
 
 local model = {}
+---@type fun(entity:LuaEntity, tick:MapTick)?
+local recipe_changed
+---@param handler fun(entity:LuaEntity, tick:MapTick)
+function model.set_recipe_change_handler(handler) recipe_changed=handler end
 model.DEFAULT_DUE_ACTIVATION_LIMIT = 32
 model.PLACEMENT_GUIDE_SKIPPED_CHUNK_RETRY_TICKS = 60
 
@@ -1996,6 +2000,7 @@ local function apply_phase_recipe(record, current_tick)
                 return entity.set_recipe(recipe_name)
             end)
             recipe_ready = ok and get_recipe_name(entity) == recipe_name
+            if recipe_ready and recipe_changed then recipe_changed(entity,current_tick) end
         end
     end
 

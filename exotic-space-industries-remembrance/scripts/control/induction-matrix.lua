@@ -599,15 +599,21 @@ function model.check_connected_tiles(pos, surface, render, matrix_id, force, eve
 
 end
 
+---@param pos TilePosition
 ---@param surface LuaSurface
+---@param matrix_id integer
+---@return integer
 function model.lookup_tile_for_entity(pos, surface, matrix_id)
     -- Each tile contributes entities to the logical matrix record. This is the bridge
     -- between the tile flood-fill and the per-matrix component lists.
     model.check_global_init()
 
+    -- Tile positions are upper-left corners. Scan the whole logical tile so
+    -- compact collision bodies (including factory passage coils) still belong
+    -- to the matrix. Unit-number keys deduplicate bodies spanning several tiles.
     local entities = surface.find_entities({
-        {pos.x-0.25, pos.y-0.25},
-        {pos.x+0.25, pos.y+0.25}
+        {pos.x, pos.y},
+        {pos.x+1, pos.y+1}
     })
 
     for _, entity in ipairs(entities) do

@@ -9,6 +9,16 @@
 
 The scheduler owns reports; `storage.ei.rebuild_monitor` owns GUI handles, dragged positions and per-player dismissal. Owners retain all gameplay queues, cursors, retries and budgets. Public rows expose module, phase, counts and game-time ETA. Admin Diagnostics additionally exposes trigger and scope. The native screen frame never assigns `player.opened` or focus.
 
+Factory passage reports synchronous world discovery separately from bounded joint
+reconciliation. Only explicit reconstruction admits a report; ordinary recipe-change
+checks are maintenance. Character-occupied joints use the existing waiting-only
+policy, while stale queue tokens remain active until cleaned. Unknown totals have
+no percentage or ETA. Administration's accepted repair request remains distinct
+from the owner's eventual completion. GUI observers, circuit deadlines and bounded
+legacy classification neither start reports nor prevent completion. Scanner toggle
+and budget changes preserve active reports; only dirty endpoints and pending joints
+determine reconciliation completion.
+
 The top-left `mod_gui` button exists during queued/running asynchronous work. After 120 ticks, the small draggable window opens per player. Closing dismisses automatic opening for the current episode, including jobs joining later; manual reopening remains available. Waiting-only or completed work removes public UI; resumption starts a new episode. Position survives closing and loading and is clamped after resolution/scale changes.
 
 ## Cadence and persistence

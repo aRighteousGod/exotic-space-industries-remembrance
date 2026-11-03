@@ -16,6 +16,11 @@ validity boundary before further entity access and general dispatcher registrati
 
 `storage.ei.induction_matrix` owns logical core records, topology-derived stats, dirty-core queues, deferred removals, wire-proxy reverse mappings, render buckets, and telemetry service slots. Tile/entity hooks discover connected matrix topology and mark affected cores dirty.
 
+Component discovery queries each full logical tile, whose position is its upper-left
+corner. It must not depend on a coil or solenoid collision box reaching a tile
+corner: factory passage can shrink those bodies without changing matrix membership.
+Unit-number keys deduplicate components that overlap several connected tiles.
+
 ```mermaid
 flowchart LR
   A["Tile or component change"] --> B["Topology and core ownership"]

@@ -34,6 +34,10 @@ when no viewers are due.
 Build/destroy/settings-paste and fusion recipe changes invalidate affected bindings. Removal must disconnect reverse source membership, remove wire scheduling, destroy proxies/animations, and close or refresh watchers. Rebuild clears stale proxies, registers world collectors, and resolves their initial links before returning.
 
 <a id="verification"></a>
+Changed recipe writes notify the injected factory-passage callback with their
+supplied tick. The dispatcher guards out bodies without fluid ports, including
+the canonical collector; fluid-capable compatibility bodies reconcile locally.
+
 ## Verification contract
 
 The [event tick fixture](../../../scripts/qc/event-tick/README.md) documents supplied-tick GUI deadline and budget checks; the [control UPS fixture](../../../scripts/qc/control-ups/README.md) covers additional parity work. Exercise loss/replacement of the preferred source, circuit disablement, changing fusion recipes, reload, and destruction while queued. Historical reports are evidence for their recorded sources, not new validation of this blueprint.

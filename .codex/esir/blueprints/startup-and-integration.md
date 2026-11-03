@@ -19,6 +19,15 @@ Arrival repair normalizes pending players and the saved wave due minimum without
 
 ## Behavior and ownership
 
+The ungated Factory passage Informatron page lives under New mechanics beside
+specialised pipes. It uses wrapped labels and a pure scalar/native-setting snapshot
+only when opened, including when disabled or overridden by Squeak Through 2.
+Defaults come from `factory-passage-config`; the detailed contract is in
+[factory passage](factory-passage.md#informatron-guide). Rendering performs no world
+scan, state initialization or queue admission. All eight locales cover navigation,
+explanations and settings. The circuit budget defaults to one additional attempt
+per tick, with a per-machine 60-tick background-only cooldown.
+
 <a id="construction-drones"></a>
 ### Construction Drones drill upgrade compatibility
 

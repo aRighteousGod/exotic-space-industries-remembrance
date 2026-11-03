@@ -1,6 +1,15 @@
 <a id="contract"></a>
 # Admin runtime registry, diagnostics and repair ownership
 
+Factory passage summaries expose cached circuit/GUI reason counts, distinct total,
+session count and legacy classification count. Inspect walks `gui_sessions` under
+the existing budget. Optional `diagnostic_note` metadata names a locale key rendered
+beneath fields; observer reason counts may overlap without duplicating the total.
+Revision 3 adds scanner settings, effective activity, registered circuit-only
+candidates, earliest deadline and separate attempts/completed scans. Parked
+candidates are not active scanning. Inspect includes `circuit_deadlines.nodes`.
+Summary reads remain scalar/native-setting reads without world/player scans.
+
 ## Implementation sources
 
 - [registry.lua](../../../exotic-space-industries-remembrance/scripts/control/admin/registry.lua)
@@ -11,6 +20,13 @@ Terrain ecology has an explicit diagnostic owner entry for its dense work/histor
 sets and calendar records. It has no destructive reset or generic repair action.
 
 The admin control owner injects already-loaded module references through `configure`.
+Factory passage is a stateful owner with its own repair entry point and bounded
+inspection collections. It exposes queue counts and known occupied joints
+separately, configured/effective modes, inactivity precedence and the current
+native update budget. Its localized GUI label is separate from the stable string
+label used by existing administrative feedback. Owner-specific scalar captions,
+repair receipts and inspection notices use an optional locale prefix without
+changing other owners' formatting. Summary reads detach localized receipt tables.
 The static registry maps every existing runtime source to a gameplay owner, helper,
 stateless adapter or documented inactive/data-only exception. Only explicit stateful
 owners expose repair actions. Existing aliases remain the responsibility of their

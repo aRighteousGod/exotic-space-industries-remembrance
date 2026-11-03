@@ -70,6 +70,10 @@ constraints remain authoritative. Levels beyond the shared cap remain researchab
 but do not increase yield, and modules reach the cap sooner.
 
 <a id="verification"></a>
+Successful changed phase recipes notify factory passage through the module-local
+callback injected by `control.lua`, carrying `current_tick`. Unchanged or failed
+writes do not notify. Closed custom GUIs therefore require no passage observation.
+
 ## Verification contract
 
 Exercise competing basin claims, tile replacement during phases, blocked drainage, enriched-cycle completion, stale delayed entries, bounded activation under load, independently destroyed proxies, reload, and surface/player cleanup. Check both state and rendering ownership; structural blueprint checks do not validate phase correctness.
