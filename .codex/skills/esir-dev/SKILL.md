@@ -249,6 +249,7 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 
 ## Locale Rules
 
+- Do not add redundant default annotations such as `(default)` to startup-setting names or option labels in any locale; Factorio already indicates the configured default. Display-only cleanup must preserve internal setting names, allowed values, configured defaults, and saved selections. Keep meaningful uses of default that describe inheritance or form the option's entire name.
 - English locale remains the anchor for keys and gameplay meaning, but non-English locale edits should read as native, idiomatic game text in the target language rather than literal English calques.
 - Accepted native-speaker revisions are the preferred source for wording, terminology, names, register, and sentence structure. Reuse relevant expressions when adding or updating related entries; do not replace them with fresh synonyms, literal translations, or extra flavor merely to match English.
 - Treat user-supplied translations as wording references for related entries. Follow their terminology, register, and sentence structure; when asked to copy a translation, preserve its wording and adapt only the destination keys and required locale syntax. Remove pasted HTML/Markdown artifacts and retain Factorio substitution tokens such as `__1__`.
@@ -256,7 +257,7 @@ When editing ESIR Lua modules, also follow the repo-local `esir-lib-first` rule 
 - Before Japanese edits, read [Japanese locale wording](./references/japanese-locale-wording.md). The native revision credited to バルやん (`baruyan_sub`) in commit `2379c6fa6307910f6f18099babc018b14d00b9b6` is the reviewed baseline; later accepted native corrections take precedence. Check both `locale/ja/lang_ja.cfg` and the relevant JA sidecars for established usage.
 - Preserve gameplay meaning, tone, and Factorio-relevant terminology while allowing sentence structure, emphasis, and phrasing to change per language.
 - Use current implementation and English to check mechanics, required keys, numbers, and semantic coverage. When facts change or a concrete error is found, make the smallest necessary correction while retaining native wording. Preserve required substitution tokens, rich-text references, and newline escapes; sentence order may change naturally.
-- Preserve intentional English names and labels in accepted native text (for example, JA difficulty names and `Classic` / `Extended(default)`). These are not placeholders. Do not introduce untranslated English fallback prose unless the user explicitly asks for it.
+- Preserve intentional English names and labels in accepted native text (for example, JA difficulty names and `Classic` / `Extended`). These are not placeholders. Do not introduce untranslated English fallback prose unless the user explicitly asks for it.
 - If a locale update cannot be finished confidently in the target language, say so and leave a follow-up note in [`.codex/esir/REVISIT_NOTES.md`](../../esir/REVISIT_NOTES.md) instead of shipping an obviously awkward literal translation.
 
 ## Runtime Entity Safety
