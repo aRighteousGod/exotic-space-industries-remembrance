@@ -1,4 +1,25 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.4.03
+Date: 11-1-2026
+  Features:
+    - Added native automatic and cohort-controlled orbital uplink modes, named platform selection, native hub/silo side panels, and a searchable platform/rocket-lane overview. New uplinks leave silo settings untouched until explicitly adopted; existing uplinks retain cohort control.
+    - Added Planet / Platforms / All source filters to orbital Requests and Need, plus native Universe-radar wiring examples for stock and movement telemetry in all eight languages.
+    - Added movement support for Even Pickier Dollies. Move machines by their body to bring their controls and connections along. Select the outer edge of a fluid combustion turbine. Gate receivers can move, while gate senders, induction matrix parts, auric inoculation vats and powered loaders stay anchored.
+    - Added Administration → Options for editing ESIR's map settings in-game, with categorized drafts, validation, conflict detection and rollback. Moved 29 runtime-only startup settings to Map settings and preserved existing-save choices through a one-time import.
+    - Added built-in factory passage with separate Production, Power, Logistics and Turrets startup switches. Pipe behavior can use Vanilla collision, Squeak Through joint passage, or ESIR connection barriers that wait for nearby characters to leave. Squeak Through 2 takes precedence when installed.
+  Changes:
+    - Reduced orbital scanner work with native inventory totals and batched request, incoming-cargo and inventory reads, without changing service budgets or observation cadence.
+    - Reduced redundant entity checks and unnecessary setup during building placement.
+  Bugfixes:
+    - Preserve orbital IDs, targets, bindings and retention settings through runtime rebuilds, settings paste, cloning and blueprints. Cohort launches now recheck ownership and power, hold mismatched cargo types/qualities, and count confirmed launches once.
+    - Isolated orbital circuit output sections so shared logistic group names cannot make transponders emit another platform's ID or make differently filtered scanner banks overwrite each other.
+    - Kept scanner circuit outputs current when an open panel or cohort read observes changed cargo before the background audit.
+    - Fixed vanilla logistic chest items and recipes remaining visible because the hiding pass used numeric table indices.
+    - Corrected accumulator cost-setting integration and removed stale technology and optional-prototype probes from data-stage updates. Empty parameter and internal recipes now pass shared ingredient normalization cleanly.
+    - Fixed untouched Administration ecology controls retaining stale values after settings changed. Applying clears that field's draft, and resetting surface overrides preserves drafts for other surfaces.
+    - Fixed the missing Assault spidertron recipe name in all languages.
+    - Fixed build and clone handling using entities that had already been replaced or removed, including a crash when placing combustion turbines with saved fuel-mode settings. Later systems now register the surviving entity, while rejected or consumed placements stop further processing.
+---------------------------------------------------------------------------------------------------
 Version: 1.4.02
 Date: 10-30-2026
   Changes:
