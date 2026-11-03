@@ -1083,8 +1083,8 @@ function model.swap_entity(entity)
 
     if not model.entity_check(entity) then return end
 
-    if not storage.gaia_surfaces[entity.surface.name] then return end
-    if not model.swap_gaia[entity.name] then return end
+    if not storage.gaia_surfaces[entity.surface.name] then return entity end
+    if not model.swap_gaia[entity.name] then return entity end
 
     local swap_entity = entity.surface.create_entity({
         name = model.swap_gaia[entity.name],
@@ -1096,7 +1096,7 @@ function model.swap_entity(entity)
     })
 
     entity.destroy()
-
+    return ei_lib.get_valid_entity(swap_entity)
 end
 
 --NON GAIA BUILDING DESTRUCTION
@@ -1208,16 +1208,28 @@ end
 --HANDLERS
 --====================================================================================================
 
+---@param event table
+---@return LuaEntity|nil surviving_entity
 function model.on_built_entity(event)
-    local entity = event.entity
+    local entity = event and event.entity
     if model.entity_check(entity) == false then
         return
     end
 
-    model.destroy_building(entity)
-    model.swap_entity(entity)
-    model.register_entity(entity,event)
+    local name = entity.name
+    if not (model.destroy_gaia[name] or model.destroy_non_gaia[name]
+        or model.swap_gaia[name] or model.entity_damage_ticks[name]) then
+        return entity
+    end
 
+    model.destroy_building(entity)
+    -- Rejection precedes conversion; a rejected pump must not be revived by
+    -- the swap path or reach subsequent placement registries.
+    if not ei_lib.entity_check(entity) then return nil end
+    entity = model.swap_entity(entity)
+    if not entity then return nil end
+    model.register_entity(entity,event)
+    return entity
 end
 
 

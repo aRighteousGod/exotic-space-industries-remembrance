@@ -1126,15 +1126,17 @@ function model.on_configuration_changed(event)
     model.rebuild_runtime_state("configuration-changed", event)
 end
 
+---@param event_or_entity table|LuaEntity
+---@return LuaEntity|nil surviving_entity
 function model.on_built_entity(event_or_entity)
-    local entity = get_event_entity(event_or_entity)
-    if not is_turbine(entity) then
-        return
+    local entity = ei_lib.get_valid_entity(get_event_entity(event_or_entity))
+    if not entity or not is_turbine_name(entity.name) then
+        return entity
     end
 
     local tags = nil
     local player_index = nil
-    if not ei_lib.entity_check(event_or_entity) and type(event_or_entity) == "table" then
+    if event_or_entity ~= entity and type(event_or_entity) == "table" then
         tags = event_or_entity.tags
         player_index = event_or_entity.player_index
     end
@@ -1144,8 +1146,11 @@ function model.on_built_entity(event_or_entity)
     register_turbine(runtime, entity, event_or_entity)
 
     if requested_mode and requested_mode ~= entity_mode(entity) then
-        model.swap_to_mode(entity, requested_mode, event_or_entity, player_index)
+        -- GUI handoff can synchronously invoke other handlers; pass back only
+        -- the surviving shell, including the original after creation failure.
+        return ei_lib.get_valid_entity(model.swap_to_mode(entity, requested_mode, event_or_entity, player_index))
     end
+    return entity
 end
 
 function model.on_destroyed_entity(event_or_entity)

@@ -411,6 +411,25 @@ local function publish_rebuild(root,tick)
         {reason=job.reason,phase="seeding",state="running",completed=job.completed,total=job.total,unit="chunks"},tick)
 end
 
+-- blueprint-ref: .codex/esir/blueprints/firefighting-and-water-turret.md#tick-flow
+---@param event EventData.on_tick
+---@return boolean
+function model.has_tick_work(event)
+    local root=storage.ei and storage.ei.water_turret
+    if not root then return false end
+    -- Rebuild completion still needs publishing after the last turret is removed.
+    if root.rebuild then return true end
+    if root.count==0 then return false end
+    local tick=event.tick
+    -- Peek initialized FIFO spans without queue helpers that repair stored state.
+    return root.power_due[tick]~=nil or root.hot_due[tick]~=nil
+        or root.hot_batches.head<=root.hot_batches.tail
+        or root.cold_queue.head<=root.cold_queue.tail
+        or root.index.seeds.head<=root.index.seeds.tail
+        or root.index.wakes.head<=root.index.wakes.tail
+        or root.index.maintenance.head<=root.index.maintenance.tail
+end
+
 ---@param event EventData.on_tick
 function model.updater(event)
     local root=storage.ei and storage.ei.water_turret

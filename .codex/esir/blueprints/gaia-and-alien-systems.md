@@ -1,6 +1,13 @@
 <a id="contract"></a>
 # Gaia surfaces, alien presets, and artifact progression
 
+Gaia's build receiver returns the valid unchanged/replacement entity, or nil for a
+consumed placement. Rejection still precedes swapping: the overlapping ordinary-pump
+reject/swap lists do not enable pump conversion. Unrelated entities return after the
+existing Gaia-root guard without running the rejection/swap/decay chain. General
+registration follows this result. The alien-system no-op build export remains
+available but is no longer called by the dispatcher.
+
 <a id="admin-repair"></a>
 ## Admin repair
 

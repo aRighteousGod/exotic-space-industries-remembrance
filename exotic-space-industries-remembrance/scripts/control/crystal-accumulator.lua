@@ -3942,10 +3942,16 @@ end
 -- Build handling is the narrow entrance for new live shells. Registration creates
 -- the durable runtime record first, then immediately reconciles Gaia/base variants
 -- so the placed entity matches the surface's profile rules from the first tick.
+---@param event_or_entity table|LuaEntity
+---@return LuaEntity|nil surviving_entity
 function model.on_built_entity(event_or_entity)
-    local entity = event_or_entity and event_or_entity.entity or event_or_entity
-    if not is_live_entity(entity) then
-        return
+    local entity = event_or_entity
+    if type(event_or_entity) == "table" then
+        entity = event_or_entity.entity
+    end
+    entity = ei_lib.get_valid_entity(entity)
+    if not entity or not LIVE_NAMES[entity.name] then
+        return entity
     end
 
     local runtime = get_runtime()
@@ -3954,11 +3960,14 @@ function model.on_built_entity(event_or_entity)
     if record then
         local surface_profile_key = get_surface_profile(entity.surface)
         if surface_profile_key == "gaia" and entity.name ~= GAIA_NAME then
-            swap_live_shell(runtime, record, GAIA_NAME, current_tick, "stabilized")
+            record = swap_live_shell(runtime, record, GAIA_NAME, current_tick, "stabilized")
+            return ei_lib.get_valid_entity(record and record.entity)
         elseif surface_profile_key ~= "gaia" and entity.name == GAIA_NAME then
-            swap_live_shell(runtime, record, BASE_NAME, current_tick, "downgraded")
+            record = swap_live_shell(runtime, record, BASE_NAME, current_tick, "downgraded")
+            return ei_lib.get_valid_entity(record and record.entity)
         end
     end
+    return entity
 end
 
 -- Repairing a husk is equivalent to reintroducing a live shell, but with a clean

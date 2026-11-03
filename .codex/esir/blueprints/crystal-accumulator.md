@@ -1,6 +1,13 @@
 <a id="contract"></a>
 # Crystal accumulator resonance
 
+Build normalization returns the registered live shell after Gaia/base reconciliation,
+the unchanged valid entity when irrelevant, or nil when replacement leaves no
+survivor. The central build/clone dispatcher hands that shell to later registries;
+the crystal owner is called once and retains its existing replacement custody rules.
+Its build entry point accepts an event table or a native LuaEntity; table extraction
+must not read an event-only field from the native object.
+
 <a id="admin-repair"></a>
 ## Admin repair
 

@@ -1,6 +1,12 @@
 <a id="contract"></a>
 # Tesla combat, research variants, and helper lifetime
 
+Build normalization returns the surviving public/exotic coil or unchanged unrelated
+entity, and nil when no shell survives. Exact variant-name admission precedes state
+and force-cache setup. The central build/clone dispatcher registers the returned
+shell with other owners; combat/research variant synchronization keeps its existing
+entry points and timing.
+
 <a id="admin-repair"></a>
 ## Admin repair
 

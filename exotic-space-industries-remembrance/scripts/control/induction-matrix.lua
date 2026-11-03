@@ -2269,22 +2269,19 @@ function model.on_entity_cloned(event)
     return true
 end
 
+---@param event table
+---@return LuaEntity|nil surviving_entity The incoming placement, never another existing core.
 function model.on_built_entity(event)
     -- Entity build path:
     -- - reject irrelevant entities
     -- - keep illegally placed cores recoverable through their proxy
     -- - if a core was placed, rebuild from that core and ensure its proxy exists
     -- - if a non-core component was placed, discover the owning matrix and mark it dirty
+    local entity = ei_lib.get_valid_entity(event and event.entity)
+    if not entity or not model.only_on_tile[entity.name] then
+        return entity
+    end
     model.check_global_init()
-
-    local entity = event.entity
-    if model.entity_check(entity) == false then
-        return
-    end
-
-    if not model.only_on_tile[entity.name] then
-        return
-    end
 
     if model.core[entity.name] then
         local source_id = model.get_matrix_id(event.source)
@@ -2305,13 +2302,13 @@ function model.on_built_entity(event)
             ensure_dormant_core_record(entity)
             model.update_wire_proxy_signals(entity.unit_number, true)
         end
-        return
+        return entity
     end
 
     if model.core[entity.name] then
         local entity_unit = get_entity_unit_number(entity)
         if not entity_unit then
-            return
+            return entity
         end
 
         local dict = model.check_connected_tiles(entity.position, entity.surface, true, entity_unit, entity.force,event)
@@ -2320,18 +2317,17 @@ function model.on_built_entity(event)
 
         model.mark_dirty(dict.matrix_id)
 
-        if model.entity_check(entity) then
-            model.ensure_wire_proxy(entity_unit)
-            model.update_wire_proxy_signals(entity_unit, true)
-        end
-
-    end
-
-    if model.but_cores[entity.name] then
+        -- Flood-fill may consume a duplicate. Do not dereference it again or
+        -- substitute an existing surviving core for this new placement.
+        if not model.entity_check(entity) then return nil end
+        model.ensure_wire_proxy(entity_unit)
+        model.update_wire_proxy_signals(entity_unit, true)
+        return entity
+    elseif model.but_cores[entity.name] then
 
         local dict = model.check_connected_tiles(entity.position, entity.surface, false, nil, entity.force,event)
         if dict == false or not dict.matrix_id then
-            return
+            return entity
         end
 
         model.set_core_state(dict.matrix_id, dict.state)
@@ -2339,7 +2335,7 @@ function model.on_built_entity(event)
         model.mark_dirty(dict.matrix_id)
 
     end
-
+    return entity
 end
 
 

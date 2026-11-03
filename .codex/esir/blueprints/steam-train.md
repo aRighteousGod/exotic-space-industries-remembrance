@@ -1,6 +1,12 @@
 <a id="contract"></a>
 # Steam train wheel helpers
 
+Build normalization returns the final locomotive, an unchanged unrelated entity,
+or nil if placement conversion leaves no locomotive. Unrelated builds return before
+wheel-runtime initialization. General build/clone registration receives the final
+shell; conversion and wheel registration still execute once with existing force
+attribution, quality and placement behavior.
+
 ## Implementation sources
 
 - [steam-train.lua](../../../exotic-space-industries-remembrance/scripts/control/steam-train.lua)

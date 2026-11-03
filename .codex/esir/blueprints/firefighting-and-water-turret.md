@@ -43,6 +43,8 @@ New coverage/categories, migration, repair and surface import seed existing fire
 <a id="tick-flow"></a>
 ## Tick flow and work limits
 
+The mandatory dispatcher tier calls `has_tick_work(event)` before `updater(event)`. The predicate reads existing state without allocation or mutation: current-tick power/hot buckets, pending hot/cold FIFO spans, and index seed/wake/maintenance FIFO spans admit service. Future deadlines alone do not wake the updater. Pending rebuild reporting also admits service, including completion after the last turret is removed; an empty registry otherwise stays idle. The updater retains its own missing/empty-state exits for direct callers.
+
 Callbacks pass `event.tick`. Independently staggered power guards reschedule at +15 ticks and observe readiness changes, including dry-to-wet recovery. Current hot due buckets detach without bulk-admitting their members; FIFO batch cursors drain within the hot allowance. Phase, generation and deadline checks reject stale jobs. Each turret receives at most one aiming service per tick.
 
 | Work | Per-tick limit |

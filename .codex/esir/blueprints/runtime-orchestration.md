@@ -44,6 +44,39 @@ flowchart TD
   F --> M[Module-owned storage and helper entities]
 ```
 
+<a id="build-lifetime"></a>
+## Build entity lifetime
+
+The build wrapper retains the original event and supplied tick. It validates the
+scrubber result after synchronous external notification, observes terrain/admin
+placement activity, then runs radar, flamethrower, water and ANISETRON cleanup in
+that order. It reacquires the event entity before the Spidertron transaction guard;
+internal replacements must not bypass copied-helper cleanup or early observation.
+
+Combustion turbine, induction matrix, Gaia, crystal accumulator, steam train and
+Tesla then run once in that order. Their build receivers return a valid unchanged
+or replacement entity, or nil when the placement was consumed. Each result replaces
+`event.entity`; nil terminates dispatch without an old-handle fallback. These owners
+maintain their own state during normalization. General Spidertron/fluid and feature
+registration uses the final handle and retains the remaining receivers' order.
+The empty alien build receiver is not dispatched. Steam-pump priming retains its
+existing slot, temperature, quality calculation and amount clamp.
+
+Independent module APIs still validate uncertain inputs. The dispatcher reuses a
+handle inside uninterrupted scopes; checks across destruction, replacement,
+external notification, storage or delayed work remain necessary.
+
+Clone dispatch remains separate: matrix-proxy interception and early helper cleanup
+precede its transaction guard. Its clone-safe normalizers retain their relative
+order (turbine, matrix, crystal, Tesla, steam), with no Gaia rejection/construction
+path. Each handoff synchronizes the original destination and the adapter's
+entity/created_entity/destination aliases before general receivers and the original
+settings-paste tail. Source and other clone metadata stay intact.
+
+See [build-dispatch QC](../../../scripts/qc/build-dispatch/README.md) for acceptance
+and source fingerprints. Receiver/helper call counts establish reduced admitted
+work, not a whole-factory UPS improvement.
+
 <a id="tick-flow"></a>
 ## Tick flow and scheduler contract
 
@@ -58,7 +91,7 @@ flowchart TD
 | 11–13 | Railgun cooling, crystal surface resonance, Singularity Lance |
 | 14–16 | Fusion telemetry/control, Emerald Apocalypse, flamethrower fuel replacement |
 
-Radar, radar GUI, and water-turret service precede the scheduled tier. Arrivals and due scripted research also flush before the selected lane. Mandatory services are guarded by module work predicates; Lance and Emerald carry per-tick flags so their scheduled and mandatory paths do not double-service the same work. Emerald hot presentation remains a separate path. The periodic telemetry heartbeat is currently commented out, not an active 600-tick registration.
+Radar, radar GUI, and water-turret service run in the mandatory tier after the scheduled lane, each guarded by its module work predicate. Water turret admits due buckets, queued work and pending rebuild reporting, including empty-registry completion. Arrivals and due scripted research flush before the selected lane. Lance and Emerald carry per-tick flags so their scheduled and mandatory paths do not double-service the same work. Emerald hot presentation remains a separate path. The periodic telemetry heartbeat is currently commented out, not an active 600-tick registration.
 
 The optional admin coordinator and shared camera helper are also guarded by
 their work predicates in this dispatcher. The admin owner combines bounded world,

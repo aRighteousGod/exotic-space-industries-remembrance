@@ -380,29 +380,33 @@ function steam_train.updater(event)
 	end
 end
 
-function steam_train.on_built_entity(e)
-	if not e or not e.entity or not e.entity.valid then
-		return
+---@param event table
+---@return LuaEntity|nil surviving_entity
+function steam_train.on_built_entity(event)
+	local entity = event and event.entity
+	if not entity or not entity.valid then return nil end
+	if entity.name ~= PLACEMENT_ENTITY_NAME and entity.name ~= STEAM_LOCOMOTIVE_NAME then
+		return entity
 	end
 
 	local runtime = steam_train.check_global()
-	if e.entity.name == PLACEMENT_ENTITY_NAME then
+	if entity.name == PLACEMENT_ENTITY_NAME then
 		-- The placement entity exists only to provide the custom build-time visuals; runtime
 		-- always swaps it to the real locomotive immediately.
 		-- Script-raised placement carries its selected force on the wrapper itself.
-		local force = e.entity.force or game.forces.neutral
-		if e.player_index then
-			local player = game.get_player(e.player_index)
+		local force = entity.force or game.forces.neutral
+		if event.player_index then
+			local player = game.get_player(event.player_index)
 			force = player and player.force or force
-		elseif e.robot then
-			force = e.robot.force
+		elseif event.robot then
+			force = event.robot.force
 		end
 
-		local position = e.entity.position
-		local orientation = e.entity.orientation
-		local surface = e.entity.surface
-		local quality = e.entity.quality
-		e.entity.destroy()
+		local position = entity.position
+		local orientation = entity.orientation
+		local surface = entity.surface
+		local quality = entity.quality
+		entity.destroy()
 
 		local locomotive = surface.create_entity({
 			name = STEAM_LOCOMOTIVE_NAME,
@@ -415,10 +419,12 @@ function steam_train.on_built_entity(e)
 
 		if locomotive and locomotive.valid then
 			register_locomotive(runtime, locomotive, true)
+			return locomotive
 		end
-	elseif e.entity.name == STEAM_LOCOMOTIVE_NAME then
-		register_locomotive(runtime, e.entity, true)
+		return nil
 	end
+	register_locomotive(runtime, entity, true)
+	return entity
 end
 
 function steam_train.addToGlobal(locomotive)

@@ -2961,13 +2961,19 @@ function model.on_entity_damaged(event)
     end
 end
 
+---@param event table
+---@return LuaEntity|nil surviving_entity
 function model.on_built_entity(event)
-    if not event or not event.entity or not event.entity.valid then
-        return
+    local entity = event and event.entity
+    if not entity or not entity.valid then return nil end
+    local name = entity.name
+    if name ~= EXOTIC_VARIANT.basic.public and name ~= EXOTIC_VARIANT.basic.exotic
+        and name ~= EXOTIC_VARIANT.advanced.public and name ~= EXOTIC_VARIANT.advanced.exotic then
+        return entity
     end
 
     local state = ensure_state()
-    sync_entity_variant(state, event.entity)
+    return ei_lib.get_valid_entity(sync_entity_variant(state, entity))
 end
 
 function model.has_tick_work(_event)

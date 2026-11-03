@@ -53,6 +53,12 @@ the service-hatch window into its custom screen; no new scheduler is introduced.
 <a id="lifecycle"></a>
 ## Lifecycle and cleanup
 
+The build receiver returns the valid unchanged/committed shell, or nil if no shell
+survives. It resolves tags from the original event and preserves the entity-only
+entry form. General build/clone registration follows this handoff; creation failure
+returns the original. The final return is revalidated after GUI handoff, which can
+synchronously invoke other handlers.
+
 Object-destruction callbacks distinguish the turbine from its proxy. Loss of a proxy can recreate it for a surviving fluid shell; loss of the turbine tears down its record/session. Rebuild removes orphan proxies and reconstructs both shell modes. Failed replacement keeps the existing record and sessions.
 
 <a id="verification"></a>

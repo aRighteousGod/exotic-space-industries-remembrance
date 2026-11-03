@@ -1,6 +1,12 @@
 <a id="contract"></a>
 # Induction matrix topology and power
 
+The build receiver returns the incoming valid placement, or nil if duplicate
+resolution consumes it. It never substitutes an existing surviving core as a new
+placement. Irrelevant entities return before matrix initialization, while illegal
+but recoverable cores retain their dormant proxy behavior. Core flood-fill is a
+validity boundary before further entity access and general dispatcher registration.
+
 ## Implementation sources
 
 - [induction-matrix.lua](../../../exotic-space-industries-remembrance/scripts/control/induction-matrix.lua)

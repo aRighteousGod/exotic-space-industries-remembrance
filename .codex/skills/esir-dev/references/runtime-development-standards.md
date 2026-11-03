@@ -20,9 +20,10 @@ micro-optimizations. A shared helper call is not automatically cheaper.
   maintained counts/deadlines when their lifecycle can be maintained correctly.
   Document insertion, removal, draining, rebuilding and migration cache rules.
 - Choose an external predicate or an inline cheap idle path; do not mandate
-  both. Water turret's inline queue/deadline guard is intentional. Camera and
-  lance due minima illustrate inexpensive admission, not permission to skip
-  paid gameplay deadlines.
+  both. Water turret's external queue/deadline predicate also admits pending
+  rebuild reporting after its last turret is removed. Camera and lance due
+  minima illustrate inexpensive admission, not permission to skip paid gameplay
+  deadlines.
 - Predicates, backlog queries and service results differ. Matter's workload
   query admits missing/obsolete state for repair. Existing getters are not
   uniformly pure or constant-time; record exceptions to the new default.

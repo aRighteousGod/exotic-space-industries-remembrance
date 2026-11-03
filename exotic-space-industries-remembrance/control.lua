@@ -1760,23 +1760,6 @@ local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many 
 -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.
 function updater(event)
-  if ei_rebuild_monitor.has_tick_work(event.tick) then ei_rebuild_monitor.updater(event) end
-  if ei_planet_enemies.has_tick_work(event.tick) then ei_planet_enemies.updater(event) end
-  -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling
-  if ei_terrain_evolution.has_tick_work(event.tick) then ei_terrain_evolution.updater(event) end
-  if ei_alerts.has_tick_work(event.tick) then ei_alerts.updater(event) end
-  if ei_terrain_alerts.has_tick_work(event.tick) then ei_terrain_alerts.updater(event) end
-  if ei_terrain_gui.has_tick_work(event.tick) then ei_terrain_gui.updater(event) end
-  if ei_terrain_gui.launcher_has_tick_work(event.tick) then ei_terrain_gui.launcher_updater(event) end
-  if ei_admin_tools.has_tick_work(event.tick) then ei_admin_tools.updater(event) end
-  if ei_lib.camera_window.has_tick_work(event.tick) then ei_lib.camera_window.updater(event.tick) end
-  if ei_sweeping_radar.has_tick_work() then
-      ei_sweeping_radar.updater(event)
-  end
-  if ei_sweeping_radar_gui.has_tick_work() then
-      ei_sweeping_radar_gui.updater(event)
-  end
-  ei_water_turret.updater(event)
   -- updater() has two tiers:
   -- 1. a scheduled tier that spreads heavy per-entity work across a fixed cycle
   -- 2. a mandatory tier that still runs every tick for systems that depend on timers
@@ -2001,12 +1984,32 @@ function updater(event)
       end
   end
     ::skip::
-    if ei_spider_vehicles.has_tick_work(event) then
-        ei_spider_vehicles.updater(event)
-    end
    -- Essential updates that run every tick regardless of the scheduled branch above.
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.
+    if ei_rebuild_monitor.has_tick_work(event.tick) then ei_rebuild_monitor.updater(event) end
+    if ei_planet_enemies.has_tick_work(event.tick) then ei_planet_enemies.updater(event) end
+    -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling
+    if ei_terrain_evolution.has_tick_work(event.tick) then ei_terrain_evolution.updater(event) end
+    if ei_alerts.has_tick_work(event.tick) then ei_alerts.updater(event) end
+    if ei_terrain_alerts.has_tick_work(event.tick) then ei_terrain_alerts.updater(event) end
+    if ei_terrain_gui.has_tick_work(event.tick) then ei_terrain_gui.updater(event) end
+    if ei_terrain_gui.launcher_has_tick_work(event.tick) then ei_terrain_gui.launcher_updater(event) end
+    if ei_admin_tools.has_tick_work(event.tick) then ei_admin_tools.updater(event) end
+    if ei_lib.camera_window.has_tick_work(event.tick) then ei_lib.camera_window.updater(event.tick) end
+    if ei_sweeping_radar.has_tick_work() then
+        ei_sweeping_radar.updater(event)
+    end
+    if ei_sweeping_radar_gui.has_tick_work() then
+        ei_sweeping_radar_gui.updater(event)
+    end
+    if ei_water_turret.has_tick_work(event) then
+        ei_water_turret.updater(event)
+    end
+    if ei_spider_vehicles.has_tick_work(event) then
+        ei_spider_vehicles.updater(event)
+    end
+
     if not singularity_lance_serviced_this_tick
     and ei_singularity_lance.has_tick_work(event) then
         ei_singularity_lance.updater(event)
@@ -2095,159 +2098,174 @@ function updater(event)
    --======================================================================
 end
 
-function on_cloned_entity(e)
-    if e then e.destination = ei_air_scrubber.normalize(e.destination) end
+---@param event EventData.on_entity_cloned
+function on_cloned_entity(event)
+    if event then event.destination = ei_air_scrubber.normalize(event.destination) end
     -- Clone events expose the new entity as `destination`, not `entity`.
     -- Route only clone-safe registration/update hooks here; full build routing
     -- also contains constructor paths and surface swaps that are not clone-safe.
-    local destination = e and e.destination or nil
+    local current_tick = event and event.tick
+    local destination = event and event.destination or nil
     if not destination or not destination.valid then
         return
     end
-    if ei_induction_matrix.on_entity_cloned(e) then return end
-    ei_terrain_evolution.on_entity_built(e)
+    if ei_induction_matrix.on_entity_cloned(event) then return end
+    ei_terrain_evolution.on_entity_built(event)
 
     -- Helper clones must be removed even during spider replacement transactions.
-    ei_sweeping_radar.on_built_entity(e)
-    ei_flamethrower_fuels.on_built_entity(e)
-    ei_water_turret.on_built_entity(e)
-    ei_anisetron.on_built_entity(e)
-    if not ei_lib.entity_check(e.destination) then return end
+    ei_sweeping_radar.on_built_entity(event)
+    ei_flamethrower_fuels.on_built_entity(event)
+    ei_water_turret.on_built_entity(event)
+    ei_anisetron.on_built_entity(event)
+    if not ei_lib.entity_check(event.destination) then return end
     if ei_spider_vehicles.is_internal_transaction() then return end
-    ei_spider_vehicles.on_entity_cloned(e)
+    ei_spider_vehicles.on_entity_cloned(event)
     -- Fuel adaptation may replace a ghost and update the event's destination.
-    destination = ei_lib.get_valid_entity(e.destination)
+    destination = ei_lib.get_valid_entity(event.destination)
     if not destination then return end
 
     local clone_event = {}
-    for key, value in pairs(e) do
+    for key, value in pairs(event) do
         clone_event[key] = value
     end
     clone_event.entity = destination
     clone_event.created_entity = destination
     clone_event.is_clone = true
 
+    -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#build-lifetime
+    -- Keep the clone-safe owner set separate. Every shell handoff updates all
+    -- aliases before later receivers and the original settings-paste tail run.
+    destination = ei_combustion_turbine.on_built_entity(clone_event)
+    event.destination, clone_event.entity, clone_event.created_entity, clone_event.destination = destination, destination, destination, destination
+    if not destination then return end
+    destination = ei_induction_matrix.on_built_entity(clone_event)
+    event.destination, clone_event.entity, clone_event.created_entity, clone_event.destination = destination, destination, destination, destination
+    if not destination then return end
+    destination = ei_crystal_accumulator.on_built_entity(clone_event)
+    event.destination, clone_event.entity, clone_event.created_entity, clone_event.destination = destination, destination, destination, destination
+    if not destination then return end
+    destination = ei_teslas_legacy.on_built_entity(clone_event)
+    event.destination, clone_event.entity, clone_event.created_entity, clone_event.destination = destination, destination, destination, destination
+    if not destination then return end
+    destination = ei_steam_train.on_built_entity(clone_event)
+    event.destination, clone_event.entity, clone_event.created_entity, clone_event.destination = destination, destination, destination, destination
+    if not destination then return end
+
+
     if ei_fluid_safety.counts_for_fluid_handling(destination) then
         ei_register.register_fluid_entity(destination)
     end
 
-    ei_fusion_reactor.on_built_entity(destination, e)
-    ei_combustion_turbine.on_built_entity(clone_event)
+    ei_fusion_reactor.on_built_entity(destination, event)
     ei_beacon_overload.on_built_entity(destination)
     ei_neutron_collector.on_built_entity(destination)
     ei_matter_stabilizer.on_built_entity(destination)
-    ei_induction_matrix.on_built_entity(clone_event)
     ei_black_hole.on_built_entity(clone_event)
     ei_gate.on_built_entity(clone_event)
-    ei_crystal_accumulator.on_built_entity(clone_event)
     ei_auric_inoculation_vat.on_built_entity(clone_event)
     ei_loaders_lib.on_built_entity(destination)
     ei_fueler.on_built_entity(destination)
-    em_trains.on_built_entity(destination,e.tick)
-    orbital_combinator.add(destination, e.tick)
+    em_trains.on_built_entity(destination, current_tick)
+    orbital_combinator.add(destination, current_tick)
     orbital_logistics.on_built_entity(clone_event)
     ei_railgun_cooling.on_built_entity(clone_event)
     ei_camp_fire.on_built_entity(clone_event)
-    ei_teslas_legacy.on_built_entity(clone_event)
     ei_singularity_lance.on_built_entity(clone_event)
     ei_sawblade_turret.on_built_entity(clone_event)
     ei_gaian_saucer_wake.on_built_entity(clone_event)
     ei_emerald_apocalypse_hover_tank.on_cloned_entity(clone_event)
-    ei_steam_train.on_built_entity(clone_event)
 
-    ei_fusion_reactor.on_entity_settings_pasted(e)
-    ei_combustion_turbine.on_entity_settings_pasted(e)
-    ei_neutron_collector.on_entity_settings_pasted(e)
-    orbital_combinator.on_entity_settings_pasted(e)
-    orbital_logistics.on_entity_settings_pasted(e)
+    ei_fusion_reactor.on_entity_settings_pasted(event)
+    ei_combustion_turbine.on_entity_settings_pasted(event)
+    ei_neutron_collector.on_entity_settings_pasted(event)
+    orbital_combinator.on_entity_settings_pasted(event)
+    orbital_logistics.on_entity_settings_pasted(event)
 end
 
-function on_built_entity(e)
-    if ei_air_scrubber.is_notifying(e.entity) then return end
-    if e then e.entity = ei_air_scrubber.normalize(e.entity) end
-    ei_terrain_evolution.on_entity_built(e)
-    -- Centralized post-build routing keeps every subsystem on the same event surface.
-    -- This wrapper also hosts the small amount of truly cross-cutting setup that is not
-    -- owned by any single feature module.
-    if not e or not e["entity"] or not e["entity"].valid then
-      return
+---@alias ESIRBuildEvent EventData.on_built_entity|EventData.on_robot_built_entity|EventData.on_space_platform_built_entity|EventData.script_raised_built|EventData.script_raised_revive
+
+---@param event ESIRBuildEvent
+function on_built_entity(event)
+    if not event or not event.entity then
+        return
     end
+    if ei_air_scrubber.is_notifying(event.entity) then return end
+    -- Scrubber normalization notifies other mods synchronously. Its returned
+    -- handle needs a fresh check before placement observers can inspect it.
+    event.entity = ei_lib.get_valid_entity(ei_air_scrubber.normalize(event.entity))
+    if not event.entity then return end
 
-    ei_admin_tools.on_built_entity(e)
+    -- Preserve original placement observation, including internal spider builds
+    -- and placements which a later owner rejects or replaces.
+    ei_terrain_evolution.on_entity_built(event)
+    ei_admin_tools.on_built_entity(event)
 
-    ei_sweeping_radar.on_built_entity(e)
-    ei_flamethrower_fuels.on_built_entity(e)
-    ei_water_turret.on_built_entity(e)
-    ei_anisetron.on_built_entity(e)
-    if not ei_lib.entity_check(e.entity) then return end
+    ei_sweeping_radar.on_built_entity(event)
+    ei_flamethrower_fuels.on_built_entity(event)
+    ei_water_turret.on_built_entity(event)
+    ei_anisetron.on_built_entity(event)
+    event.entity = ei_lib.get_valid_entity(event.entity)
+    if not event.entity then return end
     if ei_spider_vehicles.is_internal_transaction() then return end
-    ei_spider_vehicles.on_built_entity(e)
+
+    -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#build-lifetime
+    -- These owners can consume or replace the placement. Each returns its live
+    -- result (nil means consumed); never fall back to a now-invalid old shell.
+    event.entity = ei_combustion_turbine.on_built_entity(event)
+    if not event.entity then return end
+    event.entity = ei_induction_matrix.on_built_entity(event)
+    if not event.entity then return end
+    event.entity = ei_gaia.on_built_entity(event)
+    if not event.entity then return end
+    event.entity = ei_crystal_accumulator.on_built_entity(event)
+    if not event.entity then return end
+    event.entity = ei_steam_train.on_built_entity(event)
+    if not event.entity then return end
+    event.entity = ei_teslas_legacy.on_built_entity(event)
+    if not event.entity then return end
+
+    local entity = event.entity
+    local current_tick = event.tick
+    ei_spider_vehicles.on_built_entity(event)
 
     -- Entities registered here participate in shared fluid handling managed by register-util.
-    if ei_fluid_safety.counts_for_fluid_handling(e["entity"]) then
-        ei_register.register_fluid_entity(e["entity"])
+    if ei_fluid_safety.counts_for_fluid_handling(entity) then
+        ei_register.register_fluid_entity(entity)
     -- Steam pumps receive a tiny priming amount so their startup state is less brittle.
-    elseif e["entity"].name == "rp-steam-pump" then
+    elseif entity.name == "rp-steam-pump" then
         local startsteam = {
             name="steam",
             amount=3,
             temperature=165
         }
         local multi = 1
-        if e.entity.quality and e.entity.quality.level then
-            multi = 0.33*e.entity.quality.level
+        if entity.quality and entity.quality.level then
+            multi = 0.33*entity.quality.level
         end
         startsteam["amount"] = math.min(100,math.max(3,startsteam["amount"]*multi))
-        e["entity"].set_fluid(2,startsteam)
-    -- Legacy copper/iron beacon registration path kept only as historical reference.
-    --[[
-    elseif e["entity"].name == "ei-copper-beacon" then
-        local master_unit, slave_entity = ei_register.setup_master_slave(
-            "copper_beacon",
-            e["entity"],
-            "ei-copper-beacon_slave",
-            "slave_assembler",
-            {x = 0, y = 0}
-        )
-    elseif e["entity"].name == "ei-iron-beacon" then
-        local master_unit, slave_entity = ei_register.setup_master_slave(
-            "copper_beacon",
-            e["entity"],
-            "ei-iron-beacon_slave",
-            "slave_assembler",
-            {x = 0, y = 0}
-        )
-    ]]
+        entity.set_fluid(2,startsteam)
     end
 
-    -- Feature fan-out starts here. Most modules simply inspect the entity and return if
-    -- it is not theirs, so it is safe for the central dispatcher to call them in sequence.
-
-    ei_fusion_reactor.on_built_entity(e["entity"], e)
-    ei_combustion_turbine.on_built_entity(e)
-    ei_beacon_overload.on_built_entity(e["entity"])
-    ei_neutron_collector.on_built_entity(e["entity"])
-    ei_matter_stabilizer.on_built_entity(e["entity"])
-    ei_induction_matrix.on_built_entity(e)
-    ei_black_hole.on_built_entity(e)
-    ei_gate.on_built_entity(e)
-    ei_alien_system.on_built_entity(e["entity"])
-    ei_gaia.on_built_entity(e)
-    ei_crystal_accumulator.on_built_entity(e)
-    ei_auric_inoculation_vat.on_built_entity(e)
-    ei_loaders_lib.on_built_entity(e["entity"])
-    ei_fueler.on_built_entity(e["entity"])
-    em_trains.on_built_entity(e["entity"],e.tick)
-    orbital_combinator.add(e["entity"], e.tick)
-    orbital_logistics.on_built_entity(e)
-    ei_railgun_cooling.on_built_entity(e)
-    ei_steam_train.on_built_entity(e)
-    ei_camp_fire.on_built_entity(e)
-    ei_teslas_legacy.on_built_entity(e)
-    ei_singularity_lance.on_built_entity(e)
-    ei_sawblade_turret.on_built_entity(e)
-    ei_gaian_saucer_wake.on_built_entity(e)
-    ei_emerald_apocalypse_hover_tank.on_built_entity(e)
+    -- General receivers see the final shell. Their independent API guards remain;
+    -- this uninterrupted dispatcher scope reuses the handle without rechecking it.
+    ei_fusion_reactor.on_built_entity(entity, event)
+    ei_beacon_overload.on_built_entity(entity)
+    ei_neutron_collector.on_built_entity(entity)
+    ei_matter_stabilizer.on_built_entity(entity)
+    ei_black_hole.on_built_entity(event)
+    ei_gate.on_built_entity(event)
+    ei_auric_inoculation_vat.on_built_entity(event)
+    ei_loaders_lib.on_built_entity(entity)
+    ei_fueler.on_built_entity(entity)
+    em_trains.on_built_entity(entity, current_tick)
+    orbital_combinator.add(entity, current_tick)
+    orbital_logistics.on_built_entity(event)
+    ei_railgun_cooling.on_built_entity(event)
+    ei_camp_fire.on_built_entity(event)
+    ei_singularity_lance.on_built_entity(event)
+    ei_sawblade_turret.on_built_entity(event)
+    ei_gaian_saucer_wake.on_built_entity(event)
+    ei_emerald_apocalypse_hover_tank.on_built_entity(event)
 end
 
 function on_built_tile(e)
