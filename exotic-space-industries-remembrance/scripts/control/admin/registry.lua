@@ -14,6 +14,7 @@
 local lib=require("lib/lib")
 local scheduler=require("lib/runtime-scheduler")
 local passage_config=require("lib/factory-passage-config")
+local runtime_options=require("lib/runtime-options-config")
 local model={}
 local context
 local INSPECTION_BUDGET=64
@@ -209,7 +210,8 @@ function model.peek(id,tick)
     local scheduler=storage and storage.ei and storage.ei.runtime_scheduler
     local cached=type(scheduler)=="table" and type(scheduler.modules)=="table" and scheduler.modules[entry.scheduler_id or id]
     if type(cached)~="table" then cached=nil end
-    local enabled_setting=ENABLED_SETTINGS[id] and settings.startup[ENABLED_SETTINGS[id]]
+    local enabled_name=ENABLED_SETTINGS[id]
+    local enabled_setting=enabled_name and (settings.global[runtime_options.runtime_name(enabled_name)] or settings.startup[enabled_name])
     if enabled_setting and type(enabled_setting.value)=="boolean" then result.enabled=enabled_setting.value
     elseif type(root)=="table" and type(root.enabled)=="boolean" then result.enabled=root.enabled
     elseif cached and type(cached.status)=="table" and type(cached.status.enabled)=="boolean" then result.enabled=cached.status.enabled end

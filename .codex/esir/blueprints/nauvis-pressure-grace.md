@@ -26,6 +26,11 @@ flowchart LR
 <a id="tick-flow"></a>
 ## Tick flow and invariants
 
+The enable/profile switches are [map runtime options](runtime-options.md#contract).
+Their grouped hook refreshes policy and synchronizes the owned modifier without
+running a reduction tick or resetting its schedule. Impossible difficulty retains
+its existing veto, including when the map enable switch is true.
+
 Dispatcher step 1 checks `has_tick_work(event)`; ordinary relief runs at the 18,000-tick interval. Research/configuration paths synchronize policy immediately. Event or supplied numeric ticks are preferred; scripted-burst utility calls retain a fallback. Impossible, disabled, and inactive policies restore owned modifiers instead of continuing relief. Treat externally changed pollution factors as a new base rather than blindly restoring an obsolete saved value.
 
 <a id="lifecycle"></a>

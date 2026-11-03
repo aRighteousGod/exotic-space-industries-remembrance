@@ -12,12 +12,6 @@ function get_settings()
       basic_volume = get_sound_volume("tl-basic-sound-volume"),
       advanced_volume = get_sound_volume("tl-advanced-sound-volume"),
     },
-    text = {
-	  
-      critical = settings.startup["tl-flying-text-critical"].value,
-      vaporize = settings.startup["tl-flying-text-vaporize"].value,
-      damage = settings.startup["tl-flying-text-damage"].value,
-	},
     flames =
 	{
 	  damage = 50,

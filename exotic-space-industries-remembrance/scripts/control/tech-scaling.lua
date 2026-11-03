@@ -3,7 +3,7 @@
 -- owns: tech cost scaling
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, configuration-changed, and research-finished
--- forwarded_events: get_multiplier, init, on_research_finished, on_scripted_research_burst
+-- forwarded_events: on_settings_changed, get_multiplier, init, on_research_finished, on_scripted_research_burst
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -17,6 +17,7 @@ local ei_tech_scaling = {}
 local tech_weighting = require("lib/tech-weighting")
 local tech_scaling_common = require("lib/tech-scaling-common")
 local tech_scaling_shared = require("lib/tech-scaling-shared")
+local runtime_options = require("lib/runtime-options-config")
 
 local CORE_AGES = {
     "dark-age",
@@ -360,7 +361,7 @@ local function rebuild_runtime_cache(force)
 
     local startPrice = ei_lib.config("tech-scaling-startPrice") or tech_scaling.startPrice or 10
     local additional_multiplier = tonumber(ei_lib.config("tech-scaling-additionalMultiplier")) or 1
-    local curve_form = ei_lib.config("tech-scaling-curveForm")
+    local curve_form = runtime_options.get("ei-tech-scaling-curveForm", "age-ramp")
 
     tech_scaling.maxCost = maxCost
     tech_scaling.startPrice = startPrice
@@ -605,6 +606,21 @@ end
 function ei_tech_scaling.init()
     local force = get_primary_force()
     refresh_from_settings(force)
+    update_multiplier(force)
+end
+
+---Refresh native completed flags without consuming the shared scripted-research burst.
+---The engine owns current progress, the research queue and all spent science.
+---@param event EventData.on_runtime_mod_setting_changed
+function ei_tech_scaling.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global"
+        or event.setting ~= runtime_options.runtime_name("ei-tech-scaling-curveForm") then return end
+    local force = get_primary_force()
+    local tech_scaling = ensure_tech_scaling_storage()
+    tech_scaling.curveForm = runtime_options.get("ei-tech-scaling-curveForm", "age-ramp")
+    if not rebuild_researched_snapshot_from_cache(force) then
+        refresh_from_settings(force)
+    end
     update_multiplier(force)
 end
 

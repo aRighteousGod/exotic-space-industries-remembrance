@@ -3,7 +3,7 @@
 -- owns: camp-fire periodic fire spawning
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: build/destroy and scheduled tick step 1
--- forwarded_events: has_tick_work, on_built_entity, on_destroyed_entity, updater, repair_runtime_state
+-- forwarded_events: on_settings_changed, has_tick_work, on_built_entity, on_destroyed_entity, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -13,7 +13,17 @@
 -- campfire
 local model = {}
 ei_lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 local FIRE_UPDATE_TICK = math.max(150,ei_ticksPerFullUpdate)
+
+---Changing cadence retains the last emission tick and all registered campfires.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global" then return end
+    if event.setting ~= runtime_options.runtime_name("ei-ticks_per_full_update")
+        and event.setting ~= runtime_options.runtime_name("ei-max_updates_per_tick") then return end
+    FIRE_UPDATE_TICK = math.max(150,ei_ticksPerFullUpdate)
+end
 --------------------------------------------------------------------------------
 local function register(entity)
     local unit_number = ei_lib.get_entity_unit_number(entity)

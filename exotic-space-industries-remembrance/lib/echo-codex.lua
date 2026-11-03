@@ -3,7 +3,7 @@
 -- owns: startup/configuration messaging, arrival-wave rendering, and visual settings mirrors
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, configuration-changed, on_load, and guarded on_tick arrival-wave rendering
--- forwarded_events: on_init, on_configuration_changed, on_load, on_tick, has_tick_work, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned, repair_runtime_state
+-- forwarded_events: on_settings_changed, on_init, on_configuration_changed, on_load, on_tick, has_tick_work, on_player_created, on_player_joined_game, on_cutscene_cancelled, on_cutscene_finished, on_player_respawned, repair_runtime_state
 -- storage_roots: storage.ei.arrival_waves, storage.ei.arrival_waves_next_due_tick, storage.ei.pending_arrivals, storage.ei.lamp_removals, storage.ei.que_*, storage.ei.em_*_glow*, storage.ei.rocket_launch_pollution, storage.ei.fulgora_day_length_variation, storage.ei.nauvis_pressure
 -- gui_ids: none
 -- remote_interfaces: none
@@ -12,6 +12,7 @@
 -- blueprint: .codex/esir/blueprints/startup-and-integration.md#contract
 -- Echo Codex Generator: A ritual system of dynamic proclamation
 ei_lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 echo_codex = {}
 
 --====================================================================================================
@@ -234,23 +235,23 @@ function echo_codex.handle_global_settings(event)
 		event.tick = -1
 	end
 	--=== [Read core config values] ===--
-	local width = ei_lib.config("em_updater_que_width") or 6
-	local transparency = ei_lib.config("em_updater_que_transparency") or 80
-	local que_timetolive = ei_lib.config("em_updater_que_timetolive") or 60
-	local que_type = ei_lib.config("em_updater_que") or "none"
-	local train_glow = ei_lib.config("em_train_glow")
-	local trainGlowTimeToLive = ei_lib.config("em_train_glow_timetolive") or 60
-	local charger_glow = ei_lib.config("em_charger_glow")
-	local chargerGlowTimeToLive = ei_lib.config("em_charger_glow_timetolive") or 60
+	local width = runtime_options.get("ei-em_updater_que_width", 3)
+	local transparency = runtime_options.get("ei-em_updater_que_transparency", 88)
+	local que_timetolive = runtime_options.get("ei-em_updater_que_timetolive", 20)
+	local que_type = runtime_options.get("ei-em_updater_que", "Beam")
+	local train_glow = runtime_options.get("ei-em_train_glow", true)
+	local trainGlowTimeToLive = runtime_options.get("ei-em_train_glow_timetolive", 60)
+	local charger_glow = runtime_options.get("ei-em_charger_glow", true)
+	local chargerGlowTimeToLive = runtime_options.get("ei-em_charger_glow_timetolive", 60)
 
-	local rocket_launch_pollution_mode = ei_lib.config("rocket-launch-pollution-mode") or "linear"
-	local rocket_launch_pollution_cap = ei_lib.config("rocket-launch-pollution-cap") or 10000
-	local rocket_launch_pollution_visual_style = ei_lib.config("rocket-launch-pollution-visual-style") or "hybrid"
-	local fulgora_day_length_variation_max_multiplier = ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
-	local fulgora_day_length_variation_min_multiplier = ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
+	local rocket_launch_pollution_mode = runtime_options.get("ei-rocket-launch-pollution-mode", "linear")
+	local rocket_launch_pollution_cap = runtime_options.get("ei-rocket-launch-pollution-cap", 10000)
+	local rocket_launch_pollution_visual_style = runtime_options.get("ei-rocket-launch-pollution-visual-style", "hybrid")
+	local fulgora_day_length_variation_max_multiplier = runtime_options.get("ei-fulgora-day-length-variation-max-multiplier", 2)
+	local fulgora_day_length_variation_min_multiplier = runtime_options.get("ei-fulgora-day-length-variation-min-multiplier", 0.1)
 	local enemy_difficulty = ei_lib.config("enemy-difficulty") or "Tempered"
-	local nauvis_pressure_grace = ei_lib.config("nauvis-pressure-grace")
-	local nauvis_pressure_profile = ei_lib.config("nauvis-pressure-grace-profile") or "Extended"
+	local nauvis_pressure_grace = runtime_options.get("ei-nauvis-pressure-grace", true)
+	local nauvis_pressure_profile = runtime_options.get("ei-nauvis-pressure-grace-profile", "Extended")
 	if nauvis_pressure_grace == nil then
 		nauvis_pressure_grace = true
 	end
@@ -416,6 +417,13 @@ function echo_codex.handle_global_settings(event)
 		intent = "wrath",
 	})
 
+	-- Admit legacy active launches before replacing their former map-level cap.
+	local launch_state = storage.ei.rocket_launch_pollution
+	for _, launches in pairs{launch_state.pending_launches_by_silo or {}, launch_state.detached_launches or {}} do
+		for _, launch in pairs(launches) do
+			launch.pollution_cap = launch.pollution_cap or launch_state.cap or rocket_launch_pollution_cap
+		end
+	end
 	storage.ei.rocket_launch_pollution.mode = rocket_launch_pollution_mode
 	storage.ei.rocket_launch_pollution.cap = rocket_launch_pollution_cap
 	storage.ei.rocket_launch_pollution.visual_style = rocket_launch_pollution_visual_style
@@ -443,6 +451,36 @@ function echo_codex.handle_global_settings(event)
 	storage.ei.enemy_difficulty = enemy_difficulty
 	storage.ei.nauvis_pressure.enabled = nauvis_pressure_grace and enemy_difficulty ~= "Impossible"
 	storage.ei.nauvis_pressure.profile = nauvis_pressure_profile
+end
+
+local em_visual_runtime_keys = {}
+for _, name in ipairs{
+    "ei-em_updater_que_width", "ei-em_updater_que_transparency",
+    "ei-em_updater_que_timetolive", "ei-em_updater_que",
+    "ei-em_train_glow", "ei-em_train_glow_timetolive",
+    "ei-em_charger_glow", "ei-em_charger_glow_timetolive",
+} do
+    em_visual_runtime_keys[runtime_options.runtime_name(name)] = true
+end
+
+---Live edits update only visual mirrors; no proclamations, RNG, arrivals or rebuilds.
+---@param event EventData.on_runtime_mod_setting_changed
+function echo_codex.on_settings_changed(event)
+    -- The companion advisory reads the option at the next ordinary arrival only.
+    if event.setting_type == "runtime-global"
+        and event.setting == runtime_options.runtime_name("ei-check-for-recipe-icons-improvement-mod") then return end
+    if event.setting_type ~= "runtime-global" or not em_visual_runtime_keys[event.setting] then return end
+    storage.ei = storage.ei or {}
+    local state = storage.ei
+    state.que_width = runtime_options.get("ei-em_updater_que_width", 3)
+    state.que_transparency = runtime_options.get("ei-em_updater_que_transparency", 88) / 100
+    state.que_timetolive = runtime_options.get("ei-em_updater_que_timetolive", 20)
+    local queue_type = runtime_options.get("ei-em_updater_que", "Beam")
+    state.em_train_que = queue_type == "Beam" and 1 or queue_type == "Ring" and 2 or 0
+    state.em_train_glow = runtime_options.get("ei-em_train_glow", true)
+    state.em_train_glow_timeToLive = runtime_options.get("ei-em_train_glow_timetolive", 60)
+    state.em_charger_glow = runtime_options.get("ei-em_charger_glow", true)
+    state.em_charger_glow_timeToLive = runtime_options.get("ei-em_charger_glow_timetolive", 60)
 end
 
 local function ensure_pending_arrivals()
@@ -639,7 +677,8 @@ function echo_codex.youHaveArrived(event)
 	ei_lib.crystal_echo("Fragments of GAIA's lament ripple across space-time...", "default-semibold", player)
 	ei_lib.crystal_echo("⟬ THE SYSTEM STIRS ⟭", "default-bold")
 	ei_lib.crystal_echo_floating("⚠️ YOU HAVE BEEN SEEN ⚠️", player.character, 600, "wrath")
-	if not script.active_mods["recipe-icons-improvement-for-esir"] and ei_lib.config("check-for-recipe-icons-improvement-mod") then
+	if not script.active_mods["recipe-icons-improvement-for-esir"]
+        and runtime_options.get("ei-check-for-recipe-icons-improvement-mod", true) then
 		ei_lib.crystal_echo(
 			{"ei-log.recipe-icons-improvement-missing"}
 		)

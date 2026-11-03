@@ -9,6 +9,13 @@
 
 ## Behavior and boundaries
 
+The [runtime options owner](runtime-options.md#transactions) intercepts its explicit
+global setting allowlist. Native synchronous writes accumulate while an Options
+transaction is active; one grouped callback refreshes each affected owner after
+readback and receipts. Scheduler globals refresh first, administration availability
+last. Other settings retain their existing dispatch. One-time legacy import runs
+before configuration initialization; ordinary owner refresh follows it at the end.
+
 Terrain evolution is a due-guarded global service outside the unchanged sixteen
 slots. Exact resource/death/tile/chunk/surface/settings events feed bounded
 admission and ownership invalidation. Calendar service is subordinate to this

@@ -1,4 +1,6 @@
 -- settings for Exotic Industries
+-- Settings does not preload the native prototype-copy helper.
+require("__core__/lualib/util")
 ei_lib = require("lib/lib")
 local singularity_lance_config = require("lib/singularity-lance-config")
 local gaian_saucer_wake_config = require("lib/gaian-saucer-wake-config")
@@ -551,3 +553,4 @@ data:extend(require("lib/terrain-evolution-config").definitions)
 data:extend(require("lib/terrain-alert-config").definitions)
 data:extend(require("lib/alert-catalog").setting_definitions())
 data:extend(require("lib/alert-icon-sets").setting_definitions())
+require("lib/runtime-options-config").install()

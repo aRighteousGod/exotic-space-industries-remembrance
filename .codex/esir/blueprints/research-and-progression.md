@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Research scaling, progression migrations, and victory
 
+The curve-form selector is a [runtime map option](runtime-options.md#contract).
+Changing it rebuilds the completed-research snapshot from native researched flags
+and updates the multiplier immediately, without assigning research progress or
+draining/resetting the shared scripted-research burst queue.
+
 <a id="admin-repair"></a>
 ## Admin repair
 

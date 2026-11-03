@@ -4,7 +4,7 @@
 -- loaded_by: control.lua
 -- cadence: dispatcher step 16; at most B checks and B queue visits/service
 --   overlap cleanup runs only on supported creation events while adaptation is enabled
--- forwarded_events: rebuild, on_built_entity, on_destroyed_entity, on_object_destroyed,, repair_runtime_state
+-- forwarded_events: on_settings_changed, rebuild, on_built_entity, on_destroyed_entity, on_object_destroyed, repair_runtime_state
 --   on_blueprint, sync_force, has_tick_work, updater, on_trigger_created_entity
 -- storage_roots: storage.ei.flamethrower_fuels (records, units, registrations, queues)
 -- gui_ids: none; replacements defer while the entity GUI is open
@@ -14,14 +14,25 @@
 -- blueprint: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#contract
 -- blueprint-ref: .codex/esir/blueprints/flamethrower-fuel-adaptation.md#rebuild-reporting
 local ei_lib=require("lib/lib")
+local runtime_options=require("lib/runtime-options-config")
 local scheduler=require("lib/runtime-scheduler")
 local catalog=require("lib/flamethrower-fuels")
 local util=require("util")
 local model={}
 local enabled=settings.startup[catalog.setting].value
-local budget=settings.startup["ei-max_updates_per_tick"].value
+local budget=runtime_options.get("ei-max_updates_per_tick",10)
 local replacement_budget=budget
 local transaction=false
+
+---Keep scans, replacements and retries intact while updating their next service allowance.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type~="runtime-global" then return end
+    if event.setting~=runtime_options.runtime_name("ei-max_updates_per_tick")
+        and event.setting~=runtime_options.runtime_name("ei-ticks_per_full_update") then return end
+    budget=runtime_options.get("ei-max_updates_per_tick",10)
+    replacement_budget=budget
+end
 
 -- Creation order defines newest, including same-tick impacts. This requires no
 -- saved state or scans between impacts. Native refueling does not create a new

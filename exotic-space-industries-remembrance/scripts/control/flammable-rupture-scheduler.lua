@@ -3,7 +3,7 @@
 -- owns: queued flammable rupture ring execution and runtime status
 -- loaded_by: exotic-space-industries-remembrance\control.lua, scripts/control/flammable-fluids.lua
 -- cadence: on-demand job creation and due ring ticks
--- forwarded_events: begin_rupture, check_global, get_fidelity_profile, get_runtime_status, has_tick_work, queue_rupture, updater, repair_runtime_state
+-- forwarded_events: on_settings_changed, begin_rupture, check_global, get_fidelity_profile, get_runtime_status, has_tick_work, queue_rupture, updater, repair_runtime_state
 -- storage_roots: storage.ei.flammable_ruptures
 -- gui_ids: none
 -- remote_interfaces: none
@@ -80,8 +80,9 @@ local function shallow_copy(source)
     return copy
 end
 
+local runtime_options = require("lib/runtime-options-config")
 local function get_mode()
-    local mode = ei_lib.config("flammable-rupture-fidelity") or DEFAULT_MODE
+    local mode = runtime_options.get("ei-flammable-rupture-fidelity", DEFAULT_MODE)
     if not MODE_PROFILES[mode] then
         mode = DEFAULT_MODE
     end
@@ -98,6 +99,13 @@ function model.get_fidelity_profile(visual_radius, requested_mode)
     end
     profile.mode = mode
     return profile
+end
+
+---Profiles are captured when a rupture is admitted; existing paid rings stay intact.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    return event.setting_type == "runtime-global"
+        and event.setting == runtime_options.runtime_name("ei-flammable-rupture-fidelity")
 end
 
 local function new_state()

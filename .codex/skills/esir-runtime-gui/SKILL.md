@@ -7,6 +7,14 @@ description: "Create, review, and standardize ESIR runtime GUI code. Use when Co
 
 Follow [runtime alerts](../esir-dev/references/runtime-alerts.md) for alert preferences and source switches: native per-player settings are authoritative, source controls cannot override personal Off, and GUI changes use the shared setting-change path.
 
+For save-wide mod settings, use [Administration Options](../../esir/blueprints/runtime-options.md#contract)
+and its typed runtime owner. Keep a single cross-category draft and native setting
+authority. Script assignments synchronously emit native setting events: batch ESIR
+owner reconciliation rather than dispatching duplicate synthetic events. Keep
+audit/feedback before administration self-disable, close every batch under protected
+calls, and retain actual-state reconciliation after an incomplete rollback. Use
+`qc-test -Suite runtime-options` for settings, transaction and Options GUI changes.
+
 Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for required calls, cheap admission and tick context. Preserve session cleanup when unrelated entities open.
 
 Use this skill before adding or refactoring ESIR runtime GUI. Keep it focused on GUI surface choice, layout vocabulary, event routing, and migration hygiene; use `esir-dev`, `factorio-lua-assumptions`, and `esir-lib-first` for broader runtime, Factorio Lua, or helper-surface decisions.

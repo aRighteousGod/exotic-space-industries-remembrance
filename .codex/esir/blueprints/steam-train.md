@@ -27,6 +27,9 @@ flowchart LR
 <a id="tick-flow"></a>
 ## Tick flow and invariants
 
+Both shared scheduler Map settings refresh the derived wheel cadence after central
+globals update, preserving the last-run tick, locomotive identities and audit cursor.
+
 The main every-tick path calls the module only when records exist. Each call performs a small audit; wheel transforms run at a configured interval clamped to 1-5 ticks using `event.tick`. A due transform pass walks the entire active set; the cadence bound is not a fixed per-tick entity budget. The helper itself needs entity geometry, not a clock. Preserve the distinction between all tracked units and active units; briefly stopped trains remain active for the existing grace passes.
 
 <a id="lifecycle"></a>

@@ -3,7 +3,7 @@
 -- owns: rocket launch pollution, launch retaliation, and visual smoke queues
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: active-launch ignition checks, 10-tick pollution, and due-tick smoke/cleanup work
--- forwarded_events: has_tick_work, on_rocket_launch_ordered, on_rocket_launched, updater, repair_runtime_state
+-- forwarded_events: on_settings_changed, has_tick_work, on_rocket_launch_ordered, on_rocket_launched, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -51,6 +51,7 @@ Supported modes:
 Evolution factor is typically in [0, 1], but we clamp anyway for safety.
 ]]
 local ei_lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local model = {}
 local LAUNCH_STATE_VERSION = 2
@@ -103,6 +104,7 @@ local try_form_retaliation
 ---@field surface_index uint
 ---@field position MapPosition
 ---@field pollution number
+---@field pollution_cap number|nil Cap captured at admission, including the retaliation threshold.
 ---@field emitted_pollution number
 ---@field ignition_tick MapTick|nil
 ---@field engine_burn_ticks uint|nil Native prototype/quality engine-start duration.
@@ -728,6 +730,7 @@ local function queue_pending_launch(job, current_tick)
   job.expected_tick = expected_tick
   job.ordered_tick = current_tick
   job.emitted_pollution = job.emitted_pollution or 0
+  job.pollution_cap = job.pollution_cap or state.cap or rocket_pollution_config.base
   local previous = state.pending_launches_by_silo[job.silo_unit_number]
   if previous then
     -- A fast relaunch must not overwrite the earlier rocket's paid balance.
@@ -1651,7 +1654,7 @@ local function apply_confirmed_launch(job)
     {r = 0.95, g = 0.72, b = 0.28},
     LAUNCH_POLLUTION_TEXT_OFFSET_Y
   )
-  try_form_retaliation(surface, job.position, pollution)
+  try_form_retaliation(surface, job.position, pollution, job.pollution_cap)
   ei_runtime_scheduler.bump_counter("rocket-launch-pollution", "liftoff_processed", 1, job.tick)
   return true
 end
@@ -1729,16 +1732,12 @@ local function select_nearest_units(entities, origin, limit)
   return selected_units, selected_count, nearest_unit
 end
 
-local function has_apex_launch_pressure(evo, pollution)
-  local cap = rocket_pollution_config.base
-  if storage and storage.ei and storage.ei.rocket_launch_pollution and storage.ei.rocket_launch_pollution.cap then
-    cap = storage.ei.rocket_launch_pollution.cap
-  end
-
+local function has_apex_launch_pressure(evo, pollution, captured_cap)
+  local cap = captured_cap or storage.ei.rocket_launch_pollution.cap or rocket_pollution_config.base
   return evo >= 0.9 and pollution >= cap * 0.9
 end
 
-try_form_retaliation = function(surface, position, pollution)
+try_form_retaliation = function(surface, position, pollution, captured_cap)
   -- Native peace/no-enemies controls also silence ESIR-initiated retaliation orders.
   if not (surface and surface.valid) or surface.peaceful_mode or surface.no_enemies_mode then
     return false
@@ -1760,7 +1759,7 @@ try_form_retaliation = function(surface, position, pollution)
   local radius = ei_lib.clamp(72 + pollution / 90 + evo * 48, 96, 256)
   local max_units = ei_lib.clamp(math.floor(6 + pollution / 900 + evo * 10), 8, 28)
 
-  if has_apex_launch_pressure(evo, pollution) then
+  if has_apex_launch_pressure(evo, pollution, captured_cap) then
     radius = radius * 1.15
     max_units = ei_lib.clamp(math.floor(max_units * 1.25 + 0.5), 8, 36)
   end
@@ -2167,6 +2166,28 @@ function model.repair_runtime_state(reason,tick)
     refresh_launch_smoke_summary(state,tick)
     refresh_pending_cleanup_summary(state)
     return true
+end
+
+---Only future launches use changed policy; preserve active ledgers, smoke and due ticks.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global" then return end
+    local key = event.setting
+    if key ~= runtime_options.runtime_name("ei-rocket-launch-pollution-mode")
+        and key ~= runtime_options.runtime_name("ei-rocket-launch-pollution-cap")
+        and key ~= runtime_options.runtime_name("ei-rocket-launch-pollution-visual-style") then return end
+    storage.ei = storage.ei or {}
+    local state = storage.ei.rocket_launch_pollution or {}
+    storage.ei.rocket_launch_pollution = state
+    local previous_cap = state.cap or rocket_pollution_config.base
+    for _, launches in pairs{state.pending_launches_by_silo or {}, state.detached_launches or {}} do
+        for _, launch in pairs(launches) do
+            launch.pollution_cap = launch.pollution_cap or previous_cap
+        end
+    end
+    state.mode = runtime_options.get("ei-rocket-launch-pollution-mode", "linear")
+    state.cap = runtime_options.get("ei-rocket-launch-pollution-cap", 10000)
+    state.visual_style = sanitize_visual_style(runtime_options.get("ei-rocket-launch-pollution-visual-style", "hybrid"))
 end
 
 return model

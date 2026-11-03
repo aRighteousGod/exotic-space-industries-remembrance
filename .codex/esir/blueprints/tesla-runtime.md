@@ -1,6 +1,11 @@
 <a id="contract"></a>
 # Tesla combat, research variants, and helper lifetime
 
+The three floating-text switches are [map runtime options](runtime-options.md#contract).
+The control owner initializes and refreshes only their local text flags. Combat
+behavior/coefficients and prototype-bound settings retain their startup semantics;
+the shared data-stage settings table no longer reads the converted text switches.
+
 Build normalization returns the surviving public/exotic coil or unchanged unrelated
 entity, and nil when no shell survives. Exact variant-name admission precedes state
 and force-cache setup. The central build/clone dispatcher registers the returned

@@ -3,7 +3,7 @@
 -- owns: Fulgora day-length variation
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: gated every tick while Fulgora exists
--- forwarded_events: has_tick_work, on_admin_daytime_changed, updater, repair_runtime_state
+-- forwarded_events: on_settings_changed, has_tick_work, on_admin_daytime_changed, updater, repair_runtime_state
 -- storage_roots: storage.ei, storage.fulgora_day_length_variation
 -- gui_ids: none
 -- remote_interfaces: none
@@ -14,6 +14,7 @@
 --now modified to add smooth variation in Fulgora's day length each cycle, with checks to avoid abrupt changes during dark or unstable-light conditions
 
 local CHECK_INTERVAL = 300
+local runtime_options = require("lib/runtime-options-config")
 local PENDING_CHECK_INTERVAL = 60
 local CHECK_JITTER_STEPS = 7
 local MAX_DARKNESS_FOR_DAYTIME_CHANGE = 0.35
@@ -68,8 +69,8 @@ function model.updater(event)
 
 	if not ei_storage.fulgora_day_length_variation then
 		ei_storage.fulgora_day_length_variation = {}
-        ei_storage.fulgora_day_length_variation.max_multiplier = ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
-        ei_storage.fulgora_day_length_variation.min_multiplier = ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
+        ei_storage.fulgora_day_length_variation.max_multiplier = runtime_options.get("ei-fulgora-day-length-variation-max-multiplier", 2)
+        ei_storage.fulgora_day_length_variation.min_multiplier = runtime_options.get("ei-fulgora-day-length-variation-min-multiplier", 0.1)
 	end
 
 	local variation_state = ei_storage.fulgora_day_length_variation
@@ -153,8 +154,8 @@ function model.repair_runtime_state(reason,tick)
     storage.ei=storage.ei or {}
     local current=storage.ei.fulgora_day_length_variation
     if type(current)~="table" then current={};storage.ei.fulgora_day_length_variation=current end
-    current.max_multiplier=ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
-    current.min_multiplier=ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
+    current.max_multiplier=runtime_options.get("ei-fulgora-day-length-variation-max-multiplier", 2)
+    current.min_multiplier=runtime_options.get("ei-fulgora-day-length-variation-min-multiplier", 0.1)
     current.cycle_index=tonumber(current.cycle_index) or 0
     current.next_check_tick=tonumber(current.next_check_tick) or tick
     local surface=game.surfaces.fulgora
@@ -170,8 +171,8 @@ function model.on_admin_daytime_changed(surface, tick)
     storage.ei = storage.ei or {}
     local state = storage.ei.fulgora_day_length_variation or {}
     storage.ei.fulgora_day_length_variation = state
-    state.max_multiplier = state.max_multiplier or ei_lib.config("fulgora-day-length-variation-max-multiplier") or 2
-    state.min_multiplier = state.min_multiplier or ei_lib.config("fulgora-day-length-variation-min-multiplier") or 0.1
+    state.max_multiplier = state.max_multiplier or runtime_options.get("ei-fulgora-day-length-variation-max-multiplier", 2)
+    state.min_multiplier = state.min_multiplier or runtime_options.get("ei-fulgora-day-length-variation-min-multiplier", 0.1)
     state.cycle_index = state.cycle_index or 0
     state.last_daytime = surface.daytime
     state.last_darkness = surface.darkness
@@ -179,6 +180,19 @@ function model.on_admin_daytime_changed(surface, tick)
     state.next_check_tick = ei_lib.get_event_tick(tick) + CHECK_INTERVAL
     -- An admin rewind is not a completed natural cycle. Resume on the next wrap.
     state.last_applied_cycle = state.cycle_index
+end
+
+---New bounds apply at the next eligible natural cycle, without rolling or rewinding time.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global" then return end
+    if event.setting ~= runtime_options.runtime_name("ei-fulgora-day-length-variation-min-multiplier")
+        and event.setting ~= runtime_options.runtime_name("ei-fulgora-day-length-variation-max-multiplier") then return end
+    storage.ei = storage.ei or {}
+    local state = storage.ei.fulgora_day_length_variation or {}
+    storage.ei.fulgora_day_length_variation = state
+    state.max_multiplier = runtime_options.get("ei-fulgora-day-length-variation-max-multiplier", 2)
+    state.min_multiplier = runtime_options.get("ei-fulgora-day-length-variation-min-multiplier", 0.1)
 end
 
 return model

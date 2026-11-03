@@ -49,10 +49,7 @@ end
 local function global_setting(ctx,key,value,tick)
     local name=ctx.config.by_key[key].setting_name
     settings.global[name]={value=value}
-    -- Dispatch explicitly so this check does not assume when Factorio delivers a
-    -- script-written setting event. The shipping handler is idempotent.
-    script.get_event_handler(defines.events.on_runtime_mod_setting_changed){
-        name=defines.events.on_runtime_mod_setting_changed,setting=name,setting_type="runtime-global",tick=tick}
+    -- Factorio 2.1.24 dispatches the native setting event synchronously.
 end
 local function same(a,b) return serpent.line(a)==serpent.line(b) end
 local function restore_overrides(ctx,surface,values,tick)
@@ -87,12 +84,23 @@ function model.start(ctx,player,tick)
     local s=session(ctx,player);local frame=s.root
     check("real ecology page builds",frame.valid and s.page=="ecology" and s.ecology.value.valid)
     check("page defaults to no automatic refresh",not s.auto_refresh and not s.auto_due_tick)
+    check("viewing ecology creates no pending edit",next(s.ecology_drafts)==nil)
+    select(ctx,player,"soil_seconds",tick)
+    local untouched=s.ecology.value
+    global_setting(ctx,"soil_seconds",121,tick);ctx.gui.refresh(player.index,tick)
+    check("untouched editor follows effective changes without rebuilding",s.ecology.value==untouched
+        and untouched.text=="121" and next(s.ecology_drafts)==nil)
+    click(ctx,player,"apply",tick)
+    check("apply without draft uses displayed value",ctx.terrain.get_overrides(nauvis).soil_seconds==121
+        and s.ecology_drafts[nauvis.index..":soil_seconds"]==nil)
+    click(ctx,player,"inherit",tick)
     local character=player.character;local cheat=player.cheat_mode;local controller=player.controller_type
     set_value(ctx,player,"degradation",false,tick)
     check("native dropdown preserves false as a draft",s.ecology_drafts[nauvis.index..":degradation"]==false)
     click(ctx,player,"apply",tick)
     check("administrator applies a false surface override",ctx.terrain.get_overrides(nauvis).degradation==false
         and ctx.terrain.resolve_config(nauvis).degradation==false)
+    check("successful apply clears the field draft",s.ecology_drafts[nauvis.index..":degradation"]==nil)
     check("surface override is isolated",ctx.terrain.get_overrides(vulcanus).degradation==nil
         and ctx.terrain.resolve_config(vulcanus).degradation==settings.global[ctx.config.by_key.degradation.setting_name].value)
     check("effective readout identifies override",s.ecology.effective.caption[3][1]=="ei-admin.ecology-overridden")
@@ -119,18 +127,28 @@ function model.start(ctx,player,tick)
     check("out of range number is rejected by owner",ctx.terrain.get_overrides(nauvis).soil_seconds==nil)
     set_value(ctx,player,"soil_seconds",300,tick);click(ctx,player,"apply",tick)
     set_value(ctx,player,"degradation",false,tick);click(ctx,player,"apply",tick)
+    target(ctx,player,vulcanus,tick);set_value(ctx,player,"soil_seconds",777,tick)
+    target(ctx,player,nauvis,tick)
     click(ctx,player,"reset",tick)
     check("reset clears all surface overrides",next(ctx.terrain.get_overrides(nauvis))==nil)
-    check("reset replaces stale drafts with effective default",s.ecology_drafts[nauvis.index..":degradation"]
-        ==ctx.terrain.resolve_config(nauvis).degradation)
+    check("reset clears only the selected surface drafts",s.ecology_drafts[nauvis.index..":degradation"]==nil
+        and s.ecology_drafts[vulcanus.index..":soil_seconds"]=="777")
+    check("reset displays the current global value",tonumber(s.ecology.value.text)==settings.global[ctx.config.by_key.soil_seconds.setting_name].value)
+    s.ecology_drafts[nauvis.index..":degradation"]=false
+    select(ctx,player,"degradation",tick)
+    check("legacy saved false draft remains pending",s.ecology.value.selected_index==1
+        and s.ecology_drafts[nauvis.index..":degradation"]==false)
+    click(ctx,player,"inherit",tick)
     target(ctx,player,unsupported,tick)
     check("unsupported surface disables mutation controls",not s.ecology.apply.enabled and not s.ecology.inherit.enabled
         and not s.ecology.reset.enabled and not s.ecology.set_phase.enabled)
     target(ctx,player,fulgora,tick)
-    check("Fulgora phase edit is unavailable",not s.ecology.set_phase.enabled and ctx.terrain.snapshot(fulgora,tick).calendar.status=="excluded")
+    check("Fulgora ecological phase stays independent of daylight",s.ecology.set_phase.enabled
+        and not ctx.terrain.snapshot(fulgora,tick).calendar.owns_daylight
+        and ctx.terrain.resolve_config(fulgora).seasonal_daylight==false)
     local fulgora_day=fulgora.daytime_parameters
     local phase_ok=ctx.admin.execute(player,"ecology_phase",{surface_index=fulgora.index,phase=0.25},tick)
-    check("Fulgora owner rejects phase mutation without changing lighting",not phase_ok and same(fulgora_day,fulgora.daytime_parameters))
+    check("Fulgora phase edit preserves independent lighting",phase_ok and same(fulgora_day,fulgora.daytime_parameters))
     target(ctx,player,nauvis,tick)
     s.ecology.phase.text="0.25";click(ctx,player,"set_phase",tick)
     check("administrator phase edit reaches calendar owner",math.abs(ctx.terrain.snapshot(nauvis,tick).phase-0.25)<1e-9)

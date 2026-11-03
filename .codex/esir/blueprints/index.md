@@ -20,6 +20,7 @@ from source and does not trust generated manifests or installed mod selection.
 
 | Model | Owned source files |
 | --- | ---: |
+| [Map runtime options and Administration editor](runtime-options.md#contract) | 3 |
 | [Factory passage and pipe joints](factory-passage.md#contract) | 4 |
 | [Unified native alerts and personal settings](runtime-alerts.md#contract) | 3 |
 | [Ordinary slag recovery](slag-recovery.md#contract) | 1 |

@@ -30,7 +30,7 @@ The updater resolves the supplied event tick, tests the preset update interval, 
 <a id="lifecycle"></a>
 ## Lifecycle and invariants
 
-Build/destroy forwarding handles normal ownership; service revalidates and removes stale handles. Configuration rebuild resets visual cache/state and scans live saucers only if enabled. Off mode clears runtime activity and avoids modulo on its zero interval. Ordinary load recovers admission from persisted counts/queue when the local active cache is unset. No gameplay damage, force upgrade, fuel or movement contract is owned here; extending wake visuals must not silently alter those systems.
+Build/destroy forwarding handles normal ownership; service revalidates and removes stale handles. Configuration rebuild resets visual cache/state and inventories live saucers even while Off. Live fidelity changes invalidate only presentation state. Off mode retains event-fed identities but clears visual activity and avoids modulo on its zero interval. Resuming samples current positions and requeues those identities without a world scan or catch-up trail. Ordinary load recovers admission from persisted counts/queue when the local active cache is unset. No gameplay damage, force upgrade, fuel or movement contract is owned here; extending wake visuals must not silently alter those systems. See the [runtime option transitions](runtime-options.md#contract).
 
 <a id="verification"></a>
 ## Verification and maintenance

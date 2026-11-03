@@ -27,6 +27,9 @@ flowchart LR
 <a id="tick-flow"></a>
 ## Tick flow and deadlines
 
+Both shared scheduler Map settings refresh this derived cadence after the central
+globals update. Live edits preserve the campfire registry and last-run tick.
+
 `FIRE_UPDATE_TICK` is `max(150, ei_ticksPerFullUpdate)`. The step-1 gate compares `event.tick` to the persisted last-run tick and requires a nonempty registry. The updater records that same event tick before iterating. It creates `ei-small-fire`, or `fire-flame-on-tree` with the existing 25% choice, only while crafting; creation uses neutral force and raises a build event.
 
 <a id="lifecycle"></a>

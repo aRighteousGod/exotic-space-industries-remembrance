@@ -13,6 +13,10 @@
 
 ## Ownership and behavior
 
+Both shared scheduler Map settings refresh the derived scan/replacement budgets
+after central globals update. Live option edits preserve stable records, queues,
+retry buckets and deadlines; they do not invoke configuration rebuild.
+
 [Native death profiles](death-explosions.md#inheritance) assign the canonical
 flamethrower a chemical death before fuel shells are generated. Hidden operational
 turrets inherit its death fields along with the native body.

@@ -38,6 +38,10 @@ The global tick path is gated by Fulgora's existence and native `freeze_daytime`
 <a id="lifecycle"></a>
 ## Lifecycle and cleanup
 
+The runtime Map min/max settings update only stored bounds for future cycles.
+Their grouped callback makes no random draw, does not alter `ticks_per_day`, and
+preserves pending checks and cycle identity. See [runtime options](runtime-options.md#contract).
+
 The module returns when the surface or `storage.ei` is absent and lazily initializes variation state from configured bounds. `on_admin_daytime_changed(surface, tick)` resynchronizes daytime and darkness after explicit daytime/freeze edits, preserves configured bounds and cycle identity, clears old pending timeouts, and waits for the next natural wrap. An admin rewind is not a new cycle. Surface replacement/reconfiguration must still be reviewed against retained cycle fields; the hook is not a reset. It owns no entity helpers or render objects.
 
 <a id="verification"></a>

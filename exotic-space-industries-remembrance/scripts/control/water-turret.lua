@@ -3,7 +3,7 @@
 -- owns: water turret registry, electrical interlock, event-fed hot/cold service and modes
 -- loaded_by: control.lua (sole dispatcher)
 -- cadence: 15-tick power guards; 32 hot jobs, 8 cold slices, 32 wakes, 1 seed query/tick
--- forwarded_events: build/remove/clone/teleport/force/surface/blueprint/GUI/rebuild, repair_runtime_state
+-- forwarded_events: on_settings_changed, build/remove/clone/teleport/force/surface/blueprint/GUI/rebuild, repair_runtime_state
 -- storage_roots: storage.ei.water_turret
 -- gui_ids: ei-water-turret-console (relative turret GUI)
 -- remote_interfaces: none
@@ -12,14 +12,23 @@
 -- blueprint: .codex/esir/blueprints/firefighting-and-water-turret.md#contract
 -- blueprint-ref: .codex/esir/blueprints/firefighting-and-water-turret.md#rebuild-reporting
 local ei_lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 local scheduler = require("lib/runtime-scheduler")
 local config = require("lib/firefighting-config")
 local firefighting = require("scripts/control/firefighting")
 local fire_index = require("scripts/control/water-turret-fire-index")
 local model = {}
 local GUI = "ei-water-turret-console"
-local nearest = settings.startup[config.targeting_setting].value=="nearest"
+local nearest = runtime_options.get(config.targeting_setting, "first-nearby")=="nearest"
 model.created_effect=config.created_effect
+
+---New searches capture the selected policy; acquired targets and partial searches survive.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global"
+        or event.setting ~= runtime_options.runtime_name(config.targeting_setting) then return end
+    nearest = runtime_options.get(config.targeting_setting, "first-nearby")=="nearest"
+end
 
 ---@class ESIRWaterRecord
 ---@field id integer
@@ -382,10 +391,13 @@ local function acquire(root,job,tick)
     if not record.search then
         record.search=fire_index.search(record)
         if not record.search then record.phase="sleep";return end
+        record.search.nearest=nearest
         root.counters.acquisitions=root.counters.acquisitions+1
         record.wake_again=false
     end
-    local done,target=fire_index.search_slice(root,record,config.slice_size,nearest)
+    -- Older saved searches acquire their missing policy once without discarding the cursor.
+    if record.search.nearest==nil then record.search.nearest=nearest end
+    local done,target=fire_index.search_slice(root,record,config.slice_size,record.search.nearest)
     if not done then schedule_cold(record);return end
     record.search=nil;record.phase="sleep"
     if target then

@@ -21,6 +21,11 @@ Global settings remain sufficient; surface selection never creates a surface.
 Inheritance/reset affect configuration only. Calendar controls preserve Fulgora's
 independent ownership. Effective values, compatibility and diagnostics are read
 only for an open page; drafts survive navigation without authorizing mutations.
+Viewing fields does not seed drafts. Untouched controls follow effective values on
+refresh without replacing their widgets; user input and legacy saved drafts remain
+pending. Apply reads the displayed value when no draft exists and clears the field
+draft on success, as does Inherit. Reset clears only the selected surface's overrides
+and drafts. Inheritance always follows the map's current values, not factory defaults.
 
 The [Map Settings owner/editor](map-settings.md#contract) provides a separate native
 page for surface generation, enemy families and global rules. It owns persistent
@@ -28,7 +33,11 @@ planet overrides outside the toolkit gate. Existing peaceful, natural-spawning,
 new-base, evolution and expansion shortcuts delegate to the same setters. Per-admin
 drafts, target checks, native read-back feedback and the existing audit log cover Apply.
 
-The startup switch `ei-admin-tools-enabled` defaults true. Explicit saved choices
+The map switch `ei-admin-tools-enabled-runtime` defaults true. The
+[Options owner](runtime-options.md#contract) imports the old startup choice once
+and exposes save-wide settings through a drafted Options page. Disabling the
+toolkit reconciles availability after the transaction receipt; native Map settings
+can re-enable it without restart. Explicit saved choices
 remain authoritative. Enabling availability does not automatically open the menu
 or enable player cheats, modes or optional policies. The coordinator gates the
 console, new commands and mutation services; existing legacy commands retain their

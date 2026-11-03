@@ -1,6 +1,6 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: fluid safety ignore-list startup setting and runtime predicate
+-- owns: fluid safety ignore-list migration definition and live runtime predicate
 -- loaded_by: exotic-space-industries-remembrance\settings.lua, runtime fluid modules
 -- cadence: settings-stage definition; runtime on-demand cache
 -- forwarded_events: is_ignored_entity, parse_ignored_entities, reset_cache, startup_setting_definition
@@ -12,6 +12,7 @@
 -- blueprint: .codex/esir/blueprints/fluid-safety-and-ruptures.md#contract
 
 local config = {}
+local options = require("lib/runtime-options-config")
 
 config.setting_name = "ei-fluid-safety-ignored-entities"
 config.default_ignored_entities = {
@@ -43,16 +44,12 @@ function config.parse_ignored_entities(raw_value)
     return lookup
 end
 
-local function read_startup_value()
-    local setting = settings
-        and settings.startup
-        and settings.startup[config.setting_name]
-
-    return setting and setting.value or config.default_value
+function config.current_ignored_entities()
+    return config.parse_ignored_entities(options.get(config.setting_name, config.default_value))
 end
 
 local function get_ignored_lookup()
-    local raw_value = read_startup_value()
+    local raw_value = options.get(config.setting_name, config.default_value)
     if cached_lookup and cached_raw_value == raw_value then
         return cached_lookup
     end

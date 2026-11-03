@@ -83,7 +83,7 @@ through the [combat overlap contract](combat-doctrines.md#overlap) on native
 singleplayer initialization and multiplayer join. Other player-entry hooks do
 not repeat those warnings; disabled integrated features produce no warning.
 
-This group owns presentation/integration boundaries, not feature mechanics. `echo-codex.handle_global_settings` synchronizes startup-derived runtime settings. Player entry queues the arrival ritual until a character exists. Informatron and Milestones expose stable remote interfaces; `informatron-messager` announces newly relevant pages. `compat` bridges optional mods and accepts Gaia-surface/beacon-overload overrides. `debug` exposes explicit diagnostic and repair commands.
+This group owns presentation/integration boundaries, not feature mechanics. `echo-codex.handle_global_settings` synchronizes runtime setting mirrors at initialization. Live EM option changes update only their scalar mirrors, without replaying announcements, arrival state or random choices. Informatron resolves converted settings through the runtime catalog while prototype-bound settings remain startup reads. Player entry queues the arrival ritual until a character exists. Informatron and Milestones expose stable remote interfaces; `informatron-messager` announces newly relevant pages. `compat` bridges optional mods and accepts Gaia-surface/beacon-overload overrides. `debug` exposes explicit diagnostic and repair commands.
 
 ```mermaid
 flowchart TD

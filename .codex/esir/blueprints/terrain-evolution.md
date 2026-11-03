@@ -27,6 +27,10 @@ wildfire defaults to Contained. Each feature remains independently configurable.
 Saved settings and explicit surface overrides retain their selected values. Settings resolve
 at lifecycle/configuration boundaries; validated surface overrides live here,
 while administrator widgets own only drafts.
+The runtime-options native suite asserts the schema, native default metadata,
+resolved values and administration controls agree for every ecology field. Its
+checkpoint cases retain explicit global Off choices, surface overrides and pending
+false drafts through ordinary reload and configuration change.
 
 The immutable policy restricts named ground families to six explicit planets.
 Unknown/platform surfaces, hidden/foundation tiles, infrastructure and ghosts,

@@ -20,6 +20,11 @@ execution contracts. Other configuration changes retain their existing rebuild.
 
 ## Ownership and behavior
 
+The hover-visual fidelity selector is a [map runtime option](runtime-options.md#contract).
+Its setting hook invalidates only presentation configuration/queue state. It does
+not rebuild tanks, replace paid charge profiles, or reset cooldowns, orbital work,
+movement, force caches or equipment.
+
 The tank module owns charge admission/completion, enforced core/shield equipment, doctrine research caches and player toggles, scripted drift, endpoint damage/scars, shield reprisal, hover visuals, relative GUI and diagnostics. Its schema-13 root is `storage.ei.emerald_apocalypse_hover_tank`; orbital shards own a nested record/cache/targeting/visual state through their companion module. Hover fidelity config and generated 64-direction foot offsets control presentation, not doctrine damage.
 
 The paid native charge callback snapshots the doctrine profile before scheduling wind-up. Pending/cooldown rejection refunds the already-spent charge; later aim changes do not refund a committed shot. The source comment and `consume_charge_item` adapter account for prototype consumption: do not add a second inventory debit.

@@ -28,25 +28,27 @@ public `register_settings(manifest)` / `register_data(manifest)` interface. Prov
 mods depend on ESIR and call both functions in their respective `settings.lua` and
 `data.lua`, requiring the same pure-data API-version-1 manifest in each stage.
 The stable set ID is `<provider>__<local-id>`. Settings registration extends the
-startup and personal selectors; data registration creates the complete signal
+hidden legacy startup, runtime map-default and personal selectors; data registration creates the complete signal
 family. A single sized PNG or explicitly sized `icons` layers can override existing
 alert IDs; omitted/future IDs copy a built-in fallback (Rendered by default).
 Duplicate IDs, unknown alerts, invalid fields and executable/cyclic manifests are
 rejected before prototype mutation. Provider choice names and descriptions belong
-to both selectors' standard locale keys; source/license provenance stays with art.
+to all three selectors' standard locale keys; source/license provenance stays with art.
 
 Runtime discovery intersects the personal selector's allowed values with complete
 signal families. Built-ins keep Original/SVG/Rendered/Vanilla order; provider IDs sort.
 There is no runtime remote registration, persisted callback registry, or cross-stage
 Lua-global transport. The canonical development reference provides a full example.
 
-`ei-alert-icon-set-default` is startup-only and defaults to Rendered. Personal
+`ei-alert-icon-set-default-runtime` is a map option and defaults to Rendered. The
+hidden original is retained for the [one-time import](runtime-options.md#migration). Personal
 `ei-alert-icon-set` starts at `startup-default`; a game-available lifecycle boundary
 normalizes it to a concrete available set. Existing explicit selections survive
-later startup changes. Selecting the sentinel again copies the current default.
+later map-default changes. The stable internal sentinel is displayed as Use map
+default; selecting it again copies the current default.
 Only this setting's `settings.player_default` entry is reset to the sentinel for
 future players; other map defaults and current players are preserved. A removed
-choice resolves to the valid startup default, then Rendered. Ecology's dropdown
+choice resolves to the valid map default, then Rendered. Ecology's dropdown
 and native Mod settings use this same personal setting and shared change path.
 Nil-player icon-setting events normalize map defaults without touching current
 personal choices or audience epochs; player-entry hooks also maintain the sentinel.

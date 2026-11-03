@@ -11,6 +11,8 @@
 --==============================================================================
 -- blueprint: .codex/esir/blueprints/admin-tools.md#contract
 -- Administrator widgets own drafts only; the ecology owner validates all changes.
+-- Only user input creates a draft. Legacy saved drafts remain pending because
+-- older versions also stored displayed values and their intent is unknowable.
 local common=require("scripts/control/admin/common")
 local admin_config=require("lib/admin-tools-config")
 local model={}
@@ -77,9 +79,18 @@ function model.refresh(session,player,tick)
     local overrides=context.runtime.get_overrides(surface)
     ui.effective.caption={"ei-admin.ecology-effective",value_caption(field,effective[field.key]),caption(overrides[field.key]~=nil and "overridden" or "inherited")}
     local id=surface.index..":"..field.key
-    if ui.editor_key==id then return end
+    if ui.editor_key==id then
+        if session.ecology_drafts[id]==nil then
+            if ui.values then
+                for i,v in ipairs(ui.values) do
+                    if v==effective[field.key] and ui.value.selected_index~=i then ui.value.selected_index=i end
+                end
+            elseif ui.value.text~=tostring(effective[field.key]) then ui.value.text=tostring(effective[field.key]) end
+        end
+        return
+    end
     ui.editor_key=id;ui.editor.clear()
-    local value=session.ecology_drafts[id];if value==nil then value=effective[field.key];session.ecology_drafts[id]=value end
+    local value=session.ecology_drafts[id];if value==nil then value=effective[field.key] end
     ui.values=choices(field)
     if ui.values then
         local items,selected={},1
@@ -88,6 +99,8 @@ function model.refresh(session,player,tick)
     else ui.value=ui.editor.add{type="textfield",text=tostring(value),style="ei_admin_field",tags=tags("value")} end
     ui.value.tooltip={"mod-setting-description."..field.setting_name}
 end
+---@param event EventData.on_gui_selection_state_changed|EventData.on_gui_text_changed
+---@param session table Contains sparse per-surface, per-field pending edits; false is meaningful.
 function model.on_gui_change(event,session)
     local e=event.element;local action=e.tags.action
     if action=="ecology-setting" then
@@ -102,15 +115,28 @@ function model.on_gui_change(event,session)
     session.ecology_drafts[surface.index..":"..session.drafts.ecology_key]=value
     return true
 end
+---@param event EventData.on_gui_click
+---@param session table
 function model.on_gui_click(event,session)
     local actions={["ecology-apply"]="ecology_override",["ecology-inherit"]="ecology_inherit",["ecology-reset"]="ecology_reset",["ecology-set-phase"]="ecology_phase"}
     local action=actions[event.element.tags.action];if not action then return false end
     local surface=surface_for(session);if not surface then return true end
     local key=session.drafts.ecology_key
+    local id=surface.index..":"..key
+    local value=session.ecology_drafts[id]
+    if action=="ecology_override" and value==nil then
+        local ui=session.ecology
+        if ui.values then value=ui.values[ui.value.selected_index] else value=ui.value.text end
+    end
     local ok=context.execute(game.get_player(event.player_index),action,{surface_index=surface.index,key=key,
-        value=session.ecology_drafts[surface.index..":"..key],phase=session.ecology.phase.text},event.tick)
-    if ok and action=="ecology_inherit" then session.ecology_drafts[surface.index..":"..key]=nil;session.ecology.editor_key=nil end
-    if ok and action=="ecology_reset" then session.ecology_drafts={};session.ecology.editor_key=nil end
+        value=value,phase=session.ecology.phase.text},event.tick)
+    if ok and (action=="ecology_override" or action=="ecology_inherit") then
+        session.ecology_drafts[id]=nil;session.ecology.editor_key=nil
+    end
+    if ok and action=="ecology_reset" then
+        for _,field in ipairs(fields) do session.ecology_drafts[surface.index..":"..field.key]=nil end
+        session.ecology.editor_key=nil
+    end
     return true
 end
 function model.execute(actor,action,args,tick)

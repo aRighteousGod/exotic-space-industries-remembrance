@@ -2,6 +2,7 @@
 -- Admin state and trust boundary. No state is created by status inspection.
 local config = require("lib/admin-tools-config")
 local lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 local model = {}
 
 ---@class EiAdminState
@@ -26,7 +27,7 @@ local model = {}
 
 ---@return boolean
 function model.enabled()
-    return settings.startup[config.setting] and settings.startup[config.setting].value == true or false
+    return runtime_options.get(config.setting,false)==true
 end
 
 ---@return EiAdminState|nil
@@ -48,9 +49,9 @@ end
 
 ---@param actor LuaPlayer|nil
 ---@param allow_console boolean|nil
----@return boolean,string|nil
+---@return boolean,LocalisedString|nil
 function model.authorize(actor, allow_console)
-    if not model.enabled() then return false, "Administration tools are disabled in startup settings." end
+    if not model.enabled() then return false, {"ei-runtime-options.disabled"} end
     if actor == nil and allow_console then return true end
     if not (actor and actor.valid and actor.admin) then return false, "Administrator access is required." end
     return true
@@ -72,7 +73,8 @@ function model.audit(actor, action, args, result)
     log("[ESIR admin] " .. serpent.line({actor=actor and actor.name or "server", action=action,
         player=args.player_index, player_name=args.player_name, force=args.force_index, planet=args.planet, surface=args.surface_index,
         entity=entity and entity.name,unit=entity and entity.unit_number,module=args.module_id,
-        position=args.position, map_target=args.target, map_values=args.map_settings_readback, success=result == true}))
+        position=args.position, map_target=args.target, map_values=args.map_settings_readback,
+        option_values=args.options_readback, success=result == true}))
 end
 
 ---@param value any

@@ -11,6 +11,11 @@
 
 ## Ownership and behavior
 
+The first-nearby/nearest fire targeting policy is a
+[runtime map option](runtime-options.md#contract). Each new indexed search captures
+the policy in its search record. Live changes leave current searches, targets,
+coverage, native fire index and pulse deadlines intact.
+
 `firefighting` owns impact-only removal and no persistent state. Handheld impacts deliberately remove every fire in their small square, including acid. Water impacts use explicit thermal and optional weapon-fire catalogs; their exact effect IDs encode launch-time policy. Legacy extinguisher markers are consumed on creation, while configuration cleanup removes stale markers without new impacts.
 
 `water-turret` owns `storage.ei.water_turret`: authoritative turret/preferences/power-helper records and pulse deadlines, plus derived coverage, index, queues and search views. Native fluid-turret behavior owns enemy acquisition and combat. The relative GUI stores enemy-first, fire-first or fire-only and weapon-fire opt-in. Shared config owns identities and limits. `control.lua` remains the sole dispatcher.

@@ -11,6 +11,19 @@ Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-i
 
 ## Working Rules
 
+- Recipe swapping and normalization treat absent optional ingredient/result arrays
+  as no-ops, preserving parameter and internal helper recipes. Keep diagnostics for
+  missing required prototypes and malformed values. Optional presence probes use
+  `data.raw` directly before selecting a mutation path. Focused controlled checks
+  live in `scripts/qc/native-tests/test_data_helpers.lua`, with final-data acceptance
+  in `scripts/qc/native-tests/data_contracts.py`.
+
+- For converted map settings, use `lib/runtime-options-config.get(legacy_or_native_name, fallback)`.
+  It preserves false/zero/Off and centralizes migration names. Writes go through
+  `scripts/control/runtime-options.apply` for typed validation, optimistic conflicts,
+  readback, rollback and batched owner reconciliation. Add fields to the explicit
+  catalog; never expose arbitrary other-mod settings through Administration Options.
+
 - For automatic operational/ecology notifications, use `lib/alerts.lua` and [runtime alerts](../esir-dev/references/runtime-alerts.md). `notify_connected_players` remains a text helper for confirmations and selected notices.
 
 - Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for UPS defaults and module calls. Compare mutation, allocation, stage and ordering semantics; preserve specialized read-only probes when initializing shared helpers do not fit.

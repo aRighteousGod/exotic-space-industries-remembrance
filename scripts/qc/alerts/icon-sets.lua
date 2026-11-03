@@ -3,10 +3,18 @@ package.path='exotic-space-industries-remembrance/?.lua;'..package.path
 local catalog=require('lib/alert-catalog')
 package.loaded['__exotic-space-industries-remembrance__/lib/alert-catalog']=catalog
 package.loaded['__exotic-space-industries-remembrance__/lib/lib']=require('lib/lib')
+local options=require('lib/runtime-options-config')
+package.loaded['__exotic-space-industries-remembrance__/lib/runtime-options-config']=options
 local sets=require('lib/alert-icon-sets')
+local default_name=options.runtime_name(sets.default_setting_name)
 local checks=0
 local function check(ok,label)checks=checks+1;assert(ok,label)end
 local function reject(fn,label)check(not pcall(fn),label)end
+function table.deepcopy(value)
+    if type(value)~='table' then return value end
+    local result={};for key,item in pairs(value) do result[key]=table.deepcopy(item) end;return result
+end
+package.loaded['__core__/lualib/util']={}
 local function stage()
     mods={['example-provider']='1.0.0',['another_provider']='1.0.0',['example-provider__variant']='1.0.0'}
     data={raw={}}
@@ -17,7 +25,10 @@ local function stage()
             self.raw[row.type][row.name]=row
         end
     end
-    data:extend(sets.setting_definitions());data:extend(sets.builtin_prototypes())
+    -- Exercise the real constructors and conversion install on each isolated stage.
+    package.loaded['teslas_legacy.settings']=nil
+    dofile('exotic-space-industries-remembrance/settings.lua')
+    data:extend(sets.builtin_prototypes())
     return data.raw
 end
 local function provider(id)
@@ -30,18 +41,27 @@ local function provider(id)
     }}
 end
 local function runtime(raw)
-    prototypes={mod_setting=raw['string-setting'],virtual_signal=raw['virtual-signal']}
-    settings={startup={[sets.default_setting_name]={value='rendered'}},player_default={unrelated={value=true}}}
+    prototypes={mod_setting={},virtual_signal=raw['virtual-signal']}
+    settings={startup={},global={},player_default={unrelated={value=true}}}
+    for _,kind in ipairs{'bool-setting','int-setting','double-setting','string-setting'}do
+        for name,row in pairs(raw[kind] or {})do
+            prototypes.mod_setting[name]=row
+            local target=row.setting_type=='startup' and settings.startup
+                or row.setting_type=='runtime-global' and settings.global
+            if target then target[name]={value=row.default_value} end
+        end
+    end
     sets.refresh_runtime()
 end
 
 do
-    local raw=stage();local definitions=sets.setting_definitions()
-    check(#definitions==2,'one startup selector and one personal selector')
-    check(definitions[1].setting_type=='startup' and definitions[1].default_value=='rendered','startup defaults rendered')
-    check(definitions[2].setting_type=='runtime-per-user' and definitions[2].default_value==sets.sentinel,'personal defaults one-shot sentinel')
-    check(definitions[1].hidden==false and definitions[2].hidden==false,'both selectors visible')
-    check(#definitions[1].allowed_values==4 and #definitions[2].allowed_values==5,'sentinel only offered personally')
+    local raw=stage();local selectors=raw['string-setting']
+    local legacy,default,personal=selectors[sets.default_setting_name],selectors[default_name],selectors[sets.setting_name]
+    check(legacy.setting_type=='startup' and legacy.default_value=='rendered' and legacy.hidden,'hidden startup migration source retained')
+    check(default.setting_type=='runtime-global' and default.default_value=='rendered' and default.hidden==false,'map default is visible runtime-global')
+    check(personal.setting_type=='runtime-per-user' and personal.default_value==sets.sentinel and personal.hidden==false,'visible personal defaults one-shot sentinel')
+    check(#legacy.allowed_values==4 and #default.allowed_values==4 and #personal.allowed_values==5,'sentinel only offered personally')
+    check(legacy.allowed_values~=default.allowed_values,'runtime allowed values detached from legacy source')
     local signals=raw['virtual-signal'];local count=0
     for _ in pairs(signals)do count=count+1 end
     check(count==#catalog.entries*#sets.builtin_ids,'all complete builtin families generated')
@@ -56,8 +76,8 @@ do
     end
     local def=provider('test');local id=sets.register_settings(def)
     check(id=='example-provider__test' and sets.register_data(def)==id,'settings and data share stable provider ID')
-    for _,name in ipairs{sets.setting_name,sets.default_setting_name}do
-        check(raw['string-setting'][name].allowed_values[#raw['string-setting'][name].allowed_values]==id,'provider selectable in both menus')
+    for _,name in ipairs{sets.setting_name,sets.default_setting_name,default_name}do
+        check(raw['string-setting'][name].allowed_values[#raw['string-setting'][name].allowed_values]==id,'provider available in legacy, map and personal selectors')
     end
     local gate=signals[sets.signal_name(id,'gate-low-power')]
     check(gate.icon=='__example-provider__/gate.png','single artwork override used')
@@ -79,10 +99,15 @@ end
 
 do
     local raw=stage();local def=provider('test');sets.register_settings(def);sets.register_data(def)
-    local before=#raw['string-setting'][sets.setting_name].allowed_values
+    local before={}
+    for _,name in ipairs{sets.setting_name,sets.default_setting_name,default_name}do
+        before[name]=table.concat(raw['string-setting'][name].allowed_values,',')
+    end
     reject(function()sets.register_settings(def)end,'duplicate settings registration rejected')
     reject(function()sets.register_data(def)end,'duplicate data registration rejected')
-    check(#raw['string-setting'][sets.setting_name].allowed_values==before,'failed registration leaves allowed values intact')
+    for name,values in pairs(before)do
+        check(table.concat(raw['string-setting'][name].allowed_values,',')==values,'failed registration leaves all three selectors intact')
+    end
     for _,bad in ipairs{
         {api_version=2,provider='example-provider',id='bad'},
         {api_version=1,provider='missing-provider',id='bad'},
@@ -112,32 +137,53 @@ do
 end
 
 do
+    -- Real migration owner, with native setting assignment/event boundaries mocked.
+    local raw=stage();local def=provider('migration');local id=sets.register_settings(def);sets.register_data(def);runtime(raw)
+    local owner=require('scripts/control/runtime-options')
+    storage={};serpent={line=function(value)return tostring(value)end}
+    owner.configure(function()error('migration must defer owner reconciliation until lifecycle initialization')end)
+    settings.startup[sets.default_setting_name].value=id
+    settings.global[default_name].value='svg'
+    check(owner.migrate(0,false),'existing map imports legacy settings once')
+    check(settings.global[default_name].value==id and storage.ei.runtime_options.migration_version==1,
+        'provider legacy default migrates to its real native map selector')
+    settings.startup[sets.default_setting_name].value='original'
+    settings.global[default_name].value='vanilla'
+    check(not owner.migrate(1,false) and settings.global[default_name].value=='vanilla','completed migration never overwrites a later map default')
+    storage={}
+    check(not owner.migrate(2,true) and settings.global[default_name].value=='vanilla','fresh map preserves explicit native Map selection')
+end
+
+do
     local raw=stage();local def=provider('test');local id=sets.register_settings(def);sets.register_data(def);runtime(raw)
     local p={valid=true,mod_settings={unrelated={value=false}}}
     check(sets.player_set(p)=='rendered' and p.mod_settings[sets.setting_name]==nil,'read-only resolution does not write missing preference')
     local resolved,changed=sets.normalize_player(p)
-    check(resolved=='rendered' and changed and p.mod_settings[sets.setting_name].value=='rendered','missing personal setting freezes startup default')
+    check(resolved=='rendered' and changed and p.mod_settings[sets.setting_name].value=='rendered','missing personal setting freezes runtime map default')
     settings.startup[sets.default_setting_name].value='svg'
-    resolved,changed=sets.normalize_player(p);check(resolved=='rendered' and not changed,'startup changes preserve concrete personal choice')
+    local legacy_probe={valid=true,mod_settings={[sets.setting_name]={value=sets.sentinel}}}
+    check(sets.normalize_player(legacy_probe)=='rendered','post-migration legacy changes cannot change the map default')
+    settings.global[default_name].value='svg'
+    resolved,changed=sets.normalize_player(p);check(resolved=='rendered' and not changed,'map default changes preserve concrete personal choice')
     p.mod_settings[sets.setting_name]={value=sets.sentinel}
-    resolved,changed=sets.normalize_player(p);check(resolved=='svg' and changed,'sentinel explicitly copies current startup selection')
+    resolved,changed=sets.normalize_player(p);check(resolved=='svg' and changed,'sentinel explicitly copies current runtime map selection')
     check(p.mod_settings.unrelated.value==false,'normalization leaves other personal settings unchanged')
     settings.player_default[sets.setting_name]={value='original'}
-    check(sets.normalize_map_default() and settings.player_default[sets.setting_name].value==sets.sentinel,'future players receive one-shot startup default')
+    check(sets.normalize_map_default() and settings.player_default[sets.setting_name].value==sets.sentinel,'future players receive one-shot map default')
     check(not sets.normalize_map_default() and settings.player_default.unrelated.value,'map default normalization is idempotent and scoped')
-    settings.startup[sets.default_setting_name].value=id
+    settings.global[default_name].value=id
     local newcomer={valid=true,mod_settings={[sets.setting_name]={value=sets.sentinel}}}
-    check(sets.normalize_player(newcomer)==id,'new player can inherit provider startup default')
+    check(sets.normalize_player(newcomer)==id,'new player can inherit provider runtime map default')
     check(sets.normalize_player(p)=='svg','existing other player remains isolated')
-    p.mod_settings[sets.setting_name]={value=id};settings.startup[sets.default_setting_name].value='original'
+    p.mod_settings[sets.setting_name]={value=id};settings.global[default_name].value='original'
     raw['virtual-signal'][sets.signal_name(id,'ecology-flood')]=nil;sets.refresh_runtime()
     check(#sets.available_sets()==#sets.builtin_ids,'incomplete provider family excluded in full')
     resolved,changed=sets.normalize_player(p)
-    check(resolved=='original' and changed,'removed or broken provider freezes current valid startup fallback')
-    settings.startup[sets.default_setting_name].value=id
-    check(sets.player_set(p)=='original','invalid startup does not override valid personal choice')
+    check(resolved=='original' and changed,'removed or broken provider freezes current valid map fallback')
+    settings.global[default_name].value=id
+    check(sets.player_set(p)=='original','invalid map default does not override valid personal choice')
     p.mod_settings[sets.setting_name]={value=id}
-    check(sets.normalize_player(p)=='rendered','invalid personal and startup provider terminate at Rendered')
+    check(sets.normalize_player(p)=='rendered','invalid personal and map provider terminate at Rendered')
     raw['string-setting'][sets.setting_name].allowed_values[#raw['string-setting'][sets.setting_name].allowed_values+1]='unknown__'..string.rep('a',210)
     sets.refresh_runtime();check(#sets.available_sets()==#sets.builtin_ids,'malformed external allowed value cannot crash runtime discovery')
     local absent={valid=false}
@@ -182,7 +228,7 @@ do
         local id=sets.register_settings(def);sets.register_data(def)
         check(raw['virtual-signal'][sets.signal_name(id,'ecology-flood')].icon==raw['virtual-signal'][sets.signal_name(fallback,'ecology-flood')].icon,
             'partial provider supports built-in fallback '..fallback)
-        runtime(raw);settings.startup[sets.default_setting_name].value=fallback
+        runtime(raw);settings.global[default_name].value=fallback
         local p={valid=true,mod_settings={}}
         check(sets.normalize_player(p)==fallback and p.mod_settings[sets.setting_name].value==fallback,
             'each built-in can initialize new players: '..fallback)

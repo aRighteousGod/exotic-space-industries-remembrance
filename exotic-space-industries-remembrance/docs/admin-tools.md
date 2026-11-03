@@ -1,9 +1,9 @@
 # Administration tools
 
-**Enable administration tools** (`ei-admin-tools-enabled`) defaults on in startup
-settings. Use `/ei-admin` as an administrator, or `/ei-admin map-settings` to open
-the map editor directly. Existing saves retain an explicitly disabled setting;
-enable it in startup settings and restart to use the menu. Existing ESIR commands
+**Enable administration tools** (`ei-admin-tools-enabled-runtime`) defaults on in
+**Mod settings → Map**. Use `/ei-admin` as an administrator, or `/ei-admin options`
+to open the save-wide options directly. Existing saves import their previous choice
+once. Enable it in Map settings to use the menu without restarting. Existing ESIR commands
 continue to work while it is off.
 
 Opening the console or becoming an administrator does not enable cheat mode,
@@ -13,7 +13,7 @@ from the **Enable** and **Disable** actions.
 
 `/ei-admin diagnostics` opens a page directly. Other page names are `planets`,
 `chunks`, `players`, `moderation`, `creation`, `fluids`, `enemies`, `effects`,
-`research`, `repairs`, `map-settings`, and `cameras`. **Toggle launcher button** adds or removes
+`research`, `repairs`, `map-settings`, `options`, and `cameras`. **Toggle launcher button** adds or removes
 the administrator's persistent mod-gui shortcut. It is shown by default while the
 toolkit is enabled; an explicitly hidden shortcut stays hidden across reloads.
 The toggle is highlighted while the shortcut is shown, matching the Ecology menu.
@@ -22,7 +22,7 @@ Existing administrators with no saved preference also receive the shortcut.
 The Overseer's Seal identifies the launcher and appears beside the window title.
 In **Settings → Controls**, assign **Toggle administration menu** to open or close
 the console, including while its launcher is hidden. This control is unbound by
-default and uses the same administrator and startup-setting checks as the menu.
+default and uses the same administrator and map-setting checks as the menu.
 The native launcher remains 40 by 40 GUI units, with a 32-unit sprite; the title
 emblem is 48 by 48. Both use the same transparent high-resolution artwork and
 scale with the interface. Dragging the title emblem also moves the window.
@@ -56,6 +56,7 @@ loss of administrator access turns it off. The interval follows game speed.
 | --- | --- |
 | Planets & Environment | Native peaceful/spawning settings, per-planet new-base policy, global expansion, evolution, daylight, enemy and pollution clearing. |
 | Map Settings | Drafted per-surface generation controls and enemy families, future-planet overrides, global evolution/expansion/pollution and Space Age rules. |
+| Options | Save-wide ESIR map settings, grouped by gameplay, effects, performance, notifications and ecology. |
 | Chunks | Reveal, generate, both, or reveal currently generated terrain; cancellable bounded work. |
 | Travel & Modes | Go/send to any planet, manual travel, future spawn destination, cheat mode, character invulnerability, native god controller, and interaction restrictions. |
 | Moderation | Kick, ban/unban, administrator status, timed jail and release. |
@@ -73,6 +74,43 @@ queued work check administrator access again at execution. Mutations are written
 to the Factorio log with their actor and target. `/ei-admin-repair <module-id>`
 and `/ei-admin-repair-<module-id>` invoke the same registered repair as its button;
 the server console can use these commands. Existing aliases remain available.
+
+## Options
+
+Use `/ei-admin options` to edit the same values as **Mod settings → Map**. Changes
+apply to the entire save. **Apply** submits the draft across every category;
+**Reload** and **Discard** replace it with current values. If another administrator
+edits a field you have changed, Apply reports a conflict and keeps your draft.
+Edits are validated together before writing, and failed writes are rolled back.
+
+The 29 converted options cover administration availability, technology scaling,
+rocket pollution, rupture fidelity, fluid exclusions, Fulgora day-length bounds,
+EM visuals, update budgets, saucer and hover effects, water-turret targeting,
+Nauvis pressure grace, the recipe-icon reminder, Tesla floating text and the map's
+default alert icon set. Existing map settings are included too. Factory passage's
+three processing controls are under **Performance**.
+The circuit scanner defaults to Off; its additional budget remains 1 attempt per
+tick when enabled, alongside the main budget of 256. Open-machine observation and
+event-driven updates continue while scanning is off. Existing saves keep their
+selected scanner value.
+
+New operations use changed options; work already admitted retains its relevant
+policy, budgets and deadlines. Existing finite visual effects expire naturally.
+Changing the alert default does not replace explicit personal icon selections.
+Disabling administration closes its windows and cleans up its temporary modes and
+work. Re-enable it through the native Map tab.
+
+Ecology values here are global defaults. The Ecology page continues to edit surface
+overrides. Custom intensity and processing limits take effect only with their
+respective Custom presets. The terrain startup master switch, Singularity Lance,
+ANISETRON and other prototype-changing options remain in startup settings.
+All ecology feature and planet switches default to On, with Contained wildfire,
+Restrained intensity and Lean processing. Existing map settings and surface
+overrides remain authoritative. In **Terrain & Ecology**, untouched fields follow
+the current effective value on refresh; edits remain pending until applied or
+cleared. **Use global value** and **Reset surface overrides** restore inheritance
+from this map's current settings. Reset affects only the selected surface and its
+drafts, and does not reset terrain or other surfaces' edits.
 
 ## Map Settings
 

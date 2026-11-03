@@ -12,6 +12,11 @@ Close or remove entries in the same patch that resolves them.
 
 ## Open
 
+- `2026-11-02 | runtime-options-legacy-bridge | intentional compatibility bridge | The 29 converted map settings retain hidden original startup definitions as one-time migration inputs. Same-ID startup-to-runtime changes reset native values, so do not remove the bridge as dead settings.`
+  - `Files:` `lib/runtime-options-config.lua`, `scripts/control/runtime-options.lua`, [runtime options model](blueprints/runtime-options.md#migration).
+  - `Next safe move:` decide a supported historical-save migration boundary before retiring legacy names; preserve post-import native choices and the migration marker.
+
+
 - `2026-10-25 | induction-scripted-tile-removal | pre-existing schema gap | Factorio 2.0.77 script_raised_set_tiles supplies Tile[] without old_tile, while the matrix removal handler requires old_tile. Scripted replacement of matrix floor can leave topology stale until reanalysis; native player mining and floor rejoining pass the circuit acceptance fixture.`
   - `Files:` `exotic-space-industries-remembrance/scripts/control/induction-matrix.lua` (`on_destroyed_tile`), `scripts/qc/induction-circuit/instrument.lua`.
   - `Next safe move:` add bounded invalidation for scripted tile replacement without assuming the missing old tile. Cover split, unsupported core removal, unrelated tiles, and preserved settings before changing the existing tile contract.

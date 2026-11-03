@@ -71,7 +71,9 @@ local function add_section(element, section_key, text_key)
     element.add{type = "label", caption = {"exotic-industries-informatron." .. text_key}}
 end
 
-local function get_startup_string_setting_value(setting_name, default_value)
+local runtime_options = require("lib/runtime-options-config")
+local function get_setting_string_value(setting_name, default_value)
+    if runtime_options.by_legacy[setting_name] then return runtime_options.get(setting_name,default_value) end
     if settings and settings.startup and settings.startup[setting_name] then
         return settings.startup[setting_name].value or default_value
     end
@@ -80,7 +82,7 @@ local function get_startup_string_setting_value(setting_name, default_value)
 end
 
 local function get_localized_startup_string_setting_value(setting_name, default_value)
-    return {"string-mod-setting." .. setting_name .. "-" .. get_startup_string_setting_value(setting_name, default_value)}
+    return {"string-mod-setting." .. setting_name .. "-" .. get_setting_string_value(setting_name, default_value)}
 end
 
 local enemy_difficulty_doc_profiles = enemy_difficulty_config.profiles

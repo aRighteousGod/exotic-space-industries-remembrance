@@ -4,6 +4,7 @@
 --====================================================================================================
 
 local ei_lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 local gaian_saucer_wake_config = {}
 
 gaian_saucer_wake_config.setting_name = "ei-gaian-saucer-wake-visual-fidelity"
@@ -119,12 +120,9 @@ local function normalize_fidelity(value)
     return gaian_saucer_wake_config.default_fidelity
 end
 
-local function read_startup_fidelity()
-    local setting = settings
-        and settings.startup
-        and settings.startup[gaian_saucer_wake_config.setting_name]
-
-    return normalize_fidelity(setting and setting.value)
+local function read_runtime_fidelity()
+    return normalize_fidelity(runtime_options.get(gaian_saucer_wake_config.setting_name,
+        gaian_saucer_wake_config.default_fidelity))
 end
 
 function gaian_saucer_wake_config.startup_setting_definition()
@@ -139,7 +137,7 @@ function gaian_saucer_wake_config.startup_setting_definition()
 end
 
 function gaian_saucer_wake_config.resolve(fidelity)
-    local normalized = normalize_fidelity(fidelity or read_startup_fidelity())
+    local normalized = normalize_fidelity(fidelity or read_runtime_fidelity())
     return ei_lib.copy_preset(normalized, presets[normalized], gaian_saucer_wake_config.setting_name)
 end
 

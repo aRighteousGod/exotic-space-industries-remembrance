@@ -25,16 +25,26 @@ ei_rng = require("lib/rng")
 ei_echo_codex = require("lib/echo-codex")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local ei_alerts = require("lib/alerts")
+local ei_runtime_options_config = require("lib/runtime-options-config")
+local ei_runtime_options = require("scripts/control/runtime-options")
 
 
 -- Update pacing is configurable so the mod can spread expensive entity work across a
 -- longer tick window on large saves. The derived values below are used by updater() to
 -- compute how much work each subsystem is allowed to do on its scheduled tick.
-ei_ticksPerFullUpdate = ei_lib.config("ticks_per_full_update") -- How many ticks to spread updates over
-ei_maxEntityUpdates = ei_lib.config("max_updates_per_tick") -- Ceiling on entity updates per tick
+ei_ticksPerFullUpdate = ei_runtime_options_config.get("ei-ticks_per_full_update",60) -- How many ticks to spread updates over
+ei_maxEntityUpdates = ei_runtime_options_config.get("ei-max_updates_per_tick",10) -- Ceiling on entity updates per tick
 ei_update_functions_length = 16 --# of entity updaters updater() goes through
 ei_updater_calls_per_second = 60 / (ei_ticksPerFullUpdate / ei_update_functions_length) -- Calculate how often each update function runs (calls per second)
 ei_updater_per_entity_calls_per_second = ei_maxEntityUpdates * ei_updater_calls_per_second --Calls per entity type per second
+local divisor = ei_ticksPerFullUpdate / ei_update_functions_length
+local function refresh_update_pacing()
+    ei_ticksPerFullUpdate=ei_runtime_options_config.get("ei-ticks_per_full_update",60)
+    ei_maxEntityUpdates=ei_runtime_options_config.get("ei-max_updates_per_tick",10)
+    divisor=ei_ticksPerFullUpdate/ei_update_functions_length
+    ei_updater_calls_per_second=60/divisor
+    ei_updater_per_entity_calls_per_second=ei_maxEntityUpdates*ei_updater_calls_per_second
+end
 
 local ei_tech_scaling = require("scripts/control/tech-scaling")
 local ei_global = require("scripts/control/global")
@@ -109,6 +119,44 @@ local ei_hemocrystal_wall = require("scripts/control/hemocrystal-wall")
 local ei_randomized_tree_growth = require("scripts/control/randomized-tree-growth")
 local ei_admin_tools = require("scripts/control/admin-tools")
 local ei_rebuild_monitor = require("scripts/control/rebuild-monitor")
+-- blueprint-ref: .codex/esir/blueprints/runtime-options.md#transactions
+-- Native script writes synchronously emit events. The option owner batches only
+-- ESIR's reconciliation; other mods still receive the native events normally.
+local function reconcile_runtime_options(changes,tick)
+    local groups={}
+    for _,entry in ipairs(ei_runtime_options_config.entries) do
+        if changes[entry.id] and not groups[entry.owner] then
+            groups[entry.owner]={setting_type="runtime-global",setting=entry.id,settings=changes,tick=tick}
+        end
+    end
+    if groups.scheduler then
+        refresh_update_pacing()
+        ei_camp_fire.on_settings_changed(groups.scheduler)
+        ei_steam_train.on_settings_changed(groups.scheduler)
+        ei_flamethrower_fuels.on_settings_changed(groups.scheduler)
+    end
+    if groups.em then ei_echo_codex.on_settings_changed(groups.em) end
+    if groups.rocket then ei_rocket_launch_pollution.on_settings_changed(groups.rocket) end
+    if groups.fulgora then ei_fulgora_day_length_variation.on_settings_changed(groups.fulgora) end
+    if groups.pressure then ei_nauvis_pressure_grace.on_settings_changed(groups.pressure) end
+    if groups.research then ei_tech_scaling.on_settings_changed(groups.research) end
+    if groups.wake then ei_gaian_saucer_wake.on_settings_changed(groups.wake) end
+    if groups.hover then ei_emerald_apocalypse_hover_tank.on_settings_changed(groups.hover) end
+    if groups.water then ei_water_turret.on_settings_changed(groups.water) end
+    if groups.tesla then ei_teslas_legacy.on_settings_changed(groups.tesla) end
+    if groups.fluid then ei_fluid_safety.on_settings_changed(groups.fluid) end
+    if groups.terrain then ei_terrain_evolution.on_settings_changed(groups.terrain) end
+    if groups.passage then ei_factory_passage.on_settings_changed(groups.passage) end
+    -- Administration may destroy its own page; all owner work and receipts precede it.
+    ei_admin_tools.on_settings_changed{setting_type="runtime-global",settings=changes,tick=tick}
+end
+ei_runtime_options.configure(reconcile_runtime_options)
+
+local function refresh_converted_options(tick)
+    local changes={}
+    for _,entry in ipairs(ei_runtime_options_config.entries) do if entry.legacy then changes[entry.id]=true end end
+    reconcile_runtime_options(changes,tick)
+end
 -- Scripted recipe owners notify passage at the write site; no polling of their
 -- custom control systems is needed. Reinstalled on load, never saved in storage.
 local function passage_recipe_changed(entity,tick)
@@ -130,6 +178,7 @@ ei_rebuild_monitor.configure{
     admin_refresh=ei_admin_tools.refresh_rebuild_activity,
 }
 ei_admin_tools.configure({
+    ["runtime-options"]=ei_runtime_options,
     ["factory-passage"]=ei_factory_passage,
     ["auric-inoculation-vat"]=ei_auric_inoculation_vat,["beacon-overload"]=ei_beacon_overload,
     ["black-hole"]=ei_black_hole,["camp-fire"]=ei_camp_fire,["combustion-turbine"]=ei_combustion_turbine,
@@ -181,6 +230,7 @@ script.on_event(defines.events.on_surface_created,function(event)
     ei_terrain_gui.on_surface_event(event)
 end)
 script.on_event(defines.events.on_runtime_mod_setting_changed,function(event)
+    if ei_runtime_options.on_settings_changed(event) then return end
     ei_factory_passage.on_settings_changed(event)
     ei_terrain_evolution.on_settings_changed(event)
     ei_terrain_alerts.on_settings_changed(event)
@@ -698,6 +748,8 @@ script.on_init(function(event)
 
     -- Global tables must exist before any feature module tries to inspect storage.
     ei_global.init()
+    local support_rebuild_tick = event and event.tick or game.tick
+    ei_runtime_options.migrate(support_rebuild_tick,true)
     ei_global.check_init(event)
     ei_beacon_module_policy.on_init()
     clear_scripted_research_burst_state()
@@ -709,7 +761,6 @@ script.on_init(function(event)
     ei_vulcanus_fumaroles.check_global()
     ei_teslas_legacy.on_init(event)
     ei_flamethrower_fuels.rebuild()
-    local support_rebuild_tick = game.tick
     ei_water_turret.rebuild(support_rebuild_tick)
     ei_anisetron.rebuild_visuals(support_rebuild_tick)
     ei_sweeping_radar.rebuild(support_rebuild_tick)
@@ -1570,6 +1621,9 @@ end
 ------------------------------------------------------------------------------------------------------
 
 script.on_configuration_changed(function(e)
+    local configuration_tick = e and e.tick or game.tick
+    ei_runtime_options.migrate(configuration_tick,false)
+    refresh_update_pacing()
     ei_planet_enemies.on_configuration_changed(e)
     register_exotic_industries_qc_remote()
     ei_global.check_init(e)
@@ -1584,7 +1638,6 @@ script.on_configuration_changed(function(e)
     local mod_changes_present = next(e.mod_changes or {}) ~= nil
     local startup_settings_changed = e.mod_startup_settings_changed
 
-    local configuration_tick = e and e.tick or game.tick
     ei_map_settings.on_configuration_changed(configuration_tick)
     ei_terrain_evolution.initialize(configuration_tick,"configuration")
     ei_terrain_alerts.initialize(configuration_tick)
@@ -1715,6 +1768,7 @@ script.on_configuration_changed(function(e)
     em_trains_gui.mark_dirty()
     ei_black_hole.rebuild_gui_viewers()
     ei_induction_matrix.rebuild_gui_viewers()
+    refresh_converted_options(configuration_tick)
 end)
 
 script.on_load(function()
@@ -1803,7 +1857,7 @@ end)
 -- Each scheduled branch runs once per 16-tick cycle; entity budgets stay capped.
 -- ei_update_step is computed from event.tick to ensure multiplayer determinism.
 -- Keep ei_update_functions_length in sync with the explicit scheduler branches below.
-local divisor = ei_ticksPerFullUpdate /  ei_update_functions_length -- How many times each entity updater is called per cycle
+-- The pacing refresh updates divisor without changing the sixteen-slot rotation.
 
 -- blueprint-ref: .codex/esir/blueprints/runtime-orchestration.md#tick-flow
 -- Slot rotation, budget divisors, and mandatory services form one dispatch contract.

@@ -38,16 +38,17 @@ conditions; missed incidents are not replayed.
 
 ## Personal artwork and provider API
 
-`lib/alert-icon-sets.lua` owns the stage-safe art interface. The startup selector
-`ei-alert-icon-set-default` defaults to `rendered`. Personal `ei-alert-icon-set`
+`lib/alert-icon-sets.lua` owns the stage-safe art interface. The map selector
+`ei-alert-icon-set-default-runtime` defaults to `rendered`. Its hidden startup
+original remains a one-time migration input. Personal `ei-alert-icon-set`
 defaults to the sentinel `startup-default`. Initialization/join resolves that sentinel
-to the current available startup choice and saves a concrete personal ID. Later
-startup changes preserve existing personal choices. Choosing "Use startup default"
+to the current available map choice and saves a concrete personal ID. Later
+map-default changes preserve existing personal choices. Choosing "Use map default"
 again copies the current default; it is not a continuing inheritance mode.
 Initialization resets only `settings.player_default["ei-alert-icon-set"]` to the
-sentinel so future players can resolve the current startup choice; unrelated map
+sentinel so future players can resolve the current map choice; unrelated map
 defaults and existing players are preserved. An unavailable selection resolves to
-the available startup choice, then Rendered. No icon choice changes permission.
+the available map choice, then Rendered. No icon choice changes permission.
 Future-player default changes arrive as runtime-per-user setting events without
 `player_index`; the shared handler restores its sentinel in that path too. Do not
 return early solely because an icon-setting event has no current player.
@@ -98,7 +99,8 @@ local api=require("__exotic-space-industries-remembrance__/lib/alert-icon-sets")
 api.register_data(require("alert-icons"))
 ```
 
-`register_settings` extends both selectors without changing their defaults. Built-ins
+`register_settings` extends the legacy startup, runtime map-default and personal
+selectors without changing their defaults. Built-ins
 keep their order; provider IDs sort deterministically. `register_data` creates one
 hidden signal for every catalogue entry, using the chosen built-in fallback for
 omitted entries, including types added by later ESIR versions. It accepts a single
@@ -108,16 +110,18 @@ layer; the forms cannot be mixed. Layer options are `scale`, `shift`, `tint`,
 invalid fields/values, unsupported API versions, callbacks, cycles and metatables.
 The interface adds artwork, not new alert types or permission switches.
 
-Provide English choice names and descriptions for **both** selector keys in the
+Provide English choice names and descriptions for **all three** selector keys in the
 provider's locale; other accepted translations use those same stable keys:
 
 ```ini
 [string-mod-setting]
 ei-alert-icon-set-recipe-icons-improvement-for-esir__industrial=Industrial icons
 ei-alert-icon-set-default-recipe-icons-improvement-for-esir__industrial=Industrial icons
+ei-alert-icon-set-default-runtime-recipe-icons-improvement-for-esir__industrial=Industrial icons
 [string-mod-setting-description]
 ei-alert-icon-set-recipe-icons-improvement-for-esir__industrial=Industrial alert artwork. Unchanged types use Rendered objects.
 ei-alert-icon-set-default-recipe-icons-improvement-for-esir__industrial=Initial artwork for players without a saved choice. Unchanged types use Rendered objects.
+ei-alert-icon-set-default-runtime-recipe-icons-improvement-for-esir__industrial=Initial artwork for players without a saved choice. Unchanged types use Rendered objects.
 ```
 
 Providers retain source/license attribution and asset provenance with their art.
@@ -196,6 +200,8 @@ New deliveries capture the selected per-recipient signal/message. New positional
 incidents use the common invisible marker.
 
 ## Verification
+
+Run `qc-test -Suite alert-preferences` through [native testing](native-testing.md) for personal Off authority, preference isolation, native delivery/cleanup, invalid sources and persistence. Controlled player-boundary isolation is distinct from multiple real viewers. Full ecology-category, icon rendering and multiplayer matrices remain separate evidence.
 
 Run `python -B scripts/qc/alerts/audit.py`, the Lua fixtures in
 `scripts/qc/alerts/runtime.lua`, `scripts/qc/alerts/icon-sets.lua`,

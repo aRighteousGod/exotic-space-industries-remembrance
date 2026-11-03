@@ -3,7 +3,7 @@
 -- owns: hybrid Tesla legacy runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, load, configuration-changed, combat, research, build, destroy, script triggers, and console command
--- forwarded_events: cleanup_tesla_helpers, get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater, repair_runtime_state
+-- forwarded_events: on_settings_changed, cleanup_tesla_helpers, get_runtime_status, has_tick_work, is_variant_sync_research, on_built_entity, on_configuration_changed, on_entity_damaged, on_entity_died, on_init, on_load, on_research_finished, on_script_trigger_effect, on_scripted_research_burst, updater, repair_runtime_state
 -- storage_roots: storage.ei, storage.tl_entity_lookup, storage.tl_index
 -- gui_ids: none
 -- remote_interfaces: none
@@ -30,6 +30,17 @@ require("teslas_legacy.config.research")
 require("teslas_legacy.config.settings")
 
 local tl_settings = get_settings()
+local runtime_options = require("lib/runtime-options-config")
+
+-- Floating text is a runtime preference; the shared prototype settings stay stage-safe.
+local function refresh_text_settings()
+    tl_settings.text = {
+        critical = runtime_options.get("tl-flying-text-critical", true),
+        vaporize = runtime_options.get("tl-flying-text-vaporize", true),
+        damage = runtime_options.get("tl-flying-text-damage", false),
+    }
+end
+refresh_text_settings()
 -- Legacy-fidelity is the owned default and preserves the original TL helper substrate.
 -- Hybrid is the explicit opt-in lighter lattice path.
 local BEHAVIOR_MODE = tl_settings.behavior_mode or "legacy-fidelity"
@@ -2806,6 +2817,16 @@ end
 -- blueprint-ref: .codex/esir/blueprints/tesla-runtime.md#lifecycle
 -- Loading must not perform world repair or obtain game.tick; preserve the inert hook.
 function model.on_load()
+end
+
+---Cosmetic edits never rebuild combat attribution, helper expiry or operational variants.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global" then return end
+    if event.setting ~= runtime_options.runtime_name("tl-flying-text-critical")
+        and event.setting ~= runtime_options.runtime_name("tl-flying-text-vaporize")
+        and event.setting ~= runtime_options.runtime_name("tl-flying-text-damage") then return end
+    refresh_text_settings()
 end
 
 function model.on_configuration_changed(_event,current_tick)

@@ -3,7 +3,7 @@
 -- owns: Nauvis pressure grace milestone and pollution/evolution pressure
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: configuration changes, research-finished, and scheduled tick step 1
--- forwarded_events: on_init, has_tick_work, on_configuration_changed, on_research_finished, on_scripted_research_burst, updater, repair_runtime_state
+-- forwarded_events: on_settings_changed, on_init, has_tick_work, on_configuration_changed, on_research_finished, on_scripted_research_burst, updater, repair_runtime_state
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -12,6 +12,7 @@
 -- blueprint: .codex/esir/blueprints/nauvis-pressure-grace.md#contract
 local ei_lib = require("lib/lib")
 local enemy_difficulty_config = require("lib/enemy-difficulty-config")
+local runtime_options = require("lib/runtime-options-config")
 local model = {}
 
 local CHECK_INTERVAL = 18000
@@ -617,6 +618,20 @@ function model.repair_runtime_state(reason,tick)
     local policy=refresh_player_force_policy()
     sync_runtime_pressure(policy,tick)
     return true
+end
+
+---Reconcile ownership and policy immediately, without adding an evolution-reduction pass.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global" then return end
+    if event.setting ~= runtime_options.runtime_name("ei-nauvis-pressure-grace")
+        and event.setting ~= runtime_options.runtime_name("ei-nauvis-pressure-grace-profile") then return end
+    local state = ensure_state()
+    state.enabled = runtime_options.get("ei-nauvis-pressure-grace", true)
+        and storage.ei.enemy_difficulty ~= DIFFICULTY_IMPOSSIBLE
+    state.profile = runtime_options.get("ei-nauvis-pressure-grace-profile", PROFILE_EXTENDED)
+    local policy = refresh_player_force_policy()
+    sync_runtime_pressure(policy, event)
 end
 
 return model

@@ -80,21 +80,43 @@ set_code='''package.path='exotic-space-industries-remembrance/?.lua;'..package.p
 local c=require('lib/alert-catalog')
 package.loaded['__exotic-space-industries-remembrance__/lib/alert-catalog']=c
 package.loaded['__exotic-space-industries-remembrance__/lib/lib']=require('lib/lib')
+local options=require('lib/runtime-options-config')
+package.loaded['__exotic-space-industries-remembrance__/lib/runtime-options-config']=options
 local a=require('lib/alert-icon-sets')
+-- Execute the real settings/install path; only the native stage boundary is mocked.
+function table.deepcopy(value)
+ if type(value)~='table' then return value end
+ local result={};for key,item in pairs(value) do result[key]=table.deepcopy(item) end;return result
+end
+package.loaded['__core__/lualib/util']={}
+mods={};data={raw={}}
+function data:extend(rows)
+ for _,row in ipairs(rows) do
+  self.raw[row.type]=self.raw[row.type] or {}
+  assert(not self.raw[row.type][row.name],'duplicate mocked prototype')
+  self.raw[row.type][row.name]=row
+ end
+end
+dofile('exotic-space-industries-remembrance/settings.lua')
 local expected={original=true,svg=true,rendered=true,vanilla=true}; local seen={}
 for _,id in ipairs(a.builtin_ids) do assert(expected[id] and not seen[id]); seen[id]=true end
 for id in pairs(expected) do assert(seen[id]) end
-local settings={}; for _,s in ipairs(a.setting_definitions()) do settings[s.name]=s end
+local settings=data.raw['string-setting']
 local personal=settings['ei-alert-icon-set'];local default=settings['ei-alert-icon-set-default']
+local runtime=settings[options.runtime_name(a.default_setting_name)]
 assert(personal.type=='string-setting' and personal.setting_type=='runtime-per-user' and not personal.hidden)
 assert(personal.default_value=='startup-default')
 assert(default.type=='string-setting' and default.setting_type=='startup' and default.default_value=='rendered')
-for _,s in ipairs{personal,default} do
+assert(default.hidden and not runtime.hidden and runtime.setting_type=='runtime-global' and runtime.default_value=='rendered')
+assert(runtime.allowed_values~=default.allowed_values,'migration source and native selector must not share arrays')
+assert(runtime.localised_name[1]=='mod-setting-name.'..a.default_setting_name)
+for _,s in ipairs{personal,default,runtime} do
  local values={};for _,v in ipairs(s.allowed_values) do assert(not values[v]);values[v]=true end
  for id in pairs(expected) do assert(values[id]) end
  assert(#s.allowed_values==#a.builtin_ids+(s==personal and 1 or 0))
- for _,v in ipairs(s.allowed_values) do print('LOCALE|string-mod-setting.'..s.name..'-'..v) end
- print('LOCALE|mod-setting-name.'..s.name);print('LOCALE|mod-setting-description.'..s.name)
+ local locale_name=options.by_id[s.name] and options.by_id[s.name].locale_name or s.name
+ for _,v in ipairs(s.allowed_values) do print('LOCALE|string-mod-setting.'..locale_name..'-'..v) end
+ print('LOCALE|mod-setting-name.'..locale_name);print('LOCALE|mod-setting-description.'..locale_name)
 end
 local signals={};for _,p in ipairs(a.builtin_prototypes()) do
  assert(p.type=='virtual-signal' and p.hidden==true and p.hidden_in_factoriopedia==true and p.icon_size==128)

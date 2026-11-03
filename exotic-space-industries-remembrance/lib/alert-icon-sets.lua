@@ -12,6 +12,7 @@
 -- blueprint: .codex/esir/blueprints/runtime-alerts.md#contract
 local catalog = require("__exotic-space-industries-remembrance__/lib/alert-catalog")
 local lib = require("__exotic-space-industries-remembrance__/lib/lib")
+local options = require("__exotic-space-industries-remembrance__/lib/runtime-options-config")
 local model = {
     setting_name="ei-alert-icon-set", default_setting_name="ei-alert-icon-set-default",
     sentinel="startup-default", builtin_ids={"original","svg","rendered","vanilla"},
@@ -178,7 +179,7 @@ end
 function model.register_settings(def)
     local set_id=validate_manifest(def)
     local changes={}
-    for _,name in ipairs{model.default_setting_name,model.setting_name} do
+    for _,name in ipairs{model.default_setting_name,options.runtime_name(model.default_setting_name),model.setting_name} do
         local prototype=data and data.raw["string-setting"] and data.raw["string-setting"][name]
         assert(prototype and prototype.allowed_values,"Register ESIR icon settings after the ESIR settings stage")
         local values,addons={},{}
@@ -282,8 +283,8 @@ function model.player_set(player)
     local setting=player and player.valid and player.mod_settings[model.setting_name]
     local selected=setting and setting.value
     if runtime_members[selected] then return selected end
-    local startup=settings and settings.startup and settings.startup[model.default_setting_name]
-    return startup and runtime_members[startup.value] and startup.value or "rendered"
+    local selected_default=options.get(model.default_setting_name,"rendered")
+    return runtime_members[selected_default] and selected_default or "rendered"
 end
 
 ---@param player LuaPlayer

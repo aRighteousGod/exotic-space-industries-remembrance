@@ -3,7 +3,7 @@
 -- owns: steam locomotive wheel and helper runtime
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init/config rebuild, build/destroy, train state changes, and every-tick runtime updates
--- forwarded_events: addToGlobal, check_global, has_tick_work, on_built_entity, on_destroyed_entity, on_train_changed_state, rebuild_runtime_state, updater
+-- forwarded_events: on_settings_changed, addToGlobal, check_global, has_tick_work, on_built_entity, on_destroyed_entity, on_train_changed_state, rebuild_runtime_state, updater
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -13,6 +13,7 @@
 local steam_train = {}
 
 local WheelControl = require("lib/handle-wheels.lua")
+local runtime_options = require("lib/runtime-options-config")
 
 local STEAM_LOCOMOTIVE_NAME = "ei-steam-basic-locomotive"
 local PLACEMENT_ENTITY_NAME = "ei-steam-basic-locomotive-placement-entity"
@@ -20,6 +21,15 @@ local BASE_WHEELS_NAME = "ei-steam-wheels"
 local ELEVATED_WHEELS_NAME = "ei-steam-wheels-elevated"
 -- Keep the visual wheel cadence fairly tight even when the wider mod update cycle is stretched out.
 local WHEEL_UPDATE_TICK = math.floor(math.max(1, math.min(5, ei_ticksPerFullUpdate / 30)))
+
+---Wheel cadence changes in place without replacing wheel helpers or train queues.
+---@param event EventData.on_runtime_mod_setting_changed
+function steam_train.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global" then return end
+    if event.setting ~= runtime_options.runtime_name("ei-ticks_per_full_update")
+        and event.setting ~= runtime_options.runtime_name("ei-max_updates_per_tick") then return end
+    WHEEL_UPDATE_TICK = math.floor(math.max(1, math.min(5, ei_ticksPerFullUpdate / 30)))
+end
 -- Idle trains stay hot for a couple of wheel passes so brief stops do not thrash the active queue.
 local IDLE_GRACE_UPDATES = 2
 

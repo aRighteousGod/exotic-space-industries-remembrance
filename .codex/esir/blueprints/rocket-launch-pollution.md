@@ -21,6 +21,12 @@ physical rocket/cargo and phase-alignment checks belong in the upgrade synopsis.
 
 ## Ownership and reference flow
 
+Mode, cap and visual style are [map runtime options](runtime-options.md#contract).
+Live edits affect later launch admission. A launch captures its cap as well as its
+pollution budget, preserving retaliation thresholds across later edits. Existing
+pending/detached records, emitted balances, smoke jobs and deadlines are not reset.
+Legacy records missing their cap adopt the pre-edit cap before the mirror changes.
+
 `storage.ei.rocket_launch_pollution` owns pollution-curve configuration, per-silo pending launches, detached launch records, delayed cleanup, and budgeted plume/spiral jobs. Each launch captures its silo, rocket, order tick, origin, fixed budget and emitted balance. Smoke jobs reference the same record, including its explicit confirmation state after pending-map removal. A new order moves an earlier airborne record to `detached_launches`, keyed by silo unit number and order tick, rather than overwriting its ledger.
 
 The hidden `ei-rocket-launch-pollution` simple-entity is only a statistics identity, localized with the existing InformaTron heading and using the base rocket-part icon. It is never spawned, selectable, craftable or listed in Factoriopedia; death effects and interactive presentation are intentionally excluded. `surface.pollute(origin, delta, source_name)` updates native pollution and the graph together. There is no additional `on_flow` call.

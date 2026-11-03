@@ -11,7 +11,7 @@
 The owner writes native settings through a typed allowlist. The administration
 adapter owns drafts and delegates authorized Apply through the existing coordinator,
 feedback and audit path. Opening or navigating the page never creates surfaces or
-changes world settings. The administration startup gate defaults On;
+changes world settings. The administration runtime map gate defaults On;
 saved world configuration and enemy policy operate independently of that gate.
 
 <a id="settings"></a>
@@ -25,6 +25,11 @@ until requested. Bound cliff controls use native frequency/size; unbound configu
 cliffs expose elevation interval and continuity. Aquilo gains no artificial cliffs.
 Terrain frequency is displayed as inverse scale; evolution uses percent and
 expansion cooldowns game minutes. Resource/terrain checkbox availability is native.
+The three factory-passage mod settings are edited in
+[Options → Performance](runtime-options.md#contract), linked from this page.
+Saved factory-passage drafts transfer with their original baselines. Native map
+generation/global-rule fields remain owned here; runtime mod settings use the
+Options transaction and native-setting event path.
 
 Draft validation requires finite typed values, supported bounds, integer fields,
 ordered expansion minimum/maximum pairs, and native generation values zero or

@@ -14,7 +14,7 @@ local config = {
         {id="players", group="players"}, {id="moderation", group="players"},
         {id="creation", group="sandbox"}, {id="fluids", group="sandbox"},
         {id="enemies", group="sandbox"}, {id="effects", group="sandbox"},
-        {id="research", group="system"}, {id="diagnostics", group="system"},
+        {id="options", group="system"}, {id="research", group="system"}, {id="diagnostics", group="system"},
         {id="repairs", group="system"}, {id="cameras", group="system"},
     },
 }

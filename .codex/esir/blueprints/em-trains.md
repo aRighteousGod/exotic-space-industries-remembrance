@@ -15,6 +15,11 @@ configuration.
 
 ## Ownership and reference flow
 
+EM glow and queue-line controls are [map runtime options](runtime-options.md#contract).
+The echo owner refreshes their scalar mirrors silently. Train/charger inventories,
+charge buffers, arrival announcements and random state are unchanged; existing
+finite render objects expire normally.
+
 `storage.ei_emt` owns charger/train registries, spatial charger lookup, per-surface queues, research-derived buffs and rollout generations, rendering pools, and dirty GUI state. `charger.lua` owns simulation; `gui.lua` owns the mod button/panel. The current Informatron sibling contains only comments and is retained as an inactive content placeholder.
 
 ```mermaid

@@ -3,7 +3,7 @@
 -- owns: Gaian saucer chromatic wake runtime visuals
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: control.lua updater fan-out, internally gated by startup preset
--- forwarded_events: check_global, get_pending_work_count, get_qc_snapshot, get_runtime_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, rebuild_runtime_state, reset_runtime_state, service_for_qc, updater
+-- forwarded_events: on_settings_changed, check_global, get_pending_work_count, get_qc_snapshot, get_runtime_status, has_tick_work, on_built_entity, on_configuration_changed, on_destroyed_entity, rebuild_runtime_state, reset_runtime_state, service_for_qc, updater
 -- storage_roots: storage.ei.gaian_saucer_wake
 -- gui_ids: none
 -- remote_interfaces: none
@@ -15,6 +15,7 @@ local model = {}
 local ei_lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
 local wake_config = require("lib/gaian-saucer-wake-config")
+local runtime_options = require("lib/runtime-options-config")
 
 local MODULE_NAME = "gaian-saucer-wake"
 local RUNTIME_STATE_VERSION = 1
@@ -29,8 +30,7 @@ local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end
 local cached_visual_config = nil
 local runtime_active = nil
 
--- Startup settings are immutable during a session, so normalize the fidelity
--- preset once and reuse the resolved numeric budget until a rebuild clears it.
+-- Reuse the resolved numeric budget until an explicit setting change or rebuild.
 local function get_visual_config()
     if cached_visual_config then
         return cached_visual_config
@@ -163,7 +163,7 @@ local function raw_queue_has_items(queue)
     return type(queued) == "table" and next(queued) ~= nil
 end
 
--- Turning the startup setting off should remove all live wake state immediately,
+-- Configuration rebuilds replace derived registrations and queue state,
 -- not merely stop future emissions while stale records linger.
 local function clear_runtime_state(state)
     state.tracked = {}
@@ -173,6 +173,13 @@ local function clear_runtime_state(state)
     state.last_update_tick = 0
     runtime_active = false
     return state
+end
+
+-- Off retains the event-fed inventory so enabling visuals never scans the world.
+local function suspend_runtime_state(state)
+    state.active_queue = scheduler.clear_queue(state.active_queue)
+    state.active_queue_count = 0
+    runtime_active = false
 end
 
 local function get_active_queue_count(state)
@@ -281,11 +288,11 @@ local function pop_queued_unit(state)
     return unit_number
 end
 
--- Built/rebuilt saucers enter the scheduler only when visuals are enabled. The
+-- Built/rebuilt saucers retain their identity while Off; only enabled visuals queue work. The
 -- stored position sample is used for movement vectors, independent of torso facing.
 local function register_entity(entity, current_tick, visual_config)
     visual_config = visual_config or get_visual_config()
-    if visual_config.enabled ~= true or not is_relevant_entity(entity) then
+    if not is_relevant_entity(entity) then
         return false
     end
 
@@ -318,8 +325,10 @@ local function register_entity(entity, current_tick, visual_config)
     record.last_position = nil
     record.wake_lateral_drift = tonumber(record.wake_lateral_drift) or 0
     record.last_seen_tick = current_tick
-    queue_unit(state, unit_number)
-    runtime_active = true
+    if visual_config.enabled == true then
+        queue_unit(state, unit_number)
+        runtime_active = true
+    end
     return true
 end
 
@@ -444,7 +453,7 @@ local function service_runtime(limit, current_tick, visual_config)
     current_tick = resolve_tick(current_tick)
 
     if visual_config.enabled ~= true then
-        clear_runtime_state(state)
+        suspend_runtime_state(state)
         make_status(state, current_tick, visual_config)
         return 0
     end
@@ -500,10 +509,11 @@ function model.check_global()
     local visual_config = get_visual_config()
 
     if visual_config.enabled ~= true then
-        if (tonumber(state.tracked_count) or 0) > 0
+        if (tonumber(state.active_queue_count) or 0) > 0
         or runtime_active ~= false
+        or state.last_fidelity ~= visual_config.visual_fidelity
         or (tonumber(state.last_status_tick) or 0) <= 0 then
-            clear_runtime_state(state)
+            suspend_runtime_state(state)
             make_status(state, game and game.tick or 0, visual_config)
         else
             runtime_active = false
@@ -527,7 +537,7 @@ function model.rebuild_runtime_state(reason, current_tick)
     state.last_rebuild_reason = reason or "rebuild"
     state.last_rebuild_tick = current_tick
 
-    if visual_config.enabled == true and game and game.surfaces then
+    if game and game.surfaces then
         for _, surface in pairs(game.surfaces) do
             if surface and surface.valid then
                 for _, entity in pairs(surface.find_entities_filtered{name = SAUCER_NAME}) do
@@ -547,6 +557,37 @@ end
 
 function model.on_configuration_changed(event)
     return model.rebuild_runtime_state("configuration-changed", event)
+end
+
+---Reconfigure presentation only; motion is sampled afresh when resuming from Off.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global"
+        or event.setting ~= runtime_options.runtime_name(wake_config.setting_name) then return end
+    local state = ensure_state()
+    local was_off = state.last_fidelity == "off"
+    reset_visual_config_cache()
+    local visual_config = get_visual_config()
+    if visual_config.enabled ~= true then
+        suspend_runtime_state(state)
+    else
+        if was_off then
+            for unit_number, record in pairs(state.tracked) do
+                local entity = ei_lib.get_valid_entity(record.entity)
+                if entity then
+                    record.last_x, record.last_y = entity.position.x, entity.position.y
+                    record.last_nx, record.last_ny = nil, nil
+                    record.wake_lateral_drift = 0
+                    record.last_emit_tick = event.tick
+                    queue_unit(state, unit_number)
+                else
+                    deregister_unit(state, unit_number, event.tick, "invalid")
+                end
+            end
+        end
+        runtime_active = (tonumber(state.tracked_count) or 0) > 0
+    end
+    make_status(state, event.tick, visual_config)
 end
 
 function model.on_built_entity(event_or_entity)
@@ -584,6 +625,7 @@ function model.get_pending_work_count()
 end
 
 function model.has_tick_work(_event)
+    if get_visual_config().enabled ~= true then return false end
     if runtime_active == true then
         return true
     end
@@ -613,7 +655,7 @@ function model.updater(event)
 
     if visual_config.enabled ~= true then
         local state = ensure_state()
-        clear_runtime_state(state)
+        suspend_runtime_state(state)
         make_status(state, current_tick, visual_config)
         return false
     end

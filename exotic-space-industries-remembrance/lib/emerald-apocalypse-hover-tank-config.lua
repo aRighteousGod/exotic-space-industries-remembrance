@@ -4,6 +4,7 @@
 --====================================================================================================
 
 local ei_lib = require("lib/lib")
+local runtime_options = require("lib/runtime-options-config")
 local emerald_hover_tank_config = {}
 
 emerald_hover_tank_config.setting_name = "ei-emerald-apocalypse-hover-tank-hover-visual-fidelity"
@@ -131,12 +132,9 @@ local function normalize_fidelity(value)
     return emerald_hover_tank_config.default_fidelity
 end
 
-local function read_startup_fidelity()
-    local setting = settings
-        and settings.startup
-        and settings.startup[emerald_hover_tank_config.setting_name]
-
-    return normalize_fidelity(setting and setting.value)
+local function read_runtime_fidelity()
+    return normalize_fidelity(runtime_options.get(emerald_hover_tank_config.setting_name,
+        emerald_hover_tank_config.default_fidelity))
 end
 
 function emerald_hover_tank_config.startup_setting_definition()
@@ -151,7 +149,7 @@ function emerald_hover_tank_config.startup_setting_definition()
 end
 
 function emerald_hover_tank_config.resolve(fidelity)
-    local normalized = normalize_fidelity(fidelity or read_startup_fidelity())
+    local normalized = normalize_fidelity(fidelity or read_runtime_fidelity())
     return ei_lib.copy_preset(normalized, presets[normalized], emerald_hover_tank_config.setting_name)
 end
 

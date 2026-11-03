@@ -2,8 +2,8 @@
 -- ESIR FILE MAP
 -- owns: queued invalid-fluid auditing and fluid safety enforcement
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: scheduled tick step 2 plus build/destroy checks
--- forwarded_events: classify_entity, counts_for_fluid_handling, ensure_fluid_runtime, enqueue_dirty_segment, enqueue_urgent_entity, get_fluid_work_count, get_runtime_status, on_configuration_changed, on_fluid_entity_deregistered, on_fluid_entity_registered, rebuild_fluid_runtime, service_fluid_runtime, touch_entity
+-- cadence: scheduled tick step 2, bounded live exemption reconciliation, and build/destroy checks
+-- forwarded_events: classify_entity, counts_for_fluid_handling, ensure_fluid_runtime, enqueue_dirty_segment, enqueue_urgent_entity, get_fluid_work_count, get_runtime_status, on_configuration_changed, on_settings_changed, on_fluid_entity_deregistered, on_fluid_entity_registered, rebuild_fluid_runtime, service_fluid_runtime, touch_entity
 -- storage_roots: storage.ei
 -- gui_ids: none
 -- remote_interfaces: none
@@ -17,6 +17,7 @@ local ei_data = require("lib/data")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local fluid_safety_config = require("lib/fluid-safety-config")
+local runtime_options = require("lib/runtime-options-config")
 local get_entity_unit_number = ei_lib.get_entity_unit_number
 local count_present_keys = ei_runtime_scheduler.table_count
 local MODULE_NAME = "fluid-safety"
@@ -672,13 +673,16 @@ local function add_entry_to_segment(runtime, entry, segment_id)
     end
 end
 
-local function remove_scan_unit(runtime, unit_number)
+---@param runtime table
+---@param unit_number uint
+---@param known_index uint|nil Dense position for an orphan whose entry was already lost.
+local function remove_scan_unit(runtime, unit_number, known_index)
     local entry = runtime.entries_by_unit[unit_number]
-    if not entry or not entry.dense_index then
+    local remove_index = entry and entry.dense_index or known_index
+    if not remove_index or runtime.scan_units[remove_index] ~= unit_number then
         return
     end
 
-    local remove_index = entry.dense_index
     local last_index = #runtime.scan_units
     local last_unit = runtime.scan_units[last_index]
 
@@ -694,6 +698,12 @@ local function remove_scan_unit(runtime, unit_number)
 
     if runtime.scan_index > #runtime.scan_units then
         runtime.scan_index = 1
+    end
+    -- A build/destroy event may swap an unvisited member behind the live edit's
+    -- cursor between service calls. Revisit that slot before resuming audits.
+    local reconciliation = runtime.ignore_reconcile
+    if reconciliation and reconciliation.scan and remove_index < reconciliation.scan then
+        reconciliation.scan = remove_index
     end
 end
 
@@ -738,7 +748,7 @@ local function set_entry_segment(runtime, entry, segment_id, enqueue_dirty)
 end
 
 local function add_runtime_entry(runtime, entity)
-    if not (entity and entity.valid and entity.unit_number) then
+    if not (entity and entity.valid and entity.unit_number) or fluid_safety_config.is_ignored_entity(entity) then
         return nil
     end
 
@@ -2192,6 +2202,7 @@ function model.ensure_fluid_runtime()
     end
 
     runtime.entries_by_unit = runtime.entries_by_unit or {}
+    runtime.ignored_names = runtime.ignored_names or fluid_safety_config.current_ignored_entities()
     runtime.tracked_count = runtime.tracked_count or 0
     runtime.scan_units = runtime.scan_units or {}
     runtime.scan_index = math.max(1, runtime.scan_index or 1)
@@ -2288,7 +2299,7 @@ function model.touch_entity(unit_or_entity)
         return false
     end
 
-    if not (entry.entity and entry.entity.valid) then
+    if not (entry.entity and entry.entity.valid) or fluid_safety_config.is_ignored_entity(entry.entity) then
         prune_runtime_entry(runtime, entry.unit_number)
         return false
     end
@@ -2374,6 +2385,7 @@ function model.rebuild_fluid_runtime(reason)
     runtime.queue_storage_version = FLUID_QUEUE_STORAGE_VERSION
     runtime.service_mode_cursor = 1
     runtime.initialized = true
+    runtime.ignored_names = fluid_safety_config.current_ignored_entities()
 
     for segment_id, _ in pairs(runtime.segments) do
         model.enqueue_dirty_segment(segment_id)
@@ -2404,15 +2416,123 @@ function model.on_configuration_changed(event)
     return true
 end
 
+-- Live ignore edits preserve the segment ledger and admitted aftermath. Removal
+-- examines the owned dense index; discovery queries newly eligible names one
+-- generated chunk at a time. Native iterators retain their cursor across saves.
+-- Pending discovery is restarted/coalesced on another edit, never a world reset.
+---@class EiFluidIgnoreReconciliation
+---@field scan uint|nil
+---@field names string[]
+---@field surfaces table Surface-index queue; no surface is created by discovery.
+---@field entities table Candidates from the most recent chunk query.
+---@field surface_index uint|nil
+---@field iterator LuaChunkIterator|nil
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type~="runtime-global"
+        or event.setting~=runtime_options.runtime_name(fluid_safety_config.setting_name) then return end
+    local runtime=model.ensure_fluid_runtime()
+    local previous=runtime.ignored_names
+    local current=fluid_safety_config.current_ignored_entities()
+    local differs=false
+    for name in pairs(previous) do if not current[name] then differs=true;break end end
+    if not differs then for name in pairs(current) do if not previous[name] then differs=true;break end end end
+    fluid_safety_config.reset_cache()
+    if not differs then return end
+    local eligible={}
+    for _,name in ipairs(runtime.ignore_reconcile and runtime.ignore_reconcile.names or {}) do
+        if not current[name] then eligible[name]=true end
+    end
+    for name in pairs(previous) do
+        if not current[name] and prototypes.entity[name] then eligible[name]=true end
+    end
+    local surfaces={}
+    for _,surface in pairs(game.surfaces) do surfaces[#surfaces+1]=surface.index end
+    table.sort(surfaces)
+    local queue=ei_runtime_scheduler.ensure_queue()
+    for _,index in ipairs(surfaces) do ei_runtime_scheduler.queue_push(queue,index) end
+    runtime.ignored_names=current
+    runtime.ignore_reconcile={scan=1,names=ei_lib.sorted_scalar_keys(eligible),surfaces=queue,entities=ei_runtime_scheduler.ensure_queue()}
+end
+
+---@param runtime table
+---@param budget uint
+---@return uint used
+local function service_ignore_reconciliation(runtime,budget)
+    local job=runtime.ignore_reconcile
+    if not job then return 0 end
+    local used=0
+    while used<budget and job.scan do
+        local unit=runtime.scan_units[job.scan]
+        if not unit then job.scan=nil;used=used+1;break end
+        local entry=runtime.entries_by_unit[unit]
+        if not entry then
+            -- An orphan has no dense_index for prune_runtime_entry to recover.
+            remove_scan_unit(runtime,unit,job.scan)
+            runtime.urgent_pending[unit]=nil
+            storage.ei.fluid_entity[unit]=nil
+        elseif not ei_lib.entity_check(entry.entity) or fluid_safety_config.is_ignored_entity(entry.entity) then
+            if ei_lib.entity_check(entry.entity) then model.on_fluid_entity_deregistered(entry.entity)
+            else prune_runtime_entry(runtime,unit) end
+        else job.scan=job.scan+1 end
+        used=used+1
+    end
+    if job.scan then return used end
+    while used<budget do
+        local entity=ei_runtime_scheduler.queue_pop(job.entities)
+        if entity then
+            if ei_lib.entity_check(entity) and model.counts_for_fluid_handling(entity) then model.on_fluid_entity_registered(entity) end
+            used=used+1
+        elseif #job.names==0 then
+            runtime.ignore_reconcile=nil
+            used=used+1
+            break
+        elseif not job.surface_index then
+            local index=ei_runtime_scheduler.queue_pop(job.surfaces)
+            used=used+1
+            if not index then runtime.ignore_reconcile=nil;break end
+            local surface=game.get_surface(index)
+            if surface then
+                job.surface_index=index
+                job.iterator=surface.get_chunks()
+            end
+        else
+            local surface=game.get_surface(job.surface_index)
+            used=used+1
+            if not surface or not job.iterator or not job.iterator.valid then
+                job.surface_index,job.iterator=nil,nil
+            else
+                local chunk=job.iterator()
+                if not chunk then
+                    job.surface_index,job.iterator=nil,nil
+                else
+                    local x,y=chunk.x*32,chunk.y*32
+                    for _,found in pairs(surface.find_entities_filtered{
+                        name=job.names,area={{x,y},{x+32,y+32}},
+                    }) do
+                        ei_runtime_scheduler.queue_push(job.entities,found)
+                    end
+                    -- Even empty chunks spend a slot; at most one chunk query
+                    -- occurs per service call, followed by budgeted admission.
+                    return used
+                end
+            end
+        end
+    end
+    return used
+end
+
 function model.get_fluid_work_count()
     local runtime = model.ensure_fluid_runtime()
-    return runtime.tracked_count or 0
+    return (runtime.tracked_count or 0) + (runtime.ignore_reconcile and 1 or 0)
 end
 
 function model.get_runtime_status()
     local runtime = model.ensure_fluid_runtime()
     local aftermath_stats = ensure_aftermath_stats(runtime)
-    local next_service_mode = get_runtime_queue_count(runtime, "urgent_units", "urgent_count") <= 0
+    local reconciliation = runtime.ignore_reconcile
+    local next_service_mode = reconciliation and (reconciliation.scan and "ignore-removal" or "ignore-discovery")
+        or get_runtime_queue_count(runtime, "urgent_units", "urgent_count") <= 0
         and get_runtime_queue_count(runtime, "dirty_segments", "dirty_count") <= 0
         and #runtime.scan_units <= 0 and "idle" or nil
     local status = {
@@ -2422,6 +2542,8 @@ function model.get_runtime_status()
         urgent_queue = get_runtime_queue_count(runtime, "urgent_units", "urgent_count"),
         dirty_queue = get_runtime_queue_count(runtime, "dirty_segments", "dirty_count"),
         scan_units = #runtime.scan_units,
+        ignore_reconciliation_pending = reconciliation ~= nil,
+        ignore_scan_cursor = reconciliation and reconciliation.scan or 0,
         service_mode_cursor = runtime.service_mode_cursor or 1,
         service_mode_name = next_service_mode or nil,
         heavy_aftermath_queued = aftermath_stats.heavy_aftermath_queued or 0,
@@ -2591,8 +2713,17 @@ end
 
 function model.service_fluid_runtime(budget, event_or_tick)
     local runtime = model.ensure_fluid_runtime()
+    budget = math.max(1, math.floor(tonumber(budget) or 1))
+    local reconcile_used=0
+    if runtime.ignore_reconcile then
+        local removing=runtime.ignore_reconcile.scan~=nil
+        reconcile_used=service_ignore_reconciliation(runtime,removing and budget or math.max(1,math.floor(budget/2)))
+        -- No audit may act on ignored members while removal is incomplete.
+        if removing or reconcile_used>=budget then return reconcile_used end
+        budget=budget-reconcile_used
+    end
     if (runtime.tracked_count or 0) <= 0 then
-        return 0
+        return reconcile_used
     end
 
     budget = math.max(1, math.floor(tonumber(budget) or 1))
@@ -2609,10 +2740,10 @@ function model.service_fluid_runtime(budget, event_or_tick)
     if budget == 1 then
         local mode = pick_weighted_service_mode(runtime, snapshot)
         if mode and process_one_mode(runtime, mode, full_update_ticks, tick) then
-            return 1
+            return reconcile_used+1
         end
 
-        return 0
+        return reconcile_used
     end
 
     -- Reserve one immediate urgent slot so freshly touched entities still react quickly.
@@ -2647,7 +2778,7 @@ function model.service_fluid_runtime(budget, event_or_tick)
         get_fluid_queue_snapshot(runtime, snapshot)
     end
 
-    return performed
+    return reconcile_used+performed
 end
 
 return model

@@ -49,6 +49,8 @@ function model.build(parent,session,player,tick)
     ui.apply = buttons.add{type="button",caption=caption("apply"),tags=tags("apply")}
     buttons.add{type="button",caption=caption("reload"),tags=tags("reload")}
     buttons.add{type="button",caption=caption("discard"),tags=tags("discard")}
+    ui.options_link=buttons.add{type="button",caption={"ei-runtime-options.open-options"},
+        tags={parent_gui=config.gui,action="page",page="options",options_group="performance"}}
     ui.body = parent.add{type="flow",direction="vertical"}
     model.refresh(session,player,tick)
 end
@@ -73,6 +75,10 @@ end
 function model.refresh(session,player,tick)
     local ui=session.map_settings
     if not ui or not ui.body.valid then return end
+    if not ui.options_link or not ui.options_link.valid then
+        ui.options_link=ui.apply.parent.add{type="button",caption={"ei-runtime-options.open-options"},
+            tags={parent_gui=config.gui,action="page",page="options",options_group="performance"}}
+    end
     local snapshot,error=context.runtime.snapshot(target(session))
     if not snapshot then ui.status.caption=error;ui.apply.enabled=false;ui.body.visible=false;return end
     ui.body.visible=true

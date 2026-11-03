@@ -127,8 +127,9 @@ do
     local r=m.channel_state('ecology').items[1];local old=r.recipient_icons[1].name
     for _,d in ipairs(catalog.entries)do prototypes.virtual_signal[sets.signal_name(provider,d.id)]=nil end
     table.remove(values);p[1]._native[1].icon=nil -- Engine may strip a removed prototype's SignalID.
-    settings.startup[sets.default_setting_name]={value='svg'};m.initialize(129);service(129,320)
-    check(p[1].mod_settings[sets.setting_name].value=='svg','removed provider copies valid startup fallback')
+    settings.global[require('lib/runtime-options-config').runtime_name(sets.default_setting_name)]={value='svg'}
+    m.initialize(129);service(129,320)
+    check(p[1].mod_settings[sets.setting_name].value=='svg','removed provider copies valid map fallback')
     check(#p[1]._native==1 and p[1]._native[1].icon.name==sets.signal_name('svg',r.alert_id),'missing old prototype cleans by owned message without duplicate')
     check(r.recipient_icons[1].name~=old,'actual new signal recorded')
 end

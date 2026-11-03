@@ -7,7 +7,7 @@
 -- cadence: build/destroy/clone/drive/equipment/script-trigger/damage events plus
 --          control.lua update fan-out for delayed charge/cold targeting, and
 --          every-tick hot shard visual motion
--- forwarded_events: check_global, rebuild_runtime_state, on_built_entity, repair_runtime_state, on_cloned_entity, on_destroyed_entity, on_object_destroyed, on_player_driving_changed_state, on_player_placed_equipment, on_player_removed_equipment, on_script_trigger_effect, on_entity_damaged, on_research_finished, on_scripted_research_burst, on_configuration_changed, open_gui, close_gui, on_gui_opened, on_gui_closed, on_gui_click, on_gui_value_changed, on_player_left_game, has_tick_work, has_hot_tick_work, update, hot_update, get_pending_work_count, get_runtime_status, get_qc_snapshot, configure_qc, service_for_qc, reset_runtime_state
+-- forwarded_events: on_settings_changed, check_global, rebuild_runtime_state, on_built_entity, repair_runtime_state, on_cloned_entity, on_destroyed_entity, on_object_destroyed, on_player_driving_changed_state, on_player_placed_equipment, on_player_removed_equipment, on_script_trigger_effect, on_entity_damaged, on_research_finished, on_scripted_research_burst, on_configuration_changed, open_gui, close_gui, on_gui_opened, on_gui_closed, on_gui_click, on_gui_value_changed, on_player_left_game, has_tick_work, has_hot_tick_work, update, hot_update, get_pending_work_count, get_runtime_status, get_qc_snapshot, configure_qc, service_for_qc, reset_runtime_state
 -- storage_roots: storage.ei.emerald_apocalypse_hover_tank
 -- gui_ids: ei-emerald-apocalypse-hover-tank-console
 -- remote_interfaces: none (control.lua exposes exotic-industries-qc diagnostics)
@@ -20,6 +20,7 @@ local model = {}
 local ei_lib = require("lib/lib")
 local scheduler = require("lib/runtime-scheduler")
 local hover_config = require("lib/emerald-apocalypse-hover-tank-config")
+local runtime_options = require("lib/runtime-options-config")
 local hover_emitter_offsets_by_direction = require("lib/emerald-apocalypse-hover-tank-hover-offsets")
 local orbital_shards = require("scripts/control/emerald-apocalypse-orbital-shards")
 
@@ -760,8 +761,8 @@ local function get_hover_visual_config()
         return cached_hover_visual_config
     end
 
-    -- The startup setting is stable during a run, but normalization allocates a
-    -- defensive preset copy. Cache the runtime-safe values until config changes.
+    -- Normalization allocates a defensive preset copy; explicit setting changes
+    -- invalidate this presentation cache without rebuilding the tank runtime.
     local visual_config = hover_config.resolve()
     visual_config.update_interval = math.max(1, math.floor(tonumber(visual_config.update_interval) or 1))
     visual_config.service_cap_value = hover_config.get_service_cap(visual_config)
@@ -5141,6 +5142,22 @@ end
 
 function model.on_configuration_changed(event)
     return model.rebuild_runtime_state("configuration-changed", resolve_tick(event))
+end
+
+---Hover presentation changes retain tanks, equipment, combat queues and open consoles.
+---@param event EventData.on_runtime_mod_setting_changed
+function model.on_settings_changed(event)
+    if event.setting_type ~= "runtime-global"
+        or event.setting ~= runtime_options.runtime_name(hover_config.setting_name) then return end
+    reset_hover_visual_config_cache()
+    local runtime = ensure_runtime()
+    local visual_config = get_hover_visual_config()
+    if visual_config.enabled ~= true then
+        runtime.hover_queue = scheduler.clear_queue(runtime.hover_queue)
+    elseif type(runtime.hover_queue.queued) ~= "table" or next(runtime.hover_queue.queued) == nil then
+        queue_active_hover_units(runtime)
+    end
+    model.make_status(runtime, event.tick)
 end
 
 function model.on_research_finished(event)

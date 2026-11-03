@@ -98,8 +98,8 @@ function model.snapshot(target)
         for _, source in ipairs(schema.global) do
             local field = table.deepcopy(source)
             fields[#fields+1] = field
-            values[field.id] = field.difficulty and game.difficulty_settings[field.key]
-                or game.map_settings[field.native_group or field.group][field.key]
+            if field.difficulty then values[field.id]=game.difficulty_settings[field.key]
+            else values[field.id]=game.map_settings[field.native_group or field.group][field.key] end
         end
         return {id="global", target={scope="global"}, fields=fields, values=values, pending=false}
     end

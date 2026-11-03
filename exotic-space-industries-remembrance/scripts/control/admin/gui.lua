@@ -303,7 +303,7 @@ local function resize_window(player,session,force)
     local height=math.max(1,math.floor(math.min(820,resolution.height/scale-24)))
     local status=session.status.caption~=""
     local confirm=session.confirm_frame.visible
-    local show_targets=session.page~="diagnostics"
+    local show_targets=session.page~="diagnostics" and session.page~="options"
     local signature=width..":"..height..":"..tostring(status)..":"..tostring(confirm)..":"..tostring(show_targets)
     if not force and session.layout_signature==signature then return end
     session.layout_signature=signature
@@ -658,6 +658,8 @@ local function build_page(parent,id,session,player,tick)
     heading(parent,"page-"..id)
     if id=="map-settings" then
         context.map_settings.build(parent,session,player,tick)
+    elseif id=="options" then
+        context.options.build(parent,session,player,tick)
     elseif id=="ecology" then
         context.ecology.build(parent,session,player,tick)
     elseif id=="planets" then
@@ -766,6 +768,7 @@ function model.refresh(index,tick,snapshot)
     if session.page=="diagnostics" then refresh_diagnostics(session,player,tick) end
     if session.page=="ecology" then context.ecology.refresh(session,player,tick) end
     if session.page=="map-settings" then context.map_settings.refresh(session,player,tick) end
+    if session.page=="options" then context.options.refresh(session,player,tick) end
     if session.page=="players" then sync_travel_destinations(session) end
     if session.page=="enemies" and session.mixture_label and session.mixture_label.valid then
         sync_catalog(session,"enemy",session.drafts.enemy_catalog=="advanced" and "advanced_enemies" or "enemies",session.drafts.enemy_search)
@@ -892,12 +895,13 @@ function model.open(player,page,tick)
         and session.title_icon and session.title_icon.valid
         and session.nav and session.nav.ecology and session.nav.ecology.valid
         and session.nav["map-settings"] and session.nav["map-settings"].valid
+        and session.nav.options and session.nav.options.valid
         and (not session.diagnostics or (session.diagnostics.rebuild_overview and session.diagnostics.rebuild_overview.valid
             and session.diagnostics.rebuild_detail and session.diagnostics.rebuild_detail.valid))) then
         model.close(player.index,true)
     end
     if not (session.root and session.root.valid) then
-        session.fields={};session.choices={};session.pages={};session.nav={};session.diagnostics=nil;session.ecology=nil;session.map_settings=nil
+        session.fields={};session.choices={};session.pages={};session.nav={};session.diagnostics=nil;session.ecology=nil;session.map_settings=nil;session.options=nil
         session.target_signatures={};session.summary_signature=nil;session.readout_signature=nil
         session.catalog_signatures={};session.availability={};session.layout_signature=nil
         session.active_jobs_signature=nil
@@ -1033,6 +1037,7 @@ function model.on_gui_change(event)
     local session=session_for(player.index);if not session then return true end
     if context.ecology.on_gui_change(event,session) then model.refresh(player.index,event.tick);return true end
     if context.map_settings.on_gui_change(event,session) then model.refresh(player.index,event.tick);return true end
+    if context.options.on_gui_change(event,session) then model.refresh(player.index,event.tick);return true end
     local id=element.tags.field;if not id then return true end
     if element.type=="textfield" then session.drafts[id]=element.text
     elseif element.type=="choose-elem-button" then session.drafts[id]=element.elem_value
@@ -1060,8 +1065,11 @@ function model.on_gui_click(event)
     if not session then return true end
     if context.ecology.on_gui_click(event,session) then model.refresh(player.index,event.tick);return true end
     if context.map_settings.on_gui_click(event,session) then model.refresh(player.index,event.tick);return true end
+    if context.options.on_gui_click(event,session) then model.refresh(player.index,event.tick);return true end
     if t.action=="close" then model.close(player.index)
-    elseif t.action=="page" then model.open(player,t.page,event.tick)
+    elseif t.action=="page" then
+        if t.page=="options" and t.options_group then session.options_group=t.options_group end
+        model.open(player,t.page,event.tick)
     elseif t.action=="refresh" then model.refresh(player.index,event.tick)
     elseif t.action=="auto-refresh" then
         session.auto_refresh=not session.auto_refresh;sync_auto_refresh_button(session)

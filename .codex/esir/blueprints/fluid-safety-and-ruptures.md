@@ -49,6 +49,20 @@ Observed tick debt: fluid service currently replaces a normalized tick <=0 with 
 
 Registration changes repair segment membership and enqueue work. Configuration changes reset the ignore cache and rebuild only when mods/startup settings changed; discovery scans occur there, not as each tick's registration mechanism. Persisted queue version 2 normalizes older queue representations. Queued entities are revalidated during service; effect jobs carry enough surface/position context to survive source removal. Job counts and next-due metadata must remain consistent when rings finish or fail.
 
+Live ignore-list edits use the [runtime option transaction](runtime-options.md#contract).
+The fluid owner remembers the normalized name set and coalesces edits into one
+`ignore_reconcile` job. A budgeted removal pass precedes ordinary audits; newly
+eligible names are discovered through at most one filtered generated-chunk query per
+service, then registered through the bounded entity queue. Unrelated fluid queues,
+segments and history survive. New registrations immediately respect the latest
+ignore list. New rupture jobs read current fidelity; admitted jobs retain their
+captured profile and paid rings.
+
+The persisted native chunk iterator resumes discovery across reloads. Empty chunks,
+surface/iterator transitions and candidate admissions all spend budget. Dense-index
+removals rewind an active scan when a tail entry moves behind its cursor. Diagnostics
+report ignore-removal/discovery as pending work instead of reporting idle.
+
 A cached segment representative must still report the audited segment's live ID before its contents are read. A pipe-network split or merge can precede bounded membership repair; the old representative must never lend its new network's fluid classification to the old network. Cryogenic phase shifts drain only the original liquid and require positive actual removal before conversion, vent effects, floating text or alert admission. Converted-gas draining remains available for destructive data-line processing after a legitimate same-audit phase shift.
 
 <a id="verification"></a>

@@ -24,6 +24,8 @@ local targeting=require("scripts/control/admin/targeting")
 local restrictions=require("scripts/control/admin/restrictions")
 local ecology=require("scripts/control/admin/ecology")
 local map_settings=require("scripts/control/admin/map-settings")
+local options=require("scripts/control/admin/options")
+local options_config=require("lib/runtime-options-config")
 local terrain_config=require("lib/terrain-evolution-config")
 local model={}
 local owners
@@ -80,6 +82,7 @@ function model.configure(modules)
     ecology.configure{runtime=modules["terrain-evolution"],schema=terrain_config.schema,
         resolve_surface=model.resolve_surface,execute=model.execute,changed=changed}
     map_settings.configure{runtime=modules["map-settings"],execute=model.execute,changed=changed}
+    options.configure{runtime=modules["runtime-options"],execute=model.execute}
     modules.gaia.set_surface_ready_handler(function(surface,newly_created,tick)
         modules["map-settings"].on_surface_ready(surface,tick or game.tick)
         model.on_planet_surface_ready(surface,newly_created)
@@ -90,7 +93,7 @@ function model.configure(modules)
     players.configure(ctx);world.configure(ctx);registry.configure(ctx)
     targeting.configure{resolve_surface=model.resolve_surface,hidden=function(player) gui.close(player.index) end,
         finished=function(player,tick) if common.authorize(player) then gui.open(player,nil,tick) end end}
-    gui.configure{planets=model.planets,world=world,registry=registry,execute=model.execute,diagnostics=model.diagnostics,ecology=ecology,map_settings=map_settings,
+    gui.configure{planets=model.planets,world=world,registry=registry,execute=model.execute,diagnostics=model.diagnostics,ecology=ecology,map_settings=map_settings,options=options,
         begin_target=function(player,kind,session,tick) local ok,message=targeting.begin(player,kind,session,tick);if not ok then common.notify(player.index,message) end end,
         cancel_target=targeting.cancel,
         inspect=function(player,id,tick) local ok,message=registry.start_inspection(player,id,tick);common.notify(player.index,message);gui.result(player.index,message,tick) end,
@@ -119,6 +122,30 @@ function model.execute(actor,action,args,tick)
     args=args or {}
     local allowed,message=common.authorize(actor,action=="repair")
     if not allowed then common.notify(actor and actor.index,message);return false,message end
+    if action=="options_apply" then
+        -- Native assignments emit synchronous events. The outer batch keeps owner
+        -- reconciliation after the receipt, including a switch that closes this GUI.
+        local runtime=owners["runtime-options"]
+        runtime.begin_batch()
+        local applied,result
+        local called,failure=pcall(function()
+            applied,result=options.execute(actor,args,tick)
+            common.audit(actor,action,args,applied)
+            common.notify(actor.index,result)
+            gui.result(actor.index,result,tick)
+        end)
+        -- The inner transaction discards successful rollback events. Any events
+        -- retained here represent committed writes or a partial rollback and must
+        -- reconcile the actual native values even when Apply reports failure.
+        local released,release_failure=pcall(runtime.end_batch,tick,true)
+        if not called or not released then
+            result={"ei-runtime-options.failed",tostring(not called and failure or release_failure)}
+            common.audit(actor,action,args,false);common.notify(actor.index,result)
+            gui.result(actor.index,result,tick)
+            return false,result
+        end
+        return applied,result
+    end
     local ok,job
     if action=="repair" then ok,message=registry.repair(actor,args.module_id,tick)
     elseif action=="map_settings_apply" then ok,message=map_settings.execute(actor,action,args,tick)
@@ -198,11 +225,10 @@ function model.on_research_started(event)
         force=research.force,actor_index=type(owner)=="table" and owner.actor_index or nil}
 end
 
-function model.on_configuration_changed(tick)
+local function reconcile_availability(tick)
     local enabled=common.enabled();local root=common.peek()
     if enabled then root=common.state() end
     if not root then return end
-    gui.reconcile_item_choices()
     if not enabled then
         targeting.cleanup(tick)
         for index in pairs(root.sessions) do gui.close(index,true) end
@@ -221,6 +247,26 @@ function model.on_configuration_changed(tick)
         end
     end
     for _,player in pairs(game.players) do gui.launcher(player) end
+end
+
+---@param tick MapTick
+function model.on_configuration_changed(tick)
+    gui.reconcile_item_choices()
+    local root=common.peek()
+    if root then for _,session in pairs(root.sessions) do options.reconcile_drafts(session) end end
+    reconcile_availability(tick)
+    if common.enabled() and root then
+        for index,session in pairs(root.sessions) do
+            if session.root and session.root.valid and session.root.visible and session.page=="map-settings" then gui.refresh(index,tick) end
+        end
+    end
+end
+
+---@param event table Grouped runtime settings event from the central dispatcher.
+function model.on_settings_changed(event)
+    local key=options_config.runtime_name(config.setting)
+    if event.setting==key or (event.settings and event.settings[key]) then reconcile_availability(event.tick) end
+    changed("options")
 end
 
 function model.on_player_event(event)

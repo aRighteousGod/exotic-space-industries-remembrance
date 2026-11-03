@@ -20,9 +20,12 @@ function model.install(catalog)
     package.loaded['lib/lib']=lib
     package.loaded['__exotic-space-industries-remembrance__/lib/lib']=lib
     package.loaded['__exotic-space-industries-remembrance__/lib/alert-catalog']=catalog
+    local options=require('lib/runtime-options-config')
+    package.loaded['__exotic-space-industries-remembrance__/lib/runtime-options-config']=options
     prototypes=prototypes or {};prototypes.virtual_signal={['signal-fire']={},['signal-info']={}}
     prototypes.mod_setting={['ei-alert-icon-set']={allowed_values={'startup-default','original','svg','rendered','vanilla'}}}
-    settings={startup={['ei-alert-icon-set-default']={value='rendered'}},player_default={}}
+    settings={startup={['ei-alert-icon-set-default']={value='rendered'}},
+        global={[options.runtime_name('ei-alert-icon-set-default')]={value='rendered'}},player_default={}}
     helpers=helpers or {};helpers.table_to_json=encode
     for _,entry in ipairs(catalog.entries)do
         prototypes.virtual_signal[entry.icon_signal]={}
