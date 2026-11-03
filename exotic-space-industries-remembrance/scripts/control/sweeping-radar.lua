@@ -490,6 +490,11 @@ function model.on_blueprint(event)
 end
 
 function model.on_teleported(event)
+    local entity=event.entity
+    if entity.valid and entity.type=="entity-ghost" and config.art[entity.ghost_name] then
+        visuals.ghost(state(),entity)
+        return
+    end
     local record=model.get_record(event.entity)
     if record then request_reset(state(),record,event.tick);record.next_poll=event.tick end
 end

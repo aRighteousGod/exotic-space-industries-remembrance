@@ -894,7 +894,32 @@ script.on_event(defines.events.script_raised_teleported, function(e)
     ei_water_turret.on_teleported(e)
     ei_anisetron.on_teleported(e)
     ei_beacon_overload.on_script_raised_teleported(e)
+    local entity = ei_lib.get_valid_entity(e.entity)
+    if not entity or entity.surface_index ~= e.old_surface_index or entity.type == "entity-ghost" then return end
+    ei_fusion_reactor.on_moved_entity(e)
+    ei_neutron_collector.on_moved_entity(e)
+    ei_combustion_turbine.on_moved_entity(e)
+    ei_gate.on_moved_entity(e)
+    ei_matter_stabilizer.on_moved_entity(e)
+    ei_black_hole.on_moved_entity(e)
+    ei_fueler.on_moved_entity(e)
+    em_trains.on_moved_entity(e)
+    orbital_combinator.on_moved_entity(e)
+    orbital_logistics.on_moved_entity(e)
+    ei_railgun_cooling.on_moved_entity(e)
+    if ei_fluid_safety.counts_for_fluid_handling(entity) then ei_fluid_safety.on_fluid_entity_registered(entity) end
+    ei_loaders_lib.on_belt_moved(entity, e.old_position, entity.direction)
 end)
+
+if prototypes.custom_event["even-pickier-dollies-on-entity-moved"] then
+    script.on_event("even-pickier-dollies-on-entity-moved", function(e)
+        local entity = ei_lib.get_valid_entity(e.moved_entity)
+        -- An ordinary nudge has already raised script_raised_teleported.
+        if entity and e.start_unit_number and entity.unit_number ~= e.start_unit_number then
+            ei_loaders_lib.on_belt_moved(entity, e.start_pos, e.start_direction)
+        end
+    end)
+end
 
 script.on_event(defines.events.on_tower_planted_seed, function(e)
     ei_randomized_tree_growth.on_tower_planted_seed(e)

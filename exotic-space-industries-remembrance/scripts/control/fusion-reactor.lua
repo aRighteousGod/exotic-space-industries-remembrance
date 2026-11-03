@@ -523,7 +523,10 @@ function model.ensure_wire_proxy(entry)
     if ei_lib.entity_check(proxy) then
         if math.abs(proxy.position.x - expected_position.x) > 0.01
         or math.abs(proxy.position.y - expected_position.y) > 0.01 then
-            pcall(proxy.teleport, expected_position)
+            if not proxy.teleport(expected_position) then
+                model.destroy_wire_proxy(entry)
+                return model.ensure_wire_proxy(entry)
+            end
         end
         if entry.wire_proxy_connected ~= true then
             model.attach_wire_proxy_to_reactor(entry)
@@ -1411,6 +1414,15 @@ function model.repair_runtime_state(reason, tick)
     runtime.last_admin_repair_reason = reason
     runtime.last_admin_repair_tick = tick
     return true
+end
+
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    if not model.entity_check(event.entity) then return end
+    local entry = model.register_reactor(get_runtime(), event.entity)
+    entry.wire_proxy_connected = nil
+    entry.last_wire_probe_tick = -WIRE_SCAN_INTERVAL_TICKS
+    model.update_wire_proxy_signals(entry, event)
 end
 
 return model

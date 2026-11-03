@@ -2051,4 +2051,18 @@ function model.on_gui_click(event)
     end
 end
 
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local entity = event.entity
+    if entity.name ~= "ei-fueler" then return end
+    local runtime = model.ensure_runtime_ready()
+    local id = entity.unit_number
+    local entry = runtime.towers[id]
+    if not entry then model.register_fueler(entity); return end
+    model.unindex_tower(runtime, id, entry)
+    entry.min_chunk_x, entry.max_chunk_x, entry.min_chunk_y, entry.max_chunk_y =
+        ei_lib.get_chunk_coverage(entity.position, runtime.cached_range or ei_lib.config("fueler_range"), FUELER_CHUNK_SIZE)
+    model.index_tower(runtime, id, entry)
+end
+
 return model

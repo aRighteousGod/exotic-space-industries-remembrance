@@ -2516,4 +2516,60 @@ commands.add_command("rescan_matter_stabilizers", "Rebuilds matter stabilizer li
 end)
 
 
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local entity = event.entity
+    local machine = model.matter_machines[entity.name]
+    if not (machine or model.stabilizers[entity.name]) then return end
+    local runtime = model.ensure_runtime_ready()
+    local unit = entity.unit_number
+    local records = machine and runtime.machines or runtime.stabilizers
+    local chunks = machine and runtime.machine_chunks or runtime.stabilizer_chunks
+    local record = records[unit]
+    if not record then return end
+    model.remove_from_chunk_store(chunks, record.surface_index, record.chunk_x, record.chunk_y, unit)
+    record.chunk_x, record.chunk_y = ei_lib.get_chunk_coordinates(entity.position, MATTER_CHUNK_SIZE)
+    model.add_to_chunk_store(chunks, record.surface_index, record.chunk_x, record.chunk_y, unit)
+    local affected = {}
+    if machine then
+        affected[unit] = record
+        for id in pairs(record.nearby_stabilizers) do
+            local other = runtime.stabilizers[id]
+            if other then other.linked_machines[unit] = nil end
+        end
+        record.nearby_stabilizers = {}
+        for _, other in ipairs(model.query_nearby_stabilizers(runtime, entity.surface, entity.position, MATTER_RANGE)) do
+            model.link_stabilizer_and_machine(other, record)
+        end
+    else
+        for id in pairs(record.linked_machines) do
+            local other = runtime.machines[id]
+            if other then
+                other.nearby_stabilizers[unit] = nil
+                affected[id] = other
+            end
+        end
+        record.linked_machines = {}
+        for _, other in ipairs(model.query_nearby_machines(runtime, entity.surface, entity.position, MATTER_RANGE)) do
+            model.link_stabilizer_and_machine(record, other)
+            affected[other.unit_number] = other
+        end
+    end
+    for id, entry in pairs(affected) do
+        model.refresh_machine_snapshot(runtime, entry, event.tick)
+        model.queue_gui_refresh_for_unit(id, event.tick)
+    end
+    model.remove_rendering_by_unit(unit)
+    for _, player in pairs(game.connected_players) do
+        if player.surface == entity.surface then
+            local cursor = player.cursor_stack
+            if cursor and cursor.valid_for_read and (model.stabilizers[cursor.name] or model.matter_machines[cursor.name]) then
+                model.stabilizer_on_cursor(player)
+            elseif player.selected and model.stabilizers[player.selected.name] then
+                model.stabilizer_selected(player, player.selected)
+            end
+        end
+    end
+end
+
 return model

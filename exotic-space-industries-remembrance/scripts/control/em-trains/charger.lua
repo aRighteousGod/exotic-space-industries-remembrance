@@ -2874,4 +2874,22 @@ function model.get_runtime_status()
 end
 
 
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local entity = event.entity
+    if not model.chargers[entity.name] then return end
+    model.ensure_runtime_ready()
+    local id = entity.unit_number
+    local entry = storage.ei_emt.chargers[id]
+    if not entry then model.register_charger(entity, event.tick); return end
+    model.unindex_charger(id, entry)
+    entry.chunk_x, entry.chunk_y = ei_lib.get_chunk_coordinates(entity.position, EM_CHUNK_SIZE)
+    entry.coverage_min_chunk_x, entry.coverage_max_chunk_x, entry.coverage_min_chunk_y, entry.coverage_max_chunk_y =
+        ei_lib.get_chunk_coverage(entity.position, storage.ei_emt.buffs.charger_range, EM_CHUNK_SIZE)
+    entry.rail_count = model.get_rail_count(entity)
+    model.index_charger(id, entry)
+    entity.power_usage = model.get_charger_power_usage(entry.rail_count, entity)
+    em_trains_gui.mark_dirty()
+end
+
 return model

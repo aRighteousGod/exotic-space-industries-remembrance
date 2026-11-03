@@ -554,7 +554,7 @@ function cohort_power.find_existing_sensor(entity)
   }
 
   for _, helper in ipairs(helpers) do
-    if cohort_power.is_sensor(helper) then
+    if cohort_power.is_sensor(helper) and cohort_power.same_position(helper, entity) then
       local dx = (helper.position.x or 0) - (position.x or 0)
       local dy = (helper.position.y or 0) - (position.y or 0)
       local distance = dx * dx + dy * dy
@@ -5849,6 +5849,237 @@ function model.on_rocket_launch_ordered(event)
   end
 
   mark_cohort_dirty(uplink_record.force_index, uplink_record.surface_name)
+end
+
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+  local entity = event.entity
+  local silo = entity.type == "rocket-silo"
+  if not silo and not is_cohort_entity(entity) then return end
+  local root = get_root()
+  local force_index, surface_name = entity.force.index, entity.surface.name
+  if silo then
+    invalidate_surface_uplink_dropdown_caches(force_index, surface_name)
+  else
+    local record = get_cohort_record_by_unit_number(entity.unit_number)
+    if not record then model.on_built_entity(event); return end
+    local sensor = cohort_power.get_sensor_root()[entity.unit_number]
+    if cohort_power.is_sensor(sensor) then sensor.teleport(entity.position) end
+    cohort_power.refresh_record_state(record, event.tick)
+    if entity.name ~= ORBITAL_DISPATCH_UPLINK_NAME then return end
+    invalidate_uplink_dropdown_cache(record)
+  end
+  queue_cohort(force_index, surface_name)
+  for player_index in pairs(root.open_gui_by_player) do
+    local gui = get_gui_record(player_index)
+    local uplink = gui and root.uplinks_by_unit[gui.unit_number]
+    if uplink and uplink.force_index == force_index and uplink.surface_name == surface_name
+      and (silo or uplink.unit_number == entity.unit_number) then
+      local player = game.get_player(player_index)
+      if player then model.refresh_player_gui(player, uplink.entity, nil, event.tick) end
+    end
+  end
+end
+
+-- Configuration is serializable player intent. Leases, output pages, sensors,
+-- dropdown caches and live entity references never enter blueprint/paste tags.
+---@param entity LuaEntity
+---@return table|nil
+function model.export_configuration(entity)
+  if not ei_lib.entity_check(entity) then return nil end
+  local root = get_root()
+  local record = root.transponders_by_unit[entity.unit_number]
+  if record then return {kind=entity.name, manual_platform_id=record.manual_platform_id, platform_id=record.platform_id} end
+  record = root.selectors_by_unit[entity.unit_number]
+  if record then return {kind=entity.name, mode=record.mode, manual_platform_id=record.manual_platform_id} end
+  record = root.uplinks_by_unit[entity.unit_number]
+  if record then return {kind=entity.name, dispatch_mode=record.dispatch_mode or "cohort",
+    oversize_mode=record.oversize_mode, threshold_floor=record.threshold_floor} end
+  if entity.name == "ei-orbital-combinator" then
+    local bank = get_scanner_module().get_bank_for_unit_number(entity.unit_number)
+    return bank and {kind=entity.name, mode=bank.mode, source=bank.source or "all"} or nil
+  end
+end
+
+---@param entity LuaEntity
+---@param config table
+---@param current_tick MapTick|nil
+function model.seed_configuration(entity, config, current_tick)
+  if type(config) ~= "table" or config.kind ~= entity.name then return end
+  local root, unit = get_root(), entity.unit_number
+  if entity.name == PLATFORM_TRANSPONDER_NAME then
+    local record = root.transponders_by_unit[unit] or {}
+    record.manual_platform_id = normalize_platform_id_input(config.manual_platform_id)
+    -- Automatic IDs survive rebuild, but copied automatic IDs are allocated afresh.
+    record.platform_id = record.manual_platform_id or (root.rebuilding and tonumber(config.platform_id)) or nil
+    root.transponders_by_unit[unit] = record
+  elseif entity.name == ORBITAL_SELECTOR_NAME then
+    local record = root.selectors_by_unit[unit] or {}
+    record.mode = normalize_selector_mode(config.mode)
+    record.manual_platform_id = normalize_platform_id_input(config.manual_platform_id)
+    root.selectors_by_unit[unit] = record
+  elseif entity.name == ORBITAL_DISPATCH_UPLINK_NAME then
+    local record = root.uplinks_by_unit[unit] or {}
+    local desired = config.dispatch_mode == "native" and "native" or "cohort"
+    if not root.rebuilding and record.entity and record.dispatch_mode ~= desired and get_bound_silo(record) then
+      -- Pasting onto an existing lane is an explicit ownership action too.
+      -- Keep its current owner when native cargo is already committed.
+      local ok, problem = model.set_dispatch_mode(unit, desired, current_tick)
+      record.configuration_error = not ok and problem or nil
+    else
+      record.dispatch_mode, record.configuration_error = desired, nil
+    end
+    record.oversize_mode = normalize_oversize_mode(config.oversize_mode)
+    record.threshold_floor = normalize_threshold_floor_input(config.threshold_floor)
+    if root.rebuilding then
+      record.binding_silo_unit_number = tonumber(config.binding_silo_unit_number)
+      record.binding_source = config.binding_source
+      record.launch_count = tonumber(config.launch_count) or 0
+    end
+    root.uplinks_by_unit[unit] = record
+  elseif entity.name == "ei-orbital-combinator" then
+    get_scanner_module().apply_configuration(entity, config, current_tick)
+  end
+end
+
+---@param event EventData.on_player_setup_blueprint
+function model.on_blueprint(event)
+  local player = game.get_player(event.player_index)
+  if not player then return end
+  local stack = event.record
+  if not stack then
+    stack = event.stack or player.blueprint_to_setup
+    if not (stack and stack.valid_for_read and stack.is_blueprint) then stack = player.cursor_stack end
+    if not (stack and stack.valid_for_read and stack.is_blueprint) then return end
+  end
+  for index, entity in pairs(event.mapping.get()) do
+    local config = model.export_configuration(entity)
+    if config then
+      -- Automatic identity is not copied to a distinct platform.
+      if not config.manual_platform_id then config.platform_id = nil end
+      stack.set_blueprint_entity_tag(index, "ei_orbital_configuration", config)
+    end
+  end
+end
+
+---@param entity LuaEntity
+---@param mode string
+---@param platform_id uint|nil
+---@param tick MapTick
+function model.set_selector_configuration(entity, mode, platform_id, tick)
+  local record = get_root().selectors_by_unit[entity.unit_number]
+  if not record then return end
+  set_selector_qc_target(entity.unit_number, mode,
+    platform_id == nil and record.manual_platform_id or (platform_id > 0 and platform_id or nil), tick)
+end
+
+---@param entity LuaEntity
+---@param tick MapTick
+---@return table|nil
+function model.get_panel_snapshot(entity, tick)
+  if not ei_lib.entity_check(entity) then return nil end
+  local root, unit = get_root(), entity.unit_number
+  local uplink = root.uplinks_by_unit[unit]
+  if entity.type == "rocket-silo" then uplink = root.uplinks_by_unit[root.uplink_by_silo_unit[unit]] end
+  if entity.type == "rocket-silo" or uplink then
+    local silo = entity.type == "rocket-silo" and entity or get_bound_silo(uplink)
+    local snapshot = silo and model.get_silo_snapshot(silo, tick)
+      or {dispatch_mode=uplink.dispatch_mode, rocket_state="unknown", blocker="missing-silo-binding", payload={}, incoming={}}
+    if uplink then
+      local lease = uplink.leased_job_id and root.lease_by_job_id[uplink.leased_job_id]
+      if lease then
+        for _, transponder in pairs(root.transponders_by_unit) do
+          if transponder.force_index == entity.force.index and transponder.platform_id == lease.target_platform_id then
+            local platform = read_platform_from_transponder(get_record_entity(transponder))
+            snapshot.target_name = platform and platform.valid and platform.name or transponder.platform_name; break
+          end
+        end
+      end
+    end
+    return {silo=snapshot}
+  end
+  local platform = entity.type == "space-platform-hub" and entity.surface.platform
+    or (entity.name == PLATFORM_TRANSPONDER_NAME and read_platform_from_transponder(entity))
+  if platform and platform.valid then
+    local payload = get_scanner_module().get_platform_mode_filters(platform, NEED_MODE_NAME, tick, "all")
+    return {platform={index=platform.index, name=platform.name}, payload=payload,
+      providing=platform.hub.providing_to_other_platforms}
+  end
+  local selector = root.selectors_by_unit[unit]
+  if selector then
+    local cohort = root.cohorts[cohort_key(entity.force.index, entity.surface.name)]
+    local job = cohort and cohort.jobs_by_id and cohort.jobs_by_id[unit]
+    local choices, seen = {}, {}
+    for _, transponder in pairs(root.transponders_by_unit) do
+      if transponder.force_index == entity.force.index and transponder.platform_id and not seen[transponder.platform_id] then
+        seen[transponder.platform_id] = true
+        local platform = read_platform_from_transponder(get_record_entity(transponder))
+        choices[#choices + 1] = {id=transponder.platform_id,
+          name=platform and platform.valid and platform.name or transponder.platform_name or tostring(transponder.platform_id)}
+      end
+    end
+    table.sort(choices, function(a,b) return a.name == b.name and a.id < b.id or a.name < b.name end)
+    return {selector=selector, choices=choices, target_name=job and job.platform_name,
+      blocker=job and (job.blocked_reason or job.invalid_reason)}
+  end
+  return {}
+end
+
+---@param entity LuaEntity
+---@param tab string
+---@param all_locations boolean
+---@param search string
+---@return table[]
+function model.get_overview_rows(entity, tab, all_locations, search)
+  local rows = {}
+  if tab == "platforms" then
+    for _, platform in pairs(entity.force.platforms) do
+      if platform.valid and ei_lib.entity_check(platform.hub) then
+        local location = platform.space_location and platform.space_location.name
+        if (all_locations or location == entity.surface.name) and platform.name:lower():find(search, 1, true) then
+          rows[#rows + 1] = {entity=platform.hub, name=platform.name, id=platform.index,
+            caption={"", platform.name, " · ", location or {"exotic-industries.orbital-native-travelling"}}}
+        end
+      end
+    end
+  else
+    for _, surface in pairs(game.surfaces) do
+      if all_locations or surface == entity.surface then
+        for _, silo in pairs(surface.find_entities_filtered{type="rocket-silo", force=entity.force}) do
+          local target = silo.transitional_request_target
+          local name = target and target.valid and target.name or silo.localised_name
+          local searchable = (surface.name .. " " .. silo.name .. " " .. (target and target.valid and target.name or "")):lower()
+          if searchable:find(search, 1, true) then
+            local record = get_root().uplinks_by_unit[get_root().uplink_by_silo_unit[silo.unit_number]]
+            rows[#rows + 1] = {entity=silo, name=searchable, id=silo.unit_number,
+              caption={"", name, " · ", surface.localised_name or surface.name, " · ",
+                {"exotic-industries.orbital-native-owner-" .. (silo.use_transitional_requests and "native" or record and record.dispatch_mode or "native")}}}
+          end
+        end
+      end
+    end
+  end
+  table.sort(rows, function(a,b) return a.name == b.name and a.id < b.id or a.name < b.name end)
+  return rows
+end
+
+---@param event EventData.on_gui_opened
+function model.on_native_gui_opened(event)
+  local player = game.get_player(event.player_index)
+  if not player then return end
+  local entity = ei_lib.get_valid_entity(event.entity)
+  if not entity or not is_cohort_entity(entity) then model.close_gui(player) end
+  if entity and entity.force == player.force and (entity.type == "rocket-silo" or entity.type == "space-platform-hub") then
+    model.ui.open(player, entity, model, event.tick)
+  end
+end
+
+---@param event EventData.on_gui_closed
+function model.on_native_gui_closed(event)
+  local entity = ei_lib.get_valid_entity(event.entity)
+  if entity and (entity.type == "rocket-silo" or entity.type == "space-platform-hub") then
+    model.ui.close(game.get_player(event.player_index))
+  end
 end
 
 return model

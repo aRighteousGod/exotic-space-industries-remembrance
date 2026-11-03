@@ -53,6 +53,7 @@
         "? colorful_biochamber",
         "? celestial-weather-updated >= 1.5.1",
         "? DiscoScience",
+        "? even-pickier-dollies >= 3.2.0",
         "? heat_glow-temp-21-patch >= 2.0.6",
         "? Shield-FX_fork >= 2.0.1",
         "? vehicle_physics",

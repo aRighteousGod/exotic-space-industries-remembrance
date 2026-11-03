@@ -50,6 +50,7 @@ local loaders = {
 	["ei-express-loader"] = true,
 	["ei-turbo-loader"] = true,
 	["ei-neo-loader"] = true,
+	["ei-military-loader"] = true,
 }
 
 -- belts: entities that trigger adjacency pokes
@@ -101,6 +102,9 @@ local loader_like = {
 	"ei-turbo-loader",
 	"ei-neo-loader",
 }
+if script and prototypes.entity["ei-military-loader"] then
+	table.insert(loader_like, "ei-military-loader")
+end
 
 --====================================================================================================
 -- UTIL FUNCTIONS
@@ -392,16 +396,23 @@ function ei_loaders_lib.poke_loader_at(surface, force, pos)
 	end
 end
 
-function ei_loaders_lib.snap_belt(belt)
+function ei_loaders_lib.on_belt_moved(entity, old_position, old_direction)
+	if not belts[entity.type] then return end
+	ei_loaders_lib.snap_belt(entity, old_position, old_direction)
+	ei_loaders_lib.snap_belt(entity)
+end
+
+function ei_loaders_lib.snap_belt(belt, position, direction)
 	if not (belt and belt.valid) then
 		return
 	end
 
-	local output_pos, input_pos = ei_loaders_lib.get_positions(belt)
+	local geometry = position and {position = position, direction = direction} or belt
+	local output_pos, input_pos = ei_loaders_lib.get_positions(geometry)
 
 	-- Splitter is offset: poke both mouths.
 	if belt.type == "splitter" then
-		local in1, out1, in2, out2 = ei_loaders_lib.get_splitter_positions(belt, input_pos, output_pos)
+		local in1, out1, in2, out2 = ei_loaders_lib.get_splitter_positions(geometry, input_pos, output_pos)
 
 		ei_loaders_lib.poke_loader_at(belt.surface, belt.force, in1)
 		ei_loaders_lib.poke_loader_at(belt.surface, belt.force, out1)

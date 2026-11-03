@@ -205,6 +205,8 @@ if solid_turbine then
     fluid_open_proxy.localised_name = {"entity-name.ei-combustion-turbine"}
     fluid_open_proxy.localised_description = {"entity-description.ei-combustion-turbine"}
     fluid_open_proxy.flags = {
+        -- The selection box has even dimensions while the turbine is centered on a half tile.
+        "placeable-off-grid",
         "not-blueprintable",
         "not-deconstructable",
         "not-on-map",

@@ -5332,4 +5332,23 @@ function model.on_player_cursor_stack_changed(event)
     end
 end
 
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local receiver = event.entity
+    if receiver.name ~= "ei-gate-receiver" then return end
+    local root = storage.ei.gate
+    local record = root and root.receiver[receiver.unit_number]
+    if not record then return end
+    record.position = receiver.position
+    root.receiver_registry_generation = (root.receiver_registry_generation or 0) + 1
+    for _, gate in pairs(root.gate) do
+        if gate.effective_target_entity == receiver then
+            if gate.exit_animation and gate.exit_animation.valid then gate.exit_animation.destroy() end
+            gate.exit_animation = nil
+            model.refresh_gate_live_state(gate.gate, event)
+        end
+    end
+    model.update_player_guis(event)
+end
+
 return model

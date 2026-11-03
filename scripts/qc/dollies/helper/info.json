@@ -1,0 +1,8 @@
+{
+  "name": "esir-dollies-qc",
+  "title": "ESIR Dolly movement fixture",
+  "version": "0.0.1",
+  "factorio_version": "2.1",
+  "author": "ESIR",
+  "dependencies": ["exotic-space-industries-remembrance", "? even-pickier-dollies >= 3.2.0"]
+}

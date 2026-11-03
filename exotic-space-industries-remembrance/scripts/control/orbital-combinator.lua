@@ -1060,7 +1060,7 @@ orbital_power.find_existing_helper = function(scanner, helper_name, helper_predi
   }
 
   for _, helper in ipairs(helpers) do
-    if helper_predicate(helper) then
+    if helper_predicate(helper) and orbital_power.same_position(helper, scanner) then
       local dx = (helper.position.x or 0) - (position.x or 0)
       local dy = (helper.position.y or 0) - (position.y or 0)
       local distance = dx * dx + dy * dy
@@ -1748,20 +1748,14 @@ end
 
 
 ---@param current_tick MapTick|nil
-function model.rebuild_banks(current_tick)
-  current_tick = current_tick or (game and game.tick) or 0
-  model.check_init(false, current_tick)
-  sanitize_registered_entities()
-  orbital_power.rebuild_all(current_tick)
-
+local function group_banks(entities, current_tick)
   local grouped_entities = {}
   local old_banks = storage.ei.orbital_combinator_banks or {}
   local old_bank_by_unit = storage.ei.orbital_combinator_bank_by_unit or {}
-  local open_gui_by_player = storage.ei.orbital_combinator_open_gui_by_player or {}
   local banks = {}
   local bank_by_unit = {}
 
-  for _, entity in pairs(storage.ei.orbital_combinators) do
+  for _, entity in pairs(entities) do
     if is_registered_scanner(entity) then
       local group_key = tostring(entity.force.index) .. ":" .. tostring(entity.surface.index)
       local group = grouped_entities[group_key]
@@ -1874,6 +1868,16 @@ function model.rebuild_banks(current_tick)
     end
   end
 
+  return banks, bank_by_unit
+end
+
+function model.rebuild_banks(current_tick)
+  current_tick = current_tick or (game and game.tick) or 0
+  model.check_init(false, current_tick)
+  sanitize_registered_entities()
+  orbital_power.rebuild_all(current_tick)
+  local banks, bank_by_unit = group_banks(storage.ei.orbital_combinators, current_tick)
+  local open_gui_by_player = storage.ei.orbital_combinator_open_gui_by_player or {}
   storage.ei.orbital_combinator_banks = banks
   storage.ei.orbital_combinator_bank_by_unit = bank_by_unit
   storage.ei.orbital_combinator_bank_count = ei_lib.getn(banks)
@@ -1912,6 +1916,60 @@ end
 
 
 ---@param current_tick MapTick|nil
+function model.on_moved_entity(event)
+  local scanner = event.entity
+  if not is_registered_scanner(scanner) then return end
+  local root = storage.ei
+  local sensor = orbital_power.get_sensor_root()[scanner.unit_number]
+  if orbital_power.is_sensor(sensor) then sensor.teleport(scanner.position) end
+  orbital_power.ensure(scanner, event.tick)
+  local force, surface = scanner.force.index, scanner.surface.name
+  local changed, members = {}, {[scanner.unit_number] = scanner}
+  local function include_bank(unit)
+    local id = root.orbital_combinator_bank_by_unit[unit]
+    if not id or changed[id] then return end
+    local bank = root.orbital_combinator_banks[id]
+    if not bank then return end
+    changed[id] = bank
+    for _, member in ipairs(bank.members) do members[member] = root.orbital_combinators[member] end
+  end
+  include_bank(scanner.unit_number)
+  for _, neighbor in pairs(scanner.surface.find_entities_filtered{
+    name = scanner.name, force = scanner.force, position = scanner.position, radius = 1.01,
+  }) do include_bank(neighbor.unit_number) end
+  local banks, mapping = group_banks(members, event.tick)
+  local state = ensure_surface_state(force, surface)
+  local counts = {request_demand_count = state.request_demand_count, on_the_way_demand_count = state.on_the_way_demand_count,
+    need_inventory_demand_count = state.need_inventory_demand_count}
+  local key = get_force_surface_key(force, surface)
+  local index = get_surface_bank_index_root()[key] or {}
+  get_surface_bank_index_root()[key] = index
+  for i = #index, 1, -1 do if changed[index[i]] then table.remove(index, i) end end
+  for id, bank in pairs(changed) do
+    model._surface_demand.add_mode_counts(counts, get_bank_mode(bank), -1)
+    root.orbital_combinator_banks[id] = nil
+    root.orbital_combinator_bank_count = root.orbital_combinator_bank_count - 1
+  end
+  for unit, id in pairs(mapping) do root.orbital_combinator_bank_by_unit[unit] = id end
+  for _, unit in pairs(root.orbital_combinator_open_gui_by_player or {}) do
+    local bank = banks[mapping[unit]]
+    if bank then bank.open_gui_count = bank.open_gui_count + 1 end
+  end
+  for id, bank in pairs(banks) do
+    root.orbital_combinator_banks[id] = bank
+    root.orbital_combinator_bank_count = root.orbital_combinator_bank_count + 1
+    index[#index + 1] = id
+    model._surface_demand.add_mode_counts(counts, get_bank_mode(bank), 1)
+    enqueue_dirty_bank(id)
+    enqueue_bank_audit(id)
+  end
+  local gained = model._surface_demand.set_counts(state, counts.request_demand_count, counts.on_the_way_demand_count, counts.need_inventory_demand_count)
+  model._surface_demand.bootstrap(force, surface, gained, event.tick)
+  enqueue_cold_surface(force, surface)
+  enqueue_hot_surface(force, surface)
+  clear_snapshot_cache(force, surface)
+end
+
 function model.add(entity, current_tick)
   if not is_registered_scanner(entity) then
     return

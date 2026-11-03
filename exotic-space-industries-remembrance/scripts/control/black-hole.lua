@@ -353,7 +353,7 @@ function model.refresh_nearby_pylons(black_hole_data, entity, event, force_refre
 end
 
 
-function model.mark_nearby_black_holes_dirty(entity)
+function model.mark_nearby_black_holes_dirty(entity, position)
     -- Pylon build/destroy is rare compared to on_tick, so paying the radius search here
     -- is much cheaper than making every black hole rediscover neighbors constantly.
     if not model.entity_check(entity) then
@@ -370,7 +370,7 @@ function model.mark_nearby_black_holes_dirty(entity)
 
     local black_holes = entity.surface.find_entities_filtered{
         name = BLACK_HOLE_NAME,
-        position = entity.position,
+        position = position or entity.position,
         radius = BLACK_HOLE_RADIUS,
     }
 
@@ -1593,6 +1593,18 @@ function model.get_runtime_status()
 
     ei_runtime_scheduler.set_module_status("black-hole", status)
     return status
+end
+
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local entity = event.entity
+    if entity.name == BLACK_HOLE_NAME then
+        local record = storage.ei.black_hole and storage.ei.black_hole[entity.unit_number]
+        if record then model.refresh_nearby_pylons(record, entity, event, true) end
+    elseif entity.name == ENERGY_INJECTOR_NAME or entity.name == ENERGY_EXTRACTOR_NAME then
+        model.mark_nearby_black_holes_dirty(entity, event.old_position)
+        model.mark_nearby_black_holes_dirty(entity)
+    end
 end
 
 return model

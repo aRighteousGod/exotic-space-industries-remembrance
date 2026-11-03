@@ -522,14 +522,19 @@ local function ensure_proxy(runtime, record)
         record.proxy_missing = false
         return true
     end
-    if proxy then
-        destroy_proxy(runtime, record)
-    end
-    proxy = turret.surface.create_entity{name = desired_name, position = desired_position, direction = desired_direction, force = turret.force, create_build_effect_smoke = false}
-    if not ei_lib.entity_check(proxy) then
+    local replacement = turret.surface.create_entity{name = desired_name, position = desired_position, direction = desired_direction, force = turret.force, create_build_effect_smoke = false}
+    if not ei_lib.entity_check(replacement) then
         record.proxy_missing = true
         return false
     end
+    if proxy then
+        local cold = get_fluidbox_contents(proxy, 1)
+        local hot = get_fluidbox_contents(proxy, 2)
+        destroy_proxy(runtime, record)
+        if cold then set_fluid_amount(replacement, 1, cold.name, cold.amount, cold.temperature) end
+        if hot then set_fluid_amount(replacement, 2, hot.name, hot.amount, hot.temperature) end
+    end
+    proxy = replacement
     pcall(function() proxy.destructible = false end)
     pcall(function() proxy.operable = false end)
     pcall(function() proxy.minable_flag = false end)
@@ -903,12 +908,29 @@ function model.on_destroyed_entity(event)
     if unit_number then unregister_record(get_runtime(), unit_number) end
 end
 
+function model.on_moved_entity(event)
+    local entity = event.entity
+    if entity.name ~= RAILGUN_NAME then return end
+    local runtime = get_runtime()
+    local record = runtime.turrets_by_unit[entity.unit_number]
+    if not record then
+        register_turret(runtime, entity, event.tick)
+        return
+    end
+    local proxy = ei_lib.get_valid_entity(record.proxy)
+    if proxy and proxy.name == get_proxy_name(entity.direction) then
+        proxy.direction = normalize_proxy_direction(entity.direction)
+        proxy.teleport(get_proxy_position(entity))
+    end
+    if not ensure_proxy(runtime, record) then schedule_recovery(runtime, record.unit_number, event.tick + 1) end
+    apply_status(record, event.tick)
+    update_open_guis(record, event.tick)
+end
+
 function model.on_player_rotated_entity(event)
     local entity = event and event.entity or nil
     if not (ei_lib.entity_check(entity) and entity.name == RAILGUN_NAME) then return end
-    local runtime = get_runtime()
-    local record = register_turret(runtime, entity, now_tick(event))
-    if record then ensure_proxy(runtime, record); apply_status(record, now_tick(event)); update_open_guis(record, now_tick(event)) end
+    model.on_moved_entity(event)
 end
 
 function model.on_space_platform_changed_state(event)
@@ -1030,17 +1052,8 @@ function model.repair_runtime_state(reason, tick)
     end
     for _, surface in pairs(game.surfaces) do
         for _, entity in pairs(surface.find_entities_filtered{name = RAILGUN_NAME}) do
-            local previous = runtime.turrets_by_unit[entity.unit_number]
-            local old_proxy = previous and ei_lib.get_valid_entity(previous.proxy)
-            local cold = old_proxy and get_fluidbox_contents(old_proxy, 1)
-            local hot = old_proxy and get_fluidbox_contents(old_proxy, 2)
             local record = register_turret(runtime, entity, tick)
             if record then
-                if old_proxy and record.proxy ~= old_proxy and ei_lib.entity_check(record.proxy) then
-                    if cold then set_fluid_amount(record.proxy, 1, cold.name, cold.amount, cold.temperature) end
-                    if hot then set_fluid_amount(record.proxy, 2, hot.name, hot.amount, hot.temperature) end
-                    sanitize_proxy_buffers(record.proxy)
-                end
                 if (record.heat_debt or 0) > 0.001 or record.proxy_missing then
                     schedule_recovery(runtime, record.unit_number,
                         runtime.recovery_pending_by_unit[record.unit_number] or tick + RECOVERY_INTERVAL_TICKS)

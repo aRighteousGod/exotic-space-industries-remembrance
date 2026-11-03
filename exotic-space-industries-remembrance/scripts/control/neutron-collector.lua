@@ -903,7 +903,10 @@ function model.ensure_wire_proxy(collector_entry)
     if model.entity_check(proxy) then
         if math.abs(proxy.position.x - expected_position.x) > 0.01
         or math.abs(proxy.position.y - expected_position.y) > 0.01 then
-            pcall(proxy.teleport, expected_position)
+            if not proxy.teleport(expected_position) then
+                model.destroy_wire_proxy(collector_entry)
+                return model.ensure_wire_proxy(collector_entry)
+            end
         end
         if collector_entry.wire_proxy_connected ~= true then
             model.attach_wire_proxy_to_collector(collector_entry)
@@ -974,7 +977,7 @@ function model.register_collector(runtime, entity)
 end
 
 
-function model.queue_dirty_collector(runtime, collector_entry, exclude_source_unit)
+function model.queue_dirty_collector(runtime, collector_entry, exclude_source_unit, event_or_tick)
     if not collector_entry or not collector_entry.unit_number then
         return false
     end
@@ -992,7 +995,7 @@ function model.queue_dirty_collector(runtime, collector_entry, exclude_source_un
     collector_entry.queued = true
     runtime.dirty_collector_count = (runtime.dirty_collector_count or 0) + 1
     model.update_wire_proxy_signals(runtime, collector_entry)
-    model.queue_gui_refresh_for_unit(collector_entry.unit_number, now_tick() + GUI_REFRESH_DELAY)
+    model.queue_gui_refresh_for_unit(collector_entry.unit_number, now_tick(event_or_tick) + GUI_REFRESH_DELAY)
 
     return true
 end
@@ -1501,7 +1504,7 @@ function model.poll_connected_sources(runtime, budget, event_or_tick)
 end
 
 
-function model.queue_collectors_in_range(runtime, neutron_source, exclude)
+function model.queue_collectors_in_range(runtime, neutron_source, exclude, position, event_or_tick)
     if model.entity_check(neutron_source) == false then
         return
     end
@@ -1509,14 +1512,14 @@ function model.queue_collectors_in_range(runtime, neutron_source, exclude)
     local exclude_source_unit = type(exclude) == "number" and exclude or get_entity_unit_number(exclude)
     local entities = neutron_source.surface.find_entities_filtered{
         name = NEUTRON_COLLECTOR_NAME,
-        position = neutron_source.position,
+        position = position or neutron_source.position,
         radius = model.range,
     }
 
     for _, entity in ipairs(entities) do
         local collector_entry = model.register_collector(runtime, entity)
         if collector_entry then
-            model.queue_dirty_collector(runtime, collector_entry, exclude_source_unit)
+            model.queue_dirty_collector(runtime, collector_entry, exclude_source_unit, event_or_tick)
         end
     end
 end
@@ -2654,6 +2657,21 @@ function model.on_destroyed_entity(entity, destroy_type)
         if unit_number then
             model.remove_source_entry(runtime, unit_number, false)
         end
+    end
+end
+
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local entity = event.entity
+    if entity.name == NEUTRON_COLLECTOR_NAME then
+        local runtime = model.ensure_runtime_ready()
+        local entry = runtime.collectors_by_unit[entity.unit_number]
+        if entry then entry.wire_proxy_connected = nil end
+        model.update_neutron_collector(entity, nil, false, event)
+    elseif model.neutron_sources[entity.name] then
+        local runtime = model.ensure_runtime_ready()
+        model.queue_collectors_in_range(runtime, entity, nil, event.old_position, event)
+        model.queue_collectors_in_range(runtime, entity, nil, entity.position, event)
     end
 end
 

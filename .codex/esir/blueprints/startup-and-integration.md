@@ -8,6 +8,7 @@ Arrival repair normalizes pending players and the saved wave due minimum without
 
 ## Implementation sources
 
+- [dollies.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/dollies.lua)
 - [echo-codex.lua](../../../exotic-space-industries-remembrance/lib/echo-codex.lua)
 - [compat.lua](../../../exotic-space-industries-remembrance/scripts/control/compat.lua)
 - [air-scrubber-compat.lua](../../../exotic-space-industries-remembrance/scripts/control/air-scrubber-compat.lua)
@@ -18,6 +19,12 @@ Arrival repair normalizes pending players and the saved wave due minimum without
 - [construction-drone-compatibility.lua](../../../exotic-space-industries-remembrance/scripts/data-final-updates/construction-drone-compatibility.lua)
 
 ## Behavior and ownership
+
+[Even Pickier Dollies compatibility](../../../exotic-space-industries-remembrance/scripts/data-final-updates/dollies.lua)
+protects induction matrix parts, auric vats, gate senders, powered loaders and their internal helpers before a move.
+On Factorio's successful same-surface teleport event each subsystem relocates its owned state. Dolly's
+post-move event supplies old and new identities for transporter belts, which need loader adjacency refreshed
+at both positions. Movement tests use the installed mod's input handler in a private player save.
 
 The ungated Factory passage Informatron page lives under New mechanics beside
 specialised pipes. It uses wrapped labels and a pure scalar/native-setting snapshot

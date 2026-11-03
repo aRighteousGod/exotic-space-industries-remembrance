@@ -121,7 +121,9 @@ function visuals.ghost(root,entity)
     root.ghost_art=root.ghost_art or {}
     local id=entity.unit_number
     local previous=root.ghost_art[id]
-    if previous and previous.object.valid and previous.revision==config.art_revision then return end
+    if previous and previous.object.valid and previous.revision==config.art_revision then
+        if previous.object.surface==entity.surface and previous.object.teleport(entity.position) then return end
+    end
     if previous and previous.object.valid then previous.object.destroy() end
     local object=entity.surface.create_entity{name=entity.ghost_name.."-visual-ghost",position=entity.position,
         force=entity.force,create_build_effect_smoke=false}

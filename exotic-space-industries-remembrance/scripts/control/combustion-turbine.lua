@@ -1266,4 +1266,15 @@ function model.get_runtime_status()
     }
 end
 
+---@param event EventData.script_raised_teleported
+function model.on_moved_entity(event)
+    local turbine = event.entity
+    if not is_turbine(turbine) then return end
+    local runtime = get_runtime()
+    local record = runtime.turbines_by_unit[turbine.unit_number]
+    local proxy = record and ei_lib.get_valid_entity(record.proxy)
+    if proxy then proxy.teleport(turbine.position) end
+    register_turbine(runtime, turbine, event)
+end
+
 return model
