@@ -23,9 +23,9 @@
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 
-local model = {}
+local model = {ui = require("scripts/control/orbital-logistics-ui")}
 
-local ORBITAL_LOGISTICS_RUNTIME_STATE_VERSION = 7
+local ORBITAL_LOGISTICS_RUNTIME_STATE_VERSION = 9
 local PLATFORM_TRANSPONDER_NAME = "ei-platform-transponder"
 local ORBITAL_SELECTOR_NAME = "ei-orbital-selector"
 local ORBITAL_COORDINATOR_NAME = "ei-orbital-coordinator"
@@ -291,7 +291,7 @@ local function get_platform_mode_payload(platform, mode, current_tick, service_p
     return nil
   end
 
-  local ok, payload = pcall(scanner.get_platform_mode_filters, platform, mode, current_tick)
+  local ok, payload = pcall(scanner.get_platform_mode_filters, platform, mode, current_tick, "planet")
   if service_pass_cache and cache_key then
     service_pass_cache.platform_mode_payloads[cache_key] = ok and payload or false
   end
@@ -308,6 +308,20 @@ local function get_platform_mode_payload_result(platform, mode, current_tick, se
     return nil, "scanner-bridge-missing"
   end
 
+  if service_pass_cache and platform and platform.valid then
+    local payload = service_pass_cache[platform.index]
+    if not payload then
+      local ok, result = pcall(scanner.get_platform_mode_filters, platform, NEED_MODE_NAME, current_tick)
+      if not ok then return nil, tostring(result) end
+      payload = result
+      service_pass_cache[platform.index] = payload
+    end
+    if payload then
+      local filters = mode == REQUESTS_MODE_NAME and payload.requests or payload.filters
+      return {platform_name=payload.platform_name, surface_name=payload.surface_name, filters=filters,
+        signature=build_filters_signature(filters), sample_tick=payload.sample_tick}, nil
+    end
+  end
   local ok, payload = pcall(scanner.get_platform_mode_filters, platform, mode, current_tick)
   if ok then
     return payload, nil
@@ -316,8 +330,8 @@ local function get_platform_mode_payload_result(platform, mode, current_tick, se
   return nil, tostring(payload)
 end
 
-local function summarize_scanner_bridge(platform, mode, current_tick)
-  local payload, bridge_error = get_platform_mode_payload_result(platform, mode, current_tick)
+local function summarize_scanner_bridge(platform, mode, current_tick, service_pass_cache)
+  local payload, bridge_error = get_platform_mode_payload_result(platform, mode, current_tick, service_pass_cache)
   local filters = payload and payload.filters or EMPTY_FILTERS
 
   return {
@@ -327,6 +341,7 @@ local function summarize_scanner_bridge(platform, mode, current_tick)
     surface_name = payload and payload.surface_name or nil,
     signature = payload and payload.signature or EMPTY_FILTERS_SIGNATURE,
     filter_count = #filters,
+    sample_tick = payload and payload.sample_tick,
   }
 end
 
@@ -1452,7 +1467,7 @@ local function register_selector(entity, current_tick)
   record.unit_number = entity.unit_number
   record.force_index = entity.force.index
   record.surface_name = entity.surface.name
-  record.mode = normalize_selector_mode(record.mode)
+  record.mode = normalize_selector_mode(record.mode or MODE_POLICY)
   record.manual_platform_id = tonumber(record.manual_platform_id) or nil
   record.last_seen_tick = now_tick(current_tick)
   root.selectors_by_unit[entity.unit_number] = record
@@ -1785,6 +1800,7 @@ local function register_uplink(entity, current_tick)
   record.force_index = entity.force.index
   record.surface_name = entity.surface.name
   record.oversize_mode = normalize_oversize_mode(record.oversize_mode)
+  record.dispatch_mode = record.dispatch_mode or (root.rebuilding and "cohort" or "native")
   record.threshold_floor = math.max(0, tonumber(record.threshold_floor) or 0)
   record.leased_job_id = tonumber(record.leased_job_id) or nil
   record.last_seen_tick = now_tick(current_tick)
@@ -1795,7 +1811,8 @@ local function register_uplink(entity, current_tick)
   cohort_power.apply_visible_status(entity, cohort_power.get_cached_state(entity.unit_number))
 
   if not record.binding_silo_unit_number then
-    local nearest = find_preferred_adjacent_silo(entity, entity.unit_number)
+    local adjacent = find_adjacent_silos(entity)
+    local nearest = #adjacent == 1 and find_preferred_adjacent_silo(entity, entity.unit_number) or nil
     if nearest then
       record.binding_silo_unit_number = nearest.unit_number
       record.binding_silo_entity = nearest
@@ -2299,6 +2316,15 @@ local function build_selector_job(record, registry, need_by_id, reserved_platfor
     job.state = "invalid"
     job.blocked_reason = nil
     job.invalid_reason = "unknown-platform-id"
+    for _, transponder in pairs(get_root().transponders_by_unit) do
+      if transponder.force_index == record.force_index and transponder.platform_id == target_platform_id then
+        job.invalid_reason = transponder.conflict and "conflicting-platform-id"
+          or (not cohort_power.record_has_active_power(transponder) and "destination-no-power")
+          or (transponder.dispatch_surface_name and "platform-absent" or "platform-travelling")
+        job.platform_name = transponder.platform_name
+        break
+      end
+    end
     return job
   end
 
@@ -2497,6 +2523,78 @@ local function build_candidate_jobs(cohort, current_tick, service_pass_cache)
   return registry, jobs_by_id, ready_jobs, target_lease_counts, ready_job_count, blocked_job_count, invalid_job_count
 end
 
+-- Native state is observed, never reconstructed into a competing request store.
+model._native = {}
+---@param silo LuaEntity
+---@return table|nil
+function model.get_silo_snapshot(silo, current_tick)
+  if not ei_lib.entity_check(silo) or silo.type ~= "rocket-silo" then return nil end
+  local inventory = silo.get_inventory(defines.inventory.rocket_silo_rocket)
+  local point = silo.get_requester_point()
+  local target = silo.transitional_request_target
+  local state = silo.rocket_silo_status
+  local state_name = "unknown"
+  for name, value in pairs(defines.rocket_silo_status) do if value == state then state_name = name; break end end
+  local launching = state == defines.rocket_silo_status.launch_starting
+    or state == defines.rocket_silo_status.launch_started or state == defines.rocket_silo_status.engine_starting
+    or state == defines.rocket_silo_status.arms_retract or state == defines.rocket_silo_status.rocket_flying
+  local record = get_root().uplinks_by_unit[get_root().uplink_by_silo_unit[silo.unit_number]]
+  local cohort = record and get_root().cohorts[cohort_key(record.force_index, record.surface_name)]
+  local blocker = record and (record.blocker or (cohort and cohort.blocked_lanes[record.unit_number])) or nil
+  if record and record.dispatch_mode == "native" then
+    blocker = silo.use_transitional_requests and "native-owner" or "enable-native"
+  elseif record and silo.use_transitional_requests then
+    blocker = "native-conflict"
+  end
+  return {unit_number=silo.unit_number, sample_tick=current_tick, dispatch_mode=record and record.dispatch_mode or "native",
+    dispatch_owner=silo.use_transitional_requests and "native" or (record and record.dispatch_mode or "native"),
+    automatic=silo.use_transitional_requests, native_target_index=target and target.valid and target.index or nil,
+    native_target_name=target and target.valid and target.name or nil, rocket_state=state_name, launching=launching,
+    payload=inventory and inventory.valid and inventory.get_contents() or {},
+    payload_weight=inventory and inventory.valid and inventory.weight or 0,
+    payload_capacity=(inventory and inventory.valid and inventory.max_weight) or silo.prototype.lift_weight,
+    incoming=point and point.valid and point.targeted_items_deliver or {},
+    blocker=blocker,
+    configuration_error=record and record.configuration_error or nil, mismatches=record and record.cargo_mismatches or nil,
+    launch_count=record and record.launch_count or 0, uplink_unit_number=record and record.unit_number or nil}
+end
+
+---@param unit_number uint
+---@param mode "native"|"cohort"
+---@param current_tick MapTick
+---@return boolean, string|nil
+function model.set_dispatch_mode(unit_number, mode, current_tick)
+  local record = get_root().uplinks_by_unit[unit_number]
+  if not record or (mode ~= "native" and mode ~= "cohort") then return false, "invalid-owner" end
+  local silo = get_bound_silo(record)
+  local snapshot = silo and model.get_silo_snapshot(silo, current_tick)
+  if not snapshot then return false, "missing-silo-binding" end
+  if snapshot.launching then return false, "launch-underway" end
+  if #snapshot.payload > 0 then return false, "empty-payload-first" end
+  if #snapshot.incoming > 0 then return false, "wait-for-incoming" end
+  silo.use_transitional_requests = mode == "native"
+  if silo.use_transitional_requests ~= (mode == "native") then return false, "native-unavailable" end
+  release_uplink_lease(record)
+  record.dispatch_mode, record.blocker = mode, nil
+  record.configuration_error, record.cargo_mismatches = nil, nil
+  local cohort = get_root().cohorts[cohort_key(record.force_index, record.surface_name)]
+  if cohort and cohort.blocked_lanes then cohort.blocked_lanes[unit_number] = nil end
+  mark_cohort_dirty(record.force_index, record.surface_name)
+  return true
+end
+
+function model._native.dispatch_blocker(cohort, record, silo)
+  if record.dispatch_mode == "native" then return "native-owner" end
+  if not cohort_power.record_has_active_power(record) then return "no-power" end
+  if not ei_lib.entity_check(silo) then return "missing-silo-binding" end
+  if silo.use_transitional_requests then return "native-conflict" end
+  if silo.force.index ~= record.force_index or silo.surface.name ~= record.surface_name
+    or get_root().uplink_by_silo_unit[silo.unit_number] ~= record.unit_number then return "invalid-binding" end
+  local coordinator = get_root().coordinators_by_unit[cohort.active_coordinator_unit_number]
+  if not coordinator or not cohort_power.record_has_active_power(coordinator) then return "no-active-coordinator" end
+  return nil
+end
+
 local function try_launch_uplink_job(cohort, uplink_record, job, registry, current_tick, bound_silo)
   local entity = get_record_entity(uplink_record)
   if not entity or not job or job.state ~= "ready" then
@@ -2509,13 +2607,44 @@ local function try_launch_uplink_job(cohort, uplink_record, job, registry, curre
   if not silo then
     return false
   end
+  if silo.rocket_silo_status ~= defines.rocket_silo_status.rocket_ready then return false end
+  cohort_power.refresh_record_state(uplink_record, current_tick)
+  cohort_power.refresh_record_state(get_root().coordinators_by_unit[cohort.active_coordinator_unit_number], current_tick)
+  uplink_record.blocker = model._native.dispatch_blocker(cohort, uplink_record, silo)
+  if uplink_record.blocker then return false end
 
   local registry_entry = registry.by_id[job.target_platform_id]
   local platform = registry_entry and registry_entry.platform or nil
   local destination_hub = platform and platform.valid and platform.hub or nil
-  if not ei_lib.entity_check(destination_hub) then
+  if not ei_lib.entity_check(destination_hub) or destination_hub.force.index ~= entity.force.index
+    or get_platform_surface_name(platform) ~= silo.surface.name then
+    uplink_record.blocker = "platform-absent"
     return false
   end
+  local destination_powered = false
+  for _, unit in ipairs(registry_entry.transponder_units or EMPTY_FILTERS) do
+    local transponder = get_root().transponders_by_unit[unit]
+    cohort_power.refresh_record_state(transponder, current_tick)
+    destination_powered = destination_powered or (transponder and not transponder.conflict
+      and cohort_power.record_has_active_power(transponder))
+  end
+  if not destination_powered then uplink_record.blocker = "destination-no-power"; return false end
+
+  -- Recheck the effective, source-eligible request types immediately before the
+  -- native launch. Quantities may exceed demand; unrelated item/quality types may not.
+  local scanner = get_scanner_module()
+  local requests = scanner.get_platform_mode_filters(platform, REQUESTS_MODE_NAME, current_tick, "planet")
+  local eligible = {}
+  for _, filter in ipairs(requests and requests.filters or EMPTY_FILTERS) do eligible[signal_key(filter.value)] = true end
+  local inventory = silo.get_inventory(defines.inventory.rocket_silo_rocket)
+  local mismatches = {}
+  for _, stack in ipairs(inventory and inventory.valid and inventory.get_contents() or EMPTY_FILTERS) do
+    if not eligible[signal_key({type="item", name=stack.name, quality=stack.quality})] then
+      mismatches[#mismatches + 1] = {name=stack.name, quality=stack.quality, count=stack.count}
+    end
+  end
+  uplink_record.cargo_mismatches = mismatches
+  if #mismatches > 0 then uplink_record.blocker = "cargo-mismatch"; return false end
 
   -- LuaEntity methods are already bound; the first argument is the destination.
   local ok, launched = pcall(silo.launch_rocket, {
@@ -2527,16 +2656,8 @@ local function try_launch_uplink_job(cohort, uplink_record, job, registry, curre
     return false
   end
 
-  local lease = get_root().lease_by_job_id[job.job_id]
-  if lease then
-    lease.launch_count = (lease.launch_count or 0) + 1
-    lease.last_launch_tick = now_tick(current_tick)
-  end
-
-  uplink_record.last_launch_tick = now_tick(current_tick)
-  if uplink_record.oversize_mode == OVERSIZE_SINGLE_SHOT then
-    release_uplink_lease(uplink_record)
-  end
+  -- on_rocket_launch_ordered owns confirmation/counting, including synchronous
+  -- events raised by this call. Do not count or release the same launch twice.
 
   queue_cohort(cohort.force_index, cohort.surface_name)
   return true
@@ -2581,13 +2702,15 @@ local function reconcile_leases_and_uplinks(cohort, registry, jobs_by_id, ready_
     local leased_job_id = uplink_record.leased_job_id
     local lease = leased_job_id and root.lease_by_job_id[leased_job_id] or nil
     local bound_silo = get_bound_silo_for_pass(uplink_record)
-    if not cohort_power.record_has_active_power(uplink_record) then
+    local ownership_blocker = model._native.dispatch_blocker(cohort, uplink_record, bound_silo)
+    uplink_record.blocker = ownership_blocker
+    if ownership_blocker then
       local released_lease = release_uplink_lease(uplink_record)
       released_any = released_lease or released_any
       if released_lease and lease and lease.target_platform_id then
         remove_target_lease_count(lease.target_platform_id)
       end
-      blocked_lanes[uplink_record.unit_number] = "no-power"
+      blocked_lanes[uplink_record.unit_number] = ownership_blocker
     elseif not bound_silo then
       local released_lease = release_uplink_lease(uplink_record)
       released_any = released_lease or released_any
@@ -2641,7 +2764,7 @@ local function reconcile_leases_and_uplinks(cohort, registry, jobs_by_id, ready_
   local candidate_index = 1
   for _, uplink_record in ipairs(uplink_records) do
     local bound_silo = get_bound_silo_for_pass(uplink_record)
-    if not uplink_record.leased_job_id and bound_silo and cohort.active_coordinator_unit_number then
+    if not uplink_record.leased_job_id and bound_silo and not model._native.dispatch_blocker(cohort, uplink_record, bound_silo) then
       local job = candidate_jobs[candidate_index]
       if job then
         candidate_index = candidate_index + 1
@@ -2656,7 +2779,13 @@ local function reconcile_leases_and_uplinks(cohort, registry, jobs_by_id, ready_
     local job = uplink_record.leased_job_id and jobs_by_id[uplink_record.leased_job_id] or nil
     local bound_silo = get_bound_silo_for_pass(uplink_record)
     if job and job.state == "ready" and bound_silo then
-      try_launch_uplink_job(cohort, uplink_record, job, registry, current_tick, bound_silo)
+      if try_launch_uplink_job(cohort, uplink_record, job, registry, current_tick, bound_silo) and service_pass_cache then
+        -- A confirmed launch mutates native incoming cargo. Nothing sampled
+        -- before it is eligible for subsequent demand reads, even in this tick.
+        service_pass_cache.platform_mode_payloads = {}
+        service_pass_cache.platform_need_entries = {}
+      end
+      if uplink_record.blocker then blocked_lanes[uplink_record.unit_number] = uplink_record.blocker end
     end
   end
 
@@ -2724,9 +2853,10 @@ local function reconcile_section(section, page)
     section.active = true
   end
 
-  if section.group ~= page.label then
-    section.group = page.label
-  end
+  -- blueprint-ref: .codex/esir/blueprints/orbital-logistics.md#output-isolation
+  -- A named logistic group is shared state, not a local display heading.
+  -- Unlink managed outputs before writing identities, status or manifests.
+  if section.group ~= "" then section.group = "" end
 
   local current_count = section.filters_count
   local desired_count = #page.filters
@@ -3191,7 +3321,7 @@ local function service_cohort(cohort, current_tick)
 end
 -- Open cohort panels should follow the scheduler's cached updates instead of
 -- forcing players to close and reopen after the next service pass.
-local function refresh_open_cohort_guis(force_index, surface_name)
+local function refresh_open_cohort_guis(force_index, surface_name, current_tick)
   if not game then
     return
   end
@@ -3235,6 +3365,10 @@ local function refresh_open_cohort_guis(force_index, surface_name)
       open_gui_by_player[player_index] = nil
       goto continue
     end
+    -- Primary panels have their own bounded visible-viewer queue. The legacy
+    -- broadcaster refreshes only expanded Advanced controls, without sampling
+    -- every primary viewer again after a cohort service pass.
+    if model.ui.has_session(player_index) and not model.ui.is_advanced(player_index) then goto continue end
     local unit_number = gui_record and gui_record.unit_number or nil
     local entity = nil
     if unit_number then
@@ -3267,7 +3401,7 @@ local function refresh_open_cohort_guis(force_index, surface_name)
         coordinator_refresh_pending = shared_panel_context.coordinator_refresh_pending,
         coordinator_rescan_pending = shared_panel_context.coordinator_rescan_pending,
       }, entity, shared_panel_context.root_state, shared_panel_context.cohort, bound_silo_by_unit_number)
-      model.refresh_player_gui(player, entity, panel_context)
+      model.refresh_player_gui(player, entity, panel_context, current_tick)
     end
     ::continue::
   end
@@ -3290,6 +3424,18 @@ end
 
 function model.rebuild_runtime_state(reason, current_tick)
   local root = get_root()
+  local configurations = {}
+  for _, records in ipairs({root.transponders_by_unit, root.selectors_by_unit, root.uplinks_by_unit}) do
+    for unit, record in pairs(records) do
+      configurations[unit] = model.export_configuration(record.entity)
+      if configurations[unit] and records == root.uplinks_by_unit then
+        configurations[unit].dispatch_mode = record.dispatch_mode or "cohort"
+        configurations[unit].binding_silo_unit_number = record.binding_silo_unit_number
+        configurations[unit].binding_source = record.binding_source
+        configurations[unit].launch_count = record.launch_count
+      end
+    end
+  end
   current_tick = now_tick(current_tick)
   local report_id=ei_runtime_scheduler.report_rebuild("orbital-logistics","rescan","all",root.rescan_rebuild_id,
     {reason=reason or "manual",phase="rescan",state="running",synchronous=true,completed=0,total=false},current_tick)
@@ -3329,10 +3475,13 @@ function model.rebuild_runtime_state(reason, current_tick)
   root.rescan_queue = ei_runtime_scheduler.ensure_queue(nil)
   root.pending_rescan_reason = nil
   root.pending_rescan_request_count = 0
+  root.rebuilding = true
 
   if game and game.surfaces then
     for _, surface in pairs(game.surfaces) do
       for _, entity in ipairs(build_world_entity_list(surface)) do
+        local config = configurations[entity.unit_number]
+        if config then model.seed_configuration(entity, config, current_tick) end
         if entity.name == PLATFORM_TRANSPONDER_NAME then
           register_transponder(entity, current_tick)
         elseif entity.name == ORBITAL_SELECTOR_NAME then
@@ -3345,6 +3494,7 @@ function model.rebuild_runtime_state(reason, current_tick)
       end
     end
   end
+  root.rebuilding = nil
 
   root.last_rescan_tick = current_tick
   ei_runtime_scheduler.finish_rebuild(report_id,"completed",current_tick)
@@ -3427,7 +3577,7 @@ function model.get_pending_work_count(event)
   if cohort_power.is_audit_due(root, current_tick) then
     power_audit_pending = power_audit_pending + 1
   end
-  return ei_runtime_scheduler.queue_length(root.dirty_cohort_queue) + rescan_length + power_audit_pending
+  return ei_runtime_scheduler.queue_length(root.dirty_cohort_queue) + rescan_length + power_audit_pending + model.ui.pending(current_tick)
 end
 
 function model.update(event)
@@ -3448,16 +3598,18 @@ function model.update(event)
     queue = root.power_audit_queue
   end
   if not key then
-    return false
+    model.ui.update(model, current_tick)
+    return model.get_pending_work_count(event) > 0
   end
 
   ei_runtime_scheduler.queue_pop(queue, key)
   local cohort = root.cohorts[key]
   if cohort then
     if service_cohort(cohort, current_tick) then
-      refresh_open_cohort_guis(cohort.force_index, cohort.surface_name)
+      refresh_open_cohort_guis(cohort.force_index, cohort.surface_name, current_tick)
     end
   end
+  if model.ui.pending(current_tick) > 0 then model.ui.update(model, current_tick) end
 
   return model.get_pending_work_count(event) > 0
 end
@@ -3592,6 +3744,7 @@ function model.get_qc_snapshot(current_tick)
   model.check_init(false)
   current_tick = now_tick(current_tick)
   local root = get_root()
+  local diagnostic_batch = {}
   local snapshot = {
     tick = current_tick,
     runtime = model.get_runtime_status(current_tick),
@@ -3616,8 +3769,8 @@ function model.get_qc_snapshot(current_tick)
       manual_platform_id = record.manual_platform_id,
       dispatch_surface_name = record.dispatch_surface_name,
       conflict = record.conflict == true,
-      scanner_requests = summarize_scanner_bridge(platform, get_mode_name_requests(), current_tick),
-      scanner_need = summarize_scanner_bridge(platform, get_mode_name_need(), current_tick),
+      scanner_requests = summarize_scanner_bridge(platform, get_mode_name_requests(), current_tick, diagnostic_batch),
+      scanner_need = summarize_scanner_bridge(platform, get_mode_name_need(), current_tick, diagnostic_batch),
     }
   end
 
@@ -3651,6 +3804,9 @@ function model.get_qc_snapshot(current_tick)
       oversize_mode = record.oversize_mode,
       threshold_floor = record.threshold_floor,
       leased_job_id = record.leased_job_id,
+      dispatch_mode = record.dispatch_mode,
+      native = bound_silo and model.get_silo_snapshot(bound_silo, current_tick),
+      blocker = record.blocker,
     }
   end
 
@@ -3793,6 +3949,7 @@ function model.apply_qc_configuration(config, current_tick)
       if entry.oversize_mode ~= nil or entry.threshold_floor ~= nil then
         set_uplink_oversize_mode(entry.unit_number, entry.oversize_mode or record.oversize_mode, entry.threshold_floor, current_tick)
       end
+      if entry.dispatch_mode then model.set_dispatch_mode(entry.unit_number, entry.dispatch_mode, current_tick) end
       record = get_root().uplinks_by_unit[entry.unit_number]
     end
     result.uplinks[#result.uplinks + 1] = {
@@ -4643,7 +4800,9 @@ local function build_player_gui(player, entity, gui_mode)
     }
   end
 
-  local body = root.add{type = "frame", name = "body", direction = "vertical", style = "inside_shallow_frame"}
+  local body = root.add{type = "scroll-pane", name = "body", direction = "vertical",
+    horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}
+  body.style.maximal_height = 720
   -- Give the cohort panels a little more room so coordinator hints, uplink
   -- bindings, and the detached title state stop feeling squeezed.
   body.style.minimal_width = 456
@@ -5034,7 +5193,15 @@ local function refresh_player_gui_controls(player, entity_override, panel_contex
   end
 end
 
-function model.refresh_player_gui(player, entity_override, panel_context)
+---@param player LuaPlayer
+---@param entity_override LuaEntity|nil
+---@param panel_context table|nil
+---@param current_tick MapTick|nil
+function model.refresh_player_gui(player, entity_override, panel_context, current_tick)
+  if player and model.ui.has_session(player.index) and not model.ui.is_advanced(player.index) then
+    model.ui.refresh(player, model, now_tick(current_tick))
+    return
+  end
   if not (player and player.valid) then
     return
   end
@@ -5230,7 +5397,10 @@ function model.refresh_player_gui(player, entity_override, panel_context)
   )
 end
 
-function model.open_gui(player, entity_hint)
+---@param player LuaPlayer
+---@param entity_hint LuaEntity|nil
+---@param current_tick MapTick|nil
+function model.open_gui(player, entity_hint, current_tick)
   if not (player and player.valid) then
     return
   end
@@ -5254,10 +5424,13 @@ function model.open_gui(player, entity_hint)
     root_mode = normalize_gui_mode(root and root.tags and root.tags.gui_mode)
   end
   set_gui_record(player.index, entity.unit_number, root_mode or gui_mode, entity)
+  if root and root.body and not root.body["native-details"] then
+    model.ui.mount(player, entity, root.body, model, now_tick(current_tick))
+  end
   -- The full refresh path can seed its own root/cohort handoff from the entity
   -- we already resolved here, so opening a panel does not need a throwaway
   -- one-field context table first.
-  model.refresh_player_gui(player, entity)
+  model.refresh_player_gui(player, entity, nil, current_tick)
   if rebuilt_root then
     queue_cohort(entity.force.index, entity.surface.name)
   end
@@ -5265,17 +5438,20 @@ end
 
 function model.close_gui(player)
   if player and player.valid then
+    model.ui.close(player)
     set_gui_record(player.index, nil)
     close_player_gui(player)
   end
 end
 
 function model.on_player_left_game(player_index)
+  model.ui.close(game.get_player(player_index))
   destroy_player_uplink_silo_overlays(player_index)
   set_gui_record(player_index, nil)
 end
 
 function model.on_gui_click(event)
+  if model.ui.handle(event, model) then return end
   local player = event and event.player_index and game.get_player(event.player_index) or nil
   local element = event and event.element or nil
   if not player or not (element and element.valid) then
@@ -5421,11 +5597,12 @@ function model.on_gui_click(event)
   end
 
   if should_refresh then
-    model.refresh_player_gui(player, entity, panel_context)
+    model.refresh_player_gui(player, entity, panel_context, current_tick)
   end
 end
 
 function model.on_gui_selection_state_changed(event)
+  if model.ui.handle(event, model) then return end
   local element = event and event.element or nil
   if not (element and element.valid) then
     return
@@ -5455,6 +5632,7 @@ function model.on_gui_selection_state_changed(event)
 end
 
 function model.on_gui_text_changed(event)
+  if model.ui.handle(event, model) then return end
   local element = event and event.element or nil
   if not (element and element.valid) then
     return
@@ -5507,6 +5685,9 @@ function model.on_built_entity(event)
   end
 
   local current_tick = event and event.tick or game and game.tick or 0
+  if event.tags and event.tags.ei_orbital_configuration then
+    model.seed_configuration(entity, event.tags.ei_orbital_configuration, current_tick)
+  end
   if entity.type == "rocket-silo" then
     invalidate_surface_uplink_dropdown_caches(entity.force.index, entity.surface.name)
     queue_cohort(entity.force.index, entity.surface.name)
@@ -5600,6 +5781,14 @@ function model.on_entity_settings_pasted(event)
   if not event or not ei_lib.entity_check(event.destination) then
     return
   end
+  if ei_lib.entity_check(event.source) and event.source.name == event.destination.name then
+    local config = model.export_configuration(event.source)
+    if config then
+      local existing = get_root().uplinks_by_unit[event.destination.unit_number]
+      if existing then release_uplink_lease(existing) end
+      model.seed_configuration(event.destination, config, event.tick)
+    end
+  end
 
   if event.destination.name == PLATFORM_TRANSPONDER_NAME then
     register_transponder(event.destination, event.tick)
@@ -5612,6 +5801,15 @@ function model.on_entity_settings_pasted(event)
   elseif event.destination.type == "space-platform-hub" then
     queue_hub_dispatch_cohorts(event.destination.force.index, event.destination.unit_number)
   end
+end
+
+---@param event EventData.on_blueprint_settings_pasted
+function model.on_blueprint_settings_pasted(event)
+  if not ei_lib.entity_check(event.entity) or event.entity.type == "entity-ghost"
+    or not (event.tags and event.tags.ei_orbital_configuration) then return end
+  local record = get_root().uplinks_by_unit[event.entity.unit_number]
+  if record then release_uplink_lease(record) end
+  model.on_built_entity(event)
 end
 
 function model.on_space_platform_changed_state(event)
@@ -5635,6 +5833,15 @@ function model.on_rocket_launch_ordered(event)
   local uplink_record = get_root().uplinks_by_unit[uplink_unit_number]
   if not uplink_record then
     return
+  end
+
+  if uplink_record.last_launch_tick == event.tick then return end
+  uplink_record.last_launch_tick = event.tick
+  uplink_record.launch_count = (uplink_record.launch_count or 0) + 1
+  local lease = uplink_record.leased_job_id and get_root().lease_by_job_id[uplink_record.leased_job_id]
+  if lease then
+    lease.launch_count = (lease.launch_count or 0) + 1
+    lease.last_launch_tick = event.tick
   end
 
   if uplink_record.oversize_mode == OVERSIZE_SINGLE_SHOT then

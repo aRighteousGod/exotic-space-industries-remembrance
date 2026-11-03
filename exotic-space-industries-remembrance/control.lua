@@ -873,6 +873,7 @@ script.on_event(defines.events.on_research_reversed, function(e)
 end)
 
 script.on_event(defines.events.on_player_setup_blueprint, function(e)
+    orbital_logistics.on_blueprint(e)
     ei_sweeping_radar.on_blueprint(e)
     ei_induction_matrix.on_blueprint(e)
     -- Read the engine mapping before another subsystem rewrites blueprint entities.
@@ -973,6 +974,7 @@ script.on_event(defines.events.on_player_flipped_entity,function(e)
 end)
 script.on_event(defines.events.on_blueprint_settings_pasted,function(event)
     ei_factory_passage.on_changed(event)
+    orbital_logistics.on_blueprint_settings_pasted(event)
 end)
 script.on_event("ei-sweeping-radar-open", ei_sweeping_radar_gui.on_open_input)
 
@@ -1283,6 +1285,7 @@ end
 -- GUI dispatch is centralized here because several systems open custom screens from
 -- entity interactions, while button callbacks are routed by tag instead of entity name.
 script.on_event(defines.events.on_gui_opened, function(event)
+    orbital_logistics.on_native_gui_opened(event)
     ei_factory_passage.on_gui_opened(event)
     if ei_admin_tools.on_gui_opened(event) then return end
     local player = event and event.player_index and game.get_player(event.player_index) or nil
@@ -1330,7 +1333,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
     elseif name == "ei-orbital-combinator" then
         orbital_combinator.on_gui_opened(event)
     elseif is_orbital_logistics_terminal_name(name) then
-        orbital_logistics.open_gui(player, entity)
+        orbital_logistics.open_gui(player, entity, event.tick)
     elseif name == "railgun-turret" then
         ei_railgun_cooling.open_gui(player, entity, event)
     elseif name == ei_emerald_apocalypse_hover_tank.tank_name then
@@ -1343,6 +1346,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
+    orbital_logistics.on_native_gui_closed(event)
     ei_factory_passage.on_gui_closed(event)
     if ei_terrain_gui.on_gui_closed(event) then return end
     ei_admin_tools.on_gui_closed(event)

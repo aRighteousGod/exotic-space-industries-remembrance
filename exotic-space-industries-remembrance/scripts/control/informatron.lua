@@ -1154,6 +1154,8 @@ function model.terrain_evolution(player_index,element)
 end
 
 function model.orbital_scanner(player_index, element)
+    element.add{type="label", caption={"exotic-industries-informatron.orbital-native-title"}, style="heading_1_label"}
+    element.add{type="label", caption={"exotic-industries-informatron.orbital-native-shipping"}}
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner"}, style = "heading_1_label"}
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text"}}
 
@@ -1163,7 +1165,7 @@ function model.orbital_scanner(player_index, element)
     image_container.add{type = "sprite", sprite = "item/ei-orbital-combinator"}
 
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-2"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text-2"}}
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-native-cohort"}}
     local operator_block = element.add{type = "flow", direction = "vertical"}
     operator_block.style.horizontally_stretchable = true
     operator_block.style.vertical_spacing = 4
@@ -1203,7 +1205,10 @@ function model.orbital_scanner(player_index, element)
     })
 
     element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-3"}, style = "heading_1_label"}
-    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-scanner-text-3"}}
+    element.add{type = "label", caption = {"exotic-industries-informatron.orbital-native-sources"}}
+    element.add{type="label", caption={"exotic-industries-informatron.orbital-native-radar-title"}, style="heading_1_label"}
+    element.add{type="label", caption={"exotic-industries-informatron.orbital-native-radar-one"}}
+    element.add{type="label", caption={"exotic-industries-informatron.orbital-native-radar-shared"}}
 end
 
 function model.cranes_and_belts(player_index, element)

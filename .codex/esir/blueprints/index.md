@@ -69,7 +69,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Planetary ecology, native alerts and field reports](terrain-evolution.md#contract) | 10 |
 | [Nauvis pressure grace and difficulty policy](nauvis-pressure-grace.md#contract) | 2 |
 | [Neutron collector source binding](neutron-collector.md#contract) | 1 |
-| [Orbital logistics cohorts and leases](orbital-logistics.md#contract) | 1 |
+| [Orbital logistics cohorts and leases](orbital-logistics.md#contract) | 2 |
 | [Orbital scanner banks and demand caches](orbital-combinator.md#contract) | 1 |
 | [Railgun coolant proxies, heat debt, and recovery](railgun-cooling.md#contract) | 3 |
 | [Research scaling, progression migrations, and victory](research-and-progression.md#contract) | 9 |

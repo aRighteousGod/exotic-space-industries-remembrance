@@ -44,7 +44,7 @@ local HOT_BANK_PLATFORM_POLL_INTERVAL = 12
 local HOT_SURFACE_AUDIT_SLICE = 4
 local COLD_SURFACE_AUDIT_SLICE = 2
 local RECONCILE_PLATFORM_SLICE = 8
-local ORBITAL_RUNTIME_STATE_VERSION = 5
+local ORBITAL_RUNTIME_STATE_VERSION = 6
 local GUI_NAME = "ei-orbital-combinator-console"
 local MODE_REQUESTS = "requests"
 local MODE_ON_THE_WAY = "on_the_way"
@@ -1628,6 +1628,7 @@ function model.check_init(rebuild_banks, current_tick)
   if not storage.ei.orbital_combinator_mode_by_unit then
     storage.ei.orbital_combinator_mode_by_unit = {}
   end
+  storage.ei.orbital_combinator_source_by_unit = storage.ei.orbital_combinator_source_by_unit or {}
   storage.ei.orbital_combinator_power_proxy_by_unit = nil
   if not storage.ei.orbital_combinator_power_sensor_by_unit then
     storage.ei.orbital_combinator_power_sensor_by_unit = {}
@@ -1821,6 +1822,7 @@ function model.rebuild_banks(current_tick)
 
         local bank_id = members[1]
         local bank_mode = MODE_REQUESTS
+        local bank_source = storage.ei.orbital_combinator_source_by_unit[bank_id] or "all"
         local carried_hot_until_tick = 0
         local carried_connection_audit_tick = 0
         local carried_wired = false
@@ -1835,6 +1837,7 @@ function model.rebuild_banks(current_tick)
 
         for _, unit_number in ipairs(members) do
           set_unit_mode(unit_number, bank_mode)
+          storage.ei.orbital_combinator_source_by_unit[unit_number] = bank_source
 
           local previous_bank = old_banks[old_bank_by_unit[unit_number]]
           if previous_bank then
@@ -1852,6 +1855,7 @@ function model.rebuild_banks(current_tick)
           surface_name = group.surface_name,
           members = members,
           mode = bank_mode,
+          source = bank_source,
           signature = nil,
           input_signature = nil,
           open_gui_count = 0,
@@ -1976,9 +1980,10 @@ local function build_inventory_filter_map(inventory)
     return merged
   end
 
-  for slot_index = 1, #inventory do
-    local stack = inventory[slot_index]
-    if stack and stack.valid_for_read and stack.count and stack.count > 0 then
+  -- Native counting retains quality and sparse-slot semantics without crossing
+  -- the LuaItemStack boundary for every slot (including empty cargo bays).
+  for _, stack in ipairs(inventory.get_contents()) do
+    if stack.count > 0 then
       add_filter_to_map(merged, {
         type = "item",
         name = stack.name,
@@ -2073,14 +2078,62 @@ local function build_logistic_point_filter_map(entries)
 end
 
 
+model._request_sources = {}
+---@param point LuaLogisticPoint
+---@param compiled table<string, table> Native effective totals, keyed by item/quality.
+---@return table<string, table[]>
+function model._request_sources.read(point, compiled)
+  local maps = {planet={}, platforms={}}
+  local owner = point.owner
+  local platform = model.entity_check(owner) and owner.surface.platform or nil
+  local location = platform and platform.valid and platform.space_location
+  local location_name = location and location.name
+  -- Compiled filters merge duplicate item/quality requests and union their
+  -- sources (2.1.24 also exposes their union as numeric flags, not documented
+  -- strings). Preserve quantities from effective sections before that merge.
+  -- The native totals still bound each result and omit native-ineligible items.
+  for _, section in ipairs(point.enabled and point.sections or EMPTY_FILTERS) do
+    if section.valid and section.active then
+      local multiplier = section.multiplier
+      for _, filter in ipairs(section.filters) do
+        local value = filter.value
+        -- Factorio 2.1.21+ rounds positive section products to nearest integer.
+        local count = math.floor((filter.min or 0) * multiplier + 0.5)
+        local import_from = ei_lib.get_prototype_name(filter.import_from)
+        if value and value.name ~= "ei-platform-transponder" and count > 0
+          and (not import_from or import_from == location_name) then
+          local source = filter.request_from or "planet"
+          if source == "planet" or source == "all" then add_filter_to_map(maps.planet, value, count, nil) end
+          if source == "platforms" or source == "all" then add_filter_to_map(maps.platforms, value, count, nil) end
+        end
+      end
+    end
+  end
+  local sources = {}
+  for source, map in pairs(maps) do
+    for key, filter in pairs(map) do
+      local native = compiled[key]
+      if native then filter.min = math.min(filter.min, native.min)
+      else map[key] = nil end
+    end
+    sources[source] = finalize_filter_map(map)
+  end
+  return sources
+end
+
 local function get_logistic_point_content(logistic_point, field_name)
   if not logistic_point or not logistic_point.valid then
     return EMPTY_FILTERS, EMPTY_FILTERS_SIGNATURE, {}
   end
 
-  local merged = build_logistic_point_filter_map(logistic_point[field_name])
+  local entries = logistic_point[field_name]
+  local merged = build_logistic_point_filter_map(entries)
   local filters = finalize_filter_map(merged)
-  return filters, build_filters_signature(filters), merged
+  local sources
+  if field_name == "filters" then
+    sources = model._request_sources.read(logistic_point, merged)
+  end
+  return filters, build_filters_signature(filters), merged, sources
 end
 
 
@@ -2183,7 +2236,17 @@ local function rebuild_platform_need_filters(entry)
   local next_signature = build_filters_signature(need_filters)
   entry.need_filters = need_filters
   entry.need_filter_signature = next_signature
-  return next_signature ~= previous_signature
+  local source_changed = false
+  entry.source_need_filters = entry.source_need_filters or {}
+  entry.source_need_signatures = entry.source_need_signatures or {}
+  for source, requests in pairs(entry.source_request_filters or {}) do
+    local filters = subtract_filter_maps(requests, {entry.targeted_deliver_map, entry.need_inventory_map})
+    local signature = build_filters_signature(filters)
+    source_changed = source_changed or signature ~= entry.source_need_signatures[source]
+    entry.source_need_filters[source] = filters
+    entry.source_need_signatures[source] = signature
+  end
+  return next_signature ~= previous_signature or source_changed
 end
 
 
@@ -2317,13 +2380,18 @@ local function apply_platform_component_changes(entry, changed_modes, current_ti
 end
 
 
-local function refresh_platform_request_component(platform, current_tick, wake_banks)
-  local entry = sync_platform_entry(platform, current_tick)
+local function refresh_platform_request_component(platform, current_tick, wake_banks, batch)
+  local entry = batch and batch.entry or sync_platform_entry(platform, current_tick)
   local previous_request_signature = entry.request_filter_signature or EMPTY_FILTERS_SIGNATURE
   local previous_need_signature = entry.need_filter_signature or EMPTY_FILTERS_SIGNATURE
   local previous_request_filters = entry.request_filters
-  local requester_point = get_platform_requester_logistic_point(platform)
-  local filters, filter_signature, filter_map = get_logistic_point_content(requester_point, "filters")
+  local requester_point = batch and batch.point or get_platform_requester_logistic_point(platform)
+  local filters, filter_signature, filter_map, sources = get_logistic_point_content(requester_point, "filters")
+  local source_signature = build_filters_signature(sources and sources.planet or EMPTY_FILTERS)
+    .. ":" .. build_filters_signature(sources and sources.platforms or EMPTY_FILTERS)
+  local source_changed = source_signature ~= entry.source_request_signature
+  entry.source_request_filters = sources or {}
+  entry.source_request_signature = source_signature
   entry.request_filters = filters
   entry.request_filter_signature = filter_signature
   entry.requester_filter_signature = filter_signature
@@ -2335,24 +2403,25 @@ local function refresh_platform_request_component(platform, current_tick, wake_b
   }, previous_request_signature ~= filter_signature and count_filter_entries(previous_request_filters) > 0 and count_filter_entries(filters) == 0 and "request_overwrite_empty" or nil)
 
   local changed_modes = {}
-  if filter_signature ~= previous_request_signature then
+  if filter_signature ~= previous_request_signature or source_changed then
     changed_modes[#changed_modes + 1] = MODE_REQUESTS
   end
-  if rebuild_platform_need_filters(entry) and entry.need_filter_signature ~= previous_need_signature then
+  if not batch and rebuild_platform_need_filters(entry) then
     changed_modes[#changed_modes + 1] = MODE_NEED
   end
 
-  apply_platform_component_changes(entry, changed_modes, current_tick, wake_banks)
+  if batch then batch.requests_changed = #changed_modes > 0
+  else apply_platform_component_changes(entry, changed_modes, current_tick, wake_banks) end
   return entry, #changed_modes > 0
 end
 
 
-local function refresh_platform_on_the_way_component(platform, current_tick, wake_banks)
-  local entry = sync_platform_entry(platform, current_tick)
+local function refresh_platform_on_the_way_component(platform, current_tick, wake_banks, batch)
+  local entry = batch and batch.entry or sync_platform_entry(platform, current_tick)
   local previous_on_the_way_signature = entry.on_the_way_filter_signature or EMPTY_FILTERS_SIGNATURE
   local previous_need_signature = entry.need_filter_signature or EMPTY_FILTERS_SIGNATURE
   local previous_on_the_way_filters = entry.on_the_way_filters
-  local requester_point = get_platform_requester_logistic_point(platform)
+  local requester_point = batch and batch.point or get_platform_requester_logistic_point(platform)
   local filters, filter_signature, filter_map = get_logistic_point_content(requester_point, "targeted_items_deliver")
   entry.on_the_way_filters = filters
   entry.on_the_way_filter_signature = filter_signature
@@ -2368,17 +2437,18 @@ local function refresh_platform_on_the_way_component(platform, current_tick, wak
   if filter_signature ~= previous_on_the_way_signature then
     changed_modes[#changed_modes + 1] = MODE_ON_THE_WAY
   end
-  if rebuild_platform_need_filters(entry) and entry.need_filter_signature ~= previous_need_signature then
+  if not batch and rebuild_platform_need_filters(entry) then
     changed_modes[#changed_modes + 1] = MODE_NEED
   end
 
-  apply_platform_component_changes(entry, changed_modes, current_tick, wake_banks)
+  if batch then batch.incoming_changed = #changed_modes > 0
+  else apply_platform_component_changes(entry, changed_modes, current_tick, wake_banks) end
   return entry, #changed_modes > 0
 end
 
 
-local function refresh_platform_need_inventory_component(platform, current_tick, wake_banks)
-  local entry = sync_platform_entry(platform, current_tick)
+local function refresh_platform_need_inventory_component(platform, current_tick, wake_banks, batch)
+  local entry = batch and batch.entry or sync_platform_entry(platform, current_tick)
   local previous_need_signature = entry.need_filter_signature or EMPTY_FILTERS_SIGNATURE
   local previous_need_inventory_signature = entry.need_inventory_signature or EMPTY_FILTERS_SIGNATURE
   local previous_need_inventory_filters = entry.need_inventory_filters
@@ -2406,12 +2476,34 @@ local function refresh_platform_need_inventory_component(platform, current_tick,
   }, previous_need_inventory_signature ~= inventory_signature and "need_inventory_changed" or nil)
 
   local changed_modes = {}
-  if rebuild_platform_need_filters(entry) and entry.need_filter_signature ~= previous_need_signature then
+  if not batch and rebuild_platform_need_filters(entry) then
     changed_modes[#changed_modes + 1] = MODE_NEED
   end
 
-  apply_platform_component_changes(entry, changed_modes, current_tick, wake_banks)
+  if not batch then apply_platform_component_changes(entry, changed_modes, current_tick, wake_banks) end
   return entry, #changed_modes > 0
+end
+
+
+-- A batch belongs to one uninterrupted service operation. It is never stored,
+-- shared across events, or reused after a launch/request/inventory mutation.
+model._acquisition = {}
+---@param platform LuaSpacePlatform
+---@param current_tick MapTick
+---@return table
+function model._acquisition.refresh(platform, current_tick, requests, incoming, inventory, wake_banks)
+  local batch = {entry = sync_platform_entry(platform, current_tick),
+    point = (requests or incoming) and get_platform_requester_logistic_point(platform) or nil}
+  if requests then refresh_platform_request_component(platform, current_tick, false, batch) end
+  if incoming then refresh_platform_on_the_way_component(platform, current_tick, false, batch) end
+  if inventory then refresh_platform_need_inventory_component(platform, current_tick, false, batch) end
+  local changed = {}
+  if batch.requests_changed then changed[#changed + 1] = MODE_REQUESTS end
+  if batch.incoming_changed then changed[#changed + 1] = MODE_ON_THE_WAY end
+  if rebuild_platform_need_filters(batch.entry) then changed[#changed + 1] = MODE_NEED end
+  batch.entry.sample_tick = current_tick
+  apply_platform_component_changes(batch.entry, changed, current_tick, wake_banks)
+  return batch.entry, #changed > 0
 end
 
 
@@ -2433,15 +2525,8 @@ function model._surface_demand.bootstrap(force_index, surface_name, gained_deman
     local entry = storage.ei.orbital_combinator_platform_cache[platform_index]
     local platform = entry and get_platform_from_entry(platform_index, entry) or nil
     if platform and platform.valid then
-      if gained_demand.request then
-        refresh_platform_request_component(platform, current_tick, false)
-      end
-      if gained_demand.on_the_way then
-        refresh_platform_on_the_way_component(platform, current_tick, false)
-      end
-      if gained_demand.need_inventory then
-        refresh_platform_need_inventory_component(platform, current_tick, false)
-      end
+      model._acquisition.refresh(platform, current_tick, gained_demand.request,
+        gained_demand.on_the_way, gained_demand.need_inventory, false)
       refreshed_any = true
     end
   end
@@ -2513,14 +2598,16 @@ local function hydrate_platform_entry(platform, current_tick)
     end
   end
 
-  local request_filters, request_signature, request_map = get_logistic_point_content(get_platform_requester_logistic_point(platform), "filters")
-  local on_the_way_filters, on_the_way_signature, on_the_way_map = get_logistic_point_content(get_platform_requester_logistic_point(platform), "targeted_items_deliver")
+  local requester = get_platform_requester_logistic_point(platform)
+  local request_filters, request_signature, request_map, sources = get_logistic_point_content(requester, "filters")
+  local on_the_way_filters, on_the_way_signature, on_the_way_map = get_logistic_point_content(requester, "targeted_items_deliver")
   local inventory_filters, inventory_signature, inventory_map = get_inventory_filter_content(hub_inventory)
 
   entry.request_filters = request_filters
   entry.request_filter_signature = request_signature
   entry.requester_filter_signature = request_signature
   entry.request_filter_map = request_map
+  entry.source_request_filters = sources or {}
   entry.on_the_way_filters = on_the_way_filters
   entry.on_the_way_filter_signature = on_the_way_signature
   entry.targeted_deliver_signature = on_the_way_signature
@@ -2538,27 +2625,28 @@ end
 local function refresh_platform_mode_entry(platform, mode, current_tick)
   local normalized_mode = normalize_mode(mode)
 
+  -- blueprint-ref: .codex/esir/blueprints/orbital-combinator.md#bridge-publication
+  -- Bridge reads can observe a change before the next audit. Publish that change
+  -- through the existing dirty-bank queue; an audit will now see a fresh cache.
   if normalized_mode == MODE_REQUESTS then
-    return refresh_platform_request_component(platform, current_tick, false)
+    return refresh_platform_request_component(platform, current_tick, true)
   end
 
   if normalized_mode == MODE_ON_THE_WAY then
-    return refresh_platform_on_the_way_component(platform, current_tick, false)
+    return refresh_platform_on_the_way_component(platform, current_tick, true)
   end
 
   -- Cohort consumers can ask for Need even when every visible scanner bank on
   -- that surface is still set to Requests or On The Way. For this bridge path,
   -- refresh all three source components so the returned Need payload is exact
   -- instead of depending on whatever background demand happened to be active.
-  refresh_platform_request_component(platform, current_tick, false)
-  refresh_platform_on_the_way_component(platform, current_tick, false)
-  return refresh_platform_need_inventory_component(platform, current_tick, false)
+  return model._acquisition.refresh(platform, current_tick, true, true, true, true)
 end
 
 
 local get_platform_cached_mode_filters
 
-local function get_platform_mode_payload(platform, mode, current_tick)
+local function get_platform_mode_payload(platform, mode, current_tick, source)
   if not platform or not platform.valid then
     return nil
   end
@@ -2570,7 +2658,7 @@ local function get_platform_mode_payload(platform, mode, current_tick)
     return nil
   end
 
-  local filters, signature = get_platform_cached_mode_filters(entry, normalized_mode)
+  local filters, signature = get_platform_cached_mode_filters(entry, normalized_mode, source)
   return {
     platform_index = platform.index,
     force_index = entry.force_index,
@@ -2580,6 +2668,13 @@ local function get_platform_mode_payload(platform, mode, current_tick)
     mode = normalized_mode,
     filters = filters,
     signature = signature,
+    source = source or "all",
+    sample_tick = tick,
+    requests = entry.request_filters,
+    incoming = entry.on_the_way_filters,
+    stock = entry.need_inventory_filters,
+    source_requests = entry.source_request_filters,
+    source_need = entry.source_need_filters,
   }
 end
 
@@ -3152,8 +3247,13 @@ local function audit_surface_bank_power_state(force_index, surface_name, current
 end
 
 
-get_platform_cached_mode_filters = function(entry, mode)
+get_platform_cached_mode_filters = function(entry, mode, source)
   local normalized_mode = normalize_mode(mode)
+  if (source == "planet" or source == "platforms") and normalized_mode ~= MODE_ON_THE_WAY then
+    local by_source = normalized_mode == MODE_REQUESTS and entry.source_request_filters or entry.source_need_filters
+    local filters = by_source and by_source[source] or EMPTY_FILTERS
+    return filters, build_filters_signature(filters)
+  end
   if normalized_mode == MODE_REQUESTS then
     return entry.request_filters or EMPTY_FILTERS, entry.request_filter_signature or EMPTY_FILTERS_SIGNATURE
   end
@@ -3164,7 +3264,7 @@ get_platform_cached_mode_filters = function(entry, mode)
 end
 
 
-local function build_surface_snapshot(force, surface, mode, current_tick)
+local function build_surface_snapshot(force, surface, mode, current_tick, source)
   local platforms = {}
   local platform_cache = storage.ei.orbital_combinator_platform_cache
   local normalized_mode = normalize_mode(mode)
@@ -3172,7 +3272,7 @@ local function build_surface_snapshot(force, surface, mode, current_tick)
   for _, platform_index in ipairs(get_surface_platform_indices(force.index, surface.name)) do
     local entry = platform_cache[platform_index]
     if entry and entry.force_index == force.index and entry.surface_name == surface.name then
-      local filters, filter_signature = get_platform_cached_mode_filters(entry, normalized_mode)
+      local filters, filter_signature = get_platform_cached_mode_filters(entry, normalized_mode, source)
       platforms[#platforms + 1] = {
         index = platform_index,
         name = entry.platform_name or ("platform-" .. tostring(entry.sort_id or platform_index)),
@@ -3223,19 +3323,20 @@ local function build_surface_snapshot(force, surface, mode, current_tick)
 end
 
 
-local function get_surface_snapshot(force, surface, mode, current_tick)
+local function get_surface_snapshot(force, surface, mode, current_tick, source)
   local normalized_mode = normalize_mode(mode)
   local generation_token = get_generation_token(force.index, surface.name, normalized_mode)
   local cache_key = table.concat({
     tostring(force.index),
     tostring(surface.name),
     normalized_mode,
+    source or "all",
     generation_token,
   }, ":")
   local snapshot_cache = get_snapshot_cache_root()
   local cache_hit = snapshot_cache[cache_key] ~= nil
   if not cache_hit then
-    snapshot_cache[cache_key] = build_surface_snapshot(force, surface, normalized_mode, current_tick)
+    snapshot_cache[cache_key] = build_surface_snapshot(force, surface, normalized_mode, current_tick, source)
   end
   local snapshot = snapshot_cache[cache_key]
   snapshot.probe_cache_hit = cache_hit
@@ -3350,15 +3451,8 @@ local function audit_surface_platform_slice(force_index, surface_name, current_t
     local entry = storage.ei.orbital_combinator_platform_cache[platform_index]
     local platform = entry and get_platform_from_entry(platform_index, entry) or nil
     if platform and platform.valid then
-      if audit_requests then
-        refresh_platform_request_component(platform, current_tick, true)
-      end
-      if audit_on_the_way then
-        refresh_platform_on_the_way_component(platform, current_tick, true)
-      end
-      if audit_need_inventory then
-        refresh_platform_need_inventory_component(platform, current_tick, true)
-      end
+      model._acquisition.refresh(platform, current_tick, audit_requests,
+        audit_on_the_way, audit_need_inventory, true)
       else
         local stale_entry = storage.ei.orbital_combinator_platform_cache[platform_index]
         local stale_force_index = stale_entry and stale_entry.force_index or force_index
@@ -4138,9 +4232,10 @@ local function reconcile_section(section, page)
     section.active = true
   end
 
-  if section.group ~= page.label then
-    section.group = page.label
-  end
+  -- blueprint-ref: .codex/esir/blueprints/orbital-combinator.md#output-isolation
+  -- Named groups share their filters globally; a page label is not an isolated
+  -- section title. Detach before writing so other banks keep their own source.
+  if section.group ~= "" then section.group = "" end
 
   local current_count = section.filters_count
   local desired_count = get_page_filter_count(page)
@@ -4343,7 +4438,7 @@ function model.update_orbital_bank(bank, current_tick)
   end
   audit_bank_wired_state(bank, members, current_tick)
   local generation_token = get_bank_generation_token(bank, anchor)
-  local snapshot = get_surface_snapshot(anchor.force, anchor.surface, get_bank_mode(bank), current_tick)
+  local snapshot = get_surface_snapshot(anchor.force, anchor.surface, get_bank_mode(bank), current_tick, bank.source)
   local surface_snapshot_cache_hit = snapshot and snapshot.probe_cache_hit == true or false
   local input_signature = build_bank_input_signature(bank, members, snapshot)
   local snapshot_platform_count = snapshot and #snapshot.platforms or 0
@@ -4705,6 +4800,11 @@ function orbital_gui.build(player)
     name = "wire-note",
     style = "caption_label",
   }
+  local sources = main.add{type="flow", name="source-flow", direction="horizontal"}
+  for _, source in ipairs({"all", "planet", "platforms"}) do
+    sources.add{type="button", name=source, caption={"exotic-industries.orbital-source-" .. source},
+      tags={parent_gui=GUI_NAME, action="set-source", source=source}}
+  end
 
   main.add{
     type = "frame",
@@ -4752,6 +4852,13 @@ function orbital_gui.refresh_player(player, current_tick, summaries)
   local bank = orbital_gui.get_player_open_bank(player.index)
   local scanner = orbital_gui.get_player_open_scanner(player.index)
   local mode = get_bank_mode(bank)
+  local sources = root["main-container"] and root["main-container"]["source-flow"]
+  if sources then
+    sources.visible = mode ~= MODE_ON_THE_WAY
+    for _, source in ipairs({"all", "planet", "platforms"}) do
+      sources[source].enabled = source ~= (bank and bank.source or "all")
+    end
+  end
   local mode_flow = root["main-container"] and root["main-container"]["mode-flow"]
   local wire_note = root["main-container"] and root["main-container"]["wire-note"]
   local power_flow = root["main-container"] and root["main-container"]["power-flow"]
@@ -5301,7 +5408,7 @@ function model.on_gui_click(event)
     return
   end
 
-  if action ~= "set-mode" then
+  if action ~= "set-mode" and action ~= "set-source" then
     return
   end
 
@@ -5311,6 +5418,19 @@ function model.on_gui_click(event)
   local unit_number = player and storage.ei.orbital_combinator_open_gui_by_player[event.player_index] or nil
   local bank = model.get_bank_for_unit_number(unit_number)
   if not bank then
+    return
+  end
+
+  if action == "set-source" then
+    local source = tags.source
+    if source ~= "all" and source ~= "planet" and source ~= "platforms" then return end
+    bank.source = source
+    for _, member in ipairs(bank.members) do storage.ei.orbital_combinator_source_by_unit[member] = source end
+    bank.input_signature = nil
+    bank.last_applied_generation_token = nil
+    clear_snapshot_cache()
+    wake_bank(bank, event.tick)
+    orbital_gui.refresh_open_players(event.tick, bank)
     return
   end
 
@@ -5394,11 +5514,34 @@ end
 -- Cohort consumers use this narrow bridge instead of touching the scanner's
 -- platform-cache internals directly. The payload stays read-only and returns the
 -- exact mode filters after refreshing the requested component on demand.
-function model.get_platform_mode_filters(platform, mode, current_tick)
+function model.get_platform_mode_filters(platform, mode, current_tick, source)
   model.check_init(false)
-  return get_platform_mode_payload(platform, mode, current_tick)
+  return get_platform_mode_payload(platform, mode, current_tick, source)
 end
 
+
+---@param entity LuaEntity
+---@param config table
+---@param current_tick MapTick|nil
+function model.apply_configuration(entity, config, current_tick)
+  model.check_init(false)
+  local source = config.source == "planet" and "planet" or config.source == "platforms" and "platforms" or "all"
+  set_unit_mode(entity.unit_number, config.mode)
+  storage.ei.orbital_combinator_source_by_unit[entity.unit_number] = source
+  local bank = model.get_bank_for_unit_number(entity.unit_number)
+  if bank then
+    bank.mode, bank.source = normalize_mode(config.mode), source
+    for _, unit in ipairs(bank.members) do
+      set_unit_mode(unit, bank.mode)
+      storage.ei.orbital_combinator_source_by_unit[unit] = source
+    end
+    bank.input_signature, bank.last_applied_generation_token = nil, nil
+    local tick = current_tick or game.tick
+    model._surface_demand.rebuild(tick)
+    clear_snapshot_cache()
+    wake_bank(bank, tick)
+  end
+end
 
 function model.get_platform_surface_name(platform)
   model.check_init(false)
