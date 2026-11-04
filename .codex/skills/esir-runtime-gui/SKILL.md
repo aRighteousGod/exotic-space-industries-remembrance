@@ -7,7 +7,7 @@ description: "Create, review, and standardize ESIR runtime GUI code. Use when Co
 
 ## Native test integration
 
-Run `qc-test -Suite induction-circuit` through [native testing](../esir-dev/references/native-testing.md) after lifecycle or circuit edits. The `candidate`, `reload` and `configuration` cases exercise native GUI elements, tags, filters, immediate edits, replacement and teardown. Direct dispatcher calls are programmatic event evidence; rendered layout, locale and mouse interaction require their own checks.
+Use `qc-quick -Suite induction-circuit` while editing lifecycle/circuit behavior, then `qc-targeted -Suite induction-circuit` once stable. Preview either with `-PlanOnly`; use exact task-owned `-ChangedPath` when routing several owners. The `candidate`, `reload` and `configuration` cases exercise native GUI elements, tags, filters, immediate edits, replacement and teardown. Follow [native testing](../esir-dev/references/native-testing.md); full QC is explicit/release-only. Direct dispatcher calls are programmatic event evidence; rendered layout, locale and mouse interaction require their own checks.
 
 Follow [runtime alerts](../esir-dev/references/runtime-alerts.md) for alert preferences and source switches: native per-player settings are authoritative, source controls cannot override personal Off, and GUI changes use the shared setting-change path.
 
@@ -17,7 +17,8 @@ authority. Script assignments synchronously emit native setting events: batch ES
 owner reconciliation rather than dispatching duplicate synthetic events. Keep
 audit/feedback before administration self-disable, close every batch under protected
 calls, and retain actual-state reconciliation after an incomplete rollback. Use
-`qc-test -Suite runtime-options` for settings, transaction and Options GUI changes.
+`qc-quick -Suite runtime-options` during settings/transaction/Options GUI iteration,
+then `qc-targeted -Suite runtime-options` for both declared profiles and lifecycle cases.
 
 Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for required calls, cheap admission and tick context. Preserve session cleanup when unrelated entities open.
 

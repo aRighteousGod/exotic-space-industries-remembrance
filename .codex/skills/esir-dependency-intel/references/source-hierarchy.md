@@ -13,3 +13,8 @@ Stable checked-in layers:
 - `touchpoints`: extracted from ESIR runtime/data-stage integration files plus shallow media-pack entries
 
 Do not treat local installed mod presence as checked-in truth.
+
+The Ash bridge in `scripts/data-updates/atan-ash.lua` restores zero burnt-result
+slots on the oxygen-fed solid combustion turbine after Ash's assembler sweep.
+Keep that turbine ash-free when changing its native entity type or stage order;
+the combustion-turbine native suite checks the final prototype and production.

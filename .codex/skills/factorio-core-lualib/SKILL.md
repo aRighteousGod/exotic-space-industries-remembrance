@@ -7,7 +7,7 @@ description: "Use when Codex needs to import, audit, replace, or choose Factorio
 
 ## Native test integration
 
-For changed ESIR consumers, select contract cases through [native testing](../esir-dev/references/native-testing.md), including `scheduler-event-tick` for timing/queue consumers and GUI cases for native elements. Retain final-data checks for prototype changes and preserve historical helper-survey versions.
+For changed ESIR consumers, plan `qc-quick -ChangedPath <task files> -PlanOnly`, use quick iteration then targeted acceptance through [native testing](../esir-dev/references/native-testing.md). Timing/queue consumers select `scheduler-event-tick`; GUI consumers retain native element cases. Full QC is explicit/release-only. Retain final-data checks for prototype changes and preserve historical helper-survey versions.
 
 Use this skill to reuse Factorio's bundled Lua helpers intentionally instead of rediscovering them or cloning their behavior into ESIR.
 

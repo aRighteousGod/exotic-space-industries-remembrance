@@ -3,7 +3,6 @@
   "engine_version": "2.1.24",
   "infrastructure_paths": [
     "scripts/qc/native-tests/*",
-    ".codex/esir/test-suites.json",
     "scripts/esir-qc-*.ps1",
     "scripts/esir_qc_storage.py",
     "scripts/invoke-esir-dev.ps1",
@@ -18,9 +17,28 @@
   ],
   "shared_runtime_paths": [
     "exotic-space-industries-remembrance/control.lua",
-    "exotic-space-industries-remembrance/lib/*.lua"
+    "exotic-space-industries-remembrance/lib/lib.lua"
   ],
   "suites": [
+    {
+      "id": "engine-smoke",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
+      "eligibility": "active",
+      "core": false,
+      "engine_version": "2.1.24",
+      "evidence_kind": ["native-initialization"],
+      "inventory": [],
+      "paths": [],
+      "cases": [{"id":"candidate"}],
+      "profiles": [{"id":"default","quality":"enabled"}],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {"scenario":"esir-qc-native-tests/native","helper":"scripts/qc/native-tests/helper","report":"native-test-{phase}.json"},
+      "checkpoint_executor": "server",
+      "supplementary_evidence": [],
+      "notes": "Fallback stack load and initialization. Does not establish acceptance for unmapped gameplay behavior.",
+      "acceptance": "requires matching fresh receipt"
+    },
     {
       "id": "dollies",
       "eligibility": "needs-port",
@@ -43,6 +61,7 @@
     },
     {
       "id": "gaia-resources",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": false,
       "engine_version": "2.1.24",
@@ -68,6 +87,7 @@
     },
     {
       "id": "runtime-options",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": false,
       "engine_version": "2.1.24",
@@ -76,6 +96,10 @@
       "paths": [
         "exotic-space-industries-remembrance/settings.lua",
         "exotic-space-industries-remembrance/lib/runtime-options-config.lua",
+        "exotic-space-industries-remembrance/lib/admin-tools-config.lua",
+        "exotic-space-industries-remembrance/lib/fluid-safety-config.lua",
+        "exotic-space-industries-remembrance/lib/gaian-saucer-wake-config.lua",
+        "exotic-space-industries-remembrance/lib/emerald-apocalypse-hover-tank-config.lua",
         "exotic-space-industries-remembrance/scripts/control/runtime-options.lua",
         "exotic-space-industries-remembrance/scripts/control/admin/options.lua",
         "exotic-space-industries-remembrance/scripts/control/admin-tools.lua",
@@ -189,6 +213,7 @@
     },
     {
       "id": "build-dispatch",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -239,6 +264,7 @@
     },
     {
       "id": "scheduler-event-tick",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -289,6 +315,7 @@
     },
     {
       "id": "research-events",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -300,6 +327,8 @@
         ".codex/skills/esir-dev/assets/zzz-scripted-research-qc_0.0.1"
       ],
       "paths": [
+        "exotic-space-industries-remembrance/lib/tech-scaling-common.lua",
+        "exotic-space-industries-remembrance/lib/tech-scaling-shared.lua",
         "exotic-space-industries-remembrance/scripts/control/tech-scaling.lua",
         "exotic-space-industries-remembrance/scripts/control/teslas-legacy.lua",
         ".codex/skills/esir-dev/assets/zzz-scripted-research-qc_0.0.1/*"
@@ -336,6 +365,7 @@
     },
     {
       "id": "research-bootstrap",
+      "quick": {"cases": ["candidate"], "profiles": ["triggers-1-flatten-0"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -406,6 +436,7 @@
     },
     {
       "id": "induction-circuit",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -460,6 +491,7 @@
     },
     {
       "id": "alert-preferences",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -473,6 +505,8 @@
       "paths": [
         "exotic-space-industries-remembrance/lib/alerts.lua",
         "exotic-space-industries-remembrance/lib/alert-catalog.lua",
+        "exotic-space-industries-remembrance/lib/terrain-alert-config.lua",
+        "exotic-space-industries-remembrance/lib/alert-icon-sets.lua",
         "exotic-space-industries-remembrance/scripts/control/terrain-alerts.lua",
         "scripts/qc/alerts/*"
       ],
@@ -511,6 +545,7 @@
     },
     {
       "id": "mirroring",
+      "quick": {"cases": ["candidate"], "profiles": ["quality-enabled"]},
       "eligibility": "active",
       "core": true,
       "engine_version": "2.1.24",
@@ -578,6 +613,7 @@
     },
     {
       "id": "runner-conformance",
+      "quick": {"cases": ["candidate"], "profiles": ["base-only"]},
       "eligibility": "active",
       "core": false,
       "engine_version": "2.1.24",
@@ -3021,6 +3057,7 @@
     },
     {
       "id": "orbital-logistics",
+      "quick": {"cases": ["candidate"], "profiles": ["quality-enabled"]},
       "eligibility": "active",
       "core": false,
       "engine_version": "2.1.24",

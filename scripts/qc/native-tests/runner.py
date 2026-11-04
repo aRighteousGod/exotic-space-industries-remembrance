@@ -29,6 +29,7 @@ def harness_inputs():
     paths.update(REPO/name for name in ('.codex/esir/test-suites.json','.codex/esir/factorio-development.json',
         'scripts/esir-dev-lib.ps1','scripts/esir-housekeeping.ps1','scripts/esir-qc-version-staging.ps1','scripts/esir_qc_storage.py',
         'scripts/esir-qc-storage.ps1','scripts/esir-dependency-lib.ps1','scripts/esir-qc-acceptance.ps1',
+        'scripts/invoke-esir-dev.ps1','scripts/invoke-esir-qc-delegate.ps1',
         '.codex/esir/preserved-encoding.json','.codex/skills/esir-dev/assets/gaia-resource-qc.json'))
     return {p.relative_to(REPO).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
@@ -125,13 +126,38 @@ def phase_inputs(record, source_digest):
     inputs={'source_digest':source_digest,'harness_digest':record.get('harness_hash')}
     for name in ('mod-list.json','mod-settings.dat'):
         path=Path(record['mods'])/name
-        inputs[name]=hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+        if name=='mod-list.json' and path.exists():
+            mods=read_json(path)['mods']
+            if len({m['name'] for m in mods})!=len(mods) or any(type(m.get('enabled')) is not bool for m in mods):
+                raise ValueError('Invalid/duplicate mod selection')
+            # Engine sorts the list and drops absent disabled mods on first load.
+            # The effective enabled set must remain exact; runtime checks also
+            # assert every explicitly disabled mod stayed absent.
+            inputs[name]=sorted(m['name'] for m in mods if m['enabled'])
+        else: inputs[name]=hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
     # Factorio rewrites UI/default options on exit; only the path contract is
     # runner-owned. Full prelaunch config is retained separately as evidence.
     import configparser
     config=configparser.ConfigParser();config.read(record['config'],encoding='utf-8-sig')
     inputs['paths']=dict(config['path'])
     return hashlib.sha256(json.dumps(inputs,sort_keys=True).encode()).hexdigest(),inputs
+
+
+def validate_selection(record, before, expected, process, evidence, label):
+    after=phase_inputs(record,before['source_digest'])[1]
+    if before==after: return
+    changes={key for key in set(before)|set(after) if before.get(key)!=after.get(key)}
+    if changes!={'mod-settings.dat'} or before['mod-settings.dat'] is not None or after['mod-settings.dat'] is None:
+        raise ValueError('Staged selection changed: '+', '.join(sorted(changes)))
+    path=Path(record['write_data'])/'script-output/native-setting-defaults.json'
+    if not path.is_file() or path.stat().st_mtime<process['started']:
+        raise ValueError('Missing fresh default-settings attestation')
+    report=read_json(path)
+    for key in ('run_id','suite','profile','phase','input_hash','engine_version'):
+        if report.get(key)!=expected[key]: raise ValueError('Default-settings identity mismatch: '+key)
+    import settings_file
+    settings_file.assert_defaults((Path(record['mods'])/'mod-settings.dat').read_bytes(),report['defaults'])
+    write_json(evidence/(label+'-settings-normalization.json'),{'before':before,'after':after,'attestation':report})
 
 
 def verify_engine_log(record, log):
@@ -220,15 +246,22 @@ def execute_row(row, engine=None, qualification=None):
         write_json(evidence/'inputs.json',{'identity_hash':digest,'frozen_hash':frozen,'files':final_inputs,'adapter':metadata,'profile':profile})
         common=['--config',native_path(record['config']),'--mod-directory',native_path(record['mods']),'--disable-audio','--disable-migration-window']
         seed=Path(record['scratch'])/'native-seed.zip'
-        created=run_process([record['engine'],*common,'--create',seed],evidence/'create.log',row['timeout_seconds'])
-        if created['exit_code'] or created['fatal']: raise RuntimeError('Seed creation failed: '+created['log'])
-        verify_engine_log(record,created['log'])
-        if harness_inputs()!=START_HARNESS: raise RuntimeError('Runner/fixture inputs changed during seed creation')
         selection_hash,_=phase_inputs(record,'selection')
         checkpoint=write/'saves/native-checkpoint.zip'
         for phase in case_ids:
             if source_hash({'main':main,'helper':helper})[0]!=frozen: raise RuntimeError('Staged source changed between phases')
             if phase_inputs(record,'selection')[0]!=selection_hash: raise RuntimeError('Staged selection changed between phases')
+            # Fresh scenarios need no save. Create exactly once, immediately
+            # before the first save-backed phase or its checkpoint producer.
+            if phase!='candidate' and not seed.exists():
+                before_create=phase_inputs(record,'selection')[1]
+                created=run_process([record['engine'],*common,'--create',seed],evidence/'create.log',row['timeout_seconds'])
+                result['seed_creation']=created
+                if created['exit_code'] or created['fatal'] or created['timed_out']: raise RuntimeError('Seed creation failed: '+created['log'])
+                verify_engine_log(record,created['log'])
+                if harness_inputs()!=START_HARNESS: raise RuntimeError('Runner/fixture inputs changed during seed creation')
+                validate_selection(record,before_create,initial,created,evidence,'seed')
+                selection_hash=phase_inputs(record,'selection')[0]
             if phase in ('reload','configuration') and not checkpoint.exists():
                 settings=write/'server-settings.json'
                 write_json(settings,{'name':'Private ESIR native QC','description':'Managed fixture','visibility':{'public':False,'lan':False},
@@ -286,7 +319,12 @@ def execute_row(row, engine=None, qualification=None):
             errors=validate_report(report,envelope,process['exit_code'],fresh=report_path.exists() and report_path.stat().st_mtime>=process['started'],fatal=process['fatal'])
             if process['timed_out']: errors.append('host-timeout')
             if source_hash({'main':main,'helper':helper})[0]!=frozen: errors.append('staged-inputs-changed')
-            if phase_inputs(record,frozen)[0]!=phase_hash: errors.append('staged-selection-changed')
+            try:
+                validate_selection(record,phase_selection,envelope,process,evidence,phase)
+                selection_hash=phase_inputs(record,'selection')[0]
+            except (ValueError,KeyError,OSError) as error:
+                errors.append('staged-selection-changed')
+                write_json(evidence/(phase+'-selection-error.json'),{'error':str(error),'before':phase_selection,'after':phase_inputs(record,frozen)[1]})
             if harness_inputs()!=START_HARNESS: errors.append('runner-fixture-inputs-changed')
             if report: write_json(evidence/(phase+'.json'),report)
             negative=phase in ('explicit-failure','lua-error','missing-report','tick-limit','host-timeout')
@@ -386,6 +424,7 @@ def main():
     for name in ('suite','case','profile'):parser.add_argument('--'+name,action='append',default=[])
     parser.add_argument('--tier',choices=['core','extended'],default='core')
     parser.add_argument('--changed-since');parser.add_argument('--engine')
+    parser.add_argument('--changed-path',action='append',default=None)
     parser.add_argument('--expected-source-sha256',help=argparse.SUPPRESS)
     args=parser.parse_args()
     try:
@@ -396,13 +435,17 @@ def main():
         broken=audit_links(args.repo,document)
         if broken:raise ValueError('Broken model references: '+', '.join(broken))
         if args.task=='test-list':
-            if args.case or args.profile or args.changed_since: raise ValueError('test-list supports suite filters; use test-plan for case/profile/change selection')
+            if args.case or args.profile or args.changed_since or args.changed_path: raise ValueError('test-list supports suite filters; use test-plan for case/profile/change selection')
             unknown=set(args.suite)-{s['id'] for s in document['suites']}
             if unknown:raise ValueError('Unknown suites: '+', '.join(sorted(unknown)))
             if args.suite:document={**document,'suites':[s for s in document['suites'] if s['id'] in args.suite]}
             result={'task':args.task,'overall_status':'ok',**document}
         else:
-            selection=plan(args.repo,args.suite,args.case,args.profile,args.tier,args.changed_since,discovery=args.task=='test-plan')
+            paths=args.changed_path
+            if paths is not None:
+                from workflows import normalize_paths
+                paths=normalize_paths(args.repo,paths)
+            selection=plan(args.repo,args.suite,args.case,args.profile,args.tier,args.changed_since,discovery=args.task=='test-plan',paths=paths)
             if args.task=='test-plan':result=selection
             else:
                 execution=execute_selection(selection['rows'],args.engine,args.expected_source_sha256)

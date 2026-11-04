@@ -148,6 +148,17 @@ function Assert-EsirGaiaAggregate {
     }
 }
 
+function Resolve-EsirPreviewScope {
+    param([string]$Mode, [string]$PreviewScope, [string]$Planet, [Nullable[int]]$Seed)
+    if ($Mode -eq 'full') { return 'gaia-acceptance' }
+    if ($PreviewScope) {
+        if ($PreviewScope -notin @('requested','gaia-acceptance')) { throw 'Unknown preview scope.' }
+        return $PreviewScope
+    }
+    if ($Planet -or $null -ne $Seed) { return 'requested' }
+    return 'gaia-acceptance'
+}
+
 function Invoke-EsirGaiaPreviewCompanion {
     param([Parameter(Mandatory)]$Context, [Nullable[int]]$Seed, [string]$Planet, [string]$Save, [switch]$Strict)
     $result = New-FactorioQCResult -Name 'preview'
@@ -157,6 +168,24 @@ function Invoke-EsirGaiaPreviewCompanion {
         $policy = Get-EsirGaiaResourcePolicy $Context.repo_root
         $common = Get-EsirCommonTestInputs -Paths $paths
         $null = Sync-FactorioRunMods -Context $Context -Result $result
+        $explicitScope = if ($Context.PSObject.Properties.Name -contains 'preview_scope') { $Context.preview_scope } else { $null }
+        $scope = Resolve-EsirPreviewScope -Mode preview -PreviewScope $explicitScope -Planet $Planet -Seed $Seed
+        Add-FactorioQCArtifact -Result $result -Name 'preview_scope' -Value $scope
+        if ($scope -eq 'requested') {
+            $requestedPlanet = if ($Planet) { $Planet } else { 'gaia' }
+            $requestedSeed = if ($null -ne $Seed) { [uint32]$Seed } else { [uint32]1000 }
+            $targets = if ($requestedPlanet -eq 'gaia') { $policy.resources } else { Get-PreviewTargets -Context $Context -Planet $requestedPlanet }
+            $requested = Invoke-EsirResourcePreviewRow -Context $Context -Id 'requested-preview' -Planet $requestedPlanet `
+                -Seed $requestedSeed -Size 1024 -Targets $targets
+            Add-FactorioQCArtifact -Result $result -Name 'requested_preview' -Value $requested
+            Add-FactorioQCArtifact -Result $result -Name 'preview' -Value $requested.preview
+            Add-FactorioQCArtifact -Result $result -Name 'evidence_boundary' -Value 'Requested preview only; Gaia acceptance and native resource coverage were not selected.'
+            foreach ($message in $requested.errors) { Add-FactorioQCError -Result $result -Message $message }
+            foreach ($message in $requested.warnings) { Add-FactorioQCWarning -Result $result -Message $message }
+            if ((Get-EsirCommonTestInputs -Paths $paths).sha256 -ne $common.sha256) { throw 'Source inputs changed during requested preview.' }
+            Add-FactorioQCArtifact -Result $result -Name 'source_fingerprint' -Value $common
+            return (Finalize-FactorioQCResult -Result $result -Strict:$Strict)
+        }
         $required = Invoke-EsirResourcePreviewRow -Context $Context -Id 'gaia-required-seed-1000' -Planet gaia -Seed 1000 `
             -Size $policy.preview_size -Targets $policy.resources -RequirePresence
         Add-FactorioQCArtifact -Result $result -Name 'gaia_required_preview' -Value $required

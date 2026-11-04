@@ -201,7 +201,7 @@ incidents use the common invisible marker.
 
 ## Verification
 
-Run `qc-test -Suite alert-preferences` through [native testing](native-testing.md) for personal Off authority, preference isolation, native delivery/cleanup, invalid sources and persistence. Controlled player-boundary isolation is distinct from multiple real viewers. Full ecology-category, icon rendering and multiplayer matrices remain separate evidence.
+Use `qc-quick -Suite alert-preferences` during iteration, then `qc-targeted -Suite alert-preferences` for personal Off authority, preference isolation, native delivery/cleanup, invalid sources and persistence. Preview with `-PlanOnly`; [native testing](native-testing.md) keeps full QC explicit/release-only. Controlled player-boundary isolation is distinct from multiple real viewers. Full ecology-category, icon rendering and multiplayer matrices remain separate evidence.
 
 Run `python -B scripts/qc/alerts/audit.py`, the Lua fixtures in
 `scripts/qc/alerts/runtime.lua`, `scripts/qc/alerts/icon-sets.lua`,

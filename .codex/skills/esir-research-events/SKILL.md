@@ -7,7 +7,7 @@ description: "Use when adding, refactoring, auditing, or testing ESIR runtime co
 
 ## Native test integration
 
-Run `qc-test -Suite research-events` for ordinary/scripted completion, coalescing, force isolation, flush ordering, derived state and persistence. Run `research-bootstrap` for progression and lab changes across all four registered startup profiles. Missing required diagnostic state fails. Use [native testing](../esir-dev/references/native-testing.md); the historical helper supplies world setup, and manual shared `fmqc/mods-live` staging is obsolete.
+Use `qc-quick -Suite research-events` during iteration, then `qc-targeted -Suite research-events` for ordinary/scripted completion, coalescing, force isolation, flush ordering, derived state and persistence. For progression/lab changes, quick `research-bootstrap` uses `triggers-1-flatten-0`; targeted runs all four startup profiles and ordinary lab reload. Preview exact task scope with `-PlanOnly`. Missing required diagnostic state fails. Follow [native testing](../esir-dev/references/native-testing.md), including explicit/release-only full QC. The historical helper supplies world setup; manual shared `fmqc/mods-live` staging is obsolete.
 
 Follow [runtime development standards](../esir-dev/references/runtime-development-standards.md) for required calls and force/hint/tick contracts. Keep diagnostic capabilities distinct from required research fan-out.
 

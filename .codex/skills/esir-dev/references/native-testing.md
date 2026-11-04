@@ -7,17 +7,70 @@ Use `scripts/invoke-esir-dev.ps1` and `.codex/esir/test-suites.json`. The develo
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task test-list
 powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task test-plan
-powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-test
-powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-test -Suite induction-circuit -Case configuration
-powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-test -Suite mirroring -TestProfile quality-disabled
-powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-test -ChangedSince HEAD
+powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-quick -Suite induction-circuit -PlanOnly
+powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-quick -Suite induction-circuit
+powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-targeted -Suite induction-circuit -Strict
+powershell -ExecutionPolicy Bypass -File scripts/invoke-esir-dev.ps1 -Task qc-targeted -Suite mirroring -Case candidate -TestProfile quality-disabled
+# From PowerShell, use an array for multiple exact task-owned files:
+& ./scripts/invoke-esir-dev.ps1 -Task qc-quick -ChangedPath @('exotic-space-industries-remembrance/lib/alerts.lua','exotic-space-industries-remembrance/lib/alert-catalog.lua') -PlanOnly
 ```
 
 Listing and planning are read-only. `test-plan` without a ref examines differences against HEAD, including staged, unstaged, deleted, renamed and relevant untracked paths. Both rename paths participate. Plans report cases, profiles, selection reasons, uncovered paths and supplementary evidence requirements.
 
-`qc-test` defaults to the seven core families. `-TestTier extended` includes all active migrated cases and extended variants, including adverse runner controls. Exact `-Suite`, `-Case` and `-TestProfile` selectors reject unknown or empty selections before staging. Cases require one explicit suite. Use explicit suites or `-ChangedSince`, not both. Comma-separated values work through PowerShell `-File`.
+## Routine iteration and acceptance
 
-Fixture changes select their owner. Shared dispatcher and helper changes select core. Runner or catalogue changes select full adverse conformance plus core, even at the default tier. Normal `qc-full` requires core and focused Gaia acceptance. Unmapped gameplay selects core and retains an explicit coverage gap. Documentation-only plans may be empty. Execution requires a nonempty selection. Installed mods never expand curated matrices. The `factorio-2.1` entry also inventories nested and loose components with explicit status, existing executor references and matrix requirements.
+Use `qc-quick -PlanOnly` with the files owned by the current task, then `qc-quick`
+during iteration. Run `qc-targeted` once that scope is stable. Repeat checks when
+relevant inputs change, a failure is repaired, or a concern remains unresolved.
+Run `qc-full` only on an explicit request or an authorized release gate. Broad
+changes may recommend full qualification; routing never launches it automatically.
+
+Both scoped tasks require exactly one of `-ChangedPath`, `-ChangedSince`, or
+`-Suite`. They never default to the entire dirty worktree. `-ChangedPath` accepts
+exact repository-relative or contained absolute file paths, including tracked
+deletions and both rename sides; directories and glob patterns fail. Prefer it
+when other tasks have concurrent changes. `-ChangedSince` intentionally includes
+committed, staged, unstaged and relevant untracked changes. `-PlanOnly` validates
+and reports the selection without registration, staging or engine discovery.
+
+| Level | Selected work | Evidence boundary |
+| --- | --- | --- |
+| `qc-quick` | Scoped syntax, encoding, locale/link/skill checks, relevant host tests, catalogue candidate preset | Iteration evidence; omitted cases, profiles and acceptance checks remain visible |
+| `qc-targeted` | Required selected-suite cases/profiles, relevant final data, shipping assets or fixed Gaia acceptance | Acceptance for the declared scope; explicit subsets retain omitted requirements |
+| `qc-full` | Existing broad checks, all seven core families and focused Gaia acceptance | Explicit full gate; unchanged contract |
+
+Every active suite declares its quick preset. The defaults are `default`,
+`quality-enabled`, bootstrap `triggers-1-flatten-0`, or conformance `base-only`.
+Quick runs accept candidate cases only. Targeted defaults retain ordinary reload,
+intended configuration repair, all four bootstrap profiles and both mirroring
+Quality profiles. Exact `-Suite`, `-Case` and `-TestProfile` selectors reject
+unknown or empty selections before staging. Cases require one explicit suite.
+Comma-separated suite/case/profile values work through PowerShell `-File`.
+
+`qc-fast` retains its existing full data dump and final-data consumers; its name
+does not make it a lightweight iteration command. Runtime-only targeted changes
+do not request that dump. Packaging is selected for packaging/release paths or
+through an explicit package command. Bare `qc-test` remains compatible and runs
+core; use scoped commands for ordinary development. `-TestTier extended` includes
+declared extended cases. Quick runs cannot request extended controls.
+
+Fixture changes select their owner. Subsystem helpers select mapped owners;
+`lib/runtime-scheduler.lua` selects scheduler/event-tick coverage. Only the central
+dispatcher and shared `ei_lib` select broad core. Runner/supervision/storage changes
+select host tests, adverse conformance and representative build-dispatch/induction
+lifecycle rows; quick mode takes their candidate presets. Catalogue-only changes
+select catalogue/model-link and host checks. Docs, locale and host-test-only changes
+do not select unrelated native rows. Unmapped gameplay receives initialization
+smoke plus an explicit coverage gap; an already selected candidate with equivalent
+profile inputs avoids a duplicate fallback smoke. Explicit smoke selection is
+always retained, and different startup settings do not replace default-profile
+smoke. Missing/unmigrated coverage is `warning`, or `failed`
+under `-Strict`. Initialization never implies behavior acceptance.
+
+Documentation-only scoped execution can pass with static evidence. Empty native
+`qc-test` execution still fails. Installed mods never expand curated matrices. The
+`factorio-2.1` entry inventories nested and loose components with explicit status,
+existing executor references and matrix requirements.
 
 ## Core contract
 
@@ -25,6 +78,13 @@ Fixture changes select their owner. Shared dispatcher and helper changes select 
 `gaia-resources/candidate` case through its broad preview child. The dedicated
 `qc-gaia-resources` command owns the extended eight-seed and six-control preview
 matrix. See [Gaia resource QC](gaia-resource-qc.md) for these execution boundaries.
+
+`qc-targeted -Suite gaia-resources` runs the fixed preview and native case once
+through the companion. A preview with explicit `-Planet` or `-Seed` defaults to
+`-PreviewScope requested` and runs only that request. Bare `qc-preview` retains
+Gaia acceptance. Use `-PreviewScope gaia-acceptance` to include the fixed gate with
+a custom request; full QC always requires that gate. Preview-only evidence is
+labelled separately from native resource acceptance.
 
 The encoding gate preserves explicitly registered historical captures using
 `.codex/esir/preserved-encoding.json`. A matching normalized hash and exact finding
@@ -46,6 +106,20 @@ The first bootstrap profile digit is the effective `no_triggers` value. The cata
 ## Execution and verdict
 
 Fresh candidates use `--test-scenario`; saved-state assertions use `--test-save`. A runner-generated identity and selected phase arrive through `--test-arg` / `script.test_arg`. Runtime arguments cannot configure startup/data stages; profile inputs are staged first.
+
+Candidate-only rows launch one scenario session and create no seed save or
+checkpoint. A seed is created only before the first save-backed phase. Plans count
+game sessions separately from version/help probes and broader data/preview work.
+Receipts include elapsed times; there is no runtime promise or result cache.
+
+First launch may reorder `mod-list.json`, remove absent disabled entries and
+create `mod-settings.dat`. The guard compares the exact enabled set and still
+asserts explicitly disabled mods at runtime. A newly created settings file is
+accepted only when its complete inventory and values match fresh, identity-bound
+native default-prototype evidence. Existing settings files remain byte guarded;
+changed values, extra/missing settings, stale attestations and changed selections
+fail. The normalized before/after inputs are retained in the receipt. This removes
+the old seed launch without silently accepting unknown input changes.
 
 Every fixture writes its terminal report before calling `script.finish_test(boolean)`. Success requires successful process exit, clean fatal-log classification, unchanged validated inputs and a fresh report matching run, suite, profile, phase, exact engine and selected cases. Reports must be complete, nonempty and entirely passing. Missing, stale, malformed, empty, incomplete or mismatched reports fail. A zero exit from `--test-ticks` alone is insufficient.
 

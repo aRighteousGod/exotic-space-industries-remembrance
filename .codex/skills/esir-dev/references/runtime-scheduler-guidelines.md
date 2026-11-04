@@ -7,7 +7,7 @@ Keep the heap in owner storage, pass the supplied event tick, charge every attem
 pop, and park by declining service. Do not traverse cooling populations or append
 duplicate timers. Do not mutate saved heaps in `on_load`.
 
-When queue, delayed-work, telemetry or tick contracts change, run `scheduler-event-tick` through [native testing](native-testing.md). Cover supplied ticks, tick zero, idle paths, invalid queued objects, cleanup and serialized state as applicable. Clock stubs are controlled boundary checks; historical receipts keep their original versions and exports.
+When queue, delayed-work, telemetry or tick contracts change, use `qc-quick -Suite scheduler-event-tick` during iteration and `qc-targeted -Suite scheduler-event-tick` once stable; preview with `-PlanOnly`. Follow [native testing](native-testing.md), including explicit/release-only full QC. Cover supplied ticks, tick zero, idle paths, invalid queued objects, cleanup and serialized state as applicable. Clock stubs are controlled boundary checks; historical receipts keep their original versions and exports.
 
 Use this when editing queued runtime modules under `exotic-space-industries-remembrance/scripts/control/`.
 

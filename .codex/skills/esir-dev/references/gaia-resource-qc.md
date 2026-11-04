@@ -7,7 +7,7 @@ core execution. New changes still require fresh matching acceptance receipts.
 
 ## Required focused acceptance
 
-`qc-preview` and `qc-full` require a seed-1000, 4096-square preview and
+Bare `qc-preview`, `qc-targeted -Suite gaia-resources` and `qc-full` require a seed-1000, 4096-square preview and
 `test-suite: gaia-resources`, `test-case: gaia-resources/candidate`, profile
 `default`. The native fixture calls the production runtime settings factory,
 generates bounded chunk batches and requires all six resources. Its terminal
@@ -30,8 +30,12 @@ powershell -File scripts/invoke-esir-dev.ps1 -Task qc-test -Suite gaia-resources
 powershell -File scripts/invoke-esir-dev.ps1 -Task qc-preview -Strict -AsJson
 ```
 
-Explicit preview seed/planet requests produce separate outputs alongside the fixed
-acceptance row. Required missing reports or incomplete assertions fail the wrapper.
+Explicit preview seed/planet requests default to `-PreviewScope requested` and
+produce only that requested preview, with no Gaia native child. Select
+`-PreviewScope gaia-acceptance` to retain the fixed row and native acceptance beside
+the request. Full QC always includes the fixed gate. `qc-quick -Suite gaia-resources`
+runs the native candidate alone and lists the remaining preview requirement.
+Required missing reports or incomplete assertions fail the wrapper.
 Current acceptance requires fresh passing receipts. Native counts establish resource
 presence within the measured bounds. Geographic distribution, rendered inspection,
 historical migration and reforge safety use their dedicated evidence.

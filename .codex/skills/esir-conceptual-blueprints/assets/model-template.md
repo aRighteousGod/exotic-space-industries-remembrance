@@ -5,7 +5,8 @@ Describe the implemented purpose and observable behavior. Identify intended cons
 
 ## Implementation sources
 
-- [module.lua](../../../exotic-space-industries-remembrance/scripts/control/module.lua)
+- Replace this placeholder with relative links to the actual owned Lua files,
+  for example `../../../exotic-space-industries-remembrance/scripts/control/<owner>.lua`.
 
 ## Ownership and flow
 
@@ -27,3 +28,7 @@ Describe callback tick propagation, no-tick boundaries, cadence/budgets, and ori
 For registered native coverage, add `test-suite: <catalogue-id>` and optional `test-case: <suite>/<case>` lines using real IDs from `.codex/esir/test-suites.json`. Omit markers where no registered suite covers the model. Link validity does not establish behavioral coverage or a passing receipt.
 
 Link existing fixtures and define scenarios that exercise the contract. Distinguish prior reports from checks performed for this change. Link deferred work and state coverage limits.
+
+For new receipts, identify quick iteration, targeted acceptance (including omitted
+cases/profiles), or an explicitly requested full gate. Documentation/link checks
+alone do not require engine execution.

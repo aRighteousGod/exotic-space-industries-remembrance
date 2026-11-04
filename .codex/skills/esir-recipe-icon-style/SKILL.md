@@ -7,7 +7,7 @@ description: "Ingest the local recipe-icons-improvement-for-esir companion mod, 
 
 ## Native test integration
 
-Use [native testing](../esir-dev/references/native-testing.md) for applicable recipe/progression contracts, including `research-bootstrap` and its four startup profiles. Retain final-data inspection and rendered icon readability checks; native functional success does not establish icon appearance.
+Use `qc-quick -ChangedPath <task files> -PlanOnly` to select applicable recipe/progression contracts, then quick checks during iteration and targeted acceptance once stable. Targeted `research-bootstrap` retains all four startup profiles. See [native testing](../esir-dev/references/native-testing.md); `qc-fast` still makes a full data dump and full QC is explicit/release-only. Retain final-data inspection and rendered icon readability checks; native functional success does not establish icon appearance.
 
 Use this skill when work touches ESIR recipe icon readability, subgroup or order drift, Factoriopedia visibility, player-crafting visibility, recipe signal cleanup, or batch review of companion-style changes outside the game.
 

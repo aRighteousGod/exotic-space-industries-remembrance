@@ -55,25 +55,24 @@ class SelectionTests(unittest.TestCase):
         with self.assertRaises(ValueError):catalogue.plan(REPO,paths=['README.md'])
 
     def test_routing(self):
-        for path in ('exotic-space-industries-remembrance/control.lua','exotic-space-industries-remembrance/lib/new.lua',
-                     'exotic-space-industries-remembrance/scripts/new.lua','exotic-space-industries-remembrance/info.json',
-                     'exotic-space-industries-remembrance/unknown.lua'):
+        for path in ('exotic-space-industries-remembrance/control.lua','exotic-space-industries-remembrance/lib/lib.lua',
+                     'exotic-space-industries-remembrance/info.json'):
             with self.subTest(path=path):
                 self.assertTrue(set(catalogue.CORE)<={r['suite'] for r in catalogue.plan(REPO,paths=[path])['rows']})
         route=catalogue.plan(REPO,paths=['scripts/qc/native-tests/runner.py'])
         self.assertIn('runner-conformance',{r['suite'] for r in route['rows']})
         self.assertIn('host-timeout',next(r for r in route['rows'] if r['suite']=='runner-conformance')['cases'])
-        self.assertIn('runner-conformance',{r['suite'] for r in catalogue.plan(REPO,paths=['.codex/esir/factorio-development.json'])['rows']})
+        self.assertEqual(set(catalogue.CORE),{r['suite'] for r in catalogue.plan(REPO,paths=['.codex/esir/factorio-development.json'])['rows']})
         self.assertTrue(catalogue.plan(REPO,paths=['exotic-space-industries-remembrance/scripts/unknown.lua'])['coverage_gaps'])
         bootstrap=catalogue.plan(REPO,paths=['exotic-space-industries-remembrance/scripts/data-updates/vanilla-updates/planets/vulcanus.lua'])
         self.assertIn('research-bootstrap',{r['suite'] for r in bootstrap['rows']})
         self.assertTrue(catalogue.plan(REPO,paths=['exotic-space-industries-remembrance/prototypes/uncovered.lua'])['coverage_gaps'])
         passage=catalogue.plan(REPO,paths=['exotic-space-industries-remembrance/lib/factory-passage-config.lua'])
-        self.assertEqual(set(catalogue.CORE),{r['suite'] for r in passage['rows']})
+        self.assertEqual({'engine-smoke'},{r['suite'] for r in passage['rows']})
         self.assertTrue(any(g.get('suite')=='factory-passage' for g in passage['coverage_gaps']))
         self.assertIn('benchmark',passage['supplementary_evidence'])
-        legacy = catalogue.plan(REPO, paths=['.codex/skills/esir-dev/assets/zzz-fluid-rupture-qc_0.0.1/control.lua'])
-        self.assertEqual(set(catalogue.CORE), {row['suite'] for row in legacy['rows']})
+        legacy = catalogue.plan(REPO, discovery=True, paths=['.codex/skills/esir-dev/assets/zzz-fluid-rupture-qc_0.0.1/control.lua'])
+        self.assertEqual(set(), {row['suite'] for row in legacy['rows']})
         self.assertTrue(any(gap.get('suite') == 'fluid-ruptures' and gap['reason'] == 'needs-port'
                             for gap in legacy['coverage_gaps']))
 
@@ -141,7 +140,7 @@ class VerdictTests(unittest.TestCase):
             config=root/'config.ini';config.write_text('[path]\nread-data=a\nwrite-data=b\n')
             selection=root/'mod-list.json';selection.write_text('{"mods":[]}')
             record={'mods':str(root),'config':str(config)};first=runner.phase_inputs(record,'source')[0]
-            selection.write_text('{"mods":[{"name":"quality","enabled":false}]}')
+            selection.write_text('{"mods":[{"name":"quality","enabled":true}]}')
             self.assertNotEqual(first,runner.phase_inputs(record,'source')[0])
             first=runner.phase_inputs(record,'source')[0]
             (root/'mod-settings.dat').write_bytes(b'changed')

@@ -39,8 +39,9 @@ It composes these engine-layer skills:
 - `dependency-refresh|dependency-query|dependency-diff`: operate on the ESIR dependency catalog and optional local installed-mod enrichment
 - `preflight`: static syntax/reference/header/encoding and conceptual-blueprint coverage sweeps without touching gameplay data
 - `test-list|test-plan`: read-only suite discovery and changed-path selection; see [native testing](references/native-testing.md).
+- `qc-quick|qc-targeted`: explicit task-owned `ChangedPath`, `ChangedSince` or `Suite` scope. Preview with `PlanOnly`, use quick candidate checks during iteration, then targeted required rows once stable. Repeat for relevant changes/failures; full QC requires an explicit request or authorized release gate.
 - `qc-test`: run selected current functional suites, defaulting to core. Use `Suite`, `Case`, `TestProfile`, `TestTier` and `ChangedSince` for exact selection.
-- `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness. Runtime retains smoke coverage; `qc-full` additionally requires the native core suite gate.
+- `qc-fast|qc-runtime|qc-preview|qc-assets|qc-package|qc-full`: delegate to the Factorio QC harness. Fast still performs a full data dump; runtime retains smoke coverage. Explicit preview requests default to requested-only; bare preview and full require fixed Gaia acceptance. Full additionally requires the native core suite gate.
 - `qc-gaia-resources`: run the checked-in multi-seed Gaia resource matrix described in [`references/gaia-resource-qc.md`](./references/gaia-resource-qc.md)
 - `runtime-benchmark`: run save-catalog-backed runtime benchmarks, auto-staging helper mods declared for that save
 - `portal-scout`: build or refresh `.codex/esir/portal-shortlist.json`

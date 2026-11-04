@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('test-list', 'test-plan', 'qc-test', 'doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
+    [ValidateSet('test-list', 'test-plan', 'qc-test', 'qc-quick', 'qc-targeted', 'doctor', 'housekeeping', 'manifest-refresh', 'dependency-refresh', 'dependency-query', 'dependency-diff', 'preflight', 'qc-fast', 'qc-runtime', 'qc-preview', 'qc-gaia-resources', 'qc-assets', 'qc-package', 'qc-full', 'runtime-benchmark', 'portal-scout', 'portal-plan', 'portal-capture', 'portal-render', 'portal-validate', 'portal-page', 'diff', 'art-start', 'art-collect', 'art-review', 'art-validate', 'pack-dryrun', 'pack-deploy', 'full')]
     [string]$Task,
     [string]$RepoRoot = (Get-Location).Path,
     [string]$SaveId,
@@ -11,6 +11,9 @@ param(
     [string[]]$TestProfile = @(),
     [ValidateSet('core','extended')][string]$TestTier = 'core',
     [string]$ChangedSince,
+    [string[]]$ChangedPath,
+    [switch]$PlanOnly,
+    [ValidateSet('requested','gaia-acceptance')][string]$PreviewScope,
     [Nullable[int]]$WarmupRuns,
     [Nullable[int]]$BenchmarkRuns,
     [Nullable[int]]$BenchmarkTicks,
@@ -45,23 +48,34 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-if ($Task -in @('test-list','test-plan','qc-test')) {
-    $nativeParameters=@('Task','RepoRoot','Suite','Case','TestProfile','TestTier','ChangedSince','FactorioPath','AsJson')
+if ($Task -in @('test-list','test-plan','qc-test','qc-quick','qc-targeted')) {
+    $scoped = $Task -in @('qc-quick','qc-targeted')
+    $nativeParameters=@('Task','RepoRoot','Suite','Case','TestProfile','TestTier','ChangedSince','ChangedPath','FactorioPath','AsJson')
+    if ($scoped) { $nativeParameters+=@('PlanOnly','Strict') }
     foreach ($parameter in $PSBoundParameters.Keys) {
         if ($parameter -notin $nativeParameters) { throw "Parameter -$parameter is not supported by native test tasks." }
     }
-    $nativeArgs=@('-B',(Join-Path $PSScriptRoot 'qc/native-tests/runner.py'),$Task,'--repo',$RepoRoot,'--tier',$TestTier)
+    $entry = if ($scoped) { 'qc/native-tests/workflows.py' } else { 'qc/native-tests/runner.py' }
+    $nativeArgs=@('-X','utf8','-B',(Join-Path $PSScriptRoot $entry),$Task,'--repo',$RepoRoot,'--tier',$TestTier)
     foreach ($item in $Suite) { foreach($value in $item.Split(',')){ $nativeArgs+=@('--suite',$value) } }
     foreach ($item in $Case) { foreach($value in $item.Split(',')){ $nativeArgs+=@('--case',$value) } }
     foreach ($item in $TestProfile) { foreach($value in $item.Split(',')){ $nativeArgs+=@('--profile',$value) } }
     if ($ChangedSince) { $nativeArgs+=@('--changed-since',$ChangedSince) }
+    if ($PSBoundParameters.ContainsKey('ChangedPath')) {
+        if (-not $ChangedPath.Count) { throw '-ChangedPath cannot be empty.' }
+        foreach ($item in $ChangedPath) { $nativeArgs+=@('--changed-path',$item) }
+    }
+    if ($PlanOnly) { $nativeArgs+='--plan-only' }
+    if ($Strict) { $nativeArgs+='--strict' }
     if ($FactorioPath) { $nativeArgs+=@('--engine',$FactorioPath) }
     & python @nativeArgs
     exit $LASTEXITCODE
 }
-if ($Suite.Count -or $Case.Count -or $TestProfile.Count -or $ChangedSince -or $PSBoundParameters.ContainsKey('TestTier')) {
-    throw 'Native test selectors require test-list, test-plan or qc-test.'
+if ($Suite.Count -or $Case.Count -or $TestProfile.Count -or $ChangedSince -or $PSBoundParameters.ContainsKey('TestTier') -or $PSBoundParameters.ContainsKey('ChangedPath') -or $PlanOnly) {
+    throw 'Test selectors require test-list, test-plan, qc-test, qc-quick or qc-targeted; PlanOnly requires a scoped QC task.'
 }
+if ($PreviewScope -and $Task -notin @('qc-preview','qc-full','full')) { throw '-PreviewScope requires qc-preview or an explicit full task.' }
+if ($Task -in @('qc-full','full') -and $PreviewScope -eq 'requested') { throw 'Full QC always requires Gaia acceptance; use qc-preview for a requested preview alone.' }
 
 if ($Task -in @('portal-plan','portal-capture','portal-render','portal-validate','portal-page')) {
     $batch = if ($Path) { $Path } else { 'portal/batches/001-pilots.json' }
@@ -96,7 +110,7 @@ $writeTasks = @(
     'full'
 )
 $paths = Get-EsirPaths -RepoRoot $RepoRoot -EnsureWritableDirs:($Task -in $writeTasks)
-$result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Seeds $Seeds -PreviewSize $PreviewSize -Planet $Planet -Pack $Pack -DependencyScope $Scope -DependencyCategory $Category -ModName $ModName -TargetPath $Path -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -ResolveInstalled:$ResolveInstalled -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard -Apply:$Apply -FullInventory:$FullInventory -IncludeCodexHome:$IncludeCodexHome -CloseRunId $CloseRunId
+$result = Invoke-EsirTask -Task $Task -Paths $paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -Seed $Seed -Seeds $Seeds -PreviewSize $PreviewSize -Planet $Planet -PreviewScope $PreviewScope -Pack $Pack -DependencyScope $Scope -DependencyCategory $Category -ModName $ModName -TargetPath $Path -PromptText $PromptText -PromptFile $PromptFile -SessionName $SessionName -DownloadsPath $DownloadsPath -FactorioPath $FactorioPath -Strict:$Strict -ResolveInstalled:$ResolveInstalled -FixEncoding:$FixEncoding -SkipBrowser:$SkipBrowser -SkipClipboard:$SkipClipboard -Apply:$Apply -FullInventory:$FullInventory -IncludeCodexHome:$IncludeCodexHome -CloseRunId $CloseRunId
 
 if ($AsJson) {
     $result | ConvertTo-Json -Depth 16

@@ -7,7 +7,7 @@ description: "Use when Codex needs to import, audit, replace, or choose Factorio
 
 ## Native test integration
 
-For changed ESIR consumers, use [native testing](../esir-dev/references/native-testing.md) to select registered contracts and dependency profiles, including mirroring's two Quality rows. Retain final-data and rendered acceptance for prototype/presentation changes; historical surveys keep their original version.
+For changed ESIR consumers, plan `qc-quick -ChangedPath <task files> -PlanOnly`, then iterate with quick checks and run targeted acceptance once stable. [Native testing](../esir-dev/references/native-testing.md) retains complete profiles, including mirroring's two Quality rows, and explicit/release-only full QC. Keep final-data and rendered acceptance for prototype/presentation changes; historical surveys retain their original version.
 
 Use this skill when a task touches importable vanilla helper modules outside Factorio's `data/core/lualib` tree.
 

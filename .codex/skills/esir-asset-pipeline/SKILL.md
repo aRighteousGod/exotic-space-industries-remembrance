@@ -7,7 +7,7 @@ description: "Use when Codex should orchestrate a full ESIR asset pipeline from 
 
 ## Native test integration
 
-At authorized shipping integration, inspect relevant suite/profile coverage through [native testing](../esir-dev/references/native-testing.md) and the entity-presentation skill. Draft-only art, Meshy and Blender work retain staged-art validation. Native functionality does not establish rendered quality.
+At authorized shipping integration, plan `qc-quick -ChangedPath <task files> -PlanOnly`, iterate with quick checks, then run `qc-targeted` on the same shipping scope for asset checks and mapped fixtures. Follow [native testing](../esir-dev/references/native-testing.md) and entity presentation; full QC is explicit/release-only. Draft-only art, Meshy and Blender work retain staged-art validation. Native functionality does not establish rendered quality.
 
 Use this skill when an asset needs a reproducible end-to-end dossier instead of isolated commands. It coordinates `$meshy-api`, `$meshy-blender-spritesheet`, `$blender-procedural-animation`, and `$esir-factorio-asset-export`.
 

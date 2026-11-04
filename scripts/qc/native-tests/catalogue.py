@@ -39,6 +39,10 @@ def load(repo):
                 values = [r["id"] for r in suite[name]]
                 if len(values) != len(set(values)):
                     raise ValueError("Duplicate " + name + ": " + suite["id"])
+            quick = suite.get('quick', {})
+            if quick.get('cases') != ['candidate'] or not quick.get('profiles') or any(
+                    p not in {row['id'] for row in suite['profiles']} for p in quick['profiles']):
+                raise ValueError('Active suite requires an exact candidate quick preset: ' + suite['id'])
             if suite.get('engine_version')!='2.1.24': raise ValueError('Active suite engine mismatch')
             for budget in ('deadline_ticks','timeout_seconds'):
                 if type(suite.get(budget)) is not int or suite[budget]<=0: raise ValueError('Invalid finite budget: '+suite['id'])
@@ -83,14 +87,26 @@ def matches(path, patterns):
     return any(fnmatch.fnmatchcase(path.replace("\\", "/"), pattern) for pattern in patterns)
 
 
+def deduplicate_routed_smoke(rows):
+    """Only replace fallback initialization with an actual equivalent candidate."""
+    def profile_inputs(row):
+        return {key: value for key, value in row['profile'].items() if key != 'id'}
+    return [row for row in rows if not (
+        row['suite'] == 'engine-smoke' and row['reasons'] and
+        all(reason.startswith('initialization only: ') for reason in row['reasons']) and
+        any(other['suite'] not in ('engine-smoke', 'runner-conformance') and
+            'candidate' in other['cases'] and profile_inputs(other) == profile_inputs(row)
+            for other in rows))]
+
+
 def plan(repo, suites=(), cases=(), profiles=(), tier="core", changed_since=None,
-         discovery=False, paths=None):
+         discovery=False, paths=None, deduplicate_smoke=True):
     document = load(repo)
     catalogue = {s["id"]: s for s in document["suites"]}
     suites, cases, profiles = list(suites), list(cases), list(profiles)
     if cases and len(suites) != 1:
         raise ValueError("-Case requires one explicit -Suite")
-    if suites and changed_since is not None:
+    if sum((bool(suites), changed_since is not None, paths is not None)) > 1:
         raise ValueError("Choose explicit suites or change routing, not both")
     unknown = set(suites) - catalogue.keys()
     if unknown:
@@ -101,13 +117,19 @@ def plan(repo, suites=(), cases=(), profiles=(), tier="core", changed_since=None
     changed = changed_paths(repo, changed_since or "HEAD") if route and paths is None else (paths or [])
     if route:
         for path in changed:
+            # Documentation, locale and host tests do not launch gameplay merely
+            # because they live beside a fixture or under a broad owner glob.
+            if path.endswith(('.md', '.cfg')) or Path(path).name.startswith('test_'):
+                continue
             owners = [s for s in catalogue.values() if matches(path, s.get("paths", []))]
-            if matches(path, document["infrastructure_paths"] + ['.codex/esir/factorio-development.json', '.codex/esir/save-catalog.json', '.codex/esir/*dependency*.json']):
-                owners = list({s['id']:s for s in [*owners,*(catalogue[n] for n in (*CORE, "runner-conformance"))]}.values())
+            if path == CATALOGUE:
+                continue
+            if matches(path, document["infrastructure_paths"]):
+                owners = list({s['id']:s for s in [*owners,*(catalogue[n] for n in ('build-dispatch', 'induction-circuit', 'runner-conformance'))]}.values())
                 infrastructure_changed=True
             elif matches(path, document["shared_runtime_paths"]):
                 owners = list({s['id']:s for s in [*owners,*(catalogue[n] for n in CORE)]}.values())
-            elif matches(path, ['*/info.json', '.codex/skills/esir-dev/assets/*']):
+            elif matches(path, ['*/info.json', '.codex/esir/factorio-development.json', '.codex/esir/save-catalog.json']):
                 core_owners = [catalogue[name] for name in CORE]
                 owners = list({owner['id']: owner for owner in owners + core_owners}.values())
                 supplemental.append('dependency/profile compatibility')
@@ -131,8 +153,9 @@ def plan(repo, suites=(), cases=(), profiles=(), tier="core", changed_since=None
             if (not owners and re.match(r"(?:exotic-space-industries-remembrance[^/]*|[^/]+-continued)/", path)
                     and path.endswith((".lua", ".json"))):
                 gaps.append({"path": path, "reason": "unmapped-gameplay"})
-                for name in CORE:
-                    selected.setdefault(name, []).append("unmapped fallback: " + path)
+            if (re.match(r"(?:exotic-space-industries-remembrance[^/]*|[^/]+-continued)/", path)
+                    and path.endswith(('.lua', '.json')) and not any(s['eligibility']=='active' for s in owners)):
+                selected.setdefault('engine-smoke', []).append('initialization only: ' + path)
     else:
         wanted = suites or [s["id"] for s in catalogue.values()
                             if s["eligibility"] == "active" and (s.get("core") or tier == "extended")]
@@ -158,6 +181,8 @@ def plan(repo, suites=(), cases=(), profiles=(), tier="core", changed_since=None
                              "reasons": sorted(set(selected[name])), "deadline_ticks": suite.get("deadline_ticks", 3600),
                              "timeout_seconds": suite.get("timeout_seconds", 600), "checkpoint_executor":suite['checkpoint_executor']})
         supplemental.extend(suite.get("supplementary_evidence", []))
+    if deduplicate_smoke:
+        rows = deduplicate_routed_smoke(rows)
     if not rows and not discovery:
         raise ValueError("Empty test execution selection")
     return {"task": "test-plan", "overall_status": "warning" if gaps else "ok", "rows": rows,

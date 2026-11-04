@@ -9,6 +9,10 @@ description: "Create and maintain repo-owned conceptual models with Lua commenta
 
 In model verification sections, identify registered coverage with `test-suite: <id>` and `test-case: <suite>/<case>` using IDs from `.codex/esir/test-suites.json`. Describe scenario coverage and limitations beside them. The [native testing](../esir-dev/references/native-testing.md) link audit rejects broken IDs; valid linkage is not proof that every model invariant passed.
 
+Record whether fresh evidence came from quick candidates, complete targeted rows,
+or an explicit full gate. Use task-owned paths with `-PlanOnly` before iteration;
+do not require a full run merely because model links or documentation changed.
+
 Read the relevant model in [the blueprint index](../../esir/blueprints/index.md) before changing a system contract. Inspect its current source owners as well: structural checks cannot prove that a model describes its implementation accurately.
 
 ## When a model is required

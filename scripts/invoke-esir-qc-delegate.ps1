@@ -5,7 +5,8 @@ param(
     [Parameter(Mandatory)][string]$RepoRoot,
     [Parameter(Mandatory)][string]$ArtifactRoot,
     [Parameter(Mandatory)][string]$RunId,
-    [string]$Save, [Nullable[int]]$Seed, [string]$Planet, [string]$FactorioPath, [switch]$Strict
+    [string]$Save, [Nullable[int]]$Seed, [string]$Planet, [string]$FactorioPath, [switch]$Strict,
+    [ValidateSet('requested','gaia-acceptance')][string]$PreviewScope
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'esir-dev-lib.ps1')
@@ -16,6 +17,8 @@ $ownedRoot = Assert-EsirArtifactTarget $RepoRoot $run.payload_path
 if ($run.status -ne 'running' -or $run.workflow -ne ('qc-' + $Mode) -or $ownedRoot -ne [IO.Path]::GetFullPath($ArtifactRoot)) { throw 'QC invocation does not match its artifact owner.' }
 [void](Initialize-EsirManagedQcContext -RepoRoot $RepoRoot -Context $context -RunId $RunId -SourceMode read-only)
 $context | Add-Member -NotePropertyName preview_companion -NotePropertyValue (Get-Command Invoke-EsirGaiaPreviewCompanion).ScriptBlock
+$PreviewScope = Resolve-EsirPreviewScope -Mode $Mode -PreviewScope $PreviewScope -Planet $Planet -Seed $Seed
+$context | Add-Member -NotePropertyName preview_scope -NotePropertyValue $PreviewScope
 if ($Mode -in @('runtime','preview','full')) {
     $selection = Resolve-EsirSaveSelection -Paths $paths -TaskName ('qc-'+$Mode) -SavePath $Save
     $helpers = Get-EsirSaveHelperSummary -Paths $paths -SaveSelection $selection -TaskName ('qc-'+$Mode) -AllowAutoStage

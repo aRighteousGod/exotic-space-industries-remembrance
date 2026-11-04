@@ -14,7 +14,7 @@ managed final-data gate, with effective startup values recorded by the Gaia case
 Use quiet presence checks for conditional prototypes while retaining diagnostics
 for required reads.
 
-Route changed declarations and touchpoints through `test-plan`, then choose named `TestProfile` rows in the [native catalogue](../../esir/test-suites.json). The mirroring profiles explicitly cover Quality enabled/disabled. Local installed presence never silently expands the matrix. [Native testing](../esir-dev/references/native-testing.md) keeps unmigrated compatibility families visible as coverage gaps.
+Plan changed declarations/touchpoints with `qc-quick -ChangedPath <task files> -PlanOnly`, iterate with quick presets, then run `qc-targeted` for required named profiles in the [native catalogue](../../esir/test-suites.json). Mirroring retains Quality enabled/disabled acceptance. Local installed presence never expands the matrix. [Native testing](../esir-dev/references/native-testing.md) keeps unmigrated compatibility gaps visible; profile changes recommend full qualification but only an explicit request or authorized release gate launches it.
 
 Use this before ad hoc repo-wide greps when the question is mainly about ESIR dependencies, compatibility surfaces, remote interfaces, planet integrations, or media companion packs.
 

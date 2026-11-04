@@ -7,7 +7,7 @@ description: "Integrate and review ESIR custom death explosions, hit effects, in
 
 ## Native test integration
 
-At shipping integration, use [native testing](../esir-dev/references/native-testing.md) to select registered entity/helper/effect/scene assertions. A `needs-port` entry remains an explicit gap and retains its focused command. Final-data invariants, native scene contents and rendered appearance are separate acceptance evidence.
+At shipping integration, preview `qc-quick -ChangedPath <task files> -PlanOnly`, use quick checks during iteration, then `qc-targeted` with the same scope for mapped entity/helper/effect/scene assertions and relevant assets/final data. Follow [native testing](../esir-dev/references/native-testing.md); full QC is explicit/release-only. A `needs-port` entry remains an explicit gap and retains its focused command. Final-data invariants, native scene contents and rendered appearance are separate acceptance evidence.
 
 Check both death coverage and player-facing presentation for each affected entity.
 Existing inheritance can satisfy either contract; an explicit registry entry is not

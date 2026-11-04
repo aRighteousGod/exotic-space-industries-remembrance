@@ -407,7 +407,8 @@ function Get-EsirTextFileTargets {
 function Invoke-EsirEncodingPass {
     param(
         [Parameter(Mandatory = $true)]$Paths,
-        [switch]$Fix
+        [switch]$Fix,
+        [string[]]$TargetPath
     )
 
     $preserved = @{}
@@ -427,7 +428,14 @@ function Invoke-EsirEncodingPass {
     }
     $seenPreserved = @{}
     $findings = @()
-    $targets = @(Get-EsirTextFileTargets -Paths $Paths)
+    $targets = @(if ($PSBoundParameters.ContainsKey('TargetPath')) {
+        # The pinned historical records remain verified even in a scoped scan.
+        foreach ($relative in @(@($TargetPath) + @($preserved.Keys) | Sort-Object -Unique)) {
+            $file = Join-Path $Paths.repo_root $relative
+            if ([IO.Path]::GetExtension($file) -in @('.lua','.json','.cfg','.md','.txt','.py','.ps1','.psm1','.yaml','.yml') -and
+                (Test-Path -LiteralPath $file -PathType Leaf)) { Get-Item -LiteralPath $file }
+        }
+    } else { Get-EsirTextFileTargets -Paths $Paths })
     foreach ($file in $targets) {
         $relativePath = Get-RelativeRepoPath -RepoRoot $Paths.repo_root -Path $file.FullName
         $readInfo = Read-EsirTextFile -Path $file.FullName -AllowFallback
@@ -1923,11 +1931,13 @@ function Invoke-EsirQcMode {
         [string]$SavePath,
         [Nullable[int]]$Seed,
         [string]$Planet,
+        [string]$PreviewScope,
         [string]$FactorioPath,
         [switch]$Strict,
         [switch]$FixEncoding
     )
 
+    $PreviewScope = Resolve-EsirPreviewScope -Mode $Mode -PreviewScope $PreviewScope -Planet $Planet -Seed $Seed
     $context = Get-EsirQcContext -Paths $Paths -FactorioPath $FactorioPath -EnsureArtifactRoot
     $encodingPass = Invoke-EsirEncodingPass -Paths $Paths -Fix:$FixEncoding
     $commonInputs = if ($Mode -eq 'full') { Get-EsirCommonTestInputs -Paths $Paths } else { $null }
@@ -1949,6 +1959,7 @@ function Invoke-EsirQcMode {
     if ($saveSelection -and $saveSelection.path) { $arguments += @('-Save', $saveSelection.path) }
     if ($null -ne $Seed) { $arguments += @('-Seed', [string]$Seed) }
     if ($Planet) { $arguments += @('-Planet', $Planet) }
+    if ($Mode -in @('preview','full')) { $arguments += @('-PreviewScope', $PreviewScope) }
     $arguments += @('-FactorioPath', $context.factorio_exe)
     if ($Strict) { $arguments += '-Strict' }
 
@@ -3083,6 +3094,7 @@ function Invoke-EsirTask {
         [uint32[]]$Seeds,
         [Nullable[int]]$PreviewSize,
         [string]$Planet,
+        [string]$PreviewScope,
         [string]$Pack,
         [string]$DependencyScope,
         [string]$DependencyCategory,
@@ -3115,7 +3127,7 @@ function Invoke-EsirTask {
         'qc-fast' { return Invoke-EsirQcMode -Paths $Paths -Mode 'fast' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-runtime' { return Invoke-EsirQcMode -Paths $Paths -Mode 'runtime' -SaveId $SaveId -SavePath $SavePath -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'runtime-benchmark' { return Invoke-EsirRuntimeBenchmark -Paths $Paths -SaveId $SaveId -SavePath $SavePath -WarmupRuns $WarmupRuns -BenchmarkRuns $BenchmarkRuns -BenchmarkTicks $BenchmarkTicks -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
-        'qc-preview' { return Invoke-EsirQcMode -Paths $Paths -Mode 'preview' -SaveId $SaveId -SavePath $SavePath -Seed $Seed -Planet $Planet -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
+        'qc-preview' { return Invoke-EsirQcMode -Paths $Paths -Mode 'preview' -SaveId $SaveId -SavePath $SavePath -Seed $Seed -Planet $Planet -PreviewScope $PreviewScope -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-gaia-resources' { return Invoke-EsirGaiaResourceQc -Paths $Paths -Seeds $Seeds -PreviewSize $PreviewSize -FactorioPath $FactorioPath -Strict:$Strict }
         'qc-assets' { return Invoke-EsirQcMode -Paths $Paths -Mode 'assets' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }
         'qc-package' { return Invoke-EsirQcMode -Paths $Paths -Mode 'package' -FactorioPath $FactorioPath -Strict:$Strict -FixEncoding:$FixEncoding }

@@ -68,8 +68,10 @@
 ## Verification Options
 - Use `powershell -ExecutionPolicy Bypass -File .\scripts\invoke-esir-dev.ps1 -Task doctor` for repo shape, tool, Factorio path, and pack topology sanity.
 - Use `-Task preflight` for static syntax/reference/header/encoding sweeps before or after Lua/data edits.
-- Use `-Task qc-fast` for small Lua, data, locale, or prototype changes where a quick Factorio-backed check is enough.
-- Use `-Task qc-runtime` for control-stage behavior, event wiring, runtime state, scheduler, GUI, or research-event changes.
+- Use `-Task qc-quick -ChangedPath <task-owned files> -PlanOnly` to review focused selection, then omit `-PlanOnly` for iteration checks. Exactly one explicit path, ref or suite scope is required; do not include unrelated dirty work.
+- Use `-Task qc-targeted` with the same scope once stable for required suite/profile and relevant data/assets/preview acceptance. Repeat only after relevant edits, failures or unresolved concerns. Read [native testing](.codex/skills/esir-dev/references/native-testing.md) for subsets and evidence boundaries.
+- `qc-fast` retains its full data dump; `qc-runtime` retains broad save smoke. Neither is the default replacement for a focused native suite.
+- Run `qc-full` only when explicitly requested or as an authorized release gate. Broad change routing may recommend it but must not launch it automatically.
 - Use `-Task qc-assets` for graphics, sprite, icon, render-bundle, or prototype asset wiring.
 - Use `-Task qc-package` or `-Task pack-dryrun` before release/package work. `pack-deploy` is mutating and should be used only when explicitly requested.
 - For documentation-only edits such as this file, Markdown readability plus `git diff -- AGENTS.md` is sufficient.

@@ -278,6 +278,18 @@ end})
 
 
 def stage_runtime(repo,main,helper,suite,profile):
+    if suite=='engine-smoke':
+        write(helper/'native-suite.lua','''local initialized=false
+return {init=function() initialized=true end,poll=function(tick)
+ return {complete=true,checks={
+  {name="fixture-on-init",passed=initialized},
+  {name="selected-main-loaded",passed=script.active_mods["exotic-space-industries-remembrance"]~=nil},
+  {name="native-tick-dispatch",passed=type(tick)=="number" and tick>=0},
+  {name="native-world-initialized",passed=game.forces.player~=nil and game.surfaces[1]~=nil}
+ }}
+end}
+''')
+        return {'evidence':'Native selected-stack load and initialization only'}
     if suite=='orbital-logistics':
         import importlib.util
         spec=importlib.util.spec_from_file_location('esir_orbital_adapter',repo/'scripts/qc/orbital-logistics/adapter.py')

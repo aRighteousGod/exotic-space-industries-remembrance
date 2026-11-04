@@ -7,7 +7,7 @@ description: "Prefer the shared `ei_lib` helper surface in `exotic-space-industr
 
 ## Native test integration
 
-Shared runtime-helper changes route through [native testing](../esir-dev/references/native-testing.md) to core, including `scheduler-event-tick` for queues, delays and tick plumbing. Select consumer cases for other helper contracts. Assertion/report utilities belong in QC infrastructure, outside shipping `ei_lib`.
+Plan `qc-quick -ChangedPath <task files> -PlanOnly`, iterate with quick checks and use `qc-targeted` once stable. Shared `ei_lib` changes select core; scheduler changes select `scheduler-event-tick`; subsystem helpers select their declared consumers. Follow [native testing](../esir-dev/references/native-testing.md), including explicit/release-only full QC. Assertion/report utilities belong in QC infrastructure, outside shipping `ei_lib`.
 
 Open [`exotic-space-industries-remembrance/lib/lib.lua`](../../../exotic-space-industries-remembrance/lib/lib.lua) before adding any new helper with shared utility shape.
 
