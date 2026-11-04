@@ -5,6 +5,8 @@ local protected = {
     ["ei-gate"] = true, ["ei-gate-container"] = true, ["ei-gate-circuit-interface"] = true,
     ["ei-auric-inoculation-vat"] = true, ["ei-auric-inoculation-vat-circuit-interface"] = true,
     ["ei-combustion-turbine-fluid-open-proxy"] = true, ["ei-fusion-reactor-circuit-interface"] = true,
+    ["ei-combustion-turbine-oxygen-generator"] = true,
+    ["ei-combustion-turbine-oxygen-generator-ash"] = true,
     ["ei-neutron-collector-circuit-interface"] = true, ["ei-sweeping-radar-output"] = true,
     ["ei-water-turret-power"] = true, ["ei-sweeping-radar-power"] = true, ["ei-phased-array-radar-power"] = true,
     ["ei-orbital-combinator-power-sensor"] = true, ["ei-orbital-selector-power-sensor"] = true,

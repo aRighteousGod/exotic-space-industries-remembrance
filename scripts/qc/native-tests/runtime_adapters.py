@@ -290,6 +290,11 @@ return {init=function() initialized=true end,poll=function(tick)
 end}
 ''')
         return {'evidence':'Native selected-stack load and initialization only'}
+    if suite in ('combustion-turbine-native-proof','combustion-turbine'):
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('esir_turbine_adapter',repo/'scripts/qc/combustion-turbine/adapter.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module.stage(repo,main,helper,profile)
     if suite=='orbital-logistics':
         import importlib.util
         spec=importlib.util.spec_from_file_location('esir_orbital_adapter',repo/'scripts/qc/orbital-logistics/adapter.py')

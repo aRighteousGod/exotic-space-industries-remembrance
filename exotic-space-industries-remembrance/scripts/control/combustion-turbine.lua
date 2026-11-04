@@ -1,12 +1,14 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: combustion turbine fuel-mode GUI and solid/fluid shell swaps
+-- owns: combustion turbine fuel/oxygen GUI, native compound topology and pressure enforcement
 -- loaded_by: exotic-space-industries-remembrance\control.lua
--- cadence: build/destroy/clone/settings-paste/object-destroyed and GUI open/close/click
+-- cadence: lifecycle/GUI events; pressure once per occupied surface every 60 ticks
 -- forwarded_events: check_global, close_gui, get_runtime_status, on_built_entity,
 --                   on_configuration_changed, on_destroyed_entity,
 --                   on_entity_settings_pasted, on_gui_click, on_gui_closed, on_object_destroyed,
---                   on_player_left_game, open_gui, rebuild_runtime_state
+--                   on_player_left_game, open_gui, rebuild_runtime_state, on_blueprint,
+--                   on_gui_checked_state_changed, on_moved_entity, has_tick_work, updater
+--                   swap_to_mode, update_gui
 -- storage_roots: storage.ei.combustion_turbine
 -- gui_ids: ei-combustion-turbine-console
 -- remote_interfaces: none
@@ -17,6 +19,8 @@
 local model = {}
 
 local ei_lib = require("lib/lib")
+local config = require("lib/combustion-turbine-config")
+local process = require("scripts/control/combustion-turbine-process")
 
 --====================================================================================================
 --CONSTANTS
@@ -34,6 +38,10 @@ local BLUEPRINT_MODE_TAG = "ei_combustion_turbine_mode"
 local ENTITY_TO_MODE = {
     [SOLID_NAME] = MODE_SOLID,
     [FLUID_NAME] = MODE_FLUID,
+    [config.oxygen_solid] = MODE_SOLID,
+    [config.oxygen_fluid] = MODE_FLUID,
+    [config.ash_solid] = MODE_SOLID,
+    [config.oxygen_ash_solid] = MODE_SOLID,
 }
 
 local MODE_TO_ENTITY = {
@@ -45,6 +53,8 @@ model.gui_name = GUI_NAME
 model.solid_name = SOLID_NAME
 model.fluid_name = FLUID_NAME
 model.fluid_open_proxy_name = FLUID_OPEN_PROXY_NAME
+model.oxygen_solid_name = config.oxygen_solid
+model.oxygen_fluid_name = config.oxygen_fluid
 
 --====================================================================================================
 --GENERAL HELPERS
@@ -78,6 +88,7 @@ end
 local function is_turbine(entity)
     return ei_lib.entity_check(entity) and is_turbine_name(entity.name)
 end
+model.is_turbine = is_turbine
 
 local function is_open_proxy(entity)
     return ei_lib.entity_check(entity) and entity.name == FLUID_OPEN_PROXY_NAME
@@ -222,6 +233,8 @@ local function build_runtime()
         proxy_to_unit = {},
         proxy_open_tick_by_player = {},
         open_by_player = {},
+        pressure_by_surface = {},
+        retry_units = {},
     }
 end
 
@@ -239,6 +252,8 @@ local function get_runtime()
     runtime.proxy_to_unit = type(runtime.proxy_to_unit) == "table" and runtime.proxy_to_unit or {}
     runtime.proxy_open_tick_by_player = type(runtime.proxy_open_tick_by_player) == "table" and runtime.proxy_open_tick_by_player or {}
     runtime.open_by_player = type(runtime.open_by_player) == "table" and runtime.open_by_player or {}
+    runtime.pressure_by_surface = runtime.pressure_by_surface or {}
+    runtime.retry_units = runtime.retry_units or {}
     return runtime
 end
 
@@ -258,6 +273,7 @@ local function remove_surface_membership(runtime, surface_index, unit_number)
     bucket[unit_number] = nil
     if next(bucket) == nil then
         runtime.units_by_surface[surface_index] = nil
+        runtime.pressure_by_surface[surface_index] = nil
     end
 end
 
@@ -358,7 +374,8 @@ local function create_turbine_shell(surface, name, position, force, direction, q
 end
 
 local function register_destroy(runtime, entity, kind, unit_number)
-    if not (script and script.register_on_object_destroyed and (is_turbine(entity) or is_open_proxy(entity))) then
+    if not (script and script.register_on_object_destroyed and (is_turbine(entity) or is_open_proxy(entity)
+        or (ei_lib.entity_check(entity) and (entity.name==config.generator or entity.name==config.ash_generator)))) then
         return nil
     end
 
@@ -509,7 +526,7 @@ local function ensure_open_proxy(runtime, record)
     return proxy
 end
 
-local function unregister_record(runtime, unit_number, close_guis)
+local function unregister_record(runtime, unit_number, close_guis, retain_process)
     if not unit_number then
         return
     end
@@ -523,12 +540,31 @@ local function unregister_record(runtime, unit_number, close_guis)
         runtime.registrations[record.registration] = nil
     end
     destroy_open_proxy(runtime, record)
+    if record.generator_registration then runtime.registrations[record.generator_registration]=nil end
+    if not retain_process then
+        if ei_lib.entity_check(record.generator) then record.generator.destroy{raise_destroy=false} end
+    end
+    runtime.retry_units[unit_number]=nil
     remove_surface_membership(runtime, record.surface_index, unit_number)
     runtime.turbines_by_unit[unit_number] = nil
 
     if close_guis then
         close_guis_for_unit(runtime, unit_number)
     end
+end
+
+---@class EiCombustionOptions
+---@field ash_requested boolean
+---@field enabled boolean
+---@field external_disabled boolean
+---@field applied_disabled boolean?
+
+-- Player preference and safety holds are independent; never enable through a hold.
+local function apply_operation(record)
+    local entity=record.entity
+    entity.disabled_by_script=not record.enabled or record.external_disabled or record.pressure_disabled~=nil
+    record.applied_disabled=entity.disabled_by_script
+    if ei_lib.entity_check(record.generator) then process.connect(entity,record.generator) end
 end
 
 local function register_turbine(runtime, entity, event_or_tick)
@@ -556,17 +592,52 @@ local function register_turbine(runtime, entity, event_or_tick)
     record.entity = entity
     record.mode = entity_mode(entity) or MODE_SOLID
     record.entity_name = entity.name
+    record.oxygen_requested = record.oxygen_requested==true
+    if record.ash_requested==nil then record.ash_requested=process.is_ash(entity) end
+    if record.enabled==nil then record.enabled=true end
+    if record.external_disabled==nil then
+        if record.pressure_disabled then record.external_disabled=record.pressure_disabled.previous
+        else record.external_disabled=entity.disabled_by_script end
+    elseif record.applied_disabled~=nil and entity.disabled_by_script~=record.applied_disabled then
+        record.external_disabled=entity.disabled_by_script
+    end
     record.surface_index = entity.surface and entity.surface.index or nil
     record.last_seen_tick = now_tick(event_or_tick)
     add_surface_membership(runtime, record.surface_index, unit_number)
 
-    if record.mode == MODE_FLUID then
+    if process.is_oxygen(entity) and not ei_lib.entity_check(record.generator) then
+        record.generator=process.create_generator(entity)
+    end
+    if ei_lib.entity_check(record.generator) then
+        local aligned,reserve=process.align_generator(entity,record.generator)
+        record.electrical_reserve=(record.electrical_reserve or 0)+(reserve or 0)
+        if aligned and aligned~=record.generator then
+            if record.generator_registration then runtime.registrations[record.generator_registration]=nil end
+            record.generator_registration=nil
+            record.generator=aligned
+        end
+        record.generator_registration=record.generator_registration
+            or register_destroy(runtime,record.generator,"generator",unit_number)
+        process.connect(entity,record.generator)
+        if not aligned then
+            record.pressure_disabled=record.pressure_disabled or {previous=entity.disabled_by_script}
+            entity.disabled_by_script=true
+            record.generator.disabled_by_script=true
+            runtime.retry_units[unit_number]=true
+        end
+    elseif process.is_oxygen(entity) then
+        record.pressure_disabled=record.pressure_disabled or {previous=entity.disabled_by_script}
+        entity.disabled_by_script=true
+        runtime.retry_units[unit_number]=true
+    end
+    if record.mode == MODE_FLUID and not process.is_oxygen(entity) then
         ensure_open_proxy(runtime, record)
     else
         destroy_open_proxy(runtime, record)
         destroy_open_proxies_at_turbine(runtime, entity)
     end
 
+    apply_operation(record)
     return record
 end
 
@@ -634,7 +705,11 @@ end
 --SHELL SWAP
 --====================================================================================================
 
-function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
+---@param ash_requested boolean? Retained but inactive in fluid mode.
+---@param enabled_requested boolean? Player preference, independent of safety holds.
+---@return LuaEntity entity
+---@return boolean? success
+function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index, oxygen_requested, ash_requested, enabled_requested)
     requested_mode = normalize_mode(requested_mode)
     if not (is_turbine(entity) and requested_mode) then
         return entity
@@ -643,11 +718,37 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
     local current_mode = entity_mode(entity)
     local runtime = get_runtime()
     local record = register_turbine(runtime, entity, event_or_tick)
-    if current_mode == requested_mode then
-        return entity
+    local preference=oxygen_requested
+    if preference==nil then preference=record.oxygen_requested end
+    if ash_requested==nil then ash_requested=record.ash_requested end
+    if enabled_requested==nil then enabled_requested=record.enabled end
+    local forced=process.forced(entity.surface)
+    local oxygen=forced or preference==true
+    local target_name = oxygen and (requested_mode==MODE_SOLID and config.oxygen_solid or config.oxygen_fluid)
+        or MODE_TO_ENTITY[requested_mode]
+    if requested_mode==MODE_SOLID and ash_requested then
+        target_name=oxygen and config.oxygen_ash_solid or config.ash_solid
     end
-
-    local target_name = MODE_TO_ENTITY[requested_mode]
+    local residue=entity.get_burnt_result_inventory()
+    if residue and not residue.is_empty() and not (requested_mode==MODE_SOLID and ash_requested) then
+        local player=player_index and game.get_player(player_index)
+        if player then player.print({"exotic-industries.combustion-turbine-empty-residue"}) end
+        return entity,false
+    end
+    if entity.name==target_name then
+        record.oxygen_requested=preference==true
+        record.ash_requested=ash_requested==true
+        record.enabled=enabled_requested~=false
+        if record.pressure_disabled and (not oxygen or (ei_lib.entity_check(record.generator)
+            and record.generator.direction==entity.direction)) then
+            entity.disabled_by_script=record.pressure_disabled.previous
+            record.pressure_disabled=nil
+            runtime.retry_units[record.unit_number]=nil
+            if ei_lib.entity_check(record.generator) then process.connect(entity,record.generator) end
+        end
+        apply_operation(record)
+        return entity,true
+    end
     if not target_name then
         return entity
     end
@@ -669,20 +770,35 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
         disabled_by_script = entity.disabled_by_script,
     }
     local saved_connections = get_real_circuit_connections(entity)
+    local saved_process=process.capture(entity,record)
+    local saved_generator=ei_lib.entity_check(record.generator) and process.capture_generator(record.generator) or nil
 
     -- blueprint-ref: .codex/esir/blueprints/combustion-turbine.md#transaction
     -- These unlike native shells can briefly overlap. Keep the original alive
     -- until creation succeeds, so failure preserves its fluids, fuel and viewers.
     local replacement = create_turbine_shell(surface, target_name, position, force, direction, quality)
+    local generator=ei_lib.get_valid_entity(record.generator)
+    local old_generator=generator
+    if is_turbine(replacement) and (oxygen or generator) and
+        (not generator or generator.name~=process.generator_name(replacement)) then
+        generator=process.create_generator(replacement)
+        if not generator then replacement.destroy{raise_destroy=false};replacement=nil end
+    end
 
     if not is_turbine(replacement) then
+        if forced and not process.is_oxygen(entity) then
+            record.pressure_disabled=record.pressure_disabled or {previous=entity.disabled_by_script}
+            entity.disabled_by_script=true
+            runtime.retry_units[old_unit_number]=true
+            apply_operation(record)
+        end
         if player_index and game then
             local player = game.get_player(player_index)
             if player then
                 player.print({"exotic-industries.combustion-turbine-gui-swap-failed"})
             end
         end
-        return entity
+        return entity,false
     end
 
     clamp_health(replacement, health)
@@ -691,16 +807,29 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
         replacement.energy = energy
     end)
 
+    if record.pressure_disabled then
+        replacement.disabled_by_script=record.pressure_disabled.previous
+    end
+    if current_mode==requested_mode then process.copy_burner(entity,replacement) end
     if requested_mode == MODE_SOLID then
         destroy_open_proxies_at_turbine(runtime, entity)
-    else
+    elseif current_mode~=requested_mode then
         spill_burner_inventories(entity)
     end
-    unregister_record(runtime, old_unit_number, false)
+    unregister_record(runtime, old_unit_number, false, true)
     entity.destroy({raise_destroy = false})
+    if old_generator and old_generator~=generator then
+        old_generator.destroy{raise_destroy=false}
+        process.restore_generator(generator,saved_generator)
+    end
     restore_circuit_connections(replacement, saved_connections)
 
+    runtime.turbines_by_unit[replacement.unit_number]={unit_number=replacement.unit_number,
+        generator=generator,oxygen_requested=preference==true,ash_requested=ash_requested==true,
+        enabled=enabled_requested~=false,external_disabled=record.external_disabled}
     local new_record = register_turbine(runtime, replacement, event_or_tick)
+    process.restore(replacement,new_record,saved_process,current_mode==requested_mode)
+    apply_operation(new_record)
     local new_unit_number = new_record and new_record.unit_number or ei_lib.get_entity_unit_number(replacement)
     local opened_entity = new_record
         and new_record.mode == MODE_FLUID
@@ -708,7 +837,7 @@ function model.swap_to_mode(entity, requested_mode, event_or_tick, player_index)
         or replacement
     retarget_open_players(runtime, open_players, new_unit_number, opened_entity, event_or_tick)
 
-    return replacement
+    return replacement,true
 end
 
 --====================================================================================================
@@ -725,6 +854,8 @@ local function get_relative_gui_types(anchor_entity)
     end
     if is_open_proxy(anchor_entity) then
         add(relative_types.constant_combinator_gui)
+    elseif is_turbine(anchor_entity) and process.is_oxygen(anchor_entity) then
+        add(relative_types.assembling_machine_gui)
     end
     add(relative_types.entity_with_energy_source_gui)
     add(relative_types.burner_generator_gui)
@@ -887,12 +1018,21 @@ local function build_gui(player, entity, record, force_screen)
     fluid_hotspot_tip.style.single_line = false
     fluid_hotspot_tip.style.maximal_width = 320
 
+    main.add{type="frame",name="generation-header",style="ei_subheader_frame_with_top_border"}.add{
+        type="label",caption={"exotic-industries.combustion-turbine-generation"},style="subheader_caption_label"}
+    local generation=main.add{type="flow",name="generation-flow",direction="vertical",style="ei_inner_content_flow"}
+    for _,name in ipairs({"power","load","fuel","oxygen","exhaust","residue"}) do
+        local label=generation.add{type="label",name=name,caption=""}
+        label.style.single_line=false
+        label.style.maximal_width=340
+    end
+
     main.add{
         type = "frame",
         style = "ei_subheader_frame_with_top_border",
     }.add{
         type = "label",
-        caption = {"exotic-industries.combustion-turbine-gui-mode-title"},
+        caption = {"exotic-industries.combustion-turbine-options"},
         style = "subheader_caption_label",
     }
     local button_flow = main.add{
@@ -916,11 +1056,60 @@ local function build_gui(player, entity, record, force_screen)
         {"exotic-industries.combustion-turbine-gui-mode-fluid-tooltip"}
     )
 
+    local options=main.add{type="flow",name="options-flow",direction="vertical",style="ei_inner_content_flow"}
+    for _,action in ipairs({"enabled","ash"}) do
+        options.add{type="checkbox",name=action.."-toggle",state=false,
+            caption={"exotic-industries.combustion-turbine-"..action},
+            tags={parent_gui=GUI_NAME,action=action}}
+    end
+    options.add{type="checkbox",name="oxygen-fed-toggle",state=false,
+        caption={"exotic-industries.combustion-turbine-oxygen-toggle"},tags={parent_gui=GUI_NAME,action="oxygen-fed"}}
     return root
 end
 
+-- Read only for an open panel. No persistent samples or production accounting.
+---@param record table
+---@return table snapshot
+local function read_generation(record)
+    local entity=record.entity
+    local generator=ei_lib.get_valid_entity(record.generator)
+    local result={status="running"}
+    if not process.is_oxygen(entity) or not generator then return result end
+    local oxygen=entity.get_fluid(process.oxygen_index(entity))
+    local exhaust=generator.get_fluid(2)
+    result.oxygen=oxygen and oxygen.amount or 0
+    result.exhaust=exhaust and exhaust.amount or 0
+    result.oxygen_capacity=entity.get_fluid_capacity(process.oxygen_index(entity))
+    result.exhaust_capacity=generator.get_fluid_capacity(2)
+    result.power=generator.energy_generated_last_tick*60
+    result.capacity=generator.prototype.get_max_energy_production(generator.quality)*60
+    result.load=result.capacity>0 and result.power/result.capacity*100 or 0
+    local fuel_index=process.fuel_index(entity)
+    if fuel_index then
+        local fuel=entity.get_fluid(fuel_index)
+        result.fuel=fuel and {"",{"fluid-name."..fuel.name}," (",string.format("%.1f",fuel.amount),")"} or {"exotic-industries.combustion-turbine-none"}
+    else
+        local burner=entity.burner
+        local fuel=burner.currently_burning
+        result.fuel=fuel and fuel.name.localised_name or {"exotic-industries.combustion-turbine-none"}
+        local residue=entity.get_burnt_result_inventory()
+        result.residue_slots=residue and #residue or 0
+        result.residue_used=residue and (#residue-residue.count_empty_stacks()) or 0
+    end
+    local statuses=defines.entity_status
+    if entity.disabled_by_script or generator.disabled_by_script then result.status="disabled"
+    elseif not generator.is_connected_to_electric_network() then result.status="disconnected"
+    elseif result.exhaust>=result.exhaust_capacity-0.01 then result.status="exhaust-blocked"
+    elseif entity.status==statuses.full_burnt_result_output then result.status="residue-blocked"
+    elseif entity.status==statuses.no_fuel then result.status="no-fuel"
+    elseif result.oxygen<1 and result.power==0 then result.status="no-oxygen"
+    elseif result.power==0 then result.status="no-demand" end
+    return result
+end
+
 ---@param event_or_tick EventData|MapTick|nil
-function model.update_gui(player, entity, event_or_tick)
+---@param generation table? Refresh-local snapshot shared by viewers.
+function model.update_gui(player, entity, event_or_tick, generation)
     event_or_tick = event_or_tick or (game and game.tick) or 0
     local runtime = get_runtime()
     local opened_entity = ei_lib.get_valid_entity(entity)
@@ -938,7 +1127,7 @@ function model.update_gui(player, entity, event_or_tick)
         return nil
     end
 
-    local force_screen = opened_via_proxy or record.mode == MODE_FLUID
+    local force_screen = opened_via_proxy or (record.mode == MODE_FLUID and not process.is_oxygen(entity))
     local root = get_gui_root(player)
     local root_tags = root and root.valid and root.tags or {}
     if not root
@@ -966,6 +1155,43 @@ function model.update_gui(player, entity, event_or_tick)
     end
 
     local mode = record.mode or entity_mode(entity) or MODE_SOLID
+    local forced=process.forced(entity.surface)
+    local options=main["options-flow"]
+    local oxygen_toggle=options["oxygen-fed-toggle"]
+    -- Keep the pressure explanation in Status; controls live in Options.
+    if not status_flow["oxygen-fed-status"] then
+        local label=status_flow.add{type="label",name="oxygen-fed-status",caption=""}
+        label.style.single_line=false
+        label.style.maximal_width=320
+    end
+    oxygen_toggle.state=forced or record.oxygen_requested
+    oxygen_toggle.enabled=not forced
+    oxygen_toggle.tooltip={"exotic-industries.combustion-turbine-oxygen-tooltip",config.atmospheric_oxygen_min_pressure}
+    options["ash-toggle"].state=record.ash_requested
+    options["ash-toggle"].enabled=mode==MODE_SOLID
+    options["ash-toggle"].tooltip={"exotic-industries.combustion-turbine-ash-"..(mode==MODE_SOLID and "tooltip" or "fluid")}
+    options["enabled-toggle"].state=record.enabled
+    options["enabled-toggle"].tooltip={"exotic-industries.combustion-turbine-enabled-tooltip"}
+    local oxygen_operation=process.is_oxygen(entity)
+    main["generation-header"].visible=oxygen_operation
+    local flow=main["generation-flow"]
+    flow.visible=oxygen_operation
+    if oxygen_operation then
+        generation=generation or read_generation(record)
+        if generation.capacity then
+            flow.power.caption={"exotic-industries.combustion-turbine-power",string.format("%.2f",generation.power/1e6),string.format("%.2f",generation.capacity/1e6)}
+            flow.load.caption={"exotic-industries.combustion-turbine-load",string.format("%.1f",generation.load)}
+            flow.fuel.caption={"exotic-industries.combustion-turbine-fuel",generation.fuel}
+            flow.oxygen.caption={"exotic-industries.combustion-turbine-oxygen-buffer",string.format("%.1f",generation.oxygen),generation.oxygen_capacity}
+            flow.exhaust.caption={"exotic-industries.combustion-turbine-exhaust-buffer",string.format("%.1f",generation.exhaust),generation.exhaust_capacity}
+            flow.residue.visible=(generation.residue_slots or 0)>0
+            flow.residue.caption={"exotic-industries.combustion-turbine-residue",generation.residue_used or 0,generation.residue_slots or 0}
+        end
+    end
+    status_flow["oxygen-fed-status"].caption=forced
+        and {"exotic-industries.combustion-turbine-oxygen-forced",config.atmospheric_oxygen_min_pressure}
+        or (record.oxygen_requested and {"exotic-industries.combustion-turbine-oxygen-selected"}
+            or {"exotic-industries.combustion-turbine-oxygen-atmospheric"})
     status_flow["mode-label"].caption = {
         "exotic-industries.combustion-turbine-gui-mode",
         get_mode_caption(mode),
@@ -973,8 +1199,13 @@ function model.update_gui(player, entity, event_or_tick)
     status_flow["agent-label"].caption = mode == MODE_FLUID
         and {"exotic-industries.combustion-turbine-gui-agent-fluid"}
         or {"exotic-industries.combustion-turbine-gui-agent-solid"}
+    if oxygen_operation then
+        status_flow["agent-label"].caption={"exotic-industries.combustion-turbine-state-"..generation.status}
+    elseif entity.disabled_by_script then
+        status_flow["agent-label"].caption={"exotic-industries.combustion-turbine-state-disabled"}
+    end
     if status_flow["fluid-hotspot-tip-label"] then
-        status_flow["fluid-hotspot-tip-label"].visible = mode == MODE_FLUID
+        status_flow["fluid-hotspot-tip-label"].visible = entity.name == FLUID_NAME
         status_flow["fluid-hotspot-tip-label"].caption = mode == MODE_FLUID
             and {"exotic-industries.combustion-turbine-gui-fluid-hotspot-tip"}
             or ""
@@ -1089,6 +1320,47 @@ function model.on_gui_click(event)
     end
 end
 
+---@param event EventData.on_gui_checked_state_changed
+function model.on_gui_checked_state_changed(event)
+    local element=event.element
+    if not (element and element.valid and element.tags.parent_gui==GUI_NAME) then return end
+    local action=element.tags.action
+    if action~="oxygen-fed" and action~="ash" and action~="enabled" then return end
+    local player=game.get_player(event.player_index)
+    local entity=get_opened_turbine(player,get_runtime(),event)
+    if not is_turbine(entity) then return end
+    if action=="ash" and entity_mode(entity)==MODE_SOLID then
+        entity=model.swap_to_mode(entity,entity_mode(entity),event,event.player_index,nil,element.state)
+    elseif action=="enabled" then
+        entity=model.swap_to_mode(entity,entity_mode(entity),event,event.player_index,nil,nil,element.state)
+    elseif action=="oxygen-fed" and not process.forced(entity.surface) then
+        entity=model.swap_to_mode(entity,entity_mode(entity),event,event.player_index,element.state)
+    end
+    model.update_gui(player,entity,event)
+end
+
+---@param event EventData.on_player_setup_blueprint
+function model.on_blueprint(event)
+    local player=game.get_player(event.player_index)
+    if not player then return end
+    local stack=event.record
+    if not stack then
+        stack=event.stack or player.blueprint_to_setup
+        if not (stack and stack.valid_for_read and stack.is_blueprint) then stack=player.cursor_stack end
+        if not (stack and stack.valid_for_read and stack.is_blueprint) then return end
+    end
+    local runtime=get_runtime()
+    for index,entity in pairs(event.mapping.get()) do
+        if is_turbine(entity) then
+            local record=register_turbine(runtime,entity,event)
+            stack.set_blueprint_entity_tag(index,BLUEPRINT_MODE_TAG,entity_mode(entity))
+            stack.set_blueprint_entity_tag(index,config.oxygen_tag,record.oxygen_requested)
+            stack.set_blueprint_entity_tag(index,config.ash_tag,record.ash_requested)
+            stack.set_blueprint_entity_tag(index,config.enabled_tag,record.enabled)
+        end
+    end
+end
+
 --====================================================================================================
 --EVENT ENTRYPOINTS
 --====================================================================================================
@@ -1099,6 +1371,7 @@ end
 
 function model.rebuild_runtime_state(reason, event_or_tick)
     local old_runtime = get_runtime()
+    local old_records=old_runtime.turbines_by_unit
     for player_index in pairs(old_runtime.open_by_player) do
         local player = game and game.get_player(player_index) or nil
         destroy_gui_root(player)
@@ -1111,8 +1384,25 @@ function model.rebuild_runtime_state(reason, event_or_tick)
         for _, proxy in pairs(surface.find_entities_filtered{name = FLUID_OPEN_PROXY_NAME}) do
             proxy.destroy({raise_destroy = false})
         end
-        for _, entity in pairs(surface.find_entities_filtered{name = {SOLID_NAME, FLUID_NAME}}) do
+        for _, entity in pairs(surface.find_entities_filtered{name = {SOLID_NAME, FLUID_NAME,config.oxygen_solid,config.oxygen_fluid,config.ash_solid,config.oxygen_ash_solid}}) do
+            local previous=old_records[entity.unit_number]
+            if previous then
+                previous.registration=nil
+                previous.proxy_registration=nil
+                previous.generator_registration=nil
+                runtime.turbines_by_unit[entity.unit_number]=previous
+            end
             register_turbine(runtime, entity, event_or_tick)
+            model.swap_to_mode(entity,entity_mode(entity),event_or_tick)
+        end
+    end
+    local owned={}
+    for _,record in pairs(runtime.turbines_by_unit) do
+        if ei_lib.entity_check(record.generator) then owned[record.generator.unit_number]=true end
+    end
+    for _,surface in pairs(game.surfaces) do
+        for _,generator in pairs(surface.find_entities_filtered{name={config.generator,config.ash_generator}}) do
+            if not owned[generator.unit_number] then generator.destroy{raise_destroy=false} end
         end
     end
 
@@ -1130,6 +1420,10 @@ end
 ---@return LuaEntity|nil surviving_entity
 function model.on_built_entity(event_or_entity)
     local entity = ei_lib.get_valid_entity(get_event_entity(event_or_entity))
+    if entity and (entity.name==config.generator or entity.name==config.ash_generator) and event_or_entity~=entity and event_or_entity.is_clone then
+        entity.destroy{raise_destroy=false}
+        return nil
+    end
     if not entity or not is_turbine_name(entity.name) then
         return entity
     end
@@ -1143,14 +1437,31 @@ function model.on_built_entity(event_or_entity)
 
     local requested_mode = mode_from_tags(tags)
     local runtime = get_runtime()
-    register_turbine(runtime, entity, event_or_entity)
-
-    if requested_mode and requested_mode ~= entity_mode(entity) then
-        -- GUI handoff can synchronously invoke other handlers; pass back only
-        -- the surviving shell, including the original after creation failure.
-        return ei_lib.get_valid_entity(model.swap_to_mode(entity, requested_mode, event_or_entity, player_index))
+    local record=register_turbine(runtime, entity, event_or_entity)
+    local preference=record.oxygen_requested
+    local ash_requested,enabled_requested=record.ash_requested,record.enabled
+    if tags and type(tags[config.oxygen_tag])=="boolean" then preference=tags[config.oxygen_tag] end
+    if tags and type(tags[config.ash_tag])=="boolean" then ash_requested=tags[config.ash_tag] end
+    if tags and type(tags[config.enabled_tag])=="boolean" then enabled_requested=tags[config.enabled_tag] end
+    if event_or_entity~=entity and event_or_entity.is_clone and is_turbine(event_or_entity.source) then
+        local source=runtime.turbines_by_unit[event_or_entity.source.unit_number]
+        if source then
+            preference=source.oxygen_requested
+            ash_requested,enabled_requested=source.ash_requested,source.enabled
+            record.external_disabled=source.external_disabled
+            record.dormant_process=table.deepcopy(source.dormant_process)
+            record.atmospheric_heat=source.atmospheric_heat
+            record.electrical_reserve=source.electrical_reserve
+            if ei_lib.entity_check(source.generator) then
+                record.generator=record.generator or process.create_generator(entity)
+                if ei_lib.entity_check(record.generator) then
+                    process.copy_generator(source.generator,record.generator)
+                end
+            end
+        end
     end
-    return entity
+    return ei_lib.get_valid_entity(model.swap_to_mode(entity,requested_mode or entity_mode(entity),
+        event_or_entity,player_index,preference,ash_requested,enabled_requested))
 end
 
 function model.on_destroyed_entity(event_or_entity)
@@ -1174,8 +1485,10 @@ function model.on_entity_settings_pasted(event)
     end
 
     local source_mode = entity_mode(source)
-    local replacement = model.swap_to_mode(destination, source_mode, event, event.player_index)
-    if is_turbine(replacement) then
+    local source_record=register_turbine(runtime,source,event)
+    local replacement,success = model.swap_to_mode(destination, source_mode, event, event.player_index,
+        source_record.oxygen_requested,source_record.ash_requested,source_record.enabled)
+    if success and is_turbine(replacement) then
         safe_copy_settings(replacement, source)
     end
 end
@@ -1192,6 +1505,15 @@ function model.on_object_destroyed(event)
 
     runtime.registrations[registration_number] = nil
 
+    if kind=="generator" then
+        local record=runtime.turbines_by_unit[unit_number]
+        if record then
+            record.generator=nil
+            record.generator_registration=nil
+            if is_turbine(record.entity) then register_turbine(runtime,record.entity,event) end
+        end
+        return
+    end
     if kind == "proxy" then
         local record = runtime.turbines_by_unit[unit_number]
         if record then
@@ -1241,7 +1563,7 @@ function model.get_runtime_status()
         local entity = ei_lib.get_valid_entity(record.entity)
         if entity and is_turbine(entity) then
             tracked = tracked + 1
-            if entity.name == FLUID_NAME then
+            if entity_mode(entity) == MODE_FLUID then
                 fluid = fluid + 1
             else
                 solid = solid + 1
@@ -1269,12 +1591,53 @@ end
 ---@param event EventData.script_raised_teleported
 function model.on_moved_entity(event)
     local turbine = event.entity
-    if not is_turbine(turbine) then return end
+    if not is_turbine(turbine) then return turbine end
     local runtime = get_runtime()
     local record = runtime.turbines_by_unit[turbine.unit_number]
     local proxy = record and ei_lib.get_valid_entity(record.proxy)
+    -- Passing a surface invokes native cross-surface teleport, which is not
+    -- supported for machines even when that surface equals the current one.
     if proxy then proxy.teleport(turbine.position) end
     register_turbine(runtime, turbine, event)
+    return model.swap_to_mode(turbine,entity_mode(turbine),event)
+end
+
+function model.has_tick_work()
+    local runtime=storage.ei and storage.ei.combustion_turbine
+    return runtime and next(runtime.units_by_surface)~=nil
+end
+
+-- One pressure query per occupied surface; native entities own all production.
+function model.updater(event)
+    if event.tick % config.pressure_interval~=0 then return end
+    local runtime=get_runtime()
+    local pending={}
+    for surface_index,units in pairs(runtime.units_by_surface) do
+        local surface=game.get_surface(surface_index)
+        if surface then
+            local forced=process.forced(surface)
+            if runtime.pressure_by_surface[surface_index]~=forced then
+                runtime.pressure_by_surface[surface_index]=forced
+                for unit in pairs(units) do pending[unit]=true end
+            end
+        end
+    end
+    for unit in pairs(runtime.retry_units) do pending[unit]=true end
+    for unit in pairs(pending) do
+        local record=runtime.turbines_by_unit[unit]
+        if record and is_turbine(record.entity) then
+            model.swap_to_mode(record.entity,entity_mode(record.entity),event)
+        end
+    end
+    local snapshots={}
+    for player_index,unit in pairs(runtime.open_by_player) do
+        local record=runtime.turbines_by_unit[unit]
+        local player=game.get_player(player_index)
+        if player and player.connected and record and is_turbine(record.entity) then
+            snapshots[unit]=snapshots[unit] or read_generation(record)
+            model.update_gui(player,record.entity,event,snapshots[unit])
+        else close_gui_for_player(runtime,player_index) end
+    end
 end
 
 return model

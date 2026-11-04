@@ -246,4 +246,5 @@ if solid_turbine then
     fluid_open_proxy.circuit_wire_max_distance = 0
 
     data:extend({fluid_turbine, fluid_open_proxy})
+    require("prototypes/combustion-turbine-oxygen")
 end

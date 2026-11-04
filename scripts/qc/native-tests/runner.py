@@ -23,7 +23,7 @@ FATAL_MARKERS=('non-recoverable error','error while running','failed to load mod
 
 
 def harness_inputs():
-    roots=['scripts/qc/'+name for name in ('native-tests','gaia-resources','runtime-options','orbital-logistics','build-dispatch','runtime-contracts','event-tick','induction-circuit','mirroring','factorio-2.1/research-bootstrap')]
+    roots=['scripts/qc/'+name for name in ('native-tests','gaia-resources','runtime-options','orbital-logistics','build-dispatch','runtime-contracts','event-tick','induction-circuit','mirroring','combustion-turbine','factorio-2.1/research-bootstrap')]
     roots+=['.codex/skills/esir-dev/assets/zzz-scripted-research-qc_0.0.1']
     paths={p for root in roots for p in (REPO/root).rglob('*') if p.is_file() and p.suffix in ('.py','.ps1','.lua','.json')}
     paths.update(REPO/name for name in ('.codex/esir/test-suites.json','.codex/esir/factorio-development.json',

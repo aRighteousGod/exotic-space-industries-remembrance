@@ -1,4 +1,5 @@
 ei_data = require("lib/data")
+local combustion_turbine = require("lib/combustion-turbine-config")
 local carbon_dioxide_fluid = data.raw.fluid["ei-carbon-dioxide"]
 local carbon_dioxide_icon = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon) or (ei_graphics_fluid_4_path.."carbon-dioxide.png")
 local carbon_dioxide_icon_size = (carbon_dioxide_fluid and carbon_dioxide_fluid.icon_size) or 64
@@ -186,7 +187,8 @@ data:extend({
         enabled = false,
         main_product = "ei-oxygen-gas",
         surface_conditions = {
-            {property = "pressure",    min = 33, max = 100000},
+            -- Shared lower boundary: turbines require supplied oxygen below it.
+            {property = "pressure", min = combustion_turbine.atmospheric_oxygen_min_pressure, max = 100000},
         },
     },
     {

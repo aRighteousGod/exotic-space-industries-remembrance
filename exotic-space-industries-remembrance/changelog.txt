@@ -2,6 +2,8 @@
 Version: 1.4.03
 Date: 11-1-2026
   Features:
+    - Industrial combustion turbines can collect solid-fuel ash with 10% less maximum power, electricity per fuel and pollution. Empty the residue slots before switching back to ash-free or fluid operation. Added an enable switch and oxygen-fed generator readouts that refresh only while the console is open.
+    - Added oxygen-fed industrial combustion turbines: required below 33 pressure and selectable at 33 or above. Both fuel modes consume 20 oxygen/s and exhaust 20 carbon dioxide/s at 12 MW; a full exhaust stops generation. Mode selection follows blueprints, clones and settings paste.
     - Added native automatic and cohort-controlled orbital uplink modes, named platform selection, native hub/silo side panels, and a searchable platform/rocket-lane overview. New uplinks leave silo settings untouched until explicitly adopted; existing uplinks retain cohort control.
     - Added Planet / Platforms / All source filters to orbital Requests and Need, plus native Universe-radar wiring examples for stock and movement telemetry in all eight languages.
     - Added movement support for Even Pickier Dollies. Move machines by their body to bring their controls and connections along. Select the outer edge of a fluid combustion turbine. Gate receivers can move, while gate senders, induction matrix parts, auric inoculation vats and powered loaders stay anchored.

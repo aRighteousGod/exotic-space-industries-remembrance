@@ -993,7 +993,10 @@
                                             ],
                             "purpose":  "Data-stage compatibility touchpoints in atan-ash",
                             "pack_role":  "primary gameplay and runtime pack",
-                            "source_pack":  "exotic-space-industries-remembrance"
+                            "source_pack":  "exotic-space-industries-remembrance",
+                            "target_prototypes":  [
+                                                      "assembling-machine:ei-combustion-turbine-oxygen-solid"
+                                                  ]
                         },
                         {
                             "id":  "exotic-space-industries-remembrance-scripts-data-updates-castra-loaders-lua:planet-content",

@@ -873,6 +873,7 @@ script.on_event(defines.events.on_research_reversed, function(e)
 end)
 
 script.on_event(defines.events.on_player_setup_blueprint, function(e)
+    ei_combustion_turbine.on_blueprint(e)
     orbital_logistics.on_blueprint(e)
     ei_sweeping_radar.on_blueprint(e)
     ei_induction_matrix.on_blueprint(e)
@@ -894,11 +895,11 @@ script.on_event(defines.events.script_raised_teleported, function(e)
     ei_water_turret.on_teleported(e)
     ei_anisetron.on_teleported(e)
     ei_beacon_overload.on_script_raised_teleported(e)
+    e.entity=ei_combustion_turbine.on_moved_entity(e)
     local entity = ei_lib.get_valid_entity(e.entity)
     if not entity or entity.surface_index ~= e.old_surface_index or entity.type == "entity-ghost" then return end
     ei_fusion_reactor.on_moved_entity(e)
     ei_neutron_collector.on_moved_entity(e)
-    ei_combustion_turbine.on_moved_entity(e)
     ei_gate.on_moved_entity(e)
     ei_matter_stabilizer.on_moved_entity(e)
     ei_black_hole.on_moved_entity(e)
@@ -1171,6 +1172,7 @@ script.on_event(defines.events.on_space_platform_changed_state, function(e)
 end)
 
 script.on_event(defines.events.on_player_rotated_entity, function(e)
+    if ei_combustion_turbine.is_turbine(e.entity) then e.entity=ei_combustion_turbine.on_moved_entity(e) end
     ei_factory_passage.on_changed(e)
     ei_admin_tools.on_entity_interaction(e)
     ei_railgun_cooling.on_player_rotated_entity(e)
@@ -1344,7 +1346,11 @@ script.on_event(defines.events.on_gui_opened, function(event)
         ei_neutron_collector.on_gui_opened(event)
     elseif name == "ei-fusion-reactor" then
         ei_fusion_reactor.open_gui(player --[[@as LuaPlayer]])
-    elseif name == "ei-combustion-turbine"
+    elseif name == "ei-combustion-turbine-ash"
+        or name == "ei-combustion-turbine-oxygen-solid-ash"
+        or name == "ei-combustion-turbine-oxygen-solid"
+        or name == "ei-combustion-turbine-oxygen-fluid"
+        or name == "ei-combustion-turbine"
         or name == "ei-combustion-turbine-fluid"
         or name == ei_combustion_turbine.fluid_open_proxy_name
     then
@@ -1406,7 +1412,11 @@ script.on_event(defines.events.on_gui_closed, function(event)
         ei_neutron_collector.close_gui(game.get_player(event.player_index))
     elseif name == "ei-fusion-reactor" or element_name == "ei-fusion-reactor-console" then
        ei_fusion_reactor.close_gui(game.get_player(event.player_index) --[[@as LuaPlayer]])
-    elseif name == "ei-combustion-turbine"
+    elseif name == "ei-combustion-turbine-ash"
+        or name == "ei-combustion-turbine-oxygen-solid-ash"
+        or name == "ei-combustion-turbine-oxygen-solid"
+        or name == "ei-combustion-turbine-oxygen-fluid"
+        or name == "ei-combustion-turbine"
         or name == "ei-combustion-turbine-fluid"
         or name == ei_combustion_turbine.fluid_open_proxy_name
         or element_name == "ei-combustion-turbine-console"
@@ -1532,7 +1542,9 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
     local parent_gui = element.tags and element.tags.parent_gui
     if not parent_gui then return end
 
-    if parent_gui == "ei-water-turret-console" then
+    if parent_gui == "ei-combustion-turbine-console" then
+        ei_combustion_turbine.on_gui_checked_state_changed(event)
+    elseif parent_gui == "ei-water-turret-console" then
         ei_water_turret.on_gui_changed(event)
     elseif parent_gui == "ei-induction-matrix-console" then
         ei_induction_matrix.on_gui_changed(event)
@@ -2118,6 +2130,7 @@ function updater(event)
    -- Essential updates that run every tick regardless of the scheduled branch above.
    -- These are generally timer-driven or need quick reactions that would feel wrong if
    -- delayed to a once-per-cycle slot.
+    if ei_combustion_turbine.has_tick_work() then ei_combustion_turbine.updater(event) end
     if ei_rebuild_monitor.has_tick_work(event.tick) then ei_rebuild_monitor.updater(event) end
     if ei_planet_enemies.has_tick_work(event.tick) then ei_planet_enemies.updater(event) end
     -- blueprint-ref: .codex/esir/blueprints/terrain-evolution.md#scheduling

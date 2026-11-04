@@ -44,7 +44,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Pyric Radiance and Ballistic Divergence](combat-doctrines.md#contract) | 6 |
 | [Black hole containment and extraction](black-hole.md#contract) | 1 |
 | [Camp-fire registration and periodic fire emission](camp-fire.md#contract) | 1 |
-| [Combustion turbine shell switching](combustion-turbine.md#contract) | 1 |
+| [Combustion turbine fuel and oxygen modes](combustion-turbine.md#contract) | 4 |
 | [Crystal accumulator resonance](crystal-accumulator.md#contract) | 1 |
 | [Native entity death profiles and inherited operational shells](death-explosions.md#contract) | 1 |
 | [Entity hit effects, interaction sounds and native previews](entity-presentation.md#contract) | 5 |

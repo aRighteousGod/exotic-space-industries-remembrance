@@ -7,6 +7,12 @@ if not mods["atan-ash-fork"] then
 end
 
 local ei_lib = require("lib/lib")
+-- Only ash-free bodies destroy residue. Ash mode retains its three native slots.
+-- Ash adds output slots to burner assemblers during its earlier data-updates.
+data.raw["assembling-machine"]["ei-combustion-turbine-oxygen-solid"].energy_source.burnt_inventory_size = 0
+data.raw["burner-generator"]["ei-combustion-turbine"].burner.burnt_inventory_size = 0
+data.raw["assembling-machine"]["ei-combustion-turbine-oxygen-solid-ash"].energy_source.burnt_inventory_size = 3
+data.raw["burner-generator"]["ei-combustion-turbine-ash"].burner.burnt_inventory_size = 3
 
 -- atan-ash-fork 1.0.1 still reads the removed singular fuel_category. Retain
 -- Ash's item/capsule policy with native array membership before ESIR's later

@@ -1013,6 +1013,10 @@ return function(api)
     -- their hit/sounds lazily, after earlier entries have filled the source.
     local operational_bodies = {
         {"generator", "ei-combustion-turbine-fluid", "burner-generator", "ei-combustion-turbine"},
+        {"burner-generator", "ei-combustion-turbine-ash", "burner-generator", "ei-combustion-turbine"},
+        {"assembling-machine", "ei-combustion-turbine-oxygen-solid-ash", "burner-generator", "ei-combustion-turbine"},
+        {"assembling-machine", "ei-combustion-turbine-oxygen-solid", "burner-generator", "ei-combustion-turbine"},
+        {"assembling-machine", "ei-combustion-turbine-oxygen-fluid", "burner-generator", "ei-combustion-turbine"},
         {"electric-energy-interface", "ei-crystal-accumulator-low", "electric-energy-interface", "ei-crystal-accumulator"},
         {"electric-energy-interface", "ei-crystal-accumulator-surged", "electric-energy-interface", "ei-crystal-accumulator"},
         {"radar", "ei-sweeping-radar-placement", "radar", "ei-sweeping-radar"},
