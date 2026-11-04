@@ -1,6 +1,31 @@
 # Beacon diminishing-return acceptance
 
-This is a historical standalone runner. Before new use, adapt its source views,
+## Current vanilla overload regression
+
+```powershell
+python -B scripts/qc/beacon-profiles/native.py
+```
+
+This focused Factorio 2.1.24 check uses the shared managed private staging,
+dependency selection, process supervision, report validation and compact closeout.
+It checks final-data isolation and ESIR Strict profiles, normal vanilla layouts
+with 1/2/4/5 beacons, legendary layouts with 1/4 beacons, overload at five,
+recovery after removal and reapplication after replacement. The same native
+factory is saved with overload on, saved again with it off, then tested with it
+on again. Native receiver effects are compared with the shipped module strength,
+distribution effectiveness and independent vanilla curve samples, allowing native
+effect quantization. The helper supplies electric energy;
+this is effect/overload acceptance, not a power-grid, rendered or multiplayer test.
+
+Only vanilla's profile may additionally change in the snapshot comparison, and
+only while overload is on. All its other fields, including presentation, remain
+identical. The run verifies fresh identity-bound reports, exact engine/base data,
+staged source/settings, enabled dependencies and the live source fingerprint.
+Its compact managed receipt retains phase reports, inputs, logs and save hashes.
+
+## Historical full profile and geometry matrix
+
+The PowerShell runner below is historical. Before new use, adapt its source views,
 dependency selection and `-ReuseRun` ownership to the [managed storage contract](../../../.codex/skills/esir-dev/references/housekeeping.md).
 An old frozen copy does not establish current inputs or an active retention lease.
 
@@ -18,7 +43,7 @@ The runner freezes gameplay source in `.factorio-qc/bp/<timestamp>`, shares grap
 - Six disabled-mode presets and enabled mode with Gentle/Saturating selected.
 - Settings visibility, enabled/Strict defaults, adjacent order, and the six-value list before the helper forces its test settings.
 - Final `data.raw` assertions for 4096 entries, full single-beacon strength, independent numerical samples, decreasing positive multipliers, and total counting.
-- A snapshot around the production pass proves that only profiles/counters and descriptions on the four owned beacons change. Every other beacon field and foreign beacon remains identical.
+- A snapshot around the production pass permits profiles/counters and descriptions on the four owned beacons, plus the constant vanilla profile while overload is enabled. Every other beacon field and foreign beacon remains identical.
 - 25 actual receiver layouts per case: 1/2/4/8/16 of each ESIR tier; legendary Iron; four mixed-tier/vanilla/third-party layouts. All five effect channels are compared with engine values, allowing native effect quantization.
 - Runtime snapshots assert machine active state, overload flags/icons, and empty disabled-mode relationships/registrations. Existing inactive tracked-machine caches may remain after disabling. QA supplies beacon energy directly where applicable; after Nonstandard Beacons discovers the isolated entities during migration, QA supplies its actual hidden fluid/burner sources through its read-only metadata interface, allowing its normal power gate to reactivate beacons. Cooling and fuel prototype fields are protected by the data-stage comparison.
 - `-Transition` uses an unlisted local headless server on port 34197 to save an overloaded factory, disable overload with Strict, reload it, and enable overload again. It checks actual startup-setting changes. Benchmark mode is used for other runs; benchmark calls to `server_save` do not persist saves.

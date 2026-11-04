@@ -1,12 +1,18 @@
 --==============================================================================
 -- ESIR FILE MAP
--- owns: native diminishing returns and active-mode descriptions for ESIR beacons
+-- owns: native beacon scaling and active-mode descriptions for ESIR beacons
 -- loaded_by: data-final-fixes.lua after ESIR compatibility passes
 -- cadence: data stage only; the engine owns effect scaling
 --==============================================================================
+-- blueprint: .codex/esir/blueprints/beacon-overload.md#contract
 local config = require("lib/beacon-profile-config")
 local module_policy = require("lib/module-policy-config")
 local overload_enabled = settings.startup["ei-beacon-overload"].value
+
+-- Overload supplies the layout limit; vanilla beacons retain full strength below it.
+if overload_enabled and data.raw.beacon["beacon"] then
+    data.raw.beacon["beacon"].profile = {1}
+end
 
 for _, name in ipairs(config.beacon_names) do
     local beacon = data.raw.beacon[name]

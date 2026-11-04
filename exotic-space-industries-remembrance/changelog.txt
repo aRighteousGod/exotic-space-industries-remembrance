@@ -11,6 +11,7 @@ Date: 11-1-2026
     - Reduced orbital scanner work with native inventory totals and batched request, incoming-cargo and inventory reads, without changing service budgets or observation cadence.
     - Reduced redundant entity checks and unnecessary setup during building placement.
   Bugfixes:
+    - Removed vanilla beacon diminishing returns while beacon overload is enabled, matching ESIR beacons. Vanilla scaling is unchanged when overload is disabled.
     - Preserve orbital IDs, targets, bindings and retention settings through runtime rebuilds, settings paste, cloning and blueprints. Cohort launches now recheck ownership and power, hold mismatched cargo types/qualities, and count confirmed launches once.
     - Isolated orbital circuit output sections so shared logistic group names cannot make transponders emit another platform's ID or make differently filtered scanner banks overwrite each other.
     - Kept scanner circuit outputs current when an open panel or cohort read observes changed cargo before the background audit.

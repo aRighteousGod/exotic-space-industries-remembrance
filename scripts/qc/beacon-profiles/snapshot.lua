@@ -13,6 +13,11 @@ return {verify = function()
     local count = 0
     for name, original in pairs(before) do
         local current = table.deepcopy(data.raw.beacon[name])
+        if name == "beacon" and test.overload then
+            assert(current.profile and #current.profile == 1 and current.profile[1] == 1,
+                "Vanilla overload profile must be constant")
+            current.profile = original.profile
+        end
         if names[name] then
             current.localised_description = original.localised_description
             if not test.overload then

@@ -16,6 +16,14 @@
 
 Runtime overload is a separate rule from the data-stage diminishing-return curve. `beacon-profile-config` generates the native 4,096-entry profile, settings choices, and matching tooltip parameters; it has no runtime polling. The overload module counts eligible native covering beacons, applies weights/exclusions, and overloads eligible machines when the weighted count exceeds four. `entity.get_beacons()` supplies actual coverage before filtering; a distance-only replacement would change semantics.
 
+The late [profile pass](../../../exotic-space-industries-remembrance/scripts/data-final-updates/beacon-profiles.lua)
+sets the vanilla `beacon` profile to `{1}` only while overload is enabled. Every
+covering vanilla beacon then contributes its full effect, including quality variants;
+distribution effectiveness, quality bonuses and the runtime overload limit are
+unchanged. With overload disabled, vanilla retains its incoming profile and only
+the four ESIR beacon types receive the selected diminishing-return preset. Vanilla
+is not part of the ESIR module-policy family or description list.
+
 `storage.ei.beacon_overload` owns tracked machines/beacons, persisted beacon-to-machine edges, destruction-registration mappings, refresh queues, rule signatures, modes and diagnostic state. `storage.ei.overload_icons` owns render references. On Factorio 2.1, state changes use `disabled_by_script` plus owned overload/icon state; release clears only the pause owned by overload. `active` is not the 2.1 actuator.
 
 ```mermaid
@@ -69,6 +77,13 @@ stay independent. Removed Quality content retains Factorio's native migration.
 
 <a id="verification"></a>
 ## Verification and maintenance
+
+The focused [vanilla scaling regression](../../../scripts/qc/beacon-profiles/README.md)
+runs with `python -B scripts/qc/beacon-profiles/native.py` on exact Factorio 2.1.24.
+It checks prototype isolation, normal/legendary native effects, the five-beacon
+overload threshold and removal recovery, and one factory saved through on/off/on
+startup settings. It uses managed private staging and identity-bound reports.
+This does not promote the historical full profile/geometry matrix to current acceptance.
 
 The current 1.4.0/2.1.23 integration is covered by the full-core native beacon, actor, client, ownership and two-client fixtures under `scripts/qc/factorio-2.1`. See [current acceptance](../handoffs/nonstandard-beacons-2.1/CURRENT_ACCEPTANCE.md) for exact candidate evidence and boundaries. The native fixture verifies weighted count 4 to 5 to 4 against actual `disabled_by_script` and recovery. Do not equate native profile effectiveness with the weighted runtime overload count. Historical profile/geometry evidence is retained separately; use version-pinned runners before extending those claims.
 
