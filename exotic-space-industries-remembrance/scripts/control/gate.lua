@@ -3,7 +3,7 @@
 -- owns: gate runtime, GUI, selector flow, and remote dispatch
 -- loaded_by: exotic-space-industries-remembrance\control.lua
 -- cadence: init, build/destroy, selection/cursor, GUI, script triggers, player cleanup, scheduled tick step 7, and configuration changes
--- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_checked_state_changed, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
+-- forwarded_events: apply_transfer_penalties, attach_wire_proxy_to_container, build_gui, can_gate_transport, can_pay_quote, change_permission, check_for_teleport, check_global_init, choose_position, cleanup_gate_remote_selection, cleanup_position_selection, close_gui, commit_quote, copy_exit, create_gate_user_permission_group, decay_gate_penalties, decay_receiver_penalties, destroy_gate, destroy_receiver, destroy_wire_proxy, distance_multiplier_to_span_ratio, emit_breach_residue, emit_stress_tendril, energy_from_burden, ensure_distance_cache, ensure_gate_defaults, ensure_receiver_defaults, ensure_wire_proxy, entity_check, find_container, find_container_entity, find_gate, gate_state, get_data, get_effective_receiver_data, get_energy_multiplier, get_gate_signal_value, get_gate_target_surface, get_gate_upkeep_watts, get_gui_elements, get_lowest_free_receiver_id, get_pending_work_count, get_preview_exit, get_receiver_by_id, get_signal_value, get_span_band, get_surface_anchor, has_tick_work, is_gate_armed, is_gate_container_externally_wired, is_receiver_saturated, make_gate, make_item_stack_definition, make_item_with_quality_id, make_receiver_label, measure_transfer_burden, on_built_entity, on_configuration_changed, on_destroyed_entity, on_gui_checked_state_changed, on_gui_click, on_gui_opened, on_gui_selection_state_changed, on_init, on_player_cursor_stack_changed, on_player_left_game, on_player_selected_area, open_gui, pay_energy, quote_transfer, rebuild_distance_cache, rebuild_runtime_state, refresh_gate_live_state, refresh_receivers, register_gate, register_receiver, render_animation, render_exit, resolve_distance_quote, resolve_gate_target, resolve_manual_target, set_manual_receiver, should_lock_input, teleport_player, toggle_state, update, update_distance_snapshot, update_energy, update_gui, update_input_lock, update_player_guis, update_player_permissions, update_receiver_selection, update_renders, update_wire_proxy_signals, used_remote
 -- storage_roots: storage.ei
 -- gui_ids: ei-gate-console
 -- remote_interfaces: none
@@ -84,7 +84,6 @@ local GATE_GLOW_SCALE_MIN = 3.75
 local GATE_GLOW_SCALE_MAX = 4.2
 local GATE_GLOW_SEED_STEP = 17
 local GATE_RUNTIME_STATUS_STABLE_TEXT = {"exotic-industries.gate-gui-runtime-stable"}
-local GATE_RUNTIME_STATUS_COOLING_TEXT = {"exotic-industries.gate-gui-runtime-cooling"}
 local GATE_RUNTIME_STATUS_CRITICAL_TEXT = {"exotic-industries.gate-gui-runtime-critical"}
 local GATE_RECEIVER_STRAIN_LOW_TEXT = {"exotic-industries.gate-gui-receiver-strain-low"}
 local GATE_RECEIVER_STRAIN_MEDIUM_TEXT = {"exotic-industries.gate-gui-receiver-strain-medium"}
@@ -278,6 +277,7 @@ local function make_gate_gui_projection_signature(data)
     local parts = {
         data.gate_unit or 0,
         data.energy_mj_text or "",
+        data.energy_multiplier or 1,
         data.energy / data.max_energy,
         data.span_resolved and 1 or 0,
         data.span_target_surface_index or 0,
@@ -296,6 +296,7 @@ local function make_gate_gui_projection_signature(data)
         data.legacy_y or 0,
         data.control_source_mode or "manual",
         data.runtime_status_mode or "stable",
+        data.cooldown_remaining_text or "",
         data.receiver_strain_mode or "low",
         data.preview_surface_index or 0,
         preview_pos and preview_pos.x or GATE_CAMERA_FALLBACK_POSITION.x,
@@ -2072,17 +2073,27 @@ function model.energy_from_burden(burden)
 end
 
 
--- Quote once from the amount we can actually move this update. The quote is then reused for:
--- - affordability checks
--- - final payment
--- - stress / cooldown / residue penalties
--- Keeping these values together avoids the old mismatch where the gate could reason about one
--- transfer size and end up paying for a different one.
---
--- Distance affects energy and gate stress, but receiver saturation and residue stay tied to
--- physical burden. That keeps long-span transfers feeling harsher on the breach itself without
--- making every remote receiver saturate purely because it lives far away.
-function model.quote_transfer(entries, source_surface, target_surface)
+-- Read the visible sender directly so old saves and repaired normal-quality helpers agree.
+---@param gate LuaEntity|nil Hidden sender; visible container quality is authoritative.
+---@return number
+function model.get_energy_multiplier(gate)
+    local gate_data = select(1, get_gate_storage_entry(gate))
+    local container = gate_data and gate_data.container
+    local quality = model.entity_check(container) and container.quality
+    local level = quality and quality.level or 0
+    return 1 / (1 + 0.2 * math.max(0, level))
+end
+
+-- blueprint-ref: .codex/esir/blueprints/gate.md#quality-energy
+-- Quality discounts energy only; physical burden still determines transfer penalties.
+-- Quote the actual movable amount once for affordability, payment and penalties.
+-- Distance affects energy and gate stress; receiver saturation and residue follow burden.
+---@param entries table
+---@param source_surface LuaSurface|nil
+---@param target_surface LuaSurface|nil
+---@param gate LuaEntity|nil Optional sender; omitted preserves undiscounted quotes.
+---@return table
+function model.quote_transfer(entries, source_surface, target_surface, gate)
     local total_count = 0
     for _, entry in ipairs(entries) do
         if type(entry) == "table" and entry.count then
@@ -2093,6 +2104,7 @@ function model.quote_transfer(entries, source_surface, target_surface)
     local burden = model.measure_transfer_burden(entries)
     local distance_quote = model.resolve_distance_quote(source_surface, target_surface)
     local base_energy = model.energy_from_burden(burden)
+    local energy_multiplier = model.get_energy_multiplier(gate)
     local distance_multiplier = distance_quote and distance_quote.distance_multiplier or 1
     local span_ratio = distance_quote and distance_quote.span_ratio or 0
     local base_stress = math.sqrt(math.max(burden, 0))
@@ -2102,13 +2114,14 @@ function model.quote_transfer(entries, source_surface, target_surface)
         count = total_count,
         burden = burden,
         base_energy_j = base_energy,
+        energy_multiplier = energy_multiplier,
         raw_distance = distance_quote.raw_distance or 0,
         distance_multiplier = distance_multiplier,
         span_ratio = span_ratio,
         source_anchor_name = distance_quote.source_anchor_name,
         target_anchor_name = distance_quote.target_anchor_name,
         span_band = distance_quote.span_band,
-        energy_j = math.floor(base_energy * distance_multiplier),
+        energy_j = math.floor(base_energy * distance_multiplier * energy_multiplier),
         stress_delta = math.min(GATE_TRANSFER_STRESS_CAP, base_stress * stress_multiplier),
         saturation_delta = math.min(20, math.sqrt(math.max(burden, 0)) * 0.8),
         residue_delta = burden,
@@ -2167,6 +2180,9 @@ function model.apply_transfer_penalties(gate, gate_data, receiver_data, quote, e
         local receiver_entity = receiver_data and receiver_data.entity or nil
         model.emit_breach_residue(gate, gate_data, receiver_entity, residue_count)
     end
+
+    -- Close automated input in the transfer callback, after preserving residue placement.
+    model.update_input_lock(gate, gate_data, event)
 end
 
 
@@ -2225,8 +2241,8 @@ function model.is_gate_armed(gate, gate_data)
 end
 
 
--- This is stricter than "armed": cooldown and receiver saturation both pause transport, but they
--- do not necessarily mean the gate should reject further insertion or report itself as unpowered.
+-- Cooldown and receiver saturation pause transport without changing circuit arming.
+-- Cooldown also locks automated input; saturation alone still allows buffering.
 function model.can_gate_transport(gate, gate_data, receiver_data, event)
     local gate_unit = get_entity_unit_number(gate)
     gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
@@ -2248,9 +2264,13 @@ function model.can_gate_transport(gate, gate_data, receiver_data, event)
 end
 
 
--- Input locking is reserved for truly inactive states where buffering more cargo is misleading:
--- disabled, unresolved, or below the minimum operating energy floor.
-function model.should_lock_input(gate, gate_data)
+-- blueprint-ref: .codex/esir/blueprints/gate.md#input-cooldown
+-- Inactive and cooling gates reject automated input while existing cargo stays accessible.
+---@param gate LuaEntity|nil
+---@param gate_data table|nil
+---@param event {tick: uint}
+---@return boolean
+function model.should_lock_input(gate, gate_data, event)
     local gate_unit = get_entity_unit_number(gate)
     gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
 
@@ -2270,7 +2290,7 @@ function model.should_lock_input(gate, gate_data)
         return true
     end
 
-    return false
+    return (gate_data.cooldown_until_tick or 0) > ei_lib.get_event_tick(event)
 end
 
 
@@ -2328,7 +2348,10 @@ function model.emit_breach_residue(gate, gate_data, receiver_entity, residue_cou
 end
 
 
-function model.update_input_lock(gate, gate_data)
+---@param gate LuaEntity|nil
+---@param gate_data table|nil
+---@param event {tick: uint}
+function model.update_input_lock(gate, gate_data, event)
     local gate_unit = get_entity_unit_number(gate)
     gate_data = gate_data or (gate_unit and storage.ei.gate.gate[gate_unit])
     if not gate_data or not model.entity_check(gate_data.container) then
@@ -2346,7 +2369,7 @@ function model.update_input_lock(gate, gate_data)
         gate_data.last_input_bar = nil
     end
 
-    local bar = model.should_lock_input(gate, gate_data) and 0 or (#inventory + 1)
+    local bar = model.should_lock_input(gate, gate_data, event) and 0 or (#inventory + 1)
     if gate_data.last_input_bar == bar then
         return
     end
@@ -2852,7 +2875,7 @@ function model.get_gate_upkeep_watts(gate, gate_data, event)
         upkeep = upkeep + GATE_COOLDOWN_UPKEEP_W
     end
 
-    return upkeep
+    return upkeep * model.get_energy_multiplier(gate)
 end
 
 
@@ -2883,7 +2906,7 @@ function model.refresh_gate_live_state(gate, event)
 
     model.resolve_gate_target(gate, event)
     update_gate_alert(gate_unit, gate_data, ei_lib.get_event_tick(event))
-    model.update_input_lock(gate, gate_data)
+    model.update_input_lock(gate, gate_data, event)
     model.update_wire_proxy_signals(gate, gate_data, event)
 end
 
@@ -3608,13 +3631,13 @@ function model.check_for_teleport(unit, gate, event)
             local movable_count = math.min(item_count, ok and insertable_count or item_count)
             if movable_count > 0 then
                 local transfer_stack = model.make_item_stack_definition(item_stack, movable_count)
-                local quote = model.quote_transfer({{name = item_name, count = movable_count}}, gate.surface, target_surface)
+                local quote = model.quote_transfer({{name = item_name, count = movable_count}}, gate.surface, target_surface, gate)
                 if transfer_stack and model.can_pay_quote(gate, quote) then
                     local transfer_count = target_inv.insert(transfer_stack)
                     if transfer_count > 0 then
                         local actual_quote = quote
                         if transfer_count ~= movable_count then
-                            actual_quote = model.quote_transfer({{name = item_name, count = transfer_count}}, gate.surface, target_surface)
+                            actual_quote = model.quote_transfer({{name = item_name, count = transfer_count}}, gate.surface, target_surface, gate)
                         end
 
                         if model.commit_quote(gate, actual_quote) then
@@ -3724,7 +3747,7 @@ end
 function model.pay_energy(gate, tablein, actuallypay)
     local gate_data = select(1, get_gate_storage_entry(gate))
     local target_surface = gate_data and model.get_gate_target_surface(gate_data) or nil
-    local quote = model.quote_transfer(tablein, gate and gate.surface or nil, target_surface)
+    local quote = model.quote_transfer(tablein, gate and gate.surface or nil, target_surface, gate)
 
     if not actuallypay then
         return model.can_pay_quote(gate, quote)
@@ -3788,7 +3811,7 @@ function model.update_energy(unit, gate, event)
                 drain = drain + (GATE_COOLDOWN_UPKEEP_W * (cooling_ticks / 60))
             end
 
-            gate.energy = math.max(0, gate.energy - drain)
+            gate.energy = math.max(0, gate.energy - drain * model.get_energy_multiplier(gate))
         end
 
         gate_data.stress = end_stress
@@ -3800,7 +3823,7 @@ function model.update_energy(unit, gate, event)
 
     update_gate_alert(unit, gate_data, current_tick)
 
-    model.update_input_lock(gate, gate_data)
+    model.update_input_lock(gate, gate_data, event)
     model.update_wire_proxy_signals(gate, gate_data, event)
 
 end
@@ -3956,12 +3979,14 @@ local function gui_elements_valid(elements)
     return elements
         and elements.root and elements.root.valid
         and elements.energy and elements.energy.valid
+        and elements.efficiency and elements.efficiency.valid
         and elements.span and elements.span.valid
         and elements.stress and elements.stress.valid
         and elements.dropdown and elements.dropdown.valid
         and elements.legacy_status and elements.legacy_status.valid
         and elements.control_source and elements.control_source.valid
         and elements.runtime and elements.runtime.valid
+        and elements.runtime.parent.name == "status-flow"
         and elements.receiver_strain and elements.receiver_strain.valid
         and elements.camera and elements.camera.valid
         and elements.alerts and elements.alerts.valid
@@ -4031,12 +4056,13 @@ function model.get_gui_elements(player)
     local elements = {
         root = root,
         energy = status_flow and status_flow["energy"],
+        efficiency = status_flow and status_flow["energy-efficiency"],
         span = status_flow and status_flow["span"],
         stress = status_flow and status_flow["stress"],
         dropdown = dropdown_flow and dropdown_flow["receiver"],
         legacy_status = target_flow and target_flow["legacy-status"],
         control_source = target_flow and target_flow["control-source"],
-        runtime = target_flow and target_flow["runtime-state"],
+        runtime = status_flow and status_flow["runtime-state"],
         receiver_strain = target_flow and target_flow["receiver-strain"],
         camera = camera_frame and camera_frame["target-camera"],
         state = target_flow and target_flow["state-button"],
@@ -4146,6 +4172,12 @@ function model.build_gui(player, gate)
             style = "ei_status_progressbar"
         }
         status_flow.add{
+            type = "label",
+            name = "energy-efficiency",
+            caption = {"exotic-industries.gate-gui-energy-cost", "100.0"},
+            tooltip = {"exotic-industries.gate-gui-energy-cost-tooltip"},
+        }
+        status_flow.add{
             type = "progressbar",
             name = "span",
             caption = {"exotic-industries.gate-gui-status-span-unresolved"},
@@ -4159,6 +4191,19 @@ function model.build_gui(player, gate)
             tooltip = {"exotic-industries.gate-gui-status-stress-tooltip"},
             style = "ei_status_progressbar_red"
         }
+
+        -- Reserve a full-width, two-line status area. Countdown length must not resize
+        -- the destination/camera columns or move the console when cooling ends.
+        local runtime = status_flow.add{
+            type = "label",
+            name = "runtime-state",
+            caption = {"exotic-industries.gate-gui-control-runtime-label", {"exotic-industries.gate-gui-runtime-stable"}},
+            tooltip = {"exotic-industries.gate-gui-control-runtime-label-tooltip"},
+        }
+        runtime.style.single_line = false
+        runtime.style.width = 480
+        runtime.style.height = 40
+        runtime.style.vertical_align = "top"
 
     end
 
@@ -4223,12 +4268,6 @@ function model.build_gui(player, gate)
             name = "control-source",
             caption = {"exotic-industries.gate-gui-control-source-label", {"exotic-industries.gate-gui-control-source-manual"}},
             tooltip = {"exotic-industries.gate-gui-control-source-label-tooltip"},
-        }
-        target_flow.add{
-            type = "label",
-            name = "runtime-state",
-            caption = {"exotic-industries.gate-gui-control-runtime-label", {"exotic-industries.gate-gui-runtime-stable"}},
-            tooltip = {"exotic-industries.gate-gui-control-runtime-label-tooltip"},
         }
         target_flow.add{
             type = "label",
@@ -4363,6 +4402,7 @@ function model.update_gui(player, data, ontick, gate, gui)
     -- poking back into storage except when it needs to rebuild a stale GUI shell.
     energy.caption = {"exotic-industries.gate-gui-status-energy", data.energy_mj_text}
     energy.value = data.energy / data.max_energy
+    gui.efficiency.caption = {"exotic-industries.gate-gui-energy-cost", data.energy_cost_percent}
     span.caption = data.span_caption
     span.tooltip = data.span_tooltip
     span.value = data.span_value
@@ -4630,6 +4670,8 @@ function model.get_data(gate, event)
         data.energy = 0
     end
     data.energy_mj_text = string.format("%.0f", data.energy / 1000000)
+    data.energy_multiplier = model.get_energy_multiplier(gate)
+    data.energy_cost_percent = string.format("%.1f", 100 * data.energy_multiplier)
     data.max_energy = math.max(data.max_energy or 0, 1)
     data.stress = math.floor((gate_data.stress or 0) + 0.5)
     data.stress_ratio = clamp((gate_data.stress or 0) / MAX_GATE_STRESS, 0, 1)
@@ -4717,9 +4759,13 @@ function model.get_data(gate, event)
     data.receiver_dropdown_variant_id = receiver_dropdown_variant_id
     data.state = gate_data.manual_enabled
 
-    if (gate_data.cooldown_until_tick or 0) > ei_lib.get_event_tick(event) then
+    -- Round upward to tenths so the last active tick never displays zero seconds.
+    -- This is a view of the saved deadline, not an independent GUI timer.
+    local cooldown_remaining_ticks = math.max(0, (gate_data.cooldown_until_tick or 0) - ei_lib.get_event_tick(event))
+    if cooldown_remaining_ticks > 0 then
+        data.cooldown_remaining_text = string.format("%.1f", math.ceil(cooldown_remaining_ticks / 6) / 10)
         data.runtime_status_mode = "cooling"
-        data.runtime_status = GATE_RUNTIME_STATUS_COOLING_TEXT
+        data.runtime_status = {"exotic-industries.gate-gui-runtime-cooling-remaining", data.cooldown_remaining_text}
     elseif (gate_data.stress or 0) >= 75 then
         data.runtime_status_mode = "critical"
         data.runtime_status = GATE_RUNTIME_STATUS_CRITICAL_TEXT

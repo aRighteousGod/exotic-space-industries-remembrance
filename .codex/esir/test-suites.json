@@ -21,6 +21,25 @@
   ],
   "suites": [
     {
+      "id": "gate-quality",
+      "quick": {"cases": ["candidate"], "profiles": ["default"]},
+      "eligibility": "active",
+      "core": false,
+      "engine_version": "2.1.24",
+      "evidence_kind": ["native-functional", "save-reload"],
+      "inventory": ["scripts/qc/gate-quality", "scripts/qc/factorio-2.1/gate-native.lua"],
+      "paths": ["scripts/qc/gate-quality/*", "scripts/qc/factorio-2.1/gate-native.lua", "exotic-space-industries-remembrance/scripts/control/gate.lua", ".codex/esir/blueprints/gate.md"],
+      "cases": [{"id":"candidate"},{"id":"reload","requires":["candidate"]},{"id":"configuration","requires":["candidate"]}],
+      "profiles": [{"id":"default","quality":"enabled"}],
+      "deadline_ticks": 3600,
+      "timeout_seconds": 600,
+      "launch": {"scenario":"esir-qc-native-tests/native","helper":"scripts/qc/native-tests/helper","report":"native-test-{phase}.json"},
+      "checkpoint_executor": "graphical",
+      "supplementary_evidence": [],
+      "notes": "Sender quality, payment, upkeep, partial transfers, cooldown input lock/countdown and persistence. Graphical checkpoint covers native GUI captions and retains layout captures; rendered review and multiplayer are separate evidence.",
+      "acceptance": "requires matching fresh receipt"
+    },
+    {
       "id": "engine-smoke",
       "quick": {"cases": ["candidate"], "profiles": ["default"]},
       "eligibility": "active",

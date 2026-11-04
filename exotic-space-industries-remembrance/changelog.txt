@@ -3,6 +3,7 @@ Version: 1.4.03
 Date: 11-1-2026
   Features:
     - Industrial combustion turbines can collect solid-fuel ash with 10% less maximum power, electricity per fuel and pollution. Empty the residue slots before switching back to ash-free or fluid operation. Added an enable switch and oxygen-fed generator readouts that refresh only while the console is open.
+    - Gate quality now reduces transfer energy and all operating upkeep by a factor of 1 / (1 + 0.2 × quality level). The gate console shows the resulting energy cost; receivers and cargo quality do not affect the discount.
     - Added oxygen-fed industrial combustion turbines: required below 33 pressure and selectable at 33 or above. Both fuel modes consume 20 oxygen/s and exhaust 20 carbon dioxide/s at 12 MW; a full exhaust stops generation. Mode selection follows blueprints, clones and settings paste.
     - Added native automatic and cohort-controlled orbital uplink modes, named platform selection, native hub/silo side panels, and a searchable platform/rocket-lane overview. New uplinks leave silo settings untouched until explicitly adopted; existing uplinks retain cohort control.
     - Added Planet / Platforms / All source filters to orbital Requests and Need, plus native Universe-radar wiring examples for stock and movement telemetry in all eight languages.
@@ -13,6 +14,8 @@ Date: 11-1-2026
     - Reduced orbital scanner work with native inventory totals and batched request, incoming-cargo and inventory reads, without changing service budgets or observation cadence.
     - Reduced redundant entity checks and unnecessary setup during building placement.
   Bugfixes:
+    - Moved the gate's Runtime readout into a reserved Status area so cooldown text no longer shifts the destination controls, camera or console.
+    - Gates now block automated insertion during cooldown and show the remaining cooldown in the console. Existing cargo and manual inventory access remain available.
     - Removed vanilla beacon diminishing returns while beacon overload is enabled, matching ESIR beacons. Vanilla scaling is unchanged when overload is disabled.
     - Preserve orbital IDs, targets, bindings and retention settings through runtime rebuilds, settings paste, cloning and blueprints. Cohort launches now recheck ownership and power, hold mismatched cargo types/qualities, and count confirmed launches once.
     - Isolated orbital circuit output sections so shared logistic group names cannot make transponders emit another platform's ID or make differently filtered scanner banks overwrite each other.

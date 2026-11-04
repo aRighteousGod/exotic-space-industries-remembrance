@@ -16,7 +16,7 @@ do
             receivers[#receivers+1]={unit=entity.unit_number,id=row.effective_id,
                 items=entity.get_inventory(defines.inventory.chest).get_contents()}
         end
-        return {unit=q.gate.unit_number,container=q.container.unit_number,
+        return {unit=q.gate.unit_number,container=q.container.unit_number,energy=q.gate.energy,
             proxy=g.wire_proxy.unit_number,manual=g.manual_enabled,alerts=g.alerts_enabled,
             receiver=g.manual_receiver_id,items=q.container.get_inventory(defines.inventory.chest).get_contents(),
             receivers=receivers}
@@ -35,6 +35,8 @@ do
         if first then
             first=false
             if q then
+                check(q,"saved visible quality remains authoritative",math.abs(gate_model.get_energy_multiplier(q.gate)-1/1.4)<1e-12)
+                check(q,"hidden helper retains normal quality",q.gate.quality.level==0)
                 check(q,"actual saved gate identity, settings, helpers and inventories",
                     serpent.line(snapshot(q),{sortkeys=true})==q.baseline)
                 q.reload_at=event.tick+600
@@ -65,8 +67,9 @@ do
                     gate_model.set_manual_receiver(q.gate.unit_number,receiver.effective_id,event)
                     gate_model.refresh_gate_live_state(q.gate,event)
                     g.cooldown_until_tick=0
+                    gate_model.update_input_lock(q.gate,g,event)
                     check(q,"insert rare input "..index,source.insert{name="iron-plate",count=37,quality="rare"}==37)
-                    local quote=gate_model.quote_transfer({{name="iron-plate",count=37}},surface,target.surface)
+                    local quote=gate_model.quote_transfer({{name="iron-plate",count=37}},surface,target.surface,q.gate)
                     q.quotes[index]=quote
                     local energy=q.gate.energy
                     gate_model.check_for_teleport(q.gate.unit_number,q.gate,event)
@@ -75,7 +78,9 @@ do
                     check(q,"cooldown/stress/saturation applied "..index,g.cooldown_until_tick>event.tick and g.stress>0 and receiver.saturation>0)
                 end
                 local receiver=storage.ei.gate.receiver[q.receivers[2].unit_number]
-                g.cooldown_until_tick=0;source.insert{name="copper-plate",count=11,quality="rare"}
+                g.cooldown_until_tick=0
+                gate_model.update_input_lock(q.gate,g,event)
+                source.insert{name="copper-plate",count=11,quality="rare"}
                 q.gate.energy=0
                 gate_model.check_for_teleport(q.gate.unit_number,q.gate,event)
                 check(q,"no transfer without power",source.get_item_count{name="copper-plate",quality="rare"}==11)
@@ -108,6 +113,7 @@ do
         if elapsed==2 then
             gate_model.refresh_gate_live_state(q.gate,event)
             check(q,"circuit disables manual On",g.effective_enabled==false)
+            check(q,"circuit disable locks input",q.container.get_inventory(defines.inventory.chest).get_bar()<=1)
             q.section.set_slot(1,{value={type="virtual",name="signal-E",quality="normal"},min=1})
         elseif elapsed==4 then
             gate_model.refresh_gate_live_state(q.gate,event)
@@ -124,7 +130,7 @@ do
                     and player.physical_surface==q.receivers[2].surface and character.surface==q.receivers[2].surface)
                 q.physical_travel=true
             else q.physical_travel=false end
-            g.manual_enabled=false;g.alerts_enabled=false;q.gate.energy=0
+            g.manual_enabled=false;g.alerts_enabled=false;q.gate.energy=200e9
             q.container.get_inventory(defines.inventory.chest).clear()
         elseif elapsed==10 then
             gate_model.refresh_gate_live_state(q.gate,event)
