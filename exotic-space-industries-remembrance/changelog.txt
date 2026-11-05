@@ -1,30 +1,30 @@
 ﻿---------------------------------------------------------------------------------------------------
 Version: 1.4.03
-Date: 11-1-2026
+Date: 11-4-2026
   Features:
     - Added a gate estimator sub-menu to the gate menu with per-item energy estimates and graphs of energy, stress, cooldown and throughput for configurable routes and supply rates.
-    - Industrial combustion turbines can collect solid-fuel ash with 10% less maximum power, electricity per fuel and pollution. Empty the residue slots before switching back to ash-free or fluid operation. Added an enable switch and oxygen-fed generator readouts that refresh only while the console is open.
     - Gate quality now reduces transfer energy and all operating upkeep by a factor of 1 / (1 + 0.2 × quality level). The gate console shows the resulting energy cost; receivers and cargo quality do not affect the discount.
-    - Added oxygen-fed industrial combustion turbines: required below 33 pressure and selectable at 33 or above. Both fuel modes consume 20 oxygen/s and exhaust 20 carbon dioxide/s at 12 MW; a full exhaust stops generation. Mode selection follows blueprints, clones and settings paste.
+    - Added an ash-producing mode to industrial combustion turbines in solid fuel mode, with 10% less maximum power, electricity per fuel and pollution. Empty the residue slots before switching back to ash-free or fluid operation.
+    - Added an oxygen-fed mode to the industrial combustion turbine: required below 33 pressure (especially in space!) and selectable at 33 or above. Consumes 20 oxygen/s and exhausts 20 carbon dioxide/s at 12 MW.
     - Added native automatic and cohort-controlled orbital uplink modes, named platform selection, native hub/silo side panels, and a searchable platform/rocket-lane overview. New uplinks leave silo settings untouched until explicitly adopted; existing uplinks retain cohort control.
     - Added Planet / Platforms / All source filters to orbital Requests and Need, plus native Universe-radar wiring examples for stock and movement telemetry in all eight languages.
     - Added movement support for Even Pickier Dollies. Move machines by their body to bring their controls and connections along. Select the outer edge of a fluid combustion turbine. Gate receivers can move, while gate senders, induction matrix parts, auric inoculation vats and powered loaders stay anchored.
-    - Added Administration → Options for editing ESIR's map settings in-game, with categorized drafts, validation, conflict detection and rollback. Moved 29 runtime-only startup settings to Map settings and preserved existing-save choices through a one-time import.
-    - Added built-in factory passage with separate Production, Power, Logistics and Turrets startup switches. Pipe behavior can use Vanilla collision, Squeak Through joint passage, or ESIR connection barriers that wait for nearby characters to leave. Squeak Through 2 takes precedence when installed.
+    - Moved 29 runtime-only startup settings to Map settings and preserved existing-save choices through a one-time import.
+    - Added Administration → Options for editing ESIR's map settings in-game (map settings are additionally always editable from the mod settings map menu.)
+    - Added built-in player character squeeze between adjacent buildings "factory passage" module with separate Production, Power, Logistics and Turrets startup switches. Pipe behavior can use Vanilla collision, Squeak Through joint passage, or ESIR connection barriers which cause connected pipes to be traversable within their tile while still blocking passage through the pipe body.
   Changes:
+    - Removed vanilla beacon diminishing returns while beacon overload is enabled, matching ESIR beacons. Vanilla scaling is unchanged when overload is disabled.
+    - Gates now block automated insertion during cooldown and show the remaining cooldown in the console. Existing cargo and manual inventory access remain available.
     - Reduced orbital scanner work with native inventory totals and batched request, incoming-cargo and inventory reads, without changing service budgets or observation cadence.
     - Reduced redundant entity checks and unnecessary setup during building placement.
   Bugfixes:
-    - Moved the gate's Runtime readout into a reserved Status area so cooldown text no longer shifts the destination controls, camera or console.
-    - Gates now block automated insertion during cooldown and show the remaining cooldown in the console. Existing cargo and manual inventory access remain available.
-    - Removed vanilla beacon diminishing returns while beacon overload is enabled, matching ESIR beacons. Vanilla scaling is unchanged when overload is disabled.
     - Preserve orbital IDs, targets, bindings and retention settings through runtime rebuilds, settings paste, cloning and blueprints. Cohort launches now recheck ownership and power, hold mismatched cargo types/qualities, and count confirmed launches once.
     - Isolated orbital circuit output sections so shared logistic group names cannot make transponders emit another platform's ID or make differently filtered scanner banks overwrite each other.
     - Kept scanner circuit outputs current when an open panel or cohort read observes changed cargo before the background audit.
     - Fixed vanilla logistic chest items and recipes remaining visible because the hiding pass used numeric table indices.
     - Corrected accumulator cost-setting integration and removed stale technology and optional-prototype probes from data-stage updates. Empty parameter and internal recipes now pass shared ingredient normalization cleanly.
     - Fixed untouched Administration ecology controls retaining stale values after settings changed. Applying clears that field's draft, and resetting surface overrides preserves drafts for other surfaces.
-    - Fixed the missing Assault spidertron recipe name in all languages.
+    - Fixed Assault spidertron recipe name was missing.
     - Fixed build and clone handling using entities that had already been replaced or removed, including a crash when placing combustion turbines with saved fuel-mode settings. Later systems now register the surviving entity, while rejected or consumed placements stop further processing.
 ---------------------------------------------------------------------------------------------------
 Version: 1.4.02
