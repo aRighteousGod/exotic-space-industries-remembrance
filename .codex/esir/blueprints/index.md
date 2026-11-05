@@ -59,7 +59,7 @@ from source and does not trust generated manifests or installed mod selection.
 | [Fusion reactor control and telemetry](fusion-reactor.md#contract) | 1 |
 | [Gaia surfaces, alien presets, and artifact progression](gaia-and-alien-systems.md#contract) | 9 |
 | [Gaian saucer wake registration and bounded visual emission](gaian-saucer-wake.md#contract) | 2 |
-| [Gate transport and receiver selection](gate.md#contract) | 1 |
+| [Gate transport, estimator and receiver selection](gate.md#contract) | 5 |
 | [Hemocrystal wall event-started regeneration](hemocrystal-wall.md#contract) | 1 |
 | [Impact firefighting and powered water-turret service](firefighting-and-water-turret.md#contract) | 5 |
 | [Induction matrix topology and power](induction-matrix.md#contract) | 2 |

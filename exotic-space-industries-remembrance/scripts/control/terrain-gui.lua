@@ -277,7 +277,11 @@ local function build_field_report(parent,p,width)
 end
 function model.on_surface_event()
     local root=state();root.surface_names={};root.surface_known={}
-    for _,surface in pairs(game.surfaces) do root.surface_names[#root.surface_names+1]=surface.name;root.surface_known[surface.name]=true end
+    for _,surface in pairs(game.surfaces) do
+        if surface.name~="ei-gate-estimator-chart" then
+            root.surface_names[#root.surface_names+1]=surface.name;root.surface_known[surface.name]=true
+        end
+    end
     table.sort(root.surface_names);root.surface_epoch=(root.surface_epoch or 0)+1
 end
 local function surfaces_page(player,p)

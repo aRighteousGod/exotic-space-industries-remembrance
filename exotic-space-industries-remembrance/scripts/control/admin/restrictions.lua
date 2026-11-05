@@ -88,7 +88,9 @@ local function begin_tracking(tick)
     local root=common.state()
     if root.restriction_tracking then return root.restriction_tracking end
     local surfaces={}
-    for _,surface in pairs(game.surfaces) do surfaces[#surfaces+1]=surface end
+    for _,surface in pairs(game.surfaces) do
+        if surface.name~="ei-gate-estimator-chart" then surfaces[#surfaces+1]=surface end
+    end
     table.sort(surfaces,function(a,b)return a.index<b.index end)
     local forces={}
     for name in pairs(game.forces) do if name~="enemy" and name~="neutral" then forces[#forces+1]=name end end

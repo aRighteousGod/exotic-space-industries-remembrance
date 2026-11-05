@@ -2,6 +2,7 @@
 Version: 1.4.03
 Date: 11-1-2026
   Features:
+    - Added a gate estimator sub-menu to the gate menu with per-item energy estimates and graphs of energy, stress, cooldown and throughput for configurable routes and supply rates.
     - Industrial combustion turbines can collect solid-fuel ash with 10% less maximum power, electricity per fuel and pollution. Empty the residue slots before switching back to ash-free or fluid operation. Added an enable switch and oxygen-fed generator readouts that refresh only while the console is open.
     - Gate quality now reduces transfer energy and all operating upkeep by a factor of 1 / (1 + 0.2 × quality level). The gate console shows the resulting energy cost; receivers and cargo quality do not affect the discount.
     - Added oxygen-fed industrial combustion turbines: required below 33 pressure and selectable at 33 or above. Both fuel modes consume 20 oxygen/s and exhaust 20 carbon dioxide/s at 12 MW; a full exhaust stops generation. Mode selection follows blueprints, clones and settings paste.

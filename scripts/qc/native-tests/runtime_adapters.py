@@ -279,15 +279,18 @@ end})
 
 def stage_runtime(repo,main,helper,suite,profile):
     if suite=='gate-quality':
+        if profile.get('quality')=='disabled':
+            append_main(main,PREFIX+read(repo/'scripts/qc/gate-quality/estimator.lua')+'\n'+read(repo/'scripts/qc/gate-quality/quality-disabled.lua'))
+            return {'evidence':'Normal-only native estimator, shared arithmetic and serialized source'}
         body=read(repo/'scripts/qc/factorio-2.1/gate-native.lua')
         body=replace(body,'        assert(condition,label)','        assert(condition,label)\n        record(label,condition)')
         body=replace(body,'        if game.is_multiplayer() then game.auto_save("gate-"..phase) end','        native_result={complete=true,checks=native_checks}')
         body=replace(body,'            if q then','            if phase~="candidate" then assert(q,"Missing saved gate fixture") end\n            if q then')
-        body=replace(body,'                q.control=surface.create_entity', '                quality_checks(q,event,check)\n                cooldown_start(q,event,check)\n                q.control=surface.create_entity')
-        body=replace(body,'                q.reload_at=event.tick+600','                cooldown_restore(q,event,check)\n                q.reload_at=event.tick+600')
-        body=replace(body,'        if checked_reload then','        local cooldown_ready=cooldown_step(q,event,check)\n        if checked_reload then')
+        body=replace(body,'                q.control=surface.create_entity', '                quality_checks(q,event,check)\n                cooldown_start(q,event,check)\n                estimator_checks(q,event,check)\n                q.control=surface.create_entity')
+        body=replace(body,'                q.reload_at=event.tick+600','                cooldown_restore(q,event,check)\n                estimator_restore(q,event,check)\n                q.reload_at=event.tick+600')
+        body=replace(body,'        if checked_reload then','        local cooldown_ready=cooldown_step(q,event,check)\n        if not checked_reload then estimator_step(q,event,check) end\n        if checked_reload then')
         body=replace(body,'        elseif elapsed==10 then','        elseif elapsed>=430 and cooldown_ready and not q.passed then')
-        append_main(main,PREFIX+read(repo/'scripts/qc/gate-quality/checks.lua')+'\n'+read(repo/'scripts/qc/gate-quality/cooldown.lua')+'\n'+body+'''
+        append_main(main,PREFIX+read(repo/'scripts/qc/gate-quality/checks.lua')+'\n'+read(repo/'scripts/qc/gate-quality/cooldown.lua')+'\n'+read(repo/'scripts/qc/gate-quality/estimator.lua')+'\n'+body+'''
 remote.add_interface("esir-native-tests",{step=function()
  return native_result or {complete=false}
 end})

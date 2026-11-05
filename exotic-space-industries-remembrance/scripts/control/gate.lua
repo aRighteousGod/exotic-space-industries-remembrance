@@ -15,6 +15,7 @@ ei_rng = require("lib/rng")
 local ei_lib = require("lib/lib")
 local ei_runtime_scheduler = require("lib/runtime-scheduler")
 local ei_surface_anchor = require("lib/surface-anchor")
+local calculations = require("lib/gate-calculations")
 local alerts = require("lib/alerts")
 local clamp = ei_lib.clamp
 local get_entity_unit_number = ei_lib.get_entity_unit_number
@@ -44,17 +45,10 @@ local MAX_RECEIVER_SATURATION = 100
 local RESIDUE_THRESHOLD = 250
 local STRESS_DECAY_PER_SECOND = 1
 local RECEIVER_SATURATION_DECAY_PER_SECOND = 1.5
-local GATE_ARMED_UPKEEP_W = 30 * 1e6
-local GATE_STRESS_UPKEEP_W = 1.5 * 1e6
-local GATE_COOLDOWN_UPKEEP_W = 30 * 1e6
 local GATE_DISTANCE_SAME_SURFACE_MULT = 0.15
 local GATE_DISTANCE_SAME_LOCATION_CROSS_SURFACE_MULT = 2.5
 local GATE_DISTANCE_UNKNOWN_INTERSURFACE_MULT = 3.0
 local GATE_DISTANCE_INTERLOCATION_MIN_MULT = 2.5
-local GATE_DISTANCE_INTERLOCATION_MAX_MULT = 8.0
-local GATE_DISTANCE_INTERLOCATION_CURVE_EXPONENT = 0.6
-local GATE_TRANSFER_STRESS_CAP = 35
-local GATE_DISTANCE_STRESS_MAX_MULT = 1.75
 local GATE_TENDRIL_STRESS_FLOOR = 60
 local GATE_TENDRIL_MIN_INTERVAL_TICKS = 30
 local GATE_TENDRIL_CHANCE_PER_SECOND_AT_FLOOR = 0.1
@@ -1349,12 +1343,7 @@ end
 
 
 function model.distance_multiplier_to_span_ratio(multiplier)
-    return clamp(
-        (multiplier - GATE_DISTANCE_SAME_SURFACE_MULT)
-            / (GATE_DISTANCE_INTERLOCATION_MAX_MULT - GATE_DISTANCE_SAME_SURFACE_MULT),
-        0,
-        1
-    )
+    return calculations.span_ratio(multiplier)
 end
 
 
@@ -1487,13 +1476,7 @@ function model.resolve_distance_quote(source_surface, target_surface)
         raw_distance = math.sqrt((dx * dx) + (dy * dy))
     end
 
-    local normalized_distance = clamp(raw_distance / cache.max_pair_distance, 0, 1)
-    normalized_distance = normalized_distance ^ GATE_DISTANCE_INTERLOCATION_CURVE_EXPONENT
-    local distance_multiplier = lerp(
-        GATE_DISTANCE_INTERLOCATION_MIN_MULT,
-        GATE_DISTANCE_INTERLOCATION_MAX_MULT,
-        normalized_distance
-    )
+    local distance_multiplier = calculations.distance_multiplier("distance", raw_distance, cache.max_pair_distance)
 
     return {
         raw_distance = raw_distance,
@@ -2065,11 +2048,7 @@ end
 -- intentionally superlinear so bulk cargo becomes increasingly unattractive compared to normal
 -- logistics once the gate is unlocked.
 function model.energy_from_burden(burden)
-    if not burden or burden <= 0 then
-        return 0
-    end
-
-    return (burden ^ 1.2) * 100 * 1e6
+    return calculations.energy(burden)
 end
 
 
@@ -2081,7 +2060,7 @@ function model.get_energy_multiplier(gate)
     local container = gate_data and gate_data.container
     local quality = model.entity_check(container) and container.quality
     local level = quality and quality.level or 0
-    return 1 / (1 + 0.2 * math.max(0, level))
+    return calculations.quality_multiplier(level)
 end
 
 -- blueprint-ref: .codex/esir/blueprints/gate.md#quality-energy
@@ -2103,29 +2082,15 @@ function model.quote_transfer(entries, source_surface, target_surface, gate)
 
     local burden = model.measure_transfer_burden(entries)
     local distance_quote = model.resolve_distance_quote(source_surface, target_surface)
-    local base_energy = model.energy_from_burden(burden)
     local energy_multiplier = model.get_energy_multiplier(gate)
     local distance_multiplier = distance_quote and distance_quote.distance_multiplier or 1
     local span_ratio = distance_quote and distance_quote.span_ratio or 0
-    local base_stress = math.sqrt(math.max(burden, 0))
-    local stress_multiplier = lerp(1, GATE_DISTANCE_STRESS_MAX_MULT, span_ratio)
-
-    return {
-        count = total_count,
-        burden = burden,
-        base_energy_j = base_energy,
-        energy_multiplier = energy_multiplier,
-        raw_distance = distance_quote.raw_distance or 0,
-        distance_multiplier = distance_multiplier,
-        span_ratio = span_ratio,
-        source_anchor_name = distance_quote.source_anchor_name,
-        target_anchor_name = distance_quote.target_anchor_name,
-        span_band = distance_quote.span_band,
-        energy_j = math.floor(base_energy * distance_multiplier * energy_multiplier),
-        stress_delta = math.min(GATE_TRANSFER_STRESS_CAP, base_stress * stress_multiplier),
-        saturation_delta = math.min(20, math.sqrt(math.max(burden, 0)) * 0.8),
-        residue_delta = burden,
-    }
+    local quote = calculations.quote(burden, total_count, distance_multiplier, energy_multiplier, span_ratio)
+    quote.raw_distance = distance_quote.raw_distance or 0
+    quote.source_anchor_name = distance_quote.source_anchor_name
+    quote.target_anchor_name = distance_quote.target_anchor_name
+    quote.span_band = distance_quote.span_band
+    return quote
 end
 
 
@@ -2159,7 +2124,8 @@ function model.apply_transfer_penalties(gate, gate_data, receiver_data, quote, e
         return
     end
 
-    gate_data.stress = clamp((gate_data.stress or 0) + (quote.stress_delta or 0), 0, MAX_GATE_STRESS)
+    local resulting_stress, cooldown_ticks = calculations.after_transfer(gate_data.stress or 0, quote)
+    gate_data.stress = resulting_stress
     gate_data.residue_progress = (gate_data.residue_progress or 0) + (quote.residue_delta or 0)
 
     if receiver_data then
@@ -2169,9 +2135,6 @@ function model.apply_transfer_penalties(gate, gate_data, receiver_data, quote, e
     end
 
     local tick = ei_lib.get_event_tick(event)
-    local cooldown_ticks = 30
-        + math.floor(math.sqrt(math.max(quote.burden or 0, 0)) * 15)
-        + math.floor((gate_data.stress or 0) * 2)
     gate_data.cooldown_until_tick = math.max(gate_data.cooldown_until_tick or 0, tick + cooldown_ticks)
 
     local residue_count = math.floor((gate_data.residue_progress or 0) / RESIDUE_THRESHOLD)
@@ -2866,16 +2829,8 @@ function model.get_gate_upkeep_watts(gate, gate_data, event)
         return 0
     end
 
-    local upkeep = GATE_ARMED_UPKEEP_W
-    local stress = gate_data.stress or 0
-    if stress > 0 then
-        upkeep = upkeep + (stress * GATE_STRESS_UPKEEP_W)
-    end
-    if (gate_data.cooldown_until_tick or 0) > ei_lib.get_event_tick(event) then
-        upkeep = upkeep + GATE_COOLDOWN_UPKEEP_W
-    end
-
-    return upkeep * model.get_energy_multiplier(gate)
+    return calculations.upkeep(gate_data.stress or 0,
+        (gate_data.cooldown_until_tick or 0) > ei_lib.get_event_tick(event), model.get_energy_multiplier(gate))
 end
 
 
@@ -3789,29 +3744,11 @@ function model.update_energy(unit, gate, event)
     local elapsed_ticks = math.max(0, current_tick - last_tick)
 
     if elapsed_ticks > 0 then
-        local elapsed_seconds = elapsed_ticks / 60
         local start_stress = gate_data.stress or 0
-        local end_stress = clamp(start_stress - (elapsed_seconds * STRESS_DECAY_PER_SECOND), 0, MAX_GATE_STRESS)
-
+        local cooling_ticks = math.max(0, math.min(current_tick, gate_data.cooldown_until_tick or 0) - last_tick)
+        local end_stress, drain = calculations.elapsed(start_stress, elapsed_ticks, cooling_ticks, model.get_energy_multiplier(gate))
         if model.is_gate_armed(gate, gate_data) then
-            local drain = GATE_ARMED_UPKEEP_W * elapsed_seconds
-            local average_stress = (start_stress + end_stress) / 2
-
-            if average_stress > 0 then
-                drain = drain + (average_stress * GATE_STRESS_UPKEEP_W * elapsed_seconds)
-            end
-
-            local cooldown_until_tick = gate_data.cooldown_until_tick or 0
-            local cooling_ticks = 0
-            if cooldown_until_tick > last_tick then
-                cooling_ticks = math.max(0, math.min(current_tick, cooldown_until_tick) - last_tick)
-            end
-
-            if cooling_ticks > 0 then
-                drain = drain + (GATE_COOLDOWN_UPKEEP_W * (cooling_ticks / 60))
-            end
-
-            gate.energy = math.max(0, gate.energy - drain * model.get_energy_multiplier(gate))
+            gate.energy = math.max(0, gate.energy - drain)
         end
 
         gate_data.stress = end_stress
@@ -3987,8 +3924,11 @@ local function gui_elements_valid(elements)
         and elements.control_source and elements.control_source.valid
         and elements.runtime and elements.runtime.valid
         and elements.runtime.parent.name == "status-flow"
+        and elements.estimator and elements.estimator.valid
         and elements.receiver_strain and elements.receiver_strain.valid
         and elements.camera and elements.camera.valid
+        and elements.camera.style.horizontally_stretchable
+        and elements.camera.style.vertically_stretchable
         and elements.alerts and elements.alerts.valid
         and elements.state and elements.state.valid
 end
@@ -4063,6 +4003,7 @@ function model.get_gui_elements(player)
         legacy_status = target_flow and target_flow["legacy-status"],
         control_source = target_flow and target_flow["control-source"],
         runtime = status_flow and status_flow["runtime-state"],
+        estimator = target_flow and target_flow["estimator"],
         receiver_strain = target_flow and target_flow["receiver-strain"],
         camera = camera_frame and camera_frame["target-camera"],
         state = target_flow and target_flow["state-button"],
@@ -4224,6 +4165,8 @@ function model.build_gui(player, gate)
             direction = "horizontal",
             style = "ei_inner_content_flow_horizontal",
         }
+        control_flow.style.horizontally_stretchable = true
+        control_flow.style.vertically_stretchable = true
 
         local target_flow = control_flow.add{
             type = "flow",
@@ -4298,22 +4241,33 @@ function model.build_gui(player, gate)
             tags={parent_gui="ei-gate-console", action="set-alerts", gate_unit=gate_unit},
         }
 
+        target_flow.add{type="button",name="estimator",caption={"gate-estimator.title"},tooltip={"gate-estimator.help-launch"},
+            tags={parent_gui="ei-gate-console",action="gate-estimator",gate_unit=gate_unit}}
+
         -- Target cam
         -- Shows the currently resolved destination. This follows manual receiver selection,
         -- circuit receiver overrides, and legacy exits for old saves.
+        -- Fill the space beside the controls, including their full height. The shared
+        -- small-camera styles impose fixed dimensions, so use uncapped base styles here.
         local camera_frame = control_flow.add{
             type = "frame",
             name = "camera-frame",
-            style = "ei_small_camera_frame"
+            style = "deep_frame_in_shallow_frame"
         }
-        camera_frame.add{
+        camera_frame.style.horizontally_stretchable = true
+        camera_frame.style.vertically_stretchable = true
+        local camera = camera_frame.add{
             type = "camera",
             name = "target-camera",
             position = {0, 0},
             surface_index = 1,
             zoom = 0.25,
-            style = "ei_small_camera"
+            style = "camera"
         }
+        camera.style.minimal_width = 222
+        camera.style.minimal_height = 222
+        camera.style.horizontally_stretchable = true
+        camera.style.vertically_stretchable = true
 
     end
 

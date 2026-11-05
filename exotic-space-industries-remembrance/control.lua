@@ -81,6 +81,7 @@ ei_black_hole = require("scripts/control/black-hole")
 ei_informatron_messager = require("scripts/control/informatron-messager")
 ei_gaia = require("scripts/control/gaia")
 ei_gate = require("scripts/control/gate")
+local gate_estimator = require("scripts/control/gate-estimator")
 ei_alien_system = require("scripts/control/alien-system")
 ei_crystal_accumulator = require("scripts/control/crystal-accumulator")
 ei_auric_inoculation_vat = require("scripts/control/auric-inoculation-vat")
@@ -217,10 +218,15 @@ end)
 script.on_event("ei-toggle-admin-menu",ei_admin_tools.on_toggle_menu)
 script.on_event("ei-toggle-ecology-menu",ei_terrain_gui.on_toggle_menu)
 script.on_event(defines.events.on_gui_elem_changed, function(event)
+    if gate_estimator.on_event(event) then return end
     if ei_admin_tools.on_gui_change(event) then return end
     ei_induction_matrix.on_gui_changed(event)
 end)
-script.on_event(defines.events.on_gui_confirmed,ei_admin_tools.on_gui_change)
+script.on_event(defines.events.on_gui_confirmed,function(event)
+    if gate_estimator.on_event(event) then return end
+    ei_admin_tools.on_gui_change(event)
+end)
+script.on_event(defines.events.on_gui_selected_tab_changed,gate_estimator.on_event)
 script.on_event(defines.events.on_research_started,ei_admin_tools.on_research_started)
 script.on_event(defines.events.on_chunk_charted,ei_admin_tools.on_chunk_charted)
 script.on_event(defines.events.on_surface_created,function(event)
@@ -280,6 +286,7 @@ script.on_event({defines.events.on_player_display_resolution_changed,defines.eve
     ei_rebuild_monitor.on_display_changed(event)
     ei_terrain_gui.on_display_changed(event)
     ei_lib.camera_window.on_display_changed(event)
+    gate_estimator.on_display_changed(event)
 end)
 script.on_event({defines.events.on_player_promoted,defines.events.on_player_demoted,defines.events.on_player_changed_force},function(event)
     ei_admin_tools.on_player_event(event)
@@ -882,6 +889,7 @@ script.on_event(defines.events.on_player_setup_blueprint, function(e)
     ei_flamethrower_fuels.on_blueprint(e)
 end)
 script.on_event(defines.events.on_force_created, function(e)
+    gate_estimator.on_force_created(e)
     ei_sweeping_radar.on_force_changed(e)
     ei_singularity_lance.on_force_reset(e)
     ei_anisetron.on_force_reset(e)
@@ -1448,6 +1456,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_click, function(event)
+    if gate_estimator.on_event(event) then return end
     if ei_terrain_gui.on_gui_click(event) then return end
     if ei_admin_tools.on_gui_click(event) then return end
     if ei_rebuild_monitor.on_gui_click(event) then return end
@@ -1504,6 +1513,7 @@ script.on_event(defines.events.on_gui_click, function(event)
 end)
 
 script.on_event(defines.events.on_gui_value_changed, function(event)
+    if gate_estimator.on_event(event) then return end
     if ei_admin_tools.on_gui_change(event) then return end
     -- Only a subset of custom UIs use sliders/value widgets, so this stays narrow.
     local element = get_valid_gui_element(event)
@@ -1520,6 +1530,7 @@ script.on_event(defines.events.on_gui_value_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_text_changed, function(event)
+    if gate_estimator.on_event(event) then return end
     if ei_admin_tools.on_gui_change(event) then return end
     -- Text-entry side panels opt into this explicitly so draft typing stays local.
     local element = get_valid_gui_element(event)
@@ -1556,6 +1567,7 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
 end)
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+    if gate_estimator.on_event(event) then return end
     if ei_admin_tools.on_gui_change(event) then return end
     if ei_terrain_gui.on_gui_change(event) then return end
     local element = get_valid_gui_element(event)
@@ -1607,6 +1619,7 @@ script.on_event(defines.events.on_player_left_game, function(event)
     ei_combustion_turbine.on_player_left_game(event.player_index)
     ei_neutron_collector.on_player_left_game(event.player_index)
     ei_gate.on_player_left_game(event.player_index)
+    gate_estimator.close(event.player_index)
     ei_fueler.on_player_left_game(event.player_index)
     ei_matter_stabilizer.on_player_left_game(event.player_index)
     orbital_logistics.on_player_left_game(event.player_index)
@@ -1618,6 +1631,7 @@ script.on_event(defines.events.on_player_left_game, function(event)
 end)
 
 script.on_event(defines.events.on_player_removed, function(event)
+    gate_estimator.close(event.player_index,true)
     ei_factory_passage.on_player_left(event)
     ei_terrain_gui.on_player_removed(event)
     ei_terrain_alerts.on_player_removed(event)
@@ -1744,6 +1758,7 @@ script.on_configuration_changed(function(e)
         -- init that depends on changed prototypes or settings.
         ei_compat.check_init(e)
         ei_gate.on_configuration_changed({tick=configuration_tick})
+        gate_estimator.on_configuration_changed()
 
         em_trains.check_global() --no nil tables
         -- Keep the steam train runtime schema migrated before the rebuild pass below repopulates it.
@@ -1813,6 +1828,7 @@ script.on_configuration_changed(function(e)
 end)
 
 script.on_load(function()
+    gate_estimator.on_load()
     ei_terrain_evolution.on_load()
     ei_teslas_legacy.on_load()
 end)
@@ -2141,6 +2157,7 @@ function updater(event)
     if ei_terrain_gui.launcher_has_tick_work(event.tick) then ei_terrain_gui.launcher_updater(event) end
     if ei_admin_tools.has_tick_work(event.tick) then ei_admin_tools.updater(event) end
     if ei_lib.camera_window.has_tick_work(event.tick) then ei_lib.camera_window.updater(event.tick) end
+    if gate_estimator.has_tick_work() then gate_estimator.updater(event) end
     if ei_sweeping_radar.has_tick_work() then
         ei_sweeping_radar.updater(event)
     end

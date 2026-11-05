@@ -343,7 +343,7 @@ end
 ---@param surface LuaSurface
 ---@param tick MapTick
 function model.on_surface_ready(surface, tick)
-    if not surface or not surface.valid or surface.platform then return end
+    if not surface or not surface.valid or surface.platform or surface.name=="ei-gate-estimator-chart" then return end
     local planet = enemies.planet_name(surface)
     local key = key_for(surface,planet)
     local root = peek()
